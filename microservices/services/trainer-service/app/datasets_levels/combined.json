@@ -15757,6 +15757,1500 @@
           "Confirm fixes"
         ]
       }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "SQL"
+      ],
+      "day": {
+        "topic": "SQL for Fusion Reporting: BI Publisher Data Models over Fusion Tables",
+        "subtopics": [
+          "Where Fusion data lives",
+          "Finding tables and views for a report",
+          "Joins across modules",
+          "Bind parameters and lists of values",
+          "Data security in SQL data models",
+          "Performance of report SQL",
+          "Testing results against the application",
+          "Documenting report SQL"
+        ],
+        "tools": [
+          "BI Publisher",
+          "SQL",
+          "Oracle Fusion Cloud Applications"
+        ],
+        "lab_task": "Write SQL data models for an open purchase order report and a headcount report, add parameters, check results against the application and tune the slower query.",
+        "deliverable": "Two SQL data models with tests",
+        "checks": [
+          [
+            "Query",
+            "Both data models return the right rows",
+            "Report output"
+          ],
+          [
+            "Match",
+            "Results match the application screens",
+            "Comparison"
+          ],
+          [
+            "Tune",
+            "The slower query runs faster after tuning",
+            "Run times"
+          ]
+        ],
+        "objectives": [
+          "Write SQL for Fusion reports",
+          "Check report data",
+          "Tune report SQL"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "Oracle Cloud"
+      ],
+      "day": {
+        "topic": "OCI Services Around Fusion: Identity Domains, Oracle Integration and Object Storage",
+        "subtopics": [
+          "Fusion and its OCI tenancy",
+          "OCI IAM identity domains for Fusion sign-in",
+          "Federation with the corporate identity provider",
+          "Oracle Integration instances",
+          "Object Storage for files and extracts",
+          "Networking and private access",
+          "Cost of supporting services",
+          "Who owns what between Fusion and OCI teams"
+        ],
+        "tools": [
+          "OCI IAM identity domains",
+          "Oracle Integration",
+          "OCI Object Storage"
+        ],
+        "lab_task": "Federate Fusion sign-in through an identity domain with the corporate identity provider, store FBDI files in Object Storage and run them through Oracle Integration.",
+        "deliverable": "Working OCI services for Fusion",
+        "checks": [
+          [
+            "Sign in",
+            "Users reach Fusion with corporate credentials",
+            "Sign-in test"
+          ],
+          [
+            "Store",
+            "Files land in Object Storage with the right policies",
+            "Bucket listing"
+          ],
+          [
+            "Load",
+            "Oracle Integration loads the files into Fusion",
+            "Import results"
+          ]
+        ],
+        "objectives": [
+          "Run OCI services for Fusion",
+          "Federate Fusion sign-in",
+          "Move files through OCI"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Fusion and S/4HANA Side by Side: Process Mapping for Mixed ERP Estates",
+        "subtopics": [
+          "Why companies run both",
+          "Comparing enterprise structures",
+          "Comparing procure-to-pay and order-to-cash",
+          "Master data that crosses systems",
+          "Intercompany between the two ERPs",
+          "Integration options",
+          "Reporting across both",
+          "Consolidation choices"
+        ],
+        "tools": [
+          "Process maps",
+          "Oracle Fusion Cloud Applications",
+          "SAP S/4HANA"
+        ],
+        "lab_task": "Map procure-to-pay in Fusion and S/4HANA for two group companies, design the master data and intercompany flows between them and plan group reporting.",
+        "deliverable": "Process map and integration design for a mixed estate",
+        "checks": [
+          [
+            "Map",
+            "Steps and objects are mapped across both systems",
+            "Process map"
+          ],
+          [
+            "Flow",
+            "Master data and intercompany flows are designed",
+            "Integration design"
+          ],
+          [
+            "Report",
+            "Group reporting covers both systems",
+            "Reporting plan"
+          ]
+        ],
+        "objectives": [
+          "Compare Fusion and S/4HANA",
+          "Design cross-ERP flows",
+          "Plan group reporting"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Fusion Data in Power BI: BI Cloud Connector Extracts and Semantic Models",
+        "subtopics": [
+          "Extract options for Fusion data",
+          "BI Cloud Connector offerings and data stores",
+          "Incremental extracts",
+          "Landing extracts in storage",
+          "Loading into Power BI",
+          "Semantic models for finance and HR",
+          "Row-level security",
+          "Refresh schedules"
+        ],
+        "tools": [
+          "BI Cloud Connector",
+          "Power BI",
+          "Cloud storage"
+        ],
+        "lab_task": "Extract General Ledger and worker data with BI Cloud Connector incrementally, load them into a Power BI semantic model with row-level security and schedule refresh.",
+        "deliverable": "Power BI model fed by Fusion extracts",
+        "checks": [
+          [
+            "Extract",
+            "Incremental extracts deliver new rows only",
+            "Extract logs"
+          ],
+          [
+            "Model",
+            "The semantic model joins finance and HR data",
+            "Model view"
+          ],
+          [
+            "Secure",
+            "Users see only their business unit",
+            "Row-level security test"
+          ]
+        ],
+        "objectives": [
+          "Extract Fusion data",
+          "Model it in Power BI",
+          "Secure analytics"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "Python"
+      ],
+      "day": {
+        "topic": "Automating Fusion with Python: REST APIs, FBDI Uploads and Report Downloads",
+        "subtopics": [
+          "Calling Fusion REST APIs from Python",
+          "Authentication and secrets",
+          "Paging and filtering",
+          "Building FBDI files with Python",
+          "Uploading and starting import jobs",
+          "Downloading BI Publisher output",
+          "Error handling and logging",
+          "Scheduling scripts"
+        ],
+        "tools": [
+          "Python",
+          "Fusion REST APIs",
+          "FBDI templates"
+        ],
+        "lab_task": "Write a Python tool that builds an FBDI supplier file, uploads it, starts the import, polls for status and downloads a validation report.",
+        "deliverable": "Python automation for Fusion loads",
+        "checks": [
+          [
+            "Build",
+            "The FBDI file passes validation",
+            "Import job result"
+          ],
+          [
+            "Poll",
+            "The script waits for and reports job status",
+            "Script log"
+          ],
+          [
+            "Download",
+            "The validation report is saved",
+            "Output file"
+          ]
+        ],
+        "objectives": [
+          "Automate Fusion with Python",
+          "Use REST APIs",
+          "Run imports from code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "Agentic AI"
+      ],
+      "day": {
+        "topic": "Agentic AI Patterns in Fusion: Agents with Tools, Memory and Approvals",
+        "subtopics": [
+          "Agent patterns that fit ERP and HCM work",
+          "Tools that call Fusion business objects",
+          "Multi-agent teams in AI Agent Studio",
+          "Memory and context for agents",
+          "Approvals before actions",
+          "Evaluating agents on business tasks",
+          "Agents outside Fusion calling Fusion",
+          "Risks of agents in transactional systems"
+        ],
+        "tools": [
+          "AI Agent Studio",
+          "Fusion REST APIs",
+          "Agent framework"
+        ],
+        "lab_task": "Build an AI Agent Studio agent team that triages supplier invoice exceptions with an approval step, and compare it with an external agent that calls Fusion APIs.",
+        "deliverable": "Two agent designs with an evaluation",
+        "checks": [
+          [
+            "Build",
+            "The agent team handles exceptions with approval",
+            "Run log"
+          ],
+          [
+            "Compare",
+            "Both designs are scored on the same tasks",
+            "Evaluation table"
+          ],
+          [
+            "Guard",
+            "No action runs without approval",
+            "Approval records"
+          ]
+        ],
+        "objectives": [
+          "Apply agent patterns to Fusion",
+          "Keep approvals in place",
+          "Compare agent designs"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "Workday"
+      ],
+      "day": {
+        "topic": "Oracle Fusion HCM and Workday Compared: Design Choices for HR Platforms",
+        "subtopics": [
+          "Object models compared",
+          "Organisations and workforce structures",
+          "Business processes and approvals",
+          "Security models",
+          "Reporting and analytics",
+          "Integration tools",
+          "Update cycles",
+          "Choosing a platform"
+        ],
+        "tools": [
+          "Oracle Fusion HCM",
+          "Workday",
+          "Comparison template"
+        ],
+        "lab_task": "Configure the same hire and promotion in Fusion HCM and Workday, compare effort, controls and reporting, and write a platform recommendation.",
+        "deliverable": "Side-by-side comparison and recommendation",
+        "checks": [
+          [
+            "Configure",
+            "Both processes run in each system",
+            "Process records"
+          ],
+          [
+            "Compare",
+            "Effort, controls and reporting are compared with evidence",
+            "Comparison table"
+          ],
+          [
+            "Recommend",
+            "The recommendation fits the course company",
+            "Recommendation"
+          ]
+        ],
+        "objectives": [
+          "Compare HR platforms",
+          "Configure the same process twice",
+          "Recommend a platform"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Oracle Fusion",
+        "ServiceNow"
+      ],
+      "day": {
+        "topic": "Fusion and ServiceNow: Employee Service, Procurement Requests and Integrations",
+        "subtopics": [
+          "Where Fusion and ServiceNow meet",
+          "Employee service with HR data from Fusion",
+          "Procurement requests from the service portal",
+          "Integration options",
+          "Identity and access between the platforms",
+          "Case and transaction status sync",
+          "Reporting across platforms",
+          "Ownership and support"
+        ],
+        "tools": [
+          "Oracle Fusion Cloud Applications",
+          "ServiceNow",
+          "Oracle Integration"
+        ],
+        "lab_task": "Feed worker data from Fusion into ServiceNow HR cases and create Fusion requisitions from ServiceNow catalogue requests, with status flowing back.",
+        "deliverable": "Two-way Fusion and ServiceNow flows",
+        "checks": [
+          [
+            "Feed",
+            "HR cases show Fusion worker data",
+            "Case record"
+          ],
+          [
+            "Create",
+            "Catalogue requests create Fusion requisitions",
+            "Requisition record"
+          ],
+          [
+            "Sync",
+            "Status updates flow back to ServiceNow",
+            "Request history"
+          ]
+        ],
+        "objectives": [
+          "Connect Fusion and ServiceNow",
+          "Share worker data",
+          "Sync request status"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Workday",
+        "SAP SuccessFactors"
+      ],
+      "day": {
+        "topic": "Workday and SuccessFactors Compared: Object Models, Processes and Migration",
+        "subtopics": [
+          "Object models compared",
+          "Employee Central compared with Workday HCM",
+          "Workflows and business processes",
+          "Security models",
+          "Reporting tools",
+          "Integration platforms",
+          "Release cycles",
+          "Moving between the two"
+        ],
+        "tools": [
+          "Workday",
+          "SAP SuccessFactors",
+          "Comparison template"
+        ],
+        "lab_task": "Run the same hire and job change in Workday and SuccessFactors, compare them and plan a migration of core employee data from SuccessFactors to Workday.",
+        "deliverable": "Comparison and migration outline",
+        "checks": [
+          [
+            "Run",
+            "Both processes complete in each system",
+            "Process records"
+          ],
+          [
+            "Compare",
+            "Differences are listed with impact",
+            "Comparison table"
+          ],
+          [
+            "Plan",
+            "The migration outline maps core objects",
+            "Migration outline"
+          ]
+        ],
+        "objectives": [
+          "Compare Workday and SuccessFactors",
+          "Map core HR objects",
+          "Outline a migration"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Workday",
+        "Python"
+      ],
+      "day": {
+        "topic": "Workday APIs from Python: REST, SOAP and Reports as a Service Clients",
+        "subtopics": [
+          "Choosing REST, SOAP or RaaS",
+          "OAuth and integration system users",
+          "REST calls from Python",
+          "SOAP calls with zeep",
+          "Reading RaaS output as JSON",
+          "Paging and limits",
+          "Error handling and retries",
+          "Testing against a sandbox tenant"
+        ],
+        "tools": [
+          "Python",
+          "Workday REST APIs",
+          "Workday Web Services",
+          "Reports as a Service"
+        ],
+        "lab_task": "Write a Python client that reads workers through RaaS, updates a contact field through REST and calls a SOAP operation, with retries and tests against a sandbox.",
+        "deliverable": "Tested Python client for Workday",
+        "checks": [
+          [
+            "Read",
+            "The RaaS output is parsed correctly",
+            "Script output"
+          ],
+          [
+            "Write",
+            "The REST update appears in the tenant",
+            "Worker history"
+          ],
+          [
+            "Test",
+            "Tests pass against the sandbox",
+            "Test report"
+          ]
+        ],
+        "objectives": [
+          "Call Workday APIs from Python",
+          "Choose the right API",
+          "Handle errors safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Workday",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Workday Data in Power BI: RaaS Feeds, Prism Exports and People Dashboards",
+        "subtopics": [
+          "Getting Workday data out for BI",
+          "RaaS feeds for Power BI",
+          "Prism Analytics exports",
+          "Incremental loads",
+          "People data models",
+          "Row-level security for HR data",
+          "Privacy rules for people analytics",
+          "Refresh schedules"
+        ],
+        "tools": [
+          "Reports as a Service",
+          "Power BI",
+          "Prism Analytics"
+        ],
+        "lab_task": "Feed headcount and turnover data from RaaS into Power BI, build a people dashboard with row-level security and document privacy rules.",
+        "deliverable": "People dashboard with security and privacy notes",
+        "checks": [
+          [
+            "Feed",
+            "Data refreshes from Workday on schedule",
+            "Refresh history"
+          ],
+          [
+            "Show",
+            "The dashboard shows headcount and turnover",
+            "Dashboard"
+          ],
+          [
+            "Secure",
+            "Managers see only their teams",
+            "Row-level security test"
+          ]
+        ],
+        "objectives": [
+          "Move Workday data to Power BI",
+          "Build people dashboards",
+          "Protect HR data"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Workday",
+        "ServiceNow"
+      ],
+      "day": {
+        "topic": "Workday and ServiceNow HR Service Delivery: Worker Sync and Case Context",
+        "subtopics": [
+          "Why HR service delivery sits beside Workday",
+          "Worker and organisation sync",
+          "Case context from Workday data",
+          "Lifecycle events from Workday",
+          "Writing changes back to Workday",
+          "Security for HR data in ServiceNow",
+          "Monitoring the integration",
+          "Support ownership"
+        ],
+        "tools": [
+          "Workday",
+          "ServiceNow HR Service Delivery",
+          "Integration tools"
+        ],
+        "lab_task": "Sync workers and organisations from Workday to ServiceNow, start an onboarding lifecycle event from a Workday hire and write an address change back to Workday.",
+        "deliverable": "Working Workday and ServiceNow integration",
+        "checks": [
+          [
+            "Sync",
+            "Workers and organisations match in both systems",
+            "Comparison"
+          ],
+          [
+            "Trigger",
+            "A Workday hire starts the onboarding event",
+            "Lifecycle event"
+          ],
+          [
+            "Write",
+            "The address change reaches Workday",
+            "Worker history"
+          ]
+        ],
+        "objectives": [
+          "Connect Workday and ServiceNow",
+          "Drive HR events from Workday",
+          "Write back safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Workday",
+        "Agentic AI"
+      ],
+      "day": {
+        "topic": "Agents on Workday: Agent System of Record, Workday Build and External Agent Frameworks",
+        "subtopics": [
+          "Delivered agents and custom agents",
+          "Registering agents in the Agent System of Record",
+          "Building agents with Workday Build",
+          "External agent frameworks calling Workday",
+          "Tools and permissions for agents",
+          "Human approval for HR and finance actions",
+          "Evaluating agent behaviour",
+          "Agent risks in HR data"
+        ],
+        "tools": [
+          "Workday Build",
+          "Agent System of Record",
+          "Agent framework"
+        ],
+        "lab_task": "Build an agent with Workday Build and an external agent that calls Workday APIs for the same task, register both and compare behaviour and controls.",
+        "deliverable": "Two agents with an evaluation",
+        "checks": [
+          [
+            "Build",
+            "Both agents complete the task",
+            "Run logs"
+          ],
+          [
+            "Register",
+            "Both agents are recorded with owners and permissions",
+            "Agent records"
+          ],
+          [
+            "Compare",
+            "Behaviour and controls are compared",
+            "Evaluation table"
+          ]
+        ],
+        "objectives": [
+          "Build agents on Workday",
+          "Register and govern agents",
+          "Compare agent approaches"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Workday",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Workday as the HR Source for Identity: Provisioning to Entra ID and Okta",
+        "subtopics": [
+          "HR-driven identity",
+          "Workday to Microsoft Entra ID provisioning",
+          "Workday to Okta provisioning",
+          "Attribute mapping and pre-hires",
+          "Movers and manager changes",
+          "Leavers and future-dated terminations",
+          "Writing email and phone back to Workday",
+          "Monitoring provisioning"
+        ],
+        "tools": [
+          "Workday",
+          "Microsoft Entra ID provisioning",
+          "Okta",
+          "Provisioning logs"
+        ],
+        "lab_task": "Provision pre-hires from Workday into Entra ID and Okta, handle a manager change and a future-dated termination, and write the email address back to Workday.",
+        "deliverable": "HR-driven provisioning with tests",
+        "checks": [
+          [
+            "Provision",
+            "Pre-hires get accounts before day one",
+            "Provisioning log"
+          ],
+          [
+            "Move",
+            "Manager changes update the directory",
+            "Directory record"
+          ],
+          [
+            "Leave",
+            "Access ends on the termination date",
+            "Account status"
+          ]
+        ],
+        "objectives": [
+          "Drive identity from Workday",
+          "Map HR attributes",
+          "Handle joiners, movers and leavers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Running Scrum Events in Jira: Planning, Daily Scrum, Review and Retrospective Data",
+        "subtopics": [
+          "Sprint planning with the backlog",
+          "Sprint goals in Jira",
+          "Daily scrum with the board",
+          "Sprint review with release and sprint reports",
+          "Retrospective data from reports",
+          "Definition of done in workflows",
+          "Velocity and forecasting",
+          "Avoiding tool-driven Scrum"
+        ],
+        "tools": [
+          "Jira",
+          "Scrum board",
+          "Sprint reports"
+        ],
+        "lab_task": "Run sprint planning, a daily scrum, a sprint review and a retrospective for the course team using Jira data, and turn one finding into a workflow change.",
+        "deliverable": "Sprint event records and one improvement",
+        "checks": [
+          [
+            "Plan",
+            "The sprint has a goal and a forecast",
+            "Sprint record"
+          ],
+          [
+            "Review",
+            "The review uses sprint and release reports",
+            "Review notes"
+          ],
+          [
+            "Improve",
+            "The retrospective change is applied in Jira",
+            "Workflow change"
+          ]
+        ],
+        "objectives": [
+          "Run Scrum events with Jira",
+          "Use Jira data in retrospectives",
+          "Improve the workflow"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "Git"
+      ],
+      "day": {
+        "topic": "Jira and Git Workflows: Branch Naming, Smart Commits and Development Status",
+        "subtopics": [
+          "Linking branches to work items",
+          "Branch naming conventions",
+          "Smart commits",
+          "Pull requests in the development panel",
+          "Status from development events",
+          "Code review and Jira workflows",
+          "Release notes from commits",
+          "Traceability for audits"
+        ],
+        "tools": [
+          "Jira",
+          "Git",
+          "GitHub or Bitbucket"
+        ],
+        "lab_task": "Create branches from work items, use smart commits, move work with pull request events and produce release notes that link commits to work items.",
+        "deliverable": "Traceable Git workflow with release notes",
+        "checks": [
+          [
+            "Link",
+            "Branches and commits appear on work items",
+            "Development panel"
+          ],
+          [
+            "Move",
+            "Pull request events move work items",
+            "Work item history"
+          ],
+          [
+            "Trace",
+            "Release notes link commits to work items",
+            "Release notes"
+          ]
+        ],
+        "objectives": [
+          "Connect Git and Jira",
+          "Automate status from code",
+          "Keep traceability"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "GitHub Actions"
+      ],
+      "day": {
+        "topic": "Jira and GitHub Actions: Deployments, Build Status and Automated Transitions",
+        "subtopics": [
+          "The GitHub for Jira app",
+          "Build and deployment information in Jira",
+          "Environments in deployment tracking",
+          "Transitions on deployment",
+          "Release readiness in Jira",
+          "Deployment gating with Jira data",
+          "DORA metrics from deployments",
+          "Troubleshooting missing data"
+        ],
+        "tools": [
+          "Jira",
+          "GitHub Actions",
+          "GitHub for Jira"
+        ],
+        "lab_task": "Send build and deployment data from GitHub Actions to Jira, move work items to Done on production deployment and report deployment frequency.",
+        "deliverable": "Deployment tracking in Jira",
+        "checks": [
+          [
+            "Show",
+            "Builds and deployments appear on work items",
+            "Development panel"
+          ],
+          [
+            "Move",
+            "Production deployment moves work to Done",
+            "Work item history"
+          ],
+          [
+            "Report",
+            "Deployment frequency is reported",
+            "Report"
+          ]
+        ],
+        "objectives": [
+          "Track deployments in Jira",
+          "Automate transitions",
+          "Report delivery metrics"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "ServiceNow"
+      ],
+      "day": {
+        "topic": "Jira and ServiceNow Integration: Incident to Bug Flows and Status Sync",
+        "subtopics": [
+          "When incidents need development work",
+          "Integration options between ServiceNow and Jira",
+          "Mapping fields and statuses",
+          "Two-way comments",
+          "Avoiding duplicates and loops",
+          "Change requests and releases",
+          "Monitoring the integration",
+          "Ownership of the integration"
+        ],
+        "tools": [
+          "ServiceNow",
+          "Jira",
+          "Integration tool"
+        ],
+        "lab_task": "Create a Jira bug from a ServiceNow incident with mapped fields, sync status and comments both ways and stop an update loop.",
+        "deliverable": "Working incident-to-bug integration",
+        "checks": [
+          [
+            "Create",
+            "The incident creates a linked bug",
+            "Bug record"
+          ],
+          [
+            "Sync",
+            "Status and comments flow both ways",
+            "Both histories"
+          ],
+          [
+            "Stop",
+            "Updates do not loop",
+            "Integration log"
+          ]
+        ],
+        "objectives": [
+          "Integrate Jira and ServiceNow",
+          "Map fields and statuses",
+          "Prevent integration loops"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "Manual Testing and ISTQB"
+      ],
+      "day": {
+        "topic": "Test Management in Jira: Test Cases, Executions and Traceability",
+        "subtopics": [
+          "Test management options in Jira",
+          "Test cases as work items or app objects",
+          "Test plans and executions",
+          "Linking tests to requirements",
+          "Defects from failed tests",
+          "Coverage reports",
+          "Regression sets",
+          "Reporting test progress"
+        ],
+        "tools": [
+          "Jira",
+          "Test management app",
+          "Dashboards"
+        ],
+        "lab_task": "Write test cases for three stories, plan and run a test cycle, raise defects from failures and show requirement coverage on a dashboard.",
+        "deliverable": "Test cycle with coverage reporting",
+        "checks": [
+          [
+            "Write",
+            "Test cases link to their stories",
+            "Traceability view"
+          ],
+          [
+            "Run",
+            "The cycle records pass and fail results",
+            "Execution report"
+          ],
+          [
+            "Cover",
+            "The dashboard shows requirement coverage",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Manage tests in Jira",
+          "Trace tests to requirements",
+          "Report test progress"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "Python"
+      ],
+      "day": {
+        "topic": "Jira Automation with Python: REST API Scripts, Bulk Updates and Reports",
+        "subtopics": [
+          "The Jira REST API from Python",
+          "Authentication with API tokens",
+          "Searching with JQL from code",
+          "Bulk updates safely",
+          "Creating work items from data",
+          "Rate limits and retries",
+          "Reports from Jira data",
+          "Scheduling scripts"
+        ],
+        "tools": [
+          "Python",
+          "Jira REST API",
+          "JQL"
+        ],
+        "lab_task": "Write Python scripts that create work items from a spreadsheet, bulk-update labels found by JQL with a dry-run mode and build a weekly report.",
+        "deliverable": "Tested Jira scripts",
+        "checks": [
+          [
+            "Create",
+            "Work items are created from the spreadsheet",
+            "Search results"
+          ],
+          [
+            "Update",
+            "The dry run lists changes before they are made",
+            "Script output"
+          ],
+          [
+            "Report",
+            "The weekly report matches Jira data",
+            "Report and search"
+          ]
+        ],
+        "objectives": [
+          "Automate Jira with Python",
+          "Use JQL from code",
+          "Update safely in bulk"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "Product Management"
+      ],
+      "day": {
+        "topic": "Product Discovery to Delivery: Ideas, Roadmaps and Delivery Links in Jira",
+        "subtopics": [
+          "Capturing ideas and insights",
+          "Prioritisation frameworks in Jira Product Discovery",
+          "Roadmaps for stakeholders",
+          "Linking ideas to delivery epics",
+          "Tracking delivery progress from ideas",
+          "Feedback loops after release",
+          "Product metrics",
+          "Keeping roadmaps honest"
+        ],
+        "tools": [
+          "Jira Product Discovery",
+          "Jira",
+          "Roadmap views"
+        ],
+        "lab_task": "Prioritise ten ideas with a framework, publish a roadmap, link the top three to delivery epics and track progress back on the ideas.",
+        "deliverable": "Prioritised roadmap linked to delivery",
+        "checks": [
+          [
+            "Prioritise",
+            "Ideas are ranked with a stated framework",
+            "Prioritisation view"
+          ],
+          [
+            "Publish",
+            "Stakeholders can read the roadmap",
+            "Published view"
+          ],
+          [
+            "Track",
+            "Delivery progress shows on the ideas",
+            "Idea view"
+          ]
+        ],
+        "objectives": [
+          "Run product discovery in Jira",
+          "Link ideas to delivery",
+          "Keep roadmaps current"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Jira",
+        "Project Management"
+      ],
+      "day": {
+        "topic": "Project Management in Jira: Plans, Milestones, Risks and Status Reports",
+        "subtopics": [
+          "Projects compared with spaces",
+          "Milestones and versions",
+          "Plans for schedules and dependencies",
+          "Risks and issues tracking",
+          "Resource and capacity views",
+          "Status reports from Jira data",
+          "Stakeholder dashboards",
+          "Change control"
+        ],
+        "tools": [
+          "Jira",
+          "Jira Plans",
+          "Dashboards"
+        ],
+        "lab_task": "Run a project in Jira with milestones, a plan with dependencies, a risk register and a weekly status report generated from Jira data.",
+        "deliverable": "Project plan, risk register and status report",
+        "checks": [
+          [
+            "Plan",
+            "Milestones and dependencies show in the plan",
+            "Plan view"
+          ],
+          [
+            "Track",
+            "Risks have owners and actions",
+            "Risk register"
+          ],
+          [
+            "Report",
+            "The status report is built from Jira data",
+            "Status report"
+          ]
+        ],
+        "objectives": [
+          "Manage projects in Jira",
+          "Track risks",
+          "Report project status"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Azure Identity in Practice: Entra ID, Managed Identities and Azure RBAC",
+        "subtopics": [
+          "Entra ID as the identity plane for Azure",
+          "Azure RBAC roles and scopes",
+          "Custom roles",
+          "Managed identities for resources",
+          "Privileged Identity Management for Azure roles",
+          "Conditional Access for the Azure portal",
+          "Access reviews for subscriptions",
+          "Auditing role changes"
+        ],
+        "tools": [
+          "Microsoft Entra ID",
+          "Azure RBAC",
+          "Privileged Identity Management"
+        ],
+        "lab_task": "Assign least-privilege Azure roles at the right scopes, make owner access eligible through PIM, give an app a managed identity and review subscription access.",
+        "deliverable": "Azure access model with evidence",
+        "checks": [
+          [
+            "Scope",
+            "Roles are assigned at the narrowest scope",
+            "Role assignments"
+          ],
+          [
+            "Elevate",
+            "Owner access needs activation",
+            "PIM log"
+          ],
+          [
+            "Replace",
+            "The app uses a managed identity instead of a secret",
+            "App configuration"
+          ]
+        ],
+        "objectives": [
+          "Secure Azure access",
+          "Use managed identities",
+          "Control privileged roles"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "AWS"
+      ],
+      "day": {
+        "topic": "AWS Identity in Practice: IAM Identity Center, Roles and Permission Boundaries",
+        "subtopics": [
+          "IAM Identity Center and the workforce identity provider",
+          "Permission sets",
+          "IAM roles and trust policies",
+          "Permission boundaries",
+          "Service control policies",
+          "IAM Access Analyzer",
+          "Temporary credentials",
+          "Auditing with CloudTrail"
+        ],
+        "tools": [
+          "AWS IAM Identity Center",
+          "AWS IAM",
+          "IAM Access Analyzer",
+          "AWS CloudTrail"
+        ],
+        "lab_task": "Connect IAM Identity Center to Entra ID or Okta, create permission sets for two teams, add a permission boundary for developers and fix findings from Access Analyzer.",
+        "deliverable": "Federated AWS access with boundaries",
+        "checks": [
+          [
+            "Federate",
+            "Users sign in to AWS with corporate identity",
+            "Sign-in test"
+          ],
+          [
+            "Bound",
+            "Developers cannot exceed the boundary",
+            "Denied action"
+          ],
+          [
+            "Fix",
+            "Access Analyzer findings are resolved",
+            "Analyzer report"
+          ]
+        ],
+        "objectives": [
+          "Secure AWS access",
+          "Use permission sets and boundaries",
+          "Analyse access"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Kubernetes Access Control: OIDC Sign-In, RBAC and Workload Identity",
+        "subtopics": [
+          "Authentication options for clusters",
+          "OIDC sign-in with corporate groups",
+          "Roles and cluster roles",
+          "Namespace-scoped access for teams",
+          "Service accounts and token projection",
+          "Cloud workload identity for pods",
+          "Auditing cluster access",
+          "Emergency access to clusters"
+        ],
+        "tools": [
+          "Kubernetes",
+          "OIDC identity provider",
+          "kubectl",
+          "Cloud workload identity"
+        ],
+        "lab_task": "Configure OIDC sign-in with groups, give two teams namespace access, give a pod cloud access through workload identity and review the audit log.",
+        "deliverable": "Cluster access setup with audit evidence",
+        "checks": [
+          [
+            "Sign in",
+            "Engineers sign in with corporate groups",
+            "kubectl test"
+          ],
+          [
+            "Limit",
+            "Teams manage only their namespaces",
+            "RBAC test"
+          ],
+          [
+            "Audit",
+            "Access appears in the audit log",
+            "Audit entries"
+          ]
+        ],
+        "objectives": [
+          "Control Kubernetes access",
+          "Map groups to RBAC",
+          "Use workload identity"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Identity in Security Operations: Detections, Response and Hardening",
+        "subtopics": [
+          "Identity in the attack chain",
+          "Identity detections in the SOC",
+          "Playbooks for compromised accounts",
+          "Session and token revocation",
+          "Hardening identity providers",
+          "Identity in threat hunting",
+          "Metrics for identity defence",
+          "Working between IAM and SOC teams"
+        ],
+        "tools": [
+          "SIEM",
+          "Microsoft Entra ID Protection",
+          "SOAR playbooks"
+        ],
+        "lab_task": "Build detections for password spray and suspicious consent grants, write a compromised account playbook and harden three identity provider settings.",
+        "deliverable": "Detections, playbook and hardening record",
+        "checks": [
+          [
+            "Detect",
+            "Both detections fire on seeded activity",
+            "Alerts"
+          ],
+          [
+            "Respond",
+            "The playbook contains a compromised account",
+            "Playbook run"
+          ],
+          [
+            "Harden",
+            "Three risky settings are fixed",
+            "Configuration changes"
+          ]
+        ],
+        "objectives": [
+          "Bring identity into security operations",
+          "Respond to account compromise",
+          "Harden identity providers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Linux Identity Integration: SSSD, Active Directory Join and Sudo Policies",
+        "subtopics": [
+          "Joining Linux to Active Directory with realmd",
+          "SSSD configuration",
+          "Kerberos tickets",
+          "Group-based login access",
+          "Central sudo rules",
+          "SSH keys and certificates",
+          "Local accounts and their risks",
+          "Auditing logins"
+        ],
+        "tools": [
+          "realmd",
+          "SSSD",
+          "Kerberos",
+          "sudo"
+        ],
+        "lab_task": "Join a Linux server to Active Directory, allow logins for one group, manage sudo rights centrally and replace a shared local account.",
+        "deliverable": "Domain-joined server with central access rules",
+        "checks": [
+          [
+            "Join",
+            "Domain users log in with Kerberos",
+            "Login test"
+          ],
+          [
+            "Limit",
+            "Only the allowed group can log in",
+            "Access test"
+          ],
+          [
+            "Elevate",
+            "Sudo rights follow the central rules",
+            "sudo test"
+          ]
+        ],
+        "objectives": [
+          "Integrate Linux with directories",
+          "Control login and sudo",
+          "Remove shared accounts"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "Python"
+      ],
+      "day": {
+        "topic": "Identity Automation with Python: MSAL, the Okta SDK and SCIM Clients",
+        "subtopics": [
+          "MSAL for Python",
+          "Calling Microsoft Graph",
+          "The Okta Python SDK",
+          "Writing a SCIM client",
+          "Least-privilege app registrations",
+          "Paging and throttling",
+          "Testing identity scripts",
+          "Safe changes with dry runs"
+        ],
+        "tools": [
+          "Python",
+          "MSAL",
+          "Microsoft Graph",
+          "Okta SDK"
+        ],
+        "lab_task": "Write Python tools that report stale accounts through Graph, disable them after review, list Okta app assignments and provision a user through SCIM.",
+        "deliverable": "Tested identity automation scripts",
+        "checks": [
+          [
+            "Report",
+            "Stale accounts are listed correctly",
+            "Script output"
+          ],
+          [
+            "Disable",
+            "Reviewed accounts are disabled with a dry run first",
+            "Script log"
+          ],
+          [
+            "Provision",
+            "The SCIM client creates the user",
+            "Target app record"
+          ]
+        ],
+        "objectives": [
+          "Automate identity with Python",
+          "Use Graph and Okta APIs",
+          "Change identities safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "Spring Boot"
+      ],
+      "day": {
+        "topic": "Securing Spring Boot Apps with OIDC: Spring Security, Resource Servers and Scopes",
+        "subtopics": [
+          "Spring Security with OIDC login",
+          "Resource servers and JWT validation",
+          "Scopes and authorities",
+          "Method-level security",
+          "Calling downstream APIs with tokens",
+          "Testing secured endpoints",
+          "Common configuration mistakes",
+          "Logging without leaking tokens"
+        ],
+        "tools": [
+          "Spring Boot",
+          "Spring Security",
+          "OIDC identity provider"
+        ],
+        "lab_task": "Add OIDC login to a Spring Boot web app, protect an API as a resource server with scope checks and call a downstream API with a token.",
+        "deliverable": "Secured Spring Boot app and API",
+        "checks": [
+          [
+            "Sign in",
+            "Users log in through the identity provider",
+            "Login test"
+          ],
+          [
+            "Protect",
+            "Calls without the scope are refused",
+            "API test"
+          ],
+          [
+            "Call",
+            "The downstream call carries a valid token",
+            "Request log"
+          ]
+        ],
+        "objectives": [
+          "Secure Spring Boot with OIDC",
+          "Check scopes in APIs",
+          "Pass tokens safely"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "ServiceNow"
+      ],
+      "day": {
+        "topic": "Access Requests Through ServiceNow: Catalogue Items, Approvals and Provisioning",
+        "subtopics": [
+          "Access requests as service catalogue items",
+          "Approvals by manager and owner",
+          "Provisioning through the identity platform",
+          "Request status for users",
+          "Removing access on request",
+          "Audit trail of requests",
+          "Integration with governance tools",
+          "Measuring request time"
+        ],
+        "tools": [
+          "ServiceNow",
+          "Identity governance platform",
+          "Integration tools"
+        ],
+        "lab_task": "Build a catalogue item for application access with approvals, provision the access through the identity platform and close the request with an audit trail.",
+        "deliverable": "Working access request flow",
+        "checks": [
+          [
+            "Request",
+            "The user requests access from the catalogue",
+            "Request record"
+          ],
+          [
+            "Approve",
+            "Manager and owner approve in order",
+            "Approval history"
+          ],
+          [
+            "Provision",
+            "Access is granted and the request closes",
+            "Provisioning log"
+          ]
+        ],
+        "objectives": [
+          "Run access requests in ServiceNow",
+          "Connect approvals to provisioning",
+          "Keep audit trails"
+        ]
+      }
+    },
+    {
+      "between": [
+        "IAM",
+        "MCP"
+      ],
+      "day": {
+        "topic": "Securing MCP Servers: OAuth Authorisation, Client Metadata and Scopes",
+        "subtopics": [
+          "Authorisation in the MCP specification",
+          "Protected resource metadata",
+          "Authorisation server discovery",
+          "Client ID metadata documents",
+          "Issuer validation",
+          "Scopes for tools",
+          "Tokens for remote servers",
+          "Auditing tool calls"
+        ],
+        "tools": [
+          "MCP server",
+          "OAuth authorisation server",
+          "MCP client"
+        ],
+        "lab_task": "Protect a remote MCP server with OAuth, publish protected resource metadata, register a client through a client ID metadata document and limit one tool to a scope.",
+        "deliverable": "Secured MCP server with tests",
+        "checks": [
+          [
+            "Discover",
+            "The client finds the authorisation server from metadata",
+            "Client log"
+          ],
+          [
+            "Register",
+            "The client is identified by its metadata document",
+            "Authorisation server log"
+          ],
+          [
+            "Limit",
+            "The tool refuses calls without its scope",
+            "Error response"
+          ]
+        ],
+        "objectives": [
+          "Secure MCP servers",
+          "Apply OAuth to tools",
+          "Audit tool use"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -22247,6 +23741,405 @@
           "Combine Dynatrace and AWS skills",
           "Monitor a cloud workload",
           "Explain failures with Davis"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Oracle Fusion",
+        "SQL"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Fusion Reporting Pack with SQL Data Models",
+        "subtopics": [
+          "Report requirements",
+          "SQL data models",
+          "Templates and bursting",
+          "Testing and tuning"
+        ],
+        "tools": [
+          "BI Publisher",
+          "SQL",
+          "Oracle Fusion Cloud Applications"
+        ],
+        "lab_task": "Deliver a month-end reporting pack for finance and HR with SQL data models, templates, bursting to managers, tests against the application and tuned queries.",
+        "deliverable": "Reporting pack with test evidence",
+        "checks": [
+          [
+            "Build",
+            "All reports return correct data",
+            "Test sheet"
+          ],
+          [
+            "Burst",
+            "Managers receive only their reports",
+            "Delivery log"
+          ],
+          [
+            "Tune",
+            "Every report runs within its time target",
+            "Run times"
+          ]
+        ],
+        "objectives": [
+          "Combine Fusion and SQL skills",
+          "Deliver a reporting pack",
+          "Prove report accuracy"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Oracle Fusion",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Automated Fusion Data Loads and Reports with Python",
+        "subtopics": [
+          "File building",
+          "Imports and status checks",
+          "Report downloads",
+          "Error handling and scheduling"
+        ],
+        "tools": [
+          "Python",
+          "Fusion REST APIs",
+          "FBDI templates"
+        ],
+        "lab_task": "Automate a weekly supplier and journal load into Fusion with Python, including file building, imports, status checks, error reports and a summary email.",
+        "deliverable": "Scheduled automation with run evidence",
+        "checks": [
+          [
+            "Load",
+            "Weekly loads complete without manual steps",
+            "Run logs"
+          ],
+          [
+            "Handle",
+            "Failed rows are reported clearly",
+            "Error report"
+          ],
+          [
+            "Summarise",
+            "The summary email reports results",
+            "Email"
+          ]
+        ],
+        "objectives": [
+          "Combine Fusion and Python skills",
+          "Automate data loads",
+          "Report results"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Workday",
+        "IAM"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: HR-Driven Identity Lifecycle from Workday",
+        "subtopics": [
+          "Pre-hire provisioning",
+          "Movers and managers",
+          "Leavers and access removal",
+          "Monitoring and evidence"
+        ],
+        "tools": [
+          "Workday",
+          "Microsoft Entra ID",
+          "Okta",
+          "Provisioning logs"
+        ],
+        "lab_task": "Run a simulated month of hires, moves and terminations in Workday and show accounts, groups and app access following in Entra ID and Okta, with audit evidence.",
+        "deliverable": "Identity lifecycle evidence for a month",
+        "checks": [
+          [
+            "Join",
+            "Every hire has access on day one",
+            "Provisioning report"
+          ],
+          [
+            "Move",
+            "Movers lose old access",
+            "Access before and after"
+          ],
+          [
+            "Leave",
+            "Leavers lose access on their last day",
+            "Account status report"
+          ]
+        ],
+        "objectives": [
+          "Combine Workday and IAM skills",
+          "Drive identity from HR",
+          "Prove lifecycle controls"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Workday",
+        "Power BI"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: People Analytics from Workday in Power BI",
+        "subtopics": [
+          "Data feeds",
+          "People data model",
+          "Dashboards for leaders and managers",
+          "Security and privacy"
+        ],
+        "tools": [
+          "Reports as a Service",
+          "Power BI",
+          "Prism Analytics"
+        ],
+        "lab_task": "Deliver people analytics from Workday in Power BI with scheduled feeds, a people data model, leader and manager dashboards and row-level security.",
+        "deliverable": "People analytics solution with a demo",
+        "checks": [
+          [
+            "Feed",
+            "Data refreshes daily without errors",
+            "Refresh history"
+          ],
+          [
+            "Show",
+            "Leaders and managers get their dashboards",
+            "Dashboards"
+          ],
+          [
+            "Protect",
+            "Privacy rules and row-level security hold",
+            "Security tests"
+          ]
+        ],
+        "objectives": [
+          "Combine Workday and Power BI skills",
+          "Deliver people analytics",
+          "Protect HR data"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Jira",
+        "Agile Scrum"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Scrum Team Run in Jira for a Release",
+        "subtopics": [
+          "Backlog and sprint goals",
+          "Scrum events with Jira data",
+          "Definition of done and quality",
+          "Release and review"
+        ],
+        "tools": [
+          "Jira",
+          "Scrum board",
+          "Sprint reports"
+        ],
+        "lab_task": "Run a team through three sprints to a release in Jira with sprint goals, Scrum events backed by Jira data, a definition of done in the workflow and a release review.",
+        "deliverable": "Release with sprint records and review",
+        "checks": [
+          [
+            "Plan",
+            "Each sprint has a goal and forecast",
+            "Sprint records"
+          ],
+          [
+            "Deliver",
+            "The release meets the definition of done",
+            "Release notes"
+          ],
+          [
+            "Improve",
+            "Retrospective actions change the way of working",
+            "Action log"
+          ]
+        ],
+        "objectives": [
+          "Combine Scrum and Jira skills",
+          "Deliver a release",
+          "Improve the team"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Jira",
+        "Git"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Traceable Delivery from Jira Work Items to Merged Code",
+        "subtopics": [
+          "Branches and commits linked to work",
+          "Review and status automation",
+          "Release notes",
+          "Audit traceability"
+        ],
+        "tools": [
+          "Jira",
+          "Git",
+          "GitHub or Bitbucket"
+        ],
+        "lab_task": "Deliver a release where every change traces from a Jira work item through branches, commits and reviews to release notes, with status moved automatically.",
+        "deliverable": "Traceable release with evidence",
+        "checks": [
+          [
+            "Trace",
+            "Every merged change links to a work item",
+            "Traceability report"
+          ],
+          [
+            "Move",
+            "Work item status follows development events",
+            "Work item history"
+          ],
+          [
+            "Release",
+            "Release notes list linked changes",
+            "Release notes"
+          ]
+        ],
+        "objectives": [
+          "Combine Jira and Git skills",
+          "Keep end-to-end traceability",
+          "Automate status"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "IAM",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Secure Azure Estate with Entra ID and Least Privilege",
+        "subtopics": [
+          "Conditional Access and MFA",
+          "Azure RBAC and PIM",
+          "Managed identities",
+          "Reviews and monitoring"
+        ],
+        "tools": [
+          "Microsoft Entra ID",
+          "Azure RBAC",
+          "Privileged Identity Management",
+          "Access reviews"
+        ],
+        "lab_task": "Secure an Azure estate with Conditional Access, least-privilege RBAC, PIM for privileged roles, managed identities for apps, access reviews and alerts on role changes.",
+        "deliverable": "Secured Azure estate with evidence",
+        "checks": [
+          [
+            "Sign in",
+            "Admins need strong MFA and compliant devices",
+            "Sign-in logs"
+          ],
+          [
+            "Limit",
+            "No standing owner access remains",
+            "Role report"
+          ],
+          [
+            "Watch",
+            "Role changes raise alerts",
+            "Alert record"
+          ]
+        ],
+        "objectives": [
+          "Combine IAM and Azure skills",
+          "Secure an Azure estate",
+          "Remove standing privilege"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "IAM",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Federated, Least-Privilege Access to AWS",
+        "subtopics": [
+          "Federation and permission sets",
+          "Boundaries and service control policies",
+          "Workload roles",
+          "Analysis and audit"
+        ],
+        "tools": [
+          "AWS IAM Identity Center",
+          "AWS IAM",
+          "IAM Access Analyzer",
+          "AWS CloudTrail"
+        ],
+        "lab_task": "Deliver federated access to three AWS accounts with permission sets, boundaries, service control policies, workload roles and an audit of the result.",
+        "deliverable": "Federated AWS access with audit evidence",
+        "checks": [
+          [
+            "Federate",
+            "All users sign in through the corporate identity provider",
+            "Sign-in report"
+          ],
+          [
+            "Limit",
+            "Boundaries and policies stop privilege escalation",
+            "Denied actions"
+          ],
+          [
+            "Audit",
+            "CloudTrail shows who did what",
+            "Audit report"
+          ]
+        ],
+        "objectives": [
+          "Combine IAM and AWS skills",
+          "Federate cloud access",
+          "Prove least privilege"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "IAM",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Identity Threat Defence Exercise",
+        "subtopics": [
+          "Hardening",
+          "Detections",
+          "Response playbooks",
+          "Post-incident review"
+        ],
+        "tools": [
+          "SIEM",
+          "Identity provider",
+          "SOAR playbooks"
+        ],
+        "lab_task": "Harden the lab identity provider, run a red team exercise with password spray, token theft and privilege escalation, detect and contain each step and write the review.",
+        "deliverable": "Exercise record and review",
+        "checks": [
+          [
+            "Detect",
+            "Each attack step raises an alert",
+            "Alert timeline"
+          ],
+          [
+            "Contain",
+            "Compromised sessions and accounts are contained",
+            "Containment log"
+          ],
+          [
+            "Learn",
+            "The review lists hardening actions with owners",
+            "Review document"
+          ]
+        ],
+        "objectives": [
+          "Combine IAM and security skills",
+          "Defend against identity attacks",
+          "Learn from exercises"
         ]
       }
     }
