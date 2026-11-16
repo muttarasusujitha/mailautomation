@@ -1,0 +1,573 @@
+{
+  "domain": "SRE",
+  "name": "Site Reliability Engineering",
+  "category": "Observability and SRE",
+  "icon": "life-buoy",
+  "aliases": ["Site Reliability Engineering", "SRE Training", "Site Reliability Engineer", "Site Reliability Engineers", "SRE Engineer", "SRE Practices", "Service Level Objectives", "SLOs and Error Budgets", "Error Budgets", "Blameless Postmortems", "Chaos Engineering", "SRE Foundation", "SRE Practitioner", "Google SRE"],
+  "certifications": ["DevOps Institute SRE Foundation (PeopleCert)", "DevOps Institute SRE Practitioner (PeopleCert)", "Google Cloud Professional Cloud DevOps Engineer (covers SRE practices)"],
+  "tools": ["Prometheus", "Grafana", "OpenTelemetry", "Sloth or Pyrra", "PagerDuty or incident.io", "k6", "Chaos Mesh or LitmusChaos", "Kubernetes"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For operations engineers, developers and DevOps engineers who are starting site reliability engineering. Covers SRE principles, a lab with the course service and its monitoring stack, availability targets and the cost of nines, SLIs, SLOs and error budgets, error budget policies, golden signals, RED and USE, burn-rate alerting, logs, metrics and traces, toil, incident response, on-call, blameless postmortems, release engineering, capacity planning and load testing, overload protection, production readiness reviews, chaos experiments and systematic troubleshooting. Covers the DevOps Institute SRE Foundation topics.",
+      "prerequisites": ["Runs or supports a web application in production or test", "Comfortable with Linux, the command line and basic scripting", "Has used a monitoring tool or dashboard"],
+      "outcomes": ["Set SLIs, SLOs and error budget policies with product owners", "Build monitoring and burn-rate alerts that page only for user-facing problems", "Run incidents, on-call rotations and blameless postmortems", "Plan capacity, release safely, protect services from overload and troubleshoot systematically"],
+      "days": [
+        {
+          "topic": "SRE Overview: Reliability as a Feature",
+          "subtopics": ["What SRE is and how it started at Google", "SRE compared with DevOps and traditional operations", "Reliability as a product feature with a cost", "Core principles: embracing risk, SLOs, toil, monitoring, automation, release engineering and simplicity", "What an SRE team does each week", "Engagement models: embedded, consulting and platform SRE", "Nines and the downtime they allow", "The SRE book and the SRE workbook", "The DevOps Institute SRE Foundation exam", "Course project overview: a three-tier web service with real users"],
+          "tools": ["Google SRE books", "Uptime calculator", "Course service"],
+          "lab_task": "Explore the course web service, list its users and critical journeys, and work out how much monthly downtime 99%, 99.9% and 99.99% allow.",
+          "deliverable": "Service map with critical journeys and downtime budgets",
+          "checks": [["Map", "Critical user journeys are listed with their users", "Service map"], ["Calculate", "Monthly downtime for the three targets is correct", "Calculation sheet"], ["Explain", "The difference between SRE and traditional operations is explained", "Notes"]],
+          "objectives": ["Explain SRE principles", "Describe reliability as a feature", "Calculate downtime budgets"]
+        },
+        {
+          "topic": "Lab Setup: Course Service, Prometheus, Grafana and Load Generator",
+          "subtopics": ["Running the course service with Docker Compose or kind", "Prometheus for metrics", "Grafana for dashboards", "OpenTelemetry Collector for traces", "Loki for logs", "k6 for load generation", "Alertmanager and a notification channel", "Repository layout for SLOs, alerts and runbooks", "Version control for reliability configuration", "Smoke-testing the whole stack"],
+          "tools": ["Docker Compose or kind", "Prometheus", "Grafana", "k6"],
+          "lab_task": "Start the course service with its monitoring stack, generate load with k6, confirm that metrics, logs and traces arrive, and commit the configuration to a reliability repository.",
+          "deliverable": "Running lab with telemetry and a reliability repository",
+          "checks": [["Start", "All services and monitoring components are healthy", "Container status"], ["Load", "k6 traffic appears in Grafana", "Dashboard screenshot"], ["Commit", "Configuration is in the reliability repository", "Repository link"]],
+          "objectives": ["Prepare the SRE lab", "Collect telemetry", "Keep reliability configuration in Git"]
+        },
+        {
+          "topic": "Embracing Risk: Availability Targets and the Cost of Nines",
+          "subtopics": ["Why 100% is the wrong target", "Time-based and request-based availability", "The cost of each extra nine", "Risk tolerance for consumer and internal services", "How dependencies cap availability", "Planned and unplanned downtime", "Agreeing targets with product owners", "Writing a reliability target statement"],
+          "tools": ["Spreadsheet", "Dependency map", "Course service metrics"],
+          "lab_task": "Calculate request-based availability for the course service from last week's metrics, estimate the cost of one more nine and agree a target with the product owner persona.",
+          "deliverable": "Availability report and agreed target",
+          "checks": [["Measure", "Request-based availability is calculated from real metrics", "Calculation"], ["Cost", "The cost of one more nine is estimated with reasons", "Cost estimate"], ["Agree", "A target is agreed and recorded", "Target statement"]],
+          "objectives": ["Measure availability", "Weigh reliability against cost", "Agree availability targets"]
+        },
+        {
+          "topic": "Service Level Indicators: Choosing What to Measure",
+          "subtopics": ["SLIs from user journeys", "Availability, latency, quality and freshness SLIs", "Good events divided by valid events", "Where to measure: load balancer, server or client", "Latency percentiles and histograms", "SLIs for batch jobs and pipelines", "Data sources for SLIs", "SLI specifications and implementations"],
+          "tools": ["Prometheus", "PromQL", "Course service metrics"],
+          "lab_task": "Write SLI specifications for three critical journeys and implement them as PromQL ratios of good events to valid events.",
+          "deliverable": "SLI specifications with PromQL implementations",
+          "checks": [["Specify", "Each journey has an SLI specification", "SLI document"], ["Implement", "Each SLI returns a ratio between 0 and 1", "PromQL output"], ["Review", "Measurement points are justified", "Review notes"]],
+          "objectives": ["Choose SLIs from user journeys", "Implement SLIs in PromQL", "Justify measurement points"]
+        },
+        {
+          "topic": "Service Level Objectives and Error Budgets",
+          "subtopics": ["SLO targets and windows", "Rolling and calendar windows", "Error budgets as one minus the SLO", "SLOs compared with SLAs", "Starting with achievable targets", "Documenting SLOs", "SLO reviews with stakeholders", "SLOs as code with OpenSLO and Sloth"],
+          "tools": ["Sloth or Pyrra", "OpenSLO", "Grafana"],
+          "lab_task": "Define SLOs and 28-day error budgets for the three journeys, generate recording rules with Sloth or Pyrra and build an error budget dashboard.",
+          "deliverable": "SLO document, generated rules and dashboard",
+          "checks": [["Define", "Each SLO has a target, a window and an owner", "SLO document"], ["Generate", "The recording rules load in Prometheus", "Rules status page"], ["Show", "Remaining error budget is visible for each SLO", "Dashboard"]],
+          "objectives": ["Set SLOs", "Calculate error budgets", "Manage SLOs as code"]
+        },
+        {
+          "topic": "Error Budget Policies: What Happens When the Budget Runs Out",
+          "subtopics": ["What an error budget policy says", "Release freezes and reliability work", "Who decides and who escalates", "Exceptions for security fixes and major launches", "Budget burned by dependencies", "Policy reviews", "Sharing budget status", "Using budgets to move faster as well as slower"],
+          "tools": ["Policy template", "Error budget dashboard", "Ticket tracker"],
+          "lab_task": "Write an error budget policy for the course service, agree it with the product owner persona and apply it to a week in which 80% of the budget is spent.",
+          "deliverable": "Signed error budget policy and scenario decision",
+          "checks": [["Write", "The policy states triggers, actions and owners", "Policy"], ["Agree", "The product owner signs off the policy", "Approval record"], ["Apply", "The scenario decision follows the policy", "Decision record"]],
+          "objectives": ["Write error budget policies", "Balance features and reliability", "Apply policies to real decisions"]
+        },
+        {
+          "topic": "Monitoring Distributed Systems: Golden Signals, RED and USE",
+          "subtopics": ["The four golden signals", "RED for request-driven services", "USE for resources", "Symptoms compared with causes", "White-box and black-box monitoring", "Dashboards that answer questions", "Cardinality and cost", "Monitoring as code"],
+          "tools": ["Prometheus", "Grafana", "Blackbox exporter"],
+          "lab_task": "Build a service dashboard with the golden signals and RED metrics, a resource dashboard with USE metrics and a black-box probe for the public endpoint.",
+          "deliverable": "Service and resource dashboards with probes",
+          "checks": [["Build", "Golden signals and RED metrics show for each service", "Dashboard"], ["Probe", "The black-box probe detects an outage", "Probe result"], ["Explain", "Each panel answers a named question", "Dashboard notes"]],
+          "objectives": ["Apply golden signals, RED and USE", "Combine white-box and black-box monitoring", "Build useful dashboards"]
+        },
+        {
+          "topic": "Alerting on SLOs: Burn Rates and Actionable Pages",
+          "subtopics": ["Pages compared with tickets", "What makes an alert actionable", "Burn rate alerts", "Multi-window, multi-burn-rate alerts", "Routing and grouping in Alertmanager", "Silences and maintenance windows", "Reducing alert fatigue", "Linking alerts to runbooks"],
+          "tools": ["Prometheus", "Alertmanager", "Sloth or Pyrra"],
+          "lab_task": "Replace threshold alerts with multi-window burn-rate alerts for the three SLOs, route pages and tickets separately and link every alert to a runbook.",
+          "deliverable": "SLO alert rules with routing and runbook links",
+          "checks": [["Fire", "A fast burn pages within minutes", "Alert record"], ["Route", "A slow burn opens a ticket instead of a page", "Ticket"], ["Link", "Every alert links to a runbook", "Alert annotations"]],
+          "objectives": ["Alert on symptoms that matter", "Use burn-rate alerts", "Cut alert noise"]
+        },
+        {
+          "topic": "Observability Basics: Logs, Metrics and Traces Together",
+          "subtopics": ["Observability compared with monitoring", "Structured logs", "Metric types: counters, gauges and histograms", "Distributed traces and spans", "OpenTelemetry APIs, SDKs and the Collector", "Correlating signals with trace IDs", "Exemplars", "Sampling", "Querying logs and traces in Grafana", "Debugging an unknown problem with telemetry"],
+          "tools": ["OpenTelemetry", "Grafana", "Loki", "Tempo or Jaeger"],
+          "lab_task": "Instrument one service with OpenTelemetry, correlate logs and metrics with trace IDs, and use traces to find the slow dependency behind a seeded latency problem.",
+          "deliverable": "Instrumented service and investigation notes",
+          "checks": [["Instrument", "Traces show spans for each dependency", "Trace view"], ["Correlate", "A log line links to its trace", "Screenshot"], ["Investigate", "The slow dependency is identified from traces", "Investigation notes"]],
+          "objectives": ["Combine logs, metrics and traces", "Instrument with OpenTelemetry", "Debug with telemetry"]
+        },
+        {
+          "topic": "Eliminating Toil: Measuring and Automating Operational Work",
+          "subtopics": ["What counts as toil", "The 50% cap on toil", "Measuring toil with time tracking", "Choosing what to automate first", "Automation levels from scripts to self-service", "Risks of automation", "Engineering work compared with overhead", "Reporting toil reduction"],
+          "tools": ["Time tracking sheet", "Scripting language", "Ticket tracker"],
+          "lab_task": "Classify a week of seeded operations tickets as toil or not, automate the most frequent task and report the hours saved.",
+          "deliverable": "Toil report and one automation",
+          "checks": [["Classify", "Every ticket is classified with a reason", "Toil sheet"], ["Automate", "The most frequent task runs without manual steps", "Automation run"], ["Report", "Hours saved per month are estimated", "Report"]],
+          "objectives": ["Identify toil", "Prioritise automation", "Measure toil reduction"]
+        },
+        {
+          "topic": "Incident Response: Roles, Communication and Mitigation",
+          "subtopics": ["What counts as an incident", "Severity levels", "Incident commander, communications lead and operations lead", "Mitigation before root cause", "Communication channels and status updates", "Handovers between responders", "Declaring and closing incidents", "Incident tooling such as PagerDuty or incident.io"],
+          "tools": ["PagerDuty or incident.io", "Chat tool", "Status page"],
+          "lab_task": "Run a tabletop incident on the course service with assigned roles, mitigate a seeded outage, post status updates every 15 minutes and close the incident with a timeline.",
+          "deliverable": "Incident timeline and status updates",
+          "checks": [["Organise", "Roles are assigned in the first five minutes", "Incident channel log"], ["Mitigate", "The service recovers before the root cause is fixed", "Metrics graph"], ["Communicate", "Status updates go out on schedule", "Status page history"]],
+          "objectives": ["Run incidents with clear roles", "Mitigate first", "Communicate during incidents"]
+        },
+        {
+          "topic": "On-Call: Rotations, Handoffs and Sustainable Load",
+          "subtopics": ["Rotation designs", "Follow-the-sun and primary-secondary rotations", "Escalation policies", "Measuring on-call load", "Compensation and time off after incidents", "Handoff notes", "Training new on-call engineers", "Reducing pages that wake people up"],
+          "tools": ["PagerDuty or incident.io", "On-call schedule", "Handoff template"],
+          "lab_task": "Design a rotation for a six-person team with escalation, measure pages per shift from seeded data and propose changes that bring night pages under the agreed limit.",
+          "deliverable": "Rotation design and on-call load report",
+          "checks": [["Design", "The rotation covers every hour with escalation", "Schedule"], ["Measure", "Pages per shift are calculated", "Load report"], ["Reduce", "Proposed changes bring night pages below the limit", "Proposal"]],
+          "objectives": ["Design sustainable on-call", "Measure on-call load", "Reduce out-of-hours pages"]
+        },
+        {
+          "topic": "Blameless Postmortems and Learning from Incidents",
+          "subtopics": ["Why blame stops learning", "When a postmortem is required", "Timeline, impact and contributing factors", "Root cause compared with contributing factors", "Action items that get done", "Reviewing postmortems", "Sharing lessons across teams", "Tracking repeat incidents"],
+          "tools": ["Postmortem template", "Ticket tracker", "Incident timeline"],
+          "lab_task": "Write a blameless postmortem for the tabletop incident with timeline, impact, contributing factors and owned action items, then review it with another team.",
+          "deliverable": "Reviewed postmortem with tracked actions",
+          "checks": [["Write", "The postmortem has a timeline, impact and contributing factors", "Postmortem"], ["Act", "Every action item has an owner and a due date", "Ticket list"], ["Review", "Reviewers find no blaming language", "Review notes"]],
+          "objectives": ["Write blameless postmortems", "Turn lessons into actions", "Share learning"]
+        },
+        {
+          "topic": "Release Engineering: Safe Rollouts and Rollbacks",
+          "subtopics": ["Repeatable builds", "Canary and blue-green rollouts", "Feature flags", "Rollback as the default response", "Change freezes and their limits", "Measuring change failure rate", "Release health checks", "Release gates based on SLOs"],
+          "tools": ["Argo Rollouts or a deployment tool", "Feature flag service", "Prometheus"],
+          "lab_task": "Release a new version of the course service as a canary with an SLO-based health check, then release a faulty version and show the automatic rollback.",
+          "deliverable": "Canary rollout with automatic rollback",
+          "checks": [["Release", "A healthy version reaches all users in steps", "Rollout history"], ["Roll back", "The faulty version rolls back automatically", "Analysis result"], ["Measure", "Change failure rate is recorded", "Release log"]],
+          "objectives": ["Release changes safely", "Roll back fast", "Gate releases on SLOs"]
+        },
+        {
+          "topic": "Capacity Planning and Load Testing",
+          "subtopics": ["Demand forecasting", "Organic and inorganic growth", "Load testing with k6", "Finding the saturation point", "Headroom and N+2 planning", "Autoscaling and its limits", "Capacity reviews", "The cost of over-provisioning"],
+          "tools": ["k6", "Prometheus", "Spreadsheet"],
+          "lab_task": "Load-test the course service until an SLO breaks, find the saturation point and the bottleneck, and write a capacity plan for 3x growth with N+2 headroom.",
+          "deliverable": "Load test report and capacity plan",
+          "checks": [["Test", "The saturation point is found with evidence", "k6 results"], ["Find", "The bottleneck resource is identified", "Metrics"], ["Plan", "The plan covers 3x growth with N+2 headroom", "Capacity plan"]],
+          "objectives": ["Load-test services", "Find saturation points", "Plan capacity"]
+        },
+        {
+          "topic": "Handling Overload: Timeouts, Retries and Graceful Degradation",
+          "subtopics": ["Cascading failures", "Timeouts and deadlines", "Retries with backoff and jitter", "Retry budgets", "Circuit breakers", "Load shedding and rate limiting", "Graceful degradation", "Testing overload behaviour"],
+          "tools": ["k6", "Envoy or a service mesh", "Course service"],
+          "lab_task": "Overload the course service and watch a cascading failure, then add deadlines, retry budgets, a circuit breaker and load shedding and show that critical requests keep succeeding.",
+          "deliverable": "Overload tests before and after the protections",
+          "checks": [["Break", "A cascading failure is reproduced", "Metrics before the change"], ["Protect", "Critical requests succeed under the same overload", "Metrics after the change"], ["Explain", "Each protection is explained with its effect", "Notes"]],
+          "objectives": ["Prevent cascading failures", "Use retries and timeouts well", "Degrade gracefully"]
+        },
+        {
+          "topic": "Production Readiness Reviews",
+          "subtopics": ["Why readiness reviews exist", "Checklist areas: SLOs, monitoring, capacity, runbooks and security", "Dependencies and failure modes", "On-call readiness", "Launch coordination", "Readiness of third-party services", "Lightweight reviews for small changes", "Tracking review findings"],
+          "tools": ["Readiness checklist", "Runbook template", "Dependency map"],
+          "lab_task": "Run a production readiness review of a new course microservice, record findings with owners and decide whether it can launch.",
+          "deliverable": "Readiness review record and launch decision",
+          "checks": [["Review", "Every checklist area has a finding or a pass", "Review record"], ["Assign", "Each finding has an owner and a date", "Action list"], ["Decide", "The launch decision is justified", "Decision note"]],
+          "objectives": ["Run readiness reviews", "Find launch risks", "Make launch decisions"]
+        },
+        {
+          "topic": "Chaos Engineering: Hypotheses, Blast Radius and Safe Experiments",
+          "subtopics": ["Principles of chaos engineering", "Steady-state hypotheses", "Blast radius and abort conditions", "Game days", "Fault injection: latency, errors and process kills", "Tools such as Chaos Mesh, LitmusChaos and cloud fault injection services", "Running experiments in production safely", "Turning findings into fixes"],
+          "tools": ["Chaos Mesh or LitmusChaos", "k6", "Grafana"],
+          "lab_task": "Write a steady-state hypothesis for the course service, inject latency into a dependency with abort conditions and turn one finding into a fix.",
+          "deliverable": "Experiment plan, results and fix",
+          "checks": [["Plan", "The hypothesis, blast radius and abort conditions are written", "Experiment plan"], ["Run", "The experiment runs and stops on its abort condition when needed", "Experiment log"], ["Fix", "One weakness found is fixed and retested", "Retest result"]],
+          "objectives": ["Design chaos experiments", "Limit blast radius", "Turn findings into fixes"]
+        },
+        {
+          "topic": "Troubleshooting Production Systems: A Systematic Method",
+          "subtopics": ["Hypothesis-driven troubleshooting", "Triage, examine, diagnose, test and treat", "Using dashboards, logs and traces in order", "Recent changes as suspects", "Bisecting and isolating components", "Avoiding red herrings", "Writing down what you tried", "Turning a fix into prevention"],
+          "tools": ["Grafana", "Loki", "Tempo or Jaeger", "kubectl or shell"],
+          "lab_task": "Diagnose four seeded production problems with a written troubleshooting log, fix them and add an alert or test that would have caught each one earlier.",
+          "deliverable": "Troubleshooting logs, fixes and preventions",
+          "checks": [["Diagnose", "Each problem has a confirmed cause", "Troubleshooting log"], ["Fix", "Service health returns to normal", "Metrics"], ["Prevent", "Each problem gets an alert or a test", "Pull requests"]],
+          "objectives": ["Troubleshoot systematically", "Use telemetry in order", "Prevent repeats"]
+        },
+        {
+          "topic": "Beginner Capstone: Reliability Baseline for the Course Service",
+          "subtopics": ["SLIs, SLOs and an error budget policy", "Burn-rate alerts and runbooks", "Incident drill and postmortem", "Capacity and readiness findings"],
+          "tools": ["Prometheus", "Grafana", "Sloth or Pyrra", "k6"],
+          "lab_task": "Deliver a reliability baseline for the course service with SLIs, SLOs, an error budget policy, burn-rate alerts with runbooks, an incident drill with a postmortem and a capacity plan, and present it to the product owner.",
+          "deliverable": "Reliability baseline pack and presentation",
+          "checks": [["Measure", "SLOs and budgets are live on a dashboard", "Dashboard"], ["Respond", "The drill is handled with roles and a postmortem", "Postmortem"], ["Plan", "Capacity and readiness findings have owners", "Action list"]],
+          "objectives": ["Combine beginner SRE skills", "Set a reliability baseline", "Present reliability to stakeholders"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For SREs and senior operations engineers who run services in production. Covers SLO tooling and catalogues, latency SLOs with histograms, dependency and critical path analysis, tracing for SREs, major incident command, incident analysis, runbooks and automated remediation, Kubernetes reliability, database reliability, disaster recovery tests, load balancing, chaos engineering programmes, deployment safety, observability pipelines, alert quality, capacity forecasting, performance engineering, reliability for AI services and AIOps and SRE agents.",
+      "prerequisites": ["Has set SLOs and burn-rate alerts for a service", "Has been on call and handled incidents", "Comfortable with Kubernetes, Prometheus and a scripting language"],
+      "outcomes": ["Run SLOs, dependencies and alerts for many services from a catalogue", "Lead major incidents and learning reviews, and automate remediation", "Prove disaster recovery, database and Kubernetes reliability with tests and experiments", "Control telemetry cost, plan capacity and apply SRE practices to AI services and AI assistants"],
+      "days": [
+        {
+          "topic": "SLO Engineering at Scale: SLO Platforms and Service Catalogues",
+          "subtopics": ["SLO tools: Nobl9, Sloth, Pyrra and cloud SLO services", "SLOs per team and per user journey", "Composite SLOs across services", "SLO ownership in the service catalogue", "Reporting SLOs to leadership", "SLO lifecycle: proposal, review and retirement", "Common SLO anti-patterns", "Moving from threshold alerts to SLOs"],
+          "tools": ["Sloth or Pyrra", "Nobl9 or a cloud SLO service", "Service catalogue"],
+          "lab_task": "Put SLOs for ten course services into a catalogue with owners, build a composite SLO for the checkout journey and replace five threshold alerts with SLO alerts.",
+          "deliverable": "SLO catalogue, composite SLO and alert migration",
+          "checks": [["Catalogue", "Every service has SLOs with an owner", "Catalogue export"], ["Compose", "The composite SLO reflects all services in the journey", "Composite definition"], ["Migrate", "Five threshold alerts are replaced with SLO alerts", "Alert diff"]],
+          "objectives": ["Run SLOs for many services", "Build composite SLOs", "Retire threshold alerts"]
+        },
+        {
+          "topic": "Latency SLOs with Histograms and Percentile Pitfalls",
+          "subtopics": ["Why averages hide pain", "Classic and native histograms in Prometheus", "Why percentiles cannot be averaged", "Threshold-based latency SLIs", "Client-side and server-side latency", "Tail latency and fan-out", "Latency budgets per hop", "Testing latency SLOs"],
+          "tools": ["Prometheus", "Grafana", "k6"],
+          "lab_task": "Replace an averaged latency alert with a histogram-based latency SLI, show how averaging percentiles misleads and split a 300 ms journey budget across its hops.",
+          "deliverable": "Latency SLI, pitfall demonstration and latency budget",
+          "checks": [["Implement", "The latency SLI counts requests under the threshold", "PromQL output"], ["Demonstrate", "Averaged percentiles differ from the true percentile", "Comparison"], ["Budget", "Hop budgets add up to the journey budget", "Latency budget table"]],
+          "objectives": ["Measure latency correctly", "Avoid percentile mistakes", "Budget latency across hops"]
+        },
+        {
+          "topic": "Dependency Management and Critical Path Analysis",
+          "subtopics": ["Hard and soft dependencies", "Availability arithmetic for dependencies", "Critical paths from traces", "Dependency SLOs and contracts", "Isolation with bulkheads", "Fallbacks and caches", "Third-party services", "Dependency reviews"],
+          "tools": ["Tempo or Jaeger", "Service graph", "Spreadsheet"],
+          "lab_task": "Build a dependency map from traces, calculate the availability ceiling of the checkout journey, turn one hard dependency into a soft one with a fallback and measure the gain.",
+          "deliverable": "Dependency map, availability calculation and fallback",
+          "checks": [["Map", "Hard and soft dependencies are marked from trace data", "Dependency map"], ["Calculate", "The availability ceiling matches the arithmetic", "Calculation"], ["Soften", "The journey succeeds when the softened dependency fails", "Test result"]],
+          "objectives": ["Analyse dependencies", "Calculate availability ceilings", "Reduce dependency risk"]
+        },
+        {
+          "topic": "Distributed Tracing for SREs: Sampling, Tail Latency and Service Graphs",
+          "subtopics": ["Head and tail sampling", "Keeping errors and slow traces", "Span metrics and service graphs", "Finding tail latency causes", "Trace context across queues and batch jobs", "Linking traces to deployments", "Trace storage cost", "Tracing gaps and how to close them"],
+          "tools": ["OpenTelemetry Collector", "Tempo or Jaeger", "Grafana"],
+          "lab_task": "Configure tail sampling that keeps every error and slow trace, generate span metrics and a service graph, and find the cause of the slowest 1% of checkout requests.",
+          "deliverable": "Sampling configuration, service graph and tail latency analysis",
+          "checks": [["Sample", "Errors and slow traces are always kept", "Sampling test"], ["Graph", "The service graph shows request rates and errors between services", "Screenshot"], ["Explain", "The cause of the slowest 1% is found", "Analysis notes"]],
+          "objectives": ["Use tracing for reliability", "Sample traces well", "Explain tail latency"]
+        },
+        {
+          "topic": "Major Incident Command: Coordination, Escalation and Customer Communication",
+          "subtopics": ["Major incident criteria", "Incident command for several teams", "Working groups and parallel investigations", "Escalating to vendors and leadership", "Customer and executive communication", "Decision logs during incidents", "Handover across time zones", "Closing and follow-up"],
+          "tools": ["PagerDuty or incident.io", "Status page", "Chat tool", "Decision log"],
+          "lab_task": "Lead a two-hour simulated major incident with three teams, a vendor escalation and executive updates, keeping a decision log and handing over to another region halfway.",
+          "deliverable": "Incident record with decision log and updates",
+          "checks": [["Command", "Workstreams have leads and regular check-ins", "Incident log"], ["Escalate", "The vendor and leadership are engaged at the right time", "Escalation records"], ["Hand over", "The next region continues without lost context", "Handover note"]],
+          "objectives": ["Command major incidents", "Coordinate several teams", "Communicate with customers and executives"]
+        },
+        {
+          "topic": "Incident Analysis: Contributing Factors, Learning Reviews and Trends",
+          "subtopics": ["Learning reviews compared with root cause analysis", "Interviewing responders", "Contributing factors and conditions", "Counterfactuals and hindsight bias", "Incident metrics and their limits", "Trend analysis across incidents", "Action item follow-up", "Sharing incident reviews"],
+          "tools": ["Incident tracker", "Review template", "Spreadsheet"],
+          "lab_task": "Run a learning review of the simulated major incident with responder interviews, analyse a quarter of seeded incidents for trends and present three systemic improvements.",
+          "deliverable": "Learning review and trend report",
+          "checks": [["Interview", "Responder accounts are captured without blame", "Interview notes"], ["Analyse", "Trends across incidents are backed by data", "Trend report"], ["Improve", "Three systemic improvements have owners", "Improvement plan"]],
+          "objectives": ["Analyse incidents deeply", "Find trends", "Drive systemic improvements"]
+        },
+        {
+          "topic": "Runbooks and Automated Remediation",
+          "subtopics": ["Runbooks that people can follow under stress", "Runbooks as code", "Diagnostics collected automatically", "Automated remediation for known failures", "Safety checks and rate limits for automation", "Human approval for risky actions", "Measuring remediation success", "Retiring stale runbooks"],
+          "tools": ["Runbook automation tool", "Alertmanager webhooks", "Scripting language"],
+          "lab_task": "Turn three runbooks into automation that collects diagnostics, remediates a known failure with safety checks and asks for approval before a risky restart.",
+          "deliverable": "Automated runbooks with safety checks",
+          "checks": [["Diagnose", "Alerts arrive with diagnostics attached", "Alert payload"], ["Remediate", "The known failure is fixed without a human", "Automation log"], ["Guard", "The risky action waits for approval", "Approval record"]],
+          "objectives": ["Write usable runbooks", "Automate remediation safely", "Measure automation success"]
+        },
+        {
+          "topic": "Kubernetes Reliability: Probes, Disruption Budgets and Autoscaling",
+          "subtopics": ["Liveness, readiness and startup probes done right", "Pod disruption budgets", "Topology spread and anti-affinity", "Requests, limits and quality of service", "Horizontal and vertical autoscaling", "Node failures and drains", "Cluster upgrades without user impact", "Reliability checks in admission policies"],
+          "tools": ["Kubernetes", "kubectl", "Prometheus", "Kyverno"],
+          "lab_task": "Fix probe, resource and spread settings for the course services, add disruption budgets, drain a node and upgrade the cluster while the SLOs hold.",
+          "deliverable": "Reliable workload settings and upgrade evidence",
+          "checks": [["Configure", "Probes, resources and spread follow the standard", "Manifest review"], ["Drain", "A node drain causes no SLO breach", "SLO dashboard"], ["Upgrade", "The cluster upgrade completes within the error budget", "Upgrade log"]],
+          "objectives": ["Run reliable workloads on Kubernetes", "Survive node loss and upgrades", "Enforce reliability settings"]
+        },
+        {
+          "topic": "Database Reliability: Replication, Failover and Backups",
+          "subtopics": ["Replication and its lag", "Automatic failover and split brain", "Connection pooling and retries", "Backups and point-in-time recovery", "Restore testing", "Schema changes without downtime", "Database SLIs", "Capacity and slow query reviews"],
+          "tools": ["PostgreSQL", "Patroni or a managed database", "pgBackRest or cloud backups"],
+          "lab_task": "Fail over the course database under load, measure the client impact, restore a point-in-time backup into a new instance and run a schema change without downtime.",
+          "deliverable": "Failover, restore and migration evidence",
+          "checks": [["Fail over", "Clients reconnect within the target", "Failover timeline"], ["Restore", "Data is restored to the chosen point in time", "Restore check"], ["Migrate", "The schema change causes no failed requests", "Request metrics"]],
+          "objectives": ["Run reliable databases", "Test restores", "Change schemas safely"]
+        },
+        {
+          "topic": "Disaster Recovery: RPO, RTO and Regional Failover Tests",
+          "subtopics": ["Recovery point and recovery time objectives", "Backup, pilot light, warm standby and active-active", "Dependencies in recovery plans", "Data replication across regions", "Runbooks for regional failover", "Failover tests and failback", "Recovery of the tooling itself", "Reporting test results"],
+          "tools": ["Cloud provider regions", "Infrastructure as code", "Backup tools"],
+          "lab_task": "Set RPO and RTO for three services, run a regional failover test of the course service with the runbook, fail back and report achieved RPO and RTO.",
+          "deliverable": "Recovery objectives and failover test report",
+          "checks": [["Set", "Each service has agreed RPO and RTO", "Objectives table"], ["Test", "The failover meets the RTO", "Test timeline"], ["Report", "Achieved RPO and RTO are reported with gaps", "Test report"]],
+          "objectives": ["Set recovery objectives", "Test regional failover", "Report recovery results"]
+        },
+        {
+          "topic": "Load Balancing and Traffic Management for Reliability",
+          "subtopics": ["Layer 4 and layer 7 load balancing", "Health checks and outlier detection", "Weighted routing and traffic splitting", "Connection draining", "Rate limiting at the edge", "Zone-aware routing", "Global load balancing", "Traffic management in a service mesh"],
+          "tools": ["Envoy or a service mesh", "Cloud load balancer", "k6"],
+          "lab_task": "Configure health checks, outlier detection and zone-aware routing, remove a failing instance automatically and shift traffic between versions without errors.",
+          "deliverable": "Traffic configuration with failure tests",
+          "checks": [["Detect", "A failing instance is ejected automatically", "Proxy stats"], ["Shift", "Traffic moves between versions without errors", "Request metrics"], ["Limit", "Excess traffic is rate limited at the edge", "Rate limit metrics"]],
+          "objectives": ["Use load balancing for reliability", "Detect failing instances", "Shift traffic safely"]
+        },
+        {
+          "topic": "Chaos Engineering Programmes: Game Days and Continuous Experiments",
+          "subtopics": ["Building a chaos programme", "Experiment catalogues", "Game day planning and facilitation", "Continuous experiments in pipelines", "Safety controls and approvals", "Measuring resilience improvements", "Sharing findings", "Getting teams to own experiments"],
+          "tools": ["Chaos Mesh or LitmusChaos", "CI pipeline", "Experiment catalogue"],
+          "lab_task": "Run a facilitated game day with two teams, add two experiments to a pipeline that run after each release and track the findings to fixes.",
+          "deliverable": "Game day report and continuous experiments",
+          "checks": [["Facilitate", "The game day follows its plan with safety controls", "Game day report"], ["Automate", "Two experiments run after each release", "Pipeline runs"], ["Track", "Findings are linked to fixes", "Tracker"]],
+          "objectives": ["Run a chaos programme", "Automate experiments", "Measure resilience"]
+        },
+        {
+          "topic": "Deployment Safety at Scale: Change Risk, Flags and Freezes",
+          "subtopics": ["Change risk scoring", "Progressive delivery across regions", "Automatic analysis and rollback", "Feature flag hygiene", "Deploy windows and freezes", "Change failure rate and recovery time", "Linking incidents to changes", "Emergency changes"],
+          "tools": ["Argo Rollouts or Spinnaker", "Feature flag service", "Prometheus"],
+          "lab_task": "Score the risk of ten seeded changes, release the riskiest across two regions with automatic analysis, and link a seeded incident to the change that caused it.",
+          "deliverable": "Risk scores, regional rollout and change-incident link",
+          "checks": [["Score", "Each change has a risk score with reasons", "Risk table"], ["Roll out", "The risky change goes region by region with analysis", "Rollout history"], ["Link", "The incident is traced to its change", "Incident record"]],
+          "objectives": ["Assess change risk", "Roll out across regions safely", "Connect incidents to changes"]
+        },
+        {
+          "topic": "Observability Pipelines: OpenTelemetry Collector, Sampling and Cost Control",
+          "subtopics": ["Collector agents and gateways", "Processors: batch, filter, transform and redaction", "Routing telemetry to several backends", "Dropping low-value data", "Metrics cardinality control", "Log volume budgets", "Pipeline reliability and back pressure", "Measuring telemetry cost per team"],
+          "tools": ["OpenTelemetry Collector", "Prometheus", "Loki", "Grafana"],
+          "lab_task": "Build a collector gateway that redacts personal data, drops debug logs in production, limits metric cardinality and routes data to two backends, and report cost per team.",
+          "deliverable": "Collector pipeline and telemetry cost report",
+          "checks": [["Redact", "No personal data reaches the backends", "Data sample"], ["Reduce", "Telemetry volume drops without losing SLO signals", "Volume comparison"], ["Report", "Telemetry cost per team is reported", "Cost report"]],
+          "objectives": ["Run telemetry pipelines", "Control telemetry cost", "Protect sensitive data"]
+        },
+        {
+          "topic": "Alert Quality: Measuring Noise, Tuning and Paging Reviews",
+          "subtopics": ["Alert quality metrics", "Precision and recall for alerts", "Duplicate and flapping alerts", "Weekly paging reviews", "Deleting alerts nobody acts on", "Alert ownership", "Alerting standards for teams", "Tracking on-call health"],
+          "tools": ["Alertmanager", "PagerDuty or incident.io analytics", "Spreadsheet"],
+          "lab_task": "Measure a month of seeded alert data, find the noisiest alerts, tune or delete them in a paging review and show the drop in pages.",
+          "deliverable": "Alert quality report and tuning changes",
+          "checks": [["Measure", "Noise, duplicates and actionability are measured", "Quality report"], ["Tune", "The noisiest alerts are tuned or deleted", "Change list"], ["Show", "Pages per week fall after the changes", "Before-and-after chart"]],
+          "objectives": ["Measure alert quality", "Run paging reviews", "Reduce noise"]
+        },
+        {
+          "topic": "Capacity Management with Forecasting and Autoscaling Policies",
+          "subtopics": ["Forecasting demand from metrics", "Seasonality and events", "Autoscaling policies and their tuning", "Scaling limits and quotas", "Lead times for capacity", "Capacity tests before events", "Cost-aware capacity", "Capacity reporting"],
+          "tools": ["Prometheus", "Grafana", "k6", "Cloud autoscaling"],
+          "lab_task": "Forecast the next quarter's demand from metrics, tune autoscaling for a seeded traffic spike and run a capacity test before a planned sales event.",
+          "deliverable": "Forecast, autoscaling tuning and event readiness report",
+          "checks": [["Forecast", "The forecast includes seasonality and an event", "Forecast chart"], ["Scale", "Autoscaling absorbs the spike without SLO breach", "Test metrics"], ["Ready", "The event readiness report lists limits and actions", "Readiness report"]],
+          "objectives": ["Forecast capacity", "Tune autoscaling", "Prepare for events"]
+        },
+        {
+          "topic": "Performance Engineering for SREs: Profiling and Efficiency",
+          "subtopics": ["Performance compared with reliability", "CPU and memory profiling", "Continuous profiling", "Flame graphs", "Garbage collection and memory leaks", "Efficiency metrics such as cost per request", "Performance regressions in CI", "Working with developers on fixes"],
+          "tools": ["Pyroscope or a continuous profiler", "Flame graphs", "k6"],
+          "lab_task": "Profile the slowest course service under load, find the hot path in a flame graph, fix it with the developers and add a performance regression test to CI.",
+          "deliverable": "Profile analysis, fix and regression test",
+          "checks": [["Profile", "The hot path is identified in a flame graph", "Flame graph"], ["Fix", "Latency and CPU use drop after the fix", "Before-and-after metrics"], ["Guard", "CI fails when the regression returns", "CI run"]],
+          "objectives": ["Profile services", "Improve efficiency", "Prevent regressions"]
+        },
+        {
+          "topic": "Reliability for AI Services: LLM Latency, Quality SLIs and Rate Limits",
+          "subtopics": ["Time to first token and tokens per second", "Quality SLIs for model outputs", "Provider rate limits and quotas", "Fallback models and degraded modes", "GPU capacity for self-hosted models", "Cost per request", "Monitoring with OpenTelemetry semantic conventions for generative AI", "Incidents caused by model or prompt changes"],
+          "tools": ["OpenTelemetry", "LLM gateway", "Prometheus", "Grafana"],
+          "lab_task": "Define latency and quality SLOs for an AI assistant in the course service, add a fallback model behind a gateway with rate limits and test a provider outage.",
+          "deliverable": "AI service SLOs, gateway configuration and outage test",
+          "checks": [["Define", "Latency and quality SLOs have SLIs and targets", "SLO document"], ["Fall back", "The assistant keeps answering during the provider outage", "Test record"], ["Limit", "Rate limits prevent quota exhaustion", "Gateway metrics"]],
+          "objectives": ["Apply SLOs to AI services", "Plan for provider outages", "Control AI service cost"]
+        },
+        {
+          "topic": "AIOps and SRE Agents in Incident Response",
+          "subtopics": ["Event correlation and noise reduction", "Anomaly detection and its false positives", "AI SRE agents from observability and incident vendors", "Giving agents telemetry and runbook context", "Permissions and approval for agent actions", "Evaluating agent investigations", "Keeping humans skilled", "Measuring time to mitigation"],
+          "tools": ["AIOps or AI SRE agent tool", "Incident tracker", "Telemetry backends"],
+          "lab_task": "Let an AI SRE agent investigate three replayed incidents with read-only access, compare its findings with the human postmortems and define the actions it may take with approval.",
+          "deliverable": "Agent evaluation and action policy",
+          "checks": [["Investigate", "The agent's findings are compared with the postmortems", "Comparison table"], ["Restrict", "The agent can only take approved actions", "Permission configuration"], ["Measure", "Time to a correct hypothesis is recorded", "Timing data"]],
+          "objectives": ["Use AIOps tools well", "Evaluate AI SRE agents", "Keep control of agent actions"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production SRE Programme for a Microservice Estate",
+          "subtopics": ["SLO catalogue and alert quality", "Incident command and learning reviews", "Disaster recovery and chaos tests", "Telemetry pipeline and capacity plan"],
+          "tools": ["Prometheus", "Grafana", "OpenTelemetry Collector", "Chaos Mesh or LitmusChaos"],
+          "lab_task": "Run the SRE programme for the ten course services for a simulated month with an SLO catalogue, tuned alerts, a major incident and learning review, a failover test, game days, a telemetry pipeline and a capacity plan.",
+          "deliverable": "Month-end SRE report with evidence",
+          "checks": [["Operate", "SLOs and alert quality are reported for every service", "SRE report"], ["Learn", "The major incident has a learning review with actions", "Review document"], ["Prove", "Failover and chaos tests meet their targets", "Test reports"]],
+          "objectives": ["Combine intermediate SRE skills", "Run SRE for many services", "Report reliability with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For SRE leads, staff engineers and heads of reliability. Covers SRE organisation design, reliability strategy and investment, business SLOs and SLAs, multi-region architecture, global traffic engineering, cross-organisation incident management, resilience engineering, continuous chaos in production, data system reliability, observability strategy, toil elimination programmes, design reviews, security and reliability, cost and reliability, platform SRE, AI-assisted operations, operational resilience regulations such as the EU DORA regulation, building an SRE practice and reliability case studies with SRE Practitioner preparation.",
+      "prerequisites": ["Leads reliability work for several teams or a whole service estate", "Has run major incidents, SLO programmes and disaster recovery tests", "Takes part in architecture and investment decisions"],
+      "outcomes": ["Design SRE organisations, strategies and investment cases", "Architect multi-region systems, traffic engineering and data reliability", "Lead cross-organisation incidents, resilience engineering and continuous chaos", "Govern observability, cost, security, AI operations and regulatory resilience across the organisation"],
+      "days": [
+        {
+          "topic": "SRE Organisation Design: Team Models, Engagement and Charters",
+          "subtopics": ["Centralised, embedded and hybrid SRE teams", "Engagement models and service onboarding criteria", "Handing services back to developers", "SRE charters and team APIs", "Ratio of SREs to developers", "Funding models for SRE", "Interfaces with platform, security and support teams", "Measuring SRE team impact"],
+          "tools": ["Charter template", "Engagement criteria", "Team topology map"],
+          "lab_task": "Design the SRE organisation for 600 engineers, write the charter and onboarding criteria, and decide which services get embedded SRE support.",
+          "deliverable": "SRE organisation design and charter",
+          "checks": [["Design", "Team model and interfaces are defined", "Organisation design"], ["Criteria", "Onboarding and hand-back criteria are measurable", "Criteria document"], ["Decide", "Embedded support goes to services by risk", "Decision table"]],
+          "objectives": ["Design SRE organisations", "Write SRE charters", "Allocate SRE support by risk"]
+        },
+        {
+          "topic": "Reliability Strategy: Risk Registers, Investment and Roadmaps",
+          "subtopics": ["Reliability risk registers", "Quantifying risk in money and users", "Prioritising reliability investment", "Reliability roadmaps", "Balancing feature and reliability work", "Executive reporting on reliability", "Reliability goals in planning cycles", "Revisiting strategy after major incidents"],
+          "tools": ["Risk register", "Investment case template", "Incident and SLO data"],
+          "lab_task": "Build a reliability risk register from a year of incidents and SLO data, cost the top five risks and present a funded two-quarter roadmap to the leadership persona.",
+          "deliverable": "Risk register, investment case and roadmap",
+          "checks": [["Register", "Top risks are ranked with data", "Risk register"], ["Cost", "Each top risk has a cost and a mitigation cost", "Investment case"], ["Fund", "The roadmap is approved with priorities", "Approval record"]],
+          "objectives": ["Set reliability strategy", "Quantify reliability risk", "Win investment"]
+        },
+        {
+          "topic": "Business SLOs: Customer Journeys, Contracts and SLAs",
+          "subtopics": ["SLOs that match business outcomes", "Journey SLOs across teams", "SLAs, credits and legal terms", "Internal SLAs between teams", "Customer-facing status and reporting", "Negotiating SLAs with sales and legal", "SLOs for enterprise customers", "Reviewing SLA breaches"],
+          "tools": ["SLO platform", "SLA template", "Customer reporting tool"],
+          "lab_task": "Define business SLOs for three customer journeys, draft an SLA with credits that sits safely below the SLOs and review a seeded SLA breach with sales and legal personas.",
+          "deliverable": "Business SLOs, SLA draft and breach review",
+          "checks": [["Define", "Business SLOs map to customer journeys", "SLO definitions"], ["Draft", "SLA targets leave margin below the SLOs", "SLA draft"], ["Review", "The breach review sets credits and actions", "Review record"]],
+          "objectives": ["Link SLOs to business outcomes", "Write safe SLAs", "Handle SLA breaches"]
+        },
+        {
+          "topic": "Multi-Region Architecture for High Availability",
+          "subtopics": ["Active-passive and active-active designs", "Data consistency across regions", "Cell-based architecture", "Static stability", "Regional isolation and shared dependencies", "Control planes and data planes", "Testing regional evacuation", "Cost of multi-region designs"],
+          "tools": ["Cloud provider regions", "Infrastructure as code", "Architecture diagram tool"],
+          "lab_task": "Design an active-active, cell-based version of the course service with static stability, list shared dependencies that break isolation and plan a regional evacuation test.",
+          "deliverable": "Multi-region design and evacuation test plan",
+          "checks": [["Design", "Cells and regions isolate failures", "Architecture diagram"], ["Isolate", "Shared dependencies are listed with mitigations", "Dependency list"], ["Plan", "The evacuation test has steps, abort criteria and success measures", "Test plan"]],
+          "objectives": ["Design multi-region systems", "Use cells and static stability", "Plan evacuation tests"]
+        },
+        {
+          "topic": "Global Traffic Engineering and Failover Automation",
+          "subtopics": ["DNS and anycast routing", "Global load balancers", "Health-based regional failover", "Traffic shaping during incidents", "Automated failover and its risks", "Thundering herds after recovery", "Testing failover automation", "Traffic engineering runbooks"],
+          "tools": ["Global load balancer", "DNS service", "k6", "Infrastructure as code"],
+          "lab_task": "Automate health-based failover between two regions, prevent a thundering herd on recovery and run a failover test under load.",
+          "deliverable": "Failover automation and load test results",
+          "checks": [["Automate", "Traffic moves away from the failing region automatically", "Traffic metrics"], ["Recover", "Failback avoids a thundering herd", "Recovery metrics"], ["Test", "The test under load meets the SLO", "Test report"]],
+          "objectives": ["Engineer global traffic", "Automate failover safely", "Test failover under load"]
+        },
+        {
+          "topic": "Cross-Organisation Incident Management and Regulator Notifications",
+          "subtopics": ["Incidents that span companies and vendors", "Joint incident command with suppliers", "Legal, PR and executive roles", "Regulatory notification duties", "Customer communication at scale", "Evidence handling during incidents", "Coordinating with security incident response", "Exercises with suppliers"],
+          "tools": ["Incident tracker", "Communication plan", "Regulatory notification templates"],
+          "lab_task": "Run a cross-company exercise for a supplier outage that affects customers, meet notification deadlines and coordinate with security responders.",
+          "deliverable": "Exercise record with notifications and lessons",
+          "checks": [["Coordinate", "Joint command with the supplier works", "Exercise log"], ["Notify", "Notifications are sent within their deadlines", "Notification records"], ["Learn", "Lessons are assigned across organisations", "Lessons list"]],
+          "objectives": ["Lead cross-organisation incidents", "Meet notification duties", "Exercise with suppliers"]
+        },
+        {
+          "topic": "Resilience Engineering: Safety-II, Adaptive Capacity and Near Misses",
+          "subtopics": ["Safety-I and Safety-II", "Work as imagined compared with work as done", "Adaptive capacity", "Near misses as learning material", "Complex systems and multiple contributing factors", "Psychological safety", "Expertise and how it spreads", "Measuring resilience"],
+          "tools": ["Interview guides", "Near-miss reports", "Review templates"],
+          "lab_task": "Collect and analyse five near misses through interviews, describe the adaptations that prevented incidents and recommend ways to support them.",
+          "deliverable": "Near-miss analysis and recommendations",
+          "checks": [["Collect", "Five near misses are documented", "Reports"], ["Analyse", "Adaptations that prevented incidents are described", "Analysis"], ["Recommend", "Recommendations support adaptive capacity", "Recommendation list"]],
+          "objectives": ["Apply resilience engineering", "Learn from near misses", "Support adaptive capacity"]
+        },
+        {
+          "topic": "Continuous Chaos in Production: Automated Experiments and Guardrails",
+          "subtopics": ["Experiment automation at scale", "Guardrails and automatic stops", "Experiments tied to SLOs and error budgets", "Dependency and regional failure experiments", "Chaos for data and stateful systems", "Organisational buy-in and risk sign-off", "Reporting resilience over time", "Common failures of chaos programmes"],
+          "tools": ["Chaos Mesh or LitmusChaos", "Cloud fault injection service", "SLO platform"],
+          "lab_task": "Automate weekly production experiments that stop when the error budget drops below a threshold, include a regional dependency failure and report resilience trends.",
+          "deliverable": "Automated production experiments and trend report",
+          "checks": [["Automate", "Experiments run on schedule with guardrails", "Experiment history"], ["Stop", "An experiment stops when the budget threshold is reached", "Stop record"], ["Report", "Resilience trends are reported over time", "Trend report"]],
+          "objectives": ["Run chaos in production safely", "Tie experiments to budgets", "Report resilience trends"]
+        },
+        {
+          "topic": "Reliability of Data Systems: Freshness, Correctness and Pipeline SLOs",
+          "subtopics": ["Freshness, completeness and correctness SLIs", "Pipeline SLOs", "Data incidents and their detection", "Backfills and reprocessing", "Schema changes and contracts", "Streaming system reliability", "Data quality tools", "On-call for data teams"],
+          "tools": ["Data pipeline orchestrator", "Data quality tool", "Prometheus"],
+          "lab_task": "Define freshness and correctness SLOs for two pipelines, detect a seeded data incident, backfill safely and add a data contract check.",
+          "deliverable": "Data SLOs, incident record and contract check",
+          "checks": [["Define", "Pipelines have freshness and correctness SLOs", "SLO document"], ["Detect", "The data incident is detected by the SLIs", "Alert record"], ["Backfill", "The backfill restores correct data without duplicates", "Validation result"]],
+          "objectives": ["Apply SRE to data systems", "Detect data incidents", "Recover data safely"]
+        },
+        {
+          "topic": "Observability Strategy: Telemetry Standards, Cost and Vendor Choices",
+          "subtopics": ["Telemetry standards across teams", "OpenTelemetry as the common layer", "Build or buy observability backends", "Comparing vendors on cost and features", "Cost allocation and budgets", "Data retention and sampling strategy", "Migration between backends", "Measuring the value of observability"],
+          "tools": ["OpenTelemetry", "Cost reports", "Vendor evaluation matrix"],
+          "lab_task": "Write an observability strategy with telemetry standards, a vendor comparison and a cost model, and plan a migration of two teams to the chosen backend.",
+          "deliverable": "Observability strategy and migration plan",
+          "checks": [["Standardise", "Telemetry standards cover names, attributes and retention", "Standards document"], ["Compare", "Vendors are compared on cost and needs", "Comparison matrix"], ["Plan", "The migration plan avoids monitoring gaps", "Migration plan"]],
+          "objectives": ["Set observability strategy", "Compare backends on cost", "Migrate without gaps"]
+        },
+        {
+          "topic": "Toil Elimination Programmes and Self-Service Operations",
+          "subtopics": ["Toil inventories across teams", "Funding toil elimination", "Self-service operations for developers", "Automation platforms and their ownership", "Measuring time returned to engineers", "Avoiding automation that creates new toil", "Prioritising by frequency and risk", "Reporting programme results"],
+          "tools": ["Toil inventory", "Automation platform", "Developer portal"],
+          "lab_task": "Build a toil inventory for four teams, fund the top three items, deliver one as a self-service operation and report hours returned.",
+          "deliverable": "Toil programme plan and first self-service operation",
+          "checks": [["Inventory", "Toil is measured across four teams", "Inventory"], ["Deliver", "One operation becomes self-service", "Self-service record"], ["Report", "Hours returned are measured", "Programme report"]],
+          "objectives": ["Run toil programmes", "Offer self-service operations", "Measure time returned"]
+        },
+        {
+          "topic": "Design Reviews for Reliability: Failure Modes and Architecture Risks",
+          "subtopics": ["Reliability questions in design reviews", "Failure mode and effects analysis", "Dependency and capacity risks", "Data consistency risks", "Operability and debuggability", "Reliability requirements in design documents", "Review outcomes and follow-up", "Scaling reviews across teams"],
+          "tools": ["FMEA template", "Design document template", "Architecture diagram tool"],
+          "lab_task": "Review a new payment service design with FMEA, rank its failure modes, agree design changes and track them to completion.",
+          "deliverable": "FMEA, review record and tracked changes",
+          "checks": [["Analyse", "Failure modes are ranked by severity and likelihood", "FMEA table"], ["Change", "Design changes are agreed for the top risks", "Review record"], ["Track", "Changes are tracked to completion", "Tracker"]],
+          "objectives": ["Review designs for reliability", "Use FMEA", "Follow up on design risks"]
+        },
+        {
+          "topic": "Security and Reliability Together: Shared Incidents and Safe Defaults",
+          "subtopics": ["Where security and reliability overlap", "Security incidents that cause outages", "Least privilege without slowing recovery", "Break-glass access", "Safe defaults in configuration", "Dependency and supply chain risks", "Joint exercises with security teams", "Shared metrics and reviews"],
+          "tools": ["Access management tool", "Incident tracker", "Policy engine"],
+          "lab_task": "Run a joint exercise where a leaked credential forces key rotation during an outage, test break-glass access and fix one unsafe default.",
+          "deliverable": "Joint exercise record and fixes",
+          "checks": [["Exercise", "Security and SRE responders work as one team", "Exercise log"], ["Access", "Break-glass access works and is audited", "Access log"], ["Fix", "The unsafe default is replaced", "Change record"]],
+          "objectives": ["Combine security and reliability", "Plan break-glass access", "Fix unsafe defaults"]
+        },
+        {
+          "topic": "Cost and Reliability: Efficiency Without Losing Nines",
+          "subtopics": ["The cost of redundancy", "Right-sizing with SLOs as guardrails", "Spot and preemptible capacity", "Autoscaling to zero", "Cost per request and per journey", "FinOps and SRE working together", "Cost incidents", "Reporting cost and reliability together"],
+          "tools": ["Cloud cost reports", "Prometheus", "Autoscaling"],
+          "lab_task": "Cut the cost of the course service by 20% with right-sizing and spot capacity while the SLOs hold, and report cost and reliability together.",
+          "deliverable": "Cost reduction with SLO evidence",
+          "checks": [["Reduce", "Monthly cost drops by at least 20%", "Cost report"], ["Hold", "SLOs stay within budget after the change", "SLO dashboard"], ["Report", "Cost and reliability are reported side by side", "Combined report"]],
+          "objectives": ["Reduce cost safely", "Use SLOs as guardrails", "Report cost with reliability"]
+        },
+        {
+          "topic": "Platform SRE: Reliability of Shared Infrastructure",
+          "subtopics": ["Shared infrastructure as a product", "SLOs for platforms and internal services", "Blast radius of platform changes", "Multi-tenant fairness", "Platform incidents and customer teams", "Upgrade programmes for shared services", "Capacity for shared clusters", "Platform reliability reviews"],
+          "tools": ["Kubernetes", "SLO platform", "Status page"],
+          "lab_task": "Set SLOs for the shared Kubernetes platform and CI system, limit the blast radius of a platform change with staged rollout and run a platform incident review with customer teams.",
+          "deliverable": "Platform SLOs, staged change and review",
+          "checks": [["Define", "Platform services have SLOs", "SLO document"], ["Stage", "The platform change rolls out in stages", "Rollout record"], ["Review", "Customer teams take part in the incident review", "Review record"]],
+          "objectives": ["Run SRE for shared platforms", "Limit platform blast radius", "Serve internal customers"]
+        },
+        {
+          "topic": "AI-Assisted Operations at Scale: Agents, Guardrails and Evaluation",
+          "subtopics": ["Where AI agents fit in operations", "Agent access to telemetry, code and runbooks", "Guardrails, approvals and audit", "Evaluating agents with replayed incidents", "Failure modes of AI agents", "Keeping operator skills sharp", "Vendor and in-house options", "Measuring the impact on reliability"],
+          "tools": ["AI SRE agent tool", "MCP servers for telemetry", "Incident replay data"],
+          "lab_task": "Evaluate two AI operations agents on twenty replayed incidents, define guardrails for production actions and decide where agents can act without a human.",
+          "deliverable": "Agent evaluation and guardrail policy",
+          "checks": [["Evaluate", "Agents are scored on correct diagnosis and safe actions", "Evaluation report"], ["Guard", "Production actions follow the guardrail policy", "Policy and audit log"], ["Decide", "Autonomous actions are limited to proven cases", "Decision record"]],
+          "objectives": ["Evaluate AI operations agents", "Set guardrails", "Decide where agents act alone"]
+        },
+        {
+          "topic": "Operational Resilience Regulations: EU DORA, Testing and Reporting",
+          "subtopics": ["The EU Digital Operational Resilience Act and who it applies to", "ICT risk management requirements", "Major incident classification and reporting deadlines", "Resilience testing, including threat-led penetration testing", "ICT third-party risk and the register of information", "UK operational resilience: important business services and impact tolerances", "Mapping SRE practices to regulatory duties", "Evidence for supervisors"],
+          "tools": ["Regulatory text and guidance", "Control mapping sheet", "Incident and test records"],
+          "lab_task": "Map the course company's SRE practices to EU DORA and UK operational resilience duties, fill the gaps with owners and prepare an evidence pack for a supervisor.",
+          "deliverable": "Regulatory mapping, gap plan and evidence pack",
+          "checks": [["Map", "Each duty maps to a practice or a gap", "Mapping sheet"], ["Close", "Gaps have owners and dates", "Gap plan"], ["Prove", "The evidence pack answers a supervisor's questions", "Evidence pack"]],
+          "objectives": ["Understand operational resilience rules", "Map SRE practices to regulation", "Prepare evidence"]
+        },
+        {
+          "topic": "Building an SRE Practice: Hiring, Training and Career Paths",
+          "subtopics": ["SRE skills and roles", "Hiring and interview loops", "Training programmes and shadowing", "Career ladders for SREs", "On-call readiness training", "Communities of practice", "Retaining senior SREs", "Measuring practice health"],
+          "tools": ["Skills matrix", "Interview loop template", "Training plan"],
+          "lab_task": "Design hiring loops, a training plan with shadow on-call and a career ladder for the SRE practice, and plan the first year of growth.",
+          "deliverable": "SRE practice plan",
+          "checks": [["Hire", "Interview loops test the needed skills", "Interview plan"], ["Train", "New SREs reach on-call readiness through a planned path", "Training plan"], ["Grow", "The career ladder has clear expectations by level", "Career ladder"]],
+          "objectives": ["Build an SRE practice", "Train SREs", "Grow and retain engineers"]
+        },
+        {
+          "topic": "Reliability Case Studies and SRE Practitioner Exam Preparation",
+          "subtopics": ["Public postmortems from large outages", "Common patterns in major outages", "Applying lessons to your own systems", "SRE Practitioner topics: anti-patterns, observability, chaos and AIOps", "Practice scenarios", "Mapping course days to exam topics", "Review plan for weak areas", "Exam logistics"],
+          "tools": ["Public postmortems", "DevOps Institute SRE Practitioner syllabus", "Course notes"],
+          "lab_task": "Analyse three public outage postmortems, apply one lesson to the course service and complete a timed practice set mapped to the SRE Practitioner topics.",
+          "deliverable": "Case study analysis and practice results",
+          "checks": [["Analyse", "Three outages are analysed for patterns", "Case study notes"], ["Apply", "One lesson changes the course service", "Change record"], ["Practise", "The practice set score and weak areas are recorded", "Practice results"]],
+          "objectives": ["Learn from public outages", "Apply lessons", "Prepare for the SRE Practitioner exam"]
+        },
+        {
+          "topic": "Advanced Capstone: Organisation-Wide Reliability Programme",
+          "subtopics": ["Organisation and strategy", "Multi-region and data reliability design", "Incident, chaos and regulatory readiness", "Cost, AI operations and practice growth"],
+          "tools": ["Strategy documents", "SLO platform", "Architecture diagrams", "Evidence packs"],
+          "lab_task": "Present an organisation-wide reliability programme to the leadership persona with the SRE organisation, strategy and investment case, multi-region and data designs, incident and chaos readiness, regulatory mapping, cost results and AI operations guardrails.",
+          "deliverable": "Reliability programme with evidence and a leadership decision",
+          "checks": [["Strategy", "The investment case uses measured risk", "Investment case"], ["Design", "Architecture and data designs pass review", "Review record"], ["Ready", "Incident, chaos and regulatory readiness have evidence", "Evidence pack"]],
+          "objectives": ["Combine advanced SRE skills", "Lead reliability across an organisation", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

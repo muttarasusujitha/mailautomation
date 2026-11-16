@@ -14248,6 +14248,1515 @@
           "Track team cost"
         ]
       }
+    },
+    {
+      "between": [
+        "SRE",
+        "Prometheus and Grafana"
+      ],
+      "day": {
+        "topic": "SLOs in Prometheus and Grafana: Recording Rules, Burn-Rate Alerts and Error Budget Dashboards",
+        "subtopics": [
+          "SLIs as PromQL ratios",
+          "Recording rules for SLI windows",
+          "Generating rules with Sloth or Pyrra",
+          "Multi-window burn-rate alerts in Alertmanager",
+          "Error budget dashboards in Grafana",
+          "SLO annotations for releases and incidents",
+          "Grafana SLO features",
+          "Reviewing SLOs with teams"
+        ],
+        "tools": [
+          "Prometheus",
+          "Grafana",
+          "Sloth or Pyrra",
+          "Alertmanager"
+        ],
+        "lab_task": "Turn three SLOs into generated recording rules and burn-rate alerts, build an error budget dashboard with release annotations and walk a team through it.",
+        "deliverable": "SLO rules, alerts and an error budget dashboard",
+        "checks": [
+          [
+            "Generate",
+            "Recording rules and alerts load without errors",
+            "Prometheus rules page"
+          ],
+          [
+            "Alert",
+            "A seeded fast burn pages within minutes",
+            "Alertmanager history"
+          ],
+          [
+            "Show",
+            "The dashboard shows remaining budget with release markers",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Implement SLOs in Prometheus",
+          "Alert on burn rate",
+          "Show error budgets in Grafana"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "SRE Practices on Kubernetes: Error Budgets for Platform Changes and Workload Standards",
+        "subtopics": [
+          "Workload reliability standards",
+          "Policies that enforce probes, requests and disruption budgets",
+          "Error budgets for cluster upgrades",
+          "SLOs for the Kubernetes control plane and ingress",
+          "Node pool changes without user impact",
+          "Incident patterns on Kubernetes",
+          "Runbooks for common cluster failures",
+          "Capacity reviews for clusters"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Kyverno",
+          "Prometheus",
+          "kubectl"
+        ],
+        "lab_task": "Enforce workload standards with admission policies, define SLOs for ingress and the API server and run a cluster upgrade only while the error budget allows it.",
+        "deliverable": "Workload standards, platform SLOs and upgrade record",
+        "checks": [
+          [
+            "Enforce",
+            "Workloads without probes or budgets are rejected",
+            "Admission messages"
+          ],
+          [
+            "Measure",
+            "Ingress and API server SLOs are live",
+            "SLO dashboard"
+          ],
+          [
+            "Upgrade",
+            "The upgrade stays within the error budget",
+            "Budget before and after"
+          ]
+        ],
+        "objectives": [
+          "Apply SRE practices to Kubernetes",
+          "Enforce workload standards",
+          "Gate platform changes on budgets"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Datadog"
+      ],
+      "day": {
+        "topic": "Running SRE Practice in Datadog: SLOs, Monitors, On-Call and Postmortems",
+        "subtopics": [
+          "SLOs from APM and metric data",
+          "Burn-rate monitors",
+          "Monitor standards per service tier",
+          "Datadog On-Call rotations",
+          "Incidents and status pages",
+          "Postmortems from incident timelines",
+          "Toil tracking with Workflow Automation",
+          "Reliability reports for leadership"
+        ],
+        "tools": [
+          "Datadog SLOs",
+          "Datadog On-Call",
+          "Incident Management",
+          "Workflow Automation"
+        ],
+        "lab_task": "Run the course SRE practice in Datadog with SLOs, burn-rate monitors, an On-Call rotation, an incident drill with a status page and a postmortem, and automate one toil task.",
+        "deliverable": "SRE practice in Datadog with drill evidence",
+        "checks": [
+          [
+            "Measure",
+            "SLOs and burn-rate monitors cover the critical journeys",
+            "SLO list"
+          ],
+          [
+            "Respond",
+            "The drill is handled with On-Call, status page and postmortem",
+            "Incident record"
+          ],
+          [
+            "Automate",
+            "One toil task runs as a workflow",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Run SRE practices in Datadog",
+          "Handle incidents end to end",
+          "Automate toil"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Dynatrace"
+      ],
+      "day": {
+        "topic": "SRE with Dynatrace: SLOs, Guardians and Davis-Assisted Incident Response",
+        "subtopics": [
+          "SLOs from DQL and service metrics",
+          "Error budgets and burn rates in Dynatrace",
+          "Site Reliability Guardian for release checks",
+          "Davis problems as the incident entry point",
+          "Root cause analysis compared with human analysis",
+          "Workflows for remediation",
+          "Postmortems with problem timelines",
+          "Reliability reviews"
+        ],
+        "tools": [
+          "Service-Level Objectives app",
+          "Site Reliability Guardian",
+          "Davis AI",
+          "Workflows"
+        ],
+        "lab_task": "Define SLOs for the critical journeys, gate releases with a guardian, handle a seeded incident from its Davis problem and compare Davis's root cause with the postmortem.",
+        "deliverable": "SLOs, release gate and incident analysis",
+        "checks": [
+          [
+            "Measure",
+            "SLOs show budgets for the critical journeys",
+            "SLO app"
+          ],
+          [
+            "Gate",
+            "The guardian stops a release that breaks an SLO",
+            "Guardian result"
+          ],
+          [
+            "Compare",
+            "Davis's root cause is compared with the postmortem findings",
+            "Comparison notes"
+          ]
+        ],
+        "objectives": [
+          "Run SRE practices in Dynatrace",
+          "Gate releases on SLOs",
+          "Use AI root cause analysis critically"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Platform Engineering"
+      ],
+      "day": {
+        "topic": "Reliability as a Platform Feature: SLO Templates and Readiness Checks in Golden Paths",
+        "subtopics": [
+          "Default SLIs for new services",
+          "SLO templates in the golden path",
+          "Readiness checks before first production deploy",
+          "Runbook and alert templates",
+          "Scorecards for reliability standards",
+          "On-call onboarding for new services",
+          "Error budget data in the developer portal",
+          "Measuring reliability adoption"
+        ],
+        "tools": [
+          "Backstage",
+          "SLO tooling",
+          "Scorecards",
+          "CI pipeline"
+        ],
+        "lab_task": "Add SLO, alert and runbook templates to the golden path, block the first production deploy until readiness checks pass and show error budgets in the portal.",
+        "deliverable": "Golden path with built-in reliability",
+        "checks": [
+          [
+            "Create",
+            "A new service starts with SLOs, alerts and runbooks",
+            "Generated repository"
+          ],
+          [
+            "Block",
+            "Deploy waits until readiness checks pass",
+            "Pipeline run"
+          ],
+          [
+            "Show",
+            "Error budgets appear on the service page",
+            "Portal screenshot"
+          ]
+        ],
+        "objectives": [
+          "Build reliability into golden paths",
+          "Automate readiness checks",
+          "Show reliability to developers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python for SRE Automation: Toil Scripts, SLO Reports and Safe Runbooks",
+        "subtopics": [
+          "Scripts that remove toil",
+          "Querying Prometheus and APIs from Python",
+          "SLO reports generated from data",
+          "Idempotent and safe automation",
+          "Dry-run modes and confirmations",
+          "Logging and metrics for scripts",
+          "Testing automation",
+          "Packaging tools for the team"
+        ],
+        "tools": [
+          "Python",
+          "Prometheus HTTP API",
+          "pytest",
+          "Click or Typer"
+        ],
+        "lab_task": "Write a Python tool that produces the weekly SLO report from Prometheus, and a runbook automation with dry-run mode, logging and tests.",
+        "deliverable": "Tested Python SRE tools",
+        "checks": [
+          [
+            "Report",
+            "The weekly SLO report matches the dashboard",
+            "Report and dashboard"
+          ],
+          [
+            "Guard",
+            "Dry-run shows actions without making changes",
+            "Dry-run output"
+          ],
+          [
+            "Test",
+            "Unit tests cover the automation",
+            "pytest output"
+          ]
+        ],
+        "objectives": [
+          "Automate SRE work with Python",
+          "Build safe automation",
+          "Test operational tools"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "AWS"
+      ],
+      "day": {
+        "topic": "SRE on AWS: Multi-AZ Design, CloudWatch SLOs and Fault Injection Service",
+        "subtopics": [
+          "Availability Zones and regional services",
+          "Multi-AZ designs for compute and databases",
+          "CloudWatch Application Signals and SLOs",
+          "CloudWatch alarms on burn rate",
+          "AWS Fault Injection Service experiments",
+          "AWS Resilience Hub assessments",
+          "Incident response with AWS tools",
+          "Service quotas as reliability risks"
+        ],
+        "tools": [
+          "Amazon CloudWatch",
+          "AWS Fault Injection Service",
+          "AWS Resilience Hub"
+        ],
+        "lab_task": "Define SLOs with CloudWatch Application Signals, run an Availability Zone failure experiment with Fault Injection Service and fix one gap found by Resilience Hub.",
+        "deliverable": "AWS SLOs, experiment results and a fixed gap",
+        "checks": [
+          [
+            "Measure",
+            "SLOs report in CloudWatch",
+            "Application Signals view"
+          ],
+          [
+            "Experiment",
+            "The service survives the zone failure within its SLO",
+            "Experiment report"
+          ],
+          [
+            "Fix",
+            "The Resilience Hub gap is closed",
+            "Assessment before and after"
+          ]
+        ],
+        "objectives": [
+          "Apply SRE on AWS",
+          "Test zone failures",
+          "Use AWS resilience tools"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Azure"
+      ],
+      "day": {
+        "topic": "SRE on Azure: Availability Zones, Azure Monitor SLOs and Chaos Studio",
+        "subtopics": [
+          "Availability zones and zone-redundant services",
+          "Azure Monitor and Application Insights for SLIs",
+          "SLO dashboards and burn-rate alerts",
+          "Azure Chaos Studio experiments",
+          "Azure Load Testing",
+          "Service Health and Resource Health",
+          "Incident response with Azure tools",
+          "Azure reliability guidance in the Well-Architected Framework"
+        ],
+        "tools": [
+          "Azure Monitor",
+          "Application Insights",
+          "Azure Chaos Studio",
+          "Azure Load Testing"
+        ],
+        "lab_task": "Build SLIs from Application Insights, alert on burn rate, run a zone-down experiment with Chaos Studio under Azure Load Testing traffic and record the impact.",
+        "deliverable": "Azure SLOs and chaos experiment report",
+        "checks": [
+          [
+            "Measure",
+            "SLIs and burn-rate alerts are live",
+            "Azure Monitor alerts"
+          ],
+          [
+            "Experiment",
+            "The zone-down experiment runs under load",
+            "Chaos Studio and load test results"
+          ],
+          [
+            "Record",
+            "Impact on the SLO is recorded with fixes",
+            "Experiment report"
+          ]
+        ],
+        "objectives": [
+          "Apply SRE on Azure",
+          "Test failures with Chaos Studio",
+          "Measure reliability under load"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "Linux Administration"
+      ],
+      "day": {
+        "topic": "Linux for SREs: Performance Triage with USE, perf and eBPF Tools",
+        "subtopics": [
+          "The USE method on Linux",
+          "First-minute triage commands",
+          "CPU and scheduler analysis",
+          "Memory pressure and the OOM killer",
+          "Disk and file system latency",
+          "Network latency and drops",
+          "perf and flame graphs",
+          "eBPF tools such as bpftrace"
+        ],
+        "tools": [
+          "Linux",
+          "perf",
+          "bpftrace",
+          "sysstat tools"
+        ],
+        "lab_task": "Triage four seeded Linux performance problems with the USE method, confirm each with perf or an eBPF tool and record the commands used.",
+        "deliverable": "Triage log with confirmed causes",
+        "checks": [
+          [
+            "Triage",
+            "Each problem is narrowed with the USE method",
+            "Triage log"
+          ],
+          [
+            "Confirm",
+            "perf or eBPF output confirms each cause",
+            "Tool output"
+          ],
+          [
+            "Record",
+            "A reusable triage checklist is written",
+            "Checklist"
+          ]
+        ],
+        "objectives": [
+          "Triage Linux performance",
+          "Use perf and eBPF",
+          "Build a triage checklist"
+        ]
+      }
+    },
+    {
+      "between": [
+        "SRE",
+        "ELK Stack"
+      ],
+      "day": {
+        "topic": "Incident Investigation with Elastic: Log Rate Analysis, Correlations and SLOs",
+        "subtopics": [
+          "SLOs in Elastic Observability",
+          "Burn-rate alerts in Kibana",
+          "Log rate analysis for spikes",
+          "Log pattern analysis",
+          "APM correlations for slow transactions",
+          "ES|QL queries during incidents",
+          "Cases for incident tracking",
+          "Postmortem evidence from Elastic"
+        ],
+        "tools": [
+          "Elastic Observability",
+          "Kibana alerting",
+          "Elasticsearch Query Language",
+          "Cases"
+        ],
+        "lab_task": "Investigate a seeded incident from an SLO burn alert, use log rate analysis and APM correlations to find the cause, track it in a case and export evidence for the postmortem.",
+        "deliverable": "Incident investigation record from Elastic",
+        "checks": [
+          [
+            "Alert",
+            "The SLO burn alert fires for the incident",
+            "Alert record"
+          ],
+          [
+            "Find",
+            "Log rate analysis and correlations point to the cause",
+            "Analysis results"
+          ],
+          [
+            "Record",
+            "The case holds the evidence for the postmortem",
+            "Case page"
+          ]
+        ],
+        "objectives": [
+          "Investigate incidents with Elastic",
+          "Use SLOs in Kibana",
+          "Collect postmortem evidence"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Logging Kubernetes with Elastic: Agent DaemonSets, Autodiscover and ECK",
+        "subtopics": [
+          "Elastic Agent as a DaemonSet",
+          "Container log collection and metadata",
+          "Autodiscover with hints",
+          "Kubernetes events and audit logs",
+          "Elastic Cloud on Kubernetes for the stack",
+          "Namespaces and data stream namespaces",
+          "Log volume control per namespace",
+          "Dashboards for cluster logs"
+        ],
+        "tools": [
+          "Elastic Agent",
+          "ECK",
+          "Kubernetes",
+          "Kibana"
+        ],
+        "lab_task": "Run the stack with ECK, collect container logs and Kubernetes events with an Agent DaemonSet, parse one application's logs through hints and limit noisy namespaces.",
+        "deliverable": "Kubernetes logging with Elastic",
+        "checks": [
+          [
+            "Collect",
+            "Container logs carry pod and namespace metadata",
+            "Log sample"
+          ],
+          [
+            "Parse",
+            "Hint-based parsing structures the application's logs",
+            "Parsed document"
+          ],
+          [
+            "Limit",
+            "Noisy namespaces send less data",
+            "Volume comparison"
+          ]
+        ],
+        "objectives": [
+          "Log Kubernetes with Elastic",
+          "Run the stack on ECK",
+          "Control log volume"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Shipping Docker Container Logs to Elasticsearch: Drivers, Agents and Parsing",
+        "subtopics": [
+          "Docker logging drivers",
+          "JSON file logs and rotation",
+          "Elastic Agent and Filebeat for container logs",
+          "Docker metadata on log events",
+          "Multi-line application logs",
+          "Parsing with ingest pipelines",
+          "Running the stack with Docker Compose",
+          "Log loss during restarts"
+        ],
+        "tools": [
+          "Docker",
+          "Docker Compose",
+          "Elastic Agent or Filebeat",
+          "Elasticsearch"
+        ],
+        "lab_task": "Ship logs from three containers to Elasticsearch with Docker metadata, join multi-line stack traces, parse them with an ingest pipeline and prove no logs are lost during a restart.",
+        "deliverable": "Container logging pipeline with tests",
+        "checks": [
+          [
+            "Ship",
+            "Logs from every container arrive with metadata",
+            "Discover view"
+          ],
+          [
+            "Join",
+            "Stack traces arrive as single events",
+            "Log sample"
+          ],
+          [
+            "Keep",
+            "No logs are lost during a container restart",
+            "Count comparison"
+          ]
+        ],
+        "objectives": [
+          "Collect container logs",
+          "Parse multi-line logs",
+          "Avoid log loss"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "Apache Kafka"
+      ],
+      "day": {
+        "topic": "Kafka and Elasticsearch Pipelines: Kafka Connect Sink, Logstash and Back Pressure",
+        "subtopics": [
+          "Kafka as a buffer in front of Elasticsearch",
+          "The Elasticsearch sink connector",
+          "Logstash Kafka input",
+          "Elastic Agent Kafka output",
+          "Topic design for log streams",
+          "Back pressure and consumer lag",
+          "Exactly-once and duplicates",
+          "Monitoring the pipeline end to end"
+        ],
+        "tools": [
+          "Apache Kafka",
+          "Kafka Connect",
+          "Logstash",
+          "Elasticsearch"
+        ],
+        "lab_task": "Buffer logs through Kafka, index them with the sink connector and with Logstash, slow Elasticsearch on purpose and show that lag grows and recovers without loss.",
+        "deliverable": "Kafka-buffered indexing with a recovery test",
+        "checks": [
+          [
+            "Index",
+            "Both paths index the same events",
+            "Document counts"
+          ],
+          [
+            "Buffer",
+            "Lag grows while Elasticsearch is slow",
+            "Consumer lag chart"
+          ],
+          [
+            "Recover",
+            "All events are indexed after recovery",
+            "Count comparison"
+          ]
+        ],
+        "objectives": [
+          "Buffer data with Kafka",
+          "Index from Kafka",
+          "Handle back pressure"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "Python"
+      ],
+      "day": {
+        "topic": "Python with Elasticsearch: Client, Bulk Helpers and Search Applications",
+        "subtopics": [
+          "The official Python client",
+          "Connecting with API keys",
+          "Bulk helpers and streaming bulk",
+          "Search and aggregation queries from Python",
+          "Async client",
+          "Error handling and retries",
+          "Testing with a container",
+          "A small search API with FastAPI"
+        ],
+        "tools": [
+          "Python",
+          "Elasticsearch Python client",
+          "FastAPI",
+          "Testcontainers"
+        ],
+        "lab_task": "Load a product catalogue with bulk helpers, build a FastAPI search endpoint with filters and aggregations, and test it against an Elasticsearch container.",
+        "deliverable": "Python search service with tests",
+        "checks": [
+          [
+            "Load",
+            "Bulk loading reports and retries failures",
+            "Load log"
+          ],
+          [
+            "Search",
+            "The endpoint returns filtered results with facets",
+            "API response"
+          ],
+          [
+            "Test",
+            "Tests pass against the container",
+            "pytest output"
+          ]
+        ],
+        "objectives": [
+          "Use Elasticsearch from Python",
+          "Build a search API",
+          "Test against a real cluster"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Elastic on AWS: Elastic Cloud, Marketplace Billing and AWS Log Ingestion",
+        "subtopics": [
+          "Elastic Cloud on AWS regions",
+          "Buying through AWS Marketplace",
+          "PrivateLink connectivity",
+          "AWS integration for CloudWatch, S3 and VPC flow logs",
+          "Amazon Data Firehose to Elastic",
+          "Elastic Serverless Forwarder",
+          "IAM roles for collection",
+          "Cost of log ingestion from AWS"
+        ],
+        "tools": [
+          "Elastic Cloud",
+          "AWS integration",
+          "Amazon Data Firehose",
+          "AWS IAM"
+        ],
+        "lab_task": "Connect an Elastic Cloud deployment to AWS over PrivateLink, ingest CloudTrail and VPC flow logs with Firehose and the AWS integration, and estimate monthly ingest cost.",
+        "deliverable": "AWS log ingestion into Elastic with a cost estimate",
+        "checks": [
+          [
+            "Connect",
+            "Traffic uses PrivateLink",
+            "Network configuration"
+          ],
+          [
+            "Ingest",
+            "CloudTrail and VPC flow logs arrive parsed",
+            "Discover view"
+          ],
+          [
+            "Cost",
+            "Monthly ingest cost is estimated",
+            "Cost estimate"
+          ]
+        ],
+        "objectives": [
+          "Run Elastic with AWS",
+          "Ingest AWS logs",
+          "Estimate ingest cost"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "Prometheus and Grafana"
+      ],
+      "day": {
+        "topic": "Elastic and Prometheus Together: PromQL in Elastic, Grafana Data Sources and Remote Write",
+        "subtopics": [
+          "Prometheus remote write into Elastic",
+          "PromQL queries in Elastic",
+          "The Prometheus integration in Elastic Agent",
+          "Grafana with an Elasticsearch data source",
+          "Choosing where metrics and logs live",
+          "Correlating Prometheus metrics with Elastic logs",
+          "Retention and cost on each side",
+          "Migration paths in both directions"
+        ],
+        "tools": [
+          "Prometheus",
+          "Grafana",
+          "Elasticsearch",
+          "Elastic Agent"
+        ],
+        "lab_task": "Send Prometheus metrics into Elastic with remote write, query them with PromQL in Kibana, chart Elastic logs in Grafana and write a recommendation for where each signal should live.",
+        "deliverable": "Combined setup and placement recommendation",
+        "checks": [
+          [
+            "Write",
+            "Prometheus metrics arrive in Elastic",
+            "Metrics query"
+          ],
+          [
+            "Query",
+            "The same PromQL works in both systems",
+            "Query comparison"
+          ],
+          [
+            "Recommend",
+            "Placement of each signal is justified",
+            "Recommendation"
+          ]
+        ],
+        "objectives": [
+          "Combine Elastic with Prometheus",
+          "Query metrics with PromQL",
+          "Decide where signals live"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "Cybersecurity"
+      ],
+      "day": {
+        "topic": "Elastic Security for SOC Teams: Detection Rules, Timelines and Cases",
+        "subtopics": [
+          "Elastic Security as a SIEM",
+          "Data sources for the SOC",
+          "Prebuilt and custom detection rules",
+          "Alert triage",
+          "Timelines for investigations",
+          "Cases and response actions",
+          "MITRE ATT&CK mapping",
+          "SOC metrics"
+        ],
+        "tools": [
+          "Elastic Security",
+          "Detection rules",
+          "Timeline",
+          "Cases"
+        ],
+        "lab_task": "Load host and authentication data, enable prebuilt rules, investigate a seeded intrusion in Timeline, run a response action and close the case with ATT&CK mapping.",
+        "deliverable": "Investigation case with response actions",
+        "checks": [
+          [
+            "Detect",
+            "Rules raise alerts for the intrusion",
+            "Alerts table"
+          ],
+          [
+            "Investigate",
+            "The intrusion path is shown in Timeline",
+            "Timeline"
+          ],
+          [
+            "Respond",
+            "The response action contains the host",
+            "Response log"
+          ]
+        ],
+        "objectives": [
+          "Run SOC work in Elastic Security",
+          "Investigate intrusions",
+          "Respond and record cases"
+        ]
+      }
+    },
+    {
+      "between": [
+        "ELK Stack",
+        "RAG Pipelines"
+      ],
+      "day": {
+        "topic": "Elasticsearch as a RAG Retriever: semantic_text, Hybrid Retrieval and Permissions",
+        "subtopics": [
+          "Chunking documents for retrieval",
+          "semantic_text fields",
+          "Hybrid retrieval with RRF",
+          "Reranking retrieved chunks",
+          "Document-level security in retrieval",
+          "Metadata filters",
+          "Retrieval evaluation",
+          "Latency and cost of retrieval"
+        ],
+        "tools": [
+          "Elasticsearch",
+          "semantic_text",
+          "Retrievers",
+          "RAG framework"
+        ],
+        "lab_task": "Index company documents with semantic_text, retrieve with hybrid search and reranking for a RAG pipeline, enforce document-level security and evaluate retrieval quality.",
+        "deliverable": "Secured hybrid retriever with an evaluation",
+        "checks": [
+          [
+            "Retrieve",
+            "Hybrid retrieval beats lexical retrieval on the test set",
+            "Evaluation table"
+          ],
+          [
+            "Secure",
+            "Users never receive chunks they cannot read",
+            "Access tests"
+          ],
+          [
+            "Measure",
+            "Retrieval latency is recorded",
+            "Latency figures"
+          ]
+        ],
+        "objectives": [
+          "Use Elasticsearch for RAG",
+          "Secure retrieval",
+          "Evaluate retrieval quality"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Datadog on Kubernetes Clusters: Operator, Admission Controller and Autoscaling Metrics",
+        "subtopics": [
+          "DatadogAgent resources with the Operator",
+          "Cluster Agent and cluster checks",
+          "The admission controller for automatic instrumentation",
+          "Unified service tagging from labels",
+          "Kubernetes events and the Kubernetes Explorer",
+          "Datadog metrics for autoscaling",
+          "Container cost and rightsizing",
+          "Agent upgrades in clusters"
+        ],
+        "tools": [
+          "Datadog Operator",
+          "Cluster Agent",
+          "Admission controller",
+          "kubectl"
+        ],
+        "lab_task": "Deploy Datadog with the Operator, instrument workloads through the admission controller, scale a deployment on a Datadog metric and upgrade the Agent safely.",
+        "deliverable": "Cluster monitoring with autoscaling on Datadog metrics",
+        "checks": [
+          [
+            "Instrument",
+            "New pods send traces without code changes",
+            "Service list"
+          ],
+          [
+            "Scale",
+            "The deployment scales on the Datadog metric",
+            "Autoscaler events"
+          ],
+          [
+            "Upgrade",
+            "The Agent upgrade leaves no data gap",
+            "Metrics continuity"
+          ]
+        ],
+        "objectives": [
+          "Run Datadog on Kubernetes",
+          "Instrument automatically",
+          "Autoscale on Datadog metrics"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Datadog for AWS: Integration Roles, CloudWatch Metric Streams and Lambda",
+        "subtopics": [
+          "The AWS integration role",
+          "CloudWatch Metric Streams",
+          "Resource collection and tags",
+          "AWS logs through the Datadog Forwarder or Firehose",
+          "Lambda monitoring with the extension",
+          "ECS and EKS monitoring",
+          "Cost data from AWS",
+          "Multi-account integration"
+        ],
+        "tools": [
+          "Datadog AWS integration",
+          "CloudWatch Metric Streams",
+          "Datadog Lambda extension"
+        ],
+        "lab_task": "Connect two AWS accounts with integration roles, stream CloudWatch metrics, send VPC and Lambda logs to Datadog and monitor a Lambda function with the extension.",
+        "deliverable": "AWS integration with metrics, logs and Lambda monitoring",
+        "checks": [
+          [
+            "Connect",
+            "Both accounts report resources and tags",
+            "Integration page"
+          ],
+          [
+            "Stream",
+            "Metric Streams deliver CloudWatch metrics",
+            "Metrics Explorer"
+          ],
+          [
+            "Monitor",
+            "The Lambda function reports traces and logs",
+            "Serverless view"
+          ]
+        ],
+        "objectives": [
+          "Integrate AWS with Datadog",
+          "Stream cloud metrics",
+          "Monitor serverless functions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Datadog for Azure: Native Integration, Resource Logs and AKS",
+        "subtopics": [
+          "The Azure native integration",
+          "App registration integration as an alternative",
+          "Azure metrics and resource logs",
+          "Activity logs",
+          "AKS monitoring",
+          "Azure Functions and App Service",
+          "Tag filtering for subscriptions",
+          "Azure cost data"
+        ],
+        "tools": [
+          "Datadog Azure integration",
+          "AKS",
+          "Azure Monitor"
+        ],
+        "lab_task": "Connect a subscription with the native integration, send resource and activity logs, monitor an AKS cluster and an App Service, and filter collection by tag.",
+        "deliverable": "Azure integration with logs and AKS monitoring",
+        "checks": [
+          [
+            "Connect",
+            "Subscription resources appear in Datadog",
+            "Integration page"
+          ],
+          [
+            "Collect",
+            "Resource and activity logs arrive",
+            "Log Explorer"
+          ],
+          [
+            "Filter",
+            "Only tagged resources are collected",
+            "Resource list"
+          ]
+        ],
+        "objectives": [
+          "Integrate Azure with Datadog",
+          "Monitor AKS and App Service",
+          "Control collection scope"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "Docker"
+      ],
+      "day": {
+        "topic": "Datadog with Docker: Agent Container, Autodiscovery Labels and Log Collection",
+        "subtopics": [
+          "Running the Agent as a container",
+          "Autodiscovery labels for integrations",
+          "Container log collection",
+          "Unified service tags from labels",
+          "Container metrics and processes",
+          "DogStatsD from containers",
+          "Docker Compose setups",
+          "Container image tags for versions"
+        ],
+        "tools": [
+          "Datadog Agent",
+          "Docker",
+          "Docker Compose"
+        ],
+        "lab_task": "Run the Agent beside a Compose application, configure integrations and log parsing with labels, send custom metrics with DogStatsD and tag each service with its image version.",
+        "deliverable": "Compose application monitored by Datadog",
+        "checks": [
+          [
+            "Discover",
+            "Integrations start from container labels",
+            "agent status output"
+          ],
+          [
+            "Collect",
+            "Container logs are parsed per service",
+            "Log Explorer"
+          ],
+          [
+            "Tag",
+            "Services show their image version",
+            "Service page"
+          ]
+        ],
+        "objectives": [
+          "Monitor containers with Datadog",
+          "Configure with labels",
+          "Tag services from containers"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "Terraform"
+      ],
+      "day": {
+        "topic": "Managing Datadog with Terraform: Modules, Monitors as Code and Drift Detection",
+        "subtopics": [
+          "The Datadog Terraform provider",
+          "Modules for service monitors and dashboards",
+          "SLOs and synthetic tests as code",
+          "Importing existing resources",
+          "Pull request reviews with plans",
+          "Drift detection",
+          "Secrets for provider keys",
+          "State per team"
+        ],
+        "tools": [
+          "Terraform",
+          "Datadog provider",
+          "CI pipeline"
+        ],
+        "lab_task": "Write a module that creates monitors, an SLO and a dashboard for a service, apply it to three services through CI, import one manual monitor and detect drift.",
+        "deliverable": "Datadog Terraform module and pipeline",
+        "checks": [
+          [
+            "Apply",
+            "Three services get monitors, SLOs and dashboards",
+            "Apply output"
+          ],
+          [
+            "Import",
+            "The manual monitor is managed by Terraform",
+            "State list"
+          ],
+          [
+            "Detect",
+            "A manual change shows as drift",
+            "Plan output"
+          ]
+        ],
+        "objectives": [
+          "Manage Datadog with Terraform",
+          "Reuse modules",
+          "Detect drift"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "Python"
+      ],
+      "day": {
+        "topic": "Instrumenting Python Services for Datadog: ddtrace, Custom Metrics and Profiling",
+        "subtopics": [
+          "ddtrace automatic instrumentation",
+          "Custom spans and tags in Python",
+          "Logs with trace IDs",
+          "DogStatsD custom metrics from Python",
+          "Continuous Profiler for Python",
+          "Async frameworks",
+          "Python errors in Error Tracking",
+          "Testing instrumentation"
+        ],
+        "tools": [
+          "Python",
+          "ddtrace",
+          "DogStatsD",
+          "Continuous Profiler"
+        ],
+        "lab_task": "Instrument a FastAPI service with ddtrace, add custom spans and metrics, connect logs to traces and profile a slow endpoint.",
+        "deliverable": "Instrumented Python service with a profile",
+        "checks": [
+          [
+            "Trace",
+            "Requests appear with custom spans",
+            "Trace view"
+          ],
+          [
+            "Connect",
+            "Log lines link to their traces",
+            "Log Explorer"
+          ],
+          [
+            "Profile",
+            "The slow function is found in the profile",
+            "Profile view"
+          ]
+        ],
+        "objectives": [
+          "Instrument Python for Datadog",
+          "Connect logs and traces",
+          "Profile Python code"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Datadog",
+        "Jenkins"
+      ],
+      "day": {
+        "topic": "Jenkins Pipelines in Datadog CI Visibility: Stages, Failures and Deployment Events",
+        "subtopics": [
+          "The Datadog Jenkins plugin",
+          "Pipeline, stage and job traces",
+          "Finding slow and failing stages",
+          "Test results from Jenkins",
+          "Deployment events for APM",
+          "Pipeline alerts",
+          "Agent and executor health",
+          "DORA metrics from Jenkins deployments"
+        ],
+        "tools": [
+          "Jenkins",
+          "Datadog Jenkins plugin",
+          "CI Visibility"
+        ],
+        "lab_task": "Connect Jenkins to Datadog, find the slowest stage and most frequent failure, alert on failed main-branch builds and mark deployments on service pages.",
+        "deliverable": "Jenkins visibility with alerts and deployment events",
+        "checks": [
+          [
+            "Trace",
+            "Pipelines appear with stage timings",
+            "CI Visibility view"
+          ],
+          [
+            "Alert",
+            "A failed main-branch build triggers an alert",
+            "Monitor event"
+          ],
+          [
+            "Mark",
+            "Deployments show on the service page",
+            "Deployment tracking"
+          ]
+        ],
+        "objectives": [
+          "Monitor Jenkins with Datadog",
+          "Find slow and failing stages",
+          "Link deployments to services"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Dynatrace",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Rolling Out Dynatrace to Kubernetes Platforms: Operator Lifecycle, Injection and Ownership",
+        "subtopics": [
+          "Choosing DynaKube modes per cluster",
+          "Code module injection",
+          "Namespace selectors for injection",
+          "Ownership from labels and annotations",
+          "ActiveGate in the cluster",
+          "Operator upgrades and rollbacks",
+          "Resource overhead of monitoring",
+          "Platform team runbooks"
+        ],
+        "tools": [
+          "Dynatrace Operator",
+          "DynaKube",
+          "kubectl",
+          "Helm"
+        ],
+        "lab_task": "Roll out the Operator to a platform cluster with namespace selectors, route problems to owners from labels, measure monitoring overhead and rehearse an Operator rollback.",
+        "deliverable": "Platform rollout with ownership and overhead report",
+        "checks": [
+          [
+            "Inject",
+            "Only selected namespaces are injected",
+            "Pod annotations"
+          ],
+          [
+            "Route",
+            "Problems go to owners from labels",
+            "Notification test"
+          ],
+          [
+            "Measure",
+            "Monitoring overhead is reported",
+            "Resource report"
+          ]
+        ],
+        "objectives": [
+          "Roll out Dynatrace on Kubernetes platforms",
+          "Route by ownership",
+          "Manage Operator lifecycle"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Dynatrace",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Dynatrace for AWS: Cloud Integration, ActiveGate on EC2 and Lambda Monitoring",
+        "subtopics": [
+          "AWS integration with roles",
+          "Metric and log ingestion from AWS",
+          "ActiveGate on EC2",
+          "OneAgent on EC2 and in EKS",
+          "Lambda monitoring",
+          "AWS tags in Dynatrace",
+          "AWS events in Davis problems",
+          "Cost of AWS monitoring"
+        ],
+        "tools": [
+          "Dynatrace AWS integration",
+          "ActiveGate",
+          "OneAgent",
+          "Lambda monitoring"
+        ],
+        "lab_task": "Connect an AWS account through an ActiveGate on EC2, monitor EC2, RDS and a Lambda function, and show an AWS event in a Davis problem.",
+        "deliverable": "AWS monitoring in Dynatrace with a problem example",
+        "checks": [
+          [
+            "Connect",
+            "AWS services appear with metrics and tags",
+            "Clouds app"
+          ],
+          [
+            "Monitor",
+            "The Lambda function reports traces",
+            "Distributed Tracing app"
+          ],
+          [
+            "Link",
+            "An AWS event appears in a Davis problem",
+            "Problem card"
+          ]
+        ],
+        "objectives": [
+          "Integrate AWS with Dynatrace",
+          "Monitor AWS services",
+          "Use AWS events in analysis"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Dynatrace",
+        "Azure"
+      ],
+      "day": {
+        "topic": "Dynatrace for Azure: Azure Native Dynatrace Service, AKS and Azure Functions",
+        "subtopics": [
+          "Azure Native Dynatrace Service",
+          "Azure metrics and logs",
+          "OneAgent on virtual machines and App Service",
+          "AKS with the Dynatrace Operator",
+          "Azure Functions monitoring",
+          "Azure tags in Dynatrace",
+          "Billing through Azure Marketplace",
+          "Cost of Azure monitoring"
+        ],
+        "tools": [
+          "Azure Native Dynatrace Service",
+          "Dynatrace Operator",
+          "OneAgent"
+        ],
+        "lab_task": "Create the Dynatrace resource in Azure, collect metrics and logs from a subscription, monitor an AKS cluster and an Azure Function and review Azure tags in Dynatrace.",
+        "deliverable": "Azure monitoring in Dynatrace",
+        "checks": [
+          [
+            "Connect",
+            "Subscription resources appear in Dynatrace",
+            "Clouds app"
+          ],
+          [
+            "Monitor",
+            "AKS workloads and the Function report data",
+            "Kubernetes app and traces"
+          ],
+          [
+            "Tag",
+            "Azure tags are usable in filters",
+            "Filtered view"
+          ]
+        ],
+        "objectives": [
+          "Integrate Azure with Dynatrace",
+          "Monitor AKS and Functions",
+          "Use Azure tags"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Dynatrace",
+        "SAP S/4HANA"
+      ],
+      "day": {
+        "topic": "Monitoring SAP S/4HANA with Dynatrace: ABAP Platform Extension and Business Transactions",
+        "subtopics": [
+          "SAP monitoring options in Dynatrace",
+          "The SAP ABAP platform extension",
+          "Work processes, dumps and updates",
+          "HANA database health",
+          "SAP Fiori front-end monitoring",
+          "Business transactions such as order to cash",
+          "Linking SAP and non-SAP traces",
+          "Alerting for SAP operations teams"
+        ],
+        "tools": [
+          "Dynatrace SAP ABAP extension",
+          "Real User Monitoring",
+          "Dashboards"
+        ],
+        "lab_task": "Monitor a lab S/4HANA system with the ABAP extension, find a seeded short dump and a slow transaction, and build an order-to-cash health dashboard.",
+        "deliverable": "SAP monitoring with an order-to-cash dashboard",
+        "checks": [
+          [
+            "Monitor",
+            "Work processes and dumps are visible",
+            "SAP dashboard"
+          ],
+          [
+            "Find",
+            "The dump and slow transaction are traced to causes",
+            "Investigation notes"
+          ],
+          [
+            "Show",
+            "The order-to-cash dashboard shows volume and errors",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Monitor SAP with Dynatrace",
+          "Investigate SAP problems",
+          "Report business transactions"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Dynatrace",
+        "ServiceNow"
+      ],
+      "day": {
+        "topic": "Dynatrace and ServiceNow: Problems to Incidents, CMDB Sync and Change Events",
+        "subtopics": [
+          "The ServiceNow integration",
+          "Problems to incidents with deduplication",
+          "CMDB synchronisation from Smartscape",
+          "Change events from ServiceNow",
+          "Assignment groups from ownership",
+          "Closing incidents when problems resolve",
+          "Event management integration",
+          "Testing the integration"
+        ],
+        "tools": [
+          "Dynatrace ServiceNow integration",
+          "ServiceNow ITSM",
+          "Workflows"
+        ],
+        "lab_task": "Connect Dynatrace to a ServiceNow instance, sync the shop's services to the CMDB, open one incident per problem with the right assignment group and close it automatically.",
+        "deliverable": "Working problem-to-incident flow with CMDB sync",
+        "checks": [
+          [
+            "Sync",
+            "Services appear as CMDB items with relationships",
+            "CMDB records"
+          ],
+          [
+            "Open",
+            "One incident opens per problem with the right group",
+            "Incident record"
+          ],
+          [
+            "Close",
+            "The incident closes when the problem resolves",
+            "Incident history"
+          ]
+        ],
+        "objectives": [
+          "Integrate Dynatrace with ServiceNow",
+          "Keep the CMDB current",
+          "Automate incident lifecycle"
+        ]
+      }
+    },
+    {
+      "between": [
+        "Dynatrace",
+        "Java"
+      ],
+      "day": {
+        "topic": "Java Applications in Dynatrace: Code-Level Hotspots, Memory Analysis and Thread Dumps",
+        "subtopics": [
+          "OneAgent code modules for Java",
+          "Method hotspots in traces",
+          "Garbage collection and memory metrics",
+          "Memory dumps and leak analysis",
+          "Thread dumps and lock contention",
+          "JVM metrics and tuning signals",
+          "Exceptions and failure analysis",
+          "Live Debugger for Java"
+        ],
+        "tools": [
+          "OneAgent",
+          "Distributed Tracing app",
+          "Memory and thread analysis"
+        ],
+        "lab_task": "Find a seeded memory leak and a lock contention problem in a Java service with Dynatrace memory and thread analysis, fix both and confirm the result.",
+        "deliverable": "Java investigations with confirmed fixes",
+        "checks": [
+          [
+            "Leak",
+            "The leaking object type is identified",
+            "Memory analysis"
+          ],
+          [
+            "Lock",
+            "The contended lock is found in thread data",
+            "Thread analysis"
+          ],
+          [
+            "Confirm",
+            "Memory and latency return to normal after the fixes",
+            "Before-and-after charts"
+          ]
+        ],
+        "objectives": [
+          "Analyse Java applications in Dynatrace",
+          "Find leaks and contention",
+          "Confirm fixes"
+        ]
+      }
     }
   ],
   "capstones": [
@@ -20288,6 +21797,456 @@
           "Combine platform engineering and Terraform skills",
           "Offer infrastructure products",
           "Report request lead time"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SRE",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: SLO-Driven Operations for Services on Kubernetes",
+        "subtopics": [
+          "SLOs and burn-rate alerts",
+          "Workload standards and disruption budgets",
+          "Incident drill and postmortem",
+          "Budget-gated platform change"
+        ],
+        "tools": [
+          "Kubernetes",
+          "Prometheus",
+          "Grafana",
+          "Kyverno"
+        ],
+        "lab_task": "Run the course services on Kubernetes with SLOs and burn-rate alerts, enforced workload standards, an incident drill with a postmortem and a cluster upgrade gated on the error budget.",
+        "deliverable": "SRE operations pack with drill and upgrade evidence",
+        "checks": [
+          [
+            "Measure",
+            "SLOs and alerts cover the critical journeys",
+            "Dashboard"
+          ],
+          [
+            "Respond",
+            "The drill ends with a blameless postmortem",
+            "Postmortem"
+          ],
+          [
+            "Gate",
+            "The upgrade waits for enough error budget",
+            "Upgrade record"
+          ]
+        ],
+        "objectives": [
+          "Combine SRE and Kubernetes skills",
+          "Run SLO-driven operations",
+          "Gate changes on budgets"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SRE",
+        "Prometheus and Grafana"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Reliability Programme on Prometheus and Grafana",
+        "subtopics": [
+          "SLOs as code",
+          "Burn-rate alerting and routing",
+          "Error budget reporting",
+          "Incident and postmortem flow"
+        ],
+        "tools": [
+          "Prometheus",
+          "Grafana",
+          "Sloth or Pyrra",
+          "Alertmanager"
+        ],
+        "lab_task": "Deliver a reliability programme for ten services on Prometheus and Grafana with SLOs as code, routed burn-rate alerts, a monthly error budget report and an incident drill.",
+        "deliverable": "Reliability programme with a monthly report",
+        "checks": [
+          [
+            "Generate",
+            "All ten services have generated SLO rules",
+            "Rules page"
+          ],
+          [
+            "Route",
+            "Pages and tickets reach the right teams",
+            "Notification tests"
+          ],
+          [
+            "Report",
+            "The monthly error budget report drives decisions",
+            "Report and decision record"
+          ]
+        ],
+        "objectives": [
+          "Combine SRE and Prometheus skills",
+          "Run a reliability programme",
+          "Report error budgets"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SRE",
+        "Datadog"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: SRE Practice Run in Datadog",
+        "subtopics": [
+          "SLOs and burn-rate monitors",
+          "On-Call and incidents",
+          "Postmortems and actions",
+          "Toil automation"
+        ],
+        "tools": [
+          "Datadog SLOs",
+          "Datadog On-Call",
+          "Incident Management",
+          "Workflow Automation"
+        ],
+        "lab_task": "Run the course SRE practice in Datadog for a simulated month with SLOs, burn-rate monitors, an On-Call rotation, two incidents with postmortems and an automated toil task.",
+        "deliverable": "Month of SRE practice with evidence",
+        "checks": [
+          [
+            "Measure",
+            "SLOs and monitors cover every critical journey",
+            "SLO list"
+          ],
+          [
+            "Respond",
+            "Both incidents have postmortems with owned actions",
+            "Postmortems"
+          ],
+          [
+            "Automate",
+            "Toil hours fall after the automation",
+            "Toil report"
+          ]
+        ],
+        "objectives": [
+          "Combine SRE and Datadog skills",
+          "Run incidents end to end",
+          "Reduce toil"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "SRE",
+        "Dynatrace"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: SRE Practice Run in Dynatrace",
+        "subtopics": [
+          "SLOs and guardians",
+          "Davis problems and incidents",
+          "Remediation workflows",
+          "Postmortems with problem data"
+        ],
+        "tools": [
+          "Service-Level Objectives app",
+          "Site Reliability Guardian",
+          "Davis AI",
+          "Workflows"
+        ],
+        "lab_task": "Run the course SRE practice in Dynatrace for a simulated month with SLOs, release guardians, two incidents handled from Davis problems, a remediation workflow and postmortems.",
+        "deliverable": "Month of SRE practice with evidence",
+        "checks": [
+          [
+            "Gate",
+            "Guardians block releases that break SLOs",
+            "Guardian results"
+          ],
+          [
+            "Respond",
+            "Incidents are resolved with Davis and human analysis",
+            "Incident records"
+          ],
+          [
+            "Automate",
+            "The remediation workflow fixes a repeat problem",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Combine SRE and Dynatrace skills",
+          "Gate releases on reliability",
+          "Automate remediation"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "ELK Stack",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Centralised Logging and Observability for Kubernetes with Elastic",
+        "subtopics": [
+          "Stack on ECK",
+          "Agent DaemonSet and parsing",
+          "Dashboards, alerts and SLOs",
+          "Lifecycle and cost"
+        ],
+        "tools": [
+          "ECK",
+          "Elastic Agent",
+          "Kibana",
+          "Elastic Observability"
+        ],
+        "lab_task": "Deliver centralised logging and observability for a Kubernetes cluster with the stack on ECK, parsed container logs, dashboards, alerts, an SLO and a lifecycle policy within a storage budget.",
+        "deliverable": "Kubernetes observability on Elastic with evidence",
+        "checks": [
+          [
+            "Collect",
+            "Every namespace's logs are parsed and searchable",
+            "Discover view"
+          ],
+          [
+            "Alert",
+            "Alerts and the SLO fire on seeded failures",
+            "Alert records"
+          ],
+          [
+            "Budget",
+            "Storage stays within the budget",
+            "Storage report"
+          ]
+        ],
+        "objectives": [
+          "Combine Elastic and Kubernetes skills",
+          "Run centralised logging",
+          "Stay within budget"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "ELK Stack",
+        "Python"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Search Service in Python on Elasticsearch",
+        "subtopics": [
+          "Data model and analysis",
+          "Bulk loading and updates",
+          "Search API with facets",
+          "Tests and relevance checks"
+        ],
+        "tools": [
+          "Python",
+          "Elasticsearch Python client",
+          "FastAPI",
+          "Testcontainers"
+        ],
+        "lab_task": "Build a product search service in Python with a tuned index, bulk loading, a search API with facets and autocomplete, tests against a container and a relevance check on a judgement list.",
+        "deliverable": "Tested search service with relevance results",
+        "checks": [
+          [
+            "Load",
+            "The catalogue loads and updates through bulk helpers",
+            "Load log"
+          ],
+          [
+            "Search",
+            "The API returns facets and autocomplete",
+            "API responses"
+          ],
+          [
+            "Rank",
+            "Relevance on the judgement list meets the target",
+            "Evaluation result"
+          ]
+        ],
+        "objectives": [
+          "Combine Elastic and Python skills",
+          "Build a search service",
+          "Measure relevance"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Datadog",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Full-Stack Datadog Observability for a Kubernetes Application",
+        "subtopics": [
+          "Operator and automatic instrumentation",
+          "Logs, traces and RUM",
+          "Monitors and SLOs",
+          "Cost and rightsizing"
+        ],
+        "tools": [
+          "Datadog Operator",
+          "Admission controller",
+          "Datadog APM",
+          "RUM"
+        ],
+        "lab_task": "Deliver full-stack observability for the course application on Kubernetes with the Operator, automatic instrumentation, logs, RUM, monitors, SLOs and a rightsizing report.",
+        "deliverable": "Observed Kubernetes application with evidence",
+        "checks": [
+          [
+            "Observe",
+            "One request is followed from browser to pod",
+            "Demo recording"
+          ],
+          [
+            "Alert",
+            "Monitors and SLO alerts fire on seeded failures",
+            "Alert events"
+          ],
+          [
+            "Save",
+            "Rightsizing reduces requested resources",
+            "Rightsizing report"
+          ]
+        ],
+        "objectives": [
+          "Combine Datadog and Kubernetes skills",
+          "Observe a full application",
+          "Rightsize workloads"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Datadog",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Monitoring an AWS Workload End to End with Datadog",
+        "subtopics": [
+          "Account integration and metric streams",
+          "EC2, RDS and Lambda monitoring",
+          "Logs and traces",
+          "Monitors, SLOs and cost data"
+        ],
+        "tools": [
+          "Datadog AWS integration",
+          "Datadog Agent",
+          "Datadog Lambda extension",
+          "Cloud Cost Management"
+        ],
+        "lab_task": "Monitor an AWS workload with EC2, RDS and Lambda end to end in Datadog with metric streams, logs, traces, monitors, SLOs and cost per service.",
+        "deliverable": "Monitored AWS workload with evidence",
+        "checks": [
+          [
+            "Collect",
+            "Metrics, logs and traces arrive from every component",
+            "Service and infrastructure views"
+          ],
+          [
+            "Alert",
+            "Monitors catch seeded failures",
+            "Monitor events"
+          ],
+          [
+            "Cost",
+            "Cost per service is shown",
+            "Cost dashboard"
+          ]
+        ],
+        "objectives": [
+          "Combine Datadog and AWS skills",
+          "Monitor a cloud workload",
+          "Show cost with health"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Dynatrace",
+        "Kubernetes"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Dynatrace-Observed Microservices on Kubernetes",
+        "subtopics": [
+          "Operator rollout and ownership",
+          "Traces, logs and DQL",
+          "SLOs and guardians",
+          "Remediation workflow"
+        ],
+        "tools": [
+          "Dynatrace Operator",
+          "Notebooks",
+          "Site Reliability Guardian",
+          "Workflows"
+        ],
+        "lab_task": "Deliver Dynatrace observability for the microservice shop on Kubernetes with the Operator, owner routing, DQL investigations, SLOs with release guardians and a remediation workflow.",
+        "deliverable": "Observed microservices with evidence",
+        "checks": [
+          [
+            "Observe",
+            "Every service shows traces, logs and owners",
+            "Services app"
+          ],
+          [
+            "Gate",
+            "A bad release is stopped by the guardian",
+            "Guardian result"
+          ],
+          [
+            "Remediate",
+            "The workflow fixes a seeded repeat problem",
+            "Workflow run"
+          ]
+        ],
+        "objectives": [
+          "Combine Dynatrace and Kubernetes skills",
+          "Observe microservices",
+          "Automate responses"
+        ]
+      }
+    },
+    {
+      "applies_to": [
+        "Dynatrace",
+        "AWS"
+      ],
+      "day": {
+        "topic": "Integrated Capstone: Dynatrace Observability for an AWS Workload",
+        "subtopics": [
+          "AWS integration and ActiveGate",
+          "OneAgent and Lambda monitoring",
+          "Davis problems with AWS events",
+          "SLOs and dashboards"
+        ],
+        "tools": [
+          "Dynatrace AWS integration",
+          "ActiveGate",
+          "OneAgent",
+          "Dashboards"
+        ],
+        "lab_task": "Monitor an AWS workload with EC2, RDS and Lambda in Dynatrace, investigate a seeded failure from its Davis problem, define SLOs and present a health dashboard.",
+        "deliverable": "Monitored AWS workload with evidence",
+        "checks": [
+          [
+            "Collect",
+            "All components report data",
+            "Clouds app and services"
+          ],
+          [
+            "Investigate",
+            "The seeded failure is explained from the Davis problem",
+            "Problem analysis"
+          ],
+          [
+            "Present",
+            "The dashboard shows SLOs and health",
+            "Dashboard"
+          ]
+        ],
+        "objectives": [
+          "Combine Dynatrace and AWS skills",
+          "Monitor a cloud workload",
+          "Explain failures with Davis"
         ]
       }
     }
