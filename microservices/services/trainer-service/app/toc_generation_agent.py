@@ -61,6 +61,30 @@ def resolve_content_level(level: str, audience_level: str = "") -> str:
     return audience_band or "intermediate"
 
 
+_FOUNDATION_TITLE = re.compile(
+    r"\b(introduction|intro|fundamentals|basics|getting started|environment setup|orientation|foundations?)\b")
+
+
+def _flag_for_review(toc: dict, warning: str) -> None:
+    quality = toc.setdefault("quality", {})
+    if quality.get("status") != "requires_regeneration":
+        quality["status"] = "requires_review"
+    warnings = quality.setdefault("review_warnings", [])
+    if warning not in warnings:
+        warnings.append(warning)
+
+
+def _check_level_depth(toc: dict, level: str) -> None:
+    """Flag an advanced TOC whose days are mostly introductory topics."""
+    if level != "advanced":
+        return
+    days = [day for day in toc.get("days") or [] if "capstone" not in str(day.get("focus_area") or "").lower()]
+    basic = [day for day in days if _FOUNDATION_TITLE.search(str(day.get("focus_area") or "").lower())]
+    if days and len(basic) * 3 > len(days):
+        _flag_for_review(toc, f"Advanced level, but {len(basic)} of {len(days)} teaching days are introductory topics; "
+                              "the source course has no advanced track for this technology. Review the day plan.")
+
+
 def _generic_domain(name: str) -> dict:
     technology = str(name or "Training").strip() or "Training"
     entry = {
@@ -318,6 +342,21 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
             compact_source = deepcopy(level_band[:min(slots, len(level_band))])
         elif normalized_level == "mixed":
             compact_source = _sample_across_bands(level_band, min(slots, len(level_band)))
+        elif slots <= 5 and normalized_level in {"intermediate", "advanced"}:
+            # A short programme cannot afford to re-teach the opening days to
+            # experienced participants. Intermediate keeps the orientation day
+            # and samples the middle of the course; advanced starts from the
+            # second half and assumes the basics are prerequisites.
+            count = min(slots, len(level_band))
+            if normalized_level == "intermediate":
+                anchors = deepcopy(level_band[:1]) if count > 1 else []
+                tail = level_band[max(1, total // 4):]
+            else:
+                anchors = []
+                tail = level_band[total // 2:]
+            if len(tail) < count - len(anchors):
+                tail = level_band[len(anchors):]
+            compact_source = anchors + _sample_progressive(tail, count - len(anchors))
         else:
             compact_source = _sample_cumulative(level_band, min(slots, len(level_band)))
         if capstones and duration >= 5:
@@ -865,6 +904,7 @@ def _enrich_programme_pack(toc: dict, audience_level: str = "", training_dates: 
         "assessment_rule": "Every five delivery days end with evidence-based assessment and feedback.",
         "day_design_rule": "Every day contains concept learning, guided demonstration, practical activity, and a measurable outcome.",
     }
+    _check_level_depth(toc, _normalize_level(toc.get("level")))
     return toc
 
 

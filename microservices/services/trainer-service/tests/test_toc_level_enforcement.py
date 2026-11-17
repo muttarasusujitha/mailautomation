@@ -179,3 +179,11 @@ def test_python_days_have_ten_concrete_subtopics():
     details = " ".join(first_day["subtopics"]).lower()
     assert "variables" in details
     assert "comments" in details
+
+
+def test_short_advanced_compact_toc_skips_the_introductory_days():
+    beginner = [day["focus_area"] for day in generate_toc_from_dataset("Kotlin", 5, level="beginner")["days"]]
+    advanced = [day["focus_area"] for day in generate_toc_from_dataset("Kotlin", 5, level="advanced")["days"]]
+    assert beginner[0] == "Kotlin Introduction and Environment Setup"
+    assert not set(advanced[:-1]) & set(beginner[:-1])
+    assert "capstone" in advanced[-1].lower()
