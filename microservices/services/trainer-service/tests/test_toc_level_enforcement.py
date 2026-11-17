@@ -329,3 +329,17 @@ def test_module_validation_rejects_tiny_modules_and_bad_scenarios():
             "deliverable": "d", "success_measure": "s", "scenarios": [["a", "b", "c", "d"]] * 3}
     assert "at least 30" in _module_problems([{**good, "minutes": 5}, good], "Day 1")[0]
     assert "needs 3 scenarios" in _module_problems([{**good, "scenarios": "not a list"}, good], "Day 1")[0]
+
+
+def test_beginner_audiences_and_level_spellings():
+    assert resolve_content_level("intermediate", "Beginner with no prior experience") == "beginner"
+    assert resolve_content_level("intermediate", "Beginner with basic knowledge of Python") == "beginner"
+    assert resolve_content_level("intermediate", "Mid-level engineers with basic Python") == "intermediate"
+    assert resolve_content_level("intermediate", "Advance Java developers") == "advanced"
+
+
+def test_long_programmes_keep_borrowed_days_before_the_advanced_end():
+    import re
+    titles = [day["focus_area"] for day in generate_toc_from_dataset("Java", 90, level="intermediate")["days"]]
+    assert not any(re.search(r"\b(basics|fundamentals)\b", title, re.I) for title in titles[len(titles) // 2:])
+    assert titles[-1].startswith("Advanced Capstone")

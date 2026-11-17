@@ -47,9 +47,9 @@ def _normalize_level(level: str) -> str:
 _LEVEL_WORDS = {
     "beginner": r"\b(beginners?|beginning|basics?|foundation(?:al)?|novices?|entry[- ]level)\b",
     "intermediate": r"\b(intermediate|intermidate|mid[- ]level)\b",
-    # "advance" is a common spelling of the level only next to a training word
-    # ("advance level", "advance course"), not "in advance" or "advance their skills".
-    "advanced": r"\b(advanced|experts?)\b|\badvance\s+(?:level|course|training|batch|learners?|users?|topics?|program(?:me)?|modules?)\b|^advance$",
+    # "advance" is a common spelling of the level ("Advance Java"), but not as a verb
+    # ("to advance their skills") or in "in advance".
+    "advanced": r"\b(advanced|experts?)\b|(?<!to )(?<!in )\badvance\b(?!\s+(?:their|his|her|your|our|my|the|of|notice|payment|booking|planning|copy)\b)",
 }
 
 
@@ -62,11 +62,15 @@ def _content_band(value: str) -> str:
     if normalized in CONTENT_LEVELS:
         return normalized
     # "with basic Kubernetes knowledge" states a prerequisite, not the group's level.
-    text = re.sub(r"\b(?:basic|basics|foundational|beginner)\s+(?:[\w/+.#-]+\s+){0,3}?"
-                  r"(?:knowledge|understanding|skills?|exposure|familiarity|experience|concepts)\b", " ", text)
+    text = re.sub(r"\b(?:with|having|has|have|needs?|requires?)\s+(?:a\s+|some\s+)?(?:basic|basics|foundational)\s+"
+                  r"(?:[\w/+.#-]+\s+){0,3}?(?:knowledge|understanding|skills?|exposure|familiarity|experience|concepts)\b",
+                  " ", text)
     if re.search(r"\bmix(ed)?\b", text):
         return "mixed"
     named = [band for band, pattern in _LEVEL_WORDS.items() if re.search(pattern, text)]
+    if "beginner" in named and len(named) > 1 and not re.search(r"\b(beginners?|novices?|entry[- ]level|freshers?)\b", text):
+        # "Mid-level engineers with basic Python": "basic" describes a skill, not the group.
+        named.remove("beginner")
     if len(named) == 3 or set(named) == {"beginner", "advanced"}:
         # "Beginner to advanced": a mixed cohort.
         return "mixed"
@@ -334,12 +338,13 @@ def _plan_long_programme(items: list, extra_pool: list, duration: int, domain_na
     ``items`` is the ordered course selection, ending with its capstone when it
     has one. ``extra_pool`` holds ``(position, day, course)`` entries, where
     position is the day's place in its own course (0 = first day, 1 = last).
-    The selected course stays one complete progression. Each borrowed course
-    then follows as one block in its own order, so its prerequisites stay before
-    the days that need them; blocks that start earlier in their course come
-    first. Opening days (the first third of a course) are skipped because the
-    selection already teaches the foundations, and days already taught (same or
-    similar title, or most of their multi-word subtopics) are skipped. Only when no authored content is
+    The selected course stays one progression. Borrowed courses go in as ordered
+    blocks (prerequisites before the days that need them) just before the last
+    third of the selection, so the advanced end and the capstone stay last.
+    Opening days (the first third of a course) and introductory days ("Basics",
+    "Fundamentals") are skipped because the selection already teaches the
+    foundations, and days already taught (same or similar title, a title
+    contained in a taught title, or most of their multi-word subtopics) are skipped. Only when no authored content is
     left are practice days added, spread through the programme. The capstone
     stays last.
     """
@@ -385,13 +390,14 @@ def _plan_long_programme(items: list, extra_pool: list, duration: int, domain_na
             if len(teaching) + added + len(block) >= slots:
                 break
             topic = candidate.get("topic")
-            if not topic or "capstone" in str(topic).lower() or position < 1 / 3 or taught(candidate):
+            if (not topic or "capstone" in str(topic).lower() or position < 1 / 3
+                    or _BORROWED_INTRO.search(str(topic)) or taught(candidate)):
                 continue
             block.append((position, _standardize_compact_day_item(candidate, domain_name)))
             taught_text += " " + normalize_topic(" ".join([str(topic), *map(str, candidate.get("subtopics") or [])])) + " "
         if block:
-            # After the whole selected course; earlier-starting blocks first, each in its own order.
-            placed.extend((1 + block[0][0], block_number * 1000 + order, day) for order, (_, day) in enumerate(block, 1))
+            # Before the last third of the selection; each block keeps its own order.
+            placed.extend((2 / 3, block_number * 1000 + order, day) for order, (_, day) in enumerate(block, 1))
             added += len(block)
         if len(teaching) + added >= slots:
             break
@@ -416,6 +422,9 @@ def _plan_long_programme(items: list, extra_pool: list, duration: int, domain_na
         planned.append(_project_day(sprint, domain_name, [topic] if topic else []))
         sprint += 1
     return planned[:slots] + ([capstone] if capstone else [])
+
+
+_BORROWED_INTRO = re.compile(r"\b(basics|fundamentals|foundations?|introduction|intro|getting started|overview|orientation)\b", re.I)
 
 
 def _same_technology_pool(*names) -> list:
@@ -1258,6 +1267,12 @@ def _combined_track_items(technology: str, days: int, level: str, domain_overrid
         selected.append(_project_day(sprint, technology, [topic] if topic else []))
         sprint += 1
         turn += 1
+    # Number the practice days 1, 2, 3 ... in the order they are taught.
+    count = 0
+    for item in selected:
+        if item.get("content_origin") == "generated_project_day" and re.search(r"Project Sprint \d+", str(item.get("topic") or "")):
+            count += 1
+            item["topic"] = re.sub(r"Project Sprint \d+", f"Project Sprint {count}", item["topic"], count=1)
     return selected[:requested_days]
 
 

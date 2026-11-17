@@ -11604,6 +11604,10 @@ async def _create_revised_lab_cost_attachment(
     if duration <= 0:
         logger.warning("Lab-cost workbook withheld: confirm lab duration")
         return None
+    if duration > 30:
+        # The lab-cost workbook covers 1 to 30 training days; do not generate a ToC it cannot price.
+        logger.warning("Lab-cost workbook withheld: %s training days exceed the 30-day workbook", duration)
+        return None
     technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain"))
     if not technology:
         return None

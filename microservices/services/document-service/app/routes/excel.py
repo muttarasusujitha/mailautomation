@@ -1733,7 +1733,13 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         raise HTTPException(422, error)
     # The lab-cost template has 30 day rows. Refuse longer programmes before
     # refreshing live prices or planning lab resources.
-    lab_days = len([day for day in (toc.get("days") or []) if isinstance(day, dict)])
+    lab_days = 0
+    for day in toc.get("days") or []:
+        if isinstance(day, dict):
+            try:
+                lab_days += max(1, int(float(day.get("duration_days") or day.get("days") or 1)))
+            except (TypeError, ValueError):
+                lab_days += 1
     if lab_days > 30:
         raise HTTPException(422, f"Lab cost estimates support training durations from 1 to 30 days; this ToC has {lab_days} days")
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}

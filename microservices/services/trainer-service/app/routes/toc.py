@@ -754,7 +754,11 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         # otherwise the template path selects from the reference modules.
         from app.reference_planner import reference_draft
         draft = reference_draft(payload)
-        if draft is not None and (requested_mode != "ai" or not (draft.get("quality") or {}).get("validation_errors")):
+        usable = draft is not None and not (draft.get("quality") or {}).get("validation_errors")
+        if usable and requested_mode == "ai":
+            from app.toc_evaluation import evaluate_toc
+            usable = not evaluate_toc(draft, requested_days=int(payload.duration_days)).get("blocking_issues")
+        if draft is not None and (requested_mode != "ai" or usable):
             toc = draft
             used_generation_mode = "reference_draft"
         elif draft is not None:

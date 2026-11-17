@@ -34,10 +34,12 @@ def requested_topic_list(text, domain_name=""):
     topics = []
     for part in re.split(r"[;,\n]+", str(text or "")):
         part = part.strip(" .")
-        plain = re.sub(r"[^a-z0-9]+", " ", part.lower()).strip()
-        # A phrase that is itself a known name ("Continuous Integration and Continuous
-        # Delivery" is CI/CD) stays whole; other "X and Y" phrases are two topics.
-        pieces = [part] if normalize_topic(part) != plain else re.split(r"\s+(?:and|&)\s+", part, flags=re.IGNORECASE)
+        split = re.split(r"\s+(?:and|&)\s+", part, flags=re.IGNORECASE)
+        # A phrase whose known name uses the "and" ("Continuous Integration and Continuous
+        # Delivery" is CI/CD) stays whole; other "X and Y" phrases are two topics
+        # ("Terraform and Infrastructure as Code").
+        joined = " and ".join(normalize_topic(piece) for piece in split)
+        pieces = [part] if len(split) > 1 and normalize_topic(part) != joined else split
         for piece in pieces:
             piece = piece.strip(" .")
             if not piece or normalize_topic(piece) in {normalize_topic(t) for t in topics}:
@@ -111,8 +113,8 @@ def _fit(topic, candidate, level):
 
 
 def uncovered_topics(topics, days):
-    """Named topics that none of the given days teaches."""
-    return [topic for topic in topics if not any(_strength(topic, day) for day in days)]
+    """Named topics that no day is about (a topic only listed as a subtopic is not enough)."""
+    return [topic for topic in topics if not any(_strength(topic, day) == 2 for day in days)]
 
 
 def plan_requested_topics(domain_name, topics_text, duration, level):
@@ -144,7 +146,14 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
                                               bool(c.get("borrowed")), c["level"] is None, c["order"]))
 
     # 1. Cover every named topic; a day that covers several named topics counts for each.
-    uncovered = [t for t in topics if ranked(t)]
+    # A topic is covered by a day about it when the datasets have one; a subtopic
+    # mention counts only when no whole day exists.
+    best_strength = {t: max((_strength(t, c["day"]) for c in ranked(t)), default=0) for t in topics}
+
+    def covers(topic, day):
+        return best_strength[topic] and _strength(topic, day) >= best_strength[topic]
+
+    uncovered = [t for t in topics if best_strength[t]]
     while uncovered and len(chosen) < slots:
         best = None
         for topic in uncovered:
@@ -152,7 +161,7 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
                 # A named topic may need a "Part 2" day next to its "Part 1"; only exact repeats are skipped here.
                 if already_chosen(candidate):
                     continue
-                gain = sum(_strength(t, candidate["day"]) > 0 for t in uncovered)
+                gain = sum(bool(covers(t, candidate["day"])) for t in uncovered)
                 key = (gain, _fit(topic, candidate, level), _strength(topic, candidate["day"]), not candidate.get("borrowed"))
                 if best is None or key > best[0]:
                     best = (key, candidate)
@@ -160,7 +169,7 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
         if best is None:
             break
         chosen.append(best[1])
-        uncovered = [t for t in uncovered if _strength(t, best[1]["day"]) == 0]
+        uncovered = [t for t in uncovered if not covers(t, best[1]["day"])]
 
     # 2. More depth on the named topics, taking them in turn. Each topic gets at most
     # its share of half the programme; the rest follows the level plan.

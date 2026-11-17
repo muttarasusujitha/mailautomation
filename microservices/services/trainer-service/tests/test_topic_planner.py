@@ -114,3 +114,15 @@ def test_combined_programmes_have_unique_practice_titles():
     assert len(titles) == len(set(titles)) == 60
     assert toc["quality"]["status"] != "requires_regeneration"
     assert max(len(title) for title in titles) < 120
+
+
+def test_a_topic_gets_a_day_about_it_when_one_exists():
+    toc = generate_toc_from_dataset("AWS", 5, level="intermediate", requested_topics="IAM, VPC, Lambda, CloudWatch")
+    titles = " ".join(day["focus_area"] for day in toc["days"])
+    assert "Lambda" in titles and "CloudWatch" in titles
+    assert toc["agent"]["source"] == "requested_topics"
+
+
+def test_and_splits_unless_the_known_name_uses_it():
+    from app.topic_planner import requested_topic_list
+    assert requested_topic_list("Terraform and Infrastructure as Code", "DevOps") == ["Terraform", "Infrastructure as Code"]
