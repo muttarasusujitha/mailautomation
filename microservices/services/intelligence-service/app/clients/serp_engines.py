@@ -131,6 +131,17 @@ def _looks_like_url_text(text):
     return '›' in text or low.startswith(('http', 'www.', 'linkedin.com', 'in.linkedin.com')) or ' › ' in text
 
 
+def _clean_title(text):
+    text = ' '.join((text or '').split())
+    if _looks_like_url_text(text):
+        # Keep the part after a breadcrumb such as "linkedin.com › in › ravi Ravi Kumar - Trainer".
+        parts = re.split(r'\s*›\s*\S+', text)
+        text = parts[-1].strip() if parts else ''
+        if _looks_like_url_text(text):
+            return ''
+    return text
+
+
 class _ProfileHarvester(HTMLParser):
     """Collect every LinkedIn profile link on a results page with its nearby text.
 
@@ -154,6 +165,7 @@ class _ProfileHarvester(HTMLParser):
         self._capture_url = None
         self._capture_len = 0
         self._skip_depth = 0
+        self._other_anchor = None
 
     def handle_starttag(self, tag, attrs):
         if tag in self._SKIP:
@@ -163,7 +175,8 @@ class _ProfileHarvester(HTMLParser):
             self._capture_url = None
         if tag != 'a':
             return
-        href = dict(attrs).get('href') or ''
+        attrs = dict(attrs)
+        href = attrs.get('href') or ''
         target = unwrap_link(href, self.engine_host)
         profile = self.canonical(target)
         if profile:
@@ -173,24 +186,33 @@ class _ProfileHarvester(HTMLParser):
                 self.order.append(profile)
             self._anchor_url = profile
             self._anchor_text = []
+            label = _clean_title(attrs.get('aria-label') or attrs.get('title') or '')
+            if label and len(label) > len(self.rows[profile]['title']):
+                self.rows[profile]['title'] = label[:300]
             self._capture_url = profile
             self._capture_len = len(self.rows[profile]['snippet'])
             return
         self._anchor_url = None
         host = (urlsplit(target).hostname or '').lower() if target else ''
         if host and self.engine_host and not host.endswith(self.engine_host.split('.', 1)[-1]):
-            # A different result started.
-            self._capture_url = None
+            # Maybe a different result. Decided at the end of the link: a short
+            # "Cached" or menu link does not end the current snippet.
+            self._other_anchor = []
 
     def handle_endtag(self, tag):
         if tag in self._SKIP:
             self._skip_depth = max(0, self._skip_depth - 1)
             return
+        if tag == 'a' and self._other_anchor is not None:
+            if len(' '.join(self._other_anchor)) > 25:
+                self._capture_url = None  # A real result title for another site.
+            self._other_anchor = None
+            return
         if tag != 'a' or not self._anchor_url:
             return
-        text = ' '.join(' '.join(self._anchor_text).split())
+        text = _clean_title(' '.join(self._anchor_text))
         row = self.rows[self._anchor_url]
-        if text and not _looks_like_url_text(text) and len(text) > len(row['title']):
+        if text and len(text) > len(row['title']):
             row['title'] = text[:300]
         self._anchor_url = None
         self._anchor_text = []
@@ -202,7 +224,13 @@ class _ProfileHarvester(HTMLParser):
         if not text:
             return
         if self._anchor_url:
-            self._anchor_text.append(text)
+            # Yahoo and Bing put the breadcrumb ("in.linkedin.com › in › ravi") inside the
+            # title link. Drop that piece and keep the real title next to it.
+            if not _looks_like_url_text(text):
+                self._anchor_text.append(text)
+            return
+        if self._other_anchor is not None:
+            self._other_anchor.append(text)
             return
         if self._capture_url and self._capture_len < 600 and not _looks_like_url_text(text):
             row = self.rows[self._capture_url]

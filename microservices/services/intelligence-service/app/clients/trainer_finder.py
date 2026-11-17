@@ -267,6 +267,8 @@ async def _run_engine(engine, queries, run, fetcher, health, report, offset, rec
             page = await fetch_results_page(engine, fetcher, method, url, data, kind)
             report['pages'] += 1
             report['browser_pages'] += int(page.via_browser)
+            if report['pages'] == 1:
+                _save_debug_page(engine.name, query, page)
             if page.status == 'blocked':
                 until = health.record_block(engine.name)
                 report.update(status='blocked', cooling_until=until.isoformat(),
@@ -304,6 +306,21 @@ async def _run_engine(engine, queries, run, fetcher, health, report, offset, rec
             report['reason'] = f'Stopped after {_MAX_EMPTY_QUERIES} queries in a row returned no LinkedIn links.'
             break
     health.record_ok(engine.name)
+
+
+def _save_debug_page(engine_name, query, page):
+    """TRAINER_FINDER_DEBUG_DIR=/tmp/finder saves each engine's first results page for checking the parser."""
+    folder = os.environ.get('TRAINER_FINDER_DEBUG_DIR', '').strip()
+    if not folder or not page.body:
+        return
+    try:
+        from pathlib import Path
+        path = Path(folder)
+        path.mkdir(parents=True, exist_ok=True)
+        (path / f'{engine_name}.html').write_bytes(page.body)
+        (path / f'{engine_name}.query.txt').write_text(query)
+    except OSError:
+        logger.warning('Could not save a debug results page to %s', folder)
 
 
 def _finish_report(report, run):

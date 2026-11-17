@@ -183,3 +183,7 @@ needed.
 
 Settings: `TRAINER_FINDER_ENABLED`, `TRAINER_FINDER_BUDGET_SECONDS` (default 180),
 `TRAINER_FINDER_ENGINES`, `TRAINER_FINDER_BROWSER` and `CLIENT_POST_MAX_AGE`; see `.env.example`.
+
+To check the parser against live pages, set `TRAINER_FINDER_DEBUG_DIR=/tmp/finder`
+for a diagnostic run. Each engine's first results page is saved there as
+`<engine>.html`, with the query in `<engine>.query.txt`.
