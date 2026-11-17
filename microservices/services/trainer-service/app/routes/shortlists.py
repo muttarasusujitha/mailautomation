@@ -2295,6 +2295,8 @@ def _client_topic_phrases(value: Any) -> List[str]:
     phrases: List[str] = []
     for part in re.split(r"[,;\n]+", text):
         part = _clean(part).strip(" .-")
+        # Oxford-comma lists leave the conjunction at the start of the final part.
+        part = re.sub(r"^(?:and|&)\s+", "", part, flags=re.IGNORECASE)
         pieces = [piece.strip(" .-") for piece in re.split(r"\s+\band\b\s+", part, flags=re.IGNORECASE)]
         # Keep a phrase whose known name uses the "and" whole
         # ("Continuous Integration and Continuous Delivery" is CI/CD).
