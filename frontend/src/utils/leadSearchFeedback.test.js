@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectionOutcomeLines, linkedInSearchPayload, mergeSearchLeads, outcomeLine, visibleSearchLeads } from './leadSearchFeedback.js'
+import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')
@@ -51,4 +51,26 @@ test('a finished search displays the fetched profiles even when they were alread
   const shown = visibleSearchLeads(saved, results, true)
   assert.deepEqual(shown.map(lead => lead.lead_id || lead.linkedin_url), ['TPL-1', 'https://www.linkedin.com/in/ravi'])
   assert.deepEqual(visibleSearchLeads([{ lead_id: 'saved' }], results, false).map(lead => lead.lead_id), ['saved'])
+})
+
+test('source report lines say which sources worked and why others did not', () => {
+  const lines = sourceReportLines({ sources: [
+    { source: 'linkedin_account', label: 'LinkedIn account', status: 'paused', qualified: 0, reason: 'Paused until 10:00 UTC.' },
+    { source: 'bing', label: 'Bing', status: 'ok', qualified: 18, reason: '' },
+    { source: 'tavily', label: 'Tavily (optional)', status: 'not_configured', qualified: 0, reason: 'TAVILY_API_KEY is not set.' },
+  ] })
+  assert.deepEqual(lines.map(line => line.text), [
+    'LinkedIn account: paused (Paused until 10:00 UTC.)',
+    'Bing: worked, 18 matching profiles',
+    'Tavily (optional): not configured (TAVILY_API_KEY is not set.)',
+  ])
+  assert.deepEqual(lines.map(line => line.ok), [false, true, false])
+  assert.deepEqual(sourceReportLines({}), [])
+})
+
+test('lead source label names the web engines that found a profile', () => {
+  assert.equal(leadSourceLabel({ discovery_provider: 'trainer_finder', found_by: ['bing', 'mojeek'] }), 'Web search (bing, mojeek)')
+  assert.equal(leadSourceLabel({ discovery_provider: 'public_fallback' }), 'Public indexed search fallback')
+  assert.equal(leadSourceLabel({ discovery_provider: 'linkedin_account', source: 'linkedin' }), 'LinkedIn account')
+  assert.equal(leadSourceLabel({ source: 'naukri' }), 'naukri')
 })

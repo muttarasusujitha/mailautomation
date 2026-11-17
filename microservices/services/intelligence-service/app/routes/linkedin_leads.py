@@ -1,6 +1,7 @@
 """LinkedIn account lead discovery, with optional public and Tavily providers."""
 import logging
 import re
+import time
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -25,6 +26,8 @@ LOCAL_SERVICE_FALLBACKS = {
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]{2,64}@[A-Za-z0-9.\-]{2,253}\.[A-Za-z]{2,12}")
 PHONE_RE = re.compile(r"(?:\+91|0091|91)?[\s.\-()]*(6[\d\s.\-()]{9,20}|7[\d\s.\-()]{9,20}|8[\d\s.\-()]{9,20}|9[\d\s.\-()]{9,20})")
 BAD_EMAIL_LOCALS = {"noreply", "no-reply", "donotreply", "support", "admin", "info", "sales", "hr", "careers", "jobs"}
+# Whole-request budget. The gateway closes /linkedin-leads requests after 600 seconds.
+_SEARCH_TIME_LIMIT = 560
 
 
 class LinkedInLeadSearchRequest(BaseModel):
@@ -520,6 +523,7 @@ async def search_linkedin_leads(
         return {"success": False, "error": "query, domain, or domains is required", "saved_count": 0, "results": []}
 
     now = datetime.utcnow()
+    search_started = time.monotonic()
     saved_count = 0
     auto_sent_count = 0
     skipped_count = 0
@@ -559,12 +563,19 @@ async def search_linkedin_leads(
                 linkedin_session_requires_public_fallback,
                 search_warning,
             )
+            from app.clients.trainer_finder import finder_enabled
             raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
             blocked_reason = outcome.get('primary_error') or ''
             should_use_public_fallback = linkedin_requires_public_fallback(blocked_reason) or (
                 mode == 'client' and linkedin_session_requires_public_fallback(blocked_reason)
             )
-            if len(raw_results) < domain_goal and should_use_public_fallback:
+            if mode == 'trainer' and finder_enabled() and len(raw_results) < domain_goal:
+                # Search every key-free engine for the rest, whatever stopped the account search.
+                from app.clients.lead_discovery import discover_with_trainer_finder
+                raw_results, outcome = await discover_with_trainer_finder(
+                    domain, domain_goal, payload.location or '', db, raw_results, outcome,
+                    time_left=_SEARCH_TIME_LIMIT - (time.monotonic() - search_started))
+            elif len(raw_results) < domain_goal and should_use_public_fallback:
                 account_results = list(raw_results)
                 try:
                     fallback_results, fallback_outcome = await discover_public_fallback(
@@ -664,6 +675,8 @@ async def search_linkedin_leads(
                 continue
             lead['discovery_provider'] = item.get('discovery_provider', payload.search_provider)
             lead['verification_status'] = 'unverified_linkedin_account' if lead['discovery_provider'] == 'linkedin_account' else 'unverified_public_search'
+            if item.get('engines'):
+                lead['found_by'] = list(item['engines'])
             lead['discovered_at'] = now
             source_url = lead.get("source_url", "")
             from app.clients.client_post_identity import post_identity, save_client_post
