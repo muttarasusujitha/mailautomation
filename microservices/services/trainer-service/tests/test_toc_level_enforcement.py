@@ -187,3 +187,11 @@ def test_short_advanced_compact_toc_skips_the_introductory_days():
     assert beginner[0] == "Kotlin Introduction and Environment Setup"
     assert not set(advanced[:-1]) & set(beginner[:-1])
     assert "capstone" in advanced[-1].lower()
+
+
+def test_level_days_carry_scenarios_and_catalog_days_keep_their_assessment():
+    level_day = generate_toc_from_dataset("Kubernetes", 5, level="intermediate")["days"][1]
+    assert len(level_day["scenarios"]) == len(level_day["acceptance_checks"]) == 3
+    assert level_day["scenarios"][0]["outcome"] == level_day["acceptance_checks"][0]["expected_result"]
+    catalog_days = generate_toc_from_dataset("Kotlin", 5, level="intermediate")["days"]
+    assert all(not day["assessment"].startswith("Daily knowledge check") for day in catalog_days)

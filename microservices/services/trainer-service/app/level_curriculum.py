@@ -90,6 +90,15 @@ def _expand_day(day, course, level, position):
         "deliverable": day["deliverable"],
         "assessment": assessment,
         "acceptance_checks": checks,
+        # Each acceptance check doubles as a worked scenario for the
+        # execution-plan export: a condition, what the participant does, and
+        # the expected result with its evidence.
+        "scenarios": [
+            {"situation": check["input_or_condition"],
+             "activity": f"Apply this to the '{topic}' lab result and record what happens",
+             "outcome": check["expected_result"], "evidence": check["evidence"]}
+            for check in checks
+        ],
         "learning_objectives": list(day["objectives"]),
         "prerequisites": previous,
         "preparation_requirements": list(day.get("preparation") or [

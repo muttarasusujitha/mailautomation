@@ -6,6 +6,8 @@ import textwrap
 
 from shared.toc_layouts import REFERENCE_LAYOUTS
 
+from app.toc_modules import to_modules
+
 
 # Ten natural shades. Each layout keeps the same curriculum and changes the stylesheet.
 THEMES = {
@@ -251,15 +253,9 @@ def render_reference_toc(toc):
         return ws
 
     original_days = toc.get("days") or []
-    days = []
-    for day in original_days:
-        if day.get("modules"):
-            for module in day["modules"]:
-                days.append({**module, "day": day.get("day"), "date": day.get("date"),
-                    "timing": module.get("timing") or day.get("timing"), "focus_area": module.get("title") or module.get("topic"),
-                    "hours_per_day": None})
-        else:
-            days.append(day)
+    # One row per module. A whole-day entry becomes coded, timed modules (M1, M2 ...)
+    # so every layout reads like a client execution plan.
+    days = to_modules(original_days)
     def hours(day):
         minutes = day.get("minutes")
         try:
