@@ -225,9 +225,14 @@ def test_level_is_read_from_a_longer_audience_description():
     assert resolve_content_level("intermediate", "College students - beginner") == "beginner"
     assert resolve_content_level("intermediate", "Engineering college students, basics") == "beginner"
     assert resolve_content_level("intermediate", "Freshers from beginner to advanced") == "mixed"
-    # Audience words without a level keep the requested or default level.
-    assert resolve_content_level("intermediate", "College students") == "intermediate"
+    # College and fresher batches without a named level start at beginner.
+    assert resolve_content_level("intermediate", "College students") == "beginner"
+    assert resolve_content_level("", "Final-year B.Tech students") == "beginner"
+    assert resolve_content_level("intermediate", "Freshers joining the company") == "beginner"
+    assert resolve_content_level("advanced", "College students") == "advanced"
+    # Other audience words without a level keep the requested or default level.
     assert resolve_content_level("intermediate", "Senior managers") == "intermediate"
+    assert resolve_content_level("intermediate", "IT employees") == "intermediate"
     assert resolve_content_level("advanced", "Corporate employees") == "advanced"
     # An explicitly chosen non-default level still wins over the audience text.
     assert resolve_content_level("beginner", "Advanced developers") == "beginner"

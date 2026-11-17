@@ -68,10 +68,18 @@ def _content_band(value: str) -> str:
     return named[0] if named else ""
 
 
+# College and fresher batches start at beginner unless the request names a level.
+_COLLEGE_AUDIENCE = re.compile(
+    r"\b(colleges?|students?|campus|freshers?|graduates?|undergraduates?|universit(?:y|ies)|"
+    r"b\.?\s?tech|m\.?\s?tech|b\.?\s?e|mca|bca|b\.?\s?sc|final[- ]year|interns?|internships?)\b")
+
+
 def resolve_content_level(level: str, audience_level: str = "") -> str:
     """Let a named audience band replace a level that was left at the default."""
     chosen = _normalize_level(level) if str(level or "").strip() else ""
     audience_band = _content_band(audience_level)
+    if not audience_band and _COLLEGE_AUDIENCE.search(str(audience_level or "").lower()):
+        audience_band = "beginner"
     if audience_band and (not chosen or chosen == "intermediate"):
         return audience_band
     if chosen in CONTENT_LEVELS:
