@@ -84,3 +84,29 @@ PYTHONPATH=.:../.. python -m app.level_curriculum --check
 
 All content is marked `unreviewed`. A trainer must confirm technical accuracy,
 timings and acceptance cases before client delivery.
+
+## Execution-plan modules (optional `modules` on a day)
+
+A day can list its modules the way a client execution plan does. Each module has
+`title`, `minutes`, `subtopics`, `objective`, `lab`, `deliverable`,
+`success_measure` and at least three `scenarios`, each written as
+`[situation, participant activity, expected outcome, evidence]`. Module minutes
+must add up to 420, and `--check` rejects incomplete modules. The TOC, the
+evaluation, lab planning and the Excel exports all read these modules. Days
+without modules are split automatically in the export and marked "(proposed)".
+
+Hand-written modules: Generative AI, AWS and Azure (the five days a 5-day
+intermediate TOC uses). To draft modules for the remaining days with the
+configured model (paid API; drafts are checked before they are added):
+
+```bash
+cd microservices/services/trainer-service
+PYTHONPATH=.:../.. python -m app.draft_level_modules                       # days still without modules
+PYTHONPATH=.:../.. python -m app.draft_level_modules --run --course java --level intermediate
+PYTHONPATH=.:../.. python -m app.draft_level_modules --apply               # add the valid drafts
+PYTHONPATH=.:../.. python -m app.level_curriculum --check
+```
+
+Drafts that fail the checks are kept in `curriculum_module_drafts/rejected/`
+with the reasons and are retried on the next run. Applied drafts are marked
+`"origin": "model_draft_pending_technical_review"` on each module.

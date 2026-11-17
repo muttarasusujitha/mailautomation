@@ -105,6 +105,7 @@ def _expand_module(module, day, course, prerequisites):
         "preparation_requirements": [f"Sample data, starter files and a worked solution for: {module['lab']}"],
         # Ask the export to number this module (M1, M2 ...) across the programme.
         "number_in_plan": True,
+        **({"content_origin": module["origin"]} if module.get("origin") else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
         "review_status": "unreviewed",
