@@ -4770,6 +4770,16 @@ async def send_client_slots(
     participant_count = supplied_participant_count
     lab_hours_per_day = supplied_lab_hours
     lab_defaults_used = raw_participants in (None, "") or raw_lab_hours in (None, "")
+    # Lab-cost workbooks cover 1 to 30 training days. A longer programme cannot be
+    # costed automatically: stop once (422, not retried) when the client asked for
+    # the estimate, otherwise send the handoff without it.
+    toc_days = len((toc_data or {}).get("days") or [])
+    if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data and toc_days > 30:
+        if explicit_lab_workbook:
+            raise HTTPException(422, f"Lab-cost workbooks support 1 to 30 training days; this ToC has {toc_days} days. "
+                                     "Prepare the lab estimate manually.")
+        logger.warning("Skipping inferred lab-cost workbook: %s training days exceed the 30-day workbook", toc_days)
+        wants_lab_cost = False
     # Lab costing is required only when the client requested it.
     if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data:
         requested_providers = [

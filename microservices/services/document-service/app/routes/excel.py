@@ -1731,6 +1731,11 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
     # prevent preparing the corresponding draft lab workbook.
     if error and payload.get("draft") is not True:
         raise HTTPException(422, error)
+    # The lab-cost template has 30 day rows. Refuse longer programmes before
+    # refreshing live prices or planning lab resources.
+    lab_days = len([day for day in (toc.get("days") or []) if isinstance(day, dict)])
+    if lab_days > 30:
+        raise HTTPException(422, f"Lab cost estimates support training durations from 1 to 30 days; this ToC has {lab_days} days")
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
     from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
     from shared.live_lab_pricing import refresh_rates, refresh_exchange_rate, automatic_pricing_selections

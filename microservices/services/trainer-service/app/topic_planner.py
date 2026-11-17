@@ -33,7 +33,12 @@ def requested_topic_list(text, domain_name=""):
     technology's own name (sent by automatic callers alongside its skills) is not a topic."""
     topics = []
     for part in re.split(r"[;,\n]+", str(text or "")):
-        for piece in re.split(r"\s+(?:and|&)\s+", part.strip(" ."), flags=re.IGNORECASE):
+        part = part.strip(" .")
+        plain = re.sub(r"[^a-z0-9]+", " ", part.lower()).strip()
+        # A phrase that is itself a known name ("Continuous Integration and Continuous
+        # Delivery" is CI/CD) stays whole; other "X and Y" phrases are two topics.
+        pieces = [part] if normalize_topic(part) != plain else re.split(r"\s+(?:and|&)\s+", part, flags=re.IGNORECASE)
+        for piece in pieces:
             piece = piece.strip(" .")
             if not piece or normalize_topic(piece) in {normalize_topic(t) for t in topics}:
                 continue
@@ -103,6 +108,11 @@ def _fit(topic, candidate, level):
     right level is best; a day that only mentions it at the right level beats a day
     about it two levels away."""
     return 2 * _strength(topic, candidate["day"]) - _level_distance(level, candidate)
+
+
+def uncovered_topics(topics, days):
+    """Named topics that none of the given days teaches."""
+    return [topic for topic in topics if not any(_strength(topic, day) for day in days)]
 
 
 def plan_requested_topics(domain_name, topics_text, duration, level):

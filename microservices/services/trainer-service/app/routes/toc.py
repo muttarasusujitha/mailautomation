@@ -747,12 +747,18 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
+    reference_unusable = False
     if toc is None:
-        # Reference curricula keep their own modules, including when AI is unavailable or skipped.
+        # Reference curricula keep their own modules. When AI is unavailable or
+        # skipped, the draft is used only if it fits the requested days;
+        # otherwise the template path selects from the reference modules.
         from app.reference_planner import reference_draft
-        toc = reference_draft(payload)
-        if toc is not None:
+        draft = reference_draft(payload)
+        if draft is not None and (requested_mode != "ai" or not (draft.get("quality") or {}).get("validation_errors")):
+            toc = draft
             used_generation_mode = "reference_draft"
+        elif draft is not None:
+            reference_unusable = True
     try:
         if toc is None:
             # Approved deterministic Template mode, and safe fallback when
@@ -777,8 +783,9 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             else:
                 knowledge = await _load_toc_knowledge(db, payload.domain) if use_manual_knowledge else None
                 source_knowledge = knowledge
-                if use_manual_knowledge and payload.custom_topics and knowledge:
-                    # Saved client knowledge: choose the requested topics from it.
+                if use_manual_knowledge and payload.custom_topics and (knowledge or reference_unusable):
+                    # Saved client knowledge, or a reference curriculum that did not fit:
+                    # choose the requested topics from it.
                     from app.scoped_curriculum import select_requested_curriculum
                     knowledge = select_requested_curriculum(payload.domain, payload.custom_topics, knowledge)
                 # Without saved knowledge the generator designs the requested
@@ -788,7 +795,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
                     mode=payload.mode, notes=payload.notes or "", audience_level=payload.audience_level or "",
                     training_dates=payload.training_dates or "",
                     domain_override=knowledge,
-                    requested_topics=(payload.custom_topics or "") if use_manual_knowledge else "",
+                    requested_topics=payload.custom_topics or "",
                 )
                 if source_knowledge:
                     used_generation_mode = "template_knowledge"

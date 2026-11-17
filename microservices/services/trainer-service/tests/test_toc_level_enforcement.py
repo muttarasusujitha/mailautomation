@@ -308,3 +308,24 @@ def test_mostly_practice_long_programmes_need_review():
     toc = generate_toc_from_dataset("Kotlin", 60, level="intermediate")
     assert toc["practice_days"] * 2 > 60
     assert toc["quality"]["status"] == "requires_review"
+
+
+def test_prerequisite_phrases_and_verbs_do_not_set_the_level():
+    assert resolve_content_level("intermediate", "Intermediate developers with basic Kubernetes knowledge") == "intermediate"
+    assert resolve_content_level("intermediate", "Engineers looking to advance their skills") == "intermediate"
+    assert resolve_content_level("intermediate", "Advance course for testers") == "advanced"
+
+
+def test_borrowed_courses_keep_their_own_order():
+    titles = [day["focus_area"] for day in generate_toc_from_dataset("Java", 90, level="intermediate")["days"]]
+    spring_core = [index for index, title in enumerate(titles) if title.startswith("Spring Core")]
+    spring_mvc = [index for index, title in enumerate(titles) if title.startswith("Spring MVC")]
+    assert spring_core and spring_mvc and spring_core[0] < spring_mvc[0]
+
+
+def test_module_validation_rejects_tiny_modules_and_bad_scenarios():
+    from app.level_curriculum import _module_problems
+    good = {"title": "T", "minutes": 210, "subtopics": ["a", "b", "c"], "objective": "o", "lab": "l",
+            "deliverable": "d", "success_measure": "s", "scenarios": [["a", "b", "c", "d"]] * 3}
+    assert "at least 30" in _module_problems([{**good, "minutes": 5}, good], "Day 1")[0]
+    assert "needs 3 scenarios" in _module_problems([{**good, "scenarios": "not a list"}, good], "Day 1")[0]

@@ -90,3 +90,27 @@ def test_model_draft_modules_need_review(monkeypatch):
     drafted = generate_toc_from_dataset("Generative AI", 5, level="intermediate")
     assert drafted["quality"]["status"] == "requires_review"
     assert any("model drafts" in w for w in drafted["quality"]["review_warnings"])
+
+
+def test_the_standard_plan_is_kept_when_it_already_covers_the_topics():
+    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate", requested_topics="DevOps; Jenkins; Docker; Kubernetes")
+    titles = [day["focus_area"] for day in toc["days"]]
+    assert titles[:3] == ["DevOps Orientation, SDLC and Agile Delivery", "Linux Fundamentals for DevOps", "Git and GitHub Collaboration"]
+    assert toc["topic_plan"]["missing"] == []
+    assert "standard plan" in toc["topic_plan"]["basis"]
+
+
+def test_known_phrases_with_and_stay_whole():
+    from app.topic_planner import requested_topic_list
+    assert requested_topic_list("Continuous Integration and Continuous Delivery", "DevOps") == [
+        "Continuous Integration and Continuous Delivery"]
+
+
+def test_combined_programmes_have_unique_practice_titles():
+    from app.toc_generation_agent import generate_combined_toc_from_datasets
+    toc = generate_combined_toc_from_datasets([{"technology": "SAP", "days": 30}, {"technology": "Java", "days": 30}],
+                                              level="intermediate")
+    titles = [day["focus_area"] for day in toc["days"]]
+    assert len(titles) == len(set(titles)) == 60
+    assert toc["quality"]["status"] != "requires_regeneration"
+    assert max(len(title) for title in titles) < 120

@@ -226,14 +226,16 @@ def _module_problems(modules, label):
         if missing:
             problems.append(f"{label} module {number}: missing {', '.join(missing)}")
             continue
-        if not isinstance(module["minutes"], int) or module["minutes"] <= 0:
-            problems.append(f"{label} module {number}: minutes must be a positive whole number")
+        if not isinstance(module["minutes"], int) or module["minutes"] < 30:
+            problems.append(f"{label} module {number}: minutes must be a whole number of at least 30")
         if not isinstance(module["subtopics"], list) or len(module["subtopics"]) < 3:
             problems.append(f"{label} module {number}: needs at least 3 subtopics")
         scenarios = module["scenarios"]
-        if len(scenarios) < 3 or any(not isinstance(s, list) or len(s) != 4 or not all(s) for s in scenarios):
+        if not isinstance(scenarios, list) or len(scenarios) < 3 or any(
+                not isinstance(s, list) or len(s) != 4 or not all(isinstance(v, str) and v.strip() for v in s)
+                for s in scenarios):
             problems.append(f"{label} module {number}: needs 3 scenarios of [situation, activity, outcome, evidence]")
-    if not problems and sum(module["minutes"] for module in modules if isinstance(module, dict)) != DAY_MINUTES:
+    if not problems and sum(module["minutes"] for module in modules) != DAY_MINUTES:
         problems.append(f"{label}: module minutes must add up to {DAY_MINUTES}")
     return problems
 
@@ -559,8 +561,8 @@ def _check():
             continue
         try:
             problems = validate_course(_load_json(path))
-        except ValueError as exc:
-            problems = [f"invalid JSON: {exc}"]
+        except (ValueError, TypeError, AttributeError, KeyError) as exc:
+            problems = [f"invalid course file: {exc}"]
         failed = failed or bool(problems)
         print(f"{'FAIL' if problems else 'OK  '} {path.name}")
         for problem in problems:
@@ -572,8 +574,8 @@ def _check():
             problems = [p for kind in ("integrations", "capstones")
                         for i, entry in enumerate(raw.get(kind) or [])
                         for p in _day_problems(entry.get("day") or {}, f"{kind} {i + 1}")]
-        except ValueError as exc:
-            problems = [f"invalid JSON: {exc}"]
+        except (ValueError, TypeError, AttributeError, KeyError) as exc:
+            problems = [f"invalid course file: {exc}"]
         failed = failed or bool(problems)
         print(f"{'FAIL' if problems else 'OK  '} combined.json")
         for problem in problems:

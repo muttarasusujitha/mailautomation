@@ -255,9 +255,12 @@ def render_reference_toc(toc):
     original_days = toc.get("days") or []
     # One row per module. A whole-day entry becomes coded, timed modules (M1, M2 ...)
     # so every layout reads like a client execution plan.
+    # AI-written and reference-draft days keep their own timed delivery sequence.
+    # Split modules are marked "(proposed)" unless the TOC is approved for delivery.
+    unapproved = bool(toc.get("draft_export")) or (toc.get("quality") or {}).get("status") != "approved"
     days = to_modules(original_days,
-                      split=toc.get("generation_mode") not in {"ai", "ai_partial"},
-                      mark_proposed=bool(toc.get("draft_export")))
+                      split=toc.get("generation_mode") not in {"ai", "ai_partial", "reference_draft"},
+                      mark_proposed=unapproved)
     def hours(day):
         minutes = day.get("minutes")
         try:
@@ -428,7 +431,7 @@ def render_reference_toc(toc):
             readiness.append(["Trainer preparation: " + str(title), text(item)])
         for item in day.get("prerequisites") or []:
             readiness.append(["Module prerequisite: " + str(title), text(item)])
-    if toc.get("draft_export") and any(day.get("proposed_split") for day in days):
+    if unapproved and any(day.get("proposed_split") for day in days):
         readiness.insert(0, ["Module structure", PROPOSED_SPLIT_NOTE])
     if readiness:
         sheet("Readiness & Risks", ["Category", "Requirement / action"], readiness, [30, 110])
