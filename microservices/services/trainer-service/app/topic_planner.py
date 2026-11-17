@@ -56,7 +56,7 @@ def _topic_course(topic):
     course = get_level_course(topic)
     if not course:
         return []
-    return [{"day": day, "level": level, "source": course.get("name") or course["domain"],
+    return [{"day": day, "level": level, "source": course.get("name") or course["domain"], "borrowed": True,
              "order": LEVEL_ORDER[level] * 1000 + index * 1000 / max(1, len(course["levels"][level]["days"]))}
             for level in LEVELS for index, day in enumerate(course["levels"][level]["days"])]
 
@@ -110,8 +110,9 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
 
     def ranked(topic, minimum=1):
         options = [c for c in teaching + extra[topic] if _strength(topic, c["day"]) >= minimum]
+        # On equal fit, the requested technology's own course comes before a borrowed one.
         return sorted(options, key=lambda c: (-_fit(topic, c, level), -_strength(topic, c["day"]),
-                                              c["level"] is None, c["order"]))
+                                              bool(c.get("borrowed")), c["level"] is None, c["order"]))
 
     # 1. Cover every named topic; a day that covers several named topics counts for each.
     uncovered = [t for t in topics if ranked(t)]
@@ -123,7 +124,7 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
                 if already_chosen(candidate):
                     continue
                 gain = sum(_strength(t, candidate["day"]) > 0 for t in uncovered)
-                key = (gain, _fit(topic, candidate, level), _strength(topic, candidate["day"]))
+                key = (gain, _fit(topic, candidate, level), _strength(topic, candidate["day"]), not candidate.get("borrowed"))
                 if best is None or key > best[0]:
                     best = (key, candidate)
                 break
