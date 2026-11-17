@@ -171,7 +171,10 @@ class _ProfileHarvester(HTMLParser):
         if tag in self._SKIP:
             self._skip_depth += 1
             return
-        if tag in self._HEADINGS:
+        # Some engines put the heading element inside the profile anchor. In
+        # that layout this heading belongs to the current profile, so do not
+        # clear its snippet capture before the following description.
+        if tag in self._HEADINGS and not self._anchor_url:
             self._capture_url = None
         if tag != 'a':
             return
