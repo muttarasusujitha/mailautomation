@@ -56,3 +56,37 @@ def test_a_technology_inside_a_broader_request_comes_from_its_own_course():
     curriculum = _curriculum(toc)
     assert all(topic_is_covered(topic, curriculum) for topic in ("Jenkins", "Docker", "Kubernetes", "Terraform", "Ansible"))
     assert toc["topic_plan"]["missing"] == []
+
+
+def test_the_technology_name_is_not_a_topic_and_compound_phrases_split():
+    from app.topic_planner import requested_topic_list
+    assert requested_topic_list("DevOps; Jenkins; Docker", "DevOps") == ["Jenkins", "Docker"]
+    assert requested_topic_list("Jenkins and Monitoring, Docker", "DevOps") == ["Jenkins", "Monitoring", "Docker"]
+    plain = generate_toc_from_dataset("Kubernetes", 5, level="intermediate", requested_topics="Kubernetes")
+    assert plain["agent"]["source"] == "level_dataset"
+
+
+def test_one_topic_does_not_take_over_the_programme():
+    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate", requested_topics="Docker")
+    docker_days = [day for day in toc["days"] if "docker" in day["focus_area"].lower()]
+    assert 1 <= len(docker_days) <= 5
+
+
+def test_topics_that_did_not_fit_are_reported_separately():
+    toc = generate_toc_from_dataset("AWS", 3, level="intermediate", requested_topics="EC2, S3, IAM, VPC, Lambda")
+    plan = toc["topic_plan"]
+    assert plan["missing"] == []
+    assert plan["not_scheduled"]
+    assert any("did not fit" in warning for warning in toc["quality"]["review_warnings"])
+
+
+def test_model_draft_modules_need_review(monkeypatch):
+    from app import level_curriculum as lc
+    toc = generate_toc_from_dataset("Generative AI", 5, level="intermediate")
+    assert not any("model drafts" in w for w in toc["quality"].get("review_warnings", []))
+    course = lc.get_level_course("Generative AI")
+    day = next(d for d in course["levels"]["intermediate"]["days"] if d.get("modules"))
+    monkeypatch.setitem(day["modules"][0], "content_origin", "model_draft_pending_technical_review")
+    drafted = generate_toc_from_dataset("Generative AI", 5, level="intermediate")
+    assert drafted["quality"]["status"] == "requires_review"
+    assert any("model drafts" in w for w in drafted["quality"]["review_warnings"])

@@ -65,6 +65,8 @@ def _base(day, title, code, minutes):
         "day": day.get("day"), "date": day.get("date"), "week": day.get("week"),
         "timing": day.get("timing"), "tools": day.get("tools"),
         "focus_area": f"M{code} - {title}", "title": f"M{code} - {title}",
+        # The day this module came from, for matching integration days and capstones.
+        "source_title": day.get("focus_area") or day.get("topic") or day.get("title"),
         "minutes": minutes, "hours_per_day": None,
     }
 
@@ -156,32 +158,37 @@ PROPOSED_SPLIT_NOTE = (
     "wording are standard. A trainer should review them before client delivery.")
 
 
-def to_modules(days):
+def to_modules(days, split=True, mark_proposed=True):
     """Flatten days into module rows; whole-day entries are split into coded modules.
 
     Authored modules that ask for it (``number_in_plan``) and split modules share
-    one M1, M2 ... sequence across the programme.
+    one M1, M2 ... sequence across the programme. ``split=False`` keeps whole
+    days (AI-written days carry their own timed delivery sequence).
+    ``mark_proposed`` adds "(proposed)" to split module titles, for draft exports.
     """
     rows, code = [], 1
     for day in days:
         modules = day.get("modules") or []
         whole_day = {k: v for k, v in {**day, **(modules[0] if len(modules) == 1 else {})}.items() if k != "modules"}
-        if len(modules) <= 1 and needs_split(whole_day):
-            split = split_day(whole_day, code)
-            for module in split:
+        if split and len(modules) <= 1 and needs_split(whole_day):
+            parts = split_day(whole_day, code)
+            for module in parts:
                 module["proposed_split"] = True
-                module["focus_area"] = module["title"] = module["title"] + " (proposed)"
-            code += len(split)
-            rows.extend(split)
+                if mark_proposed:
+                    module["focus_area"] = module["title"] = module["title"] + " (proposed)"
+            code += len(parts)
+            rows.extend(parts)
         elif modules:
             for module in modules:
                 title = module.get("title") or module.get("topic")
-                if module.get("number_in_plan"):
+                numbered = bool(module.get("number_in_plan"))
+                if numbered:
                     title = f"M{code} - {title}"
                     code += 1
                 rows.append({**module, "day": day.get("day"), "date": day.get("date"),
                     "timing": module.get("timing") or day.get("timing"),
-                    "focus_area": title, "title": title, "hours_per_day": None})
+                    "focus_area": title, "title": title, "hours_per_day": None,
+                    **({"source_title": day.get("focus_area") or day.get("title")} if numbered else {})})
         else:
             rows.append(day)
     return rows

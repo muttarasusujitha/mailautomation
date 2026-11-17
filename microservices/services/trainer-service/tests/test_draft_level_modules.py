@@ -13,7 +13,8 @@ def _modules_for(source, drop_subtopic=False):
     topics = list(source["subtopics"])
     if drop_subtopic:
         topics = topics[1:]
-    parts = [topics[0::3], topics[1::3], topics[2::3]]
+    # Each module adds two closely related subtopics of its own, so it has at least three.
+    parts = [topics[start::3] + [f"Practice {start + 1}a", f"Practice {start + 1}b"] for start in range(3)]
     return [{
         "title": f"{source['topic']} part {index}", "minutes": minutes, "subtopics": part,
         "objective": "Do the thing", "lab": "Run the sample lab", "deliverable": "Lab output",

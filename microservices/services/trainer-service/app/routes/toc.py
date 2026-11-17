@@ -740,13 +740,15 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     # from the datasets by the template generator.
     ai_too_long = requested_mode == "ai" and int(payload.duration_days or 0) > 30
     toc = await _generate_ai_toc(payload) if requested_mode == "ai" and not ai_too_long else None
-    ai_unavailable = requested_mode == "ai" and not toc
+    # A skipped AI call is not an AI failure; it gets its own mode and message.
+    ai_unavailable = requested_mode == "ai" and not toc and not ai_too_long
     if toc:
         used_generation_mode = "ai"
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
-    if toc is None and requested_mode != "ai":
+    if toc is None:
+        # Reference curricula keep their own modules, including when AI is unavailable or skipped.
         from app.reference_planner import reference_draft
         toc = reference_draft(payload)
         if toc is not None:
@@ -759,7 +761,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             # AI is preferred when selected, but an unavailable/invalid AI
             # result must fall back to the approved template generator rather
             # than block a valid ToC request.
-            use_manual_knowledge = requested_mode != "ai" or ai_unavailable
+            use_manual_knowledge = requested_mode != "ai" or ai_unavailable or ai_too_long
             if allocations:
                 knowledge_overrides = (
                     await _load_toc_knowledge_overrides(db, allocations)
@@ -794,6 +796,8 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
                 used_generation_mode = "template_fallback"
             elif ai_unavailable and used_generation_mode == "template_knowledge":
                 used_generation_mode = "template_knowledge_fallback"
+            elif ai_too_long and used_generation_mode in {"template", "template_knowledge"}:
+                used_generation_mode = used_generation_mode + "_long_programme"
             toc = validate_toc(toc, int(payload.duration_days))
             # AI OFF must remain offline even if an older caller sends the
             # legacy enrichment flag. Model planning requires AI ON.
@@ -802,7 +806,12 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         toc = _minimal_toc(payload.domain, payload.duration_days)
 
     if ai_too_long:
-        toc["generation_warning"] = "Programmes longer than 30 days are planned from the curriculum datasets, not AI."
+        message = "Programmes longer than 30 days are planned from the curriculum datasets, not AI."
+        toc["generation_warning"] = message
+        quality = toc.setdefault("quality", {})
+        if quality.get("status") == "approved":
+            quality["status"] = "requires_review"
+        quality.setdefault("review_warnings", []).append(message)
     if ai_unavailable:
         quality = toc.setdefault("quality", {})
         if quality.get("status") != "requires_regeneration":

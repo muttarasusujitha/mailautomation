@@ -210,12 +210,14 @@ def test_authored_modules_reach_the_toc_with_scenarios_and_timed_steps():
 
 def test_incomplete_authored_modules_fail_validation():
     from app.level_curriculum import _module_problems
-    good = {"title": "T", "minutes": 210, "subtopics": ["a"], "objective": "o", "lab": "l",
+    good = {"title": "T", "minutes": 210, "subtopics": ["a", "b", "c"], "objective": "o", "lab": "l",
             "deliverable": "d", "success_measure": "s", "scenarios": [["a", "b", "c", "d"]] * 3}
     assert _module_problems([good, good], "Day 1") == []
     assert "add up to 420" in _module_problems([good], "Day 1")[0]
     assert "needs 3 scenarios" in _module_problems([{**good, "scenarios": [["a", "b"]]}, good], "Day 1")[0]
     assert "missing lab" in _module_problems([{**good, "lab": ""}, good], "Day 1")[0]
+    assert "at least 3 subtopics" in _module_problems([{**good, "subtopics": ["a"]}, good], "Day 1")[0]
+    assert "must be an object" in _module_problems(["not a module", good], "Day 1")[0]
 
 
 def test_level_is_read_from_a_longer_audience_description():
@@ -261,3 +263,48 @@ def test_practice_days_build_on_taught_topics_and_are_disclosed():
     positions = [toc["days"].index(day) for day in practice]
     assert positions[0] < len(toc["days"]) // 2
     assert any("project practice days" in note for note in toc["review_warnings"])
+
+
+def test_long_advanced_requests_keep_the_advanced_end_and_capstone():
+    for name, duration in (("Kubernetes", 40), ("SAP", 20), ("Cloud", 24)):
+        toc = generate_toc_from_dataset(name, duration, level="advanced")
+        titles = [day["focus_area"] for day in toc["days"]]
+        assert len(titles) == duration == len(set(titles)), name
+        assert titles[-1].startswith("Advanced Capstone"), name
+        assert toc["agent"]["levels_used"][-1] == "advanced", name
+
+
+def test_audience_sentences_are_not_read_as_college_or_level_words():
+    assert resolve_content_level("intermediate", "Developers who will be working on AWS") == "intermediate"
+    assert resolve_content_level("intermediate", "B.E. final year students") == "beginner"
+    assert resolve_content_level("intermediate", "Intermediate to advanced developers") == "intermediate"
+    assert resolve_content_level("intermediate", "Please share the plan in advance") == "intermediate"
+    assert resolve_content_level("intermediate", "advance level") == "advanced"
+
+
+def test_long_programmes_do_not_return_to_basics_after_advanced_content():
+    toc = generate_toc_from_dataset("Python", 80, level="advanced")
+    titles = [day["focus_area"] for day in toc["days"]]
+    assert "Python Basics" not in titles[len(titles) // 2:]
+
+
+def test_saved_client_knowledge_is_not_padded_with_catalog_days():
+    knowledge = {"name": "Client Kotlin", "days": [
+        {"topic": f"Client topic {index}", "subtopics": ["one", "two", "three"], "lab": f"Client lab {index}"}
+        for index in range(1, 7)]}
+    toc = generate_toc_from_dataset("Kotlin", 12, level="intermediate", domain_override=knowledge)
+    titles = [day["focus_area"] for day in toc["days"]]
+    assert all(title.startswith(("Client topic", "Project Sprint")) or "Capstone" in title for title in titles)
+    short = generate_toc_from_dataset("Kotlin", 5, level="advanced", domain_override=knowledge)
+    assert short["days"][0]["focus_area"] == "Client topic 1"
+
+
+def test_advanced_check_ignores_fundamentals_of_a_subject():
+    toc = generate_toc_from_dataset("DSA & Algorithms Mastery", 5, level="advanced")
+    assert not any("introductory topics" in warning for warning in toc["quality"].get("review_warnings", []))
+
+
+def test_mostly_practice_long_programmes_need_review():
+    toc = generate_toc_from_dataset("Kotlin", 60, level="intermediate")
+    assert toc["practice_days"] * 2 > 60
+    assert toc["quality"]["status"] == "requires_review"

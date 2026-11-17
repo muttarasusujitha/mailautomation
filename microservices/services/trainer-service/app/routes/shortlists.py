@@ -2310,7 +2310,8 @@ def _confirmed_training_duration_days(requirement: Dict[str, Any]) -> Optional[f
         duration = float(duration)
     except (TypeError, ValueError):
         return None
-    return duration if 1 <= duration <= 30 else None
+    # Matches the TOC API (1 to 100 days); lab-cost workbooks still support 1 to 30 days.
+    return duration if 1 <= duration <= 100 else None
 
 
 def _confirmed_training_dates(requirement: Dict[str, Any]) -> str:

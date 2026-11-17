@@ -105,6 +105,8 @@ def _expand_module(module, day, course, prerequisites):
         "preparation_requirements": [f"Sample data, starter files and a worked solution for: {module['lab']}"],
         # Ask the export to number this module (M1, M2 ...) across the programme.
         "number_in_plan": True,
+        # The step timings and preparation list are built by formula; the trainer confirms them.
+        "proposed_fields": ["delivery_steps", "preparation_requirements"],
         **({"content_origin": module["origin"]} if module.get("origin") else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
@@ -217,16 +219,21 @@ def _module_problems(modules, label):
         return [f"{label}: modules must be a non-empty list"]
     problems = []
     for number, module in enumerate(modules, 1):
+        if not isinstance(module, dict):
+            problems.append(f"{label} module {number}: must be an object")
+            continue
         missing = [field for field in _REQUIRED_MODULE_FIELDS if not module.get(field)]
         if missing:
             problems.append(f"{label} module {number}: missing {', '.join(missing)}")
             continue
         if not isinstance(module["minutes"], int) or module["minutes"] <= 0:
             problems.append(f"{label} module {number}: minutes must be a positive whole number")
+        if not isinstance(module["subtopics"], list) or len(module["subtopics"]) < 3:
+            problems.append(f"{label} module {number}: needs at least 3 subtopics")
         scenarios = module["scenarios"]
         if len(scenarios) < 3 or any(not isinstance(s, list) or len(s) != 4 or not all(s) for s in scenarios):
             problems.append(f"{label} module {number}: needs 3 scenarios of [situation, activity, outcome, evidence]")
-    if not problems and sum(module["minutes"] for module in modules) != DAY_MINUTES:
+    if not problems and sum(module["minutes"] for module in modules if isinstance(module, dict)) != DAY_MINUTES:
         problems.append(f"{label}: module minutes must add up to {DAY_MINUTES}")
     return problems
 
@@ -267,7 +274,7 @@ def _load_courses():
                 for level in LEVELS:
                     track = course["levels"][level]
                     track["days"] = [_expand_day(day, course, level, index) for index, day in enumerate(track["days"])]
-            except (ValueError, KeyError, TypeError, OSError) as exc:
+            except (ValueError, KeyError, TypeError, AttributeError, OSError) as exc:
                 # A broken file must not stop TOC generation; that domain keeps the old dataset.
                 logger.warning("Skipping level dataset %s: %s", path.name, exc)
                 continue
@@ -337,16 +344,16 @@ def select_level_days(course, level, duration):
                     break
                 picked += tracks[name][0][: slots - len(picked)]
                 used.append(name)
-            if len(picked) < slots and start > 0:
-                # Advanced (or Intermediate) longer than the remaining tracks: refresh the level below first.
-                below = tracks[LEVELS[start - 1]][0]
+            # Advanced (or Intermediate) longer than the remaining tracks: refresh the
+            # levels below, nearest first, taking each level's later days.
+            for name in reversed(LEVELS[:start]):
                 need = slots - len(picked)
-                if need > len(below):
-                    return None
+                if need <= 0:
+                    break
+                below = tracks[name][0]
                 picked = below[-need:] + picked
-                used.insert(0, LEVELS[start - 1])
-            if len(picked) < slots:
-                return None
+                used.insert(0, name)
+            # Still shorter than the request: the caller extends the plan from other datasets.
         last = used[-1]
     if with_capstone:
         capstone = tracks[last][1]
@@ -367,8 +374,13 @@ def level_programme(domain_name, duration, level):
         # Longer than the three levels together: teach all of them in order and
         # let the generator add other datasets and practice days for the rest.
         tracks = [_split(course["levels"][name]) for name in LEVELS]
-        capstone = tracks[-1][1]
-        days = [day for body, _ in tracks for day in body] + ([capstone] if capstone and duration >= 5 else [])
+        capstone = tracks[-1][1] if duration >= 5 else None
+        body = [day for days, _ in tracks for day in days]
+        slots = max(1, int(duration or 1)) - (1 if capstone else 0)
+        if len(body) > slots:
+            # A mixed request where one level is short: spread the slots over all levels in order.
+            body = _spread(body, slots)
+        days = body + ([capstone] if capstone else [])
         if not days:
             return None
         selection = (deepcopy(days), list(LEVELS))

@@ -255,7 +255,9 @@ def render_reference_toc(toc):
     original_days = toc.get("days") or []
     # One row per module. A whole-day entry becomes coded, timed modules (M1, M2 ...)
     # so every layout reads like a client execution plan.
-    days = to_modules(original_days)
+    days = to_modules(original_days,
+                      split=toc.get("generation_mode") not in {"ai", "ai_partial"},
+                      mark_proposed=bool(toc.get("draft_export")))
     def hours(day):
         minutes = day.get("minutes")
         try:
@@ -339,7 +341,7 @@ def render_reference_toc(toc):
     # Week, and for combined programmes Technology and Level, are added as the last
     # columns so existing column positions (Day, Date, ..., Hours in E) stay fixed.
     day_weeks = [_week_of(day, index) for index, day in enumerate(days, 1)]
-    day_tracks = [_track_for_day(tracks, day, row[0], row[3]) for day, row in zip(days, plan_rows)]
+    day_tracks = [_track_for_day(tracks, day, row[0], day.get("source_title") or row[3]) for day, row in zip(days, plan_rows)]
     schedule_headers = schedule_headers + ["Week"] + (["Technology", "Level"] if tracks else [])
     schedule_widths = schedule_widths + [9] + ([22, 14] if tracks else [])
     schedule_rows = [row + [f"Week {week}"] + ([label, level] if tracks else [])
@@ -426,7 +428,7 @@ def render_reference_toc(toc):
             readiness.append(["Trainer preparation: " + str(title), text(item)])
         for item in day.get("prerequisites") or []:
             readiness.append(["Module prerequisite: " + str(title), text(item)])
-    if any(day.get("proposed_split") for day in days):
+    if toc.get("draft_export") and any(day.get("proposed_split") for day in days):
         readiness.insert(0, ["Module structure", PROPOSED_SPLIT_NOTE])
     if readiness:
         sheet("Readiness & Risks", ["Category", "Requirement / action"], readiness, [30, 110])

@@ -15,12 +15,31 @@ from shared.toc_quality import normalize_topic, topic_is_covered
 LEVEL_ORDER = {"beginner": 0, "intermediate": 1, "advanced": 2}
 
 
-def requested_topic_list(text):
+def _same_technology(topic, domain_name):
+    """True when a requested "topic" just names the technology being taught (DevOps in a DevOps TOC)."""
+    from app.level_curriculum import get_level_course
+    from app.toc_domain_dataset import same_technology_datasets
+    if normalize_topic(topic) == normalize_topic(domain_name):
+        return True
+    course = get_level_course(domain_name)
+    if course and get_level_course(topic) is course:
+        return True
+    own = {id(data) for data in same_technology_datasets(domain_name)}
+    return bool(own) and bool(own & {id(data) for data in same_technology_datasets(topic)})
+
+
+def requested_topic_list(text, domain_name=""):
+    """Named topics in request order. "Jenkins and Monitoring" counts as two topics, and the
+    technology's own name (sent by automatic callers alongside its skills) is not a topic."""
     topics = []
     for part in re.split(r"[;,\n]+", str(text or "")):
-        part = part.strip(" .")
-        if part and normalize_topic(part) not in {normalize_topic(t) for t in topics}:
-            topics.append(part)
+        for piece in re.split(r"\s+(?:and|&)\s+", part.strip(" ."), flags=re.IGNORECASE):
+            piece = piece.strip(" .")
+            if not piece or normalize_topic(piece) in {normalize_topic(t) for t in topics}:
+                continue
+            if domain_name and _same_technology(piece, domain_name):
+                continue
+            topics.append(piece)
     return topics
 
 
@@ -89,7 +108,7 @@ def _fit(topic, candidate, level):
 def plan_requested_topics(domain_name, topics_text, duration, level):
     """Return {"days", "covered", "missing", "level_notes", "levels_used"} or None when no topics are named."""
     from app.level_curriculum import _similar_topics, level_programme
-    topics = requested_topic_list(topics_text)
+    topics = requested_topic_list(topics_text, domain_name)
     if not topics:
         return None
     duration = max(1, int(duration or 1))
@@ -133,13 +152,17 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
         chosen.append(best[1])
         uncovered = [t for t in uncovered if _strength(t, best[1]["day"]) == 0]
 
-    # 2. More depth on the named topics, taking them in turn.
+    # 2. More depth on the named topics, taking them in turn. Each topic gets at most
+    # its share of half the programme; the rest follows the level plan.
+    cap = max(1, -(-slots // (2 * len(topics))))
+    def days_for(topic):
+        return sum(_strength(topic, c["day"]) > 0 for c in chosen)
     added = True
     while added and len(chosen) < slots:
         added = False
         for topic in topics:
-            if len(chosen) >= slots:
-                break
+            if len(chosen) >= slots or days_for(topic) >= cap:
+                continue
             for candidate in ranked(topic, minimum=2):
                 if not similar_to_chosen(candidate) and _level_distance(level, candidate) <= 1:
                     chosen.append(candidate)
@@ -167,11 +190,13 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
         if capstone:
             days.append(deepcopy(capstone))
 
-    covered, missing, level_notes = {}, [], []
+    covered, missing, not_scheduled, level_notes = {}, [], [], []
     for topic in topics:
         titles = [d.get("topic") for d in days if _strength(topic, d) > 0]
         if titles:
             covered[topic] = titles
+        elif ranked(topic):
+            not_scheduled.append(topic)   # taught somewhere, but there were not enough days
         else:
             missing.append(topic)
         levels = {c["level"] for c in chosen if c["level"] and _strength(topic, c["day"]) > 0}
@@ -184,7 +209,7 @@ def plan_requested_topics(domain_name, topics_text, duration, level):
                 level_notes.append(f"'{topic}' comes from the {shown} course; confirm the {level} group is "
                                    "ready for it.")
     levels_used = sorted({c["level"] for c in chosen if c["level"]}, key=LEVEL_ORDER.get)
-    return {"days": days, "covered": covered, "missing": missing, "level_notes": level_notes,
+    return {"days": days, "covered": covered, "missing": missing, "not_scheduled": not_scheduled, "level_notes": level_notes,
             "levels_used": levels_used, "requested": topics,
             "certifications": list((course or {}).get("certifications") or []),
             "name": (course or {}).get("name") or (course or {}).get("domain") or domain_name}

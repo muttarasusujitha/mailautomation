@@ -64,3 +64,17 @@ def test_modules_without_numbering_request_keep_their_titles():
     rows = to_modules([{"day": 1, "modules": [{"title": "M1 - Imported module", "minutes": 90},
                                               {"title": "Requirements", "minutes": 60}]}])
     assert [row["focus_area"] for row in rows] == ["M1 - Imported module", "Requirements"]
+
+
+def test_split_rows_keep_their_source_day_title():
+    rows = to_modules([_teaching_day(1)])
+    assert all(row["source_title"] == "Kubernetes Networking" for row in rows)
+
+
+def test_final_exports_have_no_proposed_marker_and_ai_days_are_not_split():
+    final = to_modules([_teaching_day(1)], mark_proposed=False)
+    assert not any("(proposed)" in row["focus_area"] for row in final)
+    assert all(row.get("proposed_split") for row in final)
+    ai_day = {**_teaching_day(1), "delivery_steps": [{"method": "AI step", "minutes": 420, "activity": "a", "evidence": "e"}]}
+    kept = to_modules([ai_day], split=False)
+    assert len(kept) == 1 and kept[0]["delivery_steps"][0]["method"] == "AI step"
