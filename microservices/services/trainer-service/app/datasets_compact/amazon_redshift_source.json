@@ -1,6 +1,6 @@
 {
   "domain": "Amazon Redshift",
-  "name": "Amazon Redshift â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "Amazon Redshift – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "AWS Redshift",
     "Redshift Data Warehouse"
@@ -13,7 +13,7 @@
     "Spectrum"
   ],
   "certifications": [
-    "AWS Certified Data Engineer â€“ Associate"
+    "AWS Certified Data Engineer – Associate"
   ],
   "days": [
     {
