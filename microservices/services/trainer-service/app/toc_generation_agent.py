@@ -41,13 +41,31 @@ def _normalize_level(level: str) -> str:
     return aliases.get(value, value or "intermediate")
 
 
+# Level words inside a longer audience description, such as "Advanced developers"
+# or "college students, beginner level". Audience words alone (college, employees)
+# never set a level; only a named level does.
+_LEVEL_WORDS = {
+    "beginner": r"\b(beginners?|beginning|basics?|foundation(?:al)?|novices?|entry[- ]level)\b",
+    "intermediate": r"\b(intermediate|intermidate|mid[- ]level)\b",
+    "advanced": r"\b(advanced?|experts?)\b",
+}
+
+
 def _content_band(value: str) -> str:
     """Return a curriculum band only when the text names one."""
     text = str(value or "").strip().lower()
     if not text:
         return ""
     normalized = _normalize_level(text)
-    return normalized if normalized in CONTENT_LEVELS else ""
+    if normalized in CONTENT_LEVELS:
+        return normalized
+    if re.search(r"\bmix(ed)?\b", text):
+        return "mixed"
+    named = [band for band, pattern in _LEVEL_WORDS.items() if re.search(pattern, text)]
+    if len(named) > 1:
+        # "Beginner to advanced" or "basic and intermediate": a mixed cohort.
+        return "mixed"
+    return named[0] if named else ""
 
 
 def resolve_content_level(level: str, audience_level: str = "") -> str:

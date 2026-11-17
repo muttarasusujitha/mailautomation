@@ -216,3 +216,18 @@ def test_incomplete_authored_modules_fail_validation():
     assert "add up to 420" in _module_problems([good], "Day 1")[0]
     assert "needs 3 scenarios" in _module_problems([{**good, "scenarios": [["a", "b"]]}, good], "Day 1")[0]
     assert "missing lab" in _module_problems([{**good, "lab": ""}, good], "Day 1")[0]
+
+
+def test_level_is_read_from_a_longer_audience_description():
+    # IT company and college batches both choose the level by naming it.
+    assert resolve_content_level("intermediate", "Advanced developers") == "advanced"
+    assert resolve_content_level("intermediate", "IT employees, intermediate level") == "intermediate"
+    assert resolve_content_level("intermediate", "College students - beginner") == "beginner"
+    assert resolve_content_level("intermediate", "Engineering college students, basics") == "beginner"
+    assert resolve_content_level("intermediate", "Freshers from beginner to advanced") == "mixed"
+    # Audience words without a level keep the requested or default level.
+    assert resolve_content_level("intermediate", "College students") == "intermediate"
+    assert resolve_content_level("intermediate", "Senior managers") == "intermediate"
+    assert resolve_content_level("advanced", "Corporate employees") == "advanced"
+    # An explicitly chosen non-default level still wins over the audience text.
+    assert resolve_content_level("beginner", "Advanced developers") == "beginner"
