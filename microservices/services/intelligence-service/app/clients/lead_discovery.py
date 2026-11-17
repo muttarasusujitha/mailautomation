@@ -1,6 +1,10 @@
 """Bounded, key-free discovery with per-source outcomes and qualified counts."""
 import asyncio
+import logging
+
 import httpx
+
+logger = logging.getLogger(__name__)
 
 
 def search_warning(source, error):
@@ -109,26 +113,42 @@ def _account_source(rows, outcome):
             'qualified': len(rows), 'reason': error}
 
 
-async def _saved_trainer_urls(db):
-    from app.clients.search_accuracy import canonical_public_url
-    urls = set()
+async def _saved_lead_keys(db, mode):
+    """Keys of leads already saved, so the web engines look for new ones."""
+    keys = set()
     if db is None:
-        return urls
+        return keys
     try:
+        if mode == 'client':
+            from app.clients.serp_engines import canonical_post_url, post_key
+            for value in await db['client_leads'].distinct('post_key') or []:
+                if isinstance(value, str) and value:
+                    keys.add(value)
+            for value in await db['client_leads'].distinct('source_url') or []:
+                url = canonical_post_url(value) if isinstance(value, str) else ''
+                if url:
+                    keys.add(post_key(url))
+            return keys
+        from app.clients.search_accuracy import canonical_public_url
         for field in ('source_url', 'linkedin_url'):
             for value in await db['trainer_profile_leads'].distinct(field) or []:
                 url = canonical_public_url(value or '') if isinstance(value, str) else ''
                 if url:
-                    urls.add(url.lower())
+                    keys.add(url.lower())
     except Exception:
-        pass
-    return urls
+        logger.warning('Could not read saved %s leads; the web search may return saved ones again.', mode)
+    return keys
 
 
-async def discover_with_trainer_finder(domain, target, location, db, account_rows, account_outcome, time_left=None):
-    """Fill the rest of the trainer target with the multi-engine finder after the account search."""
-    from app.clients.trainer_finder import budget_seconds, find_trainers
+async def discover_with_trainer_finder(domain, target, location, db, account_rows, account_outcome,
+                                       time_left=None, mode='trainer'):
+    """Fill the rest of the target with the multi-engine finder after the account search.
 
+    mode='trainer' finds trainer profiles; mode='client' finds posts that need a trainer.
+    """
+    from app.clients.trainer_finder import budget_seconds, find_leads
+
+    mode = 'client' if mode == 'client' else 'trainer'
     account_rows = list(account_rows or [])
     account = _account_source(account_rows, account_outcome or {})
     warnings = list((account_outcome or {}).get('warnings') or [])
@@ -140,10 +160,11 @@ async def discover_with_trainer_finder(domain, target, location, db, account_row
         rows, report = [], {'sources': [], 'status': 'no_results',
                             'limit_reason': 'The search time budget was used before the web engines could run.'}
     else:
-        exclude = await _saved_trainer_urls(db)
-        exclude.update(str(row.get('url') or '').lower() for row in account_rows)
+        exclude = await _saved_lead_keys(db, mode)
+        exclude.update(str(row.get('url') or '') if mode == 'client' else str(row.get('url') or '').lower()
+                       for row in account_rows)
         try:
-            rows, report = await find_trainers(domain, needed, location, exclude=exclude, budget=budget)
+            rows, report = await find_leads(domain, needed, location, mode=mode, exclude=exclude, budget=budget)
         except Exception as exc:
             rows, report = [], {'sources': [], 'status': 'blocked',
                                 'limit_reason': f'The web engine search failed: {str(exc)[:200] or type(exc).__name__}'}

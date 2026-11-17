@@ -1,13 +1,18 @@
-"""Self-hosted trainer search: many key-free search engines, one deduplicated result list.
+"""Self-hosted LinkedIn lead finder: many key-free search engine agents, one deduplicated list.
 
-No search API or API key is used; each engine agent reads public result pages.
+No search API or API key is used. Each engine agent reads public result pages.
 
-Every enabled engine runs in parallel over a plan of trainer queries for one
-skill. Each engine pages through results while new LinkedIn profile links
-appear, backs off when it refuses this server, and reports what happened.
-The run stops when the target is reached, every query is used, or the time
-budget ends. Profiles are checked against the requested skill and trainer
-wording before they count toward the target.
+Two kinds of leads are found for one domain (skill):
+- trainer: LinkedIn profiles (/in/) of trainers for the skill;
+- client:  recent LinkedIn posts (/posts/, /feed/update/) where someone needs a
+           trainer for the skill.
+
+Every enabled engine runs in parallel over a plan of queries. Each engine pages
+through results while new links appear, reads extra pages when an engine is
+productive, drops out after many empty queries, and backs off when it refuses
+this server. The run stops when the target is reached, every query is used, or
+the time budget ends. A lead counts only after it passes the same checks as the
+LinkedIn account results.
 """
 import asyncio
 import logging
@@ -17,7 +22,7 @@ import time
 from datetime import datetime, timezone
 
 from app.clients.serp_engines import (
-    EngineHealth, Fetcher, Pacer, canonical_profile_url, enabled_engines, fetch_results_page,
+    CANONICAL, EngineHealth, Fetcher, Pacer, enabled_engines, fetch_results_page, post_key, with_params,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,8 +31,33 @@ ROLE_PHRASES = (
     'trainer', '"corporate trainer"', '"freelance trainer"', '"technical trainer"',
     'instructor', '"training consultant"', '"corporate training"', 'mentor', 'faculty', 'coach',
 )
+CLIENT_PHRASES = (
+    '"trainer required"', '"looking for a trainer"', '"looking for trainer"', '"need a trainer"',
+    '"freelance trainer required"', '"corporate trainer required"', '"training requirement"',
+    '"seeking trainer"', '"trainers needed"', '"looking for freelance trainer"',
+    '"require trainer"', '"training partner"',
+)
 CITIES = ('Bangalore', 'Hyderabad', 'Pune', 'Chennai', 'Mumbai', 'Delhi', 'Noida', 'Gurgaon', 'Kolkata', 'Ahmedabad')
+# Common alternative names. Profiles often use the long form.
+SKILL_ALIASES = {
+    'aws': ('Amazon Web Services',),
+    'gcp': ('Google Cloud',),
+    'azure': ('Microsoft Azure',),
+    'js': ('JavaScript',),
+    'ml': ('Machine Learning',),
+    'ai': ('Artificial Intelligence',),
+    'genai': ('Generative AI',),
+    'gen ai': ('Generative AI',),
+    'k8s': ('Kubernetes',),
+    'sfdc': ('Salesforce',),
+    'rpa': ('Robotic Process Automation',),
+    'bi': ('Business Intelligence',),
+    'ui ux': ('UI/UX design',),
+}
 _ROLE_WORDS = re.compile(r'\b(trainers?|instructors?|training|facilitators?|coach|mentor|faculty)\b', re.I)
+_NEED_WORDS = re.compile(r'\b(need|needs|needed|looking (?:out )?for|require|requires|required|requirements?|hiring|seeking)\b', re.I)
+_CONTACT = re.compile(r'[\w.+-]+@[\w-]+\.[\w.]+|(?:\+91[\s-]?)?[6-9]\d{9}\b')
+_MAX_EMPTY_QUERIES = 6
 
 
 def _env_float(name, default, low, high):
@@ -46,15 +76,29 @@ def budget_seconds():
     return _env_float('TRAINER_FINDER_BUDGET_SECONDS', 180, 20, 500)
 
 
+def client_post_max_age():
+    """'week', 'month' (default) or 'any'. Engines without a date filter ignore it."""
+    value = os.environ.get('CLIENT_POST_MAX_AGE', 'month').strip().lower()
+    return value if value in ('week', 'month', 'any') else 'month'
+
+
 def _skill_text(skill):
     return ' '.join(_ROLE_WORDS.sub(' ', skill or '').split()) or (skill or '').strip()
 
 
-def query_plan(skill, location=''):
-    """Site-scoped profile queries first, then plain and city queries for wider coverage."""
+def skill_aliases(skill):
+    return SKILL_ALIASES.get(_skill_text(skill).lower(), ())
+
+
+def _quote(text):
+    return f'"{text}"' if ' ' in text else text
+
+
+def query_plan(skill, location='', mode='trainer'):
+    """Site-scoped queries first, then alias, city and plain queries for wider coverage."""
     core = _skill_text(skill)
     place = (location or '').strip()
-    quoted = f'"{core}"' if ' ' in core else core
+    quoted = _quote(core)
     queries = []
 
     def add(text):
@@ -62,53 +106,95 @@ def query_plan(skill, location=''):
         if text and text not in queries:
             queries.append(text)
 
+    if mode == 'client':
+        for phrase in CLIENT_PHRASES:
+            add(f'site:linkedin.com/posts {quoted} {phrase} {place}')
+        for phrase in CLIENT_PHRASES[:4]:
+            add(f'site:linkedin.com/feed/update {quoted} {phrase} {place}')
+        for city in CITIES:
+            if not (place and city.lower() == place.lower()):
+                add(f'site:linkedin.com/posts {quoted} "trainer required" {city}')
+        add(f'{core} trainer required linkedin post {place}')
+        add(f'{core} looking for freelance trainer linkedin {place}')
+        return queries
+
     for role in ROLE_PHRASES:
         add(f'site:linkedin.com/in {quoted} {role} {place}')
     add(f'site:in.linkedin.com/in {quoted} trainer {place}')
+    for alias in skill_aliases(skill):
+        add(f'site:linkedin.com/in {_quote(alias)} trainer {place}')
+        add(f'site:linkedin.com/in {_quote(alias)} "corporate trainer" {place}')
     add(f'{core} trainer linkedin {place}')
     add(f'{core} corporate trainer linkedin profile {place}')
     for city in CITIES:
-        if place and city.lower() == place.lower():
-            continue
-        add(f'site:linkedin.com/in {quoted} trainer {city}')
+        if not (place and city.lower() == place.lower()):
+            add(f'site:linkedin.com/in {quoted} trainer {city}')
     for role in ('freelance trainer', 'technical trainer', 'training consultant', 'online trainer'):
         add(f'{core} {role} linkedin {place}')
     return queries
 
 
-def _default_qualifier(skill):
-    from app.clients.search_accuracy import has_trainer_language, matches_requested_skill
+def _route_normalizer():
     try:
         from app.routes.linkedin_leads import _normalize_result
-    except Exception:  # The route module needs FastAPI; tests can run without it.
-        _normalize_result = None
+        return _normalize_result
+    except Exception:  # The route module needs FastAPI; unit tests run without it.
+        return None
+
+
+def _skill_tokens(skill):
+    return [t for t in re.findall(r'[a-z0-9+#.]+', _skill_text(skill).lower()) if len(t) > 1 or t in ('c', 'r')]
+
+
+def _default_qualifier(skill, mode):
+    from app.clients.search_accuracy import has_trainer_language, matches_requested_skill
+    normalize = _route_normalizer()
+    aliases = [alias.lower() for alias in skill_aliases(skill)]
+
+    if mode == 'client':
+        tokens = _skill_tokens(skill)
+
+        def qualifies(row):
+            text = f"{row.get('title', '')} {row.get('content', '')}".lower()
+            if normalize is not None:
+                return bool(normalize(row, skill, 'client'))
+            return bool(_NEED_WORDS.search(text) and _ROLE_WORDS.search(text)
+                        and all(token in text for token in tokens))
+        return qualifies
 
     def qualifies(row):
-        if not (matches_requested_skill(row, skill) and has_trainer_language(row)):
+        text = f"{row.get('title', '')} {row.get('content', '')}".lower()
+        skill_found = matches_requested_skill(row, skill) or any(alias in text for alias in aliases)
+        if not (skill_found and has_trainer_language(row)):
             return False
-        if _normalize_result is None:
+        if normalize is None:
             return True
-        return bool(_normalize_result({**row, 'keyword_qualified': True}, skill, 'trainer'))
+        return bool(normalize({**row, 'keyword_qualified': True}, skill, 'trainer'))
     return qualifies
 
 
-def _score(row, skill):
+def _score(row, skill, mode):
     title = (row.get('title') or '').lower()
     text = (row.get('content') or '').lower()
-    tokens = [token for token in re.findall(r'[a-z0-9+#.]+', _skill_text(skill).lower()) if len(token) > 1]
-    score = 0
+    tokens = _skill_tokens(skill)
+    score = len(row.get('engines') or []) - 1
     score += 3 if tokens and all(token in title for token in tokens) else 0
     score += 1 if tokens and any(token in text for token in tokens) else 0
-    score += 2 if _ROLE_WORDS.search(title) else 0
-    score += len(row.get('engines') or []) - 1
+    if mode == 'client':
+        score += 2 if _NEED_WORDS.search(text) else 0
+        score += 2 if _CONTACT.search(text) else 0
+    else:
+        score += 2 if _ROLE_WORDS.search(title) else 0
     return score
 
 
 class _Run:
-    def __init__(self, skill, target, exclude, qualifies, deadline):
+    def __init__(self, skill, target, mode, exclude, qualifies, deadline):
         self.skill = skill
         self.target = target
-        self.exclude = {url.lower() for url in exclude or ()}
+        self.mode = mode
+        self.canonical = CANONICAL['post' if mode == 'client' else 'profile']
+        self.exclude = {self.key(url) for url in exclude or () if url}
         self.qualifies = qualifies
         self.deadline = deadline
         self.candidates = {}
@@ -116,35 +202,39 @@ class _Run:
         self.already_saved = set()
         self.done = asyncio.Event()
 
+    def key(self, url):
+        return post_key(url) if self.mode == 'client' and not str(url).startswith('linkedin:') else str(url).lower()
+
     def time_left(self):
         return self.deadline - time.monotonic()
 
     def add(self, row, engine_name, query):
-        """Merge one harvested row. Return True when the URL is new to this run."""
-        url = canonical_profile_url(row.get('url'))
+        """Merge one harvested row. Return True when the lead is new to this run."""
+        url = self.canonical(row.get('url'))
         if not url:
             return False
-        if url.lower() in self.exclude:
-            self.already_saved.add(url)
+        key = self.key(url)
+        if key in self.exclude:
+            self.already_saved.add(key)
             return False
-        existing = self.candidates.get(url)
+        existing = self.candidates.get(key)
         is_new = existing is None
         if is_new:
             existing = {'url': url, 'title': row.get('title') or '', 'snippet': '', 'content': '',
                         'engines': [], 'search_query': query}
-            self.candidates[url] = existing
+            self.candidates[key] = existing
         if len(row.get('title') or '') > len(existing['title']):
             existing['title'] = row['title']
         snippet = row.get('snippet') or ''
         if snippet and snippet not in existing['snippet']:
-            existing['snippet'] = f"{existing['snippet']} {snippet}".strip()[:1200]
+            existing['snippet'] = f"{existing['snippet']} {snippet}".strip()[:1500]
         existing['content'] = f"{existing['title']} {existing['snippet']}".strip()
         if engine_name not in existing['engines']:
             existing['engines'].append(engine_name)
-        if url not in self.qualified:
+        if key not in self.qualified:
             check = {'url': url, 'title': existing['title'], 'snippet': existing['snippet'], 'content': existing['content']}
             if self.qualifies(check):
-                self.qualified[url] = existing
+                self.qualified[key] = existing
                 if len(self.qualified) >= self.target:
                     self.done.set()
         return is_new
@@ -155,20 +245,26 @@ def _engine_report(engine, **extra):
             'browser_pages': 0, 'links_seen': 0, 'new_profiles': 0, 'qualified': 0, 'reason': '', **extra}
 
 
-async def _run_engine(engine, queries, run, fetcher, health, report, offset):
+async def _run_engine(engine, queries, run, fetcher, health, report, offset, recent):
     pacer = Pacer(engine.min_interval)
+    kind = 'post' if run.mode == 'client' else 'profile'
+    extra = engine.recent.get(recent, {}) if recent else {}
     errors_in_row = 0
+    empty_queries = 0
     ordered = queries[offset:] + queries[:offset]
     for query in ordered:
         if run.done.is_set() or run.time_left() < 5:
             break
         report['queries'] += 1
-        method, url, data = 'GET', engine.first_url(query), None
-        for page_index in range(engine.max_pages):
+        method, url, data = 'GET', with_params(engine.first_url(query), extra), None
+        query_links = 0
+        max_pages = engine.max_pages
+        page_index = 0
+        while page_index < max_pages:
             if run.done.is_set() or run.time_left() < 5:
                 break
             await pacer.wait()
-            page = await fetch_results_page(engine, fetcher, method, url, data)
+            page = await fetch_results_page(engine, fetcher, method, url, data, kind)
             report['pages'] += 1
             report['browser_pages'] += int(page.via_browser)
             if page.status == 'blocked':
@@ -185,24 +281,34 @@ async def _run_engine(engine, queries, run, fetcher, health, report, offset):
                 break
             errors_in_row = 0
             report['links_seen'] += page.links_seen
+            query_links += page.links_seen
             new = sum(run.add(row, engine.name, query) for row in page.rows)
             report['new_profiles'] += new
             if page.status == 'empty' or not new:
                 break
-            # Next results page.
+            # A productive query earns two extra pages.
+            if new >= 3 and max_pages == engine.max_pages:
+                max_pages += 2
+            page_index += 1
             if engine.next_form:
                 step = engine.next_form(page.body)
                 if not step:
                     break
-                method, url, data = 'POST', step[0], step[1]
+                method, url, data = 'POST', step[0], {**step[1], **extra}
             elif engine.page_url:
-                method, url, data = 'GET', engine.page_url(query, page_index + 1), None
+                method, url, data = 'GET', with_params(engine.page_url(query, page_index), extra), None
             else:
                 break
+        empty_queries = 0 if query_links else empty_queries + 1
+        if empty_queries >= _MAX_EMPTY_QUERIES:
+            report['reason'] = f'Stopped after {_MAX_EMPTY_QUERIES} queries in a row returned no LinkedIn links.'
+            break
     health.record_ok(engine.name)
 
 
 def _finish_report(report, run):
+    noun = 'posts' if run.mode == 'client' else 'profiles'
+    want = 'the domain and a trainer requirement' if run.mode == 'client' else 'the skill and trainer wording'
     report['qualified'] = sum(1 for row in run.qualified.values() if report['source'] in row['engines'])
     if report['status'] in ('blocked', 'error', 'paused'):
         return
@@ -213,15 +319,17 @@ def _finish_report(report, run):
         report['status'] = 'ok'
     elif report['links_seen']:
         report['status'] = 'filtered'
-        report['reason'] = 'Returned LinkedIn profiles, but none matched the skill and trainer wording.'
+        report['reason'] = f'Returned LinkedIn {noun}, but none matched {want}.'
     else:
         report['status'] = 'no_results'
-        report['reason'] = 'Returned no LinkedIn profile links for these queries.'
+        report['reason'] = report['reason'] or f'Returned no LinkedIn {noun} for these queries.'
 
 
 def _limit_reason(reports, run, timed_out, queries_exhausted):
     if len(run.qualified) >= run.target:
         return ''
+    noun = 'posts' if run.mode == 'client' else 'profiles'
+    want = 'the domain or a trainer requirement' if run.mode == 'client' else 'the skill or trainer wording'
     parts = []
     blocked = [r['label'] for r in reports if r['status'] == 'blocked']
     paused = [r['label'] for r in reports if r['status'] == 'paused']
@@ -237,25 +345,31 @@ def _limit_reason(reports, run, timed_out, queries_exhausted):
     elif queries_exhausted:
         parts.append('Every planned query was searched on every working engine.')
     if run.already_saved:
-        parts.append(f'{len(run.already_saved)} matching profiles were skipped because they are already saved.')
+        parts.append(f'{len(run.already_saved)} matching {noun} were skipped because they are already saved.')
     rejected = len(run.candidates) - len(run.qualified)
     if rejected > 0:
-        parts.append(f'{rejected} profiles found did not match the skill or trainer wording and were left out.')
-    return ' '.join(parts) or 'Search engines returned fewer matching trainer profiles than the target.'
+        parts.append(f'{rejected} {noun} found did not match {want} and were left out.')
+    return ' '.join(parts) or f'Search engines returned fewer matching {noun} than the target.'
 
 
-async def find_trainers(skill, target, location='', exclude=(), qualifies=None, budget=None,
-                        engines=None, fetcher=None, health=None):
-    """Return (rows, report) with up to `target` qualified, deduplicated LinkedIn trainer profiles."""
+async def find_leads(skill, target, location='', mode='trainer', exclude=(), qualifies=None, budget=None,
+                     engines=None, fetcher=None, health=None):
+    """Return (rows, report) with up to `target` qualified, deduplicated LinkedIn leads.
+
+    mode='trainer' finds trainer profiles; mode='client' finds posts asking for a trainer.
+    """
+    mode = 'client' if mode == 'client' else 'trainer'
     started = time.monotonic()
     target = max(1, int(target or 1))
     budget = budget if budget is not None else budget_seconds()
-    queries = query_plan(skill, location)
-    run = _Run(skill, target, exclude, qualifies or _default_qualifier(skill), started + budget)
+    queries = query_plan(skill, location, mode)
+    run = _Run(skill, target, mode, exclude, qualifies or _default_qualifier(skill, mode), started + budget)
     health = health or EngineHealth()
     owns_fetcher = fetcher is None
     fetcher = fetcher or Fetcher(use_browser=os.environ.get('TRAINER_FINDER_BROWSER', 'true').lower() != 'false')
     engines = list(engines) if engines is not None else enabled_engines()
+    recent = client_post_max_age() if mode == 'client' else ''
+    recent = '' if recent == 'any' else recent
 
     reports, tasks = [], []
     for index, engine in enumerate(engines):
@@ -268,8 +382,7 @@ async def find_trainers(skill, target, location='', exclude=(), qualifies=None, 
         report = _engine_report(engine)
         reports.append(report)
         offset = (index * 3) % max(1, len(queries))
-        tasks.append(asyncio.create_task(_run_engine(engine, queries, run, fetcher, health, report, offset)))
-
+        tasks.append(asyncio.create_task(_run_engine(engine, queries, run, fetcher, health, report, offset, recent)))
 
     timed_out = False
     waiter = asyncio.create_task(run.done.wait())
@@ -295,19 +408,25 @@ async def find_trainers(skill, target, location='', exclude=(), qualifies=None, 
 
     for task in tasks:
         if task.done() and not task.cancelled() and task.exception():
-            logger.warning('Trainer search source failed: %r', task.exception())
+            logger.warning('Lead search source failed: %r', task.exception())
     for report in reports:
         _finish_report(report, run)
 
-    ranked = sorted(run.qualified.values(), key=lambda row: _score(row, skill), reverse=True)[:target]
-    rows = [{'url': row['url'], 'title': row['title'], 'snippet': row['snippet'], 'content': row['content'],
-             'search_query': row['search_query'], 'engines': list(row['engines']),
-             'keyword_qualified': True, 'discovery_provider': 'trainer_finder'} for row in ranked]
+    ranked = sorted(run.qualified.values(), key=lambda row: _score(row, skill, mode), reverse=True)[:target]
+    rows = []
+    for row in ranked:
+        item = {'url': row['url'], 'title': row['title'], 'snippet': row['snippet'], 'content': row['content'],
+                'search_query': row['search_query'], 'engines': list(row['engines']),
+                'discovery_provider': 'trainer_finder'}
+        if mode == 'trainer':
+            item['keyword_qualified'] = True
+        rows.append(item)
     working = [r for r in reports if r['status'] not in ('blocked', 'paused', 'error')]
     queries_exhausted = bool(working) and not timed_out and not run.done.is_set()
     matched = len(rows)
     report = {
         'source': 'trainer_finder',
+        'mode': mode,
         'target': target,
         'matched': matched,
         'target_met': matched >= target,
@@ -316,9 +435,15 @@ async def find_trainers(skill, target, location='', exclude=(), qualifies=None, 
         'candidates_seen': len(run.candidates),
         'already_saved': len(run.already_saved),
         'queries_planned': len(queries),
+        'recent_filter': recent or 'any',
         'elapsed_seconds': round(time.monotonic() - started, 1),
         'finished_at': datetime.now(timezone.utc).isoformat(),
         'sources': reports,
         'limit_reason': _limit_reason(reports, run, timed_out, queries_exhausted),
     }
     return rows, report
+
+
+async def find_trainers(skill, target, location='', **kwargs):
+    """Trainer profiles only. Kept for callers that do not pass a mode."""
+    return await find_leads(skill, target, location, mode='trainer', **kwargs)

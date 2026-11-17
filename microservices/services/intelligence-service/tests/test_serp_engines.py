@@ -136,3 +136,28 @@ def test_every_engine_builds_search_urls():
         assert engine.first_url('python trainer').startswith('https://' + engine.host)
         if engine.page_url:
             assert engine.page_url('python trainer', 1) != engine.first_url('python trainer')
+
+
+def test_post_links_are_harvested_and_keyed_by_activity():
+    from app.clients.serp_engines import canonical_post_url, post_key, with_params
+    post = 'https://in.linkedin.com/posts/acme-learning_python-trainer-required-activity-7234567890123456789-AbCd?utm=x'
+    feed = 'https://www.linkedin.com/feed/update/urn:li:activity:7234567890123456789/'
+    assert canonical_post_url(post) == 'https://www.linkedin.com/posts/acme-learning_python-trainer-required-activity-7234567890123456789-AbCd'
+    assert canonical_post_url(feed) == 'https://www.linkedin.com/feed/update/urn:li:activity:7234567890123456789'
+    assert post_key(canonical_post_url(post)) == post_key(canonical_post_url(feed)) == 'linkedin:activity:7234567890123456789'
+    assert canonical_post_url('https://www.linkedin.com/in/ravi') == ''
+    assert canonical_post_url('https://www.linkedin.com/feed/') == ''
+    body = (f'<li><h2><a href="{post}">Acme Learning on LinkedIn: Python trainer required</a></h2>'
+            '<p>We are looking for a freelance Python trainer for a 5-day batch. Mail hr@acme.in</p></li>'
+            '<li><h2><a href="https://www.linkedin.com/in/ravi">Ravi - Python Trainer</a></h2></li>').encode()
+    rows, links = harvest_profiles(body, 'www.bing.com', kind='post')
+    assert links == 1 and rows[0]['url'].endswith('-AbCd')
+    assert 'freelance Python trainer' in rows[0]['snippet']
+    assert with_params('https://x.test/s?q=a', {'df': 'm'}) == 'https://x.test/s?q=a&df=m'
+    assert with_params('https://x.test/s?q=a', {}) == 'https://x.test/s?q=a'
+
+
+def test_engines_with_date_filters_define_week_and_month():
+    for engine in ENGINES:
+        if engine.recent:
+            assert set(engine.recent) == {'week', 'month'}

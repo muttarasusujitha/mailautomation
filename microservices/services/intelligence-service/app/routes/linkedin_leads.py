@@ -569,12 +569,13 @@ async def search_linkedin_leads(
             should_use_public_fallback = linkedin_requires_public_fallback(blocked_reason) or (
                 mode == 'client' and linkedin_session_requires_public_fallback(blocked_reason)
             )
-            if mode == 'trainer' and finder_enabled() and len(raw_results) < domain_goal:
-                # Search every key-free engine for the rest, whatever stopped the account search.
+            if finder_enabled() and len(raw_results) < domain_goal:
+                # Search every key-free engine for the rest, whatever stopped the account search:
+                # trainer profiles in trainer mode, posts that need a trainer in client mode.
                 from app.clients.lead_discovery import discover_with_trainer_finder
                 raw_results, outcome = await discover_with_trainer_finder(
                     domain, domain_goal, payload.location or '', db, raw_results, outcome,
-                    time_left=_SEARCH_TIME_LIMIT - (time.monotonic() - search_started))
+                    time_left=_SEARCH_TIME_LIMIT - (time.monotonic() - search_started), mode=mode)
             elif len(raw_results) < domain_goal and should_use_public_fallback:
                 account_results = list(raw_results)
                 try:

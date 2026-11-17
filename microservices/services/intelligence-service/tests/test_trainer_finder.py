@@ -159,3 +159,64 @@ def test_finder_can_be_switched_off(monkeypatch):
     assert not trainer_finder.finder_enabled()
     monkeypatch.setenv('TRAINER_FINDER_ENABLED', 'true')
     assert trainer_finder.finder_enabled()
+
+
+def post_card(slug, title, snippet):
+    return (f'<li><h2><a href="https://www.linkedin.com/posts/{slug}">{title}</a></h2>'
+            f'<p>{snippet}</p></li>').encode()
+
+
+def test_client_mode_finds_requirement_posts_with_recent_filter(tmp_path):
+    from app.clients.trainer_finder import find_leads
+    seen_urls = []
+
+    def reply(url):
+        seen_urls.append(url)
+        return 200, page(
+            post_card('acme_python-activity-7234567890123456789-AbCd', 'Acme: Python trainer required',
+                      'We are looking for a freelance Python trainer in Pune. Contact hr@acme.in'),
+            post_card('acme_python-activity-7234567890123456789-AbCd', 'Acme: Python trainer required', ''),
+            post_card('saved_python-activity-7000000000000000001-xy', 'Saved: Python trainer needed', 'need trainer'),
+            post_card('ravi_my-python-course-activity-7111111111111111111-zz', 'Ravi: my Python course',
+                      'I am a Python trainer, join my batch'),
+            post_card('beta_java-activity-7222222222222222222-qq', 'Beta: Java trainer required', 'Need a Java trainer'),
+        )
+    alpha = Engine('alpha', 'Alpha', 'www.alpha.test', lambda q: f'https://www.alpha.test/search?q={q}&p=0',
+                   max_pages=1, min_interval=0, browser_fallback=False, recent={'month': {'df': 'm'}})
+    fetcher = Fetcher({('www.alpha.test', 0): reply})
+    rows, report = asyncio.run(find_leads(
+        'Python', 50, mode='client', exclude={'linkedin:activity:7000000000000000001'},
+        engines=[alpha], fetcher=fetcher, budget=30, health=EngineHealth(tmp_path / 'h.json')))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/posts/acme_python-activity-7234567890123456789-AbCd']
+    assert 'keyword_qualified' not in rows[0]
+    assert report['mode'] == 'client' and report['recent_filter'] == 'month' and report['already_saved'] == 1
+    assert all(url.endswith('&df=m') for url in seen_urls)
+    assert 'site:linkedin.com/posts' in seen_urls[0]
+    assert 'posts found did not match the domain or a trainer requirement' in report['limit_reason']
+
+
+def test_client_query_plan():
+    queries = query_plan('Data Science trainer', 'Pune', mode='client')
+    assert queries[0] == 'site:linkedin.com/posts "Data Science" "trainer required" Pune'
+    assert any(q.startswith('site:linkedin.com/feed/update') for q in queries)
+    assert 'site:linkedin.com/posts "Data Science" "trainer required" Chennai' in queries
+
+
+def test_aliases_widen_trainer_queries_and_matching(tmp_path):
+    assert 'site:linkedin.com/in "Amazon Web Services" trainer' in query_plan('AWS')
+    fetcher = Fetcher({('www.alpha.test', 0): (200, page(card('long-form', 'Meena - Amazon Web Services Corporate Trainer')))})
+    rows, _ = asyncio.run(find_trainers('AWS', 60, engines=[engine('alpha')], fetcher=fetcher, budget=30,
+                                        health=EngineHealth(tmp_path / 'h.json')))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/long-form']
+
+
+def test_productive_query_reads_extra_pages_and_empty_engine_drops_out(tmp_path):
+    pages = {('www.alpha.test', i): (200, page(*[card(f'p{i}-{j}', f'P{i}{j} - Go Trainer') for j in range(3)]))
+             for i in range(5)}
+    fetcher = Fetcher(pages)
+    rows, _ = run('Go', 15, engines=[engine('alpha', max_pages=3)], fetcher=fetcher, health=EngineHealth(tmp_path / 'a.json'))
+    assert len(rows) == 15 and fetcher.requests[:5] == [('www.alpha.test', i) for i in range(5)]
+    empty = Fetcher({})
+    _, report = run('Go', 60, engines=[engine('beta')], fetcher=empty, health=EngineHealth(tmp_path / 'b.json'))
+    beta = report['sources'][0]
+    assert beta['queries'] == 6 and beta['status'] == 'no_results' and 'Stopped after 6 queries' in beta['reason']

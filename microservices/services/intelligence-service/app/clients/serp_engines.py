@@ -11,7 +11,7 @@ import os
 import random
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
@@ -54,6 +54,36 @@ def canonical_profile_url(url):
     if not slug or not re.fullmatch(r'[\w\-.%À-ɏ]{2,100}', slug):
         return ''
     return f'https://www.linkedin.com/in/{quote(slug, safe="-_.")}'
+
+
+_ACTIVITY = re.compile(r'(?:activity[-:]|urn:li:activity:|urn%3ali%3aactivity%3a)(\d{6,})(?!\d)', re.IGNORECASE)
+
+
+def canonical_post_url(url):
+    """Return https://www.linkedin.com/posts/... or /feed/update/... for a LinkedIn post link, else ''."""
+    if not url:
+        return ''
+    parts = urlsplit(url.strip())
+    host = (parts.hostname or '').lower()
+    if parts.scheme not in ('http', 'https'):
+        return ''
+    if not (host == 'linkedin.com' or host.endswith('.linkedin.com')):
+        return ''
+    path = parts.path.rstrip('/')
+    if path.startswith('/posts/') and len(path) > len('/posts/') + 3:
+        return f'https://www.linkedin.com{path}'
+    if path.startswith('/feed/update/') and _ACTIVITY.search(unquote(path)):
+        return f'https://www.linkedin.com{path}'
+    return ''
+
+
+def post_key(url):
+    """One key per post across /posts/ and /feed/update/ URL variants (matches client_post_identity)."""
+    match = _ACTIVITY.search(unquote(urlsplit(url or '').path))
+    return f'linkedin:activity:{match.group(1)}' if match else (url or '')
+
+
+CANONICAL = {'profile': canonical_profile_url, 'post': canonical_post_url}
 
 
 def unwrap_link(href, engine_host=''):
@@ -112,9 +142,10 @@ class _ProfileHarvester(HTMLParser):
     _HEADINGS = {'h1', 'h2', 'h3', 'h4'}
     _SKIP = {'script', 'style', 'noscript', 'svg', 'template'}
 
-    def __init__(self, engine_host):
+    def __init__(self, engine_host, kind='profile'):
         super().__init__(convert_charrefs=True)
         self.engine_host = engine_host
+        self.canonical = CANONICAL[kind]
         self.rows = {}
         self.order = []
         self.links_seen = 0
@@ -134,7 +165,7 @@ class _ProfileHarvester(HTMLParser):
             return
         href = dict(attrs).get('href') or ''
         target = unwrap_link(href, self.engine_host)
-        profile = canonical_profile_url(target)
+        profile = self.canonical(target)
         if profile:
             self.links_seen += 1
             if profile not in self.rows:
@@ -179,11 +210,11 @@ class _ProfileHarvester(HTMLParser):
             self._capture_len = len(row['snippet'])
 
 
-def harvest_profiles(body, engine_host=''):
-    """Return (rows, links_seen) for LinkedIn profile links on a results page."""
+def harvest_profiles(body, engine_host='', kind='profile'):
+    """Return (rows, links_seen) for LinkedIn profile (or post) links on a results page."""
     if isinstance(body, bytes):
         body = body.decode('utf-8', 'ignore')
-    parser = _ProfileHarvester(engine_host)
+    parser = _ProfileHarvester(engine_host, kind)
     try:
         parser.feed(body)
         parser.close()
@@ -236,26 +267,38 @@ class Engine:
     max_pages: int = 3
     min_interval: float = 2.5
     browser_fallback: bool = True
+    # URL parameters that limit results to the past 'week' or 'month'.
+    recent: dict = field(default_factory=dict)
 
 
 def _q(params):
     return urlencode(params)
 
 
+def with_params(url, params):
+    """Append extra query parameters to a results URL."""
+    if not params:
+        return url
+    return f"{url}{'&' if '?' in url else '?'}{urlencode(params)}"
+
+
 ENGINES = (
     Engine('bing', 'Bing', 'www.bing.com',
            lambda q: f'https://www.bing.com/search?{_q({"q": q, "setlang": "en", "cc": "IN"})}',
-           page_url=lambda q, i: f'https://www.bing.com/search?{_q({"q": q, "setlang": "en", "cc": "IN", "first": 1 + 10 * i})}'),
+           page_url=lambda q, i: f'https://www.bing.com/search?{_q({"q": q, "setlang": "en", "cc": "IN", "first": 1 + 10 * i})}',
+           recent={'week': {'filters': 'ex1:"ez2"'}, 'month': {'filters': 'ex1:"ez3"'}}),
     Engine('duckduckgo', 'DuckDuckGo', 'html.duckduckgo.com',
            lambda q: f'https://html.duckduckgo.com/html/?{_q({"q": q, "kl": "in-en"})}',
-           next_form=lambda body: ddg_next_form(body, 'https://html.duckduckgo.com/html/')),
+           next_form=lambda body: ddg_next_form(body, 'https://html.duckduckgo.com/html/'),
+           recent={'week': {'df': 'w'}, 'month': {'df': 'm'}}),
     Engine('duckduckgo_lite', 'DuckDuckGo Lite', 'lite.duckduckgo.com',
            lambda q: f'https://lite.duckduckgo.com/lite/?{_q({"q": q, "kl": "in-en"})}',
            next_form=lambda body: ddg_next_form(body, 'https://lite.duckduckgo.com/lite/'),
-           browser_fallback=False),
+           browser_fallback=False, recent={'week': {'df': 'w'}, 'month': {'df': 'm'}}),
     Engine('yahoo', 'Yahoo', 'search.yahoo.com',
            lambda q: f'https://search.yahoo.com/search?{_q({"p": q})}',
-           page_url=lambda q, i: f'https://search.yahoo.com/search?{_q({"p": q, "b": 1 + 10 * i})}'),
+           page_url=lambda q, i: f'https://search.yahoo.com/search?{_q({"p": q, "b": 1 + 10 * i})}',
+           recent={'week': {'btf': 'w'}, 'month': {'btf': 'm'}}),
     Engine('mojeek', 'Mojeek', 'www.mojeek.com',
            lambda q: f'https://www.mojeek.com/search?{_q({"q": q})}',
            page_url=lambda q, i: f'https://www.mojeek.com/search?{_q({"q": q, "s": 1 + 10 * i})}',
@@ -263,7 +306,7 @@ ENGINES = (
     Engine('brave', 'Brave Search', 'search.brave.com',
            lambda q: f'https://search.brave.com/search?{_q({"q": q, "source": "web"})}',
            page_url=lambda q, i: f'https://search.brave.com/search?{_q({"q": q, "source": "web", "offset": i})}',
-           min_interval=4.0),
+           min_interval=4.0, recent={'week': {'tf': 'pw'}, 'month': {'tf': 'pm'}}),
 )
 ENGINE_BY_NAME = {engine.name: engine for engine in ENGINES}
 
@@ -443,17 +486,17 @@ class PageResult:
     body: bytes = b''
 
 
-async def fetch_results_page(engine, fetcher, method, url, data=None):
+async def fetch_results_page(engine, fetcher, method, url, data=None, kind='profile'):
     """Fetch one results page. A refused page is retried once in the headless browser."""
     status, body = await fetcher.http(method, url, data)
-    rows, links = harvest_profiles(body, engine.host) if body else ([], 0)
+    rows, links = harvest_profiles(body, engine.host, kind) if body else ([], 0)
     if status and status < 400 and not looks_blocked(status, body, links):
         return PageResult('ok' if links else 'empty', rows, links, body=body)
     refused = bool(status) and looks_blocked(status, body, links)
     if engine.browser_fallback and method == 'GET' and fetcher.browser_available:
         b_status, b_body = await fetcher.browser(url)
         if b_body:
-            b_rows, b_links = harvest_profiles(b_body, engine.host)
+            b_rows, b_links = harvest_profiles(b_body, engine.host, kind)
             if b_status < 400 and not looks_blocked(b_status, b_body, b_links):
                 return PageResult('ok' if b_links else 'empty', b_rows, b_links, via_browser=True, body=b_body)
             refused = refused or looks_blocked(b_status, b_body, b_links)
