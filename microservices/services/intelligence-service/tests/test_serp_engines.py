@@ -161,3 +161,30 @@ def test_engines_with_date_filters_define_week_and_month():
     for engine in ENGINES:
         if engine.recent:
             assert set(engine.recent) == {'week', 'month'}
+
+
+YAHOO_PAGE = ('<div class="dd algo algo-sr"><div class="compTitle options-toggle">'
+              '<h3 class="title"><a href="https://r.search.yahoo.com/_ylt=x/RV=2/RU='
+              + quote('https://in.linkedin.com/in/ravi-k-1234', safe='')
+              + '/RK=2/RS=y-"><span class="d-ib p-abs">in.linkedin.com › in › ravi-k-1234</span>'
+              'Ravi K - Python Corporate Trainer - Freelance | LinkedIn</a></h3>'
+              '<div class="action-menu"><a href="https://cc.bingj.com/cache.aspx?d=1">Cached</a></div></div>'
+              '<div class="compText aAbs"><p><span class="fc-falcon">Python and Django trainer for corporate batches in Pune.</span></p></div></div>'
+              '<div class="dd algo"><h3><a href="https://www.naukri.com/python-trainer-jobs">Python Trainer Jobs in Pune - Naukri</a></h3>'
+              '<p>Apply to 120 jobs</p></div>')
+
+
+def test_yahoo_breadcrumb_and_cached_link_do_not_hide_title_or_snippet():
+    rows, links = harvest_profiles(YAHOO_PAGE, 'search.yahoo.com')
+    assert links == 1
+    assert rows[0]['url'] == 'https://www.linkedin.com/in/ravi-k-1234'
+    assert rows[0]['title'] == 'Ravi K - Python Corporate Trainer - Freelance | LinkedIn'
+    assert rows[0]['snippet'] == 'Python and Django trainer for corporate batches in Pune.'
+    assert 'Apply to 120 jobs' not in rows[0]['snippet']
+
+
+def test_breadcrumb_only_title_falls_back_to_link_label():
+    page = ('<h3><a aria-label="Asha Rao - AWS Trainer" href="https://www.linkedin.com/in/asha-rao">'
+            'linkedin.com › in › asha-rao</a></h3>')
+    rows, _ = harvest_profiles(page, 'search.yahoo.com')
+    assert rows[0]['title'] == 'Asha Rao - AWS Trainer'
