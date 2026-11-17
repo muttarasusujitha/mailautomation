@@ -146,8 +146,7 @@ reason (cooldown, sign-in needed, bot disabled, or not enough results), the
 needed.
 
 - **Engines**: Bing, DuckDuckGo, DuckDuckGo Lite, Yahoo, Mojeek and Brave Search
-  run in parallel (`app/clients/serp_engines.py`). Tavily is added only when
-  `TAVILY_API_KEY` is set.
+  run in parallel (`app/clients/serp_engines.py`). No search API or key is used.
 - **Queries**: about 30 per skill, starting with `site:linkedin.com/in` profile
   queries (trainer, corporate trainer, instructor, consultant, and so on), then
   plain and city queries.

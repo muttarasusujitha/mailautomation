@@ -76,7 +76,7 @@ def test_merges_engines_dedupes_and_skips_saved_profiles(tmp_path):
     assert urls[0].endswith('/ravi')  # Found by two engines, ranked first.
     assert report['already_saved'] == 1
     assert report['status'] == 'partial' and not report['target_met']
-    assert {s['source']: s['status'] for s in report['sources']} == {'alpha': 'ok', 'beta': 'ok', 'tavily': 'not_configured'}
+    assert {s['source']: s['status'] for s in report['sources']} == {'alpha': 'ok', 'beta': 'ok'}
     assert 'already saved' in report['limit_reason']
     assert 'Every planned query was searched' in report['limit_reason']
 

@@ -57,12 +57,12 @@ test('source report lines say which sources worked and why others did not', () =
   const lines = sourceReportLines({ sources: [
     { source: 'linkedin_account', label: 'LinkedIn account', status: 'paused', qualified: 0, reason: 'Paused until 10:00 UTC.' },
     { source: 'bing', label: 'Bing', status: 'ok', qualified: 18, reason: '' },
-    { source: 'tavily', label: 'Tavily (optional)', status: 'not_configured', qualified: 0, reason: 'TAVILY_API_KEY is not set.' },
+    { source: 'brave', label: 'Brave Search', status: 'blocked', qualified: 0, reason: 'Captcha page.' },
   ] })
   assert.deepEqual(lines.map(line => line.text), [
     'LinkedIn account: paused (Paused until 10:00 UTC.)',
     'Bing: worked, 18 matching profiles',
-    'Tavily (optional): not configured (TAVILY_API_KEY is not set.)',
+    'Brave Search: blocked (Captcha page.)',
   ])
   assert.deepEqual(lines.map(line => line.ok), [false, true, false])
   assert.deepEqual(sourceReportLines({}), [])

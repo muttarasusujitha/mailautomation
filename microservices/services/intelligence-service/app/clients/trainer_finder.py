@@ -1,5 +1,7 @@
 """Self-hosted trainer search: many key-free search engines, one deduplicated result list.
 
+No search API or API key is used; each engine agent reads public result pages.
+
 Every enabled engine runs in parallel over a plan of trainer queries for one
 skill. Each engine pages through results while new LinkedIn profile links
 appear, backs off when it refuses this server, and reports what happened.
@@ -200,42 +202,9 @@ async def _run_engine(engine, queries, run, fetcher, health, report, offset):
     health.record_ok(engine.name)
 
 
-async def _run_tavily(queries, run, report):
-    from app.routes.linkedin_leads import _plain_tavily_search
-    for query in queries[:8]:
-        if run.done.is_set() or run.time_left() < 5:
-            break
-        report['queries'] += 1
-        try:
-            rows = await _plain_tavily_search(query, 20)
-        except Exception as exc:
-            report.update(status='error', reason=f'Tavily failed: {str(exc)[:160]}')
-            return
-        report['pages'] += 1
-        for row in rows:
-            if not isinstance(row, dict):
-                continue
-            url = canonical_profile_url(row.get('url') or '')
-            if not url:
-                continue
-            report['links_seen'] += 1
-            report['new_profiles'] += run.add(
-                {'url': url, 'title': row.get('title') or '', 'snippet': row.get('content') or ''}, 'tavily', query)
-
-
-def _tavily_configured():
-    if not os.environ.get('TAVILY_API_KEY'):
-        try:
-            from app.config import get_settings
-            return bool(get_settings().TAVILY_API_KEY)
-        except Exception:
-            return False
-    return True
-
-
 def _finish_report(report, run):
     report['qualified'] = sum(1 for row in run.qualified.values() if report['source'] in row['engines'])
-    if report['status'] in ('blocked', 'error', 'paused', 'not_configured'):
+    if report['status'] in ('blocked', 'error', 'paused'):
         return
     if report['queries'] == 0:
         report['status'] = 'not_needed'
@@ -301,13 +270,6 @@ async def find_trainers(skill, target, location='', exclude=(), qualifies=None, 
         offset = (index * 3) % max(1, len(queries))
         tasks.append(asyncio.create_task(_run_engine(engine, queries, run, fetcher, health, report, offset)))
 
-    tavily = {'source': 'tavily', 'label': 'Tavily (optional)', 'status': 'not_configured', 'queries': 0,
-              'pages': 0, 'browser_pages': 0, 'links_seen': 0, 'new_profiles': 0, 'qualified': 0,
-              'reason': 'TAVILY_API_KEY is not set. This source is optional.'}
-    if _tavily_configured():
-        tavily.update(status='not_run', reason='')
-        tasks.append(asyncio.create_task(_run_tavily(queries, run, tavily)))
-    reports.append(tavily)
 
     timed_out = False
     waiter = asyncio.create_task(run.done.wait())
@@ -341,7 +303,7 @@ async def find_trainers(skill, target, location='', exclude=(), qualifies=None, 
     rows = [{'url': row['url'], 'title': row['title'], 'snippet': row['snippet'], 'content': row['content'],
              'search_query': row['search_query'], 'engines': list(row['engines']),
              'keyword_qualified': True, 'discovery_provider': 'trainer_finder'} for row in ranked]
-    working = [r for r in reports if r['status'] not in ('blocked', 'paused', 'error', 'not_configured')]
+    working = [r for r in reports if r['status'] not in ('blocked', 'paused', 'error')]
     queries_exhausted = bool(working) and not timed_out and not run.done.is_set()
     matched = len(rows)
     report = {
