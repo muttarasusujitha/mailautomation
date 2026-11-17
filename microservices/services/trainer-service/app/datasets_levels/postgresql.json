@@ -50,7 +50,7 @@
           "objectives": ["Protect data with constraints", "Choose delete rules", "Name constraints clearly"]
         },
         {
-          "topic": "Inserting, Updating and Deleting Data",
+          "topic": "Inserting, Updating and Deleting Data in PostgreSQL",
           "subtopics": ["INSERT with several rows", "INSERT ... SELECT", "RETURNING clauses", "UPDATE with joins using FROM", "DELETE with USING", "Upserts with ON CONFLICT", "TRUNCATE", "Safe changes with transactions"],
           "tools": ["psql"],
           "lab_task": "Load members, update overdue loans with a join, upsert a book feed with ON CONFLICT, delete expired members with USING and return changed rows each time.",
@@ -273,7 +273,7 @@
           "objectives": ["Choose isolation levels", "Prevent anomalies", "Retry failed transactions"]
         },
         {
-          "topic": "Table Partitioning",
+          "topic": "PostgreSQL Declarative Table Partitioning",
           "subtopics": ["Range, list and hash partitioning", "Creating partitioned tables", "Partition pruning", "Indexes and keys on partitioned tables", "Attaching and detaching partitions", "Default partitions", "Automating partitions with pg_partman", "When partitioning helps and when it does not"],
           "tools": ["psql", "pg_partman"],
           "lab_task": "Partition an events table by month, show pruning in plans, automate future partitions with pg_partman and archive an old month by detaching it.",
@@ -469,7 +469,7 @@
           "objectives": ["Harden PostgreSQL", "Meet compliance needs", "Mask data for testing"]
         },
         {
-          "topic": "Multi-Tenant Database Design",
+          "topic": "Multi-Tenant Database Design on PostgreSQL",
           "subtopics": ["Shared tables, schema per tenant and database per tenant", "Tenant isolation with row-level security", "Noisy neighbour problems", "Per-tenant limits and quotas", "Migrations across many schemas", "Moving tenants between servers", "Backups and restores per tenant", "Choosing a model"],
           "tools": ["PostgreSQL", "Row-level security", "pgbench"],
           "lab_task": "Build the same SaaS app with shared tables and RLS and with schema per tenant, migrate 500 tenant schemas, restore a single tenant and compare operational effort.",

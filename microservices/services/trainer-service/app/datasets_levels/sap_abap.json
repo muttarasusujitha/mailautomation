@@ -95,7 +95,7 @@
           "objectives": ["Write classes in ABAP", "Use visibility and constructors", "Model a domain with objects"]
         },
         {
-          "topic": "Inheritance, Interfaces and Polymorphism",
+          "topic": "Inheritance, Interfaces and Polymorphism in ABAP Objects",
           "subtopics": ["Inheritance with INHERITING FROM", "Redefinition and super calls", "Abstract and final classes", "Interfaces", "Polymorphic method calls", "Casting", "Composition over inheritance", "Design for change"],
           "tools": ["ABAP Development Tools (Eclipse)"],
           "lab_task": "Build a payroll class hierarchy with salaried and hourly employees and an interface for payable items, and process all of them in one loop.",

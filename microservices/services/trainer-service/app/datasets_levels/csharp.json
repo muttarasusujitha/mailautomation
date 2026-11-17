@@ -3,7 +3,7 @@
   "name": "C# and .NET",
   "category": "Programming Languages",
   "icon": "hash",
-  "aliases": [".NET", "C# .NET", ".NET Core", "dotnet", "C# Programming", ".NET Developer", "ASP.NET", "ASP.NET Core", ".NET Full Stack Developer", "C# and .NET"],
+  "aliases": [".NET", "C# .NET", ".NET Core", "dotnet", "C# Programming", ".NET Developer", "C# and .NET"],
   "certifications": ["Microsoft Certified: Azure Developer Associate (AZ-204)", "Microsoft Foundational C# with freeCodeCamp", "Microsoft Certified: DevOps Engineer Expert (AZ-400) as a next step"],
   "tools": [".NET 8 SDK", "C# 12", "Visual Studio 2022 or VS Code", "Entity Framework Core", "SQL Server", "xUnit"],
   "review_status": "unreviewed",

@@ -3,7 +3,7 @@
   "name": "Software Testing and QA",
   "category": "Testing and QA",
   "icon": "check-square",
-  "aliases": ["Software Testing", "QA Testing", "Quality Assurance Testing", "Software Quality Assurance", "Manual and Automation Testing", "QA Engineer", "Test Engineering", "ISTQB", "ISTQB Foundation"],
+  "aliases": ["Software Testing", "QA Testing", "Quality Assurance Testing", "Software Quality Assurance", "Manual and Automation Testing", "QA Engineer", "Test Engineering"],
   "certifications": ["ISTQB Certified Tester Foundation Level (CTFL)", "ISTQB Advanced Level Test Analyst", "ISTQB Advanced Level Test Automation Engineering", "ISTQB Agile Tester"],
   "tools": ["Jira", "TestRail or Zephyr", "Postman", "Selenium", "Playwright", "JMeter"],
   "review_status": "unreviewed",

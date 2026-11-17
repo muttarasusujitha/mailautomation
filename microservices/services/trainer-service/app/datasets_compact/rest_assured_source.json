@@ -3,7 +3,11 @@
   "name": "REST Assured â€“ Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "REST Assured API Testing",
-    "Java REST Testing"
+    "Java REST Testing",
+    "API Testing using REST Assured",
+    "API Testing with REST Assured",
+    "API Automation using REST Assured",
+    "API Automation with REST Assured"
   ],
   "tools": [
     "REST Assured",

@@ -541,7 +541,7 @@
           "objectives": ["Enforce rules on pipeline definitions", "Roll out pipeline policies", "Report compliance"]
         },
         {
-          "topic": "CI/CD Architecture Reviews",
+          "topic": "Jenkins CI/CD Architecture Reviews",
           "subtopics": ["Reviewing CI/CD designs", "Speed, security, cost and reliability criteria", "Architecture decision records", "Common anti-patterns", "Reviewing another team's capstone", "Technical debt in pipelines", "Presenting trade-offs", "Reference architectures"],
           "tools": ["Decision records"],
           "lab_task": "Review another team's CI/CD platform design, write two decision records for its biggest risks, and present recommendations with evidence.",

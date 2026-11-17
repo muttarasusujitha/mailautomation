@@ -3,7 +3,7 @@
   "name": "Git",
   "category": "DevOps and CI/CD",
   "icon": "git-branch",
-  "aliases": ["Git and GitHub", "Git Version Control", "Version Control with Git", "GitHub", "GitLab", "Bitbucket"],
+  "aliases": ["Git and GitHub", "Git Version Control", "Version Control with Git", "GitHub", "Bitbucket"],
   "certifications": ["GitHub Foundations", "GitHub Administration", "GitHub Advanced Security"],
   "tools": ["Git", "GitHub", "VS Code"],
   "review_status": "unreviewed",

@@ -324,7 +324,7 @@
           "objectives": ["Trace and profile services", "Monitor with managed Prometheus", "Define SLOs and burn-rate alerts"]
         },
         {
-          "topic": "Backup, Disaster Recovery and Multi-Region Design",
+          "topic": "Backup, Disaster Recovery and Multi-Region Design on Google Cloud",
           "subtopics": ["RPO and RTO", "Backup and DR Service", "Cloud SQL cross-region replicas", "Multi-region Cloud Storage", "Spanner multi-region overview", "Global load balancing failover", "DR patterns", "Testing recovery"],
           "tools": ["Backup and DR Service", "Cloud SQL", "Cloud Load Balancing"],
           "lab_task": "Set RPO and RTO for the app, add a cross-region Cloud SQL replica and a second Cloud Run region behind the global load balancer, and run a timed failover test.",

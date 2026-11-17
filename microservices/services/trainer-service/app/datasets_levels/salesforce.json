@@ -3,7 +3,7 @@
   "name": "Salesforce",
   "category": "Enterprise Platforms (ERP, CRM, ITSM)",
   "icon": "cloud",
-  "aliases": ["Salesforce CRM", "Salesforce Administration", "Salesforce Admin and Developer", "Salesforce Development", "Salesforce Platform", "Salesforce Apex", "Salesforce Lightning", "Salesforce Training", "Sales Cloud and Service Cloud"],
+  "aliases": ["Salesforce CRM", "Salesforce Admin and Developer", "Salesforce Development", "Salesforce Platform", "Salesforce Apex", "Salesforce Lightning", "Salesforce Training", "Sales Cloud and Service Cloud"],
   "certifications": ["Salesforce Certified Administrator", "Salesforce Certified Platform App Builder", "Salesforce Certified Platform Developer I", "Salesforce Certified Agentforce Specialist", "Salesforce Certified Application Architect"],
   "tools": ["Salesforce Developer Edition org", "Trailhead", "Data Loader", "VS Code with Salesforce Extensions", "Salesforce CLI"],
   "review_status": "unreviewed",

@@ -1,0 +1,573 @@
+{
+  "domain": "Vue.js",
+  "name": "Vue.js and Nuxt Front-End Development",
+  "category": "Web and Full Stack Development",
+  "icon": "triangle",
+  "aliases": ["Vue", "VueJS", "Vue JS", "Vue 3", "Vue.js 3", "Vue Developer", "Vue.js Developer", "Vue Frontend", "Vue with TypeScript", "Vue Composition API", "Nuxt", "Nuxt.js", "NuxtJS", "Pinia"],
+  "certifications": ["Vue.js Certification from Certificates.dev (Junior, Mid-Level and Senior)", "Nuxt Certification from Certificates.dev"],
+  "tools": ["Vue 3", "Vite", "Vue Router", "Pinia", "Nuxt", "Vitest", "Vue Test Utils", "Vue DevTools", "TypeScript"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web developers and freshers who know HTML, CSS and JavaScript. Covers Vue 3 projects with Vite, templates and directives, reactivity with ref and reactive, computed values and watchers, events and v-model, conditional and list rendering, components, props, emits and slots, lifecycle hooks, the Composition API and composables, styling, Vue Router, Pinia, calling APIs, form validation, component testing and deployment.",
+      "prerequisites": ["Writes HTML, CSS and modern JavaScript", "Understands functions, arrays and objects", "Has used npm and a code editor"],
+      "outcomes": ["Build single-page applications with Vue 3 and the Composition API", "Structure apps with components, routing and Pinia stores", "Connect to APIs and validate forms", "Test and deploy Vue applications"],
+      "days": [
+        {
+          "topic": "Vue.js Overview and Project Setup with Vite",
+          "subtopics": ["What Vue is and the progressive framework idea", "Vue 3 compared with Vue 2", "Single-file components (.vue files)", "Creating a project with create-vue and Vite", "Project structure and the entry point", "The development server and hot module replacement", "Vue DevTools in the browser", "VS Code with the Vue (Official) extension", "Options API and Composition API at a glance", "Building for production"],
+          "tools": ["Node.js", "create-vue", "Vite", "Vue DevTools", "VS Code"],
+          "lab_task": "Scaffold a Vue 3 project with Vite and TypeScript, explore the generated files, change a component and watch hot reload, inspect the component tree in Vue DevTools and build for production.",
+          "deliverable": "Running starter project in a Git repository",
+          "checks": [["Start the dev server", "App loads and updates on save without a full reload", "Screen recording"], ["Inspect with DevTools", "Component tree and state visible in Vue DevTools", "Screenshot"], ["Build for production", "dist folder produced and served locally", "Terminal output"]],
+          "objectives": ["Explain how Vue works", "Create a Vue project", "Use the Vue developer tools"]
+        },
+        {
+          "topic": "Templates, Interpolation and Directives",
+          "subtopics": ["Text interpolation with double braces", "Attribute binding with v-bind", "Class and style bindings", "v-html and its risks", "JavaScript expressions in templates", "Directive shorthands", "Dynamic arguments", "Template refs in brief"],
+          "tools": ["Vue 3", "Vite"],
+          "lab_task": "Build a product card that binds text, images, classes and styles from data, highlights items on sale and safely renders a description without v-html.",
+          "deliverable": "Product card component",
+          "checks": [["Bind classes", "Sale items show the sale style", "Screenshot"], ["Bind attributes", "Image source and alt text come from data", "DOM inspection"], ["Avoid v-html", "Description renders as text with no injected HTML", "Test with a script tag"]],
+          "objectives": ["Write Vue templates", "Bind attributes, classes and styles", "Avoid unsafe rendering"]
+        },
+        {
+          "topic": "Reactivity with ref and reactive",
+          "subtopics": ["What reactivity means in Vue", "ref for single values", "reactive for objects", ".value and automatic unwrapping in templates", "Reactivity with arrays and nested objects", "Losing reactivity by destructuring", "toRefs and toRef", "shallowRef for large data"],
+          "tools": ["Vue 3", "Vue DevTools"],
+          "lab_task": "Build a shopping basket with ref and reactive state, show the bug caused by destructuring reactive state, fix it with toRefs and measure updates in DevTools.",
+          "deliverable": "Basket component with notes on reactivity pitfalls",
+          "checks": [["Update the basket", "Totals update when items change", "Screen recording"], ["Reproduce the bug", "Destructured values stop updating", "Screen recording"], ["Fix with toRefs", "Values update again after the fix", "Screen recording"]],
+          "objectives": ["Use ref and reactive", "Avoid losing reactivity", "Choose the right reactive primitive"]
+        },
+        {
+          "topic": "Computed Properties and Watchers",
+          "subtopics": ["computed for derived state", "Writable computed values", "Caching and when computed recalculates", "watch for side effects", "watchEffect", "Deep and immediate watchers", "Cleaning up watchers", "Computed versus methods versus watchers"],
+          "tools": ["Vue 3", "Vue DevTools"],
+          "lab_task": "Add computed totals, discounts and tax to the basket, save the basket to localStorage with a watcher and debounce a search box with a watcher that cleans up its timer.",
+          "deliverable": "Basket with computed values and persistence",
+          "checks": [["Change quantities", "Totals recalculate correctly", "Screen recording"], ["Reload the page", "Basket restored from localStorage", "Screen recording"], ["Type quickly in search", "Only one search request after typing stops", "Network log"]],
+          "objectives": ["Derive state with computed", "Run side effects with watchers", "Choose the right tool"]
+        },
+        {
+          "topic": "Event Handling and Form Input Binding with v-model",
+          "subtopics": ["v-on and the @ shorthand", "Event modifiers: prevent, stop and once", "Key modifiers", "v-model on inputs, checkboxes, radios and selects", "v-model modifiers: lazy, number and trim", "Handling form submit", "Disabling buttons while submitting", "Resetting forms"],
+          "tools": ["Vue 3", "Vite"],
+          "lab_task": "Build a sign-up form with text, select, checkbox and radio inputs bound with v-model, trim and number modifiers, keyboard shortcuts and a submit handler that prevents double submission.",
+          "deliverable": "Sign-up form component",
+          "checks": [["Submit the form", "Values arrive trimmed and typed correctly", "Console output"], ["Press submit twice", "Only one submission happens", "Network log"], ["Use a key modifier", "Enter submits and Escape clears the form", "Screen recording"]],
+          "objectives": ["Handle events in Vue", "Bind form inputs", "Control form submission"]
+        },
+        {
+          "topic": "Conditional and List Rendering",
+          "subtopics": ["v-if, v-else-if and v-else", "v-show and when to use it", "v-for over arrays and objects", "Keys and why they matter", "Filtering and sorting lists with computed", "Rendering ranges", "v-if with v-for pitfalls", "Empty and loading states"],
+          "tools": ["Vue 3", "Vite"],
+          "lab_task": "Build a task list with filtering, sorting, empty and loading states, use stable keys, and show the bug that appears when array indexes are used as keys.",
+          "deliverable": "Task list component",
+          "checks": [["Filter and sort", "Visible tasks match the selected filter and order", "Screenshot"], ["Use index keys", "Input state jumps to the wrong row", "Screen recording"], ["Fix the keys", "Input state stays with the right task", "Screen recording"]],
+          "objectives": ["Render conditionally", "Render lists with keys", "Show empty and loading states"]
+        },
+        {
+          "topic": "Components and Props",
+          "subtopics": ["Registering and using components", "Declaring props with defineProps", "Prop types, defaults and validation", "One-way data flow", "Passing objects and arrays", "Fallthrough attributes", "Naming conventions", "Splitting a page into components"],
+          "tools": ["Vue 3", "Vite", "TypeScript"],
+          "lab_task": "Split a product page into header, gallery, details and review components, pass data with typed props and defaults, and fix a component that mutates its props.",
+          "deliverable": "Componentised product page",
+          "checks": [["Pass typed props", "Wrong prop types flagged by the type checker", "vue-tsc output"], ["Fix prop mutation", "No prop mutation warnings in the console", "Console screenshot"], ["Use fallthrough attributes", "Class added by the parent appears on the child root", "DOM inspection"]],
+          "objectives": ["Build reusable components", "Declare and validate props", "Keep one-way data flow"]
+        },
+        {
+          "topic": "Emitting Events and Component v-model",
+          "subtopics": ["defineEmits and typed events", "Event payloads", "Parent and child communication", "v-model on custom components", "defineModel", "Multiple v-model bindings", "Validating emitted events", "When to lift state up"],
+          "tools": ["Vue 3", "Vite", "TypeScript"],
+          "lab_task": "Build a reusable quantity picker and rating input that emit typed events and support v-model with defineModel, and use them in the product page.",
+          "deliverable": "Reusable input components",
+          "checks": [["Emit an event", "Parent receives the payload with the right type", "Console output"], ["Use v-model", "Parent state updates from the custom input", "Screen recording"], ["Bind two models", "Both values update independently", "Screen recording"]],
+          "objectives": ["Emit events from components", "Support v-model in custom components", "Share state between parent and child"]
+        },
+        {
+          "topic": "Slots and Content Distribution",
+          "subtopics": ["Default slots", "Named slots", "Scoped slots", "Fallback content", "Building layout components", "Card, modal and table components with slots", "Checking slot content", "Slots versus props"],
+          "tools": ["Vue 3", "Vite"],
+          "lab_task": "Build a reusable modal with header, body and footer slots, a data table with a scoped slot for custom cells, and a page layout component used by three pages.",
+          "deliverable": "Modal, table and layout components",
+          "checks": [["Use named slots", "Modal shows custom header and footer content", "Screenshot"], ["Use a scoped slot", "Table renders custom cells from row data", "Screenshot"], ["Reuse the layout", "Three pages share the layout without duplication", "Code review"]],
+          "objectives": ["Use slots for flexible components", "Build layout components", "Choose between slots and props"]
+        },
+        {
+          "topic": "Lifecycle Hooks",
+          "subtopics": ["The component lifecycle", "onMounted and onUnmounted", "onBeforeUpdate and onUpdated", "Cleaning up timers and listeners", "Working with the DOM after mount", "Lifecycle hooks in composables", "KeepAlive and onActivated", "Common lifecycle mistakes"],
+          "tools": ["Vue 3", "Vue DevTools"],
+          "lab_task": "Build a live clock, a window resize tracker and a chart that initialises after mount, clean up every timer and listener, and prove there are no leaks after navigating away.",
+          "deliverable": "Components with correct clean-up",
+          "checks": [["Navigate away", "Timers and listeners removed after unmount", "Performance panel screenshot"], ["Initialise the chart", "Chart draws after mount without errors", "Screenshot"], ["Keep a tab alive", "State preserved when switching tabs with KeepAlive", "Screen recording"]],
+          "objectives": ["Use lifecycle hooks", "Clean up side effects", "Preserve component state"]
+        },
+        {
+          "topic": "The Composition API and script setup",
+          "subtopics": ["setup and script setup", "Organising code by feature instead of option", "Options API to Composition API side by side", "defineProps, defineEmits and defineExpose", "Template refs with useTemplateRef", "Async setup and Suspense in brief", "Typing with TypeScript in script setup", "Readable component structure", "Using the Options API and Composition API in one project", "Linting rules for Composition API code"],
+          "tools": ["Vue 3", "TypeScript", "Vite"],
+          "lab_task": "Convert three Options API components to script setup, group logic by feature, expose a method to a parent with defineExpose and focus an input with a template ref.",
+          "deliverable": "Converted components with a style guide",
+          "checks": [["Convert components", "Behaviour unchanged after conversion", "Test output"], ["Expose a method", "Parent calls the child method", "Screen recording"], ["Focus with a ref", "Input focused when the dialog opens", "Screen recording"]],
+          "objectives": ["Write components with script setup", "Organise code by feature", "Use template refs"]
+        },
+        {
+          "topic": "Composables for Reusable Logic",
+          "subtopics": ["What composables are", "Naming and returning reactive values", "useFetch-style data loading", "Composables with lifecycle hooks", "Accepting refs and getters as arguments", "VueUse library", "Testing composables", "Composables versus mixins"],
+          "tools": ["Vue 3", "VueUse", "Vitest"],
+          "lab_task": "Write composables for API loading with loading and error state, local storage sync and online status, replace duplicated code in three components and test the composables.",
+          "deliverable": "Composables library with tests",
+          "checks": [["Remove duplication", "Three components share one composable", "Code diff"], ["Test a composable", "Loading, success and error states tested", "Test output"], ["Use VueUse", "Online status shown with a VueUse composable", "Screen recording"]],
+          "objectives": ["Write composables", "Reuse logic across components", "Test composables"]
+        },
+        {
+          "topic": "Styling Vue Components: Scoped CSS and Tailwind",
+          "subtopics": ["Scoped styles", "CSS modules in Vue", "Deep selectors", "Binding CSS with v-bind in style blocks", "Tailwind CSS with Vue", "Transitions for simple effects", "Responsive layouts", "Dark mode"],
+          "tools": ["Tailwind CSS", "Vite", "Vue 3"],
+          "lab_task": "Style the product page with scoped CSS and Tailwind, add a responsive layout, a dark mode toggle bound to CSS variables and a fade transition for the modal.",
+          "deliverable": "Styled, responsive product page",
+          "checks": [["Resize the window", "Layout adapts at mobile and desktop widths", "Screenshots"], ["Toggle dark mode", "Colours switch through CSS variables", "Screenshots"], ["Check scoping", "Component styles do not leak to other components", "DOM inspection"]],
+          "objectives": ["Style Vue components", "Build responsive layouts", "Add simple transitions"]
+        },
+        {
+          "topic": "Routing with Vue Router",
+          "subtopics": ["Setting up Vue Router", "Route definitions and RouterView", "Navigation with RouterLink and router.push", "Dynamic route parameters", "Nested routes", "Query parameters", "404 pages", "Lazy-loaded routes"],
+          "tools": ["Vue Router", "Vue 3"],
+          "lab_task": "Add routing to the shop with list, detail, basket and account pages, nested account routes, query-based filters, a 404 page and lazy loading for heavy pages.",
+          "deliverable": "Routed shop application",
+          "checks": [["Open a product URL", "Detail page loads from the route parameter", "Screenshot"], ["Share a filtered list", "Filters restored from the query string", "Screen recording"], ["Lazy-load a page", "Page code loads only when visited", "Network log"]],
+          "objectives": ["Add routing to Vue apps", "Use parameters and queries", "Lazy-load routes"]
+        },
+        {
+          "topic": "State Management with Pinia",
+          "subtopics": ["Why a store is needed", "Defining stores with defineStore", "State, getters and actions", "Setup stores and option stores", "Using stores in components", "storeToRefs", "Resetting and subscribing to stores", "Pinia in Vue DevTools"],
+          "tools": ["Pinia", "Vue DevTools"],
+          "lab_task": "Move basket and user state into Pinia stores, use getters for totals, call actions from several pages and inspect state changes in Vue DevTools.",
+          "deliverable": "Pinia stores for the shop",
+          "checks": [["Share state", "Basket count updates on every page", "Screen recording"], ["Use storeToRefs", "Destructured store values stay reactive", "Screen recording"], ["Inspect the store", "Actions and state changes visible in DevTools", "Screenshot"]],
+          "objectives": ["Manage shared state with Pinia", "Write getters and actions", "Debug stores"]
+        },
+        {
+          "topic": "Fetching API Data in Vue Components",
+          "subtopics": ["fetch and axios in Vue apps", "Loading, error and empty states", "Fetching on mount and on route change", "Cancelling requests", "Handling authentication tokens", "Environment-based API URLs", "Mocking APIs in development", "Optimistic updates in brief"],
+          "tools": ["axios or fetch", "Mock Service Worker", "Vue 3"],
+          "lab_task": "Connect the shop to a REST API with loading and error states, refetch when the route changes, cancel stale requests and mock the API with Mock Service Worker for offline work.",
+          "deliverable": "API-connected shop with mocks",
+          "checks": [["Change products quickly", "Only the latest request's data is shown", "Network log"], ["Fail the API", "Error message and retry button shown", "Screenshot"], ["Work offline", "App runs against Mock Service Worker", "Screen recording"]],
+          "objectives": ["Load data from APIs", "Handle loading and errors", "Mock APIs for development"]
+        },
+        {
+          "topic": "Form Validation with VeeValidate",
+          "subtopics": ["Validation approaches in Vue", "VeeValidate fields and forms", "Schemas with Zod or Yup", "Showing field errors", "Async validation", "Submitting and server errors", "Accessible error messages", "Dynamic form fields"],
+          "tools": ["VeeValidate", "Zod", "Vue 3"],
+          "lab_task": "Add schema validation to sign-up and checkout forms with field errors, an async username check, server error mapping and accessible error announcements.",
+          "deliverable": "Validated forms",
+          "checks": [["Submit invalid data", "Field errors shown next to each field", "Screenshot"], ["Check the username", "Taken usernames rejected before submit", "Screen recording"], ["Map server errors", "Server field errors shown on the right fields", "Screenshot"]],
+          "objectives": ["Validate forms in Vue", "Use schemas", "Show accessible errors"]
+        },
+        {
+          "topic": "Testing Components with Vitest and Vue Test Utils",
+          "subtopics": ["Vitest configuration for Vue", "Mounting components", "Finding elements and triggering events", "Testing props, emits and slots", "Testing with Pinia", "Mocking API calls", "Snapshot tests and their limits", "Running tests in CI"],
+          "tools": ["Vitest", "Vue Test Utils", "Testing Library for Vue"],
+          "lab_task": "Write tests for the product card, quantity picker, basket store and product list with mocked API calls, and run them in watch mode and in CI.",
+          "deliverable": "Test suite with coverage report",
+          "checks": [["Test an emitted event", "Test asserts the payload", "Test output"], ["Test with a store", "Basket component test uses a test Pinia instance", "Test output"], ["Measure coverage", "Components covered at 80 percent or more", "Coverage report"]],
+          "objectives": ["Test Vue components", "Test stores and API calls", "Run tests in CI"]
+        },
+        {
+          "topic": "Building and Deploying Vue Applications",
+          "subtopics": ["Production builds with Vite", "Environment settings with import.meta.env", "History mode and server fallbacks", "Bundle size checks", "Deploying to Netlify, Vercel or static hosting", "Deploying behind NGINX", "Cache headers for assets", "Preview deployments for pull requests"],
+          "tools": ["Vite", "Netlify or Vercel", "NGINX"],
+          "lab_task": "Build the shop for production, deploy it to a static host with a history mode fallback, serve it behind NGINX with cache headers and set up preview deployments for pull requests.",
+          "deliverable": "Deployed application and deployment guide",
+          "checks": [["Open a deep link", "Route loads directly without a 404", "Browser screenshot"], ["Check caching", "Hashed assets served with long cache headers", "Response headers"], ["Open a preview", "Pull request has its own preview URL", "Pull request screenshot"]],
+          "objectives": ["Build Vue apps for production", "Deploy to static hosts and NGINX", "Use preview deployments"]
+        },
+        {
+          "topic": "Beginner Capstone: Recipe Finder Application",
+          "subtopics": ["Plan", "Build", "Test", "Deploy"],
+          "tools": ["Vue 3", "Vue Router", "Pinia", "VeeValidate", "Vitest", "Vite"],
+          "lab_task": "Build a recipe finder with search, filters in the URL, recipe detail pages, favourites in a Pinia store, a validated submission form, tests and a production deployment, then demo it.",
+          "deliverable": "Repository, live URL and demo recording",
+          "checks": [["Demo the app", "Search, filters, favourites and submission all work", "Demo recording"], ["Run the tests", "Test suite passes", "Test report"], ["Open the live URL", "Deployed app works on mobile and desktop", "Screenshots"]],
+          "objectives": ["Combine the beginner topics in one app", "Build a complete Vue application", "Ship it to users"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who build Vue applications at work. Covers TypeScript with Vue, advanced component patterns, advanced routing, Pinia in depth, server state with TanStack Query, Nuxt routing, rendering modes and data fetching, authentication, component libraries, design systems with Storybook, performance, accessibility, internationalisation, integration and end-to-end testing, transitions, real-time interfaces, large forms, error monitoring and CI/CD for Vue and Nuxt.",
+      "prerequisites": ["Builds Vue 3 components with the Composition API", "Has used Vue Router and Pinia", "Comfortable with TypeScript basics and REST APIs"],
+      "outcomes": ["Build typed, well-structured Vue and Nuxt applications", "Choose rendering modes and data fetching strategies in Nuxt", "Make apps fast, accessible and international", "Test, monitor and deliver Vue apps through CI/CD"],
+      "days": [
+        {
+          "topic": "TypeScript with Vue: Typed Props, Emits and Stores",
+          "subtopics": ["Strict TypeScript settings for Vue projects", "Typing props and emits", "Typing refs, computed and template refs", "Generic components", "Typing provide and inject", "Typed Pinia stores", "Typed API clients", "Type checking with vue-tsc in CI"],
+          "tools": ["TypeScript", "vue-tsc", "Pinia", "Vite"],
+          "lab_task": "Turn on strict mode in an existing Vue app, type props, emits, stores and API responses, build a generic select component and fail CI on type errors.",
+          "deliverable": "Strictly typed application and CI check",
+          "checks": [["Run vue-tsc", "No type errors in strict mode", "vue-tsc output"], ["Use the generic component", "Type of the selected value follows the items", "Editor screenshot"], ["Break a type in CI", "Pipeline fails on the type error", "CI log"]],
+          "objectives": ["Type Vue applications", "Build generic components", "Enforce types in CI"]
+        },
+        {
+          "topic": "Advanced Component Patterns: Provide and Inject, Renderless and Compound Components",
+          "subtopics": ["provide and inject for deep data", "Injection keys and defaults", "Renderless components with scoped slots", "Compound components such as tabs and accordions", "Headless UI libraries", "Async components and Suspense", "Teleport for modals and toasts", "Choosing a pattern"],
+          "tools": ["Vue 3", "Headless UI or Reka UI", "TypeScript"],
+          "lab_task": "Build compound tabs and accordion components with provide and inject, a renderless data fetcher, a toast system with Teleport and an async chart loaded with Suspense.",
+          "deliverable": "Component pattern library",
+          "checks": [["Use compound tabs", "Tabs work without passing props through every level", "Code review"], ["Teleport toasts", "Toasts render at the body level above modals", "DOM inspection"], ["Load async", "Chart shows a fallback until loaded", "Screen recording"]],
+          "objectives": ["Apply advanced component patterns", "Share context with provide and inject", "Render outside the component tree"]
+        },
+        {
+          "topic": "Advanced Vue Router: Guards, Lazy Loading and Nested Layouts",
+          "subtopics": ["Global, per-route and in-component guards", "Route meta fields for permissions", "Redirects and aliases", "Nested layouts", "Scroll behaviour", "Data loading before navigation", "Typed routes", "Handling navigation failures"],
+          "tools": ["Vue Router", "TypeScript", "Pinia"],
+          "lab_task": "Protect admin routes with guards using route meta and the user store, build public and admin layouts with nested routes, restore scroll position and handle cancelled navigations.",
+          "deliverable": "Routing configuration with guard tests",
+          "checks": [["Visit an admin page as a guest", "Redirected to login and back after sign-in", "Screen recording"], ["Switch layouts", "Admin pages use the admin layout", "Screenshot"], ["Go back", "Scroll position restored on the list page", "Screen recording"]],
+          "objectives": ["Protect routes with guards", "Use nested layouts", "Control navigation behaviour"]
+        },
+        {
+          "topic": "Pinia in Depth: Plugins, Persistence and Store Composition",
+          "subtopics": ["Setup stores with composables", "Stores that use other stores", "Pinia plugins", "Persisting state", "Hydrating state from the server", "Testing stores", "Store organisation for larger apps", "Avoiding store overuse"],
+          "tools": ["Pinia", "pinia-plugin-persistedstate", "Vitest"],
+          "lab_task": "Reorganise the app into domain stores that use each other, write a plugin that logs actions, persist selected state and test stores with mocked API calls.",
+          "deliverable": "Store architecture and tests",
+          "checks": [["Compose stores", "Order store reads from the user store without circular imports", "Code review"], ["Write a plugin", "Every action logged with its duration", "Console output"], ["Persist state", "Selected state survives a reload", "Screen recording"]],
+          "objectives": ["Organise Pinia stores", "Extend Pinia with plugins", "Test stores"]
+        },
+        {
+          "topic": "Server State with TanStack Query for Vue",
+          "subtopics": ["Server state versus client state", "Queries and query keys", "Caching and stale time", "Mutations and invalidation", "Optimistic updates", "Pagination and infinite queries", "Prefetching", "Query DevTools"],
+          "tools": ["TanStack Query for Vue", "Vue 3", "Mock Service Worker"],
+          "lab_task": "Replace hand-written API loading with TanStack Query, add infinite scrolling, optimistic updates for favourites with rollback on failure and prefetch details on hover.",
+          "deliverable": "App using TanStack Query",
+          "checks": [["Revisit a page", "Cached data shown instantly then refreshed", "Screen recording"], ["Fail an optimistic update", "UI rolls back and shows an error", "Screen recording"], ["Hover a product", "Details prefetched before the click", "Network log"]],
+          "objectives": ["Manage server state", "Cache and invalidate queries", "Apply optimistic updates"]
+        },
+        {
+          "topic": "Nuxt: File-Based Routing, Layouts and Rendering Modes",
+          "subtopics": ["Nuxt project structure", "Pages and file-based routing", "Layouts and middleware", "Auto-imports", "Server-side rendering and hydration", "Static generation and hybrid rendering with route rules", "SEO and head management", "Nuxt DevTools"],
+          "tools": ["Nuxt", "Nuxt DevTools", "Nitro"],
+          "lab_task": "Rebuild the shop in Nuxt with file-based routes, layouts and route middleware, prerender marketing pages, render product pages on the server and set SEO metadata.",
+          "deliverable": "Nuxt version of the shop",
+          "checks": [["View page source", "Product content present in server-rendered HTML", "Page source"], ["Prerender pages", "Marketing pages generated as static files", "Build output"], ["Check SEO tags", "Title and description set per page", "Page head inspection"]],
+          "objectives": ["Build apps with Nuxt", "Choose rendering modes", "Manage SEO metadata"]
+        },
+        {
+          "topic": "Data Fetching in Nuxt: useFetch, useAsyncData and Server Routes",
+          "subtopics": ["useFetch and useAsyncData", "Avoiding double fetching during hydration", "Keys, caching and refresh", "Lazy fetching", "Server routes and API handlers in Nitro", "Calling databases from server routes", "Runtime configuration", "Error handling in pages"],
+          "tools": ["Nuxt", "Nitro", "Drizzle or Prisma"],
+          "lab_task": "Build Nuxt server routes for products and orders over a database, fetch them with useFetch without double requests, add lazy loading for reviews and handle errors with error pages.",
+          "deliverable": "Full-stack Nuxt features",
+          "checks": [["Load a page", "No duplicate request on the client after hydration", "Network log"], ["Call a server route", "Server route returns data from the database", "Response"], ["Trigger an error", "Custom error page shown with status code", "Screenshot"]],
+          "objectives": ["Fetch data in Nuxt", "Build server routes", "Handle errors in Nuxt"]
+        },
+        {
+          "topic": "Authentication in Vue and Nuxt Applications",
+          "subtopics": ["Token and session approaches", "Storing tokens safely", "Login, logout and refresh flows", "Protecting routes on client and server", "OAuth and social login", "nuxt-auth-utils or Sidebase Nuxt Auth", "Role-based UI", "Security pitfalls in single-page apps"],
+          "tools": ["Nuxt", "nuxt-auth-utils", "OAuth provider"],
+          "lab_task": "Add login with sessions and an OAuth provider to the Nuxt app, protect pages and server routes, refresh sessions and hide admin controls from normal users.",
+          "deliverable": "Authenticated Nuxt app",
+          "checks": [["Sign in with OAuth", "User session created after the provider login", "Screen recording"], ["Call a protected server route", "401 without a session", "Response"], ["Hide admin controls", "Normal users never see admin actions", "Screenshots"]],
+          "objectives": ["Add authentication to Vue apps", "Protect routes and APIs", "Show role-based UI"]
+        },
+        {
+          "topic": "Component Libraries: Vuetify, PrimeVue and Nuxt UI",
+          "subtopics": ["When to use a component library", "Vuetify, PrimeVue and Nuxt UI compared", "Theming and design tokens", "Tree shaking and bundle size", "Data tables and forms from libraries", "Accessibility of library components", "Customising without forking", "Mixing library and custom components"],
+          "tools": ["Vuetify", "PrimeVue", "Nuxt UI"],
+          "lab_task": "Build the same admin screen with two libraries, theme both to the brand, compare bundle size and accessibility and recommend one for the team.",
+          "deliverable": "Comparison report and themed admin screen",
+          "checks": [["Theme the library", "Brand colours and fonts applied", "Screenshot"], ["Compare bundle size", "Size difference measured for the same screen", "Bundle report"], ["Check accessibility", "Accessibility issues listed for both libraries", "Audit report"]],
+          "objectives": ["Choose component libraries", "Theme libraries", "Measure their cost"]
+        },
+        {
+          "topic": "Design Systems and Storybook for Vue",
+          "subtopics": ["What a design system includes", "Design tokens", "Building base components", "Storybook for Vue", "Writing stories and controls", "Visual and interaction tests in Storybook", "Documenting components", "Publishing a component package"],
+          "tools": ["Storybook", "Vue 3", "Chromatic or Playwright"],
+          "lab_task": "Build button, input and card components from design tokens, document them in Storybook with controls, add interaction tests and publish the package to a private registry.",
+          "deliverable": "Component package and Storybook site",
+          "checks": [["Publish Storybook", "Every component has stories and docs", "Storybook URL"], ["Run interaction tests", "Tests pass in Storybook", "Test output"], ["Install the package", "Another app uses the published components", "Screenshot"]],
+          "objectives": ["Build a Vue design system", "Document components in Storybook", "Share components across apps"]
+        },
+        {
+          "topic": "Performance Optimisation: Lazy Components, v-memo and Bundle Analysis",
+          "subtopics": ["Measuring with Lighthouse and the Performance panel", "Bundle analysis", "Code splitting and lazy components", "v-once and v-memo", "Large lists with virtual scrolling", "shallowRef for big data", "Image loading", "Core Web Vitals"],
+          "tools": ["Lighthouse", "rollup-plugin-visualizer", "vue-virtual-scroller"],
+          "lab_task": "Profile a slow product list with 10,000 items, add virtual scrolling, v-memo and lazy components, cut the bundle size and record before and after Core Web Vitals.",
+          "deliverable": "Performance report with measurements",
+          "checks": [["Render 10,000 items", "Scrolling stays smooth at 60 frames per second", "Performance trace"], ["Cut the bundle", "Initial JavaScript size reduced", "Bundle report"], ["Measure Web Vitals", "Lighthouse performance score improves", "Lighthouse reports"]],
+          "objectives": ["Measure Vue performance", "Optimise rendering", "Reduce bundle size"]
+        },
+        {
+          "topic": "Accessibility in Vue Applications",
+          "subtopics": ["Semantic HTML in components", "Keyboard navigation and focus management", "Focus on route changes", "ARIA for custom widgets", "Accessible forms and errors", "Colour contrast", "Testing with axe and screen readers", "Accessibility checks in CI"],
+          "tools": ["axe DevTools", "NVDA or VoiceOver", "eslint-plugin-vuejs-accessibility"],
+          "lab_task": "Audit the shop with axe and a screen reader, fix focus management for modals and route changes, make the tabs component keyboard accessible and add accessibility lint rules to CI.",
+          "deliverable": "Accessibility fixes and audit report",
+          "checks": [["Run axe", "No serious or critical issues", "axe report"], ["Use the keyboard", "Every feature usable without a mouse", "Screen recording"], ["Change route", "Focus moves to the new page heading", "Screen reader notes"]],
+          "objectives": ["Build accessible Vue components", "Manage focus", "Test accessibility"]
+        },
+        {
+          "topic": "Internationalisation with Vue I18n",
+          "subtopics": ["Setting up Vue I18n", "Message files and keys", "Pluralisation", "Dates, numbers and currencies", "Lazy-loading languages", "Right-to-left layouts", "Locale routing in Nuxt", "Translation workflows"],
+          "tools": ["Vue I18n", "Nuxt I18n", "Intl API"],
+          "lab_task": "Translate the shop into English, Hindi and Arabic with pluralisation, local currency and date formats, lazy-loaded language files, right-to-left layout and locale-prefixed routes in Nuxt.",
+          "deliverable": "Internationalised app and translation guide",
+          "checks": [["Switch language", "All visible text changes language", "Screenshots"], ["Show prices", "Currency and number formats follow the locale", "Screenshots"], ["Use Arabic", "Layout switches to right-to-left", "Screenshot"]],
+          "objectives": ["Internationalise Vue apps", "Format locale data", "Support right-to-left languages"]
+        },
+        {
+          "topic": "Integration and End-to-End Testing for Vue Apps",
+          "subtopics": ["Testing strategy for front ends", "Component integration tests", "Playwright for end-to-end tests", "Testing authentication flows", "Network mocking in end-to-end tests", "Visual regression tests", "Reducing flaky tests", "Running tests in parallel in CI"],
+          "tools": ["Playwright", "Vitest", "Mock Service Worker"],
+          "lab_task": "Write Playwright tests for sign-in, search, basket and checkout with mocked payments, add visual snapshots for key pages and run tests in parallel in CI.",
+          "deliverable": "End-to-end test suite and CI job",
+          "checks": [["Run end-to-end tests", "Checkout flow passes in three browsers", "Playwright report"], ["Catch a visual change", "Snapshot test fails on a layout change", "Visual diff"], ["Run in parallel", "Suite time drops with parallel workers", "CI timings"]],
+          "objectives": ["Plan front-end testing", "Write reliable end-to-end tests", "Catch visual regressions"]
+        },
+        {
+          "topic": "Animations and Transitions",
+          "subtopics": ["Transition and TransitionGroup", "CSS transition classes", "JavaScript hooks for animations", "List animations", "Route transitions", "Reduced motion preferences", "Animation performance", "Libraries such as Motion for Vue"],
+          "tools": ["Vue Transition", "Motion for Vue", "CSS"],
+          "lab_task": "Add list animations to the basket, route transitions between pages and a modal entrance animation, respect reduced motion settings and check performance in the browser.",
+          "deliverable": "Animated interactions with performance notes",
+          "checks": [["Animate list changes", "Items animate when added and removed", "Screen recording"], ["Respect reduced motion", "Animations off when reduced motion is set", "Screen recording"], ["Check performance", "No layout thrashing during animations", "Performance trace"]],
+          "objectives": ["Animate with Vue transitions", "Animate routes and lists", "Respect user preferences"]
+        },
+        {
+          "topic": "Real-Time Vue Interfaces with WebSockets and Server-Sent Events",
+          "subtopics": ["WebSockets and server-sent events compared", "Connecting from composables", "Updating stores from live events", "Reconnecting and missed updates", "Presence and typing indicators", "Throttling high-frequency updates", "Testing real-time features", "Real-time in Nuxt server routes"],
+          "tools": ["WebSocket API", "EventSource", "Socket.IO client", "Pinia"],
+          "lab_task": "Build a live order tracker and support chat with WebSockets, update Pinia stores from events, reconnect after drops and throttle a high-frequency price feed.",
+          "deliverable": "Real-time features with tests",
+          "checks": [["Drop the connection", "Client reconnects and catches up", "Screen recording"], ["Show presence", "Users see who is online and typing", "Screenshot"], ["Throttle the feed", "UI stays responsive under 100 updates per second", "Performance trace"]],
+          "objectives": ["Build real-time Vue interfaces", "Keep state in sync with events", "Handle reconnection"]
+        },
+        {
+          "topic": "Forms at Scale: Dynamic Forms and Schema Validation",
+          "subtopics": ["Schema-driven forms", "Dynamic and repeating fields", "Multi-step wizards", "Saving drafts", "Cross-field validation", "File inputs and uploads", "Form performance with many fields", "Form libraries compared"],
+          "tools": ["VeeValidate", "FormKit", "Zod"],
+          "lab_task": "Build a multi-step insurance application form generated from a schema with repeating fields, cross-field rules, draft saving and file uploads.",
+          "deliverable": "Schema-driven form module",
+          "checks": [["Generate the form", "Fields rendered from the schema", "Screenshot"], ["Save a draft", "Draft restored after closing the browser", "Screen recording"], ["Validate across fields", "Inconsistent answers rejected with clear messages", "Screenshot"]],
+          "objectives": ["Build large forms", "Generate forms from schemas", "Validate complex rules"]
+        },
+        {
+          "topic": "Error Handling, Logging and Monitoring with Sentry",
+          "subtopics": ["Global error handlers in Vue", "Error boundaries with onErrorCaptured", "Logging from the front end", "Sentry setup for Vue and Nuxt", "Source maps", "Performance monitoring and session replay", "Alerting and triage", "Privacy in front-end monitoring"],
+          "tools": ["Sentry", "Vue 3", "Nuxt"],
+          "lab_task": "Add global error handling and component error boundaries, send errors with source maps to Sentry, enable performance traces and set an alert for new errors after a release.",
+          "deliverable": "Monitoring setup and triage guide",
+          "checks": [["Throw an error", "Error appears in Sentry with the original source line", "Sentry screenshot"], ["Contain an error", "Error boundary shows a fallback while the rest of the page works", "Screenshot"], ["Release with an error", "Alert fires for the new error", "Alert notification"]],
+          "objectives": ["Handle errors in Vue apps", "Monitor production errors", "Protect user privacy"]
+        },
+        {
+          "topic": "CI/CD and Deployment for Vue and Nuxt",
+          "subtopics": ["Pipeline stages for front-end projects", "Caching dependencies", "Lint, type check, unit and end-to-end tests", "Build artefacts and environments", "Deploying Nuxt to Node.js servers, serverless and edge", "Preview environments", "Rollbacks", "Release notes and versioning"],
+          "tools": ["GitHub Actions", "Nuxt", "Vercel or Netlify", "Docker"],
+          "lab_task": "Build a pipeline that lints, type-checks and tests the Nuxt app, deploys preview environments for pull requests, deploys to production with approval and rolls back a bad release.",
+          "deliverable": "Pipeline definition and deployment runbook",
+          "checks": [["Run the pipeline", "All stages pass on a pull request", "Pipeline run"], ["Open a preview", "Each pull request gets a working preview", "Pull request screenshot"], ["Roll back", "Previous release restored in minutes", "Deployment log"]],
+          "objectives": ["Automate Vue and Nuxt delivery", "Use preview environments", "Roll back safely"]
+        },
+        {
+          "topic": "Intermediate Capstone: Nuxt Booking Platform",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["Nuxt", "Pinia", "TanStack Query", "Vue I18n", "Playwright", "Sentry"],
+          "lab_task": "Build a booking platform in Nuxt with server routes, authentication, real-time availability, two languages, accessible forms, end-to-end tests, monitoring and a CI/CD pipeline, then present it.",
+          "deliverable": "Repository, live URL, test reports and presentation",
+          "checks": [["Demo bookings", "Booking flow works end to end with live availability", "Demo recording"], ["Show quality", "Accessibility, performance and test reports meet targets", "Reports"], ["Defend choices", "Rendering and state choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one product", "Ship a production Nuxt app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior front-end engineers and leads working on large Vue estates. Covers reactivity and rendering internals, Vapor Mode, large-application architecture, Nuxt layers and modules, SSR performance with Nitro, micro-frontends, monorepos, design systems at scale, performance engineering, security, state architecture and offline sync, plugin and library authoring, testing strategy, Vue 2 migrations, mobile and desktop apps, real user monitoring, edge deployment, AI features and production troubleshooting.",
+      "prerequisites": ["Several years building production Vue applications", "Strong TypeScript and Nuxt experience", "Has led features across a team"],
+      "outcomes": ["Explain and tune Vue reactivity and rendering", "Architect large Vue and Nuxt platforms for many teams", "Secure, monitor and migrate Vue estates", "Lead front-end technical decisions"],
+      "days": [
+        {
+          "topic": "Vue Reactivity Internals: Proxies, Effects and the Scheduler",
+          "subtopics": ["Proxies and dependency tracking", "Effects, triggers and the reactive graph", "The scheduler and batched updates", "nextTick and flush timing", "Computed caching internals", "Shallow and raw objects", "Custom refs with customRef", "Reactivity outside components with effectScope"],
+          "tools": ["Vue 3 source code", "Vue DevTools", "Vitest"],
+          "lab_task": "Build a tiny reactivity system that mirrors Vue's, compare it with Vue's source, write a custom debounced ref and manage effects outside components with effectScope.",
+          "deliverable": "Mini reactivity system and explanation notes",
+          "checks": [["Track dependencies", "Mini system updates only affected effects", "Test output"], ["Write a custom ref", "Debounced ref updates after the delay", "Test output"], ["Stop an effect scope", "All effects in the scope stop together", "Test output"]],
+          "objectives": ["Explain Vue reactivity internals", "Control effects and timing", "Extend reactivity"]
+        },
+        {
+          "topic": "Rendering Internals: Virtual DOM, Compiler Optimisations and Vapor Mode",
+          "subtopics": ["The template compiler", "Static hoisting and patch flags", "Block trees", "Render functions and JSX", "Vapor Mode compilation without a virtual DOM", "Hydration and mismatches", "Measuring render cost", "When to drop to render functions"],
+          "tools": ["Vue SFC Playground", "Vue DevTools performance", "Chrome DevTools"],
+          "lab_task": "Inspect compiled output for three templates, explain patch flags, rewrite a hot component as a render function, try Vapor Mode on a component and fix a hydration mismatch.",
+          "deliverable": "Rendering analysis with measurements",
+          "checks": [["Explain compiled output", "Patch flags matched to template features", "Analysis notes"], ["Compare render cost", "Render time measured before and after changes", "Performance trace"], ["Fix hydration", "No hydration mismatch warnings", "Console screenshot"]],
+          "objectives": ["Understand Vue rendering", "Use compiler hints", "Fix hydration problems"]
+        },
+        {
+          "topic": "Front-End Architecture for Large Vue Applications",
+          "subtopics": ["Feature-based structure", "Module boundaries and public APIs", "Dependency rules and lint enforcement", "Shared kernels and utilities", "Data access layers", "Configuration and feature flags", "Architecture decision records", "Evolving architecture safely"],
+          "tools": ["TypeScript", "ESLint boundaries plugin", "Nx or Turborepo"],
+          "lab_task": "Restructure a large Vue app into feature modules with public APIs, enforce boundaries with lint rules, add a data access layer and record three architecture decisions.",
+          "deliverable": "Architecture guide and enforced boundaries",
+          "checks": [["Enforce boundaries", "Lint fails on a cross-feature import", "ESLint output"], ["Use the data access layer", "Components no longer call fetch directly", "Code search"], ["Record decisions", "Each decision lists options and consequences", "Decision records"]],
+          "objectives": ["Structure large Vue applications", "Enforce module boundaries", "Record architecture decisions"]
+        },
+        {
+          "topic": "Nuxt at Scale: Layers, Modules and Hybrid Rendering",
+          "subtopics": ["Nuxt layers for shared code", "Writing Nuxt modules", "Hybrid rendering with route rules", "Caching strategies per route", "Server components and islands", "Multi-app setups with shared layers", "Nuxt upgrades and compatibility", "Build performance"],
+          "tools": ["Nuxt", "Nuxt Kit", "Nitro"],
+          "lab_task": "Extract shared UI and auth into a Nuxt layer used by two apps, write a Nuxt module that adds analytics, and tune route rules for static, cached and dynamic pages.",
+          "deliverable": "Shared layer, custom module and rendering plan",
+          "checks": [["Share a layer", "Two apps use the layer without copied code", "Repository structure"], ["Install the module", "Module adds analytics through configuration only", "Module test output"], ["Tune route rules", "Each route served by the planned rendering mode", "Response headers"]],
+          "objectives": ["Share code with Nuxt layers", "Write Nuxt modules", "Plan hybrid rendering"]
+        },
+        {
+          "topic": "SSR Performance and Caching with Nitro",
+          "subtopics": ["Server rendering cost", "Time to first byte and streaming", "Route caching and stale-while-revalidate", "Caching API responses in Nitro storage", "CDN caching and cache keys", "Personalised content and caching", "Load testing SSR", "Memory leaks on the server"],
+          "tools": ["Nitro", "k6", "Redis", "CDN"],
+          "lab_task": "Load test a server-rendered product page, add route and data caching with stale-while-revalidate, keep personalised parts uncached and find a server memory leak.",
+          "deliverable": "SSR performance report",
+          "checks": [["Load test SSR", "Time to first byte and throughput measured", "k6 results"], ["Add caching", "Cached pages served faster with correct freshness", "Before and after results"], ["Find the leak", "Server memory stays flat after the fix", "Memory graph"]],
+          "objectives": ["Measure SSR performance", "Cache rendered pages safely", "Fix server-side leaks"]
+        },
+        {
+          "topic": "Micro-Frontends with Vue and Module Federation",
+          "subtopics": ["When micro-frontends make sense", "Module Federation with Vite", "Shared dependencies and versions", "Routing across micro-frontends", "Communication between apps", "Independent deployment", "Mixing Vue with other frameworks", "Costs and risks"],
+          "tools": ["Module Federation for Vite", "Vue 3", "Single-SPA or Native Federation"],
+          "lab_task": "Split the shop into shell, catalogue and account micro-frontends with Module Federation, share Vue as a single dependency, deploy one independently and measure the cost.",
+          "deliverable": "Micro-frontend setup and cost analysis",
+          "checks": [["Deploy independently", "Catalogue updated without redeploying the shell", "Deployment log"], ["Share dependencies", "Vue loaded once across apps", "Network log"], ["Measure the cost", "Bundle and latency overhead recorded", "Analysis report"]],
+          "objectives": ["Build Vue micro-frontends", "Share dependencies safely", "Judge when to use them"]
+        },
+        {
+          "topic": "Monorepos for Vue Teams with pnpm and Turborepo",
+          "subtopics": ["Monorepo layout for apps and packages", "pnpm workspaces", "Turborepo pipelines and caching", "Shared configuration packages", "Versioning internal packages", "Affected-only builds and tests", "Code ownership", "Migrating repositories into a monorepo"],
+          "tools": ["pnpm", "Turborepo", "Changesets"],
+          "lab_task": "Combine two Vue apps and a component package into a pnpm monorepo with Turborepo caching, shared lint and TypeScript configuration and affected-only CI.",
+          "deliverable": "Monorepo with CI configuration",
+          "checks": [["Use the cache", "Unchanged packages restored from cache", "Turborepo output"], ["Run affected only", "CI skips untouched apps", "CI log"], ["Share configuration", "All packages use the shared lint and TypeScript settings", "Configuration files"]],
+          "objectives": ["Run Vue monorepos", "Speed up builds", "Share configuration"]
+        },
+        {
+          "topic": "Design Systems at Scale with Vue",
+          "subtopics": ["Design system governance", "Tokens across platforms", "Headless and styled component layers", "Versioning and breaking changes", "Codemods for consumers", "Adoption metrics", "Accessibility guarantees", "Contribution model"],
+          "tools": ["Style Dictionary", "Storybook", "Changesets", "Codemods"],
+          "lab_task": "Plan a breaking change to a shared button component, ship a codemod for consumers, track adoption across three apps and write the contribution guide.",
+          "deliverable": "Design system governance pack",
+          "checks": [["Ship a codemod", "Consumer apps migrate automatically", "Codemod output"], ["Track adoption", "Component usage measured across apps", "Adoption report"], ["Publish guidelines", "Contribution guide reviewed by two teams", "Review notes"]],
+          "objectives": ["Govern a design system", "Manage breaking changes", "Drive adoption"]
+        },
+        {
+          "topic": "Advanced Performance Engineering for Vue Apps",
+          "subtopics": ["Performance budgets", "Long tasks and main thread work", "Hydration cost and lazy hydration", "Web workers for heavy work", "Memory profiling in the browser", "Third-party script impact", "Field data versus lab data", "Performance regression testing in CI"],
+          "tools": ["Lighthouse CI", "Chrome DevTools", "web-vitals", "Comlink"],
+          "lab_task": "Set budgets for a slow Nuxt page, cut long tasks with lazy hydration and a web worker, measure third-party script cost and fail CI when budgets are exceeded.",
+          "deliverable": "Performance budget and CI gate",
+          "checks": [["Cut long tasks", "Interaction to Next Paint improves", "Field or lab measurements"], ["Use a worker", "Heavy calculation no longer blocks input", "Performance trace"], ["Enforce budgets", "CI fails when a budget is exceeded", "Lighthouse CI report"]],
+          "objectives": ["Engineer front-end performance", "Reduce main thread work", "Prevent regressions"]
+        },
+        {
+          "topic": "Security for Vue and Nuxt Applications",
+          "subtopics": ["Cross-site scripting risks in Vue", "Content Security Policy with Nuxt", "Safe handling of user HTML", "Authentication token storage", "Cross-site request forgery for server routes", "Dependency and supply chain risks", "Secrets in front-end builds", "Security testing for front ends"],
+          "tools": ["nuxt-security", "DOMPurify", "OWASP ZAP", "npm audit"],
+          "lab_task": "Find and fix planted issues in a Nuxt app: unsafe v-html, a leaked API key in the bundle, missing CSRF protection and a weak CSP, then add security scans to CI.",
+          "deliverable": "Security fixes and checklist",
+          "checks": [["Fix XSS", "Script injection no longer runs", "Test output"], ["Remove leaked secrets", "No secrets found in the built bundle", "Bundle search output"], ["Apply CSP", "Strict policy active without breaking the app", "Response headers"]],
+          "objectives": ["Secure Vue and Nuxt apps", "Apply CSP", "Keep secrets out of bundles"]
+        },
+        {
+          "topic": "State Architecture and Offline Data Sync",
+          "subtopics": ["Client, server and URL state", "Normalised caches", "Offline-first design", "IndexedDB storage", "Background sync and conflict resolution", "Service workers with Workbox", "Syncing across tabs", "Choosing a state architecture"],
+          "tools": ["Pinia", "TanStack Query", "IndexedDB", "Workbox"],
+          "lab_task": "Make a field inspection app work offline with IndexedDB, queue changes for background sync, resolve conflicts with the server and keep state in sync across tabs.",
+          "deliverable": "Offline-capable app and state design document",
+          "checks": [["Work offline", "Inspections saved without a connection", "Screen recording"], ["Sync changes", "Queued changes reach the server when online", "Server log"], ["Resolve a conflict", "Conflicting edits resolved by the agreed rule", "Test output"]],
+          "objectives": ["Design state architecture", "Build offline-first features", "Resolve sync conflicts"]
+        },
+        {
+          "topic": "Building Vue Plugins and Libraries",
+          "subtopics": ["Plugin structure and install", "Global properties and provide", "Library mode builds with Vite", "Type declarations for libraries", "Tree-shakable exports", "Supporting Vue and Nuxt", "Documentation and examples", "Publishing and versioning"],
+          "tools": ["Vite library mode", "vue-tsc", "npm"],
+          "lab_task": "Build and publish a Vue plugin and component library with tree-shakable exports, type declarations, a Nuxt module wrapper and a documentation site.",
+          "deliverable": "Published library and docs site",
+          "checks": [["Tree-shake", "Unused components removed from consumer bundles", "Bundle report"], ["Use types", "Consumers get full type hints", "Editor screenshot"], ["Use in Nuxt", "Nuxt app installs the module and works", "Screenshot"]],
+          "objectives": ["Write Vue plugins", "Build component libraries", "Publish packages"]
+        },
+        {
+          "topic": "Testing Strategy for Large Vue Codebases",
+          "subtopics": ["Risk-based test strategy", "Unit, component, integration and end-to-end balance", "Contract tests with APIs", "Test data management", "Flaky test management", "Mutation testing", "Test speed in CI", "Quality dashboards"],
+          "tools": ["Vitest", "Playwright", "Stryker", "Pact"],
+          "lab_task": "Assess the test suite of a large Vue app, rebalance it by risk, add contract tests with the API, run mutation testing on core logic and cut CI test time.",
+          "deliverable": "Test strategy and improvement report",
+          "checks": [["Run mutation tests", "Mutation score measured for core modules", "Stryker report"], ["Add contract tests", "API change breaks the contract test", "CI log"], ["Speed up CI", "Test stage time reduced", "CI timings"]],
+          "objectives": ["Design test strategies", "Measure test quality", "Keep tests fast"]
+        },
+        {
+          "topic": "Migrating from Vue 2 to Vue 3 and from Options to Composition API",
+          "subtopics": ["Vue 2 end of life and risks", "The migration build", "Breaking changes and codemods", "Vuex to Pinia", "Replacing incompatible libraries", "Incremental migration plans", "Options API to Composition API conversion", "Testing during migration"],
+          "tools": ["Vue migration build", "vue-codemod", "Pinia"],
+          "lab_task": "Migrate a sample Vue 2 app with Vuex using the migration build, fix deprecations, move Vuex to Pinia, replace an incompatible library and plan the rest of the migration.",
+          "deliverable": "Migrated app and migration plan",
+          "checks": [["Run on Vue 3", "App works without migration build warnings", "Console output"], ["Replace Vuex", "Stores moved to Pinia with tests passing", "Test output"], ["Plan the rest", "Plan lists modules, risks and order", "Migration plan"]],
+          "objectives": ["Migrate Vue 2 apps", "Replace Vuex with Pinia", "Plan incremental migrations"]
+        },
+        {
+          "topic": "Mobile and Desktop Apps with Vue, Capacitor and Tauri",
+          "subtopics": ["Cross-platform options for Vue", "Ionic Vue components", "Capacitor native plugins", "Desktop apps with Tauri", "Sharing code between web and native", "Offline storage on devices", "App store releases", "Performance on mobile"],
+          "tools": ["Ionic Vue", "Capacitor", "Tauri", "Android Studio"],
+          "lab_task": "Package the shop as an Android app with Capacitor using camera and push plugins, build a desktop version with Tauri and share 80 percent of the code with the web app.",
+          "deliverable": "Mobile and desktop builds with a code sharing report",
+          "checks": [["Use a native plugin", "Camera works on an Android device or emulator", "Screen recording"], ["Build the desktop app", "Tauri app installs and runs", "Screenshot"], ["Measure sharing", "Shared code percentage reported", "Code report"]],
+          "objectives": ["Build mobile apps with Vue", "Build desktop apps", "Share code across platforms"]
+        },
+        {
+          "topic": "Observability and Real User Monitoring for Vue",
+          "subtopics": ["Real user monitoring", "Web Vitals collection", "Tracing front-end requests to back ends", "Session replay and privacy", "Error budgets for front ends", "Dashboards for product teams", "Alerting on user experience", "Using data to prioritise work"],
+          "tools": ["OpenTelemetry for the browser", "Sentry or Grafana Faro", "web-vitals"],
+          "lab_task": "Collect Web Vitals and traces from real users, link front-end traces to back-end spans, build a user experience dashboard and set an alert on a vitals regression.",
+          "deliverable": "User experience dashboard and alert rules",
+          "checks": [["Collect field vitals", "Vitals reported per page and device", "Dashboard screenshot"], ["Link traces", "Front-end span connects to the back-end trace", "Trace screenshot"], ["Alert on regression", "Alert fires on a slower release", "Alert notification"]],
+          "objectives": ["Monitor real users", "Trace across front and back end", "Prioritise with data"]
+        },
+        {
+          "topic": "Edge Rendering and Deployment Strategies for Nuxt",
+          "subtopics": ["Node.js, serverless and edge presets", "Edge runtime limits", "Data close to users", "Regional and global caching", "Feature flags and canary releases", "Blue-green deployments", "Cost per request", "Choosing hosting for Nuxt"],
+          "tools": ["Nuxt", "Nitro presets", "Cloudflare Workers", "Vercel"],
+          "lab_task": "Deploy the same Nuxt app to Node.js, serverless and edge targets, compare latency from three regions and cost per million requests, and run a canary release.",
+          "deliverable": "Hosting comparison and release runbook",
+          "checks": [["Deploy three targets", "App works on all three presets", "Deployment URLs"], ["Compare latency", "Latency measured from three regions", "Results table"], ["Run a canary", "Canary gets a share of traffic and is promoted", "Release log"]],
+          "objectives": ["Deploy Nuxt to different runtimes", "Compare hosting options", "Release safely"]
+        },
+        {
+          "topic": "AI Features in Vue Applications",
+          "subtopics": ["Calling AI APIs from server routes", "Streaming responses to the UI", "Chat interfaces in Vue", "Retrieval over app content", "Prompt and output safety", "Cost and rate limits", "UX patterns for AI features", "Evaluating AI features"],
+          "tools": ["Nuxt server routes", "Vercel AI SDK", "OpenAI or Azure OpenAI"],
+          "lab_task": "Add a product assistant to the shop that streams answers from a server route, grounds answers in product data, blocks unsafe output and tracks cost per conversation.",
+          "deliverable": "AI assistant feature with evaluation notes",
+          "checks": [["Stream answers", "Text appears as it is generated", "Screen recording"], ["Ground answers", "Answers cite real products", "Test conversation log"], ["Track cost", "Cost per conversation reported", "Cost report"]],
+          "objectives": ["Add AI features to Vue apps", "Stream responses", "Control safety and cost"]
+        },
+        {
+          "topic": "Troubleshooting Production Vue and Nuxt Issues",
+          "subtopics": ["Triage from user reports and monitoring", "Hydration errors in production", "Memory leaks in long sessions", "Slow pages after a release", "Broken builds and dependency conflicts", "Browser-specific bugs", "Source maps in production debugging", "Post-incident reviews"],
+          "tools": ["Sentry", "Chrome DevTools", "Nuxt DevTools", "Git bisect"],
+          "lab_task": "Work through four production issues: a hydration error, a memory leak, a slow release and a browser-specific bug, find each root cause and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Fix the hydration error", "No mismatch after the fix", "Console screenshot"], ["Find the slow commit", "git bisect identifies the change", "Bisect log"], ["Write the review", "Review lists causes and follow-ups", "Post-incident review"]],
+          "objectives": ["Troubleshoot production Vue issues", "Find root causes quickly", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Team Nuxt Commerce Platform",
+          "subtopics": ["Architecture", "Build", "Quality and operations", "Defence"],
+          "tools": ["Nuxt", "Nuxt layers", "pnpm", "Turborepo", "Storybook", "OpenTelemetry"],
+          "lab_task": "Design and build a commerce platform for three teams with Nuxt layers, a shared design system, a monorepo, hybrid rendering at the edge, offline support, security controls and monitoring, then defend it to a review panel.",
+          "deliverable": "Platform repository, architecture document and defence",
+          "checks": [["Show team independence", "Each team ships without blocking the others", "Deployment history"], ["Meet budgets", "Performance and accessibility budgets met", "Reports"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect Vue for many teams", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}
