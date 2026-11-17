@@ -6,7 +6,7 @@ import textwrap
 
 from shared.toc_layouts import REFERENCE_LAYOUTS
 
-from app.toc_modules import to_modules
+from app.toc_modules import PROPOSED_SPLIT_NOTE, to_modules
 
 
 # Ten natural shades. Each layout keeps the same curriculum and changes the stylesheet.
@@ -426,6 +426,8 @@ def render_reference_toc(toc):
             readiness.append(["Trainer preparation: " + str(title), text(item)])
         for item in day.get("prerequisites") or []:
             readiness.append(["Module prerequisite: " + str(title), text(item)])
+    if any(day.get("proposed_split") for day in days):
+        readiness.insert(0, ["Module structure", PROPOSED_SPLIT_NOTE])
     if readiness:
         sheet("Readiness & Risks", ["Category", "Requirement / action"], readiness, [30, 110])
     workbook.properties.title = programme_title[:120]

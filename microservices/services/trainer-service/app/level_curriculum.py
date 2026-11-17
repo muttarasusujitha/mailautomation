@@ -66,6 +66,51 @@ def category_for(domain_name):
     return (course or {}).get("category")
 
 
+def _module_steps(minutes, module):
+    """Explain and demonstrate, hands-on lab, review: whole five-minute blocks that add up to the module."""
+    explain = max(5, round(minutes * 0.25 / 5) * 5)
+    review = max(5, round(minutes * 0.15 / 5) * 5)
+    lab = minutes - explain - review
+    return [
+        {"method": "Explanation and demonstration", "minutes": explain,
+         "activity": "Explain and demonstrate " + ", ".join(module["subtopics"][:3]),
+         "evidence": "Working copy of the demonstration"},
+        {"method": "Hands-on lab", "minutes": lab, "activity": module["lab"], "evidence": module["deliverable"]},
+        {"method": "Scenario review", "minutes": review,
+         "activity": "Work through the module scenarios and compare results with the expected outcomes",
+         "evidence": module["success_measure"]},
+    ]
+
+
+def _expand_module(module, day, course, prerequisites):
+    """An authored execution-plan module in the fields the TOC and its exports read."""
+    scenarios = [dict(zip(("situation", "activity", "outcome", "evidence"), item)) for item in module["scenarios"]]
+    return {
+        "title": module["title"],
+        "topic": module["title"],
+        "minutes": module["minutes"],
+        "subtopics": list(module["subtopics"]),
+        "tools": list(day.get("tools") or course.get("tools") or [course["domain"]]),
+        "learning_objectives": [module["objective"]],
+        "lab": module["lab"],
+        "deliverable": module["deliverable"],
+        "assessment": module["success_measure"],
+        "scenarios": scenarios,
+        "acceptance_checks": [
+            {"input_or_condition": s["situation"], "expected_result": s["outcome"], "evidence": s["evidence"]}
+            for s in scenarios
+        ],
+        "delivery_steps": _module_steps(module["minutes"], module),
+        "prerequisites": list(prerequisites),
+        "preparation_requirements": [f"Sample data, starter files and a worked solution for: {module['lab']}"],
+        # Ask the export to number this module (M1, M2 ...) across the programme.
+        "number_in_plan": True,
+        "content_quality_stage": STAGE,
+        "content_enrichment_version": VERSION,
+        "review_status": "unreviewed",
+    }
+
+
 def _expand_day(day, course, level, position):
     """Turn a compact authored day into the fields the TOC generator and evaluator read."""
     topic = day["topic"]
@@ -99,6 +144,8 @@ def _expand_day(day, course, level, position):
              "outcome": check["expected_result"], "evidence": check["evidence"]}
             for check in checks
         ],
+        **({"modules": [_expand_module(module, day, course, previous) for module in day["modules"]]}
+           if day.get("modules") else {}),
         "learning_objectives": list(day["objectives"]),
         "prerequisites": previous,
         "preparation_requirements": list(day.get("preparation") or [
@@ -159,12 +206,36 @@ def validate_course(course):
     return problems
 
 
+_REQUIRED_MODULE_FIELDS = ("title", "minutes", "subtopics", "objective", "lab", "deliverable", "success_measure", "scenarios")
+DAY_MINUTES = 420
+
+
+def _module_problems(modules, label):
+    """Authored modules: complete fields, three or more full scenarios, and a full day of minutes."""
+    if not isinstance(modules, list) or not modules:
+        return [f"{label}: modules must be a non-empty list"]
+    problems = []
+    for number, module in enumerate(modules, 1):
+        missing = [field for field in _REQUIRED_MODULE_FIELDS if not module.get(field)]
+        if missing:
+            problems.append(f"{label} module {number}: missing {', '.join(missing)}")
+            continue
+        if not isinstance(module["minutes"], int) or module["minutes"] <= 0:
+            problems.append(f"{label} module {number}: minutes must be a positive whole number")
+        scenarios = module["scenarios"]
+        if len(scenarios) < 3 or any(not isinstance(s, list) or len(s) != 4 or not all(s) for s in scenarios):
+            problems.append(f"{label} module {number}: needs 3 scenarios of [situation, activity, outcome, evidence]")
+    if not problems and sum(module["minutes"] for module in modules) != DAY_MINUTES:
+        problems.append(f"{label}: module minutes must add up to {DAY_MINUTES}")
+    return problems
+
+
 def _day_problems(day, label):
     from app.toc_generation_agent import _subtopic_target
     missing = [field for field in _REQUIRED_DAY_FIELDS if not day.get(field)]
     if missing:
         return [f"{label}: missing {', '.join(missing)}"]
-    problems = []
+    problems = _module_problems(day["modules"], label) if "modules" in day else []
     need = _subtopic_target(day["topic"])
     if len(day["subtopics"]) < need:
         problems.append(f"{label}: {len(day['subtopics'])} subtopics, needs {need}")

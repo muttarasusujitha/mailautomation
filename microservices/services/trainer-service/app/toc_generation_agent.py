@@ -609,7 +609,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
             ],
         },
         **({key: deepcopy(item[key]) for key in (
-            "deliverable", "assessment", "scenario", "scenarios", "delivery_steps", "delivery_basis",
+            "deliverable", "assessment", "scenario", "scenarios", "modules", "delivery_steps", "delivery_basis",
             "proposed_fields", "preparation_requirements", "acceptance_checks", "prerequisites",
             "source_urls", "review_status", "content_quality_stage", "content_enrichment_version",
             "minutes", "duration_basis", "unresolved_questions") if key in item}
@@ -642,7 +642,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
     ])
     if preserve_content:
         for key in (
-            "lab", "lab_task", "deliverable", "assessment", "scenario", "scenarios",
+            "lab", "lab_task", "deliverable", "assessment", "scenario", "scenarios", "modules",
             "learning_objectives", "acceptance_checks", "prerequisites",
             "preparation_requirements", "delivery_steps", "minutes",
             "duration_basis", "delivery_basis", "source_urls", "review_status",

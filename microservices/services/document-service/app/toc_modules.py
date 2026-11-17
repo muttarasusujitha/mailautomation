@@ -150,21 +150,38 @@ def split_day(day, first_code):
     return modules
 
 
+PROPOSED_SPLIT_NOTE = (
+    "Modules marked 'proposed' were split automatically from a whole-day plan: the lab and topics come "
+    "from the course, but module boundaries, timings and the demonstration, practice and validation "
+    "wording are standard. A trainer should review them before client delivery.")
+
+
 def to_modules(days):
-    """Flatten days into module rows; whole-day entries are split into coded modules."""
+    """Flatten days into module rows; whole-day entries are split into coded modules.
+
+    Authored modules that ask for it (``number_in_plan``) and split modules share
+    one M1, M2 ... sequence across the programme.
+    """
     rows, code = [], 1
     for day in days:
         modules = day.get("modules") or []
         whole_day = {k: v for k, v in {**day, **(modules[0] if len(modules) == 1 else {})}.items() if k != "modules"}
         if len(modules) <= 1 and needs_split(whole_day):
             split = split_day(whole_day, code)
+            for module in split:
+                module["proposed_split"] = True
+                module["focus_area"] = module["title"] = module["title"] + " (proposed)"
             code += len(split)
             rows.extend(split)
         elif modules:
             for module in modules:
+                title = module.get("title") or module.get("topic")
+                if module.get("number_in_plan"):
+                    title = f"M{code} - {title}"
+                    code += 1
                 rows.append({**module, "day": day.get("day"), "date": day.get("date"),
                     "timing": module.get("timing") or day.get("timing"),
-                    "focus_area": module.get("title") or module.get("topic"), "hours_per_day": None})
+                    "focus_area": title, "title": title, "hours_per_day": None})
         else:
             rows.append(day)
     return rows

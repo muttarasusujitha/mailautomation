@@ -195,3 +195,24 @@ def test_level_days_carry_scenarios_and_catalog_days_keep_their_assessment():
     assert level_day["scenarios"][0]["outcome"] == level_day["acceptance_checks"][0]["expected_result"]
     catalog_days = generate_toc_from_dataset("Kotlin", 5, level="intermediate")["days"]
     assert all(not day["assessment"].startswith("Daily knowledge check") for day in catalog_days)
+
+
+def test_authored_modules_reach_the_toc_with_scenarios_and_timed_steps():
+    toc = generate_toc_from_dataset("Generative AI", 5, level="intermediate")
+    day = toc["days"][0]
+    assert [module["title"] for module in day["modules"]][0] == "Anatomy of an LLM Application"
+    assert sum(module["minutes"] for module in day["modules"]) == 420
+    for module in day["modules"]:
+        assert len(module["scenarios"]) >= 3
+        assert sum(step["minutes"] for step in module["delivery_steps"]) == module["minutes"]
+    assert toc["quality"]["content_evaluation"]["status"] == "pass"
+
+
+def test_incomplete_authored_modules_fail_validation():
+    from app.level_curriculum import _module_problems
+    good = {"title": "T", "minutes": 210, "subtopics": ["a"], "objective": "o", "lab": "l",
+            "deliverable": "d", "success_measure": "s", "scenarios": [["a", "b", "c", "d"]] * 3}
+    assert _module_problems([good, good], "Day 1") == []
+    assert "add up to 420" in _module_problems([good], "Day 1")[0]
+    assert "needs 3 scenarios" in _module_problems([{**good, "scenarios": [["a", "b"]]}, good], "Day 1")[0]
+    assert "missing lab" in _module_problems([{**good, "lab": ""}, good], "Day 1")[0]
