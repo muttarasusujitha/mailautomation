@@ -775,14 +775,18 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             else:
                 knowledge = await _load_toc_knowledge(db, payload.domain) if use_manual_knowledge else None
                 source_knowledge = knowledge
-                if use_manual_knowledge and payload.custom_topics:
+                if use_manual_knowledge and payload.custom_topics and knowledge:
+                    # Saved client knowledge: choose the requested topics from it.
                     from app.scoped_curriculum import select_requested_curriculum
                     knowledge = select_requested_curriculum(payload.domain, payload.custom_topics, knowledge)
+                # Without saved knowledge the generator designs the requested
+                # topics from every dataset for the technology, at the level asked.
                 toc = generate_toc_from_dataset(
                     domain_name=payload.domain, duration_days=int(payload.duration_days), level=payload.level,
                     mode=payload.mode, notes=payload.notes or "", audience_level=payload.audience_level or "",
                     training_dates=payload.training_dates or "",
                     domain_override=knowledge,
+                    requested_topics=(payload.custom_topics or "") if use_manual_knowledge else "",
                 )
                 if source_knowledge:
                     used_generation_mode = "template_knowledge"
