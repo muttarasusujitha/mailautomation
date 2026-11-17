@@ -183,6 +183,17 @@ def test_yahoo_breadcrumb_and_cached_link_do_not_hide_title_or_snippet():
     assert 'Apply to 120 jobs' not in rows[0]['snippet']
 
 
+def test_yahoo_heading_nested_inside_profile_link_keeps_snippet():
+    page = ('<li><div class="compTitle"><a href="https://www.linkedin.com/in/ravi-k-1234">'
+            '<div>in.linkedin.com â€º in â€º ravi-k-1234</div>'
+            '<h3 class="title">Ravi K - Python Corporate Trainer - Freelance | LinkedIn</h3>'
+            '</a></div><div class="compText"><p>Python and Django trainer for corporate batches in Pune.</p></div></li>')
+    rows, links = harvest_profiles(page, 'search.yahoo.com')
+    assert links == 1
+    assert rows[0]['title'] == 'Ravi K - Python Corporate Trainer - Freelance | LinkedIn'
+    assert rows[0]['snippet'] == 'Python and Django trainer for corporate batches in Pune.'
+
+
 def test_breadcrumb_only_title_falls_back_to_link_label():
     page = ('<h3><a aria-label="Asha Rao - AWS Trainer" href="https://www.linkedin.com/in/asha-rao">'
             'linkedin.com › in › asha-rao</a></h3>')
