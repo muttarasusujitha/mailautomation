@@ -137,3 +137,49 @@ Those original samples were written to a local review file. Validate deployment
 with a live application fetch and confirm saved lead IDs in the database.
 
 Persistent profiles follow the [Playwright browser documentation](https://playwright.dev/python/docs/api/class-browsertype#browser-type-launch-persistent-context).
+
+## Self-hosted finder (web engines) for trainers and clients
+
+When the account search returns fewer trainer profiles than the target, for any
+reason (cooldown, sign-in needed, bot disabled, or not enough results), the
+`auto` search runs `app/clients/trainer_finder.py` for the rest. No API key is
+needed.
+
+- **Engines**: Bing, DuckDuckGo, DuckDuckGo Lite, Yahoo, Mojeek and Brave Search
+  run in parallel (`app/clients/serp_engines.py`). No search API or key is used.
+- **Queries**: about 30 per skill, starting with `site:linkedin.com/in` profile
+  queries (trainer, corporate trainer, instructor, consultant, and so on), then
+  plain and city queries.
+- **Paging**: each engine reads up to 3 result pages per query while new profile
+  links appear.
+- **Only result pages are requested.** LinkedIn profile links are read from the
+  result page and never opened.
+- **Blocks**: a captcha, consent page or HTTP 202/403/429/503 marks the engine
+  blocked. The page is first retried once in a plain headless Chromium (no
+  LinkedIn cookies). A blocked engine pauses 15 minutes, doubling on each repeat
+  up to 6 hours. The state is saved in `serp-engine-health.json` in the bot
+  profile volume; delete it to retry every engine immediately.
+- **Quality**: a profile counts only when its title or snippet names the skill
+  and uses trainer wording, and it passes the same `_normalize_result` check as
+  account results. Profiles already in `trainer_profile_leads` are skipped.
+  Profiles found by several engines rank first.
+- **Client posts**: the same engines also run for **Find Client Posts**. They
+  search `site:linkedin.com/posts` and `site:linkedin.com/feed/update` for
+  phrases such as "trainer required", "looking for a trainer", "need a trainer"
+  and "training requirement", plus city queries. Only posts from the past month
+  are requested on engines that support a date filter (`CLIENT_POST_MAX_AGE`).
+  A post counts only when it names the domain and asks for a trainer (the same
+  `_normalize_result` client check). Saved posts are skipped by activity ID.
+  Posts with an email or phone number rank first. The hourly client bot
+  (`scan_client_posts`) does not use the engines.
+- **Stronger search**: a query that returns 3 or more new leads on a page earns
+  two extra pages; an engine that returns no LinkedIn links for 6 queries in a
+  row stops early; common skill aliases (AWS / Amazon Web Services, K8s /
+  Kubernetes, and so on) add trainer queries and also count as a skill match.
+- **Report**: each domain outcome has `sources` (one entry per source with
+  `status`: ok, filtered, no_results, blocked, paused, error, not_configured or
+  not_needed, plus counts and a reason) and `limit_reason` when the target was
+  not reached. The LinkedIn Search page shows both.
+
+Settings: `TRAINER_FINDER_ENABLED`, `TRAINER_FINDER_BUDGET_SECONDS` (default 180),
+`TRAINER_FINDER_ENGINES`, `TRAINER_FINDER_BROWSER` and `CLIENT_POST_MAX_AGE`; see `.env.example`.
