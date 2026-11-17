@@ -82,8 +82,10 @@ class TocRequest(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_duration_days(cls, values):
         duration_days = values.get("duration_days")
-        if not values.get("topic_only") and (duration_days is None or not 1 <= duration_days <= 30):
-            raise ValueError("duration_days must be between 1 and 30")
+        # The template generator plans up to 100 days from the datasets; AI mode
+        # falls back to it for programmes it cannot plan.
+        if not values.get("topic_only") and (duration_days is None or not 1 <= duration_days <= 100):
+            raise ValueError("duration_days must be between 1 and 100")
         hours = values.get("hours_per_day")
         if hours is not None and not 1 / 60 <= hours <= 24:
             raise ValueError("hours_per_day must be between one minute and 24 hours")
@@ -734,7 +736,10 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
     payload._knowledge_db = db
-    toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None
+    # AI planning is sized for programmes up to 30 days; longer ones are planned
+    # from the datasets by the template generator.
+    ai_too_long = requested_mode == "ai" and int(payload.duration_days or 0) > 30
+    toc = await _generate_ai_toc(payload) if requested_mode == "ai" and not ai_too_long else None
     ai_unavailable = requested_mode == "ai" and not toc
     if toc:
         used_generation_mode = "ai"
@@ -792,6 +797,8 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         # Fallback to minimal if generator fails
         toc = _minimal_toc(payload.domain, payload.duration_days)
 
+    if ai_too_long:
+        toc["generation_warning"] = "Programmes longer than 30 days are planned from the curriculum datasets, not AI."
     if ai_unavailable:
         quality = toc.setdefault("quality", {})
         if quality.get("status") != "requires_regeneration":

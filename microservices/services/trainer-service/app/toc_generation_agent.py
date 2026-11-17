@@ -274,7 +274,22 @@ def _sample_cumulative(items: list, count: int, foundation_anchors: int = 2) -> 
     return selected[:count]
 
 
-def _project_day(index: int, domain_name: str) -> dict:
+def _project_day(index: int, domain_name: str, recent_topics=()) -> dict:
+    recent = [str(topic) for topic in recent_topics if str(topic or "").strip()][-2:]
+    if recent:
+        # A practice day that builds on what was just taught, not a generic sprint.
+        focus = " and ".join(recent)
+        return {
+            "topic": f"Project Sprint {index}: Applying {recent[-1]}",
+            "subtopics": [f"Apply {topic} to the programme project" for topic in recent] + [
+                "Integrate the new work with earlier sprints",
+                "Troubleshoot failures and record fixes",
+                "Sprint review and demonstration",
+            ],
+            "tools": ["Jira", "Git", domain_name],
+            "lab": f"Extend the programme project with {focus}: implement one working increment, test it and demonstrate it",
+            "content_origin": "generated_project_day",
+        }
     return {
         "topic": f"Real-Time Project Sprint {index}",
         "subtopics": [
@@ -286,6 +301,66 @@ def _project_day(index: int, domain_name: str) -> dict:
         "tools": ["Jira", "Git", domain_name],
         "lab": f"Build project sprint {index} deliverable and present progress",
     }
+
+
+def _plan_long_programme(items: list, extra_pool: list, duration: int, domain_name: str) -> list:
+    """Fill a programme longer than its course: other datasets for the same
+    technology first, then practice days spread through the programme.
+
+    ``items`` is the ordered course selection, ending with its capstone when it
+    has one. Days from ``extra_pool`` are added in order when their topic is not
+    already taught. Only when no authored content is left are project days
+    added, one after every few teaching days, each building on the topics just
+    taught. The capstone stays last.
+    """
+    from app.level_curriculum import _similar_topics
+    items = [deepcopy(item) for item in items]
+    capstone = items.pop() if items and "capstone" in str(items[-1].get("topic") or "").lower() else None
+    slots = duration - (1 if capstone else 0)
+    teaching = items[:slots]
+
+    def taught(topic):
+        name = str(topic or "").strip().lower()
+        return any(name == str(day.get("topic") or "").strip().lower() or _similar_topics(topic, day.get("topic"))
+                   for day in teaching)
+
+    for candidate in extra_pool:
+        if len(teaching) >= slots:
+            break
+        topic = candidate.get("topic")
+        if not topic or "capstone" in str(topic).lower() or taught(topic):
+            continue
+        teaching.append(_standardize_compact_day_item(candidate, domain_name))
+
+    missing = slots - len(teaching)
+    if missing <= 0:
+        return teaching[:slots] + ([capstone] if capstone else [])
+    planned, sprint = [], 1
+    for index, day in enumerate(teaching, 1):
+        planned.append(day)
+        # Spread the practice days evenly after the teaching days.
+        due = round(index * missing / len(teaching)) - (sprint - 1) if teaching else 0
+        for _ in range(max(0, due)):
+            recent = [item.get("topic") for item in planned if item.get("content_origin") != "generated_project_day"]
+            planned.append(_project_day(sprint, domain_name, recent))
+            sprint += 1
+    while len(planned) < slots:
+        planned.append(_project_day(sprint, domain_name, [item.get("topic") for item in teaching]))
+        sprint += 1
+    return planned[:slots] + ([capstone] if capstone else [])
+
+
+def _same_technology_pool(*names) -> list:
+    """Authored days from every compact dataset of the same technology, in course order."""
+    from app.toc_domain_dataset import same_technology_datasets
+    pool, seen = [], set()
+    for name in names:
+        for data in same_technology_datasets(name):
+            if id(data) in seen:
+                continue
+            seen.add(id(data))
+            pool.extend(data.get("days") or [])
+    return pool
 
 
 def _revision_day(index: int) -> dict:
@@ -390,11 +465,10 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
         selected = [_standardize_compact_day_item(day, domain.get("name", "Training")) for day in compact_source[:duration]]
         if len(selected) >= duration:
             return selected[:duration]
-        fallback_domain = deepcopy(domain)
-        fallback_domain.pop("days", None)
-        while len(selected) < duration:
-            selected.insert(max(0, len(selected) - 1), _project_day(len(selected) + 1, domain.get("name", "Training")))
-        return selected[:duration]
+        # Longer than this course: continue with the rest of this course and the
+        # technology's other datasets before adding practice days.
+        pool = [day for day in curriculum if day not in compact_source] + _same_technology_pool(domain.get("name"))
+        return _plan_long_programme(selected, pool, duration, domain.get("name", "Training"))
 
     level_map = domain.get("level_map") or {}
     capstone_source = level_map.get("capstone") or []
@@ -1101,7 +1175,7 @@ def _combined_track_items(technology: str, days: int, level: str, domain_overrid
         if len(selected) >= requested_days:
             break
     while len(selected) < requested_days:
-        selected.append(_project_day(len(selected) + 1, technology))
+        selected.append(_project_day(len(selected) + 1, technology, [item.get("topic") for item in selected]))
     return selected[:requested_days]
 
 
@@ -1118,6 +1192,8 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         matched_domain = level_plan["domain"]
         domain = matched_domain
         topics = [_standardize_compact_day_item(day, domain["name"]) for day in level_plan["days"]]
+        if len(topics) < duration:
+            topics = _plan_long_programme(topics, _same_technology_pool(domain["name"], domain_name), duration, domain["name"])
     else:
         matched_domain = deepcopy(domain_override) if domain_override else get_domain(domain_name, duration)
         domain = matched_domain or _generic_domain(domain_name)
@@ -1245,6 +1321,17 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         toc["category"] = level_plan["category"]
         toc["review_warnings"] = [level_plan["review_warning"]]
     toc['unsupported_curriculum'] = not bool(matched_domain)
+    # A practice day that landed on the final day becomes the capstone, so count the days as built.
+    practice_days = sum(item.get("content_origin") == "generated_project_day" and day["focus_area"] == item.get("topic")
+                        for item, day in zip(topics, days))
+    toc["practice_days"] = practice_days
+    if matched_domain and practice_days * 5 > duration:
+        # Shown on the TOC and in the export; it does not change the approval status.
+        note = (f"The datasets hold {duration - practice_days} days of distinct {domain.get('name')} content; "
+                f"{practice_days} of {duration} days are project practice days built on the topics taught. "
+                "Confirm the plan or add course content for this length.")
+        toc.setdefault("review_warnings", []).append(note)
+        toc.setdefault("quality", {}).setdefault("review_warnings", []).append(note)
     toc = _enrich_programme_pack(toc, audience_level, training_dates)
     result = validate_toc(toc, duration)
     return result

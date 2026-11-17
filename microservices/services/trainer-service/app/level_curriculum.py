@@ -364,7 +364,14 @@ def level_programme(domain_name, duration, level):
     level = level if level in (*LEVELS, "mixed") else "intermediate"
     selection = select_level_days(course, level, duration)
     if not selection:
-        return None
+        # Longer than the three levels together: teach all of them in order and
+        # let the generator add other datasets and practice days for the rest.
+        tracks = [_split(course["levels"][name]) for name in LEVELS]
+        capstone = tracks[-1][1]
+        days = [day for body, _ in tracks for day in body] + ([capstone] if capstone and duration >= 5 else [])
+        if not days:
+            return None
+        selection = (deepcopy(days), list(LEVELS))
     days, used = selection
     first = "beginner" if level == "mixed" else used[0] if used[0] != level else level
     prerequisites = list(course["levels"][first].get("prerequisites") or [])

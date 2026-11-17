@@ -236,3 +236,28 @@ def test_level_is_read_from_a_longer_audience_description():
     assert resolve_content_level("advanced", "Corporate employees") == "advanced"
     # An explicitly chosen non-default level still wins over the audience text.
     assert resolve_content_level("beginner", "Advanced developers") == "beginner"
+
+
+def test_long_programmes_use_all_course_content_before_practice_days():
+    for name, duration in (("Kubernetes", 60), ("Kubernetes", 100), ("Kotlin", 30), ("Kotlin", 5)):
+        toc = generate_toc_from_dataset(name, duration, level="intermediate")
+        titles = [day["focus_area"] for day in toc["days"]]
+        assert len(titles) == duration == len(set(titles)), name
+        assert "capstone" in titles[-1].lower(), name
+        assert not any(title.startswith(("Real-Time Project Sprint", "Revision, Assessment")) for title in titles), name
+    # All three Kubernetes levels together fill most of a 60-day programme.
+    sixty = generate_toc_from_dataset("Kubernetes", 60, level="intermediate")
+    assert sixty["agent"]["levels_used"] == ["beginner", "intermediate", "advanced"]
+    assert sixty["practice_days"] <= 3
+
+
+def test_practice_days_build_on_taught_topics_and_are_disclosed():
+    toc = generate_toc_from_dataset("Kotlin", 30, level="intermediate")
+    practice = [day for day in toc["days"] if day["focus_area"].startswith("Project Sprint")]
+    assert practice and len(practice) == toc["practice_days"]
+    taught = [day["focus_area"] for day in toc["days"] if not day["focus_area"].startswith("Project Sprint")]
+    assert all(any(topic in day["focus_area"] for topic in taught) for day in practice)
+    # Practice days are spread through the programme, not stacked before the capstone.
+    positions = [toc["days"].index(day) for day in practice]
+    assert positions[0] < len(toc["days"]) // 2
+    assert any("project practice days" in note for note in toc["review_warnings"])
