@@ -315,7 +315,8 @@ jobs:
           set_env GOOGLE_CALENDAR_ID "${{ secrets.GOOGLE_CALENDAR_ID }}"
           set_env GOOGLE_CALENDAR_TIMEZONE "${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}"
           set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
-          # The dedicated EC2 LinkedIn profile has been signed in and verified.
+          # LinkedIn runs in intelligence-service with a persistent account volume.
+          # Enabling the runtime does not prove that its saved login is valid.
           set_env LINKEDIN_BOT_ENABLED "true"
           # The dedicated Google Meet profile is persisted in meet_bot_profile.
           # Enable the bot in production while retaining auto-admit's safe default.
@@ -374,7 +375,13 @@ jobs:
           done < <(docker ps --filter publish=5174 --format '{{.ID}}')
           docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 120 frontend
 
-      - name: Verify Deployment
+      - name: Verify LinkedIn Bot Deployment
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          docker exec ts-intelligence-service python -m app.linkedin_deployment
+
+      - name: Verify Meeting Bot Deployment
         run: |
           docker ps
           docker exec -i ts-meet-bot python - <<'PY'

@@ -1,6 +1,62 @@
 import asyncio
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 from app.routes.lead_bot import collect_due
+
+
+def test_cooldown_skips_both_collectors_and_releases_lease():
+    until = datetime.now(timezone.utc) + timedelta(hours=1)
+    state = {'state': 'paused', 'retry_after': until.isoformat(), 'message': 'Wait for cooldown.'}
+    for mode in ('trainer', 'client'):
+        table = AsyncMock()
+        table.find_one_and_update.return_value = {'domains': ['Python']}
+        with patch('app.routes.lead_bot.connection_status', return_value=state), patch(
+            'app.routes.lead_bot.scan_client_posts', AsyncMock()
+        ) as clients, patch('app.routes.lead_bot.search_linkedin_leads', AsyncMock()) as trainers:
+            asyncio.run(collect_due({'lead_bots': table}, mode))
+        clients.assert_not_awaited()
+        trainers.assert_not_awaited()
+        update = table.update_one.await_args.args[1]
+        assert update['$set']['status'] == 'paused'
+        assert update['$set']['next_run'] == until.replace(tzinfo=None) + timedelta(seconds=30)
+        assert 'lease_token' in update['$unset']
+
+
+def test_limit_during_scan_preserves_saved_results_and_delays_retry():
+    until = datetime.now(timezone.utc) + timedelta(hours=1)
+    state = {'state': 'paused', 'retry_after': until.isoformat(), 'message': 'Wait for cooldown.'}
+    table = AsyncMock()
+    table.find_one_and_update.return_value = {'domains': ['Python']}
+    with patch('app.routes.lead_bot.connection_status', side_effect=[{'state': 'saved'}, state]), patch(
+        'app.routes.lead_bot.scan_client_posts', AsyncMock(return_value={'found': 2, 'saved_count': 1})
+    ):
+        asyncio.run(collect_due({'lead_bots': table}, 'client'))
+    result = table.update_one.await_args.args[1]['$set']
+    assert result['status'] == 'paused'
+    assert result['saved'] == 1
+    assert result['next_run'] > until.replace(tzinfo=None)
+
+
+def test_status_reports_cooldown_without_changing_disabled_bot():
+    from app.routes.lead_bot import status
+    until = datetime.now(timezone.utc) + timedelta(hours=1)
+    state = {'state': 'paused', 'retry_after': until.isoformat(), 'message': 'Wait for cooldown.'}
+    for enabled in (True, False):
+        table = AsyncMock()
+        table.find_one.return_value = {'enabled': enabled, 'status': 'no_results'}
+        with patch('app.routes.lead_bot.connection_status', return_value=state):
+            result = asyncio.run(status('trainer', {'lead_bots': table}))
+        assert result['status'] == ('paused' if enabled else 'no_results')
+        table.update_one.assert_not_awaited()
+
+
+def test_expired_cooldown_does_not_delay_collection():
+    from app.routes.lead_bot import _cooldown_state
+    until = datetime.now(timezone.utc) - timedelta(seconds=1)
+    with patch('app.routes.lead_bot.connection_status', return_value={
+        'state': 'paused', 'retry_after': until.isoformat(), 'message': 'Expired'
+    }):
+        assert _cooldown_state() is None
 
 
 def test_client_settings_use_ten_minutes_and_status_lists_whole_catalog():
