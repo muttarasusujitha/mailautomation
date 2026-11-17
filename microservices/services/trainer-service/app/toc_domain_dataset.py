@@ -806,6 +806,22 @@ def get_domain(name: str, duration_days: int | None = None):
     return DOMAINS.get(key)
 
 
+def same_technology_datasets(name: str) -> list:
+    """Every compact dataset for one technology (for example Java 30, Java 60 and
+    Java Mastery), shortest first, so a long programme can use all of them."""
+    _load_compact_domains()
+    key = _normalise_key(name)
+    if not key:
+        return []
+    found = {}
+    for variants in COMPACT_DOMAIN_VARIANTS.values():
+        for duration, data in variants:
+            names = {_normalise_key(data.get("domain")), _normalise_key(data.get("name"))}
+            if key in names:
+                found[id(data)] = (duration, data)
+    return [data for _, data in sorted(found.values(), key=lambda item: item[0] or 0)]
+
+
 def list_domains():
     _load_compact_domains()
     domains = []

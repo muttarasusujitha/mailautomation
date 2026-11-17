@@ -2291,14 +2291,19 @@ def _client_topic_phrases(value: Any) -> List[str]:
     text = _clean(value)
     if not text:
         return []
-    return [
-        phrase
-        for phrase in (
-            _clean(part).strip(" .-")
-            for part in re.split(r"[,;\n]+|\s+\band\b\s+", text, flags=re.IGNORECASE)
-        )
-        if phrase
-    ]
+    from shared.toc_quality import normalize_topic
+    phrases: List[str] = []
+    for part in re.split(r"[,;\n]+", text):
+        part = _clean(part).strip(" .-")
+        # Oxford-comma lists leave the conjunction at the start of the final part.
+        part = re.sub(r"^(?:and|&)\s+", "", part, flags=re.IGNORECASE)
+        pieces = [piece.strip(" .-") for piece in re.split(r"\s+\band\b\s+", part, flags=re.IGNORECASE)]
+        # Keep a phrase whose known name uses the "and" whole
+        # ("Continuous Integration and Continuous Delivery" is CI/CD).
+        if len(pieces) > 1 and normalize_topic(part) != " and ".join(normalize_topic(piece) for piece in pieces):
+            pieces = [part]
+        phrases.extend(piece for piece in pieces if piece)
+    return phrases
 
 
 def _confirmed_training_duration_days(requirement: Dict[str, Any]) -> Optional[float]:
@@ -2310,7 +2315,8 @@ def _confirmed_training_duration_days(requirement: Dict[str, Any]) -> Optional[f
         duration = float(duration)
     except (TypeError, ValueError):
         return None
-    return duration if 1 <= duration <= 30 else None
+    # Matches the TOC API (1 to 100 days); lab-cost workbooks still support 1 to 30 days.
+    return duration if 1 <= duration <= 100 else None
 
 
 def _confirmed_training_dates(requirement: Dict[str, Any]) -> str:
@@ -4769,6 +4775,17 @@ async def send_client_slots(
     participant_count = supplied_participant_count
     lab_hours_per_day = supplied_lab_hours
     lab_defaults_used = raw_participants in (None, "") or raw_lab_hours in (None, "")
+    # Lab-cost workbooks cover 1 to 30 training days. A longer programme cannot be
+    # costed automatically: stop once (422, not retried) when the client asked for
+    # the estimate, otherwise send the handoff without it.
+    toc_days = sum(max(1, int(_safe_float(day.get("duration_days") or day.get("days") or 1, 1)))
+                   for day in (toc_data or {}).get("days") or [] if isinstance(day, dict))
+    if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data and toc_days > 30:
+        if explicit_lab_workbook:
+            raise HTTPException(422, f"Lab-cost workbooks support 1 to 30 training days; this ToC has {toc_days} days. "
+                                     "Prepare the lab estimate manually.")
+        logger.warning("Skipping inferred lab-cost workbook: %s training days exceed the 30-day workbook", toc_days)
+        wants_lab_cost = False
     # Lab costing is required only when the client requested it.
     if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data:
         requested_providers = [

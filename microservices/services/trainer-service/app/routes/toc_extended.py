@@ -933,8 +933,8 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         duration = float(duration)
     except (TypeError, ValueError):
         duration = None
-    if duration is None or not 1 <= duration <= 30:
-        raise HTTPException(422, "Training duration is required before generating a ToC")
+    if duration is None or not 1 <= duration <= 100:
+        raise HTTPException(422, "Training duration of 1 to 100 days is required before generating a ToC")
     training_dates = (
         req.get("training_dates")
         or " to ".join(part for part in [req.get("timeline_start"), req.get("timeline_end")] if part)
