@@ -50,6 +50,22 @@ Restarting the service or rewriting the same rejected snapshot does not clear it
 
 ## Docker deployment
 
+LinkedIn runs inside `ts-intelligence-service`; it is not a separate container.
+Stage 3 builds its regular Dockerfile, including Playwright and Chromium. Stage 4
+pulls and starts that image and runs **Verify LinkedIn Bot Deployment**. This checks
+the API, enabled flag, writable profile, Chromium launch, stored session, and both
+automatic-collection settings. Missing, expired, corrupt, or blocked sessions fail
+that step with an account-reconnection error. A rate-limited session emits a warning
+and keeps its cooldown. A saved cookie is reported as `saved_unverified`, not proof
+of live LinkedIn search access. The check does not run searches or change settings.
+Run it manually with:
+`docker exec ts-intelligence-service python -m app.linkedin_deployment`.
+
+During a stored account cooldown, both enabled collectors report `paused` and
+schedule their next attempt after the cooldown. They do not run a scheduled scan
+while paused. A new limit during a scan preserves saved result counts and postpones
+the next attempt. Manual public searches remain available separately.
+
 For the local Windows + Docker setup, run from `microservices`:
 `./tools/connect-linkedin.ps1 -Domain "sap trainer" -Python "C:\path\to\python.exe"`.
 This opens manual sign-in, verifies that exact search locally, privately transfers

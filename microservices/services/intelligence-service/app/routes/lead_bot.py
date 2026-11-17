@@ -2,7 +2,7 @@
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 from fastapi import APIRouter, Depends
@@ -90,6 +90,9 @@ async def status(mode: Literal['trainer', 'client'], db=Depends(get_db)):
             config['next_domains'] = list(catalog)
         except ValueError as exc:
             config['catalog_error'] = str(exc)
+    pause = _cooldown_state()
+    if config.get('enabled') and pause:
+        config.update(pause)
     return config
 
 
@@ -126,6 +129,13 @@ async def collect_due(db, mode):
                  'status': 'running', 'last_started': now}})
     if not config:
         return
+    pause = _cooldown_state()
+    if pause:
+        await db['lead_bots'].update_one({'_id': mode, 'lease_token': token}, {
+            '$set': pause,
+            '$unset': {'lease_until': '', 'lease_token': ''},
+        })
+        return
     coverage = {}
     try:
         domains = config['domains']
@@ -161,12 +171,29 @@ async def collect_due(db, mode):
     except Exception as exc:
         outcome = {'status': 'error', 'last_error': str(exc)[:500] or type(exc).__name__, 'found': 0, 'saved': 0,
                    'domain_outcomes': [], 'scan_warnings': [], 'scanned_posts': 0}
+    next_run = (max(datetime.utcnow(), now + timedelta(minutes=10)) if mode == 'client'
+                else datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 60)))
     await db['lead_bots'].update_one({'_id': mode, 'lease_token': token}, {
         '$set': {**outcome, 'last_finished': datetime.utcnow(),
-                 'next_run': max(datetime.utcnow(), now + timedelta(minutes=10)) if mode == 'client'
-                             else datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 60))},
+                 'next_run': next_run, **(_cooldown_state() or {})},
         '$unset': {'lease_until': '', 'lease_token': ''},
     })
+
+
+def _cooldown_state():
+    """Schedule blocked collectors after the persisted account cooldown."""
+    state = connection_status()
+    if state.get('state') != 'paused':
+        return None
+    until = datetime.fromisoformat(state['retry_after'])
+    if until.tzinfo is None:
+        until = until.replace(tzinfo=timezone.utc)
+    # MongoDB scheduling elsewhere uses naive UTC datetimes.
+    until = until.astimezone(timezone.utc).replace(tzinfo=None)
+    if until <= datetime.utcnow():
+        return None
+    return {'status': 'paused', 'next_run': until + timedelta(seconds=30),
+            'last_error': state['message']}
 
 
 async def _run_mode(mode):
