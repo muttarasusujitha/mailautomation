@@ -29,6 +29,8 @@ EMAIL_SVC = "http://email-service:8002"
 EMAIL_ADDRESS_RE = re.compile(r"[^\s@]+@[^\s@]+\.[^\s@]+")
 # Pages that track a sent mail as "contacted" ask for that status; the Pipeline keeps "outreach_sent".
 SENT_STATUSES = ("outreach_sent", "contacted")
+# A send moves only these statuses on. Later stages and decisions (converted, rejected) are kept.
+NOT_CONTACTED_STATUSES = ("", "new", "found", "reviewed", "outreach_failed")
 LOCAL_SERVICE_FALLBACKS = {
     "https://email-service:8002": "http://email-service:8002",
     "http://127.0.0.1:8002": "http://email-service:8002",
@@ -94,6 +96,8 @@ class SearchPublicRequest(BaseModel):
     location: Optional[str] = ""
     max_results: int = 50
     max_queries: Optional[int] = None
+    # An ID from the page, saved with the run report (GET /linkedin-leads/search-runs?search_ref=...).
+    search_ref: Optional[str] = ""
 
 
 class SendOutreachRequest(BaseModel):
@@ -602,7 +606,7 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
         "location": payload.location or "",
         "max_results": payload.max_results,
         "requirement_id": payload.requirement_id or "",
-    }, result, started_at)
+    }, result, started_at, payload.search_ref)
     return result
 
 
@@ -750,23 +754,33 @@ async def send_lead_outreach(
                       "last_email_failed_at": now, "updated_at": now}},
         )
         raise HTTPException(502, "Email delivery failed")
-    updates: Dict[str, Any] = {"status": sent_status, "last_emailed_at": now, "updated_at": now,
-                               "last_email_error": ""}
+    updates: Dict[str, Any] = {"last_emailed_at": now, "updated_at": now, "last_email_error": ""}
+    status = str(doc.get("status") or "")
+    if status in NOT_CONTACTED_STATUSES:
+        updates["status"] = status = sent_status
     if typed_email and not saved_email:
         updates["email"] = typed_email
         updates["contact_email"] = typed_email
     await db["trainer_profile_leads"].update_one({"lead_id": lead_id}, {"$set": updates})
-    return {"success": True, "lead_id": lead_id, "sent_to": to_email, "status": sent_status}
+    return {"success": True, "lead_id": lead_id, "sent_to": to_email, "status": status}
 
 
 @router.post("/send-public-email-outreach")
 async def send_public_email_outreach(payload: SendOutreachRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Send outreach emails to a list of leads in bulk. Each lead is sent to its own saved email."""
+    """Send outreach emails to a list of leads in bulk. Each lead is sent to its own saved email.
+
+    Leads that were contacted already, or converted or rejected, are skipped, so sending the
+    same list again (for example after a gateway timeout) does not email anyone twice.
+    """
     if not payload.lead_ids:
         raise HTTPException(400, "lead_ids is required")
-    sent = failed = 0
+    sent = failed = skipped = 0
     errors: List[Dict[str, str]] = []
     for lead_id in dict.fromkeys(payload.lead_ids):
+        saved = await db["trainer_profile_leads"].find_one({"lead_id": lead_id}, {"_id": 0, "status": 1})
+        if saved and str(saved.get("status") or "") not in NOT_CONTACTED_STATUSES:
+            skipped += 1
+            continue
         try:
             req = SendOutreachRequest(lead_ids=[lead_id], subject=payload.subject, body=payload.body,
                                       sent_status=payload.sent_status)
@@ -775,4 +789,4 @@ async def send_public_email_outreach(payload: SendOutreachRequest, db: AsyncIOMo
         except HTTPException as exc:
             failed += 1
             errors.append({"lead_id": lead_id, "error": str(exc.detail)})
-    return {"success": True, "sent": sent, "failed": failed, "errors": errors[:20]}
+    return {"success": True, "sent": sent, "failed": failed, "skipped": skipped, "errors": errors[:20]}

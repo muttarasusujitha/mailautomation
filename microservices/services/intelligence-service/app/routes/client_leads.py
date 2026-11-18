@@ -191,6 +191,8 @@ class SearchPublicRequest(BaseModel):
     location: Optional[str] = ""
     max_results: int = 50
     max_queries: Optional[int] = None
+    # An ID from the page, saved with the run report (GET /linkedin-leads/search-runs?search_ref=...).
+    search_ref: Optional[str] = ""
 
 
 @router.get("")
@@ -492,7 +494,7 @@ async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorData
     }
     result["run_id"] = await record_search_run(db, "client_search_public", {
         "domains": search_terms, "location": payload.location or "", "max_results": payload.max_results,
-    }, result, started_at)
+    }, result, started_at, payload.search_ref)
     return result
 
 

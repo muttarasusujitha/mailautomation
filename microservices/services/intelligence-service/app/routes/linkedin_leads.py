@@ -41,6 +41,8 @@ class LinkedInLeadSearchRequest(BaseModel):
     save: bool = True
     mode: Literal['trainer', 'client'] = "trainer"
     source: Optional[str] = "linkedin"
+    # An ID from the page, saved with the run report (GET /search-runs?search_ref=...).
+    search_ref: Optional[str] = ""
 
 
 class BackfillClientContactsRequest(BaseModel):
@@ -749,21 +751,25 @@ async def search_linkedin_leads(
         "location": payload.location or "",
         "max_results": payload.max_results,
         "saved": payload.save,
-    }, result, search_started_at)
+    }, result, search_started_at, payload.search_ref)
     return result
 
 
 @router.get("/search-runs")
 async def list_search_runs(
     kind: Optional[str] = None,
+    search_ref: Optional[str] = None,
     limit: int = 20,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Recent lead searches, newest first, with each source's outcome.
 
     kind: linkedin_search, trainer_search_public, naukri_search or client_search_public.
+    search_ref: the ID a page sent with its search, to find that search's report.
     """
     query = {"kind": kind.strip()} if kind and kind.strip() else {}
+    if search_ref and search_ref.strip():
+        query["search_ref"] = search_ref.strip()[:64]
     limit = max(1, min(int(limit or 20), 100))
     cursor = db["lead_search_runs"].find(query, {"_id": 0}).sort([("started_at", -1)]).limit(limit)
     return {"success": True, "runs": [run async for run in cursor]}

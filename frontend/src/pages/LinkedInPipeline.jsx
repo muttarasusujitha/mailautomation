@@ -10,6 +10,7 @@ import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
 import { VerificationBadge } from '../components/VerificationBadge'
 import { LEAD_PAGE_SIZE, chunk, leadListParams, listPage, pageToReload, sumResults } from '../utils/leadPaging'
+import { newSearchRef } from '../utils/leadSearchFeedback'
 
 const STATUSES = ['all', 'found', 'reviewed', 'outreach_sent', 'matched', 'converted', 'rejected']
 const BACKEND_STATUSES = new Set(['all', 'found', 'reviewed', 'outreach_sent', 'matched', 'converted', 'rejected'])
@@ -295,6 +296,8 @@ export default function LinkedInPipeline() {
   const [page, setPage] = useState(1)
   const [list, setList] = useState(listPage())
   const [searchReport, setSearchReport] = useState(null)
+  const [reloadKey, setReloadKey] = useState(0)
+  const loadSeq = useRef(0)
   const [loading, setLoading] = useState(false)
   const [working, setWorking] = useState(false)
   const [sendingLeadId, setSendingLeadId] = useState('')
@@ -320,11 +323,15 @@ export default function LinkedInPipeline() {
     }
   }
 
-  const load = async (override = {}) => {
-    const effectiveDomain = clean(override.domain ?? domain)
-    const effectiveQuery = clean(override.query ?? query)
-    const effectiveRequirementId = clean(override.requirement_id ?? selectedReq?.requirement_id)
-    const pageNumber = override.pageNumber ?? page
+  const load = async () => {
+    const effectiveDomain = clean(domain)
+    const effectiveQuery = clean(query)
+    // A pipeline opened from LinkedIn Search has a virtual requirement that no lead is assigned
+    // to, so it lists every LinkedIn trainer, on every page.
+    const effectiveRequirementId = selectedReq?.metadata?.virtual_requirement ? '' : clean(selectedReq?.requirement_id)
+    const pageNumber = page
+    // Only the latest request updates the list, whatever order the responses arrive in.
+    const seq = ++loadSeq.current
     setLoading(true)
     try {
       // The server applies the LinkedIn, requirement, domain and contact filters, so pages and totals match.
@@ -339,6 +346,7 @@ export default function LinkedInPipeline() {
           page: pageNumber,
         }),
       })
+      if (seq !== loadSeq.current) return
       const reload = pageToReload(res.data, pageNumber)
       if (reload) {
         setPage(reload)
@@ -347,19 +355,22 @@ export default function LinkedInPipeline() {
       setLeads(res.data.leads || [])
       setList(listPage(res.data))
     } catch (e) {
-      toast.error(e.message)
+      if (seq === loadSeq.current) toast.error(e.message)
     } finally {
-      setLoading(false)
+      if (seq === loadSeq.current) setLoading(false)
     }
   }
 
   useEffect(() => { loadRequirements() }, [])
-  useEffect(() => { load() }, [status, onlyContactable, page])
+  // Every list load runs here, after the render, so it reads the current filters and page.
+  useEffect(() => { load() }, [status, onlyContactable, page, reloadKey])
 
-  // New filters start at page 1. On another page, the page change reloads with the updated filters.
-  const loadFirstPage = async (override = {}) => {
-    if (page === 1) await load({ ...override, pageNumber: 1 })
-    else setPage(1)
+  const refresh = () => setReloadKey(key => key + 1)
+
+  // New filters start at page 1.
+  const reloadFirstPage = () => {
+    setPage(1)
+    refresh()
   }
 
   useEffect(() => {
@@ -376,7 +387,8 @@ export default function LinkedInPipeline() {
     }
     setSelectedReq(req)
     setMailContext(prev => ({ ...prev, domain: urlDomain, requirement_note: `LinkedIn trainer search batch for ${urlDomain}` }))
-    load({ domain: urlDomain, query: urlDomain, requirement_id: '' })
+    // domain and query already start as the URL domain; this requirement is virtual, so not scoped.
+    reloadFirstPage()
   }, [urlDomain, selectedReq])
 
   const createLinkedInRequirement = async () => {
@@ -431,7 +443,8 @@ export default function LinkedInPipeline() {
       requirement_note: clean(req.requirement_note || req.description || req.notes, prev.requirement_note),
     }))
     setSearchReport(null)
-    await loadFirstPage({ domain: nextDomain, query: nextDomain, requirement_id: req.requirement_id })
+    // The reload runs after this render, with the requirement, domain and query set above.
+    reloadFirstPage()
   }
 
   const searchLinkedIn = async () => {
@@ -442,7 +455,7 @@ export default function LinkedInPipeline() {
     }
     setWorking(true)
     setSearchReport(null)
-    const startedAt = Date.now()
+    const searchRef = newSearchRef()
     try {
       const res = await api.post('/trainer-profile-leads/search-public', {
         domain: searchDomain,
@@ -450,13 +463,14 @@ export default function LinkedInPipeline() {
         requirement_id: selectedReq?.requirement_id || '',
         source: 'linkedin',
         max_results: 50,
+        search_ref: searchRef,
       })
       setSearchReport(res.data)
       if (res.data.success === false) toast.error(res.data.search_error || 'No search source gave an answer')
       else toast.success(`LinkedIn search saved ${res.data.saved_count || res.data.new_stored || 0} new trainer profile(s)`)
-      await loadFirstPage({ requirement_id: selectedReq?.requirement_id || '', domain: searchDomain, query: query || searchDomain })
+      reloadFirstPage()
     } catch (e) {
-      setSearchReport({ requestFailed: true, startedAt, search_error: e.message })
+      setSearchReport({ requestFailed: true, searchRef, search_error: e.message })
       toast.error(e.message)
     } finally {
       setWorking(false)
@@ -483,7 +497,7 @@ export default function LinkedInPipeline() {
       } else {
         toast.success(`Contact enrichment checked ${total.checked}, enriched ${total.enriched}${total.failed ? `, ${total.failed} lookup(s) failed` : ''}`)
       }
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -502,7 +516,7 @@ export default function LinkedInPipeline() {
       await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, { lead_ids: [lead.lead_id], ...mail })
       await api.patch(`/trainer-profile-leads/${lead.lead_id}`, { status: MAIL_STATUS[mailType] || 'outreach_sent' })
       toast.success(`${templateLabel(mailType)} sent`)
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'LinkedIn manual mail failed')
     } finally {
@@ -527,7 +541,7 @@ export default function LinkedInPipeline() {
         sent += 1
       }
       toast.success(`LinkedIn pipeline outreach sent to ${sent} trainer(s)`)
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -538,7 +552,7 @@ export default function LinkedInPipeline() {
   const patchLead = async (lead, payload) => {
     try {
       await api.patch(`/trainer-profile-leads/${lead.lead_id}`, payload)
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -632,7 +646,7 @@ export default function LinkedInPipeline() {
             </div>
             <div className="flex gap-2">
               <button onClick={() => { setSelectedReq(null); setLeads([]); setList(listPage()); setSearchReport(null) }} className="btn-secondary text-sm"><ChevronLeft className="h-4 w-4" /> Back</button>
-              <button onClick={() => load()} disabled={loading} className="btn-secondary text-sm disabled:opacity-50"><RefreshCw className={clsx('h-4 w-4', loading && 'animate-spin')} /> Refresh</button>
+              <button onClick={refresh} disabled={loading} className="btn-secondary text-sm disabled:opacity-50"><RefreshCw className={clsx('h-4 w-4', loading && 'animate-spin')} /> Refresh</button>
             </div>
           </div>
 
@@ -650,7 +664,7 @@ export default function LinkedInPipeline() {
               <p className="mt-0.5 text-blue-600">{stats.emails} email-ready, {stats.skipped} need contact enrichment</p>
             </div>
           </div>
-          <SearchSourceReport report={searchReport} runKind="trainer_search_public" noun="trainer profiles" />
+          <SearchSourceReport report={searchReport} noun="trainer profiles" />
         </div>
       )}
 
@@ -662,7 +676,7 @@ export default function LinkedInPipeline() {
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Search Query</label>
-            <input className="input" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && loadFirstPage()} placeholder="Corporate trainer LinkedIn" />
+            <input className="input" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && reloadFirstPage()} placeholder="Corporate trainer LinkedIn" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Status</label>
@@ -671,7 +685,7 @@ export default function LinkedInPipeline() {
             </select>
           </div>
           <div className="flex items-end gap-2">
-            <button onClick={() => loadFirstPage()} disabled={loading} className="btn-secondary w-full text-sm disabled:opacity-50"><RefreshCw className="h-4 w-4" /> Refresh</button>
+            <button onClick={reloadFirstPage} disabled={loading} className="btn-secondary w-full text-sm disabled:opacity-50"><RefreshCw className="h-4 w-4" /> Refresh</button>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
@@ -9,9 +9,10 @@ import api from '../utils/api'
 import Pager from '../components/Pager'
 import { TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 import {
-  LEAD_PAGE_SIZE, chunk, domainChips, leadListParams, leadsWithoutEmail, listPage, outreachReadyLeads,
+  LEAD_PAGE_SIZE, chunk, domainChips, leadEmail, leadListParams, leadsWithoutEmail, listPage, outreachReadyLeads,
   pageToReload, statusCountInView, sumResults,
 } from '../utils/leadPaging'
+import { firstContactMail } from '../utils/trainerOutreachMail'
 
 const VISIBLE_STATUSES = ['new', 'reviewed', 'contacted', 'converted', 'rejected']
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
@@ -51,6 +52,10 @@ export default function LinkedInShortlist() {
   const [mode, setMode] = useState('trainer')
   const [status, setStatus] = useState('all')
   const [q, setQ] = useState('')
+  // The search text last submitted with Search or Enter; typing alone does not filter.
+  const [appliedQ, setAppliedQ] = useState('')
+  const [reloadKey, setReloadKey] = useState(0)
+  const loadSeq = useRef(0)
   // Typed text matches the domain or profile text; a chosen domain chip (domainValue) matches that domain only.
   const [domainFilter, setDomainFilter] = useState('')
   const [domainValue, setDomainValue] = useState('')
@@ -69,16 +74,19 @@ export default function LinkedInShortlist() {
   const isTrainer = mode === 'trainer'
 
   const load = async () => {
+    // Only the latest request updates the list, whatever order the responses arrive in.
+    const seq = ++loadSeq.current
     setLoading(true)
     try {
       const endpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
       // The server applies the shortlist rules (kind=shortlist) so every page and count covers all saved leads.
       const res = await api.get(endpoint, {
         params: leadListParams({
-          kind: isTrainer ? 'shortlist' : '', statuses: VISIBLE_STATUSES, status, q, page,
+          kind: isTrainer ? 'shortlist' : '', statuses: VISIBLE_STATUSES, status, q: appliedQ, page,
           domainExact: domainValue, topic: domainValue ? '' : domainFilter,
         }),
       })
+      if (seq !== loadSeq.current) return
       const reload = pageToReload(res.data, page)
       if (reload) {
         setPage(reload)
@@ -87,17 +95,21 @@ export default function LinkedInShortlist() {
       setLeads(res.data.leads || [])
       setList(listPage(res.data))
     } catch (e) {
-      toast.error(e.message)
+      if (seq === loadSeq.current) toast.error(e.message)
     } finally {
-      setLoading(false)
+      if (seq === loadSeq.current) setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [mode, status, domainFilter, domainValue, page])
+  useEffect(() => { load() }, [mode, status, domainFilter, domainValue, page, appliedQ, reloadKey])
+
+  // Reloads with the filters as they are when the reload runs, not when an action started.
+  const refresh = () => setReloadKey(key => key + 1)
 
   const reloadFirstPage = () => {
-    if (page === 1) load()
-    else setPage(1)
+    setAppliedQ(q.trim())
+    setPage(1)
+    refresh()
   }
 
   const chooseDomain = (value = '', label = '') => {
@@ -110,7 +122,7 @@ export default function LinkedInShortlist() {
     try {
       const endpoint = isTrainer ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.patch(endpoint, payload)
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -121,7 +133,7 @@ export default function LinkedInShortlist() {
       const endpoint = isTrainer ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.delete(endpoint)
       toast.success('Removed from shortlist')
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -129,7 +141,7 @@ export default function LinkedInShortlist() {
 
   const sendLead = async (lead) => {
     try {
-      let toEmail = String(lead.contact_email || '').trim()
+      let toEmail = leadEmail(lead)
       if (!toEmail) {
         toEmail = window.prompt('Email is not public on this LinkedIn profile. Enter email to send Clahan approach mail:')
         toEmail = String(toEmail || '').trim()
@@ -140,16 +152,16 @@ export default function LinkedInShortlist() {
         }
       }
       const endpoint = isTrainer ? `/trainer-profile-leads/${lead.lead_id}/send-email` : `/client-leads/${lead.lead_id}/send-email`
+      // Trainer mail is Mail 1 built from the mail fields above.
       const payload = isTrainer ? {
-        ...mailContext,
+        ...firstContactMail({ lead, mailContext }),
         to_email: toEmail,
-        domain: mailContext.domain || lead.domain,
         sent_status: 'contacted',
       } : { to_email: toEmail }
       const res = await api.post(endpoint, payload)
       if (res.data.success) toast.success('Approach mail sent from Clahan')
       else toast.error(res.data.error || 'Mail failed')
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -179,7 +191,7 @@ export default function LinkedInShortlist() {
       } else {
         toast.success(`Public email scan checked ${total.checked} profile(s) on this page; ${total.enriched} email(s) found${total.failed ? `; ${total.failed} lookup(s) failed` : ''}`)
       }
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -192,31 +204,34 @@ export default function LinkedInShortlist() {
       toast.error('Bulk outreach is available for trainer profiles')
       return
     }
-    // Profiles on this page with an email that are not contacted or rejected yet.
-    const leadIds = outreachReadyLeads(leads)
-    const skipped = leads.length - leadIds.length
-    if (!leadIds.length) {
+    // Profiles on this page with an email that are not contacted, added or rejected yet.
+    const ready = outreachReadyLeads(leads)
+    const skipped = leads.length - ready.length
+    if (!ready.length) {
       toast.error('No profile on this page has an email and is ready for outreach')
       return
     }
-    if (!window.confirm(`Send Clahan outreach mail to ${leadIds.length} profile(s) on this page? ${skipped} profile(s) without an email, or already contacted or rejected, will be skipped.`)) return
+    if (!window.confirm(`Send Clahan Mail 1 to ${ready.length} profile(s) on this page? ${skipped} profile(s) without an email, or already contacted, added or rejected, will be skipped.`)) return
     setBulkLoading(true)
-    try {
-      const results = []
-      for (const ids of chunk(leadIds, 10)) {
-        const res = await api.post('/trainer-profile-leads/send-public-email-outreach', { lead_ids: ids, sent_status: 'contacted' })
-        results.push(res.data)
+    // One request per trainer: each mail is addressed by name, and a slow mail server cannot make the
+    // gateway drop a batch that then gets sent again. A sent lead becomes contacted and is skipped next time.
+    let sent = 0
+    let failed = 0
+    let firstError = ''
+    for (const lead of ready) {
+      try {
+        await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, { ...firstContactMail({ lead, mailContext }), sent_status: 'contacted' })
+        sent += 1
+      } catch (e) {
+        failed += 1
+        firstError = firstError || e.message
       }
-      const total = sumResults(results, ['sent', 'failed'])
-      const message = `Outreach sent: ${total.sent}, skipped: ${skipped}, failed: ${total.failed}`
-      if (total.failed && !total.sent) toast.error(message)
-      else toast.success(message)
-      await load()
-    } catch (e) {
-      toast.error(e.message)
-    } finally {
-      setBulkLoading(false)
     }
+    const message = `Outreach sent: ${sent}, skipped: ${skipped}, failed: ${failed}${firstError ? ` (${firstError})` : ''}`
+    if (failed && !sent) toast.error(message)
+    else toast.success(message)
+    setBulkLoading(false)
+    refresh()
   }
 
   // Cards count every page of the open status tab, domain and search text.
@@ -447,7 +462,7 @@ export default function LinkedInShortlist() {
                 {lead.public_website_url && <a className="inline-flex items-center gap-1 rounded-lg bg-violet-50 px-2 py-1 font-semibold text-violet-700" href={lead.public_website_url} target="_blank" rel="noreferrer"><ExternalLink className="h-3 w-3" /> Public Website</a>}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <button onClick={() => sendLead(lead)} disabled={lead.status === 'contacted'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> {lead.contact_email ? 'Send Mail' : 'Enter Email & Send'}</button>
+                <button onClick={() => sendLead(lead)} disabled={lead.status === 'contacted'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> {leadEmail(lead) ? 'Send Mail' : 'Enter Email & Send'}</button>
                 {isTrainer && lead.source_url && <a href={lead.source_url} target="_blank" rel="noreferrer" className="btn-primary text-sm"><ExternalLink className="h-4 w-4" /> Open Profile</a>}
                 <button onClick={() => patchLead(lead, { status: 'converted' })} className="btn-secondary text-sm text-emerald-700"><CheckCircle2 className="h-4 w-4" /> {isTrainer ? 'Mark Added' : 'Converted'}</button>
                 <button onClick={() => patchLead(lead, { status: 'reviewed' })} className="btn-secondary text-sm"><CheckCircle2 className="h-4 w-4" /> Reviewed</button>

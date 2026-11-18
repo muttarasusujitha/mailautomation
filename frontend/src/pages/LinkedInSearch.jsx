@@ -7,7 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, visibleSearchLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, newSearchRef, visibleSearchLeads } from '../utils/leadSearchFeedback'
 import { LEAD_PAGE_SIZE, domainChips, leadListParams, listPage, pageToReload, statusCountInView } from '../utils/leadPaging'
 import LeadBot from '../components/LeadBot'
 import Pager from '../components/Pager'
@@ -74,14 +74,19 @@ export default function LinkedInSearch() {
   const [page, setPage] = useState(1)
   const [list, setList] = useState(listPage())
   const listToken = useRef(0)
+  const loadSeq = useRef(0)
   const searchingRef = useRef(false)
 
   const isTrainer = mode === 'trainer'
 
   // selectedDomain is 'all' or a domain chip value (domain_exact). The server applies the trainer
   // profile rules (kind=linkedin_profile), so each page is full and the totals cover every saved lead.
-  const load = async ({ query = q, statusFilter = filter, searchMode = mode, pageNumber = page, domainValue = selectedDomain } = {}) => {
+  // query defaults to the search text of the list on screen, so typing without Enter does not filter.
+  const load = async ({ query = list.query || '', statusFilter = filter, searchMode = mode, pageNumber = page, domainValue = selectedDomain } = {}) => {
     const token = listToken.current
+    // Only the latest list request updates the page, whatever order the responses arrive in.
+    const seq = ++loadSeq.current
+    const current = () => token === listToken.current && seq === loadSeq.current
     setLoading(true)
     try {
       const trainerList = searchMode === 'trainer'
@@ -91,7 +96,7 @@ export default function LinkedInSearch() {
         kind: trainerList ? 'linkedin_profile' : '',
       })
       const res = await api.get(endpoint, { params })
-      if (token !== listToken.current) return
+      if (!current()) return
       const reload = pageToReload(res.data, pageNumber)
       if (reload) {
         setPage(reload)
@@ -102,16 +107,16 @@ export default function LinkedInSearch() {
       // The filters of this list, so a domain delete removes exactly what its chip counted.
       setList({ ...listPage(res.data), query: params.q || '', status: statusFilter })
     } catch (e) {
-      if (token === listToken.current) toast.error(e.message)
+      if (current()) toast.error(e.message)
     } finally {
-      if (token === listToken.current) setLoading(false)
+      if (current()) setLoading(false)
     }
   }
 
   const runSearch = async ({ domainText = searchDomains, automatic = false, searchMode = mode } = {}) => {
     const token = ++listToken.current
     const trainerSearch = searchMode === 'trainer'
-    const startedAt = Date.now()
+    const searchRef = newSearchRef()
     searchingRef.current = true
     setSearching(true)
     setSearchReport(null)
@@ -120,7 +125,7 @@ export default function LinkedInSearch() {
     try {
       // Show the saved leads while the search runs. The search below reports its own result.
       await load({ query: '', statusFilter: 'all', searchMode, pageNumber: 1, domainValue: 'all' })
-      const payload = linkedInSearchPayload(searchMode, domainText)
+      const payload = { ...linkedInSearchPayload(searchMode, domainText), search_ref: searchRef }
       const res = await api.post('/linkedin-leads/search', payload)
       if (token !== listToken.current) return
       const savedCount = res.data.saved_count || 0
@@ -155,7 +160,7 @@ export default function LinkedInSearch() {
       if (token !== listToken.current) return
       setSearchReport(current => current
         ? { ...current, warnings: [...current.warnings, e.message || 'Unable to refresh saved results.'] }
-        : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true, startedAt })
+        : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true, searchRef })
       setShowSearchMatches(false)
       toast.error(e.message)
     } finally {
@@ -384,7 +389,7 @@ export default function LinkedInSearch() {
         </div>
       </section>
 
-      <SearchSourceReport report={searchReport} runKind="linkedin_search" noun="results">
+      <SearchSourceReport report={searchReport} noun="results">
         {(searchReport?.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below, as the saved leads.</p>}
         {searchReport && !searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches) }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
         {(searchReport?.warnings || []).length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}

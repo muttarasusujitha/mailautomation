@@ -69,6 +69,7 @@ async def search_public_naukri_profiles(skill, location="", limit=20, report=Non
     rows, _attempts = await search_public_many(queries, target * 2, ["naukri.com"], report=engines)
     profiles = []
     seen = set()
+    # Every matching row credits its engine, including rows past the requested count.
     kept_rows = []
     for row in rows:
         raw_url = row.get("url") or row.get("source_url") or row.get("link")
@@ -77,6 +78,8 @@ async def search_public_naukri_profiles(skill, location="", limit=20, report=Non
             continue
         seen.add(url)
         kept_rows.append(raw_url)
+        if len(profiles) >= target:
+            continue
         path_slug = re.sub(r"[^a-zA-Z0-9]+", "-", urlsplit(url).path).strip("-")[:80]
         profiles.append({
             "source_url": url,
@@ -85,8 +88,6 @@ async def search_public_naukri_profiles(skill, location="", limit=20, report=Non
             "title": str(row.get("title") or "Naukri job seeker")[:160],
             "snippet": str(row.get("content") or row.get("snippet") or "")[:300],
         })
-        if len(profiles) >= target:
-            break
     if report is not None:
         report["sources"] = engine_sources(engines, kept_rows, noun="Naukri profile links")
     return profiles

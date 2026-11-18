@@ -1,18 +1,21 @@
 """Merge trainer leads that were saved more than once for the same profile. Writes a backup first.
 
-Run inside the intelligence-service container, from the service folder:
+Run inside the intelligence-service container. Back up the database first (mongodump), and
+pause the lead bot and searches while --apply runs, because the plan is made from one read:
 
-    python -m app.merge_duplicate_leads                      # dry run: lists what would change
-    python -m app.merge_duplicate_leads --apply --backup-dir /backups
+    docker exec ts-intelligence-service python -m app.merge_duplicate_leads      # dry run
+    docker exec ts-intelligence-service python -m app.merge_duplicate_leads --apply --backup-dir /tmp/merge
+    docker cp ts-intelligence-service:/tmp/merge ./trainer-lead-merge-backup     # keep the backup
 
 Leads are the same profile when their URLs give the same profile key (lead_identity.lead_key):
 www/in./no-www hosts, http/https, a trailing slash, query strings and /in/<slug>/details pages
 all count as one profile. For each profile saved more than once:
 
 - the oldest lead is kept, with its lead_id;
-- its empty fields are filled from the copies, oldest copy first;
-- it takes the latest status that a person set on any copy (anything other than new/found),
-  so a contacted or rejected copy is not reset to new;
+- its empty fields are filled from the copies, oldest copy first; a contact taken from a copy
+  brings that copy's verification tier when the kept lead's tier is weak;
+- it takes the furthest status of any copy (new/found < failed send < reviewed < contacted <
+  later stages and decisions such as converted or rejected), so progress is never reset;
 - the copies are moved to trainer_profile_leads_merged, each with merged_into = the kept lead_id.
 
 Every remaining lead then gets its profile_key, and the unique profile_key index is created.
@@ -31,8 +34,17 @@ logger = logging.getLogger(__name__)
 
 COLLECTION = 'trainer_profile_leads'
 ARCHIVE = 'trainer_profile_leads_merged'
-_INITIAL_STATUSES = ('', 'new', 'found')
-_NOT_FILLED = ('_id', 'lead_id', 'created_at', 'updated_at', 'status', 'profile_key', 'last_emailed_at')
+_NOT_FILLED = ('_id', 'lead_id', 'created_at', 'updated_at', 'status', 'profile_key', 'last_emailed_at',
+               'verification_tier', 'confidence')
+_CONTACT_FIELDS = ('email', 'phone', 'contact_email', 'contact_phone')
+_WEAK_TIERS = ('', 'unverified', 'linkedin_signal')
+# How far a lead has moved on. Any status not listed is a later pipeline stage or a decision
+# (converted, rejected, interview_scheduled, ...), which a copy that is only new or found never undoes.
+_STATUS_RANK = {'': 0, 'new': 0, 'found': 0, 'outreach_failed': 1, 'reviewed': 2, 'contacted': 3, 'outreach_sent': 3}
+
+
+def _status_rank(doc):
+    return _STATUS_RANK.get(str(doc.get('status') or ''), 4)
 
 
 def _empty(value):
@@ -69,16 +81,23 @@ def plan_merges(docs, now=None):
         group = sorted(group, key=_age)
         keep, duplicates = group[0], group[1:]
         updates = {}
+        contact_from = None
         for doc in duplicates:
             for field, value in doc.items():
                 if field in _NOT_FILLED or _empty(value) or not _empty(keep.get(field)) or field in updates:
                     continue
                 updates[field] = value
-        decided = [doc for doc in group if str(doc.get('status') or '') not in _INITIAL_STATUSES]
-        if decided:
-            latest = max(decided, key=lambda doc: (_when(doc, 'updated_at'), _age(doc)))
-            if latest.get('status') != keep.get('status'):
-                updates['status'] = latest['status']
+                if field in _CONTACT_FIELDS and contact_from is None:
+                    contact_from = doc
+        # A contact taken from a copy brings that copy's verification, unless the kept lead's is stronger.
+        if contact_from is not None and (keep.get('verification_tier') or '') in _WEAK_TIERS:
+            for field in ('verification_tier', 'confidence'):
+                if not _empty(contact_from.get(field)):
+                    updates[field] = contact_from[field]
+        # The furthest status wins; between equal stages, the most recently updated copy.
+        furthest = max(group, key=lambda doc: (_status_rank(doc), _when(doc, 'updated_at'), _age(doc)))
+        if _status_rank(furthest) > 0 and furthest.get('status') != keep.get('status'):
+            updates['status'] = furthest['status']
         emailed = [doc['last_emailed_at'] for doc in group if isinstance(doc.get('last_emailed_at'), datetime)]
         if emailed and max(emailed) != keep.get('last_emailed_at'):
             updates['last_emailed_at'] = max(emailed)
@@ -100,25 +119,34 @@ def _backup(merges, folder, now):
 
 
 async def apply_merges(db, merges, keys, now=None):
-    """Archive the copies, update the kept leads, and set profile keys. Safe to run again."""
+    """Update the kept leads, archive the copies, and set profile keys. Safe to run again.
+
+    The kept lead is updated before its copies are removed, so a stop half-way loses nothing:
+    running the script again merges whatever copies are left.
+    """
     from pymongo.errors import DuplicateKeyError
 
     now = now or datetime.utcnow()
     table, archive = db[COLLECTION], db[ARCHIVE]
     archived = 0
     for merge in merges:
+        keep_filter = {'_id': merge['keep']['_id']}
         keep_id = merge['keep'].get('lead_id')
+        updates = {name: value for name, value in merge['updates'].items() if name != 'profile_key'}
+        await table.update_one(keep_filter, {'$set': updates})
         for doc in merge['duplicates']:
-            copy = {**doc, 'merged_into': keep_id, 'merged_at': now}
-            await archive.replace_one({'_id': doc['_id']}, copy, upsert=True)
+            # The copy as it is now, in case the service changed it after the plan was made.
+            current = await table.find_one({'_id': doc['_id']})
+            if current is None:
+                continue
+            await archive.replace_one({'_id': doc['_id']}, {**current, 'merged_into': keep_id, 'merged_at': now},
+                                      upsert=True)
             await table.delete_one({'_id': doc['_id']})
             archived += 1
         try:
-            await table.update_one({'_id': merge['keep']['_id']}, {'$set': merge['updates']})
+            await table.update_one(keep_filter, {'$set': {'profile_key': merge['key']}})
         except DuplicateKeyError:
             # A search saved this profile again while the script ran; run the script again to merge it.
-            updates = {name: value for name, value in merge['updates'].items() if name != 'profile_key'}
-            await table.update_one({'_id': merge['keep']['_id']}, {'$set': updates})
             logger.warning('Profile %s was saved again during the merge; run the script again.', merge['key'])
     keyed = 0
     for doc_id, key in keys:
@@ -160,8 +188,12 @@ async def run(db, apply=False, backup_dir='.', now=None):
 async def _main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--apply', action='store_true', help='make the changes; without it nothing is written')
-    parser.add_argument('--backup-dir', default='.', help='folder for the JSON backup of every lead that changes')
+    parser.add_argument('--backup-dir', default='',
+                        help='folder for the JSON backup of every lead that changes (required with --apply)')
     args = parser.parse_args(argv)
+    if args.apply and not args.backup_dir:
+        parser.error('--apply needs --backup-dir. A folder inside the container is lost on the next deploy, '
+                     'so copy the backup file out afterwards (docker cp).')
 
     from motor.motor_asyncio import AsyncIOMotorClient
     from app.config import get_settings

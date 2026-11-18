@@ -114,3 +114,13 @@ def test_a_legacy_copy_does_not_take_a_key_another_lead_holds():
     asyncio.run(lead_identity._refresh(table, copy, lead('https://linkedin.com/in/ravi', email='r@example.com'),
                                        'https://www.linkedin.com/in/ravi', NOW))
     assert 'profile_key' not in table.docs[1] and table.docs[1]['email'] == 'r@example.com'
+
+
+def test_a_shortened_old_slug_does_not_absorb_another_profile():
+    # Older saves cut the slug at ".", so /in/jose.garcia was saved with the slug "jose".
+    db = FakeDB()
+    asyncio.run(db['trainer_profile_leads'].insert_one({'lead_id': 'TPL-GARCIA', 'linkedin_slug': 'jose',
+                                                        'source_url': 'https://www.linkedin.com/in/jose.garcia',
+                                                        'linkedin_url': 'https://www.linkedin.com/in/jose.garcia'}))
+    saved = asyncio.run(save_trainer_lead(db, lead('https://www.linkedin.com/in/jose', lead_id='TPL-JOSE'), NOW))
+    assert saved['created'] and len(db['trainer_profile_leads'].docs) == 2

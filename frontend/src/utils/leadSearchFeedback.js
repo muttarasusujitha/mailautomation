@@ -131,13 +131,12 @@ export function searchReportGroups(data = {}) {
   return lines.length ? [{ key: 'sources', heading: '', lines }] : []
 }
 
-// A saved run belongs to a search the page started at startedAt (ms) when it started after it.
-// The server saves UTC times without a zone; a minute of clock difference is allowed.
-export function runStartedAfter(run, startedAt) {
-  const value = String(run?.started_at || '')
-  if (!value || !startedAt) return false
-  const time = Date.parse(/(?:z|[+-]\d\d:?\d\d)$/i.test(value) ? value : `${value}Z`)
-  return Number.isFinite(time) && time >= Number(startedAt) - 60000
+// An ID sent with a search. The server saves it with the run report, so the page can load that
+// report when its own request timed out. It only links the two; it is not a secret.
+export function newSearchRef() {
+  const cryptoApi = globalThis.crypto
+  if (cryptoApi?.randomUUID) return cryptoApi.randomUUID()
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
 }
 
 export function leadSourceLabel(lead = {}) {

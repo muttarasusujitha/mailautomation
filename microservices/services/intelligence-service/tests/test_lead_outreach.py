@@ -106,3 +106,27 @@ def test_public_email_lookup_reports_when_every_lookup_fails():
         result = asyncio.run(enrich_public_emails(EnrichRequest(lead_ids=['TPL-1', 'TPL-2']), db))
     assert result == {'success': False, 'checked': 2, 'enriched': 0, 'failed': 2,
                       'error': 'The contact lookup returned HTTP 404.'}
+
+
+@pytest.mark.parametrize('status,after', [
+    ('new', 'contacted'), ('found', 'contacted'), ('reviewed', 'contacted'), ('outreach_failed', 'contacted'),
+    ('converted', 'converted'), ('rejected', 'rejected'), ('interview_scheduled', 'interview_scheduled'),
+])
+def test_a_send_moves_only_leads_not_contacted_yet(status, after):
+    db = seeded({'lead_id': 'TPL-1', 'email': 'ravi@example.com', 'status': status})
+    result = send(db, 'TPL-1', Client(), sent_status='contacted')
+    assert lead(db, 'TPL-1')['status'] == after and result['status'] == after
+
+
+def test_bulk_outreach_sent_again_does_not_email_anyone_twice():
+    # For example after the gateway timed out a request that the server went on to finish.
+    db = seeded({'lead_id': 'TPL-1', 'email': 'ravi@example.com'}, {'lead_id': 'TPL-2', 'email': 'asha@example.com',
+                                                                    'status': 'converted'})
+    client = Client()
+    request = SendOutreachRequest(lead_ids=['TPL-1', 'TPL-2'], sent_status='contacted')
+    with patch('httpx.AsyncClient', client):
+        first = asyncio.run(send_public_email_outreach(request, db))
+        again = asyncio.run(send_public_email_outreach(request, db))
+    assert (first['sent'], first['skipped']) == (1, 1)
+    assert (again['sent'], again['skipped']) == (0, 2)
+    assert [body['to'] for _url, body in client.sent] == ['ravi@example.com']

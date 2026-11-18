@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import { CheckCircle2, ExternalLink, Newspaper, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
@@ -6,6 +6,8 @@ import api from '../utils/api'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
 import { LEAD_PAGE_SIZE, leadListParams, listPage, pageToReload, statusCountInView } from '../utils/leadPaging'
+import { newSearchRef } from '../utils/leadSearchFeedback'
+import { firstContactMail } from '../utils/trainerOutreachMail'
 
 const STATUSES = ['all', 'found', 'reviewed', 'contacted', 'converted', 'rejected']
 const STATUS_LABELS = { all: 'All', found: 'New', reviewed: 'Reviewed', contacted: 'Contacted', converted: 'Added', rejected: 'Rejected' }
@@ -40,14 +42,19 @@ export default function NaukriSearch() {
   const [page, setPage] = useState(1)
   const [list, setList] = useState(listPage())
   const [searchReport, setSearchReport] = useState(null)
+  const [reloadKey, setReloadKey] = useState(0)
+  const loadSeq = useRef(0)
 
   const load = useCallback(async () => {
+    // Only the latest request updates the list: the search box reloads on every keystroke.
+    const seq = ++loadSeq.current
     setLoading(true)
     try {
       // The server keeps only public Naukri profile pages (kind=naukri_profile), so every page is full.
       const response = await api.get('/trainer-profile-leads', {
         params: leadListParams({ kind: 'naukri_profile', status, q: searchText, page }),
       })
+      if (seq !== loadSeq.current) return
       const reload = pageToReload(response.data, page)
       if (reload) {
         setPage(reload)
@@ -56,13 +63,16 @@ export default function NaukriSearch() {
       setLeads(response.data.leads || [])
       setList(listPage(response.data))
     } catch (error) {
-      toast.error(error.message || 'Could not load Naukri results')
+      if (seq === loadSeq.current) toast.error(error.message || 'Could not load Naukri results')
     } finally {
-      setLoading(false)
+      if (seq === loadSeq.current) setLoading(false)
     }
   }, [status, searchText, page])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load() }, [load, reloadKey])
+
+  // Reloads with the filters as they are when the reload runs, not when an action started.
+  const refresh = () => setReloadKey(key => key + 1)
 
   const domains = useMemo(() => domainsText.split(',').map(value => value.trim()).filter(Boolean), [domainsText])
   const queries = useMemo(() => domains.map(domain => ({ domain, query: buildNaukriQuery(domain, location) })), [domains, location])
@@ -74,11 +84,11 @@ export default function NaukriSearch() {
     }
     setSearching(true)
     setSearchReport(null)
-    const startedAt = Date.now()
+    const searchRef = newSearchRef()
     try {
       const response = await api.post('/trainer-profile-leads/search-public', {
         source: 'naukri', domains, queries, location,
-        max_results: targetCount, max_queries: queries.length,
+        max_results: targetCount, max_queries: queries.length, search_ref: searchRef,
       })
       setSearchReport(response.data)
       const saved = response.data.saved_count || 0
@@ -90,10 +100,10 @@ export default function NaukriSearch() {
       } else {
         toast.success(`Naukri search found ${found} profile${found === 1 ? '' : 's'}; ${saved} new result${saved === 1 ? '' : 's'} saved.`)
       }
-      if (page === 1) await load()
-      else setPage(1)
+      setPage(1)
+      refresh()
     } catch (error) {
-      setSearchReport({ requestFailed: true, startedAt, search_error: error.message || 'Naukri search failed' })
+      setSearchReport({ requestFailed: true, searchRef, search_error: error.message || 'Naukri search failed' })
       toast.error(error.message || 'Naukri search failed')
     } finally {
       setSearching(false)
@@ -103,7 +113,7 @@ export default function NaukriSearch() {
   const updateLead = async (lead, patch) => {
     try {
       await api.patch(`/trainer-profile-leads/${lead.lead_id}`, patch)
-      await load()
+      refresh()
     } catch (error) {
       toast.error(error.message || 'Could not update result')
     }
@@ -113,7 +123,7 @@ export default function NaukriSearch() {
     try {
       await api.delete(`/trainer-profile-leads/${lead.lead_id}`)
       toast.success('Naukri result deleted')
-      await load()
+      refresh()
     } catch (error) {
       toast.error(error.message || 'Could not delete result')
     }
@@ -129,11 +139,12 @@ export default function NaukriSearch() {
     }
     try {
       const response = await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, {
-        to_email: email, domain: lead.domain, mode: 'Online', sent_status: 'contacted',
+        ...firstContactMail({ lead, mailContext: { domain: lead.domain, mode: 'Online' }, foundOn: 'Naukri profile' }),
+        to_email: email, sent_status: 'contacted',
       })
       if (response.data.success) toast.success('Approach email sent')
       else toast.error(response.data.error || 'Email could not be sent')
-      await load()
+      refresh()
     } catch (error) {
       toast.error(error.message || 'Email could not be sent')
     }
@@ -174,7 +185,7 @@ export default function NaukriSearch() {
         </div>
       </section>
 
-      <SearchSourceReport report={searchReport} runKind="naukri_search" noun="Naukri profiles" />
+      <SearchSourceReport report={searchReport} noun="Naukri profiles" />
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">Job Seeker Profiles</p><p className="mt-2 text-2xl font-bold text-slate-900">{list.total}</p></div>

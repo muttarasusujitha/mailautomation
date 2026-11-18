@@ -226,7 +226,8 @@ async def free_search_trainers(
                 all_profiles.append(p)
 
     profiles = all_profiles[:requested]
-    sources = _search_sources(reports, profiles)
+    # Every profile that passed the checks credits its engine, including those past the requested count.
+    sources = _search_sources(reports, all_profiles)
     for batch in results:
         for p in batch:
             p.pop("result_url", None)

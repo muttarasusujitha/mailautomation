@@ -9,10 +9,10 @@ NO_DOMAIN = '__none__'
 DOMAIN_CHIP_LIMIT = 50
 
 TRAINER_Q_FIELDS = ('name', 'trainer_name', 'headline', 'domain', 'snippet', 'profile_text')
-TRAINER_TOPIC_FIELDS = ('domain', 'name', 'trainer_name', 'headline', 'snippet', 'profile_text', 'notes',
-                        'post_text', 'company_name', 'contact_name')
-CLIENT_TOPIC_FIELDS = ('domain', 'matched_domains', 'company_name', 'contact_name', 'post_text', 'notes')
 CLIENT_Q_FIELDS = ('company_name', 'contact_name', 'domain', 'matched_domains', 'notes', 'source_url')
+# The fields each page's domain filter searched. The Pipeline checked the domain and the profile
+# summary; the Shortlist checked the domain and its profile and post text.
+_PIPELINE_TOPIC_FIELDS = ('domain', 'profile_text', 'snippet', 'headline', 'notes')
 
 # LinkedIn Search, trainer mode (isTrainerProviderProfile in LinkedInSearch.jsx).
 _PROFILE_URL = r'linkedin\.com/(?:in/|posts/|feed/update)'
@@ -46,6 +46,8 @@ _NAUKRI_NON_PROFILE_PATH = (
 )
 
 TRAINER_KINDS = ('linkedin_profile', 'linkedin', 'shortlist', 'naukri_profile')
+_TOPIC_FIELDS = {'linkedin': _PIPELINE_TOPIC_FIELDS}
+CLIENT_TOPIC_FIELDS = _SHORTLIST_FIELDS
 
 
 def _tokens(tokens, first, last):
@@ -148,7 +150,7 @@ def trainer_query(*, status=None, statuses=None, domain=None, domain_value=None,
         clauses.append(domain_exact(domain_value))
     topic = ' '.join((topic or '').split())
     if topic and not skip_domain:
-        clauses.append(contains_any(TRAINER_TOPIC_FIELDS, topic))
+        clauses.append(contains_any(_TOPIC_FIELDS.get(kind, _SHORTLIST_FIELDS), topic))
     if requirement_id:
         query['requirement_id'] = requirement_id
     if requirement_scope:

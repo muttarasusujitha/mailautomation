@@ -99,8 +99,12 @@ def legacy_lookup(key, lead):
             if lead.get(field):
                 terms.append({field: lead[field]})
     if key.startswith('https://www.linkedin.com/in/'):
-        # Some older leads kept only the slug. Naukri path slugs are not used: two pages can share one.
-        terms.append({'linkedin_slug': {'$regex': '^' + _slug_pattern(key) + '$', '$options': 'i'}})
+        # Some older leads kept only the slug. Only those are matched by it: older slugs were cut at
+        # characters such as ".", so /in/jose.garcia was saved with the slug "jose". Naukri path
+        # slugs are not used at all: two pages can share one.
+        terms.append({'$and': [{'linkedin_slug': {'$regex': '^' + _slug_pattern(key) + '$', '$options': 'i'}},
+                               {'$or': [{'source_url': None}, {'source_url': ''}]},
+                               {'$or': [{'linkedin_url': None}, {'linkedin_url': ''}]}]})
     if not terms:
         return None
     # A lead that already has a key is found by that key only.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
@@ -9,8 +9,12 @@ import api from '../utils/api'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
 import { LEAD_PAGE_SIZE, leadListParams, listPage, pageToReload, statusTotal } from '../utils/leadPaging'
+import { newSearchRef } from '../utils/leadSearchFeedback'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
+// Trainer leads use more status names: a profile from a public search starts as "found", and a
+// Pipeline mail marks it "outreach_sent". These tabs and cards list them with New and Contacted.
+const TRAINER_TAB_STATUSES = { new: ['new', 'found'], contacted: ['contacted', 'outreach_sent'] }
 const STATUS_LABELS = {
   all: 'All',
   new: 'New',
@@ -62,6 +66,10 @@ export default function ClientLeads() {
   const [searchReport, setSearchReport] = useState(null)
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
+  // The search text last submitted with Search or Enter; typing alone does not filter.
+  const [appliedQ, setAppliedQ] = useState('')
+  const [reloadKey, setReloadKey] = useState(0)
+  const loadSeq = useRef(0)
   const [form, setForm] = useState(emptyForm)
   const [analysis, setAnalysis] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -76,10 +84,17 @@ export default function ClientLeads() {
   const [searchDomains, setSearchDomains] = useState('DevOps, AWS, Azure, Full Stack, Power BI, Python, Java, SAP')
 
   const load = async () => {
+    // Only the latest request updates the list, whatever order the responses arrive in.
+    const seq = ++loadSeq.current
     setLoading(true)
     try {
       const endpoint = leadMode === 'trainer' ? '/trainer-profile-leads' : '/client-leads'
-      const res = await api.get(endpoint, { params: leadListParams({ status: filter, q, page }) })
+      const tabStatuses = leadMode === 'trainer' ? TRAINER_TAB_STATUSES[filter] : null
+      const params = leadListParams(tabStatuses
+        ? { statuses: tabStatuses, q: appliedQ, page }
+        : { status: filter, q: appliedQ, page })
+      const res = await api.get(endpoint, { params })
+      if (seq !== loadSeq.current) return
       const reload = pageToReload(res.data, page)
       if (reload) {
         setPage(reload)
@@ -88,18 +103,22 @@ export default function ClientLeads() {
       setLeads(res.data.leads || [])
       setList(listPage(res.data))
     } catch (e) {
-      toast.error(e.message)
+      if (seq === loadSeq.current) toast.error(e.message)
     } finally {
-      setLoading(false)
+      if (seq === loadSeq.current) setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [filter, leadMode, page])
+  useEffect(() => { load() }, [filter, leadMode, page, appliedQ, reloadKey])
 
-  // A new filter or search starts again at page 1.
+  // Reloads with the filters as they are when the reload runs, not when an action started.
+  const refresh = () => setReloadKey(key => key + 1)
+
+  // A new search text starts again at page 1.
   const reloadFirstPage = () => {
-    if (page === 1) load()
-    else setPage(1)
+    setAppliedQ(q.trim())
+    setPage(1)
+    refresh()
   }
 
   useEffect(() => {
@@ -126,7 +145,7 @@ export default function ClientLeads() {
       if (input) await api.patch(`/client-leads/${lead.lead_id}`, input)
       await api.post(`/client-leads/${lead.lead_id}/regenerate-draft`, {})
       toast.success('Personalized draft ready to review')
-      await load()
+      refresh()
     } catch (e) { toast.error(e.message) }
     finally { setDrafting('') }
   }
@@ -142,7 +161,7 @@ export default function ClientLeads() {
       await api.put(`/client-leads/${lead.lead_id}/draft`, draft)
       toast.success('Draft saved for review')
       setEditingDraft(prev => { const next = { ...prev }; delete next[lead.lead_id]; return next })
-      await load()
+      refresh()
     } catch (e) { toast.error(e.message) }
   }
 
@@ -165,7 +184,7 @@ export default function ClientLeads() {
       toast.success('Client lead saved')
       setForm(emptyForm)
       setAnalysis(null)
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -177,7 +196,7 @@ export default function ClientLeads() {
     try {
       const endpoint = leadMode === 'trainer' ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.patch(endpoint, payload)
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -188,7 +207,7 @@ export default function ClientLeads() {
       const res = await api.post(`/client-leads/${lead.lead_id}/send-email`, {})
       if (res.data.success) toast.success('Approach mail sent from Clahan')
       else toast.error(res.data.error || 'Mail failed')
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -199,7 +218,7 @@ export default function ClientLeads() {
       const endpoint = leadMode === 'trainer' ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.delete(endpoint)
       toast.success('Lead removed')
-      await load()
+      refresh()
     } catch (e) {
       toast.error(e.message)
     }
@@ -208,7 +227,7 @@ export default function ClientLeads() {
   const findPublicLeads = async () => {
     setSearchingPublic(true)
     setSearchReport(null)
-    const startedAt = Date.now()
+    const searchRef = newSearchRef()
     const trainerSearch = leadMode === 'trainer'
     try {
       const domains = searchDomains.split(',').map(item => item.trim()).filter(Boolean)
@@ -217,14 +236,15 @@ export default function ClientLeads() {
         domains,
         max_results: 50,
         max_queries: trainerSearch ? 20 : 12,
+        search_ref: searchRef,
       })
-      setSearchReport({ ...res.data, runKind: trainerSearch ? 'trainer_search_public' : 'client_search_public' })
+      setSearchReport(res.data)
       if (res.data.success === false) toast.error(res.data.search_error || 'No search source gave an answer')
       else toast.success(`Public search saved ${res.data.saved_count || 0} lead(s)`)
-      reloadFirstPage()
+      setPage(1)
+      refresh()
     } catch (e) {
-      setSearchReport({ requestFailed: true, startedAt, search_error: e.message,
-        runKind: trainerSearch ? 'trainer_search_public' : 'client_search_public' })
+      setSearchReport({ requestFailed: true, searchRef, search_error: e.message })
       toast.error(e.message)
     } finally {
       setSearchingPublic(false)
@@ -325,7 +345,7 @@ export default function ClientLeads() {
                 Uses Tavily when TAVILY_API_KEY is set, otherwise key-free search engines
               </span>
             </div>
-            <SearchSourceReport report={searchReport} runKind={searchReport?.runKind} noun="leads" />
+            <SearchSourceReport report={searchReport} noun="leads" />
           </div>
         </div>
 

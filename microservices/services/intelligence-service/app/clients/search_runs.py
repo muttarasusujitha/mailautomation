@@ -83,11 +83,16 @@ def _compact_outcome(outcome):
     return compact
 
 
-async def record_search_run(db, kind, request, result, started_at):
-    """Save what one search did, per source, so it can be read back later. Never fails the search."""
+async def record_search_run(db, kind, request, result, started_at, search_ref=''):
+    """Save what one search did, per source, so it can be read back later. Never fails the search.
+
+    search_ref is an ID the page sent with the search, so it can find this report if its own
+    request timed out.
+    """
     finished_at = datetime.utcnow()
     run = {
         'run_id': f'RUN-{uuid.uuid4().hex[:12].upper()}',
+        'search_ref': str(search_ref or '').strip()[:64],
         'kind': kind,
         'request': request,
         'started_at': started_at,

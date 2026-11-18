@@ -81,3 +81,48 @@ def test_apply_backs_up_archives_merges_and_adds_the_unique_index(tmp_path):
     # Running it again finds nothing more to merge.
     again = asyncio.run(run(db, apply=True, backup_dir=str(tmp_path), now=NOW))
     assert again['archived'] == 0 and again['merged_profiles'] == 0 and again['backup'] == ''
+
+
+@pytest.mark.parametrize('kept,copy,expected', [
+    # A failed send or a later automatic update never undoes a decision.
+    ({'status': 'converted'}, {'status': 'outreach_failed', 'updated_at': T0 + timedelta(days=30)}, None),
+    ({'status': 'new'}, {'status': 'contacted'}, 'contacted'),
+    ({'status': 'contacted'}, {'status': 'rejected'}, 'rejected'),
+    ({'status': 'reviewed'}, {'status': 'found', 'updated_at': T0 + timedelta(days=30)}, None),
+])
+def test_merge_keeps_the_furthest_status(kept, copy, expected):
+    docs = [lead('TPL-OLD', 'https://www.linkedin.com/in/ravi', 0, **kept),
+            lead('TPL-COPY', 'https://linkedin.com/in/ravi', 5, **copy)]
+    for index, doc in enumerate(docs):
+        doc['_id'] = index
+    merges, _keys = plan_merges(docs, NOW)
+    assert merges[0]['updates'].get('status') == expected
+
+
+def test_a_contact_taken_from_a_copy_brings_its_verification():
+    docs = [lead('TPL-OLD', 'https://www.linkedin.com/in/ravi', 0, verification_tier='linkedin_signal', confidence=0.75),
+            lead('TPL-COPY', 'https://linkedin.com/in/ravi', 5, email='ravi@example.com',
+                 verification_tier='contact_in_post', confidence=0.9)]
+    for index, doc in enumerate(docs):
+        doc['_id'] = index
+    updates = plan_merges(docs, NOW)[0][0]['updates']
+    assert updates['email'] == 'ravi@example.com'
+    assert updates['verification_tier'] == 'contact_in_post' and updates['confidence'] == 0.9
+
+
+def test_apply_archives_the_copy_as_it_is_when_merged(tmp_path):
+    from app.merge_duplicate_leads import apply_merges
+    db = seed()
+    merges, keys = plan_merges(db['trainer_profile_leads'].docs, NOW)
+    # The service changes a copy after the plan was made.
+    asyncio.run(db['trainer_profile_leads'].update_one({'lead_id': 'TPL-COPY2'}, {'$set': {'notes': 'called today'}}))
+    asyncio.run(apply_merges(db, merges, keys, NOW))
+    archived = {doc['lead_id']: doc for doc in db['trainer_profile_leads_merged'].docs}
+    assert archived['TPL-COPY2']['notes'] == 'called today'
+
+
+def test_apply_needs_a_backup_folder(capsys):
+    from app.merge_duplicate_leads import _main
+    with pytest.raises(SystemExit):
+        asyncio.run(_main(['--apply']))
+    assert '--apply needs --backup-dir' in capsys.readouterr().err

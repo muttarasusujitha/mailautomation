@@ -258,6 +258,11 @@ class PublicSearchUnavailable(ValueError):
         self.timed_out = timed_out
 
 
+# Text of a bot-check page. Checked only on a page without results, and only reported: it is not solved.
+_BOT_CHECK_MARKERS = (b'captcha', b'unusual traffic', b'are you a robot', b'not a robot', b'verify you are human',
+                      b'challenge-platform', b'cf-chl', b'detected unusual')
+
+
 async def _search_page(query, limit, first, allowed_domains=None):
     response, timed_out = await _fetch(
         'GET', 'https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
@@ -265,7 +270,10 @@ async def _search_page(query, limit, first, allowed_domains=None):
         raise PublicSearchUnavailable('Public search is temporarily unavailable or rate limited', timed_out=timed_out)
     if len(response.content) > 1_000_000:
         raise ValueError('Public search response is too large')
-    return parse_html(response.content, limit, allowed_domains)
+    rows = parse_html(response.content, limit, allowed_domains)
+    if not rows and any(marker in response.content.lower() for marker in _BOT_CHECK_MARKERS):
+        raise PublicSearchUnavailable('Bing showed a bot check instead of results')
+    return rows
 
 
 async def _read_ddg_pages(response, limit, found, seen, allowed_domains=None, query=''):

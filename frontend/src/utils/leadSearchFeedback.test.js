@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, runStartedAfter, searchReportGroups, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
+import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, newSearchRef, outcomeLine, searchReportGroups, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')
@@ -96,11 +96,8 @@ test('a search-public report lists each domain and each source, including skippe
   assert.deepEqual(searchReportGroups({}), [])
 })
 
-test('a saved run belongs to a search only when it started after that search', () => {
-  const startedAt = Date.parse('2026-11-16T09:00:00Z')
-  assert.equal(runStartedAfter({ started_at: '2026-11-16T09:00:30' }, startedAt), true)
-  assert.equal(runStartedAfter({ started_at: '2026-11-16T08:59:30.123456' }, startedAt), true)
-  assert.equal(runStartedAfter({ started_at: '2026-11-16T08:50:00Z' }, startedAt), false)
-  assert.equal(runStartedAfter({ started_at: '2026-11-16T14:40:00+05:30' }, startedAt), true)
-  assert.equal(runStartedAfter({}, startedAt), false)
+test('each search gets its own reference for its saved report', () => {
+  const first = newSearchRef()
+  assert.match(first, /^[\w-]{8,64}$/)
+  assert.notEqual(first, newSearchRef())
 })

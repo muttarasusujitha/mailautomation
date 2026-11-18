@@ -306,3 +306,45 @@ def test_a_failing_search_service_response_is_reported(status_code):
     source = result['sources'][0]
     assert source['status'] == 'error' and source['reason'].startswith(f'HTTP {status_code}')
     assert result['success'] is False
+
+
+def test_a_bing_bot_check_page_with_status_200_is_reported_as_blocked():
+    captcha = _Page(200, b'<html><body>Please solve this CAPTCHA to continue</body></html>')
+    rows, report = run_many([(_Page(200), False), (None, False), (captcha, False)])
+    sources = by_source(engine_sources(report))
+    assert rows == [] and sources['bing']['status'] == 'blocked'
+    # A results page that simply has no LinkedIn links is still "no results".
+    rows, report = run_many([(_Page(200), False), (None, False), (_Page(200, b'<html><li class="b_algo"></li></html>'), False)])
+    assert by_source(engine_sources(report))['bing']['status'] == 'no_results'
+
+
+def test_engines_are_credited_for_matches_past_the_requested_count():
+    from app.clients.naukri_public_search import search_public_naukri_profiles
+
+    urls = [f'https://www.naukri.com/resume/java-{index}' for index in range(4)]
+
+    async def fake_many(queries, limit, domains, report=None):
+        report['duckduckgo'] = {'attempts': 1, 'found': 2, 'urls': urls[:2]}
+        report['bing'] = {'attempts': 1, 'found': 2, 'urls': urls[2:]}
+        return [{'url': url, 'title': 'Java developer', 'content': 'Java'} for url in urls], 2
+
+    report = {}
+    with patch('app.clients.naukri_public_search.search_public_many', side_effect=fake_many):
+        profiles = asyncio.run(search_public_naukri_profiles('Java', '', 2, report=report))
+    assert len(profiles) == 2
+    # Bing's matches came after the requested two; they matched, so Bing is not "results did not match".
+    assert by_source(report['sources'])['bing']['status'] == 'ok'
+
+
+def test_a_search_reference_finds_that_search_s_report():
+    from app.routes.linkedin_leads import list_search_runs
+    db = FakeDB()
+
+    async def fake_naukri(skill, location, limit, report=None):
+        return []
+
+    with patch('app.clients.naukri_public_search.search_public_naukri_profiles', side_effect=fake_naukri):
+        trainer_search_public(db, FakeClient(lambda *a: None), domains=['Java'], source='naukri', search_ref='page-ref-1')
+        trainer_search_public(db, FakeClient(lambda *a: None), domains=['SAP'], source='naukri', search_ref='page-ref-2')
+    runs = asyncio.run(list_search_runs(kind=None, search_ref='page-ref-1', limit=5, db=db))['runs']
+    assert [run['request']['domains'] for run in runs] == [['Java']]

@@ -192,10 +192,24 @@ def test_client_list_filters_and_counts():
         {'domain': 'SAP', 'status': 'found'},
     ])
     result = client_list(db, statuses='new,contacted,converted', topic='python', include_counts=True)
-    assert sorted(lead['lead_id'] for lead in result['leads']) == ['L0', 'L1', 'L2']
-    assert result['counts']['by_status'] == {'new': 1, 'contacted': 1, 'converted': 1}
+    # The Shortlist's domain filter read the domain and post text, not matched_domains.
+    assert sorted(lead['lead_id'] for lead in result['leads']) == ['L0', 'L1']
+    assert result['counts']['by_status'] == {'new': 1, 'contacted': 1}
     assert [(chip['domain'], chip['total']) for chip in result['counts']['by_domain']] == [('Python', 2), ('SAP', 1)]
     assert result['counts']['with_email'] == 1
+
+
+def test_each_page_topic_searches_the_fields_that_page_searched():
+    db = FakeDB()
+    seed(db, 'trainer_profile_leads', [
+        {'source': 'linkedin', 'domain': 'Java', 'name': 'Python Ravi'},
+        {'source': 'linkedin', 'domain': 'Java', 'snippet': 'Python trainer'},
+        {'source': 'linkedin', 'domain': 'Java', 'trainer_name': 'Python Asha', 'headline': 'Corporate trainer'},
+    ])
+    # The Pipeline read the domain and the profile summary (profile_text, snippet, headline, notes).
+    assert [lead['lead_id'] for lead in trainer_list(db, kind='linkedin', topic='python')['leads']] == ['L1']
+    # The Shortlist read the domain, trainer_name, headline, profile and post text.
+    assert [lead['lead_id'] for lead in trainer_list(db, kind='shortlist', topic='python')['leads']] == ['L2']
 
 
 @pytest.mark.parametrize('router', [trainer_profile_leads.router, client_leads.router])
