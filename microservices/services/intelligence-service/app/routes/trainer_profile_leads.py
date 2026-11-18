@@ -798,11 +798,13 @@ async def send_public_email_outreach(payload: SendOutreachRequest, db: AsyncIOMo
                                       sent_status=payload.sent_status)
             await send_lead_outreach(lead_id, req, db)
             sent += 1
-        except HTTPException as exc:
+        except Exception as exc:
             if saved is not None:
                 # Not sent: give the lead its status back, so it can be sent later.
                 await db["trainer_profile_leads"].update_one(
                     {"lead_id": lead_id, "status": sent_status}, {"$set": {"status": previous or "new"}})
+            if not isinstance(exc, HTTPException):
+                logger.exception("Outreach to %s failed", lead_id)
             failed += 1
-            errors.append({"lead_id": lead_id, "error": str(exc.detail)})
+            errors.append({"lead_id": lead_id, "error": str(getattr(exc, "detail", None) or exc or type(exc).__name__)})
     return {"success": True, "sent": sent, "failed": failed, "skipped": skipped, "errors": errors[:20]}
