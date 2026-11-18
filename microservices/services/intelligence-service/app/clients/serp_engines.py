@@ -515,6 +515,7 @@ class PageResult:
     links_seen: int = 0
     via_browser: bool = False
     body: bytes = b''
+    reason: str = ''
 
 
 async def fetch_results_page(engine, fetcher, method, url, data=None, kind='profile'):
@@ -532,5 +533,6 @@ async def fetch_results_page(engine, fetcher, method, url, data=None, kind='prof
                 return PageResult('ok' if b_links else 'empty', b_rows, b_links, via_browser=True, body=b_body)
             refused = refused or looks_blocked(b_status, b_body, b_links)
     if refused:
-        return PageResult('blocked', [])
-    return PageResult('error', [])
+        return PageResult('blocked', [], reason=f'{engine.label} returned HTTP {status or b_status}.')
+    return PageResult('error', [], reason=(f'{engine.label} returned HTTP {status}.' if status else
+                                           f'{engine.label} request failed before receiving an HTTP response.'))

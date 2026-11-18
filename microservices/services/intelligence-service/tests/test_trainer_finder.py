@@ -173,10 +173,10 @@ def test_client_mode_finds_requirement_posts_with_recent_filter(tmp_path):
     def reply(url):
         seen_urls.append(url)
         return 200, page(
-            post_card('acme_python-activity-7234567890123456789-AbCd', 'Acme: Python trainer required',
+            post_card('acme_python-activity-7525708804915200000-AbCd', 'Acme: Python trainer required',
                       'We are looking for a freelance Python trainer in Pune. Contact hr@acme.in'),
-            post_card('acme_python-activity-7234567890123456789-AbCd', 'Acme: Python trainer required', ''),
-            post_card('saved_python-activity-7000000000000000001-xy', 'Saved: Python trainer needed', 'need trainer'),
+            post_card('acme_python-activity-7525708804915200000-AbCd', 'Acme: Python trainer required', ''),
+            post_card('saved_python-activity-7525708804915200001-xy', 'Saved: Python trainer needed', 'need trainer'),
             post_card('ravi_my-python-course-activity-7111111111111111111-zz', 'Ravi: my Python course',
                       'I am a Python trainer, join my batch'),
             post_card('beta_java-activity-7222222222222222222-qq', 'Beta: Java trainer required', 'Need a Java trainer'),
@@ -185,14 +185,15 @@ def test_client_mode_finds_requirement_posts_with_recent_filter(tmp_path):
                    max_pages=1, min_interval=0, browser_fallback=False, recent={'month': {'df': 'm'}})
     fetcher = Fetcher({('www.alpha.test', 0): reply})
     rows, report = asyncio.run(find_leads(
-        'Python', 50, mode='client', exclude={'linkedin:activity:7000000000000000001'},
+        'Python', 50, mode='client', exclude={'linkedin:activity:7525708804915200001'},
         engines=[alpha], fetcher=fetcher, budget=30, health=EngineHealth(tmp_path / 'h.json')))
-    assert [row['url'] for row in rows] == ['https://www.linkedin.com/posts/acme_python-activity-7234567890123456789-AbCd']
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/posts/acme_python-activity-7525708804915200000-AbCd']
     assert 'keyword_qualified' not in rows[0]
     assert report['mode'] == 'client' and report['recent_filter'] == 'month' and report['already_saved'] == 1
     assert all(url.endswith('&df=m') for url in seen_urls)
     assert 'site:linkedin.com/posts' in seen_urls[0]
-    assert 'posts found did not match the domain or a trainer requirement' in report['limit_reason']
+    # Stale posts are rejected by the timestamp check before qualification.
+    assert 'posts found did not match' not in report['limit_reason']
 
 
 def test_client_query_plan():
