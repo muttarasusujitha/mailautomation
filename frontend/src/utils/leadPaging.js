@@ -89,12 +89,16 @@ export function leadsWithoutEmail(leads) {
   return (leads || []).filter(lead => lead?.lead_id && !leadEmail(lead)).map(lead => lead.lead_id)
 }
 
-// Leads not contacted yet. Contacted, converted ("Added") and rejected leads are never mailed in bulk.
-export const OUTREACH_READY_STATUSES = ['', 'new', 'found', 'reviewed']
+// Trainers not contacted yet, the same statuses the server moves on after Mail 1. Contacted,
+// converted ("Added") and rejected trainers are not sent Mail 1 again.
+export const OUTREACH_READY_STATUSES = ['', 'new', 'found', 'reviewed', 'outreach_failed']
+
+export function readyForMail1(lead) {
+  return OUTREACH_READY_STATUSES.includes(text(lead?.status))
+}
 
 export function outreachReadyLeads(leads) {
-  return (leads || [])
-    .filter(lead => lead?.lead_id && leadEmail(lead) && OUTREACH_READY_STATUSES.includes(text(lead.status).toLowerCase()))
+  return (leads || []).filter(lead => lead?.lead_id && leadEmail(lead) && readyForMail1(lead))
 }
 
 // Adds up the responses of several chunked bulk requests.

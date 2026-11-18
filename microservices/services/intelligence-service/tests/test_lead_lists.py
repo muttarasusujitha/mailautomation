@@ -120,6 +120,49 @@ def test_server_kinds_list_what_the_pages_used_to_show(kind, page_shows):
     assert listed == expected
 
 
+def js_clean(value, fallback=''):
+    return (str(value) if value else '').strip() or fallback
+
+
+def pipeline_page_shows(lead, requirement_id, domain):
+    """LinkedInPipeline.jsx load() filters, before this change, transcribed."""
+    source = js_clean(lead.get('source'), 'linkedin').lower()
+    url = js_clean(lead.get('linkedin_url') or lead.get('source_url'))
+    if not (source == 'linkedin' or 'linkedin.com/in' in url):
+        return False
+    lead_requirement = js_clean(lead.get('requirement_id'))
+    if requirement_id and lead_requirement and lead_requirement != requirement_id:
+        return False
+    summary = js_clean(lead.get('profile_text') or lead.get('snippet') or lead.get('headline') or lead.get('notes'),
+                       'No public profile summary saved yet.')
+    return not domain or domain.lower() in js_clean(lead.get('domain')).lower() or domain.lower() in summary.lower()
+
+
+PIPELINE_SAMPLES = [
+    {'source': 'linkedin', 'domain': 'Python'},
+    {'source': '  ', 'domain': 'Java', 'profile_text': 'Python trainer'},
+    {'source': 'naukri', 'source_url': 'https://www.naukri.com/resume/x', 'domain': 'Python'},
+    {'source': 'naukri', 'linkedin_url': 'https://www.linkedin.com/in/x', 'domain': 'Python'},
+    {'source': 'naukri', 'linkedin_url': 'https://www.linkedin.com/posts/x', 'source_url': 'https://www.linkedin.com/in/x',
+     'domain': 'Python'},
+    {'source': 'LinkedIn', 'domain': 'Java', 'profile_text': 'Java only', 'snippet': 'Python trainer'},
+    {'source': 'linkedin', 'domain': 'Java', 'snippet': '', 'headline': 'Python coach'},
+    {'source': 'linkedin', 'domain': 'Java', 'name': 'Python Ravi', 'trainer_name': 'Python Ravi'},
+    {'source': 'linkedin', 'domain': 'Python', 'requirement_id': 'REQ-2'},
+    {'source': 'linkedin', 'domain': 'Python', 'requirement_id': ' REQ-1 '},
+    {'domain': 'Python', 'notes': 'x'},
+]
+
+
+@pytest.mark.parametrize('requirement_id,domain', [('', ''), ('REQ-1', 'python'), ('', 'Python'), ('REQ-1', '')])
+def test_pipeline_server_filters_list_what_the_page_used_to_show(requirement_id, domain):
+    db = FakeDB()
+    seed(db, 'trainer_profile_leads', PIPELINE_SAMPLES)
+    listed = {lead['lead_id'] for lead in trainer_list(db, kind='linkedin', requirement_scope=requirement_id, topic=domain)['leads']}
+    expected = {f'L{index}' for index, lead in enumerate(PIPELINE_SAMPLES) if pipeline_page_shows(lead, requirement_id, domain)}
+    assert listed == expected
+
+
 def test_pipeline_filters_and_unknown_kind():
     db = FakeDB()
     seed(db, 'trainer_profile_leads', [
@@ -170,6 +213,10 @@ def test_counts_ignore_their_own_filter_and_group_domain_spellings():
     assert counts['with_email'] == 1 and counts['with_phone'] == 0
     blank = trainer_list(db, domain_exact='__none__', statuses='new,rejected')['leads']
     assert sorted(lead['lead_id'] for lead in blank) == ['L3', 'L4']
+    # A tab can list several statuses; the status counts still leave the tab out.
+    tab = trainer_list(db, status='new,rejected', include_counts=True)
+    assert sorted(lead['lead_id'] for lead in tab['leads']) == ['L0', 'L2', 'L3', 'L4']
+    assert tab['counts']['by_status'] == {'new': 3, 'contacted': 1, 'rejected': 1}
 
 
 def test_search_text_and_domains_are_literal_text():
@@ -206,7 +253,7 @@ def test_each_page_topic_searches_the_fields_that_page_searched():
         {'source': 'linkedin', 'domain': 'Java', 'snippet': 'Python trainer'},
         {'source': 'linkedin', 'domain': 'Java', 'trainer_name': 'Python Asha', 'headline': 'Corporate trainer'},
     ])
-    # The Pipeline read the domain and the profile summary (profile_text, snippet, headline, notes).
+    # The Pipeline read the domain and the first non-empty of profile_text, snippet, headline, notes.
     assert [lead['lead_id'] for lead in trainer_list(db, kind='linkedin', topic='python')['leads']] == ['L1']
     # The Shortlist read the domain, trainer_name, headline, profile and post text.
     assert [lead['lead_id'] for lead in trainer_list(db, kind='shortlist', topic='python')['leads']] == ['L2']

@@ -10,9 +10,9 @@ DOMAIN_CHIP_LIMIT = 50
 
 TRAINER_Q_FIELDS = ('name', 'trainer_name', 'headline', 'domain', 'snippet', 'profile_text')
 CLIENT_Q_FIELDS = ('company_name', 'contact_name', 'domain', 'matched_domains', 'notes', 'source_url')
-# The fields each page's domain filter searched. The Pipeline checked the domain and the profile
-# summary; the Shortlist checked the domain and its profile and post text.
-_PIPELINE_TOPIC_FIELDS = ('domain', 'profile_text', 'snippet', 'headline', 'notes')
+# The Pipeline's domain filter read the domain and the profile summary: the first non-empty of
+# these fields (`profile_text || snippet || headline || notes` in the page).
+_PIPELINE_SUMMARY_FIELDS = ('profile_text', 'snippet', 'headline', 'notes')
 
 # LinkedIn Search, trainer mode (isTrainerProviderProfile in LinkedInSearch.jsx).
 _PROFILE_URL = r'linkedin\.com/(?:in/|posts/|feed/update)'
@@ -46,8 +46,26 @@ _NAUKRI_NON_PROFILE_PATH = (
 )
 
 TRAINER_KINDS = ('linkedin_profile', 'linkedin', 'shortlist', 'naukri_profile')
-_TOPIC_FIELDS = {'linkedin': _PIPELINE_TOPIC_FIELDS}
+# The Shortlist's domain filter read the domain and its profile and post text.
 CLIENT_TOPIC_FIELDS = _SHORTLIST_FIELDS
+
+
+def _first_text(fields):
+    """The first field holding a non-empty string, like `a || b || c` in the page."""
+    return {'$switch': {'branches': [
+        {'case': {'$and': [{'$eq': [{'$type': f'${field}'}, 'string']}, {'$ne': [f'${field}', '']}]},
+         'then': f'${field}'} for field in fields], 'default': ''}}
+
+
+def topic_filter(kind, topic):
+    pattern = re.escape(topic)
+    if kind == 'linkedin':
+        return {'$or': [
+            {'domain': {'$regex': pattern, '$options': 'i'}},
+            {'$expr': {'$regexMatch': {'input': _first_text(_PIPELINE_SUMMARY_FIELDS), 'regex': pattern,
+                                       'options': 'i'}}},
+        ]}
+    return contains_any(_SHORTLIST_FIELDS, topic)
 
 
 def _tokens(tokens, first, last):
@@ -112,9 +130,10 @@ def trainer_kind_filter(kind):
                      {'lead_type': 'trainer_profile'}, *_any_field(_PROFILE_TEXT_FIELDS, _SAYS_TRAINER)]},
         ]}
     if kind == 'linkedin':
+        # LinkedIn Pipeline: source linkedin or none, or a /in/ URL in `linkedin_url || source_url`.
         return {'$or': [{'source': None}, {'source': {'$regex': r'^\s*(?:linkedin)?\s*$', '$options': 'i'}},
-                        {'linkedin_url': {'$regex': r'linkedin\.com/in', '$options': 'i'}},
-                        {'source_url': {'$regex': r'linkedin\.com/in', '$options': 'i'}}]}
+                        {'$expr': {'$regexMatch': {'input': _first_text(('linkedin_url', 'source_url')),
+                                                   'regex': r'linkedin\.com/in'}}}]}
     if kind == 'shortlist':
         return {'$and': [{'$nor': _token_clauses(_SHORTLIST_FIELDS, _SHORTLIST_BLOCKERS)},
                          {'$or': _token_clauses(_SHORTLIST_FIELDS, _SHORTLIST_SIGNALS)}]}
@@ -128,12 +147,17 @@ def trainer_kind_filter(kind):
 
 
 def _status_clauses(status, statuses, skip_status):
+    """statuses: the statuses a page lists at all. status: the open tab, one status or a comma list.
+
+    The counts by status leave out only the tab, so every tab's count stays visible.
+    """
     clauses = []
     names = split_list(statuses)
     if names:
         clauses.append({'status': {'$in': names}})
-    if status and status.lower() != 'all' and not skip_status:
-        clauses.append({'status': status})
+    tab = [name for name in split_list(status) if name.lower() != 'all']
+    if tab and not skip_status:
+        clauses.append({'status': tab[0]} if len(tab) == 1 else {'status': {'$in': tab}})
     return clauses
 
 
@@ -150,13 +174,13 @@ def trainer_query(*, status=None, statuses=None, domain=None, domain_value=None,
         clauses.append(domain_exact(domain_value))
     topic = ' '.join((topic or '').split())
     if topic and not skip_domain:
-        clauses.append(contains_any(_TOPIC_FIELDS.get(kind, _SHORTLIST_FIELDS), topic))
+        clauses.append(topic_filter(kind, topic))
     if requirement_id:
         query['requirement_id'] = requirement_id
     if requirement_scope:
         # A requirement's pipeline also shows leads not yet assigned to any requirement.
         clauses.append({'$or': [{'requirement_id': None}, {'requirement_id': {'$regex': r'^\s*$'}},
-                                {'requirement_id': requirement_scope.strip()}]})
+                                {'requirement_id': {'$regex': r'^\s*' + re.escape(requirement_scope.strip()) + r'\s*$'}}]})
     if source:
         query['source'] = source.strip().lower()
     if kind:

@@ -118,6 +118,30 @@ def test_a_send_moves_only_leads_not_contacted_yet(status, after):
     assert lead(db, 'TPL-1')['status'] == after and result['status'] == after
 
 
+def test_a_failed_bulk_send_gives_the_lead_its_status_back():
+    db = seeded({'lead_id': 'TPL-1', 'email': 'ravi@example.com', 'status': 'reviewed'})
+    with patch('httpx.AsyncClient', Client(status=500)):
+        result = asyncio.run(send_public_email_outreach(SendOutreachRequest(lead_ids=['TPL-1'], sent_status='contacted'), db))
+    assert result['failed'] == 1 and lead(db, 'TPL-1')['status'] == 'reviewed'
+
+
+def test_bulk_outreach_skips_a_lead_another_request_claimed():
+    db = seeded({'lead_id': 'TPL-1', 'email': 'ravi@example.com', 'status': 'new'})
+    table = db['trainer_profile_leads']
+    real_find = table.find_one
+
+    async def find_then_claimed_elsewhere(query, projection=None):
+        found = await real_find(query, projection)
+        # Another tab claims the lead between this request's read and its claim.
+        await table.update_one({'lead_id': 'TPL-1'}, {'$set': {'status': 'contacted'}})
+        return found
+
+    client = Client()
+    with patch.object(table, 'find_one', find_then_claimed_elsewhere), patch('httpx.AsyncClient', client):
+        result = asyncio.run(send_public_email_outreach(SendOutreachRequest(lead_ids=['TPL-1'], sent_status='contacted'), db))
+    assert result['skipped'] == 1 and result['sent'] == 0 and client.sent == []
+
+
 def test_bulk_outreach_sent_again_does_not_email_anyone_twice():
     # For example after the gateway timed out a request that the server went on to finish.
     db = seeded({'lead_id': 'TPL-1', 'email': 'ravi@example.com'}, {'lead_id': 'TPL-2', 'email': 'asha@example.com',

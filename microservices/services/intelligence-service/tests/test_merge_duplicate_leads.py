@@ -110,15 +110,37 @@ def test_a_contact_taken_from_a_copy_brings_its_verification():
     assert updates['verification_tier'] == 'contact_in_post' and updates['confidence'] == 0.9
 
 
-def test_apply_archives_the_copy_as_it_is_when_merged(tmp_path):
+def test_apply_merges_the_leads_as_they_are_when_merged(tmp_path):
     from app.merge_duplicate_leads import apply_merges
     db = seed()
     merges, keys = plan_merges(db['trainer_profile_leads'].docs, NOW)
     # The service changes a copy after the plan was made.
-    asyncio.run(db['trainer_profile_leads'].update_one({'lead_id': 'TPL-COPY2'}, {'$set': {'notes': 'called today'}}))
+    asyncio.run(db['trainer_profile_leads'].update_one(
+        {'lead_id': 'TPL-COPY2'}, {'$set': {'notes': 'called today', 'status': 'converted', 'updated_at': NOW}}))
     asyncio.run(apply_merges(db, merges, keys, NOW))
     archived = {doc['lead_id']: doc for doc in db['trainer_profile_leads_merged'].docs}
+    kept = next(doc for doc in db['trainer_profile_leads'].docs if doc['lead_id'] == 'TPL-OLD')
     assert archived['TPL-COPY2']['notes'] == 'called today'
+    assert kept['status'] == 'converted' and kept['notes'] == 'called today'
+
+
+@pytest.mark.parametrize('statuses,expected', [
+    (('details_requested', 'training_confirmed'), 'training_confirmed'),
+    (('training_confirmed', 'details_requested'), 'training_confirmed'),
+    (('outreach_sent', 'interview_scheduled'), 'interview_scheduled'),
+    (('converted', 'some_new_stage'), 'converted'),
+])
+def test_later_pipeline_stages_win(statuses, expected):
+    docs = [lead(f'TPL-{index}', 'https://www.linkedin.com/in/ravi', index, status=status, _id=index)
+            for index, status in enumerate(statuses)]
+    merges, _keys = plan_merges(docs, NOW)
+    assert merges[0]['updates'].get('status', docs[0]['status']) == expected
+
+
+def test_the_dry_run_lists_each_status_change():
+    db = seed()
+    summary = asyncio.run(run(db, apply=False, now=NOW))['summary']
+    assert 'https://www.linkedin.com/in/ravi: keep TPL-OLD, merge TPL-COPY1, TPL-COPY2; status new -> contacted' in summary
 
 
 def test_apply_needs_a_backup_folder(capsys):

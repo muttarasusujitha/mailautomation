@@ -89,10 +89,9 @@ export default function ClientLeads() {
     setLoading(true)
     try {
       const endpoint = leadMode === 'trainer' ? '/trainer-profile-leads' : '/client-leads'
+      // The open tab goes in status (a list for trainer New and Contacted), which the cards' counts leave out.
       const tabStatuses = leadMode === 'trainer' ? TRAINER_TAB_STATUSES[filter] : null
-      const params = leadListParams(tabStatuses
-        ? { statuses: tabStatuses, q: appliedQ, page }
-        : { status: filter, q: appliedQ, page })
+      const params = leadListParams({ status: tabStatuses ? tabStatuses.join(',') : filter, q: appliedQ, page })
       const res = await api.get(endpoint, { params })
       if (seq !== loadSeq.current) return
       const reload = pageToReload(res.data, page)

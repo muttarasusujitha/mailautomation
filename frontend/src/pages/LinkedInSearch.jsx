@@ -75,15 +75,19 @@ export default function LinkedInSearch() {
   const [list, setList] = useState(listPage())
   const listToken = useRef(0)
   const loadSeq = useRef(0)
+  // Set when search text is submitted, before its response arrives, so a tab or chip clicked
+  // meanwhile keeps that text.
+  const appliedQuery = useRef('')
   const searchingRef = useRef(false)
 
   const isTrainer = mode === 'trainer'
 
   // selectedDomain is 'all' or a domain chip value (domain_exact). The server applies the trainer
   // profile rules (kind=linkedin_profile), so each page is full and the totals cover every saved lead.
-  // query defaults to the search text of the list on screen, so typing without Enter does not filter.
-  const load = async ({ query = list.query || '', statusFilter = filter, searchMode = mode, pageNumber = page, domainValue = selectedDomain } = {}) => {
+  // query defaults to the last submitted search text, so typing without Enter does not filter.
+  const load = async ({ query = appliedQuery.current, statusFilter = filter, searchMode = mode, pageNumber = page, domainValue = selectedDomain } = {}) => {
     const token = listToken.current
+    appliedQuery.current = String(query || '').trim()
     // Only the latest list request updates the page, whatever order the responses arrive in.
     const seq = ++loadSeq.current
     const current = () => token === listToken.current && seq === loadSeq.current

@@ -14,8 +14,10 @@ all count as one profile. For each profile saved more than once:
 - the oldest lead is kept, with its lead_id;
 - its empty fields are filled from the copies, oldest copy first; a contact taken from a copy
   brings that copy's verification tier when the kept lead's tier is weak;
-- it takes the furthest status of any copy (new/found < failed send < reviewed < contacted <
-  later stages and decisions such as converted or rejected), so progress is never reset;
+- it takes the furthest status of any copy, in the order of the Pipeline's mails (new/found,
+  failed send, reviewed, contacted, details, slots, interview, selected, ToC, confirmed), with
+  converted, matched and rejected last; between two of those, the copy updated most recently.
+  The dry run lists every status that would change, so check those before --apply;
 - the copies are moved to trainer_profile_leads_merged, each with merged_into = the kept lead_id.
 
 Every remaining lead then gets its profile_key, and the unique profile_key index is created.
@@ -38,13 +40,30 @@ _NOT_FILLED = ('_id', 'lead_id', 'created_at', 'updated_at', 'status', 'profile_
                'verification_tier', 'confidence')
 _CONTACT_FIELDS = ('email', 'phone', 'contact_email', 'contact_phone')
 _WEAK_TIERS = ('', 'unverified', 'linkedin_signal')
-# How far a lead has moved on. Any status not listed is a later pipeline stage or a decision
-# (converted, rejected, interview_scheduled, ...), which a copy that is only new or found never undoes.
-_STATUS_RANK = {'': 0, 'new': 0, 'found': 0, 'outreach_failed': 1, 'reviewed': 2, 'contacted': 3, 'outreach_sent': 3}
+# How far a lead has moved on, in the order of the LinkedIn Pipeline's mails. The furthest copy
+# wins. Converted, matched and rejected are decisions and rank last; between two decisions the
+# copy updated most recently wins, and the dry run shows every status that would change.
+_STATUS_ORDER = (
+    ('', 'new', 'found'),
+    ('outreach_failed',),
+    ('reviewed',),
+    ('contacted', 'outreach_sent'),
+    ('details_requested', 'acknowledged', 'commercials_sent', 'rate_discussion', 'budget_reply_sent',
+     'budget_acknowledged', 'rate_gap_resolution', 'rate_option1', 'rate_option2', 'toc_details_requested'),
+    ('slot_requested', 'slot_clarification'),
+    ('interview_scheduled',),
+    ('selected',),
+    ('toc_requested',),
+    ('training_confirmed',),
+    ('converted', 'matched', 'rejected'),
+)
+_STATUS_RANK = {status: rank for rank, names in enumerate(_STATUS_ORDER) for status in names}
+# A status this script does not know is kept above contacted, below the later stages.
+_UNKNOWN_RANK = _STATUS_RANK['contacted']
 
 
 def _status_rank(doc):
-    return _STATUS_RANK.get(str(doc.get('status') or ''), 4)
+    return _STATUS_RANK.get(str(doc.get('status') or ''), _UNKNOWN_RANK)
 
 
 def _empty(value):
@@ -118,36 +137,49 @@ def _backup(merges, folder, now):
     return path
 
 
+async def _apply_one(table, archive, merge, now):
+    from pymongo.errors import DuplicateKeyError
+
+    keep_filter = {'_id': merge['keep']['_id']}
+    keep_id = merge['keep'].get('lead_id')
+    updates = {name: value for name, value in merge['updates'].items() if name != 'profile_key'}
+    await table.update_one(keep_filter, {'$set': updates})
+    archived = 0
+    for doc in merge['duplicates']:
+        await archive.replace_one({'_id': doc['_id']}, {**doc, 'merged_into': keep_id, 'merged_at': now}, upsert=True)
+        await table.delete_one({'_id': doc['_id']})
+        archived += 1
+    try:
+        await table.update_one(keep_filter, {'$set': {'profile_key': merge['key']}})
+    except DuplicateKeyError:
+        # A search saved this profile again while the script ran; run the script again to merge it.
+        logger.warning('Profile %s was saved again during the merge; run the script again.', merge['key'])
+    return archived
+
+
 async def apply_merges(db, merges, keys, now=None):
     """Update the kept leads, archive the copies, and set profile keys. Safe to run again.
 
-    The kept lead is updated before its copies are removed, so a stop half-way loses nothing:
-    running the script again merges whatever copies are left.
+    Each profile is planned again from its leads as they are now, so the kept lead and the
+    archive both reflect changes made after the dry run. The kept lead is updated before its
+    copies are removed, so a stop half-way loses nothing: running again merges what is left.
     """
     from pymongo.errors import DuplicateKeyError
 
     now = now or datetime.utcnow()
     table, archive = db[COLLECTION], db[ARCHIVE]
     archived = 0
+    applied = 0
+    keys = list(keys)
     for merge in merges:
-        keep_filter = {'_id': merge['keep']['_id']}
-        keep_id = merge['keep'].get('lead_id')
-        updates = {name: value for name, value in merge['updates'].items() if name != 'profile_key'}
-        await table.update_one(keep_filter, {'$set': updates})
-        for doc in merge['duplicates']:
-            # The copy as it is now, in case the service changed it after the plan was made.
-            current = await table.find_one({'_id': doc['_id']})
-            if current is None:
-                continue
-            await archive.replace_one({'_id': doc['_id']}, {**current, 'merged_into': keep_id, 'merged_at': now},
-                                      upsert=True)
-            await table.delete_one({'_id': doc['_id']})
-            archived += 1
-        try:
-            await table.update_one(keep_filter, {'$set': {'profile_key': merge['key']}})
-        except DuplicateKeyError:
-            # A search saved this profile again while the script ran; run the script again to merge it.
-            logger.warning('Profile %s was saved again during the merge; run the script again.', merge['key'])
+        ids = [merge['keep']['_id'], *(doc['_id'] for doc in merge['duplicates'])]
+        current = [doc for doc in [await table.find_one({'_id': doc_id}) for doc_id in ids] if doc]
+        fresh_merges, fresh_keys = plan_merges(current, now)
+        for fresh in fresh_merges:
+            archived += await _apply_one(table, archive, fresh, now)
+            applied += 1
+        # A profile whose copies were deleted meanwhile still gets its key.
+        keys.extend(fresh_keys)
     keyed = 0
     for doc_id, key in keys:
         try:
@@ -156,7 +188,7 @@ async def apply_merges(db, merges, keys, now=None):
         except DuplicateKeyError:
             logger.warning('Profile %s was saved again during the merge; run the script again.', key)
     await table.create_index('profile_key', unique=True, partialFilterExpression={'profile_key': {'$type': 'string'}})
-    return {'archived': archived, 'merged_profiles': len(merges), 'keys_set': keyed}
+    return {'archived': archived, 'merged_profiles': applied, 'keys_set': keyed}
 
 
 def _describe(merges, keys):
@@ -165,9 +197,12 @@ def _describe(merges, keys):
              f'{len(keys)} other lead(s) would get their profile key.']
     for merge in merges[:50]:
         copies = ', '.join(doc.get('lead_id', '?') for doc in merge['duplicates'])
-        changes = ', '.join(sorted(name for name in merge['updates'] if name not in ('profile_key', 'updated_at')))
+        changes = ', '.join(sorted(name for name in merge['updates']
+                                   if name not in ('profile_key', 'updated_at', 'status')))
+        status = merge['updates'].get('status')
         lines.append(f'  {merge["key"]}: keep {merge["keep"].get("lead_id")}, merge {copies}'
-                     + (f' (fills: {changes})' if changes else ''))
+                     + (f'; status {merge["keep"].get("status") or "none"} -> {status}' if status else '')
+                     + (f'; fills: {changes}' if changes else ''))
     if len(merges) > 50:
         lines.append(f'  ... and {len(merges) - 50} more')
     return '\n'.join(lines)

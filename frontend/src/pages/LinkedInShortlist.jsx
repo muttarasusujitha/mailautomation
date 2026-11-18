@@ -10,7 +10,7 @@ import Pager from '../components/Pager'
 import { TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 import {
   LEAD_PAGE_SIZE, chunk, domainChips, leadEmail, leadListParams, leadsWithoutEmail, listPage, outreachReadyLeads,
-  pageToReload, statusCountInView, sumResults,
+  pageToReload, readyForMail1, statusCountInView, sumResults,
 } from '../utils/leadPaging'
 import { firstContactMail } from '../utils/trainerOutreachMail'
 
@@ -71,6 +71,10 @@ export default function LinkedInShortlist() {
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(false)
   const [bulkLoading, setBulkLoading] = useState(false)
+  const [bulkProgress, setBulkProgress] = useState('')
+  // Bulk outreach stops sending when the page is left.
+  const mounted = useRef(true)
+  useEffect(() => () => { mounted.current = false }, [])
   const isTrainer = mode === 'trainer'
 
   const load = async () => {
@@ -213,23 +217,38 @@ export default function LinkedInShortlist() {
     }
     if (!window.confirm(`Send Clahan Mail 1 to ${ready.length} profile(s) on this page? ${skipped} profile(s) without an email, or already contacted, added or rejected, will be skipped.`)) return
     setBulkLoading(true)
-    // One request per trainer: each mail is addressed by name, and a slow mail server cannot make the
-    // gateway drop a batch that then gets sent again. A sent lead becomes contacted and is skipped next time.
-    let sent = 0
-    let failed = 0
+    // One trainer per request: each mail is addressed by name, and a slow mail server cannot make the
+    // gateway drop a batch. The server marks the lead contacted before mailing it and skips leads that
+    // are contacted already, so a second tab or a repeated click never mails the same trainer twice.
+    const total = { sent: 0, failed: 0, skipped }
+    let failuresInRow = 0
     let firstError = ''
-    for (const lead of ready) {
+    for (const [index, lead] of ready.entries()) {
+      if (!mounted.current) return
+      setBulkProgress(`Sending ${index + 1} of ${ready.length}…`)
       try {
-        await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, { ...firstContactMail({ lead, mailContext }), sent_status: 'contacted' })
-        sent += 1
+        const res = await api.post('/trainer-profile-leads/send-public-email-outreach', {
+          lead_ids: [lead.lead_id], ...firstContactMail({ lead, mailContext }), sent_status: 'contacted',
+        })
+        total.sent += Number(res.data.sent) || 0
+        total.failed += Number(res.data.failed) || 0
+        total.skipped += Number(res.data.skipped) || 0
+        failuresInRow = res.data.failed ? failuresInRow + 1 : 0
+        firstError = firstError || res.data.errors?.[0]?.error || ''
       } catch (e) {
-        failed += 1
+        total.failed += 1
+        failuresInRow += 1
         firstError = firstError || e.message
       }
+      // The mail service is probably down; the rest stay ready to send later.
+      if (failuresInRow >= 3) break
     }
-    const message = `Outreach sent: ${sent}, skipped: ${skipped}, failed: ${failed}${firstError ? ` (${firstError})` : ''}`
-    if (failed && !sent) toast.error(message)
+    if (!mounted.current) return
+    const stopped = failuresInRow >= 3 ? ' Stopped after 3 failures in a row.' : ''
+    const message = `Outreach sent: ${total.sent}, skipped: ${total.skipped}, failed: ${total.failed}${firstError ? ` (${firstError})` : ''}.${stopped}`
+    if (total.failed && !total.sent) toast.error(message)
     else toast.success(message)
+    setBulkProgress('')
     setBulkLoading(false)
     refresh()
   }
@@ -307,7 +326,7 @@ export default function LinkedInShortlist() {
           {isTrainer && (
             <>
               <button onClick={enrichPublicEmails} disabled={bulkLoading} className="btn-secondary text-sm disabled:opacity-50"><RefreshCw className="h-4 w-4" /> Find Public Emails</button>
-              <button onClick={sendPublicEmailOutreach} disabled={bulkLoading} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> Send Public Email Outreach</button>
+              <button onClick={sendPublicEmailOutreach} disabled={bulkLoading} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> {bulkProgress || 'Send Public Email Outreach'}</button>
             </>
           )}
           <span className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">
@@ -462,7 +481,7 @@ export default function LinkedInShortlist() {
                 {lead.public_website_url && <a className="inline-flex items-center gap-1 rounded-lg bg-violet-50 px-2 py-1 font-semibold text-violet-700" href={lead.public_website_url} target="_blank" rel="noreferrer"><ExternalLink className="h-3 w-3" /> Public Website</a>}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <button onClick={() => sendLead(lead)} disabled={lead.status === 'contacted'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> {leadEmail(lead) ? 'Send Mail' : 'Enter Email & Send'}</button>
+                <button onClick={() => sendLead(lead)} disabled={isTrainer ? !readyForMail1(lead) : lead.status === 'contacted'} title={isTrainer && !readyForMail1(lead) ? 'Mail 1 goes to trainers not yet contacted, added or rejected' : undefined} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" /> {leadEmail(lead) ? 'Send Mail' : 'Enter Email & Send'}</button>
                 {isTrainer && lead.source_url && <a href={lead.source_url} target="_blank" rel="noreferrer" className="btn-primary text-sm"><ExternalLink className="h-4 w-4" /> Open Profile</a>}
                 <button onClick={() => patchLead(lead, { status: 'converted' })} className="btn-secondary text-sm text-emerald-700"><CheckCircle2 className="h-4 w-4" /> {isTrainer ? 'Mark Added' : 'Converted'}</button>
                 <button onClick={() => patchLead(lead, { status: 'reviewed' })} className="btn-secondary text-sm"><CheckCircle2 className="h-4 w-4" /> Reviewed</button>

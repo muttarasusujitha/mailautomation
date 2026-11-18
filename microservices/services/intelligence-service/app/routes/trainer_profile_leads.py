@@ -774,19 +774,35 @@ async def send_public_email_outreach(payload: SendOutreachRequest, db: AsyncIOMo
     """
     if not payload.lead_ids:
         raise HTTPException(400, "lead_ids is required")
+    sent_status = payload.sent_status if payload.sent_status in SENT_STATUSES else "outreach_sent"
     sent = failed = skipped = 0
     errors: List[Dict[str, str]] = []
     for lead_id in dict.fromkeys(payload.lead_ids):
         saved = await db["trainer_profile_leads"].find_one({"lead_id": lead_id}, {"_id": 0, "status": 1})
-        if saved and str(saved.get("status") or "") not in NOT_CONTACTED_STATUSES:
-            skipped += 1
-            continue
+        if saved is not None:
+            previous = saved.get("status")
+            if str(previous or "") not in NOT_CONTACTED_STATUSES:
+                skipped += 1
+                continue
+            # Claim the lead before mailing it: the update matches only while the status is unchanged,
+            # so a second request for the same lead (another tab, a retry) skips it instead of mailing again.
+            claim = await db["trainer_profile_leads"].update_one(
+                {"lead_id": lead_id, "status": previous},
+                {"$set": {"status": sent_status, "outreach_claimed_at": datetime.utcnow()}},
+            )
+            if not claim.matched_count:
+                skipped += 1
+                continue
         try:
             req = SendOutreachRequest(lead_ids=[lead_id], subject=payload.subject, body=payload.body,
                                       sent_status=payload.sent_status)
             await send_lead_outreach(lead_id, req, db)
             sent += 1
         except HTTPException as exc:
+            if saved is not None:
+                # Not sent: give the lead its status back, so it can be sent later.
+                await db["trainer_profile_leads"].update_one(
+                    {"lead_id": lead_id, "status": sent_status}, {"$set": {"status": previous or "new"}})
             failed += 1
             errors.append({"lead_id": lead_id, "error": str(exc.detail)})
     return {"success": True, "sent": sent, "failed": failed, "skipped": skipped, "errors": errors[:20]}

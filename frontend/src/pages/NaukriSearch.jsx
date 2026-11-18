@@ -5,7 +5,7 @@ import { CheckCircle2, ExternalLink, Newspaper, RefreshCw, Search, Send, Trash2,
 import api from '../utils/api'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
-import { LEAD_PAGE_SIZE, leadListParams, listPage, pageToReload, statusCountInView } from '../utils/leadPaging'
+import { LEAD_PAGE_SIZE, leadListParams, listPage, pageToReload, readyForMail1, statusCountInView } from '../utils/leadPaging'
 import { newSearchRef } from '../utils/leadSearchFeedback'
 import { firstContactMail } from '../utils/trainerOutreachMail'
 
@@ -218,7 +218,7 @@ export default function NaukriSearch() {
               {(lead.contact_phone || lead.phone) && <span className="rounded-lg bg-slate-50 px-2 py-1">{lead.contact_phone || lead.phone}</span>}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button onClick={() => sendLead(lead)} disabled={lead.status === 'contacted'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" />{lead.contact_email || lead.email ? 'Send Email' : 'Enter Email & Send'}</button>
+              <button onClick={() => sendLead(lead)} disabled={!readyForMail1(lead)} title={readyForMail1(lead) ? undefined : 'The approach email goes to profiles not yet contacted, added or rejected'} className="btn-primary text-sm disabled:opacity-50"><Send className="h-4 w-4" />{lead.contact_email || lead.email ? 'Send Email' : 'Enter Email & Send'}</button>
               <button onClick={() => updateLead(lead, { status: 'reviewed' })} className="btn-secondary text-sm"><CheckCircle2 className="h-4 w-4" />Reviewed</button>
               <button onClick={() => updateLead(lead, { status: 'converted' })} className="btn-secondary text-sm text-emerald-700"><Users className="h-4 w-4" />Added</button>
               <button onClick={() => updateLead(lead, { status: 'rejected' })} className="btn-secondary text-sm text-red-600"><Trash2 className="h-4 w-4" />Reject</button>

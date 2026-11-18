@@ -140,6 +140,8 @@ def matches(doc, query):
             ok = any(matches(doc, item) for item in condition)
         elif key == '$nor':
             ok = not any(matches(doc, item) for item in condition)
+        elif key == '$expr':
+            ok = bool(evaluate(condition, doc))
         elif key.startswith('$'):
             raise NotImplementedError(f'query operator {key}')
         else:
@@ -207,9 +209,22 @@ def evaluate(expr, doc):
         if op == '$cond':
             test, then, other = (arg['if'], arg['then'], arg['else']) if isinstance(arg, dict) else arg
             return evaluate(then if evaluate(test, doc) else other, doc)
-        if op == '$eq':
+        if op in ('$eq', '$ne'):
             left, right = (evaluate(item, doc) for item in arg)
-            return (None if left is _MISSING else left) == (None if right is _MISSING else right)
+            same = (None if left is _MISSING else left) == (None if right is _MISSING else right)
+            return same if op == '$eq' else not same
+        if op == '$and':
+            return all(evaluate(item, doc) for item in arg)
+        if op == '$switch':
+            for branch in arg['branches']:
+                if evaluate(branch['case'], doc):
+                    return evaluate(branch['then'], doc)
+            return evaluate(arg['default'], doc)
+        if op == '$regexMatch':
+            value = evaluate(arg['input'], doc)
+            if not isinstance(value, str):
+                raise TypeError('$regexMatch needs a string input')
+            return re.search(arg['regex'], value, _flags(arg.get('options'))) is not None
         if op == '$type':
             return _type_name(evaluate(arg, doc))
         if op == '$concat':
