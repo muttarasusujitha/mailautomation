@@ -19,7 +19,7 @@ import logging
 import os
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from app.clients.serp_engines import (
     CANONICAL, EngineHealth, Fetcher, Pacer, enabled_engines, fetch_results_page, post_key, with_params,
@@ -107,7 +107,13 @@ def query_plan(skill, location='', mode='trainer'):
             queries.append(text)
 
     if mode == 'client':
-        for phrase in CLIENT_PHRASES:
+        for phrase in CLIENT_PHRASES[:4]:
+            add(f'site:linkedin.com/posts {quoted} {phrase} {place}')
+        # Search engines differ in how they index LinkedIn post paths. Try
+        # broad indexed-result queries before the long city expansion.
+        for phrase in CLIENT_PHRASES[:4]:
+            add(f'{quoted} {phrase} LinkedIn {place}')
+        for phrase in CLIENT_PHRASES[4:]:
             add(f'site:linkedin.com/posts {quoted} {phrase} {place}')
         for phrase in CLIENT_PHRASES[:4]:
             add(f'site:linkedin.com/feed/update {quoted} {phrase} {place}')
@@ -120,6 +126,10 @@ def query_plan(skill, location='', mode='trainer'):
 
     for role in ROLE_PHRASES:
         add(f'site:linkedin.com/in {quoted} {role} {place}')
+    # Broaden beyond site-scoped indexing early so a sparse exact query does
+    # not spend the engine's empty-query budget before trying general search.
+    for role in ('corporate trainer', 'freelance trainer', 'technical trainer', 'instructor'):
+        add(f'{core} {role} linkedin {place}')
     add(f'site:in.linkedin.com/in {quoted} trainer {place}')
     for alias in skill_aliases(skill):
         add(f'site:linkedin.com/in {_quote(alias)} trainer {place}')
@@ -201,6 +211,9 @@ class _Run:
         self.qualified = {}
         self.already_saved = set()
         self.done = asyncio.Event()
+        age = client_post_max_age() if mode == 'client' else 'any'
+        self.post_cutoff = (datetime.now(timezone.utc) - timedelta(days=7 if age == 'week' else 30)
+                            if age in ('week', 'month') else None)
 
     def key(self, url):
         return post_key(url) if self.mode == 'client' and not str(url).startswith('linkedin:') else str(url).lower()
@@ -213,6 +226,16 @@ class _Run:
         url = self.canonical(row.get('url'))
         if not url:
             return False
+        if self.post_cutoff:
+            # Search-engine date parameters can fail silently. LinkedIn post
+            # activity IDs encode creation time; enforce the requested window
+            # locally so stale posts never pass as recent.
+            match = re.search(r'(?:activity[-:]|urn:li:activity:)(\d{6,})', url, re.I)
+            if not match:
+                return False
+            created = datetime.fromtimestamp((int(match.group(1)) >> 22) / 1000, tz=timezone.utc)
+            if created < self.post_cutoff:
+                return False
         key = self.key(url)
         if key in self.exclude:
             self.already_saved.add(key)
@@ -272,11 +295,12 @@ async def _run_engine(engine, queries, run, fetcher, health, report, offset, rec
             if page.status == 'blocked':
                 until = health.record_block(engine.name)
                 report.update(status='blocked', cooling_until=until.isoformat(),
-                              reason=f'{engine.label} refused requests from this server (captcha or rate limit). '
+                              reason=f'{page.reason or f"{engine.label} refused this request"} '
                                      f'It will be retried after {until.strftime("%H:%M")} UTC.')
                 return
             if page.status == 'error':
                 errors_in_row += 1
+                report['reason'] = page.reason
                 if errors_in_row >= 3:
                     report.update(status='error', reason=f'{engine.label} did not answer three requests in a row.')
                     return

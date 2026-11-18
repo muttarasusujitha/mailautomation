@@ -20,7 +20,7 @@ export function leadSearchWarnings(data) {
   return messages
 }
 
-export const AUTOMATIC_LINKEDIN_DOMAINS = ['Python', 'AWS']
+export const AUTOMATIC_LINKEDIN_DOMAINS = ['Python']
 
 export function linkedInSearchDomains(domainText) {
   const entered = String(domainText || '')
@@ -38,7 +38,7 @@ export function linkedInSearchPayload(mode, domainText) {
     source: 'linkedin',
     mode: trainerSearch ? 'trainer' : 'client',
     domains: linkedInSearchDomains(domainText),
-    max_results: trainerSearch ? 60 : 50,
+    max_results: trainerSearch ? 100 : 50,
     save: true,
     max_queries: trainerSearch ? 8 : 2,
     max_domains: 4,
