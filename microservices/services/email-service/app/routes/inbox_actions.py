@@ -653,6 +653,7 @@ async def approve_inbox_reply(
         "email_id": email_id,
         "status": update["status"],
         "reply_status": update["reply_status"],
+        "error": update.get("reply_error", ""),
         "trainer_automation_status": update.get("trainer_automation_status"),
         "mail_automation": update.get("mail_automation"),
     }
@@ -747,6 +748,15 @@ async def reject_inbox_reply(
     return {"success": True, "email_id": email_id, "reply_status": "rejected"}
 
 
+async def _send_regenerated_reply_if_enabled(email_id: str, db: AsyncIOMotorDatabase) -> Dict[str, Any]:
+    """Send a newly generated reply when the deployment has auto-send enabled."""
+    from app.config import get_settings
+
+    if not get_settings().AUTO_SEND_ENABLED:
+        return {"status": "pending_approval", "reply_status": "pending_review", "error": ""}
+    return await approve_inbox_reply(email_id, ApproveRequest(send_now=True), db)
+
+
 @router.post("/{email_id}/regenerate-reply")
 async def regenerate_reply(
     email_id: str,
@@ -792,12 +802,16 @@ async def regenerate_reply(
                 "generation_source": "template",
             }},
         )
+        send_result = await _send_regenerated_reply_if_enabled(email_id, db)
         return {
             "success": True,
             "email_id": email_id,
             "reply": new_reply,
             "generated_reply": generated_reply,
             "generation_source": "template",
+            "status": send_result.get("status"),
+            "reply_status": send_result.get("reply_status"),
+            "error": send_result.get("error", ""),
         }
 
     body = _clean_incoming_email(doc.get("clean_body") or doc.get("body") or doc.get("raw_body") or "")
@@ -867,8 +881,12 @@ async def regenerate_reply(
             "updated_at": now,
         }},
     )
+    send_result = await _send_regenerated_reply_if_enabled(email_id, db)
     return {"success": True, "email_id": email_id, "reply": new_reply, "generated_reply": generated_reply,
-            "reply_analysis": reply_analysis}
+            "reply_analysis": reply_analysis,
+            "status": send_result.get("status"),
+            "reply_status": send_result.get("reply_status"),
+            "error": send_result.get("error", "")}
 
 
 def _clean_incoming_email(value: Any) -> str:
