@@ -42,7 +42,8 @@ def test_short_result_explains_why():
     assert len(rows) == 12 and result['status'] == 'partial'
     assert result['limit_reason'] == reason
     assert result['warnings'][-1] == {'source': 'trainer_finder', 'error': reason}
-    assert result['sources'][0]['status'] == 'blocked'
+    # The bot switched off is a setting, not a LinkedIn block.
+    assert result['sources'][0]['status'] == 'not_configured'
 
 
 def test_no_time_left_skips_the_engines():
