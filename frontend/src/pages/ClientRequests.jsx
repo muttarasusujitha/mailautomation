@@ -22,7 +22,7 @@ const FILTERS = [
   { key: 'spam', label: 'Spam' },
 ]
 
-const REQUEST_REFRESH_INTERVAL_MS = 15000
+const REQUEST_REFRESH_INTERVAL_MS = 1000
 
 function shortlistPath(request = {}) {
   const extracted = request.extracted || {}
@@ -775,7 +775,7 @@ export default function ClientRequests() {
           <h1 className="page-title flex items-center gap-2">
             <BriefcaseBusiness className="h-6 w-6 text-blue-500" /> Client Requests
           </h1>
-          <p className="mt-1 text-sm text-slate-500">All training inquiries captured from the client inbox.</p>
+          <p className="mt-1 text-sm text-slate-500">Saved inbox requests refresh every second. Use Check Inbox Now to fetch new mail from Gmail.</p>
           <div className={clsx('mt-3 flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2.5 text-sm', generationMode === 'ai' ? 'border-violet-300 bg-violet-50/60' : 'border-slate-300 bg-slate-50')}>
             <Sparkles className={clsx('h-4 w-4', generationMode === 'ai' ? 'text-violet-700' : 'text-slate-500')} />
             <span className="text-xs font-bold uppercase tracking-wide text-slate-700">AI reply generation</span>
