@@ -6,7 +6,10 @@ import {
   Search, Send, ShieldCheck, Sparkles, Users, Star, ChevronRight, ChevronLeft, Trash2,
 } from 'lucide-react'
 import api from '../utils/api'
+import Pager from '../components/Pager'
+import SearchSourceReport from '../components/SearchSourceReport'
 import { VerificationBadge } from '../components/VerificationBadge'
+import { LEAD_PAGE_SIZE, chunk, leadListParams, listPage, pageToReload, sumResults } from '../utils/leadPaging'
 
 const STATUSES = ['all', 'found', 'reviewed', 'outreach_sent', 'matched', 'converted', 'rejected']
 const BACKEND_STATUSES = new Set(['all', 'found', 'reviewed', 'outreach_sent', 'matched', 'converted', 'rejected'])
@@ -88,14 +91,6 @@ function leadPhone(lead) {
 
 function leadUrl(lead) {
   return clean(lead.linkedin_url || lead.source_url)
-}
-
-function leadText(lead) {
-  return clean(lead.profile_text || lead.snippet || lead.headline || lead.notes, 'No public profile summary saved yet.')
-}
-
-function hasContact(lead) {
-  return Boolean(leadEmail(lead) || leadPhone(lead))
 }
 
 function statusTone(status) {
@@ -297,6 +292,9 @@ export default function LinkedInPipeline() {
   const [status, setStatus] = useState('all')
   const [onlyContactable, setOnlyContactable] = useState(true)
   const [leads, setLeads] = useState([])
+  const [page, setPage] = useState(1)
+  const [list, setList] = useState(listPage())
+  const [searchReport, setSearchReport] = useState(null)
   const [loading, setLoading] = useState(false)
   const [working, setWorking] = useState(false)
   const [sendingLeadId, setSendingLeadId] = useState('')
@@ -326,23 +324,28 @@ export default function LinkedInPipeline() {
     const effectiveDomain = clean(override.domain ?? domain)
     const effectiveQuery = clean(override.query ?? query)
     const effectiveRequirementId = clean(override.requirement_id ?? selectedReq?.requirement_id)
+    const pageNumber = override.pageNumber ?? page
     setLoading(true)
     try {
-      const params = { status: BACKEND_STATUSES.has(status) ? status : 'all', q: effectiveQuery || effectiveDomain, limit: 500 }
+      // The server applies the LinkedIn, requirement, domain and contact filters, so pages and totals match.
       const res = await api.get('/trainer-profile-leads', {
-        params,
+        params: leadListParams({
+          status: BACKEND_STATUSES.has(status) ? status : 'all',
+          q: effectiveQuery || effectiveDomain,
+          kind: 'linkedin',
+          requirementScope: effectiveRequirementId,
+          topic: effectiveDomain,
+          hasContact: onlyContactable,
+          page: pageNumber,
+        }),
       })
-      const rows = (res.data.leads || [])
-        .filter(lead => clean(lead.source, 'linkedin').toLowerCase() === 'linkedin' || leadUrl(lead).includes('linkedin.com/in'))
-        .filter(lead => {
-          if (!effectiveRequirementId) return true
-          const leadRequirementId = clean(lead.requirement_id)
-          return !leadRequirementId || leadRequirementId === effectiveRequirementId
-        })
-        .filter(lead => !effectiveDomain || clean(lead.domain).toLowerCase().includes(effectiveDomain.toLowerCase()) || leadText(lead).toLowerCase().includes(effectiveDomain.toLowerCase()))
-        .filter(lead => !onlyContactable || hasContact(lead))
-        .filter(lead => status === 'all' || clean(lead.status) === status)
-      setLeads(rows)
+      const reload = pageToReload(res.data, pageNumber)
+      if (reload) {
+        setPage(reload)
+        return
+      }
+      setLeads(res.data.leads || [])
+      setList(listPage(res.data))
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -351,7 +354,13 @@ export default function LinkedInPipeline() {
   }
 
   useEffect(() => { loadRequirements() }, [])
-  useEffect(() => { load() }, [status, onlyContactable])
+  useEffect(() => { load() }, [status, onlyContactable, page])
+
+  // New filters start at page 1. On another page, the page change reloads with the updated filters.
+  const loadFirstPage = async (override = {}) => {
+    if (page === 1) await load({ ...override, pageNumber: 1 })
+    else setPage(1)
+  }
 
   useEffect(() => {
     if (!urlDomain || urlBooted.current || selectedReq) return
@@ -398,6 +407,8 @@ export default function LinkedInPipeline() {
       setQuery(technology)
       setMailContext(prev => ({ ...prev, domain: technology, requirement_note: `LinkedIn trainer search batch for ${technology}` }))
       setLeads([])
+      setList(listPage())
+      setSearchReport(null)
       toast.success(`Created LinkedIn requirement ${req.requirement_id}`)
     } catch (e) {
       toast.error(e.message)
@@ -419,7 +430,8 @@ export default function LinkedInPipeline() {
       mode: clean(req.mode || req.delivery_mode || req.location_mode, prev.mode || 'Online'),
       requirement_note: clean(req.requirement_note || req.description || req.notes, prev.requirement_note),
     }))
-    await load({ domain: nextDomain, query: nextDomain })
+    setSearchReport(null)
+    await loadFirstPage({ domain: nextDomain, query: nextDomain, requirement_id: req.requirement_id })
   }
 
   const searchLinkedIn = async () => {
@@ -429,6 +441,8 @@ export default function LinkedInPipeline() {
       return
     }
     setWorking(true)
+    setSearchReport(null)
+    const startedAt = Date.now()
     try {
       const res = await api.post('/trainer-profile-leads/search-public', {
         domain: searchDomain,
@@ -437,25 +451,38 @@ export default function LinkedInPipeline() {
         source: 'linkedin',
         max_results: 50,
       })
-      toast.success(`LinkedIn search saved ${res.data.saved_count || res.data.new_stored || 0} new trainer profile(s)`)
-      await load({ requirement_id: selectedReq?.requirement_id || '', domain: searchDomain, query: query || searchDomain })
+      setSearchReport(res.data)
+      if (res.data.success === false) toast.error(res.data.search_error || 'No search source gave an answer')
+      else toast.success(`LinkedIn search saved ${res.data.saved_count || res.data.new_stored || 0} new trainer profile(s)`)
+      await loadFirstPage({ requirement_id: selectedReq?.requirement_id || '', domain: searchDomain, query: query || searchDomain })
     } catch (e) {
+      setSearchReport({ requestFailed: true, startedAt, search_error: e.message })
       toast.error(e.message)
     } finally {
       setWorking(false)
     }
   }
 
+  // Runs for the trainers on this page that have no email, ten per request.
   const enrichVisible = async () => {
     const leadIds = leads.filter(lead => !leadEmail(lead)).map(lead => lead.lead_id).slice(0, 20)
     if (!leadIds.length) {
-      toast.success('Visible trainers already have emails, or no trainers are visible')
+      toast.success('Trainers on this page already have emails, or no trainers are listed')
       return
     }
     setWorking(true)
     try {
-      const res = await api.post('/trainer-profile-leads/enrich-public-emails', { lead_ids: leadIds })
-      toast.success(`Contact enrichment checked ${res.data.checked || 0}, enriched ${res.data.enriched || 0}`)
+      const results = []
+      for (const ids of chunk(leadIds, 10)) {
+        const res = await api.post('/trainer-profile-leads/enrich-public-emails', { lead_ids: ids })
+        results.push(res.data)
+      }
+      const total = sumResults(results, ['checked', 'enriched', 'failed'])
+      if (total.failed && !total.enriched && total.failed >= total.checked) {
+        toast.error(`Contact enrichment failed for ${total.failed} trainer(s): ${total.error}`)
+      } else {
+        toast.success(`Contact enrichment checked ${total.checked}, enriched ${total.enriched}${total.failed ? `, ${total.failed} lookup(s) failed` : ''}`)
+      }
       await load()
     } catch (e) {
       toast.error(e.message)
@@ -517,13 +544,16 @@ export default function LinkedInPipeline() {
     }
   }
 
-  const stats = useMemo(() => ({
-    visible: leads.length,
-    emails: leads.filter(lead => leadEmail(lead)).length,
-    phones: leads.filter(lead => leadPhone(lead)).length,
-    skipped: leads.filter(lead => !leadEmail(lead)).length,
-    contacted: leads.filter(lead => pipelineStep(clean(lead.status)) >= 1).length,
-  }), [leads])
+  // Totals over every page of the current filters, from the server.
+  const stats = useMemo(() => {
+    const emails = list.counts?.with_email || 0
+    return {
+      visible: list.total,
+      emails,
+      phones: list.counts?.with_phone || 0,
+      skipped: Math.max(0, list.total - emails),
+    }
+  }, [list])
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -601,7 +631,7 @@ export default function LinkedInPipeline() {
               <p className="mt-1 text-xs text-slate-400">{selectedReq.requirement_id} · Top {clean(selectedReq.top_n, '10')}</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => { setSelectedReq(null); setLeads([]) }} className="btn-secondary text-sm"><ChevronLeft className="h-4 w-4" /> Back</button>
+              <button onClick={() => { setSelectedReq(null); setLeads([]); setList(listPage()); setSearchReport(null) }} className="btn-secondary text-sm"><ChevronLeft className="h-4 w-4" /> Back</button>
               <button onClick={() => load()} disabled={loading} className="btn-secondary text-sm disabled:opacity-50"><RefreshCw className={clsx('h-4 w-4', loading && 'animate-spin')} /> Refresh</button>
             </div>
           </div>
@@ -616,10 +646,11 @@ export default function LinkedInPipeline() {
               <p className="mt-0.5 text-emerald-600">Only real emails are sent through Gmail</p>
             </div>
             <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
-              <p className="font-bold">{leads.length} LinkedIn trainer(s)</p>
+              <p className="font-bold">{stats.visible} LinkedIn trainer(s)</p>
               <p className="mt-0.5 text-blue-600">{stats.emails} email-ready, {stats.skipped} need contact enrichment</p>
             </div>
           </div>
+          <SearchSourceReport report={searchReport} runKind="trainer_search_public" noun="trainer profiles" />
         </div>
       )}
 
@@ -631,16 +662,16 @@ export default function LinkedInPipeline() {
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Search Query</label>
-            <input className="input" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()} placeholder="Corporate trainer LinkedIn" />
+            <input className="input" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && loadFirstPage()} placeholder="Corporate trainer LinkedIn" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase text-slate-500">Status</label>
-            <select className="input" value={status} onChange={e => setStatus(e.target.value)}>
+            <select className="input" value={status} onChange={e => { setStatus(e.target.value); setPage(1) }}>
               {STATUSES.map(item => <option key={item} value={item}>{item.replaceAll('_', ' ')}</option>)}
             </select>
           </div>
           <div className="flex items-end gap-2">
-            <button onClick={load} disabled={loading} className="btn-secondary w-full text-sm disabled:opacity-50"><RefreshCw className="h-4 w-4" /> Refresh</button>
+            <button onClick={() => loadFirstPage()} disabled={loading} className="btn-secondary w-full text-sm disabled:opacity-50"><RefreshCw className="h-4 w-4" /> Refresh</button>
           </div>
         </div>
 
@@ -657,7 +688,7 @@ export default function LinkedInPipeline() {
         </div>
 
         <label className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-600">
-          <input type="checkbox" checked={onlyContactable} onChange={e => setOnlyContactable(e.target.checked)} className="h-4 w-4 rounded border-slate-300" />
+          <input type="checkbox" checked={onlyContactable} onChange={e => { setOnlyContactable(e.target.checked); setPage(1) }} className="h-4 w-4 rounded border-slate-300" />
           Show only LinkedIn trainers with email or phone
         </label>
       </section>}
@@ -705,7 +736,7 @@ export default function LinkedInPipeline() {
               return (
                 <article key={lead.lead_id} className="px-4 py-4">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-sm font-bold text-amber-700">{index + 1}</span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-sm font-bold text-amber-700">{(list.page - 1) * LEAD_PAGE_SIZE + index + 1}</span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="max-w-full truncate text-base font-bold text-slate-950">{leadName(lead)}</h3>
@@ -818,6 +849,8 @@ export default function LinkedInPipeline() {
           <p>No LinkedIn trainers with the selected filters.</p>
         </div>
       ))}
+
+      {selectedReq && <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={setPage} noun="trainers" />}
     </div>
   )
 }

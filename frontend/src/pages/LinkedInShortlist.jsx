@@ -6,7 +6,12 @@ import {
   Search, Send, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
+import Pager from '../components/Pager'
 import { TrustLegend, VerificationBadge } from '../components/VerificationBadge'
+import {
+  LEAD_PAGE_SIZE, chunk, domainChips, leadListParams, leadsWithoutEmail, listPage, outreachReadyLeads,
+  pageToReload, statusCountInView, sumResults,
+} from '../utils/leadPaging'
 
 const VISIBLE_STATUSES = ['new', 'reviewed', 'contacted', 'converted', 'rejected']
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
@@ -42,50 +47,15 @@ function relativeTime(value) {
   return `${days} day${days === 1 ? '' : 's'} ago`
 }
 
-function leadDomain(lead) {
-  return String(lead?.domain || '').trim() || 'Other'
-}
-
-function leadSearchText(lead) {
-  return [
-    lead?.domain,
-    lead?.trainer_name,
-    lead?.headline,
-    lead?.profile_text,
-    lead?.company_name,
-    lead?.contact_name,
-    lead?.post_text,
-    lead?.notes,
-  ].join(' ').toLowerCase()
-}
-
-function isTrainerProviderProfile(lead) {
-  const text = leadSearchText(lead)
-  const blockers = [
-    ' job ', ' jobs ', 'job vacancies', 'job vacancy', 'apply to', 'job description', 'required candidate profile',
-    'current ctc', 'expected ctc', 'notice period', 'immediate joiner',
-    'last working day', 'offer in hand', 'actively exploring', 'open to opportunities',
-    'willing to relocate', 'application for', 'my resume', 'ready to work from office',
-    'work preference', 'looking for job', 'seeking opportunity',
-    'institute', 'academy', 'pvt ltd', 'private limited', 'solutions', 'technologies',
-    'consultant', 'consulting', 'consultant1 day ago', 'consultant2 days ago', 'consultant3 days ago', 'recruiter',
-    'location ', 'experience ', 'yrs · consultant', 'yrs consultant',
-  ]
-  if (blockers.some(token => text.includes(token))) return false
-  const signals = [
-    'trainer profile', 'freelance trainer', 'corporate trainer', 'technical trainer',
-    'training delivery', 'conduct trainings', 'conducted trainings', 'delivered training',
-    'instructor', 'faculty',
-    'mentor', 'coach', 'online training', 'classroom training',
-  ]
-  return signals.some(token => text.includes(token))
-}
-
 export default function LinkedInShortlist() {
   const [mode, setMode] = useState('trainer')
   const [status, setStatus] = useState('all')
   const [q, setQ] = useState('')
+  // Typed text matches the domain or profile text; a chosen domain chip (domainValue) matches that domain only.
   const [domainFilter, setDomainFilter] = useState('')
+  const [domainValue, setDomainValue] = useState('')
+  const [page, setPage] = useState(1)
+  const [list, setList] = useState(listPage())
   const [mailContext, setMailContext] = useState({
     domain: '',
     duration: '',
@@ -93,7 +63,6 @@ export default function LinkedInShortlist() {
     participants: '',
     requirement_note: '',
   })
-  const [domainOptions, setDomainOptions] = useState([])
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(false)
   const [bulkLoading, setBulkLoading] = useState(false)
@@ -103,23 +72,20 @@ export default function LinkedInShortlist() {
     setLoading(true)
     try {
       const endpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
-      const res = await api.get(endpoint, { params: { status: 'all', q, limit: 300 } })
-      const allLinkedInRows = (res.data.leads || [])
-        .filter(item => VISIBLE_STATUSES.includes(String(item.status || '').toLowerCase()))
-        .filter(item => !isTrainer || isTrainerProviderProfile(item))
-      const counts = new Map()
-      allLinkedInRows.forEach(item => {
-        const domain = leadDomain(item)
-        counts.set(domain, (counts.get(domain) || 0) + 1)
+      // The server applies the shortlist rules (kind=shortlist) so every page and count covers all saved leads.
+      const res = await api.get(endpoint, {
+        params: leadListParams({
+          kind: isTrainer ? 'shortlist' : '', statuses: VISIBLE_STATUSES, status, q, page,
+          domainExact: domainValue, topic: domainValue ? '' : domainFilter,
+        }),
       })
-      setDomainOptions(Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])))
-      const rows = allLinkedInRows
-        .filter(item => {
-          const domain = domainFilter.trim().toLowerCase()
-          if (!domain) return true
-          return leadDomain(item).toLowerCase() === domain || leadSearchText(item).includes(domain)
-        })
-      setLeads(status === 'all' ? rows : rows.filter(item => item.status === status))
+      const reload = pageToReload(res.data, page)
+      if (reload) {
+        setPage(reload)
+        return
+      }
+      setLeads(res.data.leads || [])
+      setList(listPage(res.data))
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -127,7 +93,18 @@ export default function LinkedInShortlist() {
     }
   }
 
-  useEffect(() => { load() }, [mode, status, domainFilter])
+  useEffect(() => { load() }, [mode, status, domainFilter, domainValue, page])
+
+  const reloadFirstPage = () => {
+    if (page === 1) load()
+    else setPage(1)
+  }
+
+  const chooseDomain = (value = '', label = '') => {
+    setDomainValue(value)
+    setDomainFilter(label)
+    setPage(1)
+  }
 
   const patchLead = async (lead, payload) => {
     try {
@@ -167,6 +144,7 @@ export default function LinkedInShortlist() {
         ...mailContext,
         to_email: toEmail,
         domain: mailContext.domain || lead.domain,
+        sent_status: 'contacted',
       } : { to_email: toEmail }
       const res = await api.post(endpoint, payload)
       if (res.data.success) toast.success('Approach mail sent from Clahan')
@@ -182,13 +160,25 @@ export default function LinkedInShortlist() {
       toast.error('Public email enrichment is available for trainer profiles')
       return
     }
+    // The lookup runs for the profiles on this page that have no email, ten per request.
+    const leadIds = leadsWithoutEmail(leads)
+    if (!leadIds.length) {
+      toast.success('Every profile on this page already has an email')
+      return
+    }
     setBulkLoading(true)
     try {
-      const res = await api.post('/trainer-profile-leads/enrich-public-emails', {
-        domain: domainFilter || mailContext.domain,
-        limit: 100,
-      })
-      toast.success(`Public email scan complete: ${res.data.enriched_count || 0} profile(s) updated`)
+      const results = []
+      for (const ids of chunk(leadIds, 10)) {
+        const res = await api.post('/trainer-profile-leads/enrich-public-emails', { lead_ids: ids })
+        results.push(res.data)
+      }
+      const total = sumResults(results, ['checked', 'enriched', 'failed'])
+      if (total.failed && !total.enriched && total.failed >= total.checked) {
+        toast.error(`The public email lookup failed for ${total.failed} profile(s): ${total.error}`)
+      } else {
+        toast.success(`Public email scan checked ${total.checked} profile(s) on this page; ${total.enriched} email(s) found${total.failed ? `; ${total.failed} lookup(s) failed` : ''}`)
+      }
       await load()
     } catch (e) {
       toast.error(e.message)
@@ -202,16 +192,25 @@ export default function LinkedInShortlist() {
       toast.error('Bulk outreach is available for trainer profiles')
       return
     }
-    const domainLabel = domainFilter || mailContext.domain || 'all visible domains'
-    if (!window.confirm(`Send Clahan outreach mail to all valid public emails for ${domainLabel}? Already-contacted and rejected profiles will be skipped.`)) return
+    // Profiles on this page with an email that are not contacted or rejected yet.
+    const leadIds = outreachReadyLeads(leads)
+    const skipped = leads.length - leadIds.length
+    if (!leadIds.length) {
+      toast.error('No profile on this page has an email and is ready for outreach')
+      return
+    }
+    if (!window.confirm(`Send Clahan outreach mail to ${leadIds.length} profile(s) on this page? ${skipped} profile(s) without an email, or already contacted or rejected, will be skipped.`)) return
     setBulkLoading(true)
     try {
-      const res = await api.post('/trainer-profile-leads/send-public-email-outreach', {
-        ...mailContext,
-        domain: domainFilter || mailContext.domain,
-        limit: 50,
-      })
-      toast.success(`Outreach sent: ${res.data.sent_count || 0}, skipped: ${res.data.skipped_count || 0}, failed: ${res.data.failed_count || 0}`)
+      const results = []
+      for (const ids of chunk(leadIds, 10)) {
+        const res = await api.post('/trainer-profile-leads/send-public-email-outreach', { lead_ids: ids, sent_status: 'contacted' })
+        results.push(res.data)
+      }
+      const total = sumResults(results, ['sent', 'failed'])
+      const message = `Outreach sent: ${total.sent}, skipped: ${skipped}, failed: ${total.failed}`
+      if (total.failed && !total.sent) toast.error(message)
+      else toast.success(message)
       await load()
     } catch (e) {
       toast.error(e.message)
@@ -220,22 +219,15 @@ export default function LinkedInShortlist() {
     }
   }
 
+  // Cards count every page of the open status tab, domain and search text.
   const counts = useMemo(() => ({
-    total: leads.length,
-    reviewed: leads.filter(item => item.status === 'reviewed').length,
-    contacted: leads.filter(item => item.status === 'contacted').length,
-    converted: leads.filter(item => item.status === 'converted').length,
-  }), [leads])
+    total: list.total,
+    reviewed: statusCountInView(list.counts, status, 'reviewed'),
+    contacted: statusCountInView(list.counts, status, 'contacted'),
+    converted: statusCountInView(list.counts, status, 'converted'),
+  }), [list, status])
 
-  const groupedDomains = useMemo(() => {
-    const groups = new Map()
-    leads.forEach(lead => {
-      const domain = leadDomain(lead)
-      if (!groups.has(domain)) groups.set(domain, [])
-      groups.get(domain).push(lead)
-    })
-    return Array.from(groups.entries()).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
-  }, [leads])
+  const domainOptions = useMemo(() => domainChips(list.counts), [list])
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -249,17 +241,17 @@ export default function LinkedInShortlist() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()} placeholder="Search shortlist" className="input pl-9" />
+            <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && reloadFirstPage()} placeholder="Search shortlist" className="input pl-9" />
           </div>
-          <button onClick={load} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Search</button>
+          <button onClick={reloadFirstPage} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Search</button>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
-        <button onClick={() => setMode('trainer')} className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', isTrainer ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
+        <button onClick={() => { setMode('trainer'); setPage(1) }} className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', isTrainer ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
           <Users className="h-4 w-4" /> Trainer Profiles
         </button>
-        <button onClick={() => setMode('client')} className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', !isTrainer ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
+        <button onClick={() => { setMode('client'); setPage(1) }} className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', !isTrainer ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
           <BriefcaseBusiness className="h-4 w-4" /> Client Posts
         </button>
       </div>
@@ -268,7 +260,7 @@ export default function LinkedInShortlist() {
         <div className="grid gap-3 lg:grid-cols-[1fr_1fr] xl:grid-cols-[1fr_1fr_1fr_1fr]">
           <div>
             <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Domain Filter</label>
-            <input className="input" value={domainFilter} onChange={e => setDomainFilter(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()} placeholder="Example: SAP, Python, DevOps" />
+            <input className="input" value={domainFilter} onChange={e => chooseDomain('', e.target.value)} onKeyDown={e => e.key === 'Enter' && reloadFirstPage()} placeholder="Example: SAP, Python, DevOps" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">Mail Domain</label>
@@ -296,7 +288,7 @@ export default function LinkedInShortlist() {
           </div>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button onClick={load} className="btn-secondary text-sm"><Search className="h-4 w-4" /> Apply Filter</button>
+          <button onClick={reloadFirstPage} className="btn-secondary text-sm"><Search className="h-4 w-4" /> Apply Filter</button>
           {isTrainer && (
             <>
               <button onClick={enrichPublicEmails} disabled={bulkLoading} className="btn-secondary text-sm disabled:opacity-50"><RefreshCw className="h-4 w-4" /> Find Public Emails</button>
@@ -312,24 +304,27 @@ export default function LinkedInShortlist() {
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
         <div className="mb-2 flex items-center justify-between gap-3">
           <p className="text-sm font-bold text-slate-800">Domain Shortlist</p>
-          <span className="text-xs font-semibold text-slate-400">{leads.length} visible</span>
+          <span className="text-xs font-semibold text-slate-400">{list.total} in this view</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setDomainFilter('')}
-            className={clsx('rounded-lg px-3 py-2 text-xs font-bold transition', !domainFilter ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
+            onClick={() => chooseDomain()}
+            className={clsx('rounded-lg px-3 py-2 text-xs font-bold transition', !domainFilter && !domainValue ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
           >
             All Domains
           </button>
-          {domainOptions.map(([domain, count]) => (
+          {domainOptions.map(chip => (
             <button
-              key={domain}
-              onClick={() => setDomainFilter(domain)}
-              className={clsx('rounded-lg px-3 py-2 text-xs font-bold transition', domainFilter === domain ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
+              key={chip.value}
+              onClick={() => chooseDomain(chip.value, chip.label)}
+              className={clsx('rounded-lg px-3 py-2 text-xs font-bold transition', domainValue === chip.value ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100')}
             >
-              {domain} ({count})
+              {chip.label} ({chip.count})
             </button>
           ))}
+          {(list.counts?.domains_total || 0) > domainOptions.length && (
+            <span className="self-center text-xs text-slate-400">and {list.counts.domains_total - domainOptions.length} smaller domains: type a domain above to see them</span>
+          )}
         </div>
       </div>
 
@@ -339,30 +334,30 @@ export default function LinkedInShortlist() {
             <h2 className="text-sm font-bold text-slate-900">Decide Profiles By Domain</h2>
             <p className="mt-1 text-xs text-slate-500">Open a domain like Python, AWS, or SAP S/4HANA, then review and decide those profiles only.</p>
           </div>
-          <span className="rounded-lg bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">{groupedDomains.length} domain(s)</span>
+          <span className="rounded-lg bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">{list.counts?.domains_total || 0} domain(s)</span>
         </div>
-        {groupedDomains.length ? (
+        {domainOptions.length ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {groupedDomains.map(([domain, items]) => {
-              const reviewed = items.filter(item => item.status === 'reviewed').length
-              const contacted = items.filter(item => item.status === 'contacted').length
-              const added = items.filter(item => item.status === 'converted').length
-              const fresh = items.filter(item => item.status === 'new').length
+            {domainOptions.map(chip => {
+              const reviewed = chip.byStatus.reviewed || 0
+              const contacted = chip.byStatus.contacted || 0
+              const added = chip.byStatus.converted || 0
+              const fresh = chip.byStatus.new || 0
               return (
                 <button
-                  key={domain}
-                  onClick={() => setDomainFilter(domain)}
+                  key={chip.value}
+                  onClick={() => chooseDomain(chip.value, chip.label)}
                   className={clsx(
                     'rounded-lg border p-4 text-left transition hover:border-blue-200 hover:bg-blue-50',
-                    domainFilter === domain ? 'border-blue-300 bg-blue-50 ring-1 ring-blue-100' : 'border-slate-200 bg-white'
+                    domainValue === chip.value ? 'border-blue-300 bg-blue-50 ring-1 ring-blue-100' : 'border-slate-200 bg-white'
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-bold text-slate-900">{domain}</p>
-                      <p className="mt-1 text-xs font-semibold text-slate-500">{items.length} profile/result(s)</p>
+                      <p className="font-bold text-slate-900">{chip.label}</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">{chip.count} profile/result(s)</p>
                     </div>
-                    <span className="rounded-lg bg-white px-2 py-1 text-xs font-bold text-blue-700">{items.length}</span>
+                    <span className="rounded-lg bg-white px-2 py-1 text-xs font-bold text-blue-700">{chip.count}</span>
                   </div>
                   <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[11px] font-bold">
                     <div className="rounded-md bg-amber-50 px-2 py-1 text-amber-700">New {fresh}</div>
@@ -398,7 +393,7 @@ export default function LinkedInShortlist() {
 
       <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
         {STATUS.map(item => (
-          <button key={item} onClick={() => setStatus(item)} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', status === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
+          <button key={item} onClick={() => { setStatus(item); setPage(1) }} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', status === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
             {STATUS_LABELS[item]}
           </button>
         ))}
@@ -468,6 +463,8 @@ export default function LinkedInShortlist() {
           <p>No {isTrainer ? 'trainer profiles' : 'client posts'} in this domain/status view.</p>
         </div>
       )}
+
+      <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={setPage} noun={isTrainer ? 'profiles' : 'posts'} />
     </div>
   )
 }

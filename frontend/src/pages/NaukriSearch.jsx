@@ -3,23 +3,12 @@ import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import { CheckCircle2, ExternalLink, Newspaper, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
 import api from '../utils/api'
+import Pager from '../components/Pager'
+import SearchSourceReport from '../components/SearchSourceReport'
+import { LEAD_PAGE_SIZE, leadListParams, listPage, pageToReload, statusCountInView } from '../utils/leadPaging'
 
 const STATUSES = ['all', 'found', 'reviewed', 'contacted', 'converted', 'rejected']
 const STATUS_LABELS = { all: 'All', found: 'New', reviewed: 'Reviewed', contacted: 'Contacted', converted: 'Added', rejected: 'Rejected' }
-const NAUKRI_HOST = /(^|\.)naukri\.com$/i
-const NAUKRI_PROFILE_PATH = /(?:^|\/)(?:resume|profile|candidate)(?:\/|$)|(?:^|\/)(?:resume|candidate|profile)-/i
-const NAUKRI_NON_PROFILE_PATH = /(?:^|\/)(?:jobs?|job-listings?|career-advice|profile-summary|blog|campus|companies|company|services|resume-maker|resume-templates|recruiter-zone)(?:\/|$)|-jobs?(?:-|$)/i
-
-function isNaukriUrl(value) {
-  try {
-    const parsed = new URL(value)
-    return NAUKRI_HOST.test(parsed.hostname) &&
-      NAUKRI_PROFILE_PATH.test(parsed.pathname) &&
-      !NAUKRI_NON_PROFILE_PATH.test(parsed.pathname)
-  } catch {
-    return false
-  }
-}
 
 function buildNaukriQuery(domain, location) {
   const skill = domain.trim()
@@ -48,20 +37,30 @@ export default function NaukriSearch() {
   const [targetCount, setTargetCount] = useState(20)
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
+  const [page, setPage] = useState(1)
+  const [list, setList] = useState(listPage())
+  const [searchReport, setSearchReport] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
+      // The server keeps only public Naukri profile pages (kind=naukri_profile), so every page is full.
       const response = await api.get('/trainer-profile-leads', {
-        params: { source: 'naukri', status, q: searchText, limit: 200 },
+        params: leadListParams({ kind: 'naukri_profile', status, q: searchText, page }),
       })
-      setLeads((response.data.leads || []).filter(lead => lead.source === 'naukri' && isNaukriUrl(lead.source_url)))
+      const reload = pageToReload(response.data, page)
+      if (reload) {
+        setPage(reload)
+        return
+      }
+      setLeads(response.data.leads || [])
+      setList(listPage(response.data))
     } catch (error) {
       toast.error(error.message || 'Could not load Naukri results')
     } finally {
       setLoading(false)
     }
-  }, [status, searchText])
+  }, [status, searchText, page])
 
   useEffect(() => { load() }, [load])
 
@@ -74,11 +73,14 @@ export default function NaukriSearch() {
       return
     }
     setSearching(true)
+    setSearchReport(null)
+    const startedAt = Date.now()
     try {
       const response = await api.post('/trainer-profile-leads/search-public', {
         source: 'naukri', domains, queries, location,
         max_results: targetCount, max_queries: queries.length,
       })
+      setSearchReport(response.data)
       const saved = response.data.saved_count || 0
       const found = response.data.found || 0
       if (response.data.search_error) {
@@ -88,8 +90,10 @@ export default function NaukriSearch() {
       } else {
         toast.success(`Naukri search found ${found} profile${found === 1 ? '' : 's'}; ${saved} new result${saved === 1 ? '' : 's'} saved.`)
       }
-      await load()
+      if (page === 1) await load()
+      else setPage(1)
     } catch (error) {
+      setSearchReport({ requestFailed: true, startedAt, search_error: error.message || 'Naukri search failed' })
       toast.error(error.message || 'Naukri search failed')
     } finally {
       setSearching(false)
@@ -124,7 +128,9 @@ export default function NaukriSearch() {
       return
     }
     try {
-      const response = await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, { to_email: email, domain: lead.domain, mode: 'Online' })
+      const response = await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, {
+        to_email: email, domain: lead.domain, mode: 'Online', sent_status: 'contacted',
+      })
       if (response.data.success) toast.success('Approach email sent')
       else toast.error(response.data.error || 'Email could not be sent')
       await load()
@@ -133,8 +139,9 @@ export default function NaukriSearch() {
     }
   }
 
-  const withEmail = leads.filter(lead => lead.contact_email || lead.email).length
-  const contacted = leads.filter(lead => lead.status === 'contacted').length
+  // The cards count every page of the open status tab and search text.
+  const withEmail = list.counts?.with_email || 0
+  const contacted = statusCountInView(list.counts, status, 'contacted')
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -144,7 +151,7 @@ export default function NaukriSearch() {
           <p className="mt-1 text-sm text-slate-500">Find publicly indexed Naukri job-seeker profiles. Private resumes require recruiter Resdex access.</p>
         </div>
         <div className="flex gap-2">
-          <input className="input min-w-0" value={searchText} onChange={event => setSearchText(event.target.value)} onKeyDown={event => event.key === 'Enter' && load()} placeholder="Search saved Naukri results" />
+          <input className="input min-w-0" value={searchText} onChange={event => { setSearchText(event.target.value); setPage(1) }} onKeyDown={event => event.key === 'Enter' && load()} placeholder="Search saved Naukri results" />
           <button onClick={load} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" />Refresh</button>
         </div>
       </div>
@@ -167,15 +174,17 @@ export default function NaukriSearch() {
         </div>
       </section>
 
+      <SearchSourceReport report={searchReport} runKind="naukri_search" noun="Naukri profiles" />
+
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">Job Seeker Profiles</p><p className="mt-2 text-2xl font-bold text-slate-900">{leads.length}</p></div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">Job Seeker Profiles</p><p className="mt-2 text-2xl font-bold text-slate-900">{list.total}</p></div>
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">With Email</p><p className="mt-2 text-2xl font-bold text-slate-900">{withEmail}</p></div>
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">Contacted</p><p className="mt-2 text-2xl font-bold text-slate-900">{contacted}</p></div>
       </div>
 
       <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-white p-3">
-        {STATUSES.map(item => <button key={item} onClick={() => setStatus(item)} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold', status === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>{STATUS_LABELS[item]}</button>)}
-        <span className="ml-auto self-center text-xs text-slate-500">{leads.length} public Naukri profiles</span>
+        {STATUSES.map(item => <button key={item} onClick={() => { setStatus(item); setPage(1) }} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold', status === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>{STATUS_LABELS[item]}</button>)}
+        <span className="ml-auto self-center text-xs text-slate-500">{list.total} public Naukri profiles</span>
       </div>
 
       {loading ? <div className="py-14 text-center text-sm text-slate-400">Loading Naukri results…</div> : leads.length ? (
@@ -207,6 +216,8 @@ export default function NaukriSearch() {
           </article>)}
         </div>
       ) : <div className="rounded-xl border border-slate-200 bg-white py-16 text-center text-slate-400"><Newspaper className="mx-auto mb-3 h-10 w-10 opacity-40" /><p>No public Naukri profiles in this view.</p></div>}
+
+      <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={setPage} noun="Naukri profiles" />
     </div>
   )
 }

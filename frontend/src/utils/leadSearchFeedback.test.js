@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
+import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, runStartedAfter, searchReportGroups, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')
@@ -73,4 +73,34 @@ test('lead source label names the web engines that found a profile', () => {
   assert.equal(leadSourceLabel({ discovery_provider: 'public_fallback' }), 'Public indexed search fallback')
   assert.equal(leadSourceLabel({ discovery_provider: 'linkedin_account', source: 'linkedin' }), 'LinkedIn account')
   assert.equal(leadSourceLabel({ source: 'naukri' }), 'naukri')
+})
+
+test('a search-public report lists each domain and each source, including skipped domains', () => {
+  const report = {
+    sources: [{ source: 'duckduckgo', label: 'DuckDuckGo', status: 'ok', qualified: 2, note: 'Failed on 1 of 2 searches: refused' }],
+    domain_outcomes: [
+      { domain: 'Python', target: 10, matched: 2, target_met: false, status: 'partial',
+        sources: [{ source: 'duckduckgo', label: 'DuckDuckGo', status: 'ok', qualified: 2 }] },
+      { domain: 'AWS', target: 0, matched: 0, status: 'not_run', limit_reason: 'Not searched: the search service stopped answering.', sources: [] },
+    ],
+  }
+  assert.deepEqual(searchReportGroups(report), [
+    { key: '0-Python', heading: 'Python: 2 found (target: 10). Partial results; the target is not guaranteed.',
+      lines: [{ key: 'duckduckgo', ok: true, text: 'DuckDuckGo: worked, 2 matching profiles' }] },
+    { key: '1-AWS', heading: 'AWS: Not searched: the search service stopped answering.', lines: [] },
+  ])
+  assert.deepEqual(searchReportGroups({ sources: report.sources }), [{
+    key: 'sources', heading: '',
+    lines: [{ key: 'duckduckgo', ok: true, text: 'DuckDuckGo: worked, 2 matching profiles Failed on 1 of 2 searches: refused' }],
+  }])
+  assert.deepEqual(searchReportGroups({}), [])
+})
+
+test('a saved run belongs to a search only when it started after that search', () => {
+  const startedAt = Date.parse('2026-11-16T09:00:00Z')
+  assert.equal(runStartedAfter({ started_at: '2026-11-16T09:00:30' }, startedAt), true)
+  assert.equal(runStartedAfter({ started_at: '2026-11-16T08:59:30.123456' }, startedAt), true)
+  assert.equal(runStartedAfter({ started_at: '2026-11-16T08:50:00Z' }, startedAt), false)
+  assert.equal(runStartedAfter({ started_at: '2026-11-16T14:40:00+05:30' }, startedAt), true)
+  assert.equal(runStartedAfter({}, startedAt), false)
 })
