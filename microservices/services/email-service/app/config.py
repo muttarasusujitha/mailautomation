@@ -100,7 +100,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     AI_PROVIDER: str = "openai"
     OLLAMA_URL: str = "http://localhost:11434/api/generate"
     OLLAMA_MODEL: str = "qwen3:8b"
