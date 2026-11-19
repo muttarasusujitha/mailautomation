@@ -2092,60 +2092,65 @@ async def _invoke_mail_model(instructions: str, prompt: str) -> str:
             )
             return _clean(getattr(response, "text", ""))
 
+        def list_generation_models() -> List[str]:
+            names = []
+            for model in client.models.list():
+                actions = getattr(model, "supported_actions", None) or []
+                if "generateContent" not in actions:
+                    continue
+                name = _clean(getattr(model, "name", "")).removeprefix("models/")
+                if name and name != configured_model:
+                    names.append(name)
+            return sorted(
+                set(names),
+                key=lambda name: (
+                    0 if "flash-lite" in name.lower() else
+                    1 if "flash" in name.lower() else
+                    2,
+                    "preview" in name.lower(),
+                    name,
+                ),
+            )
+
+        def error_status(exc: Exception) -> Optional[int]:
+            try:
+                return int(getattr(exc, "code", None) or getattr(exc, "status_code", None))
+            except (TypeError, ValueError):
+                return None
+
         try:
             output_text = await generate(configured_model)
             logger.info("Gemini trainer email generated with configured model %s", configured_model)
         except Exception as configured_error:
-            is_not_found = (
-                getattr(configured_error, "code", None) == 404
-                or getattr(configured_error, "status_code", None) == 404
-                or "not found" in str(configured_error).lower()
-            )
-            if not is_not_found:
+            is_not_found = error_status(configured_error) == 404 or "not found" in str(configured_error).lower()
+            is_rate_limited = error_status(configured_error) == 429 or "429" in str(configured_error)
+            if not (is_not_found or is_rate_limited):
                 raise
-
-            def list_generation_models() -> List[str]:
-                names = []
-                for model in client.models.list():
-                    actions = getattr(model, "supported_actions", None) or []
-                    if "generateContent" not in actions:
-                        continue
-                    name = _clean(getattr(model, "name", "")).removeprefix("models/")
-                    if name and name != configured_model:
-                        names.append(name)
-                return sorted(
-                    set(names),
-                    key=lambda name: (
-                        0 if "flash-lite" in name.lower() else
-                        1 if "flash" in name.lower() else
-                        2,
-                        "preview" in name.lower(),
-                        name,
-                    ),
-                )
 
             available_models = await asyncio.to_thread(list_generation_models)
             if not available_models:
+                if is_rate_limited:
+                    raise configured_error
                 raise RuntimeError("Gemini found no models available for generateContent on this API key.") from configured_error
 
             last_not_found = configured_error
-            for model_name in available_models:
+            # A 429 can be scoped to one model's quota. Try a lighter enabled
+            # model once; avoid a long cascade of retries against every model.
+            candidate_models = available_models[:1] if is_rate_limited else available_models
+            for model_name in candidate_models:
                 try:
                     output_text = await generate(model_name)
-                    logger.info("Gemini trainer email generated with discovered model %s", model_name)
+                    logger.info("Gemini trainer email generated with fallback model %s", model_name)
                     break
                 except Exception as exc:
-                    is_not_found = (
-                        getattr(exc, "code", None) == 404
-                        or getattr(exc, "status_code", None) == 404
-                        or "not found" in str(exc).lower()
-                    )
-                    if not is_not_found:
+                    candidate_not_found = error_status(exc) == 404 or "not found" in str(exc).lower()
+                    candidate_rate_limited = error_status(exc) == 429 or "429" in str(exc)
+                    if not (candidate_not_found if is_not_found else candidate_rate_limited):
                         raise
                     last_not_found = exc
-                    logger.warning("Gemini model %s returned NotFound; trying the next available model", model_name)
+                    logger.warning("Gemini fallback model %s returned %s", model_name, error_status(exc) or "an error")
             else:
-                raise last_not_found
+                raise configured_error if is_rate_limited else last_not_found
     elif ai_provider == "ollama":
         if not _clean(getattr(settings, "OLLAMA_URL", "")) or not _clean(getattr(settings, "OLLAMA_MODEL", "")):
             raise HTTPException(502, "Ollama email generation is not configured. Select Template mode or configure Ollama.")
