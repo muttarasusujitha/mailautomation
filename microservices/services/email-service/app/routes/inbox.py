@@ -14131,13 +14131,15 @@ async def _process_client_requirement_email(
         and classification.get("person_type") != "trainer"
     ):
         try:
-            from app.agents.reply_precheck import build_reply_plan
+            from app.agents.reply_precheck import build_reply_plan, is_vendor_pitch
 
-            reply_plan = build_reply_plan(
+            # A training company offering us trainers keeps the existing handling.
+            reply_plan = None if is_vendor_pitch(classification_body) else build_reply_plan(
                 classification_body,
                 extracted,
                 batch_type="proposal" if is_proposal_batch else "confirmed",
                 sender_name=email_doc.get("from_name") or "",
+                subject=subject,
             )
         except Exception:
             logger.exception("Reply pre-check failed for %s; using the workflow template", email_doc.get("email_id"))

@@ -52,14 +52,18 @@ _LONE_MARKER_RE = re.compile(r"^\s*(?:[-*\u2022\u25aa\u25e6\u2023]|\d{1,2}[.)]|[
 
 _KIND_PATTERNS = (
     ("trainer", re.compile(r"\btrainers?\b|\bprofiles?\b|\bcvs?\b|\bresumes?\b", re.IGNORECASE)),
-    ("availability", re.compile(r"\bavailability\b", re.IGNORECASE)),
+    ("availability", re.compile(
+        r"\bavailability\b|\bearliest (?:possible )?start\b|\bschedule options\b|\bavailable dates\b",
+        re.IGNORECASE,
+    )),
     ("toc", re.compile(
         r"\btoc\b|table of contents|course outline|\boutline\b|syllabus|curriculum|\bagenda\b|course content",
         re.IGNORECASE,
     )),
     ("lab", re.compile(
         r"\blab[- ]?(?:cost|charges?|estimate|pricing|price|quote)s?\b"
-        r"|\blab\b[^.\n]{0,30}\b(?:cost|charges?|estimate|pricing)\b",
+        r"|\blab\b[^.\n]{0,30}\b(?:cost|charges?|estimate|pricing)\b"
+        r"|\b(?:sandbox|lab|training) (?:\/ )?(?:training )?environment\b|\bsandbox\b",
         re.IGNORECASE,
     )),
     ("commercials", re.compile(
@@ -72,7 +76,8 @@ _KIND_PATTERNS = (
 _CLOUD_RE = re.compile(r"\b(?:aws|amazon web services|azure|gcp|google cloud)\b", re.IGNORECASE)
 _PARTICIPANTS_RE = re.compile(
     r"\b\d+\s*(?:participants?|people|members|attendees|learners|employees|trainees|candidates|associates)\b"
-    r"|\bparticipants?\s*[:\-]\s*\d+",
+    r"|\b(?:participants?|batch size|headcount|no\.? of (?:participants|attendees))\s*[:\-]?\s*(?:approx\.?\s*|around\s*|about\s*)?\d+"
+    r"|\b(?:batch|group|team) of\s+\d+",
     re.IGNORECASE,
 )
 _MODE_RE = re.compile(r"\b(?:online|offline|onsite|on-site|virtual|classroom|hybrid|in-person)\b", re.IGNORECASE)
@@ -98,12 +103,72 @@ _SIGNOFF_RE = re.compile(
 _GENERIC_NAMES = {
     "client", "team", "hr", "admin", "regards", "thanks", "the", "training", "sir", "madam",
     "sender", "unknown", "none", "trainer", "there", "l&d", "ld", "procurement", "support", "info",
+    "undefined", "null", "coordinator", "sales", "operations", "recruitment", "hello", "contact",
+    "noreply", "no-reply", "mailer", "office", "accounts", "enquiry", "enquiries",
 }
+
+# A list item that describes what the trainer must have belongs in the
+# trainer profile, not in the list of documents to send.
+_TRAINER_DETAIL_RE = re.compile(
+    r"\b(?:experience|experienced|expertise|exposure|certifications?|certified|background|"
+    r"track record|trainings? delivered|delivery experience|proficien\w*|knowledge of|skills?)\b"
+    r"(?![^.\n]*\b(?:details|exam|fees?|vouchers?|process|validity)\b)",
+    re.IGNORECASE,
+)
+_CALL_RE = re.compile(
+    r"\b(?:screening|technical|evaluation|interview|discussion|intro(?:duction|ductory)?)\s+(?:call|round|session|slots?)\b"
+    r"|\bcall slots?\b|\binterview\b",
+    re.IGNORECASE,
+)
+# Items the client asks us to recommend. We must not ask them back for these.
+_RECOMMEND_FIELDS = (
+    ("duration", re.compile(r"\bduration\b|\bno\.? of days\b|\bnumber of days\b|\bhours per day\b|\btraining hours\b"
+                            r"|\bhours\s*/\s*days\b|\btotal hours\b", re.I)),
+    ("dates", re.compile(r"\bstart date\b|\bschedule\b|\bdates?\b|\btimeline\b|\bwhen\b.{0,20}\bstart\b", re.I)),
+    ("mode", re.compile(r"\bmode\b|\bdelivery (?:approach|format|method)\b|\bonline\s*/\s*(?:classroom|offline)\b", re.I)),
+    ("lab_setup", re.compile(r"\blab\b.{0,30}\b(?:requirements?|setup|set-up|environment|access)\b"
+                             r"|\bprerequisites?\b|\blicen[cs]\w*\b|\binfrastructure\b", re.I)),
+)
+_TRAINER_HEADER_RE = re.compile(
+    r"\blooking for\b|\b(?:trainer|candidate|profile)\s+(?:requirements?|criteria|expectations)\b|\bmust[- ]have\b"
+    r"|\bshould (?:have|be)\b|\bskills?\b|\bqualifications?\b|\bexpertise\b|\beligibility\b|\bexperience required\b",
+    re.IGNORECASE,
+)
+_SCOPE_HEADER_RE = re.compile(
+    r"\btopics?\b|\bmodules?\b|\bscope\b|\bsyllabus\b|\bagenda\b|\bcontents?\b|\bcover(?:ing|age|ed)?\b"
+    r"|\bcurriculum\b|\boutline\b(?!.*\bshare\b)",
+    re.IGNORECASE,
+)
+_NEUTRAL_HEADER_RE = re.compile(r"\bresponsibilit\w*\b|\bobjectives?\b|\boutcomes?\b|\babout\b|\bdetails\b", re.I)
+_DELIVERABLE_NOUN_RE = re.compile(
+    r"\b(?:plan|details|information|charges?|certificat\w*|materials?|approach|options|list|cost|fees?|"
+    r"vouchers?|exams?|assessments?|quotes?|samples?|references?|case stud\w*|feedback|deck|brochure)\b",
+    re.IGNORECASE,
+)
+_FACT_LINE_RE = re.compile(r"^[A-Za-z][\w /&().'-]{1,35}\s*[:\-\u2013]\s*\S")
+_PLACEHOLDER_RE = re.compile(r"\((?:add|mention|specify)\b[^)]*\)|\bif required\)", re.IGNORECASE)
+_URGENT_RE = re.compile(
+    r"\burgent(?:ly)?\b|\basap\b|\bimmediate(?:ly)?\b|\bat the earliest\b|\bpriority\b|\bcritical\b"
+    r"|\bearliest (?:response|possible)\b|\bon priority\b|\btime[- ]sensitive\b",
+    re.IGNORECASE,
+)
+_END_CLIENT_RE = re.compile(
+    r"\b(?:our|the|end|your)\s+client(?:'s|s)?\b|\bclient (?:location|site|requirement|side|premises)\b"
+    r"|\bcustomer (?:location|site)\b",
+    re.IGNORECASE,
+)
+_NUMBER_WORDS = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+_TOPIC_STOP_RE = re.compile(
+    r"\b(?:someone|experienced|highly|onsite|on-site|offline|online|virtual|client|clients|deliver|who|"
+    r"structured|practical|corporate|request|our|one of|for a|for an|please|suitable|senior|junior|"
+    r"\w+-focused|kindly|urgent)\b|\b\d{1,2}(?:st|nd|rd|th)\b|[.!?]",
+    re.IGNORECASE,
+)
 
 _LEAK_RE = re.compile(
     r"\bmargins?\b|\bmark-?ups?\b|\buplift\b|\b\d{1,3}\s*%"
     r"|\btrainer(?:'s|s')?\s+(?:rate|rates|share|fee|fees|payout|cost|commercials?|payment)\b"
-    r"|\binternal(?:ly)?\b",
+    r"|\binternal(?:ly)?\s+(?:workflow|process|notes?|margin|cost|pricing|discussion|rate)s?\b",
     re.IGNORECASE,
 )
 _ATTACHMENT_CLAIM_RE = re.compile(r"\battached\b|\bplease find\b|\benclosed\b", re.IGNORECASE)
@@ -175,13 +240,27 @@ def _request_segments(message: str) -> List[Dict[str, Any]]:
     """
     segments: List[Dict[str, Any]] = []
     header_is_request = False
+    header_role = ""
     for line in _logical_lines(message):
         text = line["text"]
         if line["item"]:
-            if header_is_request or _REQUEST_VERB_RE.search(text):
+            if header_role:
+                # Lists under "What we're looking for:" or "Topics to cover:" describe
+                # the trainer or the course, they are not documents to send.
+                segments.append({"text": text, "item": True, "role": header_role})
+            elif header_is_request or _REQUEST_VERB_RE.search(text):
                 segments.append({"text": text, "item": True})
             continue
-        header_is_request = bool(_REQUEST_VERB_RE.search(text)) and text.rstrip().endswith(":")
+        is_header = text.rstrip().endswith(":") or (len(text) < 60 and not re.search(r"[.!?]$", text))
+        header_role = ""
+        asks = bool(re.search(r"\b(?:please|kindly|share|send|provide|request you)\b", text, re.I))
+        if is_header and _TRAINER_HEADER_RE.search(text):
+            header_role = "trainer_detail"
+        elif is_header and not asks and _SCOPE_HEADER_RE.search(text):
+            header_role = "scope"
+        elif is_header and not asks and _NEUTRAL_HEADER_RE.search(text):
+            header_role = "ignore"
+        header_is_request = bool(_REQUEST_VERB_RE.search(text)) and text.rstrip().endswith(":") and not header_role
         for sentence in re.split(r"(?<=[.!?])\s+", text):
             if _REQUEST_VERB_RE.search(sentence) and not re.match(
                 r"^(?:regards|thanks|thank you|best regards)\b", sentence.strip(), re.IGNORECASE
@@ -202,19 +281,91 @@ def _kinds_in(text: str) -> List[str]:
             match = pattern.search(text)
         if match:
             found.append((match.start(), kind))
-    return [kind for _, kind in sorted(found)]
+    kinds = [kind for _, kind in sorted(found)]
+    if "lab" in kinds and "availability" in kinds and re.search(r"\b(?:sandbox|environment|lab)\b[^.\n]{0,30}availability", text, re.I):
+        # "Sandbox / Training Environment Availability" is about the lab, not the trainer.
+        kinds.remove("availability")
+    return kinds
+
+
+def _sentence_case(text: str) -> str:
+    words = text.split()
+    out = []
+    for index, word in enumerate(words):
+        keep = (word.isupper() and len(word) > 1) or bool(re.search(r"[a-z][A-Z]|\d", word))
+        out.append(word if keep else word.lower())
+    sentence = " ".join(out)
+    return sentence[:1].upper() + sentence[1:]
+
+
+def is_vendor_pitch(message: str) -> bool:
+    """A training company offering us trainers is not a client requirement."""
+    return bool(_VENDOR_PITCH_RE.search(_strip_quoted_history(message)[:3000]))
+
+
+def _other_item(text: str) -> Optional[Dict[str, str]]:
+    """Classify a list item that names no standard deliverable."""
+    label = text.strip(" .;:*")
+    if not label or _PLACEHOLDER_RE.search(label):
+        return None
+    if _CALL_RE.search(label):
+        return {"kind": "call", "text": label}
+    if _TRAINER_DETAIL_RE.search(label):
+        return {"kind": "trainer_detail", "text": label}
+    # "Mode: Virtual Instructor-Led Training" states a fact; it asks for nothing.
+    fact = re.match(r"^[A-Za-z][\w /&().'-]{1,35}\s*[:\u2013]\s*(.+)$", label)
+    if fact and not re.search(r"^(?:\(|if\b|tbd|tbc|to be)", fact.group(1).strip(), re.I):
+        return None
+    for field, pattern in _RECOMMEND_FIELDS:
+        if pattern.search(label):
+            return {"kind": "recommend", "field": field, "text": label}
+    if re.search(r"\bnumber of participants\b|\bbatch size\b|\bparticipants?\b", label, re.I) and not re.search(r"\d", label):
+        return {"kind": "recommend", "field": "participants", "text": label}
+    if re.search(r"\b(?:level|audience)\b", label, re.I) and not re.search(r"[:\-]\s*\S", label):
+        return {"kind": "recommend", "field": "audience", "text": label}
+    # "Batch Size: 20 Participants" is a fact the client gave, not a request.
+    if _FACT_LINE_RE.match(label):
+        return None
+    # Sub-points such as "Balance between concepts and demos" or a lone
+    # "Additional Information" are not separate documents to promise.
+    if not _DELIVERABLE_NOUN_RE.search(label) or len(label.split()) < 2 or re.match(
+        r"^(?:additional information|others?|misc\w*|any other)\b", label, re.I
+    ):
+        return None
+    return {"kind": "other", "text": label}
 
 
 def _requested_items(message: str) -> List[Dict[str, str]]:
     items: List[Dict[str, str]] = []
     seen = set()
     for segment in _request_segments(message):
-        kinds = _kinds_in(segment["text"])
-        if not kinds and segment["item"]:
-            label = segment["text"].strip(" .;:")
-            if label and label.lower() not in seen:
+        role = segment.get("role")
+        if role == "ignore":
+            continue
+        if role in {"trainer_detail", "scope"}:
+            label = segment["text"].strip(" .;:*")
+            if label and len(label) <= 160 and label.lower() not in seen:
                 seen.add(label.lower())
-                items.append({"kind": "other", "text": label})
+                items.append({"kind": role, "text": label})
+            continue
+        kinds = _kinds_in(segment["text"])
+        if _CALL_RE.search(segment["text"]) and "call" not in seen:
+            seen.add("call")
+            items.append({"kind": "call", "text": segment["text"]})
+            kinds = [kind for kind in kinds if kind != "availability"]
+        if segment["item"] and _TRAINER_DETAIL_RE.search(segment["text"]) and set(kinds) <= {"trainer"}:
+            # "Relevant experience with MCP" describes the profile, it is not a new deliverable.
+            kinds = []
+        if not kinds and segment["item"]:
+            other = _other_item(segment["text"])
+            key = other and other["text"].lower()
+            if other and key not in seen:
+                seen.add(key)
+                items.append(other)
+            continue
+        if not kinds and _CALL_RE.search(segment["text"]) and "call" not in seen:
+            seen.add("call")
+            items.append({"kind": "call", "text": segment["text"]})
             continue
         for kind in kinds:
             if kind in seen:
@@ -361,11 +512,183 @@ def _join(items: List[str]) -> str:
     return f"{', '.join(items[:-1])}, and {items[-1]}"
 
 
+_SUBJECT_NOISE_RE = re.compile(
+    r"^(?:re|fw|fwd)\s*:\s*|\b(?:urgent|immediate|new|critical|priority)\b|\brequirements?\b|\brequest(?:ed)?\b"
+    r"|\btrainers?\b|\btraining\b|\bprofiles?\b|\bavailability\b|\bproposals?\b|\bdetails\b|\bneeded\b"
+    r"|\brequired\b|\bsupport\b|\bquotation\b|\bquote\b|\btoc\b|\bprogram(?:me)?\b|\bcorporate\b"
+    r"|\bcertifications?\b|\bonline\b|\boffline\b|\bclassroom\b|\bonsite\b|\bvirtual\b|\bcourse\b",
+    re.IGNORECASE,
+)
+
+
+def _clean_topic(value: str) -> str:
+    text = re.sub(r"\([^)]{25,}\)", "", value or "")
+    text = re.sub(r"\s+", " ", text).strip(" -\u2013\u2014|:,&/.")
+    text = re.sub(r"^(?:for|of|on|in|with|and|the|a|an|&)\s+", "", text, flags=re.I)
+    text = re.sub(r"\s+(?:for|of|on|in|with|and|the|a|an|&|-)$", "", text, flags=re.I)
+    return text.strip(" -\u2013\u2014|:,&/.")
+
+
+def _topic_from_subject(subject: str) -> str:
+    for segment in re.split(r"\s*(?:\|\||\||\u2013|\u2014|:| - )\s*", str(subject or "")):
+        reduced = _clean_topic(_SUBJECT_NOISE_RE.sub(" ", segment))
+        reduced = re.sub(r"^(?:for|&|and)\s+", "", reduced, flags=re.I).strip()
+        reduced = _clean_topic(re.sub(r"\s+(?:for|and|&)\s*$", "", reduced, flags=re.I))
+        if reduced.count("(") > reduced.count(")"):
+            reduced = _clean_topic(reduced[:reduced.rfind("(")])
+        if 2 <= len(reduced) <= 60 and re.search(r"[A-Za-z]{2}", reduced) and not re.fullmatch(
+            r"\d.*|(?:bangalore|bengaluru|mumbai|pune|chennai|hyderabad|delhi|noida|gurgaon|india)\b.*", reduced, re.I
+        ):
+            return reduced
+    return ""
+
+
+def _sane_topic(value: str) -> str:
+    text = _clean_topic(re.sub(r"^(?:training|course|program(?:me)?)\s+(?:on|in|for)\s+", "", str(value or ""), flags=re.I))
+    if text.count("(") > text.count(")"):
+        text = _clean_topic(text[:text.rfind("(")])
+    text = _clean_topic(re.sub(r"\s+by\s+[A-Z]\w+$", "", text))
+    if re.match(rf"^{_MONTH_RE}\b", text, re.I) or _CITY_RE.fullmatch(text) or re.fullmatch(
+        r"(?:Master|Official|Content|Official Content|Senior|Expert|Corporate|Client)s?", text, re.I
+    ):
+        return ""
+    if (not text or len(text) > 45 or _TOPIC_STOP_RE.search(text) or len(text.split()) > 6
+            or not re.match(r"[A-Z0-9]", text) or not re.search(r"[A-Za-z]{2}", text)
+            or re.search(r"\b(?:above|below|external|internal|conducting|legal|same|following|requirement)\b", text, re.I)):
+        return ""
+    return text
+
+
+_BODY_TOPIC_RE = re.compile(
+    r"\b(?:requirements?|training|trainers?|program(?:me)?|session|course|client|customer)\s+(?:for|on|in)\s+(?:a\s+|an\s+|the\s+)?"
+    r"((?:[A-Z][\w&+#./-]*|\d[\w.]*)(?:\s+(?:&\s+)?(?:\(?[A-Z0-9][\w&+#./-]*\)?|and|of|for|with|on))*)",
+)
+_VENDOR_PITCH_RE = re.compile(
+    r"\bcame across your\b|\bsaw your (?:linkedin )?post\b|\breference your post\b|\bhappy to introduce\b"
+    r"|\bintroduce (?:ourselves|our company)\b|\bwe (?:offer|provide) (?:end-to-end|industry|corporate|customi[sz]ed)\b"
+    r"|\bour capabilities\b|\bglad to (?:collaborate|partner|support you)\b|\bexplore (?:a )?(?:collaboration|partnership)\b"
+    r"|\bwe understand that you have a requirement\b|\bpartner with (?:you|clahan)\b",
+    re.IGNORECASE,
+)
+_TOPIC_TAIL_RE = re.compile(
+    r"\s+(?:Training|Trainer|Trainers|Certification|Program|Programme|Course|Session|Batch|Workshop|for|and|of|with)\b.*$"
+)
+
+
+def _topic_from_body(message: str) -> str:
+    for match in _BODY_TOPIC_RE.finditer(message[:1500]):
+        candidate = _sane_topic(_TOPIC_TAIL_RE.sub("", match.group(1))) or ""
+        if (2 <= len(candidate) <= 50 and not _TOPIC_STOP_RE.search(candidate)
+                and not re.fullmatch(r"(?:Clahan|CloudThat|Our|We|You|Your|The|This|Team|Client)\b.*", candidate)
+                and not _CITY_RE.fullmatch(candidate)):
+            return candidate
+    return ""
+
+
+def _topic(subject: str, extracted: Dict[str, Any], message: str = "") -> str:
+    extracted_topic = _sane_topic(_technology(extracted))
+    subject_topic = _topic_from_subject(subject)
+    if subject_topic and (not extracted_topic or extracted_topic.lower() in subject_topic.lower()):
+        return subject_topic
+    body_topic = _topic_from_body(message)
+    if body_topic and (not extracted_topic or extracted_topic.lower() in body_topic.lower()):
+        return body_topic
+    return extracted_topic or subject_topic or body_topic
+
+
+def _trainer_count(message: str) -> int:
+    words = {"two": 2, "three": 3, "four": 4, "five": 5, "multiple": 2}
+    match = re.search(r"\b(\d{1,2}|two|three|four|five|multiple)\s+(?:[\w&/-]+\s+){0,4}?trainers\b", message, re.I)
+    if not match:
+        return 2 if re.search(r"\btrainers\b", message, re.I) and not re.search(r"\btrainer\b", message, re.I) else 1
+    token = match.group(1).lower()
+    return words.get(token) or max(1, int(token))
+
+
+def _experience_years(message: str) -> str:
+    match = re.search(r"\b(\d{1,2}\+?)\s*(?:\+\s*)?(?:years?|yrs?)\b(?:\s+of)?(?:\s+\w+){0,3}\s+experience"
+                      r"|experience(?:\s+required)?\s*[:\-]?\s*(\d{1,2}\+?)\s*(?:\+\s*)?(?:years?|yrs?)", message, re.I)
+    if not match:
+        return ""
+    value = match.group(1) or match.group(2)
+    return value if value.endswith("+") else f"{value}+" if re.search(r"\+|minimum|at least|min\b", match.group(0), re.I) else value
+
+
+def _focus_from_details(details: List[str]) -> str:
+    phrases: List[str] = []
+    for detail in details:
+        match = re.search(
+            r"\b(?:experience|expertise|exposure|knowledge|background|proficiency)\s+(?:in|with|of|on)\s+"
+            r"(?:delivering\s+|working (?:on|with)\s+)?(?:the\s+)?(.+)$",
+            detail, re.I,
+        ) or re.search(r"\bexperience delivering\s+(.+)$", detail, re.I)
+        if not match:
+            continue
+        phrase = re.split(r"[,(;.]|\s+-\s+|\s+specifically\b|\s+particularly\b|\s+such as\b", match.group(1))[0]
+        phrase = _clean_topic(re.sub(r"\b(?:trainings?|sessions?|corporate batches)\b", "", phrase, flags=re.I))
+        phrase = re.split(r"\s+and\s+(?=[A-Z])|\s+/\s+", phrase)[0].strip()
+        phrase = re.sub(r"\s+(?:functional|technical)?\s*(?:and/or|and|or)\s*(?:functional|technical)\s*$", "",
+                        phrase, flags=re.I).strip()
+        phrase = re.sub(r"\s+(?:functional|technical)$", "", phrase, flags=re.I).strip()
+        if 2 <= len(phrase) <= 40 and phrase.lower() not in {p.lower() for p in phrases}:
+            phrases.append(phrase)
+    return _join(phrases[:2])
+
+
+_CITY_RE = re.compile(
+    r"\b(Bangalore|Bengaluru|Mumbai|Navi Mumbai|Pune|Chennai|Hyderabad|Delhi|New Delhi|Noida|Gurgaon|Gurugram|"
+    r"Kolkata|Ahmedabad|Kochi|Cochin|Coimbatore|Mysore|Mysuru|Trivandrum|Thiruvananthapuram|Jaipur|Chandigarh|"
+    r"Indore|Nagpur|Vadodara|Visakhapatnam|Vizag|Bhubaneswar|Lucknow|Mahape|Dubai|Singapore)\b",
+    re.IGNORECASE,
+)
+
+
+def _location(message: str, extracted: Dict[str, Any], subject: str = "") -> str:
+    def tidy(value: str) -> str:
+        value = re.sub(r"^(?:client|customer)\s+(?:site|location|premises)\s*[\u2013\-:,]?\s*", "", value, flags=re.I)
+        return _clean_topic(value)
+
+    value = _clean(extracted.get("location"))
+    if value and len(value) <= 40 and not re.search(r"online|virtual|tbd|to be|\(|training", value, re.I):
+        return tidy(value)
+    match = re.search(r"\b(?i:location|venue)\s*[:\-]\s*([A-Z][\w ,.\u2013-]{2,45})", message)
+    if match and not re.search(r"online|virtual|tbd|to be|if the", match.group(1), re.I):
+        return tidy(match.group(1))
+    city = _CITY_RE.search(subject or "") or _CITY_RE.search(message)
+    return city.group(1).title() if city else ""
+
+
+def _duration_known(message: str, extracted: Dict[str, Any], training_days: int) -> bool:
+    if training_days or _positive_int(extracted.get("duration_hours")):
+        return True
+    if _clean(extracted.get("duration_text")) and re.search(r"\d", _clean(extracted.get("duration_text"))):
+        return True
+    for line in message.split("\n"):
+        if re.search(r"\blab\b", line, re.I):
+            continue
+        if re.search(r"\b\d+(?:\.\d+)?\s*(?:-\s*)?(?:full\s+)?(?:days?|hours?|hrs?|weeks?|months?)\b", line, re.I):
+            return True
+    return False
+
+
+def _dates_known(message: str, extracted: Dict[str, Any]) -> bool:
+    if any(_clean(extracted.get(key)) for key in ("training_dates", "preferred_dates", "timeline_start")):
+        return True
+    if _dates(message):
+        return True
+    return bool(re.search(
+        rf"\b(?:start\w*|from|timeline|dates?|schedule\w*|planned|in)\b[^.\n]{{0,40}}"
+        rf"\b(?:{_MONTH_RE}|immediate\w*|asap|next week|this week|next month|q[1-4])\b",
+        message, re.I,
+    ))
+
+
 def build_reply_plan(
     message: str,
     extracted: Optional[Dict[str, Any]] = None,
     batch_type: str = "proposal",
     sender_name: str = "",
+    subject: str = "",
 ) -> Dict[str, Any]:
     """Build the reply plan for a first client requirement email."""
     extracted = dict(extracted or {})
@@ -388,6 +711,19 @@ def build_reply_plan(
                    "google cloud": "GCP"}.get(cloud.lower(), cloud)
     participants = _positive_int(extracted.get("participant_count"))
     participants_known = bool(participants) or bool(_PARTICIPANTS_RE.search(latest))
+    recommended = {item.get("field") for item in items if item["kind"] == "recommend"}
+    call_item = next((item for item in items if item["kind"] == "call"), None) or next(
+        (item for item in items if _CALL_RE.search(item["text"])), None)
+    trainer_details = [item["text"] for item in items if item["kind"] == "trainer_detail"]
+    availability_item = next((item for item in items if item["kind"] == "availability"), None)
+    topic = _topic(subject, extracted, latest)
+    # "We are looking for a trainer with strong expertise in CMDB and CSDM" names the focus.
+    for match in re.finditer(r"\btrainers?\b[^.\n]{0,60}?\b(?:expertise|experience|exposure)\s+(?:in|with)\s+([^.\n]{3,80})",
+                             latest, re.IGNORECASE):
+        trainer_details.append("experience in " + match.group(1).strip())
+    location = _location(latest, extracted, subject)
+    mode = _mode(latest, extracted)
+    onsite = bool(re.search(r"\b(?:onsite|on-site|client (?:site|location)|in-person|classroom|offline)\b", latest, re.I))
 
     # Tentative fields the client has explicitly left open.
     tentative: List[str] = []
@@ -397,25 +733,30 @@ def build_reply_plan(
                 if pattern.search(sentence) and label not in tentative:
                     tentative.append(label)
 
+    # Ask only what the client can tell us and has not already said, left open
+    # on purpose, or asked us to recommend. Real replies ask three things at most.
     missing: List[Dict[str, str]] = []
-    if "lab" in kinds and not cloud_label:
+    lab_is_conditional = bool(lab_item and re.search(r"if (?:any|applicable|required)", lab_text, re.I))
+    if "lab" in kinds and not cloud_label and not lab_is_conditional and "lab_setup" not in recommended:
         missing.append({"key": "cloud", "question": "The preferred cloud platform for the lab (AWS, Azure, or GCP)"})
-    if not participants_known and "participant count" not in tentative and (
-        "lab" in kinds or "commercials" in kinds or batch == "proposal"
-    ):
+    if (not participants_known and "participant count" not in tentative and "participants" not in recommended
+            and ("lab" in kinds or "commercials" in kinds or batch == "proposal")):
         missing.append({"key": "participants", "question": "The number of participants"})
     if batch == "proposal":
-        if not _clean(extracted.get("audience_level")):
-            missing.append({"key": "audience", "question": "The experience level of the participants"})
-        has_dates = any(_clean(extracted.get(key)) for key in ("training_dates", "preferred_dates", "timeline_start"))
-        if not has_dates and "dates" not in tentative and not _dates(latest):
+        if (not _dates_known(latest, extracted) and "dates" not in tentative and "dates" not in recommended
+                and not availability_item):
             missing.append({"key": "dates", "question": "The preferred training dates"})
-        has_duration = bool(training_days or _positive_int(extracted.get("duration_hours")))
-        if not has_duration and "duration" not in tentative:
-            missing.append({"key": "duration", "question": "The expected duration"})
-        if not _mode(latest, extracted) and not _MODE_RE.search(latest) and "delivery mode" not in tentative:
+        if (not _duration_known(latest, extracted, training_days) and "duration" not in tentative
+                and "duration" not in recommended):
+            missing.append({"key": "duration", "question": "The expected duration (number of days and hours per day)"})
+        if (not mode and not _MODE_RE.search(latest) and not location and "delivery mode" not in tentative
+                and "mode" not in recommended):
             missing.append({"key": "mode", "question": "The delivery mode (online or offline)"})
-        missing = missing[:4]
+        if ("toc" in kinds and not missing and "audience" not in recommended
+                and not _clean(extracted.get("audience_level"))
+                and not re.search(r"\b(?:beginners?|intermediate|advanced|basic|level|freshers?|experienced|novices?)\b", latest, re.I)):
+            missing.append({"key": "audience", "question": "The experience level of the participants"})
+    missing = missing[:3]
 
     conflicts: List[Dict[str, Any]] = []
     date_conflict = _start_date_conflict(latest)
@@ -435,20 +776,34 @@ def build_reply_plan(
 
     # The client's main need is a trainer. Trainer first, then the client's order.
     ordered = [item for item in items if item["kind"] == "trainer"]
-    ordered += [item for item in items if item["kind"] not in {"trainer", "availability", "proposal"}]
+    ordered += [item for item in items if item["kind"] not in {
+        "trainer", "availability", "proposal", "trainer_detail", "call", "scope"}]
+    scope = [_clean_topic(re.split(r"[:(\u2013]| - ", item["text"])[0]) for item in items if item["kind"] == "scope"]
+    scope = [entry for entry in scope if 2 <= len(entry) <= 45][:3]
+
 
     return {
-        "engine": "reply_precheck_v1",
+        "engine": "reply_precheck_v2",
         "batch_type": batch,
         "greeting": greeting,
         "client_name": name,
-        "technology": _technology(extracted),
+        "technology": topic,
         "training_days": training_days,
-        "mode": _mode(latest, extracted),
+        "mode": mode,
+        "location": location,
+        "onsite": onsite,
+        "urgent": bool(_URGENT_RE.search(subject) or _URGENT_RE.search(latest)),
+        "end_client": bool(_END_CLIENT_RE.search(latest)),
+        "trainer_count": _trainer_count(latest),
+        "experience_years": _experience_years(latest),
+        "trainer_focus": _focus_from_details(trainer_details),
+        "trainer_details": trainer_details[:6],
+        "call_requested": bool(call_item),
+        "scope": scope,
         "items": ordered,
         "trainer_requested": bool(trainer_item) or batch == "confirmed" or "proposal" in kinds or not items,
         "cv_requested": bool(trainer_item and re.search(r"\b(?:cv|resume)s?\b", trainer_item["text"], re.I)),
-        "availability_requested": "availability" in kinds,
+        "availability_requested": bool(availability_item),
         "lab": {"requested": bool(lab_item), "days": lab_days, "hours": _lab_hours(latest, extracted, lab_text),
                 "cloud": cloud_label},
         "missing": missing,
@@ -458,47 +813,113 @@ def build_reply_plan(
     }
 
 
+def _recommend_line(item: Dict[str, Any]) -> str:
+    text = item["text"].strip(" .;:*")
+    if len(text.split()) <= 4 and not re.search(r"\brecommend|propos|suggest|expected|tentative|preferred", text, re.I):
+        # "Training Duration" -> "The recommended training duration"; keep acronyms.
+        sentence = _sentence_case(text)
+        return "The recommended " + sentence[:1].lower() + sentence[1:]
+    return _sentence_case(text)
+
+
 def _deliverable_lines(plan: Dict[str, Any]) -> List[str]:
     confirmed = plan["batch_type"] == "confirmed"
     days = plan.get("training_days") or 0
     lab = plan.get("lab") or {}
     lines: List[str] = []
+    extra: List[str] = []
     for item in plan.get("items") or []:
         kind = item["kind"]
         if kind == "trainer":
             continue
         if kind == "toc":
+            scope = plan.get("scope") or []
+            covering = f" covering {_join(scope)}" if scope else ""
             if confirmed:
-                lines.append(f"A detailed day-wise ToC for the {days}-day program" if days else "A detailed day-wise ToC")
+                base = f"A detailed day-wise ToC for the {days}-day program" if days else "A detailed day-wise ToC"
             else:
-                lines.append(f"A proposed course outline for the {days}-day program" if days else "A proposed course outline")
+                base = f"A proposed course outline for the {days}-day program" if days else "A proposed course outline"
+            lines.append(base + covering)
         elif kind == "lab":
             cloud = f"{lab['cloud']} " if lab.get("cloud") else ""
+            conditional = re.search(r"if (?:any|applicable|required|needed)", item["text"], re.I)
             if lab.get("days") and lab.get("hours"):
                 lines.append(f"A separate {cloud}lab cost for {lab['days']} days at {lab['hours']} hours of hands-on lab per day")
             elif lab.get("hours"):
                 lines.append(f"A separate {cloud}lab cost for {lab['hours']} hours of hands-on lab per day")
             elif lab.get("days"):
                 lines.append(f"A separate {cloud}lab cost for {lab['days']} days")
+            elif not re.search(r"\b(?:cost|charges?|estimate|pricing|price|quote)\b", item["text"], re.I):
+                lines.append("The lab and sandbox environment details" + (", if applicable" if conditional else ""))
+            elif conditional:
+                lines.append(f"The {cloud}lab cost, if a lab is needed")
             else:
                 lines.append(f"A separate {cloud}lab-cost estimate")
         elif kind == "commercials":
-            lines.append("The commercial details" if confirmed else "The commercials for the program")
+            if re.search(r"\bbudget\b", item["text"], re.I):
+                lines.append("The commercials within your stated budget")
+            else:
+                lines.append("The commercial details" if confirmed else "The commercials for the program")
+        elif kind == "recommend":
+            extra.append(_recommend_line(item))
+            continue
         elif kind == "other":
-            text = item["text"]
-            lines.append(text[:1].upper() + text[1:])
-    return lines
+            extra.append(_sentence_case(item["text"]))
+            continue
+    # Standard documents first so they always fit, then the client's other asks.
+    seen, unique = set(), []
+    for line in lines + extra:
+        if line.lower() not in seen:
+            seen.add(line.lower())
+            unique.append(line)
+    return unique[:6]
+
+
+def _trainer_phrase(plan: Dict[str, Any]) -> str:
+    count = int(plan.get("trainer_count") or 1)
+    topic = plan.get("technology") or ""
+    noun = "trainers" if count > 1 else "trainer"
+    amount = _NUMBER_WORDS.get(count, str(count)) if count > 1 else "a"
+    phrase = f"{amount} suitable {topic + ' ' if topic else ''}{noun}"
+    years = plan.get("experience_years")
+    focus = plan.get("trainer_focus")
+    if years and focus:
+        phrase += f" with {years} years of experience and strong hands-on expertise in {focus}"
+    elif years:
+        phrase += f" with {years} years of relevant experience"
+    elif focus:
+        phrase += f" with strong hands-on experience in {focus}"
+    else:
+        phrase += " with relevant hands-on experience"
+    return phrase
+
+
+def _where_phrase(plan: Dict[str, Any]) -> str:
+    location = plan.get("location")
+    client = "your client's" if plan.get("end_client") else "the"
+    if plan.get("onsite") and location:
+        return f" who can deliver onsite in {location}" if _CITY_RE.fullmatch(location) else f" who can deliver onsite at {location}"
+    if plan.get("onsite") and plan.get("end_client"):
+        return f" who can deliver at {client} location"
+    return ""
 
 
 def _trainer_sentence(plan: Dict[str, Any]) -> str:
-    technology = plan.get("technology") or ""
-    trainer = f"{technology} trainer" if technology else "trainer"
-    what = "the trainer profile and updated CV" if plan.get("cv_requested") else "the trainer profile"
+    count = int(plan.get("trainer_count") or 1)
+    profile = "the trainer profiles" if count > 1 else "the trainer profile"
+    what = f"{profile} and updated CV{'s' if count > 1 else ''}" if plan.get("cv_requested") else profile
+    extras = []
     if plan.get("availability_requested"):
-        what += " along with the trainer's availability"
+        extras.append("availability")
+    if plan.get("call_requested"):
+        extras.append("suitable slots for the screening call")
+    if extras:
+        what += " along with " + ("their " if count > 1 else "the trainer's ") + _join(extras)
+    program = "your client's program" if plan.get("end_client") else "this program"
+    timing = "on priority" if plan.get("urgent") else "as soon as possible"
     return (
-        f"We are identifying a suitable {trainer} with relevant hands-on experience for this program, "
-        f"and we will share {what} with you as soon as possible."
+        f"We are identifying {_trainer_phrase(plan)}{_where_phrase(plan)} for {program}, "
+        f"and we will share {what} with you {timing}."
     )
 
 
@@ -513,6 +934,12 @@ def _batch_description(plan: Dict[str, Any]) -> str:
     return " ".join(parts + ["training batch"])
 
 
+def _urgency_sentence(plan: Dict[str, Any]) -> str:
+    if not plan.get("urgent"):
+        return ""
+    return " We understand this is a priority requirement and are taking it up right away."
+
+
 def render_plan_reply(plan: Dict[str, Any]) -> str:
     """Write the complete reply from the plan, without any LLM call."""
     confirmed = plan["batch_type"] == "confirmed"
@@ -520,12 +947,15 @@ def render_plan_reply(plan: Dict[str, Any]) -> str:
     deliverables = _deliverable_lines(plan)
     questions = [entry["question"] for entry in plan.get("missing") or []]
     questions += [entry["question"] for entry in plan.get("conflicts") or []]
+    topic = plan.get("technology")
+    whose = "your client's " if plan.get("end_client") else ""
 
     if confirmed:
-        paragraphs.append(f"Thank you for sharing the confirmed requirement for the {_batch_description(plan)}.")
+        paragraphs.append(f"Thank you for sharing the confirmed requirement for the {_batch_description(plan)}."
+                          + _urgency_sentence(plan))
         paragraphs.append(_trainer_sentence(plan))
         if deliverables:
-            paragraphs.append("Along with the profile, we will share:\n" + "\n".join(
+            paragraphs.append(f"Along with the {'profiles' if int(plan.get('trainer_count') or 1) > 1 else 'profile'}, we will share:\n" + "\n".join(
                 f"{index}. {line}" for index, line in enumerate(deliverables, 1)
             ))
         if questions:
@@ -542,32 +972,24 @@ def render_plan_reply(plan: Dict[str, Any]) -> str:
         else:
             paragraphs.append("We will share everything for your review and move ahead with the trainer confirmation.")
     else:
-        technology = plan.get("technology")
-        paragraphs.append(
-            f"Thank you for considering Clahan Technologies for your {technology} training program."
-            if technology else "Thank you for considering Clahan Technologies for your training program."
-        )
-        trainer_line = f"Suitable {technology} trainer profiles" if technology else "Suitable trainer profiles"
-        if plan.get("availability_requested"):
-            trainer_line += " with their availability"
-        contents = [trainer_line] + deliverables
-        if len(contents) == 1:
-            contents += ["A proposed course outline", "The commercials for the program"]
-        paragraphs.append("We would be glad to prepare a proposal for your review, including:\n" + "\n".join(
-            f"{index}. {line}" for index, line in enumerate(contents, 1)
-        ))
+        opening = (f"Thank you for sharing {whose or 'the '}{topic} training requirement with us." if topic
+                   else f"Thank you for sharing {whose or 'the '}training requirement with us.")
+        paragraphs.append(opening + _urgency_sentence(plan))
+        paragraphs.append(_trainer_sentence(plan))
+        if deliverables:
+            paragraphs.append(f"Along with the {'profiles' if int(plan.get('trainer_count') or 1) > 1 else 'profile'}, we will share:\n" + "\n".join(
+                f"{index}. {line}" for index, line in enumerate(deliverables, 1)
+            ))
         tentative = plan.get("tentative") or []
         if tentative:
             paragraphs.append(f"We have noted that the {_join(tentative)} {'is' if len(tentative) == 1 else 'are'} "
                               "still to be confirmed.")
         if questions:
-            paragraphs.append("To make the proposal match your needs, could you please share, if available:\n" + "\n".join(
-                f"\u2022 {question}" for question in questions
-            ))
-        if questions or tentative:
-            paragraphs.append("Once these details are available, we will share a complete proposal for your review.")
+            paragraphs.append("To align the trainer and the proposal with your needs, could you please share:\n"
+                              + "\n".join(f"\u2022 {question}" for question in questions))
+            paragraphs.append("Once we receive these details, we will share the complete proposal for your review.")
         else:
-            paragraphs.append("We will share the complete proposal for your review.")
+            paragraphs.append("We will share the complete details for your review.")
 
     paragraphs.append(plan.get("signature") or SIGNATURE)
     return "\n\n".join(paragraphs)
@@ -599,9 +1021,15 @@ def plan_prompt(plan: Dict[str, Any]) -> str:
            else " The client is exploring; offer a proposal and do not treat open details as confirmed."),
         f"- Open with exactly: {plan['greeting']}",
         "- The client's main need is a trainer. Right after the thank-you, commit to the trainer: "
-        + (_trainer_sentence(plan) if plan["batch_type"] == "confirmed"
-           else "we will propose suitable trainer profiles that match the scope."),
+        + _trainer_sentence(plan),
     ]
+    if plan.get("urgent"):
+        lines.append("- The client marked this as urgent: acknowledge the priority in one short sentence.")
+    if plan.get("end_client"):
+        lines.append("- The client is arranging this for their own client: refer to it as their client's program.")
+    if plan.get("trainer_details"):
+        lines.append("- They want the trainer to have: " + "; ".join(plan["trainer_details"][:4])
+                     + ". Say the profile will reflect this; do not claim it is already confirmed.")
     deliverables = _deliverable_lines(plan)
     if deliverables:
         lines.append("- Then list these deliverables in this order as a numbered list:")
@@ -706,4 +1134,9 @@ def plan_summary(plan: Dict[str, Any]) -> Dict[str, Any]:
         "missing": [entry["key"] for entry in plan.get("missing") or []],
         "conflicts": [entry["question"] for entry in plan.get("conflicts") or []],
         "tentative": plan.get("tentative") or [],
+        "topic": plan.get("technology") or "",
+        "urgent": bool(plan.get("urgent")),
+        "end_client": bool(plan.get("end_client")),
+        "trainer_count": plan.get("trainer_count") or 1,
+        "call_requested": bool(plan.get("call_requested")),
     }
