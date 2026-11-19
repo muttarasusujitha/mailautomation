@@ -867,7 +867,8 @@ def _auto_send_risk_reason(email_doc: Dict[str, Any]) -> str:
     )
     text = f"{subject}\n{body}".lower()
     for keyword in keywords:
-        if re.search(rf"(?<!\\w){re.escape(keyword)}(?!\\w)", text):
+        # Whole words only: "quote" must not match "quoted", nor "contract" "contractor".
+        if re.search(rf"(?<!\w){re.escape(keyword)}(?!\w)", text):
             return f"risky_keyword:{keyword}"
     return ""
 
@@ -2005,6 +2006,124 @@ async def _verified_question_history(
     return recent
 
 
+_PERSONALIZED_REQUIREMENT_TEMPLATES = {
+    "proposal_batch_ack",
+    "client_full_details_received",
+    "client_missing_details",
+    "client_proceed_ack",
+}
+
+
+def _engine_reply_analysis(
+    plan_summary: Dict[str, Any],
+    outcome: str,
+    problems: Optional[List[str]] = None,
+    llm_analysis: Optional[Dict[str, Any]] = None,
+    provider: str = "personalization_engine",
+) -> Dict[str, Any]:
+    """Decision record for an engine reply. The engine's checks replace human review."""
+    llm_analysis = dict(llm_analysis or {})
+    return {
+        "sender_intent": f"{plan_summary.get('batch_type', 'proposal')} batch requirement",
+        "observed_tone": str(llm_analysis.get("observed_tone") or "Professional"),
+        "communication_stage": "first client requirement reply",
+        "verified_facts": list(llm_analysis.get("verified_facts") or [])[:5],
+        "unresolved_questions": list(plan_summary.get("missing") or []) + list(plan_summary.get("conflicts") or []),
+        "reply_strategy": (
+            "Trainer first, then the requested items in the client's order, then only the missing "
+            "details and conflicts found by the pre-check."
+        ),
+        "commitments_to_avoid": ["No dates, attachments, trainer rates, margins, or internal details."],
+        "needs_human_review": False,
+        "human_review_reason": "",
+        "llm_review_note": str(llm_analysis.get("human_review_reason") or ""),
+        "post_check_outcome": outcome,
+        "post_check_problems": list(problems or []),
+        "reply_plan": plan_summary,
+        "confidence": 0.9,
+        "provider": provider,
+        "source": "personalization_engine",
+    }
+
+
+async def _personalized_requirement_reply(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    classification: Dict[str, Any],
+    extracted: Dict[str, Any],
+    subject: str,
+    body: str,
+    verified_reply: Dict[str, str],
+    reply_plan: Dict[str, Any],
+) -> Dict[str, str]:
+    """Write a first requirement reply from the pre-check plan with at most one LLM call.
+
+    Template mode sends the engine's own reply. AI mode asks the model to phrase
+    the plan once; a draft that is empty, fails, or misses anything in the plan
+    is replaced by the engine reply instead of a second LLM call or a review hold.
+    """
+    from app.agents.reply_precheck import check_reply, plan_prompt, plan_summary, render_plan_reply
+
+    engine_body = render_plan_reply(reply_plan)
+    summary = plan_summary(reply_plan)
+
+    def engine_reply(outcome: str, problems: Optional[List[str]] = None,
+                     llm_analysis: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        return {
+            **verified_reply,
+            "body": engine_body,
+            "template_reference_body": verified_reply.get("body", ""),
+            "generation_source": "personalization_engine",
+            "reply_plan": summary,
+            "reply_analysis": _engine_reply_analysis(summary, outcome, problems, llm_analysis),
+        }
+
+    try:
+        setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+        ai_mode = _clean(setting.get("value")).lower() == "ai"
+    except Exception:
+        ai_mode = False
+    if not ai_mode:
+        return engine_reply("template_mode")
+
+    context: Dict[str, Any] = {}
+    try:
+        from app.routes.inbox_actions import _ai_draft_reply, _load_reply_workflow_context
+
+        context = await _load_reply_workflow_context(db, email_doc, classification, extracted, body)
+        context["verified_conversation_history"] = await _verified_question_history(db, email_doc)
+        context["reply_plan"] = reply_plan
+        generated = await _ai_draft_reply(
+            subject=subject,
+            body=body,
+            hint=plan_prompt(reply_plan),
+            workflow_context=context,
+            reference_reply={**verified_reply, "body": engine_body},
+            require_openai=True,
+        )
+    except Exception:
+        logger.exception("Personalized reply drafting failed for %s; sending the engine reply", email_doc.get("email_id"))
+        return engine_reply("llm_error", llm_analysis=context.get("reply_analysis"))
+
+    llm_analysis = context.get("reply_analysis") or {}
+    if not _clean(generated):
+        return engine_reply("llm_unavailable", llm_analysis=llm_analysis)
+    problems = check_reply(generated.strip(), reply_plan)
+    if problems:
+        logger.info("AI draft for %s failed the post-check (%s); sending the engine reply",
+                    email_doc.get("email_id"), ", ".join(problems))
+        return engine_reply("llm_draft_failed_check", problems, llm_analysis)
+    provider = str(llm_analysis.get("provider") or "openai")
+    return {
+        **verified_reply,
+        "body": generated.strip(),
+        "template_reference_body": verified_reply.get("body", ""),
+        "generation_source": provider,
+        "reply_plan": summary,
+        "reply_analysis": _engine_reply_analysis(summary, "llm_draft_passed_check", [], llm_analysis, provider),
+    }
+
+
 async def _humanize_verified_client_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -2013,8 +2132,13 @@ async def _humanize_verified_client_reply(
     subject: str,
     body: str,
     verified_reply: Dict[str, str],
+    reply_plan: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, str]:
     """Let the configured provider phrase verified facts naturally."""
+    if reply_plan:
+        return await _personalized_requirement_reply(
+            db, email_doc, classification, extracted, subject, body, verified_reply, reply_plan,
+        )
     try:
         setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
         if _clean(setting.get("value")).lower() != "ai":
@@ -13995,9 +14119,33 @@ async def _process_client_requirement_email(
             or bool(client_coordination_intent)
         )
     )
+    # Personalization engine: first requirement mails get one deterministic
+    # plan (requested items, missing details, conflicts, batch type, greeting)
+    # that drives a single LLM call and a no-LLM fallback.
+    reply_plan: Optional[Dict[str, Any]] = None
+    if (
+        should_humanize_workflow_reply
+        and is_first_client_mail
+        and selected_template_key in _PERSONALIZED_REQUIREMENT_TEMPLATES
+        and not extracted.get("is_non_client_email")
+        and classification.get("person_type") != "trainer"
+    ):
+        try:
+            from app.agents.reply_precheck import build_reply_plan
+
+            reply_plan = build_reply_plan(
+                classification_body,
+                extracted,
+                batch_type="proposal" if is_proposal_batch else "confirmed",
+                sender_name=email_doc.get("from_name") or "",
+            )
+        except Exception:
+            logger.exception("Reply pre-check failed for %s; using the workflow template", email_doc.get("email_id"))
+            reply_plan = None
     if should_humanize_workflow_reply:
         reply = await _humanize_verified_client_reply(
             db, email_doc, classification, extracted, subject, classification_body, reply,
+            reply_plan=reply_plan,
         )
         if reply.get("llm_generation_failed"):
             logger.warning(
