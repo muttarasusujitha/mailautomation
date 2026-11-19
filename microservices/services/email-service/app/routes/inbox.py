@@ -2056,26 +2056,32 @@ async def _personalized_requirement_reply(
     verified_reply: Dict[str, str],
     reply_plan: Dict[str, Any],
 ) -> Dict[str, str]:
-    """Write a first requirement reply from the pre-check plan with at most one LLM call.
+    """Write a first requirement reply with at most one LLM call.
 
-    Template mode sends the engine's own reply. AI mode asks the model to phrase
-    the plan once; a draft that is empty, fails, or misses anything in the plan
-    is replaced by the engine reply instead of a second LLM call or a review hold.
+    Template mode: the rule-based plan drives the reply, no LLM call.
+    AI mode: one LLM call reads the email into structured JSON. Python checks
+    every value against the email, applies it to the plan, and writes the
+    reply from templates. If the call fails or the result fails the checks,
+    the rule-based reply is sent instead; nothing waits for review.
     """
-    from app.agents.reply_precheck import check_reply, plan_prompt, plan_summary, render_plan_reply
+    from app.agents.reply_precheck import check_reply, plan_summary, render_plan_reply
 
-    engine_body = render_plan_reply(reply_plan)
-    summary = plan_summary(reply_plan)
+    rule_body = render_plan_reply(reply_plan)
+    rule_summary = plan_summary(reply_plan)
 
-    def engine_reply(outcome: str, problems: Optional[List[str]] = None,
-                     llm_analysis: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def build(body_text: str, summary: Dict[str, Any], outcome: str, source: str,
+              problems: Optional[List[str]] = None, understanding: Optional[Dict[str, Any]] = None,
+              provider: str = "personalization_engine") -> Dict[str, Any]:
+        analysis = _engine_reply_analysis(summary, outcome, problems, None, provider)
+        if understanding is not None:
+            analysis["requirement_understanding"] = understanding
         return {
             **verified_reply,
-            "body": engine_body,
+            "body": body_text,
             "template_reference_body": verified_reply.get("body", ""),
-            "generation_source": "personalization_engine",
+            "generation_source": source,
             "reply_plan": summary,
-            "reply_analysis": _engine_reply_analysis(summary, outcome, problems, llm_analysis),
+            "reply_analysis": analysis,
         }
 
     try:
@@ -2084,44 +2090,35 @@ async def _personalized_requirement_reply(
     except Exception:
         ai_mode = False
     if not ai_mode:
-        return engine_reply("template_mode")
+        return build(rule_body, rule_summary, "template_mode", "personalization_engine")
 
-    context: Dict[str, Any] = {}
-    try:
-        from app.routes.inbox_actions import _ai_draft_reply, _load_reply_workflow_context
+    from app.agents.requirement_understanding import apply_understanding
+    from app.routes.inbox_actions import _understand_requirement
 
-        context = await _load_reply_workflow_context(db, email_doc, classification, extracted, body)
-        context["verified_conversation_history"] = await _verified_question_history(db, email_doc)
-        context["reply_plan"] = reply_plan
-        generated = await _ai_draft_reply(
-            subject=subject,
-            body=body,
-            hint=plan_prompt(reply_plan),
-            workflow_context=context,
-            reference_reply={**verified_reply, "body": engine_body},
-            require_openai=True,
-        )
-    except Exception:
-        logger.exception("Personalized reply drafting failed for %s; sending the engine reply", email_doc.get("email_id"))
-        return engine_reply("llm_error", llm_analysis=context.get("reply_analysis"))
+    understanding, provider, failure = await _understand_requirement(subject, body)
+    if not understanding:
+        return build(rule_body, rule_summary, failure or "understanding_unavailable", "personalization_engine")
+    if not understanding.get("is_training_requirement", True):
+        # The model reads this as a pitch, newsletter, or no-ask reply: keep the workflow template.
+        logger.info("Understanding for %s says this is not a training requirement", email_doc.get("email_id"))
+        from app.routes.inbox_actions import _workflow_reply_analysis
 
-    llm_analysis = context.get("reply_analysis") or {}
-    if not _clean(generated):
-        return engine_reply("llm_unavailable", llm_analysis=llm_analysis)
-    problems = check_reply(generated.strip(), reply_plan)
+        analysis = _workflow_reply_analysis(classification, extracted, email_doc)
+        analysis.update({"requirement_understanding": understanding,
+                         "post_check_outcome": "not_a_training_requirement"})
+        return {**verified_reply, "generation_source": "template", "reply_analysis": analysis}
+
+    understood_plan = apply_understanding(reply_plan, understanding)
+    understood_body = render_plan_reply(understood_plan)
+    understood_summary = plan_summary(understood_plan)
+    problems = check_reply(understood_body, understood_plan)
     if problems:
-        logger.info("AI draft for %s failed the post-check (%s); sending the engine reply",
+        logger.info("Understood reply for %s failed the post-check (%s); sending the rule-based reply",
                     email_doc.get("email_id"), ", ".join(problems))
-        return engine_reply("llm_draft_failed_check", problems, llm_analysis)
-    provider = str(llm_analysis.get("provider") or "openai")
-    return {
-        **verified_reply,
-        "body": generated.strip(),
-        "template_reference_body": verified_reply.get("body", ""),
-        "generation_source": provider,
-        "reply_plan": summary,
-        "reply_analysis": _engine_reply_analysis(summary, "llm_draft_passed_check", [], llm_analysis, provider),
-    }
+        return build(rule_body, rule_summary, "understanding_failed_check", "personalization_engine",
+                     problems, understanding, provider)
+    return build(understood_body, understood_summary, "understood_by_llm", f"personalization_engine+{provider}",
+                 [], understanding, provider)
 
 
 async def _humanize_verified_client_reply(
@@ -14140,6 +14137,7 @@ async def _process_client_requirement_email(
                 batch_type="proposal" if is_proposal_batch else "confirmed",
                 sender_name=email_doc.get("from_name") or "",
                 subject=subject,
+                seed=str(email_doc.get("email_id") or ""),
             )
         except Exception:
             logger.exception("Reply pre-check failed for %s; using the workflow template", email_doc.get("email_id"))

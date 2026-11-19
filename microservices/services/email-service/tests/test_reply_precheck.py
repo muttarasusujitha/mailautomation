@@ -7,8 +7,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.agents.reply_precheck import (
     build_reply_plan,
     check_reply,
-    finalize_plan_reply,
-    plan_prompt,
     render_plan_reply,
 )
 
@@ -132,10 +130,10 @@ def test_confirmed_plan_asks_only_blocking_details_and_flags_conflicts():
 def test_confirmed_reply_leads_with_trainer_and_passes_its_own_check():
     plan = _ujitha_plan()
     body = render_plan_reply(plan)
-    assert body.startswith("Dear Ujitha,\n\nThank you for sharing the confirmed requirement for the "
-                           "20-day offline DevOps training batch.")
+    assert body.startswith("Dear Ujitha,\n\nThank you for ")
+    assert "the 20-day offline DevOps training batch" in body.split("\n\n")[1]
     # "at the earliest" makes this a priority request.
-    assert "We understand this is a priority requirement" in body
+    assert "priority" in body.split("\n\n")[1]
     trainer_at = body.index("suitable DevOps trainer")
     assert trainer_at < body.index("day-wise ToC") < body.index("lab cost for 10 days")
     assert "trainer profile and updated CV with you on priority" in body
@@ -185,21 +183,6 @@ def test_check_rejects_missing_trainer_internal_details_and_deadlines():
     )
     problems = check_reply(leaky, plan)
     assert {"internal_detail_leak", "attachment_claim", "deadline_promise"} <= set(problems)
-
-
-def test_finalize_replaces_model_greeting_and_signature():
-    plan = _ujitha_plan()
-    generated = "Subject: Re: DevOps\n\nHi Shahini,\n\nThank you for the details.\n\nThanks,\nAnnapurna U.\nClahan Technologies"
-    assert finalize_plan_reply(generated, plan) == (
-        "Dear Ujitha,\n\nThank you for the details.\n\nBest regards,\nAnnapurna U.\nClahan Technologies"
-    )
-
-
-def test_prompt_contains_checklist_and_reference_reply():
-    prompt = plan_prompt(_ujitha_plan())
-    assert "Open with exactly: Dear Ujitha," in prompt
-    assert "Whether the lab cost should cover 10 days or the full 20-day program" in prompt
-    assert "A correct reference reply follows" in prompt
 
 
 def test_quoted_history_is_ignored():
@@ -317,13 +300,13 @@ def test_partner_requirement_reads_trainer_needs_count_location_and_urgency():
 def test_partner_reply_is_specific_to_their_request():
     plan = _partner_plan()
     body = render_plan_reply(plan)
-    assert "Thank you for sharing your client's GenAI & Agentic AI training requirement with us." in body
-    assert "We understand this is a priority requirement" in body
-    assert ("two suitable GenAI & Agentic AI trainers with 5+ years of experience and strong hands-on "
-            "expertise in Generative AI") in body
-    assert "who can deliver onsite at Bellandur, Bangalore for your client's program" in body
+    assert "your client's GenAI & Agentic AI training requirement" in body
+    assert "priority" in body.split("\n\n")[1]
+    assert "two suitable GenAI & Agentic AI trainers with 5+ years of experience" in body
+    assert "who can deliver onsite at Bellandur, Bangalore for your client's 6-month engagement" in body
+    assert "Their profiles will highlight hands-on experience in Generative AI" in body
     assert "along with their availability and suitable slots for the screening call" in body
-    assert "The commercials within your stated budget" in body
+    assert "within your stated budget" in body
     assert "Ability to work" not in body and "Strong expertise" not in body
     assert check_reply(body, plan) == []
 
