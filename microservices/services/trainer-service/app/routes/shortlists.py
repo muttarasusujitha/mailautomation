@@ -1997,12 +1997,71 @@ async def _invoke_mail_model(instructions: str, prompt: str) -> str:
         from google.genai import types
 
         client = genai.Client(api_key=api_key)
-        response = await client.aio.models.generate_content(
-            model=_clean(getattr(settings, "GEMINI_MODEL", "")) or "gemini-2.5-flash",
-            contents=f"{instructions}\n\n{prompt}",
-            config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
-        )
-        output_text = getattr(response, "text", "")
+        configured_model = (_clean(getattr(settings, "GEMINI_MODEL", "")) or "gemini-2.5-flash").removeprefix("models/")
+        contents = f"{instructions}\n\n{prompt}"
+
+        async def generate(model_name: str) -> str:
+            response = await client.aio.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
+            )
+            return _clean(getattr(response, "text", ""))
+
+        try:
+            output_text = await generate(configured_model)
+            logger.info("Gemini trainer email generated with configured model %s", configured_model)
+        except Exception as configured_error:
+            is_not_found = (
+                getattr(configured_error, "code", None) == 404
+                or getattr(configured_error, "status_code", None) == 404
+                or "not found" in str(configured_error).lower()
+            )
+            if not is_not_found:
+                raise
+
+            def list_generation_models() -> List[str]:
+                names = []
+                for model in client.models.list():
+                    actions = getattr(model, "supported_actions", None) or []
+                    if "generateContent" not in actions:
+                        continue
+                    name = _clean(getattr(model, "name", "")).removeprefix("models/")
+                    if name and name != configured_model:
+                        names.append(name)
+                return sorted(
+                    set(names),
+                    key=lambda name: (
+                        0 if "flash-lite" in name.lower() else
+                        1 if "flash" in name.lower() else
+                        2,
+                        "preview" in name.lower(),
+                        name,
+                    ),
+                )
+
+            available_models = await asyncio.to_thread(list_generation_models)
+            if not available_models:
+                raise RuntimeError("Gemini found no models available for generateContent on this API key.") from configured_error
+
+            last_not_found = configured_error
+            for model_name in available_models:
+                try:
+                    output_text = await generate(model_name)
+                    logger.info("Gemini trainer email generated with discovered model %s", model_name)
+                    break
+                except Exception as exc:
+                    is_not_found = (
+                        getattr(exc, "code", None) == 404
+                        or getattr(exc, "status_code", None) == 404
+                        or "not found" in str(exc).lower()
+                    )
+                    if not is_not_found:
+                        raise
+                    last_not_found = exc
+                    logger.warning("Gemini model %s returned NotFound; trying the next available model", model_name)
+            else:
+                raise last_not_found
     elif ai_provider == "ollama":
         if not _clean(getattr(settings, "OLLAMA_URL", "")) or not _clean(getattr(settings, "OLLAMA_MODEL", "")):
             raise HTTPException(502, "Ollama email generation is not configured. Select Template mode or configure Ollama.")
