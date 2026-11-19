@@ -345,12 +345,6 @@ jobs:
           docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml pull
           docker compose -f docker-compose.yml -f docker-compose.registry.yml pull frontend
 
-      - name: Build Meet Bot
-        working-directory: ${{ github.workspace }}
-        run: |
-          set -euo pipefail
-          docker compose -f microservices/docker-compose.yml build meet-bot-service
-
       - name: Start Backend
         working-directory: ${{ github.workspace }}
         run: |
