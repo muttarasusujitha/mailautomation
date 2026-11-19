@@ -1989,7 +1989,21 @@ def _subject_body_from_model(text: str, fallback_subject: str) -> Dict[str, str]
 async def _invoke_mail_model(instructions: str, prompt: str) -> str:
     """Call the configured mail model. AI generation must already be enabled."""
     ai_provider = str(getattr(settings, "AI_PROVIDER", "openai") or "openai").strip().lower()
-    if ai_provider == "ollama":
+    if ai_provider == "gemini":
+        api_key = _clean(getattr(settings, "GEMINI_API_KEY", ""))
+        if not api_key:
+            raise HTTPException(502, "Gemini email generation is not configured. Select Template mode or configure GEMINI_API_KEY.")
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=api_key)
+        response = await client.aio.models.generate_content(
+            model=_clean(getattr(settings, "GEMINI_MODEL", "")) or "gemini-2.5-flash",
+            contents=f"{instructions}\n\n{prompt}",
+            config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
+        )
+        output_text = getattr(response, "text", "")
+    elif ai_provider == "ollama":
         if not _clean(getattr(settings, "OLLAMA_URL", "")) or not _clean(getattr(settings, "OLLAMA_MODEL", "")):
             raise HTTPException(502, "Ollama email generation is not configured. Select Template mode or configure Ollama.")
         from app.ollama_client import OllamaClient
@@ -1999,6 +2013,7 @@ async def _invoke_mail_model(instructions: str, prompt: str) -> str:
             input=prompt,
             max_output_tokens=650,
         )
+        output_text = getattr(response, "output_text", "")
     elif ai_provider == "openai":
         if not _clean(settings.OPENAI_API_KEY):
             raise HTTPException(502, "AI email generation is not configured. Select Template mode or configure AI.")
@@ -2011,9 +2026,10 @@ async def _invoke_mail_model(instructions: str, prompt: str) -> str:
             input=prompt,
             max_output_tokens=650,
         )
-    else:
+        output_text = getattr(response, "output_text", "")
+    elif ai_provider not in {"gemini", "ollama"}:
         raise HTTPException(502, f"Unsupported trainer-service AI provider: {ai_provider}")
-    text = _clean(getattr(response, "output_text", ""))
+    text = _clean(output_text)
     if not text:
         raise ValueError("AI returned an empty email")
     return text
