@@ -2001,12 +2001,33 @@ async def _invoke_mail_model(instructions: str, prompt: str) -> str:
         contents = f"{instructions}\n\n{prompt}"
 
         async def generate(model_name: str) -> str:
-            response = await client.aio.models.generate_content(
-                model=model_name,
-                contents=contents,
-                config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
-            )
-            return _clean(getattr(response, "text", ""))
+            # Gemini can briefly return 429/5xx responses when a batch is
+            # generating several messages. Retry only those transient errors;
+            # configuration and model errors still fail immediately.
+            for attempt, delay in enumerate((0, 2, 5)):
+                if delay:
+                    await asyncio.sleep(delay)
+                try:
+                    response = await client.aio.models.generate_content(
+                        model=model_name,
+                        contents=contents,
+                        config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
+                    )
+                    return _clean(getattr(response, "text", ""))
+                except Exception as exc:
+                    raw_status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+                    try:
+                        status = int(raw_status)
+                    except (TypeError, ValueError):
+                        status = None
+                    transient = status == 429 or (status is not None and 500 <= status <= 599)
+                    if not transient or attempt == 2:
+                        raise
+                    logger.warning(
+                        "Gemini trainer email request returned transient HTTP %s; retry %s/2",
+                        status,
+                        attempt + 1,
+                    )
 
         try:
             output_text = await generate(configured_model)
@@ -2228,8 +2249,18 @@ async def _ai_trainer_mail1(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.warning("AI Mail 1 generation failed: %s", exc)
-        raise HTTPException(502, "AI Mail 1 generation failed. No email was sent; retry or select Template mode explicitly.") from exc
+        raw_status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+        try:
+            status = int(raw_status)
+        except (TypeError, ValueError):
+            status = None
+        error_kind = re.sub(r"[^A-Za-z0-9_.-]", "", type(exc).__name__)[:48] or "ProviderError"
+        status_text = f" HTTP {status}" if status is not None else ""
+        logger.warning("AI Mail 1 generation failed (%s%s): %s", error_kind, status_text, exc)
+        raise HTTPException(
+            502,
+            f"AI Mail 1 generation failed ({error_kind}{status_text}). No email was sent; retry or select Template mode explicitly.",
+        ) from exc
 
 
 def _ensure_mail1_slot_examples(body: str) -> str:
