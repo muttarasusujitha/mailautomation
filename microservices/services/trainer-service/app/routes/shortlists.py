@@ -9,6 +9,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from email.utils import parseaddr
 from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -1986,6 +1987,87 @@ def _subject_body_from_model(text: str, fallback_subject: str) -> Dict[str, str]
     return {"subject": subject, "body": body}
 
 
+def _gemini_failure_context(exc: Exception) -> Dict[str, Any]:
+    """Extract a safe provider explanation and a cooldown for automatic retries."""
+    details = getattr(exc, "details", None)
+    if not isinstance(details, dict):
+        details = {}
+    error = details.get("error") if isinstance(details.get("error"), dict) else details
+    provider_message = _clean(getattr(exc, "message", "") or error.get("message", ""))
+    provider_message = re.sub(r"(?i)(api[_-]?key|token)=\S+", r"\1=[redacted]", provider_message)
+    provider_message = re.sub(r"\s+", " ", provider_message).strip()[:280]
+
+    retry_seconds = None
+    response = getattr(exc, "response", None)
+    headers = getattr(response, "headers", None)
+    retry_after = headers.get("Retry-After") if headers and hasattr(headers, "get") else None
+    if retry_after:
+        try:
+            retry_seconds = max(0, int(float(retry_after)))
+        except (TypeError, ValueError):
+            retry_seconds = None
+
+    error_details = error.get("details", []) if isinstance(error, dict) else []
+    if isinstance(error_details, list):
+        for item in error_details:
+            if not isinstance(item, dict):
+                continue
+            item_type = str(item.get("@type", "")).lower()
+            if "retryinfo" in item_type:
+                delay = str(item.get("retryDelay", ""))
+                match = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*(s|m|h)\s*", delay, re.IGNORECASE)
+                if match:
+                    multiplier = {"s": 1, "m": 60, "h": 3600}[match.group(2).lower()]
+                    retry_seconds = max(retry_seconds or 0, int(float(match.group(1)) * multiplier))
+
+    message_delay = re.search(
+        r"retry\s+(?:in|after)\s+(\d+(?:\.\d+)?)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h)\b",
+        provider_message,
+        re.IGNORECASE,
+    )
+    if message_delay:
+        unit = message_delay.group(2).lower()
+        multiplier = 3600 if unit.startswith("h") else 60 if unit.startswith("m") else 1
+        retry_seconds = max(retry_seconds or 0, int(float(message_delay.group(1)) * multiplier))
+
+    quota_ids = []
+    if isinstance(error_details, list):
+        for item in error_details:
+            if isinstance(item, dict) and "quotafailure" in str(item.get("@type", "")).lower():
+                for violation in item.get("violations", []) or []:
+                    if isinstance(violation, dict):
+                        quota_ids.append(str(violation.get("quotaId", "")).lower())
+    if not retry_seconds and any("perday" in quota_id or "per_day" in quota_id for quota_id in quota_ids):
+        try:
+            now_pacific = datetime.now(timezone.utc).astimezone(ZoneInfo("America/Los_Angeles"))
+            next_midnight = datetime.combine(now_pacific.date() + timedelta(days=1), datetime.min.time(), tzinfo=now_pacific.tzinfo)
+            retry_seconds = max(1, int((next_midnight - now_pacific).total_seconds()))
+        except ZoneInfoNotFoundError:
+            retry_seconds = 24 * 60 * 60
+
+    status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+    try:
+        status = int(status)
+    except (TypeError, ValueError):
+        status = None
+    if status == 429 and not retry_seconds:
+        # Avoid hammering an exhausted project when Google omits RetryInfo.
+        retry_seconds = 15 * 60
+
+    retry_seconds = min(retry_seconds, 48 * 60 * 60) if retry_seconds else None
+    return {"status": status, "message": provider_message, "retry_seconds": retry_seconds}
+
+
+def _format_retry_delay(seconds: int) -> str:
+    if seconds >= 3600:
+        hours = (seconds + 3599) // 3600
+        return f"about {hours} hour{'s' if hours != 1 else ''}"
+    if seconds >= 60:
+        minutes = (seconds + 59) // 60
+        return f"about {minutes} minute{'s' if minutes != 1 else ''}"
+    return f"about {max(1, seconds)} second{'s' if seconds != 1 else ''}"
+
+
 async def _invoke_mail_model(instructions: str, prompt: str) -> str:
     """Call the configured mail model. AI generation must already be enabled."""
     ai_provider = str(getattr(settings, "AI_PROVIDER", "openai") or "openai").strip().lower()
@@ -2001,33 +2083,14 @@ async def _invoke_mail_model(instructions: str, prompt: str) -> str:
         contents = f"{instructions}\n\n{prompt}"
 
         async def generate(model_name: str) -> str:
-            # Gemini can briefly return 429/5xx responses when a batch is
-            # generating several messages. Retry only those transient errors;
-            # configuration and model errors still fail immediately.
-            for attempt, delay in enumerate((0, 2, 5)):
-                if delay:
-                    await asyncio.sleep(delay)
-                try:
-                    response = await client.aio.models.generate_content(
-                        model=model_name,
-                        contents=contents,
-                        config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
-                    )
-                    return _clean(getattr(response, "text", ""))
-                except Exception as exc:
-                    raw_status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
-                    try:
-                        status = int(raw_status)
-                    except (TypeError, ValueError):
-                        status = None
-                    transient = status == 429 or (status is not None and 500 <= status <= 599)
-                    if not transient or attempt == 2:
-                        raise
-                    logger.warning(
-                        "Gemini trainer email request returned transient HTTP %s; retry %s/2",
-                        status,
-                        attempt + 1,
-                    )
+            # The Google Gen AI SDK already retries transient 429/5xx responses
+            # with exponential backoff. Avoid wrapping it in a second retry loop.
+            response = await client.aio.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=650),
+            )
+            return _clean(getattr(response, "text", ""))
 
         try:
             output_text = await generate(configured_model)
@@ -2249,17 +2312,17 @@ async def _ai_trainer_mail1(
     except HTTPException:
         raise
     except Exception as exc:
-        raw_status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
-        try:
-            status = int(raw_status)
-        except (TypeError, ValueError):
-            status = None
+        failure = _gemini_failure_context(exc)
+        status = failure["status"]
         error_kind = re.sub(r"[^A-Za-z0-9_.-]", "", type(exc).__name__)[:48] or "ProviderError"
         status_text = f" HTTP {status}" if status is not None else ""
+        provider_text = f" Gemini says: {failure['message']}" if failure["message"] else ""
+        retry_text = f" Retry after { _format_retry_delay(failure['retry_seconds']) }." if failure["retry_seconds"] else ""
         logger.warning("AI Mail 1 generation failed (%s%s): %s", error_kind, status_text, exc)
         raise HTTPException(
             502,
-            f"AI Mail 1 generation failed ({error_kind}{status_text}). No email was sent; retry or select Template mode explicitly.",
+            f"AI Mail 1 generation failed ({error_kind}{status_text}).{provider_text}{retry_text} No email was sent; retry or select Template mode explicitly.",
+            headers={"Retry-After": str(failure["retry_seconds"])} if failure["retry_seconds"] else None,
         ) from exc
 
 

@@ -2895,8 +2895,12 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const failedMail1 = Boolean(trainer?.last_mail_error) &&
             ['mail1', 'first'].includes(String(trainer?.last_mail_type_attempted || '').toLowerCase())
           const attemptedAt = Date.parse(trainer?.last_mail_attempted_at || '')
+          const retryDelay = String(trainer?.last_mail_error || '').match(/retry after (?:about )?(\d+) (seconds?|minutes?|hours?)/i)
+          const retryUnit = retryDelay?.[2]?.toLowerCase() || ''
+          const retryMultiplier = retryUnit.startsWith('hour') ? 60 * 60 * 1000 : retryUnit.startsWith('minute') ? 60 * 1000 : 1000
+          const providerCooldownMs = retryDelay ? Number(retryDelay[1]) * retryMultiplier + 5000 : 0
           return failedMail1 && Number.isFinite(attemptedAt) &&
-            Date.now() - attemptedAt >= MAIL1_RETRY_COOLDOWN_MS
+            Date.now() - attemptedAt >= Math.max(MAIL1_RETRY_COOLDOWN_MS, providerCooldownMs)
         }
         const pendingTrainers = trainers.filter(trainer => {
           const stage = getStage(trainer)
