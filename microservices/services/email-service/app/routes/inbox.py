@@ -7733,16 +7733,26 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         return {"attempted": False}
     req = await db["requirements"].find_one({"requirement_id": query.get("requirement_id")}, {"_id": 0}) or {}
     subject = f"Client Update: Travel / Stay Details - {_clean(req.get('technology_needed') or req.get('technology') or 'Training')}"
-    client_venue = _client_confirmed_venue(text) or _clean(query.get("partial_client_venue"))
+    required_fields = set(query.get("required_fields") or ("venue", "map", "travel"))
+    client_venue = _client_confirmed_venue(text) or _clean(query.get("partial_client_venue")) or (
+        _clean(req.get("location") or req.get("preferred_location")) if "venue" not in required_fields else ""
+    )
     client_map_url = _client_confirmed_google_maps_url(text) or _clean(query.get("partial_client_maps_url"))
-    client_travel_terms = _client_confirmed_travel_terms(text) or _clean(query.get("partial_client_travel_terms"))
+    travel_value = _client_labeled_logistics_value(text, "travel")
+    accommodation_value = _client_labeled_logistics_value(text, "accommodation")
+    food_value = _client_labeled_logistics_value(text, "food")
+    client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
     missing_confirmations = []
-    if not client_venue:
+    if "venue" in required_fields and not client_venue:
         missing_confirmations.append("the exact training address")
-    if not client_map_url:
+    if "map" in required_fields and not client_map_url:
         missing_confirmations.append("the client-confirmed Google Maps pin")
-    if not client_travel_terms:
+    if "travel" in required_fields and not client_travel_terms:
         missing_confirmations.append("the agreed travel/stay budget and who will pay or book")
+    if "accommodation" in required_fields and not accommodation_value:
+        missing_confirmations.append("the accommodation or stay arrangement and charges")
+    if "food" in required_fields and not food_value:
+        missing_confirmations.append("the food or meal arrangement and charges")
 
     # Keep the trainer's final travel package on hold until every required
     # client confirmation is explicit. Partial replies stay linked to this
@@ -7752,15 +7762,23 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         # Keep the same subject so the client's clarification reply remains
         # attached to this open logistics query.
         clarification_subject = _clean(query.get("clarification_subject") or email_doc.get("subject") or "Travel and venue confirmation")
+        reply_lines = []
+        if "venue" in required_fields:
+            reply_lines.append("Confirmed training address: [full address]")
+        if "map" in required_fields:
+            reply_lines.append("Google Maps pin: [exact Google Maps link]")
+        if "travel" in required_fields:
+            reply_lines.append("Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]")
+        if "accommodation" in required_fields:
+            reply_lines.append("Accommodation arrangement and charges: [details]")
+        if "food" in required_fields:
+            reply_lines.append("Food or meal arrangement and charges: [details]")
         clarification_body = (
             "Hi there,\n\n"
             "Thanks for the update. The final travel package is on hold until we have the following client confirmations:\n"
             f"- {missing_text}\n\n"
             "Please reply with these lines (fill in the details):\n"
-            "Confirmed training address: [full address]\n"
-            "Google Maps pin: [exact Google Maps link]\n"
-            "Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]\n"
-            "Booking PDFs: [attach tickets/hotel PDFs if booked, or say Not booked yet]\n\n"
+            + "\n".join(reply_lines) + "\n\n"
             "We will share the final confirmed details with the selected trainer after the required items are complete.\n\n"
             "Regards,\nClahan Technologies"
         )
@@ -7966,6 +7984,23 @@ def _client_confirmed_travel_terms(text: Any) -> str:
             line,
             flags=re.IGNORECASE,
         )
+        if match:
+            return _clean(match.group(1))
+    return ""
+
+
+def _client_labeled_logistics_value(text: Any, field: str) -> str:
+    """Read a client response only when it uses the requested labeled field."""
+    labels = {
+        "travel": r"(?:travel(?:\s+(?:arrangement|policy|charges?|terms?))?|travel\s*/\s*stay\s+(?:budget|terms)|reimbursement)",
+        "accommodation": r"(?:accommodation|stay|hotel)(?:\s+(?:arrangement|charges?|terms?))?",
+        "food": r"(?:food|meal|meals|lunch|dinner|breakfast)(?:\s+(?:arrangement|charges?|terms?))?",
+    }
+    pattern = labels.get(field)
+    if not pattern:
+        return ""
+    for line in str(text or "").splitlines():
+        match = re.match(rf"^\s*{pattern}\s*[:\-]\s*(.{{3,1000}})\s*$", line, re.IGNORECASE)
         if match:
             return _clean(match.group(1))
     return ""
@@ -9518,6 +9553,82 @@ async def _auto_request_client_po(
         return {"attempted": True, "success": False, "error": str(exc)}
 
 
+def _offline_logistics_gaps(requirement: Dict[str, Any]) -> List[tuple[str, tuple[str, ...]]]:
+    """Return only post-selection logistics the client has not already supplied."""
+    groups = (
+        ("travel", ("travel_policy", "travel_arrangement", "travel_reimbursement")),
+        ("accommodation", ("accommodation_policy", "stay_details")),
+        ("food", ("food_policy", "meal_arrangement", "food_reimbursement")),
+        ("venue", ("location", "preferred_location")),
+    )
+    return [
+        (label, keys) for label, keys in groups
+        if not any(_clean(requirement.get(key)).lower() not in {"", "tbd", "pending", "unknown", "to be confirmed"} for key in keys)
+    ]
+
+
+async def _auto_request_offline_logistics(
+    db: AsyncIOMotorDatabase, *, requirement_id: str, trainer_id: str, trainer_name: str, trainer_email: str,
+) -> Dict[str, Any]:
+    """Ask for missing offline arrangements once, immediately after selection."""
+    requirements = db["requirements"]
+    find_requirement = getattr(requirements, "find_one", None)
+    if not callable(find_requirement):
+        return {"attempted": False, "reason": "requirement_read_unavailable"}
+    requirement = await find_requirement({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    delivery_mode = " ".join(_clean(requirement.get(key)).lower() for key in ("delivery_mode", "training_mode", "mode"))
+    if not any(term in delivery_mode for term in ("offline", "onsite", "on-site", "classroom", "in person", "in-person")):
+        return {"attempted": False, "reason": "not_offline"}
+    gaps = _offline_logistics_gaps(requirement)
+    if not gaps:
+        return {"attempted": False, "reason": "details_already_present"}
+    existing = await db["trainer_logistics_queries"].find_one({
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "query_type": "post_selection_logistics", "status": {"$in": ["client_asked", "trainer_answer_sent"]},
+    }, {"_id": 0, "query_id": 1})
+    if existing:
+        return {"attempted": False, "reason": "already_requested", "query_id": existing.get("query_id")}
+    client_email = _email_address(requirement.get("client_email") or requirement.get("from_email") or requirement.get("requester_email"))
+    if not client_email:
+        return {"attempted": True, "success": False, "reason": "missing_client_email"}
+    label_text = {
+        "travel": "Travel arrangement and reimbursement terms",
+        "accommodation": "Accommodation or stay arrangement and charges",
+        "food": "Food or meal arrangement and charges",
+        "venue": "Confirmed training venue and full address",
+    }
+    requested_fields = [label for label, _ in gaps]
+    request_lines = "\n".join(f"{label_text[label]}: [details]" for label in requested_fields)
+    technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "training")
+    subject = f"Offline Training Arrangements Required - {technology}"
+    body = (
+        f"Hi {_clean(requirement.get('client_name') or requirement.get('client_company')) or 'Team'},\n\n"
+        f"{trainer_name or 'The selected trainer'} has been selected for the offline {technology} training. "
+        "Please reply with the following outstanding arrangements before any booking is made:\n\n"
+        f"{request_lines}\n\n"
+        "Please include approved caps, who books or pays, and any receipt rules for each expense.\n\n"
+        "Regards,\nClahan Technologies"
+    )
+    settings_doc = await _load_admin_settings(db)
+    message_id = generate_message_id()
+    ok, error = await _send_verified_workflow_email(
+        db, requirement_id, trainer_id, "client_post_selection_logistics",
+        to=client_email, subject=subject, body=body,
+        smtp_config=settings_doc.get("emailCfg") or None, message_id_header=message_id,
+    )
+    now = _now()
+    query_id = f"LQ-{uuid.uuid4().hex[:10].upper()}"
+    await db["trainer_logistics_queries"].insert_one({
+        "query_id": query_id, "query_type": "post_selection_logistics",
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "trainer_name": trainer_name, "trainer_email": trainer_email,
+        "client_email": client_email, "clarification_subject": subject,
+        "clarification_message_id": message_id, "required_fields": requested_fields,
+        "status": "client_asked" if ok else "client_ask_failed", "created_at": now, "updated_at": now,
+    })
+    return {"attempted": True, "success": bool(ok), "query_id": query_id, "missing_fields": requested_fields, "error": error or ""}
+
+
 async def _handle_client_selection_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -9709,6 +9820,20 @@ async def _handle_client_selection_reply(
             "error": "Client PO request is waiting for successful trainer selection email delivery.",
         }
 
+    if mail5_result.get("success"):
+        logistics_result = await _auto_request_offline_logistics(
+            db,
+            requirement_id=requirement_id,
+            trainer_id=trainer_id,
+            trainer_name=trainer_name,
+            trainer_email=trainer_email,
+        )
+    else:
+        logistics_result = {
+            "attempted": False,
+            "reason": "trainer_selection_email_not_sent",
+        }
+
     try:
         email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
         await db["email_logs"].insert_one({
@@ -9726,6 +9851,7 @@ async def _handle_client_selection_reply(
             "automation_result": {
                 "mail5_result": mail5_result,
                 "po_request_result": po_request_result,
+                "logistics_result": logistics_result,
             },
             "created_at": now,
             "updated_at": now,
@@ -9742,6 +9868,7 @@ async def _handle_client_selection_reply(
         "selected_at": now,
         "mail5_result": mail5_result,
         "po_request_result": po_request_result,
+        "logistics_result": logistics_result,
     }
 
 
@@ -11173,11 +11300,11 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
         return "proposal"
     # A missing participant count is an estimate input, not a batch-status
     # signal. Explicit zero values remain invalid quote inputs downstream.
-    # Participant count is an execution-planning input, not a confirmation
-    # prerequisite. A named domain, concrete dates, duration and commercial
+    # Participant count, calendar dates and location are execution-planning
+    # inputs, not confirmation prerequisites. A named domain, a fixed duration and commercial
     # amount establish a confirmed requirement unless the client uses
     # tentative or proposal wording above.
-    if all((has_scope, has_dates, has_duration, has_commercials)):
+    if all((has_scope, has_duration, has_commercials)):
         return "confirmed"
     return "proposal"
 

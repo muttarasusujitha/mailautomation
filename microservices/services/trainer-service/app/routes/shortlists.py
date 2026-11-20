@@ -18,6 +18,7 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from shared.trainer_identity import linkedin_profile_url
+from shared.trainer_documents import requested_documents, matching_document
 from app.config import get_settings
 from app.toc_pdf_template import build_toc_html
 
@@ -761,6 +762,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         selected.append('LinkedIn profile')
     if any('certification' in item.lower() for item in requested_items) and not trainer.get('certifications'):
         selected.append('relevant certifications, if any')
+    selected.extend(requested_documents(requirement))
     ask = ", ".join(dict.fromkeys(selected))
     known_dates = bool(dates) and not re.search(r"to be confirmed|\btbc\b|\btbd\b", dates, re.I)
     availability = "availability for the stated training dates" if known_dates else "tentative availability; calendar dates remain to be confirmed"
@@ -2842,6 +2844,60 @@ def _profile_attachment_subtype(filename: str) -> str:
     }.get(suffix, "octet-stream")
 
 
+def _requested_evidence_attachment(attachment: Dict[str, Any], label: str, trainer_name: str) -> Optional[Dict[str, str]]:
+    """Return a readable requested document only when it names this trainer."""
+    filename = re.sub(r"[\r\n\\\\/]+", "_", _clean(attachment.get("filename") or attachment.get("original_filename")))[:160]
+    if not filename.lower().endswith((".pdf", ".doc", ".docx")):
+        return None
+    raw = attachment.get("original_file")
+    encoded = attachment.get("content_base64")
+    try:
+        content = bytes(raw) if raw else base64.b64decode(str(encoded or ""), validate=True)
+    except (TypeError, ValueError):
+        return None
+    if not content or len(content) > 8 * 1024 * 1024 or not matching_document(attachment, label, trainer_name):
+        return None
+    return {
+        "filename": filename,
+        "content_base64": base64.b64encode(content).decode(),
+        "subtype": _profile_attachment_subtype(filename),
+    }
+
+
+async def _requested_trainer_evidence(
+    db: AsyncIOMotorDatabase, requirement_id: str, trainer: Dict[str, Any], labels: List[str], trainer_name: str,
+) -> List[Dict[str, str]]:
+    """Find one type-and-name matched document per client request."""
+    if not labels:
+        return []
+    trainer_id = _clean(trainer.get("trainer_id"))
+    trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    sender_terms: List[Dict[str, Any]] = []
+    if trainer_id:
+        sender_terms.append({"trainer_id": trainer_id})
+    if trainer_email:
+        sender_terms.extend([
+            {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+            {"sender": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+        ])
+    if not sender_terms:
+        return []
+    messages = db["client_emails"].find(
+        {"requirement_id": requirement_id, "$or": sender_terms}, {"_id": 0, "attachments": 1},
+    ).sort("received_at", -1).limit(20)
+    matched: Dict[str, Dict[str, str]] = {}
+    async for message in messages:
+        for attachment in message.get("attachments") or []:
+            if not isinstance(attachment, dict):
+                continue
+            for label in labels:
+                if label not in matched:
+                    candidate = _requested_evidence_attachment(attachment, label, trainer_name)
+                    if candidate:
+                        matched[label] = candidate
+    return [matched[label] for label in labels if label in matched]
+
+
 def _profile_candidate_from_attachment(
     attachment: Dict[str, Any],
     technology: str,
@@ -4116,13 +4172,31 @@ async def send_shortlist_mail(
                         elif duration_confirmed:
                             raise RuntimeError("Mail 1 ToC generation returned no ToC data")
                         else:
-                            duration_note = (
-                                "The training duration is still being confirmed. We will share the course agenda "
-                                "once the duration is finalised."
+                            # Proposal work may start before the client fixes a
+                            # duration. A clearly labelled one-day agenda gives
+                            # the trainer scope to assess without inventing a
+                            # confirmed schedule.
+                            provisional_requirement = {**requirement, "duration_days": 1}
+                            provisional_toc = await _build_toc(provisional_requirement, t, db)
+                            if not provisional_toc:
+                                raise RuntimeError("Mail 1 provisional ToC generation returned no ToC data")
+                            toc_response = await _post_with_local_fallback(
+                                client,
+                                f"{DOC_SVC}/api/v1/documents/excel/toc",
+                                json={"toc": provisional_toc, "draft": True},
                             )
-                            if duration_note.lower() not in body.lower():
-                                body = _insert_before_signature(body, duration_note)
-                                send_payload["body"] = body
+                            if toc_response.status_code != 200 or not toc_response.content:
+                                raise RuntimeError("Mail 1 provisional ToC workbook generation failed")
+                            scope_attachments.append({
+                                "filename": f"{domain} - Provisional 1 Day TOC.xlsx",
+                                "content_base64": base64.b64encode(toc_response.content).decode(),
+                                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            })
+                            body = _insert_before_signature(
+                                body,
+                                "A provisional one-day ToC is attached for feasibility review. Final duration and dates are pending client confirmation.",
+                            )
+                            send_payload["body"] = body
                     if requires_toc and not scope_attachments and duration_confirmed:
                         raise RuntimeError("Mail 1 requires a client or generated ToC attachment")
                     if scope_attachments:
@@ -4755,7 +4829,7 @@ async def send_client_slots(
             "slots_count": slot_count,
         }
 
-    if not _confirmed_training_dates(req):
+    if not _confirmed_training_dates(req) and not _is_proposal_requirement(req):
         raise HTTPException(
             422,
             "Client handoff is waiting for confirmed training dates. The requirement will resume automatically when dates are added.",
@@ -4821,6 +4895,18 @@ async def send_client_slots(
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
     attachments: List[Dict[str, str]] = []
+    requested_evidence = requested_documents(req)
+    if requested_evidence:
+        evidence_attachments = await _requested_trainer_evidence(
+            db, payload.requirement_id, trainer, requested_evidence, trainer_name,
+        )
+        if len(evidence_attachments) != len(requested_evidence):
+            raise HTTPException(
+                422,
+                "Requested trainer documents need review before client handoff. "
+                "Each document must be readable, match its requested type, and name the shortlisted trainer.",
+            )
+        attachments.extend(evidence_attachments)
     # A valid three-slot reply triggers one complete client handoff. Include
     # the profile, ToC, lab workbook, and slots as a single package even when
     # the original requirement did not separately enumerate every document.
@@ -4875,7 +4961,9 @@ async def send_client_slots(
     # approved system-generated ToC workbook.
     client_toc_topics = _client_supplied_toc_topics(req)
     client_toc_attachments = _client_toc_scope_attachments(req) if client_toc_supplied else []
-    toc_data = await _build_toc(req, trainer, db)
+    provisional_scope = _is_proposal_requirement(req) and _confirmed_training_duration_days(req) is None
+    quote_requirement = {**req, "duration_days": 1} if provisional_scope else req
+    toc_data = await _build_toc(quote_requirement, trainer, db)
     toc_attachment: Optional[bytes] = None
     if client_toc_attachments:
         attachments.extend(client_toc_attachments)
@@ -5146,6 +5234,8 @@ async def send_client_slots(
         client_toc_supplied=client_toc_supplied,
     )
     trainer_details_section = f"Trainer details shared for your review:\n{trainer_details}\n\n" if trainer_details else ""
+    if provisional_scope:
+        trainer_details_section += "The agenda and lab estimate use a provisional one-day scope. Final training duration and dates are pending.\n\n"
     training_summary = _client_training_summary(req)
     training_summary_section = f"Training details:\n{training_summary}\n\n" if training_summary else ""
     proposal_commercial_section = _proposal_client_commercial_section(req, trainer)
