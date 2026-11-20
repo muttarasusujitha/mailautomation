@@ -7,7 +7,8 @@ An entry matches a dataset day by ``topic``; ``rename_to`` replaces a generic
 topic name with a specific one. Each authored day becomes the day's ``outline`` (used by the PDF course outline)
 and its flat fields (subtopics, lab, scenario, deliverable, objectives,
 assessment, acceptance checks), so the Excel ToC and AI-off generation use the
-same content. Days that were already manually authored keep their flat fields
+same content. ``tools`` on a course (or on one day) sets the day's tools; without
+it the day keeps its own. Days that were already manually authored keep their flat fields
 and only gain the outline. Original content is kept once in
 ``content_before_outline_authoring``. Review status stays "unreviewed".
 """
@@ -23,7 +24,7 @@ ROOT = Path(__file__).parent
 SOURCE = ROOT / "authored_outlines.json"
 STAGE = "outline_authored_pending_review"
 _FLAT_FIELDS = ("subtopics", "lab_task", "lab", "scenario", "deliverable", "learning_objectives", "assessment",
-                "acceptance_checks", "delivery_steps", "minutes", "duration_basis")
+                "acceptance_checks", "delivery_steps", "minutes", "duration_basis", "tools")
 
 
 def build_outline(entry: dict) -> dict:
@@ -100,6 +101,9 @@ def apply_course(course: dict, document: dict) -> int:
             day.setdefault("content_before_outline_authoring",
                            {key: deepcopy(day[key]) for key in _FLAT_FIELDS if key in day})
             day.update(_flat_fields(entry, outline, "lab" in day))
+            tools = entry.get("tools") or course.get("tools")
+            if tools:
+                day["tools"] = list(tools)
             day["content_quality_stage"] = STAGE
             day["content_enrichment_version"] = "authored-outline-v1"
             day["proposed_fields"] = ["delivery_steps", "minutes"]

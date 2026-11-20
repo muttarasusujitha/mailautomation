@@ -3934,6 +3934,2170 @@
           "assessment": "The panel scores each team on working features, code quality, testing and answers."
         }
       ]
+    },
+    {
+      "files": [
+        "dsa_algorithms_master_30.json"
+      ],
+      "tools": [
+        "Python or Java",
+        "pytest or JUnit",
+        "VS Code"
+      ],
+      "days": [
+        {
+          "topic": "Algorithm Fundamentals and Complexity Analysis",
+          "groups": [
+            {
+              "heading": "What an Algorithm Is",
+              "lead": "",
+              "items": [
+                "Input, output, finiteness and correctness",
+                "Pseudocode and flowcharts",
+                "Loop invariants for proving correctness"
+              ]
+            },
+            {
+              "heading": "Complexity Analysis",
+              "lead": "",
+              "items": [
+                "Counting operations as input grows",
+                "Big-O, Big-Theta and Big-Omega",
+                "Best, average and worst cases",
+                "Common classes: O(1), O(log n), O(n), O(n log n), O(n^2), O(2^n)",
+                "Space complexity and auxiliary space"
+              ]
+            },
+            {
+              "heading": "Measuring",
+              "lead": "",
+              "items": [
+                "Timing code with growing inputs",
+                "Why constants and lower terms are dropped"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Complexity Lab",
+            "scenario": "Participants receive six short functions with no documentation.",
+            "lead": "For each function, participants:",
+            "tasks": [
+              "Write the pseudocode",
+              "State its time and space complexity",
+              "Time it on inputs of 1,000, 10,000 and 100,000 items",
+              "Compare the measured growth with their estimate"
+            ],
+            "deliverables": [
+              "Complexity worksheet for the six functions",
+              "Timing table and chart"
+            ]
+          },
+          "checks": [
+            [
+              "Double the input of a linear function",
+              "Running time roughly doubles.",
+              "Timing table"
+            ],
+            [
+              "Analyse the nested-loop function",
+              "It is classified as O(n^2).",
+              "Worksheet"
+            ],
+            [
+              "Analyse the halving loop",
+              "It is classified as O(log n).",
+              "Worksheet"
+            ]
+          ],
+          "objectives": [
+            "Describe algorithms with pseudocode and prove simple correctness.",
+            "Analyse time and space complexity with Big-O notation.",
+            "Check complexity estimates with measurements."
+          ],
+          "assessment": "Participants classify four unseen functions and justify each answer."
+        },
+        {
+          "topic": "Arrays and Array Operations",
+          "groups": [
+            {
+              "heading": "Array Basics",
+              "lead": "",
+              "items": [
+                "Contiguous memory and index access in O(1)",
+                "Static arrays versus dynamic arrays (ArrayList, Python list)",
+                "Amortised cost of appending"
+              ]
+            },
+            {
+              "heading": "Core Operations",
+              "lead": "",
+              "items": [
+                "Traversal",
+                "Insertion and deletion and their O(n) shifting cost",
+                "Updating in place",
+                "Finding maximum, minimum and second largest"
+              ]
+            },
+            {
+              "heading": "Classic Problems",
+              "lead": "",
+              "items": [
+                "Reversing an array in place",
+                "Rotating by k positions with the reversal method",
+                "Removing duplicates from a sorted array",
+                "Moving zeros to the end"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Array Toolkit",
+            "scenario": "A data team needs fast, memory-light helpers for large arrays.",
+            "lead": "Participants implement and test:",
+            "tasks": [
+              "Reverse in place",
+              "Rotate right by k in O(n) time and O(1) extra space",
+              "Remove duplicates from a sorted array",
+              "Second largest element in one pass"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Complexity notes for each function"
+            ]
+          },
+          "checks": [
+            [
+              "Rotate [1,2,3,4,5] by 2",
+              "The result is [4,5,1,2,3].",
+              "Test output"
+            ],
+            [
+              "Rotate by k larger than the length",
+              "k is reduced modulo the length.",
+              "Test output"
+            ],
+            [
+              "Find the second largest of [5,5,4]",
+              "The answer is 4.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Explain array memory layout and operation costs.",
+            "Implement in-place array operations.",
+            "Handle edge cases such as empty arrays and large k."
+          ],
+          "assessment": "Participants solve one unseen array problem in O(n) time and explain the space used."
+        },
+        {
+          "topic": "Array Patterns, Matrices and Strings",
+          "groups": [
+            {
+              "heading": "Subarrays and Matrices",
+              "lead": "",
+              "items": [
+                "Subarrays versus subsequences",
+                "Kadane's algorithm for maximum subarray sum",
+                "Two-dimensional arrays and row-major traversal",
+                "Transposing and searching a matrix"
+              ]
+            },
+            {
+              "heading": "Strings",
+              "lead": "",
+              "items": [
+                "Strings as character arrays and immutability",
+                "Palindrome check with two pointers",
+                "Anagram check with character counts",
+                "Substring search basics"
+              ]
+            },
+            {
+              "heading": "Frequency Problems",
+              "lead": "",
+              "items": [
+                "Counting characters with arrays and maps",
+                "First non-repeating character"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "String and Matrix Problems",
+            "scenario": "Participants receive a problem set used in screening rounds.",
+            "lead": "Participants solve:",
+            "tasks": [
+              "Maximum subarray sum with Kadane's algorithm",
+              "Valid palindrome ignoring punctuation",
+              "Group words that are anagrams",
+              "First non-repeating character",
+              "Search a row- and column-sorted matrix in O(m + n)"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Complexity table"
+            ]
+          },
+          "checks": [
+            [
+              "Run Kadane on an all-negative array",
+              "It returns the largest single element.",
+              "Test output"
+            ],
+            [
+              "Check 'A man, a plan, a canal: Panama'",
+              "It is a palindrome.",
+              "Test output"
+            ],
+            [
+              "Search a missing value in the matrix",
+              "It returns false in at most m + n steps.",
+              "Step count log"
+            ]
+          ],
+          "objectives": [
+            "Solve subarray problems with Kadane's algorithm.",
+            "Use two pointers and frequency counts on strings.",
+            "Traverse and search matrices efficiently."
+          ],
+          "assessment": "Participants explain why Kadane's algorithm is O(n) and when it fails."
+        },
+        {
+          "topic": "Searching Algorithms",
+          "groups": [
+            {
+              "heading": "Linear and Binary Search",
+              "lead": "",
+              "items": [
+                "Linear search and when it is enough",
+                "Binary search on a sorted array",
+                "Avoiding overflow when computing the middle",
+                "Iterative versus recursive binary search"
+              ]
+            },
+            {
+              "heading": "Boundary Variants",
+              "lead": "",
+              "items": [
+                "First and last occurrence",
+                "Lower bound and upper bound",
+                "Search in a rotated sorted array",
+                "Peak element"
+              ]
+            },
+            {
+              "heading": "Binary Search on the Answer",
+              "lead": "",
+              "items": [
+                "Searching a monotonic condition",
+                "Minimum capacity to ship packages in D days"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Binary Search Variants",
+            "scenario": "A pricing service must answer range lookups on a sorted list of 10 million prices.",
+            "lead": "Participants implement:",
+            "tasks": [
+              "First and last position of a target",
+              "Lower and upper bound",
+              "Search in a rotated sorted array",
+              "Minimum ship capacity using binary search on the answer"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Loop invariant notes for each variant"
+            ]
+          },
+          "checks": [
+            [
+              "Search [5,7,7,8,8,10] for 8",
+              "The range is [3,4].",
+              "Test output"
+            ],
+            [
+              "Search for a value not present",
+              "The range is [-1,-1].",
+              "Test output"
+            ],
+            [
+              "Search a one-element array",
+              "No infinite loop occurs.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement binary search without off-by-one errors.",
+            "Solve boundary and rotated-array variants.",
+            "Apply binary search to a monotonic answer space."
+          ],
+          "assessment": "Participants identify the bug in three faulty binary searches and fix them."
+        },
+        {
+          "topic": "Sorting Fundamentals and Elementary Sorts",
+          "groups": [
+            {
+              "heading": "Sorting Properties",
+              "lead": "",
+              "items": [
+                "Stable versus unstable sorting",
+                "In-place versus out-of-place",
+                "Comparison versus non-comparison sorts",
+                "Lower bound of O(n log n) for comparison sorts"
+              ]
+            },
+            {
+              "heading": "Elementary Sorts",
+              "lead": "",
+              "items": [
+                "Bubble sort with early exit",
+                "Selection sort",
+                "Insertion sort and why it is fast on nearly sorted data"
+              ]
+            },
+            {
+              "heading": "Using Sorts",
+              "lead": "",
+              "items": [
+                "Built-in sorts: Timsort in Python and Java",
+                "Custom comparators and sorting by several keys",
+                "Choosing a sort for small or nearly sorted inputs"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Sort Comparison",
+            "scenario": "Participants compare elementary sorts on random, sorted, reversed and nearly sorted data.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement bubble, selection and insertion sort",
+              "Count comparisons and swaps",
+              "Time each sort on the four data sets",
+              "Sort employee records by department, then salary, with a comparator"
+            ],
+            "deliverables": [
+              "Three sort implementations",
+              "Comparison table and chart",
+              "Comparator example"
+            ]
+          },
+          "checks": [
+            [
+              "Sort records with equal keys using insertion sort",
+              "Their original order is kept.",
+              "Test output"
+            ],
+            [
+              "Run insertion sort on sorted input",
+              "It makes n - 1 comparisons.",
+              "Counter output"
+            ],
+            [
+              "Sort by department then salary",
+              "Records are ordered by both keys.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Explain stability, in-place sorting and the comparison lower bound.",
+            "Implement and compare elementary sorts.",
+            "Sort records with custom comparators."
+          ],
+          "assessment": "Participants choose a sort for three described situations and justify each choice."
+        },
+        {
+          "topic": "Divide and Conquer Sorting",
+          "groups": [
+            {
+              "heading": "Divide and Conquer",
+              "lead": "",
+              "items": [
+                "Divide, conquer and combine",
+                "Recurrence relations and recursion trees",
+                "The master theorem for common cases"
+              ]
+            },
+            {
+              "heading": "Merge Sort",
+              "lead": "",
+              "items": [
+                "Merging two sorted arrays",
+                "O(n log n) time and O(n) extra space",
+                "Counting inversions with merge sort"
+              ]
+            },
+            {
+              "heading": "Quick Sort and Heap Sort",
+              "lead": "",
+              "items": [
+                "Lomuto and Hoare partitioning",
+                "Pivot choice and the O(n^2) worst case",
+                "Randomised pivots",
+                "Heap sort in place"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Fast Sorts",
+            "scenario": "A reporting job sorts millions of transactions and sometimes slows down badly.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement merge sort and count inversions",
+              "Implement quick sort with random pivots",
+              "Implement heap sort",
+              "Show the worst case of quick sort with a fixed pivot on sorted input",
+              "Compare the three on large inputs"
+            ],
+            "deliverables": [
+              "Three sort implementations",
+              "Recursion-tree sketches",
+              "Benchmark report"
+            ]
+          },
+          "checks": [
+            [
+              "Count inversions in [2,4,1,3,5]",
+              "The count is 3.",
+              "Test output"
+            ],
+            [
+              "Sort sorted input with a fixed first-element pivot",
+              "Running time grows quadratically.",
+              "Timing table"
+            ],
+            [
+              "Sort the same input with random pivots",
+              "Running time stays near n log n.",
+              "Timing table"
+            ]
+          ],
+          "objectives": [
+            "Analyse divide and conquer algorithms with recursion trees.",
+            "Implement merge, quick and heap sort.",
+            "Explain the trade-offs between them."
+          ],
+          "assessment": "Participants explain which sort they would use for linked lists, for limited memory and for stable output."
+        },
+        {
+          "topic": "Non-Comparison Sorting and Recursion",
+          "groups": [
+            {
+              "heading": "Linear-Time Sorts",
+              "lead": "",
+              "items": [
+                "Counting sort for small integer ranges",
+                "Radix sort with a stable digit sort",
+                "Bucket sort for uniformly distributed values",
+                "When linear-time sorts do not apply"
+              ]
+            },
+            {
+              "heading": "Recursion",
+              "lead": "",
+              "items": [
+                "Base cases and recursive cases",
+                "The call stack and stack overflow",
+                "Tail recursion",
+                "Converting recursion to iteration"
+              ]
+            },
+            {
+              "heading": "Recursive Patterns",
+              "lead": "",
+              "items": [
+                "Power function in O(log n)",
+                "Recursive string and array problems"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Sort and Recurse",
+            "scenario": "Exam scores from 0 to 100 for one million students must be ranked quickly.",
+            "lead": "Participants:",
+            "tasks": [
+              "Sort the scores with counting sort",
+              "Sort phone numbers with radix sort",
+              "Write a fast power function",
+              "Rewrite one recursive function iteratively"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Comparison with a comparison sort"
+            ]
+          },
+          "checks": [
+            [
+              "Sort one million scores with counting sort",
+              "The order matches the built-in sort.",
+              "Comparison output"
+            ],
+            [
+              "Compute 2^30 with fast power",
+              "It uses no more than 10 multiplications.",
+              "Call counter"
+            ],
+            [
+              "Run the recursive function on a deep input",
+              "The iterative version avoids stack overflow.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Use counting, radix and bucket sort where they apply.",
+            "Write correct recursive functions with base cases.",
+            "Convert recursion to iteration when the stack is limited."
+          ],
+          "assessment": "Participants explain why counting sort is not a comparison sort and when it uses too much memory."
+        },
+        {
+          "topic": "Hashing and Hash Tables",
+          "groups": [
+            {
+              "heading": "How Hash Tables Work",
+              "lead": "",
+              "items": [
+                "Hash functions and buckets",
+                "Collisions: chaining and open addressing",
+                "Load factor and resizing",
+                "Average O(1) and worst-case O(n)"
+              ]
+            },
+            {
+              "heading": "Using Maps and Sets",
+              "lead": "",
+              "items": [
+                "HashMap, HashSet, dict and set",
+                "Keys must be immutable and hash consistently",
+                "Frequency maps"
+              ]
+            },
+            {
+              "heading": "Hashing Patterns",
+              "lead": "",
+              "items": [
+                "Two Sum with a map",
+                "Duplicate detection",
+                "Longest consecutive sequence",
+                "Subarray sum equals k with prefix sums"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Hash Map from Scratch",
+            "scenario": "A team wants to understand why their map slowed down with bad keys.",
+            "lead": "Participants:",
+            "tasks": [
+              "Build a hash map with chaining and resizing",
+              "Measure performance with a good and a bad hash function",
+              "Solve Two Sum in O(n)",
+              "Count subarrays that sum to k"
+            ],
+            "deliverables": [
+              "Hash map implementation with tests",
+              "Performance comparison",
+              "Problem solutions"
+            ]
+          },
+          "checks": [
+            [
+              "Insert 100,000 keys with a good hash",
+              "Average lookup time stays roughly constant.",
+              "Timing table"
+            ],
+            [
+              "Use a hash that returns the same value",
+              "Lookups slow to linear time.",
+              "Timing table"
+            ],
+            [
+              "Run Two Sum on [2,7,11,15] with target 9",
+              "It returns indices [0,1].",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Explain how hash tables store and find keys.",
+            "Choose maps and sets for counting and lookup problems.",
+            "Solve prefix-sum and Two Sum problems in linear time."
+          ],
+          "assessment": "Participants explain what happens to performance when the load factor grows."
+        },
+        {
+          "topic": "Linked Lists",
+          "groups": [
+            {
+              "heading": "List Types",
+              "lead": "",
+              "items": [
+                "Singly, doubly and circular linked lists",
+                "Nodes, head and tail",
+                "Linked lists versus arrays: costs of access, insert and delete"
+              ]
+            },
+            {
+              "heading": "Core Operations",
+              "lead": "",
+              "items": [
+                "Insert and delete at head, tail and position",
+                "Dummy head nodes to simplify edge cases",
+                "Reversing a list iteratively and recursively"
+              ]
+            },
+            {
+              "heading": "Pointer Techniques",
+              "lead": "",
+              "items": [
+                "Middle node with slow and fast pointers",
+                "Cycle detection with Floyd's algorithm",
+                "Merging two sorted lists",
+                "Removing the nth node from the end"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Linked List Workshop",
+            "scenario": "An LRU-style playlist feature needs fast insertions and removals.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement a doubly linked list with insert and delete",
+              "Reverse a singly linked list",
+              "Detect a cycle and find where it starts",
+              "Merge two sorted lists",
+              "Remove the nth node from the end in one pass"
+            ],
+            "deliverables": [
+              "Linked list implementations with tests",
+              "Pointer diagrams for each problem"
+            ]
+          },
+          "checks": [
+            [
+              "Reverse a one-node list",
+              "It returns the same node.",
+              "Test output"
+            ],
+            [
+              "Run cycle detection on a list with a cycle",
+              "It finds the start node.",
+              "Test output"
+            ],
+            [
+              "Remove the head as the nth node from the end",
+              "The list is updated correctly.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement singly and doubly linked lists.",
+            "Solve problems with slow and fast pointers.",
+            "Handle edge cases with dummy nodes."
+          ],
+          "assessment": "Participants draw the pointer changes for reversing a list and explain each step."
+        },
+        {
+          "topic": "Stacks, Queues and Deques",
+          "groups": [
+            {
+              "heading": "Stacks",
+              "lead": "",
+              "items": [
+                "LIFO operations: push, pop, peek",
+                "Balanced parentheses",
+                "Evaluating postfix expressions",
+                "Undo history"
+              ]
+            },
+            {
+              "heading": "Queues",
+              "lead": "",
+              "items": [
+                "FIFO operations: enqueue, dequeue",
+                "Circular queue with an array",
+                "Queue using two stacks"
+              ]
+            },
+            {
+              "heading": "Deques and Priority Queues",
+              "lead": "",
+              "items": [
+                "Double-ended queues",
+                "Priority queues and their uses in scheduling",
+                "Library types: ArrayDeque, collections.deque, heapq"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Expression and Scheduling Problems",
+            "scenario": "A calculator service and a print-job scheduler need simple, fast structures.",
+            "lead": "Participants:",
+            "tasks": [
+              "Validate brackets in expressions",
+              "Evaluate postfix expressions",
+              "Implement a circular queue",
+              "Build a queue from two stacks",
+              "Schedule print jobs by priority"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Operation cost table"
+            ]
+          },
+          "checks": [
+            [
+              "Validate '{[()]}' and '([)]'",
+              "The first is valid and the second is not.",
+              "Test output"
+            ],
+            [
+              "Evaluate '3 4 + 2 *'",
+              "The result is 14.",
+              "Test output"
+            ],
+            [
+              "Fill the circular queue and add one more",
+              "The queue reports that it is full.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Use stacks for nesting and expression problems.",
+            "Implement queues and circular buffers.",
+            "Choose deques and priority queues for scheduling."
+          ],
+          "assessment": "Participants explain the amortised cost of a queue built from two stacks."
+        },
+        {
+          "topic": "Monotonic Structures and Problem Patterns",
+          "groups": [
+            {
+              "heading": "Monotonic Stacks",
+              "lead": "",
+              "items": [
+                "Next greater and next smaller element",
+                "Daily temperatures",
+                "Largest rectangle in a histogram"
+              ]
+            },
+            {
+              "heading": "Monotonic Queues",
+              "lead": "",
+              "items": [
+                "Sliding window maximum in O(n)",
+                "Keeping indexes instead of values"
+              ]
+            },
+            {
+              "heading": "Pointer and Window Patterns",
+              "lead": "",
+              "items": [
+                "Two pointers on sorted data",
+                "Fast and slow pointers",
+                "Fixed and variable sliding windows",
+                "Prefix sums for range queries"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Pattern Problem Set",
+            "scenario": "Participants receive eight interview problems without being told which pattern applies.",
+            "lead": "Participants:",
+            "tasks": [
+              "Identify the pattern for each problem",
+              "Solve next greater element with a monotonic stack",
+              "Solve sliding window maximum with a deque",
+              "Solve longest substring without repeating characters",
+              "Solve the histogram problem"
+            ],
+            "deliverables": [
+              "Pattern classification sheet",
+              "Solutions with tests"
+            ]
+          },
+          "checks": [
+            [
+              "Run sliding window maximum on 100,000 items",
+              "It runs in linear time.",
+              "Timing output"
+            ],
+            [
+              "Find next greater elements for [2,1,2,4,3]",
+              "The result is [4,2,4,-1,-1].",
+              "Test output"
+            ],
+            [
+              "Classify the eight problems",
+              "Each has a pattern and a reason.",
+              "Classification sheet"
+            ]
+          ],
+          "objectives": [
+            "Solve problems with monotonic stacks and queues.",
+            "Apply two-pointer and sliding-window patterns.",
+            "Recognise which pattern fits a new problem."
+          ],
+          "assessment": "Participants classify and solve two unseen problems under time limits."
+        },
+        {
+          "topic": "Trees and Binary Trees",
+          "groups": [
+            {
+              "heading": "Tree Basics",
+              "lead": "",
+              "items": [
+                "Root, parent, child, leaf, height and depth",
+                "Binary trees: full, complete and perfect",
+                "Array and linked representations"
+              ]
+            },
+            {
+              "heading": "Traversals",
+              "lead": "",
+              "items": [
+                "Preorder, inorder and postorder",
+                "Level-order traversal with a queue",
+                "Recursive and iterative traversals"
+              ]
+            },
+            {
+              "heading": "Basic Problems",
+              "lead": "",
+              "items": [
+                "Maximum depth",
+                "Counting nodes and leaves",
+                "Building a tree from preorder and inorder"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Tree Traversal Workshop",
+            "scenario": "An organisation chart must be printed in several orders.",
+            "lead": "Participants:",
+            "tasks": [
+              "Build a binary tree from level-order input",
+              "Implement all four traversals recursively",
+              "Implement inorder iteratively with a stack",
+              "Print the tree level by level",
+              "Rebuild the tree from preorder and inorder lists"
+            ],
+            "deliverables": [
+              "Tree implementation with traversals",
+              "Test cases including empty and skewed trees"
+            ]
+          },
+          "checks": [
+            [
+              "Traverse an empty tree",
+              "It returns an empty list without errors.",
+              "Test output"
+            ],
+            [
+              "Compare recursive and iterative inorder",
+              "Both give the same order.",
+              "Test output"
+            ],
+            [
+              "Rebuild a tree and traverse it",
+              "The traversals match the input lists.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Describe tree terms and binary tree types.",
+            "Implement recursive and iterative traversals.",
+            "Build trees from traversal orders."
+          ],
+          "assessment": "Participants trace a traversal by hand and match it to the program output."
+        },
+        {
+          "topic": "Binary Search Trees and Tree Problems",
+          "groups": [
+            {
+              "heading": "Binary Search Trees",
+              "lead": "",
+              "items": [
+                "The BST property",
+                "Search, insert and delete, including the two-child case",
+                "Validating a BST with value ranges",
+                "Balanced versus skewed trees and their cost"
+              ]
+            },
+            {
+              "heading": "Tree Problems",
+              "lead": "",
+              "items": [
+                "Diameter of a binary tree",
+                "Lowest common ancestor",
+                "Path sum problems",
+                "Left, right, top and bottom views"
+              ]
+            },
+            {
+              "heading": "Balanced Trees",
+              "lead": "",
+              "items": [
+                "Why AVL and red-black trees exist",
+                "TreeMap and sorted containers"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "BST Operations",
+            "scenario": "A ranking feature stores scores in a BST and must support inserts, deletes and range queries.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement insert, search and delete",
+              "Validate whether a tree is a BST",
+              "Find the lowest common ancestor",
+              "Compute the diameter",
+              "List all values in a range in order"
+            ],
+            "deliverables": [
+              "BST implementation with tests",
+              "Notes on worst-case height"
+            ]
+          },
+          "checks": [
+            [
+              "Delete a node with two children",
+              "The tree is still a valid BST.",
+              "Validation output"
+            ],
+            [
+              "Insert sorted values",
+              "The tree becomes skewed and its height equals n.",
+              "Height output"
+            ],
+            [
+              "Find the LCA of two nodes",
+              "The correct ancestor is returned.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement BST operations including deletion.",
+            "Solve diameter, LCA and path problems.",
+            "Explain why balanced trees are needed."
+          ],
+          "assessment": "Participants solve one unseen tree problem and state its complexity in terms of tree height."
+        },
+        {
+          "topic": "Heaps, Priority Queues and Tries",
+          "groups": [
+            {
+              "heading": "Heaps",
+              "lead": "",
+              "items": [
+                "Min-heap and max-heap properties",
+                "Array representation of a heap",
+                "Sift up, sift down and heapify in O(n)"
+              ]
+            },
+            {
+              "heading": "Heap Problems",
+              "lead": "",
+              "items": [
+                "Top K elements",
+                "Kth largest element",
+                "Merging K sorted lists",
+                "Median of a data stream with two heaps"
+              ]
+            },
+            {
+              "heading": "Tries",
+              "lead": "",
+              "items": [
+                "Trie nodes and children",
+                "Insert, search and prefix search",
+                "Autocomplete with a trie"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Top K and Autocomplete",
+            "scenario": "A search box must show the most popular searches and complete what users type.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement a min-heap",
+              "Return the top K searches from a log",
+              "Keep a running median",
+              "Build a trie of search terms",
+              "Return suggestions for a prefix"
+            ],
+            "deliverables": [
+              "Heap and trie implementations",
+              "Solutions with tests"
+            ]
+          },
+          "checks": [
+            [
+              "Find the top 3 of 1 million searches with a heap of size 3",
+              "The result matches a full sort.",
+              "Comparison output"
+            ],
+            [
+              "Add numbers one by one",
+              "The running median is correct after each one.",
+              "Test output"
+            ],
+            [
+              "Search the trie for a missing prefix",
+              "It returns no suggestions.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement heaps and use them as priority queues.",
+            "Solve top K and running median problems.",
+            "Build tries for prefix search."
+          ],
+          "assessment": "Participants compare a heap and sorting for top K and explain when each is better."
+        },
+        {
+          "topic": "Graph Fundamentals and Representation",
+          "groups": [
+            {
+              "heading": "Graph Concepts",
+              "lead": "",
+              "items": [
+                "Vertices and edges",
+                "Directed, undirected and weighted graphs",
+                "Degree, paths and cycles",
+                "Connected and strongly connected graphs"
+              ]
+            },
+            {
+              "heading": "Representations",
+              "lead": "",
+              "items": [
+                "Adjacency matrix",
+                "Adjacency list",
+                "Edge list",
+                "Choosing a representation by density"
+              ]
+            },
+            {
+              "heading": "Building Graphs",
+              "lead": "",
+              "items": [
+                "Graphs from input edges",
+                "Grids as implicit graphs",
+                "Memory and time costs of each representation"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Model the Network",
+            "scenario": "An airline wants to model routes between 200 cities and answer simple questions about them.",
+            "lead": "Participants:",
+            "tasks": [
+              "Build the route graph as a matrix and as a list",
+              "List direct flights from a city",
+              "Check whether two cities are directly connected",
+              "Compare memory use of both representations",
+              "Model a city map grid as a graph"
+            ],
+            "deliverables": [
+              "Graph builder code",
+              "Representation comparison table"
+            ]
+          },
+          "checks": [
+            [
+              "Ask whether two cities are connected using the matrix",
+              "It answers in O(1).",
+              "Test output"
+            ],
+            [
+              "List neighbours using the adjacency list",
+              "It takes time proportional to the degree.",
+              "Test output"
+            ],
+            [
+              "Compare memory for a sparse graph",
+              "The list uses far less memory.",
+              "Memory table"
+            ]
+          ],
+          "objectives": [
+            "Describe graph types and terms.",
+            "Represent graphs as matrices and lists.",
+            "Choose a representation for a problem."
+          ],
+          "assessment": "Participants choose a representation for three described systems and justify each."
+        },
+        {
+          "topic": "Graph Traversal and Connectivity",
+          "groups": [
+            {
+              "heading": "Traversal",
+              "lead": "",
+              "items": [
+                "Breadth-first search with a queue",
+                "Depth-first search, recursive and iterative",
+                "Visited sets and avoiding infinite loops"
+              ]
+            },
+            {
+              "heading": "Connectivity Problems",
+              "lead": "",
+              "items": [
+                "Connected components",
+                "Number of islands in a grid",
+                "Cycle detection in directed and undirected graphs",
+                "Bipartite check with colouring"
+              ]
+            },
+            {
+              "heading": "Ordering",
+              "lead": "",
+              "items": [
+                "Topological sort with Kahn's algorithm",
+                "Course schedule problem",
+                "Shortest path in an unweighted graph with BFS"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Dependencies and Islands",
+            "scenario": "A build system must order its tasks and detect circular dependencies.",
+            "lead": "Participants:",
+            "tasks": [
+              "Order build tasks with topological sort",
+              "Detect a dependency cycle",
+              "Count islands in a grid",
+              "Find the shortest path in a maze with BFS",
+              "Check whether a graph is bipartite"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Traversal diagrams"
+            ]
+          },
+          "checks": [
+            [
+              "Topologically sort tasks with a cycle",
+              "The cycle is reported.",
+              "Test output"
+            ],
+            [
+              "Count islands in a 1,000 by 1,000 grid",
+              "It finishes without stack overflow.",
+              "Test output"
+            ],
+            [
+              "Find a path in a maze with no exit",
+              "It returns no path.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement BFS and DFS.",
+            "Solve connectivity, cycle and bipartite problems.",
+            "Order tasks with topological sort."
+          ],
+          "assessment": "Participants explain when they would choose BFS over DFS and give an example."
+        },
+        {
+          "topic": "Shortest Paths and Advanced Graphs",
+          "groups": [
+            {
+              "heading": "Single-Source Shortest Paths",
+              "lead": "",
+              "items": [
+                "Dijkstra's algorithm with a priority queue",
+                "Why Dijkstra fails with negative edges",
+                "Bellman-Ford and detecting negative cycles",
+                "0-1 BFS for edge weights of 0 or 1"
+              ]
+            },
+            {
+              "heading": "All-Pairs Shortest Paths",
+              "lead": "",
+              "items": [
+                "Floyd-Warshall",
+                "When all-pairs is worth the cost"
+              ]
+            },
+            {
+              "heading": "Modelling",
+              "lead": "",
+              "items": [
+                "State graphs: adding extra state to nodes",
+                "Path reconstruction",
+                "Complexity comparison of the algorithms"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Route Planner",
+            "scenario": "A delivery company needs the cheapest routes between depots, and some routes carry rebates.",
+            "lead": "Participants:",
+            "tasks": [
+              "Find the cheapest route with Dijkstra",
+              "Reconstruct the route",
+              "Handle rebates with Bellman-Ford",
+              "Detect a negative cycle",
+              "Compute all-pairs costs for 50 depots with Floyd-Warshall"
+            ],
+            "deliverables": [
+              "Route planner code",
+              "Algorithm comparison table"
+            ]
+          },
+          "checks": [
+            [
+              "Run Dijkstra on the sample network",
+              "It returns the known cheapest cost and route.",
+              "Test output"
+            ],
+            [
+              "Add a negative cycle",
+              "Bellman-Ford reports it.",
+              "Test output"
+            ],
+            [
+              "Compare Dijkstra and Floyd-Warshall results",
+              "They agree for every pair.",
+              "Comparison output"
+            ]
+          ],
+          "objectives": [
+            "Find shortest paths with Dijkstra and Bellman-Ford.",
+            "Compute all-pairs paths with Floyd-Warshall.",
+            "Model problems as state graphs."
+          ],
+          "assessment": "Participants choose the right shortest-path algorithm for three described networks."
+        },
+        {
+          "topic": "Minimum Spanning Trees and Union-Find",
+          "groups": [
+            {
+              "heading": "Union-Find",
+              "lead": "",
+              "items": [
+                "Disjoint sets with find and union",
+                "Path compression",
+                "Union by rank or size",
+                "Near-constant amortised time"
+              ]
+            },
+            {
+              "heading": "Minimum Spanning Trees",
+              "lead": "",
+              "items": [
+                "What a minimum spanning tree is",
+                "Kruskal's algorithm with union-find",
+                "Prim's algorithm with a priority queue",
+                "Comparing Kruskal and Prim"
+              ]
+            },
+            {
+              "heading": "Applications",
+              "lead": "",
+              "items": [
+                "Network design",
+                "Redundant connection detection"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Cheapest Network",
+            "scenario": "A company must connect 30 offices with fibre at the lowest total cost.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement union-find with path compression and union by rank",
+              "Build the minimum spanning tree with Kruskal",
+              "Build it again with Prim",
+              "Find the redundant link in a network"
+            ],
+            "deliverables": [
+              "Union-find and MST code",
+              "Total cost from both algorithms"
+            ]
+          },
+          "checks": [
+            [
+              "Run Kruskal and Prim on the same graph",
+              "Both give the same total cost.",
+              "Test output"
+            ],
+            [
+              "Union 100,000 elements",
+              "Find operations stay fast.",
+              "Timing output"
+            ],
+            [
+              "Add one extra edge to a tree",
+              "The redundant edge is found.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement union-find with optimisations.",
+            "Build minimum spanning trees with Kruskal and Prim.",
+            "Apply union-find to connectivity problems."
+          ],
+          "assessment": "Participants explain why Kruskal's algorithm never creates a cycle."
+        },
+        {
+          "topic": "Greedy Algorithms and Intervals",
+          "groups": [
+            {
+              "heading": "Greedy Method",
+              "lead": "",
+              "items": [
+                "Greedy choice and optimal substructure",
+                "Proving a greedy choice with an exchange argument",
+                "When greedy fails: 0/1 knapsack"
+              ]
+            },
+            {
+              "heading": "Interval Problems",
+              "lead": "",
+              "items": [
+                "Activity selection by earliest finish time",
+                "Merging overlapping intervals",
+                "Meeting rooms with a min-heap",
+                "Minimum arrows to burst balloons"
+              ]
+            },
+            {
+              "heading": "Other Greedy Problems",
+              "lead": "",
+              "items": [
+                "Fractional knapsack",
+                "Job sequencing with deadlines",
+                "Jump game"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Scheduling Day",
+            "scenario": "A conference centre must schedule talks and rooms with the fewest conflicts.",
+            "lead": "Participants:",
+            "tasks": [
+              "Select the most talks for one room",
+              "Merge overlapping bookings",
+              "Find the minimum number of rooms",
+              "Show a case where a greedy rule fails"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Short proof for each greedy choice"
+            ]
+          },
+          "checks": [
+            [
+              "Merge [[1,3],[2,6],[8,10]]",
+              "The result is [[1,6],[8,10]].",
+              "Test output"
+            ],
+            [
+              "Schedule overlapping meetings",
+              "The room count matches the maximum overlap.",
+              "Test output"
+            ],
+            [
+              "Apply greedy by value to 0/1 knapsack",
+              "It gives a worse answer than the optimum.",
+              "Counterexample"
+            ]
+          ],
+          "objectives": [
+            "Recognise when a greedy choice is safe.",
+            "Solve interval and scheduling problems.",
+            "Show counterexamples where greedy fails."
+          ],
+          "assessment": "Participants defend one greedy choice with an exchange argument."
+        },
+        {
+          "topic": "Dynamic Programming Fundamentals",
+          "groups": [
+            {
+              "heading": "When to Use DP",
+              "lead": "",
+              "items": [
+                "Overlapping subproblems",
+                "Optimal substructure",
+                "Recognising DP from brute-force recursion"
+              ]
+            },
+            {
+              "heading": "Two Approaches",
+              "lead": "",
+              "items": [
+                "Top-down memoisation",
+                "Bottom-up tabulation",
+                "Defining the state, transition and base cases"
+              ]
+            },
+            {
+              "heading": "First Problems",
+              "lead": "",
+              "items": [
+                "Fibonacci in O(n) time and O(1) space",
+                "Climbing stairs",
+                "House robber",
+                "Minimum cost path in a grid",
+                "Space optimisation by keeping only the last row"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "From Recursion to DP",
+            "scenario": "Participants receive slow recursive solutions that time out on large inputs.",
+            "lead": "For each problem, participants:",
+            "tasks": [
+              "Measure the slow recursive version",
+              "Add memoisation",
+              "Write a bottom-up table",
+              "Reduce space where possible"
+            ],
+            "deliverables": [
+              "Three versions of each solution",
+              "Timing comparison"
+            ]
+          },
+          "checks": [
+            [
+              "Compute Fibonacci(40) recursively and with memoisation",
+              "The memoised version is thousands of times faster.",
+              "Timing output"
+            ],
+            [
+              "Solve house robber for [2,7,9,3,1]",
+              "The answer is 12.",
+              "Test output"
+            ],
+            [
+              "Check the space-optimised version",
+              "It gives the same answers as the full table.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Recognise problems that need dynamic programming.",
+            "Write memoised and tabulated solutions.",
+            "Optimise the space of DP solutions."
+          ],
+          "assessment": "Participants define the state and transition for an unseen problem before coding it."
+        },
+        {
+          "topic": "Dynamic Programming Problem Families",
+          "groups": [
+            {
+              "heading": "Knapsack Family",
+              "lead": "",
+              "items": [
+                "0/1 knapsack",
+                "Unbounded knapsack and coin change",
+                "Partition into equal subsets"
+              ]
+            },
+            {
+              "heading": "Sequence DP",
+              "lead": "",
+              "items": [
+                "Longest common subsequence",
+                "Longest increasing subsequence in O(n log n)",
+                "Edit distance"
+              ]
+            },
+            {
+              "heading": "Grid and Interval DP",
+              "lead": "",
+              "items": [
+                "Unique paths with obstacles",
+                "Matrix chain multiplication",
+                "Choosing the DP family from the problem statement"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "DP Problem Families",
+            "scenario": "A text-comparison tool needs diff and similarity scores.",
+            "lead": "Participants solve:",
+            "tasks": [
+              "Coin change: minimum coins and number of ways",
+              "0/1 knapsack",
+              "Longest common subsequence with the subsequence itself",
+              "Edit distance between two words",
+              "Longest increasing subsequence"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "State and transition notes for each problem"
+            ]
+          },
+          "checks": [
+            [
+              "Find the edit distance between 'kitten' and 'sitting'",
+              "The distance is 3.",
+              "Test output"
+            ],
+            [
+              "Make 11 from coins [1,2,5]",
+              "The minimum is 3 coins.",
+              "Test output"
+            ],
+            [
+              "Make an impossible amount",
+              "The result is -1.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Solve knapsack and coin change problems.",
+            "Solve sequence problems such as LCS, LIS and edit distance.",
+            "Choose the right DP family for a new problem."
+          ],
+          "assessment": "Participants classify four unseen problems into DP families and solve one."
+        },
+        {
+          "topic": "Backtracking",
+          "groups": [
+            {
+              "heading": "Backtracking Framework",
+              "lead": "",
+              "items": [
+                "Choose, explore and un-choose",
+                "State space trees",
+                "Pruning invalid branches early"
+              ]
+            },
+            {
+              "heading": "Generating Combinations",
+              "lead": "",
+              "items": [
+                "Subsets",
+                "Permutations, with and without duplicates",
+                "Combinations and combination sum"
+              ]
+            },
+            {
+              "heading": "Constraint Problems",
+              "lead": "",
+              "items": [
+                "N-Queens",
+                "Sudoku solver",
+                "Word search in a grid",
+                "Rat in a maze"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Puzzle Solvers",
+            "scenario": "A puzzle app needs solvers that finish quickly.",
+            "lead": "Participants:",
+            "tasks": [
+              "Generate all subsets and permutations",
+              "Solve N-Queens for n = 8",
+              "Solve a Sudoku",
+              "Find a word in a letter grid",
+              "Measure the effect of pruning"
+            ],
+            "deliverables": [
+              "Solvers with tests",
+              "Before-and-after pruning measurements"
+            ]
+          },
+          "checks": [
+            [
+              "Count N-Queens solutions for n = 8",
+              "There are 92.",
+              "Test output"
+            ],
+            [
+              "Solve the sample Sudoku",
+              "Every row, column and box is valid.",
+              "Validation output"
+            ],
+            [
+              "Generate permutations of [1,1,2]",
+              "No duplicates appear.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Apply the backtracking framework.",
+            "Generate subsets, permutations and combinations.",
+            "Speed up searches with pruning."
+          ],
+          "assessment": "Participants explain how their pruning reduced the search space."
+        },
+        {
+          "topic": "Bit Manipulation",
+          "groups": [
+            {
+              "heading": "Binary Basics",
+              "lead": "",
+              "items": [
+                "Binary representation and two's complement",
+                "Operators: AND, OR, XOR, NOT and shifts",
+                "Signed and unsigned shifts"
+              ]
+            },
+            {
+              "heading": "Bit Tricks",
+              "lead": "",
+              "items": [
+                "Set, clear, toggle and check a bit",
+                "Power of two check",
+                "Counting set bits",
+                "Lowest set bit"
+              ]
+            },
+            {
+              "heading": "Problems",
+              "lead": "",
+              "items": [
+                "Single number with XOR",
+                "Missing number",
+                "Subsets with bit masks",
+                "Bit masks for small state spaces"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Bit Challenges",
+            "scenario": "A permissions system stores user rights as bits in one integer.",
+            "lead": "Participants:",
+            "tasks": [
+              "Grant, revoke and check permissions with bit operations",
+              "Find the single number in an array where others appear twice",
+              "Count set bits for 0 to n",
+              "Generate subsets with bit masks"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Bit diagrams"
+            ]
+          },
+          "checks": [
+            [
+              "Revoke a permission that is not set",
+              "The value does not change.",
+              "Test output"
+            ],
+            [
+              "Find the single number in [4,1,2,1,2]",
+              "The answer is 4.",
+              "Test output"
+            ],
+            [
+              "Check 0 for power of two",
+              "It returns false.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Use bitwise operators correctly, including negative numbers.",
+            "Apply common bit tricks.",
+            "Solve problems with XOR and bit masks."
+          ],
+          "assessment": "Participants explain why XOR finds the single number."
+        },
+        {
+          "topic": "String Pattern Matching",
+          "groups": [
+            {
+              "heading": "Naive Matching",
+              "lead": "",
+              "items": [
+                "Checking every position",
+                "Worst-case O(n * m)"
+              ]
+            },
+            {
+              "heading": "KMP",
+              "lead": "",
+              "items": [
+                "The longest prefix that is also a suffix (LPS) array",
+                "Building the LPS array",
+                "Matching in O(n + m)"
+              ]
+            },
+            {
+              "heading": "Rabin-Karp and Beyond",
+              "lead": "",
+              "items": [
+                "Rolling hashes",
+                "Handling hash collisions",
+                "Searching for many patterns",
+                "Z-algorithm overview",
+                "Library functions and when to write your own"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Log Search",
+            "scenario": "An operations team searches gigabytes of logs for error signatures.",
+            "lead": "Participants:",
+            "tasks": [
+              "Implement naive search",
+              "Implement KMP with its LPS array",
+              "Implement Rabin-Karp",
+              "Compare the three on a worst-case input",
+              "Find repeated substrings with rolling hashes"
+            ],
+            "deliverables": [
+              "Three search implementations",
+              "Benchmark report"
+            ]
+          },
+          "checks": [
+            [
+              "Search one million 'a' characters followed by 'b' for 999 'a' characters followed by 'b'",
+              "KMP is much faster than naive search.",
+              "Timing output"
+            ],
+            [
+              "Build the LPS array for 'abab'",
+              "It is [0,0,1,2].",
+              "Test output"
+            ],
+            [
+              "Force a hash collision in Rabin-Karp",
+              "It is not reported as a match.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Explain the cost of naive pattern matching.",
+            "Implement KMP and Rabin-Karp.",
+            "Choose a search method for a workload."
+          ],
+          "assessment": "Participants trace KMP on a short example and explain each shift."
+        },
+        {
+          "topic": "Matrix, Interval and Optimization Algorithms",
+          "groups": [
+            {
+              "heading": "Matrix Algorithms",
+              "lead": "",
+              "items": [
+                "Spiral traversal",
+                "Rotating a matrix 90 degrees in place",
+                "Setting matrix zeros in O(1) extra space",
+                "2D prefix sums for range queries"
+              ]
+            },
+            {
+              "heading": "Interval Algorithms",
+              "lead": "",
+              "items": [
+                "Inserting an interval",
+                "Sweep-line for overlaps",
+                "Event sorting"
+              ]
+            },
+            {
+              "heading": "Optimisation",
+              "lead": "",
+              "items": [
+                "Trading memory for time",
+                "Removing repeated work",
+                "Profiling before optimising"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Image and Calendar Tools",
+            "scenario": "An imaging tool rotates and crops images, and a calendar must show busy times.",
+            "lead": "Participants:",
+            "tasks": [
+              "Rotate a square image matrix in place",
+              "Print a matrix in spiral order",
+              "Answer rectangle-sum queries with 2D prefix sums",
+              "Find the busiest time with a sweep line"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Before-and-after optimisation timings"
+            ]
+          },
+          "checks": [
+            [
+              "Rotate a 3x3 matrix",
+              "The result matches the expected rotation.",
+              "Test output"
+            ],
+            [
+              "Answer 10,000 rectangle-sum queries",
+              "Each query is O(1) after preprocessing.",
+              "Timing output"
+            ],
+            [
+              "Run the sweep line on overlapping events",
+              "It reports the correct maximum overlap.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Implement matrix traversal and in-place transformations.",
+            "Use 2D prefix sums and sweep lines.",
+            "Optimise code based on measurements."
+          ],
+          "assessment": "Participants optimise one slow solution and show the measured improvement."
+        },
+        {
+          "topic": "DSA Problem-Solving Patterns",
+          "groups": [
+            {
+              "heading": "Pattern Catalogue",
+              "lead": "",
+              "items": [
+                "Two pointers",
+                "Sliding window",
+                "Prefix sum",
+                "Fast and slow pointers",
+                "Monotonic stack",
+                "Binary search on the answer",
+                "BFS and DFS",
+                "Dynamic programming"
+              ]
+            },
+            {
+              "heading": "Choosing a Pattern",
+              "lead": "Clues in the problem statement:",
+              "items": [
+                "Sorted input suggests two pointers or binary search",
+                "Contiguous subarray suggests sliding window or prefix sum",
+                "All combinations suggests backtracking",
+                "Minimum or maximum over choices suggests DP or greedy"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Mixed Problem Set",
+            "scenario": "Participants receive twelve problems in random order.",
+            "lead": "Participants:",
+            "tasks": [
+              "Name the pattern for each problem before coding",
+              "Solve eight of them",
+              "Write edge-case tests for each",
+              "Review a partner's solutions"
+            ],
+            "deliverables": [
+              "Pattern map for all twelve problems",
+              "Eight solutions with tests",
+              "Peer review notes"
+            ]
+          },
+          "checks": [
+            [
+              "Compare pattern choices with the answer key",
+              "At least ten of twelve are correct.",
+              "Pattern map"
+            ],
+            [
+              "Run the edge-case tests",
+              "Empty and single-element inputs pass.",
+              "Test output"
+            ],
+            [
+              "Review a partner's code",
+              "At least one improvement is suggested and applied.",
+              "Review notes"
+            ]
+          ],
+          "objectives": [
+            "Recognise common problem-solving patterns.",
+            "Pick a pattern from clues in a problem statement.",
+            "Test solutions against edge cases."
+          ],
+          "assessment": "Participants solve two unseen problems and explain how they chose each pattern."
+        },
+        {
+          "topic": "Advanced Trees and Graphs",
+          "groups": [
+            {
+              "heading": "Advanced Trees",
+              "lead": "",
+              "items": [
+                "Serialising and deserialising a binary tree",
+                "Segment trees for range queries",
+                "Fenwick trees for prefix sums with updates",
+                "Tries for word problems"
+              ]
+            },
+            {
+              "heading": "Advanced Graphs",
+              "lead": "",
+              "items": [
+                "Bridges and articulation points",
+                "Multi-source BFS",
+                "Strongly connected components with Kosaraju's algorithm",
+                "A* search overview"
+              ]
+            },
+            {
+              "heading": "Choosing Structures",
+              "lead": "",
+              "items": [
+                "Range query structures compared",
+                "Graph algorithms by problem type"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Range Queries and Network Weak Points",
+            "scenario": "A stock dashboard needs range queries with updates, and a network team needs its single points of failure.",
+            "lead": "Participants:",
+            "tasks": [
+              "Serialise and restore a binary tree",
+              "Build a segment tree for range sums with updates",
+              "Build a Fenwick tree and compare",
+              "Find bridges in a network graph",
+              "Spread a signal from several sources with multi-source BFS"
+            ],
+            "deliverables": [
+              "Solutions with tests",
+              "Comparison of segment and Fenwick trees"
+            ]
+          },
+          "checks": [
+            [
+              "Serialise and restore a tree",
+              "The restored tree has the same traversals.",
+              "Test output"
+            ],
+            [
+              "Update a value and query a range",
+              "The sum reflects the update.",
+              "Test output"
+            ],
+            [
+              "Remove a reported bridge",
+              "The graph splits into two components.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Use segment and Fenwick trees for range queries.",
+            "Find bridges, articulation points and strongly connected components.",
+            "Choose advanced structures for a problem."
+          ],
+          "assessment": "Participants pick a structure for three range-query scenarios and justify each."
+        },
+        {
+          "topic": "Coding Interview Strategy",
+          "groups": [
+            {
+              "heading": "Before Coding",
+              "lead": "",
+              "items": [
+                "Clarifying requirements and constraints",
+                "Working through examples",
+                "Stating a brute-force solution first"
+              ]
+            },
+            {
+              "heading": "Improving the Solution",
+              "lead": "",
+              "items": [
+                "Finding the bottleneck",
+                "Trading space for time",
+                "Explaining complexity out loud"
+              ]
+            },
+            {
+              "heading": "Coding and Testing",
+              "lead": "",
+              "items": [
+                "Writing clean, named code",
+                "Testing with normal, edge and large cases",
+                "Debugging calmly when stuck",
+                "Common traps: off-by-one, overflow, empty input, mutation"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Timed Interview Rounds",
+            "scenario": "Participants practise in pairs, alternating interviewer and candidate.",
+            "lead": "Each candidate:",
+            "tasks": [
+              "Clarifies the problem and constraints",
+              "Explains a brute-force approach",
+              "Improves it and states the complexity",
+              "Codes it in 30 minutes",
+              "Tests it out loud"
+            ],
+            "deliverables": [
+              "Interview scorecards",
+              "Recorded solutions"
+            ]
+          },
+          "checks": [
+            [
+              "Score each round with the scorecard",
+              "Clarification, approach, code and testing are all scored.",
+              "Scorecard"
+            ],
+            [
+              "Review the solution",
+              "Complexity is stated correctly.",
+              "Scorecard"
+            ],
+            [
+              "Run the candidate's code",
+              "It passes the interviewer's hidden tests.",
+              "Test output"
+            ]
+          ],
+          "objectives": [
+            "Clarify and plan before coding.",
+            "Move from brute force to an efficient solution.",
+            "Communicate and test during an interview."
+          ],
+          "assessment": "Participants complete a timed round and reflect on their scorecard.",
+          "tools": [
+            "Python or Java",
+            "Shared code editor",
+            "Online judge"
+          ]
+        },
+        {
+          "topic": "DSA Coding Practice and Mock Interviews",
+          "groups": [
+            {
+              "heading": "Revision Topics",
+              "lead": "",
+              "items": [
+                "Arrays, strings and hashing",
+                "Linked lists, stacks and queues",
+                "Trees and graphs",
+                "Dynamic programming and greedy"
+              ]
+            },
+            {
+              "heading": "Mock Interviews",
+              "lead": "",
+              "items": [
+                "Two medium problems in 45 minutes",
+                "One hard problem with hints",
+                "Interviewer feedback"
+              ]
+            },
+            {
+              "heading": "Improvement",
+              "lead": "",
+              "items": [
+                "Refactoring for readability",
+                "Tracking weak topics",
+                "Spaced repetition of missed problems"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Mock Interview Day",
+            "scenario": "Participants sit a full mock interview with a trainer or a peer.",
+            "lead": "Participants:",
+            "tasks": [
+              "Solve two medium problems under time limits",
+              "Attempt one hard problem",
+              "Receive written feedback",
+              "Refactor one solution",
+              "Update their weak-topic list"
+            ],
+            "deliverables": [
+              "Mock interview recording or notes",
+              "Refactored solution",
+              "Personal weak-topic list"
+            ]
+          },
+          "checks": [
+            [
+              "Run the solutions against hidden tests",
+              "Both medium problems pass.",
+              "Test output"
+            ],
+            [
+              "Compare the refactored solution",
+              "It is clearer and has the same behaviour.",
+              "Code diff and tests"
+            ],
+            [
+              "Read the weak-topic list",
+              "Each topic has a practice plan.",
+              "Weak-topic list"
+            ]
+          ],
+          "objectives": [
+            "Solve mixed problems under interview conditions.",
+            "Use feedback to improve code quality.",
+            "Plan revision around weak topics."
+          ],
+          "assessment": "Participants present their improvement plan with evidence from the mock interview.",
+          "tools": [
+            "Python or Java",
+            "Shared code editor",
+            "Online judge"
+          ]
+        },
+        {
+          "topic": "DSA Capstone and Interview Readiness",
+          "groups": [
+            {
+              "heading": "Capstone",
+              "lead": "Participants deliver:",
+              "items": [
+                "A portfolio of solved problems organised by pattern",
+                "One larger project that combines several structures",
+                "A final timed coding assessment"
+              ]
+            },
+            {
+              "heading": "Interview Readiness",
+              "lead": "",
+              "items": [
+                "A revision plan for the next four weeks",
+                "Common behavioural questions for engineering roles",
+                "Online judge and contest practice"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Capstone Project",
+            "scenario": "Each participant builds a small system, such as a route planner, autocomplete service or job scheduler.",
+            "lead": "Participants:",
+            "tasks": [
+              "Choose the data structures and justify them",
+              "Implement the system with tests",
+              "Benchmark the key operations",
+              "Present the design and complexity",
+              "Complete the final coding assessment"
+            ],
+            "deliverables": [
+              "Capstone code and tests",
+              "Design and benchmark report",
+              "Problem portfolio",
+              "Assessment result"
+            ]
+          },
+          "checks": [
+            [
+              "Review the design report",
+              "Each structure is justified by its operation costs.",
+              "Design report"
+            ],
+            [
+              "Run the benchmarks",
+              "Measured performance matches the stated complexity.",
+              "Benchmark output"
+            ],
+            [
+              "Score the final assessment",
+              "The participant meets the pass mark set by the trainer.",
+              "Assessment result"
+            ]
+          ],
+          "objectives": [
+            "Combine data structures in a working system.",
+            "Justify design choices with complexity and measurements.",
+            "Show interview readiness in a timed assessment."
+          ],
+          "assessment": "The trainer scores the capstone on correctness, design justification and the final assessment."
+        }
+      ]
     }
   ]
 }

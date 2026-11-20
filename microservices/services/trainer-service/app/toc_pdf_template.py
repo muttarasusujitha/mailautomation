@@ -217,7 +217,8 @@ def _render_module(module: Dict[str, Any], module_no: int, lab_no: int) -> Tuple
     outline = outline_from_flat(module)
     parts = [f'<h3 class="module">Module {module_no}: {escape(title)}</h3>']
     parts.append(_render_groups(_list_items(outline.get("topic_groups"))))
-    tools = _unique(_list_items(module.get("tools")))
+    # Dataset days store tools as "Jira + Git"; print them as a comma-separated list.
+    tools = _unique(part for item in _list_items(module.get("tools")) for part in re.split(r"\s+\+\s+", _text(item)))
     if tools:
         parts.append(f'<p class="tools"><span class="label-inline">Tools:</span> {escape(", ".join(tools))}</p>')
     parts.append(_render_principle(outline.get("principle") or {}))

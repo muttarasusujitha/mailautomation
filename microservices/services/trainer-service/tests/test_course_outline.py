@@ -155,11 +155,13 @@ def test_one_sentence_labs_become_participant_steps():
 
 def test_authored_outlines_are_applied_to_their_datasets():
     assert all(count == 0 for count in apply_authored(APP, write=False).values())  # committed and idempotent
-    for name, days in (("devops_30.json", 30), ("azure_devops_source.json", 9), ("java_fullstack_15.json", 15)):
+    for name, days in (("devops_30.json", 30), ("azure_devops_source.json", 9), ("java_fullstack_15.json", 15),
+                       ("dsa_algorithms_master_30.json", 30)):
         document = json.loads((APP / "datasets_compact" / name).read_text(encoding="utf-8"))
         authored = [day for day in document["days"] if (day.get("outline") or {}).get("source") == "authored"]
         assert len(authored) == days, name
         for day in authored:
+            assert day.get("tools"), f"{name}: {day['topic']} would fall back to the course name as its tool"
             assert outline_problems(day["outline"]) == []
             if day.get("content_quality_stage") == "outline_authored_pending_review":
                 assert day["subtopics"] == subtopics_from_outline(day["outline"])
@@ -177,4 +179,5 @@ def test_dataset_mode_toc_renders_the_authored_course_outline():
     assert all((day.get("outline") or {}).get("source") == "authored" for day in toc["days"])
     html = build_toc_html(toc)
     assert "Lab 1: Map a Feature to Production" in html and "Delivery Principle" in html
+    assert "Tools:</span> Jira, Git</p>" in html and "Jira + Git" not in html
     assert "The workflow completes successfully" not in html and "Training TOC Agent" not in html
