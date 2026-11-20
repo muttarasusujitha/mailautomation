@@ -1,0 +1,2849 @@
+{
+  "version": "authored-outline-v1",
+  "note": "Course-outline content written for client ToCs in the SpringXE style. Unreviewed until a trainer approves it; apply with python -m app.apply_authored_outlines.",
+  "courses": [
+    {
+      "files": [
+        "devops_30.json",
+        "devops_60.json"
+      ],
+      "days": [
+        {
+          "topic": "DevOps Orientation, SDLC and Agile Delivery",
+          "groups": [
+            {
+              "heading": "DevOps Operating Model",
+              "lead": "",
+              "items": [
+                "DevOps as shared ownership of build, release and operations",
+                "The delivery lifecycle: plan, code, build, test, release, deploy, operate, monitor",
+                "Agile versus DevOps: iteration planning versus flow to production",
+                "Delivery roles: product owner, developer, QA, platform and SRE"
+              ]
+            },
+            {
+              "heading": "Flow and Feedback",
+              "lead": "",
+              "items": [
+                "Value stream mapping and hand-off delays",
+                "DORA metrics: deployment frequency, lead time for changes, change failure rate, time to restore",
+                "Definition of ready and definition of done",
+                "Release evidence: tests, approvals, change records and rollback triggers"
+              ]
+            },
+            {
+              "heading": "Work Tracking",
+              "lead": "",
+              "items": [
+                "Jira workflow: backlog, sprint, in progress, review, done",
+                "Linking stories to commits, builds and deployments"
+              ]
+            }
+          ],
+          "principle": {
+            "title": "Delivery Principle",
+            "lead": "A change is releasable only when it has:",
+            "points": [
+              "A clear owner and acceptance criteria.",
+              "Automated test and scan evidence.",
+              "An approved release decision.",
+              "A measurable rollback trigger."
+            ]
+          },
+          "lab": {
+            "title": "Map a Feature to Production",
+            "scenario": "A team has a production defect but no shared definition of done or release evidence.",
+            "lead": "Participants map a supplied feature from backlog to release and define:",
+            "tasks": [
+              "The stages from backlog item to production",
+              "The owner, input and evidence for each stage",
+              "Acceptance criteria and a definition of done",
+              "The release decision and who approves it",
+              "A measurable rollback trigger"
+            ],
+            "deliverables": [
+              "Delivery workflow board",
+              "Definition of done",
+              "Release-evidence checklist"
+            ]
+          },
+          "checks": [
+            [
+              "Review each workflow stage",
+              "Every stage has an owner, input and evidence output.",
+              "Workflow board"
+            ],
+            [
+              "Mark an automated check as failed",
+              "The release decision cannot be marked ready.",
+              "Release-evidence checklist"
+            ],
+            [
+              "Read the rollback trigger",
+              "It names a measurable operational condition.",
+              "Rollback section of the checklist"
+            ]
+          ],
+          "objectives": [
+            "Describe the DevOps delivery lifecycle and the role of each team.",
+            "Measure delivery with the four DORA metrics.",
+            "Define release evidence and a rollback trigger for a change."
+          ],
+          "assessment": "Participants explain where the supplied workflow loses time and which evidence would block a bad release."
+        },
+        {
+          "topic": "Linux Fundamentals for DevOps",
+          "groups": [
+            {
+              "heading": "Filesystem and Permissions",
+              "lead": "",
+              "items": [
+                "Filesystem hierarchy: /etc, /var, /home, /opt, /tmp",
+                "Navigating and inspecting files: ls, cd, find, du, df",
+                "Permissions and ownership: chmod, chown, umask",
+                "Users, groups and sudo"
+              ]
+            },
+            {
+              "heading": "Processes and Services",
+              "lead": "",
+              "items": [
+                "Processes and signals: ps, top, kill",
+                "Managing services with systemctl",
+                "Reading logs with journalctl and /var/log",
+                "Package management: apt, dnf"
+              ]
+            },
+            {
+              "heading": "Everyday Operations",
+              "lead": "",
+              "items": [
+                "Text tools: grep, sed, awk, tail -f",
+                "Archiving and compression: tar, gzip",
+                "Environment variables and PATH"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Disk-Full Investigation",
+            "scenario": "A training server reports a full disk and a failing application service.",
+            "lead": "Participants:",
+            "tasks": [
+              "Find the largest directories and files with du and find",
+              "Identify the oversized log, its owner and permissions",
+              "Check the service status and recent errors with systemctl and journalctl",
+              "Archive the log safely without deleting it",
+              "Restart the service and confirm it is healthy"
+            ],
+            "deliverables": [
+              "Investigation notes with the commands used",
+              "Safe archival plan for the log"
+            ]
+          },
+          "checks": [
+            [
+              "Run the investigation commands",
+              "The oversized log and its owner are identified.",
+              "Command output in the notes"
+            ],
+            [
+              "Follow the archival plan",
+              "The log is archived and disk usage drops without data loss.",
+              "df output before and after"
+            ],
+            [
+              "Check the service after restart",
+              "systemctl reports the service as active.",
+              "Service status output"
+            ]
+          ],
+          "objectives": [
+            "Navigate the Linux filesystem and set permissions safely.",
+            "Manage services and read their logs.",
+            "Investigate a disk and service problem from the command line."
+          ],
+          "assessment": "Participants diagnose a second seeded server problem using only command-line tools."
+        },
+        {
+          "topic": "Shell Scripting and Automation",
+          "groups": [
+            {
+              "heading": "Bash Building Blocks",
+              "lead": "",
+              "items": [
+                "Shebang, execution permission and script structure",
+                "Variables, quoting and command substitution",
+                "Conditions: if, test and [[ ]]",
+                "Loops: for, while and reading files line by line",
+                "Functions and arguments"
+              ]
+            },
+            {
+              "heading": "Reliable Scripts",
+              "lead": "",
+              "items": [
+                "Exit codes and set -euo pipefail",
+                "Logging to stdout and stderr",
+                "Idempotent operations",
+                "Linting scripts with shellcheck"
+              ]
+            },
+            {
+              "heading": "Scheduling",
+              "lead": "",
+              "items": [
+                "Cron syntax and crontab",
+                "Running jobs with systemd timers"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Operations Script Kit",
+            "scenario": "The operations team runs backups, health checks and log clean-up by hand every day.",
+            "lead": "Participants write three scripts that:",
+            "tasks": [
+              "Back up a directory to a timestamped archive",
+              "Check an HTTP endpoint and exit non-zero when it fails",
+              "Remove logs older than seven days",
+              "Schedule all three with cron",
+              "Pass shellcheck with no warnings"
+            ],
+            "deliverables": [
+              "backup.sh, healthcheck.sh and cleanup.sh",
+              "Crontab entries and a sample run log"
+            ]
+          },
+          "checks": [
+            [
+              "Stop the target service and run healthcheck.sh",
+              "The script exits with a non-zero code and logs the failure.",
+              "Exit code and log line"
+            ],
+            [
+              "Run backup.sh twice",
+              "Two separate timestamped archives exist.",
+              "Archive listing"
+            ],
+            [
+              "Run shellcheck on all scripts",
+              "No warnings are reported.",
+              "shellcheck output"
+            ]
+          ],
+          "objectives": [
+            "Write Bash scripts with variables, conditions, loops and functions.",
+            "Make scripts fail safely with exit codes and strict mode.",
+            "Schedule recurring jobs with cron."
+          ],
+          "assessment": "Participants extend the health check to test three endpoints and report each result."
+        },
+        {
+          "topic": "Networking, SSH and Web Basics",
+          "groups": [
+            {
+              "heading": "Network Foundations",
+              "lead": "",
+              "items": [
+                "TCP/IP, IP addressing and subnets",
+                "Ports and listening services: ss, netstat",
+                "DNS resolution: dig, nslookup, /etc/hosts",
+                "HTTP and HTTPS: methods, status codes, headers, TLS certificates"
+              ]
+            },
+            {
+              "heading": "Secure Remote Access",
+              "lead": "",
+              "items": [
+                "SSH keys and authorized_keys",
+                "SSH config, jump hosts and port forwarding",
+                "Copying files with scp and rsync"
+              ]
+            },
+            {
+              "heading": "Troubleshooting Path",
+              "lead": "Work outward from the client:",
+              "items": [
+                "Name resolution",
+                "Network reachability: ping, traceroute",
+                "Port reachability: nc, curl -v",
+                "Application response and logs"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Why Can't Users Reach the App?",
+            "scenario": "Users report that a web application is unreachable; three faults have been seeded: a wrong DNS record, a closed port and a service bound to localhost.",
+            "lead": "Participants:",
+            "tasks": [
+              "Connect to the server with SSH keys",
+              "Trace the request from DNS to the application",
+              "Find and fix each seeded fault",
+              "Confirm the application responds over HTTP"
+            ],
+            "deliverables": [
+              "Troubleshooting log with the command and result for each step",
+              "List of root causes and fixes"
+            ]
+          },
+          "checks": [
+            [
+              "Resolve the application hostname",
+              "It resolves to the correct server address.",
+              "dig output"
+            ],
+            [
+              "Request the application with curl -v",
+              "It returns HTTP 200 from the external address.",
+              "curl output"
+            ],
+            [
+              "Log in to the server",
+              "SSH works with a key and password login is not used.",
+              "SSH session log"
+            ]
+          ],
+          "objectives": [
+            "Explain how a web request travels from DNS to the application.",
+            "Connect securely with SSH keys and transfer files.",
+            "Troubleshoot connectivity in a structured order."
+          ],
+          "assessment": "Participants explain the evidence that separated each seeded fault from the others."
+        },
+        {
+          "topic": "Git and GitHub Collaboration",
+          "groups": [
+            {
+              "heading": "Git Fundamentals",
+              "lead": "",
+              "items": [
+                "Repositories, commits and the staging area",
+                "Branches, HEAD and tags",
+                "Merging versus rebasing",
+                "Undoing changes: revert, reset, restore"
+              ]
+            },
+            {
+              "heading": "Team Workflow",
+              "lead": "",
+              "items": [
+                "Branching strategies: trunk-based, GitHub flow, Git flow",
+                "Pull requests, reviews and required checks",
+                "Branch protection rules",
+                "Resolving merge conflicts"
+              ]
+            },
+            {
+              "heading": "Repository Hygiene",
+              "lead": "",
+              "items": [
+                "Commit message conventions",
+                ".gitignore and keeping secrets out of history"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Pull Request Workflow",
+            "scenario": "Two developers changed the same configuration file on separate branches.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create a feature branch and push commits",
+              "Open a pull request and request a review",
+              "Resolve the merge conflict with the other branch",
+              "Protect main so that it needs a review and a passing check",
+              "Merge and tag a release"
+            ],
+            "deliverables": [
+              "Merged pull request with review comments",
+              "Branch protection settings",
+              "Release tag"
+            ]
+          },
+          "checks": [
+            [
+              "Push directly to main",
+              "The push is rejected by branch protection.",
+              "Git error output"
+            ],
+            [
+              "Merge the conflicting branches",
+              "The conflict is resolved and both changes are kept.",
+              "Merge commit diff"
+            ],
+            [
+              "Inspect the history",
+              "Each commit has a clear message linked to the change.",
+              "git log output"
+            ]
+          ],
+          "objectives": [
+            "Use branches, merges and rebases correctly.",
+            "Run a pull request review with branch protection.",
+            "Resolve merge conflicts without losing work."
+          ],
+          "assessment": "Participants resolve a second conflict and explain when they would rebase instead of merge."
+        },
+        {
+          "topic": "Build Tools and Artifact Management",
+          "groups": [
+            {
+              "heading": "Build Tools",
+              "lead": "",
+              "items": [
+                "Maven lifecycle: validate, compile, test, package, install, deploy",
+                "Gradle tasks and the build cache",
+                "npm scripts and package-lock.json",
+                "Dependency management and version pinning"
+              ]
+            },
+            {
+              "heading": "Versioning and Artifacts",
+              "lead": "",
+              "items": [
+                "Semantic versioning",
+                "Snapshot versus release artifacts",
+                "Artifact repositories: Nexus, Artifactory, GitHub Packages",
+                "Build once, deploy many"
+              ]
+            },
+            {
+              "heading": "Reproducible Builds",
+              "lead": "",
+              "items": [
+                "Lockfiles and pinned build tool versions",
+                "Generating build metadata and checksums"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Build and Publish a Release",
+            "scenario": "A sample Java service is built differently on each developer laptop.",
+            "lead": "Participants:",
+            "tasks": [
+              "Build and test the service with Maven",
+              "Version it with semantic versioning",
+              "Publish a snapshot and a release to Nexus",
+              "Download the release on another machine and run it"
+            ],
+            "deliverables": [
+              "Build log with test results",
+              "Published artifacts in Nexus",
+              "Versioning notes"
+            ]
+          },
+          "checks": [
+            [
+              "Run the build twice from a clean checkout",
+              "Both builds produce the same artifact checksum.",
+              "Checksum comparison"
+            ],
+            [
+              "Publish a release version that already exists",
+              "The repository rejects the overwrite.",
+              "Nexus error"
+            ],
+            [
+              "Fail one unit test",
+              "The package step does not run.",
+              "Build log"
+            ]
+          ],
+          "objectives": [
+            "Run the Maven, Gradle and npm build lifecycles.",
+            "Version and publish artifacts to a repository.",
+            "Keep builds reproducible across machines."
+          ],
+          "assessment": "Participants explain how the pipeline would promote the same artifact from test to production."
+        },
+        {
+          "topic": "Jenkins Fundamentals",
+          "groups": [
+            {
+              "heading": "Jenkins Architecture",
+              "lead": "",
+              "items": [
+                "Controller and agents",
+                "Executors and labels",
+                "Plugins and plugin updates",
+                "Installing Jenkins with Docker"
+              ]
+            },
+            {
+              "heading": "Jobs and Triggers",
+              "lead": "",
+              "items": [
+                "Freestyle jobs versus pipeline jobs",
+                "Triggers: SCM polling, webhooks, schedules",
+                "Build parameters",
+                "Build history, console output and artifacts"
+              ]
+            },
+            {
+              "heading": "Security",
+              "lead": "",
+              "items": [
+                "Credentials store and credential binding",
+                "Role-based access and matrix authorisation"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "First Jenkins Pipeline",
+            "scenario": "A team builds releases by hand on one laptop.",
+            "lead": "Participants:",
+            "tasks": [
+              "Run Jenkins in Docker and add one agent",
+              "Store repository credentials in the credentials store",
+              "Create a freestyle job and a pipeline job from Git",
+              "Trigger builds from a GitHub webhook",
+              "Archive the build artifact"
+            ],
+            "deliverables": [
+              "Running Jenkins with one agent",
+              "Two jobs with build history",
+              "Webhook configuration"
+            ]
+          },
+          "checks": [
+            [
+              "Push a commit",
+              "The webhook starts a build within one minute.",
+              "Build history"
+            ],
+            [
+              "Read the console output",
+              "No credential value is printed.",
+              "Console log"
+            ],
+            [
+              "Take the agent offline",
+              "The job waits for an agent instead of running on the controller.",
+              "Build queue"
+            ]
+          ],
+          "objectives": [
+            "Install and configure Jenkins with an agent.",
+            "Create jobs that build on every commit.",
+            "Store and use credentials securely."
+          ],
+          "assessment": "Participants add a parameterised job and explain when it should run on a specific agent."
+        },
+        {
+          "topic": "Jenkins Pipeline as Code",
+          "groups": [
+            {
+              "heading": "Declarative Pipelines",
+              "lead": "",
+              "items": [
+                "Jenkinsfile structure: pipeline, agent, stages, steps",
+                "environment and parameters",
+                "when conditions and parallel stages",
+                "post actions: always, success, failure"
+              ]
+            },
+            {
+              "heading": "Quality Stages",
+              "lead": "",
+              "items": [
+                "Unit tests and JUnit reports",
+                "Static analysis with SonarQube",
+                "Archiving and publishing artifacts",
+                "Manual approval with input"
+              ]
+            },
+            {
+              "heading": "Reuse",
+              "lead": "",
+              "items": [
+                "Shared libraries",
+                "Multibranch pipelines"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Multi-Stage Pipeline",
+            "scenario": "The team's freestyle job has no tests or quality checks.",
+            "lead": "Participants write a Jenkinsfile with stages for:",
+            "tasks": [
+              "Checkout and build",
+              "Unit tests with published results",
+              "SonarQube analysis with a quality gate",
+              "Packaging and artifact upload",
+              "Approval before deploying to staging"
+            ],
+            "deliverables": [
+              "Jenkinsfile in the repository",
+              "Pipeline run showing every stage",
+              "SonarQube report"
+            ]
+          },
+          "checks": [
+            [
+              "Commit a failing test",
+              "The pipeline stops at the test stage and marks the build failed.",
+              "Pipeline view"
+            ],
+            [
+              "Lower code quality below the gate",
+              "The quality gate stage fails.",
+              "SonarQube result"
+            ],
+            [
+              "Run the pipeline on a feature branch",
+              "The deploy stage is skipped.",
+              "Stage log"
+            ]
+          ],
+          "objectives": [
+            "Write a declarative Jenkinsfile with stages and post actions.",
+            "Add test, analysis and approval stages.",
+            "Reuse pipeline code with shared libraries."
+          ],
+          "assessment": "Participants move one repeated step into a shared library and use it from two pipelines."
+        },
+        {
+          "topic": "GitHub Actions and GitLab CI",
+          "groups": [
+            {
+              "heading": "GitHub Actions",
+              "lead": "",
+              "items": [
+                "Workflows, jobs, steps and runners",
+                "Triggers: push, pull_request, workflow_dispatch, schedule",
+                "Marketplace actions and pinning versions",
+                "Secrets, variables and environments"
+              ]
+            },
+            {
+              "heading": "GitLab CI",
+              "lead": "",
+              "items": [
+                ".gitlab-ci.yml: stages, jobs, rules",
+                "Runners and executors",
+                "CI/CD variables and protected branches"
+              ]
+            },
+            {
+              "heading": "Faster Pipelines",
+              "lead": "",
+              "items": [
+                "Matrix builds",
+                "Dependency caching",
+                "Artifacts between jobs"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "CI for Pull Requests",
+            "scenario": "Pull requests are merged without any automated checks.",
+            "lead": "Participants create a GitHub Actions workflow that:",
+            "tasks": [
+              "Runs on every pull request",
+              "Builds and tests across two language versions",
+              "Caches dependencies",
+              "Uploads the build artifact",
+              "Is required before merging"
+            ],
+            "deliverables": [
+              "Workflow YAML file",
+              "Workflow runs for a passing and a failing pull request",
+              "Equivalent .gitlab-ci.yml"
+            ]
+          },
+          "checks": [
+            [
+              "Open a pull request with a failing test",
+              "The required check fails and merging is blocked.",
+              "Pull request status"
+            ],
+            [
+              "Run the workflow twice",
+              "The second run restores the dependency cache.",
+              "Workflow log"
+            ],
+            [
+              "Print a secret in a step",
+              "GitHub masks the value in the log.",
+              "Workflow log"
+            ]
+          ],
+          "objectives": [
+            "Write GitHub Actions workflows with triggers, jobs and secrets.",
+            "Speed up pipelines with caching and matrix builds.",
+            "Translate the same pipeline to GitLab CI."
+          ],
+          "assessment": "Participants compare the two CI tools for the team's repository and justify a choice."
+        },
+        {
+          "topic": "Docker Fundamentals",
+          "groups": [
+            {
+              "heading": "Containers and Images",
+              "lead": "",
+              "items": [
+                "Containers versus virtual machines",
+                "Images, layers and the build cache",
+                "Registries and image tags",
+                "Container lifecycle: run, stop, logs, exec, rm"
+              ]
+            },
+            {
+              "heading": "Writing Dockerfiles",
+              "lead": "",
+              "items": [
+                "FROM, COPY, RUN, CMD and ENTRYPOINT",
+                "Multi-stage builds",
+                ".dockerignore",
+                "Running as a non-root user"
+              ]
+            },
+            {
+              "heading": "Data and Networking",
+              "lead": "",
+              "items": [
+                "Volumes and bind mounts",
+                "Port publishing and bridge networks"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Containerise a Web Application",
+            "scenario": "A Python web application only runs on one developer's laptop.",
+            "lead": "Participants:",
+            "tasks": [
+              "Write a multi-stage Dockerfile",
+              "Build and tag the image",
+              "Run it with a published port and a volume",
+              "Reduce the image size",
+              "Push the image to Docker Hub"
+            ],
+            "deliverables": [
+              "Dockerfile and .dockerignore",
+              "Image size before and after optimisation",
+              "Pushed image tag"
+            ]
+          },
+          "checks": [
+            [
+              "Run the container and open the published port",
+              "The application responds.",
+              "curl output"
+            ],
+            [
+              "Check the running user",
+              "The process is not running as root.",
+              "docker exec id output"
+            ],
+            [
+              "Remove and recreate the container",
+              "Data in the volume is still there.",
+              "File listing"
+            ]
+          ],
+          "objectives": [
+            "Explain images, layers and containers.",
+            "Write efficient, secure Dockerfiles.",
+            "Run containers with ports, volumes and networks."
+          ],
+          "assessment": "Participants explain how layer ordering changed their rebuild time."
+        },
+        {
+          "topic": "Docker Compose and Multi-Container Apps",
+          "groups": [
+            {
+              "heading": "Compose Files",
+              "lead": "",
+              "items": [
+                "Services, images and build contexts",
+                "Networks and service discovery by name",
+                "Named volumes for databases",
+                "Environment variables and .env files"
+              ]
+            },
+            {
+              "heading": "Reliable Start-up",
+              "lead": "",
+              "items": [
+                "Health checks",
+                "depends_on with service_healthy",
+                "Restart policies"
+              ]
+            },
+            {
+              "heading": "Day-to-Day Use",
+              "lead": "",
+              "items": [
+                "docker compose up, logs, exec, down",
+                "Override files for development and test",
+                "Scaling a service"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Three-Tier Stack",
+            "scenario": "Developers spend half a day setting up the application, database and cache locally.",
+            "lead": "Participants write a Compose file that:",
+            "tasks": [
+              "Runs the web application, PostgreSQL and Redis",
+              "Keeps database data in a named volume",
+              "Starts the application only after the database is healthy",
+              "Reads configuration from a .env file"
+            ],
+            "deliverables": [
+              "docker-compose.yml and .env.example",
+              "Start-up log showing health checks"
+            ]
+          },
+          "checks": [
+            [
+              "Run docker compose up on a clean machine",
+              "All three services start and the application connects.",
+              "Compose logs"
+            ],
+            [
+              "Stop the database",
+              "The application health check fails and the restart policy acts.",
+              "Service status"
+            ],
+            [
+              "Run docker compose down and up",
+              "Database data is preserved.",
+              "Query output"
+            ]
+          ],
+          "objectives": [
+            "Define multi-container applications with Compose.",
+            "Control start-up order with health checks.",
+            "Persist data and manage configuration."
+          ],
+          "assessment": "Participants add a worker service and explain how it finds the queue."
+        },
+        {
+          "topic": "Container Registry and Image Security",
+          "groups": [
+            {
+              "heading": "Registries",
+              "lead": "",
+              "items": [
+                "Public and private registries: Docker Hub, ECR, ACR",
+                "Authentication and access control",
+                "Tagging strategy: immutable tags and digests",
+                "Retention and clean-up policies"
+              ]
+            },
+            {
+              "heading": "Image Security",
+              "lead": "",
+              "items": [
+                "Vulnerability scanning with Trivy",
+                "Choosing minimal base images: distroless, alpine, slim",
+                "Removing secrets and build tools from images",
+                "Software bill of materials (SBOM)"
+              ]
+            },
+            {
+              "heading": "Supply Chain",
+              "lead": "",
+              "items": [
+                "Image signing",
+                "Scanning in the pipeline"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Fix a Vulnerable Image",
+            "scenario": "A scan of the team's production image reports critical vulnerabilities.",
+            "lead": "Participants:",
+            "tasks": [
+              "Scan the image with Trivy",
+              "Rebuild it on a minimal base image",
+              "Remove unused packages and build tools",
+              "Generate an SBOM",
+              "Push the fixed image to a private registry with an immutable tag"
+            ],
+            "deliverables": [
+              "Scan reports before and after",
+              "Updated Dockerfile",
+              "SBOM file"
+            ]
+          },
+          "checks": [
+            [
+              "Scan the fixed image",
+              "No critical vulnerabilities are reported.",
+              "Trivy report"
+            ],
+            [
+              "Push the same tag again",
+              "The registry rejects it because tags are immutable.",
+              "Push error"
+            ],
+            [
+              "Pull without logging in",
+              "The private registry refuses the pull.",
+              "Pull error"
+            ]
+          ],
+          "objectives": [
+            "Store images in a private registry with immutable tags.",
+            "Find and fix image vulnerabilities.",
+            "Produce an SBOM for an image."
+          ],
+          "assessment": "Participants decide which remaining findings are acceptable and record the reason."
+        },
+        {
+          "topic": "Kubernetes Architecture",
+          "groups": [
+            {
+              "heading": "Control Plane",
+              "lead": "",
+              "items": [
+                "API server, etcd, scheduler and controller manager",
+                "Desired state and reconciliation loops"
+              ]
+            },
+            {
+              "heading": "Worker Nodes",
+              "lead": "",
+              "items": [
+                "kubelet, kube-proxy and the container runtime",
+                "Pods as the unit of scheduling"
+              ]
+            },
+            {
+              "heading": "Core Objects",
+              "lead": "",
+              "items": [
+                "Pods, ReplicaSets and Deployments",
+                "Namespaces and labels",
+                "Declarative YAML manifests"
+              ]
+            },
+            {
+              "heading": "Working with the Cluster",
+              "lead": "",
+              "items": [
+                "kubectl: get, describe, logs, apply, delete",
+                "Local clusters with minikube or kind",
+                "kubeconfig contexts"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "First Deployment",
+            "scenario": "The team needs a local cluster to learn how Kubernetes keeps applications running.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create a local cluster with kind",
+              "Deploy an application with three replicas from YAML",
+              "Delete a pod and watch it come back",
+              "Scale the deployment up and down",
+              "Inspect events and logs"
+            ],
+            "deliverables": [
+              "Deployment manifest",
+              "kubectl output showing self-healing and scaling"
+            ]
+          },
+          "checks": [
+            [
+              "Delete one pod",
+              "A replacement pod is created automatically.",
+              "kubectl get pods --watch output"
+            ],
+            [
+              "Apply the manifest twice",
+              "The second apply reports no changes.",
+              "kubectl apply output"
+            ],
+            [
+              "Describe a pod",
+              "Its node, image and events are shown.",
+              "kubectl describe output"
+            ]
+          ],
+          "objectives": [
+            "Explain the control plane and node components.",
+            "Deploy and scale an application declaratively.",
+            "Inspect cluster state with kubectl."
+          ],
+          "assessment": "Participants explain which component noticed the deleted pod and which one replaced it."
+        },
+        {
+          "topic": "Kubernetes Workloads and Services",
+          "groups": [
+            {
+              "heading": "Exposing Applications",
+              "lead": "",
+              "items": [
+                "Services: ClusterIP, NodePort, LoadBalancer",
+                "Ingress and ingress controllers",
+                "Host and path routing with TLS"
+              ]
+            },
+            {
+              "heading": "Configuration",
+              "lead": "",
+              "items": [
+                "ConfigMaps as environment variables and files",
+                "Secrets and why base64 is not encryption",
+                "Namespaces for environments"
+              ]
+            },
+            {
+              "heading": "Healthy Workloads",
+              "lead": "",
+              "items": [
+                "Readiness and liveness probes",
+                "Resource requests and limits",
+                "Rolling updates and rollout undo"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Publish an Application",
+            "scenario": "An application runs in the cluster but users cannot reach it and its configuration is hard-coded.",
+            "lead": "Participants:",
+            "tasks": [
+              "Move configuration into a ConfigMap and a Secret",
+              "Add readiness and liveness probes",
+              "Expose the application with a Service and an Ingress",
+              "Roll out a new version and undo it"
+            ],
+            "deliverables": [
+              "Manifests for Deployment, Service, Ingress, ConfigMap and Secret",
+              "Rollout history"
+            ]
+          },
+          "checks": [
+            [
+              "Request the Ingress host",
+              "The application responds through the ingress controller.",
+              "curl output"
+            ],
+            [
+              "Deploy a version that fails its readiness probe",
+              "No traffic reaches the broken pods and the old pods keep serving.",
+              "Endpoints and rollout status"
+            ],
+            [
+              "Change the ConfigMap and restart",
+              "The application uses the new value.",
+              "Application output"
+            ]
+          ],
+          "objectives": [
+            "Expose workloads with Services and Ingress.",
+            "Separate configuration with ConfigMaps and Secrets.",
+            "Roll out and roll back safely using probes."
+          ],
+          "assessment": "Participants explain why the broken version did not cause an outage."
+        },
+        {
+          "topic": "Kubernetes Storage, RBAC and Troubleshooting",
+          "groups": [
+            {
+              "heading": "Storage",
+              "lead": "",
+              "items": [
+                "PersistentVolumes and PersistentVolumeClaims",
+                "StorageClasses and dynamic provisioning",
+                "StatefulSets for databases"
+              ]
+            },
+            {
+              "heading": "Access Control",
+              "lead": "",
+              "items": [
+                "ServiceAccounts",
+                "Roles, ClusterRoles and bindings",
+                "Least privilege for teams and pipelines"
+              ]
+            },
+            {
+              "heading": "Troubleshooting",
+              "lead": "Common failure states:",
+              "items": [
+                "Pending: no capacity, unbound volume",
+                "CrashLoopBackOff: application errors, failed probes",
+                "ImagePullBackOff: wrong image or missing credentials",
+                "Debugging with describe, events, logs --previous and exec"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Broken Cluster Challenge",
+            "scenario": "Three workloads fail after a release: one is Pending, one is in CrashLoopBackOff and one cannot pull its image.",
+            "lead": "Participants:",
+            "tasks": [
+              "Diagnose and fix each failing workload",
+              "Give the database persistent storage with a PVC",
+              "Create a read-only role for the support team",
+              "Confirm the support account cannot delete pods"
+            ],
+            "deliverables": [
+              "Root cause and fix for each workload",
+              "PVC and RBAC manifests"
+            ]
+          },
+          "checks": [
+            [
+              "Restart the database pod",
+              "Its data is still present.",
+              "Query output"
+            ],
+            [
+              "Run kubectl auth can-i delete pods as the support account",
+              "The answer is no.",
+              "kubectl output"
+            ],
+            [
+              "Check all workloads after the fixes",
+              "Every pod is Running and Ready.",
+              "kubectl get pods output"
+            ]
+          ],
+          "objectives": [
+            "Provide persistent storage to stateful workloads.",
+            "Apply least-privilege RBAC.",
+            "Diagnose common pod failure states."
+          ],
+          "assessment": "Participants troubleshoot an unseen failing workload and explain each command they used."
+        },
+        {
+          "topic": "Helm Package Management",
+          "groups": [
+            {
+              "heading": "Charts",
+              "lead": "",
+              "items": [
+                "Chart structure: Chart.yaml, values.yaml, templates/",
+                "Template functions, conditionals and loops",
+                "Helpers in _helpers.tpl",
+                "Chart dependencies"
+              ]
+            },
+            {
+              "heading": "Releases",
+              "lead": "",
+              "items": [
+                "helm install, upgrade, rollback, uninstall",
+                "Per-environment values files",
+                "Release history"
+              ]
+            },
+            {
+              "heading": "Quality",
+              "lead": "",
+              "items": [
+                "helm lint and helm template",
+                "Publishing charts to an OCI registry"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Package and Release with Helm",
+            "scenario": "Each environment uses copied, slightly different YAML files.",
+            "lead": "Participants:",
+            "tasks": [
+              "Turn the application manifests into a chart",
+              "Create values files for dev and prod",
+              "Install, upgrade and roll back a release",
+              "Lint and publish the chart to an OCI registry"
+            ],
+            "deliverables": [
+              "Helm chart",
+              "values-dev.yaml and values-prod.yaml",
+              "Release history output"
+            ]
+          },
+          "checks": [
+            [
+              "Render the chart for dev and prod",
+              "Only replica count, image tag and resources differ.",
+              "helm template diff"
+            ],
+            [
+              "Upgrade with a broken image and roll back",
+              "The previous revision is restored and healthy.",
+              "helm history and pod status"
+            ],
+            [
+              "Run helm lint",
+              "No errors are reported.",
+              "Lint output"
+            ]
+          ],
+          "objectives": [
+            "Package Kubernetes applications as Helm charts.",
+            "Manage environment differences with values files.",
+            "Upgrade and roll back releases."
+          ],
+          "assessment": "Participants add an optional component to the chart behind a values flag."
+        },
+        {
+          "topic": "AWS DevOps Foundations",
+          "groups": [
+            {
+              "heading": "Identity and Access",
+              "lead": "",
+              "items": [
+                "IAM users, groups, roles and policies",
+                "Least privilege and MFA",
+                "AWS CLI profiles and temporary credentials"
+              ]
+            },
+            {
+              "heading": "Core Services",
+              "lead": "",
+              "items": [
+                "EC2 instances, AMIs and key pairs",
+                "S3 buckets, versioning and bucket policies",
+                "VPC, subnets, route tables and internet gateways",
+                "Security groups versus network ACLs"
+              ]
+            },
+            {
+              "heading": "Observability and Cost",
+              "lead": "",
+              "items": [
+                "CloudWatch metrics, logs and alarms",
+                "CloudTrail for API auditing",
+                "Budgets and tagging for cost tracking"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Secure Web Server on AWS",
+            "scenario": "The team needs a small, auditable AWS environment for a demo application.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create an IAM role for the instance instead of access keys",
+              "Launch an EC2 web server in a public subnet with a restricted security group",
+              "Store static files in a versioned S3 bucket",
+              "Send server logs to CloudWatch and create a CPU alarm",
+              "Set a monthly budget alert"
+            ],
+            "deliverables": [
+              "Architecture diagram",
+              "Security group and IAM policy JSON",
+              "CloudWatch alarm and budget"
+            ]
+          },
+          "checks": [
+            [
+              "Connect to the instance on a port that is not allowed",
+              "The connection is refused.",
+              "Connection attempt output"
+            ],
+            [
+              "Overwrite a file in S3 and list versions",
+              "The previous version is kept.",
+              "S3 version listing"
+            ],
+            [
+              "Look up the instance's API calls",
+              "CloudTrail shows who created it.",
+              "CloudTrail event"
+            ]
+          ],
+          "objectives": [
+            "Apply IAM least privilege with roles.",
+            "Build a small VPC, EC2 and S3 environment.",
+            "Monitor and audit AWS resources."
+          ],
+          "assessment": "Participants review a colleague's environment against a security checklist."
+        },
+        {
+          "topic": "AWS CI/CD and Container Services",
+          "groups": [
+            {
+              "heading": "AWS Delivery Services",
+              "lead": "",
+              "items": [
+                "CodeBuild and buildspec.yml",
+                "CodePipeline stages and approvals",
+                "Amazon ECR repositories and scan-on-push"
+              ]
+            },
+            {
+              "heading": "Running Containers",
+              "lead": "",
+              "items": [
+                "ECS on Fargate: clusters, task definitions, services",
+                "Amazon EKS overview",
+                "Application Load Balancer, target groups and health checks"
+              ]
+            },
+            {
+              "heading": "Safe Deployments",
+              "lead": "",
+              "items": [
+                "Rolling and blue/green deployments on ECS",
+                "IAM roles for pipelines and tasks",
+                "Deployment alarms and automatic rollback"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Container Pipeline on AWS",
+            "scenario": "A containerised service is deployed by hand from a laptop.",
+            "lead": "Participants build a pipeline that:",
+            "tasks": [
+              "Builds the image in CodeBuild and pushes it to ECR",
+              "Deploys it to ECS Fargate behind an ALB",
+              "Waits for a manual approval before production",
+              "Rolls back automatically when health checks fail"
+            ],
+            "deliverables": [
+              "buildspec.yml and task definition",
+              "Pipeline run history",
+              "ALB health check configuration"
+            ]
+          },
+          "checks": [
+            [
+              "Push a commit",
+              "The new image is deployed and the ALB serves it.",
+              "Pipeline run and curl output"
+            ],
+            [
+              "Deploy an image that fails health checks",
+              "ECS rolls back to the previous task definition.",
+              "ECS service events"
+            ],
+            [
+              "Check the pipeline role",
+              "It cannot access unrelated resources.",
+              "IAM policy simulator result"
+            ]
+          ],
+          "objectives": [
+            "Build and push images with CodeBuild and ECR.",
+            "Run services on ECS Fargate behind a load balancer.",
+            "Deploy safely with approvals and automatic rollback."
+          ],
+          "assessment": "Participants compare ECS and EKS for the sample service and justify a choice."
+        },
+        {
+          "topic": "Kubernetes Networking, Scaling and Policy",
+          "groups": [
+            {
+              "heading": "Cluster Networking",
+              "lead": "",
+              "items": [
+                "Pod-to-pod networking and CNI plugins",
+                "Service discovery with CoreDNS",
+                "NetworkPolicies: default deny, allow by label"
+              ]
+            },
+            {
+              "heading": "Scaling",
+              "lead": "",
+              "items": [
+                "Requests, limits and quality-of-service classes",
+                "Horizontal Pod Autoscaler with metrics-server",
+                "Cluster autoscaling basics"
+              ]
+            },
+            {
+              "heading": "Resilience",
+              "lead": "",
+              "items": [
+                "PodDisruptionBudgets",
+                "Pod anti-affinity and topology spread",
+                "ResourceQuotas and LimitRanges per namespace"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Secure and Scale a Service",
+            "scenario": "An API must survive traffic spikes and node maintenance, and only the frontend may call it.",
+            "lead": "Participants:",
+            "tasks": [
+              "Apply a default-deny policy and allow only frontend traffic",
+              "Set requests and limits",
+              "Configure an HPA and run a load test",
+              "Add a PodDisruptionBudget and drain a node"
+            ],
+            "deliverables": [
+              "NetworkPolicy, HPA and PDB manifests",
+              "Load-test results with replica counts"
+            ]
+          },
+          "checks": [
+            [
+              "Call the API from a pod without the frontend label",
+              "The request times out.",
+              "curl output"
+            ],
+            [
+              "Run the load test",
+              "Replicas increase and return to the minimum afterwards.",
+              "kubectl get hpa output"
+            ],
+            [
+              "Drain a node",
+              "At least the minimum number of pods stays available.",
+              "kubectl drain and get pods output"
+            ]
+          ],
+          "objectives": [
+            "Restrict traffic with NetworkPolicies.",
+            "Scale workloads with the Horizontal Pod Autoscaler.",
+            "Protect availability during maintenance."
+          ],
+          "assessment": "Participants explain how they chose the HPA target and the PDB minimum."
+        },
+        {
+          "topic": "GitOps Deployment and Kubernetes Release Management",
+          "groups": [
+            {
+              "heading": "GitOps Principles",
+              "lead": "",
+              "items": [
+                "Git as the single source of desired state",
+                "Pull-based deployment versus push from CI",
+                "Drift detection and self-healing"
+              ]
+            },
+            {
+              "heading": "Argo CD",
+              "lead": "",
+              "items": [
+                "Applications, projects and sync policies",
+                "Syncing Helm charts and Kustomize overlays",
+                "Sync waves and health checks"
+              ]
+            },
+            {
+              "heading": "Promotion and Rollback",
+              "lead": "",
+              "items": [
+                "Environment repositories or folders",
+                "Promoting by pull request",
+                "Rolling back with git revert"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "GitOps Promotion",
+            "scenario": "Production differs from what is in Git because engineers apply changes by hand.",
+            "lead": "Participants:",
+            "tasks": [
+              "Install Argo CD and connect the environment repository",
+              "Deploy the application to dev and prod from Git",
+              "Promote a new version to prod by pull request",
+              "Change a resource by hand and watch Argo CD revert it",
+              "Roll back prod with git revert"
+            ],
+            "deliverables": [
+              "Environment repository structure",
+              "Argo CD application manifests",
+              "Promotion pull request and sync history"
+            ]
+          },
+          "checks": [
+            [
+              "Scale the deployment with kubectl",
+              "Argo CD reports drift and restores the Git state.",
+              "Argo CD sync history"
+            ],
+            [
+              "Merge the promotion pull request",
+              "Prod runs the new version.",
+              "Application status"
+            ],
+            [
+              "Revert the commit",
+              "Prod returns to the previous version.",
+              "Sync history"
+            ]
+          ],
+          "objectives": [
+            "Explain GitOps and pull-based deployment.",
+            "Deploy and promote applications with Argo CD.",
+            "Roll back through Git."
+          ],
+          "assessment": "Participants explain who can change production and how each change is recorded."
+        },
+        {
+          "topic": "Terraform Infrastructure as Code",
+          "groups": [
+            {
+              "heading": "Terraform Basics",
+              "lead": "",
+              "items": [
+                "Providers and resources",
+                "The workflow: init, plan, apply, destroy",
+                "Variables, outputs and locals",
+                "Data sources"
+              ]
+            },
+            {
+              "heading": "State",
+              "lead": "",
+              "items": [
+                "What state holds and why it is sensitive",
+                "Remote backend in S3 with locking",
+                "terraform state commands"
+              ]
+            },
+            {
+              "heading": "Code Quality",
+              "lead": "",
+              "items": [
+                "terraform fmt and validate",
+                "Pinning provider versions",
+                "Reading a plan before applying"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Network and Server as Code",
+            "scenario": "The AWS demo environment was built by hand and cannot be rebuilt reliably.",
+            "lead": "Participants write Terraform that:",
+            "tasks": [
+              "Creates a VPC, subnet and security group",
+              "Launches an EC2 instance",
+              "Stores state in S3 with locking",
+              "Outputs the server address"
+            ],
+            "deliverables": [
+              "Terraform configuration",
+              "Saved plan and apply output",
+              "Remote backend configuration"
+            ]
+          },
+          "checks": [
+            [
+              "Run terraform plan after apply",
+              "No changes are reported.",
+              "Plan output"
+            ],
+            [
+              "Run apply from two terminals at once",
+              "The second run waits for or fails on the state lock.",
+              "Lock error"
+            ],
+            [
+              "Destroy and apply again",
+              "The environment is rebuilt with the same configuration.",
+              "Apply output"
+            ]
+          ],
+          "objectives": [
+            "Write Terraform with providers, resources, variables and outputs.",
+            "Manage state safely with a remote backend.",
+            "Review plans before applying."
+          ],
+          "assessment": "Participants read an unseen plan and explain which resources would be replaced and why."
+        },
+        {
+          "topic": "Terraform Modules and Environments",
+          "groups": [
+            {
+              "heading": "Modules",
+              "lead": "",
+              "items": [
+                "Module structure, inputs and outputs",
+                "Registry modules versus local modules",
+                "Versioning modules"
+              ]
+            },
+            {
+              "heading": "Environments",
+              "lead": "",
+              "items": [
+                "Separate state per environment",
+                "tfvars files and workspaces",
+                "Avoiding copy-paste between dev and prod"
+              ]
+            },
+            {
+              "heading": "Existing Infrastructure",
+              "lead": "",
+              "items": [
+                "terraform import and import blocks",
+                "Detecting drift with plan",
+                "Moving resources with moved blocks"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Reusable Network Module",
+            "scenario": "Dev and prod were written as two copies of the same code and have drifted apart.",
+            "lead": "Participants:",
+            "tasks": [
+              "Extract the network and server code into a module",
+              "Use it for dev and prod with different tfvars",
+              "Import a manually created security group",
+              "Detect a manual change with plan and fix it"
+            ],
+            "deliverables": [
+              "Versioned module with a README",
+              "Environment configurations for dev and prod",
+              "Drift report"
+            ]
+          },
+          "checks": [
+            [
+              "Plan dev and prod",
+              "Only the values in the tfvars files differ.",
+              "Plan outputs"
+            ],
+            [
+              "Import the security group and plan",
+              "No changes are reported.",
+              "Plan output"
+            ],
+            [
+              "Change an instance tag in the console",
+              "The next plan shows the drift.",
+              "Plan output"
+            ]
+          ],
+          "objectives": [
+            "Build reusable Terraform modules.",
+            "Run several environments from the same code.",
+            "Import existing resources and detect drift."
+          ],
+          "assessment": "Participants add a staging environment using only a new tfvars file."
+        },
+        {
+          "topic": "Ansible Configuration Management",
+          "groups": [
+            {
+              "heading": "Ansible Basics",
+              "lead": "",
+              "items": [
+                "Agentless architecture over SSH",
+                "Inventories, groups and host variables",
+                "Ad-hoc commands",
+                "Idempotent modules: package, service, copy, template"
+              ]
+            },
+            {
+              "heading": "Playbooks and Roles",
+              "lead": "",
+              "items": [
+                "Plays, tasks and handlers",
+                "Variables and precedence",
+                "Jinja2 templates",
+                "Role structure and Ansible Galaxy"
+              ]
+            },
+            {
+              "heading": "Safe Automation",
+              "lead": "",
+              "items": [
+                "Ansible Vault for secrets",
+                "Check mode and diff mode"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Configure a Web Tier",
+            "scenario": "Three web servers were configured by hand and behave differently.",
+            "lead": "Participants write an nginx role that:",
+            "tasks": [
+              "Installs and configures nginx from a template",
+              "Restarts nginx only when the configuration changes",
+              "Keeps an API key in Ansible Vault",
+              "Runs against all three servers from one inventory"
+            ],
+            "deliverables": [
+              "Inventory and nginx role",
+              "Playbook run outputs"
+            ]
+          },
+          "checks": [
+            [
+              "Run the playbook twice",
+              "The second run reports no changes.",
+              "Playbook recap"
+            ],
+            [
+              "Change the template and run again",
+              "The handler restarts nginx once per server.",
+              "Playbook output"
+            ],
+            [
+              "Open the vault file",
+              "The API key is encrypted.",
+              "File contents"
+            ]
+          ],
+          "objectives": [
+            "Automate server configuration with idempotent playbooks.",
+            "Structure automation as reusable roles.",
+            "Protect secrets with Ansible Vault."
+          ],
+          "assessment": "Participants explain the difference between Terraform and Ansible in the team's setup."
+        },
+        {
+          "topic": "DevSecOps and Quality Gates",
+          "groups": [
+            {
+              "heading": "Shift-Left Security",
+              "lead": "",
+              "items": [
+                "Static analysis (SAST) with SonarQube",
+                "Dependency scanning (SCA)",
+                "Container image scanning with Trivy",
+                "Secrets scanning with gitleaks"
+              ]
+            },
+            {
+              "heading": "Quality Gates",
+              "lead": "",
+              "items": [
+                "Severity thresholds that fail the build",
+                "Handling false positives and exceptions",
+                "Security findings in pull requests"
+              ]
+            },
+            {
+              "heading": "Infrastructure Security",
+              "lead": "",
+              "items": [
+                "IaC scanning with Checkov",
+                "Least-privilege pipeline credentials"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Secure the Pipeline",
+            "scenario": "The pipeline deploys code without any security checks, and a test key was committed last month.",
+            "lead": "Participants add pipeline stages for:",
+            "tasks": [
+              "Secrets scanning with gitleaks",
+              "SonarQube analysis with a quality gate",
+              "Dependency and image scanning with Trivy",
+              "IaC scanning of the Terraform code"
+            ],
+            "deliverables": [
+              "Updated pipeline definition",
+              "Scan reports",
+              "Exception log for accepted findings"
+            ]
+          },
+          "checks": [
+            [
+              "Commit a fake access key",
+              "The secrets scan fails the build.",
+              "Pipeline log"
+            ],
+            [
+              "Add a dependency with a critical vulnerability",
+              "The pipeline stops before deployment.",
+              "Trivy report"
+            ],
+            [
+              "Open a public S3 bucket in Terraform",
+              "The IaC scan flags it.",
+              "Checkov output"
+            ]
+          ],
+          "objectives": [
+            "Add SAST, SCA, image and secrets scanning to CI.",
+            "Set quality gates that stop risky releases.",
+            "Manage exceptions without hiding risk."
+          ],
+          "assessment": "Participants triage a scan report and decide which findings block the release."
+        },
+        {
+          "topic": "Monitoring with Prometheus and Grafana",
+          "groups": [
+            {
+              "heading": "Metrics",
+              "lead": "",
+              "items": [
+                "Metric types: counter, gauge, histogram",
+                "Prometheus scraping, targets and exporters",
+                "Labels and cardinality"
+              ]
+            },
+            {
+              "heading": "PromQL and Dashboards",
+              "lead": "",
+              "items": [
+                "rate(), sum by and histogram_quantile()",
+                "The RED method: rate, errors, duration",
+                "Grafana dashboards and variables"
+              ]
+            },
+            {
+              "heading": "Alerting",
+              "lead": "",
+              "items": [
+                "Alerting rules and Alertmanager routing",
+                "SLIs and SLOs as alert targets",
+                "Alert fatigue and actionable alerts"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Service Dashboard and Alerts",
+            "scenario": "The team learns about outages from customers.",
+            "lead": "Participants:",
+            "tasks": [
+              "Deploy Prometheus and Grafana to the cluster",
+              "Scrape application and node metrics",
+              "Build a RED dashboard for the API",
+              "Alert when the error rate breaks the SLO",
+              "Route alerts to a team channel"
+            ],
+            "deliverables": [
+              "Grafana dashboard JSON",
+              "Alerting rules",
+              "Alert notification screenshot"
+            ]
+          },
+          "checks": [
+            [
+              "Inject errors into the API",
+              "The alert fires and reaches the channel.",
+              "Alertmanager notification"
+            ],
+            [
+              "Open the dashboard during a load test",
+              "Request rate and p95 latency rise.",
+              "Dashboard panels"
+            ],
+            [
+              "Stop the errors",
+              "The alert resolves.",
+              "Resolved notification"
+            ]
+          ],
+          "objectives": [
+            "Collect metrics with Prometheus and exporters.",
+            "Query metrics with PromQL and build dashboards.",
+            "Write actionable SLO-based alerts."
+          ],
+          "assessment": "Participants explain why each alert is actionable and who should receive it."
+        },
+        {
+          "topic": "Logging with ELK and Centralized Observability",
+          "groups": [
+            {
+              "heading": "Log Pipeline",
+              "lead": "",
+              "items": [
+                "Shipping logs with Filebeat",
+                "Parsing and enriching in Logstash",
+                "Indexing in Elasticsearch",
+                "Searching and visualising in Kibana"
+              ]
+            },
+            {
+              "heading": "Useful Logs",
+              "lead": "",
+              "items": [
+                "Structured JSON logging",
+                "Correlation IDs across services",
+                "Masking sensitive data"
+              ]
+            },
+            {
+              "heading": "Observability",
+              "lead": "",
+              "items": [
+                "Logs, metrics and traces together",
+                "Index lifecycle and retention",
+                "Kibana alerts"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Find the Failing Request",
+            "scenario": "Customers report intermittent errors that the metrics alone cannot explain.",
+            "lead": "Participants:",
+            "tasks": [
+              "Ship container logs to Elasticsearch with Filebeat",
+              "Parse JSON logs and add service fields",
+              "Follow one request across services by correlation ID",
+              "Build a Kibana error dashboard",
+              "Set a 14-day retention policy"
+            ],
+            "deliverables": [
+              "Filebeat and Logstash configuration",
+              "Kibana dashboard",
+              "Retention policy"
+            ]
+          },
+          "checks": [
+            [
+              "Search by a correlation ID",
+              "Log lines from every service in the request appear.",
+              "Kibana search"
+            ],
+            [
+              "Log a card number in a test message",
+              "It is masked in Elasticsearch.",
+              "Indexed document"
+            ],
+            [
+              "Check old indices after rollover",
+              "Indices older than 14 days are deleted.",
+              "Index list"
+            ]
+          ],
+          "objectives": [
+            "Build a central log pipeline with the ELK stack.",
+            "Write structured, searchable logs.",
+            "Use logs with metrics to find the cause of errors."
+          ],
+          "assessment": "Participants find the root cause of a seeded intermittent error using logs only."
+        },
+        {
+          "topic": "Release Management and Blue-Green Deployments",
+          "groups": [
+            {
+              "heading": "Deployment Strategies",
+              "lead": "",
+              "items": [
+                "Recreate, rolling, blue-green and canary",
+                "Choosing a strategy by risk and cost",
+                "Database changes that stay backward compatible"
+              ]
+            },
+            {
+              "heading": "Progressive Delivery",
+              "lead": "",
+              "items": [
+                "Traffic splitting with ingress or a service mesh",
+                "Automated analysis with metrics",
+                "Feature flags to separate deploy from release"
+              ]
+            },
+            {
+              "heading": "Release Control",
+              "lead": "",
+              "items": [
+                "Change records and approvals",
+                "Release notes and version tags",
+                "Rollback criteria and rehearsals"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Canary with Automatic Rollback",
+            "scenario": "The last release caused a two-hour outage because it went to all users at once.",
+            "lead": "Participants:",
+            "tasks": [
+              "Deploy a blue-green release and switch traffic",
+              "Run a canary at 10 percent of traffic",
+              "Promote the canary when error rate and latency stay within limits",
+              "Release a faulty version and confirm it rolls back"
+            ],
+            "deliverables": [
+              "Deployment manifests for blue-green and canary",
+              "Rollback criteria",
+              "Release record"
+            ]
+          },
+          "checks": [
+            [
+              "Release a version with a raised error rate",
+              "The canary is rolled back before full rollout.",
+              "Rollout events"
+            ],
+            [
+              "Switch blue-green traffic back",
+              "Users are served by the previous version within one minute.",
+              "curl output with version header"
+            ],
+            [
+              "Turn off the feature flag",
+              "The feature disappears without a redeploy.",
+              "Application output"
+            ]
+          ],
+          "objectives": [
+            "Choose a deployment strategy for a change.",
+            "Run blue-green and canary releases.",
+            "Define and test rollback criteria."
+          ],
+          "assessment": "Participants choose a strategy for three sample changes and justify each choice."
+        },
+        {
+          "topic": "SRE Practices and Incident Management",
+          "groups": [
+            {
+              "heading": "Reliability Targets",
+              "lead": "",
+              "items": [
+                "SLIs, SLOs and SLAs",
+                "Error budgets and error budget policies",
+                "Toil and how to reduce it"
+              ]
+            },
+            {
+              "heading": "Incident Response",
+              "lead": "",
+              "items": [
+                "Severity levels and paging",
+                "Incident roles: commander, communications, operations",
+                "Runbooks for known failures",
+                "Status updates to stakeholders"
+              ]
+            },
+            {
+              "heading": "Learning from Incidents",
+              "lead": "",
+              "items": [
+                "Blameless postmortems",
+                "Root cause and contributing factors",
+                "Tracking action items to completion"
+              ]
+            }
+          ],
+          "principle": {
+            "title": "Incident Principle",
+            "lead": "During an incident:",
+            "points": [
+              "Restore service first.",
+              "Communicate early and regularly.",
+              "Record the timeline as it happens.",
+              "Find causes after users are safe."
+            ]
+          },
+          "lab": {
+            "title": "Production Incident Simulation",
+            "scenario": "At peak time, checkout latency triples and error rates rise after a configuration change.",
+            "lead": "Teams take incident roles and:",
+            "tasks": [
+              "Declare the incident and set its severity",
+              "Use dashboards and logs to find the change",
+              "Mitigate by rolling back",
+              "Send stakeholder updates every 15 minutes",
+              "Write a blameless postmortem"
+            ],
+            "deliverables": [
+              "Incident timeline",
+              "Stakeholder updates",
+              "Postmortem with action items",
+              "Updated runbook"
+            ]
+          },
+          "checks": [
+            [
+              "Review the timeline",
+              "Detection, mitigation and recovery times are recorded.",
+              "Incident timeline"
+            ],
+            [
+              "Read the postmortem",
+              "It names contributing factors without blaming people.",
+              "Postmortem"
+            ],
+            [
+              "Check the action items",
+              "Each one has an owner and a due date.",
+              "Jira tickets"
+            ]
+          ],
+          "objectives": [
+            "Set SLOs and use error budgets to guide releases.",
+            "Run an incident with clear roles and communication.",
+            "Write a blameless postmortem with tracked actions."
+          ],
+          "assessment": "Participants present their postmortem and answer questions from the other teams."
+        },
+        {
+          "topic": "End-to-End DevOps Project Sprint",
+          "groups": [
+            {
+              "heading": "Project Scope",
+              "lead": "Teams deliver a sample application with:",
+              "items": [
+                "Infrastructure provisioned with Terraform",
+                "A CI pipeline with tests and security scans",
+                "Container images in a private registry",
+                "Kubernetes deployment through GitOps",
+                "Monitoring, logging and alerts"
+              ]
+            },
+            {
+              "heading": "Ways of Working",
+              "lead": "",
+              "items": [
+                "Sprint planning with a Jira board",
+                "Pull requests and code review for every change",
+                "Daily stand-up and impediment tracking"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Build the Delivery Platform",
+            "scenario": "Each team receives a sample microservice application and an empty cloud account.",
+            "lead": "Teams:",
+            "tasks": [
+              "Plan the sprint and split work into stories",
+              "Provision the environment with Terraform",
+              "Build the pipeline from commit to deployment",
+              "Deploy to Kubernetes through Argo CD",
+              "Add dashboards, alerts and centralised logs"
+            ],
+            "deliverables": [
+              "Repositories for application, infrastructure and environments",
+              "Pipeline run from commit to production",
+              "Architecture diagram"
+            ]
+          },
+          "checks": [
+            [
+              "Push a change to the application",
+              "It reaches production through the pipeline without manual steps.",
+              "Pipeline and Argo CD history"
+            ],
+            [
+              "Introduce a failing security scan",
+              "The change does not reach production.",
+              "Pipeline log"
+            ],
+            [
+              "Stop one service",
+              "An alert fires and the logs show the cause.",
+              "Alert and Kibana search"
+            ]
+          ],
+          "objectives": [
+            "Combine the course tools into one delivery platform.",
+            "Work as a team with sprints and pull requests.",
+            "Show end-to-end evidence from commit to production."
+          ],
+          "assessment": "Teams demonstrate a change going from commit to production and explain each control on the way."
+        },
+        {
+          "topic": "Capstone Demo and Certification Roadmap",
+          "groups": [
+            {
+              "heading": "Capstone Presentation",
+              "lead": "Each team presents:",
+              "items": [
+                "Architecture and design decisions",
+                "Live pipeline and deployment",
+                "Monitoring and incident evidence",
+                "Security scan results and accepted risks",
+                "What they would improve next"
+              ]
+            },
+            {
+              "heading": "Certification Roadmap",
+              "lead": "",
+              "items": [
+                "AWS Certified DevOps Engineer – Professional",
+                "Certified Kubernetes Administrator (CKA)",
+                "HashiCorp Certified: Terraform Associate",
+                "Study plan and practice resources"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Capstone Demo",
+            "scenario": "Teams present their platform to a review panel acting as the client.",
+            "lead": "Teams:",
+            "tasks": [
+              "Demonstrate a live change from commit to production",
+              "Show a rollback",
+              "Walk through monitoring and security evidence",
+              "Answer panel questions"
+            ],
+            "deliverables": [
+              "Demo recording or slides",
+              "Evidence pack",
+              "Personal certification plan"
+            ]
+          },
+          "checks": [
+            [
+              "Watch the live change",
+              "It deploys without manual steps.",
+              "Pipeline run"
+            ],
+            [
+              "Ask for a rollback",
+              "The team restores the previous version.",
+              "Deployment history"
+            ],
+            [
+              "Review the evidence pack",
+              "Every claim is supported by a log, report or screenshot.",
+              "Evidence pack"
+            ]
+          ],
+          "objectives": [
+            "Present a working DevOps platform with evidence.",
+            "Defend design decisions to a client panel.",
+            "Plan the next certification step."
+          ],
+          "assessment": "The panel scores each team on working delivery, evidence quality and answers."
+        }
+      ]
+    },
+    {
+      "files": [
+        "azure_devops_source.json"
+      ],
+      "days": [
+        {
+          "topic": "Introduction and Setup",
+          "rename_to": "Azure DevOps Services and Organisation Setup",
+          "groups": [
+            {
+              "heading": "Azure DevOps Services",
+              "lead": "",
+              "items": [
+                "Azure Boards: work items, backlogs and sprints",
+                "Azure Repos: Git repositories and pull requests",
+                "Azure Pipelines: CI/CD with YAML",
+                "Azure Artifacts: package feeds",
+                "Azure Test Plans: manual and exploratory testing"
+              ]
+            },
+            {
+              "heading": "Organisation Structure",
+              "lead": "",
+              "items": [
+                "Organisations, projects and teams",
+                "Access levels: Stakeholder, Basic, Basic + Test Plans",
+                "Security groups and project permissions",
+                "Connecting the organisation to Microsoft Entra ID"
+              ]
+            },
+            {
+              "heading": "Command Line and Access",
+              "lead": "",
+              "items": [
+                "Azure DevOps CLI (az devops)",
+                "Personal access tokens and their scope"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Set Up a Team Project",
+            "scenario": "A new product team needs one place for its backlog, code and pipelines.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create a project with an Agile process",
+              "Add team members with the right access levels",
+              "Import a sample repository",
+              "Create a starter backlog with an epic, features and stories",
+              "Run a first YAML pipeline"
+            ],
+            "deliverables": [
+              "Configured project",
+              "Starter backlog",
+              "First pipeline run"
+            ]
+          },
+          "checks": [
+            [
+              "Sign in as a Stakeholder user",
+              "The user can edit work items but cannot open the repository.",
+              "Access test notes"
+            ],
+            [
+              "Push a commit to the imported repository",
+              "The starter pipeline runs.",
+              "Pipeline run"
+            ],
+            [
+              "Create a personal access token for the pipeline",
+              "Its scope is limited to the tasks it needs.",
+              "Token settings"
+            ]
+          ],
+          "objectives": [
+            "Describe the five Azure DevOps services and how they connect.",
+            "Set up an organisation, project and team with correct access.",
+            "Run a first pipeline from a project repository."
+          ],
+          "assessment": "Participants explain which access level each team role needs and why."
+        },
+        {
+          "topic": "Core Configuration",
+          "rename_to": "Azure Repos, Branch Policies and Pipeline Variables",
+          "groups": [
+            {
+              "heading": "Azure Repos",
+              "lead": "",
+              "items": [
+                "Branching and pull requests",
+                "Branch policies: minimum reviewers, linked work items, build validation",
+                "Required reviewers by path",
+                "Squash merge and merge strategies"
+              ]
+            },
+            {
+              "heading": "Pipeline Configuration",
+              "lead": "",
+              "items": [
+                "YAML structure: trigger, pool, stages, jobs, steps",
+                "Variables and variable groups",
+                "Runtime parameters",
+                "Secret variables and Azure Key Vault links"
+              ]
+            },
+            {
+              "heading": "Environments",
+              "lead": "",
+              "items": [
+                "Per-environment variable groups",
+                "Validating YAML before committing"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Protect Main and Parameterise the Pipeline",
+            "scenario": "Developers push straight to main and pipeline settings are hard-coded for one environment.",
+            "lead": "Participants:",
+            "tasks": [
+              "Add branch policies to main",
+              "Require a linked work item and a passing build",
+              "Move settings into dev and test variable groups",
+              "Read a secret from Azure Key Vault",
+              "Add a parameter to choose the target environment"
+            ],
+            "deliverables": [
+              "Branch policy settings",
+              "azure-pipelines.yml using variable groups",
+              "Key Vault-linked variable group"
+            ]
+          },
+          "checks": [
+            [
+              "Push directly to main",
+              "The push is rejected.",
+              "Git error"
+            ],
+            [
+              "Open a pull request without a linked work item",
+              "It cannot be completed.",
+              "Pull request status"
+            ],
+            [
+              "Print the secret variable in a script step",
+              "The value is masked in the log.",
+              "Pipeline log"
+            ]
+          ],
+          "objectives": [
+            "Protect branches with policies and build validation.",
+            "Configure pipelines with variables, groups and parameters.",
+            "Keep secrets in Azure Key Vault."
+          ],
+          "assessment": "Participants add a production variable group and explain who may edit it."
+        },
+        {
+          "topic": "Automation Workflow",
+          "rename_to": "Multi-Stage YAML Pipelines",
+          "groups": [
+            {
+              "heading": "Pipeline Structure",
+              "lead": "",
+              "items": [
+                "Stages, jobs and steps",
+                "Triggers: CI, pull request, scheduled",
+                "Path and branch filters",
+                "Job dependencies and conditions"
+              ]
+            },
+            {
+              "heading": "Build and Test",
+              "lead": "",
+              "items": [
+                "Built-in tasks: DotNetCoreCLI, Maven, Npm",
+                "Publishing test results and code coverage",
+                "Pipeline caching",
+                "Publishing pipeline artifacts"
+              ]
+            },
+            {
+              "heading": "Deployment",
+              "lead": "",
+              "items": [
+                "Deployment jobs and environments",
+                "Retry and failure notifications"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Build, Test and Deploy Pipeline",
+            "scenario": "A .NET web API is built manually and deployed by copying files.",
+            "lead": "Participants write a multi-stage pipeline that:",
+            "tasks": [
+              "Builds and runs unit tests with coverage",
+              "Caches NuGet packages",
+              "Publishes the build artifact",
+              "Deploys to a dev environment",
+              "Runs only the build stage for pull requests"
+            ],
+            "deliverables": [
+              "azure-pipelines.yml",
+              "Pipeline runs with test and coverage tabs",
+              "Dev environment deployment history"
+            ]
+          },
+          "checks": [
+            [
+              "Commit a failing unit test",
+              "The pipeline stops before the deploy stage.",
+              "Pipeline run"
+            ],
+            [
+              "Run the pipeline twice",
+              "The second run restores the NuGet cache.",
+              "Cache step log"
+            ],
+            [
+              "Open a pull request",
+              "Only the build stage runs.",
+              "Pull request checks"
+            ]
+          ],
+          "objectives": [
+            "Write multi-stage YAML pipelines with triggers and conditions.",
+            "Publish test results, coverage and artifacts.",
+            "Deploy to environments with deployment jobs."
+          ],
+          "assessment": "Participants add a test stage that runs in parallel with the build and explain the dependency graph."
+        },
+        {
+          "topic": "Integration",
+          "rename_to": "Service Connections and Azure Deployments",
+          "groups": [
+            {
+              "heading": "Service Connections",
+              "lead": "",
+              "items": [
+                "Azure Resource Manager connections with workload identity federation",
+                "Docker registry and Kubernetes connections",
+                "Scoping connections to resource groups",
+                "Pipeline permissions on connections"
+              ]
+            },
+            {
+              "heading": "Deploying to Azure",
+              "lead": "",
+              "items": [
+                "App Service deployment with slots",
+                "Building and pushing images to Azure Container Registry",
+                "Deploying to AKS with manifests or Helm"
+              ]
+            },
+            {
+              "heading": "Integrations",
+              "lead": "",
+              "items": [
+                "GitHub repositories with Azure Pipelines",
+                "Service hooks and Microsoft Teams notifications",
+                "REST API and az devops automation"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Deploy to Azure Without Secrets",
+            "scenario": "The pipeline uses a shared service principal secret that expires every year.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create a workload identity federation service connection scoped to one resource group",
+              "Build an image and push it to Azure Container Registry",
+              "Deploy it to an App Service staging slot",
+              "Swap the slot into production",
+              "Send a Teams notification on failure"
+            ],
+            "deliverables": [
+              "Service connection settings",
+              "Pipeline deploying to App Service",
+              "Slot swap history"
+            ]
+          },
+          "checks": [
+            [
+              "Deploy to a resource group outside the scope",
+              "The pipeline is denied access.",
+              "Pipeline error"
+            ],
+            [
+              "Search the pipeline for client secrets",
+              "No secret is stored.",
+              "Service connection details"
+            ],
+            [
+              "Swap the staging slot",
+              "Production serves the new version.",
+              "curl output"
+            ]
+          ],
+          "objectives": [
+            "Create least-privilege service connections without stored secrets.",
+            "Deploy containers and web apps to Azure.",
+            "Notify teams about pipeline results."
+          ],
+          "assessment": "Participants explain how workload identity federation removes the need for a stored secret."
+        },
+        {
+          "topic": "Security",
+          "rename_to": "Securing Azure DevOps and the Software Supply Chain",
+          "groups": [
+            {
+              "heading": "Access Control",
+              "lead": "",
+              "items": [
+                "Organisation and project permissions",
+                "Conditional access through Microsoft Entra ID",
+                "Restricting personal access tokens",
+                "Auditing with the audit log and streams"
+              ]
+            },
+            {
+              "heading": "Pipeline Security",
+              "lead": "",
+              "items": [
+                "Protected resources: approvals and checks",
+                "Limiting job authorisation scope",
+                "Template enforcement with required templates",
+                "Agent pool permissions"
+              ]
+            },
+            {
+              "heading": "Supply Chain",
+              "lead": "",
+              "items": [
+                "Upstream sources in Azure Artifacts",
+                "Dependency and secret scanning"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Harden the Project",
+            "scenario": "An audit found broad permissions, long-lived tokens and pipelines that can deploy anywhere.",
+            "lead": "Participants:",
+            "tasks": [
+              "Remove broad permissions and use groups",
+              "Set a maximum token lifetime",
+              "Require an approval and a template check on the production environment",
+              "Limit job authorisation scope to the project",
+              "Stream audit events to a Log Analytics workspace"
+            ],
+            "deliverables": [
+              "Security review checklist",
+              "Environment approvals and checks",
+              "Audit stream configuration"
+            ]
+          },
+          "checks": [
+            [
+              "Run a pipeline that does not extend the required template",
+              "The production environment check fails.",
+              "Pipeline log"
+            ],
+            [
+              "Create a token longer than the allowed lifetime",
+              "The request is rejected.",
+              "Token settings error"
+            ],
+            [
+              "Change a permission",
+              "The change appears in the audit log.",
+              "Audit entry"
+            ]
+          ],
+          "objectives": [
+            "Apply least privilege across the organisation and projects.",
+            "Protect production with approvals, checks and required templates.",
+            "Audit changes and secure the package supply chain."
+          ],
+          "assessment": "Participants review a seeded insecure project and list fixes in order of risk."
+        },
+        {
+          "topic": "Scaling and Reliability",
+          "rename_to": "Agents, Parallel Jobs and Pipeline Reliability",
+          "groups": [
+            {
+              "heading": "Agents",
+              "lead": "",
+              "items": [
+                "Microsoft-hosted versus self-hosted agents",
+                "Agent pools and demands",
+                "Virtual Machine Scale Set agent pools",
+                "Container jobs"
+              ]
+            },
+            {
+              "heading": "Throughput",
+              "lead": "",
+              "items": [
+                "Parallel jobs and licensing",
+                "Matrix strategies",
+                "Splitting tests across agents"
+              ]
+            },
+            {
+              "heading": "Reliability",
+              "lead": "",
+              "items": [
+                "Timeouts and retries",
+                "Idempotent deployment steps",
+                "Backing up pipelines and repositories"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Faster, Reliable Pipelines",
+            "scenario": "Builds wait 30 minutes for an agent and one network call fails a build every few days.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create a scale set agent pool that grows with demand",
+              "Run tests in parallel across three agents",
+              "Add timeouts and retries to the flaky step",
+              "Measure queue and run time before and after"
+            ],
+            "deliverables": [
+              "Agent pool configuration",
+              "Updated pipeline YAML",
+              "Before-and-after timing report"
+            ]
+          },
+          "checks": [
+            [
+              "Queue five runs at once",
+              "New agents start and the queue clears.",
+              "Agent pool activity"
+            ],
+            [
+              "Run the split test job",
+              "Total test time drops.",
+              "Timing report"
+            ],
+            [
+              "Fail the network call once",
+              "The step retries and the build passes.",
+              "Step log"
+            ]
+          ],
+          "objectives": [
+            "Choose between hosted and self-hosted agents.",
+            "Speed up pipelines with parallel jobs.",
+            "Make pipelines resilient to transient failures."
+          ],
+          "assessment": "Participants size an agent pool for a given number of daily builds and justify the result."
+        },
+        {
+          "topic": "Observability and Troubleshooting",
+          "rename_to": "Pipeline Analytics and Troubleshooting",
+          "groups": [
+            {
+              "heading": "Diagnosing Failures",
+              "lead": "",
+              "items": [
+                "Reading logs and timelines",
+                "System diagnostics with system.debug",
+                "Re-running failed jobs",
+                "Common failures: agent capability, permissions, service connections, YAML errors"
+              ]
+            },
+            {
+              "heading": "Analytics",
+              "lead": "",
+              "items": [
+                "Pipeline pass rate and duration reports",
+                "Test analytics and flaky test detection",
+                "Dashboards and widgets"
+              ]
+            },
+            {
+              "heading": "Operations",
+              "lead": "",
+              "items": [
+                "Runbooks for pipeline failures",
+                "Alerts on failed releases"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Fix the Broken Pipelines",
+            "scenario": "Three pipelines fail: a missing agent capability, an expired service connection and a YAML template error.",
+            "lead": "Participants:",
+            "tasks": [
+              "Diagnose each failure from the logs",
+              "Enable debug logging where needed",
+              "Fix and re-run each pipeline",
+              "Build a team dashboard with pass rate and duration",
+              "Write a short runbook for each failure type"
+            ],
+            "deliverables": [
+              "Root cause for each pipeline",
+              "Team dashboard",
+              "Pipeline failure runbook"
+            ]
+          },
+          "checks": [
+            [
+              "Re-run each fixed pipeline",
+              "All three succeed.",
+              "Pipeline runs"
+            ],
+            [
+              "Open the test analytics view",
+              "Flaky tests are listed.",
+              "Analytics report"
+            ],
+            [
+              "Follow the runbook for an unseen failure",
+              "The failure is resolved.",
+              "Runbook notes"
+            ]
+          ],
+          "objectives": [
+            "Diagnose pipeline failures from logs and diagnostics.",
+            "Track pipeline health with analytics and dashboards.",
+            "Write runbooks for recurring failures."
+          ],
+          "assessment": "Participants troubleshoot an unseen failing pipeline and explain each step."
+        },
+        {
+          "topic": "Advanced Patterns",
+          "rename_to": "Templates, Infrastructure as Code and Release Strategies",
+          "groups": [
+            {
+              "heading": "Reuse",
+              "lead": "",
+              "items": [
+                "Step, job and stage templates",
+                "Extends templates for governance",
+                "Template repositories and versioning"
+              ]
+            },
+            {
+              "heading": "Infrastructure as Code",
+              "lead": "",
+              "items": [
+                "Deploying Bicep or Terraform from pipelines",
+                "Plan and approval before apply",
+                "Environment promotion: dev, test, production"
+              ]
+            },
+            {
+              "heading": "Release Strategies",
+              "lead": "",
+              "items": [
+                "Blue-green with slots",
+                "Canary on AKS",
+                "Feature flags"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Shared Templates and Promotion",
+            "scenario": "Five teams copy and modify the same pipeline YAML, and infrastructure changes are applied by hand.",
+            "lead": "Participants:",
+            "tasks": [
+              "Move build and deploy steps into a versioned template repository",
+              "Use the template from two pipelines",
+              "Deploy infrastructure with Bicep or Terraform from the pipeline",
+              "Promote from dev to test to production with approvals"
+            ],
+            "deliverables": [
+              "Template repository",
+              "Two pipelines using the templates",
+              "Infrastructure pipeline with plan output"
+            ]
+          },
+          "checks": [
+            [
+              "Change the template version",
+              "Both pipelines pick up the change.",
+              "Pipeline runs"
+            ],
+            [
+              "Change infrastructure code",
+              "A plan is shown before the approval.",
+              "Pipeline stage"
+            ],
+            [
+              "Reject the production approval",
+              "Nothing is deployed to production.",
+              "Environment history"
+            ]
+          ],
+          "objectives": [
+            "Standardise pipelines with templates.",
+            "Deploy infrastructure as code from pipelines.",
+            "Promote releases through environments with approvals."
+          ],
+          "assessment": "Participants explain how the templates enforce standards without blocking teams."
+        },
+        {
+          "topic": "CI/CD or Deployment Project",
+          "rename_to": "End-to-End Azure DevOps Delivery Project",
+          "groups": [
+            {
+              "heading": "Project Scope",
+              "lead": "Teams deliver:",
+              "items": [
+                "Backlog and sprint in Azure Boards",
+                "Protected repository with branch policies",
+                "Multi-stage pipeline with tests and security scans",
+                "Infrastructure as code",
+                "Deployment to Azure with approvals and rollback"
+              ]
+            },
+            {
+              "heading": "Evidence",
+              "lead": "",
+              "items": [
+                "Work items linked to commits and deployments",
+                "Release notes",
+                "Dashboard of delivery metrics"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Deliver a Feature End to End",
+            "scenario": "Each team receives a sample application and a feature request from the client.",
+            "lead": "Teams:",
+            "tasks": [
+              "Plan the feature as stories in Azure Boards",
+              "Implement it through pull requests",
+              "Build, test and scan it in the pipeline",
+              "Deploy to test and production with approvals",
+              "Roll back a faulty release"
+            ],
+            "deliverables": [
+              "Linked work items, commits and deployments",
+              "Pipeline and environment history",
+              "Project presentation"
+            ]
+          },
+          "checks": [
+            [
+              "Trace the feature in Azure Boards",
+              "Each story links to its commits and deployment.",
+              "Work item links"
+            ],
+            [
+              "Deploy a faulty release",
+              "The team restores the previous version.",
+              "Environment history"
+            ],
+            [
+              "Review the pipeline",
+              "Tests and scans run before every deployment.",
+              "Pipeline definition"
+            ]
+          ],
+          "objectives": [
+            "Combine Boards, Repos, Pipelines and Artifacts in one delivery flow.",
+            "Release to production with approvals and rollback.",
+            "Show traceability from requirement to deployment."
+          ],
+          "assessment": "Teams present their delivery flow and answer questions on each control."
+        }
+      ]
+    }
+  ]
+}
