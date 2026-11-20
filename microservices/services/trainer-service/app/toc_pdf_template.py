@@ -18,6 +18,8 @@ from html import escape
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from app.course_outline import is_template_text, outline_from_flat, real_text
+
 BRAND = "Clahan Technologies"
 BRAND_SITE = "CLAHANTECHNOLOGIES.COM"
 
@@ -111,7 +113,7 @@ def _clean_day_title(day: Dict[str, Any]) -> str:
 def _split_topic(item: Any) -> Tuple[str, List[str]]:
     """Return (label, children). "Surfaces: CLI, IDE, Cloud" becomes a nested list."""
     if isinstance(item, dict):
-        label = _text(item.get("topic") or item.get("title") or item.get("name"))
+        label = _text(item.get("text") or item.get("topic") or item.get("title") or item.get("name"))
         children = [_text(child) for child in _list_items(item.get("items") or item.get("subtopics") or item.get("children"))]
         return label, [child for child in children if child]
     text = _text(item)
@@ -168,46 +170,60 @@ def _modules(day: Dict[str, Any]) -> List[Dict[str, Any]]:
         "lab": day.get("lab") or day.get("lab_task"),
         "deliverable": day.get("deliverable"),
         "acceptance_checks": day.get("acceptance_checks"),
+        "outline": day.get("outline"),
+        "learning_objectives": day.get("learning_objectives"),
     }]
 
 
-def _lab_parts(lab: str) -> Tuple[str, str]:
-    """Short lab text becomes the lab title; a long one becomes its description."""
-    if not lab:
-        return "", ""
-    if len(lab) <= 70 and not re.search(r"[.;]\s+\S", lab):
-        return lab.rstrip("."), ""
-    first = re.split(r"(?<=[.;:])\s+", lab, maxsplit=1)
-    if len(first) == 2 and len(first[0]) <= 70:
-        return first[0].rstrip(".;:"), first[1]
-    return "", lab
+def _render_groups(groups: List[Dict[str, Any]]) -> str:
+    parts = []
+    for index, group in enumerate(groups):
+        heading = _text(group.get("heading")) or ("Topics" if index == 0 else "")
+        body = _para(group.get("lead")) + _bullets(_list_items(group.get("items")))
+        parts.append(_block(heading, body) if heading else body)
+    return "".join(parts)
+
+
+def _render_principle(principle: Dict[str, Any]) -> str:
+    points = [_text(point) for point in _list_items((principle or {}).get("points")) if _text(point)]
+    if not points:
+        return ""
+    title = _text(principle.get("title")) or "Key Principle"
+    return _block(title, _para(principle.get("lead")) + _bullets(points, numbered=True))
+
+
+def _render_lab(lab: Dict[str, Any], lab_no: int, fallback_title: str) -> str:
+    title = _text(lab.get("title"))
+    tasks = [_text(task) for task in _list_items(lab.get("tasks")) if _text(task)]
+    verify = _unique(_list_items(lab.get("verify")), 8)
+    deliverables = [_text(item) for item in _list_items(lab.get("deliverables")) if _text(item)]
+    scenario = _text(lab.get("scenario"))
+    heading = f"Lab {lab_no}: {title}" if title else f"Lab {lab_no}: {fallback_title}"
+    parts = [f'<div class="lab"><div class="lab-title">{escape(heading)}</div>', _para(scenario)]
+    if tasks:
+        parts.append((_para(lab.get("lead")) if _text(lab.get("lead")) else "") + _bullets(tasks))
+    if verify:
+        parts.append('<p class="lead">Participants verify that:</p>' + _bullets(verify))
+    if deliverables:
+        body = _para(deliverables[0]) if len(deliverables) == 1 else _bullets(deliverables)
+        parts.append(f'<div class="label">Lab Deliverable</div>{body}')
+    parts.append("</div>")
+    return "".join(part for part in parts if part)
 
 
 def _render_module(module: Dict[str, Any], module_no: int, lab_no: int) -> Tuple[str, int]:
-    title = _text(module.get("title")) or f"Module {module_no}"
+    title = _text(module.get("title") or module.get("topic")) or f"Module {module_no}"
+    outline = outline_from_flat(module)
     parts = [f'<h3 class="module">Module {module_no}: {escape(title)}</h3>']
-    parts.append(_block("Topics", _bullets(_list_items(module.get("subtopics")))))
+    parts.append(_render_groups(_list_items(outline.get("topic_groups"))))
     tools = _unique(_list_items(module.get("tools")))
     if tools:
         parts.append(f'<p class="tools"><span class="label-inline">Tools:</span> {escape(", ".join(tools))}</p>')
-    parts.append(_block("Scenario", _para(module.get("scenario"))))
-
-    lab = _text(module.get("lab"))
-    checks = [_text((check or {}).get("expected_result")) if isinstance(check, dict) else _text(check)
-              for check in _list_items(module.get("acceptance_checks"))]
-    checks = _unique(checks, 6)
-    deliverable = _text(module.get("deliverable"))
-    if lab or checks or deliverable:
+    parts.append(_render_principle(outline.get("principle") or {}))
+    lab = outline.get("lab") or {}
+    if any(_list_items(lab.get(key)) or _text(lab.get(key)) for key in ("title", "scenario", "tasks", "verify", "deliverables")):
         lab_no += 1
-        lab_title, lab_body = _lab_parts(lab)
-        heading = f"Lab {lab_no}: {lab_title}" if lab_title else f"Lab {lab_no}"
-        parts.append(f'<div class="lab"><div class="lab-title">{escape(heading)}</div>')
-        parts.append(_para(lab_body))
-        if checks:
-            parts.append('<p class="lead">Participants verify that:</p>' + _bullets(checks))
-        if deliverable:
-            parts.append(f'<div class="label">Lab Deliverable</div>{_para(deliverable)}')
-        parts.append("</div>")
+        parts.append(_render_lab(lab, lab_no, title))
     return "\n".join(part for part in parts if part), lab_no
 
 
@@ -223,10 +239,11 @@ def _render_day(day: Dict[str, Any], index: int, show_day: bool, counters: Dict[
         counters["module"] += 1
         html, counters["lab"] = _render_module(module, counters["module"], counters["lab"])
         parts.append(html)
-    assessment = _text(day.get("assessment"))
+    assessment = real_text(day.get("assessment"))
     if not assessment:
-        assessments = _unique((module.get("assessment") for module in modules), 3)
-        assessment = " ".join(assessments)
+        candidates = [real_text((module.get("outline") or {}).get("assessment")) or real_text(module.get("assessment"))
+                      for module in modules]
+        assessment = " ".join(_unique(candidates, 3))
     if assessment:
         label = f"Day {_text(day.get('day')) or index} Assessment" if show_day else "Assessment"
         parts.append(f'<div class="assessment"><div class="label">{escape(label)}</div>{_para(assessment)}</div>')
@@ -236,15 +253,15 @@ def _render_day(day: Dict[str, Any], index: int, show_day: bool, counters: Dict[
 # --------------------------------------------------------------------------- document
 
 def _learning_objectives(toc: Dict[str, Any]) -> List[str]:
-    direct = _unique(_list_items(toc.get("learning_outcomes") or toc.get("learning_objectives")), 20)
+    direct = _unique((item for item in _list_items(toc.get("learning_outcomes") or toc.get("learning_objectives"))
+                      if not is_template_text(item)), 20)
     if direct:
         return direct
     collected = []
     for day in _days(toc):
         for module in _modules(day):
-            collected.extend(_list_items(module.get("learning_objectives"))[:1])
-        if not day.get("modules"):
-            collected.extend(_list_items(day.get("learning_objectives"))[:2])
+            collected.extend(item for item in _list_items(module.get("learning_objectives"))[:2]
+                             if not is_template_text(item))
     return _unique(collected, 20)
 
 

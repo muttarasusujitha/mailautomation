@@ -618,9 +618,10 @@ async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
         if not str(settings.OPENAI_API_KEY or "").strip():
             return None
         from openai import AsyncOpenAI
-        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=60, max_retries=1) as client:
+        # Course outlines make each structured response longer than the old flat plan.
+        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=240, max_retries=1) as client:
             return await asyncio.wait_for(
-                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=180,
+                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=420,
             )
     except Exception:
         logger.exception("Requirement-driven TOC generation unavailable; returning a review-only draft")

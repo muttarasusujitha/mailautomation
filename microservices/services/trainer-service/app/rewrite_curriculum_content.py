@@ -2,6 +2,15 @@
 
 Cache candidates separately; --apply copies structurally validated drafts into
 datasets, preserving original content. Neither action grants trainer approval.
+
+Every rewritten module also receives a client course outline (topic groups
+with sub-topics, an optional principle, and a named lab with tasks, checks and
+deliverables) in the style of app.course_outline.GOLD_EXAMPLE.
+
+    python -m app.rewrite_curriculum_content                      # inventory only
+    python -m app.rewrite_curriculum_content --run --limit 8      # draft 8 modules
+    python -m app.rewrite_curriculum_content --run --provider gemini
+    python -m app.rewrite_curriculum_content --apply              # copy drafts into datasets
 """
 import argparse
 import asyncio
@@ -14,8 +23,11 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from app.course_outline import GOLD_EXAMPLE, OUTLINE_VERSION, outline_problems
+from app.curriculum_reasoning import ModuleOutline
+
 ROOT = Path(__file__).parent
-REVISION = "specific-content-v1"
+REVISION = "course-outline-v1"
 CACHE = ROOT.parent / "curriculum_rewrite"
 
 
@@ -50,6 +62,7 @@ class Module(Contract):
     minutes: int
     delivery_steps: list[Step]
     unresolved_questions: list[str]
+    outline: ModuleOutline
 
 
 class Batch(Contract):
@@ -79,7 +92,17 @@ flag the conflict instead of cramming content. Otherwise propose realistic minut
 Avoid stock phrases such as 'complete the hands-on lab', 'validate expected result',
 'trainer-prepared changed input' without specifying the actual input/result.
 Keep each module concise enough for a client TOC, while retaining testable details.
-"""
+Also write an outline for a professional client course outline. topic_groups are
+named groups of related topics, each with an optional lead sentence and items;
+an item may have children for sub-topics. subtopics must list the same items.
+Never use filler such as 'terminology and scope', 'best practices' or 'key
+components'. principle holds one guiding principle with ordered points when the
+module has one; otherwise leave it empty. lab is a named, realistic exercise:
+title, a scenario describing the starting situation and sample assets, a lead
+line and participant tasks, verify lists observable checks, and deliverables
+lists the artefacts participants hand in. Follow the style of this example and
+do not copy its content:
+""" + json.dumps(GOLD_EXAMPLE, ensure_ascii=False)
 
 
 def rows(document):
@@ -136,6 +159,9 @@ def validate(module, source):
     nonempty(module.model_dump())
     if not module.prerequisites or not module.preparation_requirements:
         raise ValueError("Missing readiness requirements")
+    problems = outline_problems(module.outline.model_dump())
+    if problems:
+        raise ValueError("Incomplete course outline: " + "; ".join(problems))
 
 
 def write_json(path, value):
@@ -153,37 +179,71 @@ def cached(key, source):
     return module
 
 
+def _provider_error(response):
+    error = RuntimeError("Provider request failed")
+    error.status_code = response.status_code
+    try:
+        error.code = response.json().get("error", {}).get("code")
+    except ValueError:
+        error.code = "non_json_error"
+    return error
+
+
+async def _openai_batch(client, api_key, model, batch):
+    response = await client.post("https://api.openai.com/v1/responses",
+        headers={"Authorization": "Bearer " + api_key}, json={
+        "model": model, "instructions": INSTRUCTIONS,
+        "input": json.dumps(batch), "reasoning": {"effort": "medium"}, "max_output_tokens": 32000,
+        "text": {"format": {"type": "json_schema", "name": "CurriculumRewrite", "strict": True, "schema": Batch.model_json_schema()}}})
+    if response.is_error:
+        raise _provider_error(response)
+    result = response.json()
+    return "".join(part.get("text", "") for item in result.get("output", [])
+                   for part in item.get("content", []) if part.get("type") == "output_text")
+
+
+async def _gemini_batch(client, api_key, model, batch):
+    # The key goes in a header, never in the URL, so it cannot appear in request logs.
+    response = await client.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        headers={"x-goog-api-key": api_key}, json={
+            "systemInstruction": {"parts": [{"text": INSTRUCTIONS + "\nReturn JSON matching this schema: "
+                                             + json.dumps(Batch.model_json_schema())}]},
+            "contents": [{"role": "user", "parts": [{"text": json.dumps(batch)}]}],
+            "generationConfig": {"responseMimeType": "application/json", "temperature": 0.3, "maxOutputTokens": 32000}})
+    if response.is_error:
+        raise _provider_error(response)
+    candidates = response.json().get("candidates") or [{}]
+    return "".join(part.get("text", "") for part in (candidates[0].get("content") or {}).get("parts", []))
+
+
 async def generate(pending, args):
     from dotenv import dotenv_values
     import httpx
     config = dotenv_values(ROOT.parents[2] / ".env")
-    api_key = os.environ.get("OPENAI_API_KEY") or config.get("OPENAI_API_KEY")
+    setting = lambda name, default="": os.environ.get(name) or config.get(name) or default
+    provider = args.provider or setting("AI_PROVIDER", "openai").strip().lower()
+    if provider == "gemini":
+        api_key, model, call = setting("GEMINI_API_KEY"), setting("GEMINI_MODEL", "gemini-2.5-flash"), _gemini_batch
+    else:
+        api_key, model, call = setting("OPENAI_API_KEY"), setting("OPENAI_MODEL", "gpt-5.5"), _openai_batch
     if not api_key: raise RuntimeError("No configured API key")
-    model = os.environ.get("OPENAI_MODEL") or config.get("OPENAI_MODEL") or "gpt-5.5"
     remaining = [v for key, v in pending.items() if cached(key, v) is None]
     if args.limit: remaining = remaining[:args.limit]
-    async with httpx.AsyncClient(timeout=180) as client:
+    async with httpx.AsyncClient(timeout=300) as client:
         for start in range(0, len(remaining), args.batch_size):
             batch = remaining[start:start + args.batch_size]
-            response = await client.post("https://api.openai.com/v1/responses",
-                headers={"Authorization": "Bearer " + api_key}, json={
-                "model": model, "instructions": INSTRUCTIONS,
-                "input": json.dumps(batch), "reasoning": {"effort": "medium"}, "max_output_tokens": 20000,
-                "text": {"format": {"type": "json_schema", "name": "CurriculumRewrite", "strict": True, "schema": Batch.model_json_schema()}}})
-            if response.is_error:
-                error = RuntimeError("Provider request failed")
-                error.status_code = response.status_code
-                try: error.code = response.json().get("error", {}).get("code")
-                except ValueError: error.code = "non_json_error"
-                raise error
-            result = response.json()
-            output = "".join(part.get("text", "") for item in result.get("output", [])
-                             for part in item.get("content", []) if part.get("type") == "output_text")
-            parsed = Batch.model_validate_json(output)
+            output = await call(client, api_key, model, batch)
             expected = {s["key"]: s for s in batch}
-            if len(parsed.modules) != len(batch) or {m.key for m in parsed.modules} != set(expected):
-                raise ValueError("Batch omitted or duplicated module keys")
-            for module in parsed.modules: validate(module, expected[module.key])
+            try:
+                parsed = Batch.model_validate_json(output)
+                if len(parsed.modules) != len(batch) or {m.key for m in parsed.modules} != set(expected):
+                    raise ValueError("Batch omitted or duplicated module keys")
+                for module in parsed.modules: validate(module, expected[module.key])
+            except ValueError as exc:
+                # One malformed draft must not stop a full-catalogue run; rerun to retry it.
+                print(json.dumps({"skipped_batch_at": start, "reason": str(exc)[:200]}), flush=True)
+                continue
             for module in parsed.modules:
                 write_json(CACHE / "candidates" / (module.key + ".json"), {
                     "model": model, "revision": REVISION, "module": module.model_dump(),
@@ -203,6 +263,7 @@ def apply(documents, pending):
             if module is None: continue
             row.setdefault("content_before_rewrite", deepcopy(row))
             row.update(module.model_dump(exclude={"key"}))
+            row["outline"].update(source="model_draft", version=OUTLINE_VERSION)
             row.update(content_quality_stage="model_draft_pending_technical_review", review_status="unreviewed",
                        content_rewrite_revision=REVISION, duration_basis="Source duration or model-proposed budget; confirm feasibility")
             row["proposed_fields"] = list(module.model_dump(exclude={"key"}))
@@ -231,6 +292,7 @@ def main():
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--batch-size", type=int, default=4)
+    parser.add_argument("--provider", choices=("openai", "gemini"), help="defaults to AI_PROVIDER")
     args = parser.parse_args()
     if args.batch_size < 1 or args.limit < 0: parser.error("Invalid batch size or limit")
     documents, pending = inventory()
