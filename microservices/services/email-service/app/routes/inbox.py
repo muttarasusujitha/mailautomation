@@ -147,7 +147,7 @@ CLIENT_REPLY_SOURCE_MAIL_TYPES = {
     "client_post_selection_logistics",
 }
 
-FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "approved", "rejected", "spam", "ignored", "deleted"}
+FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "reviewed_no_reply", "approved", "rejected", "spam", "ignored", "deleted"}
 BLOCKED_CLIENT_STATUSES = {"rejected", "spam", "ignored"}
 TRAINING_SIGNALS = (
     "trainer",
@@ -10633,6 +10633,45 @@ async def _send_client_auto_reply(
     if str(mail_type_override or "").strip():
         mail_type = str(mail_type_override).strip().lower()
 
+    # A client clarification email should be a single, complete request for
+    # all missing details. Once the client replies to it, process and save
+    # their answers, but do not automatically send another clarification.
+    # Check the actual linked outbound log so a stale classification cannot
+    # suppress an unrelated message.
+    source_outbound_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip().lower()
+    source_outbound_email_id = _clean(email_doc.get("source_outbound_email_id"))
+    clarification_mail_types = {"client_auto_reply", "client_lab_cost_estimate", "client_lab_cost_revised"}
+    if mail_type.startswith("client_") and source_outbound_mail_type in clarification_mail_types and source_outbound_email_id:
+        clarification_log = await db["email_logs"].find_one(
+            {
+                "email_id": source_outbound_email_id,
+                "direction": "outbound",
+                "status": "sent",
+                "mail_type": source_outbound_mail_type,
+            },
+            {"_id": 0, "body": 1},
+        )
+        clarification_body = _clean((clarification_log or {}).get("body")).lower()
+        is_clarification_request = bool(
+            clarification_body
+            and ("please share" in clarification_body or "please confirm" in clarification_body)
+            and ("finalize" in clarification_body or "to prepare" in clarification_body or "to complete" in clarification_body)
+        )
+        if is_clarification_request:
+            logger.info(
+                "Suppressed automatic client follow-up after clarification reply: email_id=%s requirement_id=%s",
+                email_doc.get("email_id"), effective_requirement_id,
+            )
+            return {
+                "success": True,
+                "suppressed": True,
+                "reason": "client_replied_to_clarification_no_followup",
+                "to": to,
+                "subject": subject,
+                "body": body,
+                "source_gmail_message_id": _current_inbound_message_id(email_doc),
+            }
+
     from app.recipient_guard import recipient_error
     recipient_block = await recipient_error(db, to, effective_requirement_id, email_doc.get("trainer_id"), mail_type)
     if recipient_block:
@@ -12506,7 +12545,9 @@ async def _process_client_requirement_email(
                     mail_type_override="client_toc_and_lab_cost" if asks_toc else "client_lab_cost_revised",
                 )
                 success = bool(send_result.get("success"))
-                if success and asks_toc:
+                if send_result.get("suppressed"):
+                    lab_update["lab_cost_status"] = "reviewed_no_reply"
+                elif success and asks_toc:
                     lab_update["lab_cost_status"] = "toc_and_lab_sent"
                 else:
                     lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
@@ -12514,8 +12555,8 @@ async def _process_client_requirement_email(
                 await db["client_emails"].update_one(
                     {"email_id": email_doc.get("email_id")},
                     {"$set": {
-                        "processed": True, "status": "auto_sent" if success else "reply_failed",
-                        "reply_status": "sent" if success else "failed",
+                        "processed": True, "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"),
+                        "reply_status": "not_sent" if send_result.get("suppressed") else ("sent" if success else "failed"),
                         "classification_reason": "toc_and_lab_sent" if asks_toc else "revised_lab_cost_sent",
                         "reply_template_key": "client_toc_and_lab_cost" if asks_toc else "client_lab_cost_revised",
                         "lab_cost_context": lab_context,
@@ -12523,7 +12564,7 @@ async def _process_client_requirement_email(
                         "updated_at": _now(),
                     }},
                 )
-                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "revised_lab_cost_sent", "auto_reply": send_result}
+                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"), "reason": "revised_lab_cost_sent", "auto_reply": send_result}
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
                 {"$set": {
@@ -12642,13 +12683,13 @@ async def _process_client_requirement_email(
                 await db["lab_cost_requests"].update_one(
                     {"source_email_id": email_doc.get("email_id") or lab_request_id},
                     {"$set": {
-                        "status": ("toc_and_lab_sent" if asks_toc else "estimate_sent") if success else "estimate_send_failed",
+                        "status": "reviewed_no_reply" if send_result.get("suppressed") else (("toc_and_lab_sent" if asks_toc else "estimate_sent") if success else "estimate_send_failed"),
                         "workbook_filename": attachment["filename"],
                         "updated_at": _now(),
                     }},
                 )
-                await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "auto_sent" if success else "reply_failed", "reply_status": "sent" if success else "failed", "classification_reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "reply_template_key": reply.get("template_key") or "", "lab_cost_context": lab_context, "lab_cost_attachments": [item["filename"] for item in delivery_files], "updated_at": _now()}})
-                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
+                await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"), "reply_status": "not_sent" if send_result.get("suppressed") else ("sent" if success else "failed"), "classification_reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "reply_template_key": reply.get("template_key") or "", "lab_cost_context": lab_context, "lab_cost_attachments": [item["filename"] for item in delivery_files], "updated_at": _now()}})
+                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"), "reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
         # Persist incomplete standalone enquiries too.  The next reply in
         # this client thread will merge these fields and generate the workbook
         # as soon as the final required input is supplied.
@@ -12716,22 +12757,22 @@ async def _process_client_requirement_email(
         success = bool(send_result.get("success"))
         update = {
             "processed": True, "processed_at": send_result.get("sent_at") or now,
-            "status": "auto_sent" if success else "reply_failed",
-            "reply_status": "sent" if success else "failed",
+            "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"),
+            "reply_status": "not_sent" if send_result.get("suppressed") else ("sent" if success else "failed"),
             "email_classification": lab_classification, "office_mail_category": lab_scenario,
             "classification_reason": "toc_and_lab_inputs_requested" if asks_toc else "lab_cost_inputs_requested",
             "reply_template_key": reply.get("template_key") or ("client_toc_and_lab_cost" if asks_toc else "client_lab_cost_grounded"),
             "generated_reply": {"subject": reply["subject"], "body": reply["body"]},
             "ai_reply": reply["body"], "draft_reply": reply["body"], "lab_cost_context": lab_context,
             "lab_cost_attachments": [item["filename"] for item in toc_attachments],
-            "reply_sent": success, "reply_sent_at": send_result.get("sent_at"),
-            "sent_reply_body": send_result.get("body") or reply["body"],
-            "sent_reply_subject": send_result.get("subject") or reply["subject"],
+            "reply_sent": success and not send_result.get("suppressed"), "reply_sent_at": send_result.get("sent_at"),
+            "sent_reply_body": "" if send_result.get("suppressed") else (send_result.get("body") or reply["body"]),
+            "sent_reply_subject": "" if send_result.get("suppressed") else (send_result.get("subject") or reply["subject"]),
             "auto_send_error": "" if success else send_result.get("error", "Send failed"),
             "updated_at": _now(),
         }
         await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
-        return {"processed": True, "email_id": email_doc.get("email_id"), "status": update["status"], "reason": "lab_cost_inputs_requested", "auto_reply": send_result}
+        return {"processed": True, "email_id": email_doc.get("email_id"), "status": update["status"], "reason": send_result.get("reason") if send_result.get("suppressed") else "lab_cost_inputs_requested", "auto_reply": send_result}
 
     # A stand-alone ToC request is a content-delivery enquiry, not a trainer
     # requirement. Keep it outside both confirmed and proposal pipelines.
@@ -12797,8 +12838,8 @@ async def _process_client_requirement_email(
             {"$set": {
                 "processed": True,
                 "processed_at": send_result.get("sent_at") or now,
-                "status": "auto_sent" if success else "reply_failed",
-                "reply_status": "sent" if success else "failed",
+                "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"),
+                "reply_status": "not_sent" if send_result.get("suppressed") else ("sent" if success else "failed"),
                 "email_classification": toc_classification,
                 "office_mail_category": "client_asks_toc_only",
                 "classification_reason": "toc_only_request",
@@ -12808,7 +12849,7 @@ async def _process_client_requirement_email(
                 "updated_at": _now(),
             }},
         )
-        return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "toc_only_request", "auto_reply": send_result}
+        return {"processed": True, "email_id": email_doc.get("email_id"), "status": "reviewed_no_reply" if send_result.get("suppressed") else ("auto_sent" if success else "reply_failed"), "reason": "toc_only_request", "auto_reply": send_result}
 
     if not linked_trainer_thread and _is_technology_catalogue_inquiry(subject, body):
         reply = await _technology_catalogue_reply(db, subject)
