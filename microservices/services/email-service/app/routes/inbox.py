@@ -2878,14 +2878,6 @@ def _ack_should_promise_toc(extracted: Dict[str, Any], labels: list[str]) -> boo
     return _clean(extracted.get("toc_action")).lower() == "generate_by_clahan"
 
 
-def _lab_inputs_complete(extracted: Dict[str, Any]) -> bool:
-    return bool(
-        _safe_int(extracted.get("participant_count"), 0)
-        and _known_lab_hours(extracted)
-        and _clean(extracted.get("cloud_provider"))
-    )
-
-
 def _shared_batch_details(extracted: Dict[str, Any]) -> bool:
     return bool(
         _safe_float(extracted.get("duration_days"), 0)
@@ -3240,43 +3232,21 @@ def _ack_noted_sentence(version: Dict[str, Any], extracted: Dict[str, Any]) -> s
 
 
 def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
-    """Name the estimate once participant count, hours, and cloud are known."""
-    if not _lab_is_clahan_managed(extracted) or not _lab_inputs_complete(extracted):
+    """Describe the estimate and disclose approved defaults for missing inputs."""
+    if not _lab_is_clahan_managed(extracted):
         return ""
-    participants = _safe_int(extracted.get("participant_count"), 0)
-    hours_per_day = _known_lab_hours(extracted)
+    participants = _safe_int(extracted.get("participant_count"), 0) or 1
+    hours_per_day = _known_lab_hours(extracted) or 3
     duration_days = _safe_float(extracted.get("duration_days"), 0)
-    parts = [f"{participants} participant{'s' if participants != 1 else ''}"]
+    participant_count = "one" if participants == 1 else str(participants)
+    parts = [f"{participant_count} participant{'s' if participants != 1 else ''}"]
     if duration_days:
         parts.append(f"{_display_quantity(duration_days)} days")
     parts.append(f"{_display_quantity(hours_per_day)} hours per day")
-    return f"We will prepare the lab estimate for {_join_phrases(parts)}."
-
-
-def _lab_inputs_request(extracted: Dict[str, Any]) -> str:
-    """Ask for lab inputs only when the client has not shared enough to start."""
-    if (
-        not _lab_is_clahan_managed(extracted)
-        or _lab_inputs_complete(extracted)
-        or _topics_were_shared(extracted)
-    ):
-        return ""
-    if (
-        _safe_float(extracted.get("duration_days"), 0)
-        and _clean(extracted.get("mode"))
-        and _known_lab_hours(extracted)
-    ):
-        return ""
-    missing = []
-    if not _safe_int(extracted.get("participant_count"), 0):
-        missing.append("participant count")
-    if not _known_lab_hours(extracted):
-        missing.append("lab hours per day")
-    if not _clean(extracted.get("cloud_provider")):
-        missing.append("preferred cloud provider (AWS, Azure, or GCP)")
-    if not missing:
-        return ""
-    return f"Could you please confirm the {_join_phrases(missing)}? We will prepare the lab estimate once confirmed."
+    sentence = f"We will prepare the lab estimate for {_join_phrases(parts)}."
+    if not _safe_int(extracted.get("participant_count"), 0) or not _known_lab_hours(extracted):
+        sentence += " Missing participant or lab-hour values use the approved one-person, three-hour baseline."
+    return sentence
 
 
 def _ack_greeting(extracted: Dict[str, Any]) -> str:
@@ -3799,7 +3769,7 @@ def _render_professional_ack(
     version = _ACK_VERSIONS[index]
     labels = _explicit_request_labels(extracted)
     promise_toc = _ack_should_promise_toc(extracted, labels)
-    promise_lab = _lab_is_clahan_managed(extracted) and not _lab_inputs_request(extracted)
+    promise_lab = _lab_is_clahan_managed(extracted)
     noun = _ack_share_noun(version, labels)
     missing = _format_missing_details(extracted) if ask_missing else ""
     shape = _ACK_SHAPES.get(index)
@@ -3827,12 +3797,9 @@ def _render_professional_ack(
         if work:
             paragraphs.append(work)
     estimate = _lab_estimate_sentence(extracted)
-    lab_request = _lab_inputs_request(extracted)
     if estimate:
         paragraphs.append(estimate)
-    elif lab_request:
-        paragraphs.append(lab_request)
-    if not (estimate or lab_request) and version.get("close"):
+    if version.get("close"):
         paragraphs.append(str(version["close"]))
     paragraphs.append(_reply_signature())
     return "\n\n".join(paragraphs)
