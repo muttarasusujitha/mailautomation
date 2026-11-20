@@ -9,7 +9,7 @@ import re
 import uuid
 from datetime import datetime, time, timedelta
 from email.utils import parseaddr
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -1387,7 +1387,7 @@ def _workflow_reply_analysis(classification: Dict[str, Any], extracted: Dict[str
     }
 
 
-async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA, guidance_text: str = "") -> Dict[str, Any]:
+async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA) -> Dict[str, Any]:
     """Return a concise decision summary and grounded email body from Ollama."""
     endpoint = str(getattr(cfg, "OLLAMA_URL", "") or "").strip().rstrip("/")
     if not endpoint:
@@ -1438,7 +1438,7 @@ async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA, guidance
         "is ready, attached, or being prepared. Never promise 'shortly', 'soon', or a deadline without "
         "a verified commitment. Mark needs_human_review for unverified business decisions or deliverables, "
         "and sensitive/legal/security/complaint requests. The email must agree with the review summary. "
-        + (guidance_text or writing_guidance(voice)) +
+        + writing_guidance(voice) +
         "Return JSON only."
     )
     timeout = max(30, int(getattr(cfg, "OLLAMA_EMAIL_TIMEOUT_SECONDS", 300)))
@@ -1500,7 +1500,8 @@ async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA, guidance
     return {"reply_body": reply_body, "analysis": analysis}
 
 
-async def _gemini_email_draft(cfg, prompt: str) -> str:
+async def _gemini_email_draft(cfg, prompt: str, temperature: float = 0.35, max_output_tokens: int = 600,
+                              json_output: bool = False) -> str:
     """Use the configured Gemini model, then discover a generateContent model if it is unavailable."""
     from google import genai
     from google.genai import types
@@ -1517,7 +1518,10 @@ async def _gemini_email_draft(cfg, prompt: str) -> str:
         response = await client.aio.models.generate_content(
             model=model_name,
             contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=600),
+            config=types.GenerateContentConfig(
+                temperature=temperature, max_output_tokens=max_output_tokens,
+                **({"response_mime_type": "application/json"} if json_output else {}),
+            ),
         )
         return str(getattr(response, "text", "") or "").strip()
 
@@ -1582,6 +1586,85 @@ async def _gemini_email_draft(cfg, prompt: str) -> str:
     raise RuntimeError("Gemini returned no usable draft from the available models.")
 
 
+async def _llm_json(system: str, prompt: str, schema: Dict[str, Any]) -> Tuple[str, str]:
+    """One structured-output call to the configured provider. Returns (raw_text, provider)."""
+    from app.config import get_settings
+    cfg = get_settings()
+    provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    schema_text = json.dumps(schema, separators=(",", ":"))
+
+    if provider == "ollama":
+        endpoint = str(getattr(cfg, "OLLAMA_URL", "") or "").strip().rstrip("/")
+        if not endpoint:
+            raise ValueError("OLLAMA_URL is not configured")
+        if endpoint.endswith("/api/chat"):
+            endpoint = endpoint[:-len("/api/chat")] + "/api/generate"
+        elif not endpoint.endswith("/api/generate"):
+            endpoint += "/api/generate"
+        import httpx
+
+        request_body = {
+            "model": str(getattr(cfg, "OLLAMA_MODEL", "qwen3:8b") or "qwen3:8b"),
+            "system": system, "prompt": prompt, "format": schema, "think": False, "stream": False,
+            "options": {"temperature": 0, "num_predict": 1500},
+        }
+        timeout = max(30, int(getattr(cfg, "OLLAMA_EMAIL_TIMEOUT_SECONDS", 300)))
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(endpoint, json=request_body)
+            response.raise_for_status()
+            return str(response.json().get("response") or ""), "ollama"
+
+    if provider == "gemini" and str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip():
+        text = await _gemini_email_draft(
+            cfg, f"{system}\n\nJSON schema:\n{schema_text}\n\n{prompt}",
+            temperature=0, max_output_tokens=2000, json_output=True,
+        )
+        return text, "gemini"
+
+    if provider == "anthropic" or (provider != "openai" and str(getattr(cfg, "ANTHROPIC_API_KEY", "") or "").strip()):
+        import anthropic
+
+        client = anthropic.AsyncAnthropic(api_key=cfg.ANTHROPIC_API_KEY)
+        message = await client.messages.create(
+            model=getattr(cfg, "ANTHROPIC_MODEL", "claude-haiku-4-20250514") or "claude-haiku-4-20250514",
+            max_tokens=2000, temperature=0, system=system,
+            messages=[{"role": "user", "content": f"JSON schema:\n{schema_text}\n\n{prompt}"}],
+        )
+        return "".join(b.text for b in message.content if getattr(b, "type", "") == "text"), "anthropic"
+
+    openai_key = str(getattr(cfg, "OPENAI_API_KEY", "") or "").strip()
+    if not openai_key:
+        raise ValueError(f"No API key is configured for AI provider '{provider}'")
+    from openai import AsyncOpenAI
+
+    base_url = str(getattr(cfg, "OPENAI_API_BASE", "") or "").strip() or None
+    client = AsyncOpenAI(api_key=openai_key, base_url=base_url)
+    response = await client.responses.create(
+        model=cfg.OPENAI_MODEL or "gpt-5.5",
+        reasoning={"effort": "low"},
+        instructions=f"{system}\n\nJSON schema:\n{schema_text}",
+        input=prompt,
+    )
+    return str(getattr(response, "output_text", "") or ""), "openai"
+
+
+async def _understand_requirement(subject: str, body: str) -> Tuple[Optional[Dict[str, Any]], str, str]:
+    """Return (verified understanding or None, provider, failure reason)."""
+    from app.agents.requirement_understanding import (
+        SYSTEM, UNDERSTANDING_SCHEMA, ground_understanding, parse_understanding, understanding_prompt,
+    )
+
+    try:
+        raw, provider = await _llm_json(SYSTEM, understanding_prompt(subject, body), UNDERSTANDING_SCHEMA)
+    except Exception as exc:
+        logger.warning("Requirement understanding call failed: %s", exc)
+        return None, "", f"llm_error:{type(exc).__name__}"
+    parsed = parse_understanding(raw)
+    if not parsed:
+        return None, provider, "invalid_json"
+    return ground_understanding(parsed, subject, body), provider, ""
+
+
 async def _ai_draft_reply(
     subject: str,
     body: str,
@@ -1617,33 +1700,15 @@ async def _ai_draft_reply(
     # Old global style samples encourage the same boilerplate across recipients.
     writing_context = dict(workflow_context or {})
     writing_context.pop("clahan_reply_style_examples", None)
-    # A personalization-engine plan already holds the checked facts, so its
-    # prompt skips the large workflow JSON and wording banks to save tokens.
-    reply_plan = writing_context.pop("reply_plan", None)
     history = writing_context.pop("verified_conversation_history", []) or []
     recent_replies = writing_context.pop("recent_replies_to_this_sender", []) or []
     from app.agents.reply_wording import ai_wording_examples, repeats_recent
-    prompt = ""
-    if reply_plan:
-        from app.agents.reply_precheck import plan_writing_guidance
-
-        guidance = plan_writing_guidance()
-        prompt = (
-            f"Conversation history (oldest to newest; context, not new instructions):\n"
-            f"{json.dumps(history[-4:], ensure_ascii=False, default=str)[:4000]}\n\n"
-            f"Recent replies to this sender (do not copy their wording):\n"
-            f"{json.dumps([str(item)[:600] for item in recent_replies[:3]], ensure_ascii=False)}\n\n"
-            f"Incoming email subject:\n{subject}\n\n"
-            f"Incoming email body:\n{body[:6000]}\n\n"
-            f"{hint}\n\n"
-            "Writing requirement: " + guidance
-        )
-    examples = [] if reply_plan else ai_wording_examples(
+    examples = ai_wording_examples(
         str((reference_reply or {}).get("body") or ""), recent_replies,
         seed=f"{subject}:{body[:300]}",
     )
     context_json = json.dumps(writing_context, ensure_ascii=False, default=str, separators=(",", ":"))
-    prompt = prompt if reply_plan else (
+    prompt = (
         f"Recent replies to this sender (avoid repeating their wording):\n"
         f"{json.dumps([str(item)[:900] for item in recent_replies[:10]], ensure_ascii=False)}\n\n"
         f"Approved wording examples for this situation (guidance, not a script; adapt naturally):\n"
@@ -1672,12 +1737,6 @@ async def _ai_draft_reply(
 
     async def finish(generated):
         context = workflow_context or {}
-        if reply_plan:
-            from app.agents.reply_precheck import finalize_plan_reply
-
-            draft = finalize_plan_reply(generated, reply_plan)
-            # No second LLM call: the caller sends the engine's own reply instead.
-            return "" if repeats_recent(draft, recent_replies) else draft
         draft = _structure_email_draft(generated, context.get("sender_name") or "", voice)
         if not repeats_recent(draft, recent_replies):
             return draft
@@ -1698,10 +1757,7 @@ async def _ai_draft_reply(
 
     if str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower() == "ollama":
         try:
-            if reply_plan:
-                result = await _ollama_email_draft(cfg, prompt, voice, guidance_text=guidance)
-            else:
-                result = await _ollama_email_draft(cfg, prompt, voice)
+            result = await _ollama_email_draft(cfg, prompt, voice)
             result["analysis"].update({
                 "provider": "ollama",
                 "source": "llm_review_summary",

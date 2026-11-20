@@ -4904,6 +4904,19 @@ async def send_client_slots(
             "content_base64": base64.b64encode(toc_attachment).decode(),
             "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         })
+        # The same ToC as a client course outline. Optional: the workbook is
+        # the required attachment, so a PDF failure never blocks the handoff.
+        try:
+            toc_pdf = await _generate_toc_pdf(toc_data)
+        except Exception:
+            logger.warning("Client-handoff course-outline PDF failed for %s", technology, exc_info=True)
+            toc_pdf = None
+        if toc_pdf and toc_pdf.startswith(b"%PDF"):
+            attachments.append({
+                "filename": f"{technology} - Course Outline.pdf",
+                "content_base64": base64.b64encode(toc_pdf).decode(),
+                "subtype": "pdf",
+            })
 
     lab_cost_attachments: List[Tuple[str, bytes]] = []
     lab_error = ""

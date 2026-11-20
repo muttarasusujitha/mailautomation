@@ -27,10 +27,7 @@
         "Types of analytics",
         "Structured vs unstructured data",
         "Environment setup",
-        "Reproducible notebooks",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Reproducible notebooks"
       ],
       "tools": [
         "Python",
@@ -104,10 +101,7 @@
         "Grouping",
         "Merging",
         "Datetime handling",
-        "Vectorization",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Vectorization"
       ],
       "tools": [
         "Python",
@@ -181,10 +175,7 @@
         "Confidence intervals",
         "Hypothesis testing",
         "Correlation",
-        "ANOVA concepts",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "ANOVA concepts"
       ],
       "tools": [
         "Python",
@@ -257,10 +248,7 @@
         "Bivariate analysis",
         "Multivariate analysis",
         "Visualization",
-        "Data quality checks",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Data quality checks"
       ],
       "tools": [
         "Python",
@@ -335,10 +323,7 @@
         "Interactions",
         "Feature selection",
         "Leakage prevention",
-        "Pipelines",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Pipelines"
       ],
       "tools": [
         "Python",
@@ -413,10 +398,7 @@
         "Gradient boosting concepts",
         "KNN",
         "SVM",
-        "Naive Bayes",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Naive Bayes"
       ],
       "tools": [
         "Python",
@@ -490,10 +472,7 @@
         "PCA",
         "Dimensionality reduction",
         "Cluster evaluation",
-        "Anomaly detection concepts",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Anomaly detection concepts"
       ],
       "tools": [
         "Python",
@@ -569,10 +548,7 @@
         "F1",
         "ROC-AUC",
         "Regression metrics",
-        "Hyperparameter tuning",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Hyperparameter tuning"
       ],
       "tools": [
         "Python",
@@ -647,10 +623,7 @@
         "Rolling statistics",
         "ARIMA concepts",
         "Forecast validation",
-        "Time-aware splits",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Time-aware splits"
       ],
       "tools": [
         "Python",
@@ -724,10 +697,7 @@
         "Uncertainty",
         "Executive summaries",
         "Data storytelling",
-        "Reproducible reports",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Reproducible reports"
       ],
       "tools": [
         "Python",
@@ -801,10 +771,7 @@
         "Drift",
         "Experiment tracking",
         "Versioning",
-        "CI concepts",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "CI concepts"
       ],
       "tools": [
         "Python",
@@ -879,10 +846,7 @@
         "Modeling",
         "Evaluation",
         "Interpretation",
-        "Deployment plan",
-        "Data Science terminology and feature mapping for this topic",
-        "Data Science configuration and implementation considerations",
-        "Data Science best practices and common mistakes for this topic"
+        "Deployment plan"
       ],
       "tools": [
         "Python",
@@ -952,5 +916,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

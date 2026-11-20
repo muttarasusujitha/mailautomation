@@ -7,8 +7,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.agents.reply_precheck import (
     build_reply_plan,
     check_reply,
-    finalize_plan_reply,
-    plan_prompt,
     render_plan_reply,
 )
 
@@ -132,11 +130,13 @@ def test_confirmed_plan_asks_only_blocking_details_and_flags_conflicts():
 def test_confirmed_reply_leads_with_trainer_and_passes_its_own_check():
     plan = _ujitha_plan()
     body = render_plan_reply(plan)
-    assert body.startswith("Dear Ujitha,\n\nThank you for sharing the confirmed requirement for the "
-                           "20-day offline DevOps training batch.")
+    assert body.startswith("Dear Ujitha,\n\nThank you for ")
+    assert "the 20-day offline DevOps training batch" in body.split("\n\n")[1]
+    # "at the earliest" makes this a priority request.
+    assert "priority" in body.split("\n\n")[1]
     trainer_at = body.index("suitable DevOps trainer")
     assert trainer_at < body.index("day-wise ToC") < body.index("lab cost for 10 days")
-    assert "trainer profile and updated CV with you as soon as possible" in body
+    assert "trainer profile and updated CV with you on priority" in body
     assert "AWS, Azure, or GCP" in body and "number of participants" in body
     assert body.endswith("Best regards,\nAnnapurna U.\nClahan Technologies")
     assert check_reply(body, plan) == []
@@ -148,24 +148,26 @@ def test_confirmed_sample_needs_no_questions():
     assert plan["missing"] == [] and plan["conflicts"] == []
     assert plan["greeting"] == "Hello Meera,"
     body = render_plan_reply(plan)
-    assert "could you please confirm" not in body
+    assert "could you please confirm" not in body and "priority" not in body
+    assert "trainer profile with you as soon as possible" in body
     assert "A detailed day-wise ToC for the 5-day program" in body
     assert check_reply(body, plan) == []
 
 
-def test_proposal_reply_offers_a_proposal_and_does_not_ask_for_tentative_details():
+def test_proposal_reply_leads_with_trainer_and_does_not_ask_for_tentative_details():
     plan = build_reply_plan(PROPOSAL, {"technology_needed": "DevOps"}, "proposal", "Priya Sharma <priya@example.com>")
     assert plan["batch_type"] == "proposal"
     assert plan["greeting"] == "Hello Priya,"
     assert plan["availability_requested"] is True
     assert plan["tentative"] == ["duration", "dates", "delivery mode", "budget"]
-    assert [entry["key"] for entry in plan["missing"]] == ["participants", "audience"]
+    assert [entry["key"] for entry in plan["missing"]] == ["participants"]
     body = render_plan_reply(plan)
-    assert "Thank you for considering Clahan Technologies for your DevOps training program." in body
-    assert "1. Suitable DevOps trainer profiles with their availability" in body
+    assert "We are identifying a suitable DevOps trainer" in body
+    assert "along with the trainer's availability" in body
     assert "A proposed course outline" in body and "The commercials for the program" in body
     assert "still to be confirmed" in body
     assert "preferred training dates" not in body and "expected duration" not in body
+    assert "complete proposal for your review" in body
     assert check_reply(body, plan) == []
 
 
@@ -177,25 +179,10 @@ def test_check_rejects_missing_trainer_internal_details_and_deadlines():
     assert "conflict_missing:start_date" in problems and "too_short" in problems
 
     leaky = render_plan_reply(plan).replace(
-        "as soon as possible.", "by Friday. The trainer rate includes our 30% margin, please find attached."
+        "on priority.", "by Friday. The trainer rate includes our 30% margin, please find attached."
     )
     problems = check_reply(leaky, plan)
     assert {"internal_detail_leak", "attachment_claim", "deadline_promise"} <= set(problems)
-
-
-def test_finalize_replaces_model_greeting_and_signature():
-    plan = _ujitha_plan()
-    generated = "Subject: Re: DevOps\n\nHi Shahini,\n\nThank you for the details.\n\nThanks,\nAnnapurna U.\nClahan Technologies"
-    assert finalize_plan_reply(generated, plan) == (
-        "Dear Ujitha,\n\nThank you for the details.\n\nBest regards,\nAnnapurna U.\nClahan Technologies"
-    )
-
-
-def test_prompt_contains_checklist_and_reference_reply():
-    prompt = plan_prompt(_ujitha_plan())
-    assert "Open with exactly: Dear Ujitha," in prompt
-    assert "Whether the lab cost should cover 10 days or the full 20-day program" in prompt
-    assert "A correct reference reply follows" in prompt
 
 
 def test_quoted_history_is_ignored():
@@ -203,3 +190,151 @@ def test_quoted_history_is_ignored():
     plan = build_reply_plan(message, {"technology_needed": "Python"}, "confirmed")
     assert [item["kind"] for item in plan["items"]] == ["trainer"]
     assert plan["greeting"] == "Hi Asha,"
+
+
+# Patterns from real partner requirements (names and companies anonymized).
+PARTNER_ONSITE = """Dear Team,
+
+Please refer to the below requirement and assist us with suitable trainer profiles at the earliest.
+
+We are currently looking for 2 Trainers for a duration of 6 months, starting from 1st March 2026, who can work from the client location in Bellandur, Bangalore (3-4 days per week).
+
+Position: GenAI & Agentic AI Trainer
+Location: Client Site \u2013 Bellandur, Bangalore
+Duration: 6 Months
+Experience Required: 5+ Years
+
+What We\u2019re Looking For:
+
+  *
+Strong expertise in Generative AI (LLMs, Prompt Engineering, AI tools)
+  *
+Hands-on experience with Agentic AI frameworks and AI automation workflows
+  *
+Ability to work from the client location 3\u20134 days per week
+
+Kindly share:
+
+  *
+Updated trainer profiles
+  *
+Relevant project/training experience
+  *
+Confirmation on onsite availability (3\u20134 days/week)
+  *
+Commercial confirmation within the mentioned budget
+  *
+Availability for an internal screening call
+
+This is a priority requirement, and we would appreciate your earliest response.
+
+Regards,
+
+Kavya Rao
+Training Operations Manager
+"""
+
+PARTNER_FORM = """Dear Team,
+
+We have a critical learning requirement for a trainer-led PIM (Product Information Management) training program.
+
+Requirement Details:
+
+  *   Topic: PIM (Product Information Management)
+  *   Participants: 10
+  *   Timeline: Immediate / ASAP
+
+Scope of Training:
+
+  *   PIM data model fundamentals
+  *   Data Modelling & Configuration
+  *   Import, Export & ETL Integration
+
+Request you to share the following at the earliest:
+
+  *   Trainer profile(s) with relevant PIM experience
+  *   Detailed course outline (TOC)
+  *   Recommended training duration (days & hours per day)
+  *   Commercials (per day / per batch cost)
+  *   Any prerequisites or lab requirements
+
+Regards,
+
+Kavya Rao
+"""
+
+VENDOR_PITCH = """Dear Annapurna,
+
+I recently came across your LinkedIn post regarding the upcoming SAP training requirements.
+We offer end-to-end training support including trainer deployment and lab infrastructure.
+
+Request you to share:
+  *   Number of participants
+  *   Tentative training dates
+
+Regards,
+Rohit
+"""
+
+
+def _partner_plan():
+    return build_reply_plan(PARTNER_ONSITE, {"technology_needed": "someone who can deliver"}, "proposal",
+                            "Kavya Rao <kavya@partner.example>",
+                            subject="Urgent Requirement \u2013 GenAI & Agentic AI Trainers (6 Months | Bangalore | Onsite)")
+
+
+def test_partner_requirement_reads_trainer_needs_count_location_and_urgency():
+    plan = _partner_plan()
+    assert plan["greeting"] == "Dear Kavya,"
+    assert plan["technology"] == "GenAI & Agentic AI"
+    assert plan["trainer_count"] == 2 and plan["experience_years"] == "5+"
+    assert plan["urgent"] and plan["end_client"] and plan["onsite"]
+    assert plan["location"] == "Bellandur, Bangalore"
+    assert plan["call_requested"] and plan["availability_requested"]
+    # Skills and responsibilities describe the trainer; they are not documents to send.
+    assert [item["kind"] for item in plan["items"]] == ["trainer", "commercials"]
+    # Duration and dates are already in the email, so only the headcount is asked.
+    assert [entry["key"] for entry in plan["missing"]] == ["participants"]
+
+
+def test_partner_reply_is_specific_to_their_request():
+    plan = _partner_plan()
+    body = render_plan_reply(plan)
+    assert "your client's GenAI & Agentic AI training requirement" in body
+    assert "priority" in body.split("\n\n")[1]
+    assert "two suitable GenAI & Agentic AI trainers with 5+ years of experience" in body
+    assert "who can deliver onsite at Bellandur, Bangalore for your client's 6-month engagement" in body
+    assert "Their profiles will highlight hands-on experience in Generative AI" in body
+    assert "along with their availability and suitable slots for the screening call" in body
+    assert "within your stated budget" in body
+    assert "Ability to work" not in body and "Strong expertise" not in body
+    assert check_reply(body, plan) == []
+
+
+def test_partner_form_uses_scope_and_does_not_ask_back_what_they_want_recommended():
+    plan = build_reply_plan(PARTNER_FORM, {}, "proposal", "Kavya Rao <kavya@partner.example>",
+                            subject="Urgent Trainer Requirement \u2013 PIM Training")
+    assert plan["technology"] == "PIM"
+    assert plan["scope"] == ["PIM data model fundamentals", "Data Modelling & Configuration",
+                             "Import, Export & ETL Integration"]
+    body = render_plan_reply(plan)
+    assert "A proposed course outline covering PIM data model fundamentals" in body
+    assert "Recommended training duration (days & hours per day)" in body
+    # They asked us to recommend the duration and lab setup: never ask those back.
+    assert "expected duration" not in body and "cloud platform" not in body
+    assert "number of participants" not in body
+    assert check_reply(body, plan) == []
+
+
+def test_vendor_pitch_is_not_treated_as_a_client_requirement():
+    from app.agents.reply_precheck import is_vendor_pitch
+
+    assert is_vendor_pitch(VENDOR_PITCH)
+    assert not is_vendor_pitch(PARTNER_ONSITE)
+    assert not is_vendor_pitch(UJITHA)
+
+
+def test_check_allows_client_wording_about_internal_calls():
+    plan = _partner_plan()
+    body = render_plan_reply(plan).replace("screening call", "internal screening call")
+    assert "internal_detail_leak" not in check_reply(body, plan)

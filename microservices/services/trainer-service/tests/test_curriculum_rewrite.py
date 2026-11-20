@@ -1,6 +1,7 @@
 from copy import deepcopy
 import pytest
 from app import rewrite_curriculum_content as rewrite
+from app.curriculum_reasoning import LabOutline, ModuleOutline, OutlineItem, Principle, TopicGroup
 
 
 def module():
@@ -12,7 +13,31 @@ def module():
             for value, result in [("Unique ID", "Accepted"), ("Duplicate ID", "Rejected"), ("Repeated run", "Identical output")]],
         prerequisites=["Python functions"], preparation_requirements=["Ten-row CSV fixture"], minutes=90,
         delivery_steps=[rewrite.Step(method="Practice", minutes=90, activity="Validate CSV", evidence="Partitioned CSV files")],
-        unresolved_questions=[])
+        unresolved_questions=[], outline=outline())
+
+
+def outline():
+    # Leads and the principle are left empty, as the prompt allows.
+    return ModuleOutline(
+        topic_groups=[TopicGroup(heading="Validating Imports", lead="", items=[
+            OutlineItem(text=text, children=[]) for text in ("CSV parsing", "Duplicate IDs", "Rejection reasons")])],
+        principle=Principle(title="", lead="", points=[]),
+        lab=LabOutline(title="Duplicate ID Import", scenario="A sales import contains duplicate IDs.", lead="",
+                       tasks=["Load ten sales rows", "Write unique rows to accepted.csv",
+                              "Write duplicates to rejected.csv with a reason"],
+                       verify=["Duplicate ID \u2013 Rejected"], deliverables=["Two CSV files and a validation script"]))
+
+
+def test_validation_accepts_empty_optional_outline_fields_and_rejects_blank_items():
+    rewrite.validate(module(), {"key": "sample", "minutes": 90})
+    value = module()
+    value.outline.lab.tasks.append(" ")
+    with pytest.raises(ValueError, match="Blank"):
+        rewrite.validate(value, {"key": "sample"})
+    value = module()
+    value.outline.lab.tasks = ["Load ten sales rows"]
+    with pytest.raises(ValueError, match="course outline"):
+        rewrite.validate(value, {"key": "sample"})
 
 
 def test_validation_rejects_duplicate_cases_and_wrong_time():

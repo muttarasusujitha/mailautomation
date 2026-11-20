@@ -2056,26 +2056,32 @@ async def _personalized_requirement_reply(
     verified_reply: Dict[str, str],
     reply_plan: Dict[str, Any],
 ) -> Dict[str, str]:
-    """Write a first requirement reply from the pre-check plan with at most one LLM call.
+    """Write a first requirement reply with at most one LLM call.
 
-    Template mode sends the engine's own reply. AI mode asks the model to phrase
-    the plan once; a draft that is empty, fails, or misses anything in the plan
-    is replaced by the engine reply instead of a second LLM call or a review hold.
+    Template mode: the rule-based plan drives the reply, no LLM call.
+    AI mode: one LLM call reads the email into structured JSON. Python checks
+    every value against the email, applies it to the plan, and writes the
+    reply from templates. If the call fails or the result fails the checks,
+    the rule-based reply is sent instead; nothing waits for review.
     """
-    from app.agents.reply_precheck import check_reply, plan_prompt, plan_summary, render_plan_reply
+    from app.agents.reply_precheck import check_reply, plan_summary, render_plan_reply
 
-    engine_body = render_plan_reply(reply_plan)
-    summary = plan_summary(reply_plan)
+    rule_body = render_plan_reply(reply_plan)
+    rule_summary = plan_summary(reply_plan)
 
-    def engine_reply(outcome: str, problems: Optional[List[str]] = None,
-                     llm_analysis: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def build(body_text: str, summary: Dict[str, Any], outcome: str, source: str,
+              problems: Optional[List[str]] = None, understanding: Optional[Dict[str, Any]] = None,
+              provider: str = "personalization_engine") -> Dict[str, Any]:
+        analysis = _engine_reply_analysis(summary, outcome, problems, None, provider)
+        if understanding is not None:
+            analysis["requirement_understanding"] = understanding
         return {
             **verified_reply,
-            "body": engine_body,
+            "body": body_text,
             "template_reference_body": verified_reply.get("body", ""),
-            "generation_source": "personalization_engine",
+            "generation_source": source,
             "reply_plan": summary,
-            "reply_analysis": _engine_reply_analysis(summary, outcome, problems, llm_analysis),
+            "reply_analysis": analysis,
         }
 
     try:
@@ -2084,44 +2090,35 @@ async def _personalized_requirement_reply(
     except Exception:
         ai_mode = False
     if not ai_mode:
-        return engine_reply("template_mode")
+        return build(rule_body, rule_summary, "template_mode", "personalization_engine")
 
-    context: Dict[str, Any] = {}
-    try:
-        from app.routes.inbox_actions import _ai_draft_reply, _load_reply_workflow_context
+    from app.agents.requirement_understanding import apply_understanding
+    from app.routes.inbox_actions import _understand_requirement
 
-        context = await _load_reply_workflow_context(db, email_doc, classification, extracted, body)
-        context["verified_conversation_history"] = await _verified_question_history(db, email_doc)
-        context["reply_plan"] = reply_plan
-        generated = await _ai_draft_reply(
-            subject=subject,
-            body=body,
-            hint=plan_prompt(reply_plan),
-            workflow_context=context,
-            reference_reply={**verified_reply, "body": engine_body},
-            require_openai=True,
-        )
-    except Exception:
-        logger.exception("Personalized reply drafting failed for %s; sending the engine reply", email_doc.get("email_id"))
-        return engine_reply("llm_error", llm_analysis=context.get("reply_analysis"))
+    understanding, provider, failure = await _understand_requirement(subject, body)
+    if not understanding:
+        return build(rule_body, rule_summary, failure or "understanding_unavailable", "personalization_engine")
+    if not understanding.get("is_training_requirement", True):
+        # The model reads this as a pitch, newsletter, or no-ask reply: keep the workflow template.
+        logger.info("Understanding for %s says this is not a training requirement", email_doc.get("email_id"))
+        from app.routes.inbox_actions import _workflow_reply_analysis
 
-    llm_analysis = context.get("reply_analysis") or {}
-    if not _clean(generated):
-        return engine_reply("llm_unavailable", llm_analysis=llm_analysis)
-    problems = check_reply(generated.strip(), reply_plan)
+        analysis = _workflow_reply_analysis(classification, extracted, email_doc)
+        analysis.update({"requirement_understanding": understanding,
+                         "post_check_outcome": "not_a_training_requirement"})
+        return {**verified_reply, "generation_source": "template", "reply_analysis": analysis}
+
+    understood_plan = apply_understanding(reply_plan, understanding)
+    understood_body = render_plan_reply(understood_plan)
+    understood_summary = plan_summary(understood_plan)
+    problems = check_reply(understood_body, understood_plan)
     if problems:
-        logger.info("AI draft for %s failed the post-check (%s); sending the engine reply",
+        logger.info("Understood reply for %s failed the post-check (%s); sending the rule-based reply",
                     email_doc.get("email_id"), ", ".join(problems))
-        return engine_reply("llm_draft_failed_check", problems, llm_analysis)
-    provider = str(llm_analysis.get("provider") or "openai")
-    return {
-        **verified_reply,
-        "body": generated.strip(),
-        "template_reference_body": verified_reply.get("body", ""),
-        "generation_source": provider,
-        "reply_plan": summary,
-        "reply_analysis": _engine_reply_analysis(summary, "llm_draft_passed_check", [], llm_analysis, provider),
-    }
+        return build(rule_body, rule_summary, "understanding_failed_check", "personalization_engine",
+                     problems, understanding, provider)
+    return build(understood_body, understood_summary, "understood_by_llm", f"personalization_engine+{provider}",
+                 [], understanding, provider)
 
 
 async def _humanize_verified_client_reply(
@@ -11831,7 +11828,7 @@ async def _create_revised_lab_cost_attachment(
         return None
 
 
-async def _create_standalone_toc_attachment(
+async def _create_standalone_toc_attachments(
     *,
     technology: str,
     duration_days: int,
@@ -11839,12 +11836,16 @@ async def _create_standalone_toc_attachment(
     topics: str = "",
     client_notes: str = "",
     generation_mode: str = "template",
-) -> Optional[Dict[str, str]]:
-    """Build one day-wise ToC workbook. Returns None when the outline cannot be made."""
+) -> List[Dict[str, str]]:
+    """Build the day-wise ToC workbook and its PDF course outline.
+
+    Returns [] when the ToC cannot be made. The workbook is required; the PDF
+    is added when it renders, and its failure never blocks the workbook.
+    """
     technology = _clean(technology)
     days = _safe_int(duration_days, 0)
     if not technology or days <= 0:
-        return None
+        return []
     try:
         async with httpx.AsyncClient(timeout=90) as client:
             toc_response = await _post_with_local_fallback(
@@ -11867,16 +11868,33 @@ async def _create_standalone_toc_attachment(
                 json={"toc": toc_data},
             )
             workbook_response.raise_for_status()
-        if not workbook_response.content:
-            return None
-        return {
-            "filename": f"{technology} - Training ToC.xlsx",
-            "content_base64": base64.b64encode(workbook_response.content).decode(),
-            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        }
+            if not workbook_response.content:
+                return []
+            files = [{
+                "filename": f"{technology} - Training ToC.xlsx",
+                "content_base64": base64.b64encode(workbook_response.content).decode(),
+                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }]
+            try:
+                pdf_response = await _post_with_local_fallback(
+                    client,
+                    f"{TRAINER_SERVICE_URL}/api/v1/toc/generate-pdf",
+                    json={"toc": toc_data},
+                )
+                if pdf_response.status_code == 200 and pdf_response.content.startswith(b"%PDF"):
+                    files.append({
+                        "filename": f"{technology} - Course Outline.pdf",
+                        "content_base64": base64.b64encode(pdf_response.content).decode(),
+                        "subtype": "pdf",
+                    })
+                else:
+                    logger.warning("ToC course-outline PDF unavailable for %s (%s)", technology, pdf_response.status_code)
+            except Exception:
+                logger.warning("ToC course-outline PDF failed for %s; sending the workbook only", technology, exc_info=True)
+        return files
     except Exception:
         logger.exception("Standalone ToC workbook failed for %s", technology)
-        return None
+        return []
 
 
 async def _bundle_slot_delivery_files(
@@ -11917,9 +11935,9 @@ async def _bundle_slot_delivery_files(
         lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context)
         if lab_file:
             files.append(lab_file)
-    toc_file = None
+    toc_files: List[Dict[str, str]] = []
     if asks_toc:
-        toc_file = await _create_standalone_toc_attachment(
+        toc_files = await _create_standalone_toc_attachments(
             technology=_clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain")),
             duration_days=_safe_int(requirement.get("duration_days"), 0),
             mode=_clean(requirement.get("mode") or "Online"),
@@ -11927,12 +11945,11 @@ async def _bundle_slot_delivery_files(
             client_notes=latest_message_body,
             generation_mode="ai" if await _global_ai_wording_enabled(db) else "template",
         )
-        if toc_file:
-            files.append(toc_file)
+        files.extend(toc_files)
     if not files:
         return email_doc, []
-    has_toc = bool(toc_file)
-    has_lab = any(item is not toc_file for item in files)
+    has_toc = bool(toc_files)
+    has_lab = len(files) > len(toc_files)
     if has_toc and has_lab:
         note = "Please find the day-wise ToC and the lab-cost estimate attached with this interview confirmation."
     elif has_lab:
@@ -12456,9 +12473,9 @@ async def _process_client_requirement_email(
                 technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "the training")
                 participants = known.get("participant_count") or requirement.get("participant_count") or 1
                 hours = known.get("hours_per_day") or requirement.get("hours_per_day") or 3
-                toc_attachment = None
+                toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
-                    toc_attachment = await _create_standalone_toc_attachment(
+                    toc_attachments = await _create_standalone_toc_attachments(
                         technology=technology,
                         duration_days=_safe_int(requirement.get("duration_days"), 0),
                         mode=_clean(requirement.get("mode") or "Online"),
@@ -12466,14 +12483,14 @@ async def _process_client_requirement_email(
                         client_notes=latest_message_body,
                         generation_mode=content_generation_mode,
                     )
-                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                delivery_files = [attachment] + toc_attachments
                 reply = render_delivery_reply(
                     client_name=email_doc.get("from_name") or "",
                     subject=subject,
                     technology=technology,
                     toc_requested=asks_toc,
                     lab_requested=True,
-                    toc_attached=bool(toc_attachment),
+                    toc_attached=bool(toc_attachments),
                     lab_attached=True,
                     lab_sentence=(
                         f"Please find the lab-cost estimate attached for {participants} participant(s), "
@@ -12562,9 +12579,9 @@ async def _process_client_requirement_email(
             )
             if attachment:
                 technology = _clean(standalone_requirement.get("technology_needed") or "the training")
-                toc_attachment = None
+                toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
-                    toc_attachment = await _create_standalone_toc_attachment(
+                    toc_attachments = await _create_standalone_toc_attachments(
                         technology=technology,
                         duration_days=_safe_int(standalone_requirement.get("duration_days"), 0),
                         mode=_clean(standalone_requirement.get("mode") or "Online"),
@@ -12572,7 +12589,7 @@ async def _process_client_requirement_email(
                         client_notes=latest_message_body,
                         generation_mode=content_generation_mode,
                     )
-                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                delivery_files = [attachment] + toc_attachments
                 scenario = "client_asks_toc_and_lab_cost" if asks_toc else "client_asks_lab_cost"
                 reply = render_delivery_reply(
                     client_name=email_doc.get("from_name") or "",
@@ -12580,7 +12597,7 @@ async def _process_client_requirement_email(
                     technology=technology,
                     toc_requested=asks_toc,
                     lab_requested=True,
-                    toc_attached=bool(toc_attachment),
+                    toc_attached=bool(toc_attachments),
                     lab_attached=True,
                     lab_sentence="Please find the lab-cost estimate attached. It is prepared from the domain and ToC details and the lab inputs you shared.",
                 )
@@ -12663,9 +12680,9 @@ async def _process_client_requirement_email(
         known_for_toc = lab_context.get("known_inputs") or {}
         toc_technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain"))
         toc_days = _safe_int(known_for_toc.get("duration_days") or extracted.get("duration_days"), 0)
-        toc_attachment = None
+        toc_attachments: List[Dict[str, str]] = []
         if asks_toc:
-            toc_attachment = await _create_standalone_toc_attachment(
+            toc_attachments = await _create_standalone_toc_attachments(
                 technology=toc_technology,
                 duration_days=toc_days,
                 mode=_clean(extracted.get("mode") or "Online"),
@@ -12679,7 +12696,7 @@ async def _process_client_requirement_email(
             email_doc.get("from_name") or "",
             subject,
             also_toc=asks_toc,
-            toc_attached=bool(toc_attachment),
+            toc_attached=bool(toc_attachments),
         )
         reply = await _humanize_verified_client_reply(
             db, email_doc, lab_classification, extracted, subject, body, reply,
@@ -12694,7 +12711,7 @@ async def _process_client_requirement_email(
             {**email_doc, "from_email": sender_email, "email_classification": lab_classification,
              "office_mail_category": lab_scenario},
             reply,
-            attachments=[toc_attachment] if toc_attachment else None,
+            attachments=toc_attachments or None,
         )
         success = bool(send_result.get("success"))
         update = {
@@ -12706,7 +12723,7 @@ async def _process_client_requirement_email(
             "reply_template_key": reply.get("template_key") or ("client_toc_and_lab_cost" if asks_toc else "client_lab_cost_grounded"),
             "generated_reply": {"subject": reply["subject"], "body": reply["body"]},
             "ai_reply": reply["body"], "draft_reply": reply["body"], "lab_cost_context": lab_context,
-            "lab_cost_attachments": [toc_attachment["filename"]] if toc_attachment else [],
+            "lab_cost_attachments": [item["filename"] for item in toc_attachments],
             "reply_sent": success, "reply_sent_at": send_result.get("sent_at"),
             "sent_reply_body": send_result.get("body") or reply["body"],
             "sent_reply_subject": send_result.get("subject") or reply["subject"],
@@ -12738,9 +12755,9 @@ async def _process_client_requirement_email(
             missing.append("training duration or number of days")
         client_name = _clean(email_doc.get("from_name") or "Client").split()[0]
         generation_mode = "ai" if await _global_ai_wording_enabled(db) else "template"
-        toc_attachment = None
+        toc_attachments: List[Dict[str, str]] = []
         if not missing:
-            toc_attachment = await _create_standalone_toc_attachment(
+            toc_attachments = await _create_standalone_toc_attachments(
                 technology=technology,
                 duration_days=max(1, _safe_int(toc_extracted.get("duration_days"), 1)),
                 mode=toc_extracted.get("mode") or "Online",
@@ -12753,7 +12770,7 @@ async def _process_client_requirement_email(
             subject=subject,
             technology=technology or "the training",
             toc_requested=True,
-            toc_attached=bool(toc_attachment),
+            toc_attached=bool(toc_attachments),
             toc_missing=" and ".join(missing),
         )
         toc_classification = {
@@ -12771,7 +12788,7 @@ async def _process_client_requirement_email(
             {**email_doc, "from_email": sender_email, "email_classification": toc_classification,
              "office_mail_category": "client_asks_toc_only"},
             toc_reply,
-            attachments=[toc_attachment] if toc_attachment else None,
+            attachments=toc_attachments or None,
             mail_type_override="client_toc_only",
         )
         success = bool(send_result.get("success"))
@@ -14131,13 +14148,16 @@ async def _process_client_requirement_email(
         and classification.get("person_type") != "trainer"
     ):
         try:
-            from app.agents.reply_precheck import build_reply_plan
+            from app.agents.reply_precheck import build_reply_plan, is_vendor_pitch
 
-            reply_plan = build_reply_plan(
+            # A training company offering us trainers keeps the existing handling.
+            reply_plan = None if is_vendor_pitch(classification_body) else build_reply_plan(
                 classification_body,
                 extracted,
                 batch_type="proposal" if is_proposal_batch else "confirmed",
                 sender_name=email_doc.get("from_name") or "",
+                subject=subject,
+                seed=str(email_doc.get("email_id") or ""),
             )
         except Exception:
             logger.exception("Reply pre-check failed for %s; using the workflow template", email_doc.get("email_id"))

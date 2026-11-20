@@ -350,3 +350,28 @@ def test_invalid_participant_count_never_reaches_lab_export(monkeypatch, count):
         ), db))
     assert error.value.status_code == 422
     assert not any(path.endswith('/lab-cost') or path.endswith('/email/send') for path, _ in requests)
+
+
+def test_client_handoff_adds_the_course_outline_pdf_after_the_workbook(monkeypatch):
+    db, requests = prepare(monkeypatch)
+    monkeypatch.setattr(shortlists, "_generate_toc_pdf", AsyncMock(return_value=b"%PDF-1.7 outline"))
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    mail = next(body for path, body in requests if path.endswith("/email/send"))
+    assert [a["filename"] for a in mail["attachments"]] == [
+        "Test Trainer - Client Aligned Profile.pdf", "DevOps - Training ToC.xlsx",
+        "DevOps - Course Outline.pdf", "DevOps - Lab Cost Estimate.xlsx",
+    ]
+    assert mail["attachments"][2]["subtype"] == "pdf"
+
+
+def test_client_handoff_still_sends_when_the_course_outline_pdf_fails(monkeypatch):
+    db, requests = prepare(monkeypatch)
+    monkeypatch.setattr(shortlists, "_generate_toc_pdf", AsyncMock(side_effect=RuntimeError("renderer down")))
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["success"] is True
+    mail = next(body for path, body in requests if path.endswith("/email/send"))
+    assert "DevOps - Course Outline.pdf" not in [a["filename"] for a in mail["attachments"]]
