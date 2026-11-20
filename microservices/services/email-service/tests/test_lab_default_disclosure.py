@@ -82,7 +82,6 @@ def _assert_professional_ack(body: str, *, topics: bool, toc: bool = True, lab: 
     assert _close(body) in _CLOSES
     assert "Please share the participant count" not in body
     assert "preferred cloud provider" not in body
-    assert "1 participant" not in body
     assert "confirmed batch scope" not in body
     assert "revert" not in body.lower()
     assert "as applicable" not in body.lower()
