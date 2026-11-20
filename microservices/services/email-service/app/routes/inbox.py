@@ -2899,7 +2899,7 @@ _ACK_VERSIONS = (
         "mode": "delivery_mode",
         "hours": "lab_hours",
         "order": ("topics", "duration", "mode", "hours"),
-        "close": "",
+        "close": "We look forward to your thoughts.",
         "cv": "the relevant CV",
         "lines": {
             "both": "We’ll prepare the ToC and lab cost from the details you shared, then send {noun} for your review.",
@@ -3790,7 +3790,7 @@ def _render_professional_ack(
     estimate = _lab_estimate_sentence(extracted)
     if estimate:
         paragraphs.append(estimate)
-    if not estimate and version.get("close"):
+    if version.get("close"):
         paragraphs.append(str(version["close"]))
     paragraphs.append(_reply_signature())
     return "\n\n".join(paragraphs)
@@ -3892,6 +3892,12 @@ def _format_missing_details(extracted: Dict[str, Any]) -> str:
     missing = list(extracted.get("needs_clarification") or [])
     if extracted.get("duration_inferred_from_dates") and "Training duration" not in missing:
         missing.insert(0, "Training duration")
+    if (
+        extracted.get("duration_inferred_from_dates")
+        and not _safe_int(extracted.get("participant_count"), 0)
+        and "Participant count" not in missing
+    ):
+        missing.insert(1, "Participant count")
     if not missing:
         return ""
 
