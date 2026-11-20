@@ -100,7 +100,7 @@ def _assert_professional_ack(body: str, *, topics: bool, toc: bool = True, lab: 
     assert ("topics" in body.lower()) is topics
 
 
-def test_client_ack_discloses_lab_defaults_and_requests_real_inputs():
+def test_client_ack_discloses_lab_defaults_without_requesting_inputs():
     message = _client_short_requirement_ack({
         "technology_needed": "DevOps",
         "clahan_managed_details": ["Lab availability and cost"],
@@ -108,9 +108,9 @@ def test_client_ack_discloses_lab_defaults_and_requests_real_inputs():
     })
 
     body = message["body"]
-    assert "participant count" in body
-    assert "lab hours per day" in body
-    assert "preferred cloud provider (AWS, Azure, or GCP)" in body
+    assert "one-person, three-hour baseline" in body
+    assert "AWS Mumbai pricing" in body
+    assert "Could you please confirm" not in body
     assert "not treated as the participant count" not in body
     assert "confirmed batch scope" not in body
     assert "Greetings of the day" not in body
