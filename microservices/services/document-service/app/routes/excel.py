@@ -298,6 +298,9 @@ def _toc_to_daily_plan(toc: Dict[str, Any]) -> bytes:
                   topic, day_subtopics(day, topic), day_lab(day)]
         for col, value in enumerate(values, 1):
             cell = ws.cell(row, col, value)
+            # Client text is data, including strings that begin with '='.
+            if isinstance(value, str):
+                cell.data_type = "s"
             cell.font = Font(name="Calibri", size=10, color=ink)
             cell.fill = PatternFill("solid", fgColor=band if index % 2 else "FFFFFFFF")
             cell.alignment = Alignment(horizontal="center" if col <= 2 else "left", vertical="top", wrap_text=True)
