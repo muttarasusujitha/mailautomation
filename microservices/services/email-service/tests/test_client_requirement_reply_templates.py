@@ -123,9 +123,8 @@ def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
     }.intersection(extracted["requested_details"])
     body = _client_proceed_ack_reply(extracted)["body"]
     assert "Could you please confirm" not in body
-    assert "lab estimate for 1 participant and 3 hours per day" in body.lower()
+    assert "lab estimate for one participant and 3 hours per day" in body.lower()
     assert "approved one-person, three-hour baseline" in body.lower()
-    assert "AWS Mumbai pricing" in body
     assert "not treated as the participant count" not in body
     assert "confirmed batch scope" not in body
 

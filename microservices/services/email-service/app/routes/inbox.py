@@ -3238,15 +3238,14 @@ def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
     participants = _safe_int(extracted.get("participant_count"), 0) or 1
     hours_per_day = _known_lab_hours(extracted) or 3
     duration_days = _safe_float(extracted.get("duration_days"), 0)
-    parts = [f"{participants} participant{'s' if participants != 1 else ''}"]
+    participant_count = "one" if participants == 1 else str(participants)
+    parts = [f"{participant_count} participant{'s' if participants != 1 else ''}"]
     if duration_days:
         parts.append(f"{_display_quantity(duration_days)} days")
     parts.append(f"{_display_quantity(hours_per_day)} hours per day")
     sentence = f"We will prepare the lab estimate for {_join_phrases(parts)}."
     if not _safe_int(extracted.get("participant_count"), 0) or not _known_lab_hours(extracted):
         sentence += " Missing participant or lab-hour values use the approved one-person, three-hour baseline."
-    if not _clean(extracted.get("cloud_provider")):
-        sentence += " AWS Mumbai pricing will be used if no cloud provider is specified."
     return sentence
 
 
@@ -3800,7 +3799,7 @@ def _render_professional_ack(
     estimate = _lab_estimate_sentence(extracted)
     if estimate:
         paragraphs.append(estimate)
-    if not estimate and version.get("close"):
+    if version.get("close"):
         paragraphs.append(str(version["close"]))
     paragraphs.append(_reply_signature())
     return "\n\n".join(paragraphs)

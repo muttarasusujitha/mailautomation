@@ -108,7 +108,6 @@ def test_client_ack_discloses_lab_defaults_without_requesting_inputs():
 
     body = message["body"]
     assert "one-person, three-hour baseline" in body
-    assert "AWS Mumbai pricing" in body
     assert "Could you please confirm" not in body
     assert "not treated as the participant count" not in body
     assert "confirmed batch scope" not in body
