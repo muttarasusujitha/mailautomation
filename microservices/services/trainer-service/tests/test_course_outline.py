@@ -155,7 +155,7 @@ def test_one_sentence_labs_become_participant_steps():
 
 def test_authored_outlines_are_applied_to_their_datasets():
     assert all(count == 0 for count in apply_authored(APP, write=False).values())  # committed and idempotent
-    for name, days in (("devops_30.json", 30), ("azure_devops_source.json", 9)):
+    for name, days in (("devops_30.json", 30), ("azure_devops_source.json", 9), ("java_fullstack_15.json", 15)):
         document = json.loads((APP / "datasets_compact" / name).read_text(encoding="utf-8"))
         authored = [day for day in document["days"] if (day.get("outline") or {}).get("source") == "authored"]
         assert len(authored) == days, name

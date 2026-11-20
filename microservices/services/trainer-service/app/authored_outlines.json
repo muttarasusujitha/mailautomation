@@ -2844,6 +2844,1096 @@
           "assessment": "Teams present their delivery flow and answer questions on each control."
         }
       ]
+    },
+    {
+      "files": [
+        "java_fullstack_15.json"
+      ],
+      "days": [
+        {
+          "topic": "Java Full Stack Architecture and Development Setup",
+          "groups": [
+            {
+              "heading": "Full Stack Architecture",
+              "lead": "",
+              "items": [
+                "Layers: React client, Spring Boot API, relational database",
+                "Request flow from browser to database and back",
+                "Monolith first, services later",
+                "Environments: local, test, production"
+              ]
+            },
+            {
+              "heading": "Developer Workstation",
+              "lead": "",
+              "items": [
+                "JDK 21 and SDKMAN",
+                "IntelliJ IDEA or VS Code with Java extensions",
+                "Maven project structure: src/main, src/test, pom.xml",
+                "Node.js and npm for the frontend"
+              ]
+            },
+            {
+              "heading": "Team Workflow",
+              "lead": "",
+              "items": [
+                "Git branching and pull requests",
+                "Jira board for stories and tasks"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Project Skeleton",
+            "scenario": "The team starts a new employee-management application from an empty repository.",
+            "lead": "Participants:",
+            "tasks": [
+              "Install the JDK, Maven and Node.js",
+              "Generate a Spring Boot project with Spring Initializr",
+              "Create a React app with Vite",
+              "Push both to one Git repository with a README",
+              "Set up a Jira board with the first stories"
+            ],
+            "deliverables": [
+              "Repository with backend and frontend folders",
+              "Running backend and frontend on a laptop",
+              "Jira board"
+            ]
+          },
+          "checks": [
+            [
+              "Run mvn test on a clean checkout",
+              "The build passes.",
+              "Maven output"
+            ],
+            [
+              "Start both applications",
+              "The React page calls the API health endpoint.",
+              "Browser network tab"
+            ],
+            [
+              "Open the Jira board",
+              "Each story has acceptance criteria.",
+              "Board view"
+            ]
+          ],
+          "objectives": [
+            "Describe the layers of a Java full stack application.",
+            "Set up a working Java and React development environment.",
+            "Organise work with Git and Jira."
+          ],
+          "assessment": "Participants explain how a request travels through the three layers of their skeleton."
+        },
+        {
+          "topic": "Core Java Fundamentals",
+          "groups": [
+            {
+              "heading": "Language Basics",
+              "lead": "",
+              "items": [
+                "Program structure: classes, main method, packages",
+                "Primitive types and String",
+                "Operators and type casting",
+                "var and type inference"
+              ]
+            },
+            {
+              "heading": "Control Flow",
+              "lead": "",
+              "items": [
+                "if, switch expressions",
+                "for, enhanced for, while loops",
+                "break and continue"
+              ]
+            },
+            {
+              "heading": "Methods and Arrays",
+              "lead": "",
+              "items": [
+                "Methods, parameters and return values",
+                "Method overloading",
+                "Arrays and multi-dimensional arrays",
+                "Reading input with Scanner"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Payroll Calculator",
+            "scenario": "HR calculates monthly pay in a spreadsheet and makes mistakes on overtime.",
+            "lead": "Participants write a console program that:",
+            "tasks": [
+              "Reads employee hours and rates",
+              "Calculates overtime above 40 hours at 1.5 times the rate",
+              "Stores results in an array",
+              "Prints a formatted pay summary",
+              "Rejects negative or non-numeric input"
+            ],
+            "deliverables": [
+              "PayrollCalculator.java",
+              "Sample input and output"
+            ]
+          },
+          "checks": [
+            [
+              "Enter 45 hours at 100 per hour",
+              "Pay is 4,750.",
+              "Program output"
+            ],
+            [
+              "Enter -5 hours",
+              "The program rejects the value and asks again.",
+              "Program output"
+            ],
+            [
+              "Enter 40 hours",
+              "No overtime is added.",
+              "Program output"
+            ]
+          ],
+          "objectives": [
+            "Write Java programs with variables, operators and control flow.",
+            "Structure code into methods.",
+            "Process data with arrays and validate input."
+          ],
+          "assessment": "Participants extend the calculator with a tax rule and explain each method they added."
+        },
+        {
+          "topic": "Object-Oriented Java",
+          "groups": [
+            {
+              "heading": "Classes and Objects",
+              "lead": "",
+              "items": [
+                "Fields, constructors and methods",
+                "Encapsulation with private fields and getters",
+                "static members",
+                "Records for simple data"
+              ]
+            },
+            {
+              "heading": "Inheritance and Polymorphism",
+              "lead": "",
+              "items": [
+                "extends and super",
+                "Method overriding and @Override",
+                "Abstract classes",
+                "Interfaces and default methods"
+              ]
+            },
+            {
+              "heading": "Design",
+              "lead": "",
+              "items": [
+                "Composition over inheritance",
+                "equals, hashCode and toString",
+                "SOLID principles: single responsibility, open/closed"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Banking Domain Model",
+            "scenario": "A bank needs savings and current accounts with different rules for withdrawals and interest.",
+            "lead": "Participants:",
+            "tasks": [
+              "Model Account as an abstract class with SavingsAccount and CurrentAccount",
+              "Enforce a minimum balance on savings accounts",
+              "Allow an overdraft limit on current accounts",
+              "Add an InterestBearing interface",
+              "Process a list of accounts polymorphically"
+            ],
+            "deliverables": [
+              "Domain classes",
+              "Main program showing deposits, withdrawals and interest",
+              "Class diagram"
+            ]
+          },
+          "checks": [
+            [
+              "Withdraw below the savings minimum balance",
+              "The withdrawal is refused.",
+              "Program output"
+            ],
+            [
+              "Withdraw within the current account overdraft",
+              "The withdrawal succeeds.",
+              "Program output"
+            ],
+            [
+              "Read the class fields",
+              "No field is public.",
+              "Source code"
+            ]
+          ],
+          "objectives": [
+            "Design classes with encapsulation.",
+            "Use inheritance, abstract classes and interfaces correctly.",
+            "Apply polymorphism to process related objects."
+          ],
+          "assessment": "Participants add a fixed-deposit account without changing existing classes and explain how."
+        },
+        {
+          "topic": "Collections, Exception Handling and Java 8 Features",
+          "groups": [
+            {
+              "heading": "Collections Framework",
+              "lead": "",
+              "items": [
+                "List: ArrayList and LinkedList",
+                "Set: HashSet and TreeSet",
+                "Map: HashMap and TreeMap",
+                "Generics and type safety"
+              ]
+            },
+            {
+              "heading": "Exceptions",
+              "lead": "",
+              "items": [
+                "Checked versus unchecked exceptions",
+                "try, catch, finally and try-with-resources",
+                "Custom exceptions"
+              ]
+            },
+            {
+              "heading": "Functional Java",
+              "lead": "",
+              "items": [
+                "Lambda expressions and method references",
+                "Streams: filter, map, sorted, collect",
+                "Optional instead of null",
+                "Collectors.groupingBy"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Product Catalogue Clean-up",
+            "scenario": "A product CSV file contains duplicates, missing prices and invalid categories.",
+            "lead": "Participants:",
+            "tasks": [
+              "Read the CSV with try-with-resources",
+              "Throw a custom InvalidProductException for bad rows",
+              "Remove duplicates by product code",
+              "Group valid products by category with streams",
+              "Report the top five products by price"
+            ],
+            "deliverables": [
+              "ProductProcessor.java",
+              "Error report of rejected rows",
+              "Category summary"
+            ]
+          },
+          "checks": [
+            [
+              "Process a row with no price",
+              "It is rejected with a clear reason.",
+              "Error report"
+            ],
+            [
+              "Process the file twice",
+              "The summary is identical.",
+              "Output comparison"
+            ],
+            [
+              "Include a duplicate product code",
+              "It appears only once in the summary.",
+              "Category summary"
+            ]
+          ],
+          "objectives": [
+            "Choose the right collection for a task.",
+            "Handle errors with checked, unchecked and custom exceptions.",
+            "Transform data with lambdas and streams."
+          ],
+          "assessment": "Participants rewrite one loop-based method with streams and compare readability."
+        },
+        {
+          "topic": "SQL and Relational Database Design",
+          "groups": [
+            {
+              "heading": "Data Modelling",
+              "lead": "",
+              "items": [
+                "Entities, attributes and relationships",
+                "ER diagrams",
+                "Normalisation to third normal form",
+                "Primary and foreign keys"
+              ]
+            },
+            {
+              "heading": "SQL",
+              "lead": "",
+              "items": [
+                "DDL: CREATE, ALTER, constraints",
+                "DML: INSERT, UPDATE, DELETE",
+                "Joins: inner, left, self",
+                "GROUP BY, HAVING and subqueries"
+              ]
+            },
+            {
+              "heading": "Integrity and Performance",
+              "lead": "",
+              "items": [
+                "Transactions and ACID",
+                "Indexes and execution plans"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Employee Database",
+            "scenario": "The employee-management application needs a database for departments, employees and leave requests.",
+            "lead": "Participants:",
+            "tasks": [
+              "Draw the ER diagram",
+              "Create tables with keys and constraints in MySQL",
+              "Load sample data",
+              "Write join and aggregate queries for HR reports",
+              "Approve a leave request inside a transaction"
+            ],
+            "deliverables": [
+              "ER diagram",
+              "schema.sql and data.sql",
+              "Report queries with results"
+            ]
+          },
+          "checks": [
+            [
+              "Insert an employee with an unknown department",
+              "The foreign key rejects it.",
+              "MySQL error"
+            ],
+            [
+              "Fail the transaction halfway",
+              "No partial update remains.",
+              "Query results"
+            ],
+            [
+              "Run the report query with EXPLAIN",
+              "It uses the index.",
+              "Execution plan"
+            ]
+          ],
+          "objectives": [
+            "Design a normalised relational schema.",
+            "Write SQL for CRUD, joins and reports.",
+            "Use transactions and indexes correctly."
+          ],
+          "assessment": "Participants write a new report query from a business question and explain the joins."
+        },
+        {
+          "topic": "Spring Core and Spring Boot",
+          "groups": [
+            {
+              "heading": "Spring Core",
+              "lead": "",
+              "items": [
+                "Inversion of control and the application context",
+                "Dependency injection by constructor",
+                "Beans: @Component, @Service, @Repository, @Configuration",
+                "Bean scopes"
+              ]
+            },
+            {
+              "heading": "Spring Boot",
+              "lead": "",
+              "items": [
+                "Starters and auto-configuration",
+                "application.yml and @ConfigurationProperties",
+                "Profiles: dev, test, prod",
+                "Actuator health and info endpoints"
+              ]
+            },
+            {
+              "heading": "Project Practices",
+              "lead": "",
+              "items": [
+                "Layered packages: controller, service, repository",
+                "Logging with SLF4J"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Configurable Service",
+            "scenario": "The application needs different database and email settings for dev and prod.",
+            "lead": "Participants:",
+            "tasks": [
+              "Create service and repository beans with constructor injection",
+              "Move settings into application.yml",
+              "Add dev and prod profiles",
+              "Bind custom settings with @ConfigurationProperties",
+              "Expose Actuator health"
+            ],
+            "deliverables": [
+              "Spring Boot project",
+              "Profile configuration files",
+              "Startup logs for both profiles"
+            ]
+          },
+          "checks": [
+            [
+              "Start with the prod profile",
+              "The prod settings are loaded.",
+              "Startup log"
+            ],
+            [
+              "Call /actuator/health",
+              "Status is UP.",
+              "HTTP response"
+            ],
+            [
+              "Replace the repository in a unit test",
+              "The service is tested without a database.",
+              "Test report"
+            ]
+          ],
+          "objectives": [
+            "Explain inversion of control and dependency injection.",
+            "Configure Spring Boot applications with profiles.",
+            "Structure an application in layers."
+          ],
+          "assessment": "Participants explain which beans Spring created and how each dependency was injected."
+        },
+        {
+          "topic": "REST APIs with Spring Boot",
+          "groups": [
+            {
+              "heading": "REST Design",
+              "lead": "",
+              "items": [
+                "Resources, URIs and HTTP methods",
+                "Status codes: 200, 201, 204, 400, 404, 409",
+                "Pagination and filtering parameters"
+              ]
+            },
+            {
+              "heading": "Spring MVC",
+              "lead": "",
+              "items": [
+                "@RestController, @GetMapping, @PostMapping",
+                "Request bodies and DTOs",
+                "Bean Validation: @NotNull, @Size, @Email",
+                "Global errors with @ControllerAdvice"
+              ]
+            },
+            {
+              "heading": "Documentation and Testing",
+              "lead": "",
+              "items": [
+                "OpenAPI with springdoc",
+                "Testing endpoints with MockMvc and Postman"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Employee API",
+            "scenario": "The frontend team needs an API to manage employees.",
+            "lead": "Participants build endpoints to:",
+            "tasks": [
+              "Create, read, update and delete employees",
+              "Validate request bodies",
+              "Return correct status codes",
+              "Return consistent error responses",
+              "Publish the API in Swagger UI"
+            ],
+            "deliverables": [
+              "EmployeeController and DTOs",
+              "Postman collection",
+              "MockMvc tests"
+            ]
+          },
+          "checks": [
+            [
+              "POST an employee with an invalid email",
+              "The API returns 400 with the field error.",
+              "HTTP response"
+            ],
+            [
+              "GET an unknown employee",
+              "The API returns 404.",
+              "HTTP response"
+            ],
+            [
+              "Open Swagger UI",
+              "Every endpoint is documented.",
+              "Swagger page"
+            ]
+          ],
+          "objectives": [
+            "Design REST resources with correct methods and status codes.",
+            "Build validated endpoints with DTOs.",
+            "Document and test APIs."
+          ],
+          "assessment": "Participants add a search endpoint and justify its URL and parameters."
+        },
+        {
+          "topic": "Spring Data JPA and Hibernate",
+          "groups": [
+            {
+              "heading": "Mapping",
+              "lead": "",
+              "items": [
+                "@Entity, @Id and generated keys",
+                "Relationships: @ManyToOne, @OneToMany, @ManyToMany",
+                "Fetch types: lazy and eager",
+                "Database migrations with Flyway"
+              ]
+            },
+            {
+              "heading": "Repositories",
+              "lead": "",
+              "items": [
+                "JpaRepository and derived queries",
+                "@Query with JPQL",
+                "Pagination and sorting",
+                "Projections"
+              ]
+            },
+            {
+              "heading": "Performance",
+              "lead": "",
+              "items": [
+                "The N+1 query problem and fetch joins",
+                "@Transactional boundaries"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Persist the Employee API",
+            "scenario": "The API currently stores employees in memory and loses data on restart.",
+            "lead": "Participants:",
+            "tasks": [
+              "Map Employee and Department entities",
+              "Create the schema with a Flyway migration",
+              "Replace the in-memory store with JPA repositories",
+              "Add paginated search",
+              "Find and fix an N+1 query"
+            ],
+            "deliverables": [
+              "Entity and repository classes",
+              "Flyway migration scripts",
+              "SQL log before and after the fix"
+            ]
+          },
+          "checks": [
+            [
+              "Restart the application",
+              "Employees are still there.",
+              "API response"
+            ],
+            [
+              "Request page 2 with size 10",
+              "The correct 10 employees are returned.",
+              "API response"
+            ],
+            [
+              "List employees with departments",
+              "One query is run instead of one per employee.",
+              "SQL log"
+            ]
+          ],
+          "objectives": [
+            "Map entities and relationships with JPA.",
+            "Query data with repositories, JPQL and pagination.",
+            "Find and fix common JPA performance problems."
+          ],
+          "assessment": "Participants explain where the transaction starts and ends for an update request."
+        },
+        {
+          "topic": "Spring Security and Authentication",
+          "groups": [
+            {
+              "heading": "Security Basics",
+              "lead": "",
+              "items": [
+                "Authentication versus authorisation",
+                "Password hashing with BCrypt",
+                "The SecurityFilterChain"
+              ]
+            },
+            {
+              "heading": "Token Authentication",
+              "lead": "",
+              "items": [
+                "JWT structure: header, payload, signature",
+                "Issuing and validating tokens",
+                "Token expiry and refresh"
+              ]
+            },
+            {
+              "heading": "Access Control",
+              "lead": "",
+              "items": [
+                "Roles and @PreAuthorize",
+                "CORS configuration for the React app",
+                "Common risks: OWASP Top 10 for APIs"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Secure the API",
+            "scenario": "Anyone can currently delete employees through the API.",
+            "lead": "Participants:",
+            "tasks": [
+              "Add a login endpoint that issues a JWT",
+              "Store passwords with BCrypt",
+              "Require a valid token for all employee endpoints",
+              "Allow delete only for the ADMIN role",
+              "Configure CORS for the frontend origin"
+            ],
+            "deliverables": [
+              "Security configuration",
+              "Login and protected endpoint tests",
+              "Postman collection with tokens"
+            ]
+          },
+          "checks": [
+            [
+              "Call an endpoint without a token",
+              "The API returns 401.",
+              "HTTP response"
+            ],
+            [
+              "Delete as a USER",
+              "The API returns 403.",
+              "HTTP response"
+            ],
+            [
+              "Read the users table",
+              "Passwords are stored as BCrypt hashes.",
+              "Database query"
+            ]
+          ],
+          "objectives": [
+            "Authenticate users with JWT.",
+            "Authorise actions by role.",
+            "Configure CORS and avoid common API security risks."
+          ],
+          "assessment": "Participants review a seeded insecure endpoint and explain how they would fix it."
+        },
+        {
+          "topic": "HTML, CSS, JavaScript and React Foundations",
+          "groups": [
+            {
+              "heading": "HTML and CSS",
+              "lead": "",
+              "items": [
+                "Semantic HTML and accessible forms",
+                "CSS box model",
+                "Flexbox and Grid layouts",
+                "Responsive design with media queries"
+              ]
+            },
+            {
+              "heading": "JavaScript",
+              "lead": "",
+              "items": [
+                "let, const and arrow functions",
+                "Arrays, objects and destructuring",
+                "DOM events",
+                "Promises, async and await with fetch"
+              ]
+            },
+            {
+              "heading": "React Basics",
+              "lead": "",
+              "items": [
+                "Components and JSX",
+                "Props",
+                "Rendering lists with keys"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Employee Directory Page",
+            "scenario": "HR wants a simple page to browse employees on desktop and mobile.",
+            "lead": "Participants:",
+            "tasks": [
+              "Build the page layout with semantic HTML and CSS Grid",
+              "Make it responsive",
+              "Add a JavaScript search filter",
+              "Rebuild the page as React components"
+            ],
+            "deliverables": [
+              "Static HTML/CSS/JS version",
+              "React component version",
+              "Screenshots on desktop and mobile"
+            ]
+          },
+          "checks": [
+            [
+              "Resize to mobile width",
+              "The layout changes to one column.",
+              "Screenshot"
+            ],
+            [
+              "Type in the search box",
+              "The list filters as you type.",
+              "Screen recording"
+            ],
+            [
+              "Run an accessibility check",
+              "Form fields have labels.",
+              "Lighthouse report"
+            ]
+          ],
+          "objectives": [
+            "Build responsive pages with HTML and CSS.",
+            "Write modern JavaScript for interactivity.",
+            "Compose a user interface from React components."
+          ],
+          "assessment": "Participants explain how their components split the page and what each one receives as props."
+        },
+        {
+          "topic": "React State, Forms and API Integration",
+          "groups": [
+            {
+              "heading": "State and Effects",
+              "lead": "",
+              "items": [
+                "useState and lifting state up",
+                "useEffect and its dependency array",
+                "Custom hooks"
+              ]
+            },
+            {
+              "heading": "Forms",
+              "lead": "",
+              "items": [
+                "Controlled inputs",
+                "Client-side validation",
+                "Showing server validation errors"
+              ]
+            },
+            {
+              "heading": "Talking to the API",
+              "lead": "",
+              "items": [
+                "Axios instances and base URLs",
+                "Sending the JWT with an interceptor",
+                "Loading, empty and error states",
+                "Routing with React Router"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Connect the Frontend",
+            "scenario": "The React directory still uses hard-coded data.",
+            "lead": "Participants:",
+            "tasks": [
+              "Log in and keep the token",
+              "Load employees from the API with paging",
+              "Add a create and edit form with validation",
+              "Show loading and error states",
+              "Protect routes that need login"
+            ],
+            "deliverables": [
+              "React application connected to the API",
+              "Screen recording of the main flows"
+            ]
+          },
+          "checks": [
+            [
+              "Submit the form with an invalid email",
+              "The field error from the API is shown.",
+              "Screenshot"
+            ],
+            [
+              "Stop the backend and reload",
+              "A clear error message is shown.",
+              "Screenshot"
+            ],
+            [
+              "Open a protected route without logging in",
+              "The user is redirected to login.",
+              "Screen recording"
+            ]
+          ],
+          "objectives": [
+            "Manage component state and side effects.",
+            "Build validated forms.",
+            "Integrate a React app with a secured REST API."
+          ],
+          "assessment": "Participants trace one form submission from the input field to the database row."
+        },
+        {
+          "topic": "Full Stack Integration and Testing",
+          "groups": [
+            {
+              "heading": "Backend Testing",
+              "lead": "",
+              "items": [
+                "Unit tests with JUnit 5 and Mockito",
+                "Slice tests: @WebMvcTest and @DataJpaTest",
+                "Integration tests with Testcontainers"
+              ]
+            },
+            {
+              "heading": "Frontend Testing",
+              "lead": "",
+              "items": [
+                "Component tests with React Testing Library",
+                "Mocking API calls"
+              ]
+            },
+            {
+              "heading": "End-to-End Quality",
+              "lead": "",
+              "items": [
+                "API contracts with OpenAPI",
+                "End-to-end tests with Playwright",
+                "Debugging across layers: browser tools, logs, SQL",
+                "Test coverage with JaCoCo"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Test the Leave Workflow",
+            "scenario": "A bug lets employees approve their own leave requests.",
+            "lead": "Participants:",
+            "tasks": [
+              "Write a failing test that reproduces the bug",
+              "Fix it in the service layer",
+              "Add an integration test against a real MySQL container",
+              "Add a component test for the approval button",
+              "Add one Playwright end-to-end test"
+            ],
+            "deliverables": [
+              "Test suites for backend and frontend",
+              "Coverage report",
+              "Bug fix pull request"
+            ]
+          },
+          "checks": [
+            [
+              "Run the new test before the fix",
+              "It fails.",
+              "Test report"
+            ],
+            [
+              "Run all tests after the fix",
+              "They pass.",
+              "Test report"
+            ],
+            [
+              "Run the end-to-end test",
+              "An employee cannot approve their own request.",
+              "Playwright report"
+            ]
+          ],
+          "objectives": [
+            "Test each layer with the right kind of test.",
+            "Reproduce a bug with a test before fixing it.",
+            "Debug problems across frontend, API and database."
+          ],
+          "assessment": "Participants explain which test would have caught the bug earliest."
+        },
+        {
+          "topic": "Microservices and Messaging Overview",
+          "groups": [
+            {
+              "heading": "Service Design",
+              "lead": "",
+              "items": [
+                "When to split a monolith",
+                "Bounded contexts and service boundaries",
+                "Database per service",
+                "Configuration per service with Spring Cloud Config"
+              ]
+            },
+            {
+              "heading": "Communication",
+              "lead": "",
+              "items": [
+                "Synchronous REST and API gateways",
+                "Asynchronous events with Kafka: topics, producers, consumers",
+                "Idempotent consumers"
+              ]
+            },
+            {
+              "heading": "Resilience and Visibility",
+              "lead": "",
+              "items": [
+                "Timeouts, retries and circuit breakers with Resilience4j",
+                "Service discovery",
+                "Distributed tracing with correlation IDs"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Notification Service",
+            "scenario": "Managers want an email when leave is requested, without slowing down the main API.",
+            "lead": "Participants:",
+            "tasks": [
+              "Extract notifications into a separate Spring Boot service",
+              "Publish a LeaveRequested event to Kafka",
+              "Consume it and send a notification",
+              "Make the consumer ignore duplicate events",
+              "Add a circuit breaker around a slow downstream call"
+            ],
+            "deliverables": [
+              "Two services and a Docker Compose file with Kafka",
+              "Event flow diagram"
+            ]
+          },
+          "checks": [
+            [
+              "Stop the notification service and request leave",
+              "The request still succeeds and the event waits in Kafka.",
+              "API response and topic offsets"
+            ],
+            [
+              "Send the same event twice",
+              "Only one notification is sent.",
+              "Service log"
+            ],
+            [
+              "Make the downstream call slow",
+              "The circuit breaker opens.",
+              "Resilience4j metrics"
+            ]
+          ],
+          "objectives": [
+            "Decide when and how to split a service.",
+            "Connect services with REST and Kafka events.",
+            "Make services resilient to failures."
+          ],
+          "assessment": "Participants explain what happens to a leave request when each part of the system is down."
+        },
+        {
+          "topic": "Docker, CI/CD and Cloud Deployment",
+          "groups": [
+            {
+              "heading": "Containers",
+              "lead": "",
+              "items": [
+                "Dockerfiles for Spring Boot and React",
+                "Multi-stage builds",
+                "Docker Compose for the full stack"
+              ]
+            },
+            {
+              "heading": "Continuous Integration",
+              "lead": "",
+              "items": [
+                "GitHub Actions: build, test, scan",
+                "Building and pushing images",
+                "Environment variables and secrets"
+              ]
+            },
+            {
+              "heading": "Deployment",
+              "lead": "",
+              "items": [
+                "Deploying to a cloud service such as AWS Elastic Beanstalk or Azure App Service",
+                "Managed MySQL",
+                "Health checks and logs"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Ship It",
+            "scenario": "The application only runs on developer laptops.",
+            "lead": "Participants:",
+            "tasks": [
+              "Containerise the backend and frontend",
+              "Run the full stack with Docker Compose",
+              "Create a GitHub Actions pipeline that tests and builds images",
+              "Deploy to a cloud test environment",
+              "Check health and logs after deployment"
+            ],
+            "deliverables": [
+              "Dockerfiles and docker-compose.yml",
+              "Pipeline definition and run",
+              "Test environment URL"
+            ]
+          },
+          "checks": [
+            [
+              "Push a commit with a failing test",
+              "The pipeline stops before building images.",
+              "Pipeline run"
+            ],
+            [
+              "Open the test environment URL",
+              "The application works end to end.",
+              "Browser screenshot"
+            ],
+            [
+              "Look for secrets in the repository",
+              "None are committed.",
+              "Secret scan output"
+            ]
+          ],
+          "objectives": [
+            "Containerise a full stack application.",
+            "Build and test it automatically with CI.",
+            "Deploy it to a cloud environment."
+          ],
+          "assessment": "Participants explain how configuration differs between local and cloud environments."
+        },
+        {
+          "topic": "Java Full Stack Capstone and Interview Preparation",
+          "groups": [
+            {
+              "heading": "Capstone Scope",
+              "lead": "Teams deliver a business application with:",
+              "items": [
+                "Requirements as user stories",
+                "A secured REST API with JPA persistence",
+                "A React frontend with role-based screens",
+                "Automated tests at every layer",
+                "A containerised deployment"
+              ]
+            },
+            {
+              "heading": "Interview Preparation",
+              "lead": "",
+              "items": [
+                "Core Java and Spring interview questions",
+                "Explaining design decisions",
+                "Live coding practice"
+              ]
+            }
+          ],
+          "lab": {
+            "title": "Capstone Delivery",
+            "scenario": "Each team receives a business brief, such as an asset-booking or expense-approval system.",
+            "lead": "Teams:",
+            "tasks": [
+              "Plan the work as stories",
+              "Build and test the application",
+              "Deploy it to the test environment",
+              "Present a live demo",
+              "Answer technical questions from a panel"
+            ],
+            "deliverables": [
+              "Source code repository",
+              "Deployed application",
+              "Presentation and demo"
+            ]
+          },
+          "checks": [
+            [
+              "Log in as each role",
+              "Each role sees only its permitted actions.",
+              "Demo recording"
+            ],
+            [
+              "Run the test suite",
+              "All tests pass.",
+              "Pipeline run"
+            ],
+            [
+              "Ask a design question",
+              "The team justifies the choice with trade-offs.",
+              "Panel notes"
+            ]
+          ],
+          "objectives": [
+            "Deliver a complete Java full stack application as a team.",
+            "Present and defend technical decisions.",
+            "Prepare for Java full stack interviews."
+          ],
+          "assessment": "The panel scores each team on working features, code quality, testing and answers."
+        }
+      ]
     }
   ]
 }

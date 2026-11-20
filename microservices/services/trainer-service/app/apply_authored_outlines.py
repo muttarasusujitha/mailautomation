@@ -88,6 +88,10 @@ def apply_course(course: dict, document: dict) -> int:
             continue
         outline = build_outline(entry)
         problems = outline_problems(outline)
+        from app.toc_generation_agent import _subtopic_target  # authored days are kept as written
+        target = _subtopic_target(entry.get("rename_to") or entry["topic"])
+        if len(subtopics_from_outline(outline)) < target:
+            problems.append(f"needs at least {target} topics so the ToC quality gate passes")
         if problems:
             raise ValueError(f"{entry['topic']}: {'; '.join(problems)}")
         before = deepcopy(day)
