@@ -56,7 +56,7 @@ def test_outline_has_cover_details_days_modules_and_labs_in_order():
     html = build_toc_html(SAMPLE_TOC)
     order = ["COURSE OUTLINE", "Course Name", "Duration", "Learning Objectives", "Prerequisites",
              "Course Outline", "Day 1 \u2013 Continuous Integration", "Module 1: Pipeline Architecture",
-             "Lab 1: Build a CI pipeline", "Participants verify that:", "Lab Deliverable",
+             "Lab 1: Pipeline Architecture", "<li>Build a CI pipeline</li>", "Participants verify that:", "Lab Deliverable",
              "Day 1 Assessment", "Day 2 \u2013 Containers on EKS", "Module 2: Containers on EKS",
              "Lab 2: Deploy the service to EKS"]
     positions = [html.index(marker) for marker in order]

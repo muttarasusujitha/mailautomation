@@ -128,7 +128,7 @@ def inventory(root=ROOT):
         document = json.loads(path.read_text(encoding="utf-8-sig"))
         documents[path] = document
         for row in rows(document):
-            if row.get("content_quality_stage") in {"authored_pilot_pending_lab_validation", "manually_authored_pending_lab_validation"}:
+            if row.get("content_quality_stage") in {"authored_pilot_pending_lab_validation", "manually_authored_pending_lab_validation", "outline_authored_pending_review"}:
                 continue
             source = source_input(document, row)
             key = hashlib.sha256(json.dumps([REVISION, source], sort_keys=True).encode()).hexdigest()[:24]
@@ -256,7 +256,7 @@ def apply(documents, pending):
     for path, document in documents.items():
         changed = False
         for row in rows(document):
-            if row.get("content_quality_stage") in {"authored_pilot_pending_lab_validation", "manually_authored_pending_lab_validation"}: continue
+            if row.get("content_quality_stage") in {"authored_pilot_pending_lab_validation", "manually_authored_pending_lab_validation", "outline_authored_pending_review"}: continue
             source = source_input(document, row)
             key = hashlib.sha256(json.dumps([REVISION, source], sort_keys=True).encode()).hexdigest()[:24]
             module = cached(key, pending[key])

@@ -5,8 +5,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from app.apply_authored_outlines import run as apply_authored
 from app.course_outline import (
     GOLD_EXAMPLE,
+    check_statement,
+    lab_steps,
     clean_subtopics,
     is_filler_subtopic,
     is_template_text,
@@ -118,7 +121,7 @@ def test_flat_rows_get_an_outline_without_template_text():
     assert items == [{"text": "Triggers", "children": []}, {"text": "Stages:", "children": ["build", "test", "deploy"]}]
     assert outline["lab"]["title"] == "Build an automated workflow using Azure DevOps"
     assert outline["lab"]["scenario"] == "" and outline["lab"]["deliverables"] == []
-    assert outline["lab"]["verify"] == ["Run the pipeline: It passes."]
+    assert outline["lab"]["verify"] == ["Run the pipeline \u2013 It passes."]
     assert subtopics_from_outline(outline) == ["Triggers", "Stages: build, test, deploy"]
 
 
@@ -135,3 +138,43 @@ def test_pdf_renders_stored_outlines_and_hides_template_text():
                    "Participants verify that:", "Lab Deliverable", "Lab 2: Build a pipeline"):
         assert marker in html
     assert "prepared training sample" not in html and "Participant submission" not in html
+
+
+def test_one_sentence_labs_become_participant_steps():
+    assert lab_steps("Create an organisation with Security, Workloads/Dev and Workloads/Prod OUs, move a dev "
+                     "and a prod account into them, and review consolidated billing for both.") == [
+        "Create an organisation with Security, Workloads/Dev and Workloads/Prod OUs",
+        "Move a dev and a prod account into them",
+        "Review consolidated billing for both"]
+    # "release" is a noun here, so the step is not split.
+    assert lab_steps("Map a feature through code review, staging deployment and release decision.") == [
+        "Map a feature through code review, staging deployment and release decision"]
+    assert check_statement("Delete one pod", "A replacement pod is created.") == \
+        "Delete one pod \u2013 A replacement pod is created."
+
+
+def test_authored_outlines_are_applied_to_their_datasets():
+    assert all(count == 0 for count in apply_authored(APP, write=False).values())  # committed and idempotent
+    for name, days in (("devops_30.json", 30), ("azure_devops_source.json", 9)):
+        document = json.loads((APP / "datasets_compact" / name).read_text(encoding="utf-8"))
+        authored = [day for day in document["days"] if (day.get("outline") or {}).get("source") == "authored"]
+        assert len(authored) == days, name
+        for day in authored:
+            assert outline_problems(day["outline"]) == []
+            if day.get("content_quality_stage") == "outline_authored_pending_review":
+                assert day["subtopics"] == subtopics_from_outline(day["outline"])
+                assert day["lab_task"].startswith(day["outline"]["lab"]["title"])
+                assert len(day["acceptance_checks"]) == 3 and day["review_status"] == "unreviewed"
+                assert sum(step["minutes"] for step in day["delivery_steps"]) == day["minutes"] == 420
+    azure = json.loads((APP / "datasets_compact" / "azure_devops_source.json").read_text(encoding="utf-8"))
+    assert azure["days"][0]["topic"] == "Azure DevOps Services and Organisation Setup"
+
+
+def test_dataset_mode_toc_renders_the_authored_course_outline():
+    from app.toc_generation_agent import generate_toc_from_dataset, validate_toc
+
+    toc = validate_toc(generate_toc_from_dataset("DevOps", 5), 5)
+    assert all((day.get("outline") or {}).get("source") == "authored" for day in toc["days"])
+    html = build_toc_html(toc)
+    assert "Lab 1: Map a Feature to Production" in html and "Delivery Principle" in html
+    assert "The workflow completes successfully" not in html and "Training TOC Agent" not in html

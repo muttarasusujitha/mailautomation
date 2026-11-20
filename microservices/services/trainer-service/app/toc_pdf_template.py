@@ -212,7 +212,8 @@ def _render_lab(lab: Dict[str, Any], lab_no: int, fallback_title: str) -> str:
 
 
 def _render_module(module: Dict[str, Any], module_no: int, lab_no: int) -> Tuple[str, int]:
-    title = _text(module.get("title") or module.get("topic")) or f"Module {module_no}"
+    title = re.sub(r"^\s*day\s+\d+\s*[:\-\u2013]\s*", "", _text(module.get("title") or module.get("topic")),
+                   flags=re.IGNORECASE) or f"Module {module_no}"
     outline = outline_from_flat(module)
     parts = [f'<h3 class="module">Module {module_no}: {escape(title)}</h3>']
     parts.append(_render_groups(_list_items(outline.get("topic_groups"))))
@@ -239,11 +240,18 @@ def _render_day(day: Dict[str, Any], index: int, show_day: bool, counters: Dict[
         counters["module"] += 1
         html, counters["lab"] = _render_module(module, counters["module"], counters["lab"])
         parts.append(html)
-    assessment = real_text(day.get("assessment"))
+    # An authored outline assessment wins; then the day's; then the modules'.
+    assessment = " ".join(_unique((real_text((module.get("outline") or {}).get("assessment")) for module in modules), 3))
     if not assessment:
-        candidates = [real_text((module.get("outline") or {}).get("assessment")) or real_text(module.get("assessment"))
-                      for module in modules]
-        assessment = " ".join(_unique(candidates, 3))
+        assessment = real_text(day.get("assessment"))
+    if not assessment:
+        assessment = " ".join(_unique((real_text(module.get("assessment")) for module in modules), 3))
+    verified = " ".join(_text(check) for module in modules
+                        for check in (outline_from_flat(module).get("lab") or {}).get("verify") or [])
+    def words(value: str) -> str:
+        return " ".join(re.findall(r"[a-z0-9]+", value.lower()))
+    if assessment and words(assessment) and words(assessment) in words(verified):
+        assessment = ""  # the day assessment only repeats the lab checks shown above
     if assessment:
         label = f"Day {_text(day.get('day')) or index} Assessment" if show_day else "Assessment"
         parts.append(f'<div class="assessment"><div class="label">{escape(label)}</div>{_para(assessment)}</div>')
@@ -355,13 +363,13 @@ def build_toc_html(toc_data: Dict[str, Any]) -> str:
         details.append(f"<div><b>Audience:</b> {_html(toc.get('audience'))}</div>")
     if details:
         html.append(f'<div class="details">{"".join(details)}</div>')
-    overview = _text(toc.get("overview"))
+    overview = real_text(toc.get("overview"))
     if overview:
         html.append(f'<h2 class="section">Overview</h2>{_para(overview)}')
     objectives = _learning_objectives(toc)
     if objectives:
         html.append(f'<h2 class="section">Learning Objectives</h2>{_bullets(objectives)}')
-    prerequisites = _unique(_list_items(toc.get("prerequisites")), 12)
+    prerequisites = _unique((item for item in _list_items(toc.get("prerequisites")) if not is_template_text(item)), 12)
     if prerequisites:
         html.append(f'<h2 class="section">Prerequisites</h2>{_bullets(prerequisites)}')
 
