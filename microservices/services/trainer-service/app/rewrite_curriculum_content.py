@@ -156,10 +156,15 @@ def validate(module, source):
             for v in value.values(): nonempty(v)
         if isinstance(value, list):
             for v in value: nonempty(v)
-    nonempty(module.model_dump())
+    nonempty(module.model_dump(exclude={"outline"}))
+    outline = module.outline.model_dump()
+    # Group headings and leads, the lab lead and the principle are optional; listed items are not.
+    lab = outline["lab"]
+    nonempty([lab["title"], lab["tasks"], lab["verify"], lab["deliverables"],
+              [[item["text"], item["children"]] for group in outline["topic_groups"] for item in group["items"]]])
     if not module.prerequisites or not module.preparation_requirements:
         raise ValueError("Missing readiness requirements")
-    problems = outline_problems(module.outline.model_dump())
+    problems = outline_problems(outline)
     if problems:
         raise ValueError("Incomplete course outline: " + "; ".join(problems))
 
