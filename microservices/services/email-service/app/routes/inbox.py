@@ -11828,7 +11828,7 @@ async def _create_revised_lab_cost_attachment(
         return None
 
 
-async def _create_standalone_toc_attachment(
+async def _create_standalone_toc_attachments(
     *,
     technology: str,
     duration_days: int,
@@ -11836,12 +11836,16 @@ async def _create_standalone_toc_attachment(
     topics: str = "",
     client_notes: str = "",
     generation_mode: str = "template",
-) -> Optional[Dict[str, str]]:
-    """Build one day-wise ToC workbook. Returns None when the outline cannot be made."""
+) -> List[Dict[str, str]]:
+    """Build the day-wise ToC workbook and its PDF course outline.
+
+    Returns [] when the ToC cannot be made. The workbook is required; the PDF
+    is added when it renders, and its failure never blocks the workbook.
+    """
     technology = _clean(technology)
     days = _safe_int(duration_days, 0)
     if not technology or days <= 0:
-        return None
+        return []
     try:
         async with httpx.AsyncClient(timeout=90) as client:
             toc_response = await _post_with_local_fallback(
@@ -11864,16 +11868,33 @@ async def _create_standalone_toc_attachment(
                 json={"toc": toc_data},
             )
             workbook_response.raise_for_status()
-        if not workbook_response.content:
-            return None
-        return {
-            "filename": f"{technology} - Training ToC.xlsx",
-            "content_base64": base64.b64encode(workbook_response.content).decode(),
-            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        }
+            if not workbook_response.content:
+                return []
+            files = [{
+                "filename": f"{technology} - Training ToC.xlsx",
+                "content_base64": base64.b64encode(workbook_response.content).decode(),
+                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }]
+            try:
+                pdf_response = await _post_with_local_fallback(
+                    client,
+                    f"{TRAINER_SERVICE_URL}/api/v1/toc/generate-pdf",
+                    json={"toc": toc_data},
+                )
+                if pdf_response.status_code == 200 and pdf_response.content.startswith(b"%PDF"):
+                    files.append({
+                        "filename": f"{technology} - Course Outline.pdf",
+                        "content_base64": base64.b64encode(pdf_response.content).decode(),
+                        "subtype": "pdf",
+                    })
+                else:
+                    logger.warning("ToC course-outline PDF unavailable for %s (%s)", technology, pdf_response.status_code)
+            except Exception:
+                logger.warning("ToC course-outline PDF failed for %s; sending the workbook only", technology, exc_info=True)
+        return files
     except Exception:
         logger.exception("Standalone ToC workbook failed for %s", technology)
-        return None
+        return []
 
 
 async def _bundle_slot_delivery_files(
@@ -11914,9 +11935,9 @@ async def _bundle_slot_delivery_files(
         lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context)
         if lab_file:
             files.append(lab_file)
-    toc_file = None
+    toc_files: List[Dict[str, str]] = []
     if asks_toc:
-        toc_file = await _create_standalone_toc_attachment(
+        toc_files = await _create_standalone_toc_attachments(
             technology=_clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain")),
             duration_days=_safe_int(requirement.get("duration_days"), 0),
             mode=_clean(requirement.get("mode") or "Online"),
@@ -11924,12 +11945,11 @@ async def _bundle_slot_delivery_files(
             client_notes=latest_message_body,
             generation_mode="ai" if await _global_ai_wording_enabled(db) else "template",
         )
-        if toc_file:
-            files.append(toc_file)
+        files.extend(toc_files)
     if not files:
         return email_doc, []
-    has_toc = bool(toc_file)
-    has_lab = any(item is not toc_file for item in files)
+    has_toc = bool(toc_files)
+    has_lab = len(files) > len(toc_files)
     if has_toc and has_lab:
         note = "Please find the day-wise ToC and the lab-cost estimate attached with this interview confirmation."
     elif has_lab:
@@ -12453,9 +12473,9 @@ async def _process_client_requirement_email(
                 technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "the training")
                 participants = known.get("participant_count") or requirement.get("participant_count") or 1
                 hours = known.get("hours_per_day") or requirement.get("hours_per_day") or 3
-                toc_attachment = None
+                toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
-                    toc_attachment = await _create_standalone_toc_attachment(
+                    toc_attachments = await _create_standalone_toc_attachments(
                         technology=technology,
                         duration_days=_safe_int(requirement.get("duration_days"), 0),
                         mode=_clean(requirement.get("mode") or "Online"),
@@ -12463,14 +12483,14 @@ async def _process_client_requirement_email(
                         client_notes=latest_message_body,
                         generation_mode=content_generation_mode,
                     )
-                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                delivery_files = [attachment] + toc_attachments
                 reply = render_delivery_reply(
                     client_name=email_doc.get("from_name") or "",
                     subject=subject,
                     technology=technology,
                     toc_requested=asks_toc,
                     lab_requested=True,
-                    toc_attached=bool(toc_attachment),
+                    toc_attached=bool(toc_attachments),
                     lab_attached=True,
                     lab_sentence=(
                         f"Please find the lab-cost estimate attached for {participants} participant(s), "
@@ -12559,9 +12579,9 @@ async def _process_client_requirement_email(
             )
             if attachment:
                 technology = _clean(standalone_requirement.get("technology_needed") or "the training")
-                toc_attachment = None
+                toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
-                    toc_attachment = await _create_standalone_toc_attachment(
+                    toc_attachments = await _create_standalone_toc_attachments(
                         technology=technology,
                         duration_days=_safe_int(standalone_requirement.get("duration_days"), 0),
                         mode=_clean(standalone_requirement.get("mode") or "Online"),
@@ -12569,7 +12589,7 @@ async def _process_client_requirement_email(
                         client_notes=latest_message_body,
                         generation_mode=content_generation_mode,
                     )
-                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                delivery_files = [attachment] + toc_attachments
                 scenario = "client_asks_toc_and_lab_cost" if asks_toc else "client_asks_lab_cost"
                 reply = render_delivery_reply(
                     client_name=email_doc.get("from_name") or "",
@@ -12577,7 +12597,7 @@ async def _process_client_requirement_email(
                     technology=technology,
                     toc_requested=asks_toc,
                     lab_requested=True,
-                    toc_attached=bool(toc_attachment),
+                    toc_attached=bool(toc_attachments),
                     lab_attached=True,
                     lab_sentence="Please find the lab-cost estimate attached. It is prepared from the domain and ToC details and the lab inputs you shared.",
                 )
@@ -12660,9 +12680,9 @@ async def _process_client_requirement_email(
         known_for_toc = lab_context.get("known_inputs") or {}
         toc_technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain"))
         toc_days = _safe_int(known_for_toc.get("duration_days") or extracted.get("duration_days"), 0)
-        toc_attachment = None
+        toc_attachments: List[Dict[str, str]] = []
         if asks_toc:
-            toc_attachment = await _create_standalone_toc_attachment(
+            toc_attachments = await _create_standalone_toc_attachments(
                 technology=toc_technology,
                 duration_days=toc_days,
                 mode=_clean(extracted.get("mode") or "Online"),
@@ -12676,7 +12696,7 @@ async def _process_client_requirement_email(
             email_doc.get("from_name") or "",
             subject,
             also_toc=asks_toc,
-            toc_attached=bool(toc_attachment),
+            toc_attached=bool(toc_attachments),
         )
         reply = await _humanize_verified_client_reply(
             db, email_doc, lab_classification, extracted, subject, body, reply,
@@ -12691,7 +12711,7 @@ async def _process_client_requirement_email(
             {**email_doc, "from_email": sender_email, "email_classification": lab_classification,
              "office_mail_category": lab_scenario},
             reply,
-            attachments=[toc_attachment] if toc_attachment else None,
+            attachments=toc_attachments or None,
         )
         success = bool(send_result.get("success"))
         update = {
@@ -12703,7 +12723,7 @@ async def _process_client_requirement_email(
             "reply_template_key": reply.get("template_key") or ("client_toc_and_lab_cost" if asks_toc else "client_lab_cost_grounded"),
             "generated_reply": {"subject": reply["subject"], "body": reply["body"]},
             "ai_reply": reply["body"], "draft_reply": reply["body"], "lab_cost_context": lab_context,
-            "lab_cost_attachments": [toc_attachment["filename"]] if toc_attachment else [],
+            "lab_cost_attachments": [item["filename"] for item in toc_attachments],
             "reply_sent": success, "reply_sent_at": send_result.get("sent_at"),
             "sent_reply_body": send_result.get("body") or reply["body"],
             "sent_reply_subject": send_result.get("subject") or reply["subject"],
@@ -12735,9 +12755,9 @@ async def _process_client_requirement_email(
             missing.append("training duration or number of days")
         client_name = _clean(email_doc.get("from_name") or "Client").split()[0]
         generation_mode = "ai" if await _global_ai_wording_enabled(db) else "template"
-        toc_attachment = None
+        toc_attachments: List[Dict[str, str]] = []
         if not missing:
-            toc_attachment = await _create_standalone_toc_attachment(
+            toc_attachments = await _create_standalone_toc_attachments(
                 technology=technology,
                 duration_days=max(1, _safe_int(toc_extracted.get("duration_days"), 1)),
                 mode=toc_extracted.get("mode") or "Online",
@@ -12750,7 +12770,7 @@ async def _process_client_requirement_email(
             subject=subject,
             technology=technology or "the training",
             toc_requested=True,
-            toc_attached=bool(toc_attachment),
+            toc_attached=bool(toc_attachments),
             toc_missing=" and ".join(missing),
         )
         toc_classification = {
@@ -12768,7 +12788,7 @@ async def _process_client_requirement_email(
             {**email_doc, "from_email": sender_email, "email_classification": toc_classification,
              "office_mail_category": "client_asks_toc_only"},
             toc_reply,
-            attachments=[toc_attachment] if toc_attachment else None,
+            attachments=toc_attachments or None,
             mail_type_override="client_toc_only",
         )
         success = bool(send_result.get("success"))
