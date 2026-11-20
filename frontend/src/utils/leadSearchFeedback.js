@@ -94,18 +94,49 @@ const SOURCE_STATUS_TEXT = {
 
 // One line per search source, e.g. "Bing: worked, 18 matching profiles".
 export function sourceReportLines(outcome = {}) {
-  const sources = Array.isArray(outcome.sources) ? outcome.sources : []
-  return sources.map(source => {
+  const sources = Array.isArray(outcome?.sources) ? outcome.sources : []
+  return sources.filter(Boolean).map(source => {
     const status = SOURCE_STATUS_TEXT[source?.status] || source?.status || 'unknown'
     const count = Number(source?.qualified) || 0
     const found = count ? `, ${count} matching profile${count === 1 ? '' : 's'}` : ''
     const reason = source?.status !== 'ok' && source?.reason ? ` (${source.reason})` : ''
+    // A source that worked overall but failed for some domains says so.
+    const note = source?.note ? ` ${source.note}` : ''
     return {
       key: source?.source || source?.label,
       ok: source?.status === 'ok',
-      text: `${source?.label || source?.source}: ${status}${found}${reason}`,
+      text: `${source?.label || source?.source}: ${status}${found}${reason}${note}`,
     }
   })
+}
+
+export function searchOutcomeLine(outcome = {}) {
+  if (outcome.status === 'not_run' || outcome.status === 'not_needed') {
+    return `${outcome.domain}: ${outcome.limit_reason || 'not searched.'}`
+  }
+  return outcomeLine(outcome)
+}
+
+// What a search response shows: one group per searched domain, or the sources when no domain is listed.
+export function searchReportGroups(data = {}) {
+  const outcomes = (Array.isArray(data?.domain_outcomes) ? data.domain_outcomes : []).filter(Boolean)
+  if (outcomes.length) {
+    return outcomes.map((outcome, index) => ({
+      key: `${index}-${outcome.domain}`,
+      heading: searchOutcomeLine(outcome),
+      lines: sourceReportLines(outcome),
+    }))
+  }
+  const lines = sourceReportLines({ sources: data?.sources })
+  return lines.length ? [{ key: 'sources', heading: '', lines }] : []
+}
+
+// An ID sent with a search. The server saves it with the run report, so the page can load that
+// report when its own request timed out. It only links the two; it is not a secret.
+export function newSearchRef() {
+  const cryptoApi = globalThis.crypto
+  if (cryptoApi?.randomUUID) return cryptoApi.randomUUID()
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
 }
 
 export function leadSourceLabel(lead = {}) {
