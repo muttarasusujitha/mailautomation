@@ -4817,11 +4817,11 @@ async def send_client_slots(
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
     attachments: List[Dict[str, str]] = []
-    wants_profile, wants_toc, wants_lab_cost = _requested_client_attachments(req)
-    # A valid three-slot reply triggers one complete client handoff.  These
-    # core documents are mandatory for that automated delivery, irrespective
-    # of whether the original client request named each attachment explicitly.
+    # A valid three-slot reply triggers one complete client handoff. Include
+    # the profile, ToC, lab workbook, and slots as a single package even when
+    # the original requirement did not separately enumerate every document.
     wants_profile = True
+    wants_lab_cost = True
     client_toc_supplied = _has_client_supplied_toc(req)
     profile_pdf = None
     profile_selection: Dict[str, Any] = {"source": "database", "score": 0.0}
@@ -4920,7 +4920,11 @@ async def send_client_slots(
 
     lab_cost_attachments: List[Tuple[str, bytes]] = []
     lab_error = ""
-    explicit_lab_workbook = _explicit_lab_workbook_required(req)
+    # The workbook is part of every trainer-to-client handoff. Missing usage
+    # inputs use the approved one-person / three-hour AWS Mumbai baseline;
+    # pricing or document failures must keep the handoff pending rather than
+    # sending a partial package or asking the client to supply those defaults.
+    explicit_lab_workbook = True
     requested_providers: List[str] = []
     # The document service refreshes FX and cloud prices for each new quote.
     # Missing provider/region use the approved AWS Mumbai estimate baseline.
