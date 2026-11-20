@@ -186,10 +186,147 @@ def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> b
     return output.getvalue()
 
 
+def _toc_to_daily_plan(toc: Dict[str, Any]) -> bytes:
+    """One clean sheet: a dated day-by-day plan (Day, Date, Topic, Topics covered, Lab).
+
+    This is the default client-facing ToC workbook. It mirrors the readable
+    plan the dashboard shows: a title, a one-line programme summary, an
+    optional run-dates line, then one row per training day. Every value comes
+    from the validated curriculum; nothing is invented here.
+    """
+    import openpyxl
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+    from openpyxl.utils import get_column_letter
+
+    def text(value: Any) -> str:
+        if isinstance(value, (list, tuple, set)):
+            return ", ".join(str(item).strip().rstrip(".") for item in value if str(item).strip())
+        if isinstance(value, dict):
+            return text(value.get("topic") or value.get("title") or value.get("name") or value.get("text"))
+        return str(value or "").strip()
+
+    def day_date(value: Any) -> str:
+        if isinstance(value, datetime):
+            return value.strftime("%d %b %Y")
+        raw = str(value or "").strip()
+        for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d %b %Y", "%d %B %Y", "%d-%b-%Y"):
+            try:
+                return datetime.strptime(raw, fmt).strftime("%d %b %Y")
+            except ValueError:
+                continue
+        return raw
+
+    def day_topic(day: Dict[str, Any]) -> str:
+        return text(day.get("focus_area") or day.get("module") or day.get("title") or day.get("topic")) or "Training"
+
+    def day_subtopics(day: Dict[str, Any], fallback: str) -> str:
+        subs = text(day.get("subtopics"))
+        if not subs:
+            collected: List[Any] = []
+            for module in day.get("modules") or []:
+                collected.extend(module.get("subtopics") or [])
+            subs = text(collected)
+        return subs or fallback
+
+    def day_lab(day: Dict[str, Any]) -> str:
+        lab = text(day.get("lab") or day.get("lab_task"))
+        if not lab:
+            for module in day.get("modules") or []:
+                lab = text(module.get("lab") or module.get("lab_task"))
+                if lab:
+                    break
+        return lab
+
+    days = list(toc.get("days") or [])
+    ink, purple, band, line = "FF1F2937", "FF5B21B6", "FFF3EEFF", "FFE5E0F2"
+    edge = Side(style="thin", color="E5E0F2")
+    border = Border(left=edge, right=edge, top=edge, bottom=edge)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Daily Plan"
+    ws.sheet_view.showGridLines = False
+
+    title = text(toc.get("title") or toc.get("domain") or "Training")
+    if "toc" not in title.lower() and "plan" not in title.lower():
+        title = f"{title} Training TOC"
+    duration = len(days) or int(toc.get("duration_days") or 0)
+    try:
+        hours_per_day = int(toc.get("hours_per_day") or 7)
+    except (TypeError, ValueError):
+        hours_per_day = 7
+    level = text(toc.get("level")).replace("_", " ").title()
+    mode = text(toc.get("mode")) or "Online"
+    summary = "  \u00b7  ".join(
+        [f"{duration} days", f"{duration * hours_per_day} planned hours"]
+        + ([level] if level else []) + ([mode] if mode else []))
+    first_date = day_date(days[0].get("date")) if days else ""
+    last_date = day_date(days[-1].get("date")) if days else ""
+    run_line = (f"The plan runs {first_date} to {last_date}. Each training day is planned for {hours_per_day} hours."
+                if first_date and last_date else "")
+
+    headers = ["Day", "Date", "Topic", "Topics Covered", "Hands-on Lab"]
+    widths = [6, 14, 34, 62, 72]
+    last_col = len(headers)
+
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=last_col)
+    cell = ws.cell(1, 1, title)
+    cell.font = Font(name="Calibri", size=16, bold=True, color=purple)
+    cell.alignment = Alignment(horizontal="left", vertical="center")
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=last_col)
+    cell = ws.cell(2, 1, summary)
+    cell.font = Font(name="Calibri", size=11, bold=True, color=ink)
+    header_row = 3
+    if run_line:
+        ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=last_col)
+        cell = ws.cell(3, 1, run_line)
+        cell.font = Font(name="Calibri", size=10, color=ink)
+        header_row = 4
+    header_row += 1  # one blank spacer row before the table
+
+    for col, head in enumerate(headers, 1):
+        cell = ws.cell(header_row, col, head)
+        cell.font = Font(name="Calibri", size=11, bold=True, color="FFFFFFFF")
+        cell.fill = PatternFill("solid", fgColor=purple)
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        cell.border = border
+
+    for index, day in enumerate(days, 1):
+        row = header_row + index
+        topic = day_topic(day)
+        values = [day.get("day") or index, day_date(day.get("date")) or "To be confirmed",
+                  topic, day_subtopics(day, topic), day_lab(day)]
+        for col, value in enumerate(values, 1):
+            cell = ws.cell(row, col, value)
+            cell.font = Font(name="Calibri", size=10, color=ink)
+            cell.fill = PatternFill("solid", fgColor=band if index % 2 else "FFFFFFFF")
+            cell.alignment = Alignment(horizontal="center" if col <= 2 else "left", vertical="top", wrap_text=True)
+            cell.border = border
+        ws.row_dimensions[row].height = 56
+
+    proposed = any(day.get("proposed_fields") for day in days) or bool((toc.get("quality") or {}).get("review_warnings"))
+    if proposed:
+        note_row = header_row + len(days) + 2
+        ws.merge_cells(start_row=note_row, start_column=1, end_row=note_row, end_column=last_col)
+        cell = ws.cell(note_row, 1,
+                       "The module breakdown is proposed and should be reviewed by a trainer before client delivery.")
+        cell.font = Font(name="Calibri", size=9, italic=True, color=ink)
+        cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+
+    for col, width in enumerate(widths, 1):
+        ws.column_dimensions[get_column_letter(col)].width = width
+    ws.freeze_panes = ws.cell(header_row + 1, 1)
+    output = io.BytesIO()
+    wb.save(output)
+    return output.getvalue()
+
+
 def _toc_to_excel(toc: Dict[str, Any]) -> bytes:
     """Export AI and manual ToCs in their respective user-approved templates."""
     if toc.get("topic_only"):
         return _topic_outline_to_excel(toc)
+    if toc.get("excel_layout") == "daily_plan":
+        return _toc_to_daily_plan(toc)
     from shared.toc_layouts import REFERENCE_LAYOUTS
     if toc.get("excel_layout") in REFERENCE_LAYOUTS:
         from app.toc_reference_excel import render_reference_toc

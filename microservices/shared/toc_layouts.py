@@ -21,7 +21,7 @@ def normalize_client_email(value):
 
 
 async def select_toc_layout(db, requested="auto", client_email="", toc_id=None):
-    if requested in REFERENCE_LAYOUTS or requested == "legacy":
+    if requested in REFERENCE_LAYOUTS or requested in ("legacy", "daily_plan"):
         return requested
     collection = db["toc_generations"]
     if toc_id:
