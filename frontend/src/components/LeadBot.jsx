@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Bot, Pause, Play, Search } from 'lucide-react'
 import api from '../utils/api'
@@ -7,7 +7,8 @@ import { collectionOutcomeLines } from '../utils/leadSearchFeedback'
 function stamp(value) {
   if (!value) return ''
   const text = String(value)
-  return text.endsWith('Z') || text.includes('+') ? text : `${text} (UTC)`
+  const date = new Date(text.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(text) ? text : `${text}Z`)
+  return Number.isNaN(date.getTime()) ? text : date.toLocaleString(undefined, { timeZoneName: 'short' })
 }
 
 function domainList(value) {
@@ -45,10 +46,12 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
 
   useEffect(() => {
     let active = true
-    api.get('/linkedin-leads/bot/connection/status')
+    const refresh = () => api.get('/linkedin-leads/bot/connection/status')
       .then(res => { if (active) setConnection(res.data) })
       .catch(() => { if (active) setConnection({ state: 'unavailable', message: 'Unable to load LinkedIn connection status.' }) })
-    return () => { active = false }
+    refresh()
+    const timer = window.setInterval(refresh, 15000)
+    return () => { active = false; window.clearInterval(timer) }
   }, [])
 
   const verifyConnection = async () => {
@@ -129,6 +132,12 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
         LinkedIn connection: {connection?.state?.replaceAll('_', ' ') || 'checking'}
       </label>
       <p className="text-sm text-slate-700" role="status">{connection?.message}</p>
+      {connection?.retry_after && (
+        <p className="text-sm text-amber-800" role="status">
+          Account searches are cooling down until {stamp(connection.retry_after)} after LinkedIn rejected requests.
+          Enabled bots can retry on their next scheduled run after that time; results are not guaranteed.
+        </p>
+      )}
       <button type="button" className="btn-secondary text-sm" onClick={() => setShowConnection(value => !value)} aria-expanded={showConnection}>
         Connect / reconnect LinkedIn
       </button>
@@ -182,7 +191,7 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
       )}
       <p className="text-xs text-slate-500">This panel shows the automatic collection run. Searches started with Find Profiles or Find Client Posts report their results below.</p>
       <CollectionOutcomes outcomes={config?.domain_outcomes} />
-      {warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
+      {warnings.map(message => <p key={message} className="text-sm text-amber-800">Previous run: {message}</p>)}
       {isTrainer && <p className="text-xs text-slate-500">Saved counts new profiles only. Existing profiles keep their original domain label.</p>}
       {(config?.last_finished || config?.next_run) && (
         <p className="text-xs text-slate-500">

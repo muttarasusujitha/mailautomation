@@ -619,8 +619,12 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
                 missing.append("LinkedIn profile")
         elif ("profile" in label or "cv" in label or "resume" in label) and not _trainer_has_verified_detail(trainer, "profile"):
             missing.append("Updated trainer profile/CV")
-        elif "experience" in label and not _trainer_has_verified_detail(trainer, "experience"):
+        elif any(term in label for term in ("experience", "employment", "work history")) and not _trainer_has_verified_detail(trainer, "experience"):
             missing.append("Relevant corporate training experience")
+        elif any(term in label for term in ("certification", "certificate", "graduation", "degree", "education")):
+            supplied = _clean(trainer.get("certifications") or trainer.get("education") or trainer.get("qualification"))
+            if not supplied:
+                missing.append("Requested education/certification evidence")
         # Commercials are platform-calculated and are never requested again.
 
     # Mail 1 asks for exactly three dated slots. One follow-up covers that gap

@@ -6,6 +6,9 @@ export function requestTimeout(config = {}) {
   const explicit = Number(config.timeout)
   if (explicit > 0) return explicit
   const url = String(config.url || '')
+  // Authentication must fail promptly so the sign-in form does not remain
+  // disabled for the generic five-minute mutation timeout.
+  if (/\/auth\/(login|register|google|linkedin\/start)$/.test(url)) return 30000
   // Profile search uses the signed-in LinkedIn browser session.
   // Keep the ten-minute budget so Find Profiles is not aborted mid-search.
   if (url.includes('/linkedin-leads/search')) return 600000

@@ -425,6 +425,7 @@ def test_regenerate_never_saves_template_when_ai_is_unavailable(monkeypatch, ai_
     with pytest.raises(HTTPException) as error:
         asyncio.run(inbox_actions.regenerate_reply("test-email", inbox_actions.RegenerateRequest(), db))
     assert error.value.status_code == 502
-    assert "no template was substituted" in error.value.detail
+    assert "existing draft is unchanged" in error.value.detail
+    assert "Template mode" in error.value.detail
     records.update_one.assert_not_awaited()
     assert writer.await_count == 1

@@ -717,8 +717,7 @@ def check_gmail_api_replies(
     """Poll Gmail API inbox for recent messages using OAuth."""
     service, error = _load_oauth_service()
     if not service:
-        logger.warning("Gmail API check skipped: %s", error)
-        return []
+        raise RuntimeError(f"Gmail API inbox polling is unavailable: {error or 'OAuth service could not be loaded'}")
 
     if search_query:
         query = search_query
@@ -755,6 +754,7 @@ def check_gmail_api_replies(
             maxResults=max(1, min(max_messages, 500)),
         ).execute()
         messages = response.get("messages") or []
+        logger.info("Gmail API inbox query returned %s message(s)", len(messages))
         for item in messages[:max_messages]:
             gmail_id = item.get("id")
             if not gmail_id:
@@ -876,6 +876,7 @@ def check_gmail_api_replies(
                     break
                 logger.exception("Gmail API message fetch failed for %s", gmail_id)
                 continue
-    except Exception:
+    except Exception as exc:
         logger.exception("Gmail API inbox check failed")
+        raise RuntimeError(f"Gmail API inbox check failed: {exc}") from exc
     return replies

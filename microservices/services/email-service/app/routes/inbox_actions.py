@@ -1755,7 +1755,30 @@ async def _ai_draft_reply(
             require_openai=require_openai, _variation_retry=True,
         )
 
-    if str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower() == "ollama":
+    provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    if provider == "gemini":
+        gemini_key = str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip()
+        if not gemini_key:
+            failure = "AI mode is selected, but GEMINI_API_KEY is not configured for the Gemini provider."
+            logger.error("%s", failure)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = failure
+            return "" if require_openai else grounded_reference
+        try:
+            generated = await _gemini_email_draft(cfg, prompt)
+            drafted = await finish(generated)
+            if drafted:
+                return drafted
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = "Gemini returned no usable draft."
+            logger.warning("Gemini returned an empty or rejected mail draft")
+        except Exception as exc:
+            logger.warning("Gemini mail generation failed: %s", exc)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = f"Gemini draft generation failed ({type(exc).__name__})."
+        return "" if require_openai else grounded_reference
+
+    if provider == "ollama":
         try:
             result = await _ollama_email_draft(cfg, prompt, voice)
             result["analysis"].update({
@@ -1917,3 +1940,87 @@ async def _ai_draft_reply(
 
     # Fallback template
     return grounded_reference
+
+
+async def _gemini_email_draft(cfg, prompt: str) -> str:
+    """Use the configured Gemini model, then discover a generateContent model if it is unavailable."""
+    from google import genai
+    from google.genai import types
+
+    api_key = str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip()
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY is not configured")
+
+    configured_model = str(getattr(cfg, "GEMINI_MODEL", "") or "").strip() or "gemini-3.5-flash-lite"
+    configured_model = configured_model.removeprefix("models/")
+    client = genai.Client(api_key=api_key)
+
+    async def generate(model_name: str) -> str:
+        response = await client.aio.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=600),
+        )
+        return str(getattr(response, "text", "") or "").strip()
+
+    try:
+        draft = await generate(configured_model)
+        logger.info("Gemini email draft generated with configured model %s", configured_model)
+        return draft
+    except Exception as configured_error:
+        is_not_found = (
+            getattr(configured_error, "code", None) == 404
+            or getattr(configured_error, "status_code", None) == 404
+            or "not found" in str(configured_error).lower()
+        )
+        if not is_not_found:
+            raise
+
+    def list_generation_models() -> List[str]:
+        found = []
+        for model in client.models.list():
+            actions = getattr(model, "supported_actions", None) or []
+            if "generateContent" not in actions:
+                continue
+            name = str(getattr(model, "name", "") or "").removeprefix("models/").strip()
+            if name and name != configured_model:
+                found.append(name)
+        # Prefer inexpensive text models, while retaining other generation models
+        # in case this key has no Flash model enabled.
+        return sorted(
+            set(found),
+            key=lambda name: (
+                0 if "flash-lite" in name.lower() else
+                1 if "flash" in name.lower() else
+                2,
+                "preview" in name.lower(),
+                name,
+            ),
+        )
+
+    available_models = await asyncio.to_thread(list_generation_models)
+    if not available_models:
+        raise RuntimeError(
+            "Gemini could not find any models enabled for generateContent on this API key."
+        )
+
+    last_not_found = None
+    for model_name in available_models:
+        try:
+            draft = await generate(model_name)
+            logger.info("Gemini email draft generated with discovered available model %s", model_name)
+            return draft
+        except Exception as exc:
+            is_not_found = (
+                getattr(exc, "code", None) == 404
+                or getattr(exc, "status_code", None) == 404
+                or "not found" in str(exc).lower()
+            )
+            if not is_not_found:
+                raise
+            last_not_found = exc
+            logger.warning("Gemini model %s was listed but returned NotFound; trying the next available model", model_name)
+
+    if last_not_found:
+        raise last_not_found
+    raise RuntimeError("Gemini returned no usable draft from the available models.")

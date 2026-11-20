@@ -90,8 +90,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
   const [authReady, setAuthReady] = useState(() => {
-    // Keep the sign-in UI available while session restoration is checked.
-    // A slow or unreachable auth service should not leave login as a grey loader.
+    // Keep public auth routes available while session restoration is checked.
     return !['/login', '/admin-login', '/trainer-login', '/client-login', '/reset-password']
       .includes(window.location.pathname)
   })

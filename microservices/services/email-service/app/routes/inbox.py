@@ -964,22 +964,15 @@ def _confirmed_intake_ready_for_trainer_mail(
         return False
     if not _has_training_domain(extracted) or not _has_training_duration(extracted):
         return False
-    dates = _clean(extracted.get("training_dates") or extracted.get("preferred_dates") or extracted.get("timeline_start"))
-    mode = _clean(extracted.get("mode") or extracted.get("training_mode") or extracted.get("delivery_mode"))
-    if not _flow_has_value(dates) or not _flow_has_value(mode):
-        return False
-    try:
-        if float(extracted.get("participant_count") or 0) <= 0:
-            return False
-    except (TypeError, ValueError):
-        return False
+    # Confirmed batches can start sourcing before optional logistics or headcount
+    # are finalized. The client can supply those details later in the thread.
     has_commercial = any(
         _flow_has_value(extracted.get(key))
         for key in ("budget_total", "budget_per_day", "budget_range", "client_budget_per_day")
     )
     if not has_commercial:
         return False
-    return _has_client_toc_attachment(extracted, email_doc)
+    return True
 
 
 def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> bool:
@@ -1547,13 +1540,8 @@ def _missing_training_details(details: Dict[str, Any]) -> List[str]:
         missing.append("Preferred dates or timings")
     if not any(_has_requirement_value(details.get(key)) for key in ("mode", "training_mode", "delivery_mode", "location")):
         missing.append("Training mode/location")
-    participant_count = details.get("participant_count")
-    try:
-        has_participant_count = float(participant_count) > 0
-    except (TypeError, ValueError):
-        has_participant_count = _has_requirement_value(participant_count)
-    if not has_participant_count:
-        missing.append("Participant count")
+    # Headcount can be absent; lab quotes use the disclosed one-participant
+    # baseline until the client supplies a count.
     if not any(_has_requirement_value(details.get(key)) for key in (
         "budget_total", "budget_per_day", "budget_range", "budget_min", "budget_max",
     )):
@@ -2681,6 +2669,7 @@ def _merge_existing_requirement_context(
         "timeline_end",
         "participant_count",
         "duration_text",
+        "duration",
         "duration_days",
         "duration_hours",
         "budget_total",
@@ -3246,6 +3235,8 @@ def _lab_estimate_sentence(extracted: Dict[str, Any]) -> str:
     sentence = f"We will prepare the lab estimate for {_join_phrases(parts)}."
     if not _safe_int(extracted.get("participant_count"), 0) or not _known_lab_hours(extracted):
         sentence += " Missing participant or lab-hour values use the approved one-person, three-hour baseline."
+    if not _clean(extracted.get("cloud_provider")):
+        sentence += " AWS Mumbai pricing will be used if no cloud provider is specified."
     return sentence
 
 
@@ -3799,7 +3790,7 @@ def _render_professional_ack(
     estimate = _lab_estimate_sentence(extracted)
     if estimate:
         paragraphs.append(estimate)
-    if version.get("close"):
+    if not estimate and version.get("close"):
         paragraphs.append(str(version["close"]))
     paragraphs.append(_reply_signature())
     return "\n\n".join(paragraphs)
@@ -5090,8 +5081,8 @@ def _requested_detail_matches_category(detail: Any, key: str) -> bool:
     checks = {
         "cv": r"\b(?:cv|resume|trainer profile|client profile|updated profile|trainer biodata|biodata)\b",
         "linkedin": r"\b(?:linkedin|linked\s*in)\b",
-        "experience": r"\b(?:experience|implementation|hands[-\s]?on|batches delivered|trainings delivered|similar trainings?)\b",
-        "certifications": r"\b(?:certification|certifications|certificate|certified)\b",
+        "experience": r"\b(?:experience|implementation|hands[-\s]?on|batches delivered|trainings delivered|similar trainings?|experience letter|employment letter)\b",
+        "certifications": r"\b(?:certification|certifications|certificate|certified|graduation|degree|education|educational qualification)\b",
         "current_location": r"\b(?:current location|trainer location|consultant location|location)\b",
         "availability": r"\b(?:availability|available|dates?|timings?|schedule|free)\b",
         "technical_slots": r"\b(?:technical call|available time slots|interview slots|discussion slots)\b",
@@ -5243,7 +5234,7 @@ def _trainer_missing_requested_details(
         "cv": True,
         "linkedin": True,
         "experience": bool(re.search(r"experience|implementation|hands[-\s]?on|batches delivered|trainings delivered", request_context)),
-        "certifications": not source or bool(re.search(r"certification|certifications|certificate|certified", source)),
+        "certifications": not source or bool(re.search(r"certification|certifications|certificate|certified|graduation|degree|education|educational qualification", source)),
         "current_location": bool(re.search(r"current location|trainer location|consultant location", source)),
         "availability": True,
         "technical_slots": bool(re.search(r"technical call|available time slots|interview slots|discussion slots", source)),
@@ -11172,11 +11163,10 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     has_scope = bool(firm_value("technology_needed", "technology", "domain"))
     has_duration = positive_number("duration_days") or positive_number("duration_hours")
     has_commercials = positive_number("budget_total") or positive_number("budget_per_day")
-    # Preserve an explicitly supplied but invalid participant count as an
-    # incomplete request; an omitted count remains acceptable for a confirmed
-    # batch because many corporate requirements do not include headcount.
-    if "participant_count" in extracted and extracted.get("participant_count") in (None, "", 0, "0"):
+    if "participant_count" in extracted and extracted.get("participant_count") in (0, "0"):
         return "proposal"
+    # A missing participant count is an estimate input, not a batch-status
+    # signal. Explicit zero values remain invalid quote inputs downstream.
     # Participant count is an execution-planning input, not a confirmation
     # prerequisite. A named domain, concrete dates, duration and commercial
     # amount establish a confirmed requirement unless the client uses
@@ -11246,6 +11236,21 @@ async def _update_existing_requirement_from_extracted(
         "training_dates",
         "timeline_start",
         "timeline_end",
+        "location",
+        "preferred_location",
+        "delivery_mode",
+        "training_mode",
+        "training_time",
+        "session_timing",
+        "travel_policy",
+        "travel_arrangement",
+        "travel_reimbursement",
+        "accommodation_policy",
+        "stay_details",
+        "food_policy",
+        "meal_arrangement",
+        "food_reimbursement",
+        "local_transport_policy",
         "budget_total",
         "budget_per_day",
         "budget_min",

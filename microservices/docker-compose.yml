@@ -150,8 +150,6 @@ services:
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    volumes:
-      - ./services/trainer-service/app/routes/shortlists.py:/app/app/routes/shortlists.py:ro
     expose:
       - "8004"
     healthcheck:

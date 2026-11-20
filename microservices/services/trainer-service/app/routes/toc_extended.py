@@ -1188,11 +1188,8 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "include_internal_pricing": payload.include_internal_pricing,
                         "clahan_margin_percent": payload.clahan_margin_percent,
                         "storage_gb": payload.storage_gb,
-                        # Provider disk SKUs have fixed practical baselines:
-                        # Azure P4 is 32 GiB; AWS/GCP use the approved 20 GiB
-                        # baseline. Never ask the client to select or enter
-                        # zero for this technical allocation.
-                        "disk_gb_per_node": 32 if provider == "azure" else 20,
+                        # Preserve explicit sizing; the price resolver validates SKU compatibility.
+                        "disk_gb_per_node": payload.disk_gb_per_node if payload.disk_gb_per_node is not None else (32 if provider == "azure" else 20),
                         "egress_gb": payload.egress_gb,
                         "build_minutes": payload.build_minutes,
                         "monitoring_gb": payload.monitoring_gb,

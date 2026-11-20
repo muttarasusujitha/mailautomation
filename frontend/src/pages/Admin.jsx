@@ -84,9 +84,26 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
-  autoSendEnabled: true,
+  autoSendEnabled: cfg.autoSendEnabled ?? true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
+
+const withoutKeys = (value = {}, keys = []) => {
+  const safeValue = { ...value }
+  keys.forEach(key => delete safeValue[key])
+  return safeValue
+}
+
+const cacheAdminSettings = settings => {
+  const safeSettings = {
+    ...settings,
+    emailCfg: withoutKeys(settings.emailCfg, ['smtpPass', 'imapPass']),
+    twilioCfg: withoutKeys(settings.twilioCfg, ['authToken', 'aisensyApiKey', 'metaAccessToken']),
+    teamsDirectCfg: withoutKeys(settings.teamsDirectCfg, ['clientSecret']),
+    keys: withoutKeys(settings.keys, ['mongoUri', 'openaiKey']),
+  }
+  localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(safeSettings))
+}
 
 export default function Admin() {
   const [showPass, setShowPass]   = useState(false)
@@ -236,12 +253,19 @@ export default function Admin() {
         const settings = data.settings || data
         if (Object.keys(settings).length) {
           applySettings(settings)
-          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+          cacheAdminSettings(settings)
+        } else {
+          const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
+          if (cached) cacheAdminSettings(JSON.parse(cached))
         }
       } catch {
         try {
           const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
-          if (cached) applySettings(JSON.parse(cached))
+          if (cached) {
+            const settings = JSON.parse(cached)
+            cacheAdminSettings(settings)
+            applySettings(settings)
+          }
         } catch {
           localStorage.removeItem(SETTINGS_STORAGE_KEY)
         }
@@ -269,15 +293,15 @@ export default function Admin() {
         body: JSON.stringify(payload),
       })
       if (res.ok) {
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+        cacheAdminSettings(payload)
         toast.success(`${section} settings saved!`)
       } else {
-        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
-        toast.success(`${section} settings saved locally!`)
+        cacheAdminSettings(payload)
+        toast.error(`${section} settings were not saved to the server. Non-secret settings are available only in this browser.`)
       }
     } catch {
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
-      toast.success(`${section} settings saved locally!`)
+      cacheAdminSettings(payload)
+      toast.error(`${section} settings were not saved to the server. Non-secret settings are available only in this browser.`)
     }
     finally { setSaving(false) }
   }
@@ -291,7 +315,7 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save email settings')
 
       const testRes = await fetch('/api/admin/email/test', { method: 'POST' })
@@ -314,7 +338,7 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save WhatsApp settings')
 
       const testRes = await fetch('/api/admin/whatsapp/test', { method: 'POST' })
@@ -337,7 +361,7 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save Teams settings')
 
       const testRes = await fetch('/api/admin/teams/test', { method: 'POST' })
@@ -360,7 +384,7 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      cacheAdminSettings(payload)
       if (!saveRes.ok) throw new Error('Could not save Teams direct settings')
 
       const oauthRes = await fetch('/api/teams-direct/oauth-url')
@@ -778,7 +802,7 @@ export default function Admin() {
         </div>
 
         <div className="bg-slate-50 rounded-xl p-4">
-          <Toggle checked={true} onChange={() => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: true})}
+          <Toggle checked={Boolean(clientInboxCfg.autoSendEnabled)} onChange={enabled => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: enabled})}
             label="Enable Client Auto-send" desc="Send Clahan Technologies replies automatically when confidence and domain rules pass" />
         </div>
 

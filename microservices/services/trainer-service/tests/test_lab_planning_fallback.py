@@ -21,7 +21,7 @@ def test_additional_meter_usage_is_accepted_and_forwarded_to_document_service(mo
         toc={'domain': 'AWS Lambda', 'days': [{'topic': 'AWS Lambda'}]},
         cloud_provider='aws', cloud_region='ap-south-1', participant_count=1,
         pricing_selections={'Lambda invocations': {'unit_key': 'request'}},
-        additional_resource_usage={'Lambda invocations': 1000},
+        additional_resource_usage={'Lambda invocations': 1000}, disk_gb_per_node=100,
         lab_generation_mode='template', lab_day_mapping=[{
             'vm_qty': 0, 'vm_profile': 'None', 'k8s_control_plane': 0,
             'k8s_worker_nodes': 0, 'managed_db': 0, 'object_storage_gb': 0,
@@ -43,6 +43,7 @@ def test_additional_meter_usage_is_accepted_and_forwarded_to_document_service(mo
     assert result.body == b'workbook'
     assumptions = client.post.await_args.kwargs['json']['assumptions']
     assert assumptions['additional_resource_usage'] == {'Lambda invocations': 1000}
+    assert assumptions['disk_gb_per_node'] == 100
 
 
 @pytest.mark.parametrize('mode', ['ai', None])
