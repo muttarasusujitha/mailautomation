@@ -227,6 +227,12 @@ def _is_signature_paragraph(paragraph: str) -> bool:
 def _sentence_leaks_secret(sentence: str, forbidden_tokens: List[str]) -> bool:
     if sentence.lower().startswith("we cannot share"):
         return False
+    if re.fullmatch(
+        r"AWS Mumbai pricing will be used if no cloud provider is specified\.",
+        sentence.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return False
     if any(pattern.search(sentence) for pattern in _SECRET_PHRASES):
         return True
     if re.search(r"(?i)\bclient(?:'s|s)?\s+budget\b", sentence) and not sentence.lower().startswith("we cannot share"):
