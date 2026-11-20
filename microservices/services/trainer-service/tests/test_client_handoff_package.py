@@ -155,11 +155,10 @@ def test_ai_mode_personalizes_client_handoff_from_explicit_context(monkeypatch):
     assert 'Do not claim unverified company systems' in mail['ai_context']['personalization_rule']
 
 
-def test_inferred_lab_flag_sends_handoff_without_workbook(monkeypatch):
-    db, requests = prepare(monkeypatch, failure="lab", requirement_overrides={
-        "lab_cost_requested": True,
+def test_handoff_always_includes_lab_workbook_without_explicit_request(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        "lab_cost_requested": False,
         "explicit_lab_cost_requested": False,
-        "client_requirement_text": "Please arrange lab setup and access for a local lab.",
     })
     result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
         requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
@@ -170,6 +169,7 @@ def test_inferred_lab_flag_sends_handoff_without_workbook(monkeypatch):
     assert [item["filename"] for item in mail["attachments"]] == [
         "Test Trainer - Client Aligned Profile.pdf",
         "DevOps - Training ToC.xlsx",
+        "DevOps - Lab Cost Estimate.xlsx",
     ]
 
 
