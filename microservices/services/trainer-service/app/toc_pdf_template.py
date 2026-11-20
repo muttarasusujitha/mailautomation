@@ -317,7 +317,7 @@ h2.section:first-child { margin-top: 0; }
 .list .sub { list-style-type: circle; margin: 1mm 0 1.5mm; padding-left: 7mm; }
 h2.day { font: 700 13pt Poppins, "Segoe UI", Arial, sans-serif; color: #2E1065; margin: 8mm 0 2mm;
          padding-bottom: 1.5mm; border-bottom: 1.2pt solid #DDD6FE; break-after: avoid; }
-.day-date { float: right; font: 400 9.5pt Calibri, Arial, sans-serif; color: #6B7280; padding-top: 1mm; }
+.day-date { float: right; font: 400 9.5pt Calibri, Carlito, Arial, sans-serif; color: #6B7280; padding-top: 1mm; }
 h3.module { font-size: 11pt; font-weight: 700; margin: 6mm 0 2mm; break-after: avoid; }
 .label { font-weight: 700; margin: 3mm 0 1mm; break-after: avoid; }
 .label-inline { font-weight: 700; }

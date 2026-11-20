@@ -331,7 +331,9 @@ async def _html_to_pdf(html: str, purchase_order_context: Optional[Dict[str, Any
         pdf_bytes = await loop.run_in_executor(None, lambda: HTML(string=html).write_pdf())
         return pdf_bytes
     except Exception as exc:
-        # If WeasyPrint fails (commonly due to missing native libs on Windows), fall back to ReportLab
+        # If WeasyPrint fails (commonly due to missing native libs on Windows), fall back to ReportLab.
+        # Apart from purchase orders, the fallback is plain text without the designed layout, so record why.
+        logger.warning("WeasyPrint could not render the PDF; using the ReportLab fallback", exc_info=True)
         try:
             if purchase_order_context is not None:
                 return _render_purchase_order_pdf_reportlab(purchase_order_context)
