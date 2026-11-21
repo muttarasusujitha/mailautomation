@@ -4,9 +4,9 @@ name: Draft module designs
 # best practices, seeded lab failure, quiz, rubric, lab environment) with Gemini
 # and commits the validated drafts to a branch for review. Paid API calls.
 #
-# Set the DESIGN_GEMINI_API_KEY secret to draft with a separate key (and quota)
-# from the live application; otherwise GEMINI_API_KEY is used. A daily quota
-# error stops the run, and a re-run continues where it stopped.
+# Drafting needs its own key in the DESIGN_GEMINI_API_KEY secret, so it never uses
+# the live application's Gemini quota; without it the run stops before any model
+# call. A daily quota error stops the run, and a re-run continues where it stopped.
 #
 # Designs are written to trainer-service/app/module_designs/<course>.json; course
 # files never change. Courses are split into groups drafted in parallel jobs.
@@ -64,6 +64,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Require the separate drafting key
+        env:
+          DESIGN_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY }}
+        run: |
+          if [ -z "$DESIGN_KEY" ]; then
+            echo "::error::Add a DESIGN_GEMINI_API_KEY repository secret (a Gemini key separate from the live app's GEMINI_API_KEY) and re-run."
+            exit 1
+          fi
       - name: Group the courses that still need designs
         id: plan
         working-directory: microservices/services/trainer-service
@@ -99,7 +107,7 @@ jobs:
         env:
           AI_PROVIDER: gemini
           # A separate key keeps drafting from using the live application's quota.
-          GEMINI_API_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.DESIGN_GEMINI_MODEL || 'gemini-2.5-flash' }}
         run: >
           python -m app.draft_module_designs --run --course "${{ matrix.courses }}"
