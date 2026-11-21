@@ -173,6 +173,8 @@ def _expand_day(day, course, level, position):
         "difficulty": LEVEL_LABELS.get(level, "Integrated"),
         "course_level": level,
         **({"shared_key": day["shared_key"]} if day.get("shared_key") else {}),
+        # Detailed module design (outcomes, timed topics, quiz, rubric) for the course workbook.
+        **({"design": day["design"]} if isinstance(day.get("design"), dict) else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
         "review_status": "unreviewed",

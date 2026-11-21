@@ -256,7 +256,8 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
     for i, day in enumerate(days, 1):
         outline = day.get("outline") if isinstance(day.get("outline"), dict) else {}
         lab = outline.get("lab") if isinstance(outline.get("lab"), dict) else {}
-        design = outline.get("design") if isinstance(outline.get("design"), dict) else {}
+        # A hand-authored outline design wins over a model-drafted day design.
+        design = next((value for value in (outline.get("design"), day.get("design")) if isinstance(value, dict) and value), {})
         topic = text(day.get("focus_area") or day.get("module") or day.get("title") or day.get("topic")) or f"Module {i}"
         subs = lines(day.get("subtopics"))
         if not subs:

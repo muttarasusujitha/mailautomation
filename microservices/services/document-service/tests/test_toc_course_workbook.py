@@ -180,6 +180,16 @@ def test_lab_environment_lists_authored_tools_then_other_tools_without_filler():
     assert "Kubernetes" in tools and "Docker" not in tools and "All DevOps Tools" not in tools
 
 
+def test_model_drafted_day_design_is_used_and_an_authored_outline_design_wins():
+    drafted = {**DESIGN, "outcomes": [{"outcome": "Drafted outcome", "assessed_by": "Knowledge check"}] * 3}
+    days = [{**SAMPLE["days"][0], "design": drafted},
+            {**SAMPLE["days"][1], "design": drafted}]  # day 2 also has an authored outline design
+    ws = _workbook({**SAMPLE, "days": days})["Module Outcomes"]
+    rows = _rows(ws, _header_row(ws, "Module No."), 3)
+    assert [row[1] for row in rows if row[0] == 1] == ["Drafted outcome"] * 3
+    assert "Build a multi-stage image" in [row[1] for row in rows if row[0] == 2]
+
+
 def test_trainer_and_support_never_names_the_trainer():
     ws = _workbook({**SAMPLE, "trainer_name": "Jane Trainer"})["Trainer & Support"]
     header = _header_row(ws, "Trainer Profile")
