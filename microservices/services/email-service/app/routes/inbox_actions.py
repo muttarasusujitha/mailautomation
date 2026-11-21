@@ -991,9 +991,10 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
     if cluster_count_match:
         known_inputs["cluster_count"] = int(cluster_count_match.group(1))
 
-    # Participant count changes the quote materially, so it must come from the
-    # client instead of being silently replaced by a costing default.
-    if known_inputs.get("participant_count"):
+    if known_inputs.get("participant_count") in (None, ""):
+        known_inputs["participant_count"] = 1
+        known_inputs["participant_count_source"] = "default"
+    else:
         known_inputs["participant_count_source"] = "client"
     # Use the agreed standard lab-access window when the client has not
     # specified one. A later client reply always replaces this baseline.

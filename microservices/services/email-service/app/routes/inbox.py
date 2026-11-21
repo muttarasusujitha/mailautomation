@@ -12646,13 +12646,14 @@ async def _process_client_requirement_email(
         if email_doc.get("requirement_id"):
             known = lab_context.get("known_inputs") or {}
             lab_update = {
-                "participant_count": known.get("participant_count"),
                 "hours_per_day": known.get("hours_per_day"),
                 "cloud_provider": known.get("cloud_provider") or "AWS",
                 "lab_cost_requested": True,
                 "lab_cost_status": "inputs_received",
                 "updated_at": _now(),
             }
+            if known.get("participant_count_source") == "client":
+                lab_update["participant_count"] = known.get("participant_count")
             await db["requirements"].update_one(
                 {"requirement_id": email_doc["requirement_id"]},
                 {"$set": lab_update},
@@ -12688,7 +12689,7 @@ async def _process_client_requirement_email(
                     lab_attached=True,
                     lab_sentence=(
                         f"Please find the lab-cost estimate attached for {participants} participant(s), "
-                        f"with {hours} hours of lab access per day. The calculation follows the current training dates and ToC."
+                        f"with {hours} hours of lab access per day. This estimate can be revised once your final usage is known."
                     ),
                 )
                 send_result = await _send_client_auto_reply(
