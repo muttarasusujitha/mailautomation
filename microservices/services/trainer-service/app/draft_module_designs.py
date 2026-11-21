@@ -292,6 +292,26 @@ def _provider_message(response, secret):
     return message.replace(secret or "\0", "[redacted]")[:200]
 
 
+def _quota_details(response):
+    """(daily quota exhausted?, seconds Gemini asks us to wait) from a 429 response."""
+    try:
+        details = (response.json().get("error") or {}).get("details") or []
+    except ValueError:
+        details = []
+    daily, wait = False, 0.0
+    for detail in details:
+        for violation in detail.get("violations") or []:
+            if "perday" in str(violation.get("quotaId") or "").lower():
+                daily = True
+        delay = str(detail.get("retryDelay") or "")
+        if delay.endswith("s"):
+            try:
+                wait = max(wait, float(delay[:-1]))
+            except ValueError:
+                pass
+    return daily, wait
+
+
 def _model_rank(name):
     lower = name.lower()
     version = re.search(r"gemini-(\d+(?:\.\d+)?)", lower)
@@ -316,6 +336,8 @@ async def _probe(client, settings, model):
     if response.status_code in (401, 403):
         raise FatalProviderError(f"Gemini rejected the API key ({response.status_code}): "
                                  + _provider_message(response, settings["key"]))
+    if response.status_code == 429 and _quota_details(response)[0]:
+        raise FatalProviderError("Daily Gemini quota reached: " + _provider_message(response, settings["key"]))
     return True if not response.is_error else _provider_message(response, settings["key"])
 
 
@@ -359,9 +381,16 @@ async def _post(client, settings, system, user):
         body = _gemini_body(settings["model"], system, user)
     for attempt in range(6):
         response = await client.post(url, headers=headers, json=body)
-        if response.status_code in (429, 500, 502, 503, 504):
-            delay = min(120.0, float(response.headers.get("retry-after") or 5 * 2 ** attempt))
-            await asyncio.sleep(delay)
+        if response.status_code == 429:
+            daily, retry_seconds = _quota_details(response)
+            if daily:
+                # A daily quota does not recover by retrying; stop so the rest of the quota stays
+                # available to the live application, and continue on another day or another key.
+                raise FatalProviderError("Daily Gemini quota reached: " + _provider_message(response, settings["key"]))
+            await asyncio.sleep(min(120.0, retry_seconds or 5 * 2 ** attempt))
+            continue
+        if response.status_code in (500, 502, 503, 504):
+            await asyncio.sleep(min(120.0, float(response.headers.get("retry-after") or 5 * 2 ** attempt)))
             continue
         if response.status_code in (400, 401, 403, 404):
             raise FatalProviderError(f"Provider rejected the request ({response.status_code}): "

@@ -226,3 +226,47 @@ def test_time_limit_stops_new_batches_and_keeps_finished_ones(tmp_path, monkeypa
     summary = asyncio.run(drafts.run(pending, post=post, model="fake", limit=9, batch_size=3, concurrency=1,
                                      max_minutes=3, log=_quiet))
     assert summary["accepted"] == 6 and summary["stopped_at_time_limit"]
+
+
+def test_daily_quota_stops_the_run_but_a_per_minute_limit_waits():
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body, self.headers = status, body, {}
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    def quota(quota_id, delay="1s"):
+        return Response(429, {"error": {"message": "You exceeded your current quota", "details": [
+            {"@type": "type.googleapis.com/google.rpc.QuotaFailure", "violations": [{"quotaId": quota_id}]},
+            {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": delay}]}})
+
+    assert drafts._quota_details(quota("GenerateRequestsPerDayPerProjectPerModel-FreeTier")) == (True, 1.0)
+    assert drafts._quota_details(quota("GenerateRequestsPerMinutePerProjectPerModel", "7s")) == (False, 7.0)
+
+    class Client:
+        def __init__(self, responses):
+            self.responses = list(responses)
+
+        async def post(self, url, headers=None, json=None):
+            return self.responses.pop(0)
+
+    settings = {"provider": "gemini", "key": "k", "model": "gemini-3.6-flash"}
+    import pytest
+    with pytest.raises(drafts.FatalProviderError, match="Daily Gemini quota"):
+        asyncio.run(drafts._post(Client([quota("GenerateRequestsPerDayPerProjectPerModel-FreeTier")]), settings, "s", "u"))
+    import app.draft_module_designs as module
+    waits = []
+
+    async def no_sleep(seconds):
+        waits.append(seconds)
+    original = module.asyncio.sleep
+    module.asyncio.sleep = no_sleep
+    try:
+        ok = Response(200, {"candidates": [{"content": {"parts": [{"text": "{}"}]}}]})
+        assert asyncio.run(drafts._post(Client([quota("GenerateRequestsPerMinutePerProjectPerModel", "7s"), ok]),
+                                        settings, "s", "u")) == "{}"
+    finally:
+        module.asyncio.sleep = original
+    assert waits == [7.0]

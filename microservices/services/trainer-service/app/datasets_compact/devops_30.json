@@ -324,6 +324,210 @@
         "assessment": "Participants explain where the supplied workflow loses time and which evidence would block a bad release.",
         "source": "authored",
         "version": "course-outline-v1"
+      },
+      "design": {
+        "outcomes": [
+          {
+            "outcome": "Map a feature request from backlog creation through automated quality checks and staging deployment to production release",
+            "assessed_by": "Lab check: delivery workflow board and release pipeline map"
+          },
+          {
+            "outcome": "Define explicit acceptance criteria, role ownership, release evidence, and operational rollback triggers for every workflow stage",
+            "assessed_by": "Lab checks: definition of done and release evidence checklist"
+          },
+          {
+            "outcome": "Distinguish routine deployment automation from compliance evidence required for formal release decisions",
+            "assessed_by": "Knowledge check"
+          },
+          {
+            "outcome": "Diagnose pipeline workflow stalls caused by missing quality gate criteria or incomplete ticket evidence",
+            "assessed_by": "Seeded-failure troubleshooting"
+          }
+        ],
+        "topics": [
+          {
+            "topic": "DevOps Lifecycle and SDLC Integration",
+            "minutes": 25,
+            "mode": "discussion",
+            "subtopics": [
+              "Continuous delivery lifecycle stages",
+              "Aligning agile sprints with continuous deployments",
+              "Shift-left security and testing integration",
+              "Feedback loops and continuous delivery metrics"
+            ],
+            "failure_scenario": "Code releases fail in production because security checks were performed manually at the end of the development cycle.",
+            "best_practice": "Integrate automated code static analysis and vulnerability scans directly into the CI build stage."
+          },
+          {
+            "topic": "Agile Frameworks and Continuous Delivery",
+            "minutes": 25,
+            "mode": "discussion",
+            "subtopics": [
+              "Backlog refinement and user story structure",
+              "Establishing measurable acceptance criteria",
+              "Definition of Ready vs Definition of Done",
+              "Separating software deployment from feature release"
+            ],
+            "failure_scenario": "Unfinished code is exposed to end users because deployment to production was executed before feature toggles were configured.",
+            "best_practice": "Decouple infrastructure deployment from software feature releases using feature flags and progressive delivery."
+          },
+          {
+            "topic": "CI/CD Pipelines and Release Quality Gates",
+            "minutes": 20,
+            "mode": "discussion",
+            "subtopics": [
+              "Automated check types: unit, integration, linting",
+              "Quality gate thresholds and build breaking",
+              "Staging environment validation controls",
+              "Operational rollback triggers and thresholds"
+            ],
+            "failure_scenario": "A deployment proceeds despite high error rates because rollback conditions relied on manual reports rather than automated metrics.",
+            "best_practice": "Define quantitative rollback triggers based on automated health checks and error rate metrics in staging and production."
+          },
+          {
+            "topic": "Jira Workflows and Delivery Governance",
+            "minutes": 20,
+            "mode": "discussion",
+            "subtopics": [
+              "Designing Jira status transitions",
+              "Mapping delivery roles to workflow stages",
+              "Capturing build and test evidence on tickets",
+              "Auditability and traceability in delivery workflows"
+            ],
+            "failure_scenario": "Auditors reject a release because release sign-off status was applied without linked code review evidence.",
+            "best_practice": "Configure workflow transition rules in Jira to enforce linked pull requests and green test results before status changes."
+          },
+          {
+            "topic": "Demo: Linking Jira Backlog Items to Git Commits",
+            "minutes": 30,
+            "mode": "demo",
+            "subtopics": [
+              "Referencing Jira issue keys in Git commit messages",
+              "Automating status updates via Smart Commits",
+              "Viewing code changes directly inside Jira tickets",
+              "Verifying pull request approval links"
+            ],
+            "failure_scenario": "Jira issue status fails to update automatically because the commit message misspelled the issue key format.",
+            "best_practice": "Include standard issue key references in commit messages and branch names to maintain automated traceability."
+          },
+          {
+            "topic": "Demo: Setting Up Quality Gates and Rollback Triggers",
+            "minutes": 30,
+            "mode": "demo",
+            "subtopics": [
+              "Configuring pipeline execution quality gates",
+              "Attaching automated test reports to delivery tickets",
+              "Defining staging evaluation check criteria",
+              "Setting measurable operational rollback rules"
+            ],
+            "failure_scenario": "A pipeline gate fails to block a faulty build because test runner exit codes were suppressed by script wrappers.",
+            "best_practice": "Ensure pipeline script steps evaluate tool return codes correctly so failed checks halt deployment pipelines."
+          },
+          {
+            "topic": "Lab: Map a supplied feature from backlog item through code review, automated checks, staging deployment and release decision",
+            "minutes": 150,
+            "mode": "lab",
+            "subtopics": [
+              "Configure Jira workflow stages and transition rules",
+              "Create definition of done and evidence requirements per stage",
+              "Map feature backlog item to code repository branches",
+              "Record pipeline quality gate results and security evidence",
+              "Define quantitative rollback triggers based on application performance"
+            ],
+            "failure_scenario": "",
+            "best_practice": "Require verifiable automated evidence for every workflow gate before approving production releases."
+          },
+          {
+            "topic": "Troubleshooting the seeded failure",
+            "minutes": 60,
+            "mode": "lab",
+            "subtopics": [
+              "Reproduce ticket workflow block",
+              "Inspect Jira transition conditions and linked artifacts",
+              "Identify missing pull request approval or artifact link",
+              "Attach required evidence to unlock issue transition"
+            ],
+            "failure_scenario": "A Jira feature ticket cannot transition to 'Ready for Release' status even though build tests passed successfully.",
+            "best_practice": "Review issue transition conditions to confirm all mandatory peer review and scan report links are attached."
+          },
+          {
+            "topic": "Knowledge check and recap",
+            "minutes": 60,
+            "mode": "discussion",
+            "subtopics": [
+              "Delivery governance principles",
+              "Review of mapped delivery workflows",
+              "Common CI/CD gate design errors",
+              "Course wrap-up and Q&A"
+            ],
+            "failure_scenario": "",
+            "best_practice": ""
+          }
+        ],
+        "seeded_failure": {
+          "symptom": "In Jira, attempting to move a completed feature ticket into 'Ready for Release' displays a transition rejection error.",
+          "cause": "The transition condition requires an attached security scan report artifact and an approved Git pull request link, which are missing from the ticket.",
+          "fix": "Link the approved pull request URL and attach the security scan artifact to the Jira ticket, then trigger the workflow transition again."
+        },
+        "quiz": [
+          "What is the functional difference between code deployment and feature release?",
+          "How does an explicit Definition of Done prevent premature feature releases?",
+          "What elements must be included when defining an operational rollback trigger?",
+          "Why should quality gates halt build pipelines automatically rather than generating warnings?",
+          "How do Smart Commits in Git support delivery auditability in Jira?",
+          "What metric distinguishes a healthy automated check gate from an unreliable check?",
+          "Why is it bad practice to define rollback conditions using subjective operator feedback?"
+        ],
+        "lab_rubric": [
+          [
+            "Workflow Mapping and Ownership",
+            "Maps every lifecycle stage with explicit inputs, outputs, assignees, and automated integration hooks",
+            "Maps backlog creation, code review, automated checks, staging deployment, and release stages with designated owners",
+            "Maps lifecycle stages but leaves ownership or input/output requirements ambiguous",
+            "Workflow map is missing primary SDLC stages or role assignments"
+          ],
+          [
+            "Acceptance Criteria and DoD",
+            "Defines testable acceptance criteria and comprehensive Definition of Done including security, performance, and monitoring rules",
+            "Defines clear acceptance criteria and Definition of Done for each delivery stage",
+            "Defines basic acceptance criteria but lacks clear Definition of Done requirements",
+            "Fails to define acceptance criteria or Definition of Done"
+          ],
+          [
+            "Release Evidence and Controls",
+            "Specifies automated audit artifacts for code quality, security scans, and test execution required prior to release decision",
+            "Specifies clear evidence artifacts required to approve release decisions",
+            "Lists general release checks but lacks concrete evidence artifacts",
+            "Does not identify release evidence requirements"
+          ],
+          [
+            "Troubleshooting the seeded failure",
+            "Identifies missing workflow transition artifacts from log details and resolves block without assistance",
+            "Identifies missing pull request link/security scan evidence and transitions ticket with a hint",
+            "Identifies that Jira transition is blocked but cannot locate the missing rule requirement",
+            "Fails to diagnose or resolve the workflow transition block"
+          ]
+        ],
+        "lab_environment": [
+          {
+            "tool": "Jira Software",
+            "version": "Current stable release",
+            "access": "Cloud instance or local server workspace for participants",
+            "setup_owner": "Trainer",
+            "cost": "Free tier"
+          },
+          {
+            "tool": "Git Repository Hosting (GitHub or GitLab)",
+            "version": "Current stable release",
+            "access": "Web browser and Git CLI client access",
+            "setup_owner": "Trainer",
+            "cost": "Free tier"
+          }
+        ],
+        "origin": "model_draft_pending_technical_review",
+        "revision": "module-design-v1",
+        "model": "gemini-3.6-flash",
+        "source_key": "433328834ea3d4cf652d"
       }
     },
     {
@@ -596,6 +800,194 @@
         "assessment": "Participants diagnose a second seeded server problem using only command-line tools.",
         "source": "authored",
         "version": "course-outline-v1"
+      },
+      "design": {
+        "outcomes": [
+          {
+            "outcome": "Inspect file ownership, permissions, and disk usage to pinpoint oversized files in a Linux system",
+            "assessed_by": "Lab check: command transcript and disk-use report"
+          },
+          {
+            "outcome": "Draft a safe log archival plan that preserves live service files and verifies free space",
+            "assessed_by": "Lab check: reviewed archival plan document"
+          },
+          {
+            "outcome": "Modify Linux file permissions and user ownership to grant required system service access",
+            "assessed_by": "Lab checks: file permissions and ownership settings"
+          },
+          {
+            "outcome": "Diagnose and restore a failed system service using journalctl and systemctl commands",
+            "assessed_by": "Seeded-failure troubleshooting"
+          },
+          {
+            "outcome": "Explain Linux directory structure, permission masks, and process signal management",
+            "assessed_by": "Knowledge check"
+          }
+        ],
+        "topics": [
+          {
+            "topic": "Linux filesystem, permissions, users and groups",
+            "minutes": 45,
+            "mode": "discussion",
+            "subtopics": [
+              "Filesystem hierarchy standard and directory roles",
+              "File ownership and numeric permissions",
+              "Managing users, groups, and sudo access",
+              "Understanding umask and file access control"
+            ],
+            "failure_scenario": "A service fails to start because write permissions on its state directory were modified incorrectly.",
+            "best_practice": "Apply the principle of least privilege when configuring file access permissions."
+          },
+          {
+            "topic": "Package managers, services and logs",
+            "minutes": 45,
+            "mode": "discussion",
+            "subtopics": [
+              "Package management with apt and dnf",
+              "Managing system services using systemctl",
+              "Querying system logs with journalctl",
+              "Log management and rotation practices"
+            ],
+            "failure_scenario": "Log files fill up the root partition because automated log rotation was disabled.",
+            "best_practice": "Use systemctl to manage application services and configure logrotate for all log destinations."
+          },
+          {
+            "topic": "Demo: inspecting permissions, users, and processes",
+            "minutes": 30,
+            "mode": "demo",
+            "subtopics": [
+              "Navigating filesystems with ls, find, and du",
+              "Checking running processes with ps and top",
+              "Evaluating permission issues with chmod and chown",
+              "Inspecting user and group configurations"
+            ],
+            "failure_scenario": "A user cannot read an application configuration file due to incorrect group ownership.",
+            "best_practice": "Verify file ownership and group membership before changing read or execute bits."
+          },
+          {
+            "topic": "Demo: service management and log rotation with journalctl",
+            "minutes": 30,
+            "mode": "demo",
+            "subtopics": [
+              "Inspecting active service units with systemctl status",
+              "Filtering logs by unit and priority with journalctl",
+              "Locating large log files in /var/log",
+              "Compressing log files safely using tar and gzip"
+            ],
+            "failure_scenario": "An administrator truncates an active log file directly, causing the logging daemon to hang.",
+            "best_practice": "Archive and compress inactive log files while leaving active file handles open."
+          },
+          {
+            "topic": "Lab: Use a disposable Linux training environment to inspect files, permissions, processes and disk use",
+            "minutes": 150,
+            "mode": "lab",
+            "subtopics": [
+              "Explore system directories and locate large files",
+              "Evaluate owner and permission settings of identified files",
+              "Draft an archival plan without deleting live files",
+              "Execute log archival using tar and gzip",
+              "Verify disk space relief and service stability"
+            ],
+            "failure_scenario": "",
+            "best_practice": "Check disk space with df -h before and after executing log maintenance tasks."
+          },
+          {
+            "topic": "Troubleshooting the seeded failure",
+            "minutes": 60,
+            "mode": "lab",
+            "subtopics": [
+              "Observe system logs and error indicators",
+              "Analyze systemctl and journalctl diagnostic output",
+              "Identify permissions or path mismatches",
+              "Apply fix and verify service operation"
+            ],
+            "failure_scenario": "A custom web service fails to start because its log file is owned by root instead of the service user.",
+            "best_practice": "Ensure service log files and run directories are owned by the specific unprivileged daemon user."
+          },
+          {
+            "topic": "Knowledge check and recap",
+            "minutes": 60,
+            "mode": "discussion",
+            "subtopics": [
+              "Review key Linux concepts and commands",
+              "Discuss lab results and common permission errors",
+              "Six-question assessment quiz",
+              "Questions and answers session"
+            ],
+            "failure_scenario": "",
+            "best_practice": ""
+          }
+        ],
+        "seeded_failure": {
+          "symptom": "The target system service enters a failed state immediately upon startup.",
+          "cause": "The service log file /var/log/app.log is owned by root with 0600 permissions, preventing the application user from writing to it.",
+          "fix": "Run chown appuser:appuser /var/log/app.log and restart the service using systemctl restart app."
+        },
+        "quiz": [
+          "What is the function of the /var directory in the Linux filesystem hierarchy?",
+          "How do symbolic permissions like u+rwx translate into octal permissions?",
+          "What command shows disk space usage in human-readable format across mounted filesystems?",
+          "How does journalctl -u service_name help troubleshoot a failing systemd service?",
+          "Why is deleting an open log file while a service runs considered problematic?",
+          "What is the difference between sending SIGTERM and SIGKILL to a running process?"
+        ],
+        "lab_rubric": [
+          [
+            "Disk inspection and target identification",
+            "Identifies the exact oversized file, size, owner, and permission bits using concise command combinations",
+            "Identifies the oversized log file and its current owner and permissions",
+            "Locates the file but misses detailed ownership or permission information",
+            "Fails to identify the oversized file"
+          ],
+          [
+            "Archival plan and execution",
+            "Executes a safe archival plan that compresses target files, preserves ownership, and frees space without deleting active files",
+            "Archives the file safely without data loss or active file deletion",
+            "Archives the log file but leaves destination permissions or active logs disrupted",
+            "Deletes active system files or fails to archive"
+          ],
+          [
+            "Service health verification",
+            "Verifies service health using systemctl, journalctl, and process list checks",
+            "Confirms the target service is running after archival",
+            "Restarts the service but fails to confirm runtime log generation",
+            "Leaves the service in a stopped or degraded state"
+          ],
+          [
+            "Troubleshooting the seeded failure",
+            "Resolves the service startup failure independently using journalctl diagnostics",
+            "Fixes the failure with minimal hint support",
+            "Identifies permission issues but fails to set correct ownership",
+            "Does not identify the cause of the failure"
+          ]
+        ],
+        "lab_environment": [
+          {
+            "tool": "Ubuntu Linux",
+            "version": "22.04 LTS",
+            "access": "SSH terminal access to disposable training VM",
+            "setup_owner": "Trainer",
+            "cost": "Priced in the Lab Cost Estimate"
+          },
+          {
+            "tool": "Bash Shell",
+            "version": "5.1 or later",
+            "access": "Interactive terminal session",
+            "setup_owner": "Trainer",
+            "cost": "No licence cost"
+          },
+          {
+            "tool": "systemd / systemctl",
+            "version": "Current stable release",
+            "access": "Pre-installed on VM",
+            "setup_owner": "Trainer",
+            "cost": "No licence cost"
+          }
+        ],
+        "origin": "model_draft_pending_technical_review",
+        "revision": "module-design-v1",
+        "model": "gemini-3.6-flash",
+        "source_key": "c531513cb79e55a16480"
       }
     },
     {
