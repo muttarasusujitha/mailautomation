@@ -46,6 +46,12 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+
+class OfflineCoordinationCompleteRequest(BaseModel):
+    booking_complete: bool = False
+    actual_expenses: Dict[str, float] = {}
+    whatsapp_invite_link: str = ""
+
 CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 DOCUMENT_SERVICE_URL = "http://document-service:8006"
@@ -7765,6 +7771,12 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
     food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
     client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
+    logistics_answers = {
+        "travel": travel_value or client_travel_terms,
+        "accommodation": accommodation_value,
+        "food": food_value,
+    }
+    logistics_owners = {key: _logistics_owner(value) for key, value in logistics_answers.items() if value}
     missing_confirmations = []
     if "venue" in required_fields and not client_venue:
         missing_confirmations.append("the exact training address")
@@ -7840,6 +7852,8 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
             "partial_client_travel_terms": client_travel_terms,
             "partial_accommodation": accommodation_value,
             "partial_food": food_value,
+            "logistics_answers": logistics_answers,
+            "logistics_owners": logistics_owners,
             "pending_booking_documents": pending_documents,
             "missing_confirmations": missing_confirmations,
             "updated_at": now,
@@ -7922,6 +7936,15 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         "generation_source": source,
         "updated_at": now,
     }})
+    await db["requirements"].update_one(
+        {"requirement_id": query.get("requirement_id")},
+        {"$set": {
+            "offline_logistics.answers": logistics_answers,
+            "offline_logistics.owners": logistics_owners,
+            "offline_logistics.client_confirmed_at": now,
+            "updated_at": now,
+        }},
+    )
     shortlist_logistics_update = {
         "top_trainers.$.post_interview_logistics.client_answer": text[:5000],
         "top_trainers.$.post_interview_logistics.client_answer_received_at": now,
@@ -8033,6 +8056,26 @@ def _client_labeled_logistics_value(text: Any, field: str) -> str:
         if match:
             return _clean(match.group(1))
     return ""
+
+
+def _logistics_owner(answer: Any) -> str:
+    """Classify booking and payment responsibility only when stated explicitly."""
+    value = _clean(answer).lower()
+    clahan = bool(re.search(
+        r"\b(?:clahan|we|our team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
+        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:clahan|our team)\b",
+        value,
+    ))
+    client = bool(re.search(
+        r"\b(?:client|you|your team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
+        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:client|your team)\b",
+        value,
+    ))
+    if clahan and not client:
+        return "clahan"
+    if client and not clahan:
+        return "client"
+    return "needs_review"
 
 
 async def _record_post_selection_trainer_logistics_reply(
@@ -9566,6 +9609,13 @@ async def _auto_request_client_po(
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
         return {"attempted": True, "success": False, "reason": "requirement_not_found"}
+    if _is_offline_requirement(requirement) and requirement.get("offline_coordination_status") != "complete":
+        return {
+            "attempted": False,
+            "skipped": True,
+            "reason": "offline_coordination_pending",
+            "message": "Client PO request is held until trainer PO approval, offline bookings, and requested group coordination are complete.",
+        }
     if requirement.get("client_po_requested"):
         return {"attempted": True, "skipped": True, "reason": "po_already_requested"}
 
@@ -9662,16 +9712,16 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
     if not fields:
         return body
     labels = {
-        "travel": "Travel terms: [details]",
-        "accommodation": "Accommodation: [details]",
-        "food": "Food: [details]",
+        "travel": "Travel terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "accommodation": "Accommodation terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "food": "Food terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
         "venue": "Confirmed training address: [details]",
     }
     request_lines = "\n".join(labels[field] for field in fields)
     addition = (
         "As this is an offline training request, please also confirm the following in this reply:\n\n"
         f"{request_lines}\n\n"
-        "For travel, accommodation, and food, please include any approved caps, who will book or pay, and any receipt rules."
+        "For each item, please state whether the Client or Clahan will arrange and pay, any approved cap, and receipt rules."
     )
     paragraphs = str(body or "").strip().split("\n\n")
     if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):
@@ -9717,6 +9767,72 @@ async def _auto_request_offline_logistics(
     """Legacy safety guard: offline logistics belong in the first client reply."""
     del db, requirement_id, trainer_id, trainer_name, trainer_email
     return {"attempted": False, "reason": "offline_logistics_requested_in_first_client_reply"}
+
+
+@router.post("/offline-coordination/{requirement_id}/complete")
+async def complete_offline_coordination(
+    requirement_id: str,
+    payload: OfflineCoordinationCompleteRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement or not _is_offline_requirement(requirement):
+        raise HTTPException(404, "Offline requirement not found")
+    task_id = requirement.get("offline_coordination_task_id") or f"offline-coordination:{requirement_id}:{requirement.get('selected_trainer_id') or ''}"
+    task = await db["offline_coordination_tasks"].find_one({"_id": task_id}, {"_id": 0})
+    if not task:
+        raise HTTPException(409, "Offline coordination task is missing")
+    if requirement.get("trainer_po_approval_status") != "sent":
+        raise HTTPException(409, "Approve and send the trainer PO before completing offline coordination")
+    clahan_items = [key for key, owner in (task.get("logistics_owners") or {}).items() if owner == "clahan"]
+    if clahan_items and task.get("booking_request_status") != "sent":
+        raise HTTPException(409, "Send the travel agent booking request before completing offline coordination")
+    if not payload.booking_complete:
+        raise HTTPException(400, "Confirm that Clahan-arranged bookings are complete")
+    if any(float(value) < 0 for value in payload.actual_expenses.values()):
+        raise HTTPException(400, "Booking costs cannot be negative")
+    whatsapp_invite_link = payload.whatsapp_invite_link.strip() or str(task.get("whatsapp_group_invite_link") or "").strip()
+    if task.get("whatsapp_group_requested") and not whatsapp_invite_link:
+        raise HTTPException(400, "Add the WhatsApp group invite link requested by the client")
+    if task.get("whatsapp_group_requested"):
+        if not whatsapp_invite_link.startswith("https://chat.whatsapp.com/"):
+            raise HTTPException(400, "Use the WhatsApp invite link from Meta or the group administrator")
+        invite_body = (
+            "The WhatsApp group for coordinating the offline training is ready. "
+            f"Join using this invite link: {whatsapp_invite_link}"
+        )
+        recipients = list(dict.fromkeys(filter(None, [task.get("client_email"), task.get("trainer_email")])))
+        if len(recipients) != 2:
+            raise HTTPException(409, "Client and trainer email addresses are required to share the group invite")
+        for recipient in recipients:
+            success, error = await _send_verified_workflow_email(
+                db, requirement_id, task.get("trainer_id"), "offline_whatsapp_group_invite",
+                to=recipient, subject=f"Offline training coordination group - {requirement_id}",
+                body=invite_body, message_id_header=generate_message_id(),
+            )
+            if not success:
+                raise HTTPException(502, f"Could not send WhatsApp group invite to {recipient}: {error}")
+    now = _now()
+    await db["offline_coordination_tasks"].update_one({"_id": task_id}, {"$set": {
+        "status": "complete", "booking_complete": True,
+        "actual_expenses": payload.actual_expenses,
+        "whatsapp_group_invite_link": whatsapp_invite_link,
+        "whatsapp_group_status": "invite_link_ready" if whatsapp_invite_link else "not_requested",
+        "completed_at": now, "updated_at": now,
+    }})
+    await db["requirements"].update_one({"requirement_id": requirement_id}, {"$set": {
+        "offline_coordination_status": "complete",
+        "offline_logistics.actual_expenses": payload.actual_expenses,
+        "offline_logistics.whatsapp_group_invite_link": whatsapp_invite_link,
+        "offline_logistics.completed_at": now,
+        "updated_at": now,
+    }})
+    result = await _auto_request_client_po(
+        db, requirement_id=requirement_id, trainer_id=str(requirement.get("selected_trainer_id") or ""),
+    )
+    if not result.get("success") and not result.get("skipped"):
+        raise HTTPException(502, f"Offline coordination is complete, but the client PO request failed: {result.get('reason') or result.get('error') or result.get('body')}")
+    return {"success": True, "status": "client_po_requested", "po_request": result}
 
 
 async def _handle_client_selection_reply(
@@ -9822,6 +9938,66 @@ async def _handle_client_selection_reply(
         or email_doc.get("domain")
         or "training"
     )
+    requirements_collection = db["requirements"]
+    requirement_reader = getattr(requirements_collection, "find_one", None)
+    requirement = await requirement_reader({"requirement_id": requirement_id}, {"_id": 0}) if requirement_reader else {}
+    requirement = requirement or {}
+    offline = _is_offline_requirement(requirement)
+    if offline:
+        coord_id = f"offline-coordination:{requirement_id}:{trainer_id}"
+        await db["offline_coordination_tasks"].update_one(
+            {"_id": coord_id},
+            {"$set": {
+                "task_id": coord_id,
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "trainer_name": trainer_name,
+                "trainer_email": trainer_email,
+                "client_email": requirement.get("client_email") or email_doc.get("from_email") or "",
+                "status": "pending_trainer_po_approval",
+                "logistics_owners": (requirement.get("offline_logistics") or {}).get("owners") or {},
+                "whatsapp_group_requested": bool(re.search(r"(?:create|make|open|start).{0,50}whats?app\s+group", text, re.IGNORECASE)),
+                "whatsapp_group_status": "staff_action_required",
+                "booking_requests": [],
+                "updated_at": now,
+            }, "$setOnInsert": {"created_at": now}},
+            upsert=True,
+        )
+        client_training_amount = next((
+            float(requirement.get(key)) for key in ("training_commercial_amount", "training_commercial", "client_budget", "budget_total")
+            if isinstance(requirement.get(key), (int, float)) and float(requirement.get(key)) > 0
+        ), 0.0)
+        if client_training_amount:
+            await db["finance_approvals"].update_one(
+                {"finance_id": f"trainer-po:{requirement_id}:{trainer_id}"},
+                {"$setOnInsert": {
+                    "finance_id": f"trainer-po:{requirement_id}:{trainer_id}",
+                    "request_type": "trainer_po",
+                    "status": "pending_human_approval",
+                    "requirement_id": requirement_id,
+                    "trainer_id": trainer_id,
+                    "trainer_name": trainer_name,
+                    "trainer_email": trainer_email,
+                    "client_name": requirement.get("client_name") or requirement.get("client_company") or "",
+                    "client_email": requirement.get("client_email") or "",
+                    "training_domain": technology,
+                    "training_dates": requirement.get("training_dates") or requirement.get("timeline_start") or "",
+                    "po_number": f"TPO-{requirement_id}-{trainer_id}",
+                    "total_amount": round(client_training_amount * 0.70, 2),
+                    "created_at": now,
+                    "updated_at": now,
+                }},
+                upsert=True,
+            )
+        await db["requirements"].update_one(
+            {"requirement_id": requirement_id},
+            {"$set": {
+                "offline_coordination_status": "pending_trainer_po_approval",
+                "offline_coordination_task_id": coord_id,
+                "trainer_po_approval_status": "pending_human_approval",
+                "updated_at": now,
+            }},
+        )
     mail5_result: Dict[str, Any]
     # Inbox polling can replay a message after a restart.  Reuse a completed
     # Mail 5 instead of congratulating the trainer again or re-running the PO

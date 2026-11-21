@@ -301,8 +301,13 @@ export default function Invoices() {
     setBusy('send')
     try {
       const toEmail = form.client_email || selected.client?.email || selected.invoice?.client_email || ''
-      await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
-      toast.success(`Invoice sent to ${toEmail}`)
+      const { data } = await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
+      if (data?.success !== true) throw new Error('Invoice send was not confirmed')
+      if (data.already_sent) {
+        toast(data.sent_to ? `Invoice was already marked sent to ${data.sent_to}. No new email was sent.` : 'Invoice was already marked sent. No new email was sent.')
+      } else {
+        toast.success(`Invoice sent to ${data.sent_to}`)
+      }
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Invoice send failed')

@@ -990,17 +990,18 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     package = str(values.get("lab_package") or "standard").strip().lower()
     assumptions_ws["B18"] = package.title() if package in {"basic", "standard", "advanced"} else "Standard"
     assumptions_ws["B19"] = as_positive_int("quote_validity_days", 7)
-    # Lab workbooks are client quotations. Apply Clahan's standard service
-    # uplift to the final client amount; raw provider cost remains part of
-    # the calculation/audit trail, not the amount offered to the client.
-    client_lab_markup_percent = values["clahan_margin_percent"]
-    if client_lab_markup_percent > 100:
-        raise ValueError("client_lab_markup_percent cannot exceed 100")
-    # Keep the markup factor out of visible client cells and the formula bar.
+    # Clahan's share is a percentage of the final selling price. Convert that
+    # margin to the cost uplift needed to calculate the client quote, so a
+    # 30% margin turns a 7,000 provider cost into a 10,000 selling price.
+    clahan_margin_percent = values["clahan_margin_percent"]
+    if clahan_margin_percent >= 100:
+        raise ValueError("clahan_margin_percent must be below 100")
+    client_price_uplift = clahan_margin_percent / (100 - clahan_margin_percent)
+    # Keep the uplift out of visible client cells and the formula bar.
     # The client sees only the resulting estimate on the Client Estimate sheet.
     internal_calc_ws = workbook.create_sheet("Internal Calculation")
     internal_calc_ws["A1"] = "Client adjustment factor"
-    internal_calc_ws["B1"] = client_lab_markup_percent / 100
+    internal_calc_ws["B1"] = client_price_uplift
     internal_calc_ws["B1"].number_format = "0%"
     internal_calc_ws.sheet_state = "veryHidden"
 

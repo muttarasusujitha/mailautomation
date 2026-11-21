@@ -114,7 +114,7 @@ async def send_invoice(
             "success": True,
             "already_sent": True,
             "invoice_id": invoice_id,
-            "sent_to": doc.get("sent_to") or to_email,
+            "sent_to": doc.get("sent_to"),
             "invoice": doc,
         }
 
