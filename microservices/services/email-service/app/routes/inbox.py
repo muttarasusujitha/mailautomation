@@ -4006,6 +4006,19 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
     if missing_requested_details:
         for item in missing_requested_details:
             add_detail(item)
+        if any("slot" in item.lower() for item in missing_requested_details):
+            cutoff = datetime.now(LOCAL_TZ).replace(tzinfo=None) + timedelta(minutes=15)
+            reply_text = email_doc.get("classification_body") or email_doc.get("clean_body") or email_doc.get("body") or ""
+            starts = sorted(option["start"] for option in _slot_options_from_text(reply_text) if option["start"] > cutoff)
+            formatted = ", ".join(start.strftime("%d %b %Y %I:%M %p") for start in starts)
+            detail_lines.append(
+                f"\nYour reply contains {len(starts)} qualifying interview {'slot' if len(starts) == 1 else 'slots'}."
+                + (f" Recognized start times in IST: {formatted}." if starts else "")
+                + "\nPlease reply with exactly three options together, one per line. Each must start more than "
+                "15 minutes from now. Keep the options that still work for you and replace the others. "
+                "Leave a space between the day and month and check AM/PM on both times.\n"
+                "Example format only (please use your actual availability):\n" + _sample_availability_slots()
+            )
     else:
         for item in requested_details:
             if any(token in item for token in ("trainer profile", "profile summary", "trainer details")):
@@ -4330,11 +4343,17 @@ async def _send_missing_trainer_details_followup(
             "error": "Trainer-only follow-up blocked because the recipient does not match the linked trainer",
         }
 
-    # This is deliberately one attempt per trainer and requirement. A polling
-    # retry, a reopened message, or an incomplete second reply must never send
-    # the same missing-details request again.
+    # Ask once for documents. A new reply offering invalid slots needs its
+    # own correction, even when we previously asked for a different detail.
+    message_filter = {}
+    source_message = _current_inbound_message_id(email_doc)
+    offered_slots = _slot_reply_intent(email_doc.get("classification_body") or email_doc.get("body"))
+    if (source_message and offered_slots in {"unclear_slots", "too_many_slots"}
+            and missing_details and all("slot" in item.lower() for item in missing_details)):
+        message_filter["source_gmail_message_id"] = source_message
     existing = await db["email_logs"].find_one(
         {
+            **message_filter,
             "direction": "outbound",
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
