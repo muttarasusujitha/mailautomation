@@ -2215,13 +2215,13 @@
         "Docker Hub"
       ],
       "jira_focus": "Create containerization task and document image tag",
-      "lab_task": "Containerise a Web Application: Write a multi-stage Dockerfile; Build and tag the image; Run it with a published port and a volume; Reduce the image size; Push the image to Docker Hub.",
-      "deliverable": "Dockerfile and .dockerignore; Image size before and after optimisation; Pushed image tag",
+      "lab_task": "Containerise a Web Application: Write a multi-stage Dockerfile and a .dockerignore; Build and tag the image, and compare its size with a single-stage build; Run it with a published port, a named volume and a health check; Run the process as a non-root user; Reach a second container by name on a user-defined network; Push the image to Docker Hub.",
+      "deliverable": "Dockerfile and .dockerignore; Image size before and after optimisation; Pushed image tag; Troubleshooting notes for the seeded failure",
       "assessment": "Participants explain how layer ordering changed their rebuild time.",
       "learning_objectives": [
-        "Explain images, layers and containers.",
-        "Write efficient, secure Dockerfiles.",
-        "Run containers with ports, volumes and networks."
+        "Write a multi-stage Dockerfile whose runtime image is at least 50% smaller than a single-stage build of the same application",
+        "Run a container with a published port, a named volume and a health check, and show its data survives removing and recreating the container",
+        "Run the application as a non-root user with no secrets in any image layer"
       ],
       "scenario": "A Python web application only runs on one developer's laptop.",
       "preparation_requirements": [
@@ -2239,7 +2239,7 @@
           "method": "Guided lab",
           "minutes": 210,
           "activity": "Containerise a Web Application: A Python web application only runs on one developer's laptop.",
-          "evidence": "Dockerfile and .dockerignore; Image size before and after optimisation; Pushed image tag"
+          "evidence": "Dockerfile and .dockerignore; Image size before and after optimisation; Pushed image tag; Troubleshooting notes for the seeded failure"
         },
         {
           "method": "Verification and review",
@@ -2396,10 +2396,11 @@
           "scenario": "A Python web application only runs on one developer's laptop.",
           "lead": "Participants:",
           "tasks": [
-            "Write a multi-stage Dockerfile",
-            "Build and tag the image",
-            "Run it with a published port and a volume",
-            "Reduce the image size",
+            "Write a multi-stage Dockerfile and a .dockerignore",
+            "Build and tag the image, and compare its size with a single-stage build",
+            "Run it with a published port, a named volume and a health check",
+            "Run the process as a non-root user",
+            "Reach a second container by name on a user-defined network",
             "Push the image to Docker Hub"
           ],
           "verify": [
@@ -2410,12 +2411,233 @@
           "deliverables": [
             "Dockerfile and .dockerignore",
             "Image size before and after optimisation",
-            "Pushed image tag"
+            "Pushed image tag",
+            "Troubleshooting notes for the seeded failure"
           ]
         },
         "assessment": "Participants explain how layer ordering changed their rebuild time.",
         "source": "authored",
-        "version": "course-outline-v1"
+        "version": "course-outline-v1",
+        "design": {
+          "outcomes": [
+            {
+              "outcome": "Write a multi-stage Dockerfile whose runtime image is at least 50% smaller than a single-stage build of the same application",
+              "assessed_by": "Lab check: image sizes before and after"
+            },
+            {
+              "outcome": "Run a container with a published port, a named volume and a health check, and show its data survives removing and recreating the container",
+              "assessed_by": "Lab checks: curl output and file listing"
+            },
+            {
+              "outcome": "Run the application as a non-root user with no secrets in any image layer",
+              "assessed_by": "Lab check: docker exec id output and docker history review"
+            },
+            {
+              "outcome": "Diagnose and fix a failing container using docker logs, exec, inspect and exit codes",
+              "assessed_by": "Seeded-failure troubleshooting"
+            },
+            {
+              "outcome": "Explain image layers and the build cache, and order Dockerfile instructions so a code change does not reinstall dependencies",
+              "assessed_by": "Knowledge check"
+            }
+          ],
+          "topics": [
+            {
+              "topic": "Containers versus virtual machines",
+              "minutes": 20,
+              "mode": "discussion",
+              "subtopics": [
+                "Linux namespaces and cgroups",
+                "Container runtimes: containerd and runc",
+                "OCI image and runtime specifications",
+                "When a virtual machine is still the right choice"
+              ],
+              "failure_scenario": "",
+              "best_practice": "Run one main process per container."
+            },
+            {
+              "topic": "Images, layers and the build cache",
+              "minutes": 25,
+              "mode": "discussion",
+              "subtopics": [
+                "Layers and the union filesystem",
+                "How the build cache is reused and invalidated",
+                "Tags versus digests",
+                "Inspecting layers with docker history"
+              ],
+              "failure_scenario": "A one-line code change reinstalls every dependency because COPY . . comes before the install step.",
+              "best_practice": "Copy the dependency file and install dependencies before copying the rest of the source."
+            },
+            {
+              "topic": "Writing Dockerfiles",
+              "minutes": 25,
+              "mode": "discussion",
+              "subtopics": [
+                "FROM, RUN, COPY, WORKDIR, ENV and ARG",
+                "COPY versus ADD",
+                "ENTRYPOINT versus CMD and the exec form",
+                "USER, EXPOSE and HEALTHCHECK",
+                ".dockerignore"
+              ],
+              "failure_scenario": "A .env file with credentials ends up in the image because there is no .dockerignore.",
+              "best_practice": "Add a .dockerignore and never put secrets in an image layer."
+            },
+            {
+              "topic": "Container lifecycle and exit codes",
+              "minutes": 20,
+              "mode": "discussion",
+              "subtopics": [
+                "run, stop, rm, logs, exec and inspect",
+                "Restart policies",
+                "Exit codes 0, 1, 137 and 143",
+                "Signals and graceful shutdown"
+              ],
+              "failure_scenario": "A container exits with code 137 because it exceeded its memory limit (OOMKilled).",
+              "best_practice": "Use the exec form of ENTRYPOINT so the application receives SIGTERM and shuts down cleanly."
+            },
+            {
+              "topic": "Demo: multi-stage build",
+              "minutes": 30,
+              "mode": "demo",
+              "subtopics": [
+                "Builder and runtime stages",
+                "Slim and distroless base images",
+                "Comparing image sizes with docker images",
+                "Building with BuildKit"
+              ],
+              "failure_scenario": "The runtime stage fails to start because a file built in the builder stage was not copied across.",
+              "best_practice": "Keep compilers and build tools out of the runtime image."
+            },
+            {
+              "topic": "Demo: volumes, bind mounts and networks",
+              "minutes": 30,
+              "mode": "demo",
+              "subtopics": [
+                "Named volumes versus bind mounts",
+                "Port publishing",
+                "Default bridge versus user-defined networks",
+                "Reaching containers by name"
+              ],
+              "failure_scenario": "Uploaded files disappear after the container is recreated because they were written to the container layer.",
+              "best_practice": "Keep state in named volumes and connect services on a user-defined network."
+            },
+            {
+              "topic": "Lab: Containerise a Web Application",
+              "minutes": 150,
+              "mode": "lab",
+              "subtopics": [
+                "Write a multi-stage Dockerfile and a .dockerignore",
+                "Build, tag and compare image sizes",
+                "Run with a published port, a named volume and a health check",
+                "Run as a non-root user",
+                "Reach a second container by name on a user-defined network",
+                "Push the image to Docker Hub"
+              ],
+              "failure_scenario": "",
+              "best_practice": "Pin the base image version and run the application as a non-root user."
+            },
+            {
+              "topic": "Troubleshooting the seeded failure",
+              "minutes": 60,
+              "mode": "lab",
+              "subtopics": [
+                "Reproduce the symptom",
+                "Check docker ps, logs and inspect",
+                "Find the root cause",
+                "Fix, rebuild and verify"
+              ],
+              "failure_scenario": "The container is running but the published port does not respond: the application listens on 127.0.0.1 inside the container.",
+              "best_practice": "Bind the application to 0.0.0.0 inside the container and publish only the ports you need."
+            },
+            {
+              "topic": "Knowledge check and recap",
+              "minutes": 60,
+              "mode": "discussion",
+              "subtopics": [
+                "Seven-question quiz",
+                "Review of lab results",
+                "Common Dockerfile mistakes",
+                "Questions"
+              ],
+              "failure_scenario": "",
+              "best_practice": ""
+            }
+          ],
+          "seeded_failure": {
+            "symptom": "The container shows as running, but requests to the published port fail.",
+            "cause": "The application listens on 127.0.0.1 inside the container, so traffic arriving on the container's network interface is refused.",
+            "fix": "Bind the application to 0.0.0.0, rebuild the image and confirm with curl and docker logs."
+          },
+          "quiz": [
+            "What is the difference between CMD and ENTRYPOINT, and what happens to each when you pass arguments to docker run?",
+            "Why does changing one source file reinstall every dependency when COPY . . comes before RUN pip install, and how do you reorder the Dockerfile to fix it?",
+            "A container exits with code 137. What are two likely causes, and which command confirms the cause?",
+            "When would you use a named volume instead of a bind mount?",
+            "Why should a container run as a non-root user, and how do you set this in a Dockerfile?",
+            "Two containers on the default bridge network cannot reach each other by name. Why, and what is the fix?",
+            "What is the difference between an image tag and a digest, and which should a production deployment reference?"
+          ],
+          "lab_rubric": [
+            [
+              "Image build",
+              "Multi-stage build on a pinned slim base, a .dockerignore, cache-friendly order and an image at least 50% smaller",
+              "Multi-stage build works and the image is smaller",
+              "Single-stage image that builds and runs",
+              "Image does not build or run"
+            ],
+            [
+              "Running the container",
+              "Port, named volume, health check and user-defined network all verified",
+              "Port and named volume verified",
+              "Container runs but the port or the data persistence fails",
+              "Container does not stay up"
+            ],
+            [
+              "Security",
+              "Non-root user, no secrets in any layer and no build tools in the runtime image",
+              "Non-root user and no secrets in any layer",
+              "Runs as root but no secrets in any layer",
+              "Secrets found in an image layer"
+            ],
+            [
+              "Troubleshooting the seeded failure",
+              "Root cause found and fixed without help, with logs or inspect output as evidence",
+              "Fixed with a hint",
+              "Symptom described but not fixed",
+              "Not attempted"
+            ]
+          ],
+          "lab_environment": [
+            {
+              "tool": "Docker Engine",
+              "version": "24.0 or later, with BuildKit",
+              "access": "Local install on Linux, or a trainer-provided Linux VM",
+              "setup_owner": "Client IT for laptops; trainer for cloud VMs",
+              "cost": "No licence cost; cloud VMs are priced in the Lab Cost Estimate"
+            },
+            {
+              "tool": "Docker Desktop (optional)",
+              "version": "Current release",
+              "access": "Local install on Windows or macOS",
+              "setup_owner": "Client IT",
+              "cost": "Larger organisations may need a paid Docker subscription; check Docker's current terms"
+            },
+            {
+              "tool": "Docker Hub",
+              "version": "Not applicable",
+              "access": "One free personal account per participant",
+              "setup_owner": "Participant",
+              "cost": "Free for public repositories"
+            },
+            {
+              "tool": "Sample web application",
+              "version": "Course repository, tagged for the batch",
+              "access": "Read access to the course Git repository",
+              "setup_owner": "Trainer",
+              "cost": "None"
+            }
+          ]
+        }
       }
     },
     {

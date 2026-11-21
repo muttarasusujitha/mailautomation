@@ -8,7 +8,9 @@ topic name with a specific one. Each authored day becomes the day's ``outline`` 
 and its flat fields (subtopics, lab, scenario, deliverable, objectives,
 assessment, acceptance checks), so the Excel ToC and AI-off generation use the
 same content. ``tools`` on a course (or on one day) sets the day's tools; without
-it the day keeps its own. Days that were already manually authored keep their flat fields
+it the day keeps its own. An optional ``design`` block (outcomes, timed topics with
+failure scenarios and best practices, a seeded lab failure, quiz, lab rubric and
+lab environment) is copied to ``outline.design`` for the course workbook. Days that were already manually authored keep their flat fields
 and only gain the outline. Original content is kept once in
 ``content_before_outline_authoring``. Review status stays "unreviewed".
 """
@@ -41,7 +43,37 @@ def build_outline(entry: dict) -> dict:
         "assessment": entry.get("assessment", ""),
         "source": "authored",
         "version": OUTLINE_VERSION,
+        **({"design": deepcopy(entry["design"])} if entry.get("design") else {}),
     }
+
+
+_DESIGN_MODES = {"demo", "lab", "discussion"}
+
+
+def design_problems(design: dict, module_minutes: int) -> list:
+    """Checks for an optional fully detailed module design (the course-workbook sample format)."""
+    problems = []
+    outcomes = design.get("outcomes") or []
+    if not 3 <= len(outcomes) <= 5 or not all(o.get("outcome") and o.get("assessed_by") for o in outcomes):
+        problems.append("design needs 3 to 5 outcomes, each with an outcome and how it is assessed")
+    topics = design.get("topics") or []
+    if not topics or not all(t.get("topic") and int(t.get("minutes") or 0) > 0 for t in topics):
+        problems.append("design topics need a name and positive minutes")
+    elif sum(int(t["minutes"]) for t in topics) != module_minutes:
+        problems.append(f"design topic minutes must add up to the module's {module_minutes} minutes")
+    if any(t.get("mode") not in _DESIGN_MODES for t in topics):
+        problems.append("design topic mode must be demo, lab or discussion")
+    seeded = design.get("seeded_failure") or {}
+    if not all(seeded.get(key) for key in ("symptom", "cause", "fix")):
+        problems.append("design needs a seeded lab failure with a symptom, cause and fix")
+    if len(design.get("quiz") or []) < 5:
+        problems.append("design needs at least 5 knowledge-check questions")
+    if any(len(row) != 5 for row in design.get("lab_rubric") or []) or not design.get("lab_rubric"):
+        problems.append("design lab rubric rows need a criterion and four score descriptions")
+    if not all(all(item.get(key) for key in ("tool", "version", "access", "setup_owner", "cost"))
+               for item in design.get("lab_environment") or [{}]):
+        problems.append("design lab environment rows need tool, version, access, setup owner and cost")
+    return problems
 
 
 def _flat_fields(entry: dict, outline: dict, had_lab_key: bool) -> dict:
@@ -93,6 +125,8 @@ def apply_course(course: dict, document: dict) -> int:
         target = _subtopic_target(entry.get("rename_to") or entry["topic"])
         if len(subtopics_from_outline(outline)) < target:
             problems.append(f"needs at least {target} topics so the ToC quality gate passes")
+        if entry.get("design"):
+            problems += design_problems(entry["design"], int(day.get("minutes") or 420))
         if problems:
             raise ValueError(f"{entry['topic']}: {'; '.join(problems)}")
         before = deepcopy(day)
