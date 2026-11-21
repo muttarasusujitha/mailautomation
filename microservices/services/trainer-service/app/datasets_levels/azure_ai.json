@@ -1,0 +1,1657 @@
+{
+  "domain": "Azure AI",
+  "name": "Azure AI",
+  "category": "AI & Machine Learning",
+  "icon": "sparkles",
+  "aliases": [
+    "Azure AI",
+    "Azure OpenAI",
+    "Azure AI Foundry",
+    "Azure Cognitive Services",
+    "Azure AI Services",
+    "Azure AI Engineer",
+    "AI-102",
+    "Azure Applied AI",
+    "Azure Machine Learning",
+    "Azure ML"
+  ],
+  "certifications": [
+    "Microsoft Certified: Azure AI Engineer Associate (AI-102)",
+    "Microsoft Certified: Azure AI Fundamentals (AI-900)",
+    "Microsoft Certified: Azure Data Scientist Associate (DP-100)"
+  ],
+  "tools": [
+    "Azure AI Foundry",
+    "Azure OpenAI",
+    "Azure AI Search",
+    "Azure Machine Learning",
+    "Azure AI Content Safety"
+  ],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers new to Azure AI. Covers the Azure AI portfolio and responsible AI, Azure OpenAI deployments and prompting, structured outputs and tools, Azure AI Search and RAG, the Language, Vision and Document Intelligence services, Content Safety, monitoring and cost, prompt flow, and a grounded assistant capstone.",
+      "prerequisites": [
+        "Comfortable programming in Python",
+        "Basic REST/API and JSON knowledge",
+        "An Azure subscription with access to Azure OpenAI"
+      ],
+      "outcomes": [
+        "Deploy and call Azure OpenAI models",
+        "Build grounded RAG with Azure AI Search",
+        "Use the Language, Vision and Document Intelligence services",
+        "Apply Content Safety, monitoring and cost control"
+      ],
+      "days": [
+        {
+          "topic": "The Azure AI Landscape and Responsible AI",
+          "subtopics": [
+            "Azure AI Foundry, Azure OpenAI and Azure AI services",
+            "Models versus services versus platform",
+            "Responsible AI principles at Microsoft",
+            "Content Safety and abuse monitoring",
+            "Data privacy and where prompts go",
+            "Regions, quotas and model availability",
+            "Cost model for tokens and endpoints",
+            "Choosing the right service for a task",
+            "Azure AI Foundry portal tour",
+            "Setting up a project and connections"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Azure portal"
+          ],
+          "lab_task": "Set up an Azure AI Foundry project, connect an Azure OpenAI resource, and map three business tasks (summarise, classify, extract) to the right Azure AI service with a written reason.",
+          "deliverable": "A Foundry project with a connection and a one-page service-selection note",
+          "checks": [
+            [
+              "Create a Foundry project and connection",
+              "The project lists a working Azure OpenAI connection",
+              "Portal screenshot"
+            ],
+            [
+              "Run a test prompt in the playground",
+              "A completion returns",
+              "Playground output"
+            ],
+            [
+              "Classify three tasks to services",
+              "Each task maps to a justified service",
+              "Written note"
+            ]
+          ],
+          "objectives": [
+            "Describe the Azure AI portfolio",
+            "Apply responsible-AI basics",
+            "Choose a service for a given task"
+          ]
+        },
+        {
+          "topic": "Azure OpenAI Service and Model Deployments",
+          "subtopics": [
+            "Model families: GPT-4o, GPT-4.1, o-series, embeddings",
+            "Creating a model deployment",
+            "Deployment types: standard and provisioned",
+            "Token limits and context windows",
+            "Temperature, top_p and max tokens",
+            "Quotas, rate limits and 429 handling",
+            "API keys versus Entra ID auth",
+            "Playground versus SDK",
+            "Versioning and model upgrades"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure AI Foundry",
+            "Python"
+          ],
+          "lab_task": "Deploy a GPT-4o model and an embeddings model, then call both from the Python SDK, handling a rate-limit retry.",
+          "deliverable": "A script that calls a chat and an embeddings deployment with retry handling",
+          "checks": [
+            [
+              "Create both deployments",
+              "Both appear as deployments in the resource",
+              "Deployments list"
+            ],
+            [
+              "Call the chat deployment from the SDK",
+              "A completion returns",
+              "Script output"
+            ],
+            [
+              "Trigger and handle a 429",
+              "The client backs off and retries successfully",
+              "Log of retry"
+            ]
+          ],
+          "objectives": [
+            "Deploy Azure OpenAI models",
+            "Call chat and embeddings from the SDK",
+            "Handle quotas and rate limits"
+          ]
+        },
+        {
+          "topic": "Prompt Engineering in Azure OpenAI",
+          "subtopics": [
+            "System, user and assistant messages",
+            "Instruction clarity and role prompting",
+            "Few-shot examples",
+            "Grounding prompts with context",
+            "Controlling format with instructions",
+            "Reducing hallucination",
+            "Temperature and determinism trade-offs",
+            "Prompt templates and variables",
+            "Testing prompts in the playground"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure AI Foundry"
+          ],
+          "lab_task": "Turn a vague support prompt into a structured system+few-shot prompt that returns consistent JSON, and show the quality improvement on five test inputs.",
+          "deliverable": "A prompt template and a before/after comparison on five inputs",
+          "checks": [
+            [
+              "Add a system prompt and two few-shot examples",
+              "Outputs become consistent across inputs",
+              "Five outputs"
+            ],
+            [
+              "Request strict JSON",
+              "Every response parses as JSON",
+              "Parse check"
+            ],
+            [
+              "Lower temperature",
+              "Repeated runs are stable",
+              "Repeat-run comparison"
+            ]
+          ],
+          "objectives": [
+            "Structure chat prompts",
+            "Use few-shot examples",
+            "Make outputs consistent and parseable"
+          ]
+        },
+        {
+          "topic": "Structured Outputs and Function Calling",
+          "subtopics": [
+            "JSON mode and structured outputs",
+            "JSON schema and response_format",
+            "Function/tool definitions",
+            "Parameter validation before execution",
+            "Read versus write tools",
+            "Handling invalid or partial output",
+            "Parallel tool calls",
+            "Confirmation before actions",
+            "Logging tool use for audit"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Define a tool schema for an order-status function and a refund function, have the model call them with validated arguments, and require confirmation before the refund.",
+          "deliverable": "A tool-calling script with argument validation and a confirmation gate",
+          "checks": [
+            [
+              "Model calls order-status with valid args",
+              "Arguments match the schema",
+              "Request log"
+            ],
+            [
+              "Model requests a refund",
+              "A confirmation step runs before execution",
+              "Confirmation prompt"
+            ],
+            [
+              "Send malformed arguments",
+              "The call is rejected, not executed",
+              "Validation error"
+            ]
+          ],
+          "objectives": [
+            "Enforce structured outputs",
+            "Define and validate tools",
+            "Gate write actions with confirmation"
+          ]
+        },
+        {
+          "topic": "Azure AI Search and Retrieval",
+          "subtopics": [
+            "Azure AI Search indexes",
+            "Keyword, vector and hybrid search",
+            "Embeddings and vector fields",
+            "Chunking documents for retrieval",
+            "Semantic ranking",
+            "Indexers and data sources",
+            "Filters and faceting",
+            "Scoring profiles",
+            "Index size and cost"
+          ],
+          "tools": [
+            "Azure AI Search",
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Build an Azure AI Search index over a set of PDFs with vector and keyword fields, and run a hybrid query with semantic ranking.",
+          "deliverable": "A populated hybrid index and a working semantic query",
+          "checks": [
+            [
+              "Index the documents with vector fields",
+              "Documents are searchable",
+              "Index stats"
+            ],
+            [
+              "Run a hybrid query",
+              "Results combine keyword and vector matches",
+              "Query results"
+            ],
+            [
+              "Enable semantic ranking",
+              "Top results improve for a test question",
+              "Before/after ranking"
+            ]
+          ],
+          "objectives": [
+            "Create an Azure AI Search index",
+            "Combine vector and keyword search",
+            "Apply semantic ranking"
+          ]
+        },
+        {
+          "topic": "Retrieval-Augmented Generation on Azure",
+          "subtopics": [
+            "RAG pattern and when to use it",
+            "Chunking and embedding strategy",
+            "Retrieve-then-generate flow",
+            "Citations and source attribution",
+            "Grounding and preventing invented facts",
+            "Handling no-answer cases",
+            "Context-window budgeting",
+            "Evaluating answer groundedness",
+            "Caching retrieved context"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure AI Search",
+            "Python"
+          ],
+          "lab_task": "Build a RAG assistant over the indexed PDFs that answers with citations and refuses when the answer is not in the sources.",
+          "deliverable": "A RAG assistant that cites sources and declines unsupported questions",
+          "checks": [
+            [
+              "Ask an in-corpus question",
+              "The answer is correct and cites a source",
+              "Answer with citation"
+            ],
+            [
+              "Ask an out-of-corpus question",
+              "The assistant declines rather than inventing",
+              "Declined answer"
+            ],
+            [
+              "Inspect the retrieved chunks",
+              "Chunks are relevant to the question",
+              "Retrieved context"
+            ]
+          ],
+          "objectives": [
+            "Build a RAG pipeline on Azure",
+            "Return grounded, cited answers",
+            "Handle unanswerable questions"
+          ]
+        },
+        {
+          "topic": "Azure AI Language Service",
+          "subtopics": [
+            "Sentiment and opinion mining",
+            "Key phrase extraction",
+            "Named entity recognition and PII detection",
+            "Language detection",
+            "Custom text classification",
+            "Custom NER projects",
+            "Conversational language understanding (CLU)",
+            "Question answering over knowledge bases",
+            "Batch processing"
+          ],
+          "tools": [
+            "Azure AI Language",
+            "Python"
+          ],
+          "lab_task": "Use Azure AI Language to redact PII from support tickets and classify them by issue type with a custom classifier.",
+          "deliverable": "A pipeline that redacts PII and classifies tickets",
+          "checks": [
+            [
+              "Run PII detection",
+              "Emails and phone numbers are redacted",
+              "Redacted sample"
+            ],
+            [
+              "Classify tickets",
+              "Each ticket gets an issue type",
+              "Classification output"
+            ],
+            [
+              "Spot-check accuracy",
+              "Labels match a manual review on a sample",
+              "Review table"
+            ]
+          ],
+          "objectives": [
+            "Use prebuilt Language features",
+            "Redact PII",
+            "Classify text with a custom model"
+          ]
+        },
+        {
+          "topic": "Azure AI Vision and Document Intelligence",
+          "subtopics": [
+            "Image analysis and tagging",
+            "OCR and read",
+            "Spatial analysis overview",
+            "Document Intelligence prebuilt models (invoice, receipt, ID)",
+            "Custom extraction models",
+            "Layout and table extraction",
+            "Confidence scores and human review",
+            "Batch document processing",
+            "Output to structured storage"
+          ],
+          "tools": [
+            "Azure AI Vision",
+            "Document Intelligence",
+            "Python"
+          ],
+          "lab_task": "Extract line items and totals from a set of invoices with Document Intelligence, route low-confidence fields to a review queue, and write the results to a table.",
+          "deliverable": "An invoice-extraction pipeline with a confidence-based review queue",
+          "checks": [
+            [
+              "Extract fields from a clean invoice",
+              "Totals and line items are correct",
+              "Extracted JSON"
+            ],
+            [
+              "Process a poor scan",
+              "Low-confidence fields are flagged for review",
+              "Review queue entry"
+            ],
+            [
+              "Write results to storage",
+              "Structured rows land in the table",
+              "Table rows"
+            ]
+          ],
+          "objectives": [
+            "Analyse images and documents",
+            "Extract structured data from invoices",
+            "Route low-confidence output to review"
+          ]
+        },
+        {
+          "topic": "Content Safety and Guardrails",
+          "subtopics": [
+            "Azure AI Content Safety categories",
+            "Severity levels and thresholds",
+            "Prompt shields for jailbreaks",
+            "Protected material detection",
+            "Groundedness detection",
+            "Blocklists and custom categories",
+            "Moderating input and output",
+            "Logging and incident review",
+            "Responsible-AI mitigations"
+          ],
+          "tools": [
+            "Azure AI Content Safety",
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Wrap the RAG assistant with Content Safety so unsafe inputs and outputs are blocked, and add a prompt shield against a jailbreak attempt.",
+          "deliverable": "A safety-wrapped assistant with evidence it blocks unsafe and jailbreak inputs",
+          "checks": [
+            [
+              "Send unsafe input",
+              "It is blocked before reaching the model",
+              "Blocked log"
+            ],
+            [
+              "Attempt a jailbreak prompt",
+              "The prompt shield flags it",
+              "Shield result"
+            ],
+            [
+              "Send normal input",
+              "It passes through unaffected",
+              "Normal response"
+            ]
+          ],
+          "objectives": [
+            "Apply Content Safety to inputs and outputs",
+            "Use prompt shields",
+            "Log and review safety incidents"
+          ]
+        },
+        {
+          "topic": "Monitoring, Cost and Quotas",
+          "subtopics": [
+            "Token usage and metrics",
+            "Azure Monitor and diagnostic logs",
+            "Setting budgets and alerts",
+            "Provisioned throughput versus standard",
+            "Latency and throughput monitoring",
+            "Quota management across deployments",
+            "Caching to cut cost",
+            "Dashboarding usage",
+            "Right-sizing deployments"
+          ],
+          "tools": [
+            "Azure Monitor",
+            "Azure OpenAI",
+            "Azure portal"
+          ],
+          "lab_task": "Instrument the assistant to log token usage and latency to Azure Monitor, build a usage dashboard, and set a budget alert.",
+          "deliverable": "A usage dashboard and a working budget alert",
+          "checks": [
+            [
+              "Log tokens and latency",
+              "Metrics appear in Azure Monitor",
+              "Monitor query"
+            ],
+            [
+              "Build a dashboard",
+              "Usage and latency are visible",
+              "Dashboard"
+            ],
+            [
+              "Set and trip a budget alert",
+              "An alert fires at the threshold",
+              "Alert notification"
+            ]
+          ],
+          "objectives": [
+            "Monitor token usage and latency",
+            "Build a usage dashboard",
+            "Control cost with budgets and quotas"
+          ]
+        },
+        {
+          "topic": "Prompt Flow in Azure AI Foundry",
+          "subtopics": [
+            "Prompt flow concept",
+            "Flows, nodes and variants",
+            "Connecting data and tools in a flow",
+            "Variants for prompt A/B testing",
+            "Batch runs over a dataset",
+            "Built-in evaluation flows",
+            "Tracing a flow run",
+            "Deploying a flow as an endpoint",
+            "Versioning flows"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Prompt flow",
+            "Python"
+          ],
+          "lab_task": "Rebuild the RAG assistant as a prompt flow with two prompt variants, run it over a test dataset, and compare the variants with an evaluation flow.",
+          "deliverable": "A prompt flow with two variants and an evaluation comparison",
+          "checks": [
+            [
+              "Build the flow with retrieve and generate nodes",
+              "The flow runs end to end",
+              "Flow run trace"
+            ],
+            [
+              "Run a batch over the dataset",
+              "Every row produces an answer",
+              "Batch results"
+            ],
+            [
+              "Compare variants with evaluation",
+              "One variant scores higher on groundedness",
+              "Evaluation report"
+            ]
+          ],
+          "objectives": [
+            "Build and trace prompt flows",
+            "A/B test prompt variants",
+            "Evaluate flows over a dataset"
+          ]
+        },
+        {
+          "topic": "Capstone: A Grounded Azure AI Assistant",
+          "subtopics": [
+            "End-to-end assistant design",
+            "Retrieval, generation and safety together",
+            "Monitoring and cost control",
+            "Validating groundedness",
+            "Documenting the solution",
+            "Presenting to stakeholders",
+            "Handling an unanswerable question",
+            "A safety incident walkthrough"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Azure OpenAI",
+            "Azure AI Search",
+            "Azure AI Content Safety"
+          ],
+          "lab_task": "Deliver a grounded assistant: Azure AI Search retrieval, Azure OpenAI generation with citations, Content Safety guardrails, and Azure Monitor logging, demonstrated on real questions.",
+          "deliverable": "A working grounded assistant with safety, monitoring and a demo",
+          "checks": [
+            [
+              "Answer in-corpus questions with citations",
+              "Answers are correct and cited",
+              "Demo answers"
+            ],
+            [
+              "Block an unsafe input",
+              "Content Safety stops it",
+              "Blocked log"
+            ],
+            [
+              "Show usage in the dashboard",
+              "Tokens and latency are tracked",
+              "Dashboard"
+            ]
+          ],
+          "objectives": [
+            "Assemble a grounded Azure AI assistant",
+            "Apply safety and monitoring",
+            "Demonstrate and document the result"
+          ]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built with Azure OpenAI. Covers quotas and throughput, advanced prompting and tools, deep Azure AI Search, production RAG, evaluation and groundedness, fine-tuning, Azure ML pipelines and MLOps, content safety and governance, security and private networking, agents, multimodal and speech, and a governed application capstone.",
+      "prerequisites": [
+        "Has called Azure OpenAI from code",
+        "Comfortable with RAG and prompting basics",
+        "Familiar with Azure resources and the CLI"
+      ],
+      "outcomes": [
+        "Build production RAG and agents on Azure",
+        "Evaluate groundedness and fine-tune models",
+        "Operate Azure ML pipelines and MLOps",
+        "Secure and govern Azure AI workloads"
+      ],
+      "days": [
+        {
+          "topic": "Azure OpenAI Deployments, Quotas and Throughput",
+          "subtopics": [
+            "Standard versus provisioned throughput units (PTU)",
+            "Quota allocation across deployments",
+            "Model versioning and upgrade policy",
+            "Regional capacity and failover",
+            "Batch API for bulk work",
+            "Rate-limit design and backoff",
+            "Cost per token versus PTU economics",
+            "Latency targets and streaming",
+            "Capacity planning from usage"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Python",
+            "Azure Monitor"
+          ],
+          "lab_task": "Compare standard and provisioned throughput for a workload: measure latency and cost per 1,000 requests, and recommend a deployment model.",
+          "deliverable": "A measured comparison of standard vs PTU with a recommendation",
+          "checks": [
+            [
+              "Run the workload on standard",
+              "Latency and cost per 1k are recorded",
+              "Metering"
+            ],
+            [
+              "Estimate PTU for the same load",
+              "A capacity and cost estimate is produced",
+              "Estimate"
+            ],
+            [
+              "Recommend a model",
+              "The choice is justified by cost and latency",
+              "Recommendation"
+            ]
+          ],
+          "objectives": [
+            "Plan quotas and throughput",
+            "Compare standard and PTU",
+            "Size capacity from measured load"
+          ]
+        },
+        {
+          "topic": "Advanced Prompting and Function Calling",
+          "subtopics": [
+            "Prompt chaining and decomposition",
+            "Chain-of-thought and its cost",
+            "Dynamic few-shot selection",
+            "Tool orchestration patterns",
+            "Structured outputs with strict schemas",
+            "Guarding against prompt injection",
+            "Prompt versioning and testing",
+            "Caching and prompt reuse",
+            "Evaluating prompt quality"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Convert a single large prompt into a chain (classify, retrieve, answer, verify) with tools, and defend it against a prompt-injection payload.",
+          "deliverable": "A prompt chain with tools that resists an injection attempt",
+          "checks": [
+            [
+              "Split into a working chain",
+              "Each step does one job and the chain answers",
+              "Chain trace"
+            ],
+            [
+              "Attempt prompt injection",
+              "The injected instruction is ignored",
+              "Injection test"
+            ],
+            [
+              "Verify output with a check step",
+              "Bad outputs are caught and retried",
+              "Verification log"
+            ]
+          ],
+          "objectives": [
+            "Decompose prompts into chains",
+            "Orchestrate tools safely",
+            "Defend against prompt injection"
+          ]
+        },
+        {
+          "topic": "Azure AI Search: Vector and Hybrid at Depth",
+          "subtopics": [
+            "Vector index configuration and algorithms (HNSW)",
+            "Hybrid search and RRF fusion",
+            "Semantic ranker tuning",
+            "Chunking strategies and overlap",
+            "Metadata filtering and security trimming",
+            "Integrated vectorization",
+            "Index refresh and indexers",
+            "Relevance evaluation",
+            "Index cost and replica/partition sizing"
+          ],
+          "tools": [
+            "Azure AI Search",
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Tune a retrieval index: test two chunking strategies and hybrid versus vector-only, and measure retrieval relevance on a labelled question set.",
+          "deliverable": "A tuned index with a relevance comparison across strategies",
+          "checks": [
+            [
+              "Index with two chunking strategies",
+              "Both indexes are queryable",
+              "Index stats"
+            ],
+            [
+              "Compare hybrid versus vector-only",
+              "Relevance scores are measured on the question set",
+              "Score table"
+            ],
+            [
+              "Apply security trimming",
+              "A user sees only permitted documents",
+              "Trimmed results"
+            ]
+          ],
+          "objectives": [
+            "Configure vector and hybrid search",
+            "Tune chunking and ranking",
+            "Measure retrieval relevance"
+          ]
+        },
+        {
+          "topic": "Production RAG Pipelines",
+          "subtopics": [
+            "RAG orchestration frameworks",
+            "Query rewriting and expansion",
+            "Multi-step and agentic retrieval",
+            "Citations and answer verification",
+            "Grounding checks and refusal",
+            "Freshness and incremental indexing",
+            "Latency budgeting across steps",
+            "Fallback and degradation",
+            "Observability of a RAG pipeline"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure AI Search",
+            "Python"
+          ],
+          "lab_task": "Harden the RAG pipeline with query rewriting, a groundedness check and a fallback when retrieval is weak, and trace each step's latency.",
+          "deliverable": "A production RAG pipeline with grounding checks, fallback and tracing",
+          "checks": [
+            [
+              "Add query rewriting",
+              "Ambiguous questions retrieve better context",
+              "Before/after retrieval"
+            ],
+            [
+              "Add a groundedness check",
+              "Ungrounded answers are refused or flagged",
+              "Flagged example"
+            ],
+            [
+              "Trace step latency",
+              "Each step's time is visible and within budget",
+              "Trace"
+            ]
+          ],
+          "objectives": [
+            "Build production RAG",
+            "Verify grounding and add fallback",
+            "Trace and budget latency"
+          ]
+        },
+        {
+          "topic": "Evaluation and Groundedness",
+          "subtopics": [
+            "Offline evaluation datasets",
+            "Groundedness, relevance, coherence and fluency metrics",
+            "LLM-as-judge and its limits",
+            "Azure AI evaluation SDK",
+            "Red-teaming prompts",
+            "Regression testing prompts and flows",
+            "Human review workflows",
+            "Setting quality gates",
+            "Tracking quality over time"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Python"
+          ],
+          "lab_task": "Build an evaluation set for the assistant, run groundedness and relevance metrics with the Azure AI evaluation SDK, and set a quality gate that blocks a bad prompt change.",
+          "deliverable": "An evaluation harness with a quality gate",
+          "checks": [
+            [
+              "Run groundedness and relevance",
+              "Scores are produced per question",
+              "Evaluation report"
+            ],
+            [
+              "Introduce a worse prompt",
+              "The quality gate fails the change",
+              "Gate result"
+            ],
+            [
+              "Review borderline cases",
+              "Humans adjudicate low-confidence scores",
+              "Review notes"
+            ]
+          ],
+          "objectives": [
+            "Build evaluation datasets",
+            "Measure groundedness and relevance",
+            "Gate changes on quality"
+          ]
+        },
+        {
+          "topic": "Fine-Tuning Azure OpenAI Models",
+          "subtopics": [
+            "When to fine-tune versus RAG or prompting",
+            "Preparing JSONL training data",
+            "Training, validation and splits",
+            "Running a fine-tune job",
+            "Evaluating a fine-tuned model",
+            "Deploying and versioning the model",
+            "Cost of fine-tuning and hosting",
+            "Catastrophic forgetting risks",
+            "Governance of training data"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Fine-tune a model for a classification style the base model handles poorly, compare it to a few-shot baseline, and deploy it only if it wins.",
+          "deliverable": "A fine-tuned model with a baseline comparison and a deploy decision",
+          "checks": [
+            [
+              "Prepare and validate JSONL",
+              "Data passes format validation",
+              "Validation output"
+            ],
+            [
+              "Run the fine-tune and evaluate",
+              "Accuracy versus the few-shot baseline is measured",
+              "Comparison"
+            ],
+            [
+              "Decide and deploy",
+              "Deploy only if the fine-tune wins, with a cost note",
+              "Decision record"
+            ]
+          ],
+          "objectives": [
+            "Decide when to fine-tune",
+            "Run and evaluate a fine-tune",
+            "Deploy with a cost-benefit decision"
+          ]
+        },
+        {
+          "topic": "Azure Machine Learning Pipelines",
+          "subtopics": [
+            "Azure ML workspace and assets",
+            "Datastores, data assets and environments",
+            "Jobs and components",
+            "Pipelines for repeatable training",
+            "Compute clusters and instances",
+            "Model registry",
+            "Managed online and batch endpoints",
+            "Parameterising and reusing pipelines",
+            "Experiment tracking"
+          ],
+          "tools": [
+            "Azure Machine Learning",
+            "Python"
+          ],
+          "lab_task": "Build an Azure ML pipeline that prepares data, trains a model and registers it, then deploy the registered model to a managed online endpoint.",
+          "deliverable": "An Azure ML pipeline and a deployed managed endpoint",
+          "checks": [
+            [
+              "Run the pipeline",
+              "A model is trained and registered",
+              "Registry entry"
+            ],
+            [
+              "Deploy to a managed endpoint",
+              "The endpoint returns predictions",
+              "Endpoint response"
+            ],
+            [
+              "Re-run the pipeline",
+              "It is reproducible with tracked inputs",
+              "Run history"
+            ]
+          ],
+          "objectives": [
+            "Build Azure ML pipelines",
+            "Register models",
+            "Deploy to managed endpoints"
+          ]
+        },
+        {
+          "topic": "MLOps on Azure",
+          "subtopics": [
+            "CI/CD for models with Azure DevOps or GitHub Actions",
+            "Environments and reproducibility",
+            "Model versioning and promotion",
+            "Automated evaluation gates",
+            "Deployment strategies (blue-green, canary)",
+            "Data and model drift monitoring",
+            "Rollback procedures",
+            "Approvals and governance",
+            "Infrastructure as code for Azure ML"
+          ],
+          "tools": [
+            "Azure Machine Learning",
+            "GitHub Actions",
+            "Python"
+          ],
+          "lab_task": "Create a CI/CD workflow that evaluates a new model, promotes it through a gate, deploys with a canary and can roll back.",
+          "deliverable": "A model CI/CD workflow with an evaluation gate, canary and rollback",
+          "checks": [
+            [
+              "Trigger the workflow on a model change",
+              "Evaluation runs automatically",
+              "Workflow run"
+            ],
+            [
+              "Promote past the gate",
+              "Only models meeting the bar deploy",
+              "Gate decision"
+            ],
+            [
+              "Roll back a bad canary",
+              "Traffic returns to the previous model",
+              "Rollback log"
+            ]
+          ],
+          "objectives": [
+            "Automate model CI/CD",
+            "Gate and canary deployments",
+            "Monitor drift and roll back"
+          ]
+        },
+        {
+          "topic": "Content Safety and Governance at Depth",
+          "subtopics": [
+            "Custom categories and blocklists",
+            "Groundedness detection in production",
+            "Prompt shields and indirect injection",
+            "Protected-material and copyright checks",
+            "Policy per application and per role",
+            "Audit logging and retention",
+            "Responsible-AI impact assessment",
+            "Incident response for AI",
+            "Regulatory alignment"
+          ],
+          "tools": [
+            "Azure AI Content Safety",
+            "Azure Monitor"
+          ],
+          "lab_task": "Implement a governance layer: per-application safety policies, audit logging of all prompts and completions, and an incident-review query.",
+          "deliverable": "A governance layer with per-app policies and an audit/incident report",
+          "checks": [
+            [
+              "Apply per-app safety policies",
+              "Each app enforces its own thresholds",
+              "Policy test"
+            ],
+            [
+              "Log prompts and completions",
+              "All interactions are auditable",
+              "Audit query"
+            ],
+            [
+              "Review a simulated incident",
+              "The incident is traced end to end",
+              "Incident report"
+            ]
+          ],
+          "objectives": [
+            "Govern AI with per-app policies",
+            "Audit prompts and completions",
+            "Run AI incident response"
+          ]
+        },
+        {
+          "topic": "Security and Private Networking",
+          "subtopics": [
+            "Entra ID authentication and managed identities",
+            "Private endpoints and VNet integration",
+            "Disabling public network access",
+            "Key management and secrets in Key Vault",
+            "Data residency and storage encryption",
+            "RBAC for AI resources",
+            "Customer-managed keys",
+            "Network and firewall rules",
+            "Security monitoring"
+          ],
+          "tools": [
+            "Azure portal",
+            "Azure Key Vault",
+            "Azure OpenAI"
+          ],
+          "lab_task": "Lock down the Azure OpenAI resource: managed-identity auth, a private endpoint with public access disabled, and secrets in Key Vault, then prove access only works from the VNet.",
+          "deliverable": "A privately networked, identity-authenticated AI resource",
+          "checks": [
+            [
+              "Switch to managed identity",
+              "Key-based access is no longer required",
+              "Auth test"
+            ],
+            [
+              "Add a private endpoint and disable public access",
+              "Public calls fail; VNet calls succeed",
+              "Access tests"
+            ],
+            [
+              "Store config in Key Vault",
+              "No secrets live in code",
+              "Code and vault check"
+            ]
+          ],
+          "objectives": [
+            "Authenticate with Entra ID",
+            "Use private endpoints",
+            "Manage secrets and keys securely"
+          ]
+        },
+        {
+          "topic": "Agents and Tool Use",
+          "subtopics": [
+            "Azure AI Agent Service",
+            "Tools, functions and connected data",
+            "Planning and multi-step reasoning",
+            "State and conversation memory",
+            "Human-in-the-loop approvals",
+            "Grounding agents on enterprise data",
+            "Safety and guardrails for agents",
+            "Observability of agent runs",
+            "Cost control for agent loops"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Azure AI Agent Service",
+            "Python"
+          ],
+          "lab_task": "Build an agent that answers account questions using a retrieval tool and an order-API tool, with a human approval step before any write.",
+          "deliverable": "A tool-using agent with grounded answers and an approval gate",
+          "checks": [
+            [
+              "Agent answers using the retrieval tool",
+              "Answers are grounded and cited",
+              "Agent transcript"
+            ],
+            [
+              "Agent attempts a write action",
+              "Approval is required first",
+              "Approval step"
+            ],
+            [
+              "Cap the agent loop",
+              "Runaway loops are bounded by a step limit",
+              "Loop-limit log"
+            ]
+          ],
+          "objectives": [
+            "Build tool-using agents",
+            "Ground agents on enterprise data",
+            "Gate actions and bound loops"
+          ]
+        },
+        {
+          "topic": "Multimodal and Speech",
+          "subtopics": [
+            "GPT-4o vision inputs",
+            "Image understanding use cases",
+            "Azure AI Speech: speech-to-text and text-to-speech",
+            "Real-time transcription",
+            "Custom speech and custom voice",
+            "Translation",
+            "Combining vision, speech and text",
+            "Latency for real-time scenarios",
+            "Accessibility applications"
+          ],
+          "tools": [
+            "Azure AI Speech",
+            "Azure OpenAI",
+            "Python"
+          ],
+          "lab_task": "Build a flow that transcribes a support call with Azure AI Speech, summarises it with GPT-4o, and extracts action items.",
+          "deliverable": "A speech-to-summary pipeline with extracted action items",
+          "checks": [
+            [
+              "Transcribe the call",
+              "The transcript matches the audio",
+              "Transcript sample"
+            ],
+            [
+              "Summarise and extract actions",
+              "Summary and action items are accurate",
+              "Summary output"
+            ],
+            [
+              "Handle a noisy segment",
+              "The pipeline degrades gracefully",
+              "Noisy-segment result"
+            ]
+          ],
+          "objectives": [
+            "Use multimodal and speech inputs",
+            "Transcribe and summarise audio",
+            "Extract structured outputs from calls"
+          ]
+        },
+        {
+          "topic": "Capstone: A Governed Azure AI Application",
+          "subtopics": [
+            "End-to-end application design",
+            "Retrieval, agents, safety and evaluation",
+            "Security and private networking",
+            "Monitoring, cost and quotas",
+            "Evaluation gate before release",
+            "Stakeholder demo and handover"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Azure OpenAI",
+            "Azure AI Search",
+            "Azure AI Content Safety",
+            "Azure Monitor"
+          ],
+          "lab_task": "Deliver a governed Azure AI application: grounded RAG or agent, Content Safety, Entra ID auth with a private endpoint, evaluation gate and monitoring, released only after passing quality and safety checks.",
+          "deliverable": "A governed, monitored Azure AI application with evaluation evidence",
+          "checks": [
+            [
+              "Pass the evaluation gate",
+              "Groundedness and relevance meet the bar",
+              "Evaluation report"
+            ],
+            [
+              "Prove security",
+              "Access requires identity and the VNet",
+              "Access tests"
+            ],
+            [
+              "Show monitoring and cost",
+              "Usage, latency and spend are tracked",
+              "Dashboard"
+            ]
+          ],
+          "objectives": [
+            "Assemble a governed Azure AI app",
+            "Pass evaluation and safety gates",
+            "Secure, monitor and demo it"
+          ]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For AI engineers and architects. Covers enterprise RAG architecture, multi-agent orchestration, advanced evaluation and red-teaming, fine-tuning/distillation, Azure ML at scale, responsible-AI governance, cost and throughput engineering, LLMOps, observability and drift, migration strategy, AI security architecture, and a platform-review capstone.",
+      "prerequisites": [
+        "One or more years building AI applications",
+        "Comfortable with RAG, agents, evaluation and Azure ML",
+        "Experience with CI/CD and cloud security"
+      ],
+      "outcomes": [
+        "Architect enterprise RAG and multi-agent systems",
+        "Run evaluation, red-teaming and responsible-AI governance",
+        "Engineer cost, throughput and LLMOps",
+        "Lead AI security and platform reviews"
+      ],
+      "days": [
+        {
+          "topic": "Enterprise RAG Architecture",
+          "subtopics": [
+            "Reference architecture for enterprise RAG",
+            "Multi-source retrieval and routing",
+            "Hierarchical and graph retrieval",
+            "Access control and security trimming at scale",
+            "Freshness, incremental and real-time indexing",
+            "Multi-tenant isolation",
+            "Latency and cost budgeting across the stack",
+            "Caching layers",
+            "Failure modes and degradation"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure AI Search",
+            "Azure AI Foundry"
+          ],
+          "lab_task": "Design an enterprise RAG architecture for multiple data sources and tenants with security trimming, and prove isolation and a latency budget on a sample.",
+          "deliverable": "An enterprise RAG architecture with isolation and latency evidence",
+          "checks": [
+            [
+              "Route queries across sources",
+              "The right source answers each query type",
+              "Routing trace"
+            ],
+            [
+              "Enforce per-tenant trimming",
+              "A tenant never sees another tenant's data",
+              "Isolation test"
+            ],
+            [
+              "Measure end-to-end latency",
+              "The stack meets the latency budget",
+              "Latency report"
+            ]
+          ],
+          "objectives": [
+            "Architect enterprise RAG",
+            "Enforce isolation and security trimming",
+            "Budget latency and cost across the stack"
+          ]
+        },
+        {
+          "topic": "Multi-Agent Orchestration",
+          "subtopics": [
+            "Multi-agent patterns (planner, workers, critic)",
+            "Shared memory and state",
+            "Message passing and handoffs",
+            "Tool permissioning per agent",
+            "Guardrails across agents",
+            "Cost and loop control",
+            "Deterministic versus autonomous orchestration",
+            "Observability of multi-agent runs",
+            "Evaluation of agent systems"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Azure AI Agent Service",
+            "Python"
+          ],
+          "lab_task": "Build a planner-worker-critic agent system for a research task, with per-agent tool permissions, a critic that rejects ungrounded claims, and a global step budget.",
+          "deliverable": "A multi-agent system with permissions, a critic and a step budget",
+          "checks": [
+            [
+              "Run the planner-worker-critic flow",
+              "The task completes with a grounded result",
+              "Run transcript"
+            ],
+            [
+              "The critic rejects an ungrounded claim",
+              "The claim is revised or dropped",
+              "Critic log"
+            ],
+            [
+              "Hit the step budget",
+              "The system stops safely",
+              "Budget log"
+            ]
+          ],
+          "objectives": [
+            "Design multi-agent systems",
+            "Permission and guard agents",
+            "Control cost and evaluate agent systems"
+          ]
+        },
+        {
+          "topic": "Advanced Evaluation and Red-Teaming",
+          "subtopics": [
+            "Evaluation at scale with pipelines",
+            "Adversarial and red-team datasets",
+            "Safety and jailbreak evaluation",
+            "Groundedness and citation accuracy",
+            "Bias and fairness testing",
+            "Human-in-the-loop adjudication",
+            "Continuous evaluation in production",
+            "Scorecards and release gates",
+            "Drift in model behaviour"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Python"
+          ],
+          "lab_task": "Build a red-team and evaluation suite that scores safety, groundedness and bias, and wire it as a release gate with a published scorecard.",
+          "deliverable": "A red-team/evaluation suite acting as a release gate with a scorecard",
+          "checks": [
+            [
+              "Run the adversarial suite",
+              "Jailbreaks and unsafe outputs are detected",
+              "Suite results"
+            ],
+            [
+              "Score groundedness and bias",
+              "Metrics are produced with thresholds",
+              "Scorecard"
+            ],
+            [
+              "Block a failing release",
+              "The gate stops a model that fails the bar",
+              "Gate decision"
+            ]
+          ],
+          "objectives": [
+            "Evaluate safety and groundedness at scale",
+            "Red-team models",
+            "Gate releases on a scorecard"
+          ]
+        },
+        {
+          "topic": "Fine-Tuning, Distillation and Optimization",
+          "subtopics": [
+            "Supervised fine-tuning strategy",
+            "Distillation from a larger model",
+            "LoRA and parameter-efficient methods overview",
+            "Data curation and labelling quality",
+            "Evaluation against base and RAG",
+            "Serving cost and latency trade-offs",
+            "Model lifecycle and retraining",
+            "Guarding against regression",
+            "Governance of training data and lineage"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure Machine Learning",
+            "Python"
+          ],
+          "lab_task": "Distill a cheaper fine-tuned model from a strong teacher for a narrow task, prove it matches quality at lower cost, and set a retraining trigger.",
+          "deliverable": "A distilled model with a quality/cost comparison and a retraining plan",
+          "checks": [
+            [
+              "Create distillation data from the teacher",
+              "A clean labelled set is produced",
+              "Dataset"
+            ],
+            [
+              "Fine-tune and evaluate",
+              "Quality matches the teacher within tolerance at lower cost",
+              "Comparison"
+            ],
+            [
+              "Define a retraining trigger",
+              "Drift or quality drop triggers retraining",
+              "Trigger definition"
+            ]
+          ],
+          "objectives": [
+            "Fine-tune and distill models",
+            "Prove quality at lower cost",
+            "Manage the model lifecycle"
+          ]
+        },
+        {
+          "topic": "Azure ML at Scale",
+          "subtopics": [
+            "Distributed training on compute clusters",
+            "GPU selection and sizing",
+            "Managed endpoints with autoscale",
+            "Batch endpoints for large jobs",
+            "Pipeline parallelism and caching",
+            "Feature stores and reuse",
+            "Quotas and spot/low-priority compute",
+            "Cost optimisation for training and serving",
+            "Reproducibility at scale"
+          ],
+          "tools": [
+            "Azure Machine Learning",
+            "Python"
+          ],
+          "lab_task": "Run a distributed training job on a GPU cluster and deploy the result to an autoscaling managed endpoint, with a load test proving autoscale and a cost estimate.",
+          "deliverable": "A distributed training run and an autoscaling endpoint with a load test",
+          "checks": [
+            [
+              "Run distributed training",
+              "The job scales across the cluster",
+              "Job metrics"
+            ],
+            [
+              "Load-test the endpoint",
+              "Autoscale adds instances under load",
+              "Scale events"
+            ],
+            [
+              "Estimate serving cost",
+              "A cost-per-1k-requests figure is produced",
+              "Cost estimate"
+            ]
+          ],
+          "objectives": [
+            "Train at scale on Azure ML",
+            "Deploy autoscaling endpoints",
+            "Optimise training and serving cost"
+          ]
+        },
+        {
+          "topic": "Responsible AI and Governance Programme",
+          "subtopics": [
+            "Responsible AI standard and impact assessments",
+            "Transparency notes and documentation",
+            "Fairness, reliability and safety controls",
+            "Human oversight and accountability",
+            "Content provenance and watermarking",
+            "Policy, audit and retention",
+            "Regulatory landscape (EU AI Act and others)",
+            "Governance operating model",
+            "Risk register for AI systems"
+          ],
+          "tools": [
+            "Azure AI Content Safety",
+            "Azure Monitor"
+          ],
+          "lab_task": "Stand up a responsible-AI governance process: an impact assessment for one use case, a risk register, audit logging and an oversight workflow.",
+          "deliverable": "A responsible-AI governance pack for one use case",
+          "checks": [
+            [
+              "Complete an impact assessment",
+              "Risks and mitigations are documented",
+              "Assessment"
+            ],
+            [
+              "Maintain a risk register",
+              "Risks have owners and controls",
+              "Register"
+            ],
+            [
+              "Show oversight and audit",
+              "Decisions and interactions are auditable",
+              "Audit evidence"
+            ]
+          ],
+          "objectives": [
+            "Run responsible-AI assessments",
+            "Operate AI governance",
+            "Maintain audit and oversight"
+          ]
+        },
+        {
+          "topic": "Cost Optimization and Throughput Engineering",
+          "subtopics": [
+            "Token economics and prompt compression",
+            "PTU sizing and reservation",
+            "Caching and semantic caching",
+            "Batch API for bulk workloads",
+            "Model right-sizing per task",
+            "Streaming and perceived latency",
+            "Routing cheap versus premium models",
+            "Monitoring cost per feature",
+            "Savings backlog and tracking"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure Monitor",
+            "Python"
+          ],
+          "lab_task": "Cut the cost of a high-volume feature: add semantic caching, route easy requests to a cheaper model, and compress prompts, then prove the savings and unchanged quality.",
+          "deliverable": "Three implemented savings with measured cost and quality impact",
+          "checks": [
+            [
+              "Add semantic caching",
+              "Repeat questions avoid model calls",
+              "Cache-hit metrics"
+            ],
+            [
+              "Route by difficulty",
+              "Easy requests use the cheaper model",
+              "Routing metrics"
+            ],
+            [
+              "Prove quality held",
+              "Evaluation shows no quality regression",
+              "Evaluation"
+            ]
+          ],
+          "objectives": [
+            "Engineer token and throughput cost",
+            "Cache and route by difficulty",
+            "Prove savings without quality loss"
+          ]
+        },
+        {
+          "topic": "LLMOps and Continuous Delivery",
+          "subtopics": [
+            "Prompt and flow versioning",
+            "CI/CD for prompts, flows and models",
+            "Automated evaluation in the pipeline",
+            "Canary and shadow deployments",
+            "Production monitoring and feedback loops",
+            "Dataset and prompt registries",
+            "Rollback and incident response",
+            "Environment promotion",
+            "Observability and tracing in production"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "GitHub Actions",
+            "Azure Monitor"
+          ],
+          "lab_task": "Build an LLMOps pipeline that versions prompts and flows, runs evaluation on every change, deploys a shadow version and promotes it only after it beats production.",
+          "deliverable": "An LLMOps pipeline with evaluation, shadow deploy and promotion",
+          "checks": [
+            [
+              "Change a prompt and push",
+              "Evaluation runs automatically",
+              "Pipeline run"
+            ],
+            [
+              "Shadow the new version",
+              "It runs on live traffic without serving users",
+              "Shadow metrics"
+            ],
+            [
+              "Promote on win",
+              "Only a better version is promoted",
+              "Promotion decision"
+            ]
+          ],
+          "objectives": [
+            "Operate LLMOps CI/CD",
+            "Shadow and canary AI changes",
+            "Promote and roll back safely"
+          ]
+        },
+        {
+          "topic": "Observability, Drift and Feedback",
+          "subtopics": [
+            "Tracing prompts, retrieval and tools",
+            "Quality and safety metrics in production",
+            "User feedback capture",
+            "Groundedness and hallucination monitoring",
+            "Data and embedding drift",
+            "Alerting on quality regression",
+            "Dashboards for AI health",
+            "Closing the loop to evaluation sets",
+            "Incident analysis"
+          ],
+          "tools": [
+            "Azure Monitor",
+            "Azure AI Foundry",
+            "Python"
+          ],
+          "lab_task": "Instrument the application for end-to-end tracing, capture user feedback, detect a groundedness regression and feed failing cases back into the evaluation set.",
+          "deliverable": "An observability setup that detects regression and improves the eval set",
+          "checks": [
+            [
+              "Trace a full request",
+              "Retrieval, prompt and tools are visible",
+              "Trace"
+            ],
+            [
+              "Detect a groundedness drop",
+              "An alert fires on the regression",
+              "Alert"
+            ],
+            [
+              "Add failing cases to evaluation",
+              "The eval set grows from production misses",
+              "Updated eval set"
+            ]
+          ],
+          "objectives": [
+            "Trace AI systems end to end",
+            "Detect quality and drift regressions",
+            "Close the loop to evaluation"
+          ]
+        },
+        {
+          "topic": "Migration and Platform Strategy",
+          "subtopics": [
+            "Migrating from other LLM providers to Azure OpenAI",
+            "Abstraction layers and provider independence",
+            "Re-platforming RAG and agents",
+            "Data migration and re-indexing",
+            "Cost and capacity planning",
+            "Phased rollout and parallel run",
+            "Skills and operating model",
+            "Vendor and model risk",
+            "Decommissioning legacy components"
+          ],
+          "tools": [
+            "Azure OpenAI",
+            "Azure AI Foundry",
+            "Python"
+          ],
+          "lab_task": "Plan a migration of an existing assistant to Azure OpenAI behind a provider-independent abstraction, run it in parallel, and reconcile quality before cutover.",
+          "deliverable": "A migration plan with a parallel run and quality reconciliation",
+          "checks": [
+            [
+              "Introduce a provider abstraction",
+              "Switching providers is a config change",
+              "Config switch"
+            ],
+            [
+              "Run Azure in parallel",
+              "Outputs are compared against the incumbent",
+              "Comparison"
+            ],
+            [
+              "Reconcile and plan cutover",
+              "Quality matches and a cutover/rollback plan exists",
+              "Plan"
+            ]
+          ],
+          "objectives": [
+            "Plan an Azure AI migration",
+            "Abstract providers",
+            "Reconcile quality and cut over"
+          ]
+        },
+        {
+          "topic": "Security Architecture for AI Systems",
+          "subtopics": [
+            "Threat modelling for LLM applications",
+            "Prompt injection and data exfiltration defences",
+            "Identity, RBAC and least privilege",
+            "Private networking end to end",
+            "Secrets, keys and customer-managed keys",
+            "Data residency and compliance",
+            "Supply-chain and model provenance",
+            "Logging, detection and response",
+            "Penetration testing AI apps"
+          ],
+          "tools": [
+            "Azure portal",
+            "Azure Key Vault",
+            "Azure AI Content Safety"
+          ],
+          "lab_task": "Threat-model the AI application, implement defences for the top three risks (injection, exfiltration, access), and validate them with targeted tests.",
+          "deliverable": "A threat model with implemented, tested defences for the top risks",
+          "checks": [
+            [
+              "Produce the threat model",
+              "Top risks are identified and ranked",
+              "Threat model"
+            ],
+            [
+              "Implement injection and exfiltration defences",
+              "Attacks in the test set are blocked",
+              "Attack tests"
+            ],
+            [
+              "Validate access controls",
+              "Only authorised identities and networks reach the app",
+              "Access tests"
+            ]
+          ],
+          "objectives": [
+            "Threat-model AI systems",
+            "Defend against injection and exfiltration",
+            "Validate security controls"
+          ]
+        },
+        {
+          "topic": "Capstone: Azure AI Platform Review",
+          "subtopics": [
+            "Reviewing an AI workload against best practice",
+            "Quality, safety, security, cost and reliability",
+            "Findings and prioritised remediation",
+            "Reference architecture and roadmap",
+            "Operating model and ownership",
+            "Executive-ready presentation"
+          ],
+          "tools": [
+            "Azure AI Foundry",
+            "Azure OpenAI",
+            "Azure Monitor"
+          ],
+          "lab_task": "Review a provided Azure AI workload across quality, safety, security, cost and reliability, and present prioritised findings with a remediation roadmap.",
+          "deliverable": "An AI platform-review report with prioritised findings and a roadmap",
+          "checks": [
+            [
+              "Assess each pillar with evidence",
+              "Every finding cites a metric, log or test",
+              "Findings"
+            ],
+            [
+              "Prioritise remediation",
+              "Items are ranked by impact and effort",
+              "Backlog"
+            ],
+            [
+              "Present to stakeholders",
+              "Trade-offs and next steps are clear",
+              "Presentation"
+            ]
+          ],
+          "objectives": [
+            "Review an AI workload against best practice",
+            "Prioritise remediation",
+            "Present an AI platform roadmap"
+          ]
+        }
+      ]
+    }
+  }
+}
