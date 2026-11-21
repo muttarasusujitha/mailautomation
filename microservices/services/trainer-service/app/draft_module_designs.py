@@ -612,7 +612,9 @@ def main():
             summary["error"] = str(exc)
     print(json.dumps(summary, ensure_ascii=False), flush=True)
     if args.summary:
-        Path(args.summary).write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        summary_path = Path(args.summary)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if summary.get("error"):
         raise SystemExit(1)
 
