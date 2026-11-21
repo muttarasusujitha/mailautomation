@@ -7765,6 +7765,12 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
     food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
     client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
+    logistics_answers = {
+        "travel": travel_value or client_travel_terms,
+        "accommodation": accommodation_value,
+        "food": food_value,
+    }
+    logistics_owners = {key: _logistics_owner(value) for key, value in logistics_answers.items() if value}
     missing_confirmations = []
     if "venue" in required_fields and not client_venue:
         missing_confirmations.append("the exact training address")
@@ -7840,6 +7846,8 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
             "partial_client_travel_terms": client_travel_terms,
             "partial_accommodation": accommodation_value,
             "partial_food": food_value,
+            "logistics_answers": logistics_answers,
+            "logistics_owners": logistics_owners,
             "pending_booking_documents": pending_documents,
             "missing_confirmations": missing_confirmations,
             "updated_at": now,
@@ -7922,6 +7930,15 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         "generation_source": source,
         "updated_at": now,
     }})
+    await db["requirements"].update_one(
+        {"requirement_id": query.get("requirement_id")},
+        {"$set": {
+            "offline_logistics.answers": logistics_answers,
+            "offline_logistics.owners": logistics_owners,
+            "offline_logistics.client_confirmed_at": now,
+            "updated_at": now,
+        }},
+    )
     shortlist_logistics_update = {
         "top_trainers.$.post_interview_logistics.client_answer": text[:5000],
         "top_trainers.$.post_interview_logistics.client_answer_received_at": now,
@@ -8033,6 +8050,26 @@ def _client_labeled_logistics_value(text: Any, field: str) -> str:
         if match:
             return _clean(match.group(1))
     return ""
+
+
+def _logistics_owner(answer: Any) -> str:
+    """Classify booking and payment responsibility only when stated explicitly."""
+    value = _clean(answer).lower()
+    clahan = bool(re.search(
+        r"\b(?:clahan|we|our team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
+        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:clahan|our team)\b",
+        value,
+    ))
+    client = bool(re.search(
+        r"\b(?:client|you|your team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
+        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:client|your team)\b",
+        value,
+    ))
+    if clahan and not client:
+        return "clahan"
+    if client and not clahan:
+        return "client"
+    return "needs_review"
 
 
 async def _record_post_selection_trainer_logistics_reply(
@@ -9662,16 +9699,16 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
     if not fields:
         return body
     labels = {
-        "travel": "Travel terms: [details]",
-        "accommodation": "Accommodation: [details]",
-        "food": "Food: [details]",
+        "travel": "Travel: who arranges and pays (Client or Clahan), approved cap, and terms",
+        "accommodation": "Accommodation: who arranges and pays (Client or Clahan), approved cap, and terms",
+        "food": "Food: who arranges and pays (Client or Clahan), approved cap, and terms",
         "venue": "Confirmed training address: [details]",
     }
     request_lines = "\n".join(labels[field] for field in fields)
     addition = (
         "As this is an offline training request, please also confirm the following in this reply:\n\n"
         f"{request_lines}\n\n"
-        "For travel, accommodation, and food, please include any approved caps, who will book or pay, and any receipt rules."
+        "For each item, please state whether the Client or Clahan will arrange and pay, any approved cap, and receipt rules."
     )
     paragraphs = str(body or "").strip().split("\n\n")
     if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):
