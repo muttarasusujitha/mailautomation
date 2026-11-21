@@ -34,6 +34,7 @@ REVISION = "module-design-v1"
 ORIGIN = "model_draft_pending_technical_review"
 LEVELS = ("beginner", "intermediate", "advanced")
 MODULE_MINUTES = 420
+TBC = "To be confirmed"
 # The 15 most-requested courses in the mailbox archive (by dataset file).
 DEFAULT_COURSES = ("generative_ai", "azure", "testing_qa", "sap", "devops_30", "devops_60", "csharp", "java",
                    "cybersecurity", "aws", "react", "oracle_database", "data_engineering", "sre", "python",
@@ -170,8 +171,10 @@ def normalise(design, minutes):
             item_minutes = int(round(float(item.get("minutes") or 0)))
         except (TypeError, ValueError):
             item_minutes = 0
+        mode = _text(item.get("mode")).lower()
+        mode = "demo" if "demo" in mode else ("lab" if "lab" in mode or "hands" in mode else "discussion")
         topics.append({"topic": _text(item.get("topic")), "minutes": item_minutes,
-                       "mode": _text(item.get("mode")).lower(), "subtopics": _strings(item.get("subtopics"))[:8],
+                       "mode": mode, "subtopics": _strings(item.get("subtopics"))[:8],
                        "failure_scenario": _text(item.get("failure_scenario")),
                        "best_practice": _text(item.get("best_practice"))})
     if topics and all(t["minutes"] > 0 for t in topics) and sum(t["minutes"] for t in topics) != minutes:
@@ -184,15 +187,22 @@ def normalise(design, minutes):
         if isinstance(row, list):
             rubric.append([_text(cell) for cell in row[:5]])
     seeded = design.get("seeded_failure") if isinstance(design.get("seeded_failure"), dict) else {}
+    environment = []
+    for row in design.get("lab_environment") or []:
+        if not isinstance(row, dict) or not _text(row.get("tool")):
+            continue
+        item = {key: _text(row.get(key)) or TBC for key in ("tool", "version", "access", "setup_owner", "cost")}
+        if _PRICE_RE.search(item["cost"]):
+            item["cost"] = "Priced in the Lab Cost Estimate"  # never pass a model-invented price to a client
+        environment.append(item)
     return {
-        "outcomes": [{"outcome": _text(o.get("outcome")), "assessed_by": _text(o.get("assessed_by"))}
-                     for o in design.get("outcomes") or [] if isinstance(o, dict)][:5],
+        "outcomes": [{"outcome": _text(o.get("outcome")), "assessed_by": _text(o.get("assessed_by")) or "Lab checks"}
+                     for o in design.get("outcomes") or [] if isinstance(o, dict) and _text(o.get("outcome"))][:5],
         "topics": topics,
         "seeded_failure": {key: _text(seeded.get(key)) for key in ("symptom", "cause", "fix")},
-        "quiz": _strings(design.get("quiz"))[:8],
+        "quiz": [re.sub(r"^(q?\d+[.):]\s*)", "", q, flags=re.I) for q in _strings(design.get("quiz"))][:8],
         "lab_rubric": rubric[:4],
-        "lab_environment": [{key: _text(row.get(key)) for key in ("tool", "version", "access", "setup_owner", "cost")}
-                            for row in design.get("lab_environment") or [] if isinstance(row, dict)][:6],
+        "lab_environment": environment[:6],
     }
 
 
@@ -206,8 +216,8 @@ def problems(design, source):
         found.append("topic names must be unique")
     if any(len(t["subtopics"]) < 2 for t in design["topics"]):
         found.append("every topic needs at least 2 subtopics")
-    if any(not q.endswith("?") for q in design["quiz"]):
-        found.append("every quiz item must be a question ending with '?'")
+    if any(len(q) < 15 for q in design["quiz"]):
+        found.append("every quiz item must be a full question")
     if len(design["lab_rubric"]) != 4:
         found.append("lab rubric needs exactly 4 criteria")
     if not 2 <= len(design["lab_environment"]) <= 6:
@@ -234,6 +244,41 @@ class FatalProviderError(RuntimeError):
     """The key, model or request is wrong; retrying will not help."""
 
 
+def _provider_message(response, secret):
+    try:
+        message = str((response.json().get("error") or {}).get("message") or "")
+    except ValueError:
+        message = ""
+    return message.replace(secret or "\0", "[redacted]")[:200]
+
+
+def _model_rank(name):
+    lower = name.lower()
+    version = re.search(r"gemini-(\d+(?:\.\d+)?)", lower)
+    family = 0 if "flash" in lower and "lite" not in lower else 1 if "flash" in lower else 2 if "pro" in lower else 3
+    return (family, any(tag in lower for tag in ("preview", "exp")), -float(version.group(1)) if version else 0.0, lower)
+
+
+async def resolve_model(client, settings):
+    """Keep the configured model if this key can use it; otherwise pick the best available Flash model."""
+    if settings["provider"] != "gemini":
+        return settings["model"]
+    response = await client.get("https://generativelanguage.googleapis.com/v1beta/models",
+                                headers={"x-goog-api-key": settings["key"]}, params={"pageSize": 200})
+    if response.is_error:
+        raise FatalProviderError(f"Could not list Gemini models ({response.status_code}): "
+                                 + _provider_message(response, settings["key"]))
+    names = [str(m.get("name", "")).removeprefix("models/") for m in response.json().get("models") or []
+             if "generateContent" in (m.get("supportedGenerationMethods") or [])]
+    names = [n for n in names if n.startswith("gemini") and not any(
+        tag in n.lower() for tag in ("image", "tts", "embedding", "live", "audio", "vision", "robotics", "computer-use"))]
+    if settings["model"] in names:
+        return settings["model"]
+    if not names:
+        raise FatalProviderError("This Gemini key has no text models available for generateContent")
+    return sorted(names, key=_model_rank)[0]
+
+
 async def _post(client, settings, system, user):
     """One model call with backoff on rate limits and server errors; returns the JSON text."""
     if settings["provider"] == "openai":
@@ -244,8 +289,8 @@ async def _post(client, settings, system, user):
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings['model']}:generateContent"
         headers = {"x-goog-api-key": settings["key"]}  # never in the URL, so it cannot reach request logs
         config = {"responseMimeType": "application/json", "temperature": 0.4, "maxOutputTokens": 32000}
-        if "flash" in settings["model"]:
-            config["thinkingConfig"] = {"thinkingBudget": 0}
+        if settings["model"].startswith("gemini-2.5-flash"):
+            config["thinkingConfig"] = {"thinkingBudget": 0}  # supported by 2.5 Flash; keeps drafts fast and cheap
         body = {"systemInstruction": {"parts": [{"text": system}]},
                 "contents": [{"role": "user", "parts": [{"text": user}]}], "generationConfig": config}
     for attempt in range(6):
@@ -255,7 +300,8 @@ async def _post(client, settings, system, user):
             await asyncio.sleep(delay)
             continue
         if response.status_code in (400, 401, 403, 404):
-            raise FatalProviderError(f"Provider rejected the request ({response.status_code})")
+            raise FatalProviderError(f"Provider rejected the request ({response.status_code}): "
+                                     + _provider_message(response, settings["key"]))
         if response.is_error:
             raise RuntimeError(f"Provider request failed ({response.status_code})")
         data = response.json()
@@ -372,7 +418,13 @@ async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, conc
 
     async def one(batch):
         async with gate:
-            results = await draft(batch, post, example)
+            if summary.get("error"):
+                return  # a fatal provider error stops the rest of the run; saved work is kept
+            try:
+                results = await draft(batch, post, example)
+            except FatalProviderError as exc:
+                summary["error"] = str(exc)
+                return
         async with lock:
             summary["days_updated"] += save(results, pending, model)
             for key, (_, issues) in results.items():
@@ -383,7 +435,9 @@ async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, conc
                 else:
                     summary["accepted"] += 1
             log(json.dumps({"accepted": summary["accepted"], "rejected": len(summary["rejected"]),
-                            "of": summary["modules"]}), flush=True)
+                            "of": summary["modules"],
+                            "rejected_now": [{"topic": pending[k]["source"]["topic"], "issues": i[:2]}
+                                             for k, (_, i) in results.items() if i]}, ensure_ascii=False), flush=True)
 
     await asyncio.gather(*(one(batch) for batch in batches))
     return summary
@@ -411,13 +465,15 @@ def main():
 
         async def go():
             async with httpx.AsyncClient(timeout=300) as client:
+                settings["model"] = await resolve_model(client, settings)
+                print(json.dumps({"model": settings["model"]}), flush=True)
                 return await run(pending, post=lambda system, user: _post(client, settings, system, user),
                                  model=settings["model"], limit=args.limit, per_course=args.per_course,
                                  batch_size=max(1, args.batch_size), concurrency=args.concurrency)
         try:
             summary.update(asyncio.run(go()))
         except FatalProviderError as exc:
-            # Do not print provider messages, headers or credentials.
+            # Provider messages are short and have the key redacted; headers are never printed.
             summary["error"] = str(exc)
     print(json.dumps(summary, ensure_ascii=False), flush=True)
     if args.summary:

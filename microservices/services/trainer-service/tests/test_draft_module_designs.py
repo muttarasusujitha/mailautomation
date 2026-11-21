@@ -97,8 +97,36 @@ def test_normalise_fixes_minutes_and_rubric_shape_and_rejects_prices():
     assert sum(t["minutes"] for t in normalised["topics"]) == 420
     assert all(len(row) == 5 for row in normalised["lab_rubric"])
     assert drafts.problems(normalised, source) == []
-    normalised["lab_environment"][0]["cost"] = "About $25 per participant"
-    assert "must not contain a price" in " ".join(drafts.problems(normalised, source))
+    design["lab_environment"][0]["cost"] = "About $25 per participant"
+    design["lab_environment"][1]["version"] = ""
+    design["topics"][0]["mode"] = "Hands-on"
+    cleaned = drafts.normalise(design, 420)
+    assert cleaned["lab_environment"][0]["cost"] == "Priced in the Lab Cost Estimate"
+    assert cleaned["lab_environment"][1]["version"] == drafts.TBC
+    assert cleaned["topics"][0]["mode"] == "lab"
+    assert drafts.problems(cleaned, source) == []
+
+
+def test_fatal_provider_error_stops_the_run_and_keeps_saved_work(tmp_path, monkeypatch):
+    _copy_courses(tmp_path, monkeypatch)
+    pending = drafts.inventory(["sap"])
+    good = _fake_post()
+    calls = {"n": 0}
+
+    async def post(system, user):
+        calls["n"] += 1
+        if calls["n"] > 1:
+            raise drafts.FatalProviderError("Provider rejected the request (404): model not found")
+        return await good(system, user)
+    summary = asyncio.run(drafts.run(pending, post=post, model="fake", limit=6, batch_size=3, concurrency=1,
+                                     log=lambda *a, **k: None))
+    assert summary["accepted"] == 3 and "404" in summary["error"]
+    assert len(drafts.inventory(["sap"])) == len(pending) - 3
+
+
+def test_model_choice_prefers_current_flash_over_lite_preview_and_pro():
+    names = ["gemini-2.0-flash-lite", "gemini-3.0-pro", "gemini-3.0-flash-preview", "gemini-2.5-flash", "gemini-3.0-flash"]
+    assert sorted(names, key=drafts._model_rank)[0] == "gemini-3.0-flash"
 
 
 def test_saved_design_reaches_the_generated_toc(tmp_path, monkeypatch):
