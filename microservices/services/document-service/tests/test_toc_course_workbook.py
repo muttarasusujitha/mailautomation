@@ -150,8 +150,9 @@ def test_day_wise_schedule_follows_the_theory_lab_assessment_split():
     ws = _workbook(SAMPLE)["Day-wise Schedule"]
     header = _header_row(ws, "Day")
     rows = _rows(ws, header, 6)
+    # Lab time matches the 4 priced lab-access hours of a 7-hour day (shared.lab_cost_inputs).
     assert [row[1:3] + row[5:] for row in rows if row[0] == 1] == \
-        [["09:00", "11:30", "Theory"], ["12:30", "16:00", "Lab"], ["16:00", "17:00", "Assessment"]]
+        [["09:00", "11:00", "Theory"], ["12:00", "16:00", "Lab"], ["16:00", "17:00", "Assessment"]]
 
 
 def test_assessment_has_weights_pass_rule_rubrics_and_questions():

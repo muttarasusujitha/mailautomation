@@ -107,6 +107,10 @@ def add_lab_plan(workbook, days, values, profile_rate_rows):
         if values.get(key) not in ('covered', 'not_required')]
     unresolved.extend(values.get('required_unpriced_costs') or [])
     incomplete = not verified or bool(unresolved)
+    summary = workbook["Client Estimate"]
+    summary["A15"] = "Service adjustment (included in total)"
+    summary["B15"] = "=B12-SUM(B8:B11)"
+    summary["B15"].number_format = money_format
 
     def put(row, column, value):
         cell = sheet.cell(row, column, value)
@@ -149,7 +153,11 @@ def add_lab_plan(workbook, days, values, profile_rate_rows):
             status += '; unresolved: ' + ', '.join(unresolved)
     else:
         status += '; local costs/licenses confirmed covered or not required. Review usage assumptions.'
-    note(4, "Live price status", status, 38)
+    if values.get("sample_quote"):
+        status = "One-day sample for one participant. " + status
+    if values.get("quote_valid_until"):
+        status += " Valid until " + str(values["quote_valid_until"]) + "."
+    note(4, "Live price status", status, 54)
     sheet.merge_cells(start_row=5, start_column=1, end_row=5, end_column=5)
     text(5, 1, "ESTIMATED LAB COST — PLANNED USAGE" if not incomplete else "PRICED SUBTOTAL — INCOMPLETE ESTIMATE")
     total_cell = put(5, 6, "='Client Estimate'!B12" if verified else "Unverified")
@@ -226,7 +234,7 @@ def add_lab_plan(workbook, days, values, profile_rate_rows):
         ("Support", "='Client Estimate'!B9"),
         ("Contingency", "='Client Estimate'!B10"),
         ("Tax / GST", "='Client Estimate'!B11"),
-        ("Service adjustment", "='Client Estimate'!B12-SUM('Client Estimate'!B8:B11)"),
+        ("Service adjustment", "='Client Estimate'!B15"),
         ("Priced lab subtotal - incomplete estimate" if incomplete else "Total estimated lab cost (confirmed scope)", "='Client Estimate'!B12"),
         ("Priced subtotal per participant" if incomplete else "Cost per participant", "='Client Estimate'!B13"),
     ]

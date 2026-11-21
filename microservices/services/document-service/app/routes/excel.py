@@ -534,6 +534,9 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         table_header(sched, sh, ["Day", "Start", "End", "Module No.", "Module Name", "Session Type"])
         r = sh
         lunch = 60 if hours_per_day >= 6 else 0
+        # Lab time on the schedule is the lab-access time the Lab Cost Estimate prices, so the two always agree.
+        from shared.lab_cost_inputs import course_workbook_lab_hours
+        priced_lab_minutes = round(course_workbook_lab_hours(hours_per_day) * 60)
         for m in modules:
             blocks = []
             for row in m["rows"]:
@@ -542,9 +545,18 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
                     blocks[-1][1] += row["minutes"]
                 else:
                     blocks.append([kind, row["minutes"]])
+            lab_minutes = sum(b[1] for b in blocks if b[0] == "Lab")
+            if lab_minutes and not m["is_capstone"] and m["minutes"] == hours_per_day * 60 and lab_minutes != priced_lab_minutes:
+                # Move the difference to theory so the day length stays the same.
+                for block in blocks:
+                    if block[0] == "Lab":
+                        block[1] = round(block[1] * priced_lab_minutes / lab_minutes)
+                theory = next((b for b in blocks if b[0] == "Theory"), None)
+                if theory:
+                    theory[1] += m["minutes"] - sum(b[1] for b in blocks)
             clock, taught, lunch_taken = 9 * 60, 0, not lunch
             for kind, block_minutes in blocks:
-                if not lunch_taken and taught >= 150:
+                if not lunch_taken and taught >= 120:  # lunch after the morning theory block
                     clock += lunch
                     lunch_taken = True
                 r += 1
@@ -1567,7 +1579,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         ("Price-change review threshold", as_number("price_change_review_threshold_percent", 5, 0), "%", "Escalate for review when refreshed pricing changes beyond this threshold"),
         ("Lab architecture", values.get('architecture_note') or 'Caller-supplied per-day resource mapping', 'assumption', 'Quantities are total resources; learner VMs scale with participants, shared services do not'),
         ("FX status", 'Published rate fetched for quote' if values.get('fx_rate_source') else 'Unverified', 'status', 'Latest published observation; see FX date and source'),
-        ("Support pricing status", 'Configured' if support > 0 or values.get('advanced_support_per_participant_day') else 'Unconfigured / zero charge', 'status', 'No support price is invented. Confirm the applied tier rate before client approval'),
+        ("Support pricing status", 'Configured' if any(values.get(k) is not None for k in ('lab_support_per_participant_day', 'lab_support_per_participant')) else 'Unconfigured / zero charge', 'status', 'No support price is invented. Confirm the applied tier rate before client approval'),
         ("Quote approval status", 'Draft — commercial review required', 'status', 'Provider verification covers selected resource rates only; confirm architecture, access hours, support, FX, taxes and exclusions'),
     ]
     for row, values_row in enumerate(provenance_rows, start=28):
@@ -2247,6 +2259,20 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         raise HTTPException(422, error)
     # The lab-cost template has 30 day rows. Refuse longer programmes before
     # refreshing live prices or planning lab resources.
+    assumptions = dict(payload.get("assumptions") or {})
+    from shared.lab_cost_inputs import lab_quote_scope
+    count = assumptions.get("participant_count", toc.get("participant_count"))
+    if count in (None, ""):
+        assumptions["sample_quote"] = True
+    try:
+        toc, assumptions["participant_count"], assumptions["hours_per_day"] = lab_quote_scope(
+            toc, count, assumptions.get("hours_per_day"))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    if assumptions.get("sample_quote") and assumptions.get("lab_day_mapping"):
+        rows = assumptions["lab_day_mapping"]
+        first = rows[0] if isinstance(rows, list) else rows.get("1", rows.get(1))
+        assumptions["lab_day_mapping"] = [{**first, "active_days": 1}] if first else None
     lab_days = 0
     for day in toc.get("days") or []:
         if isinstance(day, dict):
@@ -2256,7 +2282,6 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
                 lab_days += 1
     if lab_days > 30:
         raise HTTPException(422, f"Lab cost estimates support training durations from 1 to 30 days; this ToC has {lab_days} days")
-    assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
     from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
     from shared.live_lab_pricing import refresh_rates, refresh_exchange_rate, automatic_pricing_selections
     from starlette.concurrency import run_in_threadpool
