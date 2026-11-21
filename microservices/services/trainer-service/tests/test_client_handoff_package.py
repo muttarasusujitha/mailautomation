@@ -23,6 +23,20 @@ def _future_slot_text():
 SLOTS = _future_slot_text()
 
 
+def test_requested_evidence_needs_the_named_holder_and_document_type():
+    from shared.trainer_documents import requested_documents
+    req = {"client_requirement_text": "Please share the experience letter and graduation certificate."}
+    assert requested_documents(req) == ["Experience letter", "Graduation certificate"]
+    attachment = {"filename": "letter.pdf", "original_file": b"%PDF-1.5 example",
+                  "analysis": {"extracted_text": "Experience letter\nEmployee name: Test Trainer"}}
+    check = shortlists._requested_evidence_attachment
+    assert check(attachment, "Experience letter", "Test Trainer")
+    assert not check(attachment, "Experience letter", "Other Trainer")
+    assert not check(attachment, "Graduation certificate", "Test Trainer")
+    attachment["analysis"] = {}
+    assert not check(attachment, "Experience letter", "Test Trainer")
+
+
 def test_ai_handoff_passes_ai_resource_mapping_to_workbook(monkeypatch):
     import openai
     from shared import lab_planning

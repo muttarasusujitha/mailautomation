@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from shared.trainer_identity import linkedin_profile_url
-from shared.trainer_documents import requested_documents, matching_document
+from shared.trainer_documents import document_request_text, requested_documents, matching_document, requires_issuer_check
 from app.config import get_settings
 from app.toc_pdf_template import build_toc_html
 
@@ -737,7 +737,8 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
             selected.append(label)
     # The reviewed profile is already available for the client handoff; asking
     # the trainer to send it again is unnecessary. Only request it when absent.
-    if _profile_text(trainer):
+    explicit_profile = re.search(r"\b(?:trainer profile|updated profile|resume|cv)\b", document_request_text(requirement), re.I)
+    if _profile_text(trainer) and not explicit_profile:
         selected = [item for item in selected if "profile" not in item.lower()]
     if "day-wise TOC" in selected:
         selected = [item for item in selected if item.lower() != "toc"]
@@ -2873,8 +2874,6 @@ async def _requested_trainer_evidence(
     trainer_id = _clean(trainer.get("trainer_id"))
     trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
     sender_terms: List[Dict[str, Any]] = []
-    if trainer_id:
-        sender_terms.append({"trainer_id": trainer_id})
     if trainer_email:
         sender_terms.extend([
             {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
@@ -2883,7 +2882,8 @@ async def _requested_trainer_evidence(
     if not sender_terms:
         return []
     messages = db["client_emails"].find(
-        {"requirement_id": requirement_id, "$or": sender_terms}, {"_id": 0, "attachments": 1},
+        {"requirement_id": requirement_id, "trainer_id": {"$in": [trainer_id, "", None]}, "$or": sender_terms},
+        {"_id": 0, "attachments": 1},
     ).sort("received_at", -1).limit(20)
     matched: Dict[str, Dict[str, str]] = {}
     async for message in messages:
@@ -4051,6 +4051,9 @@ async def send_shortlist_mail(
                 if payload.mail_type in ("mail1", "first"):
                     body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
                     body = _ensure_mail1_slot_examples(body)
+                    missing_documents = [label for label in requested_documents(requirement) if label.lower() not in body.lower()]
+                    if missing_documents:
+                        body = _insert_before_signature(body, "Please also attach your " + " and ".join(missing_documents) + ".")
                 send_payload = {
                     "to": trainer_email,
                     "subject": subject,
@@ -4829,7 +4832,7 @@ async def send_client_slots(
             "slots_count": slot_count,
         }
 
-    if not _confirmed_training_dates(req) and not _is_proposal_requirement(req):
+    if not _confirmed_training_dates(req) and not _is_proposal_requirement(req) and _confirmed_training_duration_days(req) is None:
         raise HTTPException(
             422,
             "Client handoff is waiting for confirmed training dates. The requirement will resume automatically when dates are added.",
@@ -4898,7 +4901,8 @@ async def send_client_slots(
     requested_evidence = requested_documents(req)
     if requested_evidence:
         evidence_attachments = await _requested_trainer_evidence(
-            db, payload.requirement_id, trainer, requested_evidence, trainer_name,
+            db, payload.requirement_id, trainer, requested_evidence,
+            _clean(trainer.get("name") or trainer.get("trainer_name")),
         )
         if len(evidence_attachments) != len(requested_evidence):
             raise HTTPException(
@@ -5423,6 +5427,16 @@ async def _deliver_client_handoff(package, db):
     if package.get("status") != "approved":
         raise HTTPException(409, "Package approval is required")
     email_payload = dict(package["email_payload"])
+    requirement = await db["requirements"].find_one({"requirement_id": package["requirement_id"]}) or {}
+    if requires_issuer_check(requirement):
+        raise HTTPException(422, "The client requested credential verification. Confirm authenticity with the issuing organization before sharing.")
+    labels = requested_documents(requirement)
+    if labels:
+        shortlist = await db["shortlists"].find_one({"requirement_id": package["requirement_id"]}) or {}
+        trainer = next((entry for entry in shortlist.get("top_trainers", []) if entry.get("trainer_id") == package["trainer_id"]), {})
+        evidence = await _requested_trainer_evidence(db, package["requirement_id"], trainer, labels, _clean(trainer.get("name") or trainer.get("trainer_name")))
+        if len(evidence) != len(labels) or any(item not in email_payload.get("attachments", []) for item in evidence):
+            raise HTTPException(422, "Rebuild the handoff with the requested documents matching this trainer.")
     # Keep the dashboard's AI wording choice through approved delivery. The
     # AI writer receives the verified scope and is constrained to wording only;
     # package attachments, slots, pricing, and workflow state stay frozen.

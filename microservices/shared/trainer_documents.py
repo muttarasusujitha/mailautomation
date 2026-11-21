@@ -9,11 +9,22 @@ DOCUMENTS = {
 }
 
 
-def requested_documents(requirement):
+def document_request_text(requirement):
     fields = ("requested_details", "client_requirement_text", "requirement_text", "description")
-    source = "\n".join(str(record.get(field) or "") for record in
-                       (requirement, requirement.get("extracted") or {}) for field in fields)
+    return "\n".join(str(record.get(field) or "") for record in
+                     (requirement, requirement.get("extracted") or {}) for field in fields)
+
+
+def requested_documents(requirement):
+    source = document_request_text(requirement)
     return [label for label, pattern in DOCUMENTS.items() if re.search(pattern, source, re.I)]
+
+
+def requires_issuer_check(requirement):
+    text = document_request_text(requirement)
+    evidence = r"(?:certificates?|degrees?|diplomas?|credentials?|experience letters?|documents?)"
+    verification = r"(?:authentic(?:ity)?|genuine|fake|issuer[- ]verified|verify|verified|validate)"
+    return bool(re.search(rf"\b{verification}\b[^.!?\n]{{0,80}}\b{evidence}\b|\b{evidence}\b[^.!?\n]{{0,80}}\b{verification}\b", text, re.I))
 
 
 def _name(value):

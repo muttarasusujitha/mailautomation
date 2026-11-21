@@ -7719,7 +7719,11 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     # sender, is the authoritative context for relaying that response.
     if not sender or not text:
         return {"attempted": False}
-    query = await db["trainer_logistics_queries"].find_one({"client_email": {"$regex": f"^{re.escape(sender)}$", "$options": "i"}, "status": "client_asked"}, {"_id": 0}, sort=[("created_at", -1)])
+    query_filter = {"client_email": {"$regex": f"^{re.escape(sender)}$", "$options": "i"}, "status": "client_asked"}
+    for field in ("requirement_id", "trainer_id"):
+        if email_doc.get(field):
+            query_filter[field] = email_doc[field]
+    query = await db["trainer_logistics_queries"].find_one(query_filter, {"_id": 0}, sort=[("created_at", -1)])
     if not query or not _email_address(query.get("trainer_email")):
         return {"attempted": False}
     query_subject = _email_subject_key(query.get("clarification_subject"))
@@ -7739,8 +7743,8 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     )
     client_map_url = _client_confirmed_google_maps_url(text) or _clean(query.get("partial_client_maps_url"))
     travel_value = _client_labeled_logistics_value(text, "travel")
-    accommodation_value = _client_labeled_logistics_value(text, "accommodation")
-    food_value = _client_labeled_logistics_value(text, "food")
+    accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
+    food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
     client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
     missing_confirmations = []
     if "venue" in required_fields and not client_venue:
@@ -7763,16 +7767,16 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         # attached to this open logistics query.
         clarification_subject = _clean(query.get("clarification_subject") or email_doc.get("subject") or "Travel and venue confirmation")
         reply_lines = []
-        if "venue" in required_fields:
+        if "venue" in required_fields and not client_venue:
             reply_lines.append("Confirmed training address: [full address]")
-        if "map" in required_fields:
+        if "map" in required_fields and not client_map_url:
             reply_lines.append("Google Maps pin: [exact Google Maps link]")
-        if "travel" in required_fields:
+        if "travel" in required_fields and not client_travel_terms:
             reply_lines.append("Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]")
-        if "accommodation" in required_fields:
-            reply_lines.append("Accommodation arrangement and charges: [details]")
-        if "food" in required_fields:
-            reply_lines.append("Food or meal arrangement and charges: [details]")
+        if "accommodation" in required_fields and not accommodation_value:
+            reply_lines.append("Accommodation: [details]")
+        if "food" in required_fields and not food_value:
+            reply_lines.append("Food: [details]")
         clarification_body = (
             "Hi there,\n\n"
             "Thanks for the update. The final travel package is on hold until we have the following client confirmations:\n"
@@ -7815,6 +7819,8 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
             "partial_client_venue": client_venue,
             "partial_client_maps_url": client_map_url,
             "partial_client_travel_terms": client_travel_terms,
+            "partial_accommodation": accommodation_value,
+            "partial_food": food_value,
             "pending_booking_documents": pending_documents,
             "missing_confirmations": missing_confirmations,
             "updated_at": now,
@@ -7843,11 +7849,15 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     confirmed_venue = client_venue
     trainer_map_url = client_map_url
     venue_details = f"\nConfirmed training venue: {confirmed_venue}" if confirmed_venue else ""
-    map_details = f"\nClient-confirmed Google Maps pin: {client_map_url}"
+    map_details = f"\nClient-confirmed Google Maps pin: {client_map_url}" if client_map_url else ""
+    travel_details = f"\nTravel / stay budget and terms confirmed by client: {client_travel_terms}" if client_travel_terms else ""
+    expense_details = "".join(f"\n{label}: {value}" for label, value in (
+        ("Accommodation", accommodation_value), ("Food", food_value),
+    ) if value)
     reference = (
         f"Hi {query.get('trainer_name') or 'Trainer'},\n\n"
         "The client has shared the following response to the post-interview venue and travel coordination:\n\n"
-        f"{text}{venue_details}{map_details}\nTravel / stay budget and terms confirmed by client: {client_travel_terms}\n\n"
+        f"{venue_details}{map_details}{travel_details}{expense_details}\n\n"
         "Any attached ticket or stay booking PDFs are included for your reference. Please follow only the confirmed details in the client's message.\n\n"
         "Regards,\nClahan Technologies"
     )
@@ -7902,7 +7912,7 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         "top_trainers.$.post_interview_logistics.venue_maps_url": trainer_map_url,
         "top_trainers.$.post_interview_logistics.client_confirmed_maps_url": client_map_url,
         "top_trainers.$.post_interview_logistics.map_pin_confirmed": bool(client_map_url),
-        "top_trainers.$.post_interview_logistics.travel_budget_confirmed": True,
+        "top_trainers.$.post_interview_logistics.travel_budget_confirmed": bool(client_travel_terms),
         "top_trainers.$.post_interview_logistics.final_package_ready": bool(ok),
         "top_trainers.$.post_interview_logistics.missing_client_confirmations": [],
         "top_trainers.$.updated_at": now,
@@ -9481,6 +9491,50 @@ async def _handle_client_slot_confirmation_reply(
     }
 
 
+async def _relay_selected_training_details(db, email_doc):
+    """Share explicit delivery updates on an existing client's thread."""
+    requirement_id = _clean(email_doc.get("requirement_id"))
+    message_id = _current_inbound_message_id(email_doc) or _clean(email_doc.get("email_id"))
+    if not requirement_id or not message_id:
+        return
+    text = _strip_quoted_email_history(email_doc.get("classification_body") or email_doc.get("body") or "")
+    # Read just the latest delivery fields. Commercials and quoted email
+    # history belong to the client thread.
+    field_labels = {
+        "location": ("Venue", r"(?:training\s+)?(?:venue|location|address)"),
+        "training_dates": ("Training dates", r"(?:training\s+dates?|start\s+date|dates?)"),
+        "duration_text": ("Duration", r"(?:training\s+)?duration"),
+    }
+    details = {}
+    for key, (_, label) in field_labels.items():
+        match = re.search(rf"(?im)^\s*(?:confirmed\s+)?{label}\s*[:\-]\s*([^\r\n]+)", text)
+        if match:
+            value = match[1].strip()
+            if len(value) <= 150 and not re.search(r"(?i)[?@;₹$]|\b(?:budget|rate|commercials?|INR|USD|TBD|pending|tentative|later|to be confirmed)\b", value):
+                details[key] = value
+    if not details:
+        return
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}) or {}
+    selected = requirement.get("selected_trainer_id")
+    sender = _email_address(email_doc.get("from_email"))
+    if not selected or not sender or sender != _email_address(requirement.get("client_email")):
+        return
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}) or {}
+    trainer = _find_shortlist_trainer(shortlist, selected) or {}
+    address = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    if not address:
+        return
+    from app.routes.send import SendEmailRequest, send_single_email
+    summary = "\n".join(f"{field_labels[key][0]}: {value}" for key, value in details.items())
+    result = await send_single_email(SendEmailRequest(
+        to=address, subject="Updated training details", body=f"Hi,\n\nThe client shared these training details.\n\n{summary}\n\nRegards,\nClahan Technologies",
+        requirement_id=requirement_id, trainer_id=selected, mail_type="trainer_schedule_update",
+        idempotency_key=f"trainer-schedule:{requirement_id}:{selected}:{message_id}",
+    ), db)
+    if result.get("success"):
+        await db["requirements"].update_one({"requirement_id": requirement_id, "selected_trainer_id": selected}, {"$set": details})
+
+
 async def _auto_request_client_po(
     db: AsyncIOMotorDatabase,
     *,
@@ -9592,15 +9646,15 @@ async def _auto_request_offline_logistics(
     if not client_email:
         return {"attempted": True, "success": False, "reason": "missing_client_email"}
     label_text = {
-        "travel": "Travel arrangement and reimbursement terms",
-        "accommodation": "Accommodation or stay arrangement and charges",
-        "food": "Food or meal arrangement and charges",
-        "venue": "Confirmed training venue and full address",
+        "travel": "Travel terms",
+        "accommodation": "Accommodation",
+        "food": "Food",
+        "venue": "Confirmed training address",
     }
     requested_fields = [label for label, _ in gaps]
     request_lines = "\n".join(f"{label_text[label]}: [details]" for label in requested_fields)
     technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "training")
-    subject = f"Offline Training Arrangements Required - {technology}"
+    subject = f"Offline Training Arrangements Required - {technology} [{requirement_id}]"
     body = (
         f"Hi {_clean(requirement.get('client_name') or requirement.get('client_company')) or 'Team'},\n\n"
         f"{trainer_name or 'The selected trainer'} has been selected for the offline {technology} training. "
@@ -9609,23 +9663,24 @@ async def _auto_request_offline_logistics(
         "Please include approved caps, who books or pays, and any receipt rules for each expense.\n\n"
         "Regards,\nClahan Technologies"
     )
-    settings_doc = await _load_admin_settings(db)
-    message_id = generate_message_id()
-    ok, error = await _send_verified_workflow_email(
-        db, requirement_id, trainer_id, "client_post_selection_logistics",
-        to=client_email, subject=subject, body=body,
-        smtp_config=settings_doc.get("emailCfg") or None, message_id_header=message_id,
-    )
+    from app.routes.send import SendEmailRequest, send_single_email
+    key = f"client-offline-logistics:{requirement_id}:{trainer_id}"
+    sent = await send_single_email(SendEmailRequest(
+        to=client_email, subject=subject, body=body, requirement_id=requirement_id,
+        trainer_id=trainer_id, mail_type="client_post_selection_logistics", idempotency_key=key,
+    ), db)
+    ok = sent.get("success") is True
+    error = sent.get("error") or ""
     now = _now()
-    query_id = f"LQ-{uuid.uuid4().hex[:10].upper()}"
-    await db["trainer_logistics_queries"].insert_one({
+    query_id = key
+    await db["trainer_logistics_queries"].update_one({"_id": key}, {"$set": {
         "query_id": query_id, "query_type": "post_selection_logistics",
         "requirement_id": requirement_id, "trainer_id": trainer_id,
         "trainer_name": trainer_name, "trainer_email": trainer_email,
         "client_email": client_email, "clarification_subject": subject,
-        "clarification_message_id": message_id, "required_fields": requested_fields,
-        "status": "client_asked" if ok else "client_ask_failed", "created_at": now, "updated_at": now,
-    })
+        "clarification_message_id": sent.get("email_id"), "required_fields": requested_fields,
+        "status": "client_asked" if ok else "client_ask_failed", "updated_at": now,
+    }, "$setOnInsert": {"created_at": now}}, upsert=True)
     return {"attempted": True, "success": bool(ok), "query_id": query_id, "missing_fields": requested_fields, "error": error or ""}
 
 
@@ -11269,7 +11324,11 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     # Availability/profile requests are normal next steps for a batch whose
     # dates, duration, scope and commercials are already fixed.  Let the
     # concrete-field check below classify that request as confirmed.
-    if re.search(tentative, text):
+    commercial_scope = re.sub(
+        r"\b(?:location|venue|city|start date|training dates?)\s*[:=-]?\s*(?:tbd|tbc|to be (?:confirmed|decided|finali[sz]ed))\b",
+        "", text,
+    )
+    if re.search(tentative, commercial_scope):
         return "proposal"
 
     def firm_value(*keys):
@@ -11284,15 +11343,6 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
         value = firm_value(*keys)
         return bool(re.fullmatch(r"\d+(?:\.\d+)?", value) and float(value) > 0)
 
-    dates = firm_value("training_dates", "preferred_dates", "timeline_start")
-    # A month/year alone is not a concrete start date. Accept named dates
-    # (including date ranges) and numeric day/month/year or ISO dates.
-    months = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
-    has_dates = bool(re.search(
-        rf"\b\d{{1,2}}\s+{months}\b|\b{months}\s+\d{{1,2}}\b"
-        r"|\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b",
-        dates,
-    ))
     has_scope = bool(firm_value("technology_needed", "technology", "domain"))
     has_duration = positive_number("duration_days") or positive_number("duration_hours")
     has_commercials = positive_number("budget_total") or positive_number("budget_per_day")
@@ -13885,7 +13935,7 @@ async def _process_client_requirement_email(
                 "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"),
                 "due_date": extracted_po.get("due_date") or "", "commercials": {"subtotal": amount, "gst_rate": gst_rate, "gst_amount": gst_amount, "grand_total": round(amount + gst_amount, 2)},
                 "balance_due": round(amount + gst_amount, 2), "status": "draft", "source_finance_id": finance_id,
-                "requirement_id": email_doc.get("requirement_id") or "", "created_at": now, "updated_at": now,
+                "requirement_id": email_doc.get("requirement_id") or "", "updated_at": now,
             }
             await db["purchase_orders"].update_one({"source_finance_id": finance_id}, {"$set": draft_po, "$setOnInsert": {"created_at": now}}, upsert=True)
             await db["invoices"].update_one({"source_finance_id": finance_id}, {"$set": draft_invoice, "$setOnInsert": {"created_at": now}}, upsert=True)
@@ -14425,6 +14475,8 @@ async def _process_client_requirement_email(
     }
 
     source_mail_type_for_routing = str(send_email_doc.get("source_outbound_mail_type") or "").strip()
+    if settings["enabled"] and not classifier_blocked_auto_send and classification.get("person_type") == "client":
+        await _relay_selected_training_details(db, send_email_doc)
     try:
         client_question_result = await _relay_client_question_answer(db, send_email_doc)
     except Exception as exc:

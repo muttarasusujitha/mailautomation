@@ -1,5 +1,6 @@
 import asyncio
 import base64
+from unittest.mock import AsyncMock
 from types import SimpleNamespace
 
 from app.routes import inbox
@@ -58,6 +59,46 @@ def test_travel_terms_are_detected_for_both_batch_types():
 def test_food_and_meal_questions_are_detected():
     for question in ('Who provides food?', 'Are meals covered?', 'Lunch charges?', 'Per diem allowance?'):
         assert _is_trainer_logistics_question(question)
+
+
+def test_partial_offline_reply_preserves_meals_and_only_requests_missing_stay(monkeypatch):
+    db = _Database()
+    queries = db["trainer_logistics_queries"]
+    queries.document["required_fields"] = ["food", "accommodation"]
+    email = {"from_email": "client@example.com", "subject": queries.document["clarification_subject"]}
+    send = AsyncMock(return_value=(True, ""))
+    monkeypatch.setattr(inbox, "_send_verified_workflow_email", send)
+    monkeypatch.setattr(inbox, "_load_admin_settings", AsyncMock(return_value={}))
+    async def reference(*args, **kwargs):
+        return kwargs["reference_body"], "template"
+    monkeypatch.setattr(inbox, "_client_pipeline_email_body", reference)
+    first = asyncio.run(inbox._relay_client_logistics_answer(db, {**email, "body": "Food: client provides lunch"}))
+    assert first["waiting_for_client_confirmation"]
+    assert "Food:" not in send.call_args.kwargs["body"]
+    queries.document.update(queries.updated[0][1]["$set"])
+    second = asyncio.run(inbox._relay_client_logistics_answer(db, {**email, "body": "Accommodation: client books hotel"}))
+    assert second["success"]
+    assert send.call_args.kwargs["to"] == "asha@example.com"
+    assert "client provides lunch" in send.call_args.kwargs["body"]
+    assert "client books hotel" in send.call_args.kwargs["body"]
+
+
+def test_selected_trainer_receives_later_client_details(monkeypatch):
+    from app.routes import send
+    db = _Database()
+    db["requirements"].document["selected_trainer_id"] = "TR-001"
+    deliver = AsyncMock(return_value={"success": True})
+    monkeypatch.setattr(send, "send_single_email", deliver)
+    message = {"requirement_id": "REQ-001", "gmail_message_id": "message-123",
+               "body": "Venue: Bengaluru\nDuration: 5 days\nTraining dates: 1 to 5 February\nBudget: INR 100000"}
+    asyncio.run(inbox._relay_selected_training_details(db, {**message, "from_email": "other@example.com"}))
+    deliver.assert_not_awaited()
+    asyncio.run(inbox._relay_selected_training_details(db, {**message, "from_email": "client@example.com"}))
+    mail = deliver.call_args.args[0]
+    assert str(mail.to) == "asha@example.com"
+    assert "Bengaluru" in mail.body and "5 days" in mail.body and "1 to 5 February" in mail.body
+    assert "100000" not in mail.body
+    assert mail.idempotency_key.endswith(":message-123")
 
 
 def test_location_does_not_answer_expense_question():
