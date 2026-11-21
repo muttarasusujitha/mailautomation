@@ -420,7 +420,10 @@ def save(results, pending, model):
                 day = next(d for d in document["days"] if d.get("topic") == place["topic"] and not _has_design(d))
                 day["design"] = design
             text = json.dumps(document, ensure_ascii=False, indent=2) + "\n"
-        path.write_text(text, encoding="utf-8")
+        # Write to a temporary file first so an interrupted run never leaves a half-written course file.
+        temporary = path.with_suffix(".json.tmp")
+        temporary.write_text(text, encoding="utf-8")
+        temporary.replace(path)
         updated += len(items)
     return updated
 
@@ -476,7 +479,16 @@ def main():
     parser.add_argument("--batch-size", type=int, default=3, help="modules per model request")
     parser.add_argument("--concurrency", type=int, default=2, help="model requests in flight")
     parser.add_argument("--summary", help="write the run summary as JSON to this path")
+    parser.add_argument("--plan", action="store_true", help="print the courses that still have modules without a design")
+    parser.add_argument("--paths", action="store_true", help="print the course file paths for --course, one per line")
     args = parser.parse_args()
+    if args.plan or args.paths:
+        names = [name.strip() for value in args.course for name in value.split(",") if name.strip()] or list(DEFAULT_COURSES)
+        if args.paths:
+            print("\n".join(str(_course_path(name)) for name in names))
+        else:
+            print(json.dumps([name for name in names if inventory([name])]))
+        return
     courses = [name for value in args.course for name in value.split(",") if name.strip()] or list(DEFAULT_COURSES)
     pending = inventory([name.strip() for name in courses])
     summary = {"pending_modules": len(pending),
