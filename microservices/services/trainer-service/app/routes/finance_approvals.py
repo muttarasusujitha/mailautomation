@@ -181,7 +181,7 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
             try:
                 async with httpx.AsyncClient(timeout=30) as client:
                     booking = await client.post(f"{settings.EMAIL_SERVICE_URL.rstrip('/')}/api/v1/email/send", json={
-                        "to": agent_email, "subject": f"Offline booking options - {approval.get('requirement_id')}",
+                        "to": agent_email, "subject": f"Offline travel booking request - {approval.get('requirement_id')}",
                         "body": request_body, "mail_type": "offline_booking_request",
                         "idempotency_key": f"offline-booking:{approval.get('requirement_id')}:{approval.get('trainer_id')}",
                     })
