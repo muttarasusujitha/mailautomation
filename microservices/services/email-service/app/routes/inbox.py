@@ -11903,6 +11903,7 @@ async def _create_revised_lab_cost_attachment(
     requirement: Dict[str, Any],
     lab_context: Dict[str, Any],
     generation_mode: str = "template",
+    source_agenda: Optional[Dict[str, Any]] = None,
 ) -> Optional[Dict[str, Any]]:
     """Build a lab-cost workbook from the saved ToC and latest client inputs."""
     known = lab_context.get("known_inputs") or {}
@@ -11932,13 +11933,16 @@ async def _create_revised_lab_cost_attachment(
     except (ValueError, TypeError) as exc:
         logger.warning("Lab-cost workbook withheld: %s", exc)
         return None
+    if not checked_assumptions:
+        return None
     participants = checked_assumptions[0]["participant_count"]
     hours = checked_assumptions[0]["hours_per_day"]
     duration = _safe_float(known.get("duration_days") or requirement.get("duration_days"), 0)
     if duration <= 0:
         logger.warning("Lab-cost workbook withheld: confirm lab duration")
         return None
-    if duration > 30:
+    sample_quote = known.get("participant_count_source") == "default"
+    if duration > 30 and not sample_quote:
         # The lab-cost workbook covers 1 to 30 training days; do not generate a ToC it cannot price.
         logger.warning("Lab-cost workbook withheld: %s training days exceed the 30-day workbook", duration)
         return None
@@ -11948,15 +11952,12 @@ async def _create_revised_lab_cost_attachment(
     # Price the approved/saved day-wise ToC when it exists. Regenerating a
     # generic ToC here can silently change its topics and make the workbook
     # disagree with the ToC already shared with the client.
-    toc: Optional[Dict[str, Any]] = None
+    toc = (source_agenda or {}).get("toc")
     requirement_id = _clean(requirement.get("requirement_id"))
-    if requirement_id:
-        saved_toc = await db["toc_generations"].find_one(
-            {"requirement_id": requirement_id, "toc": {"$type": "object"}},
-            {"_id": 0, "toc": 1},
-            sort=[("created_at", -1)],
-        )
-        if isinstance((saved_toc or {}).get("toc"), dict):
+    if requirement_id and not toc:
+        from shared.lab_cost_inputs import saved_lab_agenda
+        saved_toc = await saved_lab_agenda(db, requirement, duration)
+        if isinstance((saved_toc or {}).get("toc"), dict) and saved_toc["toc"].get("days"):
             toc = saved_toc["toc"]
 
     toc_payload = {
@@ -11981,6 +11982,13 @@ async def _create_revised_lab_cost_attachment(
                 toc = (toc_response.json() or {}).get("toc_data") or (toc_response.json() or {}).get("toc")
                 if not isinstance(toc, dict):
                     return None
+            from shared.lab_cost_inputs import lab_quote_scope, current_quote_expiry
+            lab_toc, participants, hours = lab_quote_scope(
+                toc, None if sample_quote else participants,
+                None if known.get("hours_per_day_source") == "default" else hours)
+            if source_agenda is not None:
+                source_agenda["toc"] = toc
+            expiries = []
             workbooks = []
             for provider_assumptions in checked_assumptions:
                 workbook_response = await _post_with_local_fallback(
@@ -11990,17 +11998,19 @@ async def _create_revised_lab_cost_attachment(
                     # from their supplied scope. Draft export keeps the
                     # automated estimate independent of internal ToC review.
                     json={
-                        "toc": toc,
+                        "toc": lab_toc,
                         "draft": True,
                         "assumptions": {
                             **provider_assumptions,
+                            "hours_per_day": hours,
+                            "sample_quote": sample_quote,
                             "include_default_hour_options": False,
                             "request_summary": {
                                 "request_id": requirement.get("requirement_id"),
                                 "client_name": requirement.get("client_name") or "Client",
                                 "technology": technology,
                                 "scope": _clean(requirement.get("toc_or_topics") or requirement.get("topics") or requirement.get("custom_topics"))[:600],
-                                "duration_days": duration,
+                                "duration_days": 1 if sample_quote else duration,
                                 "training_dates": _clean(requirement.get("training_dates") or requirement.get("preferred_dates")),
                                 "participant_count": participants,
                                 "hours_per_day": hours,
@@ -12014,6 +12024,7 @@ async def _create_revised_lab_cost_attachment(
                 if workbook_response.status_code >= 400 or not workbook_response.content:
                     logger.error("Revised lab-cost workbook generation failed: %s", workbook_response.text[:300])
                     return None
+                expiries.append(current_quote_expiry(workbook_response.headers))
                 workbooks.append((
                     provider_assumptions["cloud_provider"],
                     workbook_response.content,
@@ -12033,6 +12044,9 @@ async def _create_revised_lab_cost_attachment(
             "filename": f"{technology} - Lab Cost Estimate ({' + '.join(provider.upper() for provider in providers)}, {participants} participants).xlsx",
             "content_base64": base64.b64encode(workbook_content).decode(),
             "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "quote_valid_until": min(expiries),
+            "sample_quote": sample_quote,
+            "lab_hours_per_day": hours,
             "pricing_review_required": review_required,
             "pricing_review_reasons": review_reasons,
         }
@@ -12049,6 +12063,7 @@ async def _create_standalone_toc_attachments(
     topics: str = "",
     client_notes: str = "",
     generation_mode: str = "template",
+    toc_data: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, str]]:
     """Build the day-wise ToC workbook and its PDF course outline.
 
@@ -12057,24 +12072,25 @@ async def _create_standalone_toc_attachments(
     """
     technology = _clean(technology)
     days = _safe_int(duration_days, 0)
-    if not technology or days <= 0:
+    if not technology or (days <= 0 and not toc_data):
         return []
     try:
         async with httpx.AsyncClient(timeout=90) as client:
-            toc_response = await _post_with_local_fallback(
-                client,
-                f"{TRAINER_SERVICE_URL}/api/v1/toc/generate",
-                json={
-                    "domain": technology,
-                    "duration_days": max(1, days),
-                    "mode": mode or "Online",
-                    "generation_mode": "ai" if _clean(generation_mode).lower() == "ai" else "template",
-                    "custom_topics": topics,
-                    "client_notes": client_notes[:4000],
-                },
-            )
-            toc_response.raise_for_status()
-            toc_data = (toc_response.json() or {}).get("toc_data") or {}
+            if toc_data is None:
+                toc_response = await _post_with_local_fallback(
+                    client,
+                    f"{TRAINER_SERVICE_URL}/api/v1/toc/generate",
+                    json={
+                        "domain": technology,
+                        "duration_days": max(1, days),
+                        "mode": mode or "Online",
+                        "generation_mode": "ai" if _clean(generation_mode).lower() == "ai" else "template",
+                        "custom_topics": topics,
+                        "client_notes": client_notes[:4000],
+                    },
+                )
+                toc_response.raise_for_status()
+                toc_data = (toc_response.json() or {}).get("toc_data") or {}
             workbook_response = await _post_with_local_fallback(
                 client,
                 f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc",
@@ -12130,14 +12146,15 @@ async def _bundle_slot_delivery_files(
     lab_extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
     lab_extracted = await _merge_requirement_record_context(db, lab_extracted, email_doc["requirement_id"])
     requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or {}
+    source_agenda = {}
     if asks_lab:
         slot_lab_context = _lab_request_context(latest_message_body, lab_extracted)
         known = slot_lab_context.get("known_inputs") or {}
         await db["requirements"].update_one(
             {"requirement_id": email_doc["requirement_id"]},
             {"$set": {
-                "participant_count": known.get("participant_count"),
-                "hours_per_day": known.get("hours_per_day"),
+                **({"participant_count": known["participant_count"]} if known.get("participant_count_source") == "client" else {}),
+                **({"lab_hours_per_day": known["hours_per_day"]} if known.get("hours_per_day_source") == "client" else {}),
                 "cloud_provider": known.get("cloud_provider") or "AWS",
                 "lab_cost_requested": True,
                 "lab_cost_status": "inputs_received",
@@ -12145,12 +12162,13 @@ async def _bundle_slot_delivery_files(
             }},
         )
         requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or requirement
-        lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context)
+        lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context, source_agenda=source_agenda)
         if lab_file:
             files.append(lab_file)
     toc_files: List[Dict[str, str]] = []
     if asks_toc:
         toc_files = await _create_standalone_toc_attachments(
+            toc_data=source_agenda.get("toc"),
             technology=_clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain")),
             duration_days=_safe_int(requirement.get("duration_days"), 0),
             mode=_clean(requirement.get("mode") or "Online"),
@@ -12665,7 +12683,7 @@ async def _process_client_requirement_email(
         if email_doc.get("requirement_id"):
             known = lab_context.get("known_inputs") or {}
             lab_update = {
-                "hours_per_day": known.get("hours_per_day"),
+                **({"lab_hours_per_day": known["hours_per_day"]} if known.get("hours_per_day_source") == "client" else {}),
                 "cloud_provider": known.get("cloud_provider") or "AWS",
                 "lab_cost_requested": True,
                 "lab_cost_status": "inputs_received",
@@ -12682,14 +12700,16 @@ async def _process_client_requirement_email(
             ) or {**extracted, **lab_update, "requirement_id": email_doc["requirement_id"]}
             # Generate from the exact saved ToC plus the latest client inputs.
             # A message must only claim an attachment when this succeeds.
-            attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context)
+            source_agenda = {}
+            attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context, source_agenda=source_agenda)
             if attachment:
                 technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "the training")
                 participants = known.get("participant_count") or requirement.get("participant_count") or 1
-                hours = known.get("hours_per_day") or requirement.get("hours_per_day") or 3
+                hours = attachment["lab_hours_per_day"]
                 toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
                     toc_attachments = await _create_standalone_toc_attachments(
+                        toc_data=source_agenda["toc"],
                         technology=technology,
                         duration_days=_safe_int(requirement.get("duration_days"), 0),
                         mode=_clean(requirement.get("mode") or "Online"),
@@ -12787,10 +12807,12 @@ async def _process_client_requirement_email(
                 }, "$setOnInsert": {"created_at": _now()}},
                 upsert=True,
             )
+            source_agenda = {}
             attachment = await _create_revised_lab_cost_attachment(
                 db,
                 standalone_requirement,
                 lab_context,
+                source_agenda=source_agenda,
                 generation_mode=content_generation_mode,
             )
             if attachment:
@@ -12798,6 +12820,7 @@ async def _process_client_requirement_email(
                 toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
                     toc_attachments = await _create_standalone_toc_attachments(
+                        toc_data=source_agenda["toc"],
                         technology=technology,
                         duration_days=_safe_int(standalone_requirement.get("duration_days"), 0),
                         mode=_clean(standalone_requirement.get("mode") or "Online"),
@@ -12830,6 +12853,7 @@ async def _process_client_requirement_email(
                             "workbook_filename": attachment.get("filename"),
                             "pending_reply": {"subject": reply.get("subject") or subject, "body": reply.get("body") or ""},
                             "pending_attachments": delivery_files,
+                            "quote_toc": source_agenda["toc"],
                             "updated_at": now,
                         }},
                     )

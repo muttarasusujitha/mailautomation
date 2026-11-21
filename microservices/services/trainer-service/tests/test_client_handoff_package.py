@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from zoneinfo import ZoneInfo
@@ -105,7 +105,8 @@ def prepare(monkeypatch, failure=None, requirement_overrides=None):
             return httpx.Response(
                 502 if fails else 200,
                 content=b"workbook",
-                headers={"X-Lab-Cost-Pricing-Status": "provider_api_verified_public_retail"} if is_lab and not fails else {},
+                headers={"X-Lab-Cost-Pricing-Status": "provider_api_verified_public_retail",
+                         "X-Lab-Cost-Quote-Valid-Until": (datetime.now(timezone.utc) + timedelta(days=-1 if failure == "expired" else 7)).isoformat()} if is_lab and not fails else {},
             )
         return httpx.Response(200, json={"success": True, "email_id": "EML-TEST"})
 
@@ -415,3 +416,28 @@ def test_client_handoff_still_sends_when_the_course_outline_pdf_fails(monkeypatc
     assert result["success"] is True
     mail = next(body for path, body in requests if path.endswith("/email/send"))
     assert "DevOps - Course Outline.pdf" not in [a["filename"] for a in mail["attachments"]]
+
+
+@pytest.mark.parametrize("headcount,expected_days,expected_hours", [(None, 1, 3), (12, 2, 4)])
+def test_confirmed_agenda_and_lab_scope(monkeypatch, headcount, expected_days, expected_hours):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        "duration_days": 2, "participant_count": headcount, "lab_hours_per_day": None})
+    agenda = {"excel_layout": "course_workbook", "hours_per_day": 7,
+              "days": [{"day": 1, "topic": "Shell"}, {"day": 2, "topic": "Networking"}]}
+    monkeypatch.setattr(shortlists, "_build_toc", AsyncMock(return_value=agenda))
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS), db))
+    lab = next(body for path, body in requests if path.endswith("/lab-cost"))
+    outline = next(body for path, body in requests if path.endswith("/excel/toc"))
+    assert outline["toc"] == agenda
+    assert [day["topic"] for day in lab["toc"]["days"]] == ["Shell", "Networking"][:expected_days]
+    assert lab["assumptions"]["hours_per_day"] == expected_hours
+    assert lab["assumptions"]["sample_quote"] == (headcount is None)
+
+
+def test_expired_quote_blocks_handoff(monkeypatch):
+    db, requests = prepare(monkeypatch, failure="expired")
+    with pytest.raises(HTTPException):
+        asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+            requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS), db))
+    assert all(not path.endswith("/email/send") for path, _ in requests)

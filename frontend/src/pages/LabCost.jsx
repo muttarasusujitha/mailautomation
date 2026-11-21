@@ -252,9 +252,9 @@ export default function LabCost() {
   const downloadLabCost = async () => {
     if (!selected) return toast.error('Select a requirement first')
     const technology = selected.technology_needed || selected.domain || selected.job_title
-    const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3)
+    const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 1)
     if (!technology) return toast.error('The selected requirement needs a technology')
-    if ([form.hours_per_day, form.participant_count, form.quote_validity_days].some(value => Number(value) <= 0)) {
+    if (Number(form.quote_validity_days) <= 0 || [form.hours_per_day, form.participant_count].some(value => value !== '' && Number(value) <= 0)) {
       return toast.error('Hours, participants, and validity must be positive')
     }
 
@@ -271,11 +271,15 @@ export default function LabCost() {
         return [key, number]
       }))
       const mapping = labMode === 'manual' ? JSON.parse(manualMapping) : undefined
-      const tocResponse = await api.post('/toc/generate', {
+      const { data: saved } = await api.get(`/toc/lab-cost/agenda/${encodeURIComponent(requirementId)}`).catch(error => {
+        if (error.response?.status === 404) return { data: {} }
+        throw error
+      })
+      const tocResponse = saved.toc ? { data: saved } : await api.post('/toc/generate', {
         generation_mode: labMode === 'manual' ? 'template' : 'ai',
         allow_ai_enrichment: labMode !== 'manual',
         requirement_id: selected.requirement_id || selected.id,
-        technology,
+        domain: technology,
         duration_days: durationDays,
         level: selected.level || selected.audience_level || 'intermediate',
         audience_level: selected.audience_level || selected.level || 'intermediate',
@@ -293,8 +297,8 @@ export default function LabCost() {
         toc_id: tocResponse.data.toc_id,
         cloud_provider: form.cloud_provider,
         cloud_region: form.cloud_region,
-        hours_per_day: Number(form.hours_per_day),
-        participant_count: Number(form.participant_count),
+        hours_per_day: form.hours_per_day === '' ? null : Number(form.hours_per_day),
+        participant_count: form.participant_count === '' ? null : Number(form.participant_count),
         contingency_percent: Number(form.contingency_percent),
         tax_percent: Number(form.tax_percent),
         lab_package: form.lab_package,
@@ -428,8 +432,8 @@ export default function LabCost() {
           <Field label="Cloud provider"><select value={form.cloud_provider} onChange={event => setForm(previous => ({ ...previous, cloud_provider: event.target.value, cloud_region: '' }))}><option value="">Confirm provider</option><option value="aws">AWS</option><option value="azure">Azure</option><option value="gcp">GCP</option></select></Field>
           <Field label="Cloud region"><select value={form.cloud_region} onChange={event => update('cloud_region', event.target.value)}><option value="">Confirm region</option>{form.cloud_provider === 'aws' && <option value="ap-south-1">Mumbai</option>}{form.cloud_provider === 'azure' && <option value="central-india">Central India</option>}{form.cloud_provider === 'gcp' && <option value="asia-south1">Mumbai</option>}</select></Field>
           <Field label="Lab package"><select value={form.lab_package} onChange={event => update('lab_package', event.target.value)}>{packages.map(item => <option key={item.value} value={item.value}>{item.label} - {item.note}</option>)}</select></Field>
-          <Field label="Lab hours per day"><input type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
-          <Field label="Participants"><input type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
+          <Field label="Lab hours per day"><input placeholder="Use agenda hours" type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
+          <Field label="Participants"><input placeholder="Blank for one-day sample" type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
           <Field label="USD to INR"><p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">Fetched from the published USD/INR rate when the workbook is generated.</p></Field>
           <Field label="Contingency %"><input type="number" min="0" max="100" value={form.contingency_percent} onChange={event => update('contingency_percent', event.target.value)} /></Field>
           <Field label="Tax / GST % (confirm, or enter 0)"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>

@@ -2620,8 +2620,14 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             custom_topics="; ".join(topics),
             client_notes=client_notes or _clean(requirement.get("notes") or requirement.get("description")),
         )
-        response = await generate_toc(toc_req, db)
-        toc_data = response.get("toc_data") or response.get("toc")
+        saved = None
+        if toc_req.requirement_id and not _has_client_supplied_toc(requirement):
+            from shared.lab_cost_inputs import saved_lab_agenda
+            saved = await saved_lab_agenda(db, requirement, duration)
+        toc_data = (saved or {}).get("toc")
+        if not toc_data:
+            response = await generate_toc(toc_req, db)
+            toc_data = response.get("toc_data") or response.get("toc")
         if not toc_data:
             return None
         toc_data = dict(toc_data)
@@ -2649,6 +2655,8 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             # newly invented curriculum.
             for index, day in enumerate(toc_data.get("days") or []):
                 source_topic = client_toc_topics[index] if index < len(client_toc_topics) else client_toc_topics[-1]
+                day.clear()
+                day["day"] = index + 1
                 day["focus_area"] = source_topic
                 day["title"] = f"Day {day.get('day') or index + 1}: {source_topic}"
                 day["category"] = source_topic
@@ -5058,8 +5066,12 @@ async def send_client_slots(
     raw_lab_hours = req.get("lab_hours_per_day")
     # User-approved estimate baseline: one learner, three lab hours per day.
     # Explicit invalid values still reach validation rather than being replaced.
-    supplied_participant_count = 1 if raw_participants in (None, "") else raw_participants
-    supplied_lab_hours = 3 if raw_lab_hours in (None, "") else _safe_float(raw_lab_hours, 0)
+    from shared.lab_cost_inputs import lab_quote_scope, current_quote_expiry
+    sample_quote = raw_participants in (None, "")
+    lab_toc, supplied_participant_count, supplied_lab_hours = lab_quote_scope(
+        toc_data, raw_participants, raw_lab_hours)
+    quote_expiries = []
+    lab_quote_requests = []
     participant_count = supplied_participant_count
     lab_hours_per_day = supplied_lab_hours
     lab_defaults_used = raw_participants in (None, "") or raw_lab_hours in (None, "")
@@ -5067,7 +5079,7 @@ async def send_client_slots(
     # costed automatically: stop once (422, not retried) when the client asked for
     # the estimate, otherwise send the handoff without it.
     toc_days = sum(max(1, int(_safe_float(day.get("duration_days") or day.get("days") or 1, 1)))
-                   for day in (toc_data or {}).get("days") or [] if isinstance(day, dict))
+                   for day in lab_toc.get("days") or [] if isinstance(day, dict))
     if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data and toc_days > 30:
         if explicit_lab_workbook:
             raise HTTPException(422, f"Lab-cost workbooks support 1 to 30 training days; this ToC has {toc_days} days. "
@@ -5141,7 +5153,7 @@ async def send_client_slots(
             from shared.lab_planning import default_cloud_mapping
             lab_mappings = {}
             for checked in checked_provider_inputs:
-                mapping = default_cloud_mapping(toc_data, {
+                mapping = default_cloud_mapping(lab_toc, {
                     "participant_count": participant_count,
                     "cloud_provider": checked["cloud_provider"],
                     "k8s_worker_nodes": 1,
@@ -5154,7 +5166,7 @@ async def send_client_slots(
                     from shared.lab_planning import plan_resources
                     async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
                         for checked in checked_provider_inputs:
-                            lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', toc_data, {
+                            lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', lab_toc, {
                                 "participant_count": participant_count,
                                 "hours_per_day": lab_hours_per_day,
                                 "cloud_provider": checked["cloud_provider"],
@@ -5164,17 +5176,18 @@ async def send_client_slots(
             async with httpx.AsyncClient(timeout=180) as client:
                 for checked in checked_provider_inputs:
                     # Resolve the saved catalog and refresh its public prices.
-                    lab_response = await _post_with_local_fallback(
-                        client,
-                        f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
-                        json={
-                            "toc": toc_data,
+                    quote_request = {
+                            "toc": lab_toc,
                             "draft": True,
                             "assumptions": {
                                 "cloud_provider": checked["cloud_provider"],
                                 "cloud_region": checked["cloud_region"],
                                 "hours_per_day": lab_hours_per_day,
                                 "participant_count": participant_count,
+                                "sample_quote": sample_quote,
+                                "local_costs_status": req.get("local_costs_status"),
+                                "license_costs_status": req.get("license_costs_status"),
+                                "lab_support_per_participant": req.get("lab_support_per_participant"),
                                 "clahan_margin_percent": 30,
                                 "client_lab_markup_percent": 30,
                             "include_default_hour_options": False,
@@ -5185,10 +5198,13 @@ async def send_client_slots(
                                 # The document service resolves the saved catalog.
                                 "pricing_selections": {},
                             },
-                        },
-                    )
+                        }
+                    lab_quote_requests.append(quote_request)
+                    lab_response = await _post_with_local_fallback(
+                        client, f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost", json=quote_request)
                     pricing_status = lab_response.headers.get("X-Lab-Cost-Pricing-Status", "")
                     if lab_response.status_code == 200 and lab_response.content:
+                        quote_expiries.append(current_quote_expiry(lab_response.headers))
                         lab_cost_attachments.append((checked["cloud_provider"], lab_response.content))
                     else:
                         lab_error = (lab_response.text[:1000] or
@@ -5255,6 +5271,7 @@ async def send_client_slots(
         revision_note = "We will update it if the participant count or lab hours change. "
         lab_cost_note = (
             ("The lab-cost estimate is attached. It follows the ToC you shared. " if client_toc_supplied else "The lab-cost estimate is attached. ")
+            + ("This is a one-day sample because the participant count is pending. " if sample_quote else "")
             + assumption_note
             + revision_note
             + "\n\n"
@@ -5355,6 +5372,8 @@ async def send_client_slots(
         "created_at": datetime.utcnow(),
         "approved_at": datetime.utcnow(),
         "slot_text": slots_text,
+        "lab_quote_requests": lab_quote_requests,
+        "lab_quote_valid_until": min(quote_expiries),
         "profile_source": profile_selection.get("source"),
         "profile_requirement_score": profile_selection.get("score"),
         "email_payload": email_payload,
@@ -5421,6 +5440,37 @@ async def rebuild_client_handoff(requirement_id: str, trainer_id: str, payload: 
     if not deleted.deleted_count:
         raise HTTPException(409, "Only the current unapproved package can be rebuilt")
     return await send_client_slots(SendClientSlotsRequest(requirement_id=requirement_id, trainer_id=trainer_id), db)
+
+
+async def refresh_handoff_lab_attachment(db, package):
+    from shared.lab_cost_inputs import current_quote_expiry
+    quotes = package.get("lab_quote_requests")
+    if not quotes:
+        raise HTTPException(422, "Rebuild this legacy handoff to price its original agenda with current rates.")
+    estimates = []
+    deadlines = []
+    async with httpx.AsyncClient(timeout=180) as client:
+        for quote in quotes:
+            response = await _post_with_local_fallback(
+                client, f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost", json=quote)
+            response.raise_for_status()
+            deadlines.append(current_quote_expiry(response.headers))
+            estimates.append({"provider": quote["assumptions"]["cloud_provider"],
+                              "content_base64": base64.b64encode(response.content).decode()})
+        if len(estimates) > 1:
+            response = await _post_with_local_fallback(client, f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost/combine",
+                                                       json={"estimates": estimates})
+            response.raise_for_status()
+        if not response.content:
+            raise ValueError("The refreshed lab workbook was empty")
+    content = base64.b64encode(response.content).decode()
+    mail = dict(package["email_payload"])
+    mail["attachments"] = [{**item, "content_base64": content} if "lab cost" in item["filename"].lower()
+                           else item for item in mail["attachments"]]
+    changes = {"email_payload": mail, "lab_quote_valid_until": min(deadlines)}
+    await db["client_handoff_packages"].update_one(
+        {"_id": package["_id"], "package_id": package["package_id"], "status": "approved"}, {"$set": changes})
+    return {**package, **changes}
 
 
 async def _deliver_client_handoff(package, db):
