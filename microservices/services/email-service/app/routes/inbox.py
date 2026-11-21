@@ -4006,6 +4006,19 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
     if missing_requested_details:
         for item in missing_requested_details:
             add_detail(item)
+        if any("slot" in item.lower() for item in missing_requested_details):
+            cutoff = datetime.now(LOCAL_TZ).replace(tzinfo=None) + timedelta(minutes=15)
+            reply_text = email_doc.get("classification_body") or email_doc.get("clean_body") or email_doc.get("body") or ""
+            starts = sorted(option["start"] for option in _slot_options_from_text(reply_text) if option["start"] > cutoff)
+            formatted = ", ".join(start.strftime("%d %b %Y %I:%M %p") for start in starts)
+            detail_lines.append(
+                f"\nYour reply contains {len(starts)} qualifying interview {'slot' if len(starts) == 1 else 'slots'}."
+                + (f" Recognized start times in IST: {formatted}." if starts else "")
+                + "\nPlease reply with exactly three options together, one per line. Each must start more than "
+                "15 minutes from now. Keep the options that still work for you and replace the others. "
+                "Leave a space between the day and month and check AM/PM on both times.\n"
+                "Example format only (please use your actual availability):\n" + _sample_availability_slots()
+            )
     else:
         for item in requested_details:
             if any(token in item for token in ("trainer profile", "profile summary", "trainer details")):
@@ -4330,11 +4343,17 @@ async def _send_missing_trainer_details_followup(
             "error": "Trainer-only follow-up blocked because the recipient does not match the linked trainer",
         }
 
-    # This is deliberately one attempt per trainer and requirement. A polling
-    # retry, a reopened message, or an incomplete second reply must never send
-    # the same missing-details request again.
+    # Ask once for documents. A new reply offering invalid slots needs its
+    # own correction, even when we previously asked for a different detail.
+    message_filter = {}
+    source_message = _current_inbound_message_id(email_doc)
+    offered_slots = _slot_reply_intent(email_doc.get("classification_body") or email_doc.get("body"))
+    if (source_message and offered_slots in {"unclear_slots", "too_many_slots"}
+            and missing_details and all("slot" in item.lower() for item in missing_details)):
+        message_filter["source_gmail_message_id"] = source_message
     existing = await db["email_logs"].find_one(
         {
+            **message_filter,
             "direction": "outbound",
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
@@ -7719,7 +7738,11 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     # sender, is the authoritative context for relaying that response.
     if not sender or not text:
         return {"attempted": False}
-    query = await db["trainer_logistics_queries"].find_one({"client_email": {"$regex": f"^{re.escape(sender)}$", "$options": "i"}, "status": "client_asked"}, {"_id": 0}, sort=[("created_at", -1)])
+    query_filter = {"client_email": {"$regex": f"^{re.escape(sender)}$", "$options": "i"}, "status": "client_asked"}
+    for field in ("requirement_id", "trainer_id"):
+        if email_doc.get(field):
+            query_filter[field] = email_doc[field]
+    query = await db["trainer_logistics_queries"].find_one(query_filter, {"_id": 0}, sort=[("created_at", -1)])
     if not query or not _email_address(query.get("trainer_email")):
         return {"attempted": False}
     query_subject = _email_subject_key(query.get("clarification_subject"))
@@ -7733,16 +7756,26 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         return {"attempted": False}
     req = await db["requirements"].find_one({"requirement_id": query.get("requirement_id")}, {"_id": 0}) or {}
     subject = f"Client Update: Travel / Stay Details - {_clean(req.get('technology_needed') or req.get('technology') or 'Training')}"
-    client_venue = _client_confirmed_venue(text) or _clean(query.get("partial_client_venue"))
+    required_fields = set(query.get("required_fields") or ("venue", "map", "travel"))
+    client_venue = _client_confirmed_venue(text) or _clean(query.get("partial_client_venue")) or (
+        _clean(req.get("location") or req.get("preferred_location")) if "venue" not in required_fields else ""
+    )
     client_map_url = _client_confirmed_google_maps_url(text) or _clean(query.get("partial_client_maps_url"))
-    client_travel_terms = _client_confirmed_travel_terms(text) or _clean(query.get("partial_client_travel_terms"))
+    travel_value = _client_labeled_logistics_value(text, "travel")
+    accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
+    food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
+    client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
     missing_confirmations = []
-    if not client_venue:
+    if "venue" in required_fields and not client_venue:
         missing_confirmations.append("the exact training address")
-    if not client_map_url:
+    if "map" in required_fields and not client_map_url:
         missing_confirmations.append("the client-confirmed Google Maps pin")
-    if not client_travel_terms:
+    if "travel" in required_fields and not client_travel_terms:
         missing_confirmations.append("the agreed travel/stay budget and who will pay or book")
+    if "accommodation" in required_fields and not accommodation_value:
+        missing_confirmations.append("the accommodation or stay arrangement and charges")
+    if "food" in required_fields and not food_value:
+        missing_confirmations.append("the food or meal arrangement and charges")
 
     # Keep the trainer's final travel package on hold until every required
     # client confirmation is explicit. Partial replies stay linked to this
@@ -7752,15 +7785,23 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         # Keep the same subject so the client's clarification reply remains
         # attached to this open logistics query.
         clarification_subject = _clean(query.get("clarification_subject") or email_doc.get("subject") or "Travel and venue confirmation")
+        reply_lines = []
+        if "venue" in required_fields and not client_venue:
+            reply_lines.append("Confirmed training address: [full address]")
+        if "map" in required_fields and not client_map_url:
+            reply_lines.append("Google Maps pin: [exact Google Maps link]")
+        if "travel" in required_fields and not client_travel_terms:
+            reply_lines.append("Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]")
+        if "accommodation" in required_fields and not accommodation_value:
+            reply_lines.append("Accommodation: [details]")
+        if "food" in required_fields and not food_value:
+            reply_lines.append("Food: [details]")
         clarification_body = (
             "Hi there,\n\n"
             "Thanks for the update. The final travel package is on hold until we have the following client confirmations:\n"
             f"- {missing_text}\n\n"
             "Please reply with these lines (fill in the details):\n"
-            "Confirmed training address: [full address]\n"
-            "Google Maps pin: [exact Google Maps link]\n"
-            "Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]\n"
-            "Booking PDFs: [attach tickets/hotel PDFs if booked, or say Not booked yet]\n\n"
+            + "\n".join(reply_lines) + "\n\n"
             "We will share the final confirmed details with the selected trainer after the required items are complete.\n\n"
             "Regards,\nClahan Technologies"
         )
@@ -7797,6 +7838,8 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
             "partial_client_venue": client_venue,
             "partial_client_maps_url": client_map_url,
             "partial_client_travel_terms": client_travel_terms,
+            "partial_accommodation": accommodation_value,
+            "partial_food": food_value,
             "pending_booking_documents": pending_documents,
             "missing_confirmations": missing_confirmations,
             "updated_at": now,
@@ -7825,11 +7868,15 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     confirmed_venue = client_venue
     trainer_map_url = client_map_url
     venue_details = f"\nConfirmed training venue: {confirmed_venue}" if confirmed_venue else ""
-    map_details = f"\nClient-confirmed Google Maps pin: {client_map_url}"
+    map_details = f"\nClient-confirmed Google Maps pin: {client_map_url}" if client_map_url else ""
+    travel_details = f"\nTravel / stay budget and terms confirmed by client: {client_travel_terms}" if client_travel_terms else ""
+    expense_details = "".join(f"\n{label}: {value}" for label, value in (
+        ("Accommodation", accommodation_value), ("Food", food_value),
+    ) if value)
     reference = (
         f"Hi {query.get('trainer_name') or 'Trainer'},\n\n"
         "The client has shared the following response to the post-interview venue and travel coordination:\n\n"
-        f"{text}{venue_details}{map_details}\nTravel / stay budget and terms confirmed by client: {client_travel_terms}\n\n"
+        f"{venue_details}{map_details}{travel_details}{expense_details}\n\n"
         "Any attached ticket or stay booking PDFs are included for your reference. Please follow only the confirmed details in the client's message.\n\n"
         "Regards,\nClahan Technologies"
     )
@@ -7884,7 +7931,7 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         "top_trainers.$.post_interview_logistics.venue_maps_url": trainer_map_url,
         "top_trainers.$.post_interview_logistics.client_confirmed_maps_url": client_map_url,
         "top_trainers.$.post_interview_logistics.map_pin_confirmed": bool(client_map_url),
-        "top_trainers.$.post_interview_logistics.travel_budget_confirmed": True,
+        "top_trainers.$.post_interview_logistics.travel_budget_confirmed": bool(client_travel_terms),
         "top_trainers.$.post_interview_logistics.final_package_ready": bool(ok),
         "top_trainers.$.post_interview_logistics.missing_client_confirmations": [],
         "top_trainers.$.updated_at": now,
@@ -7966,6 +8013,23 @@ def _client_confirmed_travel_terms(text: Any) -> str:
             line,
             flags=re.IGNORECASE,
         )
+        if match:
+            return _clean(match.group(1))
+    return ""
+
+
+def _client_labeled_logistics_value(text: Any, field: str) -> str:
+    """Read a client response only when it uses the requested labeled field."""
+    labels = {
+        "travel": r"(?:travel(?:\s+(?:arrangement|policy|charges?|terms?))?|travel\s*/\s*stay\s+(?:budget|terms)|reimbursement)",
+        "accommodation": r"(?:accommodation|stay|hotel)(?:\s+(?:arrangement|charges?|terms?))?",
+        "food": r"(?:food|meal|meals|lunch|dinner|breakfast)(?:\s+(?:arrangement|charges?|terms?))?",
+    }
+    pattern = labels.get(field)
+    if not pattern:
+        return ""
+    for line in str(text or "").splitlines():
+        match = re.match(rf"^\s*{pattern}\s*[:\-]\s*(.{{3,1000}})\s*$", line, re.IGNORECASE)
         if match:
             return _clean(match.group(1))
     return ""
@@ -9446,6 +9510,50 @@ async def _handle_client_slot_confirmation_reply(
     }
 
 
+async def _relay_selected_training_details(db, email_doc):
+    """Share explicit delivery updates on an existing client's thread."""
+    requirement_id = _clean(email_doc.get("requirement_id"))
+    message_id = _current_inbound_message_id(email_doc) or _clean(email_doc.get("email_id"))
+    if not requirement_id or not message_id:
+        return
+    text = _strip_quoted_email_history(email_doc.get("classification_body") or email_doc.get("body") or "")
+    # Read just the latest delivery fields. Commercials and quoted email
+    # history belong to the client thread.
+    field_labels = {
+        "location": ("Venue", r"(?:training\s+)?(?:venue|location|address)"),
+        "training_dates": ("Training dates", r"(?:training\s+dates?|start\s+date|dates?)"),
+        "duration_text": ("Duration", r"(?:training\s+)?duration"),
+    }
+    details = {}
+    for key, (_, label) in field_labels.items():
+        match = re.search(rf"(?im)^\s*(?:confirmed\s+)?{label}\s*[:\-]\s*([^\r\n]+)", text)
+        if match:
+            value = match[1].strip()
+            if len(value) <= 150 and not re.search(r"(?i)[?@;₹$]|\b(?:budget|rate|commercials?|INR|USD|TBD|pending|tentative|later|to be confirmed)\b", value):
+                details[key] = value
+    if not details:
+        return
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}) or {}
+    selected = requirement.get("selected_trainer_id")
+    sender = _email_address(email_doc.get("from_email"))
+    if not selected or not sender or sender != _email_address(requirement.get("client_email")):
+        return
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}) or {}
+    trainer = _find_shortlist_trainer(shortlist, selected) or {}
+    address = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    if not address:
+        return
+    from app.routes.send import SendEmailRequest, send_single_email
+    summary = "\n".join(f"{field_labels[key][0]}: {value}" for key, value in details.items())
+    result = await send_single_email(SendEmailRequest(
+        to=address, subject="Updated training details", body=f"Hi,\n\nThe client shared these training details.\n\n{summary}\n\nRegards,\nClahan Technologies",
+        requirement_id=requirement_id, trainer_id=selected, mail_type="trainer_schedule_update",
+        idempotency_key=f"trainer-schedule:{requirement_id}:{selected}:{message_id}",
+    ), db)
+    if result.get("success"):
+        await db["requirements"].update_one({"requirement_id": requirement_id, "selected_trainer_id": selected}, {"$set": details})
+
+
 async def _auto_request_client_po(
     db: AsyncIOMotorDatabase,
     *,
@@ -9516,6 +9624,83 @@ async def _auto_request_client_po(
     except Exception as exc:
         logger.exception("Failed to auto-request client PO for %s/%s", requirement_id, trainer_id)
         return {"attempted": True, "success": False, "error": str(exc)}
+
+
+def _offline_logistics_gaps(requirement: Dict[str, Any]) -> List[tuple[str, tuple[str, ...]]]:
+    """Return only post-selection logistics the client has not already supplied."""
+    groups = (
+        ("travel", ("travel_policy", "travel_arrangement", "travel_reimbursement")),
+        ("accommodation", ("accommodation_policy", "stay_details")),
+        ("food", ("food_policy", "meal_arrangement", "food_reimbursement")),
+        ("venue", ("location", "preferred_location")),
+    )
+    return [
+        (label, keys) for label, keys in groups
+        if not any(_clean(requirement.get(key)).lower() not in {"", "tbd", "pending", "unknown", "to be confirmed"} for key in keys)
+    ]
+
+
+async def _auto_request_offline_logistics(
+    db: AsyncIOMotorDatabase, *, requirement_id: str, trainer_id: str, trainer_name: str, trainer_email: str,
+) -> Dict[str, Any]:
+    """Ask for missing offline arrangements once, immediately after selection."""
+    requirements = db["requirements"]
+    find_requirement = getattr(requirements, "find_one", None)
+    if not callable(find_requirement):
+        return {"attempted": False, "reason": "requirement_read_unavailable"}
+    requirement = await find_requirement({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    delivery_mode = " ".join(_clean(requirement.get(key)).lower() for key in ("delivery_mode", "training_mode", "mode"))
+    if not any(term in delivery_mode for term in ("offline", "onsite", "on-site", "classroom", "in person", "in-person")):
+        return {"attempted": False, "reason": "not_offline"}
+    gaps = _offline_logistics_gaps(requirement)
+    if not gaps:
+        return {"attempted": False, "reason": "details_already_present"}
+    existing = await db["trainer_logistics_queries"].find_one({
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "query_type": "post_selection_logistics", "status": {"$in": ["client_asked", "trainer_answer_sent"]},
+    }, {"_id": 0, "query_id": 1})
+    if existing:
+        return {"attempted": False, "reason": "already_requested", "query_id": existing.get("query_id")}
+    client_email = _email_address(requirement.get("client_email") or requirement.get("from_email") or requirement.get("requester_email"))
+    if not client_email:
+        return {"attempted": True, "success": False, "reason": "missing_client_email"}
+    label_text = {
+        "travel": "Travel terms",
+        "accommodation": "Accommodation",
+        "food": "Food",
+        "venue": "Confirmed training address",
+    }
+    requested_fields = [label for label, _ in gaps]
+    request_lines = "\n".join(f"{label_text[label]}: [details]" for label in requested_fields)
+    technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "training")
+    subject = f"Offline Training Arrangements Required - {technology} [{requirement_id}]"
+    body = (
+        f"Hi {_clean(requirement.get('client_name') or requirement.get('client_company')) or 'Team'},\n\n"
+        f"{trainer_name or 'The selected trainer'} has been selected for the offline {technology} training. "
+        "Please reply with the following outstanding arrangements before any booking is made:\n\n"
+        f"{request_lines}\n\n"
+        "Please include approved caps, who books or pays, and any receipt rules for each expense.\n\n"
+        "Regards,\nClahan Technologies"
+    )
+    from app.routes.send import SendEmailRequest, send_single_email
+    key = f"client-offline-logistics:{requirement_id}:{trainer_id}"
+    sent = await send_single_email(SendEmailRequest(
+        to=client_email, subject=subject, body=body, requirement_id=requirement_id,
+        trainer_id=trainer_id, mail_type="client_post_selection_logistics", idempotency_key=key,
+    ), db)
+    ok = sent.get("success") is True
+    error = sent.get("error") or ""
+    now = _now()
+    query_id = key
+    await db["trainer_logistics_queries"].update_one({"_id": key}, {"$set": {
+        "query_id": query_id, "query_type": "post_selection_logistics",
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "trainer_name": trainer_name, "trainer_email": trainer_email,
+        "client_email": client_email, "clarification_subject": subject,
+        "clarification_message_id": sent.get("email_id"), "required_fields": requested_fields,
+        "status": "client_asked" if ok else "client_ask_failed", "updated_at": now,
+    }, "$setOnInsert": {"created_at": now}}, upsert=True)
+    return {"attempted": True, "success": bool(ok), "query_id": query_id, "missing_fields": requested_fields, "error": error or ""}
 
 
 async def _handle_client_selection_reply(
@@ -9709,6 +9894,20 @@ async def _handle_client_selection_reply(
             "error": "Client PO request is waiting for successful trainer selection email delivery.",
         }
 
+    if mail5_result.get("success"):
+        logistics_result = await _auto_request_offline_logistics(
+            db,
+            requirement_id=requirement_id,
+            trainer_id=trainer_id,
+            trainer_name=trainer_name,
+            trainer_email=trainer_email,
+        )
+    else:
+        logistics_result = {
+            "attempted": False,
+            "reason": "trainer_selection_email_not_sent",
+        }
+
     try:
         email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
         await db["email_logs"].insert_one({
@@ -9726,6 +9925,7 @@ async def _handle_client_selection_reply(
             "automation_result": {
                 "mail5_result": mail5_result,
                 "po_request_result": po_request_result,
+                "logistics_result": logistics_result,
             },
             "created_at": now,
             "updated_at": now,
@@ -9742,6 +9942,7 @@ async def _handle_client_selection_reply(
         "selected_at": now,
         "mail5_result": mail5_result,
         "po_request_result": po_request_result,
+        "logistics_result": logistics_result,
     }
 
 
@@ -11142,7 +11343,11 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     # Availability/profile requests are normal next steps for a batch whose
     # dates, duration, scope and commercials are already fixed.  Let the
     # concrete-field check below classify that request as confirmed.
-    if re.search(tentative, text):
+    commercial_scope = re.sub(
+        r"\b(?:location|venue|city|start date|training dates?)\s*[:=-]?\s*(?:tbd|tbc|to be (?:confirmed|decided|finali[sz]ed))\b",
+        "", text,
+    )
+    if re.search(tentative, commercial_scope):
         return "proposal"
 
     def firm_value(*keys):
@@ -11157,15 +11362,6 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
         value = firm_value(*keys)
         return bool(re.fullmatch(r"\d+(?:\.\d+)?", value) and float(value) > 0)
 
-    dates = firm_value("training_dates", "preferred_dates", "timeline_start")
-    # A month/year alone is not a concrete start date. Accept named dates
-    # (including date ranges) and numeric day/month/year or ISO dates.
-    months = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
-    has_dates = bool(re.search(
-        rf"\b\d{{1,2}}\s+{months}\b|\b{months}\s+\d{{1,2}}\b"
-        r"|\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b",
-        dates,
-    ))
     has_scope = bool(firm_value("technology_needed", "technology", "domain"))
     has_duration = positive_number("duration_days") or positive_number("duration_hours")
     has_commercials = positive_number("budget_total") or positive_number("budget_per_day")
@@ -11173,11 +11369,11 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
         return "proposal"
     # A missing participant count is an estimate input, not a batch-status
     # signal. Explicit zero values remain invalid quote inputs downstream.
-    # Participant count is an execution-planning input, not a confirmation
-    # prerequisite. A named domain, concrete dates, duration and commercial
+    # Participant count, calendar dates and location are execution-planning
+    # inputs, not confirmation prerequisites. A named domain, a fixed duration and commercial
     # amount establish a confirmed requirement unless the client uses
     # tentative or proposal wording above.
-    if all((has_scope, has_dates, has_duration, has_commercials)):
+    if all((has_scope, has_duration, has_commercials)):
         return "confirmed"
     return "proposal"
 
@@ -11707,6 +11903,7 @@ async def _create_revised_lab_cost_attachment(
     requirement: Dict[str, Any],
     lab_context: Dict[str, Any],
     generation_mode: str = "template",
+    source_agenda: Optional[Dict[str, Any]] = None,
 ) -> Optional[Dict[str, Any]]:
     """Build a lab-cost workbook from the saved ToC and latest client inputs."""
     known = lab_context.get("known_inputs") or {}
@@ -11736,13 +11933,16 @@ async def _create_revised_lab_cost_attachment(
     except (ValueError, TypeError) as exc:
         logger.warning("Lab-cost workbook withheld: %s", exc)
         return None
+    if not checked_assumptions:
+        return None
     participants = checked_assumptions[0]["participant_count"]
     hours = checked_assumptions[0]["hours_per_day"]
     duration = _safe_float(known.get("duration_days") or requirement.get("duration_days"), 0)
     if duration <= 0:
         logger.warning("Lab-cost workbook withheld: confirm lab duration")
         return None
-    if duration > 30:
+    sample_quote = known.get("participant_count_source") == "default"
+    if duration > 30 and not sample_quote:
         # The lab-cost workbook covers 1 to 30 training days; do not generate a ToC it cannot price.
         logger.warning("Lab-cost workbook withheld: %s training days exceed the 30-day workbook", duration)
         return None
@@ -11752,15 +11952,12 @@ async def _create_revised_lab_cost_attachment(
     # Price the approved/saved day-wise ToC when it exists. Regenerating a
     # generic ToC here can silently change its topics and make the workbook
     # disagree with the ToC already shared with the client.
-    toc: Optional[Dict[str, Any]] = None
+    toc = (source_agenda or {}).get("toc")
     requirement_id = _clean(requirement.get("requirement_id"))
-    if requirement_id:
-        saved_toc = await db["toc_generations"].find_one(
-            {"requirement_id": requirement_id, "toc": {"$type": "object"}},
-            {"_id": 0, "toc": 1},
-            sort=[("created_at", -1)],
-        )
-        if isinstance((saved_toc or {}).get("toc"), dict):
+    if requirement_id and not toc:
+        from shared.lab_cost_inputs import saved_lab_agenda
+        saved_toc = await saved_lab_agenda(db, requirement, duration)
+        if isinstance((saved_toc or {}).get("toc"), dict) and saved_toc["toc"].get("days"):
             toc = saved_toc["toc"]
 
     toc_payload = {
@@ -11785,6 +11982,13 @@ async def _create_revised_lab_cost_attachment(
                 toc = (toc_response.json() or {}).get("toc_data") or (toc_response.json() or {}).get("toc")
                 if not isinstance(toc, dict):
                     return None
+            from shared.lab_cost_inputs import lab_quote_scope, current_quote_expiry
+            lab_toc, participants, hours = lab_quote_scope(
+                toc, None if sample_quote else participants,
+                None if known.get("hours_per_day_source") == "default" else hours)
+            if source_agenda is not None:
+                source_agenda["toc"] = toc
+            expiries = []
             workbooks = []
             for provider_assumptions in checked_assumptions:
                 workbook_response = await _post_with_local_fallback(
@@ -11794,17 +11998,19 @@ async def _create_revised_lab_cost_attachment(
                     # from their supplied scope. Draft export keeps the
                     # automated estimate independent of internal ToC review.
                     json={
-                        "toc": toc,
+                        "toc": lab_toc,
                         "draft": True,
                         "assumptions": {
                             **provider_assumptions,
+                            "hours_per_day": hours,
+                            "sample_quote": sample_quote,
                             "include_default_hour_options": False,
                             "request_summary": {
                                 "request_id": requirement.get("requirement_id"),
                                 "client_name": requirement.get("client_name") or "Client",
                                 "technology": technology,
                                 "scope": _clean(requirement.get("toc_or_topics") or requirement.get("topics") or requirement.get("custom_topics"))[:600],
-                                "duration_days": duration,
+                                "duration_days": 1 if sample_quote else duration,
                                 "training_dates": _clean(requirement.get("training_dates") or requirement.get("preferred_dates")),
                                 "participant_count": participants,
                                 "hours_per_day": hours,
@@ -11818,6 +12024,7 @@ async def _create_revised_lab_cost_attachment(
                 if workbook_response.status_code >= 400 or not workbook_response.content:
                     logger.error("Revised lab-cost workbook generation failed: %s", workbook_response.text[:300])
                     return None
+                expiries.append(current_quote_expiry(workbook_response.headers))
                 workbooks.append((
                     provider_assumptions["cloud_provider"],
                     workbook_response.content,
@@ -11837,6 +12044,9 @@ async def _create_revised_lab_cost_attachment(
             "filename": f"{technology} - Lab Cost Estimate ({' + '.join(provider.upper() for provider in providers)}, {participants} participants).xlsx",
             "content_base64": base64.b64encode(workbook_content).decode(),
             "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "quote_valid_until": min(expiries),
+            "sample_quote": sample_quote,
+            "lab_hours_per_day": hours,
             "pricing_review_required": review_required,
             "pricing_review_reasons": review_reasons,
         }
@@ -11853,6 +12063,7 @@ async def _create_standalone_toc_attachments(
     topics: str = "",
     client_notes: str = "",
     generation_mode: str = "template",
+    toc_data: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, str]]:
     """Build the day-wise ToC workbook and its PDF course outline.
 
@@ -11861,24 +12072,25 @@ async def _create_standalone_toc_attachments(
     """
     technology = _clean(technology)
     days = _safe_int(duration_days, 0)
-    if not technology or days <= 0:
+    if not technology or (days <= 0 and not toc_data):
         return []
     try:
         async with httpx.AsyncClient(timeout=90) as client:
-            toc_response = await _post_with_local_fallback(
-                client,
-                f"{TRAINER_SERVICE_URL}/api/v1/toc/generate",
-                json={
-                    "domain": technology,
-                    "duration_days": max(1, days),
-                    "mode": mode or "Online",
-                    "generation_mode": "ai" if _clean(generation_mode).lower() == "ai" else "template",
-                    "custom_topics": topics,
-                    "client_notes": client_notes[:4000],
-                },
-            )
-            toc_response.raise_for_status()
-            toc_data = (toc_response.json() or {}).get("toc_data") or {}
+            if toc_data is None:
+                toc_response = await _post_with_local_fallback(
+                    client,
+                    f"{TRAINER_SERVICE_URL}/api/v1/toc/generate",
+                    json={
+                        "domain": technology,
+                        "duration_days": max(1, days),
+                        "mode": mode or "Online",
+                        "generation_mode": "ai" if _clean(generation_mode).lower() == "ai" else "template",
+                        "custom_topics": topics,
+                        "client_notes": client_notes[:4000],
+                    },
+                )
+                toc_response.raise_for_status()
+                toc_data = (toc_response.json() or {}).get("toc_data") or {}
             workbook_response = await _post_with_local_fallback(
                 client,
                 f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc",
@@ -11934,14 +12146,15 @@ async def _bundle_slot_delivery_files(
     lab_extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
     lab_extracted = await _merge_requirement_record_context(db, lab_extracted, email_doc["requirement_id"])
     requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or {}
+    source_agenda = {}
     if asks_lab:
         slot_lab_context = _lab_request_context(latest_message_body, lab_extracted)
         known = slot_lab_context.get("known_inputs") or {}
         await db["requirements"].update_one(
             {"requirement_id": email_doc["requirement_id"]},
             {"$set": {
-                "participant_count": known.get("participant_count"),
-                "hours_per_day": known.get("hours_per_day"),
+                **({"participant_count": known["participant_count"]} if known.get("participant_count_source") == "client" else {}),
+                **({"lab_hours_per_day": known["hours_per_day"]} if known.get("hours_per_day_source") == "client" else {}),
                 "cloud_provider": known.get("cloud_provider") or "AWS",
                 "lab_cost_requested": True,
                 "lab_cost_status": "inputs_received",
@@ -11949,12 +12162,13 @@ async def _bundle_slot_delivery_files(
             }},
         )
         requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or requirement
-        lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context)
+        lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context, source_agenda=source_agenda)
         if lab_file:
             files.append(lab_file)
     toc_files: List[Dict[str, str]] = []
     if asks_toc:
         toc_files = await _create_standalone_toc_attachments(
+            toc_data=source_agenda.get("toc"),
             technology=_clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain")),
             duration_days=_safe_int(requirement.get("duration_days"), 0),
             mode=_clean(requirement.get("mode") or "Online"),
@@ -12469,13 +12683,14 @@ async def _process_client_requirement_email(
         if email_doc.get("requirement_id"):
             known = lab_context.get("known_inputs") or {}
             lab_update = {
-                "participant_count": known.get("participant_count"),
-                "hours_per_day": known.get("hours_per_day"),
+                **({"lab_hours_per_day": known["hours_per_day"]} if known.get("hours_per_day_source") == "client" else {}),
                 "cloud_provider": known.get("cloud_provider") or "AWS",
                 "lab_cost_requested": True,
                 "lab_cost_status": "inputs_received",
                 "updated_at": _now(),
             }
+            if known.get("participant_count_source") == "client":
+                lab_update["participant_count"] = known.get("participant_count")
             await db["requirements"].update_one(
                 {"requirement_id": email_doc["requirement_id"]},
                 {"$set": lab_update},
@@ -12485,14 +12700,16 @@ async def _process_client_requirement_email(
             ) or {**extracted, **lab_update, "requirement_id": email_doc["requirement_id"]}
             # Generate from the exact saved ToC plus the latest client inputs.
             # A message must only claim an attachment when this succeeds.
-            attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context)
+            source_agenda = {}
+            attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context, source_agenda=source_agenda)
             if attachment:
                 technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "the training")
                 participants = known.get("participant_count") or requirement.get("participant_count") or 1
-                hours = known.get("hours_per_day") or requirement.get("hours_per_day") or 3
+                hours = attachment["lab_hours_per_day"]
                 toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
                     toc_attachments = await _create_standalone_toc_attachments(
+                        toc_data=source_agenda["toc"],
                         technology=technology,
                         duration_days=_safe_int(requirement.get("duration_days"), 0),
                         mode=_clean(requirement.get("mode") or "Online"),
@@ -12511,7 +12728,7 @@ async def _process_client_requirement_email(
                     lab_attached=True,
                     lab_sentence=(
                         f"Please find the lab-cost estimate attached for {participants} participant(s), "
-                        f"with {hours} hours of lab access per day. The calculation follows the current training dates and ToC."
+                        f"with {hours} hours of lab access per day. This estimate can be revised once your final usage is known."
                     ),
                 )
                 send_result = await _send_client_auto_reply(
@@ -12590,10 +12807,12 @@ async def _process_client_requirement_email(
                 }, "$setOnInsert": {"created_at": _now()}},
                 upsert=True,
             )
+            source_agenda = {}
             attachment = await _create_revised_lab_cost_attachment(
                 db,
                 standalone_requirement,
                 lab_context,
+                source_agenda=source_agenda,
                 generation_mode=content_generation_mode,
             )
             if attachment:
@@ -12601,6 +12820,7 @@ async def _process_client_requirement_email(
                 toc_attachments: List[Dict[str, str]] = []
                 if asks_toc:
                     toc_attachments = await _create_standalone_toc_attachments(
+                        toc_data=source_agenda["toc"],
                         technology=technology,
                         duration_days=_safe_int(standalone_requirement.get("duration_days"), 0),
                         mode=_clean(standalone_requirement.get("mode") or "Online"),
@@ -12633,6 +12853,7 @@ async def _process_client_requirement_email(
                             "workbook_filename": attachment.get("filename"),
                             "pending_reply": {"subject": reply.get("subject") or subject, "body": reply.get("body") or ""},
                             "pending_attachments": delivery_files,
+                            "quote_toc": source_agenda["toc"],
                             "updated_at": now,
                         }},
                     )
@@ -13758,7 +13979,7 @@ async def _process_client_requirement_email(
                 "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"),
                 "due_date": extracted_po.get("due_date") or "", "commercials": {"subtotal": amount, "gst_rate": gst_rate, "gst_amount": gst_amount, "grand_total": round(amount + gst_amount, 2)},
                 "balance_due": round(amount + gst_amount, 2), "status": "draft", "source_finance_id": finance_id,
-                "requirement_id": email_doc.get("requirement_id") or "", "created_at": now, "updated_at": now,
+                "requirement_id": email_doc.get("requirement_id") or "", "updated_at": now,
             }
             await db["purchase_orders"].update_one({"source_finance_id": finance_id}, {"$set": draft_po, "$setOnInsert": {"created_at": now}}, upsert=True)
             await db["invoices"].update_one({"source_finance_id": finance_id}, {"$set": draft_invoice, "$setOnInsert": {"created_at": now}}, upsert=True)
@@ -14298,6 +14519,8 @@ async def _process_client_requirement_email(
     }
 
     source_mail_type_for_routing = str(send_email_doc.get("source_outbound_mail_type") or "").strip()
+    if settings["enabled"] and not classifier_blocked_auto_send and classification.get("person_type") == "client":
+        await _relay_selected_training_details(db, send_email_doc)
     try:
         client_question_result = await _relay_client_question_answer(db, send_email_doc)
     except Exception as exc:

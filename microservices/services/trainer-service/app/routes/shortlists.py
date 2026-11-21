@@ -18,6 +18,7 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from shared.trainer_identity import linkedin_profile_url
+from shared.trainer_documents import document_request_text, requested_documents, matching_document, requires_issuer_check
 from app.config import get_settings
 from app.toc_pdf_template import build_toc_html
 
@@ -736,7 +737,8 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
             selected.append(label)
     # The reviewed profile is already available for the client handoff; asking
     # the trainer to send it again is unnecessary. Only request it when absent.
-    if _profile_text(trainer):
+    explicit_profile = re.search(r"\b(?:trainer profile|updated profile|resume|cv)\b", document_request_text(requirement), re.I)
+    if _profile_text(trainer) and not explicit_profile:
         selected = [item for item in selected if "profile" not in item.lower()]
     if "day-wise TOC" in selected:
         selected = [item for item in selected if item.lower() != "toc"]
@@ -761,6 +763,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         selected.append('LinkedIn profile')
     if any('certification' in item.lower() for item in requested_items) and not trainer.get('certifications'):
         selected.append('relevant certifications, if any')
+    selected.extend(requested_documents(requirement))
     ask = ", ".join(dict.fromkeys(selected))
     known_dates = bool(dates) and not re.search(r"to be confirmed|\btbc\b|\btbd\b", dates, re.I)
     availability = "availability for the stated training dates" if known_dates else "tentative availability; calendar dates remain to be confirmed"
@@ -786,7 +789,8 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
             "Please share three convenient interview/discussion slots that you are actually available for, "
-            "including the date, time, and time zone.\n"
+            "including the date, time, and time zone. Each slot must start more than 15 minutes from now. "
+            "Write one option per line, leave a space between the day and month, and include AM or PM on both times.\n"
             "Example format only; the sample dates and times below are illustrative, not booked appointments. "
             "Please replace them with your actual availability:\n"
             f"{_sample_availability_slots()}\n\n"
@@ -2616,8 +2620,14 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             custom_topics="; ".join(topics),
             client_notes=client_notes or _clean(requirement.get("notes") or requirement.get("description")),
         )
-        response = await generate_toc(toc_req, db)
-        toc_data = response.get("toc_data") or response.get("toc")
+        saved = None
+        if toc_req.requirement_id and not _has_client_supplied_toc(requirement):
+            from shared.lab_cost_inputs import saved_lab_agenda
+            saved = await saved_lab_agenda(db, requirement, duration)
+        toc_data = (saved or {}).get("toc")
+        if not toc_data:
+            response = await generate_toc(toc_req, db)
+            toc_data = response.get("toc_data") or response.get("toc")
         if not toc_data:
             return None
         toc_data = dict(toc_data)
@@ -2645,6 +2655,8 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             # newly invented curriculum.
             for index, day in enumerate(toc_data.get("days") or []):
                 source_topic = client_toc_topics[index] if index < len(client_toc_topics) else client_toc_topics[-1]
+                day.clear()
+                day["day"] = index + 1
                 day["focus_area"] = source_topic
                 day["title"] = f"Day {day.get('day') or index + 1}: {source_topic}"
                 day["category"] = source_topic
@@ -2840,6 +2852,59 @@ def _profile_attachment_subtype(filename: str) -> str:
         "doc": "msword",
         "docx": "vnd.openxmlformats-officedocument.wordprocessingml.document",
     }.get(suffix, "octet-stream")
+
+
+def _requested_evidence_attachment(attachment: Dict[str, Any], label: str, trainer_name: str) -> Optional[Dict[str, str]]:
+    """Return a readable requested document only when it names this trainer."""
+    filename = re.sub(r"[\r\n\\\\/]+", "_", _clean(attachment.get("filename") or attachment.get("original_filename")))[:160]
+    if not filename.lower().endswith((".pdf", ".doc", ".docx")):
+        return None
+    raw = attachment.get("original_file")
+    encoded = attachment.get("content_base64")
+    try:
+        content = bytes(raw) if raw else base64.b64decode(str(encoded or ""), validate=True)
+    except (TypeError, ValueError):
+        return None
+    if not content or len(content) > 8 * 1024 * 1024 or not matching_document(attachment, label, trainer_name):
+        return None
+    return {
+        "filename": filename,
+        "content_base64": base64.b64encode(content).decode(),
+        "subtype": _profile_attachment_subtype(filename),
+    }
+
+
+async def _requested_trainer_evidence(
+    db: AsyncIOMotorDatabase, requirement_id: str, trainer: Dict[str, Any], labels: List[str], trainer_name: str,
+) -> List[Dict[str, str]]:
+    """Find one type-and-name matched document per client request."""
+    if not labels:
+        return []
+    trainer_id = _clean(trainer.get("trainer_id"))
+    trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    sender_terms: List[Dict[str, Any]] = []
+    if trainer_email:
+        sender_terms.extend([
+            {"from_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+            {"sender": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+        ])
+    if not sender_terms:
+        return []
+    messages = db["client_emails"].find(
+        {"requirement_id": requirement_id, "trainer_id": {"$in": [trainer_id, "", None]}, "$or": sender_terms},
+        {"_id": 0, "attachments": 1},
+    ).sort("received_at", -1).limit(20)
+    matched: Dict[str, Dict[str, str]] = {}
+    async for message in messages:
+        for attachment in message.get("attachments") or []:
+            if not isinstance(attachment, dict):
+                continue
+            for label in labels:
+                if label not in matched:
+                    candidate = _requested_evidence_attachment(attachment, label, trainer_name)
+                    if candidate:
+                        matched[label] = candidate
+    return [matched[label] for label in labels if label in matched]
 
 
 def _profile_candidate_from_attachment(
@@ -3995,6 +4060,9 @@ async def send_shortlist_mail(
                 if payload.mail_type in ("mail1", "first"):
                     body = _ensure_trainer_mail1_commercial_section(body, requirement, t)
                     body = _ensure_mail1_slot_examples(body)
+                    missing_documents = [label for label in requested_documents(requirement) if label.lower() not in body.lower()]
+                    if missing_documents:
+                        body = _insert_before_signature(body, "Please also attach your " + " and ".join(missing_documents) + ".")
                 send_payload = {
                     "to": trainer_email,
                     "subject": subject,
@@ -4116,13 +4184,31 @@ async def send_shortlist_mail(
                         elif duration_confirmed:
                             raise RuntimeError("Mail 1 ToC generation returned no ToC data")
                         else:
-                            duration_note = (
-                                "The training duration is still being confirmed. We will share the course agenda "
-                                "once the duration is finalised."
+                            # Proposal work may start before the client fixes a
+                            # duration. A clearly labelled one-day agenda gives
+                            # the trainer scope to assess without inventing a
+                            # confirmed schedule.
+                            provisional_requirement = {**requirement, "duration_days": 1}
+                            provisional_toc = await _build_toc(provisional_requirement, t, db)
+                            if not provisional_toc:
+                                raise RuntimeError("Mail 1 provisional ToC generation returned no ToC data")
+                            toc_response = await _post_with_local_fallback(
+                                client,
+                                f"{DOC_SVC}/api/v1/documents/excel/toc",
+                                json={"toc": provisional_toc, "draft": True},
                             )
-                            if duration_note.lower() not in body.lower():
-                                body = _insert_before_signature(body, duration_note)
-                                send_payload["body"] = body
+                            if toc_response.status_code != 200 or not toc_response.content:
+                                raise RuntimeError("Mail 1 provisional ToC workbook generation failed")
+                            scope_attachments.append({
+                                "filename": f"{domain} - Provisional 1 Day TOC.xlsx",
+                                "content_base64": base64.b64encode(toc_response.content).decode(),
+                                "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            })
+                            body = _insert_before_signature(
+                                body,
+                                "A provisional one-day ToC is attached for feasibility review. Final duration and dates are pending client confirmation.",
+                            )
+                            send_payload["body"] = body
                     if requires_toc and not scope_attachments and duration_confirmed:
                         raise RuntimeError("Mail 1 requires a client or generated ToC attachment")
                     if scope_attachments:
@@ -4755,7 +4841,7 @@ async def send_client_slots(
             "slots_count": slot_count,
         }
 
-    if not _confirmed_training_dates(req):
+    if not _confirmed_training_dates(req) and not _is_proposal_requirement(req) and _confirmed_training_duration_days(req) is None:
         raise HTTPException(
             422,
             "Client handoff is waiting for confirmed training dates. The requirement will resume automatically when dates are added.",
@@ -4821,6 +4907,19 @@ async def send_client_slots(
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
     attachments: List[Dict[str, str]] = []
+    requested_evidence = requested_documents(req)
+    if requested_evidence:
+        evidence_attachments = await _requested_trainer_evidence(
+            db, payload.requirement_id, trainer, requested_evidence,
+            _clean(trainer.get("name") or trainer.get("trainer_name")),
+        )
+        if len(evidence_attachments) != len(requested_evidence):
+            raise HTTPException(
+                422,
+                "Requested trainer documents need review before client handoff. "
+                "Each document must be readable, match its requested type, and name the shortlisted trainer.",
+            )
+        attachments.extend(evidence_attachments)
     # A valid three-slot reply triggers one complete client handoff. Include
     # the profile, ToC, lab workbook, and slots as a single package even when
     # the original requirement did not separately enumerate every document.
@@ -4875,7 +4974,9 @@ async def send_client_slots(
     # approved system-generated ToC workbook.
     client_toc_topics = _client_supplied_toc_topics(req)
     client_toc_attachments = _client_toc_scope_attachments(req) if client_toc_supplied else []
-    toc_data = await _build_toc(req, trainer, db)
+    provisional_scope = _is_proposal_requirement(req) and _confirmed_training_duration_days(req) is None
+    quote_requirement = {**req, "duration_days": 1} if provisional_scope else req
+    toc_data = await _build_toc(quote_requirement, trainer, db)
     toc_attachment: Optional[bytes] = None
     if client_toc_attachments:
         attachments.extend(client_toc_attachments)
@@ -4965,8 +5066,12 @@ async def send_client_slots(
     raw_lab_hours = req.get("lab_hours_per_day")
     # User-approved estimate baseline: one learner, three lab hours per day.
     # Explicit invalid values still reach validation rather than being replaced.
-    supplied_participant_count = 1 if raw_participants in (None, "") else raw_participants
-    supplied_lab_hours = 3 if raw_lab_hours in (None, "") else _safe_float(raw_lab_hours, 0)
+    from shared.lab_cost_inputs import lab_quote_scope, current_quote_expiry
+    sample_quote = raw_participants in (None, "")
+    lab_toc, supplied_participant_count, supplied_lab_hours = lab_quote_scope(
+        toc_data, raw_participants, raw_lab_hours)
+    quote_expiries = []
+    lab_quote_requests = []
     participant_count = supplied_participant_count
     lab_hours_per_day = supplied_lab_hours
     lab_defaults_used = raw_participants in (None, "") or raw_lab_hours in (None, "")
@@ -4974,7 +5079,7 @@ async def send_client_slots(
     # costed automatically: stop once (422, not retried) when the client asked for
     # the estimate, otherwise send the handoff without it.
     toc_days = sum(max(1, int(_safe_float(day.get("duration_days") or day.get("days") or 1, 1)))
-                   for day in (toc_data or {}).get("days") or [] if isinstance(day, dict))
+                   for day in lab_toc.get("days") or [] if isinstance(day, dict))
     if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data and toc_days > 30:
         if explicit_lab_workbook:
             raise HTTPException(422, f"Lab-cost workbooks support 1 to 30 training days; this ToC has {toc_days} days. "
@@ -5048,7 +5153,7 @@ async def send_client_slots(
             from shared.lab_planning import default_cloud_mapping
             lab_mappings = {}
             for checked in checked_provider_inputs:
-                mapping = default_cloud_mapping(toc_data, {
+                mapping = default_cloud_mapping(lab_toc, {
                     "participant_count": participant_count,
                     "cloud_provider": checked["cloud_provider"],
                     "k8s_worker_nodes": 1,
@@ -5061,7 +5166,7 @@ async def send_client_slots(
                     from shared.lab_planning import plan_resources
                     async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
                         for checked in checked_provider_inputs:
-                            lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', toc_data, {
+                            lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', lab_toc, {
                                 "participant_count": participant_count,
                                 "hours_per_day": lab_hours_per_day,
                                 "cloud_provider": checked["cloud_provider"],
@@ -5071,17 +5176,18 @@ async def send_client_slots(
             async with httpx.AsyncClient(timeout=180) as client:
                 for checked in checked_provider_inputs:
                     # Resolve the saved catalog and refresh its public prices.
-                    lab_response = await _post_with_local_fallback(
-                        client,
-                        f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
-                        json={
-                            "toc": toc_data,
+                    quote_request = {
+                            "toc": lab_toc,
                             "draft": True,
                             "assumptions": {
                                 "cloud_provider": checked["cloud_provider"],
                                 "cloud_region": checked["cloud_region"],
                                 "hours_per_day": lab_hours_per_day,
                                 "participant_count": participant_count,
+                                "sample_quote": sample_quote,
+                                "local_costs_status": req.get("local_costs_status"),
+                                "license_costs_status": req.get("license_costs_status"),
+                                "lab_support_per_participant": req.get("lab_support_per_participant"),
                                 "clahan_margin_percent": 30,
                                 "client_lab_markup_percent": 30,
                             "include_default_hour_options": False,
@@ -5092,10 +5198,13 @@ async def send_client_slots(
                                 # The document service resolves the saved catalog.
                                 "pricing_selections": {},
                             },
-                        },
-                    )
+                        }
+                    lab_quote_requests.append(quote_request)
+                    lab_response = await _post_with_local_fallback(
+                        client, f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost", json=quote_request)
                     pricing_status = lab_response.headers.get("X-Lab-Cost-Pricing-Status", "")
                     if lab_response.status_code == 200 and lab_response.content:
+                        quote_expiries.append(current_quote_expiry(lab_response.headers))
                         lab_cost_attachments.append((checked["cloud_provider"], lab_response.content))
                     else:
                         lab_error = (lab_response.text[:1000] or
@@ -5146,6 +5255,8 @@ async def send_client_slots(
         client_toc_supplied=client_toc_supplied,
     )
     trainer_details_section = f"Trainer details shared for your review:\n{trainer_details}\n\n" if trainer_details else ""
+    if provisional_scope:
+        trainer_details_section += "The agenda and lab estimate use a provisional one-day scope. Final training duration and dates are pending.\n\n"
     training_summary = _client_training_summary(req)
     training_summary_section = f"Training details:\n{training_summary}\n\n" if training_summary else ""
     proposal_commercial_section = _proposal_client_commercial_section(req, trainer)
@@ -5160,6 +5271,7 @@ async def send_client_slots(
         revision_note = "We will update it if the participant count or lab hours change. "
         lab_cost_note = (
             ("The lab-cost estimate is attached. It follows the ToC you shared. " if client_toc_supplied else "The lab-cost estimate is attached. ")
+            + ("This is a one-day sample because the participant count is pending. " if sample_quote else "")
             + assumption_note
             + revision_note
             + "\n\n"
@@ -5260,6 +5372,8 @@ async def send_client_slots(
         "created_at": datetime.utcnow(),
         "approved_at": datetime.utcnow(),
         "slot_text": slots_text,
+        "lab_quote_requests": lab_quote_requests,
+        "lab_quote_valid_until": min(quote_expiries),
         "profile_source": profile_selection.get("source"),
         "profile_requirement_score": profile_selection.get("score"),
         "email_payload": email_payload,
@@ -5328,11 +5442,52 @@ async def rebuild_client_handoff(requirement_id: str, trainer_id: str, payload: 
     return await send_client_slots(SendClientSlotsRequest(requirement_id=requirement_id, trainer_id=trainer_id), db)
 
 
+async def refresh_handoff_lab_attachment(db, package):
+    from shared.lab_cost_inputs import current_quote_expiry
+    quotes = package.get("lab_quote_requests")
+    if not quotes:
+        raise HTTPException(422, "Rebuild this legacy handoff to price its original agenda with current rates.")
+    estimates = []
+    deadlines = []
+    async with httpx.AsyncClient(timeout=180) as client:
+        for quote in quotes:
+            response = await _post_with_local_fallback(
+                client, f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost", json=quote)
+            response.raise_for_status()
+            deadlines.append(current_quote_expiry(response.headers))
+            estimates.append({"provider": quote["assumptions"]["cloud_provider"],
+                              "content_base64": base64.b64encode(response.content).decode()})
+        if len(estimates) > 1:
+            response = await _post_with_local_fallback(client, f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost/combine",
+                                                       json={"estimates": estimates})
+            response.raise_for_status()
+        if not response.content:
+            raise ValueError("The refreshed lab workbook was empty")
+    content = base64.b64encode(response.content).decode()
+    mail = dict(package["email_payload"])
+    mail["attachments"] = [{**item, "content_base64": content} if "lab cost" in item["filename"].lower()
+                           else item for item in mail["attachments"]]
+    changes = {"email_payload": mail, "lab_quote_valid_until": min(deadlines)}
+    await db["client_handoff_packages"].update_one(
+        {"_id": package["_id"], "package_id": package["package_id"], "status": "approved"}, {"$set": changes})
+    return {**package, **changes}
+
+
 async def _deliver_client_handoff(package, db):
     # Only called by the durable delivery service after checking approval.
     if package.get("status") != "approved":
         raise HTTPException(409, "Package approval is required")
     email_payload = dict(package["email_payload"])
+    requirement = await db["requirements"].find_one({"requirement_id": package["requirement_id"]}) or {}
+    if requires_issuer_check(requirement):
+        raise HTTPException(422, "The client requested credential verification. Confirm authenticity with the issuing organization before sharing.")
+    labels = requested_documents(requirement)
+    if labels:
+        shortlist = await db["shortlists"].find_one({"requirement_id": package["requirement_id"]}) or {}
+        trainer = next((entry for entry in shortlist.get("top_trainers", []) if entry.get("trainer_id") == package["trainer_id"]), {})
+        evidence = await _requested_trainer_evidence(db, package["requirement_id"], trainer, labels, _clean(trainer.get("name") or trainer.get("trainer_name")))
+        if len(evidence) != len(labels) or any(item not in email_payload.get("attachments", []) for item in evidence):
+            raise HTTPException(422, "Rebuild the handoff with the requested documents matching this trainer.")
     # Keep the dashboard's AI wording choice through approved delivery. The
     # AI writer receives the verified scope and is constrained to wording only;
     # package attachments, slots, pricing, and workflow state stay frozen.
