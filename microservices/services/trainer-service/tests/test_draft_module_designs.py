@@ -140,3 +140,36 @@ def test_saved_design_reaches_the_generated_toc(tmp_path, monkeypatch):
     toc = validate_toc(generate_toc_from_dataset("SAP", 5), 5)
     assert all((day.get("design") or {}).get("origin") == drafts.ORIGIN for day in toc["days"])
     assert toc["quality"]["status"] == "approved"
+
+
+def test_model_resolution_follows_the_suggested_replacement_model():
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body = status, body
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    class Client:
+        def __init__(self):
+            self.generated = []
+
+        async def get(self, url, headers=None, params=None):
+            return Response(200, {"models": [
+                {"name": "models/gemini-2.5-flash", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/gemini-2.0-flash-lite", "supportedGenerationMethods": ["generateContent"]},
+                {"name": "models/text-embedding-004", "supportedGenerationMethods": ["embedContent"]}]})
+
+        async def post(self, url, headers=None, json=None):
+            model = url.split("/models/")[1].split(":")[0]
+            self.generated.append(model)
+            if model == "gemini-2.5-flash":
+                return Response(404, {"error": {"message": "This model models/gemini-2.5-flash is no longer available to "
+                                                           "new users. Please use models/gemini-3.8-flash instead."}})
+            return Response(200, {"candidates": []})
+
+    client = Client()
+    settings = {"provider": "gemini", "key": "secret", "model": "gemini-2.5-flash"}
+    assert asyncio.run(drafts.resolve_model(client, settings)) == "gemini-3.8-flash"
+    assert client.generated == ["gemini-2.5-flash", "gemini-3.8-flash"]

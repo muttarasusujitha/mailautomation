@@ -259,8 +259,28 @@ def _model_rank(name):
     return (family, any(tag in lower for tag in ("preview", "exp")), -float(version.group(1)) if version else 0.0, lower)
 
 
+def _gemini_body(model, system, user):
+    config = {"responseMimeType": "application/json", "temperature": 0.4, "maxOutputTokens": 32000}
+    if model.startswith("gemini-2.5-flash"):
+        config["thinkingConfig"] = {"thinkingBudget": 0}  # supported by 2.5 Flash; keeps drafts fast and cheap
+    return {"systemInstruction": {"parts": [{"text": system}]},
+            "contents": [{"role": "user", "parts": [{"text": user}]}], "generationConfig": config}
+
+
+async def _probe(client, settings, model):
+    """True if this key can generate with the model using the real request shape; the reply text when not."""
+    response = await client.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        headers={"x-goog-api-key": settings["key"]},
+        json=_gemini_body(model, "Reply with JSON only.", 'Return {"ok": true}'))
+    if response.status_code in (401, 403):
+        raise FatalProviderError(f"Gemini rejected the API key ({response.status_code}): "
+                                 + _provider_message(response, settings["key"]))
+    return True if not response.is_error else _provider_message(response, settings["key"])
+
+
 async def resolve_model(client, settings):
-    """Keep the configured model if this key can use it; otherwise pick the best available Flash model."""
+    """The first model that actually answers: configured, then any suggested by Gemini, then the best Flash models."""
     if settings["provider"] != "gemini":
         return settings["model"]
     response = await client.get("https://generativelanguage.googleapis.com/v1beta/models",
@@ -272,11 +292,19 @@ async def resolve_model(client, settings):
              if "generateContent" in (m.get("supportedGenerationMethods") or [])]
     names = [n for n in names if n.startswith("gemini") and not any(
         tag in n.lower() for tag in ("image", "tts", "embedding", "live", "audio", "vision", "robotics", "computer-use"))]
-    if settings["model"] in names:
-        return settings["model"]
-    if not names:
-        raise FatalProviderError("This Gemini key has no text models available for generateContent")
-    return sorted(names, key=_model_rank)[0]
+    queue, tried, notes = [settings["model"]] + sorted(names, key=_model_rank), [], []
+    while queue and len(tried) < 8:
+        model = queue.pop(0)
+        if model in tried:
+            continue
+        tried.append(model)
+        result = await _probe(client, settings, model)
+        if result is True:
+            return model
+        notes.append(f"{model}: {result[:80]}")
+        suggested = re.findall(r"models/([A-Za-z0-9.\-]+)", result)
+        queue[:0] = [name for name in suggested if name not in tried and name != model]
+    raise FatalProviderError("No usable Gemini model for this key. " + " | ".join(notes)[:300])
 
 
 async def _post(client, settings, system, user):
@@ -288,11 +316,7 @@ async def _post(client, settings, system, user):
     else:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings['model']}:generateContent"
         headers = {"x-goog-api-key": settings["key"]}  # never in the URL, so it cannot reach request logs
-        config = {"responseMimeType": "application/json", "temperature": 0.4, "maxOutputTokens": 32000}
-        if settings["model"].startswith("gemini-2.5-flash"):
-            config["thinkingConfig"] = {"thinkingBudget": 0}  # supported by 2.5 Flash; keeps drafts fast and cheap
-        body = {"systemInstruction": {"parts": [{"text": system}]},
-                "contents": [{"role": "user", "parts": [{"text": user}]}], "generationConfig": config}
+        body = _gemini_body(settings["model"], system, user)
     for attempt in range(6):
         response = await client.post(url, headers=headers, json=body)
         if response.status_code in (429, 500, 502, 503, 504):
