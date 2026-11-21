@@ -376,7 +376,7 @@ def send_gmail_oauth(
         logger.exception("Gmail OAuth send failed to %s", to)
         if is_send_quota_error(exc) and settings.effective_gmail_fallback_pass:
             logger.warning("Primary Gmail OAuth sender hit quota; retrying with fallback SMTP sender")
-            return send_smtp(
+            fallback_success, fallback_error = send_smtp(
                 to,
                 subject,
                 body,
@@ -392,6 +392,13 @@ def send_gmail_oauth(
                 attachments=attachments,
                 message_id_header=message_id_header,
             )
+            if fallback_success:
+                return True, ""
+            # Preserve Google's retry timestamp even when the SMTP fallback
+            # has a separate transport problem.  Workflow callers use it to
+            # defer the next attempt rather than marking the message as a
+            # permanent manual failure or repeatedly retrying immediately.
+            return False, f"{_friendly_send_error(exc)} SMTP fallback failed: {fallback_error}"
         return False, _friendly_send_error(exc)
 
 

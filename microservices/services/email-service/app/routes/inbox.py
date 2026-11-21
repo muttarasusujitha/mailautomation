@@ -13136,21 +13136,26 @@ async def _process_client_requirement_email(
     client_selection_result = await _handle_client_selection_reply(db, email_doc)
     if client_selection_result.get("attempted"):
         selection_success = bool(client_selection_result.get("success"))
-        selection_status = "auto_sent" if selection_success else "needs_manual_review"
+        selection_error = _clean((client_selection_result.get("mail5_result") or {}).get("error"))
+        retry_after = _parse_retry_after(selection_error)
+        retry_pending = bool(not selection_success and retry_after)
+        selection_status = "auto_sent" if selection_success else "pending_retry" if retry_pending else "needs_manual_review"
         await db["client_emails"].update_one(
             {"email_id": email_doc.get("email_id")},
             {"$set": {
                 "processed": True,
                 "processed_at": client_selection_result.get("selected_at") or now,
                 "status": selection_status,
-                "reply_status": "trainer_selected" if selection_success else "needs_manual_review",
+                "reply_status": "trainer_selected" if selection_success else "trainer_selection_retry_pending" if retry_pending else "needs_manual_review",
                 "classification_reason": client_selection_result.get("reason") or "client_selected_trainer",
                 "client_selection": client_selection_result,
                 "sentiment": "positive" if selection_success else "neutral",
-                "action": "trainer_selected" if selection_success else "manual_selection_review",
+                "action": "trainer_selected" if selection_success else "trainer_selection_retry_pending" if retry_pending else "manual_selection_review",
                 "auto_send_candidate": False,
                 "auto_send_eligible": False,
                 "auto_send_ready": False,
+                "auto_send_error": selection_error,
+                "auto_send_retry_after": retry_after,
                 "updated_at": _now(),
             }},
         )
@@ -13159,6 +13164,7 @@ async def _process_client_requirement_email(
             "email_id": email_doc.get("email_id"),
             "status": selection_status,
             "reason": client_selection_result.get("reason") or "client_selected_trainer",
+            "retry_after": retry_after if retry_pending else None,
             "client_selection": client_selection_result,
         }
 
