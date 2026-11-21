@@ -9627,7 +9627,7 @@ async def _auto_request_client_po(
 
 
 def _offline_logistics_gaps(requirement: Dict[str, Any]) -> List[tuple[str, tuple[str, ...]]]:
-    """Return only post-selection logistics the client has not already supplied."""
+    """Return only offline logistics the client has not already supplied."""
     groups = (
         ("travel", ("travel_policy", "travel_arrangement", "travel_reimbursement")),
         ("accommodation", ("accommodation_policy", "stay_details")),
@@ -9640,67 +9640,83 @@ def _offline_logistics_gaps(requirement: Dict[str, Any]) -> List[tuple[str, tupl
     ]
 
 
+def _is_offline_requirement(requirement: Dict[str, Any]) -> bool:
+    delivery_mode = " ".join(
+        _clean(requirement.get(key)).lower()
+        for key in ("delivery_mode", "training_mode", "mode")
+    )
+    return any(term in delivery_mode for term in (
+        "offline", "onsite", "on-site", "classroom", "in person", "in-person",
+    ))
+
+
+def _initial_offline_logistics_fields(extracted: Dict[str, Any], *, first_client_mail: bool) -> List[str]:
+    """Identify logistics to request in the first client reply only."""
+    if not first_client_mail or not _is_offline_requirement(extracted):
+        return []
+    return [label for label, _ in _offline_logistics_gaps(extracted)]
+
+
+def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> str:
+    """Add one concise offline-logistics request before the existing signature."""
+    if not fields:
+        return body
+    labels = {
+        "travel": "Travel terms: [details]",
+        "accommodation": "Accommodation: [details]",
+        "food": "Food: [details]",
+        "venue": "Confirmed training address: [details]",
+    }
+    request_lines = "\n".join(labels[field] for field in fields)
+    addition = (
+        "As this is an offline training request, please also confirm the following in this reply:\n\n"
+        f"{request_lines}\n\n"
+        "For travel, accommodation, and food, please include any approved caps, who will book or pay, and any receipt rules."
+    )
+    paragraphs = str(body or "").strip().split("\n\n")
+    if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):
+        return "\n\n".join([*paragraphs[:-1], addition, paragraphs[-1]])
+    return "\n\n".join([*paragraphs, addition])
+
+
+async def _record_initial_offline_logistics_request(
+    db: AsyncIOMotorDatabase,
+    *,
+    requirement_id: str,
+    fields: List[str],
+    client_email: str,
+    subject: str,
+    outbound_email_id: str = "",
+) -> Dict[str, Any]:
+    """Remember a delivered first-mail request so selection never asks again."""
+    if not requirement_id or not fields:
+        return {"recorded": False, "reason": "no_initial_logistics_request"}
+    query_id = f"client-initial-offline-logistics:{requirement_id}"
+    now = _now()
+    await db["trainer_logistics_queries"].update_one(
+        {"_id": query_id},
+        {"$set": {
+            "query_id": query_id,
+            "query_type": "initial_offline_logistics",
+            "requirement_id": requirement_id,
+            "client_email": client_email,
+            "clarification_subject": subject,
+            "clarification_message_id": outbound_email_id,
+            "required_fields": fields,
+            "status": "client_asked",
+            "updated_at": now,
+        }, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    return {"recorded": True, "query_id": query_id, "requested_fields": fields}
+
+
 async def _auto_request_offline_logistics(
     db: AsyncIOMotorDatabase, *, requirement_id: str, trainer_id: str, trainer_name: str, trainer_email: str,
 ) -> Dict[str, Any]:
-    """Ask for missing offline arrangements once, immediately after selection."""
-    requirements = db["requirements"]
-    find_requirement = getattr(requirements, "find_one", None)
-    if not callable(find_requirement):
-        return {"attempted": False, "reason": "requirement_read_unavailable"}
-    requirement = await find_requirement({"requirement_id": requirement_id}, {"_id": 0}) or {}
-    delivery_mode = " ".join(_clean(requirement.get(key)).lower() for key in ("delivery_mode", "training_mode", "mode"))
-    if not any(term in delivery_mode for term in ("offline", "onsite", "on-site", "classroom", "in person", "in-person")):
-        return {"attempted": False, "reason": "not_offline"}
-    gaps = _offline_logistics_gaps(requirement)
-    if not gaps:
-        return {"attempted": False, "reason": "details_already_present"}
-    existing = await db["trainer_logistics_queries"].find_one({
-        "requirement_id": requirement_id, "trainer_id": trainer_id,
-        "query_type": "post_selection_logistics", "status": {"$in": ["client_asked", "trainer_answer_sent"]},
-    }, {"_id": 0, "query_id": 1})
-    if existing:
-        return {"attempted": False, "reason": "already_requested", "query_id": existing.get("query_id")}
-    client_email = _email_address(requirement.get("client_email") or requirement.get("from_email") or requirement.get("requester_email"))
-    if not client_email:
-        return {"attempted": True, "success": False, "reason": "missing_client_email"}
-    label_text = {
-        "travel": "Travel terms",
-        "accommodation": "Accommodation",
-        "food": "Food",
-        "venue": "Confirmed training address",
-    }
-    requested_fields = [label for label, _ in gaps]
-    request_lines = "\n".join(f"{label_text[label]}: [details]" for label in requested_fields)
-    technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "training")
-    subject = f"Offline Training Arrangements Required - {technology} [{requirement_id}]"
-    body = (
-        f"Hi {_clean(requirement.get('client_name') or requirement.get('client_company')) or 'Team'},\n\n"
-        f"{trainer_name or 'The selected trainer'} has been selected for the offline {technology} training. "
-        "Please reply with the following outstanding arrangements before any booking is made:\n\n"
-        f"{request_lines}\n\n"
-        "Please include approved caps, who books or pays, and any receipt rules for each expense.\n\n"
-        "Regards,\nClahan Technologies"
-    )
-    from app.routes.send import SendEmailRequest, send_single_email
-    key = f"client-offline-logistics:{requirement_id}:{trainer_id}"
-    sent = await send_single_email(SendEmailRequest(
-        to=client_email, subject=subject, body=body, requirement_id=requirement_id,
-        trainer_id=trainer_id, mail_type="client_post_selection_logistics", idempotency_key=key,
-    ), db)
-    ok = sent.get("success") is True
-    error = sent.get("error") or ""
-    now = _now()
-    query_id = key
-    await db["trainer_logistics_queries"].update_one({"_id": key}, {"$set": {
-        "query_id": query_id, "query_type": "post_selection_logistics",
-        "requirement_id": requirement_id, "trainer_id": trainer_id,
-        "trainer_name": trainer_name, "trainer_email": trainer_email,
-        "client_email": client_email, "clarification_subject": subject,
-        "clarification_message_id": sent.get("email_id"), "required_fields": requested_fields,
-        "status": "client_asked" if ok else "client_ask_failed", "updated_at": now,
-    }, "$setOnInsert": {"created_at": now}}, upsert=True)
-    return {"attempted": True, "success": bool(ok), "query_id": query_id, "missing_fields": requested_fields, "error": error or ""}
+    """Legacy safety guard: offline logistics belong in the first client reply."""
+    del db, requirement_id, trainer_id, trainer_name, trainer_email
+    return {"attempted": False, "reason": "offline_logistics_requested_in_first_client_reply"}
 
 
 async def _handle_client_selection_reply(
@@ -14492,6 +14508,18 @@ async def _process_client_requirement_email(
         and not extracted.get("is_non_client_email")
         and not _is_reply_thread(subject, email_doc)
     )
+    initial_offline_logistics_fields = _initial_offline_logistics_fields(
+        extracted,
+        first_client_mail=is_initial_requirement_request,
+    )
+    if reply and initial_offline_logistics_fields:
+        reply = {
+            **reply,
+            "body": _append_initial_offline_logistics_request(
+                reply.get("body") or "",
+                initial_offline_logistics_fields,
+            ),
+        }
     classifier_blocked_auto_send = bool(
         classification.get("requires_human")
         or not classification.get("auto_reply_allowed", True)
@@ -15264,6 +15292,20 @@ async def _process_client_requirement_email(
                     "auto_send_ready": False,
                     "auto_send_retry_after": None,
                 })
+                if initial_offline_logistics_fields:
+                    try:
+                        send_result["initial_offline_logistics"] = await _record_initial_offline_logistics_request(
+                            db,
+                            requirement_id=requirement_id,
+                            fields=initial_offline_logistics_fields,
+                            client_email=_email_address(email_doc.get("from_email") or email_doc.get("sender")),
+                            subject=auto_reply_result.get("subject") or reply.get("subject") or "",
+                            outbound_email_id=auto_reply_result.get("email_id") or "",
+                        )
+                    except Exception:
+                        # The client reply has already been delivered. Keep the requirement
+                        # moving and surface a log if its audit record could not be written.
+                        logger.exception("Could not record initial offline logistics request for %s", requirement_id)
                 if should_start_trainer_search:
                     try:
                         trainer_send_result = await _send_initial_trainer_mail(requirement_id, extracted)
