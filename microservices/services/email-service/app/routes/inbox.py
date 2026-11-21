@@ -46,6 +46,12 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+
+class OfflineCoordinationCompleteRequest(BaseModel):
+    booking_complete: bool = False
+    actual_expenses: Dict[str, float] = {}
+    whatsapp_invite_link: str = ""
+
 CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 DOCUMENT_SERVICE_URL = "http://document-service:8006"
@@ -9763,6 +9769,69 @@ async def _auto_request_offline_logistics(
     return {"attempted": False, "reason": "offline_logistics_requested_in_first_client_reply"}
 
 
+@router.post("/offline-coordination/{requirement_id}/complete")
+async def complete_offline_coordination(
+    requirement_id: str,
+    payload: OfflineCoordinationCompleteRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement or not _is_offline_requirement(requirement):
+        raise HTTPException(404, "Offline requirement not found")
+    task_id = requirement.get("offline_coordination_task_id") or f"offline-coordination:{requirement_id}:{requirement.get('selected_trainer_id') or ''}"
+    task = await db["offline_coordination_tasks"].find_one({"_id": task_id}, {"_id": 0})
+    if not task:
+        raise HTTPException(409, "Offline coordination task is missing")
+    if requirement.get("trainer_po_approval_status") != "sent":
+        raise HTTPException(409, "Approve and send the trainer PO before completing offline coordination")
+    clahan_items = [key for key, owner in (task.get("logistics_owners") or {}).items() if owner == "clahan"]
+    if clahan_items and task.get("booking_request_status") != "sent":
+        raise HTTPException(409, "Send the travel agent booking request before completing offline coordination")
+    if not payload.booking_complete:
+        raise HTTPException(400, "Confirm that Clahan-arranged bookings are complete")
+    if any(float(value) < 0 for value in payload.actual_expenses.values()):
+        raise HTTPException(400, "Booking costs cannot be negative")
+    if task.get("whatsapp_group_requested") and not payload.whatsapp_invite_link.strip():
+        raise HTTPException(400, "Add the WhatsApp group invite link requested by the client")
+    if task.get("whatsapp_group_requested"):
+        invite_body = (
+            "The WhatsApp group for coordinating the offline training is ready. "
+            f"Join using this invite link: {payload.whatsapp_invite_link.strip()}"
+        )
+        recipients = list(dict.fromkeys(filter(None, [task.get("client_email"), task.get("trainer_email")])))
+        if len(recipients) != 2:
+            raise HTTPException(409, "Client and trainer email addresses are required to share the group invite")
+        for recipient in recipients:
+            success, error = await _send_verified_workflow_email(
+                db, requirement_id, task.get("trainer_id"), "offline_whatsapp_group_invite",
+                to=recipient, subject=f"Offline training coordination group - {requirement_id}",
+                body=invite_body, message_id_header=generate_message_id(),
+            )
+            if not success:
+                raise HTTPException(502, f"Could not send WhatsApp group invite to {recipient}: {error}")
+    now = _now()
+    await db["offline_coordination_tasks"].update_one({"_id": task_id}, {"$set": {
+        "status": "complete", "booking_complete": True,
+        "actual_expenses": payload.actual_expenses,
+        "whatsapp_group_invite_link": payload.whatsapp_invite_link.strip(),
+        "whatsapp_group_status": "invite_link_ready" if payload.whatsapp_invite_link.strip() else "not_requested",
+        "completed_at": now, "updated_at": now,
+    }})
+    await db["requirements"].update_one({"requirement_id": requirement_id}, {"$set": {
+        "offline_coordination_status": "complete",
+        "offline_logistics.actual_expenses": payload.actual_expenses,
+        "offline_logistics.whatsapp_group_invite_link": payload.whatsapp_invite_link.strip(),
+        "offline_logistics.completed_at": now,
+        "updated_at": now,
+    }})
+    result = await _auto_request_client_po(
+        db, requirement_id=requirement_id, trainer_id=str(requirement.get("selected_trainer_id") or ""),
+    )
+    if not result.get("success") and not result.get("skipped"):
+        raise HTTPException(502, f"Offline coordination is complete, but the client PO request failed: {result.get('reason') or result.get('error') or result.get('body')}")
+    return {"success": True, "status": "client_po_requested", "po_request": result}
+
+
 async def _handle_client_selection_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -9880,6 +9949,7 @@ async def _handle_client_selection_reply(
                 "trainer_email": trainer_email,
                 "client_email": requirement.get("client_email") or email_doc.get("from_email") or "",
                 "status": "pending_trainer_po_approval",
+                "logistics_owners": (requirement.get("offline_logistics") or {}).get("owners") or {},
                 "whatsapp_group_requested": bool(re.search(r"(?:create|make|open|start).{0,50}whats?app\s+group", text, re.IGNORECASE)),
                 "whatsapp_group_status": "staff_action_required",
                 "booking_requests": [],
@@ -9887,6 +9957,32 @@ async def _handle_client_selection_reply(
             }, "$setOnInsert": {"created_at": now}},
             upsert=True,
         )
+        client_training_amount = next((
+            float(requirement.get(key)) for key in ("training_commercial_amount", "training_commercial", "client_budget", "budget_total")
+            if isinstance(requirement.get(key), (int, float)) and float(requirement.get(key)) > 0
+        ), 0.0)
+        if client_training_amount:
+            await db["finance_approvals"].update_one(
+                {"finance_id": f"trainer-po:{requirement_id}:{trainer_id}"},
+                {"$setOnInsert": {
+                    "finance_id": f"trainer-po:{requirement_id}:{trainer_id}",
+                    "request_type": "trainer_po",
+                    "status": "pending_human_approval",
+                    "requirement_id": requirement_id,
+                    "trainer_id": trainer_id,
+                    "trainer_name": trainer_name,
+                    "trainer_email": trainer_email,
+                    "client_name": requirement.get("client_name") or requirement.get("client_company") or "",
+                    "client_email": requirement.get("client_email") or "",
+                    "training_domain": technology,
+                    "training_dates": requirement.get("training_dates") or requirement.get("timeline_start") or "",
+                    "po_number": f"TPO-{requirement_id}-{trainer_id}",
+                    "total_amount": round(client_training_amount * 0.70, 2),
+                    "created_at": now,
+                    "updated_at": now,
+                }},
+                upsert=True,
+            )
         await db["requirements"].update_one(
             {"requirement_id": requirement_id},
             {"$set": {
