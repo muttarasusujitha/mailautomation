@@ -312,6 +312,31 @@ def _quota_details(response):
     return daily, wait
 
 
+def _quota_hit(response):
+    """Which quota a 429 hit, e.g. 'GenerateRequestsPerDayPerProjectPerModel-FreeTier, limit 0, model x'.
+
+    Gemini's message is long and cut short in logs; the structured details name the quota itself.
+    """
+    try:
+        details = (response.json().get("error") or {}).get("details") or []
+    except ValueError:
+        details = []
+    hits = []
+    for detail in details:
+        for violation in detail.get("violations") or []:
+            parts = [str(violation.get("quotaId") or violation.get("quotaMetric") or "unknown quota")]
+            if violation.get("quotaValue") not in (None, ""):
+                parts.append(f"limit {violation['quotaValue']}")
+            model = (violation.get("quotaDimensions") or {}).get("model")
+            if model:
+                parts.append(f"model {model}")
+            hits.append(", ".join(parts))
+    text = "; ".join(dict.fromkeys(hits)) or "quota details not given"
+    if "freetier" in text.lower():
+        text += " (the key's Google Cloud project is on the free tier; enable billing on it for more)"
+    return text
+
+
 def _model_rank(name):
     lower = name.lower()
     version = re.search(r"gemini-(\d+(?:\.\d+)?)", lower)
@@ -337,14 +362,37 @@ async def _probe(client, settings, model):
         raise FatalProviderError(f"Gemini rejected the API key ({response.status_code}): "
                                  + _provider_message(response, settings["key"]))
     if response.status_code == 429 and _quota_details(response)[0]:
-        raise FatalProviderError("Daily Gemini quota reached: " + _provider_message(response, settings["key"]))
+        return _DailyQuota(_quota_hit(response))
     return True if not response.is_error else _provider_message(response, settings["key"])
 
 
+class _DailyQuota(str):
+    """A probe answer meaning the model's daily quota is used up for this key's project."""
+
+
+def _is_flash(name):
+    lower = name.lower()
+    return "flash" in lower and "lite" not in lower
+
+
+def _avoided_models():
+    """Models the live application uses (LIVE_GEMINI_MODEL, comma-separated); drafting never uses them.
+
+    Gemini counts quota per project and per model, so keeping off the live model means drafting
+    cannot use up the live application's quota even if both keys share a Google Cloud project.
+    """
+    return {name.strip() for name in os.environ.get("LIVE_GEMINI_MODEL", "").split(",") if name.strip()}
+
+
 async def resolve_model(client, settings):
-    """The first model that actually answers: configured, then any suggested by Gemini, then the best Flash models."""
+    """The first model that actually answers: configured, then any suggested by Gemini, then the best Flash models.
+
+    Quota is counted per model, so when one model's daily quota is used up the other Flash
+    models are tried; the run stops only when every one tried is out of quota.
+    """
     if settings["provider"] != "gemini":
         return settings["model"]
+    avoided = _avoided_models()
     response = await client.get("https://generativelanguage.googleapis.com/v1beta/models",
                                 headers={"x-goog-api-key": settings["key"]}, params={"pageSize": 200})
     if response.is_error:
@@ -354,18 +402,24 @@ async def resolve_model(client, settings):
              if "generateContent" in (m.get("supportedGenerationMethods") or [])]
     names = [n for n in names if n.startswith("gemini") and not any(
         tag in n.lower() for tag in ("image", "tts", "embedding", "live", "audio", "vision", "robotics", "computer-use"))]
-    queue, tried, notes = [settings["model"]] + sorted(names, key=_model_rank), [], []
+    queue, tried, notes, out_of_quota = [settings["model"]] + sorted(names, key=_model_rank), [], [], []
     while queue and len(tried) < 8:
         model = queue.pop(0)
-        if model in tried:
+        if model in tried or model in avoided:
             continue
         tried.append(model)
         result = await _probe(client, settings, model)
         if result is True:
             return model
+        if isinstance(result, _DailyQuota):
+            out_of_quota.append(f"{model}: {result}")
+            queue = [name for name in queue if _is_flash(name)]  # after a quota stop, only full Flash models
+            continue
         notes.append(f"{model}: {result[:80]}")
         suggested = re.findall(r"models/([A-Za-z0-9.\-]+)", result)
         queue[:0] = [name for name in suggested if name not in tried and name != model]
+    if out_of_quota:
+        raise FatalProviderError("Daily Gemini quota reached for every model tried: " + " | ".join(out_of_quota)[:700])
     raise FatalProviderError("No usable Gemini model for this key. " + " | ".join(notes)[:300])
 
 
@@ -386,7 +440,7 @@ async def _post(client, settings, system, user):
             if daily:
                 # A daily quota does not recover by retrying; stop so the rest of the quota stays
                 # available to the live application, and continue on another day or another key.
-                raise FatalProviderError("Daily Gemini quota reached: " + _provider_message(response, settings["key"]))
+                raise FatalProviderError(f"Daily Gemini quota reached ({settings['model']}): {_quota_hit(response)}")
             await asyncio.sleep(min(120.0, retry_seconds or 5 * 2 ** attempt))
             continue
         if response.status_code in (500, 502, 503, 504):

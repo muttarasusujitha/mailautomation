@@ -164,6 +164,50 @@ def test_model_resolution_follows_the_suggested_replacement_model():
     assert client.generated == ["gemini-2.5-flash", "gemini-3.8-flash"]
 
 
+def test_out_of_quota_model_moves_to_another_flash_model_and_never_the_live_one(monkeypatch):
+    import pytest
+
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body = status, body
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    def daily(model):
+        return Response(429, {"error": {"message": "You exceeded your current quota, please check your plan", "details": [
+            {"@type": "type.googleapis.com/google.rpc.QuotaFailure", "violations": [{
+                "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "0",
+                "quotaDimensions": {"model": model}}]}]}})
+
+    class Client:
+        def __init__(self, out_of_quota):
+            self.out_of_quota, self.generated = out_of_quota, []
+
+        async def get(self, url, headers=None, params=None):
+            return Response(200, {"models": [{"name": f"models/{name}", "supportedGenerationMethods": ["generateContent"]}
+                                             for name in ("gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.8-flash-lite",
+                                                          "gemini-3.8-pro")]})
+
+        async def post(self, url, headers=None, json=None):
+            model = url.split("/models/")[1].split(":")[0]
+            self.generated.append(model)
+            return daily(model) if model in self.out_of_quota else Response(200, {"candidates": []})
+
+    monkeypatch.setenv("LIVE_GEMINI_MODEL", "gemini-2.5-flash")
+    settings = {"provider": "gemini", "key": "secret", "model": "gemini-3.8-flash"}
+    client = Client({"gemini-3.8-flash"})
+    assert asyncio.run(drafts.resolve_model(client, settings)) == "gemini-3.6-flash"
+    assert client.generated == ["gemini-3.8-flash", "gemini-3.6-flash"]  # the live model is never tried
+
+    client = Client({"gemini-3.8-flash", "gemini-3.6-flash"})
+    with pytest.raises(drafts.FatalProviderError) as stopped:
+        asyncio.run(drafts.resolve_model(client, settings))
+    assert "PerDay" in str(stopped.value) and "limit 0" in str(stopped.value) and "free tier" in str(stopped.value)
+    assert client.generated == ["gemini-3.8-flash", "gemini-3.6-flash"]  # no lite, pro or live model after a quota stop
+
+
 def test_course_selection_covers_every_course_once():
     every = drafts.select_courses("all")
     assert set(drafts.DEFAULT_COURSES) <= set(every)

@@ -67,9 +67,14 @@ jobs:
       - name: Require the separate drafting key
         env:
           DESIGN_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY }}
+          LIVE_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           if [ -z "$DESIGN_KEY" ]; then
             echo "::error::Add a DESIGN_GEMINI_API_KEY repository secret (a Gemini key separate from the live app's GEMINI_API_KEY) and re-run."
+            exit 1
+          fi
+          if [ "$DESIGN_KEY" = "$LIVE_KEY" ]; then
+            echo "::error::DESIGN_GEMINI_API_KEY is the live app's GEMINI_API_KEY. Create a key in a different Google Cloud project, because quota is shared per project."
             exit 1
           fi
       - name: Group the courses that still need designs
@@ -111,6 +116,8 @@ jobs:
           # A separate key keeps drafting from using the live application's quota.
           GEMINI_API_KEY: ${{ secrets.DESIGN_GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.DESIGN_GEMINI_MODEL || 'gemini-2.5-flash' }}
+          # The live app's model (deploy.yml); quota is per model, so drafting never uses it.
+          LIVE_GEMINI_MODEL: gemini-2.5-flash
         run: >
           python -m app.draft_module_designs --run --course "${{ matrix.courses }}"
           --per-course "$PER_COURSE" --concurrency 2 --max-minutes 300
@@ -146,7 +153,7 @@ jobs:
       - name: Put the design files in place
         working-directory: microservices/services/trainer-service
         run: |
-          mkdir -p app/module_designs
+          mkdir -p app/module_designs "$RUNNER_TEMP/artifacts"
           find "$RUNNER_TEMP/artifacts" -name '*.json' ! -name 'summary-*.json' -exec cp {} app/module_designs/ \;
           python - <<'PY'
           import glob, json, os
