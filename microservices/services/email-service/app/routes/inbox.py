@@ -9712,9 +9712,9 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
     if not fields:
         return body
     labels = {
-        "travel": "Travel: who arranges and pays (Client or Clahan), approved cap, and terms",
-        "accommodation": "Accommodation: who arranges and pays (Client or Clahan), approved cap, and terms",
-        "food": "Food: who arranges and pays (Client or Clahan), approved cap, and terms",
+        "travel": "Travel terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "accommodation": "Accommodation terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "food": "Food terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
         "venue": "Confirmed training address: [details]",
     }
     request_lines = "\n".join(labels[field] for field in fields)
@@ -9938,7 +9938,10 @@ async def _handle_client_selection_reply(
         or email_doc.get("domain")
         or "training"
     )
-    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    requirements_collection = db["requirements"]
+    requirement_reader = getattr(requirements_collection, "find_one", None)
+    requirement = await requirement_reader({"requirement_id": requirement_id}, {"_id": 0}) if requirement_reader else {}
+    requirement = requirement or {}
     offline = _is_offline_requirement(requirement)
     if offline:
         coord_id = f"offline-coordination:{requirement_id}:{trainer_id}"
