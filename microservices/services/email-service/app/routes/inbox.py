@@ -13128,6 +13128,46 @@ async def _process_client_requirement_email(
             "auto_reply": send_result,
         }
 
+    # A client can reply to the interview invitation with a trainer decision
+    # ("he is selected") rather than a slot confirmation.  That message is
+    # still linked to ``client_slots``; check the explicit trainer decision
+    # first so it does not fall into the slot parser and become a manual
+    # review merely because it contains no second date/time.
+    client_selection_result = await _handle_client_selection_reply(db, email_doc)
+    if client_selection_result.get("attempted"):
+        selection_success = bool(client_selection_result.get("success"))
+        selection_error = _clean((client_selection_result.get("mail5_result") or {}).get("error"))
+        retry_after = _parse_retry_after(selection_error)
+        retry_pending = bool(not selection_success and retry_after)
+        selection_status = "auto_sent" if selection_success else "pending_retry" if retry_pending else "needs_manual_review"
+        await db["client_emails"].update_one(
+            {"email_id": email_doc.get("email_id")},
+            {"$set": {
+                "processed": True,
+                "processed_at": client_selection_result.get("selected_at") or now,
+                "status": selection_status,
+                "reply_status": "trainer_selected" if selection_success else "trainer_selection_retry_pending" if retry_pending else "needs_manual_review",
+                "classification_reason": client_selection_result.get("reason") or "client_selected_trainer",
+                "client_selection": client_selection_result,
+                "sentiment": "positive" if selection_success else "neutral",
+                "action": "trainer_selected" if selection_success else "trainer_selection_retry_pending" if retry_pending else "manual_selection_review",
+                "auto_send_candidate": False,
+                "auto_send_eligible": False,
+                "auto_send_ready": False,
+                "auto_send_error": selection_error,
+                "auto_send_retry_after": retry_after,
+                "updated_at": _now(),
+            }},
+        )
+        return {
+            "processed": True,
+            "email_id": email_doc.get("email_id"),
+            "status": selection_status,
+            "reason": client_selection_result.get("reason") or "client_selected_trainer",
+            "retry_after": retry_after if retry_pending else None,
+            "client_selection": client_selection_result,
+        }
+
     # Client replies to slot-selection emails are operational confirmations,
     # not requirement replies. Handle them before generic sentiment analysis.
     source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
