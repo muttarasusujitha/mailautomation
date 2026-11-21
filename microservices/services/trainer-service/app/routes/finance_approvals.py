@@ -136,20 +136,47 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
         {"$set": {"status": "pending_completion", "trainer_po_id": po_id, "trainer_po_sent_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
     )
     requirement = await db["requirements"].find_one({"requirement_id": approval.get("requirement_id")}, {"_id": 0}) or {}
+    task = await db["offline_coordination_tasks"].find_one(
+        {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")}, {"_id": 0},
+    ) or {}
+    if task.get("whatsapp_group_requested"):
+        try:
+            async with httpx.AsyncClient(timeout=35) as client:
+                group = await client.post(
+                    f"{settings.NOTIFICATION_SERVICE_URL.rstrip('/')}/api/v1/notifications/whatsapp/groups/offline/{approval.get('requirement_id')}"
+                )
+            group.raise_for_status()
+            group_result = group.json()
+            await db["offline_coordination_tasks"].update_one(
+                {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
+                {"$set": {"whatsapp_group_creation_result": group_result, "updated_at": datetime.utcnow()}},
+            )
+        except Exception as exc:
+            await db["offline_coordination_tasks"].update_one(
+                {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
+                {"$set": {"whatsapp_group_status": "staff_action_required", "whatsapp_group_error": str(exc)[:500], "updated_at": datetime.utcnow()}},
+            )
     owners = (requirement.get("offline_logistics") or {}).get("owners") or {}
     clahan_items = [item for item, owner in owners.items() if owner == "clahan"]
     if clahan_items:
         admin = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0, "offlineOperations": 1}) or {}
         agent_email = str((admin.get("offlineOperations") or {}).get("travelAgentEmail") or "").strip()
         if agent_email:
+            logistics = requirement.get("offline_logistics") or {}
+            client_answers = logistics.get("answers") or {}
+            client_limits = logistics.get("limits") or {}
             request_body = (
-                f"Booking request for requirement {approval.get('requirement_id')}\\n"
-                f"Training: {approval.get('training_domain') or 'Training'}\\n"
-                f"Dates: {approval.get('training_dates') or 'Please confirm'}\\n"
-                f"Selected trainer: {approval.get('trainer_name')}\\n"
-                f"Client location: {requirement.get('location') or requirement.get('preferred_location') or 'Please confirm'}\\n"
-                f"Clahan-arranged items: {', '.join(clahan_items)}\\n\\n"
-                "Please provide available booking options and total cost for approval before purchasing."
+                f"Booking request for requirement {approval.get('requirement_id')}\n"
+                f"Training: {approval.get('training_domain') or 'Training'}\n"
+                f"Dates: {approval.get('training_dates') or 'Please confirm'}\n"
+                f"Selected trainer: {approval.get('trainer_name')}\n"
+                f"Client location: {requirement.get('location') or requirement.get('preferred_location') or 'Please confirm'}\n"
+                f"Clahan-arranged items: {', '.join(clahan_items)}\n\n"
+                f"Client logistics details: {client_answers or 'Please use the confirmed training dates and location.'}\n"
+                f"Client limits: {client_limits or 'No separate limit was provided.'}\n\n"
+                "Please book the Clahan-arranged items above using the lowest suitable available option and within any client-stated limits. "
+                "Do not book items the client is arranging. If the dates, traveler details, or a client limit are missing or unclear, reply for clarification before purchasing. "
+                "Please reply with the confirmed itinerary, booking references, final amount paid for each item, and receipts."
             )
             try:
                 async with httpx.AsyncClient(timeout=30) as client:

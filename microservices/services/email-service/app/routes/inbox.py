@@ -9791,12 +9791,15 @@ async def complete_offline_coordination(
         raise HTTPException(400, "Confirm that Clahan-arranged bookings are complete")
     if any(float(value) < 0 for value in payload.actual_expenses.values()):
         raise HTTPException(400, "Booking costs cannot be negative")
-    if task.get("whatsapp_group_requested") and not payload.whatsapp_invite_link.strip():
+    whatsapp_invite_link = payload.whatsapp_invite_link.strip() or str(task.get("whatsapp_group_invite_link") or "").strip()
+    if task.get("whatsapp_group_requested") and not whatsapp_invite_link:
         raise HTTPException(400, "Add the WhatsApp group invite link requested by the client")
     if task.get("whatsapp_group_requested"):
+        if not whatsapp_invite_link.startswith("https://chat.whatsapp.com/"):
+            raise HTTPException(400, "Use the WhatsApp invite link from Meta or the group administrator")
         invite_body = (
             "The WhatsApp group for coordinating the offline training is ready. "
-            f"Join using this invite link: {payload.whatsapp_invite_link.strip()}"
+            f"Join using this invite link: {whatsapp_invite_link}"
         )
         recipients = list(dict.fromkeys(filter(None, [task.get("client_email"), task.get("trainer_email")])))
         if len(recipients) != 2:
@@ -9813,14 +9816,14 @@ async def complete_offline_coordination(
     await db["offline_coordination_tasks"].update_one({"_id": task_id}, {"$set": {
         "status": "complete", "booking_complete": True,
         "actual_expenses": payload.actual_expenses,
-        "whatsapp_group_invite_link": payload.whatsapp_invite_link.strip(),
-        "whatsapp_group_status": "invite_link_ready" if payload.whatsapp_invite_link.strip() else "not_requested",
+        "whatsapp_group_invite_link": whatsapp_invite_link,
+        "whatsapp_group_status": "invite_link_ready" if whatsapp_invite_link else "not_requested",
         "completed_at": now, "updated_at": now,
     }})
     await db["requirements"].update_one({"requirement_id": requirement_id}, {"$set": {
         "offline_coordination_status": "complete",
         "offline_logistics.actual_expenses": payload.actual_expenses,
-        "offline_logistics.whatsapp_group_invite_link": payload.whatsapp_invite_link.strip(),
+        "offline_logistics.whatsapp_group_invite_link": whatsapp_invite_link,
         "offline_logistics.completed_at": now,
         "updated_at": now,
     }})
