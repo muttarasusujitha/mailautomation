@@ -792,7 +792,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
             "deliverable", "assessment", "scenario", "scenarios", "modules", "delivery_steps", "delivery_basis",
             "proposed_fields", "preparation_requirements", "acceptance_checks", "prerequisites",
             "source_urls", "review_status", "content_quality_stage", "content_enrichment_version",
-            "minutes", "duration_basis", "unresolved_questions", "outline", "design") if key in item}
+            "minutes", "duration_basis", "unresolved_questions", "outline", "design", "design_ref") if key in item}
            if topic_name == item.get("topic") else {}),
         "learning_objectives": (deepcopy(item.get("learning_objectives"))
             if topic_name == item.get("topic") and item.get("learning_objectives")
@@ -822,7 +822,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
     ])
     if preserve_content:
         for key in (
-            "lab", "lab_task", "deliverable", "assessment", "scenario", "scenarios", "modules", "outline", "design",
+            "lab", "lab_task", "deliverable", "assessment", "scenario", "scenarios", "modules", "outline", "design", "design_ref",
             "learning_objectives", "acceptance_checks", "prerequisites",
             "preparation_requirements", "delivery_steps", "minutes",
             "duration_basis", "delivery_basis", "source_urls", "review_status",
@@ -838,6 +838,14 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
             {"activity": f"Run validation, exception handling, and review for {topic_name}", "evidence": "Acceptance results, failure explanation, and submitted deliverable", "minutes": 150},
         ]
         entry["minutes"] = 420
+    # The detailed module design is stored apart from the course file; read it only for this
+    # day, and only while the day still teaches the module it was designed for.
+    if not isinstance(entry.get("design"), dict) and isinstance(item.get("design_ref"), dict) \
+            and topic_name == item.get("topic"):
+        from app.module_design_store import design_for
+        design = design_for(item["design_ref"])
+        if design:
+            entry["design"] = design
     return entry
 
 

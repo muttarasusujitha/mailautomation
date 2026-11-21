@@ -12,9 +12,15 @@ design in authored_outlines.json, which is also the example the model follows).
 Every draft is normalised and must pass ``design_problems`` plus the checks
 below (no prices, real questions, a lab topic) before it is saved. A failing
 draft gets one retry with its problems listed; if it still fails it is skipped
-and reported, and a later run retries it. Designs are saved straight into the
-course files as model drafts pending technical review, so an interrupted run
-keeps its progress. Modules that already have a design are never redrafted.
+and reported, and a later run retries it. Designs are saved batch by batch to
+``module_designs/<course>.json`` (see app.module_design_store) as model drafts
+pending technical review, so an interrupted run keeps its progress. Course
+files are never changed. Modules that already have a design are never
+redrafted, and placeholder modules (generic "<topic> concepts / configuration"
+subtopics) are skipped because a design would hide that they need real content.
+
+    python -m app.draft_module_designs --plan --select rest   # courses other than the default 15
+    python -m app.draft_module_designs --plan --select all    # every course the generator can use
 """
 import argparse
 import asyncio
@@ -25,6 +31,7 @@ import re
 from copy import deepcopy
 from pathlib import Path
 
+from app import module_design_store
 from app.apply_authored_outlines import design_problems
 
 ROOT = Path(__file__).parent
@@ -35,6 +42,9 @@ ORIGIN = "model_draft_pending_technical_review"
 LEVELS = ("beginner", "intermediate", "advanced")
 MODULE_MINUTES = 420
 TBC = "To be confirmed"
+DESIGN_DIR = module_design_store.DIR
+SPECIAL_FILES = {"categories.json", "combined.json"}
+_GENERIC_END = re.compile(r"\b(concepts|configuration|hands-on workflow|troubleshooting|best practices|validation)$", re.I)
 # The 15 most-requested courses in the mailbox archive (by dataset file).
 DEFAULT_COURSES = ("generative_ai", "azure", "testing_qa", "sap", "devops_30", "devops_60", "csharp", "java",
                    "cybersecurity", "aws", "react", "oracle_database", "data_engineering", "sre", "python",
@@ -82,6 +92,32 @@ def _strings(value):
     return [_text(item) for item in (value or []) if _text(item)] if isinstance(value, list) else []
 
 
+def all_courses():
+    """Every level and compact course file the ToC generator loads, by file name."""
+    names = [path.stem for path in sorted(LEVEL_DIR.glob("*.json")) if path.name not in SPECIAL_FILES
+             and "levels" in json.loads(path.read_text(encoding="utf-8-sig"))]
+    return names + [path.stem for path in sorted(COMPACT_DIR.glob("*.json"))]
+
+
+def select_courses(selection, explicit=()):
+    if explicit:
+        return list(explicit)
+    if selection == "all":
+        return all_courses()
+    if selection == "rest":
+        return [name for name in all_courses() if name not in DEFAULT_COURSES]
+    return list(DEFAULT_COURSES)
+
+
+def is_placeholder(day):
+    """True for generated filler days: most subtopics are '<topic> concepts', '<topic> configuration' and so on."""
+    from app.course_outline import is_filler_subtopic, is_template_text
+    subtopics = [str(item) for item in day.get("subtopics") or []]
+    filler = sum(1 for item in subtopics if is_filler_subtopic(item) or is_template_text(item)
+                 or (_GENERIC_END.search(item) and len(item.split()) <= 6))
+    return is_template_text(str(day.get("topic") or "")) or (bool(subtopics) and filler >= len(subtopics) / 2)
+
+
 def _course_path(name):
     for directory in (LEVEL_DIR, COMPACT_DIR):
         path = directory / f"{name}.json"
@@ -114,26 +150,30 @@ def _source(course, level, day):
     return source
 
 
-def _has_design(day):
-    outline = day.get("outline") if isinstance(day.get("outline"), dict) else {}
-    return isinstance(day.get("design"), dict) or isinstance(outline.get("design"), dict)
-
-
-def inventory(courses=DEFAULT_COURSES):
+def inventory(courses=DEFAULT_COURSES, skipped=None):
     """Modules without a design, deduplicated by content, each with every place it is used."""
     pending = {}
     for name in courses:
         path = _course_path(name)
         course = json.loads(path.read_text(encoding="utf-8-sig"))
+        stored = module_design_store.load(name, DESIGN_DIR)
         tracks = ([(level, course["levels"][level]["days"]) for level in LEVELS if level in course.get("levels", {})]
                   if "levels" in course else [(None, course.get("days") or [])])
         for level, days in tracks:
             for day in days:
-                if _has_design(day) or not _text(day.get("topic")):
+                if not _text(day.get("topic")):
+                    continue
+                store_key = module_design_store.place_key(level, day["topic"])
+                outline = day.get("outline") if isinstance(day.get("outline"), dict) else {}
+                if isinstance(day.get("design"), dict) or isinstance(outline.get("design"), dict) or store_key in stored:
+                    continue
+                if is_placeholder(day):
+                    if skipped is not None:
+                        skipped.append({"course": name, "topic": day["topic"]})
                     continue
                 source = _source(course, level, day)
                 entry = pending.setdefault(source["key"], {"source": source, "course": name, "places": []})
-                entry["places"].append({"path": str(path), "level": level, "topic": day["topic"]})
+                entry["places"].append({"course": name, "level": level, "topic": day["topic"], "store_key": store_key})
     return pending
 
 
@@ -377,59 +417,70 @@ async def draft(batch, post, example):
     return results
 
 
-def _insert_design(text, level, topic, design):
-    """Add a "design" block to one level-course day without reformatting the rest of the file."""
-    lines = text.split("\n")
-    level_start = next(i for i, line in enumerate(lines) if line.strip().startswith(f'"{level}": {{'))
-    marker = '"topic": ' + json.dumps(topic, ensure_ascii=False)
-    topic_line = next(i for i in range(level_start, len(lines)) if lines[i].strip().startswith(marker))
-    opening = max(i for i in range(topic_line) if lines[i].strip() == "{")
-    indent = lines[opening][: len(lines[opening]) - len(lines[opening].lstrip())]
-    closing = next(i for i in range(topic_line, len(lines)) if lines[i] in (indent + "}", indent + "},"))
-    lines[closing - 1] += ","
-    lines.insert(closing, indent + "  " + '"design": ' + json.dumps(design, ensure_ascii=False))
-    return "\n".join(lines)
-
-
 def save(results, pending, model):
-    """Write accepted designs into their course files; returns the number of days updated."""
-    by_path = {}
+    """Write accepted designs to module_designs/<course>.json; returns the number of days updated."""
+    by_course = {}
     for key, (design, issues) in results.items():
         if issues:
             continue
         stored = {**design, "origin": ORIGIN, "revision": REVISION, "model": model, "source_key": key}
         for place in pending[key]["places"]:
-            by_path.setdefault(place["path"], []).append((place, stored))
-    updated = 0
-    for path_text, items in by_path.items():
-        path = Path(path_text)
+            by_course.setdefault(place["course"], {})[place["store_key"]] = stored
+    for course, designs in by_course.items():
+        module_design_store.write(course, designs, DESIGN_DIR)
+    return sum(len(designs) for designs in by_course.values())
+
+
+def migrate_inline(courses):
+    """Move designs that earlier runs wrote inside course files into the design store.
+
+    Level files had one '"design": {...}' line added per day; that line and the comma
+    added before it are removed, so the course file returns to its original text.
+    Returns the number of designs moved.
+    """
+    moved = 0
+    for name in courses:
+        path = _course_path(name)
         raw = path.read_text(encoding="utf-8")
         document = json.loads(raw)
+        tracks = ([(level, document["levels"][level]["days"]) for level in LEVELS if level in document.get("levels", {})]
+                  if "levels" in document else [(None, document.get("days") or [])])
+        found = {}
+        for level, days in tracks:
+            for day in days:
+                design = day.get("design")
+                if isinstance(design, dict) and design.get("origin") == ORIGIN:
+                    found[module_design_store.place_key(level, day["topic"])] = design
+                    del day["design"]
+        if not found:
+            continue
         if "levels" in document:
-            text = raw
-            for place, design in items:
-                text = _insert_design(text, place["level"], place["topic"], design)
-                day = next(d for d in document["levels"][place["level"]]["days"] if d["topic"] == place["topic"])
-                day["design"] = design
+            lines = raw.split("\n")
+            keep = []
+            for line in lines:
+                if line.lstrip().startswith('"design": {') and '"origin": "' + ORIGIN + '"' in line:
+                    keep[-1] = keep[-1][:-1] if keep and keep[-1].endswith(",") else keep[-1]
+                    continue
+                keep.append(line)
+            text = "\n".join(keep)
             if json.loads(text) != document:
-                raise ValueError(f"{path.name}: inserted designs do not match the intended data; nothing written")
+                raise ValueError(f"{path.name}: removing inline designs changed other data; nothing written")
         else:
-            if json.dumps(document, ensure_ascii=False, indent=2) + "\n" != raw:
-                raise ValueError(f"{path.name}: unexpected formatting; nothing written")
-            for place, design in items:
-                day = next(d for d in document["days"] if d.get("topic") == place["topic"] and not _has_design(d))
-                day["design"] = design
             text = json.dumps(document, ensure_ascii=False, indent=2) + "\n"
-        # Write to a temporary file first so an interrupted run never leaves a half-written course file.
-        temporary = path.with_suffix(".json.tmp")
-        temporary.write_text(text, encoding="utf-8")
-        temporary.replace(path)
-        updated += len(items)
-    return updated
+        module_design_store.write(name, found, DESIGN_DIR)
+        path.write_text(text, encoding="utf-8")
+        moved += len(found)
+    return moved
 
 
-async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, concurrency=2, log=print):
-    """Draft pending modules and save each batch as it finishes; returns a summary."""
+async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, concurrency=2, max_minutes=0, log=print):
+    """Draft pending modules and save each batch as it finishes; returns a summary.
+
+    With ``max_minutes`` no new batch starts after that time, so a CI job can end
+    normally and keep its work before the job time limit; a later run continues.
+    """
+    import time
+    started = time.monotonic()
     chosen, per = [], {}
     for entry in pending.values():
         if per_course and per.get(entry["course"], 0) >= per_course:
@@ -447,6 +498,9 @@ async def run(pending, *, post, model, limit=0, per_course=0, batch_size=3, conc
         async with gate:
             if summary.get("error"):
                 return  # a fatal provider error stops the rest of the run; saved work is kept
+            if max_minutes and time.monotonic() - started > max_minutes * 60:
+                summary["stopped_at_time_limit"] = True
+                return
             try:
                 results = await draft(batch, post, example)
             except FatalProviderError as exc:
@@ -479,19 +533,34 @@ def main():
     parser.add_argument("--batch-size", type=int, default=3, help="modules per model request")
     parser.add_argument("--concurrency", type=int, default=2, help="model requests in flight")
     parser.add_argument("--summary", help="write the run summary as JSON to this path")
-    parser.add_argument("--plan", action="store_true", help="print the courses that still have modules without a design")
-    parser.add_argument("--paths", action="store_true", help="print the course file paths for --course, one per line")
+    parser.add_argument("--max-minutes", type=int, default=0, help="start no new batch after this many minutes")
+    parser.add_argument("--select", choices=("top", "rest", "all"), default="top",
+                        help="course set when --course is not given: the 15 most-requested, the rest, or all")
+    parser.add_argument("--plan", action="store_true", help="print, as JSON, the courses that still need designs")
+    parser.add_argument("--groups", type=int, default=0, help="with --plan, split the courses into this many groups")
+    parser.add_argument("--paths", action="store_true", help="print the design file path for each --course")
+    parser.add_argument("--migrate-inline", action="store_true",
+                        help="move designs written inside course files by earlier runs into module_designs/")
     args = parser.parse_args()
-    if args.plan or args.paths:
-        names = [name.strip() for value in args.course for name in value.split(",") if name.strip()] or list(DEFAULT_COURSES)
-        if args.paths:
-            print("\n".join(str(_course_path(name)) for name in names))
-        else:
-            print(json.dumps([name for name in names if inventory([name])]))
+    explicit = [name.strip() for value in args.course for name in value.split(",") if name.strip()]
+    courses = select_courses(args.select, explicit)
+    if args.migrate_inline:
+        print(json.dumps({"designs_moved": migrate_inline(courses)}))
         return
-    courses = [name for value in args.course for name in value.split(",") if name.strip()] or list(DEFAULT_COURSES)
-    pending = inventory([name.strip() for name in courses])
-    summary = {"pending_modules": len(pending),
+    if args.paths:
+        print("\n".join(str(DESIGN_DIR / f"{name}.json") for name in courses))
+        return
+    if args.plan:
+        needed = [name for name in courses if inventory([name])]
+        if args.groups:
+            groups = [needed[i::args.groups] for i in range(args.groups)]
+            print(json.dumps([",".join(group) for group in groups if group]))
+        else:
+            print(json.dumps(needed))
+        return
+    skipped = []
+    pending = inventory(courses, skipped)
+    summary = {"pending_modules": len(pending), "placeholder_modules_skipped": len(skipped),
                "by_course": {name: sum(e["course"] == name for e in pending.values()) for name in courses}}
     if args.run:
         settings = _settings()
@@ -505,7 +574,8 @@ def main():
                 print(json.dumps({"model": settings["model"]}), flush=True)
                 return await run(pending, post=lambda system, user: _post(client, settings, system, user),
                                  model=settings["model"], limit=args.limit, per_course=args.per_course,
-                                 batch_size=max(1, args.batch_size), concurrency=args.concurrency)
+                                 batch_size=max(1, args.batch_size), concurrency=args.concurrency,
+                                 max_minutes=args.max_minutes)
         try:
             summary.update(asyncio.run(go()))
         except FatalProviderError as exc:
