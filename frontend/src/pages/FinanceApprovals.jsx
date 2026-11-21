@@ -82,12 +82,13 @@ export default function FinanceApprovals() {
     if (!form.po_number.trim() || Number(form.total_amount) <= 0) return toast.error('Confirm the PO number and total amount from the source document')
     setBusy('approve')
     try {
-      await api.post(`/finance/approvals/${selected.finance_id}/approve-send`, {
+      const { data } = await api.post(`/finance/approvals/${selected.finance_id}/approve-send`, {
         ...form,
         total_amount: Number(form.total_amount),
         gst_rate: Number(form.gst_rate || 0),
       })
-      toast.success('Invoice created and sent to the client')
+      if (data?.status !== 'invoice_sent' || data.success !== true) throw new Error('Invoice send was not confirmed')
+      toast.success(`Invoice ${data.invoice_id} sent to ${form.client_email}`)
       await load()
     } catch (error) { toast.error(error.message || 'Could not approve the PO') }
     finally { setBusy('') }
