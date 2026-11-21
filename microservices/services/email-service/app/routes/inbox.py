@@ -9603,6 +9603,13 @@ async def _auto_request_client_po(
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
         return {"attempted": True, "success": False, "reason": "requirement_not_found"}
+    if _is_offline_requirement(requirement) and requirement.get("offline_coordination_status") != "complete":
+        return {
+            "attempted": False,
+            "skipped": True,
+            "reason": "offline_coordination_pending",
+            "message": "Client PO request is held until trainer PO approval, offline bookings, and requested group coordination are complete.",
+        }
     if requirement.get("client_po_requested"):
         return {"attempted": True, "skipped": True, "reason": "po_already_requested"}
 
