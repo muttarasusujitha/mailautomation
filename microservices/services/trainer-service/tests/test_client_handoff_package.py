@@ -119,6 +119,32 @@ def prepare(monkeypatch, failure=None, requirement_overrides=None):
     return db, requests
 
 
+def test_proposal_handoff_with_unspecified_duration_dates_and_headcount(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        "training_dates": "", "duration_days": None, "participant_count": None, "lab_hours_per_day": None,
+    })
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["success"]
+    assert shortlists._build_toc.await_args.args[0]["duration_days"] == 1
+    assert db["requirements"].find_one.return_value["duration_days"] is None
+    lab = next(body["assumptions"] for path, body in requests if path.endswith("/lab-cost"))
+    assert (lab["participant_count"], lab["hours_per_day"]) == (1, 3)
+    assert "provisional one-day scope" in requests[-1][1]["body"]
+
+
+def test_issuer_check_holds_cached_package_before_email_delivery(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={
+        "client_requirement_text": "Please verify the authenticity of the trainer's degree.",
+    })
+    result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    assert result["needs_input"]
+    assert not any(path.endswith("/email/send") for path, _ in requests)
+
+
 def test_client_gets_profile_toc_lab_and_three_slots(monkeypatch):
     db, requests = prepare(monkeypatch)
     result = asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
