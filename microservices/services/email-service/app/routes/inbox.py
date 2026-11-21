@@ -9866,6 +9866,36 @@ async def _handle_client_selection_reply(
         or email_doc.get("domain")
         or "training"
     )
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    offline = _is_offline_requirement(requirement)
+    if offline:
+        coord_id = f"offline-coordination:{requirement_id}:{trainer_id}"
+        await db["offline_coordination_tasks"].update_one(
+            {"_id": coord_id},
+            {"$set": {
+                "task_id": coord_id,
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "trainer_name": trainer_name,
+                "trainer_email": trainer_email,
+                "client_email": requirement.get("client_email") or email_doc.get("from_email") or "",
+                "status": "pending_trainer_po_approval",
+                "whatsapp_group_requested": bool(re.search(r"(?:create|make|open|start).{0,50}whats?app\s+group", text, re.IGNORECASE)),
+                "whatsapp_group_status": "staff_action_required",
+                "booking_requests": [],
+                "updated_at": now,
+            }, "$setOnInsert": {"created_at": now}},
+            upsert=True,
+        )
+        await db["requirements"].update_one(
+            {"requirement_id": requirement_id},
+            {"$set": {
+                "offline_coordination_status": "pending_trainer_po_approval",
+                "offline_coordination_task_id": coord_id,
+                "trainer_po_approval_status": "pending_human_approval",
+                "updated_at": now,
+            }},
+        )
     mail5_result: Dict[str, Any]
     # Inbox polling can replay a message after a restart.  Reuse a completed
     # Mail 5 instead of congratulating the trainer again or re-running the PO
