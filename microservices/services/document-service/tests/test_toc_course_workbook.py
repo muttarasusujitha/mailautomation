@@ -197,3 +197,53 @@ def test_trainer_and_support_never_names_the_trainer():
     assert [ws.cell(header, c).value for c in range(1, 4)] == ["Trainer Profile", "Batch Size", "Post-training Support"]
     assert ws.cell(header + 1, 2).value == "12 participants"
     assert "Jane Trainer" not in _all_text(ws)
+
+
+DATASET_DAY = {
+    "day": 1, "focus_area": "Cluster Upgrades and etcd Backup", "minutes": 420,
+    "subtopics": ["Version skew policy", "kubeadm upgrade plan", "etcd snapshots"],
+    "lab_task": "Upgrade a cluster and restore etcd.", "deliverable": "Upgrade log",
+    "learning_objectives": ["Upgrade clusters safely", "Back up and restore etcd", "Kubernetes architecture overview"],
+    "acceptance_checks": [
+        {"input_or_condition": "Check versions after the upgrade",
+         "expected_result": "Control plane and kubelets on the new version", "evidence": "kubectl version and node list"},
+        {"input_or_condition": "Restore the snapshot after deleting the namespace",
+         "expected_result": "Namespace and its resources are back", "evidence": "Resource list"},
+        {"input_or_condition": "Upgrade a kubelet two versions ahead of the API server",
+         "expected_result": "The upgrade is rejected with a version skew error", "evidence": "Error output"},
+    ],
+}
+
+
+def test_a_module_without_a_design_is_filled_from_its_own_dataset_checks():
+    wb = _workbook({**SAMPLE, "days": [DATASET_DAY]})
+
+    outcomes = _rows(wb["Module Outcomes"], _header_row(wb["Module Outcomes"], "Module No."), 3)
+    assert outcomes == [
+        [1, "Upgrade clusters safely", "Lab 1 check: Check versions after the upgrade"],
+        [1, "Back up and restore etcd", "Lab 1 check: Restore the snapshot after deleting the namespace"],
+        [1, "Kubernetes architecture overview", "Lab 1 checks"],  # no shared words: no invented link
+    ]
+
+    topics = _rows(wb["Topic Breakdown"], _header_row(wb["Topic Breakdown"], "Module No."), 7)
+    troubleshooting = next(row for row in topics if row[1] == "Troubleshooting a seeded failure")
+    assert troubleshooting[5] == ("Upgrade a kubelet two versions ahead of the API server: "
+                                  "The upgrade is rejected with a version skew error")
+
+    text = _all_text(wb["Assessment"])
+    assert any(str(value).startswith("Lab 1 Rubric:") for value in text)
+    assert "Namespace and its resources are back; done without help, evidence: Resource list" in text
+    assert "Check versions after the upgrade: what result should you see, and how do you show it?" in text
+    assert "How would you back up and restore etcd?" in text
+    assert not any("kubernetes architecture overview?" in str(value).lower() for value in text)  # not a task
+
+
+def test_checks_without_an_expected_result_add_no_rubric_or_questions():
+    day = {**DATASET_DAY, "acceptance_checks": ["The report names the oversized file"], "learning_objectives": []}
+    wb = _workbook({**SAMPLE, "days": [day]})
+    text = _all_text(wb["Assessment"])
+    assert not any(str(value).startswith("Lab 1 Rubric:") for value in text)
+    assert not any("what result should you see" in str(value) for value in text)
+    assert "Knowledge Check Questions" not in text  # no generic questions without the module's own
+    labs = wb["Labs & Deliverables"]
+    assert labs.cell(_header_row(labs, "Lab No.") + 1, 7).value == "The report names the oversized file"

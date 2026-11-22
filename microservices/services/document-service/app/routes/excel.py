@@ -242,6 +242,68 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         # Authored designs say "Lab check" or "Lab:"; number them for this module's position.
         return re.sub(r"\bLab(?=\s+checks?\b|:)", f"Lab {module_no}", value)
 
+    # Modules without a design are filled from their own course-dataset checks and objectives,
+    # by rules only: nothing is invented, so a cell stays blank when the dataset has no source.
+    STOP = {"with", "from", "that", "this", "your", "into", "after", "before", "using", "when", "each",
+            "their", "them", "then", "they", "what", "which", "while", "about", "every", "without", "between",
+            "shown", "show", "make", "made", "only", "same", "other", "than", "more", "most", "used", "uses"}
+    FAILURE_RE = re.compile(r"#[A-Z0-9/]+!?|\b(?:errors?|fails?|failed|failure|denied|rejected|refused|blocked|"
+                            r"exceptions?|rolls?\s+back|rolled\s+back|warnings?|violations?|alerts?\s+fires?|crash(?:es)?)\b",
+                            re.I)
+
+    def check_parts(item: Any):
+        """(what to do, expected result, evidence) from a dataset check in any stored shape."""
+        if isinstance(item, dict):
+            return (text(item.get("input_or_condition") or item.get("check")), text(item.get("expected_result")),
+                    text(item.get("evidence")))
+        if isinstance(item, (list, tuple)):
+            values = [text(value) for value in item] + ["", "", ""]
+            return values[0], values[1], values[2]
+        return text(item), "", ""
+
+    def stems(value: str) -> set:
+        return {word[:5] for word in re.findall(r"[a-z0-9]+", value.lower()) if len(word) > 3 and word not in STOP}
+
+    # Objectives that start with one of these verbs read as a question ("How would you restore ...?").
+    VERBS = set("""analyse analyze apply assess automate back build calculate choose clean collect compare
+        configure connect create debug decide define deploy describe design detect diagnose distinguish document
+        enable estimate evaluate explain export filter find fix format handle identify implement import improve
+        install integrate interpret investigate load maintain manage map measure migrate model monitor navigate
+        optimise optimize organise organize perform plan prepare present prevent prioritise prioritize protect
+        query read recover reduce refactor report resolve restore review run save scale schedule secure select
+        set share solve store structure summarise summarize test track transform troubleshoot tune update
+        upgrade use validate verify visualise visualize write""".split())
+
+    def matched_check(objective: str, checks: List[tuple], module_no: int) -> str:
+        """The module's lab check that tests this objective (shared words), or ''."""
+        wanted = stems(objective)
+        scored = [(len(wanted & stems(f"{c} {e}")), -index) for index, (c, e, _) in enumerate(checks)]
+        best = max(scored, default=(0, 0))
+        return f"Lab {module_no} check: {checks[-best[1]][0]}" if best[0] else ""
+
+    def derived_rubric(checks: List[tuple]) -> List[List[str]]:
+        rows = []
+        for condition, expected, evidence in checks:
+            if not (condition and expected):
+                continue
+            proof = f", evidence: {evidence}" if evidence else ""
+            rows.append([condition, f"{expected}; done without help{proof}", f"{expected}; done with a hint",
+                         "Attempted; the result is incomplete", "Not attempted or not working"])
+        return rows[:5]
+
+    def derived_quiz(checks: List[tuple], objectives: List[str], subtopics: List[str]) -> List[str]:
+        questions = [f"{condition.rstrip('.')}: what result should you see, and how do you show it?"
+                     for condition, expected, _ in checks if condition and expected]
+        for objective in objectives:
+            verb, _, rest = objective.rstrip(".").partition(" ")
+            if verb.lower() in VERBS and rest:
+                questions.append(f"How would you {verb.lower()} {rest}?")
+        for subtopic in subtopics:
+            if len(questions) >= 5 or len(questions) < 2:
+                break  # sub-topic questions only top up a module that has its own specific questions
+            questions.append(f"Explain, with an example from this module's lab: {subtopic.rstrip('.')}.")
+        return list(dict.fromkeys(questions))[:6]
+
     days = list(toc.get("days") or [])
     try:
         hours_per_day = int(toc.get("hours_per_day") or 7)
@@ -270,11 +332,13 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
             lab_title = head if head and len(head) <= 60 else f"{topic} Lab"
         tasks = lines(lab.get("tasks")) or lines(lab_text.split(":", 1)[1] if ":" in lab_text else lab_text)
         seeded = design.get("seeded_failure") if isinstance(design.get("seeded_failure"), dict) else {}
-        checks = day.get("acceptance_checks") or lab.get("verify") or []
+        checks = day.get("acceptance_checks") or lab.get("verify") or day.get("checks") or []
+        if not isinstance(checks, list):
+            checks = []
+        dataset_checks = [parts for parts in (check_parts(item) for item in checks) if parts[0]]
         success = ""
-        if checks:
-            first = checks[0]
-            success = text(first.get("expected_result") or first.get("input_or_condition")) if isinstance(first, dict) else text(first)
+        if dataset_checks:
+            success = dataset_checks[0][1] or dataset_checks[0][0]
         if not success:
             success = text(day.get("assessment")).split("\n")[0]
         try:
@@ -305,15 +369,20 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
                     name, part_subs = f"Lab {i}: {lab_title}", tasks
                 else:
                     part_subs = []
+                failure = ""
+                if name == "Troubleshooting a seeded failure":
+                    # A dataset check whose expected result is an error is the module's planned failure.
+                    failure = next((f"{c}: {e}" for c, e, _ in dataset_checks if e and FAILURE_RE.search(e)), "")
                 rows.append({"topic": name, "subs": part_subs, "minutes": part_minutes, "mode": part_mode,
-                             "failure": "", "practice": ""})
+                             "failure": failure, "practice": ""})
 
         outcomes = []
         for item in design.get("outcomes") or []:
             if isinstance(item, dict) and text(item.get("outcome")):
                 outcomes.append((text(item.get("outcome")), numbered(text(item.get("assessed_by")), i) or f"Lab {i} checks"))
         if not outcomes:
-            outcomes = [(obj, f"Lab {i} checks") for obj in lines(day.get("learning_objectives"))[:5]]
+            outcomes = [(obj, matched_check(obj, dataset_checks, i) or f"Lab {i} checks")
+                        for obj in lines(day.get("learning_objectives") or day.get("objectives"))[:5]]
         if not outcomes:
             outcomes = [(f"Complete Lab {i}: {lab_title}", f"Lab {i} rubric")]
 
@@ -323,10 +392,12 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
             "lab_title": lab_title, "tasks": tasks, "seeded": seeded,
             "scenario": text(lab.get("scenario") or day.get("scenario")),
             "deliverable": text(lab.get("deliverables") or day.get("deliverable")),
-            "success": success, "objectives": lines(day.get("learning_objectives")),
+            "success": success, "objectives": lines(day.get("learning_objectives") or day.get("objectives")),
             "is_capstone": is_capstone, "rows": rows, "outcomes": outcomes,
-            "quiz": lines(design.get("quiz")),
-            "rubric": [r for r in design.get("lab_rubric") or [] if isinstance(r, (list, tuple)) and len(r) == 5],
+            "quiz": lines(design.get("quiz")) or ([] if is_capstone else derived_quiz(
+                dataset_checks, lines(day.get("learning_objectives") or day.get("objectives")), subs)),
+            "rubric": [r for r in design.get("lab_rubric") or [] if isinstance(r, (list, tuple)) and len(r) == 5]
+            or derived_rubric(dataset_checks),
             "environment": [e for e in design.get("lab_environment") or [] if isinstance(e, dict) and text(e.get("tool"))],
             "tools": lines(day.get("tools")),
         })
