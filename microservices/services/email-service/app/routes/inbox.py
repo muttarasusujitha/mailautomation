@@ -9713,8 +9713,8 @@ def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> s
         return body
     labels = {
         "travel": "Travel terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "accommodation": "Accommodation terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "food": "Food terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "accommodation": "Accommodation: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
+        "food": "Food: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
         "venue": "Confirmed training address: [details]",
     }
     request_lines = "\n".join(labels[field] for field in fields)
