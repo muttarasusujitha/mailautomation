@@ -275,11 +275,17 @@ def _toc_to_course_workbook(toc: Dict[str, Any]) -> bytes:
         upgrade use validate verify visualise visualize write""".split())
 
     def matched_check(objective: str, checks: List[tuple], module_no: int) -> str:
-        """The module's lab check that tests this objective (shared words), or ''."""
+        """The module's lab check that tests this objective, or '' when that is not clear.
+
+        A link needs two shared words and one clear best check; a single shared word linked
+        unrelated pairs ("Monitor identity activity" to "Collect") across the dataset.
+        """
         wanted = stems(objective)
-        scored = [(len(wanted & stems(f"{c} {e}")), -index) for index, (c, e, _) in enumerate(checks)]
-        best = max(scored, default=(0, 0))
-        return f"Lab {module_no} check: {checks[-best[1]][0]}" if best[0] else ""
+        scored = sorted(((len(wanted & stems(f"{c} {e}")), -index) for index, (c, e, _) in enumerate(checks)),
+                        reverse=True)
+        if not scored or scored[0][0] < 2 or (len(scored) > 1 and scored[1][0] == scored[0][0]):
+            return ""
+        return f"Lab {module_no} check: {checks[-scored[0][1]][0]}"
 
     def derived_rubric(checks: List[tuple]) -> List[List[str]]:
         rows = []

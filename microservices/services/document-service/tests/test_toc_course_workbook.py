@@ -220,7 +220,8 @@ def test_a_module_without_a_design_is_filled_from_its_own_dataset_checks():
 
     outcomes = _rows(wb["Module Outcomes"], _header_row(wb["Module Outcomes"], "Module No."), 3)
     assert outcomes == [
-        [1, "Upgrade clusters safely", "Lab 1 check: Check versions after the upgrade"],
+        # One shared word ("upgrade") with two checks is not a clear link, so none is claimed.
+        [1, "Upgrade clusters safely", "Lab 1 checks"],
         [1, "Back up and restore etcd", "Lab 1 check: Restore the snapshot after deleting the namespace"],
         [1, "Kubernetes architecture overview", "Lab 1 checks"],  # no shared words: no invented link
     ]
