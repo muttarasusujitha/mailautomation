@@ -18,7 +18,7 @@ from html import escape
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from app.course_outline import is_template_text, outline_from_flat, real_text
+from app.course_outline import is_template_text, outline_from_flat, real_text, roadmap_groups
 
 BRAND = "Clahan Technologies"
 BRAND_SITE = "CLAHANTECHNOLOGIES.COM"
@@ -171,8 +171,26 @@ def _modules(day: Dict[str, Any]) -> List[Dict[str, Any]]:
         "deliverable": day.get("deliverable"),
         "acceptance_checks": day.get("acceptance_checks"),
         "outline": day.get("outline"),
+        "roadmap": day.get("roadmap"),
         "learning_objectives": day.get("learning_objectives"),
     }]
+
+
+def _render_roadmap(day: Dict[str, Any]) -> str:
+    """The day's subtopics as ordered stages: Step 1: Understand, Step 2: Build ..."""
+    groups = roadmap_groups(day.get("roadmap"))
+    if not groups:
+        return ""
+    steps = []
+    for group in groups:
+        items = "".join(
+            f"<li>{escape(item['text'])}"
+            + (f'<ul class="sub">{"".join(f"<li>{escape(child)}</li>" for child in item["children"])}</ul>'
+               if item["children"] else "")
+            + "</li>"
+            for item in group["items"])
+        steps.append(f'<li><span class="stage">{escape(group["heading"])}</span><ul class="sub">{items}</ul></li>')
+    return _block("Learning Roadmap", f'<ol class="list roadmap">{"".join(steps)}</ol>')
 
 
 def _render_groups(groups: List[Dict[str, Any]]) -> str:
@@ -237,6 +255,9 @@ def _render_day(day: Dict[str, Any], index: int, show_day: bool, counters: Dict[
         meta = f'<span class="day-date">{escape(date)}</span>' if date else ""
         parts.append(f'<h2 class="day">Day {escape(number)} \u2013 {escape(_clean_day_title(day))}{meta}</h2>')
     modules = _modules(day)
+    if day.get("modules"):
+        # Authored modules show their own topics; the roadmap gives the day's order first.
+        parts.append(_render_roadmap(day))
     for module in modules:
         counters["module"] += 1
         html, counters["lab"] = _render_module(module, counters["module"], counters["lab"])
@@ -315,6 +336,8 @@ h2.section:first-child { margin-top: 0; }
 .list { margin: 1.5mm 0 3mm; padding-left: 7mm; }
 .list li { margin: 0 0 1.1mm; }
 .list .sub { list-style-type: circle; margin: 1mm 0 1.5mm; padding-left: 7mm; }
+.roadmap { list-style: none; padding-left: 0; }
+.roadmap .stage { font-weight: 700; color: #2E1065; }
 h2.day { font: 700 13pt Poppins, "Segoe UI", Arial, sans-serif; color: #2E1065; margin: 8mm 0 2mm;
          padding-bottom: 1.5mm; border-bottom: 1.2pt solid #DDD6FE; break-after: avoid; }
 .day-date { float: right; font: 400 9.5pt Calibri, Arial, sans-serif; color: #6B7280; padding-top: 1mm; }

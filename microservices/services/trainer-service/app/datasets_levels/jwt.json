@@ -1,0 +1,573 @@
+{
+  "domain": "JWT",
+  "name": "JWT",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["JSON Web Token", "JSON Web Tokens", "Token-Based Authentication", "JWT Security", "JOSE", "JWS and JWE"],
+  "certifications": [],
+  "tools": ["jwt.io", "jsonwebtoken", "PyJWT", "Nimbus JOSE+JWT", "golang-jwt", "Microsoft.IdentityModel", "jwks-rsa", "OpenSSL", "jwt_tool", "Burp Suite", "Postman", "Redis"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For backend and full-stack developers who can read JSON and use a terminal but are new to JSON Web Tokens. It covers the structure of a JWS compact token, base64url encoding, registered, public and private claims, HS256 signing and verification, expiry and not-before timing, issuer and audience validation, minting tokens in Node.js and Python, the JOSE header, access versus ID and refresh tokens, browser storage, common validation mistakes and a signed login-flow capstone.",
+      "prerequisites": ["Comfortable reading and writing JSON and using a command-line shell", "Can run a small Node.js or Python program and install packages", "Understands basic HTTP requests, headers and status codes such as 200 and 401"],
+      "outcomes": ["Decode and explain the three parts of a JWS compact token", "Mint and verify HS256 tokens enforcing expiry, issuer and audience", "Avoid the most common validation mistakes such as trusting the header algorithm", "Build a signed login flow with issue, verify and refresh endpoints"],
+      "days": [
+        {
+          "topic": "JWT Structure and the Three-Part Encoding",
+          "subtopics": ["Header, payload and signature as three base64url segments joined by dots", "Why a JWT is a compact, URL-safe string", "Difference between a claims set and the token container", "JWS compact serialization versus JSON serialization", "Why the payload is encoded, not encrypted", "The role of the signature in integrity, not confidentiality", "Typical size of a token and header overhead", "When a JWT is the right tool and when it is not"],
+          "tools": ["JWT", "jwt.io", "Node.js"],
+          "lab_task": "Take the sample token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.sig and split it on dots in a Node REPL. Decode each of the first two parts with Buffer.from(part,'base64url').toString(). Confirm the header shows alg HS256 and the payload shows sub 123. Record the three segment lengths and note the signature stays opaque.",
+          "deliverable": "A short write-up showing the three decoded segments and their byte lengths",
+          "checks": [["Split the token on the dot character", "Exactly three non-empty segments are produced", "REPL transcript"], ["Base64url-decode the first segment", "JSON header with alg set to HS256 is shown", "Decoded header text"], ["Attempt to base64url-decode the third segment as JSON", "It is raw signature bytes, not valid JSON", "Error or binary output"]],
+          "objectives": ["Describe the three parts of a JWS compact token", "Decode header and payload with base64url", "Explain why encoding is not encryption"]
+        },
+        {
+          "topic": "Base64url Encoding and Decoding of Tokens",
+          "subtopics": ["Standard base64 versus the URL-safe base64url alphabet", "Replacing plus and slash with hyphen and underscore", "Stripping and restoring removed padding characters", "Encoding UTF-8 JSON bytes before signing", "Decoding pitfalls with non-ASCII claim values", "Command-line decoding with openssl and basenc", "Handling malformed or truncated segments", "Why whitespace and newlines break a token"],
+          "tools": ["OpenSSL", "Node.js", "Python"],
+          "lab_task": "On a Linux shell, take the payload segment eyJzdWIiOiJhbGljZSJ9 and decode it with: echo eyJzdWIiOiJhbGljZSJ9 | basenc --base64url --decode. Add back padding where needed. Then re-encode the JSON {\"sub\":\"alice\"} and confirm you get the same string. Note how base64url differs from the output of base64.",
+          "deliverable": "A terminal log showing a round-trip encode and decode of one payload",
+          "checks": [["Decode the segment with basenc --base64url", "The JSON object with sub alice is printed", "Shell transcript"], ["Re-encode the JSON and compare", "The re-encoded string matches the original segment", "Diff output"], ["Decode the same string with plain base64", "Padding or alphabet error or wrong bytes appear", "Error message"]],
+          "objectives": ["Convert between base64 and base64url", "Encode and decode a payload on the command line", "Explain the padding and alphabet rules"]
+        },
+        {
+          "topic": "Registered Claims and Their Meaning",
+          "subtopics": ["The iss issuer claim and trusted authorities", "The sub subject claim as the principal identifier", "The aud audience claim and intended recipients", "The exp expiration time as a NumericDate", "The nbf not-before time", "The iat issued-at time", "The jti unique token identifier", "How registered claim names are reserved by the IANA registry"],
+          "tools": ["JWT", "PyJWT", "jwt.io"],
+          "lab_task": "In Python with PyJWT, build a payload dict containing iss, sub, aud, iat, nbf and exp using int(time.time()) values, then jwt.encode(payload,'k',algorithm='HS256'). Decode it back with jwt.decode(token,'k',algorithms=['HS256'],audience=...). Confirm every registered claim survives the round trip and exp is a Unix timestamp.",
+          "deliverable": "A script that mints a token with all seven registered claims and prints them decoded",
+          "checks": [["Decode the minted token", "All seven registered claims are present with correct values", "Decoded payload"], ["Inspect the exp value type", "It is an integer Unix epoch seconds, not a string", "Printed type"], ["Set aud to a wrong value on decode", "An InvalidAudienceError is raised", "Exception trace"]],
+          "objectives": ["Name and explain the seven registered claims", "Mint a token populating each registered claim", "Recognise NumericDate timestamp format"]
+        },
+        {
+          "topic": "Public and Private Claims in Practice",
+          "subtopics": ["Public claims and collision-resistant naming", "Registering names in the IANA JWT claims registry", "Using URI namespaces for custom claims", "Private claims agreed between two parties", "Avoiding collisions with registered names", "Keeping payloads small by excluding large data", "Never placing secrets or passwords in claims", "Typical custom claims such as roles and tenant"],
+          "tools": ["JWT", "Node.js", "jsonwebtoken"],
+          "lab_task": "Using jsonwebtoken in Node, sign a token adding a namespaced public claim \"https://app.example/roles\":[\"editor\"] and a private claim tenant_id:42. Decode it and read both. Then measure the encoded token length before and after adding a large 2 KB claim to see payload bloat. Record the two lengths.",
+          "deliverable": "A token containing one namespaced public claim and one private claim, with size notes",
+          "checks": [["Decode the token payload", "Both the namespaced roles claim and tenant_id appear", "Decoded JSON"], ["Measure token length before and after the large claim", "The token grows by roughly the added payload size", "Length comparison"], ["Search the payload for a password field", "No secret or credential is present in any claim", "Grep output"]],
+          "objectives": ["Distinguish public from private claims", "Add custom claims without name collisions", "Explain why secrets must stay out of payloads"]
+        },
+        {
+          "topic": "Signing Tokens with HS256 (HMAC)",
+          "subtopics": ["HMAC-SHA256 as a symmetric signing algorithm", "The single shared secret used to sign and verify", "How signing input is header dot payload", "Minimum recommended secret length and entropy", "Generating a strong secret with openssl rand", "Base64url-encoding the HMAC output", "Keeping the secret out of source control", "When symmetric signing is appropriate"],
+          "tools": ["OpenSSL", "Node.js", "jsonwebtoken"],
+          "lab_task": "Generate a 256-bit secret with openssl rand -base64 32. Sign {\"sub\":\"bob\"} using jsonwebtoken.sign(payload, secret, {algorithm:'HS256'}). Recompute the signature manually with crypto.createHmac('sha256',secret).update(signingInput).digest('base64url') and confirm it equals the token's third segment.",
+          "deliverable": "A script that signs a token and reproduces its signature by hand",
+          "checks": [["Compare the manual HMAC with the token signature", "The two base64url signatures are identical", "Comparison output"], ["Check the generated secret length", "The decoded secret is at least 32 bytes", "Byte count"], ["Sign with a one-character secret", "The library signs but you flag it as weak entropy", "Warning note"]],
+          "objectives": ["Explain HMAC-based signing with HS256", "Generate a strong symmetric secret", "Reproduce a token signature manually"]
+        },
+        {
+          "topic": "Verifying HS256 Signatures and Secrets",
+          "subtopics": ["Recomputing the HMAC over the received signing input", "Constant-time comparison to avoid timing leaks", "Rejecting tokens when the secret does not match", "Why verification must pin the expected algorithm", "Common cause of signature invalid errors", "Detecting a tampered payload", "Verifying before trusting any claim", "Separating parse errors from signature errors"],
+          "tools": ["Node.js", "jsonwebtoken", "Python"],
+          "lab_task": "Verify a valid HS256 token with jwt.verify(token, secret, {algorithms:['HS256']}) and confirm it returns the claims. Then flip one character in the payload segment and verify again. Confirm a JsonWebTokenError invalid signature is thrown. Finally verify with the wrong secret and observe the same rejection.",
+          "deliverable": "A test that proves valid tokens pass and tampered or wrong-secret tokens fail",
+          "checks": [["Verify an untouched valid token", "The decoded claims object is returned", "Test output"], ["Verify a token with a flipped payload byte", "An invalid signature error is thrown", "Error trace"], ["Verify a valid token with the wrong secret", "Verification is rejected with a signature mismatch", "Error trace"]],
+          "objectives": ["Verify an HS256 signature correctly", "Detect tampering through signature failure", "Explain why algorithm must be pinned on verify"]
+        },
+        {
+          "topic": "Reading and Debugging Tokens with CLI Tools",
+          "subtopics": ["Decoding tokens offline without a website", "Pretty-printing the header and payload with jq", "Spotting an expired token from its exp claim", "Inspecting the alg and kid header fields", "Comparing two tokens for differing claims", "Avoiding paste of production tokens into web tools", "Scripting repeatable token inspection", "Converting exp to a human-readable date"],
+          "tools": ["jq", "OpenSSL", "Python"],
+          "lab_task": "Write a shell one-liner that takes a token, cuts the second dot-separated field, base64url-decodes it and pipes it to jq . so claims pretty-print. Extend it to run jq '.exp | todate' to show the expiry as an ISO date. Run it against a token whose exp is in the past and confirm the date is earlier than now.",
+          "deliverable": "A reusable decode script that prints formatted claims and a human-readable expiry",
+          "checks": [["Run the script on a sample token", "Claims print as indented formatted JSON", "Terminal output"], ["Read the exp through jq todate", "An ISO 8601 date string is shown", "Script output"], ["Run it on a token missing a payload segment", "The script reports a decode failure", "Error message"]],
+          "objectives": ["Decode tokens entirely offline", "Format claims and expiry with jq", "Explain the risk of web-based token decoders"]
+        },
+        {
+          "topic": "Expiry, Not-Before and Issued-At Timing",
+          "subtopics": ["The exp claim and immediate rejection after expiry", "The nbf claim delaying token validity", "The iat claim and token freshness checks", "NumericDate seconds since the Unix epoch", "Choosing a short access-token lifetime", "How leeway tolerates small clock differences", "Rejecting tokens issued in the future", "Testing time-based rejection deterministically"],
+          "tools": ["PyJWT", "Python", "JWT"],
+          "lab_task": "In PyJWT, mint a token with exp set to time.time()-10 and verify it; confirm ExpiredSignatureError. Mint another with nbf set 60 seconds ahead and confirm ImmatureSignatureError. Then decode the expired token with leeway=30 and confirm it still fails, but leeway large enough lets a 10-second-old one through.",
+          "deliverable": "A test matrix showing expired, not-yet-valid and leeway-tolerated outcomes",
+          "checks": [["Verify a token whose exp is in the past", "ExpiredSignatureError is raised", "Exception output"], ["Verify a token whose nbf is in the future", "ImmatureSignatureError is raised", "Exception output"], ["Verify a 10-second-expired token with leeway 30", "Verification succeeds within the leeway window", "Test result"]],
+          "objectives": ["Explain exp, nbf and iat timing semantics", "Trigger expiry and not-before rejections", "Apply leeway for clock skew tolerance"]
+        },
+        {
+          "topic": "Issuer and Audience Validation Basics",
+          "subtopics": ["Why iss must match a trusted issuer", "Why aud must contain this service", "Rejecting tokens minted for another audience", "Multiple audiences in a single token", "Configuring expected issuer in a library", "Avoiding accepting any issuer by default", "Separating audience checks from signature checks", "Logging which issuer a token claims", "Pinning audience for each microservice", "Common misconfiguration that skips these checks"],
+          "tools": ["PyJWT", "Node.js", "JWT"],
+          "lab_task": "Mint a token with iss=https://auth.example and aud=orders-api. Verify it in PyJWT passing issuer and audience arguments and confirm success. Then verify the same token while expecting audience payments-api and confirm InvalidAudienceError. Repeat with a wrong issuer and confirm InvalidIssuerError.",
+          "deliverable": "A verifier configured with explicit issuer and audience plus failing negative tests",
+          "checks": [["Verify with the correct issuer and audience", "Verification succeeds and claims return", "Test output"], ["Verify expecting a different audience", "InvalidAudienceError is raised", "Exception output"], ["Verify expecting a different issuer", "InvalidIssuerError is raised", "Exception output"]],
+          "objectives": ["Enforce issuer and audience on verification", "Reject tokens for the wrong audience", "Explain why these checks are mandatory"]
+        },
+        {
+          "topic": "Creating Tokens in Node.js with jsonwebtoken",
+          "subtopics": ["Installing and importing the jsonwebtoken package", "sign options: expiresIn, audience, issuer and subject", "Setting algorithm explicitly in options", "Reading claims with decode versus verify", "Handling the asynchronous callback form", "Catching TokenExpiredError and JsonWebTokenError", "Using notBefore to delay validity", "Returning 401 responses on verification failure"],
+          "tools": ["Node.js", "jsonwebtoken", "Express"],
+          "lab_task": "In an Express route, issue a token with jwt.sign({sub:userId},secret,{algorithm:'HS256',expiresIn:'15m',issuer:'auth',audience:'api'}). In a middleware, read the Authorization bearer header, jwt.verify it and attach req.user. Call the protected route with and without the header using curl and record the 200 and 401 responses.",
+          "deliverable": "A minimal Express app with a token-issuing route and a verifying middleware",
+          "checks": [["Call the protected route with a valid bearer token", "The route returns 200 with the user payload", "curl output"], ["Call the protected route with no Authorization header", "The middleware returns 401 unauthorized", "curl output"], ["Wait past the 15-minute expiry and call again", "A TokenExpiredError leads to a 401", "Error log"]],
+          "objectives": ["Issue tokens with jsonwebtoken sign options", "Protect a route with verifying middleware", "Map verification errors to HTTP 401"]
+        },
+        {
+          "topic": "Creating Tokens in Python with PyJWT",
+          "subtopics": ["Installing PyJWT and importing jwt", "Encoding a claims dict with jwt.encode", "Choosing the algorithm argument", "Decoding with required algorithms list", "options to require specific claims", "Handling DecodeError and ExpiredSignatureError", "Using datetime for exp and iat", "Integrating verification into a Flask route"],
+          "tools": ["PyJWT", "Python", "Flask"],
+          "lab_task": "Build a Flask endpoint /login that returns jwt.encode({'sub':user,'exp':datetime.now(tz=utc)+timedelta(minutes=15)},key,algorithm='HS256'). Add a decorator that reads the bearer token and calls jwt.decode(token,key,algorithms=['HS256'],options={'require':['exp','sub']}). Test both endpoints with requests and confirm claims and rejection behaviour.",
+          "deliverable": "A Flask app that issues tokens and a decorator that verifies required claims",
+          "checks": [["Call a protected endpoint with a valid token", "The handler runs and returns the subject", "Response body"], ["Call it with a token missing the exp claim", "A MissingRequiredClaimError is raised", "Exception output"], ["Call it with no bearer token", "The decorator returns a 401 response", "Response status"]],
+          "objectives": ["Mint tokens with PyJWT and datetimes", "Require specific claims on decode", "Guard a Flask route with a verifying decorator"]
+        },
+        {
+          "topic": "The JOSE Header and Its Parameters",
+          "subtopics": ["The alg parameter naming the signing algorithm", "The typ parameter set to JWT", "The cty content-type for nested tokens", "The kid key identifier parameter", "The jku and x5u URL parameters and their risk", "The x5c certificate chain parameter", "Why the header must never drive key trust blindly", "How the JOSE header differs from the claims payload"],
+          "tools": ["JWT", "jwt.io", "Node.js"],
+          "lab_task": "Decode the header of three different tokens and tabulate their alg, typ and kid values. Mint one token setting a custom kid of 2026-key-1 in the header options and confirm it appears when decoded. Note which header parameters a verifier should trust and which, like jku, must be ignored unless whitelisted.",
+          "deliverable": "A table of JOSE header fields across sample tokens with a trust annotation",
+          "checks": [["Decode the header of a token with a kid", "The kid value is visible in the header JSON", "Decoded header"], ["List which header params influence key selection", "alg and kid are listed; jku is flagged as untrusted", "Annotation table"], ["Mint a token with a custom kid and decode it", "The custom kid appears unchanged in the header", "Decoded output"]],
+          "objectives": ["Identify the common JOSE header parameters", "Set and read a kid in the header", "Explain which header fields are safe to trust"]
+        },
+        {
+          "topic": "Symmetric versus Asymmetric Signing Overview",
+          "subtopics": ["Symmetric HS256 with one shared secret", "Asymmetric RS256 and ES256 with key pairs", "Who can sign versus who can verify in each model", "Distributing a public key to many verifiers", "Why shared secrets do not scale across services", "Private key protection responsibilities", "Performance trade-offs between the families", "Choosing a family for multi-service systems", "Verification-only clients with public keys", "Migration path from HS256 to RS256"],
+          "tools": ["OpenSSL", "Node.js", "PyJWT"],
+          "lab_task": "Generate an RSA key pair with openssl genrsa -out priv.pem 2048 and openssl rsa -in priv.pem -pubout -out pub.pem. Sign a token with the private key and RS256, then verify it with only the public key. Contrast with HS256 where the same secret does both. Record which key each operation needs.",
+          "deliverable": "A comparison note with a working RS256 sign and verify using separate keys",
+          "checks": [["Verify an RS256 token with the public key only", "Verification succeeds without the private key", "Test output"], ["Attempt to sign with only the public key", "Signing fails because the private key is required", "Error message"], ["Verify an HS256 token", "The same shared secret performs verification", "Test output"]],
+          "objectives": ["Contrast symmetric and asymmetric signing", "Generate and use an RSA key pair", "Explain why public-key signing scales better"]
+        },
+        {
+          "topic": "Access Tokens versus ID Tokens",
+          "subtopics": ["Access tokens authorise calls to an API", "ID tokens assert who the user is to a client", "Audience differences between the two token types", "Why an API must not consume an ID token", "Typical claims found in each token", "Lifetime differences and renewal", "Where each token is presented", "Keeping their validation logic separate"],
+          "tools": ["JWT", "Postman", "Node.js"],
+          "lab_task": "Create two sample tokens: an access token with aud=orders-api and scope=orders.read, and an ID token with aud=webapp-client and a name claim. Write a verifier for the orders API that accepts only aud=orders-api. Send both tokens with Postman and confirm the ID token is rejected by the API with a 401.",
+          "deliverable": "Two distinct tokens plus an API verifier that accepts only its own access token",
+          "checks": [["Send the access token to the orders API", "The request is authorised and returns 200", "Postman result"], ["Send the ID token to the orders API", "The API rejects it as wrong audience with 401", "Postman result"], ["Inspect each token's claims", "Access token carries scope; ID token carries name", "Claim comparison"]],
+          "objectives": ["Distinguish access tokens from ID tokens", "Explain the audience boundary between them", "Reject an ID token at an API endpoint"]
+        },
+        {
+          "topic": "Refresh Tokens and Session Lifetime",
+          "subtopics": ["Short-lived access tokens with long-lived refresh tokens", "Exchanging a refresh token for a new access token", "Storing refresh tokens server-side", "Why refresh tokens must be kept confidential", "Revoking a refresh token to end a session", "Sliding versus absolute session expiry", "Issuing opaque refresh tokens versus JWTs", "Logout and refresh invalidation flow"],
+          "tools": ["Node.js", "jsonwebtoken", "Redis"],
+          "lab_task": "Implement a /refresh endpoint that accepts a refresh token, looks it up in a Redis store, and if present issues a fresh 15-minute access token. Store the refresh token id on login and delete it on logout. Test that refresh works before logout and returns 401 afterward. Record the access token lifetime.",
+          "deliverable": "A login, refresh and logout flow backed by a server-side refresh token store",
+          "checks": [["Call /refresh with a valid stored refresh token", "A new short-lived access token is issued", "Response body"], ["Call /refresh after logout removed the token", "The endpoint returns 401 unauthorized", "Response status"], ["Inspect the issued access token exp", "Its lifetime is about 15 minutes", "Decoded exp"]],
+          "objectives": ["Explain the access and refresh token split", "Exchange a refresh token for an access token", "Invalidate a session on logout"]
+        },
+        {
+          "topic": "Storing Tokens in Browser Clients",
+          "subtopics": ["localStorage versus sessionStorage trade-offs", "Exposure of tokens in storage to XSS", "HttpOnly secure cookies for refresh tokens", "SameSite attribute and CSRF considerations", "Keeping access tokens in memory only", "Avoiding tokens in URLs and logs", "Setting the Authorization bearer header from script", "Clearing tokens on logout"],
+          "tools": ["JavaScript", "Chrome DevTools", "Express"],
+          "lab_task": "Build a small page that receives an access token in memory and a refresh token in a Set-Cookie with HttpOnly, Secure and SameSite=Strict. In DevTools, confirm script cannot read the refresh cookie via document.cookie, while the in-memory access token is used for fetch Authorization headers. Record which store each token uses.",
+          "deliverable": "A browser demo storing the refresh token in an HttpOnly cookie and access token in memory",
+          "checks": [["Read document.cookie in the console", "The HttpOnly refresh cookie is not visible to script", "Console output"], ["Inspect the outgoing API request", "It carries the in-memory access token as a bearer header", "Network panel"], ["Trigger logout", "Both the cookie and in-memory token are cleared", "Storage state"]],
+          "objectives": ["Compare browser token storage options", "Use HttpOnly cookies for refresh tokens", "Explain the XSS and CSRF trade-offs"]
+        },
+        {
+          "topic": "Common Validation Mistakes to Avoid",
+          "subtopics": ["Trusting the alg from the token header", "Decoding without verifying the signature", "Skipping exp, aud and iss checks", "Accepting none as an algorithm", "Using a weak or hard-coded secret", "Confusing decode with verify in libraries", "Not pinning the algorithms list", "Logging full tokens in plaintext"],
+          "tools": ["Node.js", "PyJWT", "JWT"],
+          "lab_task": "Review a deliberately broken verifier that calls jwt.decode without verify and trusts the header alg. Rewrite it to call verify with an explicit algorithms:['HS256'] list and mandatory issuer and audience. Prove the fixed version rejects a token re-signed with a different secret while the broken one accepted it.",
+          "deliverable": "A before-and-after verifier with notes on each mistake corrected",
+          "checks": [["Pass a forged token to the broken verifier", "It wrongly accepts the token", "Demo output"], ["Pass the same token to the fixed verifier", "It rejects the token with a signature error", "Demo output"], ["Check the fixed verifier's algorithms option", "Only HS256 is allowed, no header-driven alg", "Code review note"]],
+          "objectives": ["Identify the most common JWT validation flaws", "Pin algorithms and required claims", "Prove a hardened verifier rejects forgeries"]
+        },
+        {
+          "topic": "Postman and curl Workflows for Bearer Tokens",
+          "subtopics": ["The Authorization header with the Bearer scheme", "Storing a token in a Postman environment variable", "Scripting token capture in a Postman test", "Sending bearer tokens with curl -H", "Reusing a token across multiple requests", "Refreshing an expired token in a collection", "Avoiding committed tokens in shared collections", "Inspecting 401 and 403 responses"],
+          "tools": ["Postman", "curl", "JWT"],
+          "lab_task": "In Postman, call a login request and in its Tests tab run pm.environment.set('token', pm.response.json().access_token). Reference it as Bearer {{token}} in a protected request. Reproduce the same with curl -H \"Authorization: Bearer $TOKEN\". Confirm both reach a 200 and that removing the header yields 401.",
+          "deliverable": "A Postman collection plus curl commands that reuse a captured bearer token",
+          "checks": [["Run the login then the protected request in Postman", "The captured token authorises a 200 response", "Postman run log"], ["Call the endpoint with curl and the bearer header", "The same token returns 200", "curl output"], ["Call the endpoint with no Authorization header", "The server responds 401 unauthorized", "Response status"]],
+          "objectives": ["Capture and reuse tokens in Postman", "Send bearer tokens with curl", "Interpret 401 and 403 responses"]
+        },
+        {
+          "topic": "Handling Clock Skew and Leeway",
+          "subtopics": ["Why distributed clocks drift apart", "The leeway parameter in validation libraries", "Applying leeway to exp and nbf checks", "Choosing a small bounded leeway value", "Risks of an over-large leeway window", "Synchronising hosts with NTP", "Testing skew by shifting the system clock", "Documenting the tolerated skew for a service"],
+          "tools": ["PyJWT", "jsonwebtoken", "Python"],
+          "lab_task": "Mint a token that expired 20 seconds ago. Verify it with leeway=0 and confirm rejection, then with leeway=30 and confirm acceptance, then leeway=10 and confirm rejection again. Document a recommended leeway of no more than 60 seconds and explain why a 3600-second leeway is dangerous.",
+          "deliverable": "A leeway test showing the acceptance boundary and a recommendation note",
+          "checks": [["Verify a 20-second-expired token with leeway 0", "The token is rejected as expired", "Test output"], ["Verify the same token with leeway 30", "The token is accepted within tolerance", "Test output"], ["Verify the same token with leeway 10", "The token is rejected again", "Test output"]],
+          "objectives": ["Explain why clock skew affects validation", "Apply a bounded leeway to time checks", "Justify a safe maximum leeway value"]
+        },
+        {
+          "topic": "Capstone: A Signed Login Token Flow",
+          "subtopics": ["End-to-end login issuing a signed HS256 access token", "Verifying issuer, audience, expiry and signature", "A protected resource requiring a valid token", "A refresh exchange for a new access token", "Negative tests for tampering and expiry", "A short threat note on storage and secrets"],
+          "tools": ["Node.js", "jsonwebtoken", "Postman"],
+          "lab_task": "Build a service with /login (issues a 15-minute HS256 token with iss, aud, sub, exp), /me (verifies and returns the subject) and /refresh. Write Postman tests proving a valid token reaches /me, a tampered token is rejected, an expired token is rejected, and refresh issues a new token. Summarise where each token is stored.",
+          "deliverable": "A complete mini auth service with passing positive and negative Postman tests",
+          "checks": [["Log in and call /me with the issued token", "The subject is returned with 200", "Postman result"], ["Call /me with a tampered token", "The request is rejected with 401", "Postman result"], ["Call /me with an expired token", "An expiry rejection returns 401", "Test log"]],
+          "objectives": ["Assemble a full issue-verify-refresh flow", "Enforce all core validation checks", "Demonstrate failure cases with tests"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who can already mint and verify HS256 tokens and now need production-grade asymmetric signing and key management. It covers RS256, ES256 and EdDSA, JWK and JWKS, the kid header and key selection, zero-downtime key rotation, RFC 8725 best practices, algorithm allow-lists, scope enforcement, refresh-token rotation with reuse detection, denylist revocation, JWE and nested tokens, API gateway validation and JWKS caching, ending in a rotating-key microservice capstone.",
+      "prerequisites": ["Can mint and verify HS256 tokens and read registered claims", "Comfortable generating keys with OpenSSL and running a small web service", "Understands HTTP APIs, middleware and a key-value store such as Redis"],
+      "outcomes": ["Sign and verify tokens with RS256, ES256 and EdDSA using key pairs", "Publish and consume a JWKS and rotate keys without downtime", "Apply RFC 8725 practices including strict algorithm allow-lists", "Implement refresh-token rotation and denylist-based revocation"],
+      "days": [
+        {
+          "topic": "RS256 Signing with RSA Key Pairs",
+          "subtopics": ["RSASSA-PKCS1-v1_5 with SHA-256 as RS256", "Generating a 2048-bit or larger RSA private key", "Deriving the public key for verifiers", "Signing on the authority, verifying everywhere", "PEM encoding of private and public keys", "Protecting the private key at rest", "Comparing RS256 signature size with HS256", "Common errors from mismatched keys"],
+          "tools": ["OpenSSL", "Node.js", "jsonwebtoken"],
+          "lab_task": "Generate keys with openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out priv.pem and extract pub.pem. Sign a token with jwt.sign(payload, privPem, {algorithm:'RS256'}) and verify with jwt.verify(token, pubPem, {algorithms:['RS256']}). Confirm the header alg is RS256 and that the public key alone verifies it.",
+          "deliverable": "A working RS256 sign-and-verify using a generated 2048-bit key pair",
+          "checks": [["Decode the signed token header", "The alg field reads RS256", "Decoded header"], ["Verify with the public key", "Verification succeeds and claims return", "Test output"], ["Verify with an unrelated public key", "An invalid signature error is raised", "Error trace"]],
+          "objectives": ["Generate an RSA key pair for signing", "Sign and verify a token with RS256", "Explain the private and public key roles"]
+        },
+        {
+          "topic": "ES256 and Elliptic-Curve Signatures",
+          "subtopics": ["ECDSA over the P-256 curve with SHA-256", "Smaller keys and signatures than RSA", "Generating an EC private key with openssl", "The raw R and S signature encoding in JOSE", "Verifier performance characteristics", "Why fresh randomness matters for ECDSA", "Choosing ES256 for constrained clients", "Interoperability notes across libraries"],
+          "tools": ["OpenSSL", "PyJWT", "cryptography"],
+          "lab_task": "Create an EC key with openssl ecparam -name prime256v1 -genkey -noout -out ec.pem and extract the public key. In PyJWT sign a token with algorithm='ES256' using the private key and verify with the public key. Compare the base64url signature length against an RS256 token for the same payload and record the difference.",
+          "deliverable": "An ES256 token with a signature-size comparison against RS256",
+          "checks": [["Verify the ES256 token with its public key", "Verification succeeds and claims return", "Test output"], ["Compare ES256 and RS256 signature lengths", "The ES256 signature is markedly shorter", "Length table"], ["Verify the ES256 token declaring RS256 only", "Verification is rejected on algorithm mismatch", "Error trace"]],
+          "objectives": ["Generate a P-256 elliptic-curve key pair", "Sign and verify a token with ES256", "Compare ECDSA and RSA signature sizes"]
+        },
+        {
+          "topic": "EdDSA Ed25519 Token Signing",
+          "subtopics": ["EdDSA using the Ed25519 curve", "Deterministic signatures without per-signature randomness", "Fast verification and compact keys", "Generating an Ed25519 key with openssl", "Library support for EdDSA in JOSE", "The alg value EdDSA in the header", "When EdDSA is preferable to ECDSA", "Checking library and platform support"],
+          "tools": ["OpenSSL", "PyJWT", "cryptography"],
+          "lab_task": "Generate a key with openssl genpkey -algorithm ed25519 -out ed.pem and derive the public key. In PyJWT sign a token with algorithm='EdDSA' and verify with the public key. Confirm the header alg is EdDSA and that signing the same payload twice yields an identical signature, demonstrating determinism.",
+          "deliverable": "A working EdDSA sign-and-verify demonstrating deterministic signatures",
+          "checks": [["Verify the EdDSA token with its public key", "Verification succeeds and claims return", "Test output"], ["Sign the same payload twice and compare", "Both signatures are byte-for-byte identical", "Comparison output"], ["Read the token header alg", "The alg field reads EdDSA", "Decoded header"]],
+          "objectives": ["Generate an Ed25519 key pair", "Sign and verify a token with EdDSA", "Explain deterministic signing behaviour"]
+        },
+        {
+          "topic": "JWK Representation of Keys",
+          "subtopics": ["The JSON Web Key object and its members", "The kty key type for RSA, EC and OKP", "The use and key_ops parameters", "The alg and kid members", "RSA members n and e", "EC members crv, x and y", "Converting a PEM key to a JWK", "Never exporting private members in a public JWK"],
+          "tools": ["Python", "jwcrypto", "OpenSSL"],
+          "lab_task": "Using a JWK library, import pub.pem and export it as a JWK. Confirm the kty is RSA, the kid is set, and the object contains n and e but no private member d. For an EC key confirm crv P-256 with x and y. Print the JWK and verify it parses as valid JSON.",
+          "deliverable": "A public JWK derived from a PEM key with the correct members and no private data",
+          "checks": [["Export the RSA public key as a JWK", "kty is RSA with n and e present", "JWK output"], ["Search the public JWK for a d member", "No private exponent is present", "Grep result"], ["Export an EC public key as a JWK", "crv is P-256 with x and y members", "JWK output"]],
+          "objectives": ["Describe the JWK object members", "Convert a PEM key into a JWK", "Ensure public JWKs exclude private material"]
+        },
+        {
+          "topic": "Publishing a JWKS Endpoint",
+          "subtopics": ["The JWK Set as a keys array", "Serving it at a well-known URL", "Including multiple keys during rotation", "Matching a token kid to a set entry", "Setting cache-control headers on the endpoint", "Keeping only public keys in the set", "Content type application slash json", "Monitoring endpoint availability"],
+          "tools": ["Node.js", "Express", "jwks-rsa"],
+          "lab_task": "Serve GET /.well-known/jwks.json returning {keys:[jwk1,jwk2]} built from your public keys, each with a kid. Fetch it with curl and pipe to jq '.keys[].kid' to list the identifiers. Confirm the response content type is application/json and that no private key members appear anywhere in the body.",
+          "deliverable": "A JWKS endpoint returning a keys array of public JWKs with kids",
+          "checks": [["Fetch the endpoint and parse with jq", "A keys array with one or more kids is returned", "jq output"], ["Inspect the response content type", "It is application/json", "Response headers"], ["Grep the response for private key members", "No d or private material is present", "Grep result"]],
+          "objectives": ["Publish a conformant JWKS endpoint", "Expose multiple keys for rotation", "Guarantee only public keys are served"]
+        },
+        {
+          "topic": "The kid Header and Key Selection",
+          "subtopics": ["Using kid to pick the verification key", "Looking up the key in a JWKS by kid", "Failing closed when kid is unknown", "Never fetching arbitrary keys from the header", "Mapping kid to a cached key object", "Assigning stable kids at key creation", "Handling tokens without a kid", "Avoiding kid as a trust anchor by itself"],
+          "tools": ["Node.js", "jwks-rsa", "jsonwebtoken"],
+          "lab_task": "Configure jwks-rsa with your JWKS URL and a getKey callback that reads the token header kid and returns the matching signing key. Verify a token whose kid exists and one whose kid does not. Confirm the known kid verifies and the unknown kid fails closed rather than skipping verification.",
+          "deliverable": "A verifier that selects keys by kid from a JWKS and fails closed on unknown kids",
+          "checks": [["Verify a token whose kid is in the JWKS", "The matching key verifies it successfully", "Test output"], ["Verify a token with an unknown kid", "Verification fails because no key is found", "Error trace"], ["Verify a token with no kid against a multi-key set", "The verifier rejects rather than guessing", "Error trace"]],
+          "objectives": ["Select a verification key by kid", "Look up keys from a JWKS safely", "Fail closed on unknown key identifiers"]
+        },
+        {
+          "topic": "Key Rotation Without Downtime",
+          "subtopics": ["Publishing the new key before signing with it", "Overlap window where two keys verify", "Switching the signing key at the chosen time", "Retiring the old key after token lifetimes pass", "Assigning a new kid per key generation", "Automating rotation on a schedule", "Coordinating rotation with JWKS caches", "Rollback plan if a new key misbehaves"],
+          "tools": ["Node.js", "jwks-rsa", "OpenSSL"],
+          "lab_task": "Add a second key with a new kid to your JWKS while still signing with the old one. Have verifiers accept both. Switch signing to the new kid and confirm old tokens still verify until they expire. After the access-token lifetime, remove the old key and confirm only new tokens verify. Log each phase.",
+          "deliverable": "A documented rotation sequence where both old and new tokens verify during overlap",
+          "checks": [["Verify an old-kid token during the overlap window", "It still verifies against the retained old key", "Test output"], ["Verify a new-kid token after the switch", "It verifies against the new key", "Test output"], ["Verify an old-kid token after the old key is removed", "Verification now fails for the retired key", "Error trace"]],
+          "objectives": ["Plan an overlap-based rotation window", "Keep tokens valid across a key switch", "Retire old keys safely after expiry"]
+        },
+        {
+          "topic": "RFC 8725 Validation Best Practices",
+          "subtopics": ["Always verify the signature before using claims", "Use an explicit algorithm allow-list", "Validate all registered claims present", "Use appropriate key sizes per algorithm", "Avoid algorithm confusion by key type binding", "Reject tokens with none or unexpected alg", "Validate the cty and typ where relevant", "Treat the header as untrusted input"],
+          "tools": ["PyJWT", "Node.js", "JWT"],
+          "lab_task": "Audit an existing verifier against the RFC 8725 checklist. Ensure it pins algorithms, enforces iss, aud and exp, binds the expected key type to the algorithm, and rejects none. Write a checklist mapping each recommendation to a line of code or a failing test that proves it is enforced.",
+          "deliverable": "An RFC 8725 compliance checklist mapped to code and tests for one verifier",
+          "checks": [["Submit a none-alg token to the verifier", "It is rejected by the algorithm allow-list", "Test output"], ["Submit a token missing exp", "It is rejected for a missing required claim", "Test output"], ["Review the algorithms option in code", "A fixed allow-list is set, not header-driven", "Code excerpt"]],
+          "objectives": ["Apply the RFC 8725 best-practice checklist", "Bind key type to the expected algorithm", "Prove each practice with a failing test"]
+        },
+        {
+          "topic": "Algorithm Allow-Lists and Confusion Defense",
+          "subtopics": ["Hard-coding the accepted algorithms set", "Why trusting header alg enables confusion", "Binding an RSA public key to RS256 only", "Rejecting HS256 when an asymmetric key is expected", "Separate verifiers per algorithm family", "Testing with a deliberately swapped alg", "Library options that enforce the allow-list", "Monitoring for unexpected alg values"],
+          "tools": ["Node.js", "PyJWT", "jsonwebtoken"],
+          "lab_task": "Take an RS256 token and attempt to verify it in a verifier that mistakenly allows both RS256 and HS256 using the public key as an HMAC secret. Show it can be forged. Then restrict algorithms to ['RS256'] only and prove the forged HS256 token is rejected. Document the single-line fix.",
+          "deliverable": "A demonstration that an RS256-only allow-list defeats an HS256 confusion forgery",
+          "checks": [["Forge an HS256 token using the public key as secret against the permissive verifier", "The permissive verifier wrongly accepts it", "Demo output"], ["Verify the same forged token with an RS256-only allow-list", "It is rejected on algorithm mismatch", "Test output"], ["Inspect the hardened verifier options", "algorithms is fixed to RS256 alone", "Code excerpt"]],
+          "objectives": ["Enforce a strict algorithm allow-list", "Explain HS and RS key confusion", "Prove the allow-list blocks the forgery"]
+        },
+        {
+          "topic": "Audience, Issuer and Scope Enforcement",
+          "subtopics": ["Checking aud contains this exact service", "Pinning iss to the trusted authority", "Reading scope or scp for coarse authorisation", "Mapping scopes to allowed operations", "Rejecting insufficient scope with 403", "Distinguishing authentication from authorization", "Centralising claim enforcement in middleware", "Logging denied requests with the reason"],
+          "tools": ["Node.js", "Express", "PyJWT"],
+          "lab_task": "Write middleware that verifies the token, confirms iss and aud, then checks the scope claim contains orders.write for a POST route. Call the route with a token holding orders.read and confirm a 403, then with orders.write and confirm a 200. Log the denial reason for the rejected call.",
+          "deliverable": "Authorization middleware enforcing issuer, audience and a required scope",
+          "checks": [["Call the write route with only orders.read scope", "The request is denied with 403 forbidden", "Response status"], ["Call the write route with orders.write scope", "The request succeeds with 200", "Response status"], ["Call with a token from an untrusted issuer", "The request is rejected at the issuer check", "Log entry"]],
+          "objectives": ["Enforce issuer and audience in middleware", "Authorise requests by scope claims", "Return 403 for insufficient scope"]
+        },
+        {
+          "topic": "Refresh Token Rotation and Reuse Detection",
+          "subtopics": ["Issuing a new refresh token on every use", "Invalidating the previous refresh token", "Detecting reuse of an already-used token", "Revoking the whole token family on reuse", "Storing a token family identifier", "Binding refresh tokens to a device or session", "Alerting on suspected token theft", "Balancing security with user friction"],
+          "tools": ["Node.js", "Redis", "jsonwebtoken"],
+          "lab_task": "Implement rotating refresh tokens: each /refresh returns a new refresh token, marks the old one used in Redis, and if a used token is presented again, revokes the entire family. Simulate theft by replaying a consumed refresh token and confirm the family is invalidated and all sessions require re-login.",
+          "deliverable": "A rotating refresh scheme that detects reuse and revokes the token family",
+          "checks": [["Use a refresh token once normally", "A new refresh and access token pair is issued", "Response body"], ["Replay the already-used refresh token", "Reuse is detected and the family is revoked", "Server log"], ["Attempt refresh after family revocation", "All refresh attempts are rejected until re-login", "Response status"]],
+          "objectives": ["Rotate refresh tokens on each use", "Detect and respond to token reuse", "Revoke a compromised token family"]
+        },
+        {
+          "topic": "Token Revocation with a Denylist",
+          "subtopics": ["Why stateless JWTs are hard to revoke", "Maintaining a denylist of revoked jti values", "Checking the jti against the denylist on each request", "Expiring denylist entries at token exp", "Choosing a fast store such as Redis", "Trade-off between statelessness and revocation", "Revoking on logout or credential change", "Measuring the added verification latency"],
+          "tools": ["Redis", "Node.js", "PyJWT"],
+          "lab_task": "Add a jti claim to each token and a /logout route that writes jti to a Redis set with a TTL equal to the remaining token lifetime. In verification, after signature checks, reject any token whose jti is in the denylist. Prove a logged-out token is refused while others still work, and that the entry self-expires.",
+          "deliverable": "A jti-based denylist that revokes individual tokens until their natural expiry",
+          "checks": [["Use a token, then log it out and reuse it", "The revoked token is rejected after logout", "Response status"], ["Use a different unrevoked token", "That token continues to verify normally", "Response status"], ["Wait past the original exp and inspect Redis", "The denylist entry has self-expired via TTL", "Redis TTL check"]],
+          "objectives": ["Explain the revocation challenge for JWTs", "Revoke tokens through a jti denylist", "Expire denylist entries at token exp"]
+        },
+        {
+          "topic": "Short-Lived Tokens and Introspection",
+          "subtopics": ["Minimising exposure with brief lifetimes", "Trading frequent refresh for faster revocation", "The OAuth token introspection endpoint", "Introspecting opaque tokens for active state", "Caching introspection results briefly", "Choosing JWT self-validation versus introspection", "Combining short JWTs with server checks", "Measuring refresh frequency impact"],
+          "tools": ["Node.js", "Redis", "Postman"],
+          "lab_task": "Configure access tokens with a 5-minute exp. Add a POST /introspect endpoint returning {active:true/false} based on a server record. Have a gateway call introspect for sensitive routes and cache the result for 30 seconds. Revoke a token server-side and confirm sensitive routes reject it within the cache window.",
+          "deliverable": "A short-lifetime token setup with an introspection endpoint and brief caching",
+          "checks": [["Introspect an active token", "The endpoint returns active true", "Response body"], ["Revoke the token and introspect after cache expiry", "The endpoint returns active false", "Response body"], ["Call a sensitive route with the revoked token", "Access is denied once the cache refreshes", "Response status"]],
+          "objectives": ["Explain short-lifetime token trade-offs", "Implement a token introspection endpoint", "Cache introspection results safely"]
+        },
+        {
+          "topic": "Validating Tokens in Python Services",
+          "subtopics": ["Fetching and caching a JWKS with PyJWKClient", "Selecting the signing key by kid", "Decoding with algorithms, audience and issuer", "Handling PyJWTError subclasses cleanly", "Returning 401 versus 403 appropriately", "Unit-testing the verifier with fixtures", "Refreshing the JWKS on key rotation", "Keeping verification logic in one module"],
+          "tools": ["PyJWT", "Python", "FastAPI"],
+          "lab_task": "In FastAPI, use PyJWT's PyJWKClient(jwks_url).get_signing_key_from_jwt(token) to fetch the key, then jwt.decode(token, key.key, algorithms=['RS256'], audience='api', issuer='auth'). Wrap it in a dependency that raises HTTPException 401 on failure. Test valid, expired and wrong-audience tokens against a protected route.",
+          "deliverable": "A FastAPI dependency that verifies RS256 tokens against a remote JWKS",
+          "checks": [["Call a protected route with a valid token", "The route returns 200 with the subject", "Response body"], ["Call it with an expired token", "The dependency returns 401 unauthorized", "Response status"], ["Call it with a wrong-audience token", "Verification fails on the audience check", "Error detail"]],
+          "objectives": ["Verify RS256 tokens against a JWKS in Python", "Select keys by kid with PyJWKClient", "Map verification errors to HTTP responses"]
+        },
+        {
+          "topic": "Validating Tokens in Node.js Middleware",
+          "subtopics": ["Using jwks-rsa with a caching getKey callback", "Configuring jsonwebtoken verify options", "Rate-limiting and caching JWKS fetches", "Attaching verified claims to the request", "Centralising error handling for 401", "Supporting multiple issuers if required", "Testing middleware with supertest", "Avoiding synchronous blocking on key fetch"],
+          "tools": ["Node.js", "Express", "jwks-rsa"],
+          "lab_task": "Wire jwks-rsa with cache true and rateLimit true into an Express middleware. Use its getKey with jwt.verify(token, getKey, {algorithms:['RS256'], audience:'api', issuer:'auth'}). Use supertest to assert 200 for a valid token, 401 for a missing header and 401 for a bad signature. Confirm the JWKS is fetched once and cached.",
+          "deliverable": "An Express JWKS-backed verifying middleware with supertest coverage",
+          "checks": [["Send a valid RS256 token", "The middleware authorises with 200", "Test output"], ["Send a request with no Authorization header", "The middleware returns 401", "Test output"], ["Send two valid requests in a row", "The JWKS is fetched once then served from cache", "Fetch log"]],
+          "objectives": ["Build JWKS-backed Express middleware", "Cache and rate-limit key fetches", "Cover the middleware with supertest"]
+        },
+        {
+          "topic": "JWE Encrypting Token Payloads",
+          "subtopics": ["JWE compact serialization and its five parts", "Key management alg such as RSA-OAEP", "Content encryption enc such as A256GCM", "Confidentiality of claims versus JWS integrity", "Encrypting to a recipient public key", "Decrypting with the recipient private key", "When encryption is actually required", "Performance cost of encryption"],
+          "tools": ["Python", "jwcrypto", "OpenSSL"],
+          "lab_task": "With a JWE library, encrypt a claims set to a recipient RSA public key using alg RSA-OAEP-256 and enc A256GCM. Confirm the output has five dot-separated parts and that the payload is not readable without the private key. Decrypt with the private key and confirm the original claims are recovered.",
+          "deliverable": "A JWE token whose claims are unreadable without the recipient private key",
+          "checks": [["Count the dot-separated parts of the JWE", "Exactly five segments are present", "Segment count"], ["Attempt to base64url-decode the ciphertext as JSON", "The payload is unreadable ciphertext", "Decode attempt"], ["Decrypt with the recipient private key", "The original claims set is recovered", "Decrypted output"]],
+          "objectives": ["Describe the five parts of a JWE", "Encrypt claims with RSA-OAEP and A256GCM", "Explain when encryption is warranted"]
+        },
+        {
+          "topic": "Nested JWT Signed Then Encrypted",
+          "subtopics": ["Signing claims as a JWS first", "Encrypting the JWS as the JWE payload", "The cty header set to JWT for nesting", "Order: sign inner, encrypt outer", "Verifying by decrypt then verify signature", "Why this gives both integrity and confidentiality", "Increased size and processing cost", "Interoperability expectations for nesting"],
+          "tools": ["Python", "jwcrypto", "OpenSSL"],
+          "lab_task": "Create a nested token: sign the claims with RS256 to get a JWS, then encrypt that JWS with RSA-OAEP-256 and A256GCM setting cty to JWT. On receipt, decrypt with the recipient private key to recover the JWS, then verify its signature with the signer's public key. Confirm both steps succeed in order.",
+          "deliverable": "A nested signed-then-encrypted token verified by decrypt-then-verify",
+          "checks": [["Inspect the outer token header cty", "cty is set to JWT indicating nesting", "Decoded header"], ["Decrypt the outer JWE", "The inner JWS compact token is recovered", "Decrypted output"], ["Verify the recovered inner JWS signature", "The signature verifies against the signer key", "Verification result"]],
+          "objectives": ["Construct a nested signed-then-encrypted token", "Set cty to JWT for nesting", "Verify by decrypting then checking the signature"]
+        },
+        {
+          "topic": "API Gateway Token Validation",
+          "subtopics": ["Validating tokens at the gateway edge", "Offloading signature checks from services", "Configuring a JWKS URI in the gateway", "Forwarding verified claims as headers", "Rejecting invalid tokens before upstream", "Caching keys at the gateway", "Per-route scope requirements", "Avoiding double validation downstream"],
+          "tools": ["Kong", "NGINX", "JWT"],
+          "lab_task": "Configure a gateway (for example Kong's jwt plugin or NGINX auth_jwt) with your JWKS URI to validate RS256 tokens on a route. Send a valid and an invalid token with curl. Confirm the gateway returns 401 for the invalid one before reaching the upstream, and forwards verified subject info as a header for the valid one.",
+          "deliverable": "A gateway route that validates tokens and forwards verified claims upstream",
+          "checks": [["Send a valid token through the gateway", "The request reaches the upstream with 200", "curl output"], ["Send an invalid token through the gateway", "The gateway returns 401 before the upstream", "curl output"], ["Inspect the upstream request headers", "Verified subject claim is forwarded as a header", "Upstream log"]],
+          "objectives": ["Validate tokens at the API gateway", "Forward verified claims to upstream services", "Reject bad tokens before they reach services"]
+        },
+        {
+          "topic": "Caching JWKS and Handling Rollover",
+          "subtopics": ["Caching keys to avoid per-request fetches", "Honouring cache-control and max-age", "Refreshing on an unknown kid", "Guarding against JWKS endpoint outages", "Avoiding a thundering herd of fetches", "Negative caching of fetch failures", "Forcing a refresh after rotation", "Metrics for cache hits and refreshes"],
+          "tools": ["Node.js", "jwks-rsa", "Redis"],
+          "lab_task": "Enable JWKS caching with a max age. Rotate to a new kid at the authority. Confirm the verifier refetches when it sees the unknown kid and then verifies the new token, without refetching for every request. Simulate a JWKS outage and confirm cached keys still verify existing tokens. Record cache hit counts.",
+          "deliverable": "A caching JWKS client that refreshes on unknown kid and survives brief outages",
+          "checks": [["Verify many tokens with the same kid", "The JWKS is served from cache, not refetched each time", "Fetch counter"], ["Present a token with a newly rotated kid", "The client refetches once and verifies it", "Fetch log"], ["Simulate a JWKS outage with cached keys", "Existing tokens still verify from cache", "Test output"]],
+          "objectives": ["Cache JWKS keys to reduce fetches", "Refresh on unknown kid after rotation", "Stay resilient during JWKS outages"]
+        },
+        {
+          "topic": "Capstone: A Rotating-Key Microservice Auth System",
+          "subtopics": ["An authority signing RS256 tokens with a kid", "A JWKS endpoint exposing current public keys", "Two services validating via the cached JWKS", "A scheduled key rotation with overlap", "Revocation through a shared jti denylist", "End-to-end tests across rotation and revocation"],
+          "tools": ["Node.js", "jwks-rsa", "Redis"],
+          "lab_task": "Build an auth service that signs RS256 tokens and publishes a JWKS, plus two resource services that verify via cached JWKS. Rotate the signing key with an overlap window and prove old and new tokens both verify during it. Revoke a token via a shared jti denylist and confirm both services reject it.",
+          "deliverable": "A multi-service system demonstrating rotation overlap and shared revocation",
+          "checks": [["Call both services during a rotation overlap", "Old and new tokens both verify", "Test matrix"], ["Revoke a jti and retry on both services", "Both services reject the revoked token", "Test output"], ["Present a token with an unknown kid", "Both services fail closed after a refresh attempt", "Error trace"]],
+          "objectives": ["Integrate signing, JWKS and multi-service verification", "Demonstrate zero-downtime key rotation", "Share revocation state across services"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For security-minded engineers hardening token systems and probing them for weaknesses on systems they own. It covers the alg none, HS/RS confusion, kid injection and jku/x5u attacks and their defenses, signature tampering suites, sender-constrained tokens with DPoP and mTLS, distributed revocation at scale, verification in Java, .NET and Go, high-throughput performance, HSM and KMS key management, auditing, PASETO comparison, secure design review, penetration testing, key-leak incident response and a hardened architecture capstone.",
+      "prerequisites": ["Can verify asymmetric tokens against a JWKS and rotate keys", "Understands common web vulnerabilities and has a lab environment to attack", "Comfortable in at least one of Java, .NET or Go plus Node.js or Python"],
+      "outcomes": ["Reproduce and defend against the major JWT attacks in a lab you own", "Implement sender-constrained tokens with DPoP or mTLS binding", "Validate tokens correctly in Java, .NET and Go services", "Run a key-leak incident response and harden a full token architecture"],
+      "days": [
+        {
+          "topic": "The alg none Downgrade Attack and Defense",
+          "subtopics": ["The unsecured JWS with alg set to none", "An empty signature segment in a none token", "How naive verifiers skip signature checks", "Forging claims by stripping the signature", "Defending with a strict algorithm allow-list", "Why decode must never trust the header alg", "Library versions that mishandle none", "Logging rejected none-alg attempts"],
+          "tools": ["Node.js", "PyJWT", "Burp Suite"],
+          "lab_task": "On a lab service you own, take a valid token, set its header alg to none, blank the signature segment and keep the dot. Submit it. If accepted, the verifier is vulnerable. Then set the verifier's algorithms to ['RS256'] only and confirm the none token is rejected. Record both outcomes.",
+          "deliverable": "A demonstration that a strict allow-list rejects a forged alg none token",
+          "checks": [["Submit a crafted alg none token to the hardened verifier", "It is rejected by the algorithm allow-list", "Test output"], ["Inspect the hardened verifier options", "none is absent and only RS256 is allowed", "Code excerpt"], ["Review the rejection log entry", "The attempt is logged with reason unsupported algorithm", "Log entry"]],
+          "objectives": ["Explain the alg none downgrade attack", "Reproduce it against a lab verifier you own", "Defend with a strict algorithm allow-list"]
+        },
+        {
+          "topic": "HS and RS Key Confusion Exploitation",
+          "subtopics": ["Verifier accepting both HS256 and RS256", "Using the RSA public key as an HMAC secret", "Forging a valid-looking HS256 signature", "Why the public key is attacker-known", "Binding key type to algorithm as the fix", "Separate verification paths per family", "Detecting the swap in request logs", "Testing the fix with a forged token"],
+          "tools": ["Python", "PyJWT", "OpenSSL"],
+          "lab_task": "On a lab verifier you own that accepts RS256 and HS256 with a shared key loader, obtain the public key and forge a token by HMAC-signing with that public key as the HS256 secret. Submit it to show acceptance. Then restrict the verifier to RS256 with the public key only and confirm the forged token is rejected.",
+          "deliverable": "A key-confusion forgery and the allow-list fix that defeats it",
+          "checks": [["Submit the HS256-forged token to the permissive verifier", "The permissive verifier accepts the forgery", "Demo output"], ["Submit the same token to the RS256-only verifier", "It is rejected on algorithm mismatch", "Test output"], ["Review the fixed key loader", "The public key is bound to RS256 verification only", "Code excerpt"]],
+          "objectives": ["Reproduce HS and RS key confusion in a lab", "Explain why the public key enables forgery", "Bind key type to algorithm to fix it"]
+        },
+        {
+          "topic": "kid Header Injection and Path Traversal",
+          "subtopics": ["Using kid to drive an unsafe key lookup", "Path traversal through a kid value", "SQL injection via a database-backed kid lookup", "Pointing kid at a predictable file as the key", "Validating kid against a known set", "Parameterising any kid-based query", "Rejecting kids outside an allow-list", "Monitoring for suspicious kid values"],
+          "tools": ["Python", "PyJWT", "Burp Suite"],
+          "lab_task": "On a lab app you own that loads keys by reading a file named after kid, craft a token whose kid is ../../dev/null or a path to a file you control, and sign with the matching content. Show the forgery works. Then restrict key lookup to an allow-list map of kid to key and confirm the traversal is rejected.",
+          "deliverable": "A kid-injection forgery and an allow-list lookup that blocks traversal",
+          "checks": [["Submit a traversal kid to the vulnerable loader", "The loader reads an attacker-chosen key and accepts the token", "Demo output"], ["Submit the same token after the allow-list fix", "The unknown kid is rejected before any lookup", "Test output"], ["Review the fixed lookup code", "kid is resolved only through a fixed map", "Code excerpt"]],
+          "objectives": ["Exploit an unsafe kid lookup in a lab", "Explain traversal and injection via kid", "Constrain kid resolution to an allow-list"]
+        },
+        {
+          "topic": "JKU and X5U Header Abuse",
+          "subtopics": ["The jku header pointing to a JWK set URL", "The x5u header pointing to a certificate URL", "Attacker-hosted key sets to forge tokens", "SSRF risk from fetching header URLs", "Whitelisting allowed jku and x5u hosts", "Preferring a pinned local JWKS over header URLs", "Validating certificate chains for x5u", "Disabling header-driven key fetches by default"],
+          "tools": ["Python", "PyJWT", "Burp Suite"],
+          "lab_task": "On a lab verifier you own that fetches keys from the token jku, host your own JWK set, sign a forged token and point jku at your server. Show acceptance and the SSRF fetch. Then configure the verifier to ignore jku and use a pinned JWKS, or to allow only an approved host, and confirm the forgery fails.",
+          "deliverable": "A jku-abuse forgery and a pinned-JWKS or host-allow-list defense",
+          "checks": [["Point jku at an attacker JWKS and submit the token", "The vulnerable verifier fetches it and accepts the forgery", "Demo output"], ["Submit the same token to the pinned-JWKS verifier", "The header jku is ignored and the token is rejected", "Test output"], ["Inspect outbound requests from the fixed verifier", "No fetch is made to the attacker host", "Network log"]],
+          "objectives": ["Demonstrate jku and x5u abuse in a lab", "Explain the SSRF and forgery risk", "Pin or allow-list key source URLs"]
+        },
+        {
+          "topic": "Signature Stripping and Tampering Tests",
+          "subtopics": ["Removing the signature while keeping the dot", "Altering claims and re-encoding the payload", "Swapping the header to a weaker algorithm", "Fuzzing segment boundaries and padding", "Confirming each tamper is rejected", "Automating tamper cases in a test suite", "Checking error messages do not leak internals", "Recording a tamper-resistance report"],
+          "tools": ["Python", "pytest", "Burp Suite"],
+          "lab_task": "Write a pytest suite that programmatically mutates a valid token: strip the signature, flip a payload byte, change exp to the future, and swap alg. Submit each to your lab verifier and assert a 401 for every case. Confirm no mutation is accepted and that error responses reveal no secret details.",
+          "deliverable": "An automated tamper-resistance suite proving every mutation is rejected",
+          "checks": [["Submit a signature-stripped token", "The verifier rejects it with 401", "Test output"], ["Submit a token with exp pushed to the future", "It is rejected because the signature no longer matches", "Test output"], ["Review error responses across cases", "No internal secret or key detail is leaked", "Response bodies"]],
+          "objectives": ["Automate systematic token tampering tests", "Assert rejection for every mutation", "Confirm errors leak no sensitive detail"]
+        },
+        {
+          "topic": "DPoP Proof-of-Possession Tokens",
+          "subtopics": ["Binding a token to a client key pair", "The DPoP proof JWT sent per request", "The cnf claim with a jkt thumbprint", "The htm and htu claims binding method and URL", "The jti and iat preventing proof replay", "Server verification of the proof against the token", "Defeating stolen-token replay", "Library and framework support for DPoP"],
+          "tools": ["Node.js", "Python", "Postman"],
+          "lab_task": "Implement DPoP on a lab API you own: issue an access token carrying cnf.jkt bound to a client key, and require a DPoP proof JWT header per request whose public key thumbprint matches jkt and whose htm and htu match the request. Replay the token without a valid proof and confirm rejection.",
+          "deliverable": "A DPoP-bound API that rejects token use without a matching proof",
+          "checks": [["Call the API with the token and a valid DPoP proof", "The request is authorised with 200", "Response status"], ["Replay the token with no DPoP proof", "The request is rejected as missing proof", "Response status"], ["Send a proof whose thumbprint differs from cnf.jkt", "The request is rejected on binding mismatch", "Error detail"]],
+          "objectives": ["Explain proof-of-possession with DPoP", "Bind a token to a client key via cnf.jkt", "Reject replay without a valid proof"]
+        },
+        {
+          "topic": "mTLS-Bound Access Tokens",
+          "subtopics": ["Binding a token to a client TLS certificate", "The cnf claim with x5t#S256 thumbprint", "Confirming the presented client cert matches", "Certificate-bound tokens in RFC 8705", "Terminating mTLS at the gateway", "Passing the client cert hash to services", "Defeating token export to another client", "Operational cost of client certificates"],
+          "tools": ["NGINX", "OpenSSL", "Node.js"],
+          "lab_task": "On a lab setup you own, issue a token with cnf.x5t#S256 equal to the SHA-256 thumbprint of a client certificate. Configure mTLS at the gateway and have the service compare the presented client cert thumbprint to the token's cnf value. Present the token with the correct client cert, then with a different cert, and compare outcomes.",
+          "deliverable": "A certificate-bound token accepted only with its matching client certificate",
+          "checks": [["Call the API with the token and its bound client cert", "The request is authorised with 200", "Response status"], ["Call with the token but a different client cert", "The request is rejected on thumbprint mismatch", "Response status"], ["Call with the token and no client certificate", "The mTLS handshake or binding check fails", "Gateway log"]],
+          "objectives": ["Explain certificate-bound access tokens", "Match a client cert thumbprint to cnf", "Prevent use of an exported token"]
+        },
+        {
+          "topic": "Token Binding and Sender Constraint",
+          "subtopics": ["Sender-constrained versus bearer tokens", "Comparing DPoP and mTLS binding approaches", "The cnf confirmation claim structure", "Choosing a binding mechanism per client type", "Public clients and DPoP suitability", "Confidential clients and mTLS suitability", "Downgrade risks if binding is optional", "Enforcing binding at the resource server"],
+          "tools": ["Node.js", "Python", "OpenSSL"],
+          "lab_task": "On a lab API you own, require sender-constrained tokens: accept either a DPoP proof or an mTLS-bound token but reject a plain bearer token with no cnf. Present each of the three token styles and record which are accepted. Confirm a bearer token lacking any confirmation claim is refused.",
+          "deliverable": "A resource server enforcing sender constraint over plain bearer tokens",
+          "checks": [["Present a DPoP-bound token with a valid proof", "The DPoP-bound request is accepted", "Response status"], ["Present a plain bearer token with no cnf", "The request is rejected as unbound", "Response status"], ["Present an mTLS-bound token with its client cert", "The certificate-bound request is accepted", "Response status"]],
+          "objectives": ["Compare DPoP and mTLS token binding", "Enforce a sender-constraint policy", "Reject unbound bearer tokens"]
+        },
+        {
+          "topic": "Distributed Revocation at Scale",
+          "subtopics": ["Propagating revocation across many services", "A shared denylist versus push invalidation", "Publishing revocations over a message bus", "Bounding staleness with short token lifetimes", "Consistency trade-offs across regions", "Backpressure and store capacity planning", "Measuring revocation propagation delay", "Failure modes when the store is unreachable"],
+          "tools": ["Redis", "Kafka", "Node.js"],
+          "lab_task": "Build a revocation service that publishes revoked jti values to a Kafka topic; each resource service consumes and caches them in a local Redis. Revoke a token and measure how long until all services reject it. Keep access-token lifetime at 5 minutes so the worst-case staleness is bounded. Record the propagation time.",
+          "deliverable": "A fan-out revocation pipeline with a measured propagation delay",
+          "checks": [["Revoke a jti and immediately retry on a consumer service", "The token is rejected once the revocation propagates", "Test output"], ["Measure propagation across all services", "All services reject within the measured delay", "Timing report"], ["Stop a consumer, revoke, then restart it", "On restart it resyncs and rejects the revoked token", "Service log"]],
+          "objectives": ["Propagate revocations across services", "Bound staleness with short lifetimes", "Measure revocation propagation delay"]
+        },
+        {
+          "topic": "JWT Validation in Java with Nimbus",
+          "subtopics": ["Nimbus JOSE and JWT library basics", "Loading a remote JWKS with a key selector", "Configuring a DefaultJWTProcessor", "Pinning expected algorithm and claims", "Verifying issuer, audience and expiry", "Caching remote keys with a resource retriever", "Handling BadJOSEException paths", "Unit testing with generated keys"],
+          "tools": ["Java", "Nimbus JOSE+JWT", "Maven"],
+          "lab_task": "In a Java service, configure a Nimbus DefaultJWTProcessor with a JWSVerificationKeySelector backed by a RemoteJWKSet for your JWKS URL, pinned to RS256. Add a DefaultJWTClaimsVerifier requiring the expected issuer and audience. Process a valid token and an expired one, asserting success and a BadJOSEException respectively.",
+          "deliverable": "A Nimbus-based verifier pinned to RS256 with issuer and audience checks",
+          "checks": [["Process a valid RS256 token", "The claims set is returned successfully", "Test output"], ["Process an expired token", "A BadJOSEException is thrown", "Exception trace"], ["Process a token signed with a different algorithm", "The key selector rejects it on algorithm", "Error trace"]],
+          "objectives": ["Verify tokens with Nimbus in Java", "Pin algorithm, issuer and audience", "Cache remote keys with a JWKS retriever"]
+        },
+        {
+          "topic": "JWT Validation in .NET",
+          "subtopics": ["Microsoft.IdentityModel token handlers", "Configuring TokenValidationParameters", "ValidIssuer, ValidAudience and lifetime validation", "Loading signing keys from a JWKS or metadata", "Pinning ValidAlgorithms to RS256", "AddJwtBearer in ASP.NET Core", "Handling SecurityTokenException types", "Testing with the handler directly"],
+          "tools": [".NET", "ASP.NET Core", "Microsoft.IdentityModel"],
+          "lab_task": "In ASP.NET Core, configure AddAuthentication().AddJwtBearer with TokenValidationParameters setting ValidIssuer, ValidAudience, ValidateLifetime true and ValidAlgorithms to RS256, loading keys from the authority metadata. Call a protected endpoint with a valid and an expired token and confirm 200 and 401 respectively.",
+          "deliverable": "An ASP.NET Core API validating RS256 tokens with pinned parameters",
+          "checks": [["Call a protected endpoint with a valid token", "The endpoint returns 200", "Response status"], ["Call it with an expired token", "The handler returns 401 unauthorized", "Response status"], ["Call it with a wrong-issuer token", "Validation fails on the issuer check", "Error detail"]],
+          "objectives": ["Configure TokenValidationParameters in .NET", "Pin algorithm, issuer and audience", "Protect an ASP.NET Core endpoint"]
+        },
+        {
+          "topic": "JWT Validation in Go",
+          "subtopics": ["The golang-jwt parser and keyfunc", "Selecting keys by kid from a JWKS", "WithValidMethods to pin algorithms", "Registered claim validation options", "Returning 401 from an HTTP handler", "Fetching and caching JWKS in Go", "Handling parse and validation errors", "Table-driven tests for the verifier"],
+          "tools": ["Go", "golang-jwt", "keyfunc"],
+          "lab_task": "In Go, use the keyfunc package to build a jwt.Keyfunc from your JWKS URL and jwt.Parse with jwt.WithValidMethods([]string{\"RS256\"}) and issuer and audience options. Wrap it in an http.Handler returning 401 on error. Write table-driven tests covering valid, expired and wrong-algorithm tokens.",
+          "deliverable": "A Go HTTP middleware verifying RS256 tokens via a cached JWKS",
+          "checks": [["Request with a valid RS256 token", "The handler proceeds and returns 200", "Test output"], ["Request with an expired token", "The handler returns 401", "Test output"], ["Request with an HS256 token", "WithValidMethods rejects the method", "Error output"]],
+          "objectives": ["Verify tokens with golang-jwt and keyfunc", "Pin valid methods to RS256", "Cover the verifier with table-driven tests"]
+        },
+        {
+          "topic": "High-Throughput Verification Performance",
+          "subtopics": ["Cost of asymmetric verification per request", "Caching parsed public keys", "Avoiding repeated JWKS fetches", "Benchmarking verifications per second", "Comparing RS256, ES256 and EdDSA speed", "Connection reuse for introspection calls", "Profiling CPU hotspots in verification", "Scaling verification horizontally"],
+          "tools": ["Go", "wrk", "OpenSSL"],
+          "lab_task": "Benchmark token verification throughput with a load tool such as wrk against a verifying endpoint. Measure requests per second for RS256, ES256 and EdDSA with keys cached. Then disable key caching to force per-request parsing and compare. Record the throughput difference and the cost of cache misses.",
+          "deliverable": "A benchmark report comparing algorithms and the impact of key caching",
+          "checks": [["Benchmark RS256 and EdDSA with cached keys", "EdDSA shows higher verification throughput", "Benchmark numbers"], ["Disable key caching and rerun", "Throughput drops due to per-request key parsing", "Benchmark numbers"], ["Profile the hot path", "Signature verification dominates CPU time", "Profiler output"]],
+          "objectives": ["Benchmark verification throughput", "Compare algorithm verification costs", "Quantify the benefit of key caching"]
+        },
+        {
+          "topic": "Key Management with HSM and KMS",
+          "subtopics": ["Storing private signing keys in an HSM or KMS", "Signing via a KMS API without key export", "Access policies limiting who can sign", "Automated key rotation in the KMS", "Audit logging of signing operations", "Latency of remote signing calls", "Disaster recovery for key material", "Separating signing from verification keys"],
+          "tools": ["AWS KMS", "OpenSSL", "Node.js"],
+          "lab_task": "On a cloud KMS you control, create an asymmetric signing key and sign a token's input via the KMS sign API so the private key never leaves the service. Publish the KMS public key in your JWKS and verify tokens locally. Confirm signing requires the KMS permission and that verification needs only the public key.",
+          "deliverable": "A KMS-backed signing flow with local public-key verification",
+          "checks": [["Sign a token via the KMS API", "A valid signature is produced without exporting the key", "Signing output"], ["Verify the token locally with the published public key", "Verification succeeds", "Test output"], ["Attempt to sign without the KMS permission", "The signing call is denied by policy", "Access error"]],
+          "objectives": ["Keep private keys in an HSM or KMS", "Sign without exporting key material", "Verify locally with the public key"]
+        },
+        {
+          "topic": "Auditing and Logging Token Events",
+          "subtopics": ["Logging issue, refresh and revocation events", "Recording jti, subject and issuer per event", "Never logging full tokens or secrets", "Correlating token events by a request id", "Detecting anomalies such as reuse spikes", "Retention and privacy of auth logs", "Alerting on repeated verification failures", "Feeding events to a SIEM"],
+          "tools": ["Python", "Elasticsearch", "Grafana"],
+          "lab_task": "Instrument an auth service to emit structured events for token issue, verify-failure and revocation, each with jti, sub and a correlation id but never the raw token. Ship them to a log store and build a query that counts verification failures per minute. Trigger a burst of bad tokens and confirm the count rises.",
+          "deliverable": "Structured token-event logging with a failure-rate query and alert",
+          "checks": [["Issue and then revoke a token", "Both events appear with jti and correlation id", "Log records"], ["Search logs for a raw token string", "No full token or secret is present", "Search result"], ["Send a burst of invalid tokens", "The per-minute failure count rises accordingly", "Dashboard panel"]],
+          "objectives": ["Emit structured token lifecycle events", "Keep raw tokens and secrets out of logs", "Detect anomalies from auth telemetry"]
+        },
+        {
+          "topic": "PASETO as a JWT Alternative",
+          "subtopics": ["PASETO versioned and purpose-tagged tokens", "local symmetric versus public asymmetric modes", "No in-band algorithm field to confuse", "Fixed modern cryptography per version", "Comparing PASETO claims with JWT claims", "Migration considerations from JWT", "Library support and maturity", "When PASETO reduces footguns"],
+          "tools": ["Python", "paseto", "Node.js"],
+          "lab_task": "Using a PASETO library, create a v4.public token signed with an Ed25519 key and verify it with the public key. Contrast with an equivalent JWT: note PASETO has no header alg to tamper with and a fixed algorithm per version. Attempt to downgrade the PASETO algorithm and confirm it is structurally impossible.",
+          "deliverable": "A PASETO v4.public token with a written comparison against JWT risks",
+          "checks": [["Verify a v4.public PASETO token", "Verification succeeds with the public key", "Test output"], ["Attempt to change the token's algorithm", "No in-band alg exists to alter, so the attack fails", "Analysis note"], ["Compare PASETO and JWT attack surface", "PASETO removes alg confusion and none attacks", "Comparison table"]],
+          "objectives": ["Explain PASETO versions and purposes", "Create and verify a PASETO token", "Compare its attack surface with JWT"]
+        },
+        {
+          "topic": "Secure Token Design Review",
+          "subtopics": ["Choosing lifetime, algorithm and binding", "Deciding claims and minimising payload", "Selecting stateless versus revocable design", "Documenting issuer, audience and key strategy", "Threat-modelling token theft and forgery", "Planning rotation and revocation up front", "Recording decisions in an ADR", "Review checklist sign-off"],
+          "tools": ["JWT", "draw.io", "Markdown"],
+          "lab_task": "For a sample service, produce a token design document: pick RS256, a 10-minute access-token lifetime, rotating refresh tokens, a JWKS with rotation, and a jti denylist for revocation. Justify each choice against threats and write a review checklist. Have a peer review it against RFC 8725 and record gaps.",
+          "deliverable": "A reviewed token design document with justified choices and a checklist",
+          "checks": [["Review the design against RFC 8725", "Every applicable recommendation is addressed or waived with reason", "Checklist"], ["Check the documented token lifetime", "A short access lifetime with refresh rotation is specified", "Design doc"], ["Trace the revocation strategy", "A concrete denylist mechanism is defined", "Design doc"]],
+          "objectives": ["Produce a justified token design", "Threat-model theft and forgery", "Review the design against best practice"]
+        },
+        {
+          "topic": "Penetration Testing a Token Pipeline",
+          "subtopics": ["Enumerating token handling across the stack", "Testing alg none, confusion and kid injection", "Replaying captured tokens", "Checking expiry and audience enforcement", "Probing JWKS and jku handling", "Using Burp and jwt_tool against a lab", "Reporting findings with severity and fix", "Retesting after remediation"],
+          "tools": ["Burp Suite", "jwt_tool", "Python"],
+          "lab_task": "Against a lab application you own, run jwt_tool and Burp to probe the full pipeline: attempt alg none, HS/RS confusion, kid injection, jku swap, signature stripping and token replay. Capture which attacks succeed, assign severities and write remediation notes. Apply fixes and retest to confirm each attack now fails.",
+          "deliverable": "A penetration test report of the token pipeline with findings and retest results",
+          "checks": [["Run the full attack set against the lab", "Each successful attack is recorded with a severity", "Findings table"], ["Apply the recommended fixes", "The previously successful attacks now fail on retest", "Retest log"], ["Summarise residual risk", "Remaining accepted risks are documented with rationale", "Report section"]],
+          "objectives": ["Systematically attack a token pipeline in a lab", "Rate and report findings by severity", "Verify remediation through retesting"]
+        },
+        {
+          "topic": "Incident Response for Leaked Keys",
+          "subtopics": ["Detecting a compromised signing key", "Immediate rotation to a new key and kid", "Revoking tokens signed by the old key", "Removing the old key from the JWKS", "Forcing re-authentication of users", "Communicating impact to stakeholders", "Preserving evidence for forensics", "Post-incident hardening actions"],
+          "tools": ["OpenSSL", "Redis", "Node.js"],
+          "lab_task": "Run a tabletop and live drill on a lab system you own: simulate a leaked RS256 private key. Rotate to a new key and kid, remove the old key from the JWKS, and bulk-revoke tokens issued by the old kid. Confirm old-key tokens are now rejected everywhere and that new logins work. Record the response timeline.",
+          "deliverable": "An incident runbook exercised against a simulated key leak",
+          "checks": [["Rotate the key and remove the old one from the JWKS", "Tokens signed by the old key no longer verify", "Test output"], ["Attempt a fresh login after rotation", "A new valid token is issued and accepted", "Response status"], ["Review the recorded response timeline", "Each containment step has a timestamp", "Runbook log"]],
+          "objectives": ["Respond to a leaked signing key", "Rotate, revoke and remove the old key", "Force re-authentication and record the timeline"]
+        },
+        {
+          "topic": "Capstone: Hardened Token Architecture and Attack Lab",
+          "subtopics": ["A sender-constrained RS256 or EdDSA token design", "A rotating JWKS with pinned algorithms and kids", "Distributed revocation across services", "An attack suite covering the major JWT exploits", "Logging, alerting and an incident runbook", "A final defense report with retest evidence"],
+          "tools": ["Node.js", "Burp Suite", "Redis"],
+          "lab_task": "Assemble a hardened token system: pinned-algorithm verification, a rotating JWKS, DPoP or mTLS binding, and distributed revocation. Run the full attack suite (alg none, confusion, kid injection, jku abuse, stripping, replay) against it and confirm all fail. Produce a defense report with logs, retest evidence and a runbook.",
+          "deliverable": "A hardened end-to-end token system with an attack suite that fully fails against it",
+          "checks": [["Run the complete attack suite against the system", "Every attack is rejected", "Attack log"], ["Perform a key rotation during live traffic", "Tokens remain valid with no downtime", "Test output"], ["Revoke a token and retry across services", "All services reject it within the propagation window", "Timing report"]],
+          "objectives": ["Integrate hardening, binding and revocation", "Prove resistance across the attack suite", "Document defenses with retest evidence"]
+        }
+      ]
+    }
+  }
+}

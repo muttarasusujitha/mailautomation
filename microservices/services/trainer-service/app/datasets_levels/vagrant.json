@@ -1,0 +1,573 @@
+{
+  "domain": "Vagrant",
+  "name": "Vagrant",
+  "category": "DevOps and CI/CD",
+  "icon": "server",
+  "aliases": ["HashiCorp Vagrant", "Dev Environment Automation", "Vagrantfile", "Vagrant Boxes", "Vagrant Development Environments", "Vagrant Labs", "Vagrant Box Building", "Vagrant Multi-Machine Labs"],
+  "certifications": [],
+  "tools": ["Vagrant", "VirtualBox", "VMware Workstation and Fusion", "Hyper-V", "libvirt and KVM", "vagrant-libvirt", "Parallels Desktop", "Docker", "Packer", "HCP Vagrant Registry", "Ansible", "Molecule", "GitHub Actions", "Shell"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and operations engineers who need repeatable local virtual machines but have not used Vagrant before. Covers installing Vagrant with VirtualBox, the Vagrantfile and its Ruby syntax, the machine lifecycle, finding and versioning boxes in HCP Vagrant Registry, NAT, forwarded, private and public networking, synced folders, shell, file and ansible_local provisioners, SSH access, snapshots, plugins, VAGRANT_* settings and debug logs, arm64 boxes on Apple silicon, common boot and mount errors, Docker inside a guest, and a two-machine application environment capstone.",
+      "prerequisites": ["Uses a terminal confidently on Windows, macOS or Linux: changing directories, editing files and running commands", "Knows basic Linux administration inside a VM: apt or dnf packages, systemctl, file permissions and SSH", "Has a laptop with at least 16 GB RAM, 40 GB free disk, hardware virtualisation (VT-x/AMD-V) enabled in firmware and rights to install VirtualBox or VMware"],
+      "outcomes": ["Install Vagrant with a provider and create, start, suspend, reload and destroy machines from a Vagrantfile", "Choose and pin boxes from HCP Vagrant Registry and configure memory, CPUs, networking and synced folders", "Provision guests repeatably with shell, file and ansible_local provisioners and recover quickly with snapshots", "Diagnose the most common boot, network and synced-folder failures and deliver a two-machine environment a teammate can start with one command"],
+      "days": [
+        {
+          "topic": "Vagrant Workstation Setup and First Box",
+          "subtopics": ["What Vagrant manages: providers, boxes, provisioners and the Vagrantfile", "Installing Vagrant from releases.hashicorp.com or the HashiCorp apt, dnf and Homebrew repositories", "Installing VirtualBox and checking VT-x/AMD-V is enabled in firmware", "Windows hosts: Hyper-V, WSL2 and VirtualBox co-existence", "vagrant --version and vagrant version for update checks", "vagrant init with a box name and the generated Vagrantfile", "vagrant up output: box download, import, network setup, boot and SSH wait", "The project .vagrant directory and why it belongs in .gitignore", "VAGRANT_HOME and the ~/.vagrant.d box and plugin store", "Vagrant licensing under the Business Source License and what it means for internal use"],
+          "tools": ["Vagrant", "VirtualBox", "bento/ubuntu-24.04 box", "Terminal"],
+          "lab_task": "Install Vagrant and VirtualBox, run vagrant --version and VBoxManage --version, then in an empty folder run vagrant init bento/ubuntu-24.04 and vagrant up. Record the time to first boot, run vagrant ssh -c 'lsb_release -a', list the .vagrant directory, add .vagrant/ to .gitignore and run vagrant destroy -f. Repeat vagrant up and record how much faster the second boot is now that the box is cached.",
+          "deliverable": "Setup log with tool versions, first and second boot times and the generated Vagrantfile",
+          "checks": [["Run vagrant status after vagrant up", "Machine default is listed as running (virtualbox)", "Terminal output"], ["Run vagrant ssh -c 'lsb_release -rs'", "Output is 24.04", "Terminal output"], ["Run vagrant status after vagrant destroy -f", "Machine default is listed as not created (virtualbox)", "Terminal output"]],
+          "objectives": ["Install Vagrant and a working provider", "Create and boot a first machine from a box", "Explain the role of the .vagrant directory and the box cache"]
+        },
+        {
+          "topic": "Vagrant Lifecycle Commands: up, ssh, halt, suspend, reload and destroy",
+          "subtopics": ["Machine states: not created, running, poweroff, saved and aborted", "vagrant up and vagrant up --no-provision", "vagrant halt, graceful shutdown and config.vm.graceful_halt_timeout", "vagrant suspend and vagrant resume compared with halt", "vagrant reload and when Vagrantfile changes need it", "vagrant destroy -f and what is deleted", "vagrant status and vagrant global-status --prune", "Running commands from subdirectories and VAGRANT_CWD"],
+          "tools": ["Vagrant", "VirtualBox", "VBoxManage"],
+          "lab_task": "Start the Day 1 machine, then cycle it through halt, up, suspend, resume, reload and destroy. After each command record vagrant status, the VBoxManage list runningvms output and the elapsed time. Change config.vm.hostname in the Vagrantfile and show the guest only picks it up after vagrant reload. Finish with vagrant global-status --prune and confirm stale entries are removed.",
+          "deliverable": "Lifecycle table with each command, resulting state, VBoxManage evidence and timing",
+          "checks": [["Run vagrant suspend then vagrant status", "Machine state is saved", "Terminal output"], ["Run vagrant halt then VBoxManage list runningvms", "The machine no longer appears in the running list", "Terminal output"], ["Change config.vm.hostname to lab01 and run vagrant reload, then vagrant ssh -c hostname", "Output is lab01", "Terminal output"]],
+          "objectives": ["Move a machine through every lifecycle state", "Choose between halt, suspend and destroy for a situation", "Find and clean up machines with global-status"]
+        },
+        {
+          "topic": "Reading and Writing a Vagrantfile in Ruby",
+          "subtopics": ["Vagrant.configure(\"2\") and configuration versions", "config.vm, config.ssh and config.vagrant namespaces", "Ruby basics used in Vagrantfiles: strings, symbols, hashes, arrays and blocks", "Reading ENV values with ENV.fetch and defaults", "Vagrant.require_version to pin a minimum Vagrant release", "Configuration loading order: box Vagrantfile, ~/.vagrant.d/Vagrantfile, project Vagrantfile", "vagrant validate and reading Ruby syntax errors", "Comments, layout and keeping one Vagrantfile per project"],
+          "tools": ["Vagrant", "Ruby", "Visual Studio Code"],
+          "lab_task": "Rewrite the generated Vagrantfile from scratch with comments removed: pin Vagrant.require_version \">= 2.4.0\", set box, hostname and boot_timeout, and read memory from ENV.fetch('LAB_MEM', '2048'). Run vagrant validate, then add a deliberate missing end and record the error. Boot with LAB_MEM=3072 and show free -m in the guest reports about 3 GB total.",
+          "deliverable": "Commented Vagrantfile with the validate output and memory evidence",
+          "checks": [["Run vagrant validate on the finished Vagrantfile", "Output reads Vagrantfile validated successfully.", "Terminal output"], ["Remove one end keyword and run vagrant validate", "A Ruby syntax error naming the Vagrantfile and line number is printed", "Terminal output"], ["Boot with LAB_MEM=3072 and run vagrant ssh -c 'free -m'", "Total memory is close to 3000 MB", "Terminal output"]],
+          "objectives": ["Write a Vagrantfile using the configuration namespaces", "Use Ruby features safely inside a Vagrantfile", "Validate configuration before booting"]
+        },
+        {
+          "topic": "Vagrant Boxes: HCP Vagrant Registry, Versions and Updates",
+          "subtopics": ["What a box is: provider image, metadata.json and an optional embedded Vagrantfile", "Searching HCP Vagrant Registry and judging publishers such as bento", "vagrant box add, list and remove", "Box versions and config.vm.box_version constraints such as \"~> 202508\"", "config.vm.box_check_update and vagrant box outdated", "vagrant box update and vagrant box prune", "Provider and architecture variants of the same box", "Where boxes are stored under VAGRANT_HOME and how much disk they use"],
+          "tools": ["Vagrant", "HCP Vagrant Registry", "bento boxes", "VirtualBox"],
+          "lab_task": "Search HCP Vagrant Registry for bento/debian-12 and bento/rockylinux-9 and note their available versions, providers and architectures. Add both boxes with vagrant box add --provider virtualbox, pin an older version of one with config.vm.box_version, run vagrant box outdated, update it, then run vagrant box prune --dry-run and vagrant box prune. Record disk usage of the box store before and after pruning.",
+          "deliverable": "Box inventory with versions, providers, architectures and before/after disk usage",
+          "checks": [["Run vagrant box list after adding both boxes", "Both boxes are listed with (virtualbox, version) entries", "Terminal output"], ["Run vagrant box outdated in a project pinned to an older version", "Vagrant reports that a newer version of the box is available", "Terminal output"], ["Run vagrant box prune after an update", "The older unused version is removed and disk usage drops", "Terminal output and du -sh result"]],
+          "objectives": ["Find and evaluate boxes in HCP Vagrant Registry", "Pin and update box versions deliberately", "Keep the local box store tidy"]
+        },
+        {
+          "topic": "VirtualBox Provider Settings in a Vagrantfile",
+          "subtopics": ["config.vm.provider \"virtualbox\" block and the vb variable", "vb.memory, vb.cpus and vb.name", "vb.gui for debugging boot problems", "vb.linked_clone to save disk and import time", "vb.customize with VBoxManage modifyvm arguments", "Paravirtualisation, nested virtualisation and --nested-hw-virt", "VirtualBox Guest Additions and why the box version matters", "Checking settings with VBoxManage showvminfo"],
+          "tools": ["Vagrant", "VirtualBox", "VBoxManage"],
+          "lab_task": "Add a VirtualBox provider block setting vb.name = \"vagrant-lab\", 2 CPUs, 2048 MB, vb.linked_clone = true and a vb.customize call that sets --audio-enabled off (or --audio none on older releases). Run vagrant up, confirm values with VBoxManage showvminfo vagrant-lab, then compare the disk used by a linked clone against a full clone. Record nproc and free -m from inside the guest.",
+          "deliverable": "Provider block, showvminfo excerpt and linked versus full clone disk comparison",
+          "checks": [["Run VBoxManage showvminfo vagrant-lab --machinereadable", "Output contains memory=2048 and cpus=2", "Terminal output"], ["Run vagrant ssh -c nproc", "Output is 2", "Terminal output"], ["Compare the VM folder size of a linked clone and a full clone", "The linked clone folder is at least 70% smaller", "du -sh output"]],
+          "objectives": ["Configure VirtualBox resources from the Vagrantfile", "Use vb.customize for settings Vagrant does not expose", "Explain the trade-off of linked clones"]
+        },
+        {
+          "topic": "Vagrant Forwarded Ports and NAT Networking",
+          "subtopics": ["The default NAT adapter and the 10.0.2.15 guest address", "The built-in ssh forward from host port 2222 to guest port 22", "config.vm.network \"forwarded_port\" with guest and host", "host_ip to bind a forward to 127.0.0.1 only", "auto_correct: true and port collision handling", "TCP and UDP forwards with protocol", "vagrant port to list active forwards", "Why services must listen on 0.0.0.0 or the NAT address inside the guest"],
+          "tools": ["Vagrant", "VirtualBox", "Nginx", "curl"],
+          "lab_task": "Install nginx with an inline provisioner, forward guest port 80 to host port 8080 bound to 127.0.0.1, and curl http://127.0.0.1:8080 from the host. Start a second machine with the same forward but auto_correct: true and record the port Vagrant chooses. Run vagrant port on both, then bind a Python http.server to 127.0.0.1 inside the guest and show the forward cannot reach it until it binds 0.0.0.0.",
+          "deliverable": "Forwarding notes with vagrant port output, curl responses and the auto-correct result",
+          "checks": [["Run curl -sI http://127.0.0.1:8080 from the host", "HTTP/1.1 200 OK with Server: nginx", "Terminal output"], ["Start a second machine with a clashing forward and no auto_correct", "Vagrant stops with an error that the forwarded ports would collide with a port already in use", "Terminal output"], ["Run vagrant port on the auto-corrected machine", "Guest 80 maps to a host port other than 8080, such as 2200 or higher", "Terminal output"]],
+          "objectives": ["Expose guest services through NAT port forwards", "Restrict forwards to the loopback interface", "Resolve port collisions between machines"]
+        },
+        {
+          "topic": "Vagrant Private and Public Networks",
+          "subtopics": ["config.vm.network \"private_network\" with a static ip", "DHCP private networks with type: \"dhcp\"", "VirtualBox host-only ranges: 192.168.56.0/21 and /etc/vbox/networks.conf", "Guest interface names such as eth1 or enp0s8", "config.vm.network \"public_network\" and the bridge option", "Security exposure of bridged guests on shared networks", "Inspecting addresses with ip -br addr", "Removing stale host-only adapters with VBoxManage list hostonlyifs"],
+          "tools": ["Vagrant", "VirtualBox", "iproute2", "ping"],
+          "lab_task": "Give one machine private_network ip 192.168.56.10 and a second 192.168.56.11, then ping each from the other and from the host. Try ip 10.10.10.10, record the allowed-range error and fix it by adding a range to /etc/vbox/networks.conf on Linux or macOS. Finally add a public_network with bridge set to your host adapter and record the DHCP address the guest receives.",
+          "deliverable": "Network diagram with addresses, ping results and the host-only range error",
+          "checks": [["Run vagrant ssh vm1 -c 'ping -c 3 192.168.56.11'", "3 packets transmitted, 3 received, 0% packet loss", "Terminal output"], ["Configure private_network ip 10.10.10.10 with no networks.conf entry", "Vagrant reports that the IP address configured for the host-only network is not within the allowed ranges", "Terminal output"], ["Run ip -br addr inside the bridged guest", "A third interface shows an address from the physical LAN subnet", "Terminal output"]],
+          "objectives": ["Build host-only networks between machines", "Explain VirtualBox host-only range rules", "Decide when a bridged network is acceptable"]
+        },
+        {
+          "topic": "Vagrant Synced Folders with VirtualBox Shared Folders and rsync",
+          "subtopics": ["The default /vagrant share of the project folder", "config.vm.synced_folder with host and guest paths", "type: \"virtualbox\" and the vboxsf kernel module", "owner, group and mount_options for permissions", "type: \"rsync\" with rsync__exclude and rsync__args", "vagrant rsync and vagrant rsync-auto", "disabled: true to turn off the default share", "File-change notification limits and performance of shared folders"],
+          "tools": ["Vagrant", "VirtualBox Guest Additions", "rsync"],
+          "lab_task": "Share a ./app folder to /srv/app with owner www-data and mount_options [\"dmode=775\",\"fmode=664\"], then create files on the host and confirm ownership in the guest. Switch to type: \"rsync\" with rsync__exclude [\".git/\", \"node_modules/\"], run vagrant rsync-auto and time how long an edit takes to appear. Disable the default /vagrant share and confirm it is gone.",
+          "deliverable": "Synced folder configuration with ownership evidence and rsync latency measurements",
+          "checks": [["Run vagrant ssh -c 'stat -c %U /srv/app/index.html'", "Output is www-data", "Terminal output"], ["Run vagrant ssh -c 'mount | grep /srv/app' with the VirtualBox type", "The mount type is vboxsf", "Terminal output"], ["Set disabled: true on \".\", \"/vagrant\" and reload", "ls /vagrant inside the guest fails with No such file or directory", "Terminal output"]],
+          "objectives": ["Share project code into a guest", "Control ownership and permissions on synced folders", "Choose between shared folders and rsync"]
+        },
+        {
+          "topic": "Shell Provisioner Scripts in Vagrant",
+          "subtopics": ["inline scripts and Ruby heredocs", "path: scripts and keeping scripts in a provision folder", "args and env to pass values into scripts", "privileged: false to run as the vagrant user", "set -euo pipefail and failing fast", "Idempotent scripts that check before installing", "Named provisioners and vagrant provision --provision-with", "reboot: true and sensitive: true options"],
+          "tools": ["Vagrant", "Bash", "apt", "ShellCheck"],
+          "lab_task": "Write provision/bootstrap.sh with set -euo pipefail that installs git, curl and jq only if missing, creates an app user and writes /etc/motd from an APP_NAME env value. Wire it as a named provisioner \"bootstrap\" with env: {\"APP_NAME\" => \"demo\"}, add a second privileged: false provisioner that writes ~/.bashrc aliases, run shellcheck on both scripts and run vagrant provision twice to prove idempotency.",
+          "deliverable": "Provisioning scripts, ShellCheck output and logs of two provisioning runs",
+          "checks": [["Run vagrant provision a second time", "The bootstrap script reports every package as already installed and exits 0", "Provisioning log"], ["Add exit 3 to the script and run vagrant provision --provision-with bootstrap", "Vagrant reports the SSH command responded with a non-zero exit status", "Terminal output"], ["Run shellcheck provision/*.sh", "No warnings are reported", "ShellCheck output"]],
+          "objectives": ["Provision guests with shell scripts", "Write scripts that are safe to re-run", "Run selected provisioners on demand"]
+        },
+        {
+          "topic": "Vagrant File Provisioner and Provisioning Run Modes",
+          "subtopics": ["The file provisioner with source and destination", "Uploading directories and the unprivileged upload limit", "Moving uploaded files into root-owned paths with a shell step", "run: \"once\", run: \"always\" and run: \"never\"", "vagrant up --provision and vagrant reload --provision", "Provisioner ordering in the Vagrantfile", "The provisioning sentinel in .vagrant/machines", "Keeping secrets out of provisioner files and logs"],
+          "tools": ["Vagrant", "Bash", "Nginx"],
+          "lab_task": "Upload an nginx site file with the file provisioner to /tmp/site.conf, move it into /etc/nginx/sites-available with a shell step and reload nginx. Add a run: \"always\" provisioner that prints uptime and a run: \"never\" provisioner called reset-db. Show which provisioners run on vagrant up, vagrant reload, vagrant reload --provision and vagrant provision --provision-with reset-db.",
+          "deliverable": "Run-mode matrix showing which provisioners fired for each command",
+          "checks": [["Point the file provisioner directly at /etc/nginx/sites-available/site.conf", "The upload fails with a permission denied error because uploads run as the vagrant user", "Terminal output"], ["Run vagrant reload without --provision on a provisioned machine", "Only the run: \"always\" provisioner runs", "Terminal output"], ["Run vagrant provision --provision-with reset-db", "Only the reset-db provisioner runs", "Terminal output"]],
+          "objectives": ["Copy files into guests with the file provisioner", "Control when each provisioner runs", "Run on-demand maintenance provisioners"]
+        },
+        {
+          "topic": "Vagrant SSH Access, Keys and ssh-config",
+          "subtopics": ["The vagrant user and the published insecure key pair", "config.ssh.insert_key and the per-machine private_key file", "vagrant ssh-config and using its output with ssh -F", "vagrant ssh -c for one-off commands", "config.ssh.forward_agent for Git access from the guest", "Connecting from IDE remote-SSH extensions", "scp and rsync to a guest using the generated config", "SSH timeouts and config.vm.boot_timeout"],
+          "tools": ["Vagrant", "OpenSSH", "Visual Studio Code Remote - SSH"],
+          "lab_task": "Run vagrant ssh-config > ssh.cfg, then connect with ssh -F ssh.cfg default and copy a file with scp -F ssh.cfg. Show that the private key in use is the per-machine key under .vagrant/machines/default/virtualbox/private_key, not the insecure key. Enable forward_agent, load a key with ssh-add on the host and confirm ssh-add -l works inside the guest. Connect VS Code Remote - SSH using the same config file.",
+          "deliverable": "SSH configuration file, key location evidence and a screenshot of an IDE remote session",
+          "checks": [["Run ssh -F ssh.cfg default hostname", "The guest hostname is printed without a password prompt", "Terminal output"], ["Run grep IdentityFile ssh.cfg", "The path ends in .vagrant/machines/default/virtualbox/private_key", "Terminal output"], ["Run vagrant ssh -c 'ssh-add -l' with forward_agent enabled", "The fingerprint of the host key loaded with ssh-add is listed", "Terminal output"]],
+          "objectives": ["Connect to guests with standard SSH tooling", "Explain how Vagrant replaces the insecure key", "Forward an SSH agent safely"]
+        },
+        {
+          "topic": "Vagrant Snapshots for Safe Experiments",
+          "subtopics": ["vagrant snapshot save, restore, list and delete", "vagrant snapshot push and pop as a stack", "Provider support for snapshots", "--no-provision on restore", "Snapshots and linked clones", "Disk growth from long snapshot chains", "Snapshot naming conventions for labs", "When to destroy and rebuild instead of restoring"],
+          "tools": ["Vagrant", "VirtualBox", "VBoxManage"],
+          "lab_task": "Provision a machine, then vagrant snapshot save clean. Install PostgreSQL, create a table with 10,000 rows and save snapshot with-data. Break the guest by deleting /etc/postgresql, restore with-data and confirm the 10,000 rows are back, then restore clean and confirm PostgreSQL is absent. Use push and pop once, list snapshots and record VM disk size after each step.",
+          "deliverable": "Snapshot journal with names, restore results and disk sizes",
+          "checks": [["Run vagrant snapshot list after two saves", "Both clean and with-data are listed", "Terminal output"], ["Restore with-data and run SELECT count(*) on the table", "The count is 10000", "psql output"], ["Restore clean and run which psql", "The command returns nothing and exits with status 1", "Terminal output"]],
+          "objectives": ["Save and restore machine state with snapshots", "Use push and pop for quick experiments", "Decide when a rebuild is better than a restore"]
+        },
+        {
+          "topic": "Multi-Machine Vagrantfile: Web and Database Pair",
+          "subtopics": ["config.vm.define blocks and machine names", "primary: true and autostart: false", "Targeting one machine: vagrant up web, vagrant ssh db", "Regex targets such as vagrant status /web/", "Per-machine networks, resources and provisioners", "Shared settings outside define blocks", "Start order and dependency on the database", "Ruby loops to create numbered machines"],
+          "tools": ["Vagrant", "VirtualBox", "Nginx", "PostgreSQL"],
+          "lab_task": "Define web (192.168.56.20, 1 CPU, 1 GB) and db (192.168.56.21, 2 GB) machines, plus a debug machine with autostart: false. Provision PostgreSQL on db listening on 192.168.56.21 with a pg_hba.conf rule for 192.168.56.0/24, and on web install postgresql-client and connect with psql -h 192.168.56.21. Show vagrant up only starts two machines and vagrant ssh without a name opens web.",
+          "deliverable": "Multi-machine Vagrantfile and a connection log from web to db",
+          "checks": [["Run vagrant up then vagrant status", "web and db are running and debug is not created", "Terminal output"], ["Run vagrant ssh web -c \"psql -h 192.168.56.21 -U app -c 'select 1'\"", "The query returns one row with value 1", "Terminal output"], ["Run vagrant ssh with no machine name", "The session opens on web because it is primary", "Terminal output"]],
+          "objectives": ["Describe several machines in one Vagrantfile", "Target and control individual machines", "Connect services across a private network"]
+        },
+        {
+          "topic": "Vagrant Plugin Management with vagrant plugin",
+          "subtopics": ["How plugins extend Vagrant: providers, provisioners, commands and guests", "vagrant plugin install, list, update and uninstall", "Local project plugins with --local and config.vagrant.plugins", "Plugin version pinning with --plugin-version", "vagrant plugin repair and vagrant plugin expunge --reinstall", "Common plugins: vagrant-libvirt, vagrant-vmware-desktop, vagrant-parallels and vagrant-reload", "Checking plugin maintenance status before adoption", "Plugin compatibility after Vagrant upgrades"],
+          "tools": ["Vagrant", "vagrant-reload", "RubyGems"],
+          "lab_task": "Install vagrant-reload globally with a pinned version, list plugins, then remove it and declare it in config.vagrant.plugins in the Vagrantfile so Vagrant offers to install it as a project-local plugin. Use it to reboot the guest after a kernel parameter change with a reload provisioner. Finally run vagrant plugin expunge --reinstall --force and confirm plugins come back.",
+          "deliverable": "Plugin inventory, Vagrantfile plugin declaration and reboot evidence from the reload provisioner",
+          "checks": [["Run vagrant plugin list after installing a pinned version", "vagrant-reload is listed with the pinned version and global scope", "Terminal output"], ["Run vagrant up in a fresh clone with config.vagrant.plugins set", "Vagrant prompts to install the missing vagrant-reload plugin locally", "Terminal output"], ["Run vagrant ssh -c 'uptime -s' before and after the reload provisioner", "The boot time changes, showing the guest rebooted", "Terminal output"]],
+          "objectives": ["Install and pin Vagrant plugins", "Declare project plugins so teammates get them automatically", "Recover from broken plugin installs"]
+        },
+        {
+          "topic": "Ansible Local Provisioner in Vagrant",
+          "subtopics": ["ansible_local compared with the host-side ansible provisioner", "install, install_mode and version options", "playbook, provisioning_path and the /vagrant share", "extra_vars and tags", "Writing a small playbook for the guest", "Idempotency and the changed count on a second run", "verbose output for debugging", "Using ansible_local when the host is Windows"],
+          "tools": ["Vagrant", "Ansible", "ansible_local", "YAML"],
+          "lab_task": "Write a playbook that installs nginx, deploys a Jinja2 index page using an app_title variable and enables the service. Run it with ansible_local, install_mode \"pip\" and extra_vars {app_title: \"Lab\"}, then run vagrant provision again and record the recap. Change app_title, reprovision and curl the forwarded port to confirm the page changed.",
+          "deliverable": "Playbook, two PLAY RECAP outputs and curl evidence",
+          "checks": [["Run vagrant provision a second time without changes", "PLAY RECAP shows changed=0 and failed=0", "Provisioning log"], ["Run vagrant ssh -c 'ansible --version'", "Ansible is installed inside the guest", "Terminal output"], ["Change app_title to Lab2, reprovision and curl the page", "The response body contains Lab2", "curl output"]],
+          "objectives": ["Provision guests with ansible_local", "Pass values into playbooks from the Vagrantfile", "Prove playbook idempotency"]
+        },
+        {
+          "topic": "Vagrant Behaviour via VAGRANT_* Environment Settings and Debug Logs",
+          "subtopics": ["VAGRANT_DEFAULT_PROVIDER and --provider", "VAGRANT_HOME for relocating boxes to another disk", "VAGRANT_VAGRANTFILE and VAGRANT_DOTFILE_PATH", "VAGRANT_LOG=info and VAGRANT_LOG=debug", "vagrant --debug and --timestamp", "VAGRANT_NO_COLOR and machine-readable output", "VAGRANT_CHECKPOINT_DISABLE and update checks", "Reading a debug log to find the failing provider command"],
+          "tools": ["Vagrant", "VirtualBox", "grep"],
+          "lab_task": "Move the box store by setting VAGRANT_HOME to a second disk and re-adding a box. Run VAGRANT_LOG=debug vagrant up 2> up.log, count the VBoxManage calls with grep -c 'Executing: .*VBoxManage' up.log and find the import and boot commands. Use VAGRANT_VAGRANTFILE=Vagrantfile.ci to boot a smaller alternate config, then run vagrant status --machine-readable.",
+          "deliverable": "Annotated debug log extract and notes on each setting tested",
+          "checks": [["Run vagrant box list with VAGRANT_HOME pointed at the new folder", "Only boxes added after the change are listed", "Terminal output"], ["Run grep -c VBoxManage up.log", "A count greater than 10 is returned", "Terminal output"], ["Run vagrant status --machine-readable", "Lines are comma-separated with a timestamp, target and state field", "Terminal output"]],
+          "objectives": ["Control Vagrant with environment settings", "Capture and read debug logs", "Run alternate Vagrantfiles for different contexts"]
+        },
+        {
+          "topic": "Vagrant on Apple Silicon Macs with arm64 Boxes",
+          "subtopics": ["Why x86_64 boxes cannot boot natively on M-series Macs", "Box architecture metadata and config.vm.box_architecture", "Provider options on Apple silicon: VMware Fusion, Parallels Desktop, VirtualBox 7.1 or later and QEMU", "Finding arm64 boxes in HCP Vagrant Registry", "Installing vagrant-vmware-desktop and the Vagrant VMware Utility", "Rosetta and x86 binaries inside arm64 guests", "Multi-architecture container images inside the guest", "Writing a Vagrantfile that works on Intel and Apple silicon"],
+          "tools": ["Vagrant", "VMware Fusion", "Parallels Desktop", "VirtualBox", "vagrant-vmware-desktop"],
+          "lab_task": "On an Apple silicon Mac, boot bento/ubuntu-24.04 with a provider that supports arm64 and confirm uname -m prints aarch64. Run vagrant box add with --architecture amd64 for the same box and record what happens when you try to boot it. Add a provider override so the same Vagrantfile picks VMware Fusion on macOS and VirtualBox elsewhere, and have a teammate on Intel boot it unchanged.",
+          "deliverable": "Cross-architecture Vagrantfile and boot evidence from both host types",
+          "checks": [["Run vagrant ssh -c 'uname -m' on an Apple silicon host", "Output is aarch64", "Terminal output"], ["Run vagrant box list after adding an arm64 box", "The box entry shows arm64 as its architecture", "Terminal output"], ["Boot the same Vagrantfile on an Intel host", "uname -m in the guest prints x86_64", "Terminal output"]],
+          "objectives": ["Select boxes and providers that run on Apple silicon", "Explain box architecture metadata", "Keep one Vagrantfile working across host architectures"]
+        },
+        {
+          "topic": "Diagnosing Common Vagrant Boot, Network and Mount Errors",
+          "subtopics": ["VERR_VMX_NO_VMX and VT-x disabled or taken by Hyper-V", "Timed out while waiting for the machine to boot", "Guest Additions mismatch and vboxsf mount failures", "Port collision and stale forwarded ports", "Host-only network range errors", "A box that cannot be found in the remote catalog", "Stale .vagrant metadata after a VM is deleted outside Vagrant", "Using vb.gui = true and the VirtualBox log to see the console"],
+          "tools": ["Vagrant", "VirtualBox", "VBoxManage", "VAGRANT_LOG"],
+          "lab_task": "The trainer provides five broken projects: a mistyped box name, a port collision, a host-only IP outside 192.168.56.0/21, a missing vboxsf module and a VM deleted in the VirtualBox GUI. For each, capture the exact error, find the cause with vagrant status, VAGRANT_LOG=info or vb.gui, apply a fix and record the time taken. All five must reach vagrant status running.",
+          "deliverable": "Fault log with five errors, root causes, fixes and times",
+          "checks": [["Run vagrant up with box name bento/ubuntu-2404", "Vagrant reports the box could not be found or could not be accessed in the remote catalog", "Terminal output"], ["Delete the VM in VirtualBox then run vagrant status", "The machine shows as not created and vagrant up builds a new VM", "Terminal output"], ["Run vagrant up on the missing vboxsf project before the fix", "Vagrant reports it was unable to mount VirtualBox shared folders", "Terminal output"]],
+          "objectives": ["Recognise the most frequent Vagrant errors from their messages", "Gather evidence with logs and the VM console", "Fix broken environments without rebuilding the host"]
+        },
+        {
+          "topic": "Docker Engine Inside a Vagrant VM with the Docker Provisioner",
+          "subtopics": ["The docker provisioner: installing Docker Engine in the guest", "images, pull_images and run options", "run with args, cmd and auto_assign_name", "build_image from a Dockerfile in a synced folder", "Adding the vagrant user to the docker group", "Forwarding container ports through the VM", "Docker provisioner compared with the Docker provider", "Disk usage of images inside the guest"],
+          "tools": ["Vagrant", "Docker Engine", "docker provisioner", "Redis"],
+          "lab_task": "Use the docker provisioner to install Docker, pull redis:7 and run it with args \"-p 6379:6379\". Build an image from ./api/Dockerfile with build_image and run it on port 8000. Forward 8000 to the host and curl it, then run vagrant provision again and confirm containers are recreated cleanly. Record docker system df inside the guest.",
+          "deliverable": "Vagrantfile docker section, container list and curl output",
+          "checks": [["Run vagrant ssh -c 'docker ps --format {{.Names}}'", "Both the redis and api containers are listed", "Terminal output"], ["Run vagrant ssh -c 'docker exec redis redis-cli ping'", "Output is PONG", "Terminal output"], ["Run curl http://127.0.0.1:8000/health from the host", "The response is HTTP 200", "curl output"]],
+          "objectives": ["Install and run containers in a guest from the Vagrantfile", "Build images from synced source", "Explain when to use the docker provisioner"]
+        },
+        {
+          "topic": "Beginner Capstone: Two-Machine Application Environment",
+          "subtopics": ["Requirements: web and database machines started with one vagrant up", "Pinned box versions, resources and private network addresses", "Shell and ansible_local provisioning with idempotent reruns", "Synced application code and a forwarded port bound to 127.0.0.1", "Snapshot before demonstration and a README for teammates", "Fresh-clone test and demonstration"],
+          "tools": ["Vagrant", "VirtualBox", "Ansible", "PostgreSQL", "Nginx", "Git"],
+          "lab_task": "Build a Git repository whose Vagrantfile defines web and db machines on pinned box versions. db runs PostgreSQL provisioned with ansible_local; web runs a small Flask or Node app behind nginx using code synced from ./app, reachable on 127.0.0.1:8080. A teammate clones the repo and runs vagrant up with no other steps; the app must show a row read from the database in under 10 minutes.",
+          "deliverable": "Repository with Vagrantfile, provisioning code, README and recorded demonstration",
+          "checks": [["Clone the repository fresh and run vagrant up", "Both machines reach running and provisioning ends without errors in under 10 minutes", "Timed terminal output"], ["Run curl http://127.0.0.1:8080 from the host", "The page shows a row read from the PostgreSQL database", "curl output"], ["Run vagrant provision a second time", "Ansible reports changed=0 and the shell scripts exit 0", "Provisioning log"]],
+          "objectives": ["Combine boxes, networking, synced folders and provisioning", "Deliver an environment that works from a fresh clone", "Document an environment for teammates"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already build single and two-machine Vagrant environments and now need realistic labs. Covers data-driven Vagrantfiles, host-side Ansible with generated inventories, Molecule role testing, kubeadm Kubernetes lab clusters and their networking, PostgreSQL streaming replication and MySQL InnoDB Cluster labs, the libvirt, VMware Desktop, Hyper-V and Docker providers, NFS and SMB synced folders, triggers, extra disks, Windows guests over WinRM, provider overrides, internal box catalogs, performance tuning and name resolution across machines, ending with a Kubernetes lab capstone provisioned by Ansible.",
+      "prerequisites": ["Has completed the Vagrant beginner level or can write a multi-machine Vagrantfile with networking, synced folders and provisioners", "Writes basic Ansible playbooks and roles and knows inventory groups and variables", "Has a host with at least 32 GB RAM and 8 cores, or access to a Linux workstation with KVM, for three- to five-node labs"],
+      "outcomes": ["Generate multi-node environments from data files and provision them with host-side Ansible using groups and generated inventories", "Build Kubernetes and database cluster labs on Vagrant that survive reprovisioning and node reboots", "Run the same Vagrantfile on VirtualBox, libvirt, VMware Desktop, Hyper-V or Docker using provider overrides", "Host internal box catalogs, tune lab performance and automate host-side steps with triggers"],
+      "days": [
+        {
+          "topic": "Data-Driven Vagrantfiles from YAML Node Definitions",
+          "subtopics": ["Loading nodes.yaml with require \"yaml\" and YAML.load_file", "Looping over nodes to call config.vm.define", "Per-node box, ip, memory, cpus and role fields", "Default values merged with per-node overrides", "Validating the data file and failing early with clear messages", "Vagrantfile.local overrides kept out of Git", "Derived values such as IP addresses from an index", "Keeping Ruby logic small and readable"],
+          "tools": ["Vagrant", "Ruby", "YAML", "VirtualBox"],
+          "lab_task": "Create nodes.yaml describing 1 control and 3 worker nodes with role, ip, memory and cpus, plus a defaults section. Write a Vagrantfile that merges defaults, defines each node and raises a clear error if two nodes share an IP. Add an optional Vagrantfile.local that can change worker count. Boot all four nodes and run vagrant status, then change the file to 2 workers and destroy the extra one.",
+          "deliverable": "nodes.yaml, data-driven Vagrantfile and status output before and after resizing",
+          "checks": [["Run vagrant status with 3 workers defined", "4 machines are listed: control1, worker1, worker2 and worker3", "Terminal output"], ["Give two nodes the same ip and run vagrant validate", "The custom error naming the duplicate IP is printed and nothing boots", "Terminal output"], ["Set workers to 2 in Vagrantfile.local and run vagrant status", "worker3 is no longer listed among the defined machines", "Terminal output"]],
+          "objectives": ["Generate machines from a data file", "Validate lab definitions before booting", "Let individuals override lab size without editing shared code"]
+        },
+        {
+          "topic": "Host-Side Ansible Provisioner with Generated Inventory",
+          "subtopics": ["The ansible provisioner running from the host", "The generated inventory under .vagrant/provisioners/ansible/inventory", "ansible.groups and group variables", "ansible.limit = \"all\" and provisioning once after the last machine", "ansible.extra_vars, ansible.tags and ansible.verbose", "ansible.compatibility_mode and the Ansible version on the host", "Running ansible-playbook directly against the generated inventory", "host_key_checking and SSH arguments in labs"],
+          "tools": ["Vagrant", "Ansible", "ansible-playbook", "VirtualBox"],
+          "lab_task": "For the four-node lab, attach the ansible provisioner only to the last defined node with ansible.limit = \"all\" and groups {\"control\" => [\"control1\"], \"workers\" => [\"worker[1:3]\"]}. The playbook sets /etc/motd to the group name. Run vagrant up, then run ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory site.yml directly and compare both recaps.",
+          "deliverable": "Vagrantfile provisioner section, generated inventory file and both PLAY RECAP outputs",
+          "checks": [["Open the generated vagrant_ansible_inventory file", "It contains [control] and [workers] sections with all four hosts", "Inventory file"], ["Run vagrant up and read the provisioning output", "One Ansible run covers all four hosts instead of four separate runs", "Provisioning log"], ["Run vagrant ssh worker2 -c 'cat /etc/motd'", "Output is workers", "Terminal output"]],
+          "objectives": ["Provision many machines with one Ansible run", "Map Vagrant machines into Ansible groups", "Reuse the generated inventory outside Vagrant"]
+        },
+        {
+          "topic": "Ansible Role Test Lab with Molecule and the Vagrant Driver",
+          "subtopics": ["Why test roles on full VMs instead of containers: systemd, kernel modules and firewalls", "Installing molecule and molecule-plugins[vagrant]", "molecule.yml platforms with box, memory and cpus", "Scenario sequence: create, converge, idempotence, verify and destroy", "Verifying with Ansible assert tasks or Testinfra", "Testing on Ubuntu 24.04 and Rocky Linux 9 in one scenario", "molecule login and molecule converge for debugging", "Cleaning up VMs left by failed runs"],
+          "tools": ["Molecule", "molecule-plugins", "Vagrant", "Ansible", "Testinfra"],
+          "lab_task": "Create a role that installs and configures chrony with two NTP servers. Configure a Molecule scenario with the vagrant driver and two platforms, bento/ubuntu-24.04 and bento/rockylinux-9. Add a verify step that asserts chronyd is running and chronyc sources lists 2 servers. Run molecule test, introduce a non-idempotent shell task and show the idempotence step fails.",
+          "deliverable": "Role, molecule.yml and molecule test output for both runs",
+          "checks": [["Run molecule test on the clean role", "All steps pass on both platforms and the VMs are destroyed", "Molecule output"], ["Add a shell task without changed_when and run molecule test", "The idempotence step fails and names the task", "Molecule output"], ["Run molecule converge then molecule login -h rocky9 and chronyc sources", "2 sources are listed", "Terminal output"]],
+          "objectives": ["Test Ansible roles on real VMs with Molecule", "Cover several distributions in one scenario", "Catch idempotency bugs before release"]
+        },
+        {
+          "topic": "Vagrant Kubernetes Lab: kubeadm Control Plane and Workers",
+          "subtopics": ["Node sizing: 2 CPUs and 2 GB minimum for the control plane", "Disabling swap and loading overlay and br_netfilter", "Installing containerd with SystemdCgroup = true", "Installing kubeadm, kubelet and kubectl from pkgs.k8s.io", "kubeadm init with --apiserver-advertise-address on the private network", "Sharing the join command through the synced folder", "Copying admin.conf to the host for kubectl", "Provisioning order: control plane before workers"],
+          "tools": ["Vagrant", "kubeadm", "containerd", "kubectl", "Ansible"],
+          "lab_task": "Build a 3-node lab (control1 at 192.168.56.10, worker1 and worker2) with provisioning scripts that prepare the kernel, install containerd and kubeadm, run kubeadm init --apiserver-advertise-address=192.168.56.10 --pod-network-cidr=10.244.0.0/16 on control1 and write the join command to /vagrant/join.sh. Workers run it. Copy admin.conf to the host and run kubectl get nodes.",
+          "deliverable": "Kubernetes lab repository with provisioning scripts and kubectl output",
+          "checks": [["Run kubectl get nodes from the host after installing a CNI", "3 nodes are listed and all are Ready", "kubectl output"], ["Run kubectl get nodes -o wide", "INTERNAL-IP for every node is a 192.168.56.x address, not 10.0.2.15", "kubectl output"], ["Run vagrant ssh worker1 -c 'swapon --show'", "No output is printed because swap is disabled", "Terminal output"]],
+          "objectives": ["Bootstrap a kubeadm cluster on Vagrant machines", "Pass join data between machines safely", "Avoid the NAT address trap on multi-NIC guests"]
+        },
+        {
+          "topic": "Kubernetes Lab Networking on Vagrant: Node IPs, CNI and Gateway",
+          "subtopics": ["Why the NAT interface breaks kubelet and CNI defaults", "Setting --node-ip through KUBELET_EXTRA_ARGS", "Choosing the CNI interface for Flannel or Calico", "Installing Calico with the Tigera operator", "MetalLB in L2 mode with an address pool on 192.168.56.0/24", "Gateway API with a controller such as Envoy Gateway or Traefik", "Reaching LoadBalancer IPs from the host over the host-only network", "Diagnosing pod-to-pod failures across nodes"],
+          "tools": ["Vagrant", "Calico", "MetalLB", "Gateway API", "kubectl"],
+          "lab_task": "On the Day 4 cluster, set the kubelet node IP on every node through /etc/default/kubelet, install Calico with the pod CIDR 10.244.0.0/16 and pin its autodetection to the private interface. Deploy MetalLB with pool 192.168.56.200-192.168.56.220, a Gateway API controller and an HTTPRoute to a 3-replica nginx Deployment. curl the Gateway address from the host and count which pods answered.",
+          "deliverable": "Network configuration manifests and curl results from the host",
+          "checks": [["Run kubectl exec into a pod on worker1 and ping a pod IP on worker2", "0% packet loss", "Terminal output"], ["Run kubectl get svc -A and find the Gateway service", "EXTERNAL-IP is an address between 192.168.56.200 and 192.168.56.220", "kubectl output"], ["Run 30 curl requests to the Gateway address from the host", "Responses come from all 3 nginx pods", "Response tally"]],
+          "objectives": ["Configure node addresses and CNI for multi-NIC Vagrant guests", "Expose lab services to the host with MetalLB and Gateway API", "Diagnose cross-node pod networking"]
+        },
+        {
+          "topic": "PostgreSQL Streaming Replication Lab on Vagrant",
+          "subtopics": ["Primary and two replica machines with PGDG packages", "wal_level, max_wal_senders and hot_standby settings", "A replication role and pg_hba.conf entries for the private network", "pg_basebackup -R -X stream to seed replicas", "Monitoring with pg_stat_replication and pg_is_in_recovery()", "Synchronous replication with synchronous_standby_names", "Manual promotion with pg_promote()", "Rebuilding the old primary with pg_rewind"],
+          "tools": ["Vagrant", "PostgreSQL", "pg_basebackup", "pg_rewind", "Ansible"],
+          "lab_task": "Provision pg1 as primary and pg2, pg3 as replicas seeded with pg_basebackup -h 192.168.56.31 -U replicator -D the data directory -R -X stream. Insert 100,000 rows on pg1 and measure replay lag in pg_stat_replication. Make pg2 synchronous, vagrant halt --force pg1, promote pg2 with SELECT pg_promote(), repoint pg3 and rejoin pg1 with pg_rewind.",
+          "deliverable": "Replication lab with configuration, lag measurements and a failover runbook",
+          "checks": [["Run SELECT client_addr, state, sync_state FROM pg_stat_replication on pg1", "2 rows in state streaming, one with sync_state sync", "psql output"], ["Run SELECT pg_is_in_recovery() on pg2 after promotion", "Result is f", "psql output"], ["Count rows on pg3 after it follows pg2", "The count is 100000 plus rows written after failover", "psql output"]],
+          "objectives": ["Build a streaming replication cluster on Vagrant", "Measure replication lag", "Rehearse manual failover and rejoin"]
+        },
+        {
+          "topic": "MySQL InnoDB Cluster Lab on Vagrant",
+          "subtopics": ["Three MySQL 8.4 LTS nodes on a private network", "Group Replication requirements: GTIDs, unique server_id and report_host", "MySQL Shell dba.configureInstance and dba.createCluster", "cluster.addInstance with clone recovery", "cluster.status() and member roles", "MySQL Router bootstrap on an app machine", "Read-write and read-only Router ports 6446 and 6447", "Primary failure and automatic election"],
+          "tools": ["Vagrant", "MySQL", "MySQL Shell", "MySQL Router"],
+          "lab_task": "Provision mysql1-3 at 192.168.56.41-43 and an app machine. With MySQL Shell configure each instance, create cluster lab on mysql1 and add the other two with clone recovery. Bootstrap MySQL Router on app, connect through port 6446, write rows, then vagrant halt --force on the primary and time how long until writes succeed through 6446 again.",
+          "deliverable": "InnoDB Cluster lab with cluster.status() output and failover timing",
+          "checks": [["Run cluster.status() in MySQL Shell", "Cluster status is OK with 3 members ONLINE", "MySQL Shell output"], ["Run SELECT @@hostname through Router port 6447 several times", "Different secondary hostnames are returned", "mysql client output"], ["Halt the primary and retry writes through port 6446", "Writes succeed again within 30 seconds on a newly elected primary", "Timed client log"]],
+          "objectives": ["Build a MySQL InnoDB Cluster lab", "Route application traffic through MySQL Router", "Measure failover time"]
+        },
+        {
+          "topic": "libvirt and KVM Provider for Vagrant on Linux Hosts",
+          "subtopics": ["Installing qemu-kvm, libvirt-daemon-system and libvirt-dev", "Installing the vagrant-libvirt plugin and its build dependencies", "Running vagrant-libvirt in a container as an alternative", "Provider settings: lv.memory, lv.cpus, lv.nested and lv.cpu_mode", "Management network and libvirt__network_name for private networks", "Default NFS synced folders and the virtiofs option", "vagrant up --parallel and boot time on KVM", "Inspecting machines with virsh list, dominfo and dumpxml"],
+          "tools": ["Vagrant", "vagrant-libvirt", "libvirt", "QEMU/KVM", "virsh"],
+          "lab_task": "On a Linux host install libvirt and the vagrant-libvirt plugin, add the user to the libvirt group and boot the four-node lab with --provider=libvirt and --parallel. Compare total vagrant up time with the VirtualBox run from Day 1 of this level. Enable lv.nested = true on one node and confirm /dev/kvm exists inside it. Inspect a domain with virsh dumpxml.",
+          "deliverable": "libvirt provider notes, timing comparison and virsh output",
+          "checks": [["Run virsh list --all", "All four lab domains are listed as running", "Terminal output"], ["Run vagrant up --provider=libvirt --parallel and time it", "The lab boots faster than the sequential VirtualBox run", "Timing table"], ["Run vagrant ssh node1 -c 'ls /dev/kvm' with lv.nested enabled", "/dev/kvm is present", "Terminal output"]],
+          "objectives": ["Run Vagrant labs on KVM with vagrant-libvirt", "Boot many machines in parallel", "Inspect provider state with virsh"]
+        },
+        {
+          "topic": "VMware Desktop Provider and the Vagrant VMware Utility",
+          "subtopics": ["Installing VMware Workstation Pro or Fusion", "The vagrant-vmware-desktop plugin and the Vagrant VMware Utility service", "Provider name vmware_desktop and matching box providers", "v.vmx settings such as memsize and numvcpus", "v.linked_clone and v.gui", "Networking through vmnet adapters", "Synced folders with VMware shared folders", "Checking that the utility is listening on 127.0.0.1:9922"],
+          "tools": ["Vagrant", "VMware Workstation", "VMware Fusion", "vagrant-vmware-desktop", "Vagrant VMware Utility"],
+          "lab_task": "Install the Vagrant VMware Utility and the vagrant-vmware-desktop plugin, then boot the web and db pair with --provider=vmware_desktop. Set memory and CPUs through v.vmx[\"memsize\"] and v.vmx[\"numvcpus\"], enable linked clones and confirm the private network works. Stop the utility service, record the error from vagrant up, then start it again.",
+          "deliverable": "VMware provider configuration with service checks and the error captured",
+          "checks": [["Run vagrant status after vagrant up --provider=vmware_desktop", "Both machines show running (vmware_desktop)", "Terminal output"], ["Stop the Vagrant VMware Utility service and run vagrant up", "Vagrant reports it cannot connect to the Vagrant VMware Utility", "Terminal output"], ["Run vagrant ssh db -c nproc after setting numvcpus to 2", "Output is 2", "Terminal output"]],
+          "objectives": ["Run Vagrant on VMware Desktop products", "Configure VMware VM settings through vmx keys", "Diagnose utility service problems"]
+        },
+        {
+          "topic": "Hyper-V Provider for Vagrant on Windows Hosts",
+          "subtopics": ["Enabling Hyper-V and running Vagrant from an elevated shell", "Provider settings: h.vmname, h.memory, h.maxmemory and h.cpus", "h.linked_clone and h.enable_virtualization_extensions", "Virtual switches and the public_network bridge: \"Default Switch\" choice", "Why private_network static IPs are not set by the Hyper-V provider", "SMB synced folders and credentials", "Hyper-V and VirtualBox on the same Windows host", "Hyper-V boxes and checkpoint-based snapshots"],
+          "tools": ["Vagrant", "Hyper-V", "PowerShell", "SMB"],
+          "lab_task": "On Windows 11 Pro or Enterprise, boot bento/ubuntu-24.04 with --provider=hyperv from an elevated PowerShell. Select the Default Switch, set memory and maxmemory for dynamic memory and use an SMB synced folder. Show the guest IP from vagrant ssh-config, then set a static address inside the guest with a netplan provisioner on a second internal switch.",
+          "deliverable": "Hyper-V provider configuration, switch notes and SMB mount evidence",
+          "checks": [["Run vagrant up --provider=hyperv in a non-elevated shell", "Vagrant stops and says administrator privileges are required for Hyper-V", "Terminal output"], ["Run Get-VM in PowerShell after boot", "The VM named in h.vmname is Running", "PowerShell output"], ["Run vagrant ssh -c 'mount -t cifs'", "The synced folder is mounted with type cifs", "Terminal output"]],
+          "objectives": ["Run Vagrant on Hyper-V", "Plan networking around Hyper-V switch limits", "Use SMB synced folders"]
+        },
+        {
+          "topic": "Docker Provider for Vagrant: Containers as Machines",
+          "subtopics": ["config.vm.provider \"docker\" with image or build_dir", "d.ports, d.env, d.volumes and d.name", "d.has_ssh and when a container needs SSH", "d.remains_running for one-shot containers", "Host VM mode on non-Linux hosts with d.vagrant_vagrantfile", "vagrant docker-logs, docker-exec and docker-run", "Multi-machine environments mixing containers and VMs", "Limits: no snapshots and no kernel isolation"],
+          "tools": ["Vagrant", "Docker", "Docker provider", "Redis", "PostgreSQL"],
+          "lab_task": "Define redis and postgres machines that use the docker provider with images redis:7 and postgres:17, env for the password and a named volume. Add a build_dir machine that builds ./api and links to both by name. Run vagrant up --provider=docker, follow logs with vagrant docker-logs -f api and run psql through vagrant docker-exec. Compare startup time with the VM version.",
+          "deliverable": "Docker-provider Vagrantfile with logs, exec evidence and timing",
+          "checks": [["Run vagrant status after vagrant up --provider=docker", "All three machines show running (docker)", "Terminal output"], ["Run vagrant docker-exec postgres -- psql -U postgres -c 'select 1'", "One row with value 1 is returned", "Terminal output"], ["Run vagrant snapshot save test against a docker machine", "Vagrant reports the provider does not support snapshots", "Terminal output"]],
+          "objectives": ["Use the Docker provider for lightweight machines", "Drive containers through Vagrant commands", "Explain what the Docker provider cannot do"]
+        },
+        {
+          "topic": "NFS, SMB and Mount Tuning for Vagrant Synced Folders",
+          "subtopics": ["type: \"nfs\" and the host nfsd and exports file", "nfs_version, nfs_udp and mount_options", "Linux and macOS sudo rules for /etc/exports updates", "type: \"smb\" with smb_username and smb_password on Windows hosts", "linux__nfs_options and bindfs-style ownership fixes", "Measuring throughput with dd and file-heavy workloads", "npm install and git status performance on each share type", "Choosing a synced folder type per host OS"],
+          "tools": ["Vagrant", "NFS", "SMB", "rsync", "hyperfine"],
+          "lab_task": "Create a synced folder benchmark: clone a Node.js project into the share and time npm ci and git status with hyperfine for the virtualbox, nfs and rsync types. Configure NFS with nfs_version 4 and mount_options [\"actimeo=2\"], record the /etc/exports entry Vagrant writes and add a sudoers rule so no password prompt appears. Report the fastest type for your host.",
+          "deliverable": "Benchmark table per share type with configuration and the exports entry",
+          "checks": [["Run cat /etc/exports on the host after vagrant up with NFS", "A block marked with the VAGRANT-BEGIN comment lists the project path and guest IP", "File contents"], ["Run vagrant ssh -c 'mount -t nfs4'", "The share is mounted with nfs4", "Terminal output"], ["Compare hyperfine results for npm ci on vboxsf and rsync", "The rsync share completes faster than vboxsf", "hyperfine output"]],
+          "objectives": ["Configure NFS and SMB synced folders", "Benchmark share types on real workloads", "Avoid password prompts for NFS exports"]
+        },
+        {
+          "topic": "Vagrant Triggers for Host-Side Automation",
+          "subtopics": ["config.trigger.before and config.trigger.after", "Commands such as :up, :halt, :destroy and :provision", "t.info, t.warn, t.run and t.run_remote", "t.only_on and per-machine triggers", "t.on_error = :continue and :halt", "Action and hook triggers with type: :action and type: :hook", "Backing up data before destroy", "Writing kubeconfig or hosts entries to the host after up"],
+          "tools": ["Vagrant", "Bash", "PowerShell", "pg_dump"],
+          "lab_task": "Add a before :destroy trigger on the db machine that runs pg_dump with run_remote into /vagrant/backups with a timestamped filename, an after :up trigger that copies admin.conf from the Kubernetes control node to ~/.kube/lab.conf, and a before :up trigger that warns when free host memory is under 8 GB. Destroy and recreate db, then restore from the dump.",
+          "deliverable": "Trigger configuration and evidence of backup, restore and kubeconfig copy",
+          "checks": [["Run vagrant destroy -f db", "A new pg_dump file appears in ./backups before the VM is removed", "Directory listing"], ["Run vagrant up control1 and then kubectl --kubeconfig ~/.kube/lab.conf get nodes", "kubectl lists the lab nodes", "kubectl output"], ["Run vagrant up on a host with less than 8 GB free memory", "The trigger warning message is shown before boot continues", "Terminal output"]],
+          "objectives": ["Run host and guest commands around Vagrant actions", "Protect lab data from accidental destroy", "Export lab credentials to the host automatically"]
+        },
+        {
+          "topic": "Vagrant Disks, Storage and Extra Volumes",
+          "subtopics": ["config.vm.disk :disk with name and size", "Resizing the primary disk with primary: true", "Checking whether your Vagrant release needs VAGRANT_EXPERIMENTAL=\"disks\"", "Provider support for disks: VirtualBox, Hyper-V and VMware", "Partitioning and mounting extra disks in a provisioner", "Growing the root filesystem with growpart and resize2fs or xfs_growfs", "DVD and floppy attachments with :dvd", "Extra disks for Ceph, LVM and database storage labs"],
+          "tools": ["Vagrant", "VirtualBox", "LVM", "growpart", "lsblk"],
+          "lab_task": "Grow the primary disk of a node to 60 GB with primary: true and extend the root filesystem with growpart and resize2fs. Add two 10 GB data disks named data1 and data2, build an LVM volume group and logical volume across both in a provisioner, mount it at /var/lib/postgresql and confirm it survives vagrant reload. Record lsblk output before and after.",
+          "deliverable": "Disk configuration, provisioning script and lsblk outputs",
+          "checks": [["Run vagrant ssh -c 'lsblk -d -o NAME,SIZE'", "Three disks are listed: 60G, 10G and 10G", "Terminal output"], ["Run vagrant ssh -c 'df -h /'", "The root filesystem shows more than 55G total", "Terminal output"], ["Run vagrant reload and then findmnt /var/lib/postgresql", "The LVM logical volume is mounted at the path", "Terminal output"]],
+          "objectives": ["Add and resize disks from the Vagrantfile", "Prepare storage inside guests with LVM", "Build storage-heavy labs"]
+        },
+        {
+          "topic": "Windows Guests in Vagrant with WinRM and PowerShell",
+          "subtopics": ["Windows Server and Windows 11 evaluation boxes", "config.vm.communicator = \"winrm\" and winrm settings", "config.vm.guest = :windows and boot timeouts for Windows", "Shell provisioner running PowerShell scripts", "vagrant winrm, vagrant powershell and vagrant rdp", "Windows licensing and evaluation expiry in labs", "Windows OpenSSH as an alternative communicator", "Joining a Windows guest to a lab Active Directory domain"],
+          "tools": ["Vagrant", "Windows Server", "WinRM", "PowerShell", "Ansible"],
+          "lab_task": "Boot a Windows Server evaluation box with the winrm communicator and boot_timeout 900. Provision IIS with a PowerShell script using Install-WindowsFeature Web-Server, forward 80 to host 8081 and curl it. Run vagrant winrm -c 'Get-Service W3SVC' and connect with vagrant rdp. Add a second Windows guest, promote it to a domain controller and join the first to the domain.",
+          "deliverable": "Windows lab Vagrantfile, provisioning scripts and domain join evidence",
+          "checks": [["Run vagrant winrm -c 'Get-Service W3SVC | Select Status'", "Status is Running", "Terminal output"], ["Run curl -sI http://127.0.0.1:8081", "The Server header contains Microsoft-IIS", "curl output"], ["Run vagrant winrm member -c '(Get-CimInstance Win32_ComputerSystem).Domain'", "The lab domain name is returned", "Terminal output"]],
+          "objectives": ["Run and provision Windows guests", "Use WinRM and RDP through Vagrant", "Build a small Windows domain lab"]
+        },
+        {
+          "topic": "Provider Overrides and Cross-Platform Vagrantfiles",
+          "subtopics": ["Provider blocks with override for box and synced folder changes", "override.vm.box for provider-specific boxes", "Detecting host OS with Vagrant::Util::Platform", "Choosing defaults with VAGRANT_DEFAULT_PROVIDER", "config.vm.provider order as preference", "Synced folder type by provider and host", "Testing the same Vagrantfile on three providers", "Documenting supported host and provider combinations"],
+          "tools": ["Vagrant", "VirtualBox", "vagrant-libvirt", "VMware Desktop", "Hyper-V"],
+          "lab_task": "Refactor the web and db lab so one Vagrantfile supports virtualbox, libvirt, vmware_desktop and hyperv, using override.vm.synced_folder to pick vboxsf, NFS or SMB and override.vm.box where a box differs. Order the provider blocks so a host without VirtualBox falls back to libvirt. Boot it on at least two providers and record a support matrix.",
+          "deliverable": "Cross-provider Vagrantfile and a tested support matrix",
+          "checks": [["Run vagrant up on a Linux host with only libvirt installed", "Vagrant selects libvirt without a --provider flag", "Terminal output"], ["Run vagrant ssh -c 'mount | grep /vagrant' on libvirt", "The mount type is nfs", "Terminal output"], ["Run vagrant ssh -c 'mount | grep /vagrant' on VirtualBox", "The mount type is vboxsf", "Terminal output"]],
+          "objectives": ["Write one Vagrantfile for several providers", "Override settings per provider cleanly", "Publish a support matrix for a lab"]
+        },
+        {
+          "topic": "Internal Box Catalogs with Vagrant Metadata Files",
+          "subtopics": ["Box catalog metadata JSON: name, versions, providers, url and checksum", "architecture and default_architecture fields", "config.vm.box_url pointing to a metadata file", "Hosting boxes on nginx, S3 or an artifact repository", "Checksums with checksum_type sha256", "Authentication with box_download_options and VAGRANT_SERVER_URL", "vagrant box outdated against an internal catalog", "Air-gapped environments and file:// URLs"],
+          "tools": ["Vagrant", "Nginx", "sha256sum", "JSON", "vagrant box repackage"],
+          "lab_task": "Repackage a provisioned machine with vagrant package --output acme-ubuntu-1.0.0.box, compute its sha256 and write a catalog JSON for acme/ubuntu with version 1.0.0 served by nginx. Point a project at it with config.vm.box_url, boot it, then publish 1.1.0 in the catalog and run vagrant box outdated and vagrant box update. Corrupt one byte of a box and confirm the checksum check rejects it.",
+          "deliverable": "Catalog JSON, nginx configuration and update evidence",
+          "checks": [["Run vagrant box list after the first boot", "acme/ubuntu (virtualbox, 1.0.0) is listed", "Terminal output"], ["Publish 1.1.0 and run vagrant box outdated", "Vagrant reports version 1.1.0 is available", "Terminal output"], ["Serve a box with one changed byte and run vagrant box add", "The add fails with a checksum mismatch error", "Terminal output"]],
+          "objectives": ["Host boxes internally with a metadata catalog", "Version and verify internal boxes", "Support offline teams"]
+        },
+        {
+          "topic": "Vagrant Lab Performance: Linked Clones, CPU, Memory and Boot Time",
+          "subtopics": ["Measuring vagrant up phases with --timestamp", "Linked clones on VirtualBox, VMware and Hyper-V", "Over-committing host memory and swap pressure", "CPU counts, paravirtualisation and virtio NICs", "Pre-baked boxes compared with heavy provisioning", "Package caches: apt-cacher-ng or a local mirror", "Parallel boots where the provider supports them", "Snapshots as a fast reset compared with destroy and up"],
+          "tools": ["Vagrant", "VirtualBox", "apt-cacher-ng", "hyperfine"],
+          "lab_task": "Time a full vagrant up of the four-node lab with --timestamp and split it into import, boot and provisioning. Apply linked clones, virtio NICs, an apt-cacher-ng machine used by all nodes and a reset snapshot, then measure again. Present before-and-after timings and peak host memory, and identify the slowest remaining phase.",
+          "deliverable": "Performance report with phase timings, host memory and changes applied",
+          "checks": [["Compare total vagrant up time before and after tuning", "Total time is at least 40% lower after tuning", "Timing table"], ["Run apt-get update on a worker after the cache is warm", "Packages are fetched from the apt-cacher-ng address", "apt output"], ["Restore the reset snapshot on all nodes and time it", "The restore finishes in under 2 minutes", "Timed terminal output"]],
+          "objectives": ["Measure where lab start time goes", "Speed up labs with clones, caching and snapshots", "Size labs to host capacity"]
+        },
+        {
+          "topic": "Name Resolution Across Machines in Vagrant Labs",
+          "subtopics": ["Why private_network IPs do not create DNS names", "Generating /etc/hosts entries from the node list", "The vagrant-hostmanager plugin and its maintenance status", "Updating the host hosts file with sudo prompts", "A lab dnsmasq machine serving a lab.test zone", "systemd-resolved split DNS for the lab domain", "Hostname and FQDN rules for Kubernetes and databases", "Testing with getent hosts and dig"],
+          "tools": ["Vagrant", "dnsmasq", "systemd-resolved", "dig", "vagrant-hostmanager"],
+          "lab_task": "Run a dns machine with dnsmasq serving lab.test records generated from nodes.yaml. Configure every node with systemd-resolved to send lab.test queries to it and configure the host to do the same. Compare this with a provisioner that writes /etc/hosts entries. Show getent hosts db.lab.test works on all nodes and dig from the host returns the private IP.",
+          "deliverable": "DNS lab configuration with lookup results from guests and host",
+          "checks": [["Run vagrant ssh web -c 'getent hosts db.lab.test'", "The db private network IP is returned", "Terminal output"], ["Run dig @192.168.56.2 worker2.lab.test +short from the host", "The worker2 private IP is printed", "dig output"], ["Stop dnsmasq and query db.lab.test from web", "The lookup fails while hosts-file entries still resolve", "Terminal output"]],
+          "objectives": ["Give lab machines resolvable names", "Compare hosts-file and DNS approaches", "Integrate host and guest DNS for a lab domain"]
+        },
+        {
+          "topic": "Intermediate Capstone: Kubernetes Lab with an Ansible-Provisioned Database Tier",
+          "subtopics": ["Data-driven Vagrantfile for control, worker and database nodes", "Host-side Ansible with groups for Kubernetes and PostgreSQL roles", "Calico, MetalLB and a Gateway exposing an app to the host", "PostgreSQL primary and replica outside the cluster with lab DNS names", "Triggers for kubeconfig export and pre-destroy backups", "Cross-provider support and a timed rebuild"],
+          "tools": ["Vagrant", "Ansible", "kubeadm", "PostgreSQL", "MetalLB", "dnsmasq"],
+          "lab_task": "Deliver a repository that builds 1 control node, 2 workers, a PostgreSQL primary and replica and a DNS node from nodes.yaml with one vagrant up and one Ansible run. Deploy a sample app to Kubernetes that reads from db.lab.test, reachable through a MetalLB Gateway address from the host. Prove failover to the replica and a full destroy-and-rebuild in under 30 minutes on two providers.",
+          "deliverable": "Lab repository, architecture diagram, runbook and recorded demonstration",
+          "checks": [["Run vagrant destroy -f then vagrant up and time it", "The lab is fully provisioned in under 30 minutes", "Timed terminal output"], ["curl the Gateway address from the host", "The app returns rows from the PostgreSQL primary", "curl output"], ["Halt the primary and promote the replica, then curl again", "The app returns rows after its connection string is pointed at the replica", "curl output and runbook"]],
+          "objectives": ["Combine Kubernetes, databases, DNS and Ansible in one lab", "Make a complex lab rebuildable on demand", "Document and demonstrate lab operations"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform, DevOps and infrastructure engineers who own Vagrant environments for a team or publish boxes for others. Covers building base boxes with Packer HCL templates, multi-provider and multi-architecture box artifacts, publishing to HCP Vagrant Registry, box hardening, writing command, config, provisioner and guest capability plugins in Ruby, Patroni and MongoDB HA labs, highly available kubeadm control planes, running Vagrant in GitHub Actions and GitLab CI with nested virtualisation, matrix testing of Ansible collections, network and failure-injection labs, team-scale governance, deep debugging, Apple silicon fleets and choosing alternatives, ending with a CI-tested box pipeline capstone.",
+      "prerequisites": ["Has completed the Vagrant intermediate level or runs multi-node Vagrant labs with host-side Ansible and more than one provider", "Reads and writes Ruby at a basic level and is comfortable with Packer or another image-building tool", "Has access to a Linux host with KVM or a cloud VM with nested virtualisation, plus a GitHub or GitLab account for CI work"],
+      "outcomes": ["Build, test, version and publish multi-provider, multi-architecture Vagrant boxes with Packer and HCP Vagrant Registry", "Extend Vagrant with custom commands, configuration, provisioners and guest capabilities packaged as gems", "Run highly available Kubernetes and database cluster labs with repeatable failure drills", "Operate Vagrant in CI and across a team with pinned versions, security controls and a clear position on alternatives"],
+      "days": [
+        {
+          "topic": "Building Vagrant Base Boxes with Packer HCL Templates",
+          "subtopics": ["Base box requirements: vagrant user, insecure public key, passwordless sudo and sshd settings", "packer init with required_plugins for virtualbox and vagrant", "source \"virtualbox-iso\" with iso_url, iso_checksum and boot_command", "Ubuntu autoinstall served from http_directory", "Shell provisioners for Guest Additions, cleanup and zeroing free space", "headless, ssh_timeout and shutdown_command", "packer validate, packer fmt and packer build -on-error=ask", "Box size reduction: apt clean, removing logs and fstrim"],
+          "tools": ["Packer", "VirtualBox", "Ubuntu autoinstall", "Vagrant", "packer-plugin-vagrant"],
+          "lab_task": "Write ubuntu.pkr.hcl that builds an Ubuntu 24.04 server from the ISO with virtualbox-iso and an autoinstall user-data file, creates the vagrant user with the insecure key and NOPASSWD sudo, installs Guest Additions, cleans and zeroes the disk, and runs the vagrant post-processor. Run packer validate and packer build, add the box locally and boot it with vagrant up.",
+          "deliverable": "Packer template, autoinstall files, build log and box size",
+          "checks": [["Run packer validate .", "The configuration is valid. is printed", "Terminal output"], ["Run vagrant box add --name acme/ubuntu24 output.box and vagrant up", "The machine boots and vagrant ssh connects without a password", "Terminal output"], ["Compare the .box size with and without the zeroing step", "The box with zeroing is at least 30% smaller", "File size table"]],
+          "objectives": ["Build a Vagrant base box from an ISO with Packer", "Meet the base box conventions Vagrant expects", "Reduce box size before packaging"]
+        },
+        {
+          "topic": "Packer Vagrant Post-Processor and Multi-Provider Box Artifacts",
+          "subtopics": ["The vagrant post-processor: output, compression_level and keep_input_artifact", "Building VirtualBox, VMware and QEMU sources from one template", "provider_override and libvirt boxes from qemu builds", "Box contents: metadata.json, Vagrantfile and disk images", "Embedding a default Vagrantfile with vagrantfile_template", "The vagrant builder for repackaging an existing box", "Parallel builds and -only to select sources", "Testing each artifact with vagrant up per provider"],
+          "tools": ["Packer", "Vagrant", "QEMU", "VMware Workstation", "VirtualBox"],
+          "lab_task": "Extend the template with vmware-iso and qemu sources sharing the same autoinstall files and provisioners. Configure the vagrant post-processor to write builds/acme-ubuntu24-{{.Provider}}.box and embed a Vagrantfile template setting 2 CPUs. Build all three with packer build, list each box's contents with tar -tzf and boot the virtualbox and libvirt artifacts.",
+          "deliverable": "Multi-source template, three box artifacts and their content listings",
+          "checks": [["Run ls builds/", "Three .box files exist, one each for virtualbox, vmware and libvirt", "Directory listing"], ["Run tar -xOzf builds/acme-ubuntu24-libvirt.box metadata.json", "The provider field is libvirt", "Terminal output"], ["Boot the libvirt box and run vagrant ssh -c nproc", "Output is 2 from the embedded Vagrantfile", "Terminal output"]],
+          "objectives": ["Produce boxes for several providers from one template", "Explain box file structure", "Ship defaults inside a box"]
+        },
+        {
+          "topic": "Multi-Architecture Vagrant Boxes for amd64 and arm64",
+          "subtopics": ["Architecture support in box metadata and catalogs", "config.vm.box_architecture and the :auto default", "Building arm64 boxes with qemu on aarch64 hosts or with VMware Fusion and Parallels on Apple silicon", "UEFI firmware requirements for arm64 guests", "Naming and tagging artifacts by provider and architecture", "default_architecture for hosts that cannot detect architecture", "vagrant box add --architecture for testing", "Testing both architectures in CI"],
+          "tools": ["Packer", "QEMU", "VMware Fusion", "Vagrant", "UEFI firmware"],
+          "lab_task": "Build an arm64 version of the Ubuntu box using a qemu source with UEFI firmware on an aarch64 host or a VMware Fusion source on Apple silicon. Write a local catalog JSON listing amd64 and arm64 providers for version 1.0.0, then boot the same Vagrantfile on an Intel host and an Apple silicon host and confirm each downloads only its architecture.",
+          "deliverable": "arm64 template, catalog JSON with both architectures and boot evidence",
+          "checks": [["Boot the catalog box on Apple silicon and run uname -m", "Output is aarch64", "Terminal output"], ["Boot the catalog box on an Intel host and run uname -m", "Output is x86_64", "Terminal output"], ["Run vagrant box list on the Apple silicon host", "Only the arm64 variant is stored locally", "Terminal output"]],
+          "objectives": ["Build boxes for arm64 guests", "Publish both architectures under one box version", "Verify automatic architecture selection"]
+        },
+        {
+          "topic": "Publishing and Versioning Boxes in HCP Vagrant Registry",
+          "subtopics": ["HCP organisations, projects and the Vagrant registry", "Authentication with vagrant cloud auth login, VAGRANT_CLOUD_TOKEN or HCP service principal credentials", "vagrant cloud box create and box visibility", "vagrant cloud publish with --architecture and --release", "Version numbering, descriptions and release notes", "Packer post-processors for registry uploads", "Revoking or deleting a bad version", "Box download metrics and deprecation notices"],
+          "tools": ["Vagrant", "HCP Vagrant Registry", "Packer", "HCP service principal"],
+          "lab_task": "Create a private box acme/ubuntu24 in an HCP Vagrant Registry, authenticate with a service principal stored in environment values, and publish version 1.0.0 with virtualbox amd64 and vmware_desktop arm64 providers using vagrant cloud publish --architecture. Boot it from a clean machine, then publish 1.0.1 with release notes, revoke 1.0.0 and show vagrant box outdated behaviour.",
+          "deliverable": "Registry box page, publish commands and evidence of versioning actions",
+          "checks": [["Run vagrant cloud search acme/ubuntu24 with a token", "The private box is found", "Terminal output"], ["Run vagrant up on a clean host referencing acme/ubuntu24", "The box downloads from the registry and boots", "Terminal output"], ["Run vagrant up without credentials", "The download fails because the private box cannot be accessed", "Terminal output"]],
+          "objectives": ["Publish private boxes to HCP Vagrant Registry", "Manage versions and releases", "Handle registry credentials safely"]
+        },
+        {
+          "topic": "Hardening Vagrant Base Boxes and Lab Security",
+          "subtopics": ["Risks of the insecure key and keeping config.ssh.insert_key enabled", "Binding forwarded ports with host_ip 127.0.0.1", "Default passwords, sudo rules and locking accounts after provisioning", "Box checksums and provenance records", "Scanning boxes with Lynis or OpenSCAP", "Secrets in Vagrantfiles: sensitive provisioners and environment values", "Bridged network exposure and host firewalls", "Patch cadence and automated box rebuilds"],
+          "tools": ["Vagrant", "Packer", "Lynis", "OpenSCAP", "nmap"],
+          "lab_task": "Audit the Packer-built box: scan it with Lynis and record the hardening index, then add Packer steps that disable password SSH login, apply a CIS-style OpenSCAP profile where available and remove build tools. Rebuild, scan again and compare. From another LAN host run nmap against your workstation with the lab running and confirm no guest ports are reachable.",
+          "deliverable": "Before-and-after scan reports, hardening changes and nmap evidence",
+          "checks": [["Compare Lynis hardening index before and after", "The index rises by at least 10 points", "Lynis reports"], ["Run ssh with -o PubkeyAuthentication=no to the guest", "The connection is refused with Permission denied (publickey)", "Terminal output"], ["Run nmap against the workstation from another LAN host", "None of the lab forwarded ports appear open", "nmap output"]],
+          "objectives": ["Harden boxes without breaking Vagrant conventions", "Keep lab services off shared networks", "Track box provenance and patch levels"]
+        },
+        {
+          "topic": "Writing a Vagrant Plugin in Ruby: Commands and Config",
+          "subtopics": ["Plugin structure: gemspec, lib/plugin.rb and Vagrant.plugin(\"2\")", "Registering a command with command(\"name\") and synopsis", "with_target_vms and machine.communicate.execute", "Config classes with UNSET_VALUE, finalize! and validate", "Reading machine.config in commands", "Building with gem build and installing with vagrant plugin install ./file.gem", "Running in development with bundle exec vagrant", "Error classes with I18n messages"],
+          "tools": ["Ruby", "Bundler", "RubyGems", "Vagrant", "RSpec"],
+          "lab_task": "Create vagrant-labinfo, a plugin adding vagrant labinfo that prints each target machine's hostname, IPs, kernel and uptime, and a config.labinfo.fields setting with validation that rejects unknown field names. Build the gem, install it with vagrant plugin install, and run it against the four-node lab. Add an RSpec test for the config validation.",
+          "deliverable": "Plugin source, gem file, RSpec results and command output",
+          "checks": [["Run vagrant labinfo on the four-node lab", "One line per machine with hostname and private IP is printed", "Terminal output"], ["Set config.labinfo.fields = [\"colour\"] and run vagrant validate", "Validation fails with the plugin's unknown field message", "Terminal output"], ["Run bundle exec rspec", "All examples pass with 0 failures", "RSpec output"]],
+          "objectives": ["Build and package a Vagrant command plugin", "Add validated configuration to a plugin", "Test plugin code"]
+        },
+        {
+          "topic": "Custom Provisioner and Guest Capability Plugins",
+          "subtopics": ["provisioner(\"name\") classes with configure and provision", "Provisioner config and per-machine options", "Guest capabilities with guest_capability", "Host capabilities and when to use them", "Action hooks with action_hook and middleware", "Calling capabilities with machine.guest.capability", "Supporting Linux and Windows guests in one plugin", "Publishing the plugin to RubyGems and versioning"],
+          "tools": ["Ruby", "Vagrant", "RubyGems", "Bundler"],
+          "lab_task": "Extend vagrant-labinfo with a \"ca_trust\" provisioner that uploads a lab CA certificate and installs it using a guest capability with separate Debian, RHEL and Windows implementations. Add an action_hook that prints a reminder after machine_action_up. Provision Ubuntu, Rocky and Windows guests and prove each trusts a site signed by the CA.",
+          "deliverable": "Provisioner and capability source with test evidence on three guest types",
+          "checks": [["Run curl https://lab-ca-signed.lab.test on the Ubuntu guest after provisioning", "The request succeeds with no certificate error", "curl output"], ["Run the provisioner on a guest type without an implementation", "Vagrant raises an error that the guest does not support the capability", "Terminal output"], ["Run vagrant up on any machine", "The action hook reminder appears after boot", "Terminal output"]],
+          "objectives": ["Write a custom provisioner", "Implement guest capabilities for several operating systems", "Hook into Vagrant actions"]
+        },
+        {
+          "topic": "Patroni PostgreSQL HA Cluster with etcd on Vagrant",
+          "subtopics": ["Three etcd members on dedicated or shared nodes", "Patroni configuration: scope, restapi, etcd3 and bootstrap dcs", "PostgreSQL parameters managed by Patroni", "patronictl list, switchover and failover", "HAProxy health checks against the Patroni REST API /primary endpoint", "keepalived virtual IP for HAProxy", "Synchronous mode and maximum_lag_on_failover", "Failure drills: node halt, network isolation and etcd quorum loss"],
+          "tools": ["Vagrant", "Patroni", "etcd", "PostgreSQL", "HAProxy", "Ansible"],
+          "lab_task": "Build pg1-3 running etcd and Patroni plus an haproxy node exposing port 5000 for the primary and 5001 for replicas. Check patronictl -c /etc/patroni/patroni.yml list, run a planned switchover, then vagrant halt --force on the leader and measure time until writes succeed through port 5000. Stop two etcd members and record what Patroni does.",
+          "deliverable": "Patroni lab repository with timings for planned and unplanned failover",
+          "checks": [["Run patronictl list", "One Leader and two Replica members in state streaming or running", "patronictl output"], ["Halt the leader and write through HAProxy port 5000", "Writes succeed again within 45 seconds", "Timed client log"], ["Stop two of the three etcd members", "Patroni demotes the leader to read-only because the DCS is unreachable", "Patroni logs"]],
+          "objectives": ["Build a Patroni cluster lab", "Route clients to the leader through HAProxy", "Run and time failover drills"]
+        },
+        {
+          "topic": "MongoDB Replica Set and Failover Drills on Vagrant",
+          "subtopics": ["Three mongod nodes with replication.replSetName", "Keyfile authentication between members", "rs.initiate with member hosts on lab DNS names", "rs.status, rs.conf and member priorities", "Write concern majority and read preference", "rs.stepDown and election timing", "Hidden and delayed members for recovery practice", "Partition drills with nftables rules"],
+          "tools": ["Vagrant", "MongoDB", "mongosh", "nftables", "Ansible"],
+          "lab_task": "Provision mongo1-3 with a shared keyfile and initiate replica set rs0 using lab.test hostnames. Run a mongosh script that inserts a document every 100 ms with writeConcern majority, then rs.stepDown(), halt the primary and isolate one node with nftables. Record missed writes and election time for each drill and add a delayed hidden member.",
+          "deliverable": "Replica set lab with drill results table",
+          "checks": [["Run rs.status() in mongosh", "One PRIMARY and two SECONDARY members are reported", "mongosh output"], ["Run rs.stepDown() on the primary", "A new primary is elected within 12 seconds", "Timed mongosh log"], ["Isolate the primary from both secondaries with nftables", "The isolated node steps down to SECONDARY and the other two elect a primary", "rs.status() output"]],
+          "objectives": ["Build a secured MongoDB replica set lab", "Measure election behaviour under failures", "Use network rules to simulate partitions"]
+        },
+        {
+          "topic": "Highly Available kubeadm Control Planes on Vagrant",
+          "subtopics": ["Stacked etcd with three control-plane nodes", "HAProxy and keepalived load balancer nodes with a virtual IP", "kubeadm init --control-plane-endpoint and --upload-certs", "Joining control planes with --control-plane and --certificate-key", "Checking etcd health with etcdctl endpoint status", "Losing one and two control-plane nodes", "Certificate renewal with kubeadm certs renew", "Upgrading the cluster one minor version with kubeadm upgrade"],
+          "tools": ["Vagrant", "kubeadm", "etcd", "HAProxy", "keepalived", "kubectl"],
+          "lab_task": "Build lb1 and lb2 with keepalived VIP 192.168.56.100 and HAProxy on 6443, three control-plane nodes and two workers. Init with --control-plane-endpoint 192.168.56.100:6443 --upload-certs and join the other control planes. Halt one control node and confirm kubectl works, then halt a second and record the result. Finally upgrade the cluster by one minor version.",
+          "deliverable": "HA cluster repository, failure test results and upgrade log",
+          "checks": [["Run kubectl get nodes", "3 control-plane and 2 worker nodes are Ready", "kubectl output"], ["Halt one control-plane node and run kubectl get pods -A", "The API still answers through the VIP", "kubectl output"], ["Halt a second control-plane node and run kubectl get nodes", "The API stops serving because etcd has lost quorum", "kubectl error output"]],
+          "objectives": ["Build an HA Kubernetes control plane lab", "Explain etcd quorum through failure tests", "Practise kubeadm upgrades safely"]
+        },
+        {
+          "topic": "Vagrant in GitHub Actions with KVM and libvirt",
+          "subtopics": ["Nested virtualisation on GitHub-hosted Linux runners", "Granting /dev/kvm access with a udev rule", "Installing Vagrant from the HashiCorp apt repository", "Installing libvirt and the vagrant-libvirt plugin in a job", "Caching boxes with actions/cache keyed on box version", "Running vagrant up, tests and vagrant destroy -f in always() steps", "Job time limits and runner disk space", "Uploading logs and VAGRANT_LOG output as artifacts"],
+          "tools": ["GitHub Actions", "Vagrant", "vagrant-libvirt", "libvirt", "actions/cache"],
+          "lab_task": "Write a workflow that, on ubuntu-latest, enables /dev/kvm through a udev rule, installs Vagrant, libvirt and vagrant-libvirt, restores the box cache, boots the web and db pair with --provider=libvirt, runs a smoke test script and destroys the machines in a step with if: always(). Record the job duration with a cold and a warm cache.",
+          "deliverable": "Workflow file, two run links and timing comparison",
+          "checks": [["Run the workflow on a pull request", "The job finishes with a green check and the smoke test passes", "Actions run log"], ["Remove the udev rule step and rerun", "vagrant up fails because /dev/kvm cannot be accessed", "Actions run log"], ["Compare cold and warm cache runs", "The warm run is faster because the box is restored from the cache", "Run durations"]],
+          "objectives": ["Run Vagrant labs in GitHub Actions", "Cache boxes and clean up reliably", "Debug CI virtualisation failures"]
+        },
+        {
+          "topic": "Vagrant on Self-Hosted CI Runners with Nested Virtualisation",
+          "subtopics": ["Choosing hosts: bare metal, cloud VMs with nested virtualisation or .metal instances", "GitLab Runner with the shell executor on a KVM host", "Isolating jobs with VAGRANT_HOME and VAGRANT_DOTFILE_PATH per job", "Unique machine names and network ranges per concurrent job", "after_script cleanup and orphan reaping with global-status --prune", "Shared box caches and disk quotas", "Runner security: untrusted pipelines and host access", "Concurrency limits and queue times"],
+          "tools": ["GitLab CI", "GitLab Runner", "Vagrant", "libvirt", "Google Compute Engine"],
+          "lab_task": "Provision a cloud VM with nested virtualisation enabled, register a GitLab Runner with the shell executor and write .gitlab-ci.yml that runs the Patroni lab tests. Use CI_JOB_ID to make machine names and a /24 private network per job, run two pipelines at once without clashes and add a nightly job that destroys orphan domains older than 6 hours.",
+          "deliverable": "Runner setup notes, pipeline file and evidence of concurrent runs",
+          "checks": [["Run two pipelines concurrently", "Both pass with no network or machine name conflicts", "Pipeline pages"], ["Cancel a pipeline mid-run and run the reaper job", "virsh list --all shows no domains left from the cancelled job", "Terminal output"], ["Run grep -c vmx /proc/cpuinfo on the runner VM", "A count greater than 0 is printed", "Terminal output"]],
+          "objectives": ["Run Vagrant on self-hosted CI runners", "Isolate concurrent Vagrant jobs", "Clean up after failed jobs"]
+        },
+        {
+          "topic": "Matrix Testing Ansible Collections Across Distributions with Vagrant",
+          "subtopics": ["Building a distro matrix: Ubuntu, Debian, Rocky and AlmaLinux boxes", "Generating machines from the matrix in a Vagrantfile", "Running ansible-playbook with per-distro inventory groups", "Idempotence checks with --check --diff and a second run", "Verification with Testinfra or Goss", "Collecting results as JUnit XML", "Parallel matrix legs in CI", "Reporting a support matrix from results"],
+          "tools": ["Vagrant", "Ansible", "Testinfra", "Goss", "pytest"],
+          "lab_task": "Build a Vagrantfile that boots one machine per entry in matrix.yaml (ubuntu-24.04, debian-12, rockylinux-9, almalinux-9). Run an Ansible collection's main role against all, run it again to check for changed=0, then run Testinfra tests with --junitxml. Break support on one distro with a distro-specific package name and show the matrix flags only that leg.",
+          "deliverable": "Matrix Vagrantfile, JUnit reports and the resulting support table",
+          "checks": [["Run the full matrix", "All four distributions pass converge, idempotence and tests", "JUnit XML and summary table"], ["Introduce a Debian-only package name", "Only the rockylinux-9 and almalinux-9 legs fail", "JUnit XML"], ["Run the playbook a second time", "PLAY RECAP shows changed=0 on all four hosts", "Ansible output"]],
+          "objectives": ["Test automation across several Linux distributions", "Produce machine-readable test results", "Publish an evidence-based support matrix"]
+        },
+        {
+          "topic": "Network Simulation Labs with Routers and Firewalls in Vagrant",
+          "subtopics": ["Multiple private networks and VirtualBox internal networks with virtualbox__intnet", "libvirt isolated networks with libvirt__forward_mode none", "A router VM with net.ipv4.ip_forward and static routes", "nftables firewall rules between segments", "Disabling the default route through NAT for isolated guests", "Adding latency and loss with tc netem", "Packet capture with tcpdump on the router", "VPN tunnels between segments with WireGuard"],
+          "tools": ["Vagrant", "nftables", "tc netem", "tcpdump", "WireGuard"],
+          "lab_task": "Build three segments (frontend, app, data) on separate internal networks joined by a router VM. Allow only frontend to app on 8080 and app to data on 5432 with nftables, remove the NAT default route on data nodes and add 80 ms delay with 2% loss on the app to data link. Measure latency with ping and capture a blocked attempt with tcpdump.",
+          "deliverable": "Network diagram, router configuration and measurement results",
+          "checks": [["Run ping -c 20 from app to data", "Average RTT is about 80 ms and loss is close to 2%", "ping summary"], ["Run nc -zv data 5432 from a frontend node", "The connection times out because the router drops it", "Terminal output and tcpdump capture"], ["Run curl https://example.com on a data node", "The request fails because data nodes have no internet route", "Terminal output"]],
+          "objectives": ["Model segmented networks with Vagrant", "Enforce and test firewall policy between segments", "Simulate WAN conditions"]
+        },
+        {
+          "topic": "Vagrant at Team Scale: Version Pinning, Plugins and Onboarding",
+          "subtopics": ["Vagrant.require_version and host tool version checks", "config.vagrant.plugins with pinned versions", "Pinned box versions and an update policy", "Vagrantfile.local and environment value overrides", "Make or Task targets for common workflows", "Host prerequisites checks in a before :up trigger", "Shared box caches and internal catalogs for offices", "Measuring onboarding time and lab failure rates"],
+          "tools": ["Vagrant", "Task", "Make", "Git"],
+          "lab_task": "Take the intermediate capstone lab and add: Vagrant.require_version, pinned plugins in config.vagrant.plugins, pinned box versions, a before :up trigger that checks host RAM, CPU virtualisation and provider version, Task targets for up, test, snapshot and reset, and an onboarding guide. Have two colleagues on different hosts go from clone to working lab and record their time and issues.",
+          "deliverable": "Team-ready lab repository, onboarding guide and colleague trial results",
+          "checks": [["Run vagrant up with Vagrant older than the required version", "Vagrant stops with a message that the Vagrantfile requires a newer version", "Terminal output"], ["Run vagrant up on a host with virtualisation disabled", "The prerequisite trigger stops the run with a clear message", "Terminal output"], ["Ask two colleagues to follow the onboarding guide", "Both reach a working lab in under 45 minutes", "Trial log"]],
+          "objectives": ["Make a Vagrant lab dependable for a whole team", "Pin tools, plugins and boxes", "Measure and improve onboarding"]
+        },
+        {
+          "topic": "Deep Debugging of Vagrant and Provider Internals",
+          "subtopics": ["VAGRANT_LOG=debug structure: action builders, middleware and provider calls", "Finding the exact VBoxManage, virsh or vmrun command that failed", "Reproducing a failing provider command by hand", "vagrant up --no-destroy-on-error to keep broken machines", "The embedded Ruby and gems under the Vagrant install", "Plugin conflicts and bisecting with vagrant plugin uninstall", "Reading .vagrant/machines metadata: id, action_provision and private_key", "Writing a minimal reproduction for an upstream issue"],
+          "tools": ["Vagrant", "VAGRANT_LOG", "VBoxManage", "virsh", "GitHub Issues"],
+          "lab_task": "The trainer injects four faults: a plugin that breaks config loading, a VirtualBox VM with a locked session, a libvirt storage pool that is missing and a corrupted .vagrant/machines id file. For each, capture a debug log, locate the failing middleware or provider command, reproduce it by hand, fix it and write a minimal reproduction suitable for an upstream issue.",
+          "deliverable": "Four debugging reports with log excerpts, manual reproductions and fixes",
+          "checks": [["Run VAGRANT_LOG=debug vagrant up on the locked VM", "The log shows the VBoxManage command that failed with its exit code and error text", "Log excerpt"], ["Run vagrant up with the missing storage pool", "vagrant-libvirt reports the storage pool cannot be found", "Terminal output"], ["Uninstall plugins one at a time until vagrant status works", "The faulty plugin is identified by name", "Bisect log"]],
+          "objectives": ["Trace Vagrant failures through debug logs", "Reproduce provider commands manually", "Report problems upstream with minimal reproductions"]
+        },
+        {
+          "topic": "Vagrant Fleets on Apple Silicon: Parallels, VMware Fusion and QEMU",
+          "subtopics": ["Provider comparison on M-series Macs: Parallels, VMware Fusion, VirtualBox and QEMU", "The vagrant-parallels plugin and its edition requirements", "The vagrant-qemu plugin with qe.arch, qe.machine and qe.cpu settings", "x86_64 emulation with QEMU and its speed cost", "Rosetta for Linux in arm64 guests where the provider supports it", "arm64 container images and multi-arch builds in labs", "Mixed Intel and Apple silicon teams: one Vagrantfile, two box architectures", "Kubernetes and database labs sized for laptop memory"],
+          "tools": ["Vagrant", "Parallels Desktop", "VMware Fusion", "vagrant-qemu", "vagrant-parallels"],
+          "lab_task": "On an Apple silicon Mac, boot the three-node Kubernetes lab with two providers chosen from Parallels, VMware Fusion and VirtualBox, and boot a single x86_64 VM with vagrant-qemu using emulation. Record boot time, provisioning time and a sysbench CPU score for each. Write a recommendation for the team's default provider.",
+          "deliverable": "Provider benchmark table and a recommendation note",
+          "checks": [["Run vagrant status on the Kubernetes lab with each provider", "All three nodes show running with the chosen provider name", "Terminal output"], ["Run sysbench cpu run in the emulated x86_64 VM and in an arm64 VM", "The emulated VM's events per second are far lower than the arm64 VM's", "sysbench output"], ["Run kubectl get nodes -o wide", "All nodes report arm64 architecture", "kubectl output"]],
+          "objectives": ["Select providers for Apple silicon teams", "Quantify the cost of x86_64 emulation", "Run cluster labs on arm64 laptops"]
+        },
+        {
+          "topic": "Choosing Between Vagrant and Its Alternatives",
+          "subtopics": ["Vagrant's strengths: multi-machine VMs, many providers, provisioners and boxes", "Licensing under the Business Source License and HashiCorp ownership by IBM", "Multipass and cloud-init for Ubuntu VMs", "Lima and Colima on macOS and Linux", "Dev Containers and Docker Compose for application development", "Incus for system containers and VMs", "kind and k3d for Kubernetes labs", "Terraform with Proxmox or cloud providers for shared labs"],
+          "tools": ["Vagrant", "Multipass", "Lima", "Dev Containers", "Incus", "kind"],
+          "lab_task": "Rebuild the web and db pair with Multipass plus cloud-init, with Lima, and with a Dev Container plus Docker Compose. Score each against Vagrant for setup time, start time, host OS support, multi-machine networking, provisioning reuse and licensing. Then rebuild the 3-node Kubernetes lab with kind and list which Day 4 and Day 5 exercises of the intermediate level it cannot reproduce.",
+          "deliverable": "Comparison matrix with timings and a written recommendation per use case",
+          "checks": [["Run each alternative's start command from cold", "Start times are recorded for all four tools including Vagrant", "Timing table"], ["Run kubectl get nodes -o wide on the kind cluster", "Nodes are containers with Docker bridge addresses, not VM private network IPs", "kubectl output"], ["Present the matrix to the group", "Each use case has one recommended tool with a stated reason", "Recommendation note"]],
+          "objectives": ["Compare Vagrant with current alternatives on evidence", "Explain licensing and ownership implications", "Choose the right tool per use case"]
+        },
+        {
+          "topic": "Failure Injection and Chaos Drills in Vagrant Labs",
+          "subtopics": ["Failure types: power loss, freeze, disk full, clock skew and network partition", "vagrant halt --force for power loss and vagrant suspend for a frozen node", "Filling disks with fallocate", "Clock skew with timedatectl and chrony", "Partitions and packet loss with nftables and tc netem", "Scripting drills from the host with triggers or a Taskfile", "Measuring recovery time and data loss", "Writing drill runbooks and resetting with snapshots"],
+          "tools": ["Vagrant", "nftables", "tc netem", "fallocate", "Task"],
+          "lab_task": "Write a drill script that, against the Patroni lab, runs five scenarios in turn: leader power loss, leader frozen with vagrant suspend for 60 s, replica disk full, 5-minute clock skew on one etcd node and a partition isolating the leader. For each, record detection time, recovery time and lost writes from a client writing every 100 ms, and reset with snapshots between drills.",
+          "deliverable": "Drill script, results table and runbooks for each scenario",
+          "checks": [["Run the leader power loss drill", "A new leader is elected and lost writes are reported as a count", "Drill results table"], ["Resume the suspended leader after 60 s", "The old leader rejoins as a replica and does not accept writes", "patronictl list output"], ["Run the disk-full drill on a replica", "The replica stops replaying WAL and patronictl shows growing lag on that member", "patronictl output"]],
+          "objectives": ["Simulate realistic failures in Vagrant labs", "Measure recovery objectives", "Turn drills into repeatable runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: CI-Tested Box Pipeline and Multi-Node Lab",
+          "subtopics": ["Packer template producing virtualbox, libvirt and arm64 boxes", "Hardening, scanning and a versioned catalog or HCP Vagrant Registry release", "CI pipeline that builds boxes, boots a multi-node lab and runs tests", "A custom plugin or provisioner used by the lab", "Failure drills with recorded recovery metrics", "Team onboarding guide and a final demonstration"],
+          "tools": ["Packer", "Vagrant", "HCP Vagrant Registry", "GitHub Actions", "Ansible", "Patroni"],
+          "lab_task": "Deliver a repository whose CI pipeline builds hardened amd64 and arm64 boxes with Packer, scans them, publishes a new version to an internal catalog or HCP Vagrant Registry, boots a Patroni or HA Kubernetes lab from that version, runs tests and one failure drill, and destroys everything. A colleague must start the lab locally from the published box in under 30 minutes.",
+          "deliverable": "Box pipeline repository, published box version, CI run, drill report and demonstration",
+          "checks": [["Trigger the pipeline from a commit", "Boxes are built, scanned and published, and the lab tests pass in one run", "CI run log"], ["Run vagrant box outdated in the lab after a new publish", "The newly published version is reported as available", "Terminal output"], ["A colleague clones the repository and runs vagrant up", "The lab is healthy in under 30 minutes on their host", "Timed trial log"]],
+          "objectives": ["Automate the full lifecycle of Vagrant boxes", "Prove lab health continuously in CI", "Hand over a maintainable lab platform"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "TeamCity",
+  "name": "TeamCity",
+  "category": "DevOps and CI/CD",
+  "icon": "workflow",
+  "aliases": ["JetBrains TeamCity", "TeamCity CI/CD", "TeamCity CI", "TeamCity On-Premises", "TeamCity Cloud", "TeamCity Kotlin DSL", "TeamCity Administration"],
+  "certifications": [],
+  "tools": ["TeamCity Server", "TeamCity Build Agent", "TeamCity Cloud", "TeamCity Kotlin DSL", "TeamCity REST API", "IntelliJ IDEA", "Git", "Docker", "Gradle", "Maven", "PostgreSQL", "Kubernetes", "Amazon EC2", "HashiCorp Vault"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and junior DevOps engineers who have used Git and a build tool but have never administered or configured JetBrains TeamCity. Covers the server, agent and web UI model, running TeamCity On-Premises in Docker and a first look at TeamCity Cloud, projects and build configurations, Git VCS roots, Command Line, Gradle and Maven runners, parameters and build numbers, artifacts, VCS and schedule triggers, test reporting and service messages, failure conditions, feature branches, agent authorization and requirements, templates, notifications, users and roles, and a capstone that builds, tests and packages a Java service end to end.",
+      "prerequisites": ["Uses Git from the command line to clone, branch, commit and push to a hosted repository such as GitHub or GitLab", "Can build and test a project locally with at least one build tool such as Gradle, Maven, npm or dotnet", "Has a laptop with Docker Desktop or Docker Engine, 8 GB of free RAM and rights to open port 8111 on localhost"],
+      "outcomes": ["Run a TeamCity server and an authorized build agent in Docker and navigate projects, build configurations and build results", "Create build configurations with Git VCS roots, runners, parameters, artifact paths and build number formats", "Trigger builds from commits, schedules and other builds, filter branches and report tests and problems through service messages", "Reuse settings with templates, control which agents run builds and grant project roles to users and groups"],
+      "days": [
+        {
+          "topic": "TeamCity Orientation: Server, Agents and the Web UI",
+          "subtopics": ["What TeamCity is: a CI/CD server from JetBrains available as TeamCity On-Premises and TeamCity Cloud", "The server: web UI, REST API, build queue, database and TeamCity Data Directory", "Build agents: separate processes that check out code and run build steps", "Core vocabulary: project, build configuration, build step, VCS root, trigger, artifact", "The Root project and the project hierarchy in the Projects page", "Build results page tabs: Overview, Changes, Tests, Build Log, Parameters, Artifacts", "The Agents page: connected, disconnected and unauthorized agents", "The build queue and why builds wait for a compatible agent", "TeamCity On-Premises licensing compared with TeamCity Cloud subscriptions", "Where TeamCity fits beside Git hosting, artifact repositories and deployment targets"],
+          "tools": ["TeamCity Server", "TeamCity Build Agent", "Web browser", "TeamCity documentation"],
+          "lab_task": "Using the trainer's demo server at http://localhost:8111, open the Projects page, find the sample project, open its latest build and record the build number, agent name, the number of tests and the first changed commit. Then list every agent on the Agents page with its pool and connection state, and draw the request path from a git push to a finished build.",
+          "deliverable": "Annotated diagram of server, database, data directory and agents with the facts gathered from the demo build",
+          "checks": [["Open the latest sample build and its Overview tab", "The agent name, build number and duration are shown and recorded in the worksheet", "Worksheet entry with screenshot"], ["Open the Agents page and the Unauthorized tab", "At least one connected authorized agent is listed and the count of unauthorized agents is recorded", "Agents page screenshot"], ["Ask the learner to explain where build logs and artifacts are stored", "Learner names the TeamCity Data Directory on the server, not the agent", "Diagram annotation"]],
+          "objectives": ["Describe the roles of the TeamCity server, database, data directory and agents", "Navigate projects, build configurations and build results in the web UI", "Use TeamCity vocabulary correctly when describing a CI flow"]
+        },
+        {
+          "topic": "Installing TeamCity Server and Agent with Docker",
+          "subtopics": ["The jetbrains/teamcity-server and jetbrains/teamcity-agent images and their tags", "Mounting /data/teamcity_server/datadir and /opt/teamcity/logs as volumes", "Publishing port 8111 and the first-start screen", "Choosing the internal HSQLDB database for evaluation only", "The super user authentication token printed in teamcity-server.log", "Connecting an agent with the SERVER_URL environment variable", "Agent configuration in /data/teamcity_agent/conf/buildAgent.properties", "Authorizing a new agent on the Unauthorized tab", "Running both containers on a shared Docker network with docker compose"],
+          "tools": ["Docker", "docker compose", "jetbrains/teamcity-server", "jetbrains/teamcity-agent", "TeamCity Server"],
+          "lab_task": "Write a compose.yaml with teamcity-server (port 8111, datadir and logs volumes) and teamcity-agent (SERVER_URL=http://teamcity-server:8111, conf volume), run docker compose up -d, complete the first-start wizard with the internal database, accept the licence, then authorize the agent and confirm it shows as Connected and Enabled in the Default pool.",
+          "deliverable": "compose.yaml, the first-start screenshots and a note of the time taken until the agent became authorized",
+          "checks": [["Run docker compose ps after startup", "Both containers show the status running and the server maps 0.0.0.0:8111->8111", "Terminal output"], ["Run grep \"Super user authentication token\" on the server log", "A token line is printed that allows login with an empty username", "Log excerpt"], ["Open Agents > Unauthorized after the agent container starts", "The new agent appears and moves to Connected after Authorize is clicked", "Agents page screenshot"]],
+          "objectives": ["Start a TeamCity server and agent from the official Docker images", "Persist the data directory and logs across container restarts", "Register and authorize a build agent"]
+        },
+        {
+          "topic": "Projects, Subprojects and Build Configuration IDs",
+          "subtopics": ["Creating a project manually and from a repository URL", "Project ID, build configuration ID and the external ID format such as Shop_Backend_Build", "Subprojects and how settings are inherited from parent projects", "Build configuration general settings: name, description and build number format", "Copying and moving build configurations between projects", "Archiving projects and pausing build configurations", "How IDs appear in URLs, parameters and REST API locators", "Renaming IDs safely and what breaks when an ID changes"],
+          "tools": ["TeamCity Server", "TeamCity web UI", "Git"],
+          "lab_task": "Create a project Shop with subprojects Backend and Frontend, create build configuration Build in Backend from the sample repository URL, note the generated IDs, copy Build to Frontend as Lint, rename Lint's ID to Shop_Frontend_Lint, then pause and unpause it and record what the Projects page shows in each state.",
+          "deliverable": "Project tree screenshot with a table of every project and build configuration ID",
+          "checks": [["Open the Backend Build configuration and read its URL", "The URL contains buildTypeId=Shop_Backend_Build", "Browser address bar screenshot"], ["Try to create a second build configuration with the ID Shop_Backend_Build", "TeamCity rejects it because the ID is already used", "Error message screenshot"], ["Pause the Lint configuration", "A paused icon appears and the configuration is skipped by triggers", "Projects page screenshot"]],
+          "objectives": ["Organise build configurations in a project hierarchy", "Read and set project and build configuration IDs", "Copy, move, pause and archive configurations"]
+        },
+        {
+          "topic": "Git VCS Roots and Checkout Settings in TeamCity",
+          "subtopics": ["Git VCS root fields: fetch URL, push URL, default branch and branch specification", "Authentication methods: password or access token, uploaded SSH key and anonymous", "Uploading SSH keys under Project Settings > SSH Keys", "The Test connection button and typical error messages", "VCS polling interval and the default of 60 seconds", "Checkout on agent compared with checkout on server", "Checkout rules such as +:src => . and -:docs", "The checkout directory, clean checkout and %teamcity.build.checkoutDir%"],
+          "tools": ["TeamCity Server", "Git", "ssh-keygen", "GitHub or GitLab"],
+          "lab_task": "Generate an ed25519 key with ssh-keygen -t ed25519, add the public key as a read-only deploy key in your repository, upload the private key to the Shop project, create a Git VCS root using git@ URL and Uploaded Key authentication, click Test connection, then add checkout rule -:docs to Build and run it to confirm docs/ is missing from the agent checkout.",
+          "deliverable": "VCS root settings export and a build log excerpt showing the checkout rule applied",
+          "checks": [["Click Test connection with the correct key", "TeamCity reports Connection successful", "Screenshot"], ["Change the fetch URL to a repository that does not exist", "Test connection fails with a repository not found or authentication error", "Error message screenshot"], ["Run Build with checkout rule -:docs and list the checkout directory with ls in a step", "The docs directory does not appear in the listing", "Build log excerpt"]],
+          "objectives": ["Connect TeamCity to a private Git repository with a deploy key", "Control what is checked out with checkout rules", "Diagnose VCS root connection failures"]
+        },
+        {
+          "topic": "Command Line, Gradle and Maven Runners in TeamCity",
+          "subtopics": ["Build steps, runner types and step order", "The Command Line runner: custom script and executable with parameters", "The Gradle runner: tasks, Gradle wrapper and Gradle home", "The Maven runner: goals, pom.xml path and Maven settings", "Step working directory and %teamcity.build.checkoutDir%", "Step execution policies: only if successful, even if some steps failed, always", "Auto-detecting build steps from the repository", "Disabling, reordering and copying steps"],
+          "tools": ["TeamCity Server", "Gradle", "Maven", "Command Line runner", "JDK 21"],
+          "lab_task": "In Shop_Backend_Build add three steps: a Command Line step that prints java -version and git log -1, a Gradle step running clean build with the wrapper, and a Command Line step set to run Always that prints the disk free with df -h. Make the Gradle step fail with a broken test and record which of the remaining steps still executed.",
+          "deliverable": "Build configuration with three steps and two build logs, one green and one failed",
+          "checks": [["Run the build with all tests passing", "All three steps finish and the build status is Success", "Build log screenshot"], ["Break one unit test and run again", "The Gradle step fails, the build is red and the Always step still prints df -h output", "Build log excerpt"], ["Open Build Steps after using auto-detect on the repository", "TeamCity proposes a Gradle step for the detected build.gradle.kts", "Auto-detect screenshot"]],
+          "objectives": ["Add and order build steps using common runners", "Choose the right step execution policy", "Read a build log to find the failing step"]
+        },
+        {
+          "topic": "Build Logs, Statuses and the TeamCity Build Results Page",
+          "subtopics": ["Tree view and full log view of the build log", "Downloading the build log as a text or zip file", "Build statuses: success, failure, canceled and failed to start", "Build status text and how TeamCity composes it", "The Changes tab and linking builds to commits", "Comparing two builds and their parameters", "Running a custom build with the ... button", "Rerunning, stopping and re-adding builds to the queue"],
+          "tools": ["TeamCity Server", "TeamCity web UI", "Git"],
+          "lab_task": "Trigger Shop_Backend_Build three times: once normally, once with a custom build that sets a branch and a comment, and once that you stop after 10 seconds. For each build record the status, status text, number of changes and duration, download one full build log, and compare the parameters of builds 1 and 2 using the Parameters tab.",
+          "deliverable": "Table of three builds with their statuses and a downloaded build log file",
+          "checks": [["Stop a running build from the UI", "The build ends with status Canceled and shows who stopped it", "Build overview screenshot"], ["Open a build with two new commits and select the Changes tab", "Both commit hashes and authors are listed", "Changes tab screenshot"], ["Run a custom build with a comment", "The comment appears on the build overview", "Build overview screenshot"]],
+          "objectives": ["Interpret build statuses and status text", "Navigate and download build logs", "Start, stop and rerun custom builds"]
+        },
+        {
+          "topic": "TeamCity Parameters: Configuration, System and Environment",
+          "subtopics": ["Configuration parameters and the %name% reference syntax", "System parameters with the system. prefix passed to Gradle, Maven and Ant", "Environment parameters with the env. prefix", "Parameter specification: text, checkbox, select and password types", "Prompting for values in a custom build with Display: prompt", "Parameter inheritance from projects and templates", "Undefined parameters and agent compatibility", "Viewing actual values on the build Parameters tab"],
+          "tools": ["TeamCity Server", "Gradle", "Command Line runner"],
+          "lab_task": "Add a project parameter env.APP_ENV=dev, a system parameter system.app.version=1.0 and a select parameter deploy.region with values eu-west-1 and us-east-1 set to prompt. Print all three from a Command Line step with echo $APP_ENV %system.app.version% %deploy.region%, and read system.app.version in Gradle with providers.systemProperty.",
+          "deliverable": "Parameter list and a build log showing all three values resolved",
+          "checks": [["Run a custom build and choose us-east-1", "The log prints us-east-1 for deploy.region", "Build log excerpt"], ["Reference %deploy.missing% in a step with no definition", "The build cannot start because of an undefined parameter and agents are shown as incompatible", "Queue screenshot"], ["Override env.APP_ENV at build configuration level to test", "The build Parameters tab shows APP_ENV with value test", "Parameters tab screenshot"]],
+          "objectives": ["Define configuration, system and environment parameters", "Reference parameters in build steps and build tools", "Use parameter specifications to prompt for input"]
+        },
+        {
+          "topic": "Build Numbers, Build Counters and Predefined Parameters",
+          "subtopics": ["Build number format such as 1.4.%build.counter%", "build.counter and resetting the counter", "Predefined server parameters: teamcity.build.id, build.vcs.number and teamcity.build.branch", "Predefined agent parameters: teamcity.agent.name and teamcity.agent.jvm.os.name", "Environment variables BUILD_NUMBER and TEAMCITY_VERSION", "Setting the build number from a script with a service message", "Using the build number in artifact names", "Browsing predefined parameters with autocompletion in the UI"],
+          "tools": ["TeamCity Server", "Command Line runner", "Gradle"],
+          "lab_task": "Set the build number format of Shop_Backend_Build to 1.4.%build.counter%, print %teamcity.build.id%, %build.vcs.number% and %teamcity.agent.name% in a step, then add a step that reads the version from gradle.properties and prints ##teamcity[buildNumber '<version>-%build.counter%']. Run twice and record both build numbers.",
+          "deliverable": "Two builds whose numbers match the version file plus counter, and the step script",
+          "checks": [["Run the build after setting the format", "The build number reads 1.4 followed by the current counter, for example 1.4.7", "Build overview screenshot"], ["Emit the buildNumber service message with version 2.0.0", "The build number changes to 2.0.0-<counter> while the build runs", "Build log and overview"], ["Print %build.vcs.number%", "The output equals the full Git commit hash of the checked-out revision", "Build log compared with git log"]],
+          "objectives": ["Format build numbers from counters and versions", "Use predefined server and agent parameters", "Change the build number from a running script"]
+        },
+        {
+          "topic": "Publishing Build Artifacts with Artifact Paths",
+          "subtopics": ["The Artifact paths field in General Settings", "Rules such as build/libs/*.jar => libs", "Packing a directory into an archive with => report.zip", "Excluding files with -: rules", "Hidden artifacts in the .teamcity directory", "Publishing during the build with ##teamcity[publishArtifacts]", "Downloading artifacts from the UI and /repository/download URLs", "Artifact size and where artifacts are stored on the server"],
+          "tools": ["TeamCity Server", "Gradle", "curl"],
+          "lab_task": "Set artifact paths for Shop_Backend_Build to build/libs/*.jar => libs, build/reports/tests/** => test-report.zip and -:build/libs/*-plain.jar. Run the build, open the Artifacts tab, then download the jar with curl -u user:token http://localhost:8111/repository/download/Shop_Backend_Build/lastSuccessful/libs/<name>.jar and compare its SHA-256 with the agent copy.",
+          "deliverable": "Artifacts tab screenshot, the artifact path rules and the matching checksums",
+          "checks": [["Open the Artifacts tab", "libs/ holds exactly one jar and test-report.zip is listed", "Artifacts tab screenshot"], ["Download the jar through /repository/download", "curl returns HTTP 200 and the SHA-256 matches the agent copy", "Terminal output"], ["Use a rule pointing to a path that does not exist", "The build log warns that no artifacts were found for the rule", "Build log excerpt"]],
+          "objectives": ["Write artifact path rules with targets, archives and exclusions", "Publish artifacts during a build", "Download artifacts by URL"]
+        },
+        {
+          "topic": "VCS Triggers, Quiet Periods and Trigger Rules",
+          "subtopics": ["Adding a VCS trigger to a build configuration", "Quiet period and the default value of 60 seconds", "Trigger rules syntax with +: and -: path patterns", "Filtering by user with user= and by commit message with comment=", "Triggering on changes in snapshot dependencies", "Grouping commits by committer into separate builds", "Pending changes and the Changes tab", "Reducing polling with repository webhooks or commit hooks"],
+          "tools": ["TeamCity Server", "Git", "GitHub or GitLab"],
+          "lab_task": "Add a VCS trigger with a 30-second quiet period and rules +:src/** and -:comment=\\[skip ci\\]:**. Push three commits: one changing src/, one changing only README.md, and one with [skip ci] in the message. Record which commits started builds and how long each waited in the queue.",
+          "deliverable": "Trigger configuration screenshot and a table of commits with the builds they produced",
+          "checks": [["Push a commit that changes src/Main.java", "A build starts after the 30-second quiet period ends", "Build history screenshot"], ["Push a commit that changes only README.md", "No new build starts and the change appears as pending", "Pending changes screenshot"], ["Push a src/ change with [skip ci] in the message", "The VCS trigger ignores the commit", "Build history screenshot"]],
+          "objectives": ["Configure VCS triggers with quiet periods", "Write trigger rules for paths and commit messages", "Explain how TeamCity detects new commits"]
+        },
+        {
+          "topic": "Schedule, Finish Build and Retry Triggers",
+          "subtopics": ["Schedule trigger: daily, weekly and cron-like expressions", "Time zone setting of the schedule trigger", "Trigger only if there are pending changes", "Finish build trigger: start after another configuration finishes", "Retry build trigger: delay and number of retries", "Branch filters on schedule and finish build triggers", "Triggering builds on a clean checkout", "Choosing between finish build triggers and snapshot dependencies"],
+          "tools": ["TeamCity Server", "Quartz cron expressions"],
+          "lab_task": "Create Shop_Backend_Nightly with a schedule trigger using cron expression 0 0 2 * * ? in the Europe/London time zone and the pending changes option on. Add a finish build trigger to Shop_Frontend_Lint that fires after Shop_Backend_Build succeeds, and a retry trigger with 1 retry after 60 seconds. Force a failure and record the retry.",
+          "deliverable": "Trigger settings for three configurations and the build history proving each fired",
+          "checks": [["Wait for or simulate the schedule time with no new commits", "No build starts because there are no pending changes", "Build history screenshot"], ["Run Shop_Backend_Build successfully", "Shop_Frontend_Lint is queued with the trigger reason Finish Build Trigger", "Build overview Triggered by field"], ["Make a build with the retry trigger fail once", "A second build starts about 60 seconds later and is marked as triggered by the retry trigger", "Build history screenshot"]],
+          "objectives": ["Schedule builds with cron-like expressions", "Chain configurations with finish build triggers", "Retry failed builds automatically"]
+        },
+        {
+          "topic": "Test Reporting: JUnit, NUnit and XML Report Processing",
+          "subtopics": ["Automatic test reporting in the Gradle, Maven and .NET runners", "The Tests tab: passed, failed, ignored and muted tests", "Test history, duration graphs and first failure", "The XML report processing build feature for JUnit, NUnit and Surefire reports", "Importing reports with ##teamcity[importData type='junit' path='...']", "Code coverage reports in TeamCity", "Test names, suites and how TeamCity identifies a test", "New failures compared with failures already present"],
+          "tools": ["TeamCity Server", "Gradle", "JUnit 5", "pytest"],
+          "lab_task": "Run a Python test suite with pytest --junitxml=reports/junit.xml in a Command Line step, add the XML report processing feature for JUnit with path reports/*.xml, then break two tests. Record the test counts in the build status text and open one failed test's history to find the build where it first failed.",
+          "deliverable": "Tests tab screenshot and a note of test counts for a green and a red build",
+          "checks": [["Run the suite with all 40 tests passing", "Status text reads Tests passed: 40", "Build overview"], ["Break 2 tests and run again", "Status text reads Tests failed: 2 (2 new), passed: 38", "Build overview"], ["Point the XML report feature at a wrong path", "The build log reports that no report files were found and the Tests tab is empty", "Build log excerpt"]],
+          "objectives": ["Report test results from any test framework", "Read test history to find when a failure started", "Distinguish new failures from existing ones"]
+        },
+        {
+          "topic": "TeamCity Service Messages from Build Scripts",
+          "subtopics": ["The ##teamcity[...] service message format and escaping with |", "Reporting progress with progressMessage, blockOpened and blockClosed", "Changing status with buildStatus text and status", "Reporting failures with buildProblem description and identity", "Setting parameters with setParameter name and value", "Reporting tests with testStarted, testFailed and testFinished", "Adding tags with addBuildTag", "Writing messages with status WARNING or ERROR"],
+          "tools": ["TeamCity Server", "Bash", "Python", "Command Line runner"],
+          "lab_task": "Write a bash script that opens a block named Checks, reports two tests with testStarted, testFailed and testFinished, sets parameter build.quality=gold with setParameter, adds tag nightly, and finishes with buildStatus text='{build.status.text}, quality gold'. Run it in a step and confirm each message shows on the build page.",
+          "deliverable": "Script with service messages and screenshots of the resulting build overview, tests and tags",
+          "checks": [["Emit testFailed for one of two tests", "The Tests tab lists 1 failed and 1 passed test", "Tests tab screenshot"], ["Emit setParameter for build.quality and read it in a later step", "The later step prints gold", "Build log excerpt"], ["Emit a message containing an unescaped apostrophe in a value", "TeamCity logs a warning about a malformed service message and does not apply it", "Build log excerpt"]],
+          "objectives": ["Write correctly escaped service messages", "Report tests, problems, tags and parameters from scripts", "Structure build logs with blocks and progress messages"]
+        },
+        {
+          "topic": "Failure Conditions and Build Problems in TeamCity",
+          "subtopics": ["Default conditions: non-zero exit code, failed tests and errors in the log", "Execution timeout in minutes", "Failing on specific text in the build log with a regular expression", "Failing on metric change such as artifact size or test count", "Build problems and their identity values", "Muting a build problem", "Failed to start compared with failed builds", "Out-of-memory and crash detection"],
+          "tools": ["TeamCity Server", "Command Line runner", "Gradle"],
+          "lab_task": "Add failure conditions to Shop_Backend_Build: execution timeout of 10 minutes, fail if the log contains the regex FATAL\\s+ERROR, and fail if artifacts size grows by more than 20% compared with the last successful build. Trigger each condition once with a deliberate change, then mute one build problem and record the build status each time.",
+          "deliverable": "Failure condition settings and three failed builds, each with the matching build problem text",
+          "checks": [["Add a step that runs sleep 700", "The build fails with Execution timeout after 10 minutes", "Build overview"], ["Print FATAL ERROR in a step that exits 0", "The build fails with a build problem for the matching text", "Build problem text"], ["Add a 5 MB file to the artifacts of a 10 MB baseline", "The build fails because artifacts size increased by more than 20%", "Build overview"]],
+          "objectives": ["Configure failure conditions beyond exit codes", "Read and mute build problems", "Protect builds against hangs and silent regressions"]
+        },
+        {
+          "topic": "Feature Branches and Branch Specifications",
+          "subtopics": ["Default branch and branch specification in a Git VCS root", "Rules such as +:refs/heads/* and -:refs/heads/experimental/*", "Logical branch names and the (*) capture group", "teamcity.build.branch and teamcity.build.branch.is_default", "Branch filters in triggers such as +:* and -:<default>", "Branch selector in the build configuration UI", "Active branches and the branch inactivity period", "Running a custom build on a chosen branch"],
+          "tools": ["TeamCity Server", "Git", "GitHub or GitLab"],
+          "lab_task": "Set the VCS root default branch to refs/heads/main and branch specification +:refs/heads/(feature/*) and +:refs/heads/(release/*). Push feature/login and release/1.0, confirm each builds with its logical name, then add a VCS trigger branch filter -:release/* and print %teamcity.build.branch.is_default% in each build.",
+          "deliverable": "VCS root branch settings and the branch selector listing main, feature/login and release/1.0",
+          "checks": [["Push a commit to feature/login", "A build runs with branch label feature/login", "Build history screenshot"], ["Push to release/1.0 after adding the filter -:release/*", "No build is triggered for release/1.0", "Build history screenshot"], ["Print %teamcity.build.branch.is_default% on main and on feature/login", "Outputs are true and false", "Two build log excerpts"]],
+          "objectives": ["Configure branch specifications with logical names", "Filter branches in triggers", "Use branch parameters inside build steps"]
+        },
+        {
+          "topic": "Build Agents: Authorization, Requirements and Compatibility",
+          "subtopics": ["Agent states: connected, disconnected, authorized, enabled", "Agent parameters reported from buildAgent.properties and the environment", "Agent requirements such as teamcity.agent.jvm.os.name contains Linux", "Implicit requirements created by parameter references", "The Compatible Agents tab of a build configuration", "Disabling an agent with a comment", "Adding custom agent parameters for tools such as env.NODE_VERSION", "Agent work directory, temp directory and automatic agent upgrades"],
+          "tools": ["TeamCity Build Agent", "TeamCity Server", "Docker"],
+          "lab_task": "Start a second agent container with a different name, add docker.cli=true to its buildAgent.properties and restart it. Add an agent requirement docker.cli exists to Shop_Backend_Build, check the Compatible Agents tab, run five builds and confirm all ran on the second agent, then disable it with a comment and record the queue reason.",
+          "deliverable": "buildAgent.properties diff, Compatible Agents screenshot and build history showing agent names",
+          "checks": [["Open Compatible Agents after adding the requirement", "Only the second agent is compatible and the first is listed with the unmet requirement", "Compatible Agents screenshot"], ["Run five builds", "All five builds show the second agent's name", "Build history screenshot"], ["Disable the second agent and queue a build", "The build waits with a message that there are no compatible agents", "Queue screenshot"]],
+          "objectives": ["Authorize, enable and disable agents", "Write agent requirements from agent parameters", "Explain why a build is waiting in the queue"]
+        },
+        {
+          "topic": "TeamCity Build Templates and Inherited Settings",
+          "subtopics": ["Creating a template from an existing build configuration", "Attaching several templates to one configuration and template order", "Inherited steps, parameters, triggers and features", "Overriding parameters and disabling inherited steps", "Settings that cannot be changed in a configuration based on a template", "Detaching a configuration from a template", "The project default template", "Templates compared with copying configurations"],
+          "tools": ["TeamCity Server", "TeamCity web UI"],
+          "lab_task": "Extract a template Shop_JavaService from Shop_Backend_Build, create two new configurations Orders and Payments from it, override the parameter service.name in each, disable the inherited test step in Payments only, then add a new step to the template and confirm it appears in both configurations without editing them.",
+          "deliverable": "Template with two attached configurations and screenshots of inherited and overridden settings",
+          "checks": [["Add a step to the template", "The step appears in Orders and Payments marked as inherited", "Build Steps screenshots"], ["Override service.name in Orders", "Orders builds print orders and Payments keeps its own value", "Two build log excerpts"], ["Try to delete an inherited step from Payments", "The step can only be disabled, not deleted, in the configuration", "Build Steps screenshot"]],
+          "objectives": ["Create and attach build templates", "Override inherited settings safely", "Decide when to use a template instead of a copy"]
+        },
+        {
+          "topic": "Notifications, Build Tags and Pinned Builds",
+          "subtopics": ["Notification rules in My Settings & Tools", "Email notifier configuration on the server", "The Slack notifier and a Slack connection", "Build configuration-level notification build feature", "Adding and searching build tags", "Pinning builds to protect them from clean-up", "Favorite builds and the browser notifications of the web UI", "Build comments and their use in team communication"],
+          "tools": ["TeamCity Server", "Slack", "SMTP server"],
+          "lab_task": "Create a Slack connection in the Shop project, add a Notifications build feature to Shop_Backend_Build that posts to #shop-ci on build failure and first success after failure, break and fix the build once, then tag the fixed build release-candidate, pin it with a comment and find it through the build history tag filter.",
+          "deliverable": "Slack channel screenshot with two messages and the pinned, tagged build",
+          "checks": [["Fail the build once", "One failure message is posted to #shop-ci", "Slack screenshot"], ["Fix the build and run it twice", "One success message is posted for the first fix and none for the second success", "Slack screenshot"], ["Filter build history by tag release-candidate", "Only the pinned build is listed", "Build history screenshot"]],
+          "objectives": ["Configure team notifications for build events", "Use tags and pins to mark important builds", "Keep notification volume useful for a team"]
+        },
+        {
+          "topic": "TeamCity Users, Groups and Project Roles",
+          "subtopics": ["Built-in authentication with usernames and passwords", "Creating users and the All Users group", "Roles: System administrator, Project administrator, Project developer and Project viewer", "Assigning roles per project and inheritance to subprojects", "Groups, nested groups and role assignment to groups", "Guest user access and when to keep it disabled", "Personal access tokens for scripts", "Reviewing what a user can see with the Permissions view"],
+          "tools": ["TeamCity Server", "TeamCity web UI", "curl"],
+          "lab_task": "Create groups shop-devs and shop-viewers, assign Project developer and Project viewer roles in the Shop project, create two users and add one to each group. Log in as each user and try to run a build and edit a step, then create a personal access token for the developer and call /app/rest/server with it.",
+          "deliverable": "Group and role matrix, a screenshot from each user's session and the REST call output",
+          "checks": [["Log in as the viewer and open Shop_Backend_Build", "The Run button is missing or disabled", "Screenshot"], ["Log in as the developer and open Edit configuration", "Editing is denied while Run is allowed", "Screenshot"], ["Call curl -H \"Authorization: Bearer <token>\" http://localhost:8111/app/rest/server", "HTTP 200 with the server version in XML", "Terminal output"]],
+          "objectives": ["Create users and groups and assign project roles", "Verify permissions by testing as each role", "Use personal access tokens instead of passwords in scripts"]
+        },
+        {
+          "topic": "Capstone: CI Pipeline for a Java Service on TeamCity",
+          "subtopics": ["Requirements review and project layout", "VCS root, branch specification and triggers", "Build steps, parameters and build number format", "Artifacts, test reports and failure conditions", "Notifications, roles and agent requirements", "Demonstration and peer review"],
+          "tools": ["TeamCity Server", "TeamCity Build Agent", "Gradle", "Git", "Docker", "Slack"],
+          "lab_task": "Build a TeamCity project for the supplied Spring Boot service: Git VCS root building main and feature/*, a VCS trigger with path rules, Gradle build with tests, build number 1.0.%build.counter%, the jar and test report as artifacts, a 15-minute timeout, failure notifications and a viewer group. Demonstrate a red build caused by a test and the fix.",
+          "deliverable": "Working project with a green and a red build, settings screenshots and a one-page runbook",
+          "checks": [["Push a commit to feature/x", "A build runs on branch feature/x and publishes a jar", "Build history and Artifacts tab"], ["Break a unit test and push", "The build fails, the Tests tab shows 1 new failure and a notification is sent", "Build page and notification screenshot"], ["Log in as a member of the viewer group", "The user can see builds and download artifacts but cannot run builds", "Screenshot"]],
+          "objectives": ["Combine VCS roots, steps, triggers and artifacts into one working pipeline", "Report tests and failures clearly to a team", "Present and defend configuration choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already create and maintain TeamCity build configurations through the web UI and now need to build multi-stage pipelines and manage settings as code. Covers snapshot and artifact dependencies, build chains and composite builds, dep. and reverse.dep. parameters, Kotlin DSL and versioned settings in Git, pull request and commit status features, Docker, .NET, Node.js and Python runners, agent pools, cloud agents on Kubernetes and Amazon EC2, parallel tests, investigations and muted tests, deployment configurations with approvals and shared resources, secrets handling, the REST API, clean-up rules and meta-runners, ending in a capstone that delivers a microservice build chain defined entirely in Kotlin DSL.",
+      "prerequisites": ["Has created TeamCity build configurations with VCS roots, build steps, triggers, parameters and artifact paths", "Can read and write basic Kotlin or Java code, including classes, functions and lambdas", "Has access to a TeamCity server where they hold the Project administrator role, a Git repository they can push to and Docker on at least one agent"],
+      "outcomes": ["Design build chains with snapshot and artifact dependencies that reuse builds and pass parameters between stages", "Store project settings in Git as Kotlin DSL, generate and test them locally and review UI changes as patches", "Run builds on pooled and cloud agents, split slow test suites into parallel batches and manage investigations and muted tests", "Protect deployments with approvals, shared resources and secret parameters, and automate TeamCity through the REST API"],
+      "days": [
+        {
+          "topic": "Snapshot Dependencies and TeamCity Build Chains",
+          "subtopics": ["What a snapshot dependency guarantees: the same source revisions across the chain", "Adding a snapshot dependency on the Dependencies page", "Do not run new build if there is a suitable one", "Only use successful builds from suitable ones", "On failed dependency: run, add problem, mark as failed to start or cancel", "The Build Chains tab and the chain graph", "Triggering the last configuration in a chain to build the whole chain", "Trigger on changes in snapshot dependencies option of the VCS trigger"],
+          "tools": ["TeamCity Server", "Gradle", "Git"],
+          "lab_task": "Create configurations Compile, UnitTest and Package in Shop_Backend where UnitTest and Package depend on Compile and Package also depends on UnitTest. Run Package and confirm all three run on the same commit, run Package again without changes and record which builds were reused, then make UnitTest fail with On failed dependency set to Cancel.",
+          "deliverable": "Dependency settings and Build Chains tab screenshots for the three runs",
+          "checks": [["Run Package with a new commit", "Compile, UnitTest and Package all show the same revision on the Build Chains tab", "Build Chains screenshot"], ["Run Package again with no new commits", "Compile and UnitTest are reused and only Package runs", "Build Chains screenshot with reused builds"], ["Make UnitTest fail with the Cancel option", "Package is canceled with a message about the failed dependency", "Build overview"]],
+          "objectives": ["Build chains with snapshot dependencies", "Explain build reuse and suitable builds", "Choose the reaction to a failed dependency"]
+        },
+        {
+          "topic": "Artifact Dependencies and Artifact Rules",
+          "subtopics": ["Artifact dependency sources: build from the same chain, last successful, last pinned, last finished and by tag", "Artifact rules such as libs/*.jar => lib", "Extracting from archives with test-report.zip!/** => report", "Excluding files with -: in artifact rules", "Clean destination paths before downloading artifacts", "Combining snapshot and artifact dependencies", "Reading %dep.<id>.build.number% from a dependency", "Avoiding artifacts from a different revision"],
+          "tools": ["TeamCity Server", "Gradle", "Command Line runner"],
+          "lab_task": "Make Package take build/libs/*.jar from Compile with an artifact dependency set to Build from the same chain and rule libs/*.jar => input, add a second dependency on the last pinned Shop_Docs build extracting docs.zip!/html/** => site, then print %dep.Shop_Backend_Compile.build.number% and list input and site in a step.",
+          "deliverable": "Package configuration with two artifact dependencies and a build log listing the downloaded files",
+          "checks": [["Run Package", "The input directory contains the jar built by Compile in the same chain", "Build log listing"], ["Unpin every Shop_Docs build and run Package", "Package fails to start because no pinned build of Shop_Docs exists", "Build problem text"], ["Print %dep.Shop_Backend_Compile.build.number%", "The value equals the Compile build number shown on the Build Chains tab", "Build log compared with chain view"]],
+          "objectives": ["Pass files between configurations with artifact dependencies", "Write artifact rules with archive extraction", "Keep artifacts consistent with the chain's revision"]
+        },
+        {
+          "topic": "Passing Parameters Across Build Chains with dep. and reverse.dep.",
+          "subtopics": ["Reading upstream values with dep.<buildTypeId>.<parameter>", "Pushing values upstream with reverse.dep.<buildTypeId>.<parameter>", "The reverse.dep.*.<parameter> wildcard form", "Setting reverse.dep. parameters in a custom build dialog", "How reverse.dep. values affect build reuse", "Values set by setParameter at runtime and their visibility to dependants", "Parameter precedence across templates, projects and chains", "Debugging parameters on the Parameters tab of each chain build"],
+          "tools": ["TeamCity Server", "Command Line runner", "Gradle"],
+          "lab_task": "In Compile emit ##teamcity[setParameter name='artifact.version' value='1.4.%build.counter%'] and print %dep.Shop_Backend_Compile.artifact.version% in Package. Then run a custom Package build with reverse.dep.*.env.LOG_LEVEL=debug, confirm Compile and UnitTest print LOG_LEVEL=debug, and record whether TeamCity reused existing dependency builds.",
+          "deliverable": "Scripts and Parameters tab screenshots for every build in two chain runs",
+          "checks": [["Run Package after Compile sets artifact.version", "Package prints the same version that Compile set", "Build log excerpts from both builds"], ["Run Package with reverse.dep.*.env.LOG_LEVEL=debug", "Compile and UnitTest both print LOG_LEVEL=debug", "Build log excerpts"], ["Run Package twice with the same reverse.dep value and no new commits", "The second run reuses the dependency builds", "Build Chains screenshot"]],
+          "objectives": ["Read dependency parameters downstream", "Override parameters upstream with reverse.dep.", "Predict how parameters affect build reuse"]
+        },
+        {
+          "topic": "Composite Builds and Build Chain Views",
+          "subtopics": ["The Composite build configuration type", "Composite builds that use no agent", "Aggregated test results and problems of a composite build", "Showing the chain on the Build Chains tab and the pipeline view", "Rerunning failed parts of a chain", "Promoting a build to a downstream configuration", "VCS triggers on composite configurations", "Composite builds compared with a single long build"],
+          "tools": ["TeamCity Server", "TeamCity web UI"],
+          "lab_task": "Create a composite configuration Shop_CI with snapshot dependencies on Backend Package and Frontend Lint, add a VCS trigger to it only, push a commit and confirm the composite shows combined test counts. Fail Lint, then use Rerun on the failed build only and record how many builds ran in total.",
+          "deliverable": "Composite configuration and two Build Chains screenshots before and after the rerun",
+          "checks": [["Push a commit after adding the composite trigger", "One Shop_CI build appears with both dependency builds under it", "Build Chains screenshot"], ["Open the composite build Tests tab", "Test counts equal the sum of the dependency builds", "Tests tab screenshot"], ["Rerun only the failed Lint build", "Only Lint and Shop_CI run again while Backend builds are reused", "Build history screenshot"]],
+          "objectives": ["Group a pipeline under a composite build", "Read aggregated results across a chain", "Rerun and promote parts of a chain"]
+        },
+        {
+          "topic": "Kotlin DSL Fundamentals: settings.kts and the Project Model",
+          "subtopics": ["The .teamcity directory, settings.kts and pom.xml", "The version line in settings.kts and matching the server version", "project { } and registering vcsRoot, buildType and template", "object Build : BuildType({ }) and IDs derived from object names", "steps { gradle { } script { } } blocks", "triggers, features, requirements and params blocks", "Downloading settings as Kotlin from Project Settings > Actions", "Opening the .teamcity directory as a Maven project in IntelliJ IDEA", "Generating XML locally with mvn teamcity-configs:generate", "Reading DSL compilation errors"],
+          "tools": ["IntelliJ IDEA", "Maven", "TeamCity Kotlin DSL", "TeamCity Server"],
+          "lab_task": "Download the Shop_Backend project as Kotlin DSL, open .teamcity in IntelliJ IDEA, add a new build type Lint with a script step that runs ./gradlew spotlessCheck and a VCS trigger, register it in project { }, then run mvn teamcity-configs:generate and confirm the generated XML under target/generated-configs contains Lint.",
+          "deliverable": "settings.kts with the Lint build type and the Maven generate output",
+          "checks": [["Run mvn teamcity-configs:generate on valid settings", "Maven prints BUILD SUCCESS and XML files appear under target/generated-configs", "Terminal output"], ["Reference an object that is not defined", "Maven fails with a Kotlin Unresolved reference error naming the line", "Terminal output"], ["Define Lint but do not register it with buildType(Lint)", "The generated XML has no Lint configuration", "Directory listing"]],
+          "objectives": ["Read the structure of a TeamCity Kotlin DSL project", "Add build types, steps and triggers in Kotlin", "Compile and validate settings locally before pushing"]
+        },
+        {
+          "topic": "Versioned Settings: Storing TeamCity Project Configuration in Git",
+          "subtopics": ["Enabling versioned settings on the Versioned Settings page", "Settings format: Kotlin or XML", "Choosing the VCS root and settings path for .teamcity", "When build starts: use current settings or use settings from VCS", "Allow editing project settings via UI and generated patches", "Reviewing patch files under .teamcity/patches", "Load project settings from VCS on first import", "Errors shown when settings in VCS fail to apply"],
+          "tools": ["TeamCity Server", "Git", "TeamCity Kotlin DSL", "IntelliJ IDEA"],
+          "lab_task": "Enable versioned settings for Shop_Backend in Kotlin format with UI editing allowed, let TeamCity commit the initial settings, then change a parameter in the UI and pull the generated patch from .teamcity/patches. Move the change into settings.kts, delete the patch, push, and confirm the Versioned Settings page shows the new revision applied.",
+          "deliverable": "Git log of the settings commits, the patch file and the cleaned settings.kts",
+          "checks": [["Enable versioned settings", "A commit from TeamCity adds .teamcity/settings.kts and pom.xml to the repository", "git log output"], ["Edit a parameter in the UI", "A .kts file appears under .teamcity/patches/buildTypes after TeamCity commits", "Repository file listing"], ["Push a settings.kts with a compile error", "The Versioned Settings page reports that applying settings from VCS failed and the old settings stay active", "Versioned Settings screenshot"]],
+          "objectives": ["Enable and operate versioned settings", "Fold UI patches back into Kotlin DSL", "Recover from settings that fail to apply"]
+        },
+        {
+          "topic": "Kotlin DSL Patterns: Functions, Loops and Shared Templates",
+          "subtopics": ["Creating build types in a loop from a list of services", "Kotlin functions that return a BuildType", "Extension functions on Steps such as fun BuildSteps.gradleBuild()", "Templates defined in Kotlin and attached with templates()", "Splitting settings into several .kt files", "Subprojects with subProject() and nested objects", "Generating snapshot dependencies with sequential { } and parallel { }", "Keeping generated IDs stable when lists change"],
+          "tools": ["TeamCity Kotlin DSL", "IntelliJ IDEA", "Maven"],
+          "lab_task": "Refactor settings.kts so a list of services orders, payments and catalog generates one build type each through a function serviceBuild(name), add an extension function on BuildSteps for the common Gradle step, define a chain with sequential { buildType(Compile); parallel { ... } } and generate the XML to confirm 3 service builds with stable IDs.",
+          "deliverable": "Refactored DSL source across at least two .kt files and the generated XML listing",
+          "checks": [["Add a fourth service to the list and regenerate", "Exactly one new build configuration appears and the existing IDs are unchanged", "Diff of generated XML"], ["Change the shared Gradle step function", "All service builds contain the updated step after generation", "Generated XML excerpt"], ["Use the same ID for two generated build types", "Generation fails with a duplicate ID error", "Terminal output"]],
+          "objectives": ["Remove duplication from Kotlin DSL with functions and loops", "Express build chains with sequential and parallel blocks", "Keep IDs stable while settings evolve"]
+        },
+        {
+          "topic": "Pull Request Build Feature and Commit Status Publisher",
+          "subtopics": ["Pull Requests build feature providers: GitHub, GitLab, Bitbucket and Azure DevOps", "Filtering pull requests by author role and target branch", "Branch specification for pull request branches", "teamcity.pullRequest.number, source.branch and target.branch parameters", "Commit Status Publisher and statuses shown on the pull request", "Making the TeamCity status a required check in branch protection", "Using a GitHub App or OAuth connection instead of personal tokens", "Building the merge result compared with the source branch head"],
+          "tools": ["TeamCity Server", "GitHub", "GitLab", "Commit Status Publisher"],
+          "lab_task": "Add the Pull Requests feature for GitHub to Shop_Backend_Build filtered to target branch refs/heads/main, add Commit Status Publisher using the project's GitHub connection, open a pull request with a failing test, confirm the red status on the pull request, fix it and then make the TeamCity check required in branch protection.",
+          "deliverable": "Pull request screenshots with the failed and passed statuses and the feature settings",
+          "checks": [["Open a pull request against main", "A build runs on logical branch pull/<number> and prints the PR number", "Build log excerpt"], ["Push a failing test to the pull request", "GitHub shows a failed status from TeamCity on the latest commit", "Pull request screenshot"], ["Open a pull request against a branch other than main", "No build runs because of the target branch filter", "Build history screenshot"]],
+          "objectives": ["Build pull requests automatically", "Report build status back to the Git host", "Gate merges on TeamCity results"]
+        },
+        {
+          "topic": "Docker Runner, Docker Wrapper and the Docker Support Feature",
+          "subtopics": ["The Docker runner: build, push and other commands", "Image name and tag with %build.number%", "Running any step inside a container with the Docker wrapper setting", "Docker Registry connections at project level", "The Docker Support build feature: registry login and pushed image clean-up", "Agent requirements for Docker such as docker.server.osType", "Docker Compose runner for integration environments", "Caching layers and the agent's local image cache"],
+          "tools": ["TeamCity Server", "Docker", "Docker Hub or a private registry", "Docker Compose"],
+          "lab_task": "Run the Gradle step of Shop_Backend_Build inside eclipse-temurin:21-jdk with the Docker wrapper, add a Docker runner that builds registry.example.com/shop/backend:%build.number% and a second Docker step that pushes it, and add Docker Support with a registry connection. Check the image tag in the registry and the cleanup option.",
+          "deliverable": "Build configuration with three steps and the registry listing of the pushed tag",
+          "checks": [["Run the build", "The log shows the Gradle step executing in eclipse-temurin:21-jdk", "Build log excerpt"], ["List tags in the registry", "A tag matching the build number exists", "Registry UI or CLI output"], ["Remove the registry connection from Docker Support and run again", "The push step fails with an unauthorized or authentication required error", "Build log excerpt"]],
+          "objectives": ["Build and push images from TeamCity", "Run build steps in containers for reproducible toolchains", "Authenticate to registries through connections"]
+        },
+        {
+          "topic": ".NET, Node.js and Python Runners in TeamCity",
+          "subtopics": ["The .NET runner commands: restore, build, test, publish and nuget push", "Test reporting and coverage for dotnet test", "The Node.js runner and running npm or yarn scripts", "Using the Docker wrapper to select a Node.js version", "The Python runner: pytest, unittest and custom scripts", "Python environment tools: virtualenv, pip and requirements files", "Agent requirements produced by each runner", "Choosing a dedicated runner over a Command Line script"],
+          "tools": ["TeamCity Server", ".NET SDK", "Node.js", "Python", "pytest", "Docker"],
+          "lab_task": "Create three build configurations in a Polyglot project: a .NET runner running dotnet test on a sample solution, a Node.js runner running npm ci then npm test inside node:22, and a Python runner running pytest with a requirements file. Compare the Tests tab of each and record the agent requirements each runner added.",
+          "deliverable": "Three green builds with a table of test counts and agent requirements per runner",
+          "checks": [["Run the .NET build", "The Tests tab lists the xUnit or NUnit tests with durations", "Tests tab screenshot"], ["Run the Node.js build in node:22", "The log prints node --version starting with v22", "Build log excerpt"], ["Open Agent Requirements of the .NET configuration", "A requirement on the .NET SDK being present on the agent is listed", "Agent Requirements screenshot"]],
+          "objectives": ["Build and test .NET, Node.js and Python projects with dedicated runners", "Report tests from each runner", "Understand implicit agent requirements"]
+        },
+        {
+          "topic": "Agent Pools and Project-to-Pool Assignment",
+          "subtopics": ["The Default pool and creating new agent pools", "Assigning agents to a pool and moving agents", "Assigning projects to pools", "Project inheritance of pool assignment", "Agent pool limits on the number of agents", "Agent manager role and who can change pools", "Dedicated pools for release and security-sensitive builds", "Reading why a build has no compatible agents in a pool"],
+          "tools": ["TeamCity Server", "TeamCity Build Agent", "Docker"],
+          "lab_task": "Create pools linux-general and release, move one agent into each, assign the Shop project to linux-general only and create a Shop_Release project assigned only to release. Run five builds in each project and confirm where they ran, then remove release from Shop_Release and record the queue message.",
+          "deliverable": "Pool settings screenshot and build history with agent names for both projects",
+          "checks": [["Run five Shop builds", "All five run on the agent in linux-general", "Build history screenshot"], ["Run a Shop_Release build", "It runs only on the agent in the release pool", "Build overview"], ["Remove the release pool from Shop_Release and queue a build", "The build waits with no compatible agents in the pools assigned to the project", "Queue screenshot"]],
+          "objectives": ["Partition agents with pools", "Map projects to pools", "Isolate sensitive builds on dedicated agents"]
+        },
+        {
+          "topic": "TeamCity Cloud Agents on Kubernetes and Amazon EC2",
+          "subtopics": ["Cloud profiles and cloud images", "Amazon EC2 profiles with AMIs or launch templates and IAM credentials", "Kubernetes profiles with a pod template and namespace", "Instance limits per profile and image", "Terminate instance after idle time or after the first build", "Agent pools for cloud images", "Startup time, queue wait time and how TeamCity decides to start an instance", "Costs and tagging of cloud instances"],
+          "tools": ["TeamCity Server", "Kubernetes", "kubectl", "Amazon EC2", "AWS CLI", "jetbrains/teamcity-agent"],
+          "lab_task": "Create a Kubernetes cloud profile in the Shop project pointing to namespace teamcity-agents with a pod template based on jetbrains/teamcity-agent, limit it to 3 instances and terminate after 10 minutes idle. Queue 5 builds, record when pods start with kubectl get pods -n teamcity-agents -w, and confirm idle pods are deleted.",
+          "deliverable": "Cloud profile settings and a timeline of pod creation, builds and termination",
+          "checks": [["Queue five builds with no static agents in the pool", "Three pods start and the other two builds wait until a pod is free", "kubectl output and queue screenshot"], ["Wait 10 minutes after the last build", "All agent pods are terminated", "kubectl get pods output"], ["Use a pod template with an image that does not exist", "The cloud profile shows an error such as ErrImagePull and no agent connects", "Cloud profile screenshot"]],
+          "objectives": ["Configure cloud profiles for Kubernetes and EC2", "Control cost with instance limits and idle termination", "Diagnose cloud agents that fail to start"]
+        },
+        {
+          "topic": "TeamCity Parallel Tests and Test Batches",
+          "subtopics": ["The Parallel tests build feature and the number of batches", "How TeamCity splits tests using previous test durations", "Supported runners: Gradle, Maven and .NET", "The composite build that holds the batch builds", "Agent capacity needed for parallel batches", "Custom splitting with the excludes file for other frameworks", "Reading combined test results and rerunning one batch", "When parallel tests do not help: tiny suites and shared state"],
+          "tools": ["TeamCity Server", "Gradle", "Maven", "JUnit 5"],
+          "lab_task": "Run the 600-test suite of Shop_Backend_Build once to collect durations and record the time, then add the Parallel tests feature with 4 batches, provide 4 agents and run again. Record the duration of each batch, the total wall clock time and confirm that the composite build shows all 600 tests.",
+          "deliverable": "Before-and-after timing table and screenshots of the four batch builds",
+          "checks": [["Run with the feature enabled and 4 agents", "Four batch builds run at the same time under one composite build", "Build Chains screenshot"], ["Open the composite Tests tab", "600 tests are listed in total", "Tests tab screenshot"], ["Compare wall clock times", "The parallel run takes less than half of the original duration", "Timing table"]],
+          "objectives": ["Speed up test suites with parallel batches", "Size agent capacity for parallel tests", "Judge when parallel tests are worth it"]
+        },
+        {
+          "topic": "Investigations, Muted Tests and Flaky Test Detection",
+          "subtopics": ["Assigning an investigation for a failed test, build problem or configuration", "Resolve manually or automatically when fixed", "Muting tests until fixed, until a date or indefinitely", "How muted failures affect build status", "Flaky test detection and the Flaky Tests page", "The My Investigations page and notifications", "Test history across branches", "Team rules for muting and unmuting"],
+          "tools": ["TeamCity Server", "JUnit 5", "TeamCity web UI"],
+          "lab_task": "Make one test fail on every second run with a random seed, run Shop_Backend_Build eight times, open the Flaky Tests page and confirm the test is listed. Assign an investigation to yourself with resolve automatically when fixed, mute a second failing test until fixed, fix it, and record what happens to the mute and the investigation.",
+          "deliverable": "Flaky test screenshot, investigation history and mute history",
+          "checks": [["Run eight builds with the random failure", "The test appears on the Flaky Tests page", "Flaky Tests screenshot"], ["Mute a failing test and run the build", "The build is green and the test shows as muted", "Build overview and Tests tab"], ["Fix a test muted until fixed and run the build", "The test is unmuted automatically after it passes", "Mute history screenshot"]],
+          "objectives": ["Assign and resolve investigations", "Mute tests responsibly with clear end conditions", "Find flaky tests from test history"]
+        },
+        {
+          "topic": "Deployment Build Configurations, Approvals and Shared Resources",
+          "subtopics": ["The Deployment build configuration type and the deployments view", "Build approval feature: approvers, required count and timeout", "Builds waiting for approval in the queue", "Shared resources at project level with quotas or custom values", "Read and write locks with the Shared resources build feature", "Limiting concurrent builds with the configuration setting", "Promoting a tested build to deployment", "Deployment parameters per environment"],
+          "tools": ["TeamCity Server", "Command Line runner", "Helm", "kubectl"],
+          "lab_task": "Create Deploy_Staging and Deploy_Prod as Deployment configurations with snapshot and artifact dependencies on Package. Add Build approval to Deploy_Prod requiring 1 approval from the shop-leads group with a 60-minute timeout, and a write lock on shared resource prod-cluster with quota 1. Promote a build and record the approval wait.",
+          "deliverable": "Deployment configurations, approval screenshot and build history showing promotion",
+          "checks": [["Promote a Package build to Deploy_Prod", "The build waits in the queue for approval", "Queue screenshot"], ["Approve it as a member of shop-leads", "The deployment starts and its overview shows the approver", "Build overview"], ["Start two builds that need the prod-cluster write lock", "The second waits until the first releases the lock", "Queue screenshot with lock reason"]],
+          "objectives": ["Model deployments in TeamCity", "Require human approval before production builds", "Serialise access to shared environments"]
+        },
+        {
+          "topic": "Password Parameters, Secure Tokens and HashiCorp Vault",
+          "subtopics": ["Password parameter type and masking as ******* in logs", "Scrambled storage of password values and why it is not encryption", "Secure tokens such as credentialsJSON:<uuid> in Kotlin DSL", "Generating tokens on the project Tokens page", "The HashiCorp Vault connection and vault parameters", "Short-lived credentials from AWS connections", "Secrets in agent logs, artifacts and the Parameters tab", "Rotating a secret without editing every build configuration"],
+          "tools": ["TeamCity Server", "HashiCorp Vault", "TeamCity Kotlin DSL", "AWS"],
+          "lab_task": "Create a password parameter env.DB_PASSWORD, echo it in a step and confirm masking. Generate a secure token for it and reference credentialsJSON:<uuid> in settings.kts. Then add a HashiCorp Vault connection with AppRole auth, read secret/data/shop!/api_key into env.API_KEY and confirm the log masks it.",
+          "deliverable": "Build log excerpts and the DSL snippet with no secret values committed",
+          "checks": [["Echo env.DB_PASSWORD in a step", "The log prints ******* instead of the value", "Build log excerpt"], ["Search the settings repository with git grep for the real password", "No match is found and only the credentialsJSON token appears", "Terminal output"], ["Revoke the Vault AppRole secret ID and run the build", "The build fails to start or fails when resolving the Vault parameter", "Build problem text"]],
+          "objectives": ["Keep secrets out of logs and Git", "Use secure tokens in versioned settings", "Fetch secrets from Vault at build time"]
+        },
+        {
+          "topic": "TeamCity REST API: Builds, Queue and Locators",
+          "subtopics": ["Base URL /app/rest and the server endpoint", "Bearer token authentication and Accept: application/json", "Locators such as buildType:(id:X),status:FAILURE,count:5", "The fields parameter for smaller responses", "Queueing builds with POST /app/rest/buildQueue", "Downloading artifacts with /app/rest/builds/id:<id>/artifacts/files/<path>", "Tagging and pinning builds through the API", "Listing failed tests with /app/rest/testOccurrences"],
+          "tools": ["curl", "jq", "TeamCity REST API", "Python requests"],
+          "lab_task": "Using curl and a token, queue Shop_Backend_Build on branch feature/login with POST /app/rest/buildQueue and an XML body, poll /app/rest/builds/id:<id>?fields=state,status until finished, list the last 5 failed builds with a locator and fields=build(id,number,status), and download the jar artifact. Script all of it in one Bash file.",
+          "deliverable": "Bash script with each REST call and its captured output",
+          "checks": [["POST a build to /app/rest/buildQueue", "The response contains a build id with state queued", "Terminal output"], ["GET builds with locator status:FAILURE,count:5", "No more than 5 builds are returned and all have status FAILURE", "jq output"], ["Call any endpoint with an invalid token", "HTTP 401 is returned", "curl -i output"]],
+          "objectives": ["Authenticate to the REST API with tokens", "Query builds with locators and fields", "Trigger builds and download artifacts from scripts"]
+        },
+        {
+          "topic": "Clean-up Rules, Disk Usage and Build History Retention",
+          "subtopics": ["Server clean-up schedule under Administration > Clean-up", "Project keep rules for builds, artifacts and logs", "Keep rules filtered by branch, status and tag", "Pinned builds and dependency artifacts protected from clean-up", "Disk Usage report and the largest artifacts", "The Free disk space build feature on agents", "Agent work directory clean-up and Swabra", "Previewing clean-up results before running it"],
+          "tools": ["TeamCity Server", "TeamCity web UI", "du"],
+          "lab_task": "Open the Disk Usage report and record the five largest build configurations, add a keep rule to Shop_Backend keeping artifacts of the last 10 successful builds and all builds tagged release-candidate, start clean-up manually, then compare the artifacts directory size before and after with du -sh on the server data directory.",
+          "deliverable": "Keep rule settings, Disk Usage screenshots and before-and-after sizes",
+          "checks": [["Run clean-up after adding the keep rule", "Builds older than the last 10 successful lose their artifacts while their history remains", "Build history screenshot"], ["Check a build tagged release-candidate after clean-up", "Its artifacts are still downloadable", "Artifacts tab screenshot"], ["Compare du -sh of system/artifacts before and after", "The size decreases and the reduction is recorded", "Terminal output"]],
+          "objectives": ["Configure retention with keep rules", "Find what consumes disk space", "Protect important builds from clean-up"]
+        },
+        {
+          "topic": "Meta-Runners and Reusable Build Steps",
+          "subtopics": ["What a meta-runner is: build steps packaged as a new runner type", "Extracting a meta-runner from a build configuration", "Meta-runner parameters and their specifications", "Where meta-runner XML is stored in project pluginData", "Editing meta-runner XML and uploading it", "Sharing meta-runners through the project hierarchy", "Meta-runners compared with templates and Kotlin DSL functions", "Versioning meta-runners with versioned settings"],
+          "tools": ["TeamCity Server", "XML", "Command Line runner"],
+          "lab_task": "Create steps that send a deployment marker to an HTTP endpoint with curl using parameters marker.url and marker.env, extract them as a meta-runner Shop_DeployMarker with marker.env as a required select parameter, then use the meta-runner as a step in two other configurations and confirm both requests reach the endpoint.",
+          "deliverable": "Meta-runner XML and two build logs showing the marker requests",
+          "checks": [["Add the meta-runner as a step", "It appears in the runner list under its name with the marker.env field", "Step editor screenshot"], ["Run without a value for the required marker.env parameter", "TeamCity asks for the value or reports the parameter as missing", "Screenshot"], ["Run both configurations", "The endpoint receives two requests with the matching environment values", "Endpoint log excerpt"]],
+          "objectives": ["Package repeated steps as meta-runners", "Define meta-runner parameters", "Choose between meta-runners, templates and DSL functions"]
+        },
+        {
+          "topic": "Capstone: Microservice Build Chain as TeamCity Kotlin DSL",
+          "subtopics": ["Chain design and stage boundaries", "Kotlin DSL structure and versioned settings", "Pull request builds and commit statuses", "Parallel tests, Docker images and agent pools", "Deployment with approval and secrets", "Demonstration, REST evidence and review"],
+          "tools": ["TeamCity Kotlin DSL", "TeamCity Server", "Docker", "Kubernetes", "IntelliJ IDEA", "curl"],
+          "lab_task": "Deliver a versioned Kotlin DSL project for three microservices: generated Compile, Test (parallel batches) and Image build types per service, a composite CI build, pull request builds with commit status, Docker images tagged with the build number, Deploy_Staging and Deploy_Prod with approval and a Vault secret. Prove it with a REST query of the last chain.",
+          "deliverable": "Settings repository, chain screenshots, a REST query output and a short design note",
+          "checks": [["Open a pull request that touches one service", "A chain runs for the pull request and the Git host shows the TeamCity status", "Pull request screenshot"], ["Promote a green CI build to Deploy_Prod", "The deployment waits for approval and runs after approval", "Build history screenshot"], ["Query /app/rest/builds with locator buildType:(id:Shop_CI),count:1", "The latest composite build is returned with status SUCCESS", "Terminal output"]],
+          "objectives": ["Design a complete build chain as code", "Combine pull request, parallel test, image and deployment features", "Explain trade-offs in the chain design"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For TeamCity administrators, platform engineers and build infrastructure owners who run TeamCity for many teams and are responsible for its availability, security and cost. Covers server architecture and sizing, external databases and data directory migration, multinode setups, backups and restore drills, upgrades, authentication modules, hardening and audit, large-scale Kotlin DSL with context parameters and tests, cloud agent cost control, build caches and checkout mirrors, queue priorities, REST API automation, Prometheus metrics, server and agent troubleshooting, TeamCity Cloud with self-hosted agents, server plugins and migration from Jenkins, ending in a capstone that builds a highly available, audited TeamCity platform.",
+      "prerequisites": ["Has designed TeamCity build chains and maintained project settings in Kotlin DSL with versioned settings", "Administers Linux servers, PostgreSQL or MySQL databases and Docker or Kubernetes in a production setting", "Has System administrator access to a non-production TeamCity On-Premises server that can be backed up, upgraded and restarted during the course"],
+      "outcomes": ["Size, deploy and operate TeamCity On-Premises with an external database, secondary nodes, tested backups and planned upgrades", "Secure TeamCity with central authentication, two-factor authentication, scoped tokens, least-privilege roles and audit review", "Scale build capacity and speed with cloud agent profiles, build caches, checkout mirrors, priorities and Kotlin DSL that is tested like code", "Monitor and troubleshoot the server, agents and VCS integration, and extend or migrate pipelines through plugins and the REST API"],
+      "days": [
+        {
+          "topic": "TeamCity Server Architecture and Capacity Sizing",
+          "subtopics": ["Server components: Tomcat web application, build queue, VCS subsystem and clean-up", "The TeamCity Data Directory: config, system, artifacts and caches", "Database load from builds, tests and history", "Agent-to-server communication by polling and the server URL", "JVM memory with TEAMCITY_SERVER_MEM_OPTS and garbage collection", "Disk throughput for artifacts and build logs", "Sizing drivers: agents, concurrent builds, test counts and VCS roots", "Reverse proxy, TLS termination and the server root URL"],
+          "tools": ["TeamCity Server", "nginx", "PostgreSQL", "Linux", "JDK tools"],
+          "lab_task": "Collect from the training server the number of agents, average concurrent builds, tests per day and VCS roots from Administration > Usage Statistics, measure data directory size per subdirectory with du -sh, and set TEAMCITY_SERVER_MEM_OPTS=-Xmx4g. Write a sizing sheet for a 3x larger load with CPU, heap, disk and database estimates.",
+          "deliverable": "Sizing sheet with current measurements, growth assumptions and recommended server and database resources",
+          "checks": [["Read Usage Statistics", "Agent count, build count and test count are recorded with dates", "Usage Statistics screenshot"], ["Restart with TEAMCITY_SERVER_MEM_OPTS=-Xmx4g", "Administration > Diagnostics shows a maximum heap of about 4 GB", "Diagnostics screenshot"], ["Run du -sh on each data directory subfolder", "system/artifacts is identified as the largest folder or the true largest folder is named", "Terminal output"]],
+          "objectives": ["Explain how TeamCity server components use CPU, memory, disk and database", "Measure current load from server statistics", "Produce a capacity plan for growth"]
+        },
+        {
+          "topic": "External Databases and TeamCity Data Directory Migration",
+          "subtopics": ["Why the internal HSQLDB database is for evaluation only", "Supported external databases and JDBC drivers in <data dir>/lib/jdbc", "database.properties and connectionUrl settings", "Creating the PostgreSQL database with UTF-8 encoding and a dedicated user", "Migrating with maintainDB migrate", "Moving the data directory with TEAMCITY_DATA_PATH", "Separating artifacts onto dedicated storage", "Validating the server after migration"],
+          "tools": ["PostgreSQL", "psql", "maintainDB", "TeamCity Server", "Docker"],
+          "lab_task": "On a server using HSQLDB, stop TeamCity, create database teamcity in PostgreSQL with UTF8 encoding and a teamcity user, write a target database.properties with connectionUrl=jdbc:postgresql://db:5432/teamcity, run maintainDB.sh migrate -A <data dir> -T <file>, start the server and compare build counts before and after.",
+          "deliverable": "Migration runbook with commands, timings and the build counts before and after",
+          "checks": [["Run maintainDB migrate", "The tool reports that migration completed and database.properties points to PostgreSQL", "Terminal output and file diff"], ["Count builds in the UI or REST before and after", "The counts are identical", "REST query output"], ["Start the server without the PostgreSQL JDBC driver in lib/jdbc", "The server stops at startup with a database driver error", "teamcity-server.log excerpt"]],
+          "objectives": ["Move TeamCity from the internal database to PostgreSQL", "Configure database.properties and JDBC drivers", "Verify data integrity after migration"]
+        },
+        {
+          "topic": "TeamCity Multinode Clusters with Secondary Nodes",
+          "subtopics": ["Main node and secondary nodes sharing one database and data directory", "Node responsibilities such as processing build messages and VCS polling", "Shared storage requirements for the data directory", "Node-specific data paths and node IDs", "Assigning responsibilities on the Nodes Configuration page", "Routing users through a reverse proxy", "Failover: moving the main node role", "Upgrading a multinode installation"],
+          "tools": ["TeamCity Server", "NFS", "nginx", "PostgreSQL", "Docker"],
+          "lab_task": "Run a main node and one secondary node against the same PostgreSQL database and an NFS-mounted data directory with separate node data paths. Assign processing data from running builds and VCS polling to the secondary node, run 20 builds, then stop the main node, give its role to the secondary and confirm users can still log in.",
+          "deliverable": "Node topology diagram, Nodes Configuration screenshots and a failover timeline",
+          "checks": [["Open Administration > Nodes Configuration", "Both nodes are online and the secondary node shows the assigned responsibilities", "Screenshot"], ["Run 20 builds", "Build logs are processed by the secondary node as shown in its node statistics", "Nodes page screenshot"], ["Stop the main node and assign the main role to the secondary", "The UI becomes available on the new main node and queued builds start", "Timeline with timestamps"]],
+          "objectives": ["Deploy a TeamCity multinode setup", "Distribute node responsibilities", "Perform and time a failover"]
+        },
+        {
+          "topic": "Backups with maintainDB and Restore Drills",
+          "subtopics": ["What a TeamCity backup contains: configuration, database, build logs, plugins and personal changes", "Backups from Administration > Backup and their schedule", "maintainDB.sh backup options -C, -D, -L, -P and -F", "Artifacts excluded from backups and how to back them up", "Database-native backups with pg_dump alongside TeamCity backups", "Restoring with maintainDB.sh restore into an empty data directory and database", "Measuring recovery point and recovery time", "Starting a REST backup with POST /app/rest/server/backup"],
+          "tools": ["maintainDB", "PostgreSQL", "pg_dump", "rsync", "TeamCity REST API"],
+          "lab_task": "Run a backup with maintainDB.sh backup -C -D -L -P -F drill, copy system/artifacts with rsync, then restore both onto a fresh server with an empty database using maintainDB.sh restore -F drill.zip -A <new data dir> -T database.properties. Start it, open three builds and download an artifact, timing every step.",
+          "deliverable": "Restore drill report with recovery time, data checks and gaps found",
+          "checks": [["Run the backup command", "A zip file appears in <data dir>/backup and the tool reports success", "Terminal output"], ["Restore into a database that already contains tables", "maintainDB refuses because the target database is not empty", "Terminal output"], ["Open a restored build and download its artifact", "The build log and artifact are available", "Screenshot and checksum"]],
+          "objectives": ["Back up TeamCity configuration, database and artifacts", "Restore a server from backup", "Measure recovery time against a target"]
+        },
+        {
+          "topic": "Upgrading TeamCity Server and Agents Safely",
+          "subtopics": ["Release types: major releases and bug-fix releases", "Data format changes and why major upgrades cannot be rolled back without a backup", "Licence maintenance and eligibility for a new release", "Plugin compatibility checks before upgrading", "The maintenance screen and the maintenance token in teamcity-server.log", "Upgrading through the UI, the distribution archive or a new Docker image tag", "Automatic agent upgrades after the server upgrade", "Staging upgrade rehearsal and rollback plan"],
+          "tools": ["TeamCity Server", "TeamCity Build Agent", "Docker", "maintainDB"],
+          "lab_task": "Clone the training server into staging, take a backup, then change the jetbrains/teamcity-server image tag to the next release, start the container and complete the maintenance screen with the token from teamcity-server.log. Record the time until all agents report the new version and run a smoke chain of 5 builds.",
+          "deliverable": "Upgrade runbook with timings, plugin compatibility list and rollback steps",
+          "checks": [["Start the server on the new image", "The maintenance screen asks for the token found in teamcity-server.log", "Screenshot and log line"], ["Wait for agents after the upgrade", "All agents reconnect and show the new agent version on the Agents page", "Agents page screenshot"], ["Run the smoke chain", "All 5 builds succeed on the upgraded server", "Build history screenshot"]],
+          "objectives": ["Plan and rehearse a TeamCity upgrade", "Upgrade server and agents with minimal downtime", "Prepare a rollback path based on backups"]
+        },
+        {
+          "topic": "TeamCity Authentication Modules: LDAP, SAML and OAuth",
+          "subtopics": ["Authentication modules on Administration > Authentication", "Built-in authentication and when to disable it", "LDAP integration with ldap-config.properties and group synchronisation", "SAML single sign-on with an identity provider", "Logging in with GitHub, GitLab or Bitbucket OAuth connections", "Matching external accounts to existing TeamCity users", "Mapping external groups to TeamCity groups", "Keeping an emergency local administrator account"],
+          "tools": ["TeamCity Server", "OpenLDAP or Active Directory", "Keycloak", "GitHub"],
+          "lab_task": "Configure SAML with a Keycloak realm as identity provider, map its email attribute to TeamCity users, enable group membership mapping for shop-devs, and keep built-in authentication for one break-glass admin. Log in as a Keycloak user, confirm group membership, then disable the user in Keycloak and confirm login fails.",
+          "deliverable": "Authentication settings, identity provider configuration notes and test results",
+          "checks": [["Log in through the SAML button as a Keycloak user", "A TeamCity session starts with the user's email", "Screenshot"], ["Open the user's groups after login", "shop-devs is listed from the identity provider mapping", "User groups screenshot"], ["Disable the user in Keycloak and try again", "The identity provider denies the login and no TeamCity session is created", "Screenshot"]],
+          "objectives": ["Connect TeamCity to central identity providers", "Map external groups to project roles", "Keep administrative access recoverable"]
+        },
+        {
+          "topic": "Hardening TeamCity Security: 2FA, Tokens and Audit",
+          "subtopics": ["Two-factor authentication modes: optional and mandatory", "Access token expiry and permission scope", "Least-privilege roles and per-project role review", "Disabling guest access and anonymous artifact download", "Agent authorization and protecting agents that build untrusted pull requests", "HTTPS, HSTS and the server root URL", "The Audit page and filtering actions by user and project", "Security notes in release notes and applying fixes quickly"],
+          "tools": ["TeamCity Server", "TeamCity REST API", "nginx", "openssl"],
+          "lab_task": "Make two-factor authentication mandatory, list all users with System administrator using /app/rest/users?locator=role:(role:SYSTEM_ADMIN), reduce them to two, expire tokens older than 90 days, disable guest login, move pull request builds from forks to an isolated pool, and export one week of Audit entries filtered to settings changes.",
+          "deliverable": "Hardening checklist with before-and-after evidence and an audit excerpt",
+          "checks": [["Log in as a user without 2FA after making it mandatory", "TeamCity forces 2FA enrolment before continuing", "Screenshot"], ["Query users with the SYSTEM_ADMIN role", "Exactly two users are returned", "REST output"], ["Open the Audit page filtered to a project", "The settings change made during the lab is listed with user and time", "Audit screenshot"]],
+          "objectives": ["Apply security hardening controls to a TeamCity server", "Review admin rights and token hygiene", "Use the audit log for investigations"]
+        },
+        {
+          "topic": "Large-Scale Kotlin DSL: Portable Settings, Context Parameters and Tests",
+          "subtopics": ["Portable DSL with project settings in one repository", "DslContext.settingsRoot and reusing the settings VCS root", "Context parameters read with DslContext.getParameter", "Using one settings repository for several TeamCity projects or servers", "Unit tests for settings with JUnit and the generated model", "Running mvn teamcity-configs:generate in a pre-merge build", "Code review rules for settings changes", "Upgrading the DSL version line after a server upgrade"],
+          "tools": ["TeamCity Kotlin DSL", "Maven", "JUnit 5", "IntelliJ IDEA", "TeamCity Server"],
+          "lab_task": "Add a context parameter environment to the Versioned Settings of two projects that load the same settings repository with values staging and prod, branch on DslContext.getParameter(\"environment\") to add a Deploy_Prod build type only for prod, then write a JUnit test that fails if any build type lacks an execution timeout and run it in a TeamCity build.",
+          "deliverable": "Settings repository with the context parameter logic, the unit test and the validation build",
+          "checks": [["Load settings in the staging project", "Deploy_Prod does not exist in staging", "Project screenshot"], ["Load settings in the prod project", "Deploy_Prod exists in prod", "Project screenshot"], ["Remove the timeout from one build type and run the validation build", "The JUnit test fails and names the build type", "Test output"]],
+          "objectives": ["Write portable Kotlin DSL for several projects", "Use context parameters for environment differences", "Test settings code before it reaches the server"]
+        },
+        {
+          "topic": "Kotlin DSL Shared Libraries and Generated Projects",
+          "subtopics": ["Packaging shared DSL code as a library jar", "Adding the library as a Maven dependency in .teamcity/pom.xml", "Library versions and controlled roll-out to teams", "Generating subprojects from a services catalogue file", "Reading YAML or JSON at settings generation time", "Keeping the generated ID scheme stable", "Detecting configuration drift between UI and DSL", "Performance of large settings and generation time"],
+          "tools": ["TeamCity Kotlin DSL", "Maven", "Kotlin", "IntelliJ IDEA"],
+          "lab_task": "Move the serviceBuild function into a library shop-teamcity-dsl published to the internal Maven repository, depend on it from .teamcity/pom.xml, and generate one subproject per entry of a services.json file with 10 services. Measure generation time with mvn teamcity-configs:generate and bump the library version to change all builds at once.",
+          "deliverable": "DSL library source, services.json and generation timing",
+          "checks": [["Generate settings from services.json with 10 entries", "10 subprojects appear in the generated XML", "Generated directory listing"], ["Bump the library version with a changed step", "All 10 services receive the changed step after the settings are applied", "Diff of generated XML"], ["Remove the library repository from pom.xml", "Generation fails with a Maven dependency resolution error", "Terminal output"]],
+          "objectives": ["Share Kotlin DSL code across repositories", "Generate projects from data files", "Roll out settings changes in a controlled way"]
+        },
+        {
+          "topic": "Advanced Cloud Agent Profiles: Images, Limits and Cost Controls",
+          "subtopics": ["Baking agent images with Packer or Dockerfiles", "Pre-warming caches in agent images", "Spot instances and fallback to on-demand", "Per-image and per-profile instance limits", "Idle timeouts and terminate after first build", "Tagging instances for cost allocation", "Matching cloud images to agent requirements", "Measuring queue wait time against cloud cost"],
+          "tools": ["TeamCity Server", "Amazon EC2", "Packer", "AWS CLI", "Kubernetes"],
+          "lab_task": "Build an EC2 agent AMI with Packer containing JDK 21, Docker and a pre-filled Gradle cache, create an EC2 cloud profile using spot instances with a limit of 6 and 15-minute idle termination, tag instances with cost-center=shop, run a burst of 30 builds and record queue wait time and instance hours from the AWS CLI.",
+          "deliverable": "Packer template, cloud profile settings and a cost and wait-time report",
+          "checks": [["Queue 30 builds", "No more than 6 instances run at the same time", "AWS CLI describe-instances output"], ["Check instance tags", "Every instance started by TeamCity has cost-center=shop", "AWS CLI output"], ["Wait 15 minutes after the burst", "All instances from the profile are terminated", "AWS CLI output"]],
+          "objectives": ["Build fast-starting agent images", "Control cloud cost with limits, spot usage and idle termination", "Report build capacity against spend"]
+        },
+        {
+          "topic": "Build Cache, Checkout Mirrors and Build Speed in TeamCity",
+          "subtopics": ["The Build Cache feature: publishing and using cached directories", "Choosing cache paths such as ~/.gradle/caches and node_modules", "Cache invalidation by key files", "Git mirrors on agents and the use mirrors setting", "Shallow clones and checkout performance", "Gradle build cache and remote cache nodes with TeamCity", "Reusing builds instead of rebuilding", "Measuring step durations with build statistics"],
+          "tools": ["TeamCity Server", "Gradle", "npm", "Git"],
+          "lab_task": "Record the duration of the Gradle and npm steps on a clean cloud agent, then add the Build Cache feature publishing ~/.gradle/caches and node_modules keyed on gradle.lockfile and package-lock.json, enable agent checkout mirrors, and run three builds on fresh agents. Compare step durations on the Statistics tab.",
+          "deliverable": "Before-and-after step duration table and the build cache settings",
+          "checks": [["Run on a fresh agent after the cache was published", "The log shows the cache being downloaded before the Gradle step", "Build log excerpt"], ["Change package-lock.json and run", "A new cache is published for node_modules", "Build log excerpt"], ["Compare average Gradle step duration", "The cached runs are faster than the clean baseline by a recorded percentage", "Statistics tab screenshot"]],
+          "objectives": ["Use caches to shorten builds on ephemeral agents", "Speed up checkouts with mirrors", "Prove improvements with build statistics"]
+        },
+        {
+          "topic": "Build Queue Priorities and Agent Capacity Planning",
+          "subtopics": ["How the build queue orders builds", "Build priority classes from -100 to 100", "Moving builds to the top of the queue and who may do it", "Queue optimisation that replaces outdated queued builds", "Agent priorities and preferred agents", "Limiting concurrent running builds per configuration", "Measuring queue wait time per project", "Capacity planning from wait time targets"],
+          "tools": ["TeamCity Server", "TeamCity REST API", "jq"],
+          "lab_task": "Create priority classes release (priority 50) and experimental (priority -20), assign Shop_Release and a Sandbox project to them, flood the queue with 20 Sandbox builds, then trigger a release build and record its queue position. Query /app/rest/buildQueue with fields to compute the average wait per project.",
+          "deliverable": "Priority class settings, queue screenshots and a wait-time table per project",
+          "checks": [["Trigger a release build behind 20 Sandbox builds", "The release build moves ahead of the Sandbox builds in the queue", "Queue screenshot"], ["Queue three builds of the same configuration on the same revision", "Queue optimisation removes redundant builds and the history shows the reason", "Build history screenshot"], ["Calculate average wait from the REST data", "The release project's average wait is lower than Sandbox's", "jq output"]],
+          "objectives": ["Order work with priority classes", "Reduce queue load with optimisation and concurrency limits", "Plan agent capacity from measured wait time"]
+        },
+        {
+          "topic": "REST API Automation: Agents, Investigations and Reports",
+          "subtopics": ["Authorizing and disabling agents with PUT /app/rest/agents/id:<id>/authorized and enabled", "Moving agents between pools through the API", "Listing investigations and mutes with /app/rest/investigations and /app/rest/mutes", "Reading statistics values for builds", "Paging with count, start and nextHref", "Creating projects from a template through the API", "Rate of requests and server load from scripts", "Writing a Python client with requests and a token"],
+          "tools": ["TeamCity REST API", "Python", "requests", "jq", "curl"],
+          "lab_task": "Write a Python script with requests and a bearer token that authorizes every unauthorized agent whose name starts with ci-, prints a weekly report of failed builds per project using paging with nextHref, lists open investigations older than 7 days, and writes the report as CSV. Run it against the training server and check the counts in the UI.",
+          "deliverable": "Python script, CSV report and UI screenshots that confirm the counts",
+          "checks": [["Start an unauthorized agent named ci-test-1 and run the script", "The agent becomes authorized", "Agents page screenshot"], ["Compare failed build counts in the CSV with the UI", "The counts match for each project", "CSV and UI screenshot"], ["Run the script with an expired token", "The script stops with HTTP 401 and a clear message", "Terminal output"]],
+          "objectives": ["Automate agent administration through the REST API", "Build reports with paging and locators", "Handle authentication errors in scripts"]
+        },
+        {
+          "topic": "Monitoring TeamCity with Prometheus Metrics and Server Health",
+          "subtopics": ["The /app/metrics endpoint in Prometheus format", "Authenticating the scraper with a token", "Queue size, running builds and agent counts", "JVM heap and garbage collection metrics", "Server Health reports and their categories", "Disk space warnings on the server and agents", "Grafana dashboards for TeamCity", "Alert thresholds for queue wait and disconnected agents"],
+          "tools": ["Prometheus", "Grafana", "TeamCity Server", "curl"],
+          "lab_task": "Configure Prometheus to scrape /app/metrics from the server with a bearer token every 30 seconds, build a Grafana dashboard with queue size, running builds, connected agents and JVM heap, add an alert when the queue stays above 10 for 5 minutes, then trigger it by disabling agents and queueing builds.",
+          "deliverable": "Prometheus config, Grafana dashboard export and the fired alert",
+          "checks": [["Run curl -H \"Authorization: Bearer <token>\" http://<server>/app/metrics", "Prometheus text format with metric lines is returned", "Terminal output"], ["Open Prometheus targets", "The TeamCity target shows state UP", "Prometheus screenshot"], ["Disable all agents and queue 12 builds", "The queue alert fires after 5 minutes", "Alert screenshot"]],
+          "objectives": ["Export TeamCity metrics to Prometheus", "Build dashboards for capacity and health", "Alert on queue and agent problems"]
+        },
+        {
+          "topic": "Troubleshooting TeamCity Server Performance",
+          "subtopics": ["Server logs: teamcity-server.log, teamcity-vcs.log and teamcity-activities.log", "Debug logging presets in Administration > Diagnostics", "Thread dumps from the Diagnostics page and jstack", "CPU and memory usage views", "Slow database queries and database statistics", "Slow pages and REST calls from heavy scripts", "Collecting data for a JetBrains support request", "Common causes: too many VCS roots polling, huge build logs and test counts"],
+          "tools": ["TeamCity Server", "jstack", "PostgreSQL", "TeamCity Diagnostics"],
+          "lab_task": "Simulate load by running a script that calls /app/rest/builds without count limits 50 times in parallel, observe the server CPU, take three thread dumps 10 seconds apart from Administration > Diagnostics, identify the busy threads, then fix the script to use count and fields and repeat the measurement.",
+          "deliverable": "Thread dump analysis note and before-and-after CPU and response times",
+          "checks": [["Take thread dumps during the load", "Several http threads show the REST builds request in their stack", "Thread dump excerpt"], ["Measure response time before and after the fix", "Average response time drops after adding count and fields", "Measurement table"], ["Enable a debug logging preset for VCS", "teamcity-vcs.log shows more detailed entries", "Log excerpt"]],
+          "objectives": ["Gather evidence for server performance problems", "Read thread dumps for hot spots", "Remove load caused by scripts and settings"]
+        },
+        {
+          "topic": "Troubleshooting TeamCity Agents and VCS Failures",
+          "subtopics": ["Agent logs: teamcity-agent.log and teamcity-build.log", "Disconnected and unregistered agents and the serverUrl setting", "Agent upgrade loops and plugin download failures", "Git authentication failures and SSH host keys", "Branch specification mismatches and missing revisions", "Agent-side checkout and the Git executable path", "Disk full errors in the work directory", "Failed to start builds and their messages"],
+          "tools": ["TeamCity Build Agent", "TeamCity Server", "Git", "ssh-keyscan"],
+          "lab_task": "Break and fix four faults on a lab agent: wrong serverUrl in buildAgent.properties, an expired Git token in the VCS root, a branch removed from the branch specification while a build was queued, and a full work directory. For each, record the first log line that names the cause and the fix.",
+          "deliverable": "Fault log with symptom, log file, log line and fix for each of the four faults",
+          "checks": [["Set a wrong serverUrl and restart the agent", "teamcity-agent.log reports it cannot connect to the server and the agent is missing from the Agents page", "Log excerpt"], ["Expire the Git token in the VCS root", "Builds fail to start with an authentication error from the Git server", "Build problem text"], ["Fill the agent work directory", "The build fails with a no space left on device error", "Build log excerpt"]],
+          "objectives": ["Diagnose agent connection and upgrade problems", "Fix Git authentication and branch errors", "Map symptoms to log files quickly"]
+        },
+        {
+          "topic": "TeamCity Cloud with JetBrains-Hosted and Self-Hosted Agents",
+          "subtopics": ["What JetBrains runs for you in TeamCity Cloud", "JetBrains-hosted agents and their operating system choices", "Build credits and how agent type affects consumption", "Connecting self-hosted agents to a TeamCity Cloud instance", "Network access from hosted agents to private resources", "Users, authentication and data residency questions", "Moving projects from On-Premises with versioned settings", "Differences in plugins and administration compared with On-Premises"],
+          "tools": ["TeamCity Cloud", "TeamCity Build Agent", "TeamCity Kotlin DSL", "Docker"],
+          "lab_task": "On a TeamCity Cloud trial, import the Shop_Backend versioned settings from Git, run builds on a JetBrains-hosted Linux agent and on a self-hosted Docker agent registered to the cloud instance, compare duration and credit use for both, and list which administration pages available On-Premises are not available in Cloud.",
+          "deliverable": "Comparison table of agent types and a migration checklist from On-Premises to Cloud",
+          "checks": [["Load settings from Git into the cloud instance", "The project and its build configurations are created from the settings repository", "Project screenshot"], ["Register a self-hosted agent", "The agent appears as connected in the cloud instance after authorization", "Agents page screenshot"], ["Run the same build on both agent types", "Durations and credit use are recorded for each", "Comparison table"]],
+          "objectives": ["Explain what TeamCity Cloud manages and what remains your job", "Combine hosted and self-hosted agents", "Plan a move from On-Premises to Cloud"]
+        },
+        {
+          "topic": "Writing a TeamCity Server Plugin with the Open API",
+          "subtopics": ["Plugin types: server, agent and combined plugins", "Project layout from the JetBrains Maven archetype or Gradle plugin", "teamcity-plugin.xml descriptor", "BuildServerAdapter and the buildFinished event", "Spring bean registration in build-server-plugin XML", "Uploading plugins on Administration > Plugins", "Reloading plugins without a server restart", "Testing and logging from a plugin"],
+          "tools": ["IntelliJ IDEA", "Maven", "Kotlin or Java", "TeamCity Open API", "TeamCity Server"],
+          "lab_task": "Generate a server plugin project from the JetBrains archetype, implement a BuildServerAdapter that posts the build number, status and duration to an HTTP endpoint when a build finishes, package the plugin zip, upload it on Administration > Plugins, enable it, run three builds and confirm three messages arrive.",
+          "deliverable": "Plugin source, plugin zip and the endpoint log with three messages",
+          "checks": [["Upload and enable the plugin", "The plugin is listed as loaded on the Plugins page", "Plugins page screenshot"], ["Run three builds", "The endpoint receives three messages with the correct build numbers", "Endpoint log"], ["Upload a plugin with a broken descriptor", "The Plugins page shows a load error for the plugin", "Plugins page screenshot"]],
+          "objectives": ["Build and package a TeamCity server plugin", "React to build events with the Open API", "Deploy and troubleshoot plugins"]
+        },
+        {
+          "topic": "Migrating Jenkins Pipelines to TeamCity",
+          "subtopics": ["Inventory of Jenkins jobs, agents, credentials and plugins", "Mapping Jenkinsfile stages to TeamCity build configurations", "Mapping stash and archiveArtifacts to artifact dependencies", "Mapping parallel stages to snapshot dependencies or parallel tests", "Mapping credentials to password parameters, tokens and connections", "Mapping agent labels to agent requirements and pools", "Running both systems in parallel and comparing results", "Cut-over plan and decommissioning"],
+          "tools": ["Jenkins", "TeamCity Server", "TeamCity Kotlin DSL", "Git"],
+          "lab_task": "Take a supplied Jenkinsfile with checkout, build, parallel unit and integration tests, archiveArtifacts and a deploy stage with input approval, and rewrite it as Kotlin DSL with snapshot and artifact dependencies, a build approval feature and agent requirements. Run both for 5 commits and compare durations and results.",
+          "deliverable": "Mapping table from Jenkins constructs to TeamCity features, the DSL and a comparison report",
+          "checks": [["Run the TeamCity chain on the same commit as Jenkins", "Both report the same test counts", "Results comparison"], ["Trigger the deploy stage in TeamCity", "The deployment waits for approval like the Jenkins input step", "Queue screenshot"], ["Compare five commits in both systems", "Durations for each commit are recorded and differences explained", "Comparison report"]],
+          "objectives": ["Translate Jenkins pipeline constructs to TeamCity features", "Run a parallel verification period", "Plan a safe cut-over"]
+        },
+        {
+          "topic": "Capstone: Highly Available and Audited TeamCity Platform",
+          "subtopics": ["Target design and sizing", "Database, multinode and backup implementation", "Authentication, 2FA and role model", "Cloud agents, caches and priorities", "Monitoring, alerts and runbooks", "Failure drill and review"],
+          "tools": ["TeamCity Server", "PostgreSQL", "Prometheus", "Grafana", "Kubernetes", "maintainDB"],
+          "lab_task": "Build a TeamCity platform for 10 teams: PostgreSQL, a main and secondary node, nightly maintainDB backups with a tested restore, SAML login with mandatory 2FA, Kubernetes cloud agents with limits, priority classes, Prometheus alerts and an audit review. Run a drill that stops the main node and restores the latest backup onto a standby server.",
+          "deliverable": "Platform design, runbooks, drill timings and a final review report",
+          "checks": [["Stop the main node during the drill", "The secondary node takes over and builds continue", "Drill timeline"], ["Restore a deleted project from backup", "The project and its build history are back and the restore time is recorded", "Restore report"], ["Review the Audit page after the drill", "Every administrative action in the drill is listed with user and time", "Audit screenshot"]],
+          "objectives": ["Design and build a production TeamCity platform", "Prove recovery and failover with drills", "Defend security and capacity decisions"]
+        }
+      ]
+    }
+  }
+}

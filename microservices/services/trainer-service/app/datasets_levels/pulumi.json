@@ -1,0 +1,573 @@
+{
+  "domain": "Pulumi",
+  "name": "Pulumi",
+  "category": "DevOps and CI/CD",
+  "icon": "layers",
+  "aliases": ["Pulumi IaC", "Infrastructure as Code with Pulumi", "Pulumi Cloud", "Pulumi ESC", "Pulumi TypeScript", "Pulumi Python", "Pulumi Automation API", "Pulumi Engineer"],
+  "certifications": [],
+  "tools": ["Pulumi CLI", "Pulumi Cloud", "Pulumi ESC", "Pulumi CrossGuard", "Pulumi Automation API", "Pulumi Deployments", "TypeScript", "Python", "Node.js", "AWS", "Kubernetes", "GitHub Actions", "pytest", "Mocha"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For cloud, DevOps and application engineers who can write simple TypeScript or Python and are new to Pulumi. Covers installing the Pulumi CLI, projects and Pulumi.yaml, stacks, the preview, update, refresh and destroy workflow, resources, URNs and auto-naming, inputs and outputs, stack configuration and encrypted secrets, stack outputs, resource options, provider functions, explicit providers, the Pulumi Cloud backend, reading diffs, ordinary language constructs in programs, a comparison with Go, C# and YAML, debugging failed updates, and a website-plus-API capstone on AWS.",
+      "prerequisites": ["Writes small programs in TypeScript or Python: functions, lists, dictionaries or objects, and installing packages with npm or pip", "Understands basic cloud concepts such as regions, IAM users and roles, object storage and serverless functions", "Has a laptop with Node.js LTS and Python 3.10 or later, an AWS sandbox account with credentials configured for the AWS CLI, and an editor such as Visual Studio Code"],
+      "outcomes": ["Create Pulumi projects and stacks in TypeScript and Python and run preview, up, refresh and destroy confidently", "Model cloud resources with inputs, outputs, resource options and explicit providers, and read the resulting diffs", "Manage per-stack configuration and encrypted secrets without leaking values into source control or logs", "Deliver a small multi-resource AWS stack with exported outputs and diagnose failed updates from CLI output"],
+      "days": [
+        {
+          "topic": "Pulumi CLI Installation and First Project Setup",
+          "subtopics": ["What Pulumi is: infrastructure as code in general-purpose languages", "How the CLI, language host, engine and resource providers fit together", "Installing the CLI with the install script, Homebrew, winget or Chocolatey", "pulumi version and pulumi about for environment diagnostics", "pulumi login to Pulumi Cloud versus pulumi login --local", "Templates and pulumi new aws-typescript and aws-python", "Generated files: Pulumi.yaml, Pulumi.<stack>.yaml, index.ts or __main__.py", "Python virtual environments and the toolchain option in Pulumi.yaml", "Cloud credentials: AWS_PROFILE and the aws:region config key", "Plugins downloaded on first run and pulumi plugin ls"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "Node.js", "Python", "AWS CLI", "Visual Studio Code"],
+          "lab_task": "Install the Pulumi CLI, run pulumi version and pulumi about, log in with pulumi login, then create two projects with pulumi new aws-typescript --name hello-ts --yes and pulumi new aws-python --name hello-py --yes. In each, run pulumi preview and record the number of resources the plan reports and the plugins listed by pulumi plugin ls.",
+          "deliverable": "Setup report with pulumi about output, both generated Pulumi.yaml files and the preview summaries",
+          "checks": [["Run pulumi version", "A 3.x version string is printed", "Terminal screenshot"], ["Run pulumi preview in hello-ts", "The plan shows + pulumi:pulumi:Stack and + aws:s3:BucketV2 or aws:s3:Bucket with 2 to create", "Preview output"], ["Run pulumi plugin ls", "A resource plugin named aws is listed with its version", "Plugin list output"]],
+          "objectives": ["Install and verify the Pulumi CLI", "Create projects from templates in TypeScript and Python", "Explain the roles of the CLI, engine, language host and providers"]
+        },
+        {
+          "topic": "Projects, Pulumi.yaml and Language Runtimes",
+          "subtopics": ["Pulumi.yaml keys: name, runtime, description, main and config", "runtime: nodejs with packagemanager and typescript options", "runtime: python with toolchain pip, poetry or uv and virtualenv", "Program entry points: index.ts, __main__.py and the main key", "Project-level config declarations with type and default", "pulumi.getProject() and pulumi.getStack() inside programs", "Organising a project folder: src, components and tests", "Why the project name becomes part of every URN"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python", "npm", "uv"],
+          "lab_task": "Edit hello-py's Pulumi.yaml to set runtime.options.toolchain to uv, add a project config key environmentLabel with type string and default sandbox, and move the program into src/app.py with main: src/. Run pulumi preview, then print pulumi.get_project() and pulumi.get_stack() with pulumi.log.info and confirm both values appear in the preview diagnostics.",
+          "deliverable": "Annotated Pulumi.yaml and preview output showing the project and stack names logged",
+          "checks": [["Run pulumi preview after changing main to src/", "Preview succeeds and loads the program from the new folder", "Preview output"], ["Set an invalid runtime name such as pythonn", "Preview fails with an error that the language runtime is not supported or the plugin cannot be found", "Error output"], ["Read the environmentLabel key without setting it", "The default value sandbox is returned", "Diagnostic log line"]],
+          "objectives": ["Configure Pulumi.yaml for TypeScript and Python runtimes", "Structure a project folder for growth", "Use project and stack names inside a program"]
+        },
+        {
+          "topic": "Stacks and the Stack Lifecycle",
+          "subtopics": ["What a stack is: one deployed instance of a project", "pulumi stack init, select, ls and rm", "Fully qualified names: organization/project/stack", "Per-stack settings files Pulumi.dev.yaml and Pulumi.prod.yaml", "pulumi stack --show-urns and stack summary", "pulumi stack history and update numbers", "pulumi stack tag set and ls for metadata", "Removing stacks safely: destroy first, then stack rm"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud"],
+          "lab_task": "In hello-ts create stacks dev and staging with pulumi stack init, select dev and run pulumi up --yes, then select staging and run pulumi up --yes. Run pulumi stack ls to compare resource counts, add a tag with pulumi stack tag set owner <you>, view pulumi stack history, then destroy staging and remove it with pulumi stack rm staging --yes.",
+          "deliverable": "Stack lifecycle log with stack ls before and after removal and the history of dev",
+          "checks": [["Run pulumi stack ls after both updates", "Two stacks are listed, the current one marked with an asterisk, each with a resource count", "stack ls output"], ["Run pulumi stack rm staging before destroying it", "The CLI refuses because the stack still has resources and suggests destroy or --force", "Error output"], ["Run pulumi stack history on dev", "At least one update with result succeeded is listed", "History output"]],
+          "objectives": ["Create, select and remove stacks", "Explain how stacks isolate environments", "Inspect stack history and tags"]
+        },
+        {
+          "topic": "The Preview, Update, Refresh and Destroy Workflow",
+          "subtopics": ["pulumi preview and the meaning of +, ~, -, +- and ~ symbols", "pulumi up, the confirmation prompt and --yes", "--diff for property-level detail", "--skip-preview for scripted runs and its risks", "pulumi refresh to reconcile state with the cloud", "pulumi destroy and the protected-resource guard", "Update summaries: create, update, delete, same and replace counts", "Viewing an update in the Pulumi Cloud console via its permalink"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "AWS Console"],
+          "lab_task": "Deploy dev with pulumi up --yes, then change the bucket's tags and run pulumi preview --diff to see the ~ update. Apply it, delete a tag by hand in the AWS Console, run pulumi refresh --yes and record the detected change, then run pulumi destroy --yes and confirm the AWS Console shows no bucket. Capture each command's resource count summary.",
+          "deliverable": "Workflow log with preview, up, refresh and destroy summaries",
+          "checks": [["Run pulumi preview --diff after a tag change", "The bucket shows ~ update with only the tags property changed", "Preview diff"], ["Run pulumi refresh after the manual tag deletion", "Refresh reports 1 updated resource and the state no longer contains the deleted tag", "Refresh output"], ["Run pulumi destroy --yes", "The summary shows every resource deleted and the stack resource count becomes 0", "Destroy output"]],
+          "objectives": ["Run the core Pulumi workflow commands", "Read preview symbols and summaries", "Use refresh to detect changes made outside Pulumi"]
+        },
+        {
+          "topic": "Resources, URNs and Auto-Naming",
+          "subtopics": ["Custom resources versus component resources", "Resource type tokens such as aws:s3/bucketV2:BucketV2", "Logical names and physical names", "Auto-naming with random suffixes and why it enables replacement", "Overriding names with the bucket or name argument", "URN format: urn:pulumi:stack::project::type::name", "Resource IDs assigned by the provider", "Renaming a logical name and the delete-then-create consequence"],
+          "tools": ["Pulumi CLI", "TypeScript", "AWS CLI"],
+          "lab_task": "In TypeScript create two S3 buckets: one auto-named and one with an explicit bucket name. Run pulumi up, list URNs with pulumi stack --show-urns, and compare physical names with aws s3 ls. Rename the logical name of the auto-named bucket and run pulumi preview to record the planned delete and create, then revert the rename.",
+          "deliverable": "URN table with logical name, physical name, type token and ID for each bucket",
+          "checks": [["Run pulumi stack --show-urns", "Each bucket shows a URN containing the stack, project, type and logical name", "Stack output"], ["Compare the auto-named bucket with aws s3 ls", "Its physical name is the logical name plus a random suffix", "AWS CLI output"], ["Preview after renaming a logical name", "The plan shows one + create and one - delete for that bucket", "Preview output"]],
+          "objectives": ["Explain logical names, physical names, URNs and IDs", "Choose between auto-naming and explicit names", "Predict the effect of renaming a resource"]
+        },
+        {
+          "topic": "Inputs, Outputs and apply",
+          "subtopics": ["Input<T> and Output<T> types and why outputs are asynchronous", "Passing one resource's output as another's input", "Implicit dependencies created by outputs", ".apply() for transforming values", "pulumi.interpolate and pulumi.concat in TypeScript", "Output.concat and Output.all in Python", "pulumi.all for combining outputs in TypeScript", "Why you must not create resources inside apply", "Unknown values during preview", "Common mistake: printing an Output object instead of its value"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python"],
+          "lab_task": "Create an S3 bucket and an IAM policy whose document references the bucket ARN through pulumi.interpolate in TypeScript and Output.concat in Python. Export a URL built with apply. Print the raw output with console.log or print once to see the warning text, then fix it. Run pulumi preview and note which values show as output<string> before the update.",
+          "deliverable": "Two equivalent programs, preview and update output, and a note on the printing mistake",
+          "checks": [["Run pulumi preview before the first update", "The policy document shows output<string> or unknown for the bucket ARN", "Preview output"], ["Print an Output with console.log in TypeScript", "The text says calling toString on an Output is not supported and suggests apply or interpolate", "Program output"], ["Run pulumi up", "The policy is created after the bucket and contains the real ARN", "Update output and policy JSON"]],
+          "objectives": ["Pass outputs between resources", "Transform outputs with apply, interpolate and concat", "Avoid creating resources inside apply"]
+        },
+        {
+          "topic": "Stack Configuration with pulumi config",
+          "subtopics": ["pulumi config set, get, rm and pulumi config with no arguments", "Namespaced keys: aws:region versus project:key", "Reading values with new pulumi.Config() and pulumi.Config()", "require, get, getNumber, getBoolean and requireObject", "Structured config with --path, for example tags.team", "Per-stack values in Pulumi.<stack>.yaml", "pulumi config cp between stacks", "Missing required configuration variable errors"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python"],
+          "lab_task": "Add config keys instanceCount (number), enableLogging (boolean) and tags.team via pulumi config set --path. Read them in the program with getNumber, getBoolean and requireObject and use them to create that many SQS queues. Set different values in dev and staging, copy one key with pulumi config cp, then remove a required key and record the error.",
+          "deliverable": "Pulumi.dev.yaml and Pulumi.staging.yaml with a table of values and resulting queue counts",
+          "checks": [["Set instanceCount to 3 in dev and run pulumi preview", "Exactly 3 queues are planned for creation", "Preview output"], ["Remove a key read with require and run pulumi preview", "Preview fails with Missing required configuration variable naming the key", "Error output"], ["Run pulumi config set --path tags.team platform", "Pulumi.dev.yaml contains a nested tags map with team: platform", "Config file"]],
+          "objectives": ["Set and read typed stack configuration", "Use structured config with --path", "Keep environment differences in stack config files"]
+        },
+        {
+          "topic": "Encrypted Secrets in Pulumi Config",
+          "subtopics": ["pulumi config set --secret and the secure: ciphertext in stack files", "Default secrets provider for Pulumi Cloud stacks", "Passphrase provider and PULUMI_CONFIG_PASSPHRASE", "requireSecret and require_secret return secret outputs", "pulumi.secret() for marking computed values", "How secrets propagate and show as [secret] in diffs", "pulumi stack output --show-secrets and pulumi config --show-secrets", "additionalSecretOutputs resource option"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "AWS Secrets Manager"],
+          "lab_task": "Store dbPassword with pulumi config set --secret dbPassword and confirm Pulumi.dev.yaml holds a secure: value. Read it with requireSecret and write it to an AWS Secrets Manager secret version. Export the ARN and a secret output, run pulumi stack output to see [secret], then pulumi stack output --show-secrets. Search pulumi stack export output for the plaintext and record the count.",
+          "deliverable": "Secrets handling note with the stack file excerpt and grep results",
+          "checks": [["Open Pulumi.dev.yaml after setting the secret", "The value appears only as secure: followed by ciphertext", "Config file excerpt"], ["Run pulumi stack output", "The secret output prints [secret]", "CLI output"], ["Search pulumi stack export output for the plaintext password", "0 matches are found because state stores it encrypted", "grep output"]],
+          "objectives": ["Store and read encrypted configuration", "Mark computed values as secrets", "Verify that secrets are not stored in plaintext"]
+        },
+        {
+          "topic": "Stack Outputs and pulumi stack output",
+          "subtopics": ["export const in TypeScript and pulumi.export in Python", "Exporting objects and lists", "pulumi stack output and pulumi stack output <name>", "--json for scripts and jq", "Using outputs in shell scripts and CI steps", "Secret outputs and their masking", "Outputs as the contract between stacks", "Naming conventions for stable output keys"],
+          "tools": ["Pulumi CLI", "jq", "Bash"],
+          "lab_task": "Export bucketName, bucketArn, an object endpoints with two URLs and a list of queue URLs. Run pulumi stack output --json | jq to extract endpoints.api, then write a Bash script that uploads index.html to the bucket using aws s3 cp with the name read from pulumi stack output bucketName. Run it and confirm the object exists.",
+          "deliverable": "Output listing, the helper script and proof of the uploaded object",
+          "checks": [["Run pulumi stack output --json | jq -r .endpoints.api", "A single URL string is printed", "Terminal output"], ["Run pulumi stack output missingKey", "The CLI reports that the current stack does not have an output property named missingKey", "Error output"], ["Run the upload script", "aws s3 ls shows index.html in the exported bucket", "AWS CLI output"]],
+          "objectives": ["Export scalar, object and list outputs", "Consume outputs from scripts", "Design stable output names"]
+        },
+        {
+          "topic": "Writing Pulumi Programs in Python with pulumi_aws",
+          "subtopics": ["Package layout: pulumi, pulumi_aws and requirements or pyproject", "Resource classes and keyword arguments in snake_case", "Args classes versus dictionaries for nested inputs", "ResourceOptions in Python", "Output.all(...).apply(lambda args: ...)", "Type hints and editor completion", "pulumi.log for diagnostics", "Pinning provider package versions"],
+          "tools": ["Python", "pulumi_aws", "uv", "Visual Studio Code"],
+          "lab_task": "In hello-py build a VPC with two public subnets, an internet gateway and a route table using pulumi_aws.ec2 classes and Args types. Pin pulumi_aws in pyproject.toml or requirements.txt, run pulumi up, export the subnet IDs as a list and verify their count with aws ec2 describe-subnets filtered by the VPC ID.",
+          "deliverable": "Python program, pinned dependency file and subnet verification output",
+          "checks": [["Run pulumi up", "The summary shows the VPC, two subnets, the gateway, route table and associations created", "Update output"], ["Pass a misspelled keyword such as cidr_blok", "Python raises TypeError for an unexpected keyword argument", "Traceback"], ["Run aws ec2 describe-subnets with the VPC filter", "Exactly 2 subnets are returned", "AWS CLI output"]],
+          "objectives": ["Write idiomatic Python Pulumi programs", "Use Args classes and ResourceOptions", "Pin provider packages"]
+        },
+        {
+          "topic": "Writing Pulumi Programs in TypeScript with @pulumi/aws",
+          "subtopics": ["Package layout: @pulumi/pulumi, @pulumi/aws and tsconfig.json", "Constructor signature: name, args and options", "Type checking catches invalid properties before preview", "Async functions and top-level exports", "Using @pulumi/awsx for higher-level VPCs", "Pinning versions in package.json and the lock file", "pulumi.log.info and warn", "Running tsc --noEmit as a fast check"],
+          "tools": ["TypeScript", "@pulumi/aws", "@pulumi/awsx", "npm", "Visual Studio Code"],
+          "lab_task": "Rebuild the Python VPC from the previous day in TypeScript, first with @pulumi/aws primitives and then with awsx.ec2.Vpc using numberOfAvailabilityZones: 2. Run npx tsc --noEmit before each preview, then compare the number of resources each version plans with pulumi preview and record which subnets and NAT gateways awsx adds by default.",
+          "deliverable": "Two TypeScript programs and a comparison table of planned resources",
+          "checks": [["Add an unknown property to a resource and run npx tsc --noEmit", "TypeScript reports error TS2353 or TS2345 naming the property", "Compiler output"], ["Preview the awsx version", "The plan includes public and private subnets in 2 availability zones and NAT gateways", "Preview output"], ["Compare resource counts", "The awsx version plans more resources than the primitive version", "Comparison table"]],
+          "objectives": ["Write idiomatic TypeScript Pulumi programs", "Use type checking to catch errors early", "Weigh primitive resources against awsx components"]
+        },
+        {
+          "topic": "Resource Options: dependsOn, protect and ignoreChanges",
+          "subtopics": ["The third constructor argument: CustomResourceOptions", "dependsOn for dependencies outputs do not express", "protect: true and the error on delete", "ignoreChanges for properties changed by other systems", "deleteBeforeReplace for unique-name resources", "retainOnDelete to keep the cloud resource", "customTimeouts for slow resources", "pulumi state unprotect"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python"],
+          "lab_task": "Add protect: true to an S3 bucket, ignoreChanges: [\"tags\"] to a queue and dependsOn from a Lambda function to its IAM policy attachment. Change the queue tags and preview to confirm no diff. Run pulumi destroy and record the protect error, run pulumi state unprotect on the bucket URN, then destroy again and count deleted resources.",
+          "deliverable": "Options table with the code snippet and observed behaviour for each option",
+          "checks": [["Run pulumi destroy with the protected bucket", "The update fails with an error that the resource cannot be deleted because it is protected", "Error output"], ["Change ignored tags and run pulumi preview", "The queue shows no changes", "Preview output"], ["Run pulumi state unprotect then pulumi destroy", "All resources are deleted", "Destroy output"]],
+          "objectives": ["Apply common resource options", "Protect critical resources from deletion", "Ignore properties managed outside Pulumi"]
+        },
+        {
+          "topic": "Provider Functions and Data Lookups",
+          "subtopics": ["What provider functions (invokes) return", "aws.ec2.getAmi versus aws.ec2.getAmiOutput", "Python get_ami and get_ami_output", "aws.getCallerIdentity and aws.getRegion", "Reading existing resources with the static get method", "Lookups that run during preview", "Filtering by tags and most_recent", "Error handling when a lookup finds nothing"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python", "AWS CLI"],
+          "lab_task": "Use aws.ec2.getAmiOutput to find the latest Amazon Linux AMI owned by amazon and launch a t3.micro instance from it. Export the AMI ID and the account ID from aws.getCallerIdentityOutput. Then use aws.ec2.Vpc.get to read the default VPC by ID without managing it, and change the AMI filter to a nonexistent name to record the lookup error.",
+          "deliverable": "Program using three lookups and a note on get versus resource creation",
+          "checks": [["Run pulumi up", "The instance uses the AMI ID exported by the stack", "Stack output and EC2 console"], ["Use a filter that matches no AMI", "Preview fails with an error that the query returned no results", "Error output"], ["Run pulumi destroy after using Vpc.get", "The default VPC is not deleted because it was only read", "Destroy output and AWS CLI"]],
+          "objectives": ["Look up existing cloud data with provider functions", "Choose between direct and output-form invokes", "Read resources without managing them"]
+        },
+        {
+          "topic": "Explicit Provider Instances for Regions and Accounts",
+          "subtopics": ["The default provider and its config keys", "new aws.Provider with region and profile", "Passing provider in resource options", "providers map for components", "assumeRole for cross-account deployment", "Disabling default providers with pulumi:disable-default-providers", "Provider version pinning and the version option", "Replacements caused by changing provider settings"],
+          "tools": ["Pulumi CLI", "@pulumi/aws", "AWS IAM"],
+          "lab_task": "Create providers for us-east-1 and eu-west-1 and deploy one S3 bucket in each by passing provider in resource options. Add pulumi:disable-default-providers [\"aws\"] to stack config and preview a resource without a provider to record the error. Finally, add a provider that uses assumeRole into a second sandbox account and deploy one bucket there.",
+          "deliverable": "Multi-region program and the error output for the disabled default provider",
+          "checks": [["Run aws s3api get-bucket-location for each bucket", "One returns null or us-east-1 and the other eu-west-1", "AWS CLI output"], ["Preview a resource with no provider after disabling defaults", "Preview fails stating the default provider for aws has been disabled", "Error output"], ["Deploy through the assumeRole provider", "aws sts get-caller-identity in that account shows the bucket owner account differs from the first", "AWS CLI output"]],
+          "objectives": ["Deploy to multiple regions and accounts in one program", "Force explicit providers for safety", "Configure cross-account roles"]
+        },
+        {
+          "topic": "Pulumi Cloud Backend: Organizations, Stacks and Update History",
+          "subtopics": ["Individual accounts and organizations", "Projects and stacks in the console", "Update timelines, logs and resource graphs", "Access tokens and PULUMI_ACCESS_TOKEN", "pulumi whoami -v", "Stack permissions at a high level", "Resource search across stacks", "Moving a stack between organizations with pulumi stack rename"],
+          "tools": ["Pulumi Cloud", "Pulumi CLI"],
+          "lab_task": "Run pulumi whoami -v to show the backend URL and user, create a personal access token in the Pulumi Cloud console and use it in a fresh shell through PULUMI_ACCESS_TOKEN. Open the latest update in the console, find its resource changes and diagnostics, then use resource search to list all aws:s3 resources across your stacks and record the count.",
+          "deliverable": "Console tour notes with screenshots of an update and a resource search",
+          "checks": [["Run pulumi whoami -v", "The user, organization list and https://api.pulumi.com backend are shown", "CLI output"], ["Run pulumi stack ls with an invalid PULUMI_ACCESS_TOKEN", "The CLI reports 401 Unauthorized or an invalid access token", "Error output"], ["Search for S3 resources in the console", "The count matches the S3 resources across your stacks", "Console screenshot"]],
+          "objectives": ["Use Pulumi Cloud to inspect updates and resources", "Authenticate with access tokens", "Find resources across stacks"]
+        },
+        {
+          "topic": "Reading Pulumi Diffs and Replacement Plans",
+          "subtopics": ["Update in place versus replacement", "Create-before-replace as the default", "Properties marked [diff: ~prop] and replace reasons", "Detailed diffs with --diff", "pulumi preview --json for machine-readable plans", "Dependent resources that cascade replacements", "replaceOnChanges to force replacement", "pulumi up --replace <urn> for targeted replacement"],
+          "tools": ["Pulumi CLI", "jq"],
+          "lab_task": "Change an EC2 instance's tags, then its instance type, then its AMI, previewing after each. Record which changes update in place and which replace. Run pulumi preview --json | jq to count steps by op. Finally run pulumi up --replace on a queue URN and confirm a new physical ID with pulumi stack --show-ids.",
+          "deliverable": "Diff analysis table of change, operation and reason",
+          "checks": [["Preview after changing only tags", "The instance shows ~ update", "Preview output"], ["Preview after changing the AMI", "The instance shows +- replace with ami listed as the reason", "Preview diff"], ["Run pulumi up --replace on the queue URN", "The queue's ID differs before and after the update", "Stack IDs before and after"]],
+          "objectives": ["Distinguish updates from replacements", "Parse plans with --json", "Force a targeted replacement"]
+        },
+        {
+          "topic": "Loops, Conditionals and Helper Functions in Pulumi Programs",
+          "subtopics": ["Creating resources in for loops with unique logical names", "Conditionals driven by stack config", "Helper functions that return resources", "Mapping over config lists and objects", "Avoiding loops over Output values", "Stable logical names for list items", "Sharing code through local modules", "When to promote a helper to a component"],
+          "tools": ["TypeScript", "Python", "Pulumi CLI"],
+          "lab_task": "Read a config list of team names and, in a loop, create one S3 bucket and one IAM user per team with logical names built from the team name. Create a CloudWatch alarm only when enableAlarms is true. Preview, then remove a team from the middle of the list and confirm only that team's resources are planned for deletion.",
+          "deliverable": "Program with loop and condition plus a preview proving stable names",
+          "checks": [["Preview with three teams", "6 resources are planned plus the stack", "Preview output"], ["Remove the middle team and preview", "Only 2 resources for that team show - delete", "Preview output"], ["Set enableAlarms to false", "No CloudWatch alarm appears in the plan", "Preview output"]],
+          "objectives": ["Use loops and conditionals safely", "Keep logical names stable", "Factor shared logic into helpers"]
+        },
+        {
+          "topic": "Go, C# and YAML Pulumi Programs Compared",
+          "subtopics": ["pulumi.Run and ctx.Export in Go", "Error handling with returned err in Go", "Deployment.RunAsync and Output in C#", "Pulumi YAML resources, variables and outputs sections", "Interpolation with ${resource.property} and fn::invoke", "Java support at a glance", "Choosing a language for a team", "pulumi convert --from yaml to generate other languages"],
+          "tools": ["Go", ".NET SDK", "Pulumi YAML", "Pulumi CLI"],
+          "lab_task": "Write the same S3 bucket plus bucket policy in Pulumi YAML, then run pulumi convert --from yaml --language go --out ./go and --language csharp --out ./cs. Run pulumi preview in each generated project and confirm the plans match. Record the lines of code per language and one idiom each language uses for outputs.",
+          "deliverable": "YAML, Go and C# projects with a comparison table",
+          "checks": [["Run pulumi preview in the YAML project", "2 resources plus the stack are planned", "Preview output"], ["Run pulumi convert to Go", "A main.go containing pulumi.Run is generated", "Generated file"], ["Preview the generated C# project", "The same resource types and count are planned as in YAML", "Preview output"]],
+          "objectives": ["Read Pulumi programs in Go, C# and YAML", "Convert YAML programs to other languages", "Advise on language choice"]
+        },
+        {
+          "topic": "Debugging Failed Pulumi Updates",
+          "subtopics": ["Reading the diagnostics section of pulumi up", "Provider errors such as AccessDenied and InvalidParameter", "Partial updates and what state records", "pulumi up --debug and -v=9 --logtostderr", "Language host errors: stack traces in TypeScript and Python", "Plugin and version mismatch errors", "pulumi refresh after a failed update", "Using pulumi about when asking for help"],
+          "tools": ["Pulumi CLI", "AWS CLI", "Pulumi Cloud"],
+          "lab_task": "Cause three failures: an S3 bucket name that already exists globally, an IAM policy with invalid JSON and a Python program that raises an exception. For each, run pulumi up, record the error text and how many resources were created, fix the cause, and rerun to success. Capture a verbose log with -v=9 --logtostderr for the IAM error.",
+          "deliverable": "Troubleshooting log of three failures with cause, error and fix",
+          "checks": [["Use a bucket name already taken", "The error contains BucketAlreadyExists", "Update diagnostics"], ["Submit invalid policy JSON", "The error contains MalformedPolicyDocument", "Update diagnostics"], ["Raise an exception in the Python program", "The update fails with the Python traceback and no resources are created", "Update output"]],
+          "objectives": ["Read Pulumi diagnostics", "Recover from partial updates", "Collect verbose logs"]
+        },
+        {
+          "topic": "Beginner Capstone: Static Website and Serverless API Stack",
+          "subtopics": ["S3 bucket with website hosting and CloudFront distribution", "Lambda function and API Gateway HTTP API", "Config and an encrypted secret for an API key", "dev and prod stacks with different settings", "Exported URLs and a smoke-test script", "Clean destroy and a short written review"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python", "Pulumi Cloud", "AWS CLI", "curl"],
+          "lab_task": "Build a project in TypeScript or Python that deploys an S3 site behind CloudFront and a Lambda behind an HTTP API, with the API key stored via pulumi config set --secret. Create dev and prod stacks with different memory sizes, export siteUrl and apiUrl, write a curl smoke test, show a preview with no changes after deploy, then destroy dev.",
+          "deliverable": "Repository with the program, both stack files, smoke-test script and a 1-page review",
+          "checks": [["Run the smoke test against apiUrl", "curl returns HTTP 200 and the expected JSON body", "Test output"], ["Run pulumi preview after a successful up", "The summary reports all resources unchanged", "Preview output"], ["Inspect Pulumi.prod.yaml", "The API key appears only as a secure: value", "Config file"]],
+          "objectives": ["Combine beginner skills in one deployable stack", "Manage two environments from one project", "Prove the stack works and is repeatable"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run Pulumi stacks in TypeScript or Python and now need to share, secure and govern them across a team. Covers component resources and packaging, stack references, self-managed S3 state with KMS secrets providers, state export, import and repair, Pulumi ESC environments with OIDC credentials, the Kubernetes provider with manifests, Helm and an EKS cluster, unit tests with mocks, property tests through policy packs, CrossGuard policies, CI pipelines, importing existing resources, converting Terraform HCL, refactoring with aliases, transforms, drift detection with refresh, and a multi-stack platform capstone.",
+      "prerequisites": ["Completed the beginner level or has deployed and maintained several Pulumi stacks with config, secrets and outputs", "Comfortable with TypeScript classes and async code or Python classes, plus npm or pip packaging", "Has access to an AWS sandbox account with rights to create EKS, IAM, KMS and S3 resources, kubectl and Helm installed, and a GitHub repository for CI exercises"],
+      "outcomes": ["Build, test and publish reusable component resources and connect stacks through stack references", "Operate Pulumi state on Pulumi Cloud or S3, repair it safely and manage credentials with Pulumi ESC", "Deploy Kubernetes workloads and an EKS cluster with the Pulumi Kubernetes provider", "Enforce standards with unit tests, CrossGuard policy packs and CI previews, and bring existing or Terraform-managed infrastructure under Pulumi"],
+      "days": [
+        {
+          "topic": "Authoring ComponentResource Classes",
+          "subtopics": ["Why components: grouping resources into one logical unit", "Extending pulumi.ComponentResource with a type token like acme:storage:SecureBucket", "Constructor arguments, an args interface and validation", "Passing { parent: this } to child resources", "registerOutputs and register_outputs", "Exposing outputs as public properties", "Component URNs and how children nest in the tree", "Forwarding providers and options to children"],
+          "tools": ["TypeScript", "Python", "Pulumi CLI"],
+          "lab_task": "Write a SecureBucket component in TypeScript and Python that creates an S3 bucket, public access block, server-side encryption config and a versioning setting, all with parent: this. Expose bucketName and arn, call registerOutputs, instantiate it twice and run pulumi up. Then remove parent: this from one child and preview to see the URN change.",
+          "deliverable": "SecureBucket component in both languages and a resource tree screenshot",
+          "checks": [["Run pulumi stack --show-urns", "Child URNs include the component type before the child type", "Stack output"], ["Pass an empty name argument and enforce validation", "The program throws the component's own validation error before any resource is created", "Preview output"], ["Remove parent: this from one child and preview", "That child shows a delete and create because its URN changed", "Preview output"]],
+          "objectives": ["Write component resources that group related resources", "Parent child resources correctly", "Expose a clean output interface"]
+        },
+        {
+          "topic": "Packaging and Versioning Pulumi Components",
+          "subtopics": ["Local packages, npm packages and Python wheels", "Semantic versioning for infrastructure libraries", "Peer dependencies on @pulumi/pulumi and providers", "Private registries such as GitHub Packages or CodeArtifact", "Pulumi Cloud private registry for components", "README, examples and changelog conventions", "Breaking changes that cause replacements", "Pinning component versions per stack"],
+          "tools": ["npm", "uv", "GitHub Packages", "Pulumi Cloud", "TypeScript", "Python"],
+          "lab_task": "Move SecureBucket into its own repository, publish version 1.0.0 to a private npm registry and a Python wheel to a private index, and consume each from a separate stack. Release 1.1.0 that adds a lifecycle rule, upgrade one stack and preview to confirm only additions. Then release 2.0.0 that renames a child and record the replacement it would cause.",
+          "deliverable": "Component repository with changelog and preview evidence for each version",
+          "checks": [["Install 1.0.0 in a consumer stack and preview", "The plan matches the original local component", "Preview output"], ["Upgrade to 1.1.0 and preview", "Only + create steps for the lifecycle rule appear", "Preview output"], ["Upgrade to 2.0.0 and preview", "The renamed child shows a replacement, documented as breaking in the changelog", "Preview output and CHANGELOG"]],
+          "objectives": ["Publish components to private registries", "Version infrastructure libraries with semver", "Detect breaking changes before release"]
+        },
+        {
+          "topic": "Stack References Between Network, Data and App Stacks",
+          "subtopics": ["Splitting by lifecycle and ownership", "new pulumi.StackReference(\"org/network/dev\")", "getOutput, requireOutput and getOutputDetails", "Secret outputs across references", "Using pulumi.getStack() to pick the matching environment", "Read permissions needed on the referenced stack", "Circular reference risks", "Output contracts and versioning them"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "TypeScript", "Python"],
+          "lab_task": "Create three projects: network exports vpcId and privateSubnetIds, data creates an RDS PostgreSQL instance in those subnets and exports a secret connection string, and app reads both through StackReference built from pulumi.getStack(). Deploy dev for all three, then call requireOutput on a missing name and record the error.",
+          "deliverable": "Three-project repository with a dependency diagram and deploy order",
+          "checks": [["Run pulumi preview in app", "The app resources receive the VPC and subnet IDs from network", "Preview output"], ["Call requireOutput(\"missing\")", "The program fails stating the required stack output was not found", "Error output"], ["Export the connection string from app as plain text by mistake and check stack output", "It still shows [secret] because secretness propagates", "CLI output"]],
+          "objectives": ["Split infrastructure into cooperating stacks", "Pass outputs safely across stacks", "Define output contracts"]
+        },
+        {
+          "topic": "Self-Managed State on S3 with KMS Secrets Providers",
+          "subtopics": ["DIY backends: local, s3://, azblob://, gs:// and postgres", "pulumi login s3://bucket?region=... and the .pulumi folder layout", "Bucket versioning, encryption and access policies for state", "Secrets providers: passphrase, awskms://, azurekeyvault://, gcpkms://, hashivault://", "pulumi stack init --secrets-provider", "pulumi stack change-secrets-provider", "Locking behaviour on DIY backends", "Trade-offs versus Pulumi Cloud"],
+          "tools": ["Pulumi CLI", "Amazon S3", "AWS KMS", "AWS CLI"],
+          "lab_task": "Create a versioned, encrypted S3 bucket and a KMS key, run pulumi login s3://<bucket>?region=<region>, and init a stack with --secrets-provider awskms://alias/pulumi-state. Deploy a small program with a secret, list .pulumi/stacks/ with aws s3 ls --recursive, then switch to a passphrase provider with pulumi stack change-secrets-provider passphrase and back again.",
+          "deliverable": "Backend runbook with bucket policy, KMS key policy and stack listing",
+          "checks": [["Run aws s3 ls --recursive on the state bucket", "A stack checkpoint under .pulumi/stacks/<project>/ is listed", "AWS CLI output"], ["Remove kms:Decrypt from your role and run pulumi preview", "Preview fails with an AccessDeniedException from KMS while decrypting secrets", "Error output"], ["Run pulumi stack change-secrets-provider", "The stack config shows a new encryptionsalt or secretsprovider value and preview still succeeds", "Config file and preview"]],
+          "objectives": ["Run Pulumi with a self-managed S3 backend", "Choose and change secrets providers", "Secure state storage"]
+        },
+        {
+          "topic": "State Surgery with pulumi stack export, import and state Commands",
+          "subtopics": ["When state needs repair", "pulumi stack export --file and the deployment JSON schema", "pulumi stack import and its validation", "pulumi state delete <urn> and --target-dependents", "pulumi state rename and pulumi state move between stacks", "pulumi state unprotect", "Backups before every manual change", "Pending operations and how they appear"],
+          "tools": ["Pulumi CLI", "jq"],
+          "lab_task": "Export dev state to a backup file, then use pulumi state delete to forget an SQS queue, run pulumi preview and see it planned for creation. Re-adopt it with pulumi import, then use pulumi state move to move a bucket from dev to a new stack named shared and preview both stacks to confirm 0 changes. Keep every export for rollback.",
+          "deliverable": "State repair runbook with before and after exports and preview results",
+          "checks": [["Preview after pulumi state delete on the queue", "The queue shows + create", "Preview output"], ["Run pulumi state delete on a resource with dependents", "The CLI refuses and names the dependents unless --target-dependents is passed", "Error output"], ["Preview both stacks after pulumi state move", "Both report no changes", "Preview output"]],
+          "objectives": ["Back up and restore stack state", "Remove, rename and move resources in state", "Repair state without touching cloud resources"]
+        },
+        {
+          "topic": "Pulumi ESC Environments and OIDC Cloud Credentials",
+          "subtopics": ["What Pulumi ESC provides: environments of config and secrets", "Environment YAML: values, pulumiConfig and environmentVariables", "fn::open::aws-login with oidc and roleArn", "Trust policy for the Pulumi Cloud OIDC provider", "esc env init, edit, get and open", "Referencing environments from Pulumi.<stack>.yaml with environment:", "pulumi env commands as an alias for esc", "Short-lived credentials versus static keys"],
+          "tools": ["Pulumi ESC", "esc CLI", "AWS IAM", "Pulumi Cloud"],
+          "lab_task": "Create an IAM OIDC provider for api.pulumi.com/oidc and a role trusting your organization. Create an ESC environment with esc env init <org>/aws/dev containing fn::open::aws-login with oidc and roleArn, map the credentials into environmentVariables and pulumiConfig aws:region. Add environment: [aws/dev] to Pulumi.dev.yaml, unset local AWS keys and run pulumi preview.",
+          "deliverable": "ESC environment definition, IAM trust policy and a credential-free preview",
+          "checks": [["Run esc env open <org>/aws/dev", "Temporary AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN values are returned", "CLI output with values redacted"], ["Run pulumi preview with no local AWS credentials", "Preview succeeds using the ESC credentials", "Preview output"], ["Change the trust policy audience to a wrong value", "esc env open fails with AccessDenied from sts:AssumeRoleWithWebIdentity", "Error output"]],
+          "objectives": ["Define ESC environments", "Replace static cloud keys with OIDC", "Attach environments to stacks"]
+        },
+        {
+          "topic": "Pulumi ESC Imports, Secret Stores and esc run",
+          "subtopics": ["Composing environments with imports", "Override order when imports overlap", "fn::secret for inline secrets", "fn::open::aws-secrets and other secret store integrations", "Interpolation with ${path} inside an environment", "esc run to inject variables into any command", "Environment versions, tags and rollback", "Access control on environments"],
+          "tools": ["Pulumi ESC", "esc CLI", "AWS Secrets Manager", "Pulumi Cloud"],
+          "lab_task": "Create a base environment with shared tags and region, and app/dev that imports base and aws/dev, pulls a database password from AWS Secrets Manager with fn::open::aws-secrets and overrides region. Run esc env get app/dev to show the resolved region, run esc run app/dev -- aws sts get-caller-identity, then tag the version and roll back after a bad edit.",
+          "deliverable": "Environment hierarchy diagram, YAML files and version history",
+          "checks": [["Run esc env get <org>/app/dev region", "The overriding value from app/dev is returned, not the base value", "CLI output"], ["Run esc run <org>/app/dev -- aws sts get-caller-identity", "The ARN of the assumed OIDC role is printed", "CLI output"], ["Open an earlier tagged version after a bad edit", "The previous values are returned from that version", "Version history"]],
+          "objectives": ["Compose layered environments", "Pull secrets from external stores", "Use ESC credentials outside Pulumi programs"]
+        },
+        {
+          "topic": "Pulumi Kubernetes Provider: Manifests, Namespaces and Server-Side Apply",
+          "subtopics": ["@pulumi/kubernetes and pulumi_kubernetes packages", "Explicit k8s.Provider with kubeconfig and namespace", "Typed resources: apps.v1.Deployment and core.v1.Service", "Server-side apply and field managers", "Await logic and readiness for Deployments and Services", "skipAwait and pulumi.com/skipAwait annotation", "k8s.yaml.v2.ConfigFile and ConfigGroup", "Patch resources such as DeploymentPatch"],
+          "tools": ["Pulumi CLI", "@pulumi/kubernetes", "kubectl", "kind"],
+          "lab_task": "Start a kind cluster, create a k8s.Provider from its kubeconfig and deploy a namespace, a Deployment with 3 replicas and a Service with typed resources. Then load an existing YAML manifest with k8s.yaml.v2.ConfigFile. Break the container image tag and run pulumi up to observe the await timeout, then fix it and confirm readiness with kubectl.",
+          "deliverable": "Kubernetes program, a kubectl get all output and the await failure log",
+          "checks": [["Run kubectl get deploy -n app", "READY shows 3/3", "kubectl output"], ["Deploy a nonexistent image tag", "The update waits and then fails reporting the Deployment did not become ready with ImagePullBackOff", "Update diagnostics"], ["Run kubectl get deploy -o yaml", "managedFields lists a manager for Pulumi from server-side apply", "kubectl output"]],
+          "objectives": ["Manage Kubernetes objects with the Pulumi provider", "Understand await behaviour", "Reuse existing YAML manifests"]
+        },
+        {
+          "topic": "Helm Releases and Charts with Pulumi Kubernetes",
+          "subtopics": ["k8s.helm.v3.Release versus k8s.helm.v4.Chart", "Values, valueYamlFiles and repositoryOpts", "Release status outputs", "Chart rendering into individual Pulumi resources", "Transforms to adjust chart resources", "Version pinning for charts", "Upgrades and rollbacks through pulumi up", "Choosing between Helm releases and rendered charts"],
+          "tools": ["@pulumi/kubernetes", "Helm", "kubectl", "kind"],
+          "lab_task": "Install ingress-nginx with k8s.helm.v3.Release pinned to a chart version and replicaCount 2, and install the same chart into a second namespace with k8s.helm.v4.Chart. Compare how each appears in pulumi stack --show-urns, run helm list -A, upgrade the release's replicaCount to 3 and confirm the update count.",
+          "deliverable": "Comparison note of Release versus Chart with URN listings and helm list output",
+          "checks": [["Run helm list -A", "Only the v3 Release appears as a Helm release", "helm output"], ["Count resources for the v4 Chart in pulumi stack", "Each rendered Kubernetes object appears as its own Pulumi resource", "Stack listing"], ["Change replicaCount to 3 and run pulumi up", "One ~ update on the Release and 3 controller pods running", "Update output and kubectl"]],
+          "objectives": ["Deploy Helm charts from Pulumi", "Choose between Release and Chart", "Upgrade charts through Pulumi"]
+        },
+        {
+          "topic": "Building an Amazon EKS Cluster with Pulumi",
+          "subtopics": ["@pulumi/eks Cluster component", "Managed node groups and instance types", "VPC integration through a stack reference", "Access entries and authentication mode", "Exporting kubeconfig as a secret", "Passing the cluster provider to workloads", "Add-ons such as CoreDNS and the VPC CNI", "Cost-aware teardown"],
+          "tools": ["@pulumi/eks", "@pulumi/kubernetes", "AWS EKS", "kubectl"],
+          "lab_task": "Use @pulumi/eks to create a cluster in the private subnets from the network stack, with one managed node group of 2 t3.medium nodes. Export kubeconfig as a secret, create a k8s.Provider from cluster.kubeconfig and deploy a sample Deployment. Use pulumi stack output kubeconfig --show-secrets > kubeconfig.json and run kubectl get nodes.",
+          "deliverable": "EKS stack, kubeconfig handling note and kubectl output",
+          "checks": [["Run kubectl get nodes with the exported kubeconfig", "2 nodes show STATUS Ready", "kubectl output"], ["Run pulumi stack output kubeconfig", "The value prints [secret]", "CLI output"], ["Run pulumi destroy", "The workload is deleted before the cluster and the update completes without dependency errors", "Destroy output"]],
+          "objectives": ["Provision EKS with Pulumi components", "Chain cluster and workload providers", "Handle kubeconfig as a secret"]
+        },
+        {
+          "topic": "Unit Testing Pulumi Programs with Mocks",
+          "subtopics": ["Why mock-based tests run without a cloud", "pulumi.runtime.setMocks with newResource and call", "pulumi.runtime.set_mocks in Python", "Importing the program after mocks are set", "Resolving outputs in tests with promises or apply", "Mocha or Jest for TypeScript and pytest for Python", "Mocking provider function results", "What unit tests cannot catch"],
+          "tools": ["Mocha", "Jest", "pytest", "TypeScript", "Python"],
+          "lab_task": "Write unit tests for SecureBucket with pulumi.runtime.setMocks in TypeScript and set_mocks in Python. Assert that encryption uses aws:kms, that versioning is enabled and that the public access block sets all four flags to true. Mock aws.getCallerIdentity in call. Run the suites, break one rule in the component and confirm the matching test fails.",
+          "deliverable": "Test suites in both languages with passing and failing runs",
+          "checks": [["Run npm test", "All SecureBucket tests pass in under 10 seconds with no cloud credentials", "Test output"], ["Disable versioning in the component and run pytest", "Exactly one test fails naming the versioning assertion", "pytest output"], ["Import the program before calling setMocks", "Tests fail or call real providers, showing the import order matters", "Test output"]],
+          "objectives": ["Write mock-based unit tests", "Assert resource properties from outputs", "Explain the limits of unit tests"]
+        },
+        {
+          "topic": "Property Tests with Policy Packs at Preview Time",
+          "subtopics": ["Property testing in Pulumi terms: checks on the full resource graph", "Running a local policy pack with pulumi preview --policy-pack", "validateResource versus validateStack", "Checks that need real property values from the engine", "Policy config with --policy-pack-config", "Combining unit tests and property tests", "Failing CI on mandatory violations", "Reading policy violation output"],
+          "tools": ["Pulumi CLI", "@pulumi/policy", "pulumi_policy", "TypeScript"],
+          "lab_task": "Write a local policy pack that asserts every aws:ec2/instance:Instance has an Owner tag and every security group blocks 0.0.0.0/0 on port 22, plus a validateStack check that no more than 5 instances exist. Run pulumi preview --policy-pack ./policy against a program that breaks each rule, record the violations, fix the program and rerun.",
+          "deliverable": "Policy pack source and before and after preview outputs",
+          "checks": [["Run preview with an instance missing the Owner tag", "A mandatory violation names the instance URN and the policy", "Preview output"], ["Run preview with 6 instances", "The stack policy reports a violation and the preview exits non-zero", "Preview output and exit code"], ["Run preview after fixes", "Policy Violations section is absent and the exit code is 0", "Preview output"]],
+          "objectives": ["Test properties of the whole resource graph", "Run policy packs locally", "Distinguish resource and stack validations"]
+        },
+        {
+          "topic": "CrossGuard Policy Packs in TypeScript and Python",
+          "subtopics": ["pulumi policy new aws-typescript and aws-python", "PolicyPack, ResourceValidationPolicy and StackValidationPolicy", "validateResourceOfType for typed checks", "Enforcement levels: advisory, mandatory and disabled", "Remediation policies that fix inputs", "Policy configuration schemas", "pulumi policy publish and enable", "Pulumi-maintained compliance policy packs"],
+          "tools": ["Pulumi CrossGuard", "Pulumi CLI", "@pulumi/policy", "pulumi_policy", "Pulumi Cloud"],
+          "lab_task": "Create a policy pack with pulumi policy new aws-python containing an advisory rule for cost tags, a mandatory rule blocking unencrypted RDS instances and a remediation that sets S3 public access block flags. Add a config schema for allowed instance types, publish it with pulumi policy publish <org>, enable it for a stack group and run pulumi up on a violating stack.",
+          "deliverable": "Published policy pack, its version in Pulumi Cloud and violation output",
+          "checks": [["Run pulumi up with an unencrypted RDS instance", "The update is blocked with a mandatory violation", "Update output"], ["Run pulumi up with a missing cost tag only", "An advisory warning is shown and the update proceeds", "Update output"], ["Inspect the bucket after remediation", "All four public access block flags are true without changing the program", "AWS CLI output"]],
+          "objectives": ["Author CrossGuard policy packs", "Choose enforcement levels", "Publish and enable policies for an organization"]
+        },
+        {
+          "topic": "Pulumi in GitHub Actions Pipelines",
+          "subtopics": ["pulumi/actions with command preview and up", "Comment previews on pull requests", "OIDC from GitHub to Pulumi Cloud and to AWS", "Stack selection per branch", "Caching node_modules and Python environments", "Failing jobs on policy violations", "Protecting prod with environments and approvals", "--expect-no-changes as a post-deploy check"],
+          "tools": ["GitHub Actions", "pulumi/actions", "Pulumi Cloud", "Pulumi ESC"],
+          "lab_task": "Create a workflow that runs unit tests and pulumi preview on pull requests with comment-on-pr: true, and pulumi up on merge to main for dev. Authenticate to Pulumi Cloud and AWS with OIDC, not stored keys. Add a prod job gated by a GitHub environment approval, and after each up run pulumi preview --expect-no-changes.",
+          "deliverable": "Workflow YAML, a PR with a preview comment and a successful deploy run",
+          "checks": [["Open a pull request", "A bot comment contains the preview summary", "PR screenshot"], ["Inspect repository secrets", "No AWS access key or Pulumi access token is stored", "Secrets settings screenshot"], ["Run pulumi preview --expect-no-changes after deploy", "The step exits 0", "Workflow log"]],
+          "objectives": ["Automate Pulumi previews and updates in CI", "Use OIDC instead of static secrets", "Gate production deployments"]
+        },
+        {
+          "topic": "Importing Existing Cloud Resources with pulumi import",
+          "subtopics": ["pulumi import <type> <name> <id> and generated code", "Bulk imports with --file and the JSON format", "The import resource option for code-first imports", "Protect is set on imported resources by default", "Finding resource IDs per type", "Reconciling generated code with real properties", "Parent and provider in import files", "Verifying a clean preview after import"],
+          "tools": ["Pulumi CLI", "AWS CLI"],
+          "lab_task": "Create a VPC, two subnets and a security group by hand with the AWS CLI. Import the VPC with pulumi import aws:ec2/vpc:Vpc main <vpc-id>, then import the rest with an import.json and --file. Paste the generated code into the program, run pulumi preview and adjust until it shows no changes. Record how many properties you had to change.",
+          "deliverable": "Import file, generated code and a clean preview",
+          "checks": [["Run pulumi import for the VPC", "The CLI prints generated code and the resource is marked protect", "CLI output"], ["Use an ID that does not exist", "The import fails stating the resource does not exist", "Error output"], ["Run pulumi preview after pasting code", "All imported resources show unchanged", "Preview output"]],
+          "objectives": ["Adopt existing resources into Pulumi", "Run bulk imports", "Prove a clean adoption"]
+        },
+        {
+          "topic": "Converting Terraform HCL to Pulumi with pulumi convert",
+          "subtopics": ["pulumi convert --from terraform --language typescript or python", "What converts: resources, variables, locals, outputs and modules", "Variables becoming config and outputs becoming exports", "Unsupported functions and TODO comments", "Provider mapping for bridged providers", "Reviewing generated names and auto-naming differences", "Converting modules into components", "Testing converted code before migrating state"],
+          "tools": ["Pulumi CLI", "Terraform", "TypeScript", "Python"],
+          "lab_task": "Take a supplied Terraform configuration with a VPC module, an S3 bucket, variables and outputs. Run pulumi convert --from terraform --language typescript --out ./ts and --language python --out ./py. Fix every TODO and compile error, set config for the converted variables and run pulumi preview against a new stack. Record how many resources match the Terraform plan count.",
+          "deliverable": "Converted projects, a list of manual fixes and a resource count comparison",
+          "checks": [["Run pulumi convert", "A Pulumi.yaml and program are generated, with variables listed as config", "Generated files"], ["Run npx tsc --noEmit on the TypeScript output", "No compile errors remain after fixes", "Compiler output"], ["Compare pulumi preview with terraform plan", "The number of planned resources is the same", "Both plan summaries"]],
+          "objectives": ["Convert Terraform HCL to Pulumi programs", "Fix gaps left by conversion", "Validate converted code before adoption"]
+        },
+        {
+          "topic": "Refactoring Pulumi Code with Aliases",
+          "subtopics": ["Why refactors change URNs", "aliases resource option with name, parent, type and stack", "Moving a resource into a component", "Renaming a component type token", "Removing aliases once all stacks have updated", "Preview as proof of a safe refactor", "pulumi state move as an alternative", "Documenting refactors for other stack owners"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python"],
+          "lab_task": "Take a program with a loose bucket and policy, move both into a new StaticSite component and preview to see the planned replacements. Add aliases: [{ parent: pulumi.rootStackResource }] to each child, preview again to confirm 0 replacements, then rename the component type token and add a type alias. Apply to dev and staging, then remove the aliases.",
+          "deliverable": "Refactor pull request with previews before and after aliases",
+          "checks": [["Preview after moving into the component without aliases", "Both resources show replace or delete and create", "Preview output"], ["Preview with aliases", "Both resources show unchanged and the summary has 0 to replace", "Preview output"], ["Remove aliases after all stacks updated and preview", "No changes are reported", "Preview output"]],
+          "objectives": ["Refactor without replacing resources", "Use aliases for names, parents and types", "Retire aliases safely"]
+        },
+        {
+          "topic": "Transforms, Default Tags and Stack-Wide Conventions",
+          "subtopics": ["pulumi.runtime.registerResourceTransform", "transforms resource option on components", "Python register_resource_transform", "Adding tags to every taggable resource", "defaultTags on the AWS provider", "Naming conventions via transforms", "Transforms on Kubernetes charts", "Ordering and testing transforms"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python", "@pulumi/aws"],
+          "lab_task": "Add a stack-level transform that adds CostCenter and Stack tags to every resource that has a tags input, and compare it with setting defaultTags on an explicit AWS provider. Add a component transform that forces deleteBeforeReplace on a child. Write a unit test with mocks that asserts every mocked resource with tags has CostCenter.",
+          "deliverable": "Transform code, comparison note and a passing test",
+          "checks": [["Run pulumi preview --diff after adding the transform", "Each taggable resource shows the new tags as additions", "Preview diff"], ["Run the unit test", "It passes and counts every tagged resource", "Test output"], ["Inspect a resource with no tags input", "It is unchanged and the transform did not raise an error", "Preview output"]],
+          "objectives": ["Apply conventions across a stack with transforms", "Compare transforms with provider default tags", "Test cross-cutting conventions"]
+        },
+        {
+          "topic": "Drift Detection with pulumi refresh and --expect-no-changes",
+          "subtopics": ["What drift is: cloud state that differs from Pulumi state or code", "pulumi refresh --preview-only to see drift without writing state", "pulumi preview --refresh", "--expect-no-changes and its non-zero exit", "Resolving drift: accept into code or revert with up", "ignoreChanges for intended external changes", "Scheduling drift checks in CI", "Reporting drift to owners"],
+          "tools": ["Pulumi CLI", "GitHub Actions", "AWS Console"],
+          "lab_task": "Deploy a security group and bucket, then add an ingress rule and change bucket tags in the AWS Console. Run pulumi refresh --preview-only to list drift, then pulumi preview --refresh --expect-no-changes and record the exit code. Revert the rule with pulumi up --refresh and accept the tag change into code. Add a nightly GitHub Actions job that runs the same check.",
+          "deliverable": "Drift report, resolution decisions and the scheduled workflow",
+          "checks": [["Run pulumi refresh --preview-only", "The security group and bucket show ~ update with the changed fields", "Refresh preview"], ["Run pulumi preview --refresh --expect-no-changes", "The command exits non-zero stating changes were proposed when none were expected", "Exit code and output"], ["Run the check after resolving drift", "It exits 0", "Workflow log"]],
+          "objectives": ["Detect drift from the CLI", "Choose how to resolve each drift", "Schedule drift checks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Stack Platform Project on EKS",
+          "subtopics": ["Network, cluster and app stacks linked by stack references", "Components published as a versioned package", "ESC environments with OIDC for every stack", "Unit tests and a CrossGuard pack in CI", "Helm-based ingress and an application deployment", "Imported legacy bucket and a drift check"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "Pulumi ESC", "Pulumi CrossGuard", "@pulumi/eks", "GitHub Actions"],
+          "lab_task": "Deliver a network stack, an EKS cluster stack and an app stack linked by stack references, built from a versioned component package. Use ESC with OIDC for credentials, ingress-nginx via Helm, an imported legacy S3 bucket, unit tests and a mandatory policy pack in GitHub Actions, and a nightly drift job. Demonstrate a PR preview and a merge deploy.",
+          "deliverable": "Repository, architecture diagram, CI runs and a 10-minute demo",
+          "checks": [["Open a PR that adds an unencrypted bucket", "CI fails on the mandatory policy violation", "Workflow log"], ["Run curl against the ingress host", "HTTP 200 from the app", "curl output"], ["Run the drift job after deploy", "It exits 0 for all three stacks", "Workflow log"]],
+          "objectives": ["Integrate intermediate skills into a team platform", "Show governance through tests and policy", "Present the design and its trade-offs"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers and infrastructure leads who own Pulumi across many teams, accounts and clusters. Covers the Automation API in TypeScript and Python, orchestrating multi-stack rollouts, integration testing with ephemeral stacks, Pulumi Deployments with review and TTL stacks, scheduled drift detection and remediation, dynamic providers, multi-language component packages, bridging Terraform providers, large Terraform-to-Pulumi migrations, organization-wide policy enforcement, ESC at scale, the Pulumi Kubernetes Operator, multi-cluster and multi-account providers, performance of large stacks, recovery from interrupted updates, Pulumi Cloud access control and audit, advanced resource lifecycle options, provider supply-chain control, resource insights, and a self-service platform capstone.",
+      "prerequisites": ["Completed the intermediate level or has run Pulumi in production with components, stack references, CI pipelines and policy packs", "Builds services in TypeScript or Python, reads Go, and understands REST APIs, containers and Kubernetes controllers", "Has a Pulumi Cloud organization with admin rights or a trial that includes Deployments and policies, plus sandbox AWS accounts and a Kubernetes cluster"],
+      "outcomes": ["Embed Pulumi in services and orchestrate rollouts across many stacks with the Automation API and Pulumi Deployments", "Extend Pulumi with dynamic providers, multi-language components and bridged Terraform providers", "Migrate large Terraform estates and recover state safely from failures and drift", "Govern Pulumi at organization scale with policies, ESC, access control, audit logs and resource insights"],
+      "days": [
+        {
+          "topic": "Automation API: Embedding Pulumi in TypeScript and Python Services",
+          "subtopics": ["LocalWorkspace and Stack objects", "Inline programs versus local program directories", "createOrSelectStack and create_or_select_stack", "setConfig, setAllConfig and secrets", "up, preview, refresh and destroy with onOutput and onEvent", "Reading outputs from UpResult", "Workspace settings: projectSettings, envVars and workDir", "Concurrency errors such as ConcurrentUpdateError"],
+          "tools": ["Automation API", "@pulumi/pulumi/automation", "pulumi.automation", "TypeScript", "Python", "FastAPI"],
+          "lab_task": "Build a Python FastAPI service using pulumi.automation that exposes POST /sites/{name} and DELETE /sites/{name}. Each call runs an inline program creating an S3 website via create_or_select_stack, set_config for aws:region and up(on_output=print). Return the URL from the UpResult outputs. Call POST twice concurrently for one name and record the error type.",
+          "deliverable": "Service code, API transcript and the concurrency error",
+          "checks": [["POST /sites/demo", "HTTP 200 with a website URL that serves the page", "curl output"], ["Send two concurrent POSTs for the same name", "One request fails with ConcurrentUpdateError mapped to HTTP 409", "API responses"], ["DELETE /sites/demo", "The stack is destroyed and removed, and pulumi stack ls no longer lists it", "CLI output"]],
+          "objectives": ["Run Pulumi programmatically from a service", "Handle Automation API results and errors", "Design APIs around stacks"]
+        },
+        {
+          "topic": "Automation API Orchestration of Multi-Stack Rollouts",
+          "subtopics": ["Dependency graphs of stacks", "Running independent stacks in parallel", "Passing outputs between stacks in code", "Halting on failure and partial rollbacks", "Preview gates before up", "Structured events for progress reporting", "Idempotent re-runs", "Remote workspaces with RemoteWorkspace"],
+          "tools": ["Automation API", "TypeScript", "Pulumi Cloud"],
+          "lab_task": "Write a TypeScript orchestrator that previews and updates network, data and app stacks for 3 environments, running environments in parallel and stacks in dependency order. Stop an environment if a preview shows any delete on a protected type. Inject a failure in data for one environment and confirm the others finish. Emit a JSON summary with durations.",
+          "deliverable": "Orchestrator code and a rollout summary showing one failed and two successful environments",
+          "checks": [["Run the orchestrator with no changes", "All 9 stacks report 0 changes and the run is shorter than the serial total", "JSON summary"], ["Inject a failure in the data stack of one environment", "Its app stack is skipped while the other environments succeed", "JSON summary"], ["Rerun after fixing the failure", "Only the failed environment applies changes", "Run log"]],
+          "objectives": ["Orchestrate many stacks in code", "Gate updates on previews", "Handle partial failures"]
+        },
+        {
+          "topic": "Integration Testing with ProgramTest and Ephemeral Stacks",
+          "subtopics": ["Integration tests deploy real resources", "Go integration.ProgramTest and ProgramTestOptions", "ExtraRuntimeValidation for checking outputs", "EditDirs for testing updates", "Automation API test harnesses in TypeScript and Python", "Ephemeral stacks with unique names and guaranteed destroy", "Skipping refresh checks and expected diffs", "Cost and time budgets for tests"],
+          "tools": ["Go", "integration.ProgramTest", "Automation API", "pytest", "AWS"],
+          "lab_task": "Write a Go ProgramTest for the StaticSite component example that deploys, validates via ExtraRuntimeValidation that the URL returns HTTP 200, applies an EditDirs step that changes the index page and destroys. Write the same flow in pytest with the Automation API and a finally block for destroy. Record runtime and leftover resource counts.",
+          "deliverable": "Two integration suites and a runtime and cleanup report",
+          "checks": [["Run go test ./tests -run TestStaticSite", "The test passes after deploy, update and destroy", "Test output"], ["Kill the pytest run during up and run it again", "The finally block or a cleanup step leaves 0 stacks with the test prefix", "pulumi stack ls output"], ["Introduce a non-idempotent change", "ProgramTest fails because the post-update preview shows changes", "Test output"]],
+          "objectives": ["Write integration tests that deploy real stacks", "Clean up ephemeral stacks reliably", "Test updates as well as creation"]
+        },
+        {
+          "topic": "Pulumi Deployments: Git-Driven Updates, Review Stacks and TTL Stacks",
+          "subtopics": ["What Pulumi Deployments runs and where", "Deployment settings: source, operation context, OIDC", "Push-to-deploy and path filters", "Review stacks for pull requests", "TTL stacks that destroy themselves", "Triggering via the REST API and pulumi deployment run", "Managing settings as code with the pulumiservice provider", "Custom executor images and pre-run commands"],
+          "tools": ["Pulumi Deployments", "Pulumi Cloud", "@pulumi/pulumiservice", "GitHub"],
+          "lab_task": "Configure deployment settings for the app stack with the pulumiservice DeploymentSettings resource: GitHub source, path filter app/**, OIDC to AWS and pre-run npm ci. Enable review stacks for pull requests and add a TTL schedule of 4 hours to a sandbox stack. Open a PR, confirm a review stack is created, then trigger a run with pulumi deployment run update.",
+          "deliverable": "Settings program, PR with a review stack link and deployment logs",
+          "checks": [["Push a commit outside the path filter", "No deployment is triggered", "Deployments history"], ["Open a pull request", "A review stack is created and its URL is posted on the PR", "PR screenshot"], ["Wait past the TTL", "The sandbox stack is destroyed and shows 0 resources", "Stack activity"]],
+          "objectives": ["Run Pulumi updates from Pulumi Deployments", "Use review and TTL stacks", "Manage deployment settings as code"]
+        },
+        {
+          "topic": "Scheduled Drift Detection and Auto-Remediation in Pulumi Cloud",
+          "subtopics": ["Drift schedules on Deployments-enabled stacks", "Detect-only versus auto-remediate", "Cron expressions for schedules", "Drift results in the console and webhooks", "Routing drift events to Slack or a ticket system", "Preventing remediation fights with ignoreChanges", "Measuring drift frequency per stack", "Policies for which stacks may auto-remediate"],
+          "tools": ["Pulumi Deployments", "Pulumi Cloud", "Webhooks", "Slack"],
+          "lab_task": "Add an hourly drift detection schedule to dev with auto-remediation and a detect-only schedule to prod. Create an organization webhook for drift events that posts to Slack. Change a security group in both accounts by hand, wait for the next run and record which stack was fixed. Report drift counts for a week of schedules from the console.",
+          "deliverable": "Schedule settings, webhook payload samples and a drift summary",
+          "checks": [["Change a rule in dev by hand", "The next scheduled run detects and reverts it", "Deployment log"], ["Change a rule in prod by hand", "Drift is reported and the Slack message arrives but no change is applied", "Slack message and log"], ["Inspect the webhook delivery", "The payload contains the stack name and a drift event kind", "Webhook delivery log"]],
+          "objectives": ["Schedule drift checks centrally", "Decide where auto-remediation is safe", "Route drift events to owners"]
+        },
+        {
+          "topic": "Dynamic Providers for APIs Without a Pulumi Provider",
+          "subtopics": ["When to write a dynamic provider", "pulumi.dynamic.ResourceProvider with create, read, update, delete and diff", "Python ResourceProvider and CreateResult", "Serialization limits of dynamic providers", "Handling secrets inside dynamic providers", "check for input validation", "Language limits: TypeScript and Python only", "When to graduate to a full provider"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python", "REST APIs"],
+          "lab_task": "Write a dynamic provider in Python that manages a record in a supplied REST API. Implement create, read, update with a diff that replaces on key change, and delete. Use it in a stack, change a value and confirm an in-place update, change the key and confirm replacement, then delete the record outside Pulumi and run pulumi refresh.",
+          "deliverable": "Dynamic provider code and a lifecycle test log",
+          "checks": [["Change a value and run pulumi up", "The record shows ~ update and the API returns the new value", "Update output and API response"], ["Change the key and preview", "The record shows +- replace", "Preview output"], ["Delete the record via the API and run pulumi refresh", "The resource is removed from state", "Refresh output"]],
+          "objectives": ["Build dynamic providers", "Control diffs and replacements", "Know the limits of dynamic providers"]
+        },
+        {
+          "topic": "Multi-Language Component Packages with pulumi package",
+          "subtopics": ["Why multi-language components", "Writing a component provider in TypeScript or Python", "Schema inferred from component args types", "PulumiPlugin.yaml and the component provider entry point", "pulumi package add to consume from a Git source", "Generated SDKs for other languages", "Versioning with Git tags", "Publishing to the Pulumi Cloud private registry"],
+          "tools": ["Pulumi CLI", "TypeScript", "Python", "Go", "Pulumi Cloud"],
+          "lab_task": "Turn SecureBucket into a multi-language component package authored in TypeScript. Tag a release in Git, then from new Python, Go and YAML projects run pulumi package add <repo>@<tag> and use the component. Preview each project and confirm the same child resources. Publish it to the organization's private registry.",
+          "deliverable": "Component package repository and three consumer projects",
+          "checks": [["Run pulumi package add in the Python project", "A local SDK is generated and the component imports", "CLI output"], ["Preview the Go and YAML consumers", "Both plan the same child resource types and counts", "Preview output"], ["Inspect the private registry", "The package version appears with its generated docs", "Registry screenshot"]],
+          "objectives": ["Write components usable from every Pulumi language", "Distribute packages through Git and the registry", "Generate SDKs for consumers"]
+        },
+        {
+          "topic": "Bridging Terraform Providers into Pulumi",
+          "subtopics": ["How bridged providers wrap Terraform providers", "pulumi package add terraform-provider <name>", "Generated local SDKs and their version pinning", "Pulumi Registry providers versus any-Terraform-provider", "Provider configuration through config keys", "Upgrading a bridged provider", "Known gaps such as differences in import IDs", "When to request or build a native provider"],
+          "tools": ["Pulumi CLI", "Terraform providers", "TypeScript", "Python"],
+          "lab_task": "Pick a Terraform provider that has no Pulumi Registry package and add it with pulumi package add terraform-provider <namespace>/<name>. Use the generated SDK in TypeScript to create two resources, configure the provider through stack config and run pulumi up. Then bump the provider version, regenerate the SDK and preview to confirm no unintended changes.",
+          "deliverable": "Project with the bridged provider, generated SDK and upgrade preview",
+          "checks": [["Run pulumi package add terraform-provider", "A local SDK and a packages entry in Pulumi.yaml are created", "CLI output and Pulumi.yaml"], ["Run pulumi up", "Both resources are created through the bridged provider", "Update output"], ["Preview after upgrading the provider", "No resources are replaced", "Preview output"]],
+          "objectives": ["Use any Terraform provider from Pulumi", "Pin and upgrade bridged providers", "Assess gaps against native providers"]
+        },
+        {
+          "topic": "Large-Scale Terraform-to-Pulumi Migration Planning",
+          "subtopics": ["Migration strategies: coexist, convert and import, or rebuild", "Reading Terraform state from Pulumi with RemoteStateReference", "pulumi convert for code and pulumi import --from terraform for state", "Ordering migrations by dependency", "Proving zero-replacement cutovers with preview", "Retiring Terraform state safely", "Team training and code review during migration", "Measuring migration progress"],
+          "tools": ["Pulumi CLI", "Terraform", "@pulumi/terraform", "AWS"],
+          "lab_task": "For a supplied Terraform estate of 4 root modules, first consume one module's outputs with terraform.state.RemoteStateReference. Then convert a second module with pulumi convert, import its state with pulumi import --from terraform ./terraform.tfstate, and iterate until pulumi preview shows 0 changes. Remove the resources from Terraform state with terraform state rm.",
+          "deliverable": "Migration plan for all 4 modules and evidence for the migrated one",
+          "checks": [["Read a Terraform output with RemoteStateReference", "The value appears in pulumi stack output", "CLI output"], ["Preview after the state import", "The summary shows only unchanged resources and 0 replacements", "Preview output"], ["Run terraform plan after terraform state rm", "Terraform reports no resources to manage for the migrated module", "terraform output"]],
+          "objectives": ["Plan a phased migration from Terraform", "Import Terraform state into Pulumi", "Cut over without replacing resources"]
+        },
+        {
+          "topic": "Organization Policy Enforcement and Policy Groups",
+          "subtopics": ["Policy groups and which stacks they apply to", "Default policy group for new stacks", "Server-side enforcement on Pulumi Cloud updates", "Policy versions and staged rollouts", "Exemptions through policy config", "Compliance views across stacks", "Testing policy packs with unit tests", "Change control for policy packs"],
+          "tools": ["Pulumi CrossGuard", "Pulumi Cloud", "@pulumi/policy", "GitHub Actions"],
+          "lab_task": "Create policy groups for prod and nonprod. Publish version 1 of a security pack as advisory to nonprod and mandatory to prod, write unit tests for each policy, then publish version 2 with a new rule to nonprod only. Run updates in both groups and use the console compliance view to list stacks with violations, then grant one exemption through policy config.",
+          "deliverable": "Policy group design, tested pack source and a compliance report",
+          "checks": [["Run pulumi up on a prod stack that violates a rule", "The update is blocked even without --policy-pack on the CLI", "Update output"], ["Run the same violation on nonprod", "A warning is reported and the update succeeds", "Update output"], ["Run the policy unit tests", "All tests pass for both pack versions", "Test output"]],
+          "objectives": ["Enforce policies across an organization", "Roll out policy changes in stages", "Manage exemptions"]
+        },
+        {
+          "topic": "Pulumi ESC at Scale: Composition, Rotation and Access Control",
+          "subtopics": ["Environment naming by project and environment", "Shared base environments and import trees", "Rotated secrets and rotation schedules", "Teams and environment permissions", "Environment tags and versions in release flows", "Using ESC from Kubernetes with the External Secrets Operator", "Audit logs for environment opens", "Avoiding secret sprawl"],
+          "tools": ["Pulumi ESC", "esc CLI", "Pulumi Cloud", "External Secrets Operator", "Kubernetes"],
+          "lab_task": "Design an ESC hierarchy for 3 teams and 3 environments with shared base environments, grant each team open rights only on its own environments, and enable rotation for a database credential. Sync one environment into Kubernetes via the External Secrets Operator Pulumi provider. Open environments as a user without rights and record the result.",
+          "deliverable": "ESC hierarchy diagram, permission matrix and rotation evidence",
+          "checks": [["Open another team's environment", "The request is denied with a permission error", "CLI output"], ["Run the rotation", "A new credential version appears and the old one stops working after the grace period", "ESC history and database login"], ["Inspect the synced Kubernetes Secret", "It contains the current value from ESC", "kubectl output"]],
+          "objectives": ["Design ESC environments for many teams", "Rotate credentials", "Control and audit environment access"]
+        },
+        {
+          "topic": "Pulumi Kubernetes Operator and GitOps Stacks",
+          "subtopics": ["Installing the Pulumi Kubernetes Operator", "Stack custom resources and their spec", "Program sources: Git repositories and Flux sources", "Workspace pods and service accounts", "Secrets and access tokens for the operator", "Resync intervals and drift correction", "Stack status conditions", "Choosing between the operator and Pulumi Deployments"],
+          "tools": ["Pulumi Kubernetes Operator", "Kubernetes", "kubectl", "Helm", "Flux"],
+          "lab_task": "Install the Pulumi Kubernetes Operator with Helm and create a Stack resource that deploys an S3 bucket program from a Git repository with a resync interval of 5 minutes. Push a change to the repo and confirm the operator updates the stack. Delete the bucket's tags by hand and confirm the operator restores them on the next resync.",
+          "deliverable": "Operator install manifests, Stack resource and a status timeline",
+          "checks": [["Run kubectl get stacks", "The Stack shows Ready with the last successful commit", "kubectl output"], ["Push a Git commit", "A new update runs and the stack's lastUpdate references the new commit", "Stack status"], ["Remove the Git credentials secret", "The Stack status shows a failed condition with an authentication error", "kubectl describe output"]],
+          "objectives": ["Run Pulumi stacks through a Kubernetes operator", "Implement GitOps for infrastructure", "Debug operator failures"]
+        },
+        {
+          "topic": "Multi-Cluster and Multi-Account Provider Patterns",
+          "subtopics": ["Provider factories for accounts and regions", "Passing providers maps to components", "Kubernetes providers per cluster", "Assume-role chains and session names", "Landing-zone style account baselines", "Avoiding provider replacement cascades", "Tagging resources with account and region", "Testing multi-provider programs with mocks"],
+          "tools": ["@pulumi/aws", "@pulumi/kubernetes", "AWS Organizations", "TypeScript"],
+          "lab_task": "Write a provider factory that builds AWS providers for 3 accounts and 2 regions with assumeRole and a Kubernetes provider for each of 2 clusters. Deploy a baseline component of a CloudTrail bucket and a namespace with network policies everywhere. Change one provider's sessionName and record whether resources would be replaced, then test the factory with mocks.",
+          "deliverable": "Factory code, deployment matrix and the provider-change analysis",
+          "checks": [["Run pulumi stack --show-urns", "Baseline resources exist for all 6 account-region pairs and 2 clusters", "Stack listing"], ["Preview after changing a sessionName", "The provider updates and no dependent resources are replaced", "Preview output"], ["Run the mock tests", "Each mocked resource receives the expected provider", "Test output"]],
+          "objectives": ["Deploy across accounts, regions and clusters", "Prevent provider-driven replacements", "Test provider wiring"]
+        },
+        {
+          "topic": "Performance Tuning for Large Pulumi Stacks",
+          "subtopics": ["Measuring update time and the slowest resources", "--parallel and its defaults", "--target and --target-dependents for focused updates", "--exclude for skipping resources", "Refresh cost on large stacks", "Splitting stacks by change frequency", "Program start-up time and language runtime choices", "Checkpoint size and journaling"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "jq"],
+          "lab_task": "Generate a stack with 1,000 lightweight resources, time pulumi up and pulumi preview --refresh with --parallel set to 4, 16 and the default. Use --target to update a single resource and compare the duration. Split the stack into two by change frequency using pulumi state move and measure again. Report the slowest 10 resources from the --json event output.",
+          "deliverable": "Performance report with timings per setting and the split design",
+          "checks": [["Run pulumi up with --parallel 4 and the default", "The default run is faster and both reach the same final state", "Timing table"], ["Run pulumi up --target on one URN", "Only that resource is updated and the run time is under a fifth of a full update", "Update output"], ["Preview both stacks after the split", "Both show no changes", "Preview output"]],
+          "objectives": ["Measure and tune update performance", "Use targeting safely", "Split stacks for speed"]
+        },
+        {
+          "topic": "Recovering from Interrupted Updates and Pending Operations",
+          "subtopics": ["What happens when an update is killed", "Pending operations and the warning on the next update", "Locked stacks and pulumi cancel on Pulumi Cloud", "Clearing pending creates during refresh", "Finding orphaned cloud resources", "Restoring from a checkpoint in update history", "Rollback strategies: revert the commit and up", "Post-incident review for infrastructure"],
+          "tools": ["Pulumi CLI", "Pulumi Cloud", "AWS CLI", "jq"],
+          "lab_task": "Start pulumi up on a stack creating 10 RDS and S3 resources and kill the process after 3 are created. Run pulumi up again and record the pending operations warning, run pulumi refresh and resolve pending creates, and find any orphaned resource with the AWS CLI using its tags. Import or delete it, then reach a clean preview. Write a short incident review.",
+          "deliverable": "Recovery runbook and incident review with commands and timings",
+          "checks": [["Run pulumi up after the kill", "The CLI warns about pending operations from a previous interrupted update", "CLI output"], ["Run pulumi up while another update holds the lock", "The CLI reports a conflict because an update is already in progress", "Error output"], ["Run pulumi preview after recovery", "No changes and no pending operations remain", "Preview output"]],
+          "objectives": ["Recover state after interrupted updates", "Find and resolve orphaned resources", "Document incidents"]
+        },
+        {
+          "topic": "Pulumi Cloud Access Control, Teams and Audit Logs",
+          "subtopics": ["Organization roles and custom roles", "Teams and stack permissions", "SAML SSO and SCIM provisioning", "Organization, team and personal access tokens", "Machine tokens for CI with least privilege", "Audit log events and exports", "Stack protections against deletion", "Offboarding checklist"],
+          "tools": ["Pulumi Cloud", "Pulumi CLI", "SAML identity provider"],
+          "lab_task": "Create teams for network, data and app with permissions limited to their stacks, issue a team token for each CI pipeline and confirm a token from one team cannot update another team's stack. Configure SSO in a test identity provider if available. Export audit logs for one day and find the events for your permission changes and a stack update.",
+          "deliverable": "Access model document, token test results and an audit log extract",
+          "checks": [["Use the app team token to update a network stack", "The request fails with a 403 or permission error", "CLI output"], ["Use the app team token on an app stack", "The update succeeds", "CLI output"], ["Search the exported audit log", "Events for the team permission changes and the update are present with actor and timestamp", "Audit log extract"]],
+          "objectives": ["Design least-privilege access for Pulumi Cloud", "Use team tokens for CI", "Audit organization activity"]
+        },
+        {
+          "topic": "Advanced Resource Lifecycle Options and Hooks",
+          "subtopics": ["deletedWith to skip deleting children of deleted parents", "replaceOnChanges for properties providers do not mark", "retainOnDelete for data that must survive", "deleteBeforeReplace versus create-before-replace", "ignoreChanges with nested paths and wildcards", "Resource hooks that run code before or after create, update and delete", "import option and adopting resources in code", "Choosing options per resource class"],
+          "tools": ["Pulumi CLI", "TypeScript", "@pulumi/kubernetes"],
+          "lab_task": "Apply deletedWith on Kubernetes objects inside a namespace and time the destroy with and without it. Mark a database with retainOnDelete and confirm it survives destroy, set replaceOnChanges on a ConfigMap data key, and add an after-create hook that calls a health endpoint. Record each option's effect in a table.",
+          "deliverable": "Lifecycle options table with timings and evidence",
+          "checks": [["Destroy with deletedWith set", "Only the namespace delete call is made and the destroy is faster than without it", "Timing table"], ["Destroy the stack with retainOnDelete on the database", "The database still exists in the cloud console", "AWS CLI output"], ["Change the ConfigMap data key", "The ConfigMap shows +- replace", "Preview output"]],
+          "objectives": ["Use advanced lifecycle options", "Retain data deliberately", "Run code at resource lifecycle points"]
+        },
+        {
+          "topic": "Provider Supply Chain and Plugin Version Control",
+          "subtopics": ["Where plugins come from and how they are verified", "Pinning SDK and provider versions", "pulumi plugin install and air-gapped mirrors", "The pluginDownloadURL option and pulumi plugin install --server", "Renovate or Dependabot for Pulumi packages", "Testing provider upgrades with preview across stacks", "Major version upgrade guides", "Software bill of materials for infrastructure code"],
+          "tools": ["Pulumi CLI", "Renovate", "Dependabot", "npm", "uv"],
+          "lab_task": "Pin @pulumi/aws and @pulumi/kubernetes exactly, set up Renovate to open grouped upgrade PRs, and run a CI job that previews every stack on each upgrade PR and fails on any replacement. Mirror the aws plugin to an internal server, install it with pulumi plugin install --server, and run pulumi preview with outbound internet blocked.",
+          "deliverable": "Upgrade pipeline, mirror instructions and an offline preview log",
+          "checks": [["Open a Renovate upgrade PR", "CI previews every stack and posts a replacement count", "Workflow log"], ["Preview with internet blocked and the mirror configured", "The preview succeeds using the mirrored plugin", "Preview output"], ["Preview with internet blocked and no mirror", "The CLI fails to download the plugin", "Error output"]],
+          "objectives": ["Control provider and SDK versions", "Test upgrades across stacks", "Run Pulumi in restricted networks"]
+        },
+        {
+          "topic": "Pulumi Insights: Resource Search, Accounts Scanning and Reporting",
+          "subtopics": ["Resource search queries and filters", "Searching by type, package, stack and tags", "Insights accounts for discovering unmanaged resources", "Exporting search results to CSV", "Finding untagged or outdated resources", "Comparing managed and unmanaged resources", "Feeding results into compliance reports", "Scheduling reports"],
+          "tools": ["Pulumi Cloud", "Pulumi Insights", "AWS", "jq"],
+          "lab_task": "Use resource search to list every aws:s3 bucket across the organization without a CostCenter tag and export it to CSV. Connect an Insights account for one AWS sandbox account, scan it, and compare discovered resources with those managed by Pulumi stacks. Report the count of unmanaged buckets and pick 2 to import.",
+          "deliverable": "Insights report with search queries, exports and the unmanaged resource list",
+          "checks": [["Run the untagged bucket search", "The result count matches a jq count over exported stack states", "Search result and jq output"], ["Scan the connected account", "Discovered resources include ones not in any stack", "Insights screenshot"], ["Import the 2 chosen buckets", "They now appear as managed in search results", "Search result"]],
+          "objectives": ["Query resources across an organization", "Discover unmanaged infrastructure", "Produce compliance reports"]
+        },
+        {
+          "topic": "Advanced Capstone: Self-Service Infrastructure Platform on Automation API",
+          "subtopics": ["Architecture and request flow for self-service environments", "Automation API service with stack templates as components", "ESC environments and OIDC per tenant", "Mandatory policy groups and integration tests", "Deployments, drift schedules and TTL stacks", "Runbook, access model and leadership presentation"],
+          "tools": ["Automation API", "Pulumi Deployments", "Pulumi ESC", "Pulumi CrossGuard", "Pulumi Cloud", "@pulumi/kubernetes"],
+          "lab_task": "Build a service on the Automation API that lets teams request an environment of namespace, database and bucket from a multi-language component package. Each request creates a stack with ESC credentials, passes a mandatory policy group, gets a drift schedule and a TTL, and is covered by an integration test. Provision 5 environments in parallel and show one recovered failure.",
+          "deliverable": "Platform repository, architecture document, test results and a 15-minute presentation",
+          "checks": [["Request 5 environments in parallel", "All 5 reach Ready and each has its own stack and ESC environment", "Service log and stack list"], ["Request an environment that violates a mandatory policy", "The request is rejected with the policy name in the response", "API response"], ["Run the integration test suite in CI", "All tests pass and leave 0 leftover test stacks", "CI log"]],
+          "objectives": ["Combine advanced Pulumi capabilities in one platform", "Prove governance, safety and recovery", "Defend the platform design to leadership"]
+        }
+      ]
+    }
+  }
+}
