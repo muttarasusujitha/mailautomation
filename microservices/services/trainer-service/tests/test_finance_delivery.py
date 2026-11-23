@@ -105,6 +105,35 @@ def test_finance_approval_serializes_dates_and_excludes_database_id(monkeypatch)
     assert requests[1][1]['attachments']
 
 
+def test_combined_client_po_creates_and_sends_separate_training_and_lab_invoices(monkeypatch):
+    requests = transport(monkeypatch)
+    db = database()
+    db['requirements'].find_one = AsyncMock(return_value={
+        'requirement_id': 'REQ-1', 'technology_needed': 'DevOps',
+        'budget_total': 100000, 'lab_client_price': 30000,
+        'client_budget_includes_lab': True,
+    })
+    db['finance_approvals'].find_one = AsyncMock(return_value={'requirement_id': 'REQ-1'})
+
+    result = asyncio.run(finance.approve_and_send_invoice(
+        'FIN-COMBINED',
+        finance.FinanceApproveRequest(client_name='Acme', client_email='client@example.com', po_number='PO-100', total_amount=100000),
+        db,
+    ))
+
+    assert result['status'] == 'invoice_sent'
+    assert result['lab_invoice_id'].startswith('LINV-')
+    # Two separate PDFs are delivered in the same approved finance action.
+    assert len(requests) == 3
+    assert len(requests[-1][1]['attachments']) == 2
+    po = db['purchase_orders'].update_one.await_args.args[1]['$set']
+    assert po['total_amount'] == 100000
+    assert [item['description'] for item in po['items']] == ['Training services', 'Lab services']
+    created = [call.args[1]['$set'] for call in db['invoices'].update_one.await_args_list if 'invoice_kind' in call.args[1].get('$set', {})]
+    assert {invoice['invoice_kind'] for invoice in created} == {'lab'}
+    assert created[0]['total_amount'] == 30000
+
+
 def test_invoice_approval_confirms_the_batch_and_completes_the_pipeline(monkeypatch):
     transport(monkeypatch)
     db = database()

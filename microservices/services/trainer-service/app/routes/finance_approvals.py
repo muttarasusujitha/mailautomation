@@ -274,7 +274,7 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     approval = await db["finance_approvals"].find_one({"finance_id": finance_id}, {"_id": 0}) or {}
     now = datetime.utcnow()
     existing_invoice = await db["invoices"].find_one(
-        {"source_finance_id": finance_id}, {"_id": 0, "invoice_id": 1, "po_id": 1},
+        {"source_finance_id": finance_id, "invoice_kind": {"$ne": "lab"}}, {"_id": 0, "invoice_id": 1, "po_id": 1},
     ) or {}
     po_id = existing_invoice.get("po_id") or f"PO-{uuid.uuid4().hex[:10].upper()}"
     invoice_id = existing_invoice.get("invoice_id") or f"INV-{uuid.uuid4().hex[:10].upper()}"
@@ -293,32 +293,66 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     invoice_subtotal = round(sum(float(row["amount"]) for row in invoice_items), 2)
     gst_amount = round(invoice_subtotal * payload.gst_rate / 100, 2)
     grand_total = round(invoice_subtotal + gst_amount, 2)
-    po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": training_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items[:1], "requirement_id": approval.get("requirement_id"), "status": "approved", "source_finance_id": finance_id, "updated_at": now}
+    po_items = invoice_items[:1]
+    lab_invoice = None
+    if commercials["lab_client_amount"]:
+        existing_lab_invoice = await db["invoices"].find_one(
+            {"invoice_kind": "lab", "lab_requirement_id": approval.get("requirement_id")}, {"_id": 0, "invoice_id": 1},
+        ) or {}
+        lab_invoice_id = existing_lab_invoice.get("invoice_id") or f"LINV-{uuid.uuid4().hex[:10].upper()}"
+        course = requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "Training"
+        lab_amount = float(commercials["lab_client_amount"])
+        lab_items = [{"description": f"{course} lab services", "quantity": 1, "rate": lab_amount, "amount": lab_amount}]
+        lab_gst_amount = round(lab_amount * payload.gst_rate / 100, 2)
+        lab_grand_total = round(lab_amount + lab_gst_amount, 2)
+        lab_invoice = {
+            "requirement_id": approval.get("requirement_id"), "invoice_id": lab_invoice_id,
+            "invoice_number": lab_invoice_id, "invoice_kind": "lab", "lab_requirement_id": approval.get("requirement_id"),
+            "po_id": po_id, "client_name": payload.client_name, "client_email": payload.client_email,
+            "client_billing_address": payload.billing_address, "client_address": payload.billing_address,
+            "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_gstin": payload.gstin,
+            "training_domain": course, "total_amount": lab_amount, "gst_rate": payload.gst_rate,
+            "payment_terms": payload.payment_terms, "items": lab_items,
+            "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"), "due_date": payload.due_date,
+            "commercials": {"subtotal": lab_amount, "gst_rate": payload.gst_rate, "gst_amount": lab_gst_amount, "grand_total": lab_grand_total},
+            "balance_due": lab_grand_total, "status": "draft", "source_finance_id": finance_id, "updated_at": now,
+        }
+        po_items = [*po_items, {"description": "Lab services", "quantity": 1, "rate": lab_amount, "amount": lab_amount}]
+    po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": round(training_amount + float(commercials["lab_client_amount"]), 2), "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": po_items, "requirement_id": approval.get("requirement_id"), "status": "approved", "source_finance_id": finance_id, "updated_at": now}
     invoice = {"requirement_id": approval.get("requirement_id"), "invoice_id": invoice_id, "invoice_number": invoice_id, "po_id": po_id, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_address": payload.billing_address, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_gstin": payload.gstin, "total_amount": invoice_subtotal, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items, "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"), "due_date": payload.due_date, "commercials": {"subtotal": invoice_subtotal, "gst_rate": payload.gst_rate, "gst_amount": gst_amount, "grand_total": grand_total}, "balance_due": grand_total, "status": "draft", "source_finance_id": finance_id, "updated_at": now}
     await db["purchase_orders"].update_one(
         {"source_finance_id": finance_id}, {"$set": po, "$setOnInsert": {"created_at": now}}, upsert=True,
     )
     await db["invoices"].update_one(
-        {"source_finance_id": finance_id}, {"$set": invoice, "$setOnInsert": {"created_at": now}}, upsert=True,
+        {"source_finance_id": finance_id, "invoice_kind": {"$ne": "lab"}}, {"$set": invoice, "$setOnInsert": {"created_at": now}}, upsert=True,
     )
+    if lab_invoice:
+        await db["invoices"].update_one(
+            {"invoice_id": lab_invoice["invoice_id"]}, {"$set": lab_invoice, "$setOnInsert": {"created_at": now}}, upsert=True,
+        )
     doc_url, email_url = settings.DOCUMENT_SERVICE_URL.rstrip("/"), settings.EMAIL_SERVICE_URL.rstrip("/")
     try:
         async with httpx.AsyncClient(timeout=60) as client:
-            # Mongo owns created_at through $setOnInsert. The PDF still gets
-            # a creation time without using conflicting Mongo update paths.
-            invoice_document = {**invoice, "created_at": now}
-            pdf = await client.post(f"{doc_url}/api/v1/documents/pdf/invoice", json=jsonable_encoder({key: value for key, value in invoice_document.items() if key != "_id"}))
-            pdf.raise_for_status()
-            if not pdf.content:
-                raise ValueError("Invoice PDF is empty")
+            # Generate distinct documents in one approved finance action. A lab
+            # commercial is never added to the trainer PO or training invoice.
+            attachments = []
+            for document in [invoice, *([lab_invoice] if lab_invoice else [])]:
+                invoice_document = {**document, "created_at": now}
+                pdf = await client.post(f"{doc_url}/api/v1/documents/pdf/invoice", json=jsonable_encoder({key: value for key, value in invoice_document.items() if key != "_id"}))
+                pdf.raise_for_status()
+                if not pdf.content:
+                    raise ValueError("Invoice PDF is empty")
+                attachments.append({"filename": f"{document['invoice_id']}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"})
             finance_name = str(payload.client_name or "").strip()
             finance_greeting = f"Hello {finance_name}," if finance_name and finance_name.lower() not in {"client", "team"} else "Hello,"
+            invoice_label = "invoices" if lab_invoice else "invoice"
             finance_body = (
                 f"{finance_greeting}\n\n"
-                f"Please find the invoice attached against PO {payload.po_number}.\n\n"
+                f"Please find the {invoice_label} attached against PO {payload.po_number}.\n\n"
                 "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
             )
-            mail = await client.post(f"{email_url}/api/v1/email/send", json={"to": payload.client_email, "subject": f"Invoice {invoice_id} - Clahan Technologies", "body": finance_body, "mail_type": "finance_invoice", "idempotency_key": f"finance-invoice:{finance_id}", "attachments": [{"filename": f"{invoice_id}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"}]})
+            subject = f"Invoices {invoice_id} and {lab_invoice['invoice_id']} - Clahan Technologies" if lab_invoice else f"Invoice {invoice_id} - Clahan Technologies"
+            mail = await client.post(f"{email_url}/api/v1/email/send", json={"to": payload.client_email, "subject": subject, "body": finance_body, "mail_type": "finance_invoice", "idempotency_key": f"finance-invoice:{finance_id}", "attachments": attachments})
             mail.raise_for_status()
             if mail.json().get("success") is not True:
                 raise HTTPException(502, "Invoice email delivery is not confirmed")
@@ -326,9 +360,11 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
         await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "approved_invoice_send_failed", "error": str(exc), "updated_at": datetime.utcnow()}})
         raise HTTPException(502, f"Invoice created but email failed: {exc}")
     await db["invoices"].update_one({"invoice_id": invoice_id}, {"$set": {"status": "sent", "sent_to": payload.client_email, "sent_at": datetime.utcnow()}})
-    await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "invoice_sent", "po_id": po_id, "invoice_id": invoice_id, "reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
+    if lab_invoice:
+        await db["invoices"].update_one({"invoice_id": lab_invoice["invoice_id"]}, {"$set": {"status": "sent", "sent_to": payload.client_email, "sent_at": datetime.utcnow()}})
+    await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "invoice_sent", "po_id": po_id, "invoice_id": invoice_id, "lab_invoice_id": lab_invoice.get("invoice_id", "") if lab_invoice else "", "reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
     await _confirm_batch_after_invoice(db, approval, po_id, invoice_id)
-    return {"success": True, "finance_id": finance_id, "po_id": po_id, "invoice_id": invoice_id, "status": "invoice_sent"}
+    return {"success": True, "finance_id": finance_id, "po_id": po_id, "invoice_id": invoice_id, "lab_invoice_id": lab_invoice.get("invoice_id", "") if lab_invoice else "", "status": "invoice_sent"}
 
 
 def _db_collection(db, name: str):
