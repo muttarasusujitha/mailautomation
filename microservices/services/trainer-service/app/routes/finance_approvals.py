@@ -149,6 +149,7 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
         "vendor_name": approval.get("trainer_name"), "vendor_email": approval.get("trainer_email"),
         "client_name": approval.get("client_name"), "client_email": approval.get("client_email"),
         "training_domain": approval.get("training_domain"), "training_dates": approval.get("training_dates"),
+        "company_name": "BEULIX SOLUTIONS PRIVATE LIMITED",
         "total_amount": trainer_amount, "gst_rate": 0,
         "commercial_breakdown": commercials,
         "items": [{"description": f"Training services for {approval.get('requirement_id')}", "quantity": 1, "rate": trainer_amount, "amount": trainer_amount}],
@@ -162,8 +163,8 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
             if not pdf.content:
                 raise ValueError("Trainer PO PDF is empty")
             sent = await client.post(f"{settings.EMAIL_SERVICE_URL.rstrip('/')}/api/v1/email/send", json={
-                "to": approval.get("trainer_email"), "subject": f"Purchase Order {po['po_number']} - Clahan Technologies",
-                "body": f"Hello {approval.get('trainer_name') or 'Trainer'},\n\nPlease find the approved purchase order attached.\n\nRegards,\nClahan Technologies",
+                "to": approval.get("trainer_email"), "subject": f"Purchase Order {po['po_number']} - Beulix Solutions Private Limited",
+                "body": f"Hello {approval.get('trainer_name') or 'Trainer'},\n\nPlease find the approved purchase order attached.\n\nRegards,\nBeulix Solutions Private Limited",
                 "mail_type": "trainer_purchase_order", "idempotency_key": f"trainer-po:{finance_id}",
                 "attachments": [{"filename": f"{po_id}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"}],
             })

@@ -23,7 +23,10 @@ def text(value):
 
 
 def issuer(context, kind):
-    return context.get('company_name_full') or context.get('company_name') or ('BEULIX SOLUTIONS PRIVATE LIMITED' if kind == 'invoice' else 'CLAHAN TECHNOLOGIES')
+    # Clahan runs the workflow, but Beulix is the legal issuer for both
+    # commercial document types. A saved company profile can still override
+    # this only when an authorised staff member intentionally supplies one.
+    return context.get('company_name_full') or context.get('company_name') or 'BEULIX SOLUTIONS PRIVATE LIMITED'
 
 
 def tax_lines(c):
@@ -46,7 +49,7 @@ def render_pdf(context, kind):
 
     c = prepare(context)
     invoice = kind == 'invoice'
-    title = 'INVOICE' if invoice else 'PURCHASE ORDER'
+    title = 'TAX INVOICE' if invoice else 'PURCHASE ORDER'
     identifier = c.get('invoice_number' if invoice else 'po_number') or ''
     navy, teal, muted, border, pale = [colors.HexColor(v) for v in ('#122B40', '#087F8C', '#596B7B', '#DCE5EB', '#F2F6F8')]
     body = ParagraphStyle('Body', fontName='Helvetica', fontSize=9, leading=13, textColor=navy, splitLongWords=True)
@@ -104,6 +107,12 @@ def render_pdf(context, kind):
     scope = [p('ENGAGEMENT' if invoice else 'VENDOR / TRAINER', label)]
     if not invoice:
         scope.append(p(c.get('vendor_name'), strong))
+        for value in (c.get('vendor_address'), c.get('vendor_email'), c.get('vendor_contact')):
+            if value:
+                scope.append(p(value, small))
+        for key, caption in (('vendor_gst', 'GSTIN'), ('vendor_pan', 'PAN')):
+            if c.get(key):
+                scope.append(p(f'{caption}: {c[key]}', small))
     for caption, value in (('Training', c.get('training_domain')), ('Duration', c.get('duration')),
                            ('Place of supply', c.get('place_of_supply'))):
         if value:
@@ -168,7 +177,7 @@ def render_pdf(context, kind):
 def render_html(context, kind):
     c = prepare(context)
     invoice = kind == 'invoice'
-    title = 'Invoice' if invoice else 'Purchase Order'
+    title = 'Tax Invoice' if invoice else 'Purchase Order'
     identifier = c.get('invoice_number' if invoice else 'po_number')
     taxes = '<br>'.join(f'{text(caption)}: INR {amount:,.2f}' for caption, amount in tax_lines(c))
     bank = '<br>'.join(f'{label}: {text(c.get(key))}' for key, label in [('bank_account_no', 'Account number'), ('bank_ifsc', 'IFSC')] if c.get(key))
