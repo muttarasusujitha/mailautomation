@@ -363,3 +363,38 @@ def test_devops_uses_its_level_course_with_timed_modules():
             assert 3 <= len(day["modules"]) <= 4, day["focus_area"]
             assert sum(module["minutes"] for module in day["modules"]) == 420, day["focus_area"]
             assert all(len(module["scenarios"]) >= 3 for module in day["modules"]), day["focus_area"]
+
+
+def test_devops_days_carry_an_ordered_subtopic_roadmap():
+    from app.level_curriculum import ROADMAP_STAGES
+    from app.toc_pdf_template import build_toc_html
+    toc = generate_toc_from_dataset("DevOps", 5, level="beginner")
+    for day in toc["days"]:
+        stages = [step["stage"] for step in day["roadmap"]]
+        assert 3 <= len(stages) <= 5, day["focus_area"]
+        assert [ROADMAP_STAGES.index(s) for s in stages] == sorted(ROADMAP_STAGES.index(s) for s in stages)
+        # The flat subtopics follow the roadmap order, so every export reads the same way.
+        assert day["subtopics"] == [item for step in day["roadmap"] for item in step["subtopics"]]
+    html = build_toc_html(toc)
+    assert html.count("Learning Roadmap") == 5
+    assert "Step 1: Understand" in html
+
+
+def test_roadmap_validation_rejects_missing_subtopics_and_bad_order():
+    from app.level_curriculum import _roadmap_problems
+    day = {"subtopics": ["a", "b", "c"]}
+    good = [{"stage": "Understand", "subtopics": ["a"]}, {"stage": "Build", "subtopics": ["b"]},
+            {"stage": "Verify", "subtopics": ["c"]}]
+    assert _roadmap_problems({**day, "roadmap": good}, "Day 1") == []
+    assert "exactly once" in _roadmap_problems({**day, "roadmap": good[:2] + [{"stage": "Verify", "subtopics": ["x"]}]}, "Day 1")[0]
+    assert "follow" in _roadmap_problems({**day, "roadmap": list(reversed(good))}, "Day 1")[0]
+    assert "3 to 5" in _roadmap_problems({**day, "roadmap": good[:2]}, "Day 1")[0]
+
+
+def test_days_without_modules_show_their_roadmap_as_topic_groups():
+    from app.course_outline import outline_from_flat
+    outline = outline_from_flat({"subtopics": ["a", "b", "c"], "roadmap": [
+        {"stage": "Understand", "subtopics": ["a"]}, {"stage": "Build", "subtopics": ["b"]},
+        {"stage": "Verify", "subtopics": ["c"]}]})
+    assert [group["heading"] for group in outline["topic_groups"]] == [
+        "Step 1: Understand", "Step 2: Build", "Step 3: Verify"]
