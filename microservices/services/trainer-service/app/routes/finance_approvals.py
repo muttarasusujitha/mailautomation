@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from app.config import get_settings
 from shared.database.service import get_db
 from shared.document_amounts import offline_expense_items
+from shared.commercial_policy import commercial_breakdown
 
 router = APIRouter()
 settings = get_settings()
@@ -92,6 +93,17 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
     approval = await db["finance_approvals"].find_one({"finance_id": finance_id, "request_type": "trainer_po", "status": "pending_human_approval"}, {"_id": 0})
     if not approval:
         raise HTTPException(404, "Pending trainer PO approval not found")
+    requirement = await db["requirements"].find_one(
+        {"requirement_id": approval.get("requirement_id")}, {"_id": 0},
+    ) or {}
+    commercials = commercial_breakdown(requirement)
+    if commercials["needs_lab_price"] or commercials["invalid"]:
+        raise HTTPException(409, "The training and lab commercial split must be completed before sending the trainer PO")
+    # Recalculate at send time so a lab workbook received after trainer
+    # selection cannot leave the trainer PO based on the combined budget.
+    trainer_amount = commercials["trainer_amount"]
+    if trainer_amount <= 0:
+        raise HTTPException(400, "Training commercial amount is required before sending the trainer PO")
     claimed = await db["finance_approvals"].update_one(
         {"finance_id": finance_id, "request_type": "trainer_po", "status": "pending_human_approval"},
         {"$set": {"status": "sending_trainer_po", "updated_at": datetime.utcnow()}},
@@ -106,8 +118,9 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
         "vendor_name": approval.get("trainer_name"), "vendor_email": approval.get("trainer_email"),
         "client_name": approval.get("client_name"), "client_email": approval.get("client_email"),
         "training_domain": approval.get("training_domain"), "training_dates": approval.get("training_dates"),
-        "total_amount": float(approval.get("total_amount") or 0), "gst_rate": 0,
-        "items": [{"description": f"Training services for {approval.get('requirement_id')}", "quantity": 1, "rate": float(approval.get("total_amount") or 0), "amount": float(approval.get("total_amount") or 0)}],
+        "total_amount": trainer_amount, "gst_rate": 0,
+        "commercial_breakdown": commercials,
+        "items": [{"description": f"Training services for {approval.get('requirement_id')}", "quantity": 1, "rate": trainer_amount, "amount": trainer_amount}],
         "status": "draft", "created_at": now, "updated_at": now,
     }
     await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": po}, upsert=True)
@@ -130,7 +143,7 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
         await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "trainer_po_send_failed", "error": str(exc), "updated_at": datetime.utcnow()}})
         raise HTTPException(502, f"Trainer PO created but could not be sent: {exc}")
     await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": {"status": "sent", "sent_to": approval.get("trainer_email"), "sent_at": datetime.utcnow()}})
-    await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "trainer_po_sent", "po_id": po_id, "reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
+    await db["finance_approvals"].update_one({"finance_id": finance_id}, {"$set": {"status": "trainer_po_sent", "po_id": po_id, "total_amount": trainer_amount, "commercial_breakdown": commercials, "reviewed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
     await db["requirements"].update_one({"requirement_id": approval.get("requirement_id")}, {"$set": {"trainer_po_approval_status": "sent", "trainer_po_id": po_id, "updated_at": datetime.utcnow()}})
     await db["offline_coordination_tasks"].update_one(
         {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
@@ -234,16 +247,22 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     ) or {}
     po_id = existing_invoice.get("po_id") or f"PO-{uuid.uuid4().hex[:10].upper()}"
     invoice_id = existing_invoice.get("invoice_id") or f"INV-{uuid.uuid4().hex[:10].upper()}"
-    invoice_items = [{"description": payload.description, "quantity": 1, "rate": payload.total_amount, "amount": payload.total_amount}]
-    requirement = await db["requirements"].find_one({"requirement_id": approval.get("requirement_id")}, {"_id": 0, "offline_logistics": 1, "lab_client_price": 1, "lab_quote_amount": 1}) or {}
+    requirement = await db["requirements"].find_one({"requirement_id": approval.get("requirement_id")}, {"_id": 0}) or {}
+    commercials = commercial_breakdown(requirement)
+    if commercials["needs_lab_price"] or commercials["invalid"]:
+        await db["finance_approvals"].update_one(
+            {"finance_id": finance_id},
+            {"$set": {"status": "pending_human_approval", "commercial_split_required": True, "updated_at": datetime.utcnow()}},
+        )
+        raise HTTPException(409, "The training and lab commercial split must be completed before sending the training invoice")
+    training_amount = float(commercials["training_client_amount"] or payload.total_amount)
+    training_description = "Training services" if commercials["lab_client_amount"] else payload.description
+    invoice_items = [{"description": training_description, "quantity": 1, "rate": training_amount, "amount": training_amount}]
     invoice_items.extend(offline_expense_items(requirement))
-    lab_amount = float(requirement.get("lab_client_price") or requirement.get("lab_quote_amount") or 0)
-    if lab_amount > 0:
-        invoice_items.append({"description": "Training lab services", "quantity": 1, "rate": lab_amount, "amount": lab_amount})
     invoice_subtotal = round(sum(float(row["amount"]) for row in invoice_items), 2)
     gst_amount = round(invoice_subtotal * payload.gst_rate / 100, 2)
     grand_total = round(invoice_subtotal + gst_amount, 2)
-    po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": payload.total_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items[:1], "requirement_id": approval.get("requirement_id"), "status": "approved", "source_finance_id": finance_id, "updated_at": now}
+    po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": training_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items[:1], "requirement_id": approval.get("requirement_id"), "status": "approved", "source_finance_id": finance_id, "updated_at": now}
     invoice = {"requirement_id": approval.get("requirement_id"), "invoice_id": invoice_id, "invoice_number": invoice_id, "po_id": po_id, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_address": payload.billing_address, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_gstin": payload.gstin, "total_amount": invoice_subtotal, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items, "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"), "due_date": payload.due_date, "commercials": {"subtotal": invoice_subtotal, "gst_rate": payload.gst_rate, "gst_amount": gst_amount, "grand_total": grand_total}, "balance_due": grand_total, "status": "draft", "source_finance_id": finance_id, "updated_at": now}
     await db["purchase_orders"].update_one(
         {"source_finance_id": finance_id}, {"$set": po, "$setOnInsert": {"created_at": now}}, upsert=True,

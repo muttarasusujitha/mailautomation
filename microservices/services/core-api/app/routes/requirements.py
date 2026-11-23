@@ -1451,10 +1451,21 @@ async def request_client_po(
     training_dates = payload.training_dates or doc.get('training_dates') or doc.get('timeline_start') or ''
     tech = doc.get('technology_needed') or doc.get('technology') or 'DevOps'
     day_rate = 'To be confirmed'
+    lab_line = ''
+    commercial_lines = ''
 
     if payload.body:
         body = payload.body
     else:
+        from shared.commercial_policy import commercial_breakdown
+        commercials = commercial_breakdown(doc)
+        if commercials["needs_lab_price"]:
+            raise HTTPException(
+                400,
+                "The client budget covers training and lab work. Send or approve the lab workbook before requesting the client PO.",
+            )
+        if commercials["invalid"]:
+            raise HTTPException(400, "The client combined budget is lower than the lab commercial amount.")
         duration = str(
             doc.get('duration_text')
             or doc.get('training_duration')
@@ -1470,11 +1481,11 @@ async def request_client_po(
         participant_count = doc.get('participant_count') or doc.get('participants')
         participant_line = f"- **Participants:** {participant_count}\n" if participant_count else ''
         latest_commercial_value = await _latest_client_commercial(db, req_id, payload.trainer_id)
-        commercial_value = latest_commercial_value
+        commercial_value = commercials["training_client_amount"] or latest_commercial_value
         if commercial_value:
             try:
                 amount = float(commercial_value)
-                day_rate = f"INR {amount:,.0f} per day/session"
+                day_rate = f"INR {amount:,.0f}" + (" total" if commercials["training_client_amount"] else " per day/session")
             except (TypeError, ValueError):
                 day_rate = f"{commercial_value} per day/session"
         else:
@@ -1482,6 +1493,19 @@ async def request_client_po(
                 400,
                 "Client commercial amount is required before the PO request can be sent.",
             )
+        lab_line = ""
+        po_instruction = "Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements."
+        if commercials["lab_client_amount"]:
+            lab_line = (
+                f"- **Training services:** INR {commercials['training_client_amount']:,.0f}\n"
+                f"- **Lab services:** INR {commercials['lab_client_amount']:,.0f}\n"
+                f"- **Total client commercial:** INR {commercials['total_client_amount']:,.0f}\n"
+            )
+            po_instruction = (
+                "Kindly issue one PO with separate Training Services and Lab Services line items using the above amounts. "
+                "Clahan will issue the training and lab invoices separately."
+            )
+        commercial_lines = lab_line or f"- **Training Commercials:** {day_rate}\n"
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
             f"Thank you for confirming the **{tech}** training requirement.\n\n"
@@ -1492,8 +1516,8 @@ async def request_client_po(
             f"{dates_line}"
             f"{mode_line}"
             f"{participant_line}"
-            f"- **Commercials:** {day_rate}\n\n"
-            f"Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\n"
+            f"{commercial_lines}\n"
+            f"{po_instruction}\n\n"
             f"Please let us know if you require any additional information.\n\n"
             f"Regards,\nRecruitment Team\nClahan Technologies"
         )
@@ -1524,7 +1548,7 @@ async def request_client_po(
                         "trainer_name": payload.trainer_name or "",
                         "technology": doc.get("technology_needed") or doc.get("technology") or "",
                         "training_dates": training_dates,
-                        "commercial": day_rate,
+                        "commercial": commercial_lines.strip() or day_rate,
                         "requested_action": "share the purchase order",
                     },
                 },

@@ -9963,11 +9963,10 @@ async def _handle_client_selection_reply(
             }, "$setOnInsert": {"created_at": now}},
             upsert=True,
         )
-        client_training_amount = next((
-            float(requirement.get(key)) for key in ("training_commercial_amount", "training_commercial", "client_budget", "budget_total")
-            if isinstance(requirement.get(key), (int, float)) and float(requirement.get(key)) > 0
-        ), 0.0)
-        if client_training_amount:
+        from shared.commercial_policy import commercial_breakdown
+        commercials = commercial_breakdown(requirement)
+        client_training_amount = commercials["training_client_amount"]
+        if client_training_amount and not commercials["needs_lab_price"] and not commercials["invalid"]:
             await db["finance_approvals"].update_one(
                 {"finance_id": f"trainer-po:{requirement_id}:{trainer_id}"},
                 {"$setOnInsert": {
@@ -9983,11 +9982,28 @@ async def _handle_client_selection_reply(
                     "training_domain": technology,
                     "training_dates": requirement.get("training_dates") or requirement.get("timeline_start") or "",
                     "po_number": f"TPO-{requirement_id}-{trainer_id}",
-                    "total_amount": round(client_training_amount * 0.70, 2),
+                    # Lab revenue is never part of the trainer's PO.  The
+                    # 70/30 commercial allocation applies to training only.
+                    "total_amount": commercials["trainer_amount"],
+                    "commercial_breakdown": commercials,
                     "created_at": now,
                     "updated_at": now,
                 }},
                 upsert=True,
+            )
+        elif commercials["needs_lab_price"] or commercials["invalid"]:
+            await db["requirements"].update_one(
+                {"requirement_id": requirement_id},
+                {"$set": {
+                    "commercial_breakdown": commercials,
+                    "trainer_po_approval_status": "commercial_split_required",
+                    "commercial_split_error": (
+                        "Send the client lab workbook before calculating the trainer PO"
+                        if commercials["needs_lab_price"] else
+                        "Client combined budget is lower than the lab amount"
+                    ),
+                    "updated_at": now,
+                }},
             )
         await db["requirements"].update_one(
             {"requirement_id": requirement_id},
@@ -12941,6 +12957,10 @@ async def _process_client_requirement_email(
                 else:
                     lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
                 lab_update["lab_client_price"] = float(attachment.get("client_lab_amount") or 0)
+                from shared.commercial_policy import commercial_breakdown
+                # Save the client-facing split with the lab workbook so the
+                # later trainer PO and client PO use the same figures.
+                lab_update["commercial_breakdown"] = commercial_breakdown({**requirement, **lab_update})
                 await db["requirements"].update_one({"requirement_id": email_doc["requirement_id"]}, {"$set": lab_update})
                 await db["client_emails"].update_one(
                     {"email_id": email_doc.get("email_id")},
@@ -14139,6 +14159,20 @@ async def _process_client_requirement_email(
             )
             return {"processed": True, "email_id": email_doc.get("email_id"), "status": existing_approval.get("status"), "reason": "finance_item_already_handled", "finance_id": finance_id, "invoice_id": existing_approval.get("invoice_id")}
         extracted_po = po_extraction.get("fields") or {}
+        commercial_requirement: Dict[str, Any] = {}
+        commercials: Dict[str, Any] = {}
+        commercial_split_error = ""
+        if email_doc.get("requirement_id"):
+            commercial_requirement = await db["requirements"].find_one(
+                {"requirement_id": email_doc.get("requirement_id")}, {"_id": 0},
+            ) or {}
+            if commercial_requirement:
+                from shared.commercial_policy import commercial_breakdown
+                commercials = commercial_breakdown(commercial_requirement)
+                if commercials["needs_lab_price"]:
+                    commercial_split_error = "The combined client budget needs an approved lab workbook amount."
+                elif commercials["invalid"]:
+                    commercial_split_error = "The combined client budget is lower than the lab commercial amount."
         if is_client_po:
             if email_doc.get("requirement_id"):
                 await db["requirements"].update_one(
@@ -14173,6 +14207,9 @@ async def _process_client_requirement_email(
                 "purchase_order_extraction": po_extraction if is_client_po else {},
                 "extracted_po_fields": extracted_po if is_client_po else {},
                 "po_extraction_status": po_extraction.get("status") if is_client_po else "not_applicable",
+                "commercial_breakdown": commercials,
+                "commercial_split_required": bool(commercial_split_error),
+                "commercial_split_error": commercial_split_error,
                 "updated_at": now,
             }, "$setOnInsert": {"created_at": now}}, upsert=True,
         )
@@ -14185,15 +14222,21 @@ async def _process_client_requirement_email(
             and (extracted_po.get("total_amount") or 0) > 0
             and not extracted_po.get("draft_document")
             and not extracted_po.get("placeholder_fields")
+            and not commercial_split_error
         ):
             existing_invoice = await db["invoices"].find_one(
                 {"source_finance_id": finance_id}, {"_id": 0, "invoice_id": 1, "po_id": 1},
             ) or {}
             po_id = existing_invoice.get("po_id") or f"PO-{uuid.uuid4().hex[:10].upper()}"
             invoice_id = existing_invoice.get("invoice_id") or f"INV-{uuid.uuid4().hex[:10].upper()}"
-            amount = float(extracted_po["total_amount"])
+            # A combined client PO is still fulfilled by two client invoices.
+            # This finance item is the training invoice only; Lab Cost owns
+            # the separate lab invoice and its send action.
+            amount = float(commercials.get("training_client_amount") or extracted_po["total_amount"])
             gst_rate = float(extracted_po.get("gst_rate") or 0)
-            description = extracted_po.get("description") or extracted_po.get("training_dates") or "Services as specified in client purchase order"
+            description = "Training services" if commercials.get("lab_client_amount") else (
+                extracted_po.get("description") or extracted_po.get("training_dates") or "Services as specified in client purchase order"
+            )
             item = {"description": description, "quantity": 1, "rate": amount, "amount": amount}
             gst_amount = round(amount * gst_rate / 100, 2)
             draft_po = {
@@ -14226,7 +14269,11 @@ async def _process_client_requirement_email(
             if email_doc.get("requirement_id"):
                 await db["requirements"].update_one(
                     {"requirement_id": email_doc.get("requirement_id")},
-                    {"$set": {"client_po_status": "invoice_generated", "invoice_status": "draft", "po_id": po_id, "invoice_id": invoice_id, "updated_at": now}},
+                    {"$set": {
+                        "client_po_status": "invoice_generated", "invoice_status": "draft", "po_id": po_id, "invoice_id": invoice_id,
+                        "lab_invoice_status": "required" if commercials.get("lab_client_amount") else "not_applicable",
+                        "updated_at": now,
+                    }},
                 )
                 if email_doc.get("trainer_id"):
                     await db["shortlists"].update_one(
