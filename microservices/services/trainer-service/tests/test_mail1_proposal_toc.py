@@ -114,9 +114,10 @@ def test_ai_off_confirmed_mail1_keeps_the_client_commercial_body(monkeypatch):
     assert "Client commercial: INR 130,000 total-course commercial" in mail["body"]
     assert "Offered trainer commercial" not in mail["body"]
     assert "70%" not in mail["body"]
-    assert "01 November 2026, 10:00 AM IST" in mail["body"]
-    assert "03 November 2026, 2:00 PM IST" in mail["body"]
-    assert "05 November 2026, 4:00 PM IST" in mail["body"]
+    assert "[Your available date 1]" in mail["body"]
+    assert "[Your available date 3]" in mail["body"]
+    assert "These are not the client's dates" in mail["body"]
+    assert "01 November 2026" not in mail["body"]
     assert "Please confirm the offered commercials" not in mail["body"]
 
 

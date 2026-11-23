@@ -413,6 +413,46 @@ def _trainer_mail1_commercial_section(requirement: Dict[str, Any], trainer=None)
     return lines
 
 
+def _append_missing_offer_confirmation(body: str, requirement: Dict[str, Any], trainer=None) -> str:
+    """Ask once, and only when an offer amount is actually in the mail."""
+    if not _is_proposal_requirement(requirement):
+        return body
+    offer = _trainer_mail1_commercial_section(requirement, trainer)
+    if not offer:
+        return body
+    if re.search(r"please confirm the offered (?:trainer )?commercials?", body or "", flags=re.IGNORECASE):
+        return body
+    return (body or "").rstrip() + "\n\nPlease confirm the offered commercials and your availability."
+
+
+def _stored_commercial_only_reply(trainer: Dict[str, Any]) -> bool:
+    """A commercial 'yes' is not availability and is not three dated slots."""
+    texts = [
+        _clean(trainer.get(key))
+        for key in ("availability", "available_dates", "availability_text", "reply_text", "last_reply_snippet", "slot_reply_text")
+        if _clean(trainer.get(key))
+    ]
+    if not texts:
+        return False
+    blob = " ".join(texts).lower()
+    if re.search(r"\b(?:available|availability|cv|resume|linkedin|certification|experience)\b", blob):
+        return False
+    if re.search(r"\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)", blob):
+        return False
+
+    def one(text: str) -> bool:
+        lower = text.lower()
+        if re.fullmatch(r"(?:yes|ok|okay|sure|confirmed|fine|i confirm)[.!]?", lower):
+            return True
+        return bool(
+            len(lower) <= 240
+            and re.search(r"\b(?:yes|ok|okay|sure|confirm(?:ed)?|accept(?:ed)?|fine)\b", lower)
+            and re.search(r"\b(?:commercials?|rate|offer(?:ed)?)\b", lower)
+        )
+
+    return all(one(text) for text in texts)
+
+
 def _strip_confirmed_trainer_offer_confirmation(body: str, requirement: Dict[str, Any]) -> str:
     """Confirmed Mail 1 must not ask the trainer to accept the 70% share."""
     if _is_proposal_requirement(requirement):
@@ -578,10 +618,13 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         or trainer.get("slots")
     )
 
+    commercial_only_reply = _stored_commercial_only_reply(trainer)
     for item in requested:
         label = item.lower()
         if "availability" in label or "slot" in label:
-            if not availability:
+            if commercial_only_reply:
+                missing.append("Exactly three interview/discussion slots (date, time, and time zone)")
+            elif not availability:
                 missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
         elif "linkedin" in label or "linked in" in label:
             if not _trainer_has_verified_detail(trainer, "linkedin"):
@@ -649,9 +692,12 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     for label, key, source_label in (
         ("Total sessions", "total_sessions", r"total\s+sessions"),
         ("Duration per session", "duration_per_session", r"duration\s+per\s+session"),
-        ("Total training hours", "duration_hours", r"total\s+training\s+hours"),
+        ("Total training hours", "total_training_hours", r"total\s+training\s+hours"),
     ):
         value = _clean(requirement.get(key) or _mail1_source_value(requirement, source_label))
+        if label == "Total training hours" and not value:
+            hours = requirement.get("duration_hours")
+            value = _clean(hours) if hours not in (None, "", 0) else ""
         if value:
             details.append(f"- {label}: {value}")
     details.extend(_trainer_mail1_commercial_section(requirement, trainer))
@@ -707,6 +753,15 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     else:
         # The client commercial is shown for context. It is not a trainer offer
         # and Mail 1 must not ask the trainer to confirm the 70% share.
+        # A concrete schedule is not "to be confirmed" merely because the
+        # calendar dates were not written as a start and end date.
+        cv_sentence = ""
+        if not _trainer_has_verified_detail(trainer or {}, "profile"):
+            cv_sentence = " Please share your updated CV."
+        request_line = (
+            "Please confirm you can deliver this scope and share your availability for this schedule."
+            f"{cv_sentence}\n\n"
+        )
         commercial_request = ""
     slot_context = ""
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
@@ -718,11 +773,11 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         f"{chr(10).join(details)}\n\n"
         f"{request_line}"
         f"{commercial_request}"
-        f"Please also share three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
-        "Example:\n"
-        "- 01 November 2026, 10:00 AM IST\n"
-        "- 03 November 2026, 2:00 PM IST\n"
-        "- 05 November 2026, 4:00 PM IST\n\n"
+        f"Please also share exactly three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
+        "Format only. Replace each placeholder with your own availability. These are not the client's dates:\n"
+        "- [Your available date 1], [time], [time zone]\n"
+        "- [Your available date 2], [time], [time zone]\n"
+        "- [Your available date 3], [time], [time zone]\n\n"
         "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         "Regards,\n"
         "Clahan Technologies"
@@ -3407,8 +3462,7 @@ async def send_shortlist_mail(
                 if mail_type in {"mail1", "first"}:
                     body = _normalize_trainer_mail1_body(body)
                     body = _strip_confirmed_trainer_offer_confirmation(body, requirement)
-                    if _is_proposal_requirement(requirement) and "confirm the offered commercials" not in body.lower():
-                        body += "\n\nPlease confirm the offered commercials and your availability."
+                    body = _append_missing_offer_confirmation(body, requirement, t)
                 send_payload["body"] = body
                 if mail_type in {"mail1", "first"}:
                     # Mail 1 is already written by _ai_trainer_mail1 when AI is
@@ -3434,6 +3488,7 @@ async def send_shortlist_mail(
                         "workflow": "trainer_pipeline",
                         "stage": mail_type,
                         "requirement_id": payload.requirement_id,
+                        "batch_type": "proposal" if is_proposal_flow else "confirmed",
                         "batch_email_rules": _all_mail_batch_rules(requirement),
                         "trainer_name": trainer_name,
                         "technology": domain,
