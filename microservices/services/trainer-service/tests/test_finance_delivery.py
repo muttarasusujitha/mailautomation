@@ -23,6 +23,42 @@ def database():
     return db
 
 
+class ListCursor:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def sort(self, *args, **kwargs):
+        return self
+
+    async def to_list(self, _limit):
+        return self.rows
+
+
+class ListCollection:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def find(self, *args, **kwargs):
+        return ListCursor(self.rows)
+
+
+def test_finance_queue_includes_client_authorized_travel_booking_tasks():
+    db = {
+        "finance_approvals": ListCollection([]),
+        "offline_coordination_tasks": ListCollection([]),
+        "travel_booking_tasks": ListCollection([{
+            "booking_task_id": "TB-1", "status": "awaiting_finance_approval",
+            "requirement_id": "REQ-1", "trainer_id": "TR-1",
+        }]),
+    }
+
+    result = asyncio.run(finance.list_finance_approvals(db))
+
+    assert result["pending"] == 1
+    assert result["approvals"][0]["finance_id"] == "TB-1"
+    assert result["approvals"][0]["request_type"] == "travel_booking"
+
+
 def transport(monkeypatch, pdf_status=200, mail_status=200):
     requests = []
     def handle(request):

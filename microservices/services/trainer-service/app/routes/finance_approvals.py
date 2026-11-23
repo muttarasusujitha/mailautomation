@@ -47,6 +47,11 @@ async def list_finance_approvals(db: AsyncIOMotorDatabase = Depends(get_db)):
     ).sort("created_at", -1).to_list(100)
     for task in coordination_tasks:
         rows.append({**task, "finance_id": task.get("task_id"), "request_type": "offline_coordination", "status": "pending_human_approval"})
+    travel_booking_tasks = await db["travel_booking_tasks"].find(
+        {"status": "awaiting_finance_approval"}, {"_id": 0},
+    ).sort("created_at", -1).to_list(100)
+    for task in travel_booking_tasks:
+        rows.append({**task, "finance_id": task.get("booking_task_id"), "request_type": "travel_booking", "status": "pending_human_approval"})
     return {"approvals": rows, "pending": sum(1 for row in rows if row.get("status") == "pending_human_approval")}
 
 

@@ -124,6 +124,20 @@ export default function FinanceApprovals() {
     finally { setBusy('') }
   }
 
+  const approveTravelBooking = async () => {
+    if (!selected || selected.request_type !== 'travel_booking') return
+    setBusy('approve-booking')
+    try {
+      const { data } = await api.post(`/shortlists/logistics/${encodeURIComponent(selected.requirement_id)}/${encodeURIComponent(selected.trainer_id)}/booking-task/${encodeURIComponent(selected.booking_task_id)}/approve`, {
+        approved_by: 'Finance Team', approval_note: 'Approved in Finance Approvals',
+      })
+      if (data?.success !== true || data.status !== 'ready_to_book') throw new Error('Travel booking approval was not confirmed')
+      toast.success('Travel booking is ready for the human booker. No payment has been made by the system.')
+      await load()
+    } catch (error) { toast.error(error.response?.data?.detail || error.message || 'Could not approve travel booking') }
+    finally { setBusy('') }
+  }
+
   const completeOfflineCoordination = async () => {
     if (!selected || selected.request_type !== 'offline_coordination') return
     setBusy('complete')
@@ -167,26 +181,29 @@ export default function FinanceApprovals() {
         </aside>
 
         {!selected ? <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Select a finance item to review.</div> : <section className="min-w-0 space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
+          {selected.request_type === 'travel_booking' && <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-slate-800"><p>Requirement: {selected.requirement_id}</p><p>Trainer: {selected.trainer_name}</p><p>Training dates: {selected.training_dates || 'Not recorded'}</p><p>Venue: {selected.venue_address}</p>{selected.venue_maps_url && <a href={selected.venue_maps_url} target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold text-blue-700 underline">Open confirmed Google Maps pin</a>}<p className="mt-2"><strong>Client travel terms:</strong> {selected.client_travel_terms}</p><p className="mt-2"><strong>Client authorization:</strong> {selected.client_authorization_text}</p><p className="mt-3 text-xs text-slate-600">Finance approval makes this task ready for a human booker. It does not charge a card, reserve a ticket, or contact a supplier.</p></div>}
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div><h2 className="text-lg font-bold text-slate-950">{selected.request_type === 'trainer_po' ? 'Trainer purchase order approval' : selected.request_type === 'offline_coordination' ? 'Complete offline coordination' : selected.request_type === 'po_to_invoice' ? 'Client purchase order' : 'Client invoice request'}</h2><p className="mt-1 text-sm text-slate-500">{selected.trainer_email || selected.client_email}</p></div>
-            {!['trainer_po', 'offline_coordination'].includes(selected.request_type) && <button type="button" onClick={openSource} disabled={busy === 'source'} className="btn-secondary text-sm">{busy === 'source' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />} Open source PDF</button>}
+            <div><h2 className="text-lg font-bold text-slate-950">{selected.request_type === 'trainer_po' ? 'Trainer purchase order approval' : selected.request_type === 'offline_coordination' ? 'Complete offline coordination' : selected.request_type === 'travel_booking' ? 'Client-authorized travel booking' : selected.request_type === 'po_to_invoice' ? 'Client purchase order' : 'Client invoice request'}</h2><p className="mt-1 text-sm text-slate-500">{selected.trainer_email || selected.client_email}</p></div>
+            {!['trainer_po', 'offline_coordination', 'travel_booking'].includes(selected.request_type) && <button type="button" onClick={openSource} disabled={busy === 'source'} className="btn-secondary text-sm">{busy === 'source' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />} Open source PDF</button>}
           </div>
           {selected.request_type === 'trainer_po' ? <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"><p>Requirement: {selected.requirement_id}</p><p>Trainer: {selected.trainer_name} · {selected.trainer_email}</p><p>Training: {selected.training_domain} · {selected.training_dates}</p><p className="mt-2 font-semibold">Trainer PO amount: ₹{Number(selected.total_amount || 0).toLocaleString('en-IN')}</p><p className="mt-2">Review the trainer and amount before approving. Approval emails the PO PDF to the trainer.</p></div> : selected.request_type === 'offline_coordination' ? <div className="grid gap-3 sm:grid-cols-2"><p className="sm:col-span-2 text-sm text-slate-700">Actual costs are added to the client invoice. The system creates a Meta WhatsApp group when the account is eligible; its invite link appears here when Meta sends the webhook. If Meta is unavailable, enter the link staff creates.</p>{selected.whatsapp_group_requested && <p className="sm:col-span-2 text-xs text-slate-500">Group status: {String(selected.whatsapp_group_status || 'pending').replaceAll('_', ' ')}</p>}{Object.keys(selected.logistics_owners || {}).filter(key => selected.logistics_owners[key] === 'clahan').map(key => <label key={key} className="space-y-1"><span className="text-xs font-bold uppercase tracking-wide text-slate-500">{key} cost (INR)</span><input type="number" min="0" value={coordinationForm[key] || ''} onChange={e => setCoordinationForm(current => ({ ...current, [key]: e.target.value }))} className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" /></label>)}{selected.whatsapp_group_requested && <label className="space-y-1 sm:col-span-2"><span className="text-xs font-bold uppercase tracking-wide text-slate-500">WhatsApp group invite link</span><input value={coordinationForm.whatsapp_invite_link} onChange={e => setCoordinationForm(current => ({ ...current, whatsapp_invite_link: e.target.value }))} placeholder="Filled automatically when Meta creates the group" className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" /></label>}</div> : <div className={clsx('rounded-lg border p-3 text-sm', extraction.status === 'parsed' ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900')}>
             PDF read status: <strong>{extraction.status || 'not processed'}</strong>{extraction.documents?.some(item => item.ocr_used) ? ' · OCR used' : ''}. Extracted values are suggestions and must be checked against the PDF.
             {fields.missing_fields?.length > 0 && <span className="block mt-1">Needs review: {fields.missing_fields.join(', ').replaceAll('_', ' ')}</span>}
           </div>}
           {selected.attachment_names?.length > 0 && <p className="text-xs text-slate-500">Attachments: {selected.attachment_names.join(', ')}</p>}
-          {!['trainer_po', 'offline_coordination'].includes(selected.request_type) && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {!['trainer_po', 'offline_coordination', 'travel_booking'].includes(selected.request_type) && <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {input('client_name', 'Client name')}{input('client_email', 'Client email', 'email')}{input('po_number', 'PO number')}{input('po_date', 'PO date')}{input('total_amount', 'PO total amount', 'number')}{input('gst_rate', 'GST rate %', 'number')}{input('gstin', 'Client GSTIN')}{input('payment_terms', 'Payment terms')}{input('due_date', 'Invoice due date')}
             <label className="space-y-1 sm:col-span-2 lg:col-span-3"><span className="text-xs font-bold uppercase tracking-wide text-slate-500">Billing address</span><textarea rows={2} value={form.billing_address} onChange={event => update('billing_address', event.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-400" /></label>
             <label className="space-y-1 sm:col-span-2 lg:col-span-3"><span className="text-xs font-bold uppercase tracking-wide text-slate-500">Invoice description</span><input value={form.description} onChange={event => update('description', event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400" /></label>
           </div>}
           <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4">
-            {selected.request_type !== 'offline_coordination' && <button type="button" onClick={reject} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-secondary text-sm"><XCircle className="h-4 w-4" /> Reject</button>}
+            {!['offline_coordination', 'travel_booking'].includes(selected.request_type) && <button type="button" onClick={reject} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-secondary text-sm"><XCircle className="h-4 w-4" /> Reject</button>}
             {selected.request_type === 'trainer_po'
               ? <button type="button" onClick={approveTrainerPO} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-primary text-sm">{busy === 'approve' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Approve and send trainer PO</button>
               : selected.request_type === 'offline_coordination'
                 ? <button type="button" onClick={completeOfflineCoordination} disabled={!!busy} className="btn-primary text-sm">{busy === 'complete' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Complete coordination and request client PO</button>
+                : selected.request_type === 'travel_booking'
+                  ? <button type="button" onClick={approveTravelBooking} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-primary text-sm">{busy === 'approve-booking' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Approve for human booking</button>
                 : <button type="button" onClick={approve} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-primary text-sm">{busy === 'approve' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Approve and send invoice</button>}
           </div>
         </section>}

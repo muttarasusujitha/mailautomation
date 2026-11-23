@@ -192,6 +192,22 @@ class PostSelectionLogisticsRequest(BaseModel):
     delivery_mode: Optional[str] = "Offline"
 
 
+class CreateTravelBookingTaskRequest(BaseModel):
+    """Create a controlled task after a client explicitly asks Clahan to book."""
+    client_authorization_text: str
+    authorization_source: Optional[str] = "verified_client_logistics_reply"
+    ticket_required: bool = True
+    hotel_required: bool = False
+    preferred_ticket_option: Optional[str] = ""
+    preferred_hotel_option: Optional[str] = ""
+
+
+class ApproveTravelBookingTaskRequest(BaseModel):
+    """Finance approval makes a task ready for a human booker; it never purchases."""
+    approved_by: str
+    approval_note: Optional[str] = ""
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -5689,6 +5705,193 @@ async def save_post_selection_logistics(
 ):
     requirement, trainer, logistics = await _selected_logistics_record(db, requirement_id, trainer_id, payload)
     return {"success": True, "requirement_id": requirement_id, "trainer_id": trainer_id, "logistics": logistics}
+
+
+def _client_authorized_clahan_booking(value: Any) -> bool:
+    """Accept only a clear instruction to Clahan to arrange the travel/stay."""
+    text = _clean(value).lower()
+    if not text:
+        return False
+    book_words = r"(?:book|arrange|reserve|organise|organize|handle)"
+    clahan = r"(?:clahan|clahan technologies)"
+    return bool(
+        re.search(rf"{clahan}.{{0,100}}{book_words}", text)
+        or re.search(rf"{book_words}.{{0,100}}{clahan}", text)
+    )
+
+
+def _offline_delivery(requirement: Dict[str, Any], logistics: Dict[str, Any]) -> bool:
+    delivery_mode = _clean(
+        logistics.get("delivery_mode") or requirement.get("delivery_mode") or requirement.get("mode")
+    ).lower()
+    return any(term in delivery_mode for term in ("offline", "classroom", "onsite", "in-person", "in person"))
+
+
+async def _travel_booking_context(db, requirement_id: str, trainer_id: str):
+    """Load only the selected trainer and the client-confirmed logistics record."""
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    selected_id = _clean(requirement.get("selected_trainer_id") or shortlist.get("selected_trainer_id"))
+    if selected_id != trainer_id:
+        raise HTTPException(409, "Travel booking can only be created for the selected trainer.")
+    trainer = next((item for item in shortlist.get("top_trainers") or [] if _clean(item.get("trainer_id")) == trainer_id), None)
+    if not trainer:
+        raise HTTPException(404, "Selected trainer was not found on this shortlist.")
+    trainer_logistics = trainer.get("post_interview_logistics") or {}
+    requirement_logistics = requirement.get("post_interview_logistics") or {}
+    logistics = {**requirement_logistics, **trainer_logistics}
+    if not _offline_delivery(requirement, logistics):
+        raise HTTPException(409, "Travel booking is only available for an offline or onsite requirement.")
+    venue = _clean(logistics.get("client_confirmed_venue"))
+    maps_url = _clean(logistics.get("client_confirmed_maps_url"))
+    travel_terms = _clean(logistics.get("client_confirmed_travel_terms"))
+    if not (venue and maps_url and travel_terms):
+        raise HTTPException(409, "Client-confirmed venue, Google Maps pin, and travel/stay terms are required before booking.")
+    if not re.match(r"^https://(?:(?:www|maps)\.)?google\.(?:com|co\.in)/maps(?:/|\?|$)", maps_url, flags=re.IGNORECASE):
+        raise HTTPException(422, "The client-confirmed venue link must be a Google Maps URL.")
+    return requirement, trainer, logistics
+
+
+async def _notify_travel_booking_agent(task: Dict[str, Any], db) -> Dict[str, str]:
+    """Send a post-approval work order; the agent, not this API, makes the purchase."""
+    admin = await db["admin_settings"].find_one(
+        {"settings_id": "default"}, {"_id": 0, "offlineOperations": 1},
+    ) or {}
+    agent_email = _email_address((admin.get("offlineOperations") or {}).get("travelAgentEmail"))
+    if not agent_email:
+        return {"status": "configuration_needed", "error": "Set the travel-agent email in Offline Operations."}
+    items = []
+    if task.get("ticket_required"):
+        items.append("ticket")
+    if task.get("hotel_required"):
+        items.append("hotel / stay")
+    body = (
+        f"Please arrange {' and '.join(items)} for the selected trainer.\n\n"
+        f"Booking task: {task['booking_task_id']}\nTrainer: {task.get('trainer_name') or 'Selected trainer'}\n"
+        f"Trainer origin: {task.get('trainer_origin') or 'Confirm with trainer'}\n"
+        f"Training dates: {task.get('training_dates') or 'Confirm'}\n"
+        f"Venue: {task.get('venue_address') or 'Confirm'}\nGoogle Maps: {task.get('venue_maps_url') or 'Confirm'}\n\n"
+        f"Client-approved terms: {task.get('client_travel_terms') or 'Confirm'}\n"
+        f"Client authorization: {task.get('client_authorization_text') or 'Confirm'}\n\n"
+        "Confirm the itinerary, traveller details, and approved limit before purchase. After booking, return the booking reference, actual expense, receipt, and ticket/hotel PDF to Clahan."
+    )
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+                "to": agent_email,
+                "subject": f"Client-authorized travel booking - {task['booking_task_id']}",
+                "body": body,
+                "mail_type": "client_authorized_travel_booking",
+                "requirement_id": task.get("requirement_id"),
+                "trainer_id": task.get("trainer_id"),
+                "idempotency_key": f"travel-booking:{task['booking_task_id']}",
+            })
+        response.raise_for_status()
+        result = response.json() or {}
+        if result.get("success") is not True:
+            raise ValueError("Travel-agent email delivery was not confirmed")
+        return {"status": "sent", "email": agent_email, "email_id": _clean(result.get("email_id"))}
+    except (httpx.HTTPError, ValueError) as exc:
+        return {"status": "send_failed", "error": str(exc)[:500]}
+
+
+@router.post("/logistics/{requirement_id}/{trainer_id}/booking-task")
+async def create_travel_booking_task(
+    requirement_id: str,
+    trainer_id: str,
+    payload: CreateTravelBookingTaskRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Queue, but never execute, client-authorized travel or hotel purchasing."""
+    if not (payload.ticket_required or payload.hotel_required):
+        raise HTTPException(422, "Select ticket and/or hotel before creating a booking task.")
+    requirement, trainer, logistics = await _travel_booking_context(db, requirement_id, trainer_id)
+    confirmed_terms = _clean(logistics.get("client_confirmed_travel_terms"))
+    authorization = _clean(payload.client_authorization_text)
+    if not (_client_authorized_clahan_booking(authorization) and _client_authorized_clahan_booking(confirmed_terms)):
+        raise HTTPException(422, "A verified client reply must explicitly say that Clahan will arrange or book the travel/stay.")
+    existing = await db["travel_booking_tasks"].find_one({
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "status": {"$in": ["awaiting_finance_approval", "ready_to_book"]},
+    }, {"_id": 0})
+    if existing:
+        return {"success": True, "already_exists": True, "booking_task": existing}
+    now = datetime.utcnow()
+    task = {
+        "booking_task_id": f"TB-{uuid.uuid4().hex[:12].upper()}",
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": _clean(trainer.get("name") or trainer.get("trainer_name")),
+        "status": "awaiting_finance_approval",
+        "ticket_required": payload.ticket_required,
+        "hotel_required": payload.hotel_required,
+        "preferred_ticket_option": _clean(payload.preferred_ticket_option)[:1200],
+        "preferred_hotel_option": _clean(payload.preferred_hotel_option)[:1200],
+        "venue_address": _clean(logistics.get("client_confirmed_venue"))[:1200],
+        "venue_maps_url": _clean(logistics.get("client_confirmed_maps_url"))[:1200],
+        "training_dates": _clean(logistics.get("training_dates") or requirement.get("training_dates")),
+        "trainer_origin": _clean(logistics.get("trainer_origin")),
+        "client_travel_terms": confirmed_terms[:5000],
+        "client_authorization_text": authorization[:5000],
+        "authorization_source": _clean(payload.authorization_source)[:200],
+        "final_purchase_requires_confirmation": True,
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["travel_booking_tasks"].insert_one(task)
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.post_interview_logistics.booking_task_id": task["booking_task_id"],
+            "top_trainers.$.post_interview_logistics.booking_status": task["status"],
+            "top_trainers.$.post_interview_logistics.booking_authorized_by_client": True,
+            "top_trainers.$.updated_at": now,
+            "updated_at": now,
+        }},
+    )
+    return {"success": True, "booking_task": task, "message": "Booking task is awaiting finance approval; no reservation or payment has been made."}
+
+
+@router.post("/logistics/{requirement_id}/{trainer_id}/booking-task/{booking_task_id}/approve")
+async def approve_travel_booking_task(
+    requirement_id: str,
+    trainer_id: str,
+    booking_task_id: str,
+    payload: ApproveTravelBookingTaskRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Approve a task for a human booker; no supplier or payment API is called."""
+    approver = _clean(payload.approved_by)
+    if not approver:
+        raise HTTPException(422, "Finance approver name is required.")
+    task = await db["travel_booking_tasks"].find_one({
+        "booking_task_id": booking_task_id, "requirement_id": requirement_id, "trainer_id": trainer_id,
+    }, {"_id": 0})
+    if not task:
+        raise HTTPException(404, "Travel booking task was not found.")
+    if _clean(task.get("status")) != "awaiting_finance_approval":
+        raise HTTPException(409, "Only a task awaiting finance approval can be made ready to book.")
+    now = datetime.utcnow()
+    update = {
+        "status": "ready_to_book", "finance_approved_by": approver[:200],
+        "finance_approval_note": _clean(payload.approval_note)[:2000],
+        "finance_approved_at": now, "updated_at": now,
+    }
+    task_for_agent = {**task, **update}
+    agent_notification = await _notify_travel_booking_agent(task_for_agent, db)
+    update.update({
+        "booking_agent_status": agent_notification["status"],
+        "booking_agent_email": agent_notification.get("email", ""),
+        "booking_agent_email_id": agent_notification.get("email_id", ""),
+        "booking_agent_error": agent_notification.get("error", ""),
+    })
+    await db["travel_booking_tasks"].update_one({"booking_task_id": booking_task_id}, {"$set": update})
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {"top_trainers.$.post_interview_logistics.booking_status": "ready_to_book", "top_trainers.$.updated_at": now, "updated_at": now}},
+    )
+    message = "Finance approved the task. The travel booking agent was notified." if agent_notification["status"] == "sent" else "Finance approved the task. Set the travel-agent email before it can be dispatched."
+    return {"success": True, "booking_task_id": booking_task_id, "status": "ready_to_book", "booking_agent": agent_notification, "message": message}
 
 
 async def _send_post_selection_logistics_email(
