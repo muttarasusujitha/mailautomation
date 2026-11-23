@@ -17,7 +17,7 @@ def test_large_document_keeps_all_items_and_repeats_headers(kind):
     for i in range(35):
         assert f'Unique course {i}:' in content
     assert '3,500.00' in content
-    assert content.count('DESCRIPTION') >= 2
+    assert content.count('ITEM') >= 2
     assert all(f'Page {i+1}' in page.get_text() for i, page in enumerate(pdf))
     for page in pdf:
         assert all(block[0] >= 40 and block[2] <= page.rect.width - 40 for block in page.get_text('blocks'))
