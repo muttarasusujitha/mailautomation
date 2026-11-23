@@ -285,6 +285,30 @@ def test_scanning_people_stops_at_sixty_trainer_profiles():
     page.get_by_role.return_value.click.assert_not_awaited()
 
 
+def test_a_slow_people_page_does_not_end_the_trainer_search():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.evaluate = AsyncMock(return_value=[])
+    calls = {'n': 0}
+
+    async def evaluate(_script):
+        calls['n'] += 1
+        if calls['n'] == 1:
+            raise TimeoutError()
+        return [{'url': 'https://www.linkedin.com/in/ada', 'text': 'Ada\nDevOps trainer\nHyderabad'}]
+
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=evaluate)
+    page.locator.return_value = people
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'DevOps', '', 20))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada']
+
+
 def test_blank_people_page_is_reread_before_the_search_stops():
     from app.clients.linkedin_browser import collect_trainer_profiles
     page = MagicMock()

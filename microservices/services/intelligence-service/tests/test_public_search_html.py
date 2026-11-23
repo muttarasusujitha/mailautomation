@@ -59,6 +59,15 @@ def test_heading_link_is_kept_when_the_site_icon_comes_first():
     }]
 
 
+def test_a_present_role_stays_current_and_an_older_year_stays_stale():
+    from app.clients.search_accuracy import is_current_year_result
+    year = datetime.utcnow().year
+    assert is_current_year_result({'content': 'DevOps trainer\n2016 - Present'})
+    assert is_current_year_result({'content': f'DevOps trainer {year - 1}'})
+    assert not is_current_year_result({'content': 'DevOps trainer since 2019'})
+    assert not is_current_year_result({'content': f'DevOps trainer {year - 2}'})
+
+
 def test_html_search_keeps_current_skill_profiles_and_their_snippets():
     year = datetime.utcnow().year
     html = (
