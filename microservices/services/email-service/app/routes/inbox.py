@@ -7767,16 +7767,24 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
         _clean(req.get("location") or req.get("preferred_location")) if "venue" not in required_fields else ""
     )
     client_map_url = _client_confirmed_google_maps_url(text) or _clean(query.get("partial_client_maps_url"))
-    travel_value = _client_labeled_logistics_value(text, "travel")
-    accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
-    food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
+    # Labeled lines first; otherwise plain sentences such as "We'll book the tickets and provide lunch".
+    stated = _client_offline_logistics(text)
+    travel_value = _client_labeled_logistics_value(text, "travel") or (stated.get("travel") or {}).get("answer", "")
+    accommodation_value = (_client_labeled_logistics_value(text, "accommodation")
+                           or (stated.get("accommodation") or {}).get("answer", "")
+                           or _clean(query.get("partial_accommodation")))
+    food_value = (_client_labeled_logistics_value(text, "food") or (stated.get("food") or {}).get("answer", "")
+                  or _clean(query.get("partial_food")))
     client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
     logistics_answers = {
         "travel": travel_value or client_travel_terms,
         "accommodation": accommodation_value,
         "food": food_value,
     }
-    logistics_owners = {key: _logistics_owner(value) for key, value in logistics_answers.items() if value}
+    logistics_owners = {
+        key: (stated.get(key) or {}).get("owner") or _logistics_owner(value)
+        for key, value in logistics_answers.items() if value
+    }
     missing_confirmations = []
     if "venue" in required_fields and not client_venue:
         missing_confirmations.append("the exact training address")
@@ -7939,8 +7947,9 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     await db["requirements"].update_one(
         {"requirement_id": query.get("requirement_id")},
         {"$set": {
-            "offline_logistics.answers": logistics_answers,
-            "offline_logistics.owners": logistics_owners,
+            # Per item, so an answer given in an earlier email is kept, not erased.
+            **{f"offline_logistics.answers.{key}": value for key, value in logistics_answers.items() if value},
+            **{f"offline_logistics.owners.{key}": value for key, value in logistics_owners.items()},
             "offline_logistics.client_confirmed_at": now,
             "updated_at": now,
         }},
@@ -8058,24 +8067,177 @@ def _client_labeled_logistics_value(text: Any, field: str) -> str:
     return ""
 
 
-def _logistics_owner(answer: Any) -> str:
-    """Classify booking and payment responsibility only when stated explicitly."""
-    value = _clean(answer).lower()
-    clahan = bool(re.search(
-        r"\b(?:clahan|we|our team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
-        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:clahan|our team)\b",
-        value,
+# Logistics answers are read with rules, never a model. They are the client's own
+# words, so "we", "us" and "our team" are the client and "you" or "Clahan" is Clahan.
+_LOGISTICS_ACTION = (
+    r"(?:book(?:s|ed|ing)?|arrang(?:e|es|ed|ing)|pay(?:s|ing)?|paid|cover(?:s|ed|ing)?|"
+    r"provid(?:e|es|ed|ing)|handl(?:e|es|ed|ing)|organi[sz](?:e|es|ed|ing)|sponsor(?:s|ed|ing)?|"
+    r"bear(?:s|ing)?|borne|take(?:n)?\s+care(?:\s+of)?)"
+)
+_LOGISTICS_CLIENT_PARTY = (
+    r"(?:we|us|ourselves|our(?:\s+own)?(?:\s+(?:team|side|end|company|organi[sz]ation|office|"
+    r"admin(?:\s+team)?|hr|travel\s+desk|facilities))?|(?:the\s+)?client(?:\s+(?:team|side))?)"
+)
+_LOGISTICS_CLAHAN_PARTY = r"(?:you|your(?:\s+(?:team|side|end|company))?|yourselves|clahan(?:\s+technologies)?|(?:the\s+)?vendor)"
+_LOGISTICS_NOISE = re.compile(
+    r"\bthank(?:s|\s+you)\b|\blet\s+(?:us|me)\s+know\b|\b(?:inform|update|tell|ask|remind)\s+(?:us|you)\b|"
+    r"\bget\s+back\s+to\s+(?:us|you)\b|\bif\s+you\s+(?:need|have|want|require)\b|"
+    r"\bas\s+(?:you|we)\s+(?:discussed|mentioned|requested)\b",
+    re.IGNORECASE,
+)
+_LOGISTICS_NEGATION = re.compile(r"\b(?:not|no|don'?t|doesn'?t|won'?t|can'?t|cannot|unable|never)\b")
+_LOGISTICS_ITEM_WORDS = {
+    "travel": r"\b(?:tickets?|flights?|air\s*fares?|bus|cabs?|taxi|travel(?:l?ing)?|transport(?:ation)?|commute|conveyance)\b",
+    "accommodation": r"\b(?:hotels?|stay|accommodation|lodging|rooms?|guest\s*house)\b",
+    "food": r"\b(?:lunch(?:es)?|food|meals?|breakfast|dinner|snacks|refreshments)\b",
+}
+
+
+def _logistics_party_acts(party: str, value: str) -> bool:
+    return bool(
+        re.search(rf"\b{party}\b[^.;!?\n]{{0,40}}?\b{_LOGISTICS_ACTION}\b", value)
+        or re.search(rf"\b(?:by|from|on)\s+(?:the\s+)?{party}(?:\s+side)?\b", value)
+    )
+
+
+def _logistics_owner(answer: Any, *, imperative: bool = True) -> str:
+    """Who books and pays for one item, read from the client's wording: client, clahan or needs_review.
+
+    "We'll book the tickets" is the client; "You can book the hotel", "Clahan to book" and
+    "Please arrange the stay" are Clahan. A negative, both parties, or neither needs review.
+    """
+    value = _LOGISTICS_NOISE.sub(" ", _clean(answer).lower().replace("\u2019", "'"))
+    client = _logistics_party_acts(_LOGISTICS_CLIENT_PARTY, value)
+    clahan = _logistics_party_acts(_LOGISTICS_CLAHAN_PARTY, value) or bool(imperative and re.match(
+        r"^\s*(?:please|kindly|pls)?\s*(?:book|arrange|provide|organi[sz]e|handle|take\s+care\s+of)\b", value,
     ))
-    client = bool(re.search(
-        r"\b(?:client|you|your team)\b.{0,70}\b(?:book|arrange|pay|cover|provide|handle)\b|"
-        r"\b(?:book|arrange|pay|cover|provide|handle)\b.{0,70}\b(?:client|your team)\b",
-        value,
-    ))
+    if (client or clahan) and _LOGISTICS_NEGATION.search(value):
+        return "needs_review"
     if clahan and not client:
         return "clahan"
     if client and not clahan:
         return "client"
     return "needs_review"
+
+
+def _client_offline_logistics(text: Any) -> Dict[str, Dict[str, str]]:
+    """Travel, accommodation and food the client's email assigns: {item: {"answer", "owner"}}.
+
+    Labeled lines ("Food: provided by us") are read first. Otherwise each sentence is split
+    into clauses, so "We'll book the tickets and provide lunch" gives travel and food to the
+    client and leaves accommodation open. A clause is used only when the sentence says who
+    acts; questions and passing mentions ("the hotel is near the venue") are ignored.
+    """
+    raw = str(text or "")
+    found: Dict[str, Dict[str, str]] = {}
+    for item in ("travel", "accommodation", "food"):
+        value = _client_labeled_logistics_value(raw, item) or (_client_confirmed_travel_terms(raw) if item == "travel" else "")
+        if value:
+            found[item] = {"answer": value[:1000], "owner": _logistics_owner(value)}
+    labeled = set(found)
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", raw):
+        sentence = sentence.strip()
+        if not sentence or sentence.endswith("?") or re.match(r"^[A-Za-z /&]{3,60}\s*[:\-]", sentence):
+            continue  # a question, or a labeled line already read above
+        segments = [part for part in re.split(r"\s*(?:[,;]|\band\b|\bbut\b|\bwhile\b|\bwhereas\b)\s*", sentence) if part.strip()]
+        owners = [_logistics_owner(part, imperative=index == 0) for index, part in enumerate(segments)]
+        definite = {owner for owner in owners if owner in ("client", "clahan")}
+        if not definite and not any(_LOGISTICS_NEGATION.search(part.lower()) for part in segments):
+            continue
+        carried = ""
+        for part, owner in zip(segments, owners):
+            lowered = re.sub(r"\btravel\s+desk\b", " ", part.lower())
+            if owner in ("client", "clahan"):
+                carried = owner
+            if _LOGISTICS_NEGATION.search(lowered):
+                speaks = re.search(rf"\b{_LOGISTICS_ACTION}\b", lowered) or re.search(
+                    rf"\b(?:{_LOGISTICS_CLIENT_PARTY}|{_LOGISTICS_CLAHAN_PARTY})\b", lowered)
+                chosen = "needs_review" if speaks else ""
+            elif owner in ("client", "clahan"):
+                chosen = owner
+            elif len(definite) == 1:
+                chosen = next(iter(definite))  # "Travel, stay and food will be arranged by us"
+            else:
+                chosen = carried
+            if not chosen:
+                continue
+            answer = part if owner == chosen else sentence  # the clause when it names who acts
+            for item, pattern in _LOGISTICS_ITEM_WORDS.items():
+                if item not in labeled and re.search(pattern, lowered):
+                    found[item] = {"answer": answer.strip()[:1000], "owner": chosen}
+    return found
+
+
+_WHATSAPP_GROUP_RE = r"what'?s?\s?app\s+group"
+
+
+def _whatsapp_group_preference(text: Any) -> Optional[bool]:
+    """True when the client asks for a WhatsApp group, False when they decline one, else None."""
+    value = _clean(text).lower().replace("\u2019", "'")
+    if not re.search(_WHATSAPP_GROUP_RE, value):
+        return None
+    preference: Optional[bool] = None
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", value):
+        if not re.search(_WHATSAPP_GROUP_RE, sentence):
+            continue
+        if re.search(rf"\b(?:no|not|don'?t|do\s+not|without|skip)\b[^.!?\n]{{0,30}}{_WHATSAPP_GROUP_RE}", sentence) \
+                or re.search(rf"{_WHATSAPP_GROUP_RE}[^.!?\n]{{0,25}}\bnot\s+(?:needed|required)\b", sentence):
+            preference = False
+        elif sentence.rstrip().endswith("?") and not re.search(r"\b(?:can|could|will|would)\s+you\b|\bplease\b|\bkindly\b", sentence):
+            continue  # "Is there a WhatsApp group?" is not a request
+        elif re.search(r"\b(?:create|make|open|start|set\s*up|form|need|want|add|include|share|please|kindly|would\s+like)\b", sentence) \
+                or re.search(rf"{_WHATSAPP_GROUP_RE}[^.!?\n]{{0,30}}\b(?:needed|required|for\s+coordination)\b", sentence):
+            preference = True
+    return preference
+
+
+async def _offline_logistics_so_far(
+    db: AsyncIOMotorDatabase, requirement_id: str, requirement: Dict[str, Any], current_email: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Who arranges travel, stay and food, and whether a WhatsApp group was asked for, across the client's emails.
+
+    Emails are read oldest first, so a later statement replaces an earlier one; items the
+    client never mentioned keep any value already stored on the requirement.
+    """
+    stored = requirement.get("offline_logistics") if isinstance(requirement.get("offline_logistics"), dict) else {}
+    answers = dict(stored.get("answers") or {}) if isinstance(stored.get("answers"), dict) else {}
+    answers = {key: value for key, value in answers.items() if value}
+    owners = dict(stored.get("owners") or {}) if isinstance(stored.get("owners"), dict) else {}
+    group = stored.get("whatsapp_group_requested")
+    client_addresses = {
+        _email_address(requirement.get(key)) for key in ("client_email", "from_email", "requester_email")
+    }
+    client_addresses.add(_email_address(current_email.get("from_email") or current_email.get("sender")))
+    client_addresses.discard("")
+    messages: List[Dict[str, Any]] = []
+    try:
+        finder = getattr(db["client_emails"], "find", None)
+    except Exception:
+        finder = None
+    if requirement_id and callable(finder):
+        try:
+            cursor = finder(
+                {"requirement_id": requirement_id},
+                {"_id": 0, "email_id": 1, "from_email": 1, "sender": 1, "classification_body": 1,
+                 "clean_body": 1, "body": 1, "received_at": 1, "created_at": 1},
+            ).sort("received_at", 1).limit(100)
+            async for message in cursor:
+                messages.append(message)
+        except Exception:
+            logger.exception("Could not read earlier client emails for offline logistics on %s", requirement_id)
+    if not any(message.get("email_id") and message.get("email_id") == current_email.get("email_id") for message in messages):
+        messages.append(current_email)
+    for message in messages:
+        if _email_address(message.get("from_email") or message.get("sender")) not in client_addresses:
+            continue  # only the client decides who arranges what
+        text = _strip_quoted_email_history(
+            message.get("classification_body") or message.get("clean_body") or message.get("body") or "")
+        for item, stated in _client_offline_logistics(text).items():
+            answers[item], owners[item] = stated["answer"], stated["owner"]
+        preference = _whatsapp_group_preference(text)
+        if preference is not None:
+            group = preference
+    return {"answers": answers, "owners": owners, "whatsapp_group_requested": bool(group)}
 
 
 async def _record_post_selection_trainer_logistics_reply(
@@ -9944,6 +10106,13 @@ async def _handle_client_selection_reply(
     requirement = requirement or {}
     offline = _is_offline_requirement(requirement)
     if offline:
+        # Who arranges travel, stay and food, and any WhatsApp group request, from every
+        # client email so far (the first request included), not only this selection email.
+        logistics = await _offline_logistics_so_far(db, requirement_id, requirement, email_doc)
+        logistics_update = {f"offline_logistics.owners.{key}": value for key, value in logistics["owners"].items()}
+        logistics_update.update({f"offline_logistics.answers.{key}": value for key, value in logistics["answers"].items()})
+        logistics_update["offline_logistics.whatsapp_group_requested"] = logistics["whatsapp_group_requested"]
+        await db["requirements"].update_one({"requirement_id": requirement_id}, {"$set": logistics_update})
         coord_id = f"offline-coordination:{requirement_id}:{trainer_id}"
         await db["offline_coordination_tasks"].update_one(
             {"_id": coord_id},
@@ -9954,13 +10123,16 @@ async def _handle_client_selection_reply(
                 "trainer_name": trainer_name,
                 "trainer_email": trainer_email,
                 "client_email": requirement.get("client_email") or email_doc.get("from_email") or "",
+                "logistics_owners": logistics["owners"],
+                "whatsapp_group_requested": logistics["whatsapp_group_requested"],
+                "updated_at": now,
+            }, "$setOnInsert": {
+                # A replayed selection email must not reset a task that has already moved on.
                 "status": "pending_trainer_po_approval",
-                "logistics_owners": (requirement.get("offline_logistics") or {}).get("owners") or {},
-                "whatsapp_group_requested": bool(re.search(r"(?:create|make|open|start).{0,50}whats?app\s+group", text, re.IGNORECASE)),
                 "whatsapp_group_status": "staff_action_required",
                 "booking_requests": [],
-                "updated_at": now,
-            }, "$setOnInsert": {"created_at": now}},
+                "created_at": now,
+            }},
             upsert=True,
         )
         from shared.commercial_policy import commercial_breakdown
@@ -10006,7 +10178,8 @@ async def _handle_client_selection_reply(
                 }},
             )
         await db["requirements"].update_one(
-            {"requirement_id": requirement_id},
+            # Only when this task starts: a replay must not undo a trainer PO that was already sent.
+            {"requirement_id": requirement_id, "offline_coordination_task_id": {"$ne": coord_id}},
             {"$set": {
                 "offline_coordination_status": "pending_trainer_po_approval",
                 "offline_coordination_task_id": coord_id,
