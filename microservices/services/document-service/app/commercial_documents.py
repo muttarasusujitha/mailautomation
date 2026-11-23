@@ -175,7 +175,15 @@ def render_pdf(context, kind):
         notes.append(f'{len(notes) + 1}. Payment details - {bank}.')
     note_body = [p('<br/>'.join(notes), body)]
     notes_table = panel([[p('IMPORTANT NOTES', band_label)], note_body], [width], header_rows=1, row_heights=[24, 104])
-    story += [notes_table, Spacer(1, 30), p(f'For {issuer(c, kind)}', right), Spacer(1, 36), p(c.get('signatory_name') or 'Authorized Signatory', right)]
+    signature_path = Path(__file__).resolve().parent / 'assets' / 'murali_signature.png'
+    signature = []
+    if signature_path.exists():
+        signature_table = Table([[Image(str(signature_path), width=104, height=31)]], colWidths=[108], hAlign='RIGHT')
+        signature_table.setStyle(TableStyle([('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0), ('BOTTOMPADDING', (0, 0), (-1, -1), 0)]))
+        signature = [Spacer(1, 7), signature_table]
+    story += [notes_table, Spacer(1, 30), p(f'For {issuer(c, kind)}', right), *signature,
+              Spacer(1, 7), p(c.get('signatory_name') or 'Authorized Signatory', right)]
 
     def footer(canvas, document):
         canvas.saveState()

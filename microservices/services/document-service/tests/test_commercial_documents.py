@@ -46,5 +46,5 @@ def test_beulix_is_the_default_issuer_for_po_and_tax_invoice_templates():
     assert 'PURCHASE' in po_text and 'ORDER' in po_text
     assert 'Murali Mohan' in po_text
     assert 'TAX' in invoice_text and 'INVOICE' in invoice_text
-    assert po[0].get_images()
-    assert invoice[0].get_images()
+    assert len(po[0].get_images()) >= 2
+    assert len(invoice[0].get_images()) >= 2
