@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import api from '../utils/api'
+import api, { clearDatabase } from '../utils/api'
 import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
@@ -91,6 +91,8 @@ const normalizeClientInboxCfg = (cfg = {}) => ({
 export default function Admin() {
   const [showPass, setShowPass]   = useState(false)
   const [saving,   setSaving]     = useState(false)
+  const [confirmClear, setConfirmClear] = useState(false)
+  const [clearing, setClearing] = useState(false)
   const location = useLocation()
 
   // Profile
@@ -461,9 +463,16 @@ export default function Admin() {
     }
   }
 
-  const clearDatabase = () => {
-    if (globalThis.confirm('Are you sure? This will clear all trainer data.')) {
-      toast.error('Database clear cancelled (demo mode)')
+  const clearDatabaseNow = async () => {
+    setClearing(true)
+    try {
+      await clearDatabase()
+      toast.success('Database cleared')
+      setConfirmClear(false)
+    } catch (e) {
+      toast.error(e.message || 'Could not clear the database')
+    } finally {
+      setClearing(false)
     }
   }
 
@@ -1069,15 +1078,30 @@ export default function Admin() {
       {/* ── DANGER ZONE ── */}
       <Section icon={Trash2} title="Danger Zone" subtitle="Irreversible actions — proceed with caution">
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-4 border border-red-100 rounded-xl bg-red-50">
-            <div>
-              <p className="text-sm font-semibold text-red-700">Clear Trainer Database</p>
-              <p className="text-xs text-red-400 mt-0.5">Permanently delete all trainer records</p>
+          <div className="p-4 border border-red-100 rounded-xl bg-red-50">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-red-700">Clear database</p>
+                <p className="text-xs text-red-400 mt-0.5">Permanently delete trainers, requirements, shortlists, and email logs</p>
+              </div>
+              {!confirmClear ? (
+                <button type="button" onClick={() => setConfirmClear(true)}
+                  className="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" /> Clear
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button type="button" onClick={clearDatabaseNow} disabled={clearing}
+                    className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition disabled:opacity-60">
+                    {clearing ? 'Clearing…' : 'Yes, clear all'}
+                  </button>
+                  <button type="button" onClick={() => setConfirmClear(false)} disabled={clearing}
+                    className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition">
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
-            <button onClick={clearDatabase}
-              className="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition flex items-center gap-2">
-              <Trash2 className="w-4 h-4" /> Clear
-            </button>
           </div>
           <div className="flex items-center justify-between p-4 border border-amber-100 rounded-xl bg-amber-50">
             <div>

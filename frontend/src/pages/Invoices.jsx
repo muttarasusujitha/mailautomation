@@ -320,7 +320,7 @@ export default function Invoices() {
               <ReceiptText className="h-3.5 w-3.5" /> Manual Billing
             </div>
             <h1 className="mt-2 page-title">Generate Invoice</h1>
-            <p className="mt-1 text-sm text-slate-500">Choose Beulix or Self Invoice format, then generate PDF.</p>
+            <p className="mt-1 text-sm text-slate-500">Choose Beulix or Self Invoice format, then generate PDF. Invoice mail is sent as Murali Mohan M, and only when billing is the request. It is not added to a ToC or lab-cost reply.</p>
           </div>
           <button onClick={refreshAll} className="btn-secondary text-sm" disabled={refreshing}>
             <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
