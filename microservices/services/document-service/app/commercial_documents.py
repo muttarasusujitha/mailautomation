@@ -1,6 +1,7 @@
 """Consistent, paginated purchase orders and invoices from verified record fields."""
 from html import escape
 from io import BytesIO
+from pathlib import Path
 
 from shared.document_amounts import calculate_document, number, money
 
@@ -45,20 +46,20 @@ def render_pdf(context, kind):
     from reportlab.lib.enums import TA_RIGHT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, KeepTogether
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, KeepTogether, Image
 
     c = prepare(context)
     invoice = kind == 'invoice'
     title = 'TAX INVOICE' if invoice else 'PURCHASE ORDER'
     identifier = c.get('invoice_number' if invoice else 'po_number') or ''
-    navy, teal, muted, border, pale = [colors.HexColor(v) for v in ('#122B40', '#087F8C', '#596B7B', '#DCE5EB', '#F2F6F8')]
+    navy, teal, muted, border, pale, highlight = [colors.HexColor(v) for v in ('#151515', '#151515', '#4B5563', '#151515', '#FFFFFF', '#FFFF66')]
     body = ParagraphStyle('Body', fontName='Helvetica', fontSize=9, leading=13, textColor=navy, splitLongWords=True)
-    label = ParagraphStyle('Label', parent=body, fontName='Helvetica-Bold', fontSize=7, leading=10, textColor=muted, spaceAfter=4)
+    label = ParagraphStyle('Label', parent=body, fontName='Helvetica-Bold', fontSize=7, leading=10, textColor=navy, spaceAfter=4)
     strong = ParagraphStyle('Strong', parent=body, fontName='Helvetica-Bold', fontSize=11, leading=15)
     heading = ParagraphStyle('Heading', parent=body, fontName='Helvetica-Bold', fontSize=25, leading=29, alignment=TA_RIGHT)
     right = ParagraphStyle('Right', parent=body, alignment=TA_RIGHT)
     small = ParagraphStyle('Small', parent=body, fontSize=8, leading=11, textColor=muted)
-    white = ParagraphStyle('White', parent=label, textColor=colors.white, spaceAfter=0)
+    white = ParagraphStyle('White', parent=label, textColor=navy, spaceAfter=0)
     width = A4[0] - 88
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=44, rightMargin=44, topMargin=42, bottomMargin=48,
@@ -72,14 +73,20 @@ def render_pdf(context, kind):
 
     def panel(rows, widths, background=None):
         table = Table(rows, colWidths=widths, hAlign='LEFT')
-        commands = [('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        commands = [('VALIGN', (0, 0), (-1, -1), 'TOP'), ('BOX', (0, 0), (-1, -1), .75, border),
+            ('INNERGRID', (0, 0), (-1, -1), .5, border), ('LEFTPADDING', (0, 0), (-1, -1), 12),
             ('RIGHTPADDING', (0, 0), (-1, -1), 12), ('TOPPADDING', (0, 0), (-1, -1), 11), ('BOTTOMPADDING', (0, 0), (-1, -1), 11)]
         if background:
             commands.append(('BACKGROUND', (0, 0), (-1, -1), background))
         table.setStyle(TableStyle(commands))
         return table
 
-    company = [p(issuer(c, kind), strong)]
+    logo_path = Path(__file__).resolve().parent / 'assets' / 'beulix_logo.png'
+    company = []
+    if logo_path.exists():
+        company.append(Image(str(logo_path), width=190, height=39))
+    else:
+        company.append(p(issuer(c, kind), strong))
     for value in (c.get('company_address'), c.get('company_email'), c.get('company_contact')):
         if value:
             company.append(p(value, small))
@@ -87,7 +94,7 @@ def render_pdf(context, kind):
         if c.get(key):
             company.append(p(f'{caption}: {c[key]}', small))
     header = panel([[company, [p(title, heading), p(identifier, right)]]], [width * .53, width * .47])
-    header.setStyle(TableStyle([('LINEABOVE', (0, 0), (-1, 0), 4, teal), ('LINEBELOW', (0, 0), (-1, -1), .7, border)]))
+    header.setStyle(TableStyle([('LINEABOVE', (0, 0), (-1, 0), 4, highlight), ('LINEBELOW', (0, 0), (-1, -1), .7, border)]))
     story = [header, Spacer(1, 16)]
     meta = [('Issue date', c.get('invoice_date' if invoice else 'date'))]
     if invoice:
@@ -125,8 +132,9 @@ def render_pdf(context, kind):
         rows.append([p(f'{index:02}', small), p(item['description']), p(item.get('hsn_sac'), small),
             p(f"{item['quantity']:g}", right), p(f"{item['rate']:,.2f}", right), p(f"{item['amount']:,.2f}", right)])
     table = Table(rows, colWidths=widths, repeatRows=1, hAlign='LEFT')
-    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), navy), ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), highlight), ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, pale]), ('LINEBELOW', (0, 1), (-1, -1), .4, border),
+        ('GRID', (0, 0), (-1, -1), .5, border),
         ('LEFTPADDING', (0, 0), (-1, -1), 7), ('RIGHTPADDING', (0, 0), (-1, -1), 7),
         ('TOPPADDING', (0, 0), (-1, -1), 10), ('BOTTOMPADDING', (0, 0), (-1, -1), 10)]))
     story += [table, Spacer(1, 14)]
@@ -137,7 +145,7 @@ def render_pdf(context, kind):
         summary += [('Balance due', c['balance_due'])]
     total_table = panel([[p(name), p(f'INR {amount:,.2f}', right)] for name, amount in summary], [130, 137], pale)
     total_table.hAlign = 'RIGHT'
-    total_table.setStyle(TableStyle([('LINEABOVE', (0, 1 + len(taxes)), (-1, 1 + len(taxes)), 1, teal), ('TOPPADDING', (0, 0), (-1, -1), 7), ('BOTTOMPADDING', (0, 0), (-1, -1), 7)]))
+    total_table.setStyle(TableStyle([('LINEABOVE', (0, 1 + len(taxes)), (-1, 1 + len(taxes)), 1, navy), ('TOPPADDING', (0, 0), (-1, -1), 7), ('BOTTOMPADDING', (0, 0), (-1, -1), 7)]))
     cents = int(money(number(c['grand_total'], 'Total')) * 100)
     amount_words = _number_to_words(cents // 100) + ' Rupees'
     if cents % 100:

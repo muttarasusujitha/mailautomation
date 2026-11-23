@@ -350,9 +350,9 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
             finance_body = (
                 f"{finance_greeting}\n\n"
                 f"Please find the {invoice_label} attached against PO {payload.po_number}.\n\n"
-                "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+                "Thanks and Regards,\nMurali Mohan M\nBeulix Solutions Private Limited"
             )
-            subject = f"Invoices {invoice_id} and {lab_invoice['invoice_id']} - Clahan Technologies" if lab_invoice else f"Invoice {invoice_id} - Clahan Technologies"
+            subject = f"Invoices {invoice_id} and {lab_invoice['invoice_id']} - Beulix Solutions Private Limited" if lab_invoice else f"Invoice {invoice_id} - Beulix Solutions Private Limited"
             mail = await client.post(f"{email_url}/api/v1/email/send", json={"to": payload.client_email, "subject": subject, "body": finance_body, "mail_type": "finance_invoice", "idempotency_key": f"finance-invoice:{finance_id}", "attachments": attachments})
             mail.raise_for_status()
             if mail.json().get("success") is not True:

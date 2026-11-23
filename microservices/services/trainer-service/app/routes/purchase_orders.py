@@ -214,14 +214,14 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
     if doc.get("status") in {"sent", "acknowledged"}:
         return {"success": True, "already_sent": True, "po_id": po_id, "sent_to": doc.get("sent_to")}
 
-    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
+    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Beulix Solutions Private Limited"
     client_name = str(doc.get("client_name") or "").strip()
     greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
     body = payload.body or (
         f"{greeting}\n\n"
         f"Please find the purchase order {doc.get('po_number', po_id)} attached.\n\n"
         "Please confirm once you have received it.\n\n"
-        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+        "Thanks and Regards,\nMurali Mohan M\nBeulix Solutions Private Limited"
     )
 
     # generate purchase-order PDF and attach to email

@@ -202,13 +202,13 @@ async def send_invoice(
         }
 
     invoice_number = doc.get("invoice_number") or invoice_id
-    subject = payload.subject or f"Invoice {invoice_number} - Clahan Technologies"
+    subject = payload.subject or f"Invoice {invoice_number} - Beulix Solutions Private Limited"
     client_name = str(doc.get("client_name") or "").strip()
     greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
     body = payload.body or (
         f"{greeting}\n\n"
         f"Please find the invoice {invoice_number} attached.\n\n"
-        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+        "Thanks and Regards,\nMurali Mohan M\nBeulix Solutions Private Limited"
     )
 
     try:
