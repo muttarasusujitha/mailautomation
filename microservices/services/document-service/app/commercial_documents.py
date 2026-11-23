@@ -122,7 +122,7 @@ def render_pdf(context, kind):
     number_label = 'INVOICE NUMBER' if invoice else 'ORDER NUMBER'
     top = panel([[p(primary_label, band_label), p('DATE', band_label), p(number_label, band_label)],
                  [primary, p(date_value, centered), p(identifier, centered)]],
-                [width * .54, width * .18, width * .28], header_rows=1, row_heights=[26, 120])
+                [width * .53, width * .21, width * .26], header_rows=1, row_heights=[26, 120])
     story += [top, Spacer(1, 16)]
 
     bill = [p(c.get('client_name'), strong)]
@@ -139,7 +139,7 @@ def render_pdf(context, kind):
         if value:
             delivery.append(p(f'{caption}: {value}', compact))
     billing = panel([[p('BILL TO', band_label), p('DELIVER TO', band_label)], [bill, delivery]],
-                    [width * .54, width * .46], header_rows=1, row_heights=[24, 64])
+                    [width * .53, width * .47], header_rows=1, row_heights=[24, 64])
     story += [billing, Spacer(1, 14)]
 
     widths = [width * .53, width * .13, width * .16, width * .18]
