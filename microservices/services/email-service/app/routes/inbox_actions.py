@@ -744,7 +744,8 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
     })
     await db["lab_cost_requests"].update_one(
         {"requirement_id": requirement_id},
-        {"$set": {"status": "toc_and_lab_sent" if request.get("toc_requested") else "estimate_sent", "sent_at": now, "updated_at": now},
+        {"$set": {"status": "toc_and_lab_sent" if request.get("toc_requested") else "estimate_sent", "sent_at": now,
+                  "lab_client_price": float(lab_file.get("client_lab_amount") or 0), "updated_at": now},
          "$unset": {"pending_attachments": "", "pending_reply": "", "send_error": ""}},
     )
     if source_id:

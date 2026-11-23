@@ -12222,11 +12222,12 @@ async def _create_revised_lab_cost_attachment(
                     workbook_response.content,
                     str(workbook_response.headers.get("X-Lab-Cost-Review-Required", "false")).lower() == "true",
                     workbook_response.headers.get("X-Lab-Cost-Review-Reason", ""),
+                    float(workbook_response.headers.get("X-Lab-Cost-Final-INR") or 0),
                 ))
             if len(workbooks) == 1:
                 workbook_content = workbooks[0][1]
             else:
-                combined = await _post_with_local_fallback(client, f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc/lab-cost/combine", json={"estimates": [{"provider": provider, "content_base64": base64.b64encode(content).decode()} for provider, content, _, _ in workbooks]})
+                combined = await _post_with_local_fallback(client, f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc/lab-cost/combine", json={"estimates": [{"provider": item[0], "content_base64": base64.b64encode(item[1]).decode()} for item in workbooks]})
                 if combined.status_code >= 400 or not combined.content:
                     return None
                 workbook_content = combined.content
@@ -12241,6 +12242,7 @@ async def _create_revised_lab_cost_attachment(
             "lab_hours_per_day": hours,
             "pricing_review_required": review_required,
             "pricing_review_reasons": review_reasons,
+            "client_lab_amount": round(sum(item[4] for item in workbooks), 2),
         }
     except Exception:
         logger.exception("Failed to create revised lab-cost workbook")
@@ -12938,6 +12940,7 @@ async def _process_client_requirement_email(
                     lab_update["lab_cost_status"] = "toc_and_lab_sent"
                 else:
                     lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
+                lab_update["lab_client_price"] = float(attachment.get("client_lab_amount") or 0)
                 await db["requirements"].update_one({"requirement_id": email_doc["requirement_id"]}, {"$set": lab_update})
                 await db["client_emails"].update_one(
                     {"email_id": email_doc.get("email_id")},
@@ -13076,6 +13079,7 @@ async def _process_client_requirement_email(
                     {"$set": {
                         "status": "reviewed_no_reply" if send_result.get("suppressed") else (("toc_and_lab_sent" if asks_toc else "estimate_sent") if success else "estimate_send_failed"),
                         "workbook_filename": attachment["filename"],
+                        "lab_client_price": float(attachment.get("client_lab_amount") or 0),
                         "updated_at": _now(),
                     }},
                 )

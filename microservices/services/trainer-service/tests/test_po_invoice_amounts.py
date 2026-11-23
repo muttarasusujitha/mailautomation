@@ -1,8 +1,7 @@
 import asyncio
-from decimal import Decimal
 
 from app.routes.purchase_orders import InvoiceGenerateRequest, generate_invoice_from_po
-from app.routes.purchase_orders import LabSupplierOrderRequest, generate_lab_supplier_order
+from app.routes.invoices import LabInvoiceRequest, generate_lab_invoice
 from shared.document_amounts import offline_expense_items
 
 
@@ -94,26 +93,26 @@ def test_offline_invoice_items_include_only_clahan_arranged_costs():
     }]
 
 
-class _LabOrders(_Collection):
-    async def find_one_and_update(self, query, update, **kwargs):
-        self.document = {**update['$setOnInsert'], '_id': query['_id']}
-        return {key: value for key, value in self.document.items() if key != '_id'}
+class _Invoices(_Collection):
+    async def insert_one(self, document):
+        self.document = document
 
 
-def test_lab_supplier_po_uses_purchase_cost_and_is_separate_from_training_po():
+def test_lab_invoice_is_a_separate_client_invoice():
+    invoices = _Invoices()
     db = {
-        'lab_cost_requests': _Collection({'requirement_id': 'LAB-1', 'technology_needed': 'DevOps'}),
+        'lab_cost_requests': _Collection({
+            'requirement_id': 'LAB-1', 'client_name': 'Acme',
+            'client_email': 'client@example.com', 'technology_needed': 'DevOps',
+        }),
         'requirements': _Collection(),
-        'lab_purchase_orders': _LabOrders(),
+        'invoices': invoices,
     }
-    order = asyncio.run(generate_lab_supplier_order(
-        'LAB-1',
-        LabSupplierOrderRequest(
-            supplier_name='Lab Partner', supplier_email='lab@example.com',
-            purchase_cost=Decimal('7000.00'),
-        ),
-        db,
-    ))['purchase_order']
-    assert order['po_kind'] == 'lab_supplier'
-    assert order['total_amount'] == 7000.0
-    assert order['items'][0]['description'] == 'DevOps lab services'
+    result = asyncio.run(generate_lab_invoice(
+        'LAB-1', LabInvoiceRequest(lab_amount=7000, gst_rate=18), db,
+    ))
+    invoice = result['invoice']
+    assert invoice['invoice_kind'] == 'lab'
+    assert invoice['lab_requirement_id'] == 'LAB-1'
+    assert invoice['total_amount'] == 7000
+    assert invoice['balance_due'] == 8260
