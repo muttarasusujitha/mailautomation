@@ -5,7 +5,7 @@ export function requestTimeout(config = {}) {
   const explicit = Number(config.timeout)
   if (explicit > 0) return explicit
   const url = String(config.url || '')
-  // Profile search reads public results and a signed-in browser session.
+  // Profile search uses the signed-in LinkedIn browser session.
   // Keep the five-minute budget so Find Profiles is not aborted mid-search.
   if (url.includes('/linkedin-leads/search')) return 300000
   return 120000

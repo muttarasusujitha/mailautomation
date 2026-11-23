@@ -1,4 +1,4 @@
-"""LinkedIn account, public search and optional Tavily lead discovery."""
+"""LinkedIn account lead discovery, with optional public and Tavily providers."""
 import logging
 import re
 import uuid
@@ -28,7 +28,7 @@ BAD_EMAIL_LOCALS = {"noreply", "no-reply", "donotreply", "support", "admin", "in
 
 
 class LinkedInLeadSearchRequest(BaseModel):
-    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'public'
+    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'auto'
     query: Optional[str] = ""
     domain: Optional[str] = ""
     domains: Optional[List[str]] = None

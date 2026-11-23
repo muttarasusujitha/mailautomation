@@ -7,7 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, visibleSearchLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, outcomeLine, visibleSearchLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
@@ -406,7 +406,7 @@ export default function LinkedInSearch() {
         {(searchReport.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below.</p>}
         {!searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches); setSelectedDomain('all') }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
         {(searchReport.domain_outcomes || []).map(outcome => <p key={outcome.domain} className="text-sm text-slate-600">
-          {outcome.domain}: {outcome.matched}/{outcome.target} matches.{!outcome.target_met && ' Target not reached.'}
+          {outcomeLine(outcome)}
         </p>)}
         {searchReport.warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
         {searchReport.warnings.length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}
