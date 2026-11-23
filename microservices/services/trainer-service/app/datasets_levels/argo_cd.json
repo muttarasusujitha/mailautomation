@@ -1,0 +1,573 @@
+{
+  "domain": "Argo CD",
+  "name": "Argo CD",
+  "category": "DevOps and CI/CD",
+  "icon": "git-branch",
+  "aliases": ["ArgoCD", "GitOps Continuous Delivery", "Argo CD GitOps", "GitOps with Argo CD", "Argo CD Administration", "Argo CD and Argo Rollouts", "Argo GitOps", "Argo CD Platform Engineering"],
+  "certifications": ["Certified Argo Project Associate (CAPA)"],
+  "tools": ["Argo CD 3.x", "argocd CLI", "ApplicationSet controller", "Argo Rollouts", "Argo CD Image Updater", "kubectl", "kind", "Helm", "Kustomize", "Git", "Sealed Secrets", "External Secrets Operator", "SOPS", "Prometheus"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Kubernetes users, DevOps engineers and developers who deploy with kubectl or Helm today and want to adopt GitOps with Argo CD. Covers the Argo CD components and reconciliation model, installation on a local cluster, the argocd CLI and web UI, the Application resource, sync and health status, manual and automated sync with prune and self-heal, sync options, private repository credentials, plain YAML, Helm and Kustomize sources, sync waves and resource hooks, health assessment, diff customization, local users and the default project, and diagnosing OutOfSync applications, ending with a capstone that delivers a three-tier app entirely from Git.",
+      "prerequisites": ["Deploys and inspects workloads with kubectl: Deployments, Services, ConfigMaps, Secrets and namespaces", "Uses Git from the command line: clone, branch, commit, push and pull requests on GitHub or GitLab", "Has a laptop with Docker or Podman, kind or minikube, kubectl and rights to install the argocd CLI"],
+      "outcomes": ["Install Argo CD on a Kubernetes cluster and operate it through the argocd CLI, the web UI and kubectl", "Write Application manifests that deploy plain YAML, Helm charts and Kustomize overlays from Git", "Control how changes reach the cluster with manual and automated sync, prune, self-heal, sync options, waves and hooks", "Read sync and health status, customise diffs and diagnose OutOfSync, Degraded and ComparisonError applications"],
+      "days": [
+        {
+          "topic": "Argo CD Architecture and GitOps Principles",
+          "subtopics": ["The four OpenGitOps principles: declarative, versioned and immutable, pulled automatically, continuously reconciled", "Push-based CI deployment compared with pull-based GitOps reconciliation", "argocd-server: API, web UI and gRPC/REST gateway", "argocd-repo-server: cloning Git and rendering manifests", "argocd-application-controller: comparing desired and live state", "argocd-applicationset-controller, argocd-dex-server and argocd-notifications-controller", "argocd-redis as a cache, not a source of truth", "Desired state in Git, live state in the cluster and the diff between them", "Where Argo CD stores its own state: CRDs, ConfigMaps and Secrets in the argocd namespace"],
+          "tools": ["Argo CD", "Kubernetes", "kubectl", "Git", "draw.io"],
+          "lab_task": "Draw the Argo CD component diagram showing argocd-server, repo-server, application-controller, applicationset-controller, Dex, Redis and notifications controller, with arrows for Git pulls and Kubernetes API calls. Then list, for a sample change merged to main, the six steps from commit to running Pod and name the component responsible for each step.",
+          "deliverable": "Annotated architecture diagram and a commit-to-Pod sequence table",
+          "checks": [["Ask which component runs helm template or kustomize build", "argocd-repo-server is named as the component that renders manifests", "Sequence table"], ["Ask what happens if argocd-redis is deleted", "Learner states the cache is rebuilt and no desired state is lost because Git and CRDs hold it", "Written answer"], ["Compare a CI pipeline running kubectl apply with Argo CD", "Learner identifies that cluster credentials stay inside the cluster in the pull model", "Comparison notes"]],
+          "objectives": ["Explain the GitOps principles and the pull-based reconciliation model", "Name each Argo CD component and its responsibility", "Trace a Git commit to a running workload through Argo CD"]
+        },
+        {
+          "topic": "Installing Argo CD on a Local kind Cluster",
+          "subtopics": ["Creating a cluster with kind create cluster --name argocd-lab", "The stable install.yaml compared with namespace-install.yaml and ha/install.yaml", "kubectl create namespace argocd and applying the manifests", "Server-side apply for the large ApplicationSet CRD: --server-side --force-conflicts", "Waiting for readiness with kubectl wait --for=condition=available", "The argocd-initial-admin-secret and argocd admin initial-password", "Reaching the UI with kubectl port-forward svc/argocd-server -n argocd 8080:443", "Self-signed TLS, --insecure and server.insecure for ingress termination", "Installing the argocd CLI from GitHub releases or a package manager", "Pinning a release tag instead of stable for repeatable installs"],
+          "tools": ["kind", "kubectl", "Argo CD", "argocd CLI", "Docker"],
+          "lab_task": "Create a kind cluster, run kubectl create namespace argocd and kubectl apply -n argocd --server-side --force-conflicts -f the stable install.yaml URL. Wait until kubectl get pods -n argocd shows every Pod Running, read the password with argocd admin initial-password -n argocd, port-forward argocd-server to 8080 and log in to the UI and with argocd login localhost:8080 --insecure.",
+          "deliverable": "Install log with kubectl get pods -n argocd output and a screenshot of the logged-in UI",
+          "checks": [["Run kubectl get pods -n argocd after install", "Seven Argo CD Pods including argocd-application-controller-0 are Running and Ready", "kubectl output"], ["Run argocd version after argocd login", "Both argocd client and argocd-server versions are printed", "Terminal output"], ["Apply install.yaml with client-side apply instead of --server-side", "An error reports metadata.annotations: Too long for the applicationsets CRD", "Error message"]],
+          "objectives": ["Install Argo CD with the official manifests", "Retrieve the initial admin credential and log in by CLI and UI", "Choose between cluster-wide, namespaced and HA install manifests"]
+        },
+        {
+          "topic": "Argo CD CLI and Web UI Navigation",
+          "subtopics": ["argocd login, argocd context and the ~/.config/argocd/config file", "--grpc-web for proxies and ingresses that block HTTP/2", "argocd app list, argocd app get and -o yaml or -o json output", "argocd account update-password and argocd account get-user-info", "The Applications tiles, list and summary views", "The resource tree, network and pod views of an application", "Filtering by project, cluster, namespace, sync and health status", "Live manifest, desired manifest and diff tabs in the UI", "Reading Pod logs and events from the UI"],
+          "tools": ["argocd CLI", "Argo CD web UI", "kubectl", "jq"],
+          "lab_task": "Log in with argocd login localhost:8080 --insecure, change the admin password with argocd account update-password, then delete argocd-initial-admin-secret. Run argocd app list -o json | jq length, argocd cluster list and argocd repo list, and find the same three views in the UI. Record which UI filters you used and how many items each list returned.",
+          "deliverable": "CLI cheat sheet with outputs and matching UI screenshots",
+          "checks": [["Run argocd account get-user-info", "Logged In: true and Username: admin are printed", "Terminal output"], ["Run argocd cluster list on a fresh install", "One cluster https://kubernetes.default.svc named in-cluster is listed", "Terminal output"], ["Log in again with the old initial password after changing it", "Login fails with Invalid username or password", "Error message"]],
+          "objectives": ["Authenticate and manage contexts with the argocd CLI", "Navigate application views in the Argo CD UI", "Retrieve structured output for scripting with -o json"]
+        },
+        {
+          "topic": "First Argo CD Application with the guestbook Sample",
+          "subtopics": ["The argoproj/argocd-example-apps repository and its guestbook path", "argocd app create with --repo, --path, --dest-server and --dest-namespace", "Creating the same Application from the UI New App form", "https://kubernetes.default.svc as the in-cluster destination", "Initial OutOfSync and Missing status before the first sync", "argocd app sync and watching the operation progress", "argocd app wait --health --sync --timeout", "Accessing the deployed Service with kubectl port-forward", "argocd app delete and the cascading behaviour"],
+          "tools": ["argocd CLI", "Argo CD web UI", "kubectl", "Git"],
+          "lab_task": "Fork argoproj/argocd-example-apps, then run argocd app create guestbook --repo <your fork> --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default. Run argocd app sync guestbook and argocd app wait guestbook --health --timeout 120, port-forward svc/guestbook-ui to 8081 and load the page. Change replicas to 2 in your fork, push, sync again and confirm two Pods.",
+          "deliverable": "Application create command, sync output and before/after Pod counts",
+          "checks": [["Run argocd app get guestbook before the first sync", "Sync Status is OutOfSync and Health Status is Missing", "CLI output"], ["Run argocd app wait guestbook --health after sync", "Command exits 0 and reports Healthy", "Terminal output"], ["Push replicas: 2 and sync", "kubectl get pods -l app=guestbook-ui shows 2 Running Pods", "kubectl output"]],
+          "objectives": ["Create an Application from the CLI and the UI", "Sync and wait for an application to become healthy", "Deliver a change by committing to Git"]
+        },
+        {
+          "topic": "The Application Manifest: source, destination and project",
+          "subtopics": ["apiVersion argoproj.io/v1alpha1 and kind Application in the argocd namespace", "spec.project and the default AppProject", "spec.source.repoURL, targetRevision and path", "targetRevision as a branch, tag, commit SHA or HEAD", "spec.destination.server compared with spec.destination.name", "spec.destination.namespace and resources that set their own namespace", "metadata.finalizers: resources-finalizer.argocd.argoproj.io", "Applying Application YAML with kubectl apply instead of argocd app create", "argocd app get -o yaml to export an existing Application", "Storing Application manifests in Git alongside or apart from app manifests"],
+          "tools": ["kubectl", "argocd CLI", "Git", "Visual Studio Code", "YAML language server"],
+          "lab_task": "Export the guestbook Application with argocd app get guestbook -o yaml, clean it to a minimal manifest, and commit it as apps/guestbook.yaml with targetRevision pinned to a Git tag v1. Delete the Application with --cascade=false, recreate it with kubectl apply -n argocd -f apps/guestbook.yaml, and confirm the existing Pods were adopted without restart by comparing Pod names and ages.",
+          "deliverable": "Minimal Application YAML in Git and a Pod name/age comparison",
+          "checks": [["Run kubectl get application guestbook -n argocd -o jsonpath='{.spec.source.targetRevision}'", "Output is v1", "Terminal output"], ["Compare Pod names before and after recreating the Application", "Pod names and start times are unchanged", "kubectl output"], ["Set spec.project to a project that does not exist", "Application condition reports InvalidSpecError with project not found", "argocd app get output"]],
+          "objectives": ["Write an Application manifest by hand", "Pin sources to tags, branches or commits", "Explain the role of the resources finalizer in deletion"]
+        },
+        {
+          "topic": "Sync Status, Health Status and the Reconciliation Loop",
+          "subtopics": ["Sync status values: Synced, OutOfSync and Unknown", "Health status values: Healthy, Progressing, Degraded, Suspended, Missing and Unknown", "Why an application can be Synced but Degraded", "The default three-minute reconciliation interval and timeout.reconciliation", "Normal refresh compared with hard refresh and the manifest cache", "argocd app get --refresh and --hard-refresh", "The argocd.argoproj.io/refresh annotation", "Operation state: Running, Succeeded, Failed, Error and Terminating", "Application conditions such as ComparisonError and SyncError"],
+          "tools": ["argocd CLI", "kubectl", "Argo CD web UI"],
+          "lab_task": "With guestbook synced, set the image to a tag that does not exist in Git and push. Refresh with argocd app get guestbook --refresh and record sync and health status every 30 seconds for three minutes. Then kubectl scale the Deployment to 5 directly and record the status again. Explain each status you observed and which component produced it.",
+          "deliverable": "Timeline table of sync and health status with explanations",
+          "checks": [["Push a non-existent image tag and sync", "Sync Status Synced with Health Status Degraded or Progressing caused by ImagePullBackOff", "Status timeline"], ["Scale the Deployment with kubectl without changing Git", "Application becomes OutOfSync on the Deployment resource", "argocd app diff output"], ["Run argocd app get guestbook --hard-refresh", "Reconciled At timestamp updates to the current time", "CLI output"]],
+          "objectives": ["Distinguish sync status from health status", "Trigger refreshes and read operation state", "Explain how the reconciliation interval affects detection time"]
+        },
+        {
+          "topic": "Manual Sync, Diff, History and Rollback",
+          "subtopics": ["argocd app diff and its exit codes: 0 no diff, 1 diff found, 2 error", "Selective sync with --resource GROUP:KIND:NAME", "Dry run with argocd app sync --dry-run", "Sync with --prune and why pruning is off by default", "argocd app history and deployment IDs", "argocd app rollback and why it is blocked when auto-sync is on", "Rollback compared with git revert", "argocd app terminate-op for a stuck operation", "Sync retries with --retry-limit and backoff"],
+          "tools": ["argocd CLI", "Git", "kubectl", "Argo CD web UI"],
+          "lab_task": "Push three commits to guestbook changing the UI image tag each time and sync after each. Run argocd app history guestbook and record the IDs, then argocd app rollback guestbook <second ID>. Run argocd app diff guestbook and capture its exit code with echo $?. Finally restore the desired state with git revert and a normal sync, and note which approach Git history reflects.",
+          "deliverable": "History table, rollback output and diff exit codes",
+          "checks": [["Run argocd app history guestbook after three syncs", "At least three entries with distinct revisions are listed", "CLI output"], ["Run argocd app diff guestbook right after rollback", "Diff is printed and echo $? returns 1", "Terminal output"], ["Run argocd app rollback on an app with automated sync enabled", "Command fails stating rollback cannot be initiated when auto-sync is enabled", "Error message"]],
+          "objectives": ["Preview and apply changes selectively", "Roll back using deployment history", "Choose between Argo CD rollback and git revert"]
+        },
+        {
+          "topic": "Automated Sync Policy with prune and selfHeal",
+          "subtopics": ["spec.syncPolicy.automated and what triggers an automatic sync", "automated.prune: deleting resources removed from Git", "automated.selfHeal: reverting manual cluster changes", "automated.allowEmpty and protection against an empty source", "Self-heal timing and controller.self.heal.timeout.seconds", "argocd app set --sync-policy automated --auto-prune --self-heal", "spec.syncPolicy.retry with limit, backoff duration, factor and maxDuration", "The per-resource annotation argocd.argoproj.io/sync-options: Prune=false", "Pausing automation temporarily without deleting the Application"],
+          "tools": ["argocd CLI", "kubectl", "Git"],
+          "lab_task": "Enable automated sync on guestbook with prune and selfHeal in the Application YAML. Delete the Service manifest from Git and time how long until it disappears from the cluster. Restore it, then kubectl edit the Deployment to change replicas and time the revert. Add Prune=false to a ConfigMap, remove it from Git and confirm it survives with an orphan warning.",
+          "deliverable": "Updated Application YAML and a timing table for prune and self-heal",
+          "checks": [["Remove the Service from Git with prune enabled", "kubectl get svc guestbook-ui returns NotFound within one reconciliation", "Timing table"], ["Edit replicas with kubectl while selfHeal is on", "Replica count returns to the Git value without a manual sync", "kubectl output"], ["Remove a ConfigMap annotated Prune=false from Git", "ConfigMap still exists and the app shows it as requiring pruning but skipped", "argocd app get output"]],
+          "objectives": ["Configure automated sync with prune and self-heal", "Protect individual resources from pruning", "Tune retry behaviour for failed syncs"]
+        },
+        {
+          "topic": "Sync Options: CreateNamespace, PruneLast, ServerSideApply and Replace",
+          "subtopics": ["spec.syncPolicy.syncOptions compared with per-resource sync-options annotations", "CreateNamespace=true and managedNamespaceMetadata", "PruneLast=true to delete only after other resources are healthy", "ApplyOutOfSyncOnly=true for large applications", "ServerSideApply=true and field ownership", "Replace=true and when kubectl replace is needed", "Validate=false for manifests with unknown fields", "PrunePropagationPolicy foreground, background and orphan", "SkipDryRunOnMissingResource=true for CRDs created in the same sync", "FailOnSharedResource=true to block two apps owning one object"],
+          "tools": ["argocd CLI", "kubectl", "Git", "kind"],
+          "lab_task": "Create an Application targeting namespace shop-dev that does not exist, with CreateNamespace=true and managedNamespaceMetadata labels team: shop. Sync and verify the namespace labels. Then add a CustomResource whose CRD is in the same repo and sync without and with SkipDryRunOnMissingResource=true. Finally enable ServerSideApply=true and inspect managedFields for the argocd-controller manager.",
+          "deliverable": "Application YAML with sync options and evidence for each option tested",
+          "checks": [["Run kubectl get ns shop-dev --show-labels after sync", "Namespace exists with label team=shop", "kubectl output"], ["Sync a custom resource before its CRD exists without the skip option", "Sync fails with the server could not find the requested resource", "Sync error"], ["Inspect managedFields after enabling ServerSideApply=true", "A managedFields entry with manager argocd-controller and operation Apply is present", "kubectl get -o yaml output"]],
+          "objectives": ["Select sync options for namespaces, CRDs and large objects", "Apply options globally or per resource", "Explain server-side apply field ownership in Argo CD"]
+        },
+        {
+          "topic": "Private Git Repositories and Repository Credentials",
+          "subtopics": ["argocd repo add with HTTPS username and personal access token", "SSH repositories, --ssh-private-key-path and argocd-ssh-known-hosts-cm", "GitHub App credentials with --github-app-id and installation ID", "Repository Secrets labelled argocd.argoproj.io/secret-type: repository", "Credential templates with secret-type: repo-creds and URL prefixes", "Custom CA certificates in argocd-tls-certs-cm", "Helm chart repositories and OCI registries as repositories", "Project-scoped repositories", "Why credentials must not be committed in plain text"],
+          "tools": ["argocd CLI", "kubectl", "GitHub", "GitLab", "ssh-keygen"],
+          "lab_task": "Make your guestbook fork private. Generate a read-only deploy key with ssh-keygen -t ed25519, add it to the repository, and register it as a declarative Secret labelled argocd.argoproj.io/secret-type: repository. Point the Application at the SSH URL and refresh. Then replace it with a repo-creds template for the whole GitHub organisation and confirm a second private repo connects without its own Secret.",
+          "deliverable": "Repository Secret manifests with keys redacted and argocd repo list output",
+          "checks": [["Run argocd repo list after adding the deploy key", "Repository shows CONNECTION STATUS Successful", "CLI output"], ["Refresh the app with the key Secret deleted", "Condition shows authentication required or permission denied for the repository", "Application condition"], ["Add a second repo under the same org prefix", "It connects using the repo-creds template with no per-repo Secret", "argocd repo list output"]],
+          "objectives": ["Connect Argo CD to private Git and Helm repositories", "Manage repository credentials declaratively", "Use credential templates to cover many repositories"]
+        },
+        {
+          "topic": "Plain YAML, Directory and Jsonnet Sources",
+          "subtopics": ["How Argo CD detects the tool: Helm, Kustomize, directory or plugin", "spec.source.directory.recurse for nested folders", "directory.include and directory.exclude glob patterns", "Ordering of resources inside one sync wave by kind", "Multi-document YAML files and invalid documents", "Jsonnet sources with directory.jsonnet.extVars and tlas", "Libraries for Jsonnet with jsonnet.libs", "Keeping CI-only files out of the render with exclude", "argocd app manifests to see the rendered output"],
+          "tools": ["argocd CLI", "kubectl", "Jsonnet", "Git"],
+          "lab_task": "Build a repo folder with base/, extras/ and a ci/ folder holding a GitHub Actions file. Create an Application with directory.recurse: true and exclude: '{ci/*,*.md}'. Run argocd app manifests and count the rendered resources. Then add a Jsonnet file that takes an extVar replicas and set it to 3 in the Application, sync, and verify the Deployment replicas.",
+          "deliverable": "Directory Application YAML, rendered resource count and Jsonnet output",
+          "checks": [["Run argocd app manifests <app> | grep -c '^kind:'", "Count equals the number of Kubernetes manifests excluding ci/ files", "Terminal output"], ["Remove the exclude pattern and refresh", "Application shows a ComparisonError because the workflow file is not a valid Kubernetes object", "Application condition"], ["Set extVar replicas to 3 and sync", "kubectl get deploy shows READY 3/3", "kubectl output"]],
+          "objectives": ["Deploy directory sources with include and exclude rules", "Render Jsonnet with external variables", "Inspect the manifests Argo CD will apply"]
+        },
+        {
+          "topic": "Deploying Helm Charts through Argo CD",
+          "subtopics": ["Charts from Git paths compared with chart repositories via spec.source.chart", "helm.valueFiles, helm.values and helm.valuesObject", "helm.parameters for single overrides and their precedence", "helm.releaseName and why it matters for existing releases", "Argo CD renders with helm template, so helm list shows nothing", "helm.ignoreMissingValueFiles and helm.skipCrds", "How Helm hooks map to Argo CD hooks", "Charts from OCI registries", "argocd app set -p for quick parameter overrides"],
+          "tools": ["argocd CLI", "Helm", "kubectl", "Bitnami or ingress-nginx chart"],
+          "lab_task": "Deploy the ingress-nginx chart from its chart repository with targetRevision pinned to a chart version, using helm.valuesObject to set controller.replicaCount: 2. Then deploy a local chart from Git with valueFiles values-dev.yaml. Run helm list -A and explain its output. Override a value with argocd app set -p and compare the result with the same value in valuesObject.",
+          "deliverable": "Two Helm Application manifests and a value precedence note",
+          "checks": [["Run helm list -A after Argo CD syncs the chart", "No release is listed for the Argo CD-managed chart", "Terminal output"], ["Run kubectl get deploy -n ingress-nginx", "ingress-nginx-controller shows READY 2/2", "kubectl output"], ["Reference a missing value file without ignoreMissingValueFiles", "ComparisonError reports the values file does not exist", "Application condition"]],
+          "objectives": ["Deploy Helm charts from Git, chart repositories and OCI", "Supply values through files, inline objects and parameters", "Explain how Argo CD differs from helm install"]
+        },
+        {
+          "topic": "Deploying Kustomize Overlays through Argo CD",
+          "subtopics": ["Detection of kustomization.yaml in the source path", "base and overlays/dev, overlays/prod layouts", "spec.source.kustomize.images for image overrides", "kustomize.namePrefix, nameSuffix and namespace", "kustomize.commonLabels and commonAnnotations", "kustomize.patches inline in the Application", "kustomize.buildOptions in argocd-cm, for example --enable-helm", "argocd app set --kustomize-image", "Kustomize version bundled with the repo-server"],
+          "tools": ["Kustomize", "argocd CLI", "kubectl", "Git"],
+          "lab_task": "Create base/ and overlays/dev and overlays/prod for a small API. Create two Applications pointing at each overlay. In the dev Application set kustomize.images to override the tag and namePrefix dev-. Run kustomize build overlays/dev locally and compare it with argocd app manifests. Then enable --enable-helm in argocd-cm kustomize.buildOptions and use a helmCharts entry.",
+          "deliverable": "Overlay repo layout, two Applications and a local-versus-Argo CD manifest comparison",
+          "checks": [["Diff kustomize build overlays/dev with argocd app manifests output", "Only the overrides set in the Application differ", "diff output"], ["Run kubectl get deploy -n api-dev", "Deployment is named dev-api and uses the overridden tag", "kubectl output"], ["Use helmCharts in kustomization.yaml without --enable-helm", "Rendering fails with an error that helmCharts requires --enable-helm", "Application condition"]],
+          "objectives": ["Deploy Kustomize overlays per environment", "Override images and names from the Application", "Configure Kustomize build options globally"]
+        },
+        {
+          "topic": "Sync Waves for Ordering Resources",
+          "subtopics": ["The argocd.argoproj.io/sync-wave annotation with negative and positive integers", "Default wave 0 and sorting by phase, wave, kind and name", "Argo CD waits for each wave to be healthy before the next", "Wave delay and ARGOCD_SYNC_WAVE_DELAY", "Ordering namespaces, CRDs and operators before workloads", "Pruning order is the reverse of wave order", "Waves within the pre-sync, sync and post-sync phases", "Debugging a stuck wave with the operation state"],
+          "tools": ["argocd CLI", "kubectl", "Git", "PostgreSQL image"],
+          "lab_task": "Add a PostgreSQL StatefulSet at wave -1, a schema ConfigMap at wave -2, and the API Deployment at wave 1 to one repository. Sync and capture kubectl get pods -w with timestamps. Then give the database an invalid image and sync again to show the API wave never starts. Record the operation message reported by argocd app get.",
+          "deliverable": "Wave-annotated manifests and a timestamped creation log",
+          "checks": [["Compare creation timestamps of ConfigMap, StatefulSet and Deployment", "Creation order follows waves -2, -1, then 1", "kubectl output"], ["Break the database image and sync", "The API Deployment is not created and the operation waits on the StatefulSet health", "argocd app get output"], ["Remove all three resources from Git and sync with prune", "Deployment is deleted before the StatefulSet and ConfigMap", "Sync result list"]],
+          "objectives": ["Order resources with sync waves", "Explain how health gates progress between waves", "Diagnose a sync stuck on an unhealthy wave"]
+        },
+        {
+          "topic": "Resource Hooks: PreSync, Sync, PostSync and SyncFail",
+          "subtopics": ["The argocd.argoproj.io/hook annotation and hook phases", "PreSync Jobs for database migrations", "PostSync Jobs for smoke tests and notifications", "SyncFail hooks for cleanup after a failed sync", "PostDelete hooks run after application deletion", "hook-delete-policy: HookSucceeded, HookFailed and BeforeHookCreation", "generateName for hooks that run on every sync", "Skip hooks and Helm hook mapping"],
+          "tools": ["argocd CLI", "kubectl", "Kubernetes Jobs", "curl"],
+          "lab_task": "Add a PreSync Job that runs a migration script and a PostSync Job that curls the API /healthz endpoint and exits non-zero on failure. Set hook-delete-policy HookSucceeded on both. Sync and record the Job order. Then break the health endpoint, sync again and add a SyncFail hook that writes a message to a ConfigMap. Confirm which hooks ran using kubectl get jobs.",
+          "deliverable": "Hook manifests and a run log showing order and outcomes",
+          "checks": [["Sync with healthy hooks", "Operation reports Succeeded and both hook Jobs are deleted afterwards", "argocd app get output"], ["Break the PostSync smoke test", "Operation phase is Failed with the PostSync Job named as failing", "Sync result"], ["Inspect the ConfigMap written by the SyncFail hook", "ConfigMap exists with the failure message", "kubectl output"]],
+          "objectives": ["Run migrations and tests at the right point in a sync", "Choose hook delete policies", "Handle failed syncs with SyncFail hooks"]
+        },
+        {
+          "topic": "Built-in Health Assessment and Degraded Resources",
+          "subtopics": ["Health rules for Deployment, StatefulSet and DaemonSet rollouts", "Service type LoadBalancer stays Progressing until it has an address", "Ingress health and load balancer status", "PersistentVolumeClaim Pending compared with Bound", "Job and Pod health", "Resources without health checks are treated as healthy", "Application health as the worst health of its resources", "Why Application resources inside App of Apps have no health by default", "progressDeadlineSeconds and Degraded Deployments"],
+          "tools": ["argocd CLI", "kubectl", "Argo CD web UI", "kind"],
+          "lab_task": "In one Application create a Service of type LoadBalancer on kind, a PVC with a non-existent StorageClass, and a Deployment with progressDeadlineSeconds: 60 and a bad readiness probe. Sync and record the health of each resource and of the Application after five minutes. Fix each one in Git in turn and record how the Application health changes.",
+          "deliverable": "Health table per resource before and after each fix",
+          "checks": [["Inspect the LoadBalancer Service on kind without a load balancer controller", "Service health is Progressing", "argocd app resources output"], ["Wait 60 seconds on the bad readiness probe", "Deployment health becomes Degraded with ProgressDeadlineExceeded", "UI resource details"], ["Fix all three resources", "Application health is Healthy", "argocd app get output"]],
+          "objectives": ["Interpret built-in health for common kinds", "Explain how Application health is aggregated", "Fix resources that keep an application Degraded"]
+        },
+        {
+          "topic": "ignoreDifferences and Diff Customization",
+          "subtopics": ["Why mutating webhooks, HPAs and operators cause false OutOfSync", "spec.ignoreDifferences with jsonPointers", "jqPathExpressions for list items", "managedFieldsManagers to ignore fields owned by another controller", "System-wide resource.customizations.ignoreDifferences in argocd-cm", "RespectIgnoreDifferences=true so sync does not overwrite ignored fields", "The argocd.argoproj.io/compare-options: IgnoreExtraneous annotation", "Normalisation of known types and resource.compareoptions"],
+          "tools": ["argocd CLI", "kubectl", "HorizontalPodAutoscaler", "jq"],
+          "lab_task": "Add an HPA that scales the guestbook Deployment between 2 and 5 replicas while Git still sets replicas: 1. Observe the OutOfSync status, then add ignoreDifferences on /spec/replicas for Deployments and set RespectIgnoreDifferences=true. Sync and verify the HPA-managed count stays. Add a jqPathExpressions rule that ignores a sidecar container injected by a webhook.",
+          "deliverable": "Application YAML with ignoreDifferences and before/after diff output",
+          "checks": [["Run argocd app diff before adding ignoreDifferences", "Diff shows spec.replicas differs on the Deployment", "Diff output"], ["Run argocd app get after adding the rule", "Application shows Synced while replicas match the HPA", "CLI output"], ["Sync without RespectIgnoreDifferences=true", "Replicas are reset to 1 for a moment before the HPA scales up again", "kubectl get deploy -w output"]],
+          "objectives": ["Suppress false OutOfSync caused by other controllers", "Write jsonPointers and jq expressions for diff rules", "Keep sync from overwriting ignored fields"]
+        },
+        {
+          "topic": "Default AppProject, Local Users and Read-Only Access",
+          "subtopics": ["The default AppProject and why it allows everything", "Local accounts in argocd-cm: accounts.<name>: login, apiKey", "Disabling the admin user with admin.enabled: false", "argocd account update-password --account", "argocd account generate-token for CI accounts", "policy.default: role:readonly in argocd-rbac-cm", "Built-in roles role:readonly and role:admin", "Checking permissions with argocd account can-i"],
+          "tools": ["argocd CLI", "kubectl", "Argo CD web UI"],
+          "lab_task": "Add two local accounts to argocd-cm: alice with login and ci-bot with apiKey. Set policy.default: role:readonly and grant alice sync on default/* in policy.csv. Log in as alice and sync guestbook. Generate a token for ci-bot and try to delete guestbook with it. Run argocd account can-i for each account and action and record the answers.",
+          "deliverable": "argocd-cm and argocd-rbac-cm snippets plus a can-i results table",
+          "checks": [["Run argocd account can-i sync applications 'default/guestbook' as alice", "Output is yes", "Terminal output"], ["Delete guestbook using the ci-bot token", "Request fails with PermissionDenied", "Error message"], ["Log in to the UI as ci-bot", "Login is rejected because the account has only the apiKey capability", "UI screenshot"]],
+          "objectives": ["Create local users and API tokens", "Set a safe default role", "Verify permissions with can-i before granting access"]
+        },
+        {
+          "topic": "Diagnosing OutOfSync and ComparisonError Applications",
+          "subtopics": ["Reading application conditions in argocd app get", "ComparisonError from rendering failures in the repo-server", "Unknown sync status caused by unreachable repos or clusters", "Resources owned by another Application: SharedResourceWarning", "OrphanedResourceWarning and project orphanedResources", "Stuck deletion caused by the resources finalizer", "argocd app logs and kubectl logs on argocd-repo-server", "A decision tree from symptom to component"],
+          "tools": ["argocd CLI", "kubectl", "stern", "Argo CD web UI"],
+          "lab_task": "Your trainer breaks four Applications: a typo in a Helm value file path, a repo URL with a wrong token, two Applications managing the same ConfigMap, and an app stuck deleting. For each, record the condition from argocd app get, the log line from repo-server or application-controller, the root cause and the fix in Git or config. Fix all four and confirm each shows Synced.",
+          "deliverable": "Diagnosis worksheet for the four broken Applications",
+          "checks": [["Inspect the application with the wrong value file path", "Condition ComparisonError names the missing values file", "argocd app get output"], ["Inspect the two apps sharing a ConfigMap", "SharedResourceWarning names the other Application", "Application condition"], ["Clear the stuck deletion", "Application disappears from argocd app list after its resources are removed", "CLI output"]],
+          "objectives": ["Read conditions and logs to find root causes", "Map symptoms to the Argo CD component at fault", "Fix common OutOfSync and deletion problems"]
+        },
+        {
+          "topic": "Capstone: GitOps Delivery of a Three-Tier App with Argo CD",
+          "subtopics": ["Repository layout with a Helm chart for the API and Kustomize overlays for the frontend", "Database first with sync waves and a PreSync migration Job", "Automated sync with prune, selfHeal and retry", "ignoreDifferences for HPA-managed replicas", "A read-only user and a sync-only user", "Runbook for rollback and drift"],
+          "tools": ["Argo CD", "argocd CLI", "Helm", "Kustomize", "kubectl", "Git"],
+          "lab_task": "Deliver a frontend, API and PostgreSQL app to namespace shop from one Git repository using three Argo CD Applications. Use waves so the database is Healthy before the PreSync migration and API, automated sync with prune and selfHeal, and an HPA on the API. Demonstrate a feature change, a drift revert, a bad release fixed by git revert, and access checks for two users.",
+          "deliverable": "Git repository, Application manifests, demo recording and runbook",
+          "checks": [["Push a new API image tag to Git", "New Pods run the tag within one reconciliation with no manual command", "kubectl and Git log"], ["Delete the frontend Service with kubectl", "selfHeal recreates the Service and the app returns to Synced", "argocd app get output"], ["Run argocd app list as the read-only user", "Three applications are listed Synced and Healthy and sync is denied", "CLI output"]],
+          "objectives": ["Combine sources, waves, hooks and policies in one delivery", "Operate drift and rollback from Git", "Present a working GitOps setup with evidence"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run Argo CD for a handful of applications and now need to manage many teams, environments and clusters. Covers declarative configuration of Argo CD itself, the App of Apps bootstrap pattern, ApplicationSets with the List, Git, Cluster, Matrix, Merge and Pull Request generators, AppProjects and RBAC, SSO with Dex and OIDC, external cluster registration, multi-source applications, secrets with Sealed Secrets, External Secrets Operator and SOPS, notifications, custom Lua health checks and actions, sync windows, project tokens and environment promotion, ending with a multi-cluster bootstrap capstone.",
+      "prerequisites": ["Completed the beginner level or deploys Helm and Kustomize apps with Argo CD Applications, sync policies, waves and hooks", "Can edit argocd-cm and argocd-rbac-cm and read controller logs with kubectl", "Has access to at least two Kubernetes clusters (two kind clusters are enough) and an identity provider such as GitHub, Keycloak, Okta or Microsoft Entra ID"],
+      "outcomes": ["Manage Argo CD configuration, projects, repositories and clusters declaratively from Git", "Generate Applications for many teams, environments and clusters with ApplicationSets", "Enforce tenancy with AppProjects, RBAC, SSO groups, sync windows and project tokens", "Deliver secrets safely with Sealed Secrets, External Secrets Operator or SOPS and alert on sync and health events"],
+      "days": [
+        {
+          "topic": "Declarative Argo CD Configuration with argocd-cm and argocd-cmd-params-cm",
+          "subtopics": ["argocd-cm: url, accounts, resource customizations and kustomize options", "argocd-cmd-params-cm: component flags such as server.insecure and controller.status.processors", "argocd-secret: admin password hash, server.secretkey and webhook secrets", "argocd-rbac-cm, argocd-tls-certs-cm, argocd-ssh-known-hosts-cm and argocd-gpg-keys-cm", "Which settings need a component restart and which are reloaded", "Managing Argo CD with Argo CD: the self-managing Application", "Kustomize overlays on the upstream install manifests", "The argo-cd Helm chart as an alternative install path", "argocd admin settings validate to check configuration"],
+          "tools": ["kubectl", "Kustomize", "argocd CLI", "Git", "Helm"],
+          "lab_task": "Create a Git folder argocd/ with a kustomization.yaml that references the upstream install manifest at a pinned tag and patches argocd-cm with url and timeout.reconciliation: 120s and argocd-cmd-params-cm with server.insecure: true. Apply it once, then create an Application named argocd that syncs this folder into the argocd namespace and confirm a later Git change to argocd-cm is applied by Argo CD itself.",
+          "deliverable": "argocd/ Kustomize folder and the self-managing Application manifest",
+          "checks": [["Run kubectl get cm argocd-cm -n argocd -o jsonpath='{.data.timeout\\.reconciliation}'", "Output is 120s", "Terminal output"], ["Run argocd admin settings validate -n argocd", "Each settings group reports valid with no errors", "CLI output"], ["Change argocd-cm in Git and wait one reconciliation", "The argocd Application syncs the new value without a manual kubectl apply", "argocd app history output"]],
+          "objectives": ["Configure every Argo CD component declaratively", "Run Argo CD as an Application of itself", "Validate settings before rollout"]
+        },
+        {
+          "topic": "App of Apps Pattern for Cluster Bootstrapping",
+          "subtopics": ["A root Application pointing at a folder of child Application manifests", "Child Applications as resources in the parent's tree", "Ordering children with sync waves on the Application resources", "Restoring Application health assessment with a custom Lua check", "Cascading deletion through child finalizers", "Templating child Applications with a Helm chart", "When App of Apps is a better fit than ApplicationSet", "Avoiding a parent that prunes its own Argo CD install"],
+          "tools": ["Argo CD", "Helm", "kubectl", "Git"],
+          "lab_task": "Create a root Application that points at bootstrap/apps containing child Applications for cert-manager at wave -2, ingress-nginx at wave -1 and guestbook at wave 0. Add the resource.customizations.health.argoproj.io_Application Lua check to argocd-cm so waves wait for child health. Sync the root and record the order in which children become Healthy. Delete the root and confirm what is removed.",
+          "deliverable": "bootstrap/ folder, root Application and an ordering log",
+          "checks": [["Sync the root with the Application health check in place", "cert-manager is Healthy before ingress-nginx starts syncing", "argocd app list timestamps"], ["Remove the custom health check and sync a fresh cluster", "All children are created at once because Application health is not assessed", "Ordering log"], ["Delete the root Application with cascade", "Child Applications and their workloads are removed", "kubectl get applications -n argocd output"]],
+          "objectives": ["Bootstrap a cluster from a single root Application", "Order child applications with waves and health", "Choose between App of Apps and ApplicationSet"]
+        },
+        {
+          "topic": "ApplicationSet Controller and the List Generator",
+          "subtopics": ["The ApplicationSet resource: generators, template and syncPolicy", "The List generator with elements", "Go templates with goTemplate: true and goTemplateOptions: [missingkey=error]", "Template fields such as {{.cluster}} and {{.url}}", "templatePatch for conditional fields", "syncPolicy.preserveResourcesOnDeletion", "applicationsSync: create-only, create-update, create-delete and sync", "ApplicationSet status conditions and events", "argocd appset create, get and list"],
+          "tools": ["Argo CD", "argocd CLI", "kubectl", "Go templates"],
+          "lab_task": "Write an ApplicationSet with a List generator holding three elements: dev, staging and prod, each with a namespace and replicas value. Use goTemplate with missingkey=error and a templatePatch that enables automated sync only when env is dev. Apply it, then remove the prod element and record what happens with the default policy and with applicationsSync: create-update.",
+          "deliverable": "ApplicationSet YAML and a table of generated Applications per policy",
+          "checks": [["Run argocd appset get guestbook-envs", "Three Applications guestbook-dev, guestbook-staging and guestbook-prod are listed", "CLI output"], ["Reference a missing key in the template", "ApplicationSet condition ErrorOccurred mentions map has no entry for key", "kubectl describe applicationset output"], ["Remove the prod element with create-update", "guestbook-prod Application is kept", "argocd app list output"]],
+          "objectives": ["Generate Applications from a list", "Write safe Go templates for ApplicationSets", "Control create, update and delete behaviour"]
+        },
+        {
+          "topic": "ApplicationSet Git Directory and Git File Generators",
+          "subtopics": ["Git directory generator with directories path globs", "Excluding directories with exclude: true", "Template values {{.path.path}}, {{.path.basename}} and {{index .path.segments 1}}", "Git file generator reading config.json or YAML files", "Nested keys from files as template parameters", "requeueAfterSeconds and Git webhooks to the ApplicationSet controller", "One folder per team or per service repository layouts", "Self-service onboarding by adding a folder"],
+          "tools": ["Argo CD", "Git", "kubectl", "GitHub webhooks"],
+          "lab_task": "Create a repo with apps/payments, apps/orders and apps/legacy and an ApplicationSet using a Git directory generator on apps/* that excludes apps/legacy. Then add clusters/dev/config.yaml and clusters/prod/config.yaml with region and replicas, and build a second ApplicationSet with a Git file generator. Add a new folder apps/shipping, push, and time how long until its Application appears.",
+          "deliverable": "Two ApplicationSets, repo tree and onboarding timing",
+          "checks": [["List Applications from the directory generator", "payments and orders exist and legacy does not", "argocd app list output"], ["Push apps/shipping with a webhook configured", "The shipping Application appears within 30 seconds", "Timing note"], ["Inspect an Application from the file generator", "Destination namespace and replicas match values in clusters/prod/config.yaml", "kubectl get application -o yaml"]],
+          "objectives": ["Discover applications from repository folders", "Drive parameters from config files in Git", "Onboard services by committing a folder"]
+        },
+        {
+          "topic": "ApplicationSet Cluster Generator and Multi-Cluster Fan-Out",
+          "subtopics": ["Cluster generator selecting registered clusters by label", "matchLabels and matchExpressions on cluster Secrets", "Template values {{.name}}, {{.server}} and {{.metadata.labels.env}}", "Including or excluding the in-cluster destination", "values field for per-generator defaults", "Labelling clusters with argocd cluster set or the Secret", "Rolling a platform add-on to every cluster", "Removing a cluster and what happens to its Applications"],
+          "tools": ["Argo CD", "argocd CLI", "kind", "kubectl"],
+          "lab_task": "Register two extra kind clusters and label their cluster Secrets env=dev and env=prod. Write an ApplicationSet with a Cluster generator selecting env in (dev, prod) that deploys metrics-server to each cluster, naming Applications metrics-server-{{.name}}. Apply, then add a third cluster labelled env=dev and confirm an Application is created for it without editing the ApplicationSet.",
+          "deliverable": "ApplicationSet YAML, cluster Secret labels and Application list",
+          "checks": [["Run argocd app list -o name | grep metrics-server", "Two Applications exist, one per labelled cluster", "CLI output"], ["Register a third cluster labelled env=dev", "A third metrics-server Application is generated", "argocd app list output"], ["Run kubectl get deploy metrics-server -n kube-system on each cluster", "Deployment is READY 1/1 on every selected cluster", "kubectl output per context"]],
+          "objectives": ["Target clusters by label", "Roll out add-ons across a fleet", "Predict generator output when clusters change"]
+        },
+        {
+          "topic": "Matrix and Merge Generators with Go Templates",
+          "subtopics": ["Matrix generator combining two child generators", "Common matrix: Git directories times clusters", "Using parameters from the first generator in the second", "Merge generator with mergeKeys for overrides", "Base list plus per-cluster override list", "Limits on nesting depth", "Go template functions from Sprig such as default and lower", "Debugging generated parameters with ApplicationSet status and controller logs"],
+          "tools": ["Argo CD", "kubectl", "Go templates", "Sprig"],
+          "lab_task": "Build a Matrix ApplicationSet that combines a Git directory generator on services/* with a Cluster generator on env=dev, giving one Application per service per cluster. Then build a Merge ApplicationSet whose base list sets replicas: 2 for every cluster and whose second list overrides replicas: 4 for prod using mergeKeys: [name]. Count the generated Applications and check the merged values.",
+          "deliverable": "Matrix and Merge ApplicationSets with generated Application counts",
+          "checks": [["Count Applications from the Matrix with 3 services and 2 dev clusters", "Exactly 6 Applications are generated", "argocd app list output"], ["Inspect the prod Application from the Merge generator", "Helm parameter replicas is 4 while other clusters have 2", "kubectl get application -o yaml"], ["Add a third child generator to the Matrix", "ApplicationSet condition reports that a matrix generator must have exactly two child generators", "ApplicationSet condition"]],
+          "objectives": ["Combine generators for service-by-cluster fan-out", "Override defaults with merge keys", "Debug generated parameters"]
+        },
+        {
+          "topic": "Pull Request Generator Preview Environments",
+          "subtopics": ["Pull Request generator for GitHub, GitLab, Bitbucket, Gitea and Azure DevOps", "Filtering by label and branch match", "Template values {{.number}}, {{.branch_slug}} and {{.head_sha}}", "Token Secrets and API rate limits", "requeueAfterSeconds compared with webhooks", "Namespace per PR with CreateNamespace=true", "Deleting the preview when the PR closes", "Pinning targetRevision to head_sha for exact builds"],
+          "tools": ["Argo CD", "GitHub", "GitHub Actions", "kubectl", "ingress-nginx"],
+          "lab_task": "Configure a Pull Request generator on your app repository filtered to PRs labelled preview, deploying to namespace pr-{{.number}} at targetRevision {{.head_sha}} with an Ingress host pr-{{.number}}.preview.local. Open a PR, add the label, and time the creation of the preview. Push a new commit and confirm the preview updates. Close the PR and confirm the preview Application and workloads are removed.",
+          "deliverable": "PR ApplicationSet YAML and a preview lifecycle log",
+          "checks": [["Label a PR with preview", "Application named for the PR number is created and becomes Healthy", "argocd app list output"], ["Push a new commit to the PR branch", "Application targetRevision changes to the new head SHA", "kubectl get application -o jsonpath output"], ["Close the PR", "The preview Application and its workloads are deleted within one requeue interval", "argocd app list and kubectl get deploy output"]],
+          "objectives": ["Create preview environments per pull request", "Filter which PRs receive previews", "Clean up previews automatically"]
+        },
+        {
+          "topic": "AppProjects: Source, Destination and Resource Allow-Lists",
+          "subtopics": ["AppProject spec.sourceRepos with wildcards and negations", "spec.destinations by server or name and namespace", "clusterResourceWhitelist and clusterResourceBlacklist", "namespaceResourceWhitelist and namespaceResourceBlacklist", "spec.orphanedResources warn and ignore", "sourceNamespaces for Applications outside argocd", "Global projects and project inheritance", "argocd proj create, add-source, add-destination and allow-cluster-resource"],
+          "tools": ["argocd CLI", "kubectl", "Argo CD", "Git"],
+          "lab_task": "Create an AppProject team-payments that allows only the payments Git repo, destinations namespaces payments-* on the in-cluster server, no cluster-scoped resources, and denies ResourceQuota and NetworkPolicy. Create an Application in it, then try in turn to deploy a ClusterRole, a ResourceQuota, a namespace outside payments-* and a repo outside the allow-list. Record each rejection message.",
+          "deliverable": "AppProject YAML and a rejection matrix",
+          "checks": [["Sync an Application that contains a ClusterRole", "Sync fails with resource rbac.authorization.k8s.io:ClusterRole is not permitted in project team-payments", "Sync result"], ["Point the Application at namespace orders", "Condition InvalidSpecError states the destination is not permitted", "Application condition"], ["Point the Application at an unlisted repo", "Condition states the application repo is not permitted in project", "Application condition"]],
+          "objectives": ["Restrict sources, destinations and kinds per team", "Detect orphaned resources", "Read and explain project rejection messages"]
+        },
+        {
+          "topic": "Argo CD RBAC Policies in argocd-rbac-cm",
+          "subtopics": ["policy.csv syntax: p, subject, resource, action, object, effect", "Resources: applications, applicationsets, clusters, projects, repositories, logs, exec and accounts", "Actions: get, create, update, delete, sync, override and action/<group>/<kind>/<name>", "Object patterns project/application and project/namespace/application", "Group bindings with g, and policy.default", "Fine-grained update and delete on sub-resources", "Deny rules and their precedence", "argocd admin settings rbac can and rbac validate"],
+          "tools": ["argocd CLI", "kubectl", "Casbin policy syntax"],
+          "lab_task": "Write policy.csv with role:payments-dev that may get and sync applications in team-payments/*, read logs, and run the restart action on Deployments, but may not delete. Bind it to group payments-devs. Validate it with argocd admin settings rbac validate --policy-file, then test six permission combinations with argocd admin settings rbac can and record each yes or no.",
+          "deliverable": "policy.csv file and a permission test table",
+          "checks": [["Run rbac can role:payments-dev sync applications 'team-payments/api'", "Output is Yes", "CLI output"], ["Run rbac can role:payments-dev delete applications 'team-payments/api'", "Output is No", "CLI output"], ["Validate a policy with a misspelled action", "rbac validate reports the policy as invalid", "CLI output"]],
+          "objectives": ["Write Argo CD RBAC policies", "Grant resource actions and log access", "Test policies offline before applying them"]
+        },
+        {
+          "topic": "SSO for Argo CD with Dex and Direct OIDC",
+          "subtopics": ["The url field in argocd-cm and the /auth/callback redirect URI", "dex.config with GitHub, GitLab, LDAP and SAML connectors", "oidc.config for Okta, Keycloak, Microsoft Entra ID and Google", "Requesting the groups claim and requestedScopes", "Mapping IdP groups in policy.csv with g, lines", "scopes: '[groups, email]' in argocd-rbac-cm", "argocd login --sso for the CLI", "Referencing client secrets with $oidc.keycloak.clientSecret"],
+          "tools": ["Argo CD", "Dex", "Keycloak", "GitHub OAuth Apps", "argocd CLI"],
+          "lab_task": "Run Keycloak in the cluster, create a client argocd with redirect https://<argocd>/auth/callback and a groups mapper, and users in groups payments-devs and platform-admins. Configure oidc.config in argocd-cm with the client secret stored in argocd-secret. Map both groups in policy.csv. Log in through the UI and with argocd login --sso as each user and compare permissions.",
+          "deliverable": "oidc.config snippet, Keycloak client settings and a per-user permission comparison",
+          "checks": [["Log in through the UI as a payments-devs member", "Login succeeds and only team-payments applications are visible", "UI screenshot"], ["Run argocd account get-user-info after SSO login", "Groups list contains payments-devs", "CLI output"], ["Remove the groups mapper in Keycloak", "User logs in but falls back to policy.default permissions", "UI and policy notes"]],
+          "objectives": ["Configure SSO through Dex or direct OIDC", "Map identity provider groups to Argo CD roles", "Diagnose missing group claims"]
+        },
+        {
+          "topic": "Registering and Managing External Clusters",
+          "subtopics": ["argocd cluster add <context> and the argocd-manager ServiceAccount", "The ClusterRole Argo CD installs and how to narrow it with --namespace", "Declarative cluster Secrets with secret-type: cluster", "config: bearerToken, tlsClientConfig and execProviderConfig", "EKS, AKS and GKE workload identity options", "Cluster names, labels and annotations", "argocd cluster list, get and rm", "Connection status, cache info and Unknown status"],
+          "tools": ["argocd CLI", "kubectl", "kind", "AWS EKS or Azure AKS"],
+          "lab_task": "Register cluster prod-1 with argocd cluster add kind-prod-1 --name prod-1 --label env=prod and inspect the argocd-manager ServiceAccount and ClusterRoleBinding it created. Export the resulting Secret, then re-register a second cluster declaratively from a Secret manifest. Deploy guestbook to both by destination name and record argocd cluster list connection status.",
+          "deliverable": "Declarative cluster Secret with token redacted and cluster list output",
+          "checks": [["Run argocd cluster list after both registrations", "Both clusters show STATUS Successful", "CLI output"], ["Inspect kube-system on prod-1", "ServiceAccount argocd-manager exists with a ClusterRoleBinding", "kubectl output"], ["Revoke the token in the cluster Secret", "Cluster status turns Failed and Applications targeting it show Unknown", "argocd cluster get output"]],
+          "objectives": ["Register clusters by CLI and declaratively", "Limit the permissions Argo CD holds on target clusters", "Monitor cluster connection health"]
+        },
+        {
+          "topic": "Multi-Source Applications and Helm Values from a Second Repo",
+          "subtopics": ["spec.sources instead of spec.source", "ref: values and $values/path/values.yaml in valueFiles", "Upstream chart from a Helm repo with values in a company Git repo", "Combining a chart with extra manifests from another repo", "Each source's targetRevision and revision history", "UI and CLI limits for multi-source applications", "Rollback behaviour with several sources", "When an umbrella chart is simpler"],
+          "tools": ["Argo CD", "Helm", "Git", "argocd CLI"],
+          "lab_task": "Deploy the upstream kube-prometheus-stack chart pinned to a version as source one, with valueFiles: [$values/monitoring/values-prod.yaml] pointing at a second source with ref: values from your config repo. Add a third source with extra PrometheusRule manifests. Change a value in the config repo only and confirm Argo CD detects and syncs it while the chart version stays the same.",
+          "deliverable": "Multi-source Application YAML and history showing per-source revisions",
+          "checks": [["Run argocd app get monitoring", "Three sources are listed with their revisions", "CLI output"], ["Change values-prod.yaml in the config repo", "Application turns OutOfSync and the chart version is unchanged after sync", "argocd app history output"], ["Misspell the $values reference", "ComparisonError reports the values file cannot be found", "Application condition"]],
+          "objectives": ["Combine sources in one Application", "Keep upstream charts and company values in separate repos", "Understand multi-source limits"]
+        },
+        {
+          "topic": "Sealed Secrets in an Argo CD Workflow",
+          "subtopics": ["Why plain Secrets cannot live in Git", "Installing the Sealed Secrets controller as an Argo CD Application", "kubeseal --fetch-cert and offline sealing", "kubeseal --format yaml < secret.yaml > sealedsecret.yaml", "Scopes: strict, namespace-wide and cluster-wide", "Key rotation and backing up the sealing key", "SealedSecret health in Argo CD", "Re-encrypting with kubeseal --re-encrypt"],
+          "tools": ["Sealed Secrets", "kubeseal", "Argo CD", "kubectl"],
+          "lab_task": "Deploy the Sealed Secrets controller through an Argo CD Application. Fetch the public cert with kubeseal --fetch-cert, create a Secret db-creds locally with --dry-run=client -o yaml and seal it. Commit only the SealedSecret and let Argo CD sync it. Then copy the SealedSecret to another namespace and record the error. Back up the sealing key to a safe location.",
+          "deliverable": "SealedSecret in Git, controller backup procedure and error evidence",
+          "checks": [["Run kubectl get secret db-creds -n shop after sync", "Secret exists with the expected keys", "kubectl output"], ["Apply the strict-scoped SealedSecret in another namespace", "Controller reports no key could decrypt secret", "SealedSecret status or controller log"], ["Search the Git repo for the plaintext password", "No match is found", "git grep output"]],
+          "objectives": ["Commit encrypted secrets safely", "Choose a sealing scope", "Back up and rotate sealing keys"]
+        },
+        {
+          "topic": "External Secrets Operator with Argo CD",
+          "subtopics": ["SecretStore compared with ClusterSecretStore", "Providers: AWS Secrets Manager, Azure Key Vault, Google Secret Manager, HashiCorp Vault", "ExternalSecret spec: refreshInterval, secretStoreRef, target and data.remoteRef", "dataFrom extract and find for many keys", "Status conditions Ready and SecretSynced", "Argo CD health for ExternalSecret resources", "Ignoring the generated Secret in diffs", "Workload identity instead of static provider credentials"],
+          "tools": ["External Secrets Operator", "HashiCorp Vault", "Argo CD", "kubectl"],
+          "lab_task": "Deploy HashiCorp Vault in dev mode and External Secrets Operator through Argo CD. Store secret/shop/db password in Vault. Commit a ClusterSecretStore for Vault and an ExternalSecret with refreshInterval: 1m mapping it to Secret db-creds. Sync, then change the value in Vault and time how long the Kubernetes Secret takes to update.",
+          "deliverable": "SecretStore and ExternalSecret manifests and a refresh timing note",
+          "checks": [["Run kubectl get externalsecret db-creds -n shop", "STATUS SecretSynced and READY True", "kubectl output"], ["Change the password in Vault", "Secret db-creds updates within about one minute", "Timing note"], ["Point remoteRef at a missing key", "ExternalSecret condition reports SecretSyncedError and the app health is Degraded", "Application resource health"]],
+          "objectives": ["Sync secrets from an external manager", "Declare stores and secrets in Git", "Monitor secret sync health in Argo CD"]
+        },
+        {
+          "topic": "SOPS-Encrypted Secrets with KSOPS and helm-secrets",
+          "subtopics": ["SOPS with age, AWS KMS, GCP KMS or Azure Key Vault keys", ".sops.yaml creation_rules and encrypted_regex", "KSOPS as a Kustomize exec generator", "helm-secrets for encrypted value files", "Mounting the age key into argocd-repo-server", "Building a custom repo-server image or init container", "Running decryption as a Config Management Plugin", "Trade-offs compared with Sealed Secrets and External Secrets"],
+          "tools": ["SOPS", "age", "KSOPS", "helm-secrets", "Kustomize", "Argo CD"],
+          "lab_task": "Generate an age key with age-keygen and add a .sops.yaml rule encrypting data and stringData. Encrypt a Secret with sops --encrypt --in-place. Install KSOPS into argocd-repo-server with an init container and mount the age key from a Secret. Add a KSOPS generator to kustomization.yaml, set --enable-alpha-plugins --enable-exec in kustomize.buildOptions, sync and verify the Secret value.",
+          "deliverable": "Encrypted Secret in Git, repo-server patch and decryption evidence",
+          "checks": [["Open the committed Secret file", "Values start with ENC[AES256_GCM and keys remain readable", "File content"], ["Sync after mounting the age key", "Secret in the cluster has the decrypted value", "kubectl get secret -o jsonpath | base64 -d output"], ["Remove the age key from repo-server", "ComparisonError reports a SOPS decryption failure", "Application condition"]],
+          "objectives": ["Encrypt secrets with SOPS and age", "Decrypt during manifest generation in the repo-server", "Compare three secret management approaches"]
+        },
+        {
+          "topic": "Argo CD Notifications: Triggers, Templates and Services",
+          "subtopics": ["argocd-notifications-cm and argocd-notifications-secret", "The notifications catalog of triggers and templates", "Triggers such as on-sync-failed, on-health-degraded and on-deployed", "Template fields: message, slack attachments, email subject and webhook body", "Services: Slack, Microsoft Teams, email, webhook, GitHub and PagerDuty", "Subscribing with notifications.argoproj.io/subscribe.<trigger>.<service> annotations", "Default subscriptions and project-level subscriptions", "argocd admin notifications trigger run and template notify"],
+          "tools": ["Argo CD Notifications", "Slack", "Microsoft Teams", "argocd CLI", "webhook.site"],
+          "lab_task": "Install the notifications catalog, add a Slack bot token to argocd-notifications-secret and configure service.slack. Subscribe guestbook to on-sync-failed and on-health-degraded for channel #deploys. Test with argocd admin notifications template notify app-sync-failed guestbook --recipient slack:deploys, then break the app and confirm a real alert. Add a GitHub commit status service for on-deployed.",
+          "deliverable": "Notification ConfigMap, subscription annotations and screenshots of delivered alerts",
+          "checks": [["Run argocd admin notifications trigger run on-health-degraded guestbook", "Output shows the trigger condition evaluated and its result", "CLI output"], ["Push a broken image to guestbook", "A Slack message from the on-health-degraded trigger appears in #deploys", "Slack screenshot"], ["Use a revoked Slack token", "Notifications controller logs show invalid_auth", "Controller log"]],
+          "objectives": ["Configure notification services and triggers", "Subscribe applications to alerts", "Test templates before relying on them"]
+        },
+        {
+          "topic": "Custom Lua Health Checks and Resource Actions",
+          "subtopics": ["resource.customizations.health.<group>_<kind> in argocd-cm", "The Lua health contract: hs.status and hs.message", "Writing checks for CRDs such as cert-manager Certificate or a database operator", "Built-in checks shipped in the resource_customizations folder", "resource.customizations.actions.<group>_<kind> with discovery.lua and action.lua", "Built-in actions such as restart on Deployments and suspend on CronJobs", "Running actions with argocd app actions list and run", "Testing Lua with sample objects and argocd admin settings resource-overrides"],
+          "tools": ["Argo CD", "Lua", "argocd CLI", "kubectl", "cert-manager"],
+          "lab_task": "Write a Lua health check for a sample CRD Database with status.phase Ready, Creating and Failed. Test it with argocd admin settings resource-overrides health on three sample YAML files before adding it to argocd-cm. Then add a custom action reset that sets spec.resetRequested: true and run it with argocd app actions run. Record the health shown in the UI for each phase.",
+          "deliverable": "Lua scripts, test output for three samples and action run evidence",
+          "checks": [["Run resource-overrides health on the Failed sample", "STATUS Degraded with the message from the script", "CLI output"], ["Run argocd app actions list on the Database resource", "Action reset is listed", "CLI output"], ["Run the reset action", "spec.resetRequested is true on the live object", "kubectl get -o yaml output"]],
+          "objectives": ["Write health checks for custom resources", "Add custom resource actions", "Test Lua customizations offline"]
+        },
+        {
+          "topic": "Sync Windows and Project Roles with JWT Tokens",
+          "subtopics": ["AppProject spec.syncWindows with kind allow or deny", "schedule cron syntax, duration and timeZone", "Selecting by applications, namespaces and clusters", "manualSync: true to allow manual sync during a deny window", "argocd proj windows list, enable-manual-sync and disable-manual-sync", "Project roles with policies and groups", "argocd proj role create-token and token expiry", "Revoking project tokens by issued-at ID"],
+          "tools": ["argocd CLI", "Argo CD", "GitHub Actions", "kubectl"],
+          "lab_task": "Add a deny window to team-payments blocking syncs on prod-* apps every Friday 16:00 to Monday 08:00 in Europe/London, with manualSync: true. Simulate it with a schedule covering now and check argocd proj windows list. Create role ci with sync permission on team-payments/*, issue a 24h token and use it from a GitHub Actions job. Revoke the token and rerun the job.",
+          "deliverable": "AppProject sync window and role YAML plus CI job logs",
+          "checks": [["Push a change to a prod app during the active deny window", "Automated sync does not run and the app shows a sync window blocking message", "argocd app get output"], ["Run argocd app sync with the ci project token", "Sync is accepted", "CI job log"], ["Rerun the job after argocd proj role delete-token", "Request fails with an invalid or revoked token error", "CI job log"]],
+          "objectives": ["Block or allow syncs by schedule", "Issue scoped tokens for automation", "Revoke project tokens"]
+        },
+        {
+          "topic": "Environment Promotion Across dev, staging and prod",
+          "subtopics": ["Folder-per-environment compared with branch-per-environment", "Promoting by pull request that copies an image tag or chart version", "Pinning prod targetRevision to tags", "Automating promotion PRs from CI after dev is healthy", "Using argocd app wait in pipelines as a gate", "Kargo and other promotion tools as optional add-ons", "Audit trail from Git history and argocd app history", "Drift between environments and how to detect it"],
+          "tools": ["Argo CD", "Git", "GitHub Actions", "Kustomize", "argocd CLI"],
+          "lab_task": "Lay out env/dev, env/staging and env/prod Kustomize overlays. Write a GitHub Actions workflow that, after a merge, updates the dev image tag, waits with argocd app wait shop-dev --health --timeout 300, and then opens a PR updating staging to the same tag. Run one full promotion to prod by merging two PRs and record the commit SHA and time at each stage.",
+          "deliverable": "Promotion workflow file and a stage-by-stage promotion log",
+          "checks": [["Merge a new tag to main", "shop-dev runs the tag and a staging promotion PR is opened automatically", "CI log and PR link"], ["Make dev unhealthy and merge", "argocd app wait times out and no staging PR is opened", "CI log"], ["Compare image tags across all three apps after promotion", "All three Deployments run the same tag", "kubectl output per namespace"]],
+          "objectives": ["Design an environment promotion flow in Git", "Gate promotion on Argo CD health", "Keep an auditable promotion record"]
+        },
+        {
+          "topic": "Capstone: Multi-Cluster Platform Bootstrap with ApplicationSets",
+          "subtopics": ["Root Application managing Argo CD and platform ApplicationSets", "Cluster generator for add-ons and matrix generator for team services", "Two team AppProjects with RBAC bound to SSO groups", "Secrets through External Secrets Operator or Sealed Secrets", "Notifications for sync failures and degraded health", "Sync windows on production clusters"],
+          "tools": ["Argo CD", "ApplicationSet", "Keycloak", "External Secrets Operator", "Slack", "kind"],
+          "lab_task": "Bootstrap a hub and two workload clusters from one root Application. Add-ons (ingress-nginx, cert-manager, External Secrets Operator) reach every cluster via a Cluster generator; two teams deploy services via a Matrix generator into their own AppProjects with SSO-mapped RBAC. Show a new cluster joining by label, a denied cross-team sync, a secret from Vault and a Slack alert on failure.",
+          "deliverable": "Platform repository, architecture diagram and demo recording",
+          "checks": [["Label a newly registered cluster env=dev", "All add-on Applications for that cluster are created and become Healthy", "argocd app list output"], ["Sync a payments app as an orders team user", "Request is denied by RBAC", "UI or CLI error"], ["Break a service image", "Slack alert names the Application and its health", "Slack screenshot"]],
+          "objectives": ["Bootstrap many clusters from Git", "Combine tenancy, secrets and alerting", "Demonstrate a self-service platform"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers and SREs who own Argo CD in production for many teams and clusters. Covers progressive delivery with Argo Rollouts canary and blue-green strategies, automated analysis and traffic routing, Argo CD Image Updater, Config Management Plugins, Applications in any namespace, ApplicationSet progressive syncs, high availability, controller sharding and reconciliation tuning, repo-server performance and webhooks, Prometheus monitoring, security hardening, hub-and-spoke topologies, backup and disaster recovery, upgrades, deep troubleshooting, the rendered manifests pattern and the Argo CD API, ending with a capstone that builds a production GitOps platform with progressive delivery.",
+      "prerequisites": ["Completed the intermediate level or runs ApplicationSets, AppProjects, RBAC and SSO for several teams", "Reads Prometheus queries and Grafana dashboards and understands Kubernetes Services, Ingress and service mesh basics", "Has a cluster with at least three worker nodes and Prometheus installed, plus a container registry the learner can push to"],
+      "outcomes": ["Deliver releases progressively with Argo Rollouts canary and blue-green strategies gated by metric analysis", "Scale Argo CD to thousands of Applications with HA, sharding, caching, webhooks and tuned reconciliation", "Harden, monitor, back up and upgrade a shared Argo CD installation", "Extend Argo CD with plugins, image automation, rendered manifests and the API, and troubleshoot failures at component level"],
+      "days": [
+        {
+          "topic": "Argo Rollouts Canary Strategy with Argo CD",
+          "subtopics": ["Installing the Argo Rollouts controller and kubectl argo rollouts plugin as Argo CD Applications", "Converting a Deployment to a Rollout or using workloadRef", "strategy.canary.steps: setWeight, pause with and without duration", "Replica-based canary weight without a traffic router", "Argo CD built-in health for Rollouts: Progressing, Suspended, Degraded", "Promoting with kubectl argo rollouts promote or the Argo CD resume action", "Abort and the stable ReplicaSet", "The Rollouts UI extension for Argo CD"],
+          "tools": ["Argo Rollouts", "kubectl argo rollouts", "Argo CD", "kubectl"],
+          "lab_task": "Install Argo Rollouts through Argo CD, convert the shop API Deployment to a Rollout with steps setWeight 20, pause {}, setWeight 50, pause {duration: 60s}, setWeight 100. Push a new image tag and watch with kubectl argo rollouts get rollout api --watch. Record the Argo CD health at each pause, promote using the Argo CD resume action, and then abort a second release.",
+          "deliverable": "Rollout manifest and a step-by-step health log with promote and abort evidence",
+          "checks": [["Push a new image and reach the first pause", "Argo CD shows the Rollout health as Suspended with 1 of 5 Pods on the new revision", "UI and plugin output"], ["Run the resume action from Argo CD", "Rollout moves to setWeight 50 then completes after 60 seconds", "kubectl argo rollouts get output"], ["Run kubectl argo rollouts abort api on a second release", "Rollout status is Degraded with RolloutAborted and all traffic stays on the stable ReplicaSet", "Plugin output"]],
+          "objectives": ["Run canary releases managed from Git", "Read Rollout health in Argo CD", "Promote and abort releases safely"]
+        },
+        {
+          "topic": "Argo Rollouts Blue-Green and Preview Services",
+          "subtopics": ["strategy.blueGreen with activeService and previewService", "autoPromotionEnabled and autoPromotionSeconds", "prePromotionAnalysis and postPromotionAnalysis", "scaleDownDelaySeconds and previewReplicaCount", "Service selector rewrite with rollouts-pod-template-hash", "Ignoring controller-managed Service selector fields in Argo CD diffs", "Testing the preview stack through a separate Ingress", "Instant rollback by switching back to the old ReplicaSet"],
+          "tools": ["Argo Rollouts", "Argo CD", "ingress-nginx", "kubectl argo rollouts", "curl"],
+          "lab_task": "Configure a blue-green Rollout with services api-active and api-preview, autoPromotionEnabled: false and scaleDownDelaySeconds: 120, and Ingresses for both. Push a new version, curl the preview host to verify the version header, then promote. Within two minutes run kubectl argo rollouts undo and measure how long traffic takes to return to the old version.",
+          "deliverable": "Blue-green manifests, curl outputs and rollback timing",
+          "checks": [["curl the preview host before promotion", "Response shows the new version while the active host shows the old one", "curl output"], ["Inspect api-active selector after promotion", "Selector rollouts-pod-template-hash equals the new ReplicaSet hash", "kubectl get svc -o yaml"], ["Run undo within scaleDownDelaySeconds", "Active traffic returns to the old version in under 10 seconds", "Timing note"]],
+          "objectives": ["Run blue-green releases with preview testing", "Keep Argo CD diffs clean around controller-managed fields", "Roll back quickly using the scale-down delay"]
+        },
+        {
+          "topic": "Automated Analysis with AnalysisTemplates and Prometheus",
+          "subtopics": ["AnalysisTemplate and ClusterAnalysisTemplate", "Prometheus provider query, successCondition and failureCondition", "interval, count, failureLimit and inconclusiveLimit", "Background analysis compared with inline analysis steps", "Passing args such as service-name into templates", "Web, Job, Datadog and other providers", "AnalysisRun status and how it aborts a Rollout", "Experiments for baseline and canary comparison"],
+          "tools": ["Argo Rollouts", "Prometheus", "PromQL", "Argo CD", "hey or k6"],
+          "lab_task": "Create an AnalysisTemplate success-rate that queries Prometheus for the 2xx ratio of the canary over 1m with successCondition: result[0] >= 0.95, interval 30s, count 4 and failureLimit 1. Add it as background analysis to the canary. Release a good version under k6 load and watch it pass, then release a version that returns 500 on 20 percent of requests and record the automatic abort.",
+          "deliverable": "AnalysisTemplate, Rollout changes and AnalysisRun results for both releases",
+          "checks": [["Release the good version under load", "AnalysisRun phase is Successful and the Rollout reaches 100 percent", "kubectl get analysisrun output"], ["Release the faulty version", "AnalysisRun phase is Failed and the Rollout aborts to stable", "kubectl argo rollouts get output"], ["Inspect Argo CD after the abort", "Application health is Degraded until Git is reverted", "argocd app get output"]],
+          "objectives": ["Gate releases on Prometheus metrics", "Tune analysis intervals and limits", "Connect analysis failures to Argo CD health and Git rollback"]
+        },
+        {
+          "topic": "Rollouts Traffic Management with Istio, NGINX and Gateway API",
+          "subtopics": ["trafficRouting with nginx stableIngress and canary annotations", "Istio VirtualService and DestinationRule subsets", "The Gateway API traffic router plugin", "setHeaderRoute and setMirrorRoute steps", "Precise percentages compared with replica-based weights", "dynamicStableScale to save capacity", "Diffs on controller-managed VirtualService weights", "Verifying traffic split from metrics"],
+          "tools": ["Argo Rollouts", "Istio", "ingress-nginx", "Gateway API", "Prometheus"],
+          "lab_task": "Install Istio and route the API through a VirtualService with stable and canary subsets. Configure the Rollout with trafficRouting.istio, steps setWeight 10, pause 2m, setHeaderRoute matching x-canary: true. Send 1000 requests and count versions, then send requests with the header. Add ignoreDifferences in Argo CD for the VirtualService http route weights so the app stays Synced.",
+          "deliverable": "Rollout and VirtualService manifests, traffic counts and Argo CD sync status",
+          "checks": [["Send 1000 requests at setWeight 10", "Between 70 and 130 responses come from the canary", "Request count script output"], ["Send requests with x-canary: true during the header route step", "All responses come from the canary", "curl output"], ["Check Argo CD status during the canary", "Application stays Synced because weight fields are ignored", "argocd app get output"]],
+          "objectives": ["Route canary traffic precisely with a mesh or ingress", "Use header routes for targeted testing", "Keep Argo CD in sync with controller-managed routing"]
+        },
+        {
+          "topic": "Argo CD Image Updater Write-Back Strategies",
+          "subtopics": ["What Image Updater does and what it does not do", "Configuring images through annotations or the ImageUpdater custom resource in newer releases", "Update strategies: semver, newest-build, digest and alphabetical", "allow-tags and ignore-tags filters", "write-back-method argocd compared with git", "The .argocd-source-<app>.yaml file and Kustomize or Helm parameter targets", "Registry credentials and pull secrets", "Image Updater compared with CI-driven tag commits"],
+          "tools": ["Argo CD Image Updater", "Argo CD", "GitHub Container Registry", "Git", "Kustomize"],
+          "lab_task": "Install Argo CD Image Updater and configure the shop-dev Application to track ghcr.io/<org>/api with semver constraint ~1.4 and git write-back to main. Push tags 1.4.1, 1.4.2 and 1.5.0 to the registry. Record which tag Image Updater writes back, the commit it creates and the file it changes. Then switch the strategy to digest on tag dev and compare.",
+          "deliverable": "Image Updater configuration, write-back commit and strategy comparison table",
+          "checks": [["Push tag 1.4.2 to the registry", "Image Updater commits 1.4.2 within its check interval", "Git log"], ["Push tag 1.5.0", "1.5.0 is not deployed because it is outside ~1.4", "Image Updater log"], ["Inspect the write-back commit", "Only .argocd-source-shop-dev.yaml or the configured kustomization changed", "git show output"]],
+          "objectives": ["Automate image updates with Git write-back", "Choose update strategies and tag filters", "Decide when to use Image Updater over CI commits"]
+        },
+        {
+          "topic": "Config Management Plugins as repo-server Sidecars",
+          "subtopics": ["Why the old argocd-cm plugin method was removed", "ConfigManagementPlugin spec: init, generate and discover", "Running the plugin as a sidecar with /var/run/argocd/argocd-cmp-server", "Plugin config in a ConfigMap mounted at /home/argocd/cmp-server/config/plugin.yaml", "Environment variables ARGOCD_APP_NAME, ARGOCD_APP_NAMESPACE and ARGOCD_ENV_ for user values", "Parameters announcement with parameters.static and dynamic", "spec.source.plugin.name and plugin.env in the Application", "Security of plugins: user 999, read-only roots and no cluster credentials"],
+          "tools": ["Argo CD", "repo-server", "cdk8s or Tanka", "kubectl", "Docker"],
+          "lab_task": "Write a CMP named envsubst-v1 whose generate command runs envsubst over *.yaml and whose discover rule matches a file named .envsubst. Package it in a sidecar image that runs as UID 999, patch argocd-repo-server to add it, and create an Application with plugin.env IMAGE_TAG=1.2.3. Confirm the rendered image uses 1.2.3 and that a missing variable fails rendering.",
+          "deliverable": "plugin.yaml, sidecar patch and rendered manifest evidence",
+          "checks": [["Run argocd app manifests on the plugin Application", "Image field shows the tag from ARGOCD_ENV_IMAGE_TAG", "CLI output"], ["Remove the .envsubst file from the repo", "Plugin is no longer discovered and Argo CD renders the folder as plain directory", "Application source type"], ["Run kubectl logs on the plugin sidecar during a failing render", "Log shows the generate command exit status and stderr", "Sidecar log"]],
+          "objectives": ["Build and register a Config Management Plugin", "Pass parameters safely to plugins", "Debug plugin discovery and rendering"]
+        },
+        {
+          "topic": "Applications in Any Namespace and Multi-Tenant Isolation",
+          "subtopics": ["application.namespaces in argocd-cmd-params-cm", "AppProject spec.sourceNamespaces", "RBAC object format project/namespace/application", "Letting teams create Applications with kubectl in their own namespace", "ApplicationSets in any namespace and SCM provider restrictions", "Notifications self-service per namespace", "Restricting the argocd namespace to platform admins", "Comparing one shared instance with an instance per tenant"],
+          "tools": ["Argo CD", "kubectl", "Kubernetes RBAC", "argocd CLI"],
+          "lab_task": "Enable application.namespaces: team-*, restart the server and controller, and add sourceNamespaces: [team-payments] to the team-payments project. Grant the payments group Kubernetes RBAC to create Applications in team-payments only. As that user, create an Application with kubectl, then try one that names project default and one in namespace team-orders. Record the outcome of each.",
+          "deliverable": "Configuration changes, RBAC manifests and a tenancy test table",
+          "checks": [["Create an Application in team-payments with project team-payments", "Application is reconciled and appears as team-payments/<name> in the CLI", "argocd app list output"], ["Create an Application in team-payments with project default", "Application condition states the namespace is not permitted by the project", "Application condition"], ["Create an Application in team-orders as a payments user", "Kubernetes API returns Forbidden", "kubectl error"]],
+          "objectives": ["Let teams manage Applications in their own namespaces", "Combine Kubernetes RBAC and AppProjects for isolation", "Choose between shared and dedicated Argo CD instances"]
+        },
+        {
+          "topic": "ApplicationSet Progressive Syncs and Safe Fleet Rollouts",
+          "subtopics": ["Why fleet-wide changes need staged rollout", "Enabling progressive syncs on the ApplicationSet controller", "strategy.type: RollingSync with steps and matchExpressions", "maxUpdate as a number or percentage", "Automated sync is disabled on generated Applications under RollingSync", "Application status Waiting, Pending and Progressing in the ApplicationSet status", "Stopping a bad rollout by fixing Git", "Combining with sync windows for production"],
+          "tools": ["Argo CD", "ApplicationSet", "kind", "kubectl"],
+          "lab_task": "Enable progressive syncs on the ApplicationSet controller. Change the add-ons ApplicationSet to RollingSync with three steps: env In [dev], env In [staging] with maxUpdate 50%, and env In [prod] with maxUpdate 1. Push an ingress-nginx chart upgrade and record the time each cluster updates. Then push a broken values file and show that the rollout stops after the dev step.",
+          "deliverable": "RollingSync ApplicationSet and a per-cluster rollout timeline",
+          "checks": [["Push the chart upgrade", "Staging Applications start only after all dev Applications are Healthy", "kubectl get applicationset -o yaml status"], ["Push a broken values file", "Dev becomes Degraded and no staging or prod Application syncs", "ApplicationSet status"], ["Inspect the generated prod Applications", "They have no automated sync policy while RollingSync is active", "kubectl get application -o yaml"]],
+          "objectives": ["Stage fleet changes with RollingSync", "Limit concurrent updates per step", "Stop a bad change from reaching production"]
+        },
+        {
+          "topic": "Argo CD High Availability Manifests and Redis HA",
+          "subtopics": ["ha/install.yaml and the minimum of three nodes", "Replicas for argocd-server and argocd-repo-server", "redis-ha with Sentinel and HAProxy", "Pod anti-affinity and PodDisruptionBudgets", "The application-controller StatefulSet and leader behaviour", "ApplicationSet controller leader election", "Horizontal Pod Autoscaling for server and repo-server", "Resource requests and limits for each component"],
+          "tools": ["Argo CD", "Redis", "HAProxy", "kubectl", "Helm argo-cd chart"],
+          "lab_task": "Install Argo CD with the HA manifests on a three-node cluster and confirm Pods are spread across nodes. Drain one node with kubectl drain and keep a loop running argocd app list every two seconds. Record any failed calls and how long Redis failover takes. Then add a PodDisruptionBudget for argocd-repo-server and show that a second drain respects it.",
+          "deliverable": "HA install notes, node spread table and failover log",
+          "checks": [["Run kubectl get pods -n argocd -o wide", "argocd-redis-ha-server Pods run on three different nodes", "kubectl output"], ["Drain the node running the Redis master", "argocd app list keeps succeeding with at most a few seconds of errors", "Loop log"], ["Drain a second node with the PDB in place", "Eviction of the last available repo-server Pod is blocked by the PDB", "kubectl drain output"]],
+          "objectives": ["Run Argo CD in HA mode", "Test failover of Redis and API components", "Protect components with PDBs and anti-affinity"]
+        },
+        {
+          "topic": "Application Controller Sharding and Reconciliation Tuning",
+          "subtopics": ["Scaling the application-controller StatefulSet and ARGOCD_CONTROLLER_REPLICAS", "Sharding algorithms: legacy, round-robin and consistent-hashing", "Pinning a cluster to a shard with the shard field in the cluster Secret", "controller.status.processors and controller.operation.processors", "controller.kubectl.parallelism.limit", "timeout.reconciliation and timeout.reconciliation.jitter", "Excluding noisy resources with resource.exclusions", "Ignoring status-only changes with resource.ignoreResourceUpdatesEnabled"],
+          "tools": ["Argo CD", "kubectl", "Prometheus", "Grafana"],
+          "lab_task": "Generate 500 Applications with an ApplicationSet spread across four clusters. Measure argocd_app_reconcile p95 and workqueue depth with one controller replica. Scale to two replicas with round-robin sharding, raise status processors to 50 and operation processors to 25, and add resource.exclusions for Events. Measure again and record the change for each setting.",
+          "deliverable": "Before and after metrics table with the settings changed",
+          "checks": [["Query histogram_quantile(0.95, sum(rate(argocd_app_reconcile_bucket[5m])) by (le))", "p95 reconcile time is recorded for both configurations", "Prometheus query result"], ["Run argocd admin cluster shards", "Clusters are split between shard 0 and shard 1", "CLI output"], ["Check workqueue_depth{name=\"app_reconciliation_queue\"} after tuning", "Queue depth stays lower than with the single replica", "Grafana panel"]],
+          "objectives": ["Shard the controller across clusters", "Tune processors, parallelism and reconciliation timing", "Measure the effect of each change"]
+        },
+        {
+          "topic": "repo-server Performance, Caching and Webhooks",
+          "subtopics": ["Manifest generation cache in Redis and reposerver.default.cache.expiration", "reposerver.parallelism.limit to cap concurrent renders", "Monorepo cost and the argocd.argoproj.io/manifest-generate-paths annotation", "Git webhooks to /api/webhook with webhook.github.secret", "Polling interval compared with webhook-driven refresh", "Large Helm charts, helm dependency build and cache", "Git LFS, submodules and shallow clone options", "Repo-server memory and disk with emptyDir sizing"],
+          "tools": ["Argo CD", "GitHub webhooks", "Prometheus", "kubectl", "Git"],
+          "lab_task": "In a monorepo with 50 app folders, push a change to one folder and count how many Applications refresh by watching argocd_git_request_total and controller logs. Add manifest-generate-paths: . to every Application, configure a GitHub webhook with a secret, and push again. Record refresh latency and the number of manifest generations in each case.",
+          "deliverable": "Webhook configuration, annotation changes and a latency and generation count table",
+          "checks": [["Push to one folder without manifest-generate-paths", "All 50 Applications regenerate manifests", "Metric or log count"], ["Push to one folder with the annotation and webhook", "Only the matching Application refreshes, within seconds", "Controller log"], ["Send a webhook with a wrong secret", "argocd-server logs a webhook signature validation failure and no refresh occurs", "Server log"]],
+          "objectives": ["Reduce repo-server load in monorepos", "Replace polling with authenticated webhooks", "Size and tune the repo-server"]
+        },
+        {
+          "topic": "Monitoring Argo CD with Prometheus Metrics and Grafana",
+          "subtopics": ["Metrics endpoints: controller 8082, server 8083, repo-server 8084 and ApplicationSet controller", "ServiceMonitors for kube-prometheus-stack", "argocd_app_info with sync_status and health_status labels", "argocd_app_sync_total by phase", "argocd_git_request_total and argocd_git_request_duration_seconds", "argocd_cluster_connection_status and argocd_kubectl_exec_pending", "The upstream Grafana dashboard", "Alert rules for OutOfSync, Degraded, sync failures and cluster disconnects"],
+          "tools": ["Prometheus", "Grafana", "Alertmanager", "Argo CD", "kube-prometheus-stack"],
+          "lab_task": "Create ServiceMonitors for all Argo CD metrics Services, import the Argo CD Grafana dashboard, and write PrometheusRules for apps Degraded for 10m, sync failures above zero in 15m and any cluster with connection status 0. Break one app and disconnect one cluster, then record which alerts fire in Alertmanager and how long each took.",
+          "deliverable": "ServiceMonitors, PrometheusRule file, dashboard screenshot and alert timing",
+          "checks": [["Query count(argocd_app_info{health_status=\"Degraded\"})", "Result equals the number of Degraded apps in argocd app list", "Prometheus query result"], ["Break an app and wait 10 minutes", "The Degraded alert fires in Alertmanager naming the app", "Alertmanager screenshot"], ["Revoke a cluster token", "argocd_cluster_connection_status for that cluster drops to 0 and the alert fires", "Prometheus graph"]],
+          "objectives": ["Scrape and visualise Argo CD metrics", "Write alerts for the failures that matter", "Correlate metrics with application state"]
+        },
+        {
+          "topic": "Argo CD Security Hardening and Supply-Chain Controls",
+          "subtopics": ["Disabling the admin account after SSO works", "Restricting the default project and using deny-by-default policy.default", "Turning off exec and limiting logs RBAC", "TLS to the repo-server and the --repo-server-strict-tls flag on server and controller", "NetworkPolicies shipped with the install manifests", "GPG commit signature verification with project signatureKeys", "Least-privilege cluster credentials per destination", "Following Argo CD security advisories and CVE patch releases"],
+          "tools": ["Argo CD", "GnuPG", "kubectl", "Trivy", "Kyverno"],
+          "lab_task": "Disable admin, set policy.default to empty, and remove all permissions from the default project. Import a GPG public key with argocd gpg add and set signatureKeys on team-payments. Push an unsigned commit and a signed commit and record the results. Scan the Argo CD images with trivy image and list any critical CVEs with the patched version.",
+          "deliverable": "Hardening checklist with evidence and a Trivy summary",
+          "checks": [["Push an unsigned commit to a project requiring signatures", "Sync fails stating the revision is not signed with a permitted key", "Sync result"], ["Log in as admin after disabling it", "Login fails because the account is disabled", "CLI error"], ["Run trivy image on the argocd image", "Report lists critical CVE counts per image", "Trivy output"]],
+          "objectives": ["Close common Argo CD privilege gaps", "Require signed commits for sensitive projects", "Keep Argo CD patched against advisories"]
+        },
+        {
+          "topic": "Hub-and-Spoke Compared with Per-Cluster Argo CD Topologies",
+          "subtopics": ["One central Argo CD managing many clusters", "One Argo CD per cluster managed by a central bootstrap", "Pull-based agent models such as the Argo CD Agent project", "Blast radius, credential storage and network reachability", "Latency and API load on remote clusters", "Private clusters reachable only from inside their network", "Running multiple Argo CD instances with distinct instance labels", "Cost and operations effort for each topology"],
+          "tools": ["Argo CD", "kind", "kubectl", "draw.io"],
+          "lab_task": "Build both topologies on kind: a hub Argo CD managing two spoke clusters, and two standalone instances bootstrapped from the same repo. Measure sync latency for the same change in each and list where cluster credentials are stored. Write a decision record recommending a topology for a company with 40 clusters in three regions, two of which are air-gapped.",
+          "deliverable": "Two working topologies, measurements and an architecture decision record",
+          "checks": [["List cluster Secrets on the hub", "Credentials for both spokes are stored only in the hub argocd namespace", "kubectl output"], ["Push the same change in both setups", "Sync latency for each topology is measured and recorded", "Timing table"], ["Review the decision record", "Air-gapped clusters are served by a topology that does not need inbound access", "ADR document"]],
+          "objectives": ["Compare Argo CD topologies on measurable criteria", "Place credentials and control planes deliberately", "Recommend a topology for a real fleet"]
+        },
+        {
+          "topic": "Backup and Disaster Recovery with argocd admin export and import",
+          "subtopics": ["What to back up: Applications, ApplicationSets, AppProjects, repos, clusters and settings", "argocd admin export -n argocd > backup.yaml", "argocd admin import -n argocd - < backup.yaml", "Encrypting backups that contain repo and cluster secrets", "Rebuilding from Git when everything is declarative", "Sealed Secrets and SOPS keys as part of recovery", "Recovery time and recovery point targets", "Testing recovery on a fresh cluster"],
+          "tools": ["argocd CLI", "kubectl", "Velero", "age", "kind"],
+          "lab_task": "Run argocd admin export, encrypt the output with age, and store it off-cluster. Delete the argocd namespace on a lab cluster. Reinstall Argo CD at the same version, restore the Sealed Secrets key, run argocd admin import and time how long until all Applications are Synced and Healthy. Compare with a pure Git bootstrap of the same platform.",
+          "deliverable": "Encrypted backup, recovery runbook and measured recovery time",
+          "checks": [["Run argocd app list after import", "The same number of Applications exist as before deletion", "CLI output"], ["Check workload Pods during recovery", "Existing workloads keep running and are adopted without restart", "kubectl output"], ["Measure time from reinstall to all Healthy", "Recovery time is recorded and compared with the target", "Runbook timing"]],
+          "objectives": ["Back up Argo CD state securely", "Restore Argo CD and its secrets keys", "Measure recovery against targets"]
+        },
+        {
+          "topic": "Upgrading Argo CD Across Minor and Major Versions",
+          "subtopics": ["Release cadence and the supported version window", "Reading upgrade notes for each minor version", "Breaking changes in the 3.x line such as default resource tracking by annotation", "Upgrading one minor version at a time", "CRD upgrades with server-side apply", "Canary upgrade on a staging instance", "CLI and server version compatibility", "Rollback plan and argocd admin export before upgrading"],
+          "tools": ["Argo CD", "argocd CLI", "kubectl", "Kustomize", "Helm argo-cd chart"],
+          "lab_task": "On a staging instance one minor version behind, export state, read the upgrade notes for the next release and list each change that affects your config. Bump the pinned tag in the self-managing Kustomize folder, sync, and verify every Application returns to Synced and Healthy. Record any new OutOfSync resources caused by the upgrade and the config change that fixed them.",
+          "deliverable": "Upgrade checklist, change impact list and post-upgrade status",
+          "checks": [["Run argocd version after the upgrade", "argocd-server reports the new version", "CLI output"], ["Run argocd app list after the upgrade", "All Applications are Synced and Healthy or have a recorded reason", "CLI output"], ["Check for upgrade-related drift", "Each new OutOfSync resource is mapped to an upgrade note", "Change impact list"]],
+          "objectives": ["Plan Argo CD upgrades from release notes", "Upgrade safely through GitOps", "Handle behaviour changes after an upgrade"]
+        },
+        {
+          "topic": "Deep Troubleshooting of Controller, repo-server and Sync Failures",
+          "subtopics": ["Log levels with --loglevel debug and logFormat json", "Context deadline exceeded in manifest generation and reposerver timeouts", "OOMKilled repo-server from large Helm charts", "Controller stuck reconciling and the app_reconciliation_queue depth", "Excessive Kubernetes API watches and cluster cache size", "Hooks that never finish and argocd app terminate-op", "Webhook and Ingress gRPC issues with --grpc-web", "Collecting a support bundle of logs, events and config"],
+          "tools": ["argocd CLI", "kubectl", "stern", "Prometheus", "jq"],
+          "lab_task": "Your trainer injects four faults: repo-server memory limit too low for a large chart, a 10s reposerver timeout on a slow Git host, an Ingress that drops gRPC, and a PostSync hook that never exits. For each, capture the symptom, the log line or metric that proves the cause, the fix, and the check that confirms recovery. Write the results as a runbook entry per fault.",
+          "deliverable": "Four runbook entries with evidence",
+          "checks": [["Inspect the repo-server after a large chart render", "Pod shows OOMKilled in its last state", "kubectl describe output"], ["Run argocd app list through the broken Ingress without --grpc-web", "CLI fails with a transport or protocol error, and succeeds with --grpc-web", "Terminal output"], ["Run argocd app terminate-op on the stuck hook", "Operation state becomes Failed with operation terminated", "argocd app get output"]],
+          "objectives": ["Locate failures in the right Argo CD component", "Use logs and metrics to prove a root cause", "Write runbook entries other engineers can follow"]
+        },
+        {
+          "topic": "Rendered Manifests Pattern and the Source Hydrator",
+          "subtopics": ["Why render in CI and commit plain YAML", "Dry source and hydrated branches", "Reviewing rendered diffs in pull requests", "Argo CD source hydrator: spec.sourceHydrator with drySource, syncSource and hydrateTo", "Commit server component and its credentials", "Trade-offs: repo size, review noise and render drift", "Generating rendered output with helm template and kustomize build in CI", "Feature maturity and when not to enable it"],
+          "tools": ["Argo CD", "GitHub Actions", "Helm", "Kustomize", "Git"],
+          "lab_task": "Write a GitHub Actions job that renders env/prod with kustomize build and helm template and commits the output to branch env/prod-rendered, posting the rendered diff on the PR. Point the prod Application at the rendered branch as plain directory source. Then try the source hydrator on a lab instance and compare the commit it produces with your CI output.",
+          "deliverable": "Rendering workflow, rendered branch and comparison notes",
+          "checks": [["Open a PR that changes a Helm value", "PR comment shows the rendered YAML diff for affected resources", "PR screenshot"], ["Inspect the prod Application source", "Source type is Directory with the rendered branch as targetRevision", "argocd app get output"], ["Compare the hydrator commit with the CI rendered commit", "Differences are listed or the outputs match", "diff output"]],
+          "objectives": ["Apply the rendered manifests pattern", "Evaluate the built-in source hydrator", "Make rendered changes reviewable"]
+        },
+        {
+          "topic": "Automating Argo CD through the REST and gRPC API",
+          "subtopics": ["The API served by argocd-server and its Swagger UI at /swagger-ui", "Bearer tokens from accounts and project roles", "GET /api/v1/applications and selectors", "POST /api/v1/applications/{name}/sync with revision and prune", "Resource actions through the API", "Deep links and status badges", "UI extensions and proxy extensions", "Rate limits, audit events and least-privilege tokens"],
+          "tools": ["Argo CD API", "curl", "Python requests", "jq", "argocd CLI"],
+          "lab_task": "Create an apiKey account release-bot with sync rights on one project and generate a token. With curl and jq, list Applications that are OutOfSync, then trigger a sync for one with prune false using the sync endpoint. Write a small Python script that waits until the app is Healthy by polling GET /api/v1/applications/{name}. Enable the status badge and embed it in the repo README.",
+          "deliverable": "API scripts, token scope notes and README badge",
+          "checks": [["curl GET /api/v1/applications with the token | jq '.items | length'", "Count equals the apps visible to release-bot", "Terminal output"], ["POST a sync for an app outside the project", "API returns HTTP 403 permission denied", "curl output"], ["Run the Python wait script after sync", "Script exits 0 when health.status is Healthy", "Script output"]],
+          "objectives": ["Drive Argo CD from scripts and other systems", "Scope API tokens tightly", "Expose status through badges and deep links"]
+        },
+        {
+          "topic": "Capstone: Production GitOps Platform with Progressive Delivery",
+          "subtopics": ["HA Argo CD with sharded controllers and webhooks", "Canary Rollouts gated by Prometheus analysis", "RollingSync ApplicationSet for fleet add-ons", "Hardening, monitoring and alerting", "Backup, restore and upgrade runbooks", "Load and failure test results"],
+          "tools": ["Argo CD", "Argo Rollouts", "Prometheus", "Grafana", "ApplicationSet", "Argo CD Image Updater"],
+          "lab_task": "Build a production-style platform: HA Argo CD self-managed from Git with two controller shards and webhooks, add-ons rolled out with RollingSync, and the shop API released by canary with Prometheus analysis. Show an automatic abort of a bad release, an image update via write-back, a node drain with no failed syncs, a restore from backup, and alerts firing in Alertmanager.",
+          "deliverable": "Platform repository, runbooks, dashboards and a recorded demo",
+          "checks": [["Release a faulty API version", "AnalysisRun fails and the canary aborts with no manual action", "kubectl argo rollouts get output"], ["Drain a node hosting an argocd-server Pod", "argocd app list keeps answering and no sync operation fails", "Loop log"], ["Restore from the backup on a fresh cluster", "All Applications return to Synced and Healthy within the stated recovery time", "Runbook timing"]],
+          "objectives": ["Assemble a production Argo CD platform", "Prove reliability with failure tests", "Hand over runbooks and dashboards"]
+        }
+      ]
+    }
+  }
+}
