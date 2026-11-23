@@ -91,12 +91,16 @@ function domainTerms(domain) {
 }
 
 function isTrainerProviderProfile(lead) {
+  const profileUrl = String(lead?.source_url || lead?.linkedin_url || '')
+  // Search already kept trainer headlines. Show those saved profiles even
+  // when the stored snippet no longer repeats the domain words.
+  if (lead?.lead_type === 'trainer_profile' && profileUrl.includes('linkedin.com/in/')) return true
   const text = trainerProfileText(lead)
   const terms = domainTerms(lead?.domain)
   const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
-  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
-    || lead?.source_url?.includes('linkedin.com/posts/')
-    || lead?.source_url?.includes('linkedin.com/feed/update')
+  const hasTrainerUrl = profileUrl.includes('linkedin.com/in/')
+    || profileUrl.includes('linkedin.com/posts/')
+    || profileUrl.includes('linkedin.com/feed/update')
     || lead?.lead_type === 'resume_trainer_post'
   return Boolean(
     hasTrainerUrl
