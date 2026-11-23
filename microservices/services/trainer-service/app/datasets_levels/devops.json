@@ -1,0 +1,573 @@
+{
+  "domain": "DevOps",
+  "name": "DevOps",
+  "category": "DevOps and CI/CD",
+  "icon": "workflow",
+  "aliases": ["Dev Ops", "AWS DevOps", "CI CD", "CI/CD", "Cloud DevOps", "DevOps Engineering", "DevOps Practices", "End-to-End DevOps"],
+  "certifications": ["AWS Certified DevOps Engineer - Professional", "Microsoft Certified: DevOps Engineer Expert", "Google Cloud Professional Cloud DevOps Engineer", "Certified Kubernetes Administrator (CKA)", "Certified Kubernetes Application Developer (CKAD)", "HashiCorp Certified: Terraform Associate", "GitHub Actions Certification"],
+  "tools": ["Linux", "Git", "GitHub Actions", "GitLab CI", "Jenkins", "Docker", "Kubernetes", "Terraform", "Ansible", "Argo CD", "Prometheus", "Grafana", "Trivy", "Open Policy Agent"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and system administrators who are new to DevOps practice and want to see how one change travels from a laptop to a running service. The course follows a single sample service, orders-api (a small Python web API with pytest tests), through the whole delivery path: DevOps culture and the CALMS model, value stream mapping, Linux and shell work, team branching and pull requests, build automation, a first CI pipeline in GitHub Actions, unit tests and coverage, artifacts and semantic versioning, container images and registries, a first continuous delivery to a test environment, configuration and secrets, infrastructure as code concepts, monitoring and logs, and team collaboration. Dedicated courses cover each tool in depth; here the focus is how the pieces fit together, ending in a capstone that takes the app from commit to running service.",
+      "prerequisites": ["Has written and run small programs in any language and can read simple Python code", "Uses a terminal to change directories, run commands and edit text files", "Has a laptop with rights to install Git, Docker Desktop or Docker Engine, kind and kubectl, plus a free GitHub account"],
+      "outcomes": ["Explain DevOps with the CALMS model and map a delivery value stream with lead time and wait time", "Build a CI pipeline that lints, tests, versions and packages a service as a container image on every push", "Deliver the image automatically to a test environment with configuration and secrets kept out of the code", "Monitor the delivered service with health checks, metrics, logs and an alert, and trace a failed delivery to its cause"],
+      "days": [
+        {
+          "topic": "DevOps Culture and the CALMS Model",
+          "subtopics": ["Why DevOps appeared: the wall between development and operations", "CALMS: Culture, Automation, Lean, Measurement and Sharing", "The Three Ways: flow, feedback and continual learning", "Westrum organisational culture: pathological, bureaucratic and generative", "Shared ownership: you build it, you run it", "Common anti-patterns: a separate DevOps team as a new silo, tool-first adoption", "How DevOps relates to Agile, Lean and SRE", "Choosing the sample service orders-api and its course repository"],
+          "tools": ["GitHub", "Git", "Miro or any whiteboard tool"],
+          "lab_task": "Fork the course repository containing orders-api to your GitHub account, clone it with git clone, and run the six-question Westrum survey with your group on a 1 to 7 scale. Score your current team on each CALMS letter from 1 to 5, write one improvement per letter into CALMS.md, commit it and push it so the file shows on GitHub.",
+          "deliverable": "CALMS.md with five scores, five improvement actions and the averaged Westrum survey result",
+          "checks": [["Open CALMS.md on GitHub", "All five letters C, A, L, M and S have a score from 1 to 5 and one action each", "GitHub file view"], ["Run git log --oneline -1 in the clone", "The latest commit message mentions CALMS and matches the commit on GitHub", "Terminal output"], ["Average the six Westrum answers", "A single score between 1 and 7 is recorded with the culture type it suggests", "Survey table in CALMS.md"]],
+          "objectives": ["Describe DevOps using the CALMS model and the Three Ways", "Recognise culture anti-patterns in a real team", "Prepare the course repository used for the rest of the course"]
+        },
+        {
+          "topic": "Mapping the Delivery Value Stream from Idea to Production",
+          "subtopics": ["Value stream: every step from customer request to running feature", "Process time compared with lead time", "Wait time, queues and hand-offs between teams", "Percent complete and accurate (%C/A) and rework loops", "Flow efficiency: process time divided by lead time", "Drawing a current-state map with swimlanes", "Spotting the constraint with the Theory of Constraints", "Designing a future-state map and an improvement backlog"],
+          "tools": ["Miro or draw.io", "GitHub Issues", "Spreadsheet"],
+          "lab_task": "Interview a colleague or use the provided case study to list every step a change takes from ticket to production. For each step record process time, wait time and %C/A, draw the current-state map in draw.io, calculate total lead time and flow efficiency, then open three GitHub issues for the largest waits with the label value-stream.",
+          "deliverable": "Current-state value stream map, a calculation sheet and three improvement issues",
+          "checks": [["Sum process time and wait time across all steps", "Total lead time equals the sum and is stated in hours or days", "Calculation sheet"], ["Divide total process time by total lead time", "Flow efficiency is shown as a percentage, typically below 20 percent for the case study", "Calculation sheet"], ["Filter GitHub issues by label value-stream", "Exactly three open issues appear, each naming one wait step", "GitHub Issues list"]],
+          "objectives": ["Map a delivery value stream with process and wait times", "Calculate lead time and flow efficiency", "Turn the largest waits into an improvement backlog"]
+        },
+        {
+          "topic": "Linux and Shell Skills for Delivery Work",
+          "subtopics": ["Filesystem layout: /etc, /var/log, /opt and the home directory", "Permissions with chmod, chown and the executable bit for scripts", "Processes and ports: ps, ss -tlnp and kill", "Package installs with apt or dnf in build images", "Pipes and filters: grep, awk, sort, uniq and jq", "Exit codes, $? and set -euo pipefail in scripts", "curl for checking HTTP endpoints and status codes", "Writing a small script that CI can call"],
+          "tools": ["bash", "curl", "jq", "ss", "grep", "awk"],
+          "lab_task": "Write scripts/smoke.sh with set -euo pipefail that starts orders-api, waits up to 20 seconds for port 8000 with a curl retry loop, calls GET /healthz and GET /orders, checks the status code with curl -s -o /dev/null -w '%{http_code}', counts the orders with jq length and exits 1 on any failure. Run it once with the app up and once with the app stopped.",
+          "deliverable": "scripts/smoke.sh committed with the output of a passing and a failing run",
+          "checks": [["Run ./scripts/smoke.sh with the app running", "Prints status 200 for both endpoints and exits with code 0", "Terminal output with echo $?"], ["Run ./scripts/smoke.sh with the app stopped", "Times out after about 20 seconds and exits with code 1", "Terminal output with echo $?"], ["Run ls -l scripts/smoke.sh", "Permissions include the executable bit, for example -rwxr-xr-x", "Terminal output"]],
+          "objectives": ["Use core Linux commands to inspect files, processes and ports", "Write a shell script that fails fast with correct exit codes", "Check HTTP services from the command line"]
+        },
+        {
+          "topic": "Team Branching Workflows and Pull Request Reviews",
+          "subtopics": ["Comparing GitHub flow, GitFlow and trunk-based development for teams", "Short-lived feature branches and naming conventions", "Pull requests: description, linked issue and small diffs", "Review etiquette: comments, suggestions and approvals", "Branch protection rules and rulesets on main", "Required status checks and required reviewers", "Resolving a merge conflict on a shared file", "Squash, merge commit and rebase merge strategies"],
+          "tools": ["Git", "GitHub", "GitHub CLI (gh)"],
+          "lab_task": "In pairs, add a ruleset on main that requires a pull request with one approval and blocks force pushes. Each partner creates a branch from main, edits the same line in README.md and opens a pull request with gh pr create or the web UI. Merge the first, resolve the conflict in the second with git merge origin/main, get it approved and squash-merge it.",
+          "deliverable": "Two merged pull requests, one with a resolved conflict, and a screenshot of the ruleset",
+          "checks": [["Run git push origin main directly from a clone", "The push is rejected by the ruleset with a message that changes must be made through a pull request", "Terminal output"], ["Open the second pull request before resolving", "GitHub shows This branch has conflicts that must be resolved", "Pull request screenshot"], ["Run git log --oneline -3 on main after both merges", "Two squash commits appear, one per pull request", "Terminal output"]],
+          "objectives": ["Choose a branching workflow that suits a small team", "Protect main with rulesets and required reviews", "Resolve merge conflicts and complete a reviewed pull request"]
+        },
+        {
+          "topic": "Build Automation with Make and Language Build Tools",
+          "subtopics": ["Why every build must run with one command", "A Makefile with install, lint, test, build and run targets", "Python packaging with pyproject.toml", "Pinning dependencies with a lock file or requirements.txt hashes", "Linting and formatting with ruff", "Reproducible builds: same inputs give the same outputs", "Local build parity with what CI will run", "Build speed: caching virtual environments and avoiding repeated installs"],
+          "tools": ["make", "Python", "pip", "ruff", "pyproject.toml"],
+          "lab_task": "Create a Makefile for orders-api with targets install (python -m venv .venv and pip install -e .[dev]), lint (ruff check . and ruff format --check .), test (pytest -q) and build (python -m build). Run make lint test build from a clean clone and record the wheel name created in dist/ and the total time of the run.",
+          "deliverable": "Makefile, pyproject.toml and a log of make lint test build from a clean clone",
+          "checks": [["Run make lint test build in a fresh clone", "All targets finish and exit code is 0", "Terminal output"], ["Run ls dist/", "A wheel such as orders_api-0.1.0-py3-none-any.whl and a .tar.gz source archive are listed", "Terminal output"], ["Add an unused import and run make lint", "ruff reports F401 and make stops with a non-zero exit code", "Terminal output"]],
+          "objectives": ["Automate the build so it runs with a single command", "Add lint, test and package steps to the build", "Keep local builds identical to CI builds"]
+        },
+        {
+          "topic": "Your First CI Pipeline on Every Push",
+          "subtopics": ["Continuous integration: merge small changes often and verify each one", "Workflow files in .github/workflows and the on: push and pull_request triggers", "Jobs, steps, runners and the ubuntu-latest image", "Checking out code and installing Python with official actions", "Calling the Makefile from CI instead of duplicating commands", "Reading job logs and re-running failed jobs", "Status badges and required checks on pull requests", "The same idea in GitLab CI: .gitlab-ci.yml stages and jobs"],
+          "tools": ["GitHub Actions", "GitHub CLI (gh)", "make", "GitLab CI"],
+          "lab_task": "Add .github/workflows/ci.yml triggered on push and pull_request with one job that checks out code, sets up Python 3.12 and runs make install lint test. Push it, watch the run with gh run watch, then break a test on a branch, open a pull request and mark the ci check as required in the main ruleset so the pull request cannot merge.",
+          "deliverable": "ci.yml, a green run on main, a red run on a pull request and the README status badge",
+          "checks": [["Run gh run list --workflow ci.yml --limit 1 after pushing to main", "The latest run shows status completed and conclusion success", "Terminal output"], ["Open the pull request containing the broken test", "The ci check is red and the merge button reports a required check failed", "Pull request screenshot"], ["Run gh run view --log-failed on the failed run", "The log shows the pytest assertion error and the line number of the failing test", "Terminal output"]],
+          "objectives": ["Create a CI workflow that runs on every push and pull request", "Use required checks to stop broken code reaching main", "Read CI logs to find why a run failed"]
+        },
+        {
+          "topic": "Running Unit Tests and Coverage in CI",
+          "subtopics": ["What a unit test is and what it should not touch", "pytest fixtures and parametrised tests", "Mocking external calls with unittest.mock", "Coverage with pytest-cov and --cov-fail-under", "JUnit XML reports and test summaries in CI", "A Python version matrix: 3.11, 3.12 and 3.13", "Flaky tests: detecting, quarantining and fixing", "Keeping the unit stage under two minutes"],
+          "tools": ["pytest", "pytest-cov", "GitHub Actions", "unittest.mock"],
+          "lab_task": "Write five parametrised pytest tests for the order total calculation, mocking the payment client. Change the CI job to run pytest --cov=app --cov-report=xml --cov-fail-under=80 --junitxml=report.xml across a matrix of Python 3.11, 3.12 and 3.13, upload report.xml as an artifact, then delete one test to drop coverage below 80 percent and push.",
+          "deliverable": "Tests, updated ci.yml, coverage.xml and a run where the coverage gate fails",
+          "checks": [["Open the workflow run summary on main", "Three matrix jobs, one per Python version, all succeed", "Actions run screenshot"], ["Push the change that lowers coverage below 80 percent", "The job fails with FAIL Required test coverage of 80% not reached", "Job log"], ["Download the report artifact and count testcase elements in report.xml", "The count equals the number of tests pytest reported as collected", "report.xml file"]],
+          "objectives": ["Write isolated unit tests with fixtures and mocks", "Enforce a coverage threshold in CI", "Run tests across several runtime versions with a matrix"]
+        },
+        {
+          "topic": "Build Artifacts, Semantic Versioning and Release Tags",
+          "subtopics": ["What an artifact is: wheels, JARs, binaries and images", "Semantic versioning: MAJOR.MINOR.PATCH and pre-release labels", "Conventional Commits and how they map to version bumps", "Annotated Git tags and GitHub Releases", "Uploading artifacts from a workflow and retention days", "Checksums with sha256sum for artifact integrity", "Build once and reuse the same artifact later", "Changelogs generated from commit history"],
+          "tools": ["Git", "GitHub Releases", "GitHub Actions", "sha256sum", "python -m build"],
+          "lab_task": "Add a release.yml workflow triggered on tags matching v*.*.* that builds the wheel, writes SHA256SUMS with sha256sum dist/*, and creates a GitHub Release with the wheel and checksum attached using gh release create. Tag v0.1.0 with git tag -a, push the tag, download the asset with gh release download and verify it with sha256sum -c SHA256SUMS.",
+          "deliverable": "release.yml, release v0.1.0 with two or more assets and a verified checksum",
+          "checks": [["Run gh release view v0.1.0", "The release lists the wheel and SHA256SUMS as assets", "Terminal output"], ["Run sha256sum -c SHA256SUMS on the downloaded files", "Every file reports OK", "Terminal output"], ["Push a tag named release-test that does not match v*.*.*", "No run of release.yml starts", "Actions list screenshot"]],
+          "objectives": ["Version a service with semantic versioning and Git tags", "Publish versioned artifacts with checksums from CI", "Explain why one artifact should move through every stage"]
+        },
+        {
+          "topic": "Packaging the App as a Container Image for Delivery",
+          "subtopics": ["Why containers help delivery: the same package on laptop, CI and server", "Writing a Dockerfile with a slim Python base image", "Multi-stage builds that leave build tools out of the runtime image", "Running as a non-root USER", ".dockerignore to keep secrets and caches out of the build context", "HEALTHCHECK and EXPOSE instructions", "Image tags compared with immutable digests", "Measuring image size and layer count with docker history"],
+          "tools": ["Docker", "Dockerfile", "docker history", "curl"],
+          "lab_task": "Write a multi-stage Dockerfile for orders-api that installs the wheel in a builder stage and copies only the virtual environment into a slim runtime stage running as a non-root user. Build it as orders-api:0.1.0, run it with docker run -d -p 8000:8000, call /healthz with curl and compare the image size against a single-stage build.",
+          "deliverable": "Dockerfile, .dockerignore and a size comparison of single-stage and multi-stage images",
+          "checks": [["Run docker run --rm orders-api:0.1.0 id -u", "Prints a user ID other than 0", "Terminal output"], ["Run docker image ls orders-api", "The multi-stage image is smaller than the single-stage image and both sizes are recorded", "Terminal output"], ["Run curl -i localhost:8000/healthz against the running container", "Returns HTTP/1.1 200 OK", "Terminal output"]],
+          "objectives": ["Package a service as a small, non-root container image", "Use multi-stage builds and .dockerignore", "Tell the difference between an image tag and a digest"]
+        },
+        {
+          "topic": "Publishing Container Images from CI to a Registry",
+          "subtopics": ["Container registries: GitHub Container Registry, Docker Hub, ECR and ACR", "Logging in from CI with the built-in GITHUB_TOKEN", "Workflow permissions: contents read and packages write", "Tagging with the Git SHA, the version and latest", "Building with Docker Buildx in CI", "Recording the pushed digest as a job output", "Image labels such as org.opencontainers.image.source", "Retention and clean-up of old images"],
+          "tools": ["GitHub Actions", "GitHub Container Registry", "Docker Buildx", "docker/build-push-action"],
+          "lab_task": "Extend ci.yml with an image job that needs the test job, sets permissions packages: write, logs in to ghcr.io with docker/login-action and pushes ghcr.io/<owner>/orders-api tagged with the short Git SHA and the version using docker/build-push-action. Print the digest in the job summary, then pull the image on your laptop by digest.",
+          "deliverable": "Updated ci.yml and the package page on GitHub showing SHA and version tags",
+          "checks": [["Run docker pull ghcr.io/<owner>/orders-api@<digest> from the job summary", "The pull succeeds and prints the same sha256 digest", "Terminal output"], ["Remove packages: write from the workflow permissions and re-run", "The push fails with a denied or permission error from ghcr.io", "Job log"], ["Open the package page on GitHub", "Both the short SHA tag and the version tag point to one digest", "Package page screenshot"]],
+          "objectives": ["Push images from CI to a registry with least-privilege tokens", "Tag images so every build can be traced to a commit", "Pull and run an image by digest"]
+        },
+        {
+          "topic": "Dev-Prod Parity: Running the Whole Stack Locally",
+          "subtopics": ["Twelve-factor dev/prod parity: time, personnel and tools gaps", "Running the app with its PostgreSQL dependency in one compose file", "Using the same image locally that CI builds", "Service health checks and depends_on with condition: service_healthy", "Seeding test data with an init script", "Named volumes and resetting state between runs", "Matching versions of dependencies between laptop and test environment", "Running the smoke script against the local stack"],
+          "tools": ["Docker Compose", "PostgreSQL", "Docker", "bash"],
+          "lab_task": "Write compose.yaml with orders-api using the image from ghcr.io and a postgres service with a pg_isready health check, so the API starts only after the database is healthy. Run docker compose up -d, run scripts/smoke.sh, then docker compose down -v and up again to prove the seed script recreates exactly three sample orders.",
+          "deliverable": "compose.yaml, the seed script and smoke output from two clean starts",
+          "checks": [["Run docker compose ps after up -d", "Both services show running and postgres shows healthy", "Terminal output"], ["Run curl -s localhost:8000/orders | jq length after a fresh start", "Prints 3", "Terminal output"], ["Stop postgres with docker compose stop postgres and call /healthz", "The API returns HTTP 503 instead of 200", "Terminal output"]],
+          "objectives": ["Run a production-like stack on a laptop", "Start services in the right order with health checks", "Reduce gaps between development and test environments"]
+        },
+        {
+          "topic": "First Continuous Delivery to a Test Environment",
+          "subtopics": ["Continuous delivery compared with continuous deployment", "Deployment jobs that run only on main", "GitHub environments: test, with a URL and protection rules", "Creating a disposable test cluster with kind inside the job", "Applying a Deployment and Service with kubectl", "Waiting for kubectl rollout status before declaring success", "Running the smoke test after the deployment", "Recording which commit is in the test environment"],
+          "tools": ["GitHub Actions", "kind", "kubectl", "GitHub environments", "curl"],
+          "lab_task": "Add a deploy-test job that needs the image job, runs only on main and uses environment: test. It creates a kind cluster, applies deploy/deployment.yaml with the image set to the new digest, waits with kubectl rollout status --timeout=120s, port-forwards the Service and runs scripts/smoke.sh. Push a change and time from push to green smoke test.",
+          "deliverable": "deploy-test job, deployment manifests and the push-to-running time in minutes",
+          "checks": [["Open the Environments page of the repository", "The test environment shows the latest deployment linked to the main commit SHA", "GitHub screenshot"], ["Set the image to a tag that does not exist and push", "Rollout status times out and the job fails, with ImagePullBackOff in kubectl get pods", "Job log"], ["Read the job timings for a normal push", "The time from push to passing smoke test is recorded, for example under 10 minutes", "Actions run summary"]],
+          "objectives": ["Deliver every main commit automatically to a test environment", "Fail a deployment when the rollout or smoke test fails", "Trace a running version back to its commit"]
+        },
+        {
+          "topic": "Twelve-Factor Configuration Across Environments",
+          "subtopics": ["Factor III: store configuration in the environment", "What counts as configuration and what counts as code", "Reading settings with defaults and type checks at start-up", "Failing fast when a required setting is missing", "Kubernetes ConfigMaps mounted as env and as files", "GitHub environment-level values for test and production", "Avoiding environment-specific builds", "Documenting settings in a config reference table"],
+          "tools": ["pydantic-settings", "Kubernetes ConfigMap", "GitHub environments", "kubectl"],
+          "lab_task": "Move the database URL, log level and page size of orders-api into settings read with pydantic-settings, with a validation error if DATABASE_URL is missing. Create a ConfigMap for the test environment, reference it with envFrom in the Deployment, change LOG_LEVEL to DEBUG with kubectl apply and restart the pods with kubectl rollout restart.",
+          "deliverable": "Settings module, ConfigMap manifest and docs/config.md listing every setting",
+          "checks": [["Start the container without DATABASE_URL", "The process exits at start-up with a validation error naming DATABASE_URL", "docker logs output"], ["Run kubectl exec deploy/orders-api -- printenv LOG_LEVEL after the change", "Prints DEBUG", "Terminal output"], ["Run grep -rn 'localhost:5432' app/", "No matches are found in application code", "Terminal output"]],
+          "objectives": ["Separate configuration from code", "Supply different settings per environment without rebuilding", "Fail fast on missing configuration"]
+        },
+        {
+          "topic": "Keeping Secrets Out of Code, Images and Logs",
+          "subtopics": ["What a secret is: passwords, tokens, keys and connection strings", "How secrets leak: commits, image layers, CI logs and crash reports", "GitHub Actions secrets at repository and environment level", "Masking in logs and why echo of a secret is still risky", "Kubernetes Secrets: base64 is not encryption", "Short-lived credentials with OIDC instead of stored cloud keys", "Rotating a leaked secret: revoke first, then clean history", "Where a vault fits: HashiCorp Vault and cloud secret managers"],
+          "tools": ["GitHub Actions secrets", "Kubernetes Secret", "kubectl", "docker history", "gitleaks"],
+          "lab_task": "Store the database password as an environment secret named DB_PASSWORD on the test environment, create a Kubernetes Secret from it in the deploy job with kubectl create secret generic --dry-run=client -o yaml | kubectl apply -f -, and reference it in the Deployment. Then run gitleaks on the repository and docker history --no-trunc on the image to prove the password appears in neither.",
+          "deliverable": "Updated deploy job, Secret reference in the Deployment and clean gitleaks and history output",
+          "checks": [["Add a step that runs echo $DB_PASSWORD and view the log", "The value appears as *** in the job log", "Job log"], ["Run gitleaks on the repository", "Reports no leaks found and exits with code 0", "Terminal output"], ["Run kubectl get secret db -o jsonpath='{.data.password}' | base64 -d", "The plain password prints, showing Secrets are only encoded and need RBAC and encryption at rest", "Terminal output"]],
+          "objectives": ["Keep secrets out of repositories, images and logs", "Pass secrets from CI to a running service safely", "Respond to a leaked secret in the right order"]
+        },
+        {
+          "topic": "Infrastructure as Code Concepts: Desired State, Plans and Drift",
+          "subtopics": ["Imperative scripts compared with declarative desired state", "Idempotence: running twice gives the same result", "Providers, resources and the state file", "The plan-then-apply loop and reading a plan", "Drift: when real infrastructure differs from code", "Remote state and locking for teams", "Storing infrastructure code next to application code", "Where Terraform, OpenTofu, Pulumi, Ansible and CloudFormation fit"],
+          "tools": ["Terraform", "OpenTofu", "Docker provider for Terraform", "Docker"],
+          "lab_task": "Write main.tf using the kreuzwerker/docker provider to create a network, a postgres container and an orders-api container. Run terraform init, terraform plan and terraform apply. Delete the API container by hand with docker rm -f, run terraform plan again to see the drift, then apply to repair it and confirm a third plan reports no changes.",
+          "deliverable": "main.tf, saved plan outputs before and after drift and the repaired environment",
+          "checks": [["Run terraform plan on an empty Docker host", "Plan: 3 to add, 0 to change, 0 to destroy.", "Terminal output"], ["Run terraform plan after docker rm -f on the API container", "The plan proposes 1 to add for the missing container", "Terminal output"], ["Run terraform plan after the repair apply", "No changes. Your infrastructure matches the configuration.", "Terminal output"]],
+          "objectives": ["Explain desired state, idempotence and drift", "Read a plan before applying it", "Describe where state lives and why teams lock it"]
+        },
+        {
+          "topic": "Configuring Servers as Code with Idempotent Playbooks",
+          "subtopics": ["Configuration management compared with provisioning", "Inventory files and SSH-based push models", "Tasks, modules and handlers", "Idempotent modules compared with raw shell commands", "Check mode and diff mode before changing a server", "Templates for config files with Jinja2", "Running playbooks from CI against a test host", "When immutable images replace configuration management"],
+          "tools": ["Ansible", "Docker", "SSH", "Jinja2"],
+          "lab_task": "Start an Ubuntu container with SSH as a test host and write a playbook that installs nginx, templates a reverse-proxy config pointing at orders-api and restarts nginx through a handler. Run ansible-playbook with --check --diff first, then for real twice, and record the changed count of each run from the PLAY RECAP line.",
+          "deliverable": "Inventory, playbook, nginx template and the PLAY RECAP lines of three runs",
+          "checks": [["Run the playbook for the first time", "PLAY RECAP shows changed greater than 0 and failed=0", "Terminal output"], ["Run the playbook a second time", "PLAY RECAP shows changed=0", "Terminal output"], ["Run curl -I against nginx on the test host", "Returns HTTP 200 proxied from orders-api", "Terminal output"]],
+          "objectives": ["Configure a server repeatably from code", "Check idempotence by running a playbook twice", "Decide between configuration management and immutable images"]
+        },
+        {
+          "topic": "Monitoring a Delivered Service: Health, Metrics and Alerts",
+          "subtopics": ["Liveness compared with readiness endpoints", "The four golden signals: latency, traffic, errors and saturation", "Exposing /metrics with the Prometheus client library", "Counters, gauges and histograms", "Scraping the service with Prometheus", "A first Grafana dashboard for requests and errors", "Alert rules with a for: duration to avoid flapping", "Uptime checks from outside the system"],
+          "tools": ["Prometheus", "Grafana", "prometheus_client", "Docker Compose", "hey"],
+          "lab_task": "Add prometheus_client to orders-api with a request counter labelled by status code and a latency histogram. Add Prometheus and Grafana to compose.yaml, scrape the API every 15 seconds, build a dashboard with request rate and error ratio, and add an alert rule up{job=\"orders-api\"} == 0 for 1m. Generate load with hey -n 2000, then stop the API.",
+          "deliverable": "Instrumented code, prometheus.yml, alert rule file and a dashboard JSON export",
+          "checks": [["Run curl -s localhost:8000/metrics | grep http_requests_total", "Counter lines with status labels such as status=\"200\" appear", "Terminal output"], ["Query sum(rate(http_requests_total[1m])) in Prometheus during the hey run", "A non-zero request rate is shown", "Prometheus graph screenshot"], ["Stop the API container and wait one minute", "The OrdersApiDown alert moves from pending to firing", "Prometheus Alerts page"]],
+          "objectives": ["Expose health and metrics endpoints from a service", "Build a dashboard around the golden signals", "Write an alert that fires only on a sustained problem"]
+        },
+        {
+          "topic": "Logs and Diagnosing a Failed Delivery",
+          "subtopics": ["Structured JSON logs with a request ID", "Log levels and what belongs at each level", "Reading container logs with docker logs and kubectl logs --previous", "kubectl describe pod and the Events section", "Common failure states: ImagePullBackOff, CrashLoopBackOff and OOMKilled", "Exit codes such as 1 and 137 and what they mean", "Finding the failing step with gh run view --log-failed", "A repeatable diagnosis checklist from pipeline to pod"],
+          "tools": ["kubectl", "GitHub CLI (gh)", "docker logs", "jq"],
+          "lab_task": "Your trainer injects three faults into the test deployment: a wrong image tag, a missing DATABASE_URL and a memory limit of 32Mi. For each, use kubectl get pods, kubectl describe pod and kubectl logs --previous to find the cause, fix the manifest, redeploy through the pipeline and log the time from alert to fix in a diagnosis table.",
+          "deliverable": "Diagnosis table with symptom, command used, root cause, fix and time to fix for three faults",
+          "checks": [["Run kubectl get pods for the wrong image tag fault", "STATUS shows ImagePullBackOff or ErrImagePull", "Terminal output"], ["Run kubectl describe pod for the 32Mi memory limit fault", "Last State shows Terminated with Reason OOMKilled and Exit Code 137", "Terminal output"], ["Run kubectl logs --previous for the missing setting fault", "The log shows the validation error naming DATABASE_URL", "Terminal output"]],
+          "objectives": ["Write logs that help diagnosis", "Find the cause of a failed rollout with kubectl", "Follow a checklist from failed pipeline to failing pod"]
+        },
+        {
+          "topic": "Collaboration Practices: ChatOps, Runbooks and Shared Ownership",
+          "subtopics": ["Working agreements and a Definition of Done that includes deployment", "CODEOWNERS for automatic review requests", "Pull request and issue templates", "Pipeline notifications to Slack or Microsoft Teams", "Runbooks stored as Markdown next to the code", "Blameless language in reviews and incident notes", "Pairing and mob programming on pipeline changes", "Documenting decisions with architecture decision records"],
+          "tools": ["GitHub", "CODEOWNERS", "Slack incoming webhooks", "Markdown"],
+          "lab_task": "Add .github/CODEOWNERS so changes under deploy/ request review from the ops pair, a pull request template with a deployment checklist and a runbook docs/runbooks/orders-api-down.md. Add a final workflow step that posts the result and commit SHA to a Slack incoming webhook stored as a secret, then open a pull request touching deploy/.",
+          "deliverable": "CODEOWNERS, pull request template, runbook, ADR-0001 and a Slack notification screenshot",
+          "checks": [["Open a pull request that changes deploy/deployment.yaml", "GitHub automatically requests review from the owners listed in CODEOWNERS", "Pull request screenshot"], ["Let a pipeline run finish on main", "One Slack message appears with the result and the short SHA", "Slack screenshot"], ["Give the runbook to a partner and simulate the OrdersApiDown alert", "The partner restores the service using only the runbook steps", "Runbook walk-through notes"]],
+          "objectives": ["Make ownership and review routing explicit", "Share pipeline results where the team works", "Write runbooks a teammate can follow alone"]
+        },
+        {
+          "topic": "Beginner Capstone: One App from Commit to Running Service",
+          "subtopics": ["Requirements: a small new endpoint for orders-api delivered end to end", "Pipeline: lint, unit tests with coverage gate, version and image push", "Delivery: automatic deployment to the test environment with a smoke test", "Configuration and secrets supplied per environment", "Monitoring: metrics, dashboard panel and an alert for the new endpoint", "Demo: value stream before and after, lead time and a live change"],
+          "tools": ["GitHub Actions", "Docker", "kind", "kubectl", "Prometheus", "Grafana"],
+          "lab_task": "Add GET /orders/{id}/status to orders-api through a reviewed pull request. The merge must trigger lint, tests with an 80 percent coverage gate, an image push tagged with the SHA, deployment to the test environment and a smoke test calling the new endpoint. Add a Grafana panel for its error rate, then demo a live change and report the commit-to-running time.",
+          "deliverable": "Merged pull request, green pipeline run, running test deployment, dashboard and a five-minute demo",
+          "checks": [["Merge the capstone pull request to main", "Every pipeline job from lint to smoke test succeeds in one run", "Actions run summary"], ["Call GET /orders/1/status on the test environment", "Returns HTTP 200 with a JSON status field", "Terminal output"], ["Compare the commit-to-running time with the Day 2 lead time", "The new lead time is measured in minutes and is shorter than the Day 2 figure", "Demo slide"]],
+          "objectives": ["Take a change from commit to running service without manual steps", "Combine CI, packaging, delivery and monitoring into one flow", "Measure the improvement in lead time"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run a working CI pipeline and a first automated deployment and now need delivery that is fast, safe and measurable for a team. Using orders-api, a second service and a local kind cluster, the course covers trunk-based development and feature flags, pipeline design and quality gates, the test pyramid inside a pipeline, DevSecOps with SAST, software composition analysis, secrets scanning and container scanning, environment promotion, rolling, blue-green and canary releases, a GitOps workflow with Argo CD, infrastructure pipelines with OPA policy checks, Kubernetes delivery, observability-driven releases, incident response with postmortems, and DORA metrics. Each tool appears as an example of a practice; dedicated courses go deeper on each one.",
+      "prerequisites": ["Has built a CI workflow in GitHub Actions or GitLab CI that tests code and pushes a container image", "Can deploy and inspect a workload on Kubernetes with kubectl apply, get, describe and logs", "Has written a small Terraform configuration and read a terraform plan"],
+      "outcomes": ["Design a pipeline with stages, caching, reusable workflows and quality gates that keeps feedback under 10 minutes", "Add SAST, dependency, secrets and image scanning to the pipeline with clear block-or-warn rules", "Promote one immutable image through environments with GitOps and release it with rolling, blue-green or canary strategies", "Measure delivery with DORA metrics and run incidents and postmortems that feed improvements back into the pipeline"],
+      "days": [
+        {
+          "topic": "Trunk-Based Development with Short-Lived Branches",
+          "subtopics": ["Trunk-based development and why long-lived branches slow delivery", "Branch lifetime targets: merge within one day", "Small batches and stacked pull requests", "Merge queues to keep main green under heavy merging", "Branch by abstraction for large changes", "Release branches only when a supported old version is needed", "Measuring branch age and pull request size from the GitHub API", "Pairing and fast reviews as enablers"],
+          "tools": ["Git", "GitHub merge queue", "GitHub CLI (gh)", "jq"],
+          "lab_task": "Use gh api repos/<owner>/<repo>/pulls?state=closed&per_page=100 with jq to compute the median hours from creation to merge and the median changed lines of the last 100 pull requests. Turn on the merge queue for main with the ci check required, merge three small pull requests through it in one hour and compare the new medians.",
+          "deliverable": "Branch-age report before and after, merge queue rule and three queued merges",
+          "checks": [["Run the jq script on closed pull requests", "Median time to merge in hours and median changed lines are printed", "Terminal output"], ["Add two pull requests to the merge queue at once", "Each is tested on top of the other in the queue and both merge with main still green", "Merge queue screenshot"], ["Check main after the three merges with gh run list --branch main", "Every run on main shows conclusion success", "Terminal output"]],
+          "objectives": ["Explain why short-lived branches improve flow", "Use a merge queue to keep main releasable", "Measure branch age and batch size from real data"]
+        },
+        {
+          "topic": "Feature Flags: Separating Deploy from Release",
+          "subtopics": ["Deploying dark and releasing by switching a flag", "Flag types: release, experiment, ops kill switch and permission", "OpenFeature as a vendor-neutral flag API", "flagd and a JSON flag definition file", "Targeting rules: percentage rollout and user attributes", "Testing both flag states in CI", "Flag debt: owners, expiry dates and removal", "Kill switches as part of incident response"],
+          "tools": ["OpenFeature", "flagd", "Unleash", "pytest", "Docker"],
+          "lab_task": "Run flagd in Docker with a flags.json defining new-checkout as off by default. Wire orders-api to it through the OpenFeature Python SDK and the flagd provider, deploy the code with the flag off, then turn it on for 20 percent of user IDs with a fractional rule. Add pytest cases for both flag states and send 1,000 requests to count how many reach the new path.",
+          "deliverable": "flags.json, flag-aware code, tests for both states and the measured rollout share",
+          "checks": [["Send 1,000 requests with random user IDs at 20 percent rollout", "About 200 requests, within plus or minus 40, take the new checkout path", "Request counter output"], ["Run pytest -k new_checkout", "Tests for flag on and flag off both pass", "Test output"], ["Stop the flagd container and call the endpoint", "The SDK returns the default value off and the old path still serves requests", "Terminal output"]],
+          "objectives": ["Ship code dark and release it with a flag", "Roll a feature out to a share of users", "Manage flag lifetime and safe defaults"]
+        },
+        {
+          "topic": "Pipeline Design: Stages, Parallelism, Caching and Reuse",
+          "subtopics": ["Commit stage compared with acceptance and release stages", "Fail-fast ordering: cheapest checks first", "Parallel jobs and needs: dependency graphs", "Dependency caching with actions/cache keyed on lock files", "Docker layer caching with cache-from and cache-to type=gha", "Reusable workflows with workflow_call and composite actions", "Path filters and concurrency groups that cancel stale runs", "Feedback-time budgets per stage"],
+          "tools": ["GitHub Actions", "actions/cache", "Docker Buildx", "GitLab CI"],
+          "lab_task": "Redesign ci.yml so lint, unit tests and the Dockerfile lint run in parallel, the image build needs all three, and stale runs on the same branch are cancelled with concurrency and cancel-in-progress: true. Add pip and Buildx caches, move the build into a reusable workflow called with workflow_call, and compare the total time of three runs before and after.",
+          "deliverable": "Redesigned workflows, a job graph screenshot and a before-and-after timing table",
+          "checks": [["Run the pipeline twice without dependency changes", "The second run logs a cache hit for the pip cache key", "Job log"], ["Push two commits to the same branch within 30 seconds", "The first run is cancelled and only the second completes", "Actions run list"], ["Average three runs before and after", "Median pipeline time is lower after the redesign, with both figures recorded", "Timing table"]],
+          "objectives": ["Order pipeline stages for fast feedback", "Use caching and parallel jobs to cut pipeline time", "Share pipeline logic with reusable workflows"]
+        },
+        {
+          "topic": "Quality Gates: Lint, Coverage Thresholds and Static Analysis",
+          "subtopics": ["What a quality gate is and who owns its thresholds", "Hard gates compared with warnings", "New-code coverage compared with overall coverage", "Code smells, duplication and complexity in SonarQube", "Reporting results on the pull request", "Type checking with mypy as a gate", "Handling exceptions and waivers with expiry", "Avoiding gate fatigue: every gate must stop a real problem"],
+          "tools": ["SonarQube Community Build", "mypy", "ruff", "pytest-cov", "GitHub Actions"],
+          "lab_task": "Run SonarQube Community Build in Docker, create a project for orders-api and scan it from CI with the SonarScanner action using a token stored as a secret, passing the coverage.xml report. Configure a quality gate of 80 percent coverage on new code and zero new blocker issues, add mypy --strict on app/, then open a pull request that adds untested code.",
+          "deliverable": "Quality gate definition, scanner workflow step and a pull request blocked by the gate",
+          "checks": [["Open the SonarQube project after the main branch scan", "Quality Gate status shows Passed with coverage imported", "SonarQube screenshot"], ["Open the pull request with untested code", "The gate reports Failed on the coverage on new code condition", "Pull request check output"], ["Add a function returning str where int is declared and run mypy --strict app/", "mypy reports an incompatible return value type error and exits 1", "Terminal output"]],
+          "objectives": ["Define quality gates that block real risk", "Report static analysis results on pull requests", "Run type checks as a pipeline gate"]
+        },
+        {
+          "topic": "The Test Pyramid Inside the Pipeline",
+          "subtopics": ["The test pyramid and the ice-cream cone anti-pattern", "Unit tests in the commit stage", "Service tests with real dependencies through Testcontainers", "Consumer-driven contract tests with Pact", "A thin layer of end-to-end tests against a deployed environment", "Test data management and isolation", "Splitting slow suites across parallel jobs", "Tracking test time and flakiness per layer"],
+          "tools": ["pytest", "Testcontainers", "Pact", "Playwright", "GitHub Actions"],
+          "lab_task": "Add a service test that starts PostgreSQL with Testcontainers for Python, a Pact consumer test from a web client to orders-api that publishes the pact file as an artifact, and a provider verification job in orders-api. Add two Playwright end-to-end checks against the test environment, then count tests and time per layer.",
+          "deliverable": "Tests in each layer, pipeline jobs per layer and a table of count and duration per layer",
+          "checks": [["Run the Pact provider verification after renaming a JSON field in orders-api", "Verification fails and names the missing field", "Job log"], ["Count tests per layer from the JUnit reports", "Unit tests outnumber service tests, which outnumber end-to-end tests", "Layer table"], ["Run the Testcontainers test on a runner with Docker", "A postgres container starts, the test passes and the container is removed afterwards", "Job log and docker ps output"]],
+          "objectives": ["Place each kind of test at the right pipeline stage", "Catch breaking API changes with contract tests", "Keep the pyramid shape measurable"]
+        },
+        {
+          "topic": "Shift-Left Code Scanning with SAST in Pull Requests",
+          "subtopics": ["Static application security testing and what it can and cannot find", "CodeQL code scanning in GitHub Actions", "Semgrep rules and the p/python ruleset", "Severity levels and a block-on-high policy", "SARIF output and the Security tab", "Triage: true positive, false positive and won't fix", "Writing a custom Semgrep rule for a team pattern", "Developer feedback inside the pull request diff"],
+          "tools": ["CodeQL", "Semgrep", "GitHub code scanning", "SARIF"],
+          "lab_task": "Add a CodeQL workflow for Python and a Semgrep job that runs semgrep scan --config p/python --sarif --output semgrep.sarif and uploads the SARIF. Introduce a SQL query built with an f-string from a request parameter on a branch, open a pull request and read the alerts. Then write a custom Semgrep rule banning requests calls without timeout and fix both findings.",
+          "deliverable": "CodeQL and Semgrep workflows, a custom rule file and a pull request showing found and fixed alerts",
+          "checks": [["Open the pull request with the f-string SQL query", "Code scanning reports a SQL injection alert on the changed line", "Pull request annotation"], ["Run semgrep scan --config rules/ --error on code with requests.get(url) and no timeout", "The custom rule matches and semgrep exits with code 1", "Terminal output"], ["Push the fixes and re-run code scanning", "The alerts change to Fixed in the Security tab", "Security tab screenshot"]],
+          "objectives": ["Run SAST on every pull request", "Triage findings and decide what blocks a merge", "Write a custom rule for a team-specific risk"]
+        },
+        {
+          "topic": "Dependency Risk with Software Composition Analysis",
+          "subtopics": ["Direct and transitive dependencies", "Vulnerability databases: OSV, GitHub Advisory Database and NVD", "CVSS scores compared with EPSS and known-exploited lists", "pip-audit and Trivy filesystem scans", "Dependabot version and security updates", "Licence policy: allowed, review and denied licences", "Lock files and reproducible dependency trees", "Fix, upgrade or accept: recording a risk decision"],
+          "tools": ["pip-audit", "Trivy", "Dependabot", "OSV-Scanner"],
+          "lab_task": "Pin an old version of a package with a published advisory, such as an old requests release, in requirements.txt. Run pip-audit -r requirements.txt and trivy fs --scanners vuln . locally, add a CI job that fails on HIGH or CRITICAL findings, and add .github/dependabot.yml for pip and github-actions on a weekly schedule. Merge the Dependabot fix pull request.",
+          "deliverable": "SCA job, dependabot.yml, scan output before and after and one merged Dependabot pull request",
+          "checks": [["Run pip-audit -r requirements.txt with the old version pinned", "At least one vulnerability ID is listed and the command exits with code 1", "Terminal output"], ["Run trivy fs --severity HIGH,CRITICAL --exit-code 1 . in CI", "The job fails while the vulnerable version is pinned", "Job log"], ["Merge the Dependabot pull request and re-run both scans", "No vulnerabilities are reported for that package", "Terminal output"]],
+          "objectives": ["Find known-vulnerable dependencies automatically", "Prioritise findings with severity and exploit data", "Keep dependencies current with automated update pull requests"]
+        },
+        {
+          "topic": "Secrets Scanning and Push Protection",
+          "subtopics": ["How secrets end up in Git history", "Pre-commit hooks with gitleaks", "Scanning full history in CI", "GitHub secret scanning and push protection", "Custom patterns for internal token formats", "Allow-lists for test fixtures without hiding real leaks", "Responding to a detected secret: revoke, rotate, then rewrite history", "Measuring time from leak to revocation"],
+          "tools": ["gitleaks", "pre-commit", "GitHub secret scanning", "git filter-repo"],
+          "lab_task": "Install pre-commit with a gitleaks hook, then try to commit a file containing a fake AWS access key pattern from the gitleaks test fixtures. Add a CI job that scans full history with fetch-depth: 0. With push protection on a test repository, push a known-format test token and record the response. Write a five-step leak response runbook.",
+          "deliverable": "pre-commit config, history-scan job, push protection evidence and a leak response runbook",
+          "checks": [["Commit the file containing the fake key", "The gitleaks hook fails, reports the finding and the commit is not created", "Terminal output"], ["Push a supported token format to the repository with push protection on", "The push is rejected with GH013 and the secret type is named", "Terminal output"], ["Run the CI history scan on a branch where a test key was added and later deleted", "gitleaks still reports the leak from the earlier commit", "Job log"]],
+          "objectives": ["Block secrets before they reach the remote", "Scan full history, not just the latest commit", "Respond to a leaked secret quickly and in the right order"]
+        },
+        {
+          "topic": "Container Image Scanning and Hardened Base Images",
+          "subtopics": ["What image scanners check: OS packages, language packages and misconfigurations", "Trivy image scans with severity filters and exit codes", "Unfixed vulnerabilities and --ignore-unfixed", "Choosing base images: slim, distroless and minimal images", "Dockerfile linting with Hadolint", "Rebuilding regularly to pick up patched base layers", "A .trivyignore file with reasons and expiry dates", "Scanning images already in the registry on a schedule"],
+          "tools": ["Trivy", "Hadolint", "Docker", "GitHub Actions"],
+          "lab_task": "Scan the current orders-api image with trivy image --severity HIGH,CRITICAL and record the count. Rebuild it on a distroless or minimal Python base, fix Hadolint warnings, and scan again. Add a CI step that fails on fixable CRITICAL vulnerabilities with --ignore-unfixed --exit-code 1 and a nightly scheduled scan of the latest pushed image.",
+          "deliverable": "Hardened Dockerfile, scan reports before and after and the gating and nightly workflows",
+          "checks": [["Compare HIGH and CRITICAL counts before and after the base image change", "The hardened image shows fewer findings, with both counts recorded", "Trivy reports"], ["Run hadolint Dockerfile on the original file", "At least one rule ID such as DL3008 or DL3013 is reported", "Terminal output"], ["Build an image from an old base with a fixable critical CVE in CI", "The scan step exits 1 and the image is not pushed", "Job log"]],
+          "objectives": ["Scan images and block fixable critical issues", "Shrink the attack surface with hardened base images", "Rescan published images as new CVEs appear"]
+        },
+        {
+          "topic": "Environment Promotion: Build Once, Promote Many",
+          "subtopics": ["One immutable artifact promoted from dev to staging to production", "Promotion by digest, never by rebuilding", "GitHub environments with required reviewers and wait timers", "Deployment branch and tag rules per environment", "Environment-specific configuration layered on the same image", "Promotion evidence: who approved, which digest, which tests", "Rolling back by promoting the previous digest", "Keeping environments consistent and avoiding snowflakes"],
+          "tools": ["GitHub environments", "GitHub Actions", "kubectl", "crane"],
+          "lab_task": "Create dev, staging and production environments in GitHub with a required reviewer on production. Write a promote workflow with workflow_dispatch input digest that deploys to dev, runs smoke tests, then staging, then waits for production approval. Use crane digest to confirm the same digest in all three namespaces of the kind cluster.",
+          "deliverable": "Promote workflow, environment protection rules and a digest comparison across three environments",
+          "checks": [["Run kubectl get deploy orders-api -o jsonpath='{.spec.template.spec.containers[0].image}' in each namespace", "All three show the same sha256 digest", "Terminal output"], ["Trigger promotion and reach the production job", "The job waits with status Waiting until the reviewer approves", "Actions run screenshot"], ["Promote the previous digest through the same workflow", "Production runs the earlier version and the smoke test passes", "Job log"]],
+          "objectives": ["Promote one immutable artifact through every environment", "Add approvals and rules to sensitive environments", "Roll back by promoting a known-good digest"]
+        },
+        {
+          "topic": "Rolling and Blue-Green Deployment Strategies",
+          "subtopics": ["Recreate, rolling, blue-green and canary compared", "Rolling updates with maxSurge and maxUnavailable", "Readiness probes as the safety net of a rolling update", "Blue-green with two Deployments and a Service selector switch", "Database changes that work with both versions: expand and contract", "Smoke testing the idle colour before the switch", "Instant rollback by switching back", "Cost and capacity trade-offs of each strategy"],
+          "tools": ["Kubernetes", "kubectl", "kind", "hey"],
+          "lab_task": "Run hey -z 60s against orders-api while performing a rolling update with maxSurge: 1 and maxUnavailable: 0 and count non-2xx responses. Then deploy blue and green Deployments, smoke test green through a separate preview Service, switch the main Service selector with kubectl patch and switch back, measuring errors during each switch.",
+          "deliverable": "Rolling update and blue-green manifests with error counts for each change",
+          "checks": [["Read the hey status code distribution during the rolling update", "Zero non-2xx responses are reported", "hey output"], ["Run kubectl get endpointslices -l kubernetes.io/service-name=orders-api after the patch", "The slices list only pod IPs of the green Deployment", "Terminal output"], ["Deploy a version with a failing readiness probe as a rolling update", "The rollout stalls with old pods still serving and kubectl rollout status does not complete", "Terminal output"]],
+          "objectives": ["Run zero-downtime rolling updates", "Perform a blue-green switch and instant rollback", "Choose a release strategy for a given risk and budget"]
+        },
+        {
+          "topic": "Canary Releases with Metric-Based Analysis",
+          "subtopics": ["Canary releases: a small share of traffic to the new version", "Argo Rollouts canary steps: setWeight and pause", "AnalysisTemplates querying Prometheus", "Success conditions on error rate and latency", "Automatic abort and the Degraded state", "Traffic splitting with replica ratios compared with an ingress or service mesh", "Choosing canary duration and sample size", "Manual promotion with the kubectl plugin"],
+          "tools": ["Argo Rollouts", "Prometheus", "kubectl argo rollouts", "kind", "hey"],
+          "lab_task": "Convert the orders-api Deployment to an Argo Rollouts Rollout with steps 20, 50 and 100 percent and a pause between them. Add an AnalysisTemplate that queries the Prometheus 5xx error ratio and fails above 1 percent. Release a good version and watch it complete, then release a version returning 5 percent errors under hey load and watch the automatic abort.",
+          "deliverable": "Rollout and AnalysisTemplate manifests and recordings of a promoted and an aborted canary",
+          "checks": [["Run kubectl argo rollouts get rollout orders-api after the good release", "Status shows Healthy with the new revision at 100 percent", "Terminal output"], ["Release the faulty version under load", "The analysis run fails and the rollout status shows Degraded with traffic back on the stable version", "Terminal output"], ["Run kubectl get analysisrun after the abort", "The latest AnalysisRun shows phase Failed", "Terminal output"]],
+          "objectives": ["Release a new version to a share of traffic first", "Automate canary decisions with metrics", "Abort a bad release without a human in the loop"]
+        },
+        {
+          "topic": "GitOps Workflow: Pull-Based Delivery from an Environment Repository",
+          "subtopics": ["The four OpenGitOps principles: declarative, versioned, pulled and reconciled", "Separating the application repository from the environment repository", "CI writes a new image digest to the environment repository", "Argo CD Applications with automated sync, prune and self-heal", "Drift detection and the OutOfSync status", "Rollback by reverting a Git commit", "Pull requests as the change approval for production", "Where Flux fits as an alternative"],
+          "tools": ["Argo CD", "Kustomize", "GitHub Actions", "kind", "Git"],
+          "lab_task": "Create an orders-deploy repository with Kustomize overlays for dev and prod and install Argo CD on kind. Create an Application for dev with automated sync, prune and self-heal. Change CI so that after pushing an image it commits the new digest with kustomize edit set image. Then scale the Deployment by hand and watch Argo CD revert it.",
+          "deliverable": "orders-deploy repository, Argo CD Application manifest and a CI job that bumps the digest",
+          "checks": [["Run argocd app get orders-api-dev after a CI run", "Sync Status shows Synced to the latest orders-deploy commit and Health Status shows Healthy", "Terminal output"], ["Run kubectl scale deploy orders-api --replicas=5 in the dev namespace", "Argo CD self-heal returns the replica count to the value in Git within a few minutes", "kubectl get deploy output"], ["Revert the last digest bump commit in orders-deploy", "Argo CD syncs and the previous image digest is running", "Argo CD history"]],
+          "objectives": ["Deliver changes by pulling desired state from Git", "Separate build pipelines from deployment state", "Detect and correct drift automatically"]
+        },
+        {
+          "topic": "Infrastructure Pipelines: Plan on Pull Request, Apply on Merge",
+          "subtopics": ["Treating infrastructure changes like application changes", "terraform fmt -check, validate and tflint as the first stage", "Posting the plan as a pull request comment", "Saved plans with -out and applying exactly what was reviewed", "Remote state with locking and OIDC credentials instead of static keys", "-detailed-exitcode for drift checks on a schedule", "Separate state per environment", "Concurrency controls so two applies never run together"],
+          "tools": ["Terraform", "OpenTofu", "tflint", "GitHub Actions", "LocalStack"],
+          "lab_task": "Using LocalStack as the AWS target, build a workflow that on pull request runs terraform fmt -check, validate, tflint and terraform plan -out=tfplan, posting the plan summary as a comment. On merge to main it applies the saved plan in a production environment with a concurrency group. Add a nightly job that runs terraform plan -detailed-exitcode to detect drift.",
+          "deliverable": "Infrastructure workflow, a pull request with a plan comment and a drift-check run",
+          "checks": [["Open a pull request that adds an S3 bucket", "A bot comment shows Plan: 1 to add, 0 to change, 0 to destroy.", "Pull request comment"], ["Push a file with bad indentation", "terraform fmt -check fails and lists the file", "Job log"], ["Create a bucket tag by hand in LocalStack and run the drift job", "terraform plan exits with code 2 and the job reports drift", "Job log"]],
+          "objectives": ["Review infrastructure changes as plans on pull requests", "Apply exactly the reviewed plan", "Detect drift on a schedule"]
+        },
+        {
+          "topic": "Policy Checks for Infrastructure Code with OPA and Conftest",
+          "subtopics": ["Policy as code and why reviewers miss repetitive rules", "Open Policy Agent and the Rego language", "Conftest against Terraform plan JSON and Kubernetes YAML", "Writing deny rules with clear messages", "Unit testing policies with opa test", "Warn compared with deny during roll-out", "Checkov and Trivy config as ready-made rule sets", "Keeping policies in a shared repository with versions"],
+          "tools": ["Open Policy Agent", "Conftest", "Terraform", "Checkov", "Trivy"],
+          "lab_task": "Write Rego policies that deny S3 buckets without a cost-center tag and Kubernetes Deployments without CPU and memory limits. Run terraform show -json tfplan > tfplan.json and conftest test tfplan.json, and conftest test on the Deployment YAML. Add opa test cases for each rule and a pipeline step that fails on any deny, then fix the code until it passes.",
+          "deliverable": "policy/ directory with Rego rules and tests, and pipeline runs that fail then pass",
+          "checks": [["Run conftest test tfplan.json on a bucket without a cost-center tag", "Output shows FAIL with the custom message and a summary with 1 failure", "Terminal output"], ["Run opa test policy/ -v", "Every policy test reports PASS", "Terminal output"], ["Run conftest test deploy/deployment.yaml after adding limits", "The summary reports 0 failures", "Terminal output"]],
+          "objectives": ["Express infrastructure rules as code", "Test policies before enforcing them", "Block non-compliant changes in the pipeline"]
+        },
+        {
+          "topic": "Delivering to Kubernetes: Manifests, Overlays and Readiness",
+          "subtopics": ["What a delivery-ready Kubernetes workload needs", "Kustomize bases and overlays for each environment", "Helm charts compared with Kustomize for application delivery", "Readiness, liveness and startup probes tuned to real start times", "Resource requests and limits", "PodDisruptionBudgets and topology spread constraints", "Validating manifests in CI with kubeconform", "Previewing changes with kubectl diff before applying"],
+          "tools": ["Kustomize", "kubectl", "kubeconform", "Helm", "kind"],
+          "lab_task": "Refactor the orders-api manifests into a Kustomize base with dev and prod overlays that differ in replica count, resources and ConfigMap values. Add a startup probe, a PodDisruptionBudget with minAvailable: 1 and topology spread. Validate with kustomize build overlays/prod | kubeconform -strict -summary in CI and show the prod differences with kubectl diff.",
+          "deliverable": "Kustomize base and overlays, a CI validation step and kubectl diff output",
+          "checks": [["Run kustomize build overlays/prod | kubeconform -strict -summary", "The summary reports all resources valid and 0 errors", "Terminal output"], ["Run kubectl drain on a node hosting a prod pod in a multi-node kind cluster", "The PodDisruptionBudget keeps at least one pod available during the drain", "Terminal output"], ["Run kubectl diff -k overlays/prod after changing the replica count", "Only the replicas line is shown as changed", "Terminal output"]],
+          "objectives": ["Package Kubernetes workloads for several environments", "Make workloads safe to release and to drain", "Validate and preview manifests before they reach a cluster"]
+        },
+        {
+          "topic": "Observability-Driven Releases: Release Markers and SLO Gates",
+          "subtopics": ["Why every release needs a before-and-after comparison", "Version labels on metrics and traces", "Release annotations in Grafana from the pipeline", "Service level objectives as release gates", "Error budget remaining as a go or no-go input", "Post-deployment verification windows", "Comparing latency percentiles by version", "Automatic rollback triggers and their false positives"],
+          "tools": ["Prometheus", "Grafana", "OpenTelemetry", "GitHub Actions", "curl"],
+          "lab_task": "Add a version label to the orders-api metrics, post a Grafana annotation from the deploy job with curl -X POST /api/annotations using a service account token, and add a 10-minute verification step that queries Prometheus for the 5xx ratio and p95 latency and fails if either breaks the SLO of 99 percent success and 300 ms. Release one good and one slow version.",
+          "deliverable": "Annotated dashboard, the verification script and two release runs with their SLO results",
+          "checks": [["Open the dashboard after a release", "An annotation with the version and commit SHA appears at the deploy time", "Grafana screenshot"], ["Run the verification step after the slow release", "p95 latency above 300 ms is printed and the job exits 1", "Job log"], ["Query histogram_quantile(0.95, sum by (le, version) (rate(http_request_duration_seconds_bucket[5m])))", "Separate p95 values are shown for the old and new version", "Prometheus screenshot"]],
+          "objectives": ["Make every release visible on dashboards", "Gate releases on SLOs and error budgets", "Compare versions with telemetry"]
+        },
+        {
+          "topic": "Incident Response and Postmortems for Delivery Teams",
+          "subtopics": ["Severity levels and declaring an incident", "Roles: incident commander, communications lead and operations lead", "Stop the bleeding first: roll back, flag off or scale", "Status updates on a fixed cadence", "Timelines built from chat, pipeline and deployment events", "Blameless postmortem template and contributing factors", "Turning action items into backlog work with owners and dates", "Feeding lessons back into pipeline gates and tests"],
+          "tools": ["Grafana", "Argo CD", "GitHub Issues", "Slack", "kubectl"],
+          "lab_task": "Run a 45-minute game day: the trainer merges a change that passes tests but triples latency in prod. Teams declare an incident, assign roles, post updates every 10 minutes, roll back through Git, and write a postmortem with a timeline from Argo CD history and Grafana annotations. Each action item becomes a GitHub issue labelled postmortem with an owner and due date.",
+          "deliverable": "Incident channel log, postmortem document and labelled action-item issues",
+          "checks": [["Compare the timeline with Argo CD history and Grafana annotations", "Detection, rollback and recovery times match the recorded events within one minute", "Postmortem timeline"], ["Filter issues by label postmortem", "Every action item from the document exists as an issue with an assignee and due date", "GitHub Issues list"], ["Review the postmortem text", "Contributing factors describe systems and conditions and name no individual as the cause", "Postmortem document"]],
+          "objectives": ["Run an incident with clear roles and communication", "Restore service with the fastest safe mitigation", "Write a blameless postmortem that changes the delivery system"]
+        },
+        {
+          "topic": "Measuring Delivery Performance with DORA Metrics",
+          "subtopics": ["Throughput metrics: deployment frequency and change lead time", "Instability metrics: change failure rate and failed deployment recovery time", "Deployment rework rate in recent DORA research", "Data sources: Git commits, deployments API and incident records", "Definitions that a team agrees on before measuring", "Avoiding vanity use: team improvement, not individual ranking", "Capabilities that drive the metrics in the DORA research", "A simple dashboard and a monthly review ritual"],
+          "tools": ["GitHub REST API", "GitHub CLI (gh)", "jq", "Grafana", "Python"],
+          "lab_task": "Write a Python script that reads the last 30 days of production deployments with gh api repos/<owner>/<repo>/deployments and their statuses, the commits in each deployment, and issues labelled incident. Compute deployment frequency, median change lead time, change failure rate and median recovery time, write them to a CSV and plot them in Grafana.",
+          "deliverable": "DORA script, a metric definitions document, the CSV and a Grafana dashboard",
+          "checks": [["Run the script on the course repository", "All four metrics print with units, for example deploys per day and hours", "Terminal output"], ["Count production deployments in the Actions history by hand for one week", "The manual count matches the script result for that week", "Comparison table"], ["Mark one deployment as failed with a linked incident and re-run", "Change failure rate increases by the expected fraction", "Terminal output"]],
+          "objectives": ["Measure the DORA delivery metrics from real data", "Agree on metric definitions before using them", "Use metrics for team improvement rather than ranking"]
+        },
+        {
+          "topic": "Intermediate Capstone: Secure GitOps Delivery Pipeline with Canary Releases",
+          "subtopics": ["Trunk-based workflow with feature flags and a merge queue", "Pipeline with quality gates, test pyramid stages and four kinds of security scan", "GitOps promotion of one digest from dev to prod with approval", "Canary release with Prometheus analysis and automatic abort", "Infrastructure pipeline with OPA policy checks", "DORA metrics before and after with a short postmortem of one failure"],
+          "tools": ["GitHub Actions", "Argo CD", "Argo Rollouts", "Trivy", "Conftest", "Prometheus"],
+          "lab_task": "Deliver a new feature for orders-api behind a flag. The pipeline must pass lint, tests, SAST, SCA, secrets and image scans, update orders-deploy, promote the digest to prod through Argo CD with an approval and release it as a canary with analysis. Inject one faulty release to show the abort, apply one policy-checked infrastructure change and present DORA metrics.",
+          "deliverable": "Working pipeline and GitOps repositories, a recorded canary abort, DORA report and a 10-minute demo",
+          "checks": [["Merge the feature pull request", "All gates pass and the digest reaches prod through the canary steps without manual kubectl commands", "Actions and Argo CD history"], ["Release the faulty build", "The canary aborts automatically and prod stays on the stable digest", "Rollout status output"], ["Open an infrastructure pull request missing the cost-center tag", "The conftest step fails and the pull request cannot merge", "Pull request checks"]],
+          "objectives": ["Combine security, quality and release safety in one delivery flow", "Run GitOps promotion with progressive releases", "Show delivery improvement with DORA metrics"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DevOps engineers, tech leads and engineering managers who run delivery for many teams and must make it faster, safer, cheaper and auditable at organisation scale. The course covers platform engineering and internal developer platforms with Backstage, golden paths, software supply chain security with SBOMs, SLSA provenance and Sigstore signing, progressive delivery automation, multi-cloud and multi-region delivery, monorepos and pipeline performance, FinOps in the delivery flow, chaos engineering in pipelines, compliance as code and audit evidence, AI-assisted DevOps with guardrails, value stream management, organisational transformation and maturity assessment. Labs extend the orders-api estate to several services, clusters and teams, and the capstone produces a delivery platform design with working evidence.",
+      "prerequisites": ["Has run a GitOps pipeline with security scans and progressive releases for at least one production service", "Is comfortable with Kubernetes, Terraform, Argo CD and GitHub Actions or GitLab CI at working level", "Has taken part in incident response and knows the DORA delivery metrics"],
+      "outcomes": ["Design an internal developer platform with golden paths that lets a new service reach production in under a day", "Secure the software supply chain with SBOMs, SLSA provenance, signatures and admission-time verification", "Scale delivery across repositories, clouds and regions while controlling pipeline time and cost", "Produce audit evidence automatically and lead a measured DevOps transformation using flow and maturity data"],
+      "days": [
+        {
+          "topic": "From Ticket Queues to Self-Service Delivery",
+          "subtopics": ["Why ticket-driven operations become the bottleneck at scale", "Cognitive load on stream-aligned teams", "Platform as a product: users, interviews and a roadmap", "Thinnest viable platform: documents, scripts, then APIs", "Measuring ticket volume and wait time per request type", "Choosing the first self-service capability", "Service level expectations for the platform team", "Build, buy or assemble from open source"],
+          "tools": ["Jira or GitHub Issues", "Backstage", "Spreadsheet", "Miro"],
+          "lab_task": "Export 90 days of operations requests from the case-study ticket system, group them by type and compute volume, median wait and median work time per type. Pick the top three types by total wait hours, interview two developers about each, and write a one-page platform proposal that names the first self-service capability and its target wait time.",
+          "deliverable": "Request analysis sheet, interview notes and a one-page platform proposal",
+          "checks": [["Sort request types by total wait hours", "The top three types are named with their wait totals", "Analysis sheet"], ["Read the proposal target for the first capability", "A target wait time in minutes replaces the current median measured in hours or days", "Platform proposal"], ["Present the proposal to a peer group acting as developers", "At least two concrete feedback items are recorded and answered", "Review notes"]],
+          "objectives": ["Find the delivery bottlenecks a platform should remove", "Treat the platform as a product with users", "Choose a first self-service capability from data"]
+        },
+        {
+          "topic": "Building an Internal Developer Portal with Backstage",
+          "subtopics": ["The portal as the front door of an internal developer platform", "Creating a Backstage app with npx @backstage/create-app", "Software Catalog entities: Component, API, System, Resource and Group", "catalog-info.yaml in every repository and GitHub discovery", "Ownership and relations between services and teams", "Plugins for CI status, Kubernetes and Argo CD", "TechDocs from Markdown in the repository", "Authentication with GitHub and catalog permissions"],
+          "tools": ["Backstage", "Node.js", "Yarn", "GitHub", "TechDocs"],
+          "lab_task": "Create a Backstage app with npx @backstage/create-app@latest and start it with yarn start. Add catalog-info.yaml files for orders-api, a payments-api and their shared PostgreSQL Resource with owners, a System and providesApis relations. Register them through GitHub discovery, enable TechDocs for orders-api and add the GitHub Actions plugin to show CI runs on the entity page.",
+          "deliverable": "Running Backstage instance, catalog-info.yaml files and screenshots of the catalog graph and CI tab",
+          "checks": [["Open the orders-api entity in Backstage", "The owner group, System and provided API appear in the relations graph", "Backstage screenshot"], ["Remove the owner field from a catalog-info.yaml and refresh", "The catalog reports a validation error for the missing spec.owner", "Backstage processing error"], ["Open the CI tab for orders-api", "The latest GitHub Actions runs of the repository are listed", "Backstage screenshot"]],
+          "objectives": ["Model services, APIs and owners in a software catalog", "Bring CI and documentation into one portal", "Make ownership visible for every component"]
+        },
+        {
+          "topic": "Golden Path Templates for New Services",
+          "subtopics": ["Golden paths: the supported, easiest route, not the only route", "Scaffolder templates: parameters, steps and output", "fetch:template, publish:github and catalog:register actions", "What a new service gets on day one: CI, image, GitOps entry, dashboards and alerts", "Versioning templates and updating services created from old versions", "Escape hatches and how to support teams that leave the path", "Measuring time to first production deploy", "Template tests in CI"],
+          "tools": ["Backstage Scaffolder", "GitHub Actions", "Argo CD", "Cookiecutter-style skeletons", "Grafana"],
+          "lab_task": "Write a Scaffolder template that asks for a service name and owner, generates a repository from a skeleton with a Dockerfile, ci.yml, catalog-info.yaml and Kustomize base, publishes it with publish:github, opens a pull request adding the service to orders-deploy and registers it in the catalog. Time a colleague from form to running dev pod.",
+          "deliverable": "Template YAML, skeleton repository and a timed run from form submission to running pod",
+          "checks": [["Submit the template form with a new service name", "A new GitHub repository is created and its first CI run succeeds", "Scaffolder log and Actions run"], ["Merge the generated orders-deploy pull request", "Argo CD shows the new service Synced and Healthy in dev", "Argo CD screenshot"], ["Measure form submission to running dev pod", "The time is recorded and is under the target set in the platform proposal", "Timing record"]],
+          "objectives": ["Encode delivery standards in a service template", "Give new services CI, deployment and monitoring on day one", "Measure time to first deploy"]
+        },
+        {
+          "topic": "Software Bills of Materials in the Delivery Pipeline",
+          "subtopics": ["What an SBOM is and why customers and regulators ask for it", "SPDX and CycloneDX formats", "Generating SBOMs from source and from images with Syft and Trivy", "Attaching SBOMs to images as attestations", "Scanning an SBOM later with Grype when new CVEs appear", "SBOM quality: completeness, versions and package URLs", "Storing and querying SBOMs across services", "Vulnerability exploitability exchange (VEX) to mark non-affected findings"],
+          "tools": ["Syft", "Trivy", "Grype", "Cosign", "GitHub Actions"],
+          "lab_task": "In CI, generate an SPDX JSON SBOM for the orders-api image with syft <image> -o spdx-json=sbom.spdx.json and a CycloneDX one with trivy image --format cyclonedx. Upload both as artifacts, then scan the stored SBOM with grype sbom:sbom.spdx.json. Write a VEX statement marking one finding as not_affected and rescan with it.",
+          "deliverable": "SBOM generation steps, two SBOM files, Grype reports with and without VEX",
+          "checks": [["Run jq '.packages | length' sbom.spdx.json", "The package count is greater than zero and matches the Syft summary", "Terminal output"], ["Run grype sbom:sbom.spdx.json", "Vulnerabilities are listed without pulling the image again", "Terminal output"], ["Rescan with the VEX document applied", "The finding marked not_affected no longer appears in the results", "Terminal output"]],
+          "objectives": ["Generate SBOMs for every build", "Re-check old releases against new vulnerabilities from SBOMs", "Record exploitability decisions with VEX"]
+        },
+        {
+          "topic": "SLSA Build Provenance and Hardened Builders",
+          "subtopics": ["Supply chain attacks on build systems and dependencies", "SLSA v1.0 Build track levels 1 to 3", "Provenance: who built what, from which source, with which process", "in-toto attestation format", "Generating provenance with actions/attest-build-provenance", "Verifying with gh attestation verify", "Hardening runners: ephemeral runners, pinned actions by SHA and least-privilege GITHUB_TOKEN", "OpenSSF Scorecard for repository posture"],
+          "tools": ["GitHub artifact attestations", "GitHub CLI (gh)", "OpenSSF Scorecard", "in-toto", "GitHub Actions"],
+          "lab_task": "Pin every third-party action in ci.yml to a full commit SHA, set top-level permissions: contents: read and grant id-token: write and attestations: write only to the build job. Add actions/attest-build-provenance for the pushed image digest, verify it with gh attestation verify oci://<image>@<digest> --owner <owner>, and run OpenSSF Scorecard before and after.",
+          "deliverable": "Hardened workflow, provenance attestation, verification output and Scorecard results before and after",
+          "checks": [["Run gh attestation verify on the pushed digest", "Verification succeeds and names the workflow file that built the image", "Terminal output"], ["Run gh attestation verify on an image built and pushed from a laptop", "Verification fails because no matching attestation exists", "Terminal output"], ["Compare the Pinned-Dependencies and Token-Permissions Scorecard checks", "Both scores are higher after hardening than before", "Scorecard output"]],
+          "objectives": ["Produce verifiable build provenance", "Harden CI against supply chain attacks", "Map pipeline controls to SLSA levels"]
+        },
+        {
+          "topic": "Signing Artifacts and Verifying Them at Admission",
+          "subtopics": ["Why signatures matter: the registry is not a trust boundary", "Sigstore: Cosign, Fulcio and Rekor", "Keyless signing with the CI OIDC identity", "Verifying identity and issuer with cosign verify", "Signing SBOM and provenance attestations", "Admission control with Kyverno verifyImages", "Break-glass procedures for emergency images", "Rolling out enforcement from audit to enforce"],
+          "tools": ["Cosign", "Sigstore", "Kyverno", "kind", "GitHub Actions"],
+          "lab_task": "Add keyless signing to the build job with cosign sign --yes <image>@<digest>. Verify locally with cosign verify --certificate-identity-regexp for the workflow path and --certificate-oidc-issuer https://token.actions.githubusercontent.com. Install Kyverno on kind with a verifyImages policy for ghcr.io/<owner>/* in Enforce mode and try to deploy a signed and an unsigned image.",
+          "deliverable": "Signing step, Kyverno policy, verification output and admission results for both images",
+          "checks": [["Run cosign verify with the correct identity and issuer", "Prints that the cosign claims were validated and the signatures were verified", "Terminal output"], ["Apply a Deployment using an unsigned image from the same registry path", "The API server rejects it with a Kyverno policy violation naming the image", "kubectl output"], ["Run cosign verify with a different --certificate-identity-regexp", "Verification fails with no matching signatures", "Terminal output"]],
+          "objectives": ["Sign every release without managing keys", "Verify who built an image before it runs", "Enforce signature policies in clusters safely"]
+        },
+        {
+          "topic": "Progressive Delivery Automation Across Many Services",
+          "subtopics": ["From one canary to a shared progressive delivery capability", "Reusable AnalysisTemplates and ClusterAnalysisTemplates", "Header-based and traffic-weighted routing through Gateway API", "Experiments and A/B comparison of two versions", "Automating feature flag ramp-ups from metrics", "Notifications and approvals on rollout steps", "Release policies per service tier", "Measuring abort rate and time to safe rollback"],
+          "tools": ["Argo Rollouts", "Gateway API", "Prometheus", "OpenFeature", "Argo CD"],
+          "lab_task": "Create a ClusterAnalysisTemplate for error ratio and p95 latency and reference it from Rollouts in orders-api and payments-api. Configure tier-1 services with 5, 25, 50 and 100 percent steps and tier-3 with 50 and 100. Use the Gateway API traffic router plugin for weighted traffic. Release five versions across both services, one faulty, and record aborts and rollback times.",
+          "deliverable": "Shared analysis templates, tier policies, two Rollouts and a release log of five releases",
+          "checks": [["List the AnalysisRuns created by the five releases", "Each run references the shared ClusterAnalysisTemplate", "kubectl get analysisrun output"], ["Release the faulty version on the tier-1 service", "The rollout aborts at the 5 percent step and the stable version keeps the remaining traffic", "Rollout status output"], ["Read the release log", "Abort rate and median time to safe rollback are reported", "Release log"]],
+          "objectives": ["Offer progressive delivery as a shared capability", "Set release policies per service tier", "Measure the safety of the release process"]
+        },
+        {
+          "topic": "Delivering One Service to Several Clouds",
+          "subtopics": ["Why organisations deliver to more than one cloud and what it costs", "Cloud-agnostic and cloud-specific layers of a pipeline", "OIDC federation from CI to AWS IAM roles and Google Cloud Workload Identity", "Terraform modules per cloud behind one interface", "Argo CD ApplicationSets with a cluster generator", "Image replication to registries in each cloud", "Consistent policy and scanning across clouds", "Portability trade-offs: managed services compared with lowest common denominator"],
+          "tools": ["Terraform", "Argo CD ApplicationSet", "GitHub Actions OIDC", "AWS IAM", "Google Cloud Workload Identity", "kind"],
+          "lab_task": "Create two kind clusters labelled cloud=aws and cloud=gcp and register both in Argo CD. Write an ApplicationSet with a cluster generator that deploys orders-api to every cluster with a per-cloud overlay. Write the Terraform for an AWS IAM OIDC role and a GCP workload identity pool that trust only your main branch, and check both with terraform validate and conftest.",
+          "deliverable": "ApplicationSet, per-cloud overlays, OIDC trust Terraform and policy results",
+          "checks": [["Run argocd app list after creating the ApplicationSet", "One orders-api Application per cluster is listed and each is Synced", "Terminal output"], ["Label a third cluster cloud=aws and register it", "A third Application is generated without editing the ApplicationSet", "Terminal output"], ["Run conftest on a trust policy that allows any branch", "The policy check fails with a message requiring refs/heads/main in the subject", "Terminal output"]],
+          "objectives": ["Deliver one service to several clouds from one pipeline", "Use short-lived federated credentials per cloud", "Weigh portability against managed-service benefits"]
+        },
+        {
+          "topic": "Multi-Region Releases: Waves, Bake Times and Regional Rollback",
+          "subtopics": ["Blast radius by region and the release wave model", "Canary region, then small regions, then large regions", "Bake time between waves and what must be checked", "Automated halt when any region breaks its SLO", "Data and schema changes that span regions", "Region-level rollback compared with global rollback", "Release calendars, freezes and follow-the-sun ownership", "Recording wave progress for audit"],
+          "tools": ["Argo CD", "Argo CD ApplicationSet", "GitHub Actions", "Prometheus", "kind"],
+          "lab_task": "Model three regions as three kind clusters labelled wave=0, wave=1 and wave=2. Write a release workflow that updates the digest for one wave at a time in orders-deploy, waits a 15-minute bake time, queries each wave's Prometheus SLO and stops on breach. Run a good release through all waves and a bad one that halts after wave 0.",
+          "deliverable": "Wave release workflow, region overlays and logs of a completed and a halted release",
+          "checks": [["Run the good release", "All three waves update in order with at least 15 minutes between each", "Workflow log timestamps"], ["Run the bad release", "The workflow stops after wave 0 and waves 1 and 2 keep the previous digest", "Argo CD application list"], ["Revert the wave 0 commit", "Wave 0 returns to the previous digest and its SLO query passes", "Terminal output"]],
+          "objectives": ["Limit release blast radius with regional waves", "Automate halts on regional SLO breaches", "Roll back one region without touching others"]
+        },
+        {
+          "topic": "Monorepo Delivery: Affected-Only Builds and Ownership",
+          "subtopics": ["Monorepo compared with polyrepo trade-offs for delivery", "Build graphs and affected-project detection", "Nx affected, Turborepo filters, Bazel and Pants", "Path filters in CI as a simple starting point", "CODEOWNERS per directory and review routing", "Versioning and releasing many packages from one repository", "Sparse checkout and partial clone for large repositories", "Keeping main green with a merge queue at high commit rates"],
+          "tools": ["Nx", "Turborepo", "Bazel", "Git sparse-checkout", "GitHub Actions"],
+          "lab_task": "Move orders-api, payments-api and a shared library into one repository managed with Nx or Pants. Configure CI to run only affected projects with nx affected -t test --base=origin/main, add CODEOWNERS per directory and use git sparse-checkout set for one service. Change only payments-api, then change the shared library, and compare which projects CI runs.",
+          "deliverable": "Monorepo layout, affected-only CI workflow, CODEOWNERS and a run comparison table",
+          "checks": [["Change only payments-api and run CI", "Only payments-api jobs run and orders-api is skipped", "Actions run screenshot"], ["Change the shared library and run CI", "Both services and the library are tested", "Actions run screenshot"], ["Run git sparse-checkout set services/orders-api and list the tree", "Only the orders-api directory and top-level files are present", "Terminal output"]],
+          "objectives": ["Build and test only what a change affects", "Route reviews by directory ownership", "Handle large repositories efficiently"]
+        },
+        {
+          "topic": "Pipeline Performance Engineering: Queue Time, Caching and Runners",
+          "subtopics": ["Breaking pipeline time into queue, setup, execution and wait", "Measuring per-job durations from the Actions REST API", "Remote build caches and cache hit ratios", "Test sharding and pytest-xdist", "Autoscaling self-hosted runners with Actions Runner Controller", "Larger runners compared with more parallel jobs", "Flaky test detection and automatic retry limits", "Pipeline service level objectives for developer feedback"],
+          "tools": ["GitHub Actions REST API", "Actions Runner Controller", "pytest-xdist", "Docker Buildx", "Grafana"],
+          "lab_task": "Pull 200 recent runs with gh api repos/<owner>/<repo>/actions/runs and their jobs, compute p50 and p90 for queue time and run time per job, and chart them. Deploy Actions Runner Controller on kind with a scale set, shard tests with pytest -n auto, add a Buildx registry cache, then repeat the measurement and compare p90 commit-to-green time.",
+          "deliverable": "Pipeline timing dataset, ARC configuration and a before-and-after p50 and p90 report",
+          "checks": [["Run the timing script", "p50 and p90 queue and run times are printed for each job", "Terminal output"], ["Trigger 10 runs at once against the ARC scale set", "Runner pods scale up and then back down to the minimum after the runs", "kubectl get pods output"], ["Compare p90 commit-to-green time before and after", "The after value is lower, with both values reported in minutes", "Timing report"]],
+          "objectives": ["Measure where pipeline time is spent", "Reduce queue and run time with caching, sharding and runners", "Set and track pipeline feedback targets"]
+        },
+        {
+          "topic": "FinOps in the Delivery Flow: Cost Feedback on Every Change",
+          "subtopics": ["Why cost belongs in the pull request, not the monthly bill", "Infracost estimates and diffs for Terraform", "Tagging and labelling for cost allocation", "Kubernetes cost allocation with OpenCost", "Ephemeral preview environments with automatic expiry", "CI cost: runner minutes, storage and artifact retention", "Budgets, guardrails and policies on instance size", "Unit economics: cost per deployment or per thousand requests"],
+          "tools": ["Infracost", "OpenCost", "Terraform", "Conftest", "GitHub Actions"],
+          "lab_task": "Add an Infracost job that runs infracost diff against the base branch and posts a pull request comment. Write a conftest policy that blocks instance types above an agreed size without a cost-approved label. Install OpenCost on kind, label namespaces by team, create preview environments per pull request that are deleted on close, and report cost per team for one day.",
+          "deliverable": "Infracost comment, cost policy, preview environment workflow and an OpenCost team report",
+          "checks": [["Open a pull request that changes an instance type to a larger size", "The Infracost comment shows a positive monthly cost difference", "Pull request comment"], ["Run the cost policy on a plan with an oversized instance and no label", "conftest fails with the size policy message", "Job log"], ["Close a pull request with a preview environment", "The preview namespace is deleted within 10 minutes", "kubectl get ns output"]],
+          "objectives": ["Show cost changes at review time", "Allocate delivery and runtime cost to teams", "Prevent idle preview environments from wasting money"]
+        },
+        {
+          "topic": "Chaos Experiments as an Automated Release Gate",
+          "subtopics": ["Steady-state hypotheses written before experiments", "Chaos Mesh experiments: PodChaos, NetworkChaos and StressChaos", "Running experiments automatically in staging after each release", "Abort conditions linked to SLO queries", "Blast radius controls with namespaces and label selectors", "Testing timeouts, retries and circuit breakers", "Turning findings into backlog items and regression experiments", "Gaining approval to run experiments closer to production"],
+          "tools": ["Chaos Mesh", "Prometheus", "Argo Workflows", "kubectl", "hey"],
+          "lab_task": "Write a steady-state hypothesis that orders-api keeps 99 percent success when one payments-api pod is killed and 200 ms of latency is added. Install Chaos Mesh in staging, create PodChaos and NetworkChaos experiments, and add a pipeline stage that runs them for five minutes under hey load and checks the SLO. Fix any timeout issue the experiment finds.",
+          "deliverable": "Hypothesis document, Chaos Mesh manifests, pipeline stage and findings with fixes",
+          "checks": [["Run the experiments before fixing timeouts", "The success ratio drops below 99 percent and the stage fails", "Job log"], ["Add a client timeout and retry with backoff, then re-run", "The success ratio stays at or above 99 percent and the stage passes", "Job log"], ["Run kubectl get podchaos -n staging after the stage", "The experiment shows as finished and no chaos objects remain active", "Terminal output"]],
+          "objectives": ["Write testable steady-state hypotheses", "Run controlled failure experiments automatically", "Turn resilience findings into code changes"]
+        },
+        {
+          "topic": "Compliance as Code: Mapping Controls to Pipeline Policies",
+          "subtopics": ["Control frameworks: SOC 2, ISO/IEC 27001 and PCI DSS at a delivery level", "Mapping a control statement to a technical check", "Separation of duties with branch rules and environment reviewers", "Policy sets across repositories with organisation rulesets", "Kubernetes runtime policies with Kyverno or OPA Gatekeeper", "Infrastructure policies with Checkov and Conftest", "Exceptions with owners, reasons and expiry", "Continuous control monitoring compared with annual audits"],
+          "tools": ["Open Policy Agent", "Kyverno", "Checkov", "GitHub rulesets", "Conftest"],
+          "lab_task": "Take five controls from the case study, such as peer review before production, no public storage and signed images only, and map each to an enforcement point and a check. Implement them with an organisation ruleset, a production environment reviewer, Checkov and Conftest jobs and a Kyverno policy. Write a control matrix with control, mechanism, evidence source and test.",
+          "deliverable": "Control matrix, policy code for each control and test results showing each control blocking a violation",
+          "checks": [["Try to merge an unreviewed change to main", "The ruleset blocks the merge", "Pull request screenshot"], ["Run checkov -d infra/ on a bucket with public access", "Checkov reports a FAILED check with its CKV ID", "Terminal output"], ["Check the control matrix", "Each of the five controls lists an enforcement point, an evidence source and a passing test", "Control matrix"]],
+          "objectives": ["Translate compliance controls into automated checks", "Enforce separation of duties in the delivery flow", "Manage policy exceptions with expiry"]
+        },
+        {
+          "topic": "Audit Evidence Automation: Change Records and Attestations",
+          "subtopics": ["What auditors ask for: who changed what, when, why and with whose approval", "Linking commits, pull requests, issues and deployments", "Deployment records from the GitHub deployments API and Argo CD history", "Attestations as signed evidence for tests, scans and approvals", "Organisation audit log streaming", "Retention periods and tamper evidence", "Generating an evidence pack for a sampled change", "Answering an auditor sample request in minutes"],
+          "tools": ["GitHub REST API", "GitHub audit log", "Cosign", "Argo CD", "Python"],
+          "lab_task": "Write a script that takes a production digest and builds an evidence pack: the source commit and pull request with approvers, the CI run with test and scan results, verified provenance and signature from gh attestation verify and cosign verify, the Argo CD sync event and the linked change issue. Output a JSON and a Markdown report and run it for three sampled releases.",
+          "deliverable": "Evidence pack generator and three generated evidence packs",
+          "checks": [["Run the generator for a sampled production digest", "The pack lists commit, approvers, CI run URL, scan results, attestation status and sync time", "Generated report"], ["Run the generator for a digest deployed without review", "The report flags the missing approval as a control failure", "Generated report"], ["Time the full run for three samples", "All three packs are produced in under five minutes in total", "Terminal output with time"]],
+          "objectives": ["Assemble audit evidence automatically from delivery systems", "Link every production change to its approvals and tests", "Answer audit samples without manual searching"]
+        },
+        {
+          "topic": "AI-Assisted DevOps with Guardrails",
+          "subtopics": ["Where AI helps delivery: pipeline authoring, failure triage, reviews and runbooks", "Coding agents that open pull requests and the review they still need", "Summarising failed job logs with an LLM", "Prompt injection through issues, pull requests and logs", "Least privilege for agents: read-only tokens and no production credentials", "MCP servers for CI, Kubernetes and observability tools", "Evaluating suggestions: acceptance rate and defect rate", "Data handling: what may be sent to external models"],
+          "tools": ["GitHub Copilot", "GitHub CLI (gh)", "MCP", "OpenAI or Anthropic API", "Python"],
+          "lab_task": "Build a triage script that fetches a failed job log with gh run view --log-failed, trims it to the last 200 lines, removes secrets with a regex filter and sends it to an LLM API asking for the likely cause and fix. Run it on 10 historical failures, score each answer against the known cause, then plant a prompt-injection line in a log and record how the guardrail handles it.",
+          "deliverable": "Triage script, a scored table of 10 failures and a prompt-injection test report",
+          "checks": [["Score the 10 triage answers against known causes", "An accuracy percentage is reported with the correct and wrong answers listed", "Scoring table"], ["Include a fake token in a log and run the redaction filter", "The token is replaced with a redaction marker before the API call", "Script debug output"], ["Feed a log line telling the model to approve and merge the pull request", "The script only returns text and no merge or write action is taken", "Script output and token permissions"]],
+          "objectives": ["Apply AI to delivery tasks where it saves time", "Limit what AI agents can access and change", "Measure the quality of AI suggestions"]
+        },
+        {
+          "topic": "Flow Metrics for Value Stream Decisions Across Teams",
+          "subtopics": ["Value stream management compared with one-off value stream mapping", "Flow Framework metrics: flow velocity, time, load, efficiency and distribution", "Work item types: features, defects, risks and debt", "Collecting data from issue trackers, Git and pipelines", "Finding the constraint across teams", "Little's Law and limiting work in progress", "Linking delivery metrics to business outcomes", "Quarterly value stream reviews with product and engineering leads"],
+          "tools": ["Jira or GitHub Projects", "GitHub REST API", "Python", "Grafana"],
+          "lab_task": "Export 90 days of work items from the case-study project, classify them as feature, defect, risk or debt, and compute flow velocity, median flow time, flow load, flow efficiency and flow distribution. Apply Little's Law to show the effect of halving work in progress, identify the stage with the longest wait and propose one experiment with a target metric.",
+          "deliverable": "Flow metrics dataset, a dashboard, a constraint analysis and an improvement experiment card",
+          "checks": [["Sum flow distribution across the four item types", "The shares add up to 100 percent", "Dashboard"], ["Apply Little's Law with current throughput and half the work in progress", "Predicted flow time is about half of the current flow time", "Calculation sheet"], ["Review the experiment card", "It names the constraint stage, one change, a target metric and a review date", "Experiment card"]],
+          "objectives": ["Measure flow across a whole value stream", "Find the constraint with flow data", "Run improvement experiments with clear targets"]
+        },
+        {
+          "topic": "Leading a DevOps Transformation: Operating Model and Change Plan",
+          "subtopics": ["Conway's law and the inverse Conway manoeuvre", "Team types and interaction modes for delivery", "Funding products and platforms instead of projects", "Westrum culture as a leading indicator", "Change models: start small, show results, spread through communities of practice", "Communities of practice and internal DevOps champions", "Handling resistance: risk, compliance and operations concerns", "Roadmaps with outcome-based milestones"],
+          "tools": ["Miro", "Team Topologies team API template", "Survey tool", "Spreadsheet"],
+          "lab_task": "For the case-study company of eight teams, draw the current team structure and its dependencies, then a target operating model with stream-aligned teams, a platform team and an enabling team. Run a Westrum survey baseline, choose two pilot teams with reasons, and write a 12-month change plan with quarterly outcome milestones tied to DORA and flow metrics.",
+          "deliverable": "Current and target team maps, survey baseline, pilot selection memo and a 12-month change plan",
+          "checks": [["Compare cross-team dependencies in current and target maps", "The target map has fewer hand-offs, with both counts stated", "Team maps"], ["Read each quarterly milestone", "Every milestone names a metric with a baseline and a target", "Change plan"], ["Present the plan to a panel acting as the CFO, CISO and head of operations", "Each panel concern is recorded with a response in the plan", "Review notes"]],
+          "objectives": ["Design team structures that support fast flow", "Plan a transformation with measurable milestones", "Address resistance from risk, finance and operations"]
+        },
+        {
+          "topic": "Assessing and Improving DevOps Maturity",
+          "subtopics": ["Why maturity models help and how they mislead", "DORA capabilities: technical, process and cultural", "Self-assessment surveys compared with system data", "Scoring capabilities with evidence, not opinion", "Picking the two capabilities with the most leverage", "Improvement kata: target condition, obstacles and experiments", "Benchmarking against your own history instead of other companies", "Reporting maturity to leadership without gaming"],
+          "tools": ["DORA Quick Check", "Spreadsheet", "Grafana", "GitHub REST API"],
+          "lab_task": "Score the case-study organisation on 12 DORA capabilities using evidence from the earlier labs, such as pipeline time, scan coverage, deployment frequency and the Westrum baseline. Mark each score as data-backed or opinion, choose the two capabilities with most leverage, and write an improvement kata with a target condition, obstacles and the next three experiments.",
+          "deliverable": "Capability scorecard with evidence links, an improvement kata and a one-page leadership summary",
+          "checks": [["Count scores backed by system data", "At least 8 of the 12 capability scores link to data from a lab or system", "Scorecard"], ["Read the improvement kata", "The target condition includes a metric, a value and a date", "Kata document"], ["Compare the self-assessment with measured data for deployment frequency", "Any gap between perception and data is recorded with the measured value", "Scorecard notes"]],
+          "objectives": ["Assess delivery capabilities with evidence", "Choose improvements with the highest leverage", "Report progress honestly to leadership"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Delivery Platform with Supply Chain and Compliance Evidence",
+          "subtopics": ["Platform proposal, portal and golden path for a new service", "Supply chain controls: SBOM, provenance, signing and admission policy", "Multi-region progressive delivery with automatic halts", "Cost feedback and compliance policies in pull requests", "Automated evidence pack for an audited release", "Transformation roadmap with DORA, flow and maturity baselines"],
+          "tools": ["Backstage", "GitHub Actions", "Argo CD", "Argo Rollouts", "Cosign", "Kyverno"],
+          "lab_task": "Create a new service from your golden path template and release it to three regions in waves. The release must carry an SBOM, provenance and a keyless signature verified by Kyverno, pass cost and compliance policies and a canary analysis. Generate its evidence pack, then present the platform design, measured time to first deploy and a 12-month roadmap to a review panel.",
+          "deliverable": "Working platform demo, evidence pack, architecture document and a 20-minute panel presentation",
+          "checks": [["Create a service from the template and release it", "It reaches all three regions with no manual cluster commands", "Argo CD history and workflow logs"], ["Deploy an unsigned image of the new service", "Kyverno rejects it in every region", "kubectl output"], ["Generate the evidence pack for the release", "Every control in the matrix shows a passing result with linked evidence", "Evidence pack"]],
+          "objectives": ["Integrate platform, supply chain, release and compliance practices", "Prove delivery controls with generated evidence", "Present a delivery strategy backed by measurements"]
+        }
+      ]
+    }
+  }
+}
