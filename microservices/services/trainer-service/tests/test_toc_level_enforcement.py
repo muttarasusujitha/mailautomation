@@ -1,6 +1,10 @@
 from app.toc_generation_agent import _subtopic_target, generate_toc_from_dataset, resolve_content_level
 from app.toc_domain_dataset import COMPACT_DOMAINS, _load_compact_domains
 
+# A compact dataset key with no level course, used to test the catalog (non-level) path.
+# Kotlin itself now has a level course, so tests that need the old path use its compact file.
+CATALOG_ONLY = "kotlin_15"
+
 
 def test_intermediate_toc_is_cumulative_and_keeps_foundations():
     toc = generate_toc_from_dataset("DevOps", 10, level="intermediate")
@@ -182,8 +186,8 @@ def test_python_days_have_ten_concrete_subtopics():
 
 
 def test_short_advanced_compact_toc_skips_the_introductory_days():
-    beginner = [day["focus_area"] for day in generate_toc_from_dataset("Kotlin", 5, level="beginner")["days"]]
-    advanced = [day["focus_area"] for day in generate_toc_from_dataset("Kotlin", 5, level="advanced")["days"]]
+    beginner = [day["focus_area"] for day in generate_toc_from_dataset(CATALOG_ONLY, 5, level="beginner")["days"]]
+    advanced = [day["focus_area"] for day in generate_toc_from_dataset(CATALOG_ONLY, 5, level="advanced")["days"]]
     assert beginner[0] == "Kotlin Introduction and Environment Setup"
     assert not set(advanced[:-1]) & set(beginner[:-1])
     assert "capstone" in advanced[-1].lower()
@@ -193,7 +197,7 @@ def test_level_days_carry_scenarios_and_catalog_days_keep_their_assessment():
     level_day = generate_toc_from_dataset("Kubernetes", 5, level="intermediate")["days"][1]
     assert len(level_day["scenarios"]) == len(level_day["acceptance_checks"]) == 3
     assert level_day["scenarios"][0]["outcome"] == level_day["acceptance_checks"][0]["expected_result"]
-    catalog_days = generate_toc_from_dataset("Kotlin", 5, level="intermediate")["days"]
+    catalog_days = generate_toc_from_dataset(CATALOG_ONLY, 5, level="intermediate")["days"]
     assert all(not day["assessment"].startswith("Daily knowledge check") for day in catalog_days)
 
 
@@ -254,7 +258,7 @@ def test_long_programmes_use_all_course_content_before_practice_days():
 
 
 def test_practice_days_build_on_taught_topics_and_are_disclosed():
-    toc = generate_toc_from_dataset("Kotlin", 30, level="intermediate")
+    toc = generate_toc_from_dataset(CATALOG_ONLY, 30, level="intermediate")
     practice = [day for day in toc["days"] if day["focus_area"].startswith("Project Sprint")]
     assert practice and len(practice) == toc["practice_days"]
     taught = [day["focus_area"] for day in toc["days"] if not day["focus_area"].startswith("Project Sprint")]
@@ -305,7 +309,7 @@ def test_advanced_check_ignores_fundamentals_of_a_subject():
 
 
 def test_mostly_practice_long_programmes_need_review():
-    toc = generate_toc_from_dataset("Kotlin", 60, level="intermediate")
+    toc = generate_toc_from_dataset(CATALOG_ONLY, 60, level="intermediate")
     assert toc["practice_days"] * 2 > 60
     assert toc["quality"]["status"] == "requires_review"
 
