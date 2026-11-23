@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from shared.database.service import get_db
+from shared.document_amounts import offline_expense_items
 
 router = APIRouter()
 settings = get_settings()
@@ -97,10 +98,10 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
     )
     if not claimed.modified_count:
         raise HTTPException(409, "Trainer PO is already being processed")
-    po_id = f"TPO-{uuid.uuid4().hex[:10].upper()}"
+    po_id = f"TPO-{uuid.uuid5(uuid.NAMESPACE_URL, finance_id).hex[:10].upper()}"
     now = datetime.utcnow()
     po = {
-        "po_id": po_id, "po_number": approval.get("po_number") or po_id,
+        "po_kind": "trainer", "po_id": po_id, "po_number": approval.get("po_number") or po_id,
         "requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id"),
         "vendor_name": approval.get("trainer_name"), "vendor_email": approval.get("trainer_email"),
         "client_name": approval.get("client_name"), "client_email": approval.get("client_email"),
@@ -118,7 +119,7 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
                 raise ValueError("Trainer PO PDF is empty")
             sent = await client.post(f"{settings.EMAIL_SERVICE_URL.rstrip('/')}/api/v1/email/send", json={
                 "to": approval.get("trainer_email"), "subject": f"Purchase Order {po['po_number']} - Clahan Technologies",
-                "body": f"Hello {approval.get('trainer_name') or 'Trainer'},\\n\\nPlease find the approved purchase order attached.\\n\\nRegards,\\nClahan Technologies",
+                "body": f"Hello {approval.get('trainer_name') or 'Trainer'},\n\nPlease find the approved purchase order attached.\n\nRegards,\nClahan Technologies",
                 "mail_type": "trainer_purchase_order", "idempotency_key": f"trainer-po:{finance_id}",
                 "attachments": [{"filename": f"{po_id}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"}],
             })
@@ -135,7 +136,6 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
         {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
         {"$set": {"status": "pending_completion", "trainer_po_id": po_id, "trainer_po_sent_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
     )
-    requirement = await db["requirements"].find_one({"requirement_id": approval.get("requirement_id")}, {"_id": 0}) or {}
     task = await db["offline_coordination_tasks"].find_one(
         {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")}, {"_id": 0},
     ) or {}
@@ -156,48 +156,63 @@ async def approve_and_send_trainer_po(finance_id: str, db: AsyncIOMotorDatabase 
                 {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
                 {"$set": {"whatsapp_group_status": "staff_action_required", "whatsapp_group_error": str(exc)[:500], "updated_at": datetime.utcnow()}},
             )
-    owners = (requirement.get("offline_logistics") or {}).get("owners") or {}
-    clahan_items = [item for item, owner in owners.items() if owner == "clahan"]
-    if clahan_items:
-        admin = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0, "offlineOperations": 1}) or {}
-        agent_email = str((admin.get("offlineOperations") or {}).get("travelAgentEmail") or "").strip()
-        if agent_email:
-            logistics = requirement.get("offline_logistics") or {}
-            client_answers = logistics.get("answers") or {}
-            client_limits = logistics.get("limits") or {}
-            request_body = (
-                f"Booking request for requirement {approval.get('requirement_id')}\n"
-                f"Training: {approval.get('training_domain') or 'Training'}\n"
-                f"Dates: {approval.get('training_dates') or 'Please confirm'}\n"
-                f"Selected trainer: {approval.get('trainer_name')}\n"
-                f"Client location: {requirement.get('location') or requirement.get('preferred_location') or 'Please confirm'}\n"
-                f"Clahan-arranged items: {', '.join(clahan_items)}\n\n"
-                f"Client logistics details: {client_answers or 'Please use the confirmed training dates and location.'}\n"
-                f"Client limits: {client_limits or 'No separate limit was provided.'}\n\n"
-                "Please book the Clahan-arranged items above using the lowest suitable available option and within any client-stated limits. "
-                "Do not book items the client is arranging. If the dates, traveler details, or a client limit are missing or unclear, reply for clarification before purchasing. "
-                "Please reply with the confirmed itinerary, booking references, final amount paid for each item, and receipts."
-            )
-            try:
-                async with httpx.AsyncClient(timeout=30) as client:
-                    booking = await client.post(f"{settings.EMAIL_SERVICE_URL.rstrip('/')}/api/v1/email/send", json={
-                        "to": agent_email, "subject": f"Offline travel booking request - {approval.get('requirement_id')}",
-                        "body": request_body, "mail_type": "offline_booking_request",
-                        "idempotency_key": f"offline-booking:{approval.get('requirement_id')}:{approval.get('trainer_id')}",
-                    })
-                booking.raise_for_status()
-                if booking.json().get("success") is not True:
-                    raise ValueError("Travel agent email delivery is not confirmed")
-                await db["offline_coordination_tasks"].update_one(
-                    {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
-                    {"$set": {"travel_agent_email": agent_email, "booking_request_status": "sent", "booking_requested_at": datetime.utcnow()}},
-                )
-            except Exception as exc:
-                await db["offline_coordination_tasks"].update_one(
-                    {"requirement_id": approval.get("requirement_id"), "trainer_id": approval.get("trainer_id")},
-                    {"$set": {"travel_agent_email": agent_email, "booking_request_status": "failed", "booking_request_error": str(exc)[:500]}},
-                )
+    if task:
+        await dispatch_offline_bookings(approval["requirement_id"], db)
     return {"success": True, "status": "trainer_po_sent", "po_id": po_id, "sent_to": approval.get("trainer_email")}
+
+
+@router.post("/offline-coordination/{requirement_id}/booking-request")
+async def dispatch_offline_bookings(requirement_id: str, db=Depends(get_db)):
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    trainer_id = requirement.get("selected_trainer_id")
+    task_key = {"requirement_id": requirement_id, "trainer_id": trainer_id}
+    task = await db["offline_coordination_tasks"].find_one(task_key, {"_id": 0}) or {}
+    if not task or requirement.get("trainer_po_approval_status") != "sent":
+        return {"status": "awaiting_trainer_po"}
+    logistics = requirement.get("offline_logistics") or {}
+    owners = logistics.get("owners") or {}
+    answers = logistics.get("answers") or {}
+    categories = [key for key in ("travel", "accommodation", "food") if owners.get(key) == "clahan"]
+    if not categories:
+        return {"status": "no_clahan_bookings"}
+    admin = await db["admin_settings"].find_one({"settings_id": "default"}, {"offlineOperations": 1}) or {}
+    agent_email = str((admin.get("offlineOperations") or {}).get("travelAgentEmail") or "").strip()
+    update = {"logistics_owners": owners, "updated_at": datetime.utcnow()}
+    sent_items = set(task.get("booking_requested_items") or [])
+    if task.get("booking_request_status") == "sent" and "booking_requested_items" not in task:
+        sent_items.update(k for k,v in (task.get("logistics_owners") or {}).items() if v == "clahan")
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            for category in categories:
+                if category in sent_items:
+                    continue
+                if not agent_email:
+                    raise ValueError("Set the travel agent email in Offline Operations")
+                body = (
+                    f"Please arrange {category} for {task.get('trainer_name') or 'the selected trainer'}.\n"
+                    f"Trainer contact: {task.get('trainer_email') or 'Please confirm'}\n"
+                    f"Training: {requirement.get('technology_needed') or requirement_id}\n"
+                    f"Dates: {requirement.get('training_dates') or requirement.get('timeline_start') or 'Please confirm'}\n"
+                    f"Venue: {logistics.get('venue') or requirement.get('location') or 'Please confirm'}\n"
+                    f"Client instructions: {answers.get(category) or 'Please confirm details'}\n"
+                    f"Approved limit: {(logistics.get('limits') or {}).get(category) or 'Refer to client instructions'}\n\n"
+                    "Confirm missing traveler details, dates and limits before purchase. Please share the itinerary "
+                    "and tickets with the trainer, and return the booking reference, actual expense and receipts to Clahan."
+                )
+                response = await client.post(f"{settings.EMAIL_SERVICE_URL.rstrip('/')}/api/v1/email/send", json={
+                    "to": agent_email, "subject": f"Offline {category} booking request - {requirement_id}",
+                    "body": body, "mail_type": "offline_booking_request", "requirement_id": requirement_id,
+                    "trainer_id": trainer_id, "idempotency_key": f"offline-booking:{requirement_id}:{trainer_id}:{category}",
+                })
+                response.raise_for_status()
+                if response.json().get("success") is not True:
+                    raise ValueError("Travel agent email delivery is not confirmed")
+                await db["offline_coordination_tasks"].update_one(task_key, {"$addToSet": {"booking_requested_items": category}})
+        update.update(booking_request_status="sent", travel_agent_email=agent_email, booking_request_error="")
+    except (ValueError, httpx.HTTPError) as exc:
+        update.update(booking_request_status="failed", booking_request_error=str(exc)[:500])
+    await db["offline_coordination_tasks"].update_one(task_key, {"$set": update})
+    return {"status": update["booking_request_status"], "error": update.get("booking_request_error", "")}
 
 
 @router.post("/approvals/{finance_id}/approve-send")
@@ -207,7 +222,7 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     # Atomically claim the approval before creating documents or sending mail.
     # A duplicate click can therefore never create two invoices.
     claimed = await db["finance_approvals"].update_one(
-        {"finance_id": finance_id, "status": "pending_human_approval"},
+        {"finance_id": finance_id, "request_type": {"$ne": "trainer_po"}, "status": "pending_human_approval"},
         {"$set": {"status": "processing_invoice", "updated_at": datetime.utcnow()}},
     )
     if not claimed.modified_count:
@@ -221,19 +236,15 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     invoice_id = existing_invoice.get("invoice_id") or f"INV-{uuid.uuid4().hex[:10].upper()}"
     invoice_items = [{"description": payload.description, "quantity": 1, "rate": payload.total_amount, "amount": payload.total_amount}]
     requirement = await db["requirements"].find_one({"requirement_id": approval.get("requirement_id")}, {"_id": 0, "offline_logistics": 1, "lab_client_price": 1, "lab_quote_amount": 1}) or {}
-    logistics = requirement.get("offline_logistics") or {}
-    for category, amount in (logistics.get("actual_expenses") or {}).items():
-        amount = round(float(amount or 0), 2)
-        if amount > 0:
-            invoice_items.append({"description": f"Offline {category} expense", "quantity": 1, "rate": amount, "amount": amount})
+    invoice_items.extend(offline_expense_items(requirement))
     lab_amount = float(requirement.get("lab_client_price") or requirement.get("lab_quote_amount") or 0)
     if lab_amount > 0:
         invoice_items.append({"description": "Training lab services", "quantity": 1, "rate": lab_amount, "amount": lab_amount})
     invoice_subtotal = round(sum(float(row["amount"]) for row in invoice_items), 2)
     gst_amount = round(invoice_subtotal * payload.gst_rate / 100, 2)
     grand_total = round(invoice_subtotal + gst_amount, 2)
-    po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": payload.total_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items, "status": "approved", "source_finance_id": finance_id, "updated_at": now}
-    invoice = {"invoice_id": invoice_id, "invoice_number": invoice_id, "po_id": po_id, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_address": payload.billing_address, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_gstin": payload.gstin, "total_amount": invoice_subtotal, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items, "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"), "due_date": payload.due_date, "commercials": {"subtotal": invoice_subtotal, "gst_rate": payload.gst_rate, "gst_amount": gst_amount, "grand_total": grand_total}, "balance_due": grand_total, "status": "draft", "source_finance_id": finance_id, "updated_at": now}
+    po = {"po_id": po_id, "po_number": payload.po_number, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_gstin": payload.gstin, "total_amount": payload.total_amount, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items[:1], "requirement_id": approval.get("requirement_id"), "status": "approved", "source_finance_id": finance_id, "updated_at": now}
+    invoice = {"requirement_id": approval.get("requirement_id"), "invoice_id": invoice_id, "invoice_number": invoice_id, "po_id": po_id, "client_name": payload.client_name, "client_email": payload.client_email, "client_billing_address": payload.billing_address, "client_address": payload.billing_address, "client_po_number": payload.po_number, "client_po_date": payload.po_date, "client_gstin": payload.gstin, "total_amount": invoice_subtotal, "gst_rate": payload.gst_rate, "payment_terms": payload.payment_terms, "items": invoice_items, "invoice_date": now.strftime("%d-%m-%Y"), "issue_date": now.strftime("%d-%m-%Y"), "due_date": payload.due_date, "commercials": {"subtotal": invoice_subtotal, "gst_rate": payload.gst_rate, "gst_amount": gst_amount, "grand_total": grand_total}, "balance_due": grand_total, "status": "draft", "source_finance_id": finance_id, "updated_at": now}
     await db["purchase_orders"].update_one(
         {"source_finance_id": finance_id}, {"$set": po, "$setOnInsert": {"created_at": now}}, upsert=True,
     )

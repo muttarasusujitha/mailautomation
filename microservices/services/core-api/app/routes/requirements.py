@@ -1623,7 +1623,7 @@ async def generate_invoice_from_requirement_po(
         raise HTTPException(404, "Requirement not found")
 
     # Find linked PO
-    po = await db["purchase_orders"].find_one({"requirement_id": req_id}, {"_id": 0})
+    po = await db["purchase_orders"].find_one({"requirement_id": req_id, "po_id": {"$not": {"$regex": "^TPO-"}}}, {"_id": 0})
     if not po:
         trainer_id = payload.trainer_id or doc.get("selected_trainer_id") or f"MANUAL-{req_id}"
 

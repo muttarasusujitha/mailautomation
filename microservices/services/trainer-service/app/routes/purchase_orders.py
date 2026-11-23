@@ -1,5 +1,7 @@
 """Purchase orders and invoices — generate, send, download, acknowledge."""
 import logging
+from decimal import Decimal
+from pymongo import ReturnDocument
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -8,12 +10,12 @@ import base64
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.config import get_settings
 from shared.database.service import get_db
 from shared.generation_mode import application_ai_enabled
-from shared.document_amounts import calculate_document
+from shared.document_amounts import calculate_document, offline_expense_items
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -92,6 +94,52 @@ class InvoiceSendRequest(BaseModel):
 
 
 
+class LabSupplierOrderRequest(BaseModel):
+    supplier_name: str = Field(min_length=1)
+    supplier_email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+    purchase_cost: Decimal = Field(gt=0, max_digits=14, decimal_places=2)
+
+
+@router.get("/lab/{requirement_id}")
+async def get_lab_supplier_order(requirement_id: str, db=Depends(get_db)):
+    po = await db["lab_purchase_orders"].find_one({"_id": requirement_id}, {"_id": 0})
+    return {"purchase_order": po}
+
+
+@router.post("/lab/{requirement_id}")
+async def generate_lab_supplier_order(requirement_id: str, payload: LabSupplierOrderRequest, db=Depends(get_db)):
+    scope = {"_id": 0, "technology_needed": 1, "technology": 1, "domain": 1}
+    req = await db["lab_cost_requests"].find_one({"requirement_id": requirement_id}, scope)
+    if req is None:
+        req = await db["requirements"].find_one({"requirement_id": requirement_id}, scope)
+    if req is None:
+        raise HTTPException(404, "Training requirement or lab request not found")
+    supplier = payload.supplier_name.strip()
+    if not supplier:
+        raise HTTPException(422, "Enter the lab supplier name")
+    course = req.get("technology_needed") or req.get("technology") or req.get("domain") or "Training"
+    amount = float(payload.purchase_cost)
+    totals = calculate_document([{"description": f"{course} lab services", "quantity": 1, "rate": amount}], amount, 0)
+    now = datetime.utcnow()
+    po_id = f"LPO-{uuid.uuid4().hex[:10].upper()}"
+    doc = {
+        "requirement_id": requirement_id, "po_kind": "lab_supplier", "po_id": po_id,
+        "po_number": po_id, "date": now.strftime("%d-%m-%Y"), "vendor_name": supplier,
+        "vendor_email": payload.supplier_email, "training_domain": course,
+        "total_amount": amount, "gst_rate": 0, "items": totals["items"],
+        "status": "draft", "created_at": now, "updated_at": now,
+    }
+    po = await db["lab_purchase_orders"].find_one_and_update(
+        {"_id": requirement_id}, {"$setOnInsert": doc}, upsert=True,
+        return_document=ReturnDocument.AFTER, projection={"_id": 0},
+    )
+    return {"purchase_order": po}
+
+
+def _order_collection(db, po_id):
+    return db["lab_purchase_orders" if po_id.startswith("LPO-") else "purchase_orders"]
+
+
 @router.post("/generate")
 async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     po_id = f"PO-{uuid.uuid4().hex[:10].upper()}"
@@ -156,7 +204,7 @@ async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDa
 
 @router.get("/{po_id}/download")
 async def download_po_pdf(po_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
+    doc = await _order_collection(db, po_id).find_one({"po_id": po_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Purchase order not found")
 
@@ -193,14 +241,16 @@ async def download_po_pdf(po_id: str, db: AsyncIOMotorDatabase = Depends(get_db)
 
 @router.post("/{po_id}/send")
 async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
+    doc = await _order_collection(db, po_id).find_one({"po_id": po_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Purchase order not found")
     if doc.get("status") in {"sent", "acknowledged"}:
         return {"success": True, "already_sent": True, "po_id": po_id, "sent_to": doc.get("sent_to")}
 
+    if doc.get("po_kind") == "lab_supplier" and payload.to_email.casefold() != doc["vendor_email"].casefold():
+        raise HTTPException(422, "Send the lab purchase order to its recorded supplier")
     subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
-    client_name = str(doc.get("client_name") or "").strip()
+    client_name = str(doc.get("vendor_name" if doc.get("po_kind") == "lab_supplier" else "client_name") or "").strip()
     greeting = f"Hello {client_name}," if client_name and client_name.lower() not in {"client", "team"} else "Hello,"
     body = payload.body or (
         f"{greeting}\n\n"
@@ -233,7 +283,7 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
                 "items": doc.get("items", []),
                 "notes": doc.get("notes", ""),
             })
-        if r.status_code == 200 and r.content:
+        if r.status_code == 200 and r.content.startswith(b"%PDF-"):
             attachment_payload = [{
                 "filename": f"{po_id}.pdf",
                 "content_base64": base64.b64encode(r.content).decode(),
@@ -250,10 +300,10 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
             "to": payload.to_email,
             "subject": subject,
             "body": body,
-            "mail_type": "purchase_order",
+            "mail_type": "lab_supplier_purchase_order" if doc.get("po_kind") == "lab_supplier" else "purchase_order",
             "requirement_id": doc.get("requirement_id"),
             "idempotency_key": f"purchase-order:{po_id}",
-            "ai_generate": await application_ai_enabled(db),
+            "ai_generate": doc.get("po_kind") != "lab_supplier" and await application_ai_enabled(db),
             "ai_context": {
                 "workflow": "purchase_order",
                 "requirement_id": doc.get("requirement_id") or "",
@@ -274,14 +324,14 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
         raise HTTPException(502, str(exc)) from exc
 
     now = datetime.utcnow()
-    await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": {
+    await _order_collection(db, po_id).update_one({"po_id": po_id}, {"$set": {
         "status": "sent", "sent_to": payload.to_email, "sent_at": now, "updated_at": now}})
     return {"success": True, "po_id": po_id, "sent_to": payload.to_email}
 
 
 @router.post("/{po_id}/acknowledge")
 async def acknowledge_po(po_id: str, payload: POAcknowledgeRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    result = await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": {
+    result = await _order_collection(db, po_id).update_one({"po_id": po_id}, {"$set": {
         "status": "acknowledged", "acknowledged_by": payload.acknowledged_by,
         "acknowledgement_notes": payload.notes, "acknowledged_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
     if result.matched_count == 0:
@@ -295,6 +345,8 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
     if not po:
         raise HTTPException(404, "Purchase order not found")
 
+    if po.get("po_kind") == "trainer" or po_id.startswith("TPO-"):
+        raise HTTPException(422, "Generate the invoice from the client PO")
     existing = await db["invoices"].find_one(
         {"po_id": po_id, "status": {"$nin": ["cancelled", "void"]}},
         {"_id": 0},
@@ -316,6 +368,10 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
             duration=po.get('duration'), day_rate=po.get('day_rate'))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
+    requirement = await db["requirements"].find_one({"requirement_id": po.get("requirement_id")}, {"offline_logistics": 1})
+    expenses = offline_expense_items(requirement)
+    if expenses:
+        totals = calculate_document(totals["items"] + expenses, 0, totals["gst_rate"])
     items = totals['items']
     subtotal = totals['subtotal']
     def issuer_value(key: str) -> str:

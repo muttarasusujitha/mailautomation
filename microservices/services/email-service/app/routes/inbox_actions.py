@@ -1203,7 +1203,7 @@ async def _load_reply_workflow_context(
             sort=[("created_at", -1)],
         ) or {}
         purchase_order = await db["purchase_orders"].find_one(
-            {"requirement_id": requirement_id},
+            {"requirement_id": requirement_id, "po_id": {"$not": {"$regex": "^TPO-"}}},
             {"_id": 0},
             sort=[("created_at", -1)],
         ) or {}

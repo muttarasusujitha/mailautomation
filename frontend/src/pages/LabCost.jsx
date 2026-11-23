@@ -1,3 +1,4 @@
+import LabSupplierOrder from '../components/LabSupplierOrder'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { AlertCircle, CheckCircle2, Download, FileSpreadsheet, Loader2, RefreshCw, Users } from 'lucide-react'
@@ -364,6 +365,7 @@ export default function LabCost() {
           {selectedLabRequest && <>
             <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-slate-900">{selectedLabRequest.request?.client_name || selectedLabRequest.original_message?.from_name || 'Client request'}</h2><p className="mt-1 text-sm text-slate-500">{selectedLabRequest.request?.requirement_id} · {selectedLabRequest.request?.status?.replaceAll('_', ' ')}</p></div>{selectedLabRequest.request?.status === 'awaiting_review' && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Approval required</span>}</div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm"><Info label="Sender" value={`${selectedLabRequest.original_message?.from_name || ''} ${selectedLabRequest.original_message?.from_email || selectedLabRequest.request?.client_email || ''}`} /><Info label="Training / scope" value={selectedLabRequest.request?.technology_needed || selectedLabRequest.request?.domain} /><Info label="Participants / duration" value={`${selectedLabRequest.request?.participant_count || '—'} participants · ${selectedLabRequest.request?.duration_days || '—'} days`} /><Info label="Cloud / region" value={[selectedLabRequest.request?.cloud_provider, selectedLabRequest.request?.cloud_region].filter(Boolean).join(' · ')} /></div>
+            <LabSupplierOrder key={selectedLabRequest.request.requirement_id} requirementId={selectedLabRequest.request.requirement_id} />
             {selectedLabRequest.request?.rate_change_summary?.length > 0 && <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><p className="font-bold">Why this needs review</p><ul className="mt-1 list-inside list-disc">{selectedLabRequest.request.rate_change_summary.map((reason, index) => <li key={index}>{reason}</li>)}</ul></div>}
             {!!selectedLabRequest.request?.missing_inputs?.length && <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900"><p className="font-bold">Missing quote inputs</p><p className="mt-1">{selectedLabRequest.request.missing_inputs.join(', ')}</p></div>}
             <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Original email · {selectedLabRequest.original_message?.subject || 'No subject'}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedLabRequest.original_message?.body || 'Original message body unavailable.'}</p></div>
@@ -397,6 +399,7 @@ export default function LabCost() {
             <option value="">Select a requirement</option>
             {requirements.map(requirement => <option key={requirement.requirement_id || requirement.id} value={requirement.requirement_id || requirement.id}>{requirementLabel(requirement)}</option>)}
           </select>
+          {selected && <LabSupplierOrder key={requirementId} requirementId={requirementId} />}
           {selected && <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 text-sm">
             <div><p className="text-slate-500">Technology</p><p className="font-semibold text-slate-800">{selected.technology_needed || selected.domain || selected.job_title}</p></div>
             <div><p className="text-slate-500">Duration</p><p className="font-semibold text-slate-800">{selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3} days</p></div>

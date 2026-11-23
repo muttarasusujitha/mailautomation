@@ -1,6 +1,9 @@
 import asyncio
+from decimal import Decimal
 
 from app.routes.purchase_orders import InvoiceGenerateRequest, generate_invoice_from_po
+from app.routes.purchase_orders import LabSupplierOrderRequest, generate_lab_supplier_order
+from shared.document_amounts import offline_expense_items
 
 
 class _Collection:
@@ -76,3 +79,41 @@ def test_po_persists_calculated_total_not_submitted_total():
     result = asyncio.run(generate_purchase_order(payload, db))
     assert result['purchase_order']['total_amount'] == 200
     assert db['purchase_orders'].inserted[0]['items'][0]['amount'] == 200
+
+
+def test_offline_invoice_items_include_only_clahan_arranged_costs():
+    items = offline_expense_items({
+        'offline_logistics': {
+            'owners': {'travel': 'clahan', 'accommodation': 'client', 'food': 'needs_review'},
+            'actual_expenses': {'travel': 8000, 'accommodation': 6000, 'food': 900},
+        },
+    })
+    assert items == [{
+        'description': 'Offline travel expense', 'quantity': 1,
+        'rate': 8000.0, 'amount': 8000.0,
+    }]
+
+
+class _LabOrders(_Collection):
+    async def find_one_and_update(self, query, update, **kwargs):
+        self.document = {**update['$setOnInsert'], '_id': query['_id']}
+        return {key: value for key, value in self.document.items() if key != '_id'}
+
+
+def test_lab_supplier_po_uses_purchase_cost_and_is_separate_from_training_po():
+    db = {
+        'lab_cost_requests': _Collection({'requirement_id': 'LAB-1', 'technology_needed': 'DevOps'}),
+        'requirements': _Collection(),
+        'lab_purchase_orders': _LabOrders(),
+    }
+    order = asyncio.run(generate_lab_supplier_order(
+        'LAB-1',
+        LabSupplierOrderRequest(
+            supplier_name='Lab Partner', supplier_email='lab@example.com',
+            purchase_cost=Decimal('7000.00'),
+        ),
+        db,
+    ))['purchase_order']
+    assert order['po_kind'] == 'lab_supplier'
+    assert order['total_amount'] == 7000.0
+    assert order['items'][0]['description'] == 'DevOps lab services'
