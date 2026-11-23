@@ -95,7 +95,7 @@ def test_model_draft_modules_need_review(monkeypatch):
 
 
 def test_the_standard_plan_is_kept_when_it_already_covers_the_topics():
-    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate", requested_topics="DevOps; Jenkins; Docker; Kubernetes")
+    toc = generate_toc_from_dataset("devops_30", 10, level="intermediate", requested_topics="DevOps; Jenkins; Docker; Kubernetes")
     titles = [day["focus_area"] for day in toc["days"]]
     assert titles[:3] == ["DevOps Orientation, SDLC and Agile Delivery", "Linux Fundamentals for DevOps", "Git and GitHub Collaboration"]
     assert toc["topic_plan"]["missing"] == []

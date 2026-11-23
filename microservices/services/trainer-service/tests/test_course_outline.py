@@ -175,7 +175,7 @@ def test_authored_outlines_are_applied_to_their_datasets():
 def test_dataset_mode_toc_renders_the_authored_course_outline():
     from app.toc_generation_agent import generate_toc_from_dataset, validate_toc
 
-    toc = validate_toc(generate_toc_from_dataset("DevOps", 5), 5)
+    toc = validate_toc(generate_toc_from_dataset("devops_30", 5), 5)
     assert all((day.get("outline") or {}).get("source") == "authored" for day in toc["days"])
     html = build_toc_html(toc)
     assert "Lab 1: Map a Feature to Production" in html and "Delivery Principle" in html

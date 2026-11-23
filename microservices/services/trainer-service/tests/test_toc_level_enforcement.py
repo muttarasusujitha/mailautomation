@@ -4,10 +4,12 @@ from app.toc_domain_dataset import COMPACT_DOMAINS, _load_compact_domains
 # A compact dataset key with no level course, used to test the catalog (non-level) path.
 # Kotlin itself now has a level course, so tests that need the old path use its compact file.
 CATALOG_ONLY = "kotlin_15"
+# DevOps now has a level course; its curated catalog path is still reachable by dataset key.
+DEVOPS_CATALOG = "devops_30"
 
 
 def test_intermediate_toc_is_cumulative_and_keeps_foundations():
-    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate")
+    toc = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
 
     titles = " ".join(day["focus_area"].lower() for day in toc["days"])
     assert "linux fundamentals" in titles
@@ -18,7 +20,7 @@ def test_intermediate_toc_is_cumulative_and_keeps_foundations():
 
 
 def test_intermediate_ten_day_devops_path_is_ordered_and_does_not_add_azure():
-    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate")
+    toc = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
     titles = [day["focus_area"] for day in toc["days"]]
 
     assert titles == [
@@ -52,16 +54,16 @@ def test_devops_toc_supports_every_duration_from_one_to_thirty_without_azure_sco
 
 
 def test_beginner_toc_retains_progressive_foundations():
-    toc = generate_toc_from_dataset("DevOps", 10, level="beginner")
+    toc = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="beginner")
 
     titles = " ".join(day["focus_area"].lower() for day in toc["days"])
     assert any(marker in titles for marker in ("basics", "fundamentals", "orientation"))
 
 
 def test_levels_use_distinct_ordered_depth_bands():
-    beginner = generate_toc_from_dataset("DevOps", 10, level="beginner")
-    intermediate = generate_toc_from_dataset("DevOps", 10, level="intermediate")
-    advanced = generate_toc_from_dataset("DevOps", 10, level="advanced")
+    beginner = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="beginner")
+    intermediate = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
+    advanced = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="advanced")
 
     beginner_titles = [day["focus_area"] for day in beginner["days"]]
     intermediate_titles = [day["focus_area"] for day in intermediate["days"]]
@@ -136,10 +138,10 @@ def test_knowledge_mixed_includes_foundation_core_and_advanced():
 
 
 def test_mixed_compact_track_spans_early_and_later_days():
-    mixed = generate_toc_from_dataset("DevOps", 10, level="mixed")
-    beginner = generate_toc_from_dataset("DevOps", 10, level="beginner")
-    intermediate = generate_toc_from_dataset("DevOps", 10, level="intermediate")
-    advanced = generate_toc_from_dataset("DevOps", 10, level="advanced")
+    mixed = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="mixed")
+    beginner = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="beginner")
+    intermediate = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="intermediate")
+    advanced = generate_toc_from_dataset(DEVOPS_CATALOG, 10, level="advanced")
     mixed_titles = [day["focus_area"] for day in mixed["days"]]
     assert mixed["level"] == "mixed"
     assert mixed_titles[0] == "DevOps Orientation, SDLC and Agile Delivery"
@@ -347,3 +349,17 @@ def test_long_programmes_keep_borrowed_days_before_the_advanced_end():
     titles = [day["focus_area"] for day in generate_toc_from_dataset("Java", 90, level="intermediate")["days"]]
     assert not any(re.search(r"\b(basics|fundamentals)\b", title, re.I) for title in titles[len(titles) // 2:])
     assert titles[-1].startswith("Advanced Capstone")
+
+
+def test_devops_uses_its_level_course_with_timed_modules():
+    for level, first in (("beginner", "DevOps Culture and the CALMS Model"),
+                         ("intermediate", "Trunk-Based Development with Short-Lived Branches"),
+                         ("advanced", "From Ticket Queues to Self-Service Delivery")):
+        toc = generate_toc_from_dataset("DevOps", 10, level=level)
+        assert toc["days"][0]["focus_area"] == first, level
+        assert "capstone" in toc["days"][-1]["focus_area"].lower(), level
+        assert toc["quality"]["status"] == "approved", level
+        for day in toc["days"]:
+            assert 3 <= len(day["modules"]) <= 4, day["focus_area"]
+            assert sum(module["minutes"] for module in day["modules"]) == 420, day["focus_area"]
+            assert all(len(module["scenarios"]) >= 3 for module in day["modules"]), day["focus_area"]
