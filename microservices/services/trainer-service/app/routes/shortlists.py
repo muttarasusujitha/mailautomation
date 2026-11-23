@@ -208,6 +208,17 @@ class ApproveTravelBookingTaskRequest(BaseModel):
     approval_note: Optional[str] = ""
 
 
+class RecordTravelBookingResultRequest(BaseModel):
+    """Record a human agent's completed booking; the agent books outside TrainerSync."""
+    booking_reference: str
+    ticket_actual_cost_inr: Optional[float] = 0
+    hotel_actual_cost_inr: Optional[float] = 0
+    receipt_url: Optional[str] = ""
+    ticket_or_hotel_document_url: Optional[str] = ""
+    itinerary_summary: Optional[str] = ""
+    recorded_by: str
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -5822,6 +5833,9 @@ async def create_travel_booking_task(
         "requirement_id": requirement_id,
         "trainer_id": trainer_id,
         "trainer_name": _clean(trainer.get("name") or trainer.get("trainer_name")),
+        "trainer_email": _email_address(trainer.get("email") or trainer.get("trainer_email")),
+        "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
+        "client_email": _email_address(requirement.get("client_email") or requirement.get("requester_email")),
         "status": "awaiting_finance_approval",
         "ticket_required": payload.ticket_required,
         "hotel_required": payload.hotel_required,
@@ -5892,6 +5906,68 @@ async def approve_travel_booking_task(
     )
     message = "Finance approved the task. The travel booking agent was notified." if agent_notification["status"] == "sent" else "Finance approved the task. Set the travel-agent email before it can be dispatched."
     return {"success": True, "booking_task_id": booking_task_id, "status": "ready_to_book", "booking_agent": agent_notification, "message": message}
+
+
+@router.post("/logistics/{requirement_id}/{trainer_id}/booking-task/{booking_task_id}/record-booking")
+async def record_travel_booking_result(
+    requirement_id: str,
+    trainer_id: str,
+    booking_task_id: str,
+    payload: RecordTravelBookingResultRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Store an agent's manual booking evidence and route actuals to finance review."""
+    reference = _clean(payload.booking_reference)
+    recorded_by = _clean(payload.recorded_by)
+    if not reference or not recorded_by:
+        raise HTTPException(422, "Booking reference and the staff member recording it are required.")
+    ticket_cost = float(payload.ticket_actual_cost_inr or 0)
+    hotel_cost = float(payload.hotel_actual_cost_inr or 0)
+    if ticket_cost < 0 or hotel_cost < 0:
+        raise HTTPException(422, "Actual booking costs cannot be negative.")
+    task = await db["travel_booking_tasks"].find_one({
+        "booking_task_id": booking_task_id, "requirement_id": requirement_id, "trainer_id": trainer_id,
+    }, {"_id": 0})
+    if not task:
+        raise HTTPException(404, "Travel booking task was not found.")
+    if _clean(task.get("status")) != "ready_to_book":
+        raise HTTPException(409, "Only a finance-approved travel task can be recorded as booked.")
+    if task.get("ticket_required") and ticket_cost <= 0:
+        raise HTTPException(422, "Enter the actual ticket cost for this ticket booking.")
+    if task.get("hotel_required") and hotel_cost <= 0:
+        raise HTTPException(422, "Enter the actual hotel cost for this hotel booking.")
+    now = datetime.utcnow()
+    actual_total = ticket_cost + hotel_cost
+    update = {
+        "status": "booked_pending_cost_review",
+        "booking_reference": reference[:300],
+        "ticket_actual_cost_inr": ticket_cost,
+        "hotel_actual_cost_inr": hotel_cost,
+        "actual_total_cost_inr": actual_total,
+        "receipt_url": _clean(payload.receipt_url)[:2000],
+        "ticket_or_hotel_document_url": _clean(payload.ticket_or_hotel_document_url)[:2000],
+        "itinerary_summary": _clean(payload.itinerary_summary)[:5000],
+        "recorded_by": recorded_by[:200],
+        "recorded_at": now,
+        "updated_at": now,
+    }
+    await db["travel_booking_tasks"].update_one({"booking_task_id": booking_task_id}, {"$set": update})
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "offline_logistics.actual_expenses.travel": ticket_cost,
+            "offline_logistics.actual_expenses.accommodation": hotel_cost,
+            "offline_logistics.travel_booking_task_id": booking_task_id,
+            "offline_logistics.travel_booking_reference": reference[:300],
+            "offline_logistics.travel_booking_status": "booked_pending_cost_review",
+            "updated_at": now,
+        }},
+    )
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {"top_trainers.$.post_interview_logistics.booking_status": "booked_pending_cost_review", "top_trainers.$.post_interview_logistics.booking_reference": reference[:300], "top_trainers.$.updated_at": now, "updated_at": now}},
+    )
+    return {"success": True, "booking_task_id": booking_task_id, "status": "booked_pending_cost_review", "actual_total_cost_inr": actual_total, "message": "Booking evidence saved. Finance must review the actual cost before it is invoiced."}
 
 
 async def _send_post_selection_logistics_email(

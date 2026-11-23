@@ -31,6 +31,10 @@ class BookingTaskCollection(Collection):
             return {}
         return self.inserted
 
+    async def update_one(self, *args, **kwargs):
+        await super().update_one(*args, **kwargs)
+        self.inserted.update(args[1].get("$set") or {})
+
 
 def logistics_db():
     return Database({
@@ -166,3 +170,40 @@ def test_finance_approval_notifies_booking_agent_and_makes_task_ready(monkeypatc
     assert result["status"] == "ready_to_book"
     assert result["booking_agent"]["status"] == "sent"
     assert db["travel_booking_tasks"].update[0][1]["$set"]["status"] == "ready_to_book"
+
+
+def test_manual_travel_agent_result_routes_actual_costs_to_finance(monkeypatch):
+    db = booking_db()
+    created = asyncio.run(shortlists.create_travel_booking_task(
+        "REQ-1", "TR-1",
+        shortlists.CreateTravelBookingTaskRequest(
+            client_authorization_text="Clahan should arrange and book the trainer ticket.",
+        ),
+        db,
+    ))
+    task_id = created["booking_task"]["booking_task_id"]
+
+    async def notified(*_args):
+        return {"status": "configuration_needed"}
+
+    monkeypatch.setattr(shortlists, "_notify_travel_booking_agent", notified)
+    asyncio.run(shortlists.approve_travel_booking_task(
+        "REQ-1", "TR-1", task_id,
+        shortlists.ApproveTravelBookingTaskRequest(approved_by="Finance Team"),
+        db,
+    ))
+    result = asyncio.run(shortlists.record_travel_booking_result(
+        "REQ-1", "TR-1", task_id,
+        shortlists.RecordTravelBookingResultRequest(
+            booking_reference="PNR-TEST-123", ticket_actual_cost_inr=12450,
+            receipt_url="https://travel.example/receipt/123", recorded_by="Travel Agent",
+        ),
+        db,
+    ))
+
+    assert result["status"] == "booked_pending_cost_review"
+    assert result["actual_total_cost_inr"] == 12450
+    task_update = db["travel_booking_tasks"].update[0][1]["$set"]
+    assert task_update["booking_reference"] == "PNR-TEST-123"
+    requirement_update = db["requirements"].update[0][1]["$set"]
+    assert requirement_update["offline_logistics.actual_expenses.travel"] == 12450

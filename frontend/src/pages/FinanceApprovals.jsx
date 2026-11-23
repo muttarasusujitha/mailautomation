@@ -41,6 +41,7 @@ export default function FinanceApprovals() {
   const [selectedId, setSelectedId] = useState(requestedFinanceId)
   const [form, setForm] = useState(emptyForm)
   const [coordinationForm, setCoordinationForm] = useState({ travel: '', accommodation: '', food: '', whatsapp_invite_link: '' })
+  const [bookingResultForm, setBookingResultForm] = useState({ booking_reference: '', ticket_actual_cost_inr: '', hotel_actual_cost_inr: '', receipt_url: '', ticket_or_hotel_document_url: '', itinerary_summary: '', recorded_by: 'Travel Agent' })
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState('')
   const selected = useMemo(() => items.find(item => item.finance_id === selectedId) || items.find(item => item.status === 'pending_human_approval') || items[0] || null, [items, selectedId])
@@ -65,6 +66,15 @@ export default function FinanceApprovals() {
     setCoordinationForm({
       travel: '', accommodation: '', food: '',
       whatsapp_invite_link: selected?.whatsapp_group_invite_link || '',
+    })
+    setBookingResultForm({
+      booking_reference: selected?.booking_reference || '',
+      ticket_actual_cost_inr: selected?.ticket_actual_cost_inr || '',
+      hotel_actual_cost_inr: selected?.hotel_actual_cost_inr || '',
+      receipt_url: selected?.receipt_url || '',
+      ticket_or_hotel_document_url: selected?.ticket_or_hotel_document_url || '',
+      itinerary_summary: selected?.itinerary_summary || '',
+      recorded_by: selected?.recorded_by || 'Travel Agent',
     })
   }, [selected?.finance_id, selected?.whatsapp_group_invite_link])
 
@@ -138,6 +148,23 @@ export default function FinanceApprovals() {
     finally { setBusy('') }
   }
 
+  const recordTravelBooking = async () => {
+    if (!selected || selected.request_type !== 'travel_booking') return
+    if (!bookingResultForm.booking_reference.trim()) return toast.error('Enter the ticket PNR or hotel booking reference')
+    setBusy('record-booking')
+    try {
+      const { data } = await api.post(`/shortlists/logistics/${encodeURIComponent(selected.requirement_id)}/${encodeURIComponent(selected.trainer_id)}/booking-task/${encodeURIComponent(selected.booking_task_id)}/record-booking`, {
+        ...bookingResultForm,
+        ticket_actual_cost_inr: Number(bookingResultForm.ticket_actual_cost_inr || 0),
+        hotel_actual_cost_inr: Number(bookingResultForm.hotel_actual_cost_inr || 0),
+      })
+      if (data?.success !== true) throw new Error('Booking result was not saved')
+      toast.success(`Booking recorded. Actual cost ₹${Number(data.actual_total_cost_inr || 0).toLocaleString('en-IN')} is ready for finance review.`)
+      await load()
+    } catch (error) { toast.error(error.response?.data?.detail || error.message || 'Could not record the travel booking') }
+    finally { setBusy('') }
+  }
+
   const completeOfflineCoordination = async () => {
     if (!selected || selected.request_type !== 'offline_coordination') return
     setBusy('complete')
@@ -182,6 +209,7 @@ export default function FinanceApprovals() {
 
         {!selected ? <div className="rounded-xl border border-slate-200 bg-white p-8 text-sm text-slate-500">Select a finance item to review.</div> : <section className="min-w-0 space-y-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
           {selected.request_type === 'travel_booking' && <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-slate-800"><p>Requirement: {selected.requirement_id}</p><p>Trainer: {selected.trainer_name}</p><p>Training dates: {selected.training_dates || 'Not recorded'}</p><p>Venue: {selected.venue_address}</p>{selected.venue_maps_url && <a href={selected.venue_maps_url} target="_blank" rel="noreferrer" className="mt-2 inline-block font-semibold text-blue-700 underline">Open confirmed Google Maps pin</a>}<p className="mt-2"><strong>Client travel terms:</strong> {selected.client_travel_terms}</p><p className="mt-2"><strong>Client authorization:</strong> {selected.client_authorization_text}</p><p className="mt-3 text-xs text-slate-600">Finance approval makes this task ready for a human booker. It does not charge a card, reserve a ticket, or contact a supplier.</p></div>}
+          {selected.request_type === 'travel_booking' && selected.status === 'ready_to_book' && <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4"><p className="text-sm font-bold text-emerald-950">Record completed manual booking</p><p className="mt-1 text-xs text-slate-600">After the travel agent books in their own portal, save the PNR/reference and actual cost here. Finance reviews the amount before it goes on the client invoice.</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><label className="text-xs font-semibold text-slate-700">Ticket PNR / booking reference<input value={bookingResultForm.booking_reference} onChange={event => setBookingResultForm(current => ({ ...current, booking_reference: event.target.value }))} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-normal" /></label><label className="text-xs font-semibold text-slate-700">Recorded by<input value={bookingResultForm.recorded_by} onChange={event => setBookingResultForm(current => ({ ...current, recorded_by: event.target.value }))} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-normal" /></label>{selected.ticket_required && <label className="text-xs font-semibold text-slate-700">Actual ticket cost (INR)<input type="number" min="0" value={bookingResultForm.ticket_actual_cost_inr} onChange={event => setBookingResultForm(current => ({ ...current, ticket_actual_cost_inr: event.target.value }))} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-normal" /></label>}{selected.hotel_required && <label className="text-xs font-semibold text-slate-700">Actual hotel cost (INR)<input type="number" min="0" value={bookingResultForm.hotel_actual_cost_inr} onChange={event => setBookingResultForm(current => ({ ...current, hotel_actual_cost_inr: event.target.value }))} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-normal" /></label>}<label className="text-xs font-semibold text-slate-700 sm:col-span-2">Receipt URL / file link<input value={bookingResultForm.receipt_url} onChange={event => setBookingResultForm(current => ({ ...current, receipt_url: event.target.value }))} placeholder="Optional receipt location" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm font-normal" /></label><label className="text-xs font-semibold text-slate-700 sm:col-span-2">Itinerary summary<textarea rows={2} value={bookingResultForm.itinerary_summary} onChange={event => setBookingResultForm(current => ({ ...current, itinerary_summary: event.target.value }))} placeholder="Flight/train/bus/hotel dates and confirmation details" className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal" /></label></div></div>}
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div><h2 className="text-lg font-bold text-slate-950">{selected.request_type === 'trainer_po' ? 'Trainer purchase order approval' : selected.request_type === 'offline_coordination' ? 'Complete offline coordination' : selected.request_type === 'travel_booking' ? 'Client-authorized travel booking' : selected.request_type === 'po_to_invoice' ? 'Client purchase order' : 'Client invoice request'}</h2><p className="mt-1 text-sm text-slate-500">{selected.trainer_email || selected.client_email}</p></div>
             {!['trainer_po', 'offline_coordination', 'travel_booking'].includes(selected.request_type) && <button type="button" onClick={openSource} disabled={busy === 'source'} className="btn-secondary text-sm">{busy === 'source' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSearch className="h-4 w-4" />} Open source PDF</button>}
@@ -203,7 +231,9 @@ export default function FinanceApprovals() {
               : selected.request_type === 'offline_coordination'
                 ? <button type="button" onClick={completeOfflineCoordination} disabled={!!busy} className="btn-primary text-sm">{busy === 'complete' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Complete coordination and request client PO</button>
                 : selected.request_type === 'travel_booking'
-                  ? <button type="button" onClick={approveTravelBooking} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-primary text-sm">{busy === 'approve-booking' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Approve for human booking</button>
+                  ? selected.status === 'ready_to_book'
+                    ? <button type="button" onClick={recordTravelBooking} disabled={!!busy} className="btn-primary text-sm">{busy === 'record-booking' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Save booking result for finance review</button>
+                    : <button type="button" onClick={approveTravelBooking} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-primary text-sm">{busy === 'approve-booking' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Approve for human booking</button>
                 : <button type="button" onClick={approve} disabled={!!busy || selected.status !== 'pending_human_approval'} className="btn-primary text-sm">{busy === 'approve' ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Approve and send invoice</button>}
           </div>
         </section>}

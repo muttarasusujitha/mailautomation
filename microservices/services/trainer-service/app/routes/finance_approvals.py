@@ -39,6 +39,27 @@ class FinanceRejectRequest(BaseModel):
     reason: str
 
 
+@router.get("/travel-bookings")
+async def list_travel_bookings(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Operations view for all travel tasks, including bookings no longer awaiting approval."""
+    tasks = await db["travel_booking_tasks"].find({}, {"_id": 0}).sort("updated_at", -1).to_list(300)
+    results = []
+    for task in tasks:
+        requirement = {}
+        if not task.get("client_name") or not task.get("client_email"):
+            requirement = await db["requirements"].find_one(
+                {"requirement_id": task.get("requirement_id")}, {"_id": 0, "client_name": 1, "client_company": 1, "client_email": 1},
+            ) or {}
+        results.append({
+            **task,
+            "client_name": task.get("client_name") or requirement.get("client_name") or requirement.get("client_company") or "Client not recorded",
+            "client_email": task.get("client_email") or requirement.get("client_email") or "",
+            "live_supplier_search": False,
+            "live_supplier_search_note": "Connect a travel supplier API to show live availability and prices in TrainerSync.",
+        })
+    return {"bookings": results, "count": len(results)}
+
+
 @router.get("/approvals")
 async def list_finance_approvals(db: AsyncIOMotorDatabase = Depends(get_db)):
     rows = await db["finance_approvals"].find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
@@ -48,10 +69,15 @@ async def list_finance_approvals(db: AsyncIOMotorDatabase = Depends(get_db)):
     for task in coordination_tasks:
         rows.append({**task, "finance_id": task.get("task_id"), "request_type": "offline_coordination", "status": "pending_human_approval"})
     travel_booking_tasks = await db["travel_booking_tasks"].find(
-        {"status": "awaiting_finance_approval"}, {"_id": 0},
+        {"status": {"$in": ["awaiting_finance_approval", "ready_to_book", "booked_pending_cost_review"]}}, {"_id": 0},
     ).sort("created_at", -1).to_list(100)
     for task in travel_booking_tasks:
-        rows.append({**task, "finance_id": task.get("booking_task_id"), "request_type": "travel_booking", "status": "pending_human_approval"})
+        rows.append({
+            **task,
+            "finance_id": task.get("booking_task_id"),
+            "request_type": "travel_booking",
+            "status": "pending_human_approval" if task.get("status") == "awaiting_finance_approval" else task.get("status"),
+        })
     return {"approvals": rows, "pending": sum(1 for row in rows if row.get("status") == "pending_human_approval")}
 
 

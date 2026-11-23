@@ -55,6 +55,10 @@ async def _ensure_indexes(db) -> None:
         ("interview_meeting_notes", [("schedule_key", 1), ("created_at", -1)], {}),
         ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
         ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
+        # Supports the finance queue and the Travel Bookings operations view.
+        ("travel_booking_tasks", [("booking_task_id", 1)], {"unique": True}),
+        ("travel_booking_tasks", [("status", 1), ("updated_at", -1)], {}),
+        ("travel_booking_tasks", [("requirement_id", 1), ("trainer_id", 1), ("status", 1)], {}),
     ]
     for collection, keys, options in indexes:
         await _create_index(db, collection, keys, **options)

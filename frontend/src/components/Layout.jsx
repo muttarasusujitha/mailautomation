@@ -47,6 +47,7 @@ const NAV_GROUPS = [
       { to: '/invoices',             label: 'Invoices',         icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
       { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['po','client po','client purchase order','purchase order','purchase orders','generate po','po generator'] },
       { to: '/finance-approvals',    label: 'PO PDF Approvals', icon: ClipboardCheck,    keywords: ['po pdf','finance approvals','purchase order approval','client po review'] },
+      { to: '/travel-bookings',      label: 'Travel Bookings',  icon: MapPin,            keywords: ['travel','flight','bus','car','hotel','ticket','booking','trainer travel'] },
     ],
     more: [
     ],

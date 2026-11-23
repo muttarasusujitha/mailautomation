@@ -59,6 +59,27 @@ def test_finance_queue_includes_client_authorized_travel_booking_tasks():
     assert result["approvals"][0]["request_type"] == "travel_booking"
 
 
+def test_travel_booking_operations_view_includes_client_trainer_route_and_live_search_state():
+    db = {
+        "travel_booking_tasks": ListCollection([{
+            "booking_task_id": "TB-1", "status": "ready_to_book", "requirement_id": "REQ-1",
+            "trainer_id": "TR-1", "trainer_name": "Asha", "trainer_origin": "Chennai",
+            "venue_address": "Bengaluru", "training_dates": "10 Dec 2026",
+        }]),
+        "requirements": SimpleNamespace(find_one=AsyncMock(return_value={
+            "client_name": "Acme", "client_email": "client@example.com",
+        })),
+    }
+
+    result = asyncio.run(finance.list_travel_bookings(db))
+
+    item = result["bookings"][0]
+    assert item["client_name"] == "Acme"
+    assert item["trainer_name"] == "Asha"
+    assert item["trainer_origin"] == "Chennai"
+    assert item["live_supplier_search"] is False
+
+
 def transport(monkeypatch, pdf_status=200, mail_status=200):
     requests = []
     def handle(request):
