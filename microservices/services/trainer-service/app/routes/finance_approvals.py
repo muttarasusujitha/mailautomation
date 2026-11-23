@@ -13,6 +13,11 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.config import get_settings
+from app.travel_supplier import (
+    TravelSupplierConfigurationError,
+    TravelSupplierError,
+    search_amadeus_flights,
+)
 from shared.database.service import get_db
 from shared.document_amounts import offline_expense_items
 from shared.commercial_policy import commercial_breakdown
@@ -39,6 +44,16 @@ class FinanceRejectRequest(BaseModel):
     reason: str
 
 
+class LiveFlightQuoteRequest(BaseModel):
+    """Exact route details required by a live travel supplier search."""
+    origin_iata: str
+    destination_iata: str
+    departure_date: str
+    return_date: str = ""
+    adults: int = 1
+    currency_code: str = "INR"
+
+
 @router.get("/travel-bookings")
 async def list_travel_bookings(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Operations view for all travel tasks, including bookings no longer awaiting approval."""
@@ -54,10 +69,62 @@ async def list_travel_bookings(db: AsyncIOMotorDatabase = Depends(get_db)):
             **task,
             "client_name": task.get("client_name") or requirement.get("client_name") or requirement.get("client_company") or "Client not recorded",
             "client_email": task.get("client_email") or requirement.get("client_email") or "",
-            "live_supplier_search": False,
-            "live_supplier_search_note": "Connect a travel supplier API to show live availability and prices in TrainerSync.",
+            "live_supplier_search": bool(settings.AMADEUS_CLIENT_ID and settings.AMADEUS_CLIENT_SECRET),
+            "live_supplier_search_note": (
+                "Amadeus live flight search is available. Search needs IATA airport codes and exact travel dates."
+                if settings.AMADEUS_CLIENT_ID and settings.AMADEUS_CLIENT_SECRET
+                else "Set AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET on the server to enable live flight quotes."
+            ),
         })
     return {"bookings": results, "count": len(results)}
+
+
+@router.post("/travel-bookings/{booking_task_id}/live-flight-quotes")
+async def live_flight_quotes(
+    booking_task_id: str,
+    payload: LiveFlightQuoteRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Fetch live supplier quotes only; a separate finance-approved action is required to buy."""
+    task = await db["travel_booking_tasks"].find_one({"booking_task_id": booking_task_id}, {"_id": 0})
+    if not task:
+        raise HTTPException(404, "Travel booking task was not found.")
+    if not task.get("ticket_required"):
+        raise HTTPException(409, "This travel task does not require a ticket.")
+    origin = str(payload.origin_iata or "").strip().upper()
+    destination = str(payload.destination_iata or "").strip().upper()
+    if not re.fullmatch(r"[A-Z]{3}", origin) or not re.fullmatch(r"[A-Z]{3}", destination):
+        raise HTTPException(422, "Enter valid three-letter IATA airport codes, for example MAA and BLR.")
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(payload.departure_date or "")):
+        raise HTTPException(422, "Departure date must be YYYY-MM-DD.")
+    if payload.return_date and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", payload.return_date):
+        raise HTTPException(422, "Return date must be YYYY-MM-DD.")
+    try:
+        quotes = await search_amadeus_flights(
+            origin_iata=origin, destination_iata=destination,
+            departure_date=payload.departure_date, return_date=payload.return_date,
+            adults=payload.adults, currency_code=payload.currency_code,
+        )
+    except TravelSupplierConfigurationError as exc:
+        raise HTTPException(503, str(exc)) from exc
+    except TravelSupplierError as exc:
+        raise HTTPException(502, str(exc)) from exc
+    now = datetime.utcnow()
+    safe_quotes = [{key: value for key, value in quote.items() if key != "raw_offer"} for quote in quotes]
+    await db["travel_booking_tasks"].update_one({"booking_task_id": booking_task_id}, {"$set": {
+        "live_flight_search": {
+            "supplier": "amadeus", "origin_iata": origin, "destination_iata": destination,
+            "departure_date": payload.departure_date, "return_date": payload.return_date,
+            "adults": max(1, min(int(payload.adults), 9)), "currency_code": payload.currency_code.upper(),
+            "quoted_at": now, "quotes": safe_quotes,
+        },
+        # Raw offers are short-lived and used only for reprice/order after an
+        # authorised finance selection. They never include API credentials.
+        "live_supplier_raw_offers": [quote.get("raw_offer") for quote in quotes],
+        "updated_at": now,
+    }})
+    return {"success": True, "booking_task_id": booking_task_id, "supplier": "amadeus", "quotes": safe_quotes,
+            "message": "Live quotes saved. Finance must select and approve a price before any purchase."}
 
 
 @router.get("/approvals")

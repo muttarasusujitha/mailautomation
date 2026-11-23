@@ -80,6 +80,40 @@ def test_travel_booking_operations_view_includes_client_trainer_route_and_live_s
     assert item["live_supplier_search"] is False
 
 
+def test_live_flight_quotes_are_saved_without_exposing_supplier_credentials(monkeypatch):
+    task = {
+        "booking_task_id": "TB-1", "ticket_required": True,
+        "status": "ready_to_book", "requirement_id": "REQ-1",
+    }
+    collection = SimpleNamespace(
+        find_one=AsyncMock(return_value=task),
+        update_one=AsyncMock(return_value=SimpleNamespace(modified_count=1)),
+    )
+    db = {"travel_booking_tasks": collection}
+
+    async def supplier(**kwargs):
+        assert kwargs["origin_iata"] == "MAA"
+        assert kwargs["destination_iata"] == "BLR"
+        return [{
+            "supplier_offer_id": "1", "total": "5500.00", "currency": "INR",
+            "legs": [{"from": "MAA", "to": "BLR", "stops": 0}],
+            "raw_offer": {"id": "1", "price": {"grandTotal": "5500.00"}},
+        }]
+
+    monkeypatch.setattr(finance, "search_amadeus_flights", supplier)
+    result = asyncio.run(finance.live_flight_quotes(
+        "TB-1", finance.LiveFlightQuoteRequest(
+            origin_iata="maa", destination_iata="blr", departure_date="2026-12-10",
+        ), db,
+    ))
+
+    assert result["success"] is True
+    assert result["quotes"][0]["total"] == "5500.00"
+    saved = collection.update_one.await_args.args[1]["$set"]
+    assert saved["live_flight_search"]["quotes"][0]["supplier_offer_id"] == "1"
+    assert saved["live_supplier_raw_offers"][0]["id"] == "1"
+
+
 def transport(monkeypatch, pdf_status=200, mail_status=200):
     requests = []
     def handle(request):
