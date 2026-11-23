@@ -336,12 +336,14 @@ export default function LinkedInSearch() {
 
   const visibleLeads = useMemo(() => {
     const searchHits = (searchReport?.results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
-    if (showSearchMatches && searchHits.length) return visibleSearchLeads([], searchReport.results, true)
-    if (selectedDomain === 'all') return leads
+    // A selected domain must win over the temporary latest-search view.  The
+    // headline cards and result list therefore always describe the same set.
+    const source = showSearchMatches && searchHits.length
+      ? visibleSearchLeads([], searchReport.results, true)
+      : leads
+    if (selectedDomain === 'all') return source
     const selected = selectedDomain.toLowerCase()
-    const matched = leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
-    // A search term that is not a saved domain must not hide the profiles already collected.
-    return matched.length ? matched : leads
+    return source.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
