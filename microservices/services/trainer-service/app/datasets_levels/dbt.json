@@ -1,0 +1,573 @@
+{
+  "domain": "dbt",
+  "name": "dbt",
+  "category": "Data Engineering and Analytics",
+  "icon": "workflow",
+  "aliases": ["data build tool", "dbt Core", "dbt Cloud", "dbt platform", "dbt Labs", "dbt Fusion", "Analytics Engineering", "dbt Mesh"],
+  "certifications": ["dbt Analytics Engineering Certification", "dbt Architect Certification"],
+  "tools": ["dbt Core", "dbt platform", "dbt Fusion engine", "DuckDB", "PostgreSQL", "MetricFlow", "dbt_utils", "SQLFluff", "GitHub Actions", "Elementary", "audit_helper", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, SQL developers and junior data engineers who know SELECT, JOIN and GROUP BY and are new to dbt. Covers the analytics engineering workflow, dbt Core with the DuckDB adapter, project structure, seeds, models, ref() and the DAG, sources and freshness, staging and mart layers, Jinja basics, materializations, generic and singular tests, documentation, node selection, Git workflow, artifacts and logs, configuration precedence, error troubleshooting, and a small shop project capstone.",
+      "prerequisites": ["Writes SQL with joins, aggregates, CTEs and basic window functions", "Uses a terminal, Python 3 virtual environments and pip", "Knows basic Git: clone, branch, commit and push, and has a GitHub account"],
+      "outcomes": ["Install dbt Core with DuckDB, configure profiles.yml and run dbt debug successfully", "Build a layered project of seeds, sources, staging models and marts connected by ref() and source()", "Test, document and select parts of the DAG with generic tests, doc blocks and --select", "Diagnose common compilation, database and test errors and deliver a project that runs from a clean clone"],
+      "days": [
+        {
+          "topic": "Analytics Engineering Orientation and the dbt Workflow",
+          "subtopics": ["What analytics engineering adds between raw data and dashboards", "ELT versus ETL and why transformation moved into the warehouse", "What dbt does: compile Jinja and SQL, run in dependency order, never move data", "dbt Core versus the dbt platform (Cloud) versus the Fusion engine", "SELECT statements as models and the materialization idea", "Version control, code review and environments for SQL", "Roles: analytics engineer, data engineer, analyst", "The dbt command families: run, test, build, docs", "Where dbt sits next to Airflow, Fivetran, BI tools and the warehouse", "The sample Corner Shop dataset used throughout the course"],
+          "tools": ["DuckDB", "Python", "SQL", "Git", "Visual Studio Code"],
+          "lab_task": "Install duckdb with pip, open a database file with python -c, load a 10-row customers CSV with read_csv_auto, then write the same logic twice: as a CREATE VIEW stg_customers and a CREATE TABLE customers_dim. Draw the raw to staging to mart flow for the shop and list which of its steps dbt would own and which belong to the loader.",
+          "deliverable": "One-page workflow diagram and the two hand-written DuckDB DDL statements with the row counts they return",
+          "checks": [["Run select count(*) from stg_customers in DuckDB", "Returns 10, matching the CSV data rows", "Query output"], ["Compare the diagram to the ELT definition", "Extract and load steps sit outside dbt and only transform steps are inside it", "Diagram review"], ["Ask the learner to name dbt's role when a table is loaded late", "Answer states dbt reads existing tables and does not ingest data", "Verbal check"]],
+          "objectives": ["Explain what dbt does and does not do", "Distinguish dbt Core, the dbt platform and Fusion at a high level", "Map a raw to mart flow onto dbt model layers"]
+        },
+        {
+          "topic": "dbt Core Environment Setup with DuckDB and profiles.yml",
+          "subtopics": ["Python virtual environment with python -m venv", "pip install dbt-core dbt-duckdb and pinning versions in requirements.txt", "dbt --version output for core and adapter plugins", "dbt init and the interactive adapter questions", "profiles.yml location: ~/.dbt versus project directory with --profiles-dir", "Profile and target names and the outputs block", "DuckDB adapter keys: type, path, threads", "dbt debug and what each of its checks means", "Editor setup with the dbt Power User or dbt VS Code extension", "Keeping credentials out of Git with env_var()"],
+          "tools": ["dbt Core", "dbt-duckdb", "Python", "pip", "Visual Studio Code", "DuckDB"],
+          "lab_task": "Create a venv, pip install dbt-core and dbt-duckdb, run dbt init corner_shop choosing duckdb, edit profiles.yml so path is dev.duckdb and threads is 4, then run dbt debug. Break the profile name in dbt_project.yml on purpose, capture the error, restore it and run dbt debug again until it ends with All checks passed!",
+          "deliverable": "Working corner_shop project, requirements.txt and a dbt debug log showing the error and the fix",
+          "checks": [["Run dbt debug in a correct project", "Output ends with All checks passed!", "Terminal log"], ["Change profile: in dbt_project.yml to a name missing from profiles.yml", "Runtime Error: Could not find profile named is raised", "Terminal log"], ["Run dbt --version", "Lists dbt-core and the duckdb plugin with their installed versions", "Terminal screenshot"]],
+          "objectives": ["Install and verify dbt Core with an adapter", "Configure a profile and target correctly", "Read dbt debug output to locate setup faults"]
+        },
+        {
+          "topic": "Anatomy of a dbt Project: dbt_project.yml and Folder Conventions",
+          "subtopics": ["Directories created by dbt init: models, seeds, snapshots, macros, tests, analyses", "dbt_project.yml keys: name, version, profile, model-paths, clean-targets", "The models: block and folder-level configuration", "target and dbt_packages folders and what .gitignore should exclude", "Project names versus folder names and why names must be unique", "Staging, intermediate and marts folder pattern", "YAML property files versus SQL files", "dbt clean and dbt deps as housekeeping commands", "File and model naming rules: one model per file", "Reading a project you did not write using dbt ls"],
+          "tools": ["dbt Core", "dbt_project.yml", "Git", "Visual Studio Code", "dbt ls"],
+          "lab_task": "Open the generated corner_shop project, delete the example models, create models/staging and models/marts folders, set models: corner_shop: staging: +materialized: view and marts: +materialized: table in dbt_project.yml, add target/ and dbt_packages/ to .gitignore, run dbt ls and confirm it lists zero models, then commit.",
+          "deliverable": "Cleaned project skeleton committed to Git with the folder-level materialization config",
+          "checks": [["Run dbt ls --resource-type model after deleting examples", "Prints no models", "Terminal output"], ["Run git status after dbt run", "target/ and logs/ do not appear as untracked", "git status output"], ["Run dbt parse with the new models: block", "Completes without unused configuration path warnings", "Terminal log"]],
+          "objectives": ["Navigate and describe the standard project layout", "Apply folder-level configs in dbt_project.yml", "Keep generated files out of version control"]
+        },
+        {
+          "topic": "Seeds: Loading Reference and Raw CSV Data",
+          "subtopics": ["What seeds are for and what they are not for", "CSV files in the seeds folder and the dbt seed command", "Column type inference in DuckDB and the column_types config", "Seed properties YAML with descriptions and tests", "Quoting, delimiters and the quote_columns config", "dbt seed --full-refresh and when it is needed", "Seed size limits and why large files do not belong in Git", "ref() on a seed", "Naming raw_ prefixes to mark loader-owned tables", "Checking loaded data with dbt show"],
+          "tools": ["dbt seed", "dbt show", "DuckDB", "CSV", "Git"],
+          "lab_task": "Create seeds raw_customers.csv (10 rows), raw_orders.csv (20 rows: id, customer_id, order_date, status with values placed, shipped, completed, returned) and raw_payments.csv (25 rows: id, order_id, method, amount_cents). Run dbt seed, then dbt show --inline \"select status, count(*) from {{ ref('raw_orders') }} group by 1\" and save the result.",
+          "deliverable": "Three seed files, a seed properties file and the dbt show result of orders by status",
+          "checks": [["Run dbt seed", "Output ends with PASS=3 and ERROR=0", "Terminal log"], ["Query count(*) on raw_payments in DuckDB", "Returns 25", "Query output"], ["Run dbt show on orders grouped by status", "Exactly four status values appear and their counts sum to 20", "dbt show output"]],
+          "objectives": ["Load CSV data with dbt seed", "Control seed column types and properties", "Decide when a seed is appropriate"]
+        },
+        {
+          "topic": "Writing First Models: SELECT Statements, Views and Tables",
+          "subtopics": ["One SELECT per file and the model name equals the file name", "dbt run and what it generates: create view or create table as", "Reading the Completed successfully log lines", "Per-model config(materialized=) at the top of a file", "Staging models that rename and cast columns", "CTEs with import and final CTEs as a style", "Selecting a single model with dbt run --select", "Seeing generated SQL in target/run", "dbt show for a quick preview without building", "Common first-run errors: duplicate names and missing files"],
+          "tools": ["dbt run", "dbt show", "SQL", "DuckDB", "target folder"],
+          "lab_task": "Write stg_customers, stg_orders and stg_payments as SELECT statements over the seeds, using the pattern import CTE then renamed CTE then select. Rename id to customer_id, order_id and payment_id and divide amount_cents by 100.0 into amount. Run dbt run --select staging and open target/run/corner_shop/models/staging/stg_orders.sql.",
+          "deliverable": "Three staging models and a note comparing the model SQL with the generated create view statement",
+          "checks": [["Run dbt run --select staging", "PASS=3 and ERROR=0 for three views", "Terminal log"], ["Open target/run/.../stg_orders.sql", "Contains create view ... as with the model SELECT inside", "File screenshot"], ["Query max(amount) from stg_payments", "Returns the largest amount_cents value divided by 100", "Query output"]],
+          "objectives": ["Build and run models with dbt run", "Write staging models with consistent column naming", "Inspect the SQL that dbt generates and executes"]
+        },
+        {
+          "topic": "ref() and the DAG: Dependencies and Lineage",
+          "subtopics": ["ref() versus hard-coded table names", "How ref() resolves schema and relation per target", "Dependency graph built at parse time", "Build order and parallel execution with threads", "Graph operators + and @ with --select", "Circular dependency errors and how to break them", "Intermediate models and fan-in joins", "dbt docs lineage graph", "Reading the graph in manifest.json parent_map and child_map", "Why ref() makes development and production schemas switch safely"],
+          "tools": ["dbt ref", "dbt ls", "dbt docs", "manifest.json", "DuckDB"],
+          "lab_task": "Create customers and orders models in models/marts that join the staging models with ref(): customers must carry first_order_date, number_of_orders and lifetime_value. Run dbt ls --select +customers to list upstream nodes, run dbt run and open the lineage in dbt docs serve --port 8080.",
+          "deliverable": "Two mart models, the output of dbt ls --select +customers and a lineage screenshot",
+          "checks": [["Run dbt ls --select +customers --resource-type model", "Returns stg_customers, stg_orders, stg_payments and customers", "Terminal output"], ["Introduce a model that refs itself through another model", "Compilation Error reports a cycle in the dependency graph", "Terminal log"], ["Query count(*) from customers", "Returns 10, one row per customer", "Query output"]],
+          "objectives": ["Use ref() to build dependent models", "Interpret and query the DAG", "Explain why ref() is preferred over table names"]
+        },
+        {
+          "topic": "Sources: Declaring Raw Tables and Freshness Checks",
+          "subtopics": ["sources: YAML block with name, schema and tables", "source() function versus ref()", "Naming sources by the system that owns them", "loaded_at_field and freshness warn_after and error_after", "dbt source freshness and sources.json", "Descriptions and tests on source columns", "Lineage from source nodes", "Switching a staging model from a seed to a source", "Source overrides per environment with schema templating", "Freshness limits for batch versus streaming loaders"],
+          "tools": ["dbt sources", "source()", "dbt source freshness", "YAML", "DuckDB"],
+          "lab_task": "In DuckDB run create schema raw and create table raw.orders as select *, current_timestamp as loaded_at from main.raw_orders (same for customers and payments). Declare them in _sources.yml with loaded_at_field: loaded_at, warn_after 12 hours, error_after 24 hours, switch staging to source('raw', ...) and run dbt source freshness.",
+          "deliverable": "Sources YAML, updated staging models and the freshness result file target/sources.json",
+          "checks": [["Run dbt run --select staging after switching to source()", "PASS=3 and no database errors", "Terminal log"], ["Update raw.orders set loaded_at to 30 hours ago and run dbt source freshness", "Source raw.orders reports ERROR STALE", "Terminal log"], ["Check the lineage graph in dbt docs", "Source nodes appear upstream of the staging models", "Docs screenshot"]],
+          "objectives": ["Declare sources and reference them with source()", "Configure and run source freshness checks", "Separate loader-owned data from dbt-owned data"]
+        },
+        {
+          "topic": "Staging Layer Conventions and Naming Standards",
+          "subtopics": ["One staging model per source table", "Rename, cast, standardise and nothing else rule", "stg_<source>__<entity> naming and double underscore meaning", "Why joins and aggregations stay out of staging", "Surrogate versus natural key columns", "Timestamp and boolean standardisation", "Staging as view materialization rationale", "Column ordering and SQL style with SQLFluff", "sqlfluff lint with the dbt templater", "Folder per source system"],
+          "tools": ["SQLFluff", "sqlfluff-templater-dbt", "dbt run", "Git", "SQL"],
+          "lab_task": "Rename staging models to stg_shop__customers, stg_shop__orders and stg_shop__payments, move them to models/staging/shop, cast order_date to date and lower-case status. Install sqlfluff and sqlfluff-templater-dbt, add a .sqlfluff with dialect = duckdb and templater = dbt, run sqlfluff lint models and fix every violation.",
+          "deliverable": "Renamed staging models, a .sqlfluff file and a clean lint report",
+          "checks": [["Run sqlfluff lint models", "Exit code 0 and no violations listed", "Terminal output"], ["Run dbt ls --select staging.shop", "Lists exactly three stg_shop__ models", "Terminal output"], ["Run dbt run and check downstream marts", "Marts build with PASS and ERROR=0 after the renames", "Terminal log"]],
+          "objectives": ["Apply staging naming and structure standards", "Lint SQL with a dbt-aware templater", "Refactor model names without breaking lineage"]
+        },
+        {
+          "topic": "Jinja Syntax Essentials: Expressions, Statements and Comments",
+          "subtopics": ["Three delimiters: expression, statement and comment", "Rendering with dbt compile and reading target/compiled", "set variables and lists in Jinja", "for loops that generate column lists", "if and else branching on target.name", "Whitespace control with the minus sign", "The var() function and dbt_project.yml vars", "The log() function and {{ print() }}", "Common errors: unexpected end of template and undefined variables", "Keeping Jinja readable and limiting its use"],
+          "tools": ["Jinja", "dbt compile", "var()", "target", "SQL"],
+          "lab_task": "Write a model order_status_counts that loops over {% set statuses = ['placed','shipped','completed','returned'] %} and emits one sum(case when status = ...) column per status, with whitespace control. Run dbt compile --select order_status_counts, open the compiled SQL and then add a var('return_cutoff') default through dbt_project.yml.",
+          "deliverable": "Model with a Jinja loop, the compiled SQL file and a var-driven version",
+          "checks": [["Run dbt compile --select order_status_counts", "Compiled SQL contains four sum(case ...) columns", "Compiled file"], ["Run dbt run --select order_status_counts and query it", "Column totals add up to 20 orders", "Query output"], ["Remove the closing endfor tag", "Compilation Error mentions Jinja syntax and the file name", "Terminal log"]],
+          "objectives": ["Use Jinja expressions, statements and comments in models", "Generate repetitive SQL with loops", "Compare compiled and source SQL to debug templating"]
+        },
+        {
+          "topic": "Materializations Compared: View, Table and Ephemeral",
+          "subtopics": ["View: no storage and recomputed query", "Table: full rebuild with create table as", "Ephemeral: inlined CTE and its limits", "Materialization config at model, folder and project level", "Build time versus query time trade-off", "Atomic swap and table replacement behaviour per adapter", "Incremental and snapshot as later materializations", "Materialized views and dynamic tables as warehouse-specific options", "Choosing materializations by layer", "Measuring effect with run timing in run_results.json"],
+          "tools": ["dbt run", "run_results.json", "DuckDB", "config()", "SQL"],
+          "lab_task": "Set stg_ models to view, a new int_orders_joined model to ephemeral and customers and orders to table. Run dbt run, then list relation types with select table_name, table_type from information_schema.tables, and confirm no relation exists for the ephemeral model. Read execution_time per node in target/run_results.json.",
+          "deliverable": "Materialization map for all models and a timing table taken from run_results.json",
+          "checks": [["Query information_schema.tables for corner_shop", "stg_ relations are VIEW and mart relations are BASE TABLE", "Query output"], ["Search for int_orders_joined in information_schema", "No relation exists because it is ephemeral", "Query output"], ["Open compiled SQL of orders", "Contains a CTE named __dbt__cte__int_orders_joined", "Compiled file"]],
+          "objectives": ["Describe each basic materialization and its trade-offs", "Set materializations at several config levels", "Verify the objects created in the warehouse"]
+        },
+        {
+          "topic": "Generic Data Tests: unique, not_null, accepted_values, relationships",
+          "subtopics": ["Data tests as SELECT queries that return failing rows", "The four built-in generic tests", "data_tests key in model YAML", "Column-level versus model-level tests", "accepted_values with quote and values", "relationships between child and parent keys", "dbt test and --select test_type:generic", "Reading test names and failing row counts", "Testing sources versus testing models", "Test naming and the compiled test SQL in target/run"],
+          "tools": ["dbt test", "YAML", "generic tests", "DuckDB", "target folder"],
+          "lab_task": "In _models.yml add data_tests: unique and not_null on customer_id, accepted_values on orders.status with the four statuses, and relationships from orders.customer_id to ref('customers'). Run dbt test, then insert an order with status 'cancelled' into raw.orders and run dbt test again to see the failure count.",
+          "deliverable": "Properties YAML with tests, a passing run and a failing run log with the failure count",
+          "checks": [["Run dbt test on the clean data", "All tests PASS and ERROR=0", "Terminal log"], ["Insert an order with status cancelled and rerun", "accepted_values test fails with Got 1 result, configured to fail if != 0", "Terminal log"], ["Insert a duplicate customer id and rerun", "unique test fails with the number of duplicated keys", "Terminal log"]],
+          "objectives": ["Add generic tests to models and sources", "Read test results and failing row counts", "Choose appropriate tests for keys and categorical fields"]
+        },
+        {
+          "topic": "Singular Tests and Test Severity Configuration",
+          "subtopics": ["Singular tests: SQL files in the tests folder", "Writing a test that returns failing rows", "Testing business rules such as total payments equal order amounts", "Severity: error versus warn", "warn_if and error_if thresholds", "limit and fail_calc options", "Naming tests and adding descriptions", "dbt test --select for one test", "--store-failures to save failing rows", "Test ordering and dbt build as combined run and test"],
+          "tools": ["dbt test", "singular tests", "dbt build", "config()", "SQL"],
+          "lab_task": "Create tests/assert_no_negative_payments.sql that selects rows from stg_shop__payments where amount < 0, and tests/assert_order_totals_match.sql comparing orders.amount to the sum of payments. Set severity to warn with warn_if '>5' in one config block, then run dbt test --store-failures and select from the stored failures schema.",
+          "deliverable": "Two singular tests, severity configuration and a stored failures table",
+          "checks": [["Run dbt test --select assert_no_negative_payments on clean data", "PASS with 0 failing rows", "Terminal log"], ["Insert 3 negative payments and rerun with warn_if > 5", "Result is PASS or WARN, not ERROR, and 3 rows are stored with --store-failures", "Terminal log and stored table"], ["Run dbt build --select orders", "Model builds and tests run in dependency order", "Terminal log"]],
+          "objectives": ["Write singular tests for business rules", "Tune severity and thresholds", "Persist and inspect failing rows"]
+        },
+        {
+          "topic": "Documentation: Descriptions, doc Blocks and the Docs Site",
+          "subtopics": ["description fields in model and column YAML", "doc blocks in .md files and the doc() function", "dbt docs generate and catalog.json", "dbt docs serve and the lineage view", "persist_docs for warehouse comments", "meta and tags for classification", "Documenting sources and seeds", "Coverage: finding undocumented columns", "Keeping docs reviewed in pull requests", "Hosting static docs from the target folder"],
+          "tools": ["dbt docs", "doc blocks", "catalog.json", "Markdown", "YAML"],
+          "lab_task": "Add descriptions for every model and column in _models.yml, move the status definitions into docs/order_status.md as a {% docs order_status %} block and reference it with {{ doc('order_status') }}. Run dbt docs generate, then dbt docs serve --port 8080, and confirm the column description and lineage appear.",
+          "deliverable": "Documented project, a docs block file and a screenshot of the generated site",
+          "checks": [["Run dbt docs generate", "target/catalog.json and target/manifest.json are created", "File listing"], ["Open the orders model page in docs", "Status column shows the text from the doc block", "Docs screenshot"], ["Count columns without descriptions in manifest.json with a short script", "Count is 0 for marts", "Script output"]],
+          "objectives": ["Document models and columns with YAML and doc blocks", "Generate and serve the docs site", "Measure documentation coverage"]
+        },
+        {
+          "topic": "Node Selection: --select, --exclude, Tags and Graph Operators",
+          "subtopics": ["Selecting by name, path and fqn", "Graph operators +model, model+, n+model and @model", "Tags in config and tag: selector", "Resource type and test_type selectors", "config.materialized: selector method", "Set operations: union with space, intersection with comma", "--exclude and combining it with --select", "YAML selectors in selectors.yml", "dbt ls as a dry check of a selection", "state:modified selection preview"],
+          "tools": ["dbt ls", "--select", "selectors.yml", "tags", "dbt build"],
+          "lab_task": "Tag staging models with tag daily and marts with tag nightly in dbt_project.yml. Write dbt ls commands that return: all daily models, orders and its parents, marts excluding customers, and the intersection of tag:daily and config.materialized:view. Save them as a named selector in selectors.yml and run dbt build --selector nightly_marts.",
+          "deliverable": "A cheat sheet of five selection commands with output and a selectors.yml file",
+          "checks": [["Run dbt ls --select tag:daily", "Lists exactly the three staging models", "Terminal output"], ["Run dbt ls --select +orders --exclude stg_shop__payments", "Output omits stg_shop__payments but includes other parents", "Terminal output"], ["Run dbt build --selector nightly_marts", "Builds only the mart models and their tests", "Terminal log"]],
+          "objectives": ["Select nodes with names, tags, paths and graph operators", "Combine selectors with set operations", "Preview selections with dbt ls before running"]
+        },
+        {
+          "topic": "Intermediate and Mart Models: Joins, Aggregates and Business Logic",
+          "subtopics": ["Layering: staging, intermediate and marts", "Fact versus dimension models in a small shop", "Pre-aggregating payments by order in an intermediate model", "Left join versus inner join effects on row counts", "Window functions for first and last order", "Grain: one row per what, and testing it", "Denormalised wide marts for BI", "Business logic in SQL versus in the BI tool", "Money handling with cents and decimals", "Reconciling mart totals with raw totals"],
+          "tools": ["dbt run", "SQL", "window functions", "DuckDB", "dbt test"],
+          "lab_task": "Build int_orders__payments_pivoted aggregating payments per order by method, then fct_orders joining it to stg_shop__orders and dim_customers with first_order_date through row_number() or min() over. Add a unique and not_null test on order_id and reconcile sum(amount) against stg_shop__payments with a singular test.",
+          "deliverable": "Intermediate model, fct_orders, dim_customers and a reconciliation test",
+          "checks": [["Query count(*) on fct_orders", "Returns 20, one row per order", "Query output"], ["Run the reconciliation singular test", "PASS: total fct_orders amount equals total payments", "Terminal log"], ["Run dbt test --select fct_orders", "unique and not_null on order_id both PASS", "Terminal log"]],
+          "objectives": ["Structure transformations into layers", "Define and test model grain", "Reconcile marts with source totals"]
+        },
+        {
+          "topic": "Git Workflow and Branching for dbt Projects",
+          "subtopics": ["Feature branches and pull requests for models", "Commit hygiene: small commits and clear messages", ".gitignore for target, logs and dbt_packages", "Reviewing SQL and YAML diffs", "Merge conflicts in YAML property files", "Pre-commit hooks for sqlfluff and yaml checks", "Branch to schema mapping for development", "Tagging releases of a dbt project", "Rolling back a bad model change with git revert", "Pull request template for dbt changes"],
+          "tools": ["Git", "GitHub", "pre-commit", "SQLFluff", "dbt Core"],
+          "lab_task": "Create a GitHub repository for corner_shop, push main, then create a branch feature/add-returns-flag adding an is_returned boolean to fct_orders. Add a .pre-commit-config.yaml running sqlfluff-lint, open a pull request with a template that lists models changed and tests run, and merge after dbt build passes locally.",
+          "deliverable": "GitHub repository, merged pull request and pre-commit configuration",
+          "checks": [["Run pre-commit run --all-files", "sqlfluff-lint passes on all models", "Terminal output"], ["Open the pull request", "Template lists the changed model and the dbt build result", "PR link"], ["Run git log --oneline on main after merge", "Shows the merge or squash commit for the feature", "Terminal output"]],
+          "objectives": ["Use branches and pull requests for dbt changes", "Automate style checks with pre-commit", "Revert a faulty model change safely"]
+        },
+        {
+          "topic": "Reading Logs, Artifacts and Compiled SQL in the target Folder",
+          "subtopics": ["logs/dbt.log versus console output", "--debug and --log-format json", "target/compiled versus target/run", "manifest.json, run_results.json, catalog.json and sources.json", "Timing and status per node in run_results.json", "Using jq to query artifacts", "dbt show --inline and dbt compile --inline", "Log levels and quiet flags", "Query tags and comments in warehouse query history", "Artifact retention in CI"],
+          "tools": ["jq", "run_results.json", "manifest.json", "dbt --debug", "logs"],
+          "lab_task": "Run dbt build --debug, find the first create table statement for fct_orders in logs/dbt.log, then use jq on target/run_results.json to list the five slowest nodes by execution_time and on manifest.json to count models with description set. Save the commands in a script artifacts_report.sh.",
+          "deliverable": "artifacts_report.sh and its output listing the five slowest nodes",
+          "checks": [["Run bash artifacts_report.sh", "Prints five node names with execution_time values in descending order", "Script output"], ["Search logs/dbt.log for create table", "The fct_orders create statement is found with its schema", "Log excerpt"], ["Count models in manifest.json", "Count equals the number returned by dbt ls --resource-type model", "Two outputs compared"]],
+          "objectives": ["Locate and interpret dbt artifacts", "Query artifacts with jq", "Use debug logs to see executed SQL"]
+        },
+        {
+          "topic": "Configuration Layers: dbt_project.yml, Properties YAML and config()",
+          "subtopics": ["Three places to configure: project file, properties YAML, in-file config", "Precedence rules and which wins", "Plus-prefix syntax for dbt_project.yml configs", "Common configs: materialized, schema, alias, tags, enabled", "Custom schemas and generate_schema_name behaviour", "Changing relation names with alias", "Disabling models with enabled false", "Directory-level versus resource-level overrides", "Config inspection with dbt ls --output json", "Avoiding duplicated config across files"],
+          "tools": ["dbt_project.yml", "config()", "generate_schema_name", "dbt ls", "YAML"],
+          "lab_task": "Set +schema: marts for the marts folder, observe the resulting schema name main_marts in DuckDB, then override one model with config(alias='fact_orders') and another with enabled=false. Run dbt ls --output json --select fct_orders and show which config source won for materialized and alias.",
+          "deliverable": "Config precedence table with commands and observed values",
+          "checks": [["Query information_schema.schemata", "A schema named main_marts exists", "Query output"], ["Run dbt ls --select fct_orders --output json", "alias field shows fact_orders", "JSON output"], ["Run dbt ls with a disabled model selected", "The model is absent from the list", "Terminal output"]],
+          "objectives": ["Apply configuration at the right level", "Predict which config wins in a conflict", "Understand custom schema naming"]
+        },
+        {
+          "topic": "Troubleshooting Common dbt Errors",
+          "subtopics": ["Compilation Error versus Database Error versus Runtime Error", "Model depends on a node not found", "Duplicate resource names", "Jinja undefined and syntax problems", "SQL errors surfaced from DuckDB such as Catalog Error and Binder Error", "Test failures versus test errors", "Parse errors in YAML indentation", "dbt debug for connection issues", "Using dbt compile and dbt show to isolate faults", "Reading the stack of error context lines"],
+          "tools": ["dbt compile", "dbt debug", "dbt show", "logs", "DuckDB"],
+          "lab_task": "Inject five faults into a copy of the project: a misspelled ref target, a duplicate model name, a YAML indentation error, a missing column in SQL and an unclosed Jinja tag. For each, run the command, record the exact error class and message, apply the fix, and keep the results in a table of fault, message and fix.",
+          "deliverable": "Five-row troubleshooting table with real error text and fixes",
+          "checks": [["Misspell a ref() target and run dbt compile", "Compilation Error says model depends on a node named that was not found", "Terminal log"], ["Reference a missing column and run dbt run", "Database Error with a DuckDB Binder Error naming the column", "Terminal log"], ["Copy a model file with the same name into another folder", "Compilation Error reports dbt found two models with the name", "Terminal log"]],
+          "objectives": ["Classify dbt errors by type", "Fix typical project errors from the message", "Use compile and show to isolate problems"]
+        },
+        {
+          "topic": "Capstone: Corner Shop Analytics Project on DuckDB",
+          "subtopics": ["Repository from a clean clone with README and requirements", "Seeds or sources, staging models, intermediate and marts", "Tests on keys, categories, relationships and one business rule", "Documentation with doc blocks and a generated docs site", "Selectors, tags and a dbt build run from scratch", "Demo of a failure caught by a test and its fix"],
+          "tools": ["dbt Core", "dbt-duckdb", "DuckDB", "Git", "GitHub", "SQLFluff"],
+          "lab_task": "From a clean clone, run pip install -r requirements.txt, dbt deps if needed and dbt build. The project must contain 3 seeds or sources, 3 staging models, 1 intermediate model, fct_orders and dim_customers, at least 12 tests, documented columns and a selectors.yml. Run dbt docs generate and present one injected data failure and its repair.",
+          "deliverable": "GitHub repository, passing dbt build log, generated docs site and a 10-minute demo",
+          "checks": [["Run dbt build on a clean clone", "PASS count equals models plus seeds plus tests with ERROR=0", "Terminal log"], ["Count tests with dbt ls --resource-type test", "At least 12 tests are listed", "Terminal output"], ["Inject bad data and rerun dbt build", "A named test fails and downstream models are SKIPped", "Terminal log"]],
+          "objectives": ["Deliver a complete dbt project from raw to mart", "Prove data quality with tests and documentation", "Explain design decisions in a demo"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For analytics engineers and data engineers who have built a basic dbt project and now need production patterns. Covers incremental models and the microbatch strategy, snapshots, custom macros, packages such as dbt_utils, custom generic tests, unit tests, data quality strategy, dimensional modelling, Postgres and cloud warehouse differences, environments and variables, hooks and run-operation, dbt platform jobs and environments, Slim CI with defer and state, exposures and Explorer, Python models, first MetricFlow semantic models, run performance, troubleshooting and a CI-backed capstone.",
+      "prerequisites": ["Has built a dbt project with sources, staging models, marts and generic tests, as in the beginner level", "Writes intermediate SQL: window functions, CTEs, MERGE semantics and incremental loading concepts", "Uses Git branches and pull requests and can read a GitHub Actions workflow file"],
+      "outcomes": ["Build incremental, microbatch and snapshot models that stay correct under late data, schema change and full refresh", "Write macros, custom generic tests and unit tests that keep a growing project maintainable", "Run the project on Postgres and in the dbt platform with environments, jobs and Slim CI using state and defer", "Define first semantic models and metrics, and tune run time with threads, timing data and materialization choices"],
+      "days": [
+        {
+          "topic": "Incremental Models: is_incremental(), unique_key and Strategies",
+          "subtopics": ["Why incremental: cost of rebuilding large tables", "is_incremental() and the {{ this }} relation", "Filtering new rows by a watermark column", "unique_key and upsert behaviour", "incremental_strategy: append, merge, delete+insert, insert_overwrite", "Adapter support differences for strategies", "--full-refresh and full_refresh config", "on_schema_change: ignore, fail, append_new_columns, sync_all_columns", "Duplicates caused by a missing unique_key", "Lookback windows for late arriving rows"],
+          "tools": ["dbt Core", "dbt-duckdb", "DuckDB", "SQL", "dbt run"],
+          "lab_task": "In DuckDB generate 100000 events with generate_series into raw.events (event_id, user_id, event_ts, amount). Build fct_events as incremental with unique_key event_id and a where event_ts > (select max(event_ts) from {{ this }}) filter. Run once, insert 500 new and 100 changed rows, run again and compare count(*) and sum(amount) with a full refresh.",
+          "deliverable": "fct_events incremental model and a table of counts across first run, incremental run and full refresh",
+          "checks": [["Run dbt run --select fct_events the first time", "Table has 100000 rows", "Query output"], ["Insert 500 new rows and rerun", "Count is 100500 and no duplicates by event_id", "Query output"], ["Run with --full-refresh and compare sum(amount)", "Sum equals the incremental result, proving equivalence", "Two query outputs"]],
+          "objectives": ["Build incremental models with correct filters and keys", "Choose an incremental strategy for a warehouse", "Prove incremental results equal a full refresh"]
+        },
+        {
+          "topic": "Microbatch Incremental Strategy and Late-Arriving Data",
+          "subtopics": ["Microbatch concept: one query per time batch", "event_time on the model and on upstream inputs", "batch_size: hour, day, month and year", "begin, lookback and the default batch window", "Automatic filtering of upstream refs by event_time", "Retrying failed batches with dbt retry", "Backfilling with --event-time-start and --event-time-end", "Concurrent batches and the concurrent_batches setting", "Limits: no unique_key and no is_incremental() logic", "When microbatch is better than merge"],
+          "tools": ["dbt Core", "microbatch", "event_time", "dbt retry", "DuckDB"],
+          "lab_task": "Convert fct_events to materialized incremental with incremental_strategy microbatch, event_time event_ts, batch_size day and begin 2026-01-01. Set event_time on the upstream stg_events model, run, then backfill one day with dbt run --select fct_events --event-time-start 2026-02-10 --event-time-end 2026-02-11 and read the per-batch log lines.",
+          "deliverable": "Microbatch model, a backfill command and a log excerpt showing the batches processed",
+          "checks": [["Run the first microbatch build over 40 days of data", "Log shows 40 batches, each marked OK", "Terminal log"], ["Run the one-day backfill command", "Exactly one batch is processed for 2026-02-10", "Terminal log"], ["Make one batch fail and run dbt retry", "Only the failed batch is reattempted", "Terminal log"]],
+          "objectives": ["Configure microbatch models with event_time and batch size", "Backfill specific time ranges safely", "Compare microbatch with merge-based strategies"]
+        },
+        {
+          "topic": "Snapshots: Type 2 History with Timestamp and Check Strategies",
+          "subtopics": ["Slowly changing dimension types and when to snapshot", "Snapshot YAML configuration: unique_key, strategy, updated_at", "Timestamp strategy versus check strategy with check_cols", "dbt_valid_from, dbt_valid_to, dbt_scd_id and dbt_updated_at", "dbt snapshot command and run frequency", "Querying current rows with dbt_valid_to is null", "Point-in-time joins from facts to snapshot history", "hard_deletes handling options", "Snapshot source stability and why source tables are used", "Snapshot schema and target configuration"],
+          "tools": ["dbt snapshot", "SCD Type 2", "YAML", "DuckDB", "SQL"],
+          "lab_task": "Define a snapshot customers_history on source raw.customers with strategy check and check_cols [email, tier] and unique_key customer_id. Run dbt snapshot, update 3 customers' tier in raw, run again, then write a query returning each customer's tier at 2026-03-01 using dbt_valid_from and dbt_valid_to.",
+          "deliverable": "Snapshot definition, two snapshot runs and a point-in-time query result",
+          "checks": [["Run dbt snapshot the first time", "Table holds one row per customer with dbt_valid_to null", "Query output"], ["Change 3 tiers and run dbt snapshot", "3 old rows get a dbt_valid_to and 3 new current rows appear", "Query output"], ["Run the point-in-time query for 2026-03-01", "Returns one tier per customer, never two", "Query output"]],
+          "objectives": ["Create snapshots with timestamp or check strategies", "Read and query SCD Type 2 history", "Avoid duplicate history through stable snapshot sources"]
+        },
+        {
+          "topic": "Custom Jinja Macros and Control Flow",
+          "subtopics": ["macro definition, arguments and default values", "Calling macros and passing refs and column names", "Macro files in the macros folder and namespacing", "return() versus rendering SQL fragments", "Loops over run_query results with execute guard", "Jinja dictionaries and list filters", "Reusable macros: cents_to_dollars and date_trunc wrappers", "Documenting macros in YAML with arguments", "Testing macros with dbt compile and dbt run-operation", "Overriding the generate_schema_name macro"],
+          "tools": ["Jinja", "macros", "run_query", "dbt run-operation", "SQL"],
+          "lab_task": "Write macros/cents_to_dollars.sql with an optional precision argument of 2, a macro pivot_methods(column, values) that returns case expressions, and a macro list_tables(schema) using run_query inside if execute. Use all three in models, document them in macros.yml and run dbt run-operation list_tables --args '{schema: main}'.",
+          "deliverable": "Three macros with docs, the model that uses them and run-operation output",
+          "checks": [["Run dbt compile on a model using cents_to_dollars", "Compiled SQL shows round(amount_cents / 100.0, 2)", "Compiled file"], ["Run dbt run-operation list_tables --args {schema: main}", "Prints each table name in the schema", "Terminal output"], ["Call pivot_methods with an empty list", "Compilation Error or empty output is handled by a clear raise message", "Terminal log"]],
+          "objectives": ["Write and call reusable macros", "Use run_query safely with the execute flag", "Document and test macros"]
+        },
+        {
+          "topic": "Packages: dbt_utils and the Package Lifecycle",
+          "subtopics": ["packages.yml with package, version range and git sources", "dbt deps and the package-lock.yml file", "Pinning versions and upgrade strategy", "dbt_utils tests: unique_combination_of_columns, expression_is_true, equal_rowcount", "dbt_utils macros: generate_surrogate_key, star, date_spine, pivot and unpivot", "codegen package: generate_source and generate_model_yaml", "Reading package code in dbt_packages", "Overriding package macros with dispatch search order", "Vars scoped to packages", "Private packages from Git with tokens in env_var()"],
+          "tools": ["packages.yml", "dbt deps", "dbt_utils", "codegen", "Git"],
+          "lab_task": "Add dbt_utils and codegen to packages.yml with a range such as [\">=1.0.0\", \"<2.0.0\"], run dbt deps and commit package-lock.yml. Use generate_surrogate_key for order_line_key, date_spine for a dim_date from 2026-01-01 to 2026-12-31, and run dbt run-operation generate_model_yaml to scaffold properties.",
+          "deliverable": "packages.yml, package-lock.yml, dim_date with 365 rows and a surrogate key model",
+          "checks": [["Run dbt deps", "dbt_packages contains dbt_utils and codegen and package-lock.yml is written", "Terminal output"], ["Query count(*) on dim_date", "Returns 365 rows", "Query output"], ["Run unique test on the surrogate key", "PASS with no duplicate keys", "Terminal log"]],
+          "objectives": ["Install and lock packages", "Use dbt_utils tests and macros", "Scaffold YAML with codegen"]
+        },
+        {
+          "topic": "Custom Generic Tests and Test Macros",
+          "subtopics": ["{% test %} blocks and the model and column_name arguments", "Passing extra arguments in YAML", "Returning failing rows versus counts", "Where to place tests in macros or tests/generic", "Overriding built-in test behaviour with dispatch", "Tests for business patterns: positive values, valid email, no gaps in dates", "Test configs: severity, where, limit", "where config for scoped tests", "Testing the test: crafting passing and failing inputs", "Sharing tests through a package"],
+          "tools": ["Jinja", "generic tests", "dbt test", "YAML", "SQL"],
+          "lab_task": "Create tests/generic/test_is_positive.sql accepting model, column_name and allow_zero (default false), a second test no_gaps_in_dates, and use both in YAML with a where config limiting to the last 30 days. Prove them with a fixture: run dbt test with good data, then insert one negative and one gap and capture both failures.",
+          "deliverable": "Two custom generic tests, YAML usage and passing and failing run logs",
+          "checks": [["Run dbt test on clean data", "Both custom tests PASS", "Terminal log"], ["Insert a negative amount and rerun", "is_positive fails with Got 1 result", "Terminal log"], ["Delete one date from the series and rerun", "no_gaps_in_dates fails and shows the missing date in stored failures", "Query output"]],
+          "objectives": ["Write reusable generic tests", "Pass arguments and scope tests with where", "Verify tests with deliberate failing data"]
+        },
+        {
+          "topic": "Unit Tests for SQL Models with Mocked Inputs",
+          "subtopics": ["unit_tests: block in YAML and which models they support", "given inputs with rows and format: dict, csv or sql", "expect rows and column matching", "Mocking ref() and source() inputs", "Overrides for macros, vars and is_incremental", "Testing incremental logic with this", "Edge cases: nulls, duplicates, boundary dates", "dbt test --select test_type:unit", "Building with --empty and unit tests before data exists", "Unit tests versus data tests and when to run each"],
+          "tools": ["dbt unit tests", "dbt test", "YAML", "--empty", "SQL"],
+          "lab_task": "Write a unit test for fct_orders with given rows for stg_orders and stg_payments covering a refunded order, a null payment and a boundary date, expecting exact output rows. Add a second test for the incremental branch using overrides: macros: is_incremental: true and a this input. Run dbt test --select test_type:unit.",
+          "deliverable": "unit_tests YAML with two tests and a passing run plus a deliberately failing diff",
+          "checks": [["Run dbt test --select test_type:unit", "Both unit tests PASS without touching warehouse data", "Terminal log"], ["Change the expected amount in one row", "Test fails and prints an actual versus expected diff table", "Terminal log"], ["Run the incremental unit test with is_incremental true", "Only rows newer than the this input are returned", "Terminal log"]],
+          "objectives": ["Write unit tests with mocked inputs", "Test incremental branches with overrides", "Separate logic tests from data tests"]
+        },
+        {
+          "topic": "Data Quality Strategy: Store Failures, Thresholds and Coverage",
+          "subtopics": ["Test pyramid: sources, staging keys, marts rules, unit tests", "Severity and thresholds as alerting design", "--store-failures and the dbt_test__audit schema", "Test coverage measurement from manifest.json", "Alert fatigue and meaningful test selection", "Freshness plus volume checks", "Where to run tests: build versus separate test job", "Expectations package: dbt_expectations examples", "Ownership and triage process for failing tests", "Data contracts as the earlier gate"],
+          "tools": ["dbt test", "dbt_expectations", "store_failures", "manifest.json", "SQL"],
+          "lab_task": "Add dbt_expectations tests (expect_column_values_to_be_between, expect_table_row_count_to_be_between) to fct_events, enable store_failures: true for the marts folder, write a Python script that reads manifest.json and prints the percent of models with at least two tests, then raise coverage of marts above 90 percent.",
+          "deliverable": "Quality strategy page, coverage script output and stored failure tables",
+          "checks": [["Run the coverage script before changes", "Prints a baseline percentage below 90 for marts", "Script output"], ["Run it again after adding tests", "Prints 90 or higher for marts", "Script output"], ["Break a range rule and run dbt test", "A failure table appears in the audit schema with the offending rows", "Query output"]],
+          "objectives": ["Design a layered testing approach", "Measure and improve test coverage", "Store and triage failures"]
+        },
+        {
+          "topic": "Dimensional Modeling Patterns in dbt: Facts, Dimensions and Surrogate Keys",
+          "subtopics": ["Star schema grain and conformed dimensions", "Fact types: transaction, periodic snapshot, accumulating", "Surrogate keys with generate_surrogate_key", "Date dimension and role-playing dates", "Handling unknown members and late-arriving dimensions", "Bridge tables for many-to-many", "Type 2 dimensions built from snapshots", "Wide tables versus star schemas for BI", "Foreign key relationships tests", "Fact table incremental loads"],
+          "tools": ["dbt_utils", "SQL", "snapshots", "dbt test", "DuckDB"],
+          "lab_task": "Build dim_customer from the customers snapshot with a surrogate customer_key, dim_date from date_spine, and fct_order_lines with foreign keys to both. Add an unknown member row with key -1 for missing customers, add relationships tests from every foreign key and a grain test with unique_combination_of_columns on order_id and line_number.",
+          "deliverable": "Star schema of three models with tests and an ER diagram",
+          "checks": [["Run relationships tests on fct_order_lines", "All foreign key tests PASS, including the -1 member for orphans", "Terminal log"], ["Run the grain test", "PASS: no duplicate order_id and line_number pair", "Terminal log"], ["Count fct_order_lines rows against source lines", "Counts are equal", "Two query outputs"]],
+          "objectives": ["Model facts and dimensions with explicit grain", "Handle unknown and changing dimension members", "Test foreign keys and grain"]
+        },
+        {
+          "topic": "Warehouse Differences: Running the Project on Postgres and Cloud Warehouses",
+          "subtopics": ["Adapter plugins: dbt-postgres and cloud adapters", "Docker Compose for a local Postgres container", "Profile for Postgres: host, port, user, schema, threads", "Dialect differences: date functions, string aggregation, quoting", "Cross-database macros and adapter.dispatch basics", "Case sensitivity and identifier quoting", "Warehouse-specific configs: indexes on Postgres, cluster_by and partition_by on cloud warehouses", "Transactions and how dbt handles them", "Materialized views on supporting adapters", "Porting checklist for a DuckDB project"],
+          "tools": ["dbt-postgres", "Docker Compose", "PostgreSQL", "profiles.yml", "dbt debug"],
+          "lab_task": "Start Postgres 16 with docker compose, add a postgres output to profiles.yml, run dbt build --target pg, and fix the dialect failures that appear (for example date and string functions). Add an index config on fct_events(event_id) with indexes and run dbt build on both targets, comparing row counts per model.",
+          "deliverable": "Dual-target project, a list of dialect fixes and a per-model row count comparison",
+          "checks": [["Run dbt debug --target pg", "Connection test passes with All checks passed!", "Terminal log"], ["Run dbt build --target pg", "ERROR=0 after dialect fixes", "Terminal log"], ["Compare count(*) per mart across duckdb and pg", "Counts match for every model", "Comparison table"]],
+          "objectives": ["Run a dbt project against two adapters", "Resolve SQL dialect differences", "Use adapter-specific configs responsibly"]
+        },
+        {
+          "topic": "Environments, Targets, vars and env_var Handling",
+          "subtopics": ["Targets in profiles.yml and --target", "target.name, target.schema and target.type in Jinja", "Per-developer schemas with a custom schema macro", "Vars: dbt_project.yml defaults and --vars override", "env_var() with defaults and required variables", "DBT_ENV_SECRET_ prefix to hide values from logs", "Environment-specific behaviour: sampling dev data", "Variables used in sources and freshness", "Dev, CI and prod separation and permissions", "Avoiding environment logic that changes results"],
+          "tools": ["profiles.yml", "env_var", "vars", "target", "dbt run"],
+          "lab_task": "Add dev, ci and prod targets with schemas dbt_{{ env_var('USER') }}, dbt_ci and analytics. Make fct_events use a limit 1000 sample when target.name is dev through a macro. Read a password with env_var('DBT_ENV_SECRET_PG_PASSWORD'), run dbt run --target ci --vars '{start_date: 2026-01-01}' and confirm the secret never appears in logs/dbt.log.",
+          "deliverable": "profiles.yml with three targets, a sampling macro and a log check",
+          "checks": [["Run dbt run --target dev and count fct_events rows", "Returns 1000 rows or fewer", "Query output"], ["Run dbt run --target ci", "Tables are created in schema dbt_ci", "Query output"], ["Search logs/dbt.log for the password value", "No match is found", "grep output"]],
+          "objectives": ["Configure dev, CI and prod targets", "Pass settings with vars and env_var()", "Keep secrets out of logs"]
+        },
+        {
+          "topic": "Hooks, run-operation and on-run-end Automation",
+          "subtopics": ["pre-hook and post-hook on models", "on-run-start and on-run-end project hooks", "Grants after build with post-hook", "dbt run-operation for admin macros", "Audit tables written on-run-end using the results variable", "Hook ordering and failure behaviour", "Using hooks for vacuum, analyze and table comments", "Avoiding side effects that break idempotence", "Grant configs versus hooks", "Logging run metadata with invocation_id"],
+          "tools": ["dbt hooks", "run-operation", "on-run-end", "results", "SQL"],
+          "lab_task": "Create macros/log_run_results.sql that inserts into audit.dbt_runs one row per node from the results variable (node name, status, execution_time, invocation_id) and call it from on-run-end in dbt_project.yml. Add a post-hook grant select to role reporter on marts for Postgres, run dbt build twice and query the audit table.",
+          "deliverable": "on-run-end macro, audit table with two runs and the grant configuration",
+          "checks": [["Run dbt build and query audit.dbt_runs", "One row per executed node exists with status values", "Query output"], ["Run dbt build again", "Second invocation_id appears and rows from run one remain", "Query output"], ["Check privileges on a mart table", "Role reporter has SELECT", "Query output"]],
+          "objectives": ["Automate run-time actions with hooks", "Write audit logging from results", "Run operational macros with run-operation"]
+        },
+        {
+          "topic": "dbt Platform Fundamentals: Studio IDE, Environments and Jobs",
+          "subtopics": ["dbt platform versus dbt Core: what the platform manages", "Projects, connections and repository setup with Git provider", "Studio IDE basics: file tree, lineage, compile and preview", "Development, staging and production environment types", "Environment variables and credentials per environment", "Deploy jobs: commands, schedule and triggers", "Run history, logs and artifacts in the UI", "dbt version selection and release tracks", "Roles and permissions at account and project level", "Cost and seat considerations"],
+          "tools": ["dbt platform", "Studio IDE", "Git", "Jobs", "Environments"],
+          "lab_task": "In a dbt platform trial or developer account create a project connected to your corner_shop repository and a Postgres or cloud warehouse connection. Define a production environment with target schema analytics, create a deploy job running dbt build on a daily schedule, trigger it manually and open the run artifacts and docs.",
+          "deliverable": "dbt platform project, one deploy job and the successful run page with artifacts",
+          "checks": [["Trigger the deploy job", "Run status is Success and shows each step of dbt build", "Run page screenshot"], ["Open the generated docs from the run", "Docs site loads with lineage for the project", "Docs screenshot"], ["Check the job schedule", "Cron shows a daily time in the account time zone", "Job settings screenshot"]],
+          "objectives": ["Set up a dbt platform project and environments", "Create and run deploy jobs", "Compare platform features with local Core use"]
+        },
+        {
+          "topic": "Continuous Integration with Slim CI, defer and state:modified",
+          "subtopics": ["Artifacts as state: manifest.json from the production run", "state:modified, state:modified+ and state:new selectors", "--defer and --state flags", "dbt clone to copy production relations", "CI job in the dbt platform triggered by pull requests", "Temporary CI schemas and cleanup", "GitHub Actions equivalent for dbt Core", "Running unit tests and linting before building", "Cost control: build only changed models and children", "CI failure triage"],
+          "tools": ["dbt Core", "state:modified", "--defer", "GitHub Actions", "dbt clone"],
+          "lab_task": "Run dbt build on main and save target/manifest.json to ./prod-state. On a branch change fct_orders, then run dbt build --select state:modified+ --defer --state ./prod-state --target ci. Add a GitHub Actions workflow that does the same on pull requests and compare build time and model count with a full build.",
+          "deliverable": "CI workflow file, state:modified run log and a full versus Slim comparison table",
+          "checks": [["Run dbt ls --select state:modified --state ./prod-state", "Lists only fct_orders", "Terminal output"], ["Run the Slim CI build", "Builds fct_orders and children only, fewer nodes than the full build", "Terminal log"], ["Open the pull request checks", "The workflow shows a green check with the dbt build step", "PR screenshot"]],
+          "objectives": ["Use state comparison and defer in CI", "Build only what changed", "Implement a pull request check"]
+        },
+        {
+          "topic": "Exposures, Metadata and the dbt Explorer Catalog",
+          "subtopics": ["exposures: type, owner, depends_on and url", "Linking dashboards and apps to models", "meta, tags and group metadata", "Model owners and contacts in YAML", "dbt Explorer: lineage, model performance and health signals", "Column-level lineage where supported", "Documentation versus Explorer in the platform", "Finding unused models using the graph", "Selecting by exposure with --select +exposure:name", "Metadata hygiene in pull requests"],
+          "tools": ["exposures", "dbt Explorer", "meta", "YAML", "dbt ls"],
+          "lab_task": "Add an exposure weekly_sales_dashboard of type dashboard depending on fct_orders and dim_date with an owner name and email, tag marts with meta owner and pii false, then run dbt ls --select +exposure:weekly_sales_dashboard. Open the project in dbt Explorer or dbt docs and trace the lineage to the exposure.",
+          "deliverable": "Exposure YAML, metadata on marts and a lineage screenshot ending at the exposure",
+          "checks": [["Run dbt ls --select +exposure:weekly_sales_dashboard", "Lists fct_orders, dim_date and their parents", "Terminal output"], ["Open the exposure page", "Owner, type and URL display correctly", "Screenshot"], ["Search manifest.json for the exposure", "depends_on.nodes contains both mart models", "JSON excerpt"]],
+          "objectives": ["Declare exposures for downstream consumers", "Maintain ownership metadata", "Use lineage tools to assess impact"]
+        },
+        {
+          "topic": "Python Models: Use Cases, Limits and Patterns",
+          "subtopics": ["def model(dbt, session) signature and return types", "dbt.ref, dbt.source and dbt.config inside Python", "Warehouses that support Python models and their runtimes", "DataFrames: pandas, Snowpark, PySpark and DuckDB relations", "Packages and dependencies config", "Python models in a mixed DAG", "When SQL is better and when Python earns its place", "Testing and documenting Python models", "Incremental Python models and their limits", "Cost and performance considerations"],
+          "tools": ["Python", "pandas", "dbt Python models", "DuckDB", "dbt test"],
+          "lab_task": "Create models/marts/customer_segments.py using dbt-duckdb Python model support: read ref('dim_customer') into a DataFrame, assign segments with pandas qcut into 4 quartiles of lifetime_value, return the frame, then add accepted_values tests and run dbt run --select customer_segments and a SQL downstream model that refs it.",
+          "deliverable": "Python model, its YAML tests and a downstream SQL model",
+          "checks": [["Run dbt run --select customer_segments+", "Python model and downstream SQL model both succeed", "Terminal log"], ["Query segment counts", "Four segments exist with counts that differ by at most 1", "Query output"], ["Return an invalid type from the model", "Run fails with an error about the model return type", "Terminal log"]],
+          "objectives": ["Write a dbt Python model", "Mix Python and SQL models in one DAG", "Judge when Python is appropriate"]
+        },
+        {
+          "topic": "Semantic Layer Foundations: MetricFlow Semantic Models and Metrics",
+          "subtopics": ["Why a semantic layer: one definition of each metric", "semantic_models: model, entities, dimensions and measures", "Entity types: primary, foreign, unique and natural", "Time dimensions and the default time spine", "Simple metrics and the metrics YAML block", "Metric filters and naming", "mf validate-configs and dbt parse validation", "mf query with --metrics and --group-by metric_time__day", "Join paths resolved through entities", "Where MetricFlow runs: local CLI versus dbt platform Semantic Layer"],
+          "tools": ["MetricFlow", "dbt-metricflow", "mf CLI", "semantic_models", "YAML"],
+          "lab_task": "pip install dbt-metricflow, define a semantic model on fct_orders with entities order_id (primary) and customer_id (foreign), a metric_time dimension, a measure revenue, and metrics revenue and order_count. Run mf validate-configs and mf query --metrics revenue --group-by metric_time__month, then compare the result with a direct SQL query.",
+          "deliverable": "Semantic model YAML, two metrics and an mf query result matched against SQL",
+          "checks": [["Run mf validate-configs", "Validation reports no errors", "Terminal output"], ["Run mf query --metrics revenue --group-by metric_time__month", "Monthly values equal a hand-written SQL sum", "Two outputs compared"], ["Query a metric with a nonexistent dimension", "mf returns an error naming the unknown dimension", "Terminal output"]],
+          "objectives": ["Define semantic models, entities and metrics", "Query metrics with MetricFlow", "Validate semantic definitions"]
+        },
+        {
+          "topic": "Run Performance Tuning: Threads, Timing Data and Materialization Choice",
+          "subtopics": ["Reading execution_time per node in run_results.json", "Threads setting and DAG parallelism limits", "Critical path and the slowest chain", "Switching view to table to remove repeated work", "Incremental versus table cost on large models", "Partial parsing and dbt parse timing", "--cache-selected-only and relation cache cost", "Warehouse-side query profile after the dbt model time", "Selecting fewer nodes with selectors for frequent jobs", "Measurement discipline: baseline, change, repeat"],
+          "tools": ["run_results.json", "threads", "dbt parse", "DuckDB", "jq"],
+          "lab_task": "Generate 2 million rows in raw.events. Record a baseline with dbt build --threads 1 and extract per-node time from run_results.json using jq, then rerun with --threads 4 and 8, convert the slowest view to a table, rerun and compare totals. Present a table of settings, total seconds and the change you kept.",
+          "deliverable": "Performance report with baseline, three experiments and a final recommendation",
+          "checks": [["Run dbt build with threads 1 and threads 4", "Total elapsed time of the 4-thread run is lower, with times recorded", "Timing table"], ["Use jq to list the slowest 3 nodes", "Three node names with execution_time are printed in order", "jq output"], ["Convert the slowest view to a table and rerun", "Total build time of dependents falls compared to baseline", "Timing table"]],
+          "objectives": ["Measure dbt run time from artifacts", "Tune threads and materializations", "Apply a repeatable measure-change-repeat method"]
+        },
+        {
+          "topic": "Troubleshooting Incremental, Snapshot and Test Failures",
+          "subtopics": ["Duplicates in an incremental model after changing the key", "Missed late rows and watermark gaps", "Schema drift and on_schema_change failures", "Stuck snapshots and dbt_scd_id collisions", "Full refresh as a diagnosis and its cost", "Test failure triage: find the failing rows with store_failures", "Differences between dev and prod data", "dbt retry and result:error+ selection", "Using compiled SQL against the warehouse directly", "Writing a root cause note"],
+          "tools": ["dbt retry", "store_failures", "compiled SQL", "dbt build", "DuckDB"],
+          "lab_task": "Reproduce three bugs: remove unique_key from fct_events and insert 100 changed rows, add a column to the source with on_schema_change ignore, and corrupt one snapshot check column. For each, show the symptom with a query, fix the configuration, repair data with a targeted full refresh or snapshot fix, and run dbt retry after one failed build.",
+          "deliverable": "Three incident notes with symptom queries, root cause, fix and prevention",
+          "checks": [["Query duplicates by event_id after the bug", "Query shows 100 duplicate keys before the fix", "Query output"], ["Apply the unique_key fix and full refresh", "Duplicate query returns 0 rows", "Query output"], ["Fail a build then run dbt retry", "Only failed and skipped nodes run again", "Terminal log"]],
+          "objectives": ["Diagnose incremental and snapshot defects", "Repair data and configuration safely", "Use dbt retry and result selectors"]
+        },
+        {
+          "topic": "Capstone: Incremental Orders Mart with CI and Semantic Metrics",
+          "subtopics": ["Multi-target project with dev, ci and prod and Postgres or cloud warehouse", "Incremental fct_orders, a snapshot dimension and unit tests", "Packages, custom test and a macro", "Slim CI workflow with state and defer", "Semantic model with two validated metrics", "Performance and quality report"],
+          "tools": ["dbt Core", "dbt platform", "Postgres", "GitHub Actions", "MetricFlow", "dbt_utils"],
+          "lab_task": "Deliver a repository with an incremental fct_orders fed by at least 250000 generated rows, a type 2 dim_customer snapshot, 3 unit tests, 2 custom generic tests, a Slim CI workflow, a semantic model with revenue and order_count metrics, and a performance table. Show a pull request that passes CI and a late-data backfill.",
+          "deliverable": "Repository, CI run, semantic query output and a final performance and quality report",
+          "checks": [["Open a pull request changing fct_orders", "CI builds only modified models and children and passes", "PR checks"], ["Run dbt test --select test_type:unit", "At least 3 unit tests pass", "Terminal log"], ["Run mf query for revenue by month", "Values equal the SQL reconciliation query", "Two outputs compared"]],
+          "objectives": ["Integrate incremental modelling, testing and CI", "Expose governed metrics through MetricFlow", "Document performance and quality decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior analytics engineers, data platform engineers and architects who run dbt at team or company scale. Covers dbt Mesh with groups, access and cross-project refs, model contracts and versions, advanced semantic layer metrics and serving, custom materializations and dispatch, advanced Jinja, the Fusion engine and migration readiness, state-aware orchestration, CI/CD gates, cost and performance engineering, observability from artifacts, security and governance, large-project architecture, legacy migration, testing at scale, platform APIs, incident response and a multi-project capstone.",
+      "prerequisites": ["Operates a dbt project with incremental models, snapshots, packages, unit tests and CI, as in the intermediate level", "Understands warehouse cost, permissions and query profiles on at least one platform such as Snowflake, BigQuery, Databricks, Redshift or Postgres", "Can write GitHub Actions or an equivalent pipeline and read dbt manifest.json and run_results.json"],
+      "outcomes": ["Split a monolithic project into governed, versioned, contract-backed projects connected by cross-project refs", "Define and serve governed metrics with the Semantic Layer and plan adoption of the Fusion engine safely", "Build CI/CD, orchestration, observability and security controls that keep production dbt runs reliable and cost-aware", "Lead migrations, backfills and incident response with evidence from artifacts, tests and warehouse query history"],
+      "days": [
+        {
+          "topic": "dbt Mesh Architecture: Projects, Groups and Access Modifiers",
+          "subtopics": ["Why split a monolith: ownership, build time and blast radius", "Mesh concepts: producer and consumer projects", "group definitions with owner name and email", "access: private, protected and public models", "What access controls enforce at parse time", "Choosing public interfaces and hiding internals", "Domain-aligned project boundaries", "Anti-patterns: too many tiny projects and circular dependencies", "Platform requirements for cross-project features", "Migration steps from one project to several"],
+          "tools": ["dbt Mesh", "groups", "access", "YAML", "dbt parse"],
+          "lab_task": "Take a 60-model monolith and define groups finance and marketing in groups.yml, set access private on staging models, protected on intermediates and public on 4 mart models. Add a marketing model referencing a finance private model, run dbt parse to capture the access error, then correct the design by exposing a public model instead.",
+          "deliverable": "Groups and access configuration, the captured error and a one-page boundary decision record",
+          "checks": [["Run dbt parse with a cross-group ref to a private model", "Parsing fails saying the node is private to group finance", "Terminal log"], ["Reference a public finance model from marketing", "dbt parse succeeds", "Terminal log"], ["Run dbt ls --select access:public", "Lists exactly the 4 public models", "Terminal output"]],
+          "objectives": ["Define groups and access modifiers", "Design public interfaces between domains", "Evaluate when Mesh splits help or hurt"]
+        },
+        {
+          "topic": "Model Contracts and Constraints",
+          "subtopics": ["config contract enforced true and what it validates", "Declaring name and data_type for every column", "Constraints: not_null, unique, primary_key, foreign_key, check", "Which constraints each adapter enforces versus only records", "Contract failures at build time before data is written", "Contracts versus data tests", "Preflight check behaviour and error messages", "Contracts on incremental models and on_schema_change interplay", "Rolling out contracts to public models first", "Breaking versus non-breaking change definitions"],
+          "tools": ["model contracts", "constraints", "YAML", "dbt build", "Postgres"],
+          "lab_task": "Enable contract: enforced: true on public model fct_orders with full column data_type declarations and a primary_key and not_null constraint, run on Postgres, then rename one column in SQL without updating YAML and observe the contract error. Test a violating insert into the table to see which constraints the database enforces.",
+          "deliverable": "Contract YAML, a captured contract failure and a table of constraint enforcement on Postgres",
+          "checks": [["Run dbt build with contract enforced and matching columns", "Model builds and the table has the declared types", "Terminal log and query"], ["Rename a column without updating YAML", "Compilation Error says the model has an enforced contract that failed", "Terminal log"], ["Insert a null into the not_null column directly in Postgres", "Database rejects it with a not-null violation", "psql output"]],
+          "objectives": ["Enforce contracts on public models", "Differentiate enforced and informational constraints", "Classify changes as breaking or non-breaking"]
+        },
+        {
+          "topic": "Model Versions and Deprecation Lifecycle",
+          "subtopics": ["versions: block with v and defined_in", "latest_version and default resolution of ref()", "Pinning consumers with ref('model', v=1)", "Column include and exclude between versions", "deprecation_date and warnings", "Naming: dim_customers_v2 versus aliasing", "Migration plan: dual run, consumer cutover and removal", "Version handling in tests, docs and exposures", "When to version versus add a nullable column", "Communicating the change to consumers"],
+          "tools": ["model versions", "deprecation_date", "ref()", "YAML", "dbt ls"],
+          "lab_task": "Create version 2 of dim_customers that removes the phone column and renames customer_type to segment, keep v1 with deprecation_date 2026-12-31, set latest_version 2 and update one consumer to ref('dim_customers', v=2) while another stays pinned to v=1. Build both and run dbt ls --select dim_customers.",
+          "deliverable": "Versioned model YAML, two consumers and a migration timeline",
+          "checks": [["Run dbt ls --select dim_customers", "Lists dim_customers.v1 and dim_customers.v2", "Terminal output"], ["Build a consumer pinned to v1 after the deprecation date passes in a test run", "A deprecation warning is shown", "Terminal log"], ["Query both versions' columns", "v1 has phone and v2 does not", "Query output"]],
+          "objectives": ["Create and consume versioned models", "Plan deprecation and cutover", "Decide between versions and additive changes"]
+        },
+        {
+          "topic": "Cross-Project ref and dependencies.yml",
+          "subtopics": ["dependencies.yml with project entries versus packages.yml", "Two-argument ref('project', 'model')", "Public models as the only resolvable interface", "Artifact resolution in the dbt platform", "Environment requirements: production run of the upstream project", "Lineage across projects in Explorer", "Development of downstream projects with defer", "Impact of upstream breaking changes on consumers", "Testing a consumer against a new upstream version", "Governance with project owners and change notices"],
+          "tools": ["dependencies.yml", "cross-project ref", "dbt platform", "Explorer", "defer"],
+          "lab_task": "Create a finance_core upstream project with 3 public models and a marketing_analytics downstream project. In marketing_analytics add dependencies.yml with finance_core and a model using ref('finance_core', 'fct_orders'). Run the upstream production job, build downstream in development and view cross-project lineage in Explorer.",
+          "deliverable": "Two projects, dependencies.yml, passing downstream run and cross-project lineage screenshot",
+          "checks": [["Run dbt deps or parse in the downstream project", "dependencies.yml resolves finance_core without errors", "Terminal log"], ["Ref a non-public upstream model", "Error says the model is not public or not found", "Terminal log"], ["Open Explorer lineage for the downstream model", "Upstream finance_core node appears connected", "Screenshot"]],
+          "objectives": ["Connect projects with cross-project refs", "Control which models are consumable", "Test downstream impact of upstream changes"]
+        },
+        {
+          "topic": "Advanced Semantic Layer Metrics: Derived, Ratio, Cumulative and Conversion",
+          "subtopics": ["Metric types: simple, ratio, derived, cumulative, conversion", "Ratio metrics with numerator and denominator filters", "Derived metrics and offset_window", "Cumulative metrics with window and grain_to_date", "Conversion metrics with entity, window and constant properties", "Non-additive dimensions and measure aggregation choices", "Time spine configuration and granularities", "Metric filters on dimensions across joins", "Validating with mf validate-configs and dbt sl validate", "Edge cases: fan-out and double counting"],
+          "tools": ["MetricFlow", "mf CLI", "metrics YAML", "time spine", "SQL"],
+          "lab_task": "Add metrics: average_order_value as ratio of revenue to order_count, revenue_mom as derived with offset_window 1 month, revenue_ytd as cumulative with grain_to_date year, and visit_to_purchase as a conversion metric over 7 days. Query each with mf query and verify three of them against hand-written SQL.",
+          "deliverable": "Four metric definitions and a verification table of mf versus SQL results",
+          "checks": [["Run mf validate-configs", "All four metrics validate with no errors", "Terminal output"], ["Query revenue_ytd for December", "Equals the annual revenue total from SQL", "Two outputs compared"], ["Query average_order_value by month", "Equals revenue divided by order_count in SQL for each month", "Comparison table"]],
+          "objectives": ["Define all major MetricFlow metric types", "Verify metrics against SQL", "Avoid fan-out and double counting"]
+        },
+        {
+          "topic": "Semantic Layer Serving: APIs, Saved Queries and Exports",
+          "subtopics": ["Semantic Layer in the dbt platform: environment, service tokens", "GraphQL and JDBC Arrow Flight SQL interfaces", "Query syntax with semantic_layer.query macro in JDBC", "Saved queries with query_params and exports", "Export configs: table and view destinations", "Caching and its configuration", "Integrations: BI tools and notebooks via the APIs", "Python client sdk usage", "Governance: metric naming and ownership", "Cost control on served queries"],
+          "tools": ["Semantic Layer", "GraphQL", "JDBC", "saved queries", "exports"],
+          "lab_task": "In the dbt platform enable the Semantic Layer for the production environment, create a service token with Semantic Layer access, define saved query weekly_revenue with an export to table, then query the metric through the GraphQL API with curl and through JDBC SQL, and confirm the exported table is refreshed after a job run.",
+          "deliverable": "Saved query and export YAML, API queries and evidence of the refreshed export",
+          "checks": [["Run the GraphQL metrics query with the service token", "Response lists revenue values by month", "curl output"], ["Run the JDBC query from a SQL client", "Same values as the GraphQL result", "SQL client output"], ["Run the production job and query the export table", "Export table contains rows with a fresh updated timestamp", "Query output"]],
+          "objectives": ["Serve metrics to external tools", "Define saved queries and exports", "Control access and cost of served queries"]
+        },
+        {
+          "topic": "Custom Materializations and adapter.dispatch Advanced Macros",
+          "subtopics": ["{% materialization %} blocks and adapter-specific implementations", "Required steps: pre-hooks, build, post-hooks, return relations", "Using adapter.get_relation, drop_relation and run_query", "Dispatching macros with adapter.dispatch and dispatch config in dbt_project.yml", "default__ and adapter-prefixed implementations", "Building a reusable materialization such as insert_overwrite_by_partition", "Package overrides and search order", "Testing custom materializations with fixtures", "Maintenance risk and when not to customise", "Contributing macros back to packages"],
+          "tools": ["materialization", "adapter.dispatch", "Jinja", "macros", "DuckDB"],
+          "lab_task": "Write a materialization named table_with_audit that builds a table, then inserts a row into audit.materialization_log with relation name and row count. Add a macro cents_to_usd with default__ and postgres__ implementations dispatched through adapter.dispatch. Use both on two models and run on DuckDB and Postgres targets.",
+          "deliverable": "Materialization and dispatch macros with run logs on two adapters",
+          "checks": [["Run dbt run --select models using table_with_audit", "audit.materialization_log gains one row per model with correct row counts", "Query output"], ["Run on the postgres target", "Postgres implementation of cents_to_usd is used", "Compiled SQL"], ["Remove the default__ implementation and run", "Compilation Error says no dispatch implementation was found", "Terminal log"]],
+          "objectives": ["Create a custom materialization", "Write cross-adapter macros with dispatch", "Judge the maintenance cost of customisation"]
+        },
+        {
+          "topic": "Advanced Jinja: run_query, graph, context Introspection and Code Generation",
+          "subtopics": ["graph and the nodes dictionary in context", "selected_resources for run-aware logic", "Generating models and YAML from warehouse metadata", "dbt.config.get and model, this and flags objects", "execute phases: parse versus execution", "Macros that audit project rules, such as missing owners", "statement blocks and load_result", "Performance risks of heavy Jinja", "Debugging with log and tojson", "Keeping generated code reviewable"],
+          "tools": ["Jinja", "graph", "selected_resources", "run-operation", "tojson"],
+          "lab_task": "Write a macro assert_project_rules run with dbt run-operation that loops through graph.nodes.values() and raises a compiler error listing public models without a contract, or any model without an owner in meta. Also write a macro that prints selected_resources during dbt build --select tag:nightly and capture both outputs.",
+          "deliverable": "assert_project_rules macro with passing and failing outputs",
+          "checks": [["Run the macro on a compliant project", "Prints a success message and exits 0", "Terminal output"], ["Remove the contract from one public model and rerun", "Exit code is non-zero and the model name is listed", "Terminal output"], ["Run dbt build --select tag:nightly with the selected_resources macro", "Printed resource list equals dbt ls --select tag:nightly", "Two outputs compared"]],
+          "objectives": ["Introspect the project graph in Jinja", "Enforce project rules automatically", "Limit Jinja complexity"]
+        },
+        {
+          "topic": "Fusion Engine: Static Analysis and Migration Readiness",
+          "subtopics": ["What the Fusion engine is and how it differs from dbt Core", "Installation and how it coexists with Core during evaluation", "Adapter and feature support: verify against current docs before committing", "Static analysis settings and what they catch before execution", "Deprecation fixes with the dbt-autofix tool", "Parse speed comparison methodology", "Features and behaviours that differ from Core", "Readiness checklist: packages, macros, Python models", "Rollout plan: CI first, development next, production last", "Rollback plan and version pinning"],
+          "tools": ["Fusion engine", "dbt-autofix", "dbt parse", "dbt compile", "CI"],
+          "lab_task": "Install the Fusion CLI in a separate shell, run dbt-autofix on a copy of the project to list deprecations, then run dbt parse and dbt compile with both Core and Fusion on the same 200-model repo, recording seconds and any errors. Classify each difference as fix now, wait for support or accept, and write a rollout plan.",
+          "deliverable": "Readiness report with timing table, differences classified and a staged rollout plan",
+          "checks": [["Run dbt-autofix on the project copy", "Output lists deprecations or reports none found", "Terminal output"], ["Time dbt parse in Core and Fusion", "Both timings are recorded in the table with the same project state", "Timing table"], ["Compile with Fusion and diff compiled SQL against Core for 10 models", "Differences are listed or reported as identical", "Diff output"]],
+          "objectives": ["Assess readiness for the Fusion engine", "Compare Core and Fusion with evidence", "Plan a staged adoption and rollback"]
+        },
+        {
+          "topic": "State-Aware Orchestration and Job Design in the dbt Platform",
+          "subtopics": ["Job types: deploy, CI and merge jobs", "Selecting commands and steps and on-run order", "Triggers: schedule, API, job completion and Git merge", "State-aware orchestration: rebuilding only when code or upstream data changed", "Freshness configs that control build timing such as build_after", "Fallback behaviour and manual overrides", "Job concurrency and queueing", "Retry from failure and notifications", "Source freshness steps and job dependencies", "Designing job layouts: one monolithic job versus domain jobs"],
+          "tools": ["dbt platform", "deploy jobs", "state-aware orchestration", "source freshness", "retry"],
+          "lab_task": "Design and configure three jobs in a dbt platform project: nightly full build, hourly marts build with source freshness and a merge job on main. Enable state-aware behaviour if your plan supports it, run each job twice without upstream changes and compare nodes built and cost between runs one and two.",
+          "deliverable": "Job design document, three job configurations and a comparison of run one versus run two",
+          "checks": [["Run the hourly job twice with no new data", "The second run reports fewer or zero rebuilt models", "Run summaries"], ["Trigger the merge job from a merge to main", "A run appears with the merge commit SHA", "Run page"], ["Make a job step fail and retry from failure", "Only failed and skipped nodes run on retry", "Run page"]],
+          "objectives": ["Design job layouts for freshness and cost", "Use state-aware features where available", "Operate retries, alerts and triggers"]
+        },
+        {
+          "topic": "CI/CD Deployment Pipelines with GitHub Actions and Quality Gates",
+          "subtopics": ["Pull request pipeline: lint, parse, unit tests and Slim build", "Artifact storage of the production manifest", "Defer to production with state", "Schema cleanup after pull requests closes", "Merge pipeline: build, test and publish docs", "Gates: required checks, contract validation and breaking-change detection", "Secrets with OIDC and short-lived credentials", "Environment promotion approvals", "Blue/green or clone-based deployment using dbt clone", "Pipeline run-time budgets"],
+          "tools": ["GitHub Actions", "dbt clone", "state", "OIDC", "SQLFluff"],
+          "lab_task": "Write .github/workflows/dbt-ci.yml that on pull requests runs sqlfluff lint, dbt parse, dbt build --select state:modified+ --defer --state prod-artifacts, drops the pr_<number> schema on close, and a deploy.yml on main that uploads manifest.json as an artifact and runs dbt clone to refresh a staging schema. Open a failing and a passing pull request.",
+          "deliverable": "Two workflow files and run links for a failing and a passing pull request",
+          "checks": [["Open a pull request that breaks a unit test", "The pipeline fails at the unit test step and blocks merge", "PR checks"], ["Open a corrected pull request", "All required checks are green", "PR checks"], ["Close the pull request", "The pr_<number> schema no longer exists in the warehouse", "Query output"]],
+          "objectives": ["Build gated CI/CD for dbt", "Use state, defer and clone in pipelines", "Handle credentials and cleanup securely"]
+        },
+        {
+          "topic": "Performance Engineering: Warehouse Cost, Clustering and Incremental Tuning",
+          "subtopics": ["Finding expensive models from query history by query tag", "Setting query_tag and comments through dbt", "Warehouse sizing and concurrency", "Partition, cluster and sort configs by adapter", "Choosing incremental strategy by data volume and adapter", "Reducing scans with predicate pushdown and pruning", "Splitting wide models and avoiding fan-out joins", "Materialized views and dynamic tables for freshness trade-offs", "Cost dashboards: dbt artifacts joined to query history", "Setting performance budgets and regression alerts"],
+          "tools": ["query_tag", "query history", "partition_by", "cluster_by", "run_results.json"],
+          "lab_task": "On your warehouse (Snowflake, BigQuery, Databricks or Postgres with pg_stat_statements) tag dbt queries with the model name, rank the 5 most expensive models for a week of runs, tune the top one with clustering or partitioning plus a better incremental strategy, and show before and after bytes scanned or seconds.",
+          "deliverable": "Cost ranking, tuning change and before and after measurements",
+          "checks": [["Run the cost query grouped by model tag", "Returns the top 5 models with scan or time metrics", "Query output"], ["Apply partitioning or clustering and rerun the model", "Bytes scanned or seconds fall versus the baseline", "Before and after table"], ["Run dbt test on the tuned model", "All tests pass and row counts equal the baseline", "Terminal log"]],
+          "objectives": ["Attribute warehouse cost to dbt models", "Tune storage layout and incremental strategy", "Prove improvement without losing correctness"]
+        },
+        {
+          "topic": "Observability: Artifacts, Run Results and Anomaly Detection",
+          "subtopics": ["Uploading artifacts to a warehouse with dbt_artifacts or the platform Discovery API", "Tables of runs, nodes, tests and timings", "Elementary or similar tools for anomaly tests", "Volume, freshness and distribution anomalies", "Alert routing to Slack and ticket tools", "SLOs for data products: freshness and success rate", "Trend dashboards: run time, failures, flaky tests", "Detecting model regressions after a merge", "Retention and cost of metadata", "On-call runbooks tied to alerts"],
+          "tools": ["dbt_artifacts", "Elementary", "run_results.json", "Discovery API", "Slack"],
+          "lab_task": "Install a dbt artifacts package or Elementary, load run_results.json after each dbt build through on-run-end, then build a dashboard query showing daily success rate, p95 model time and top flaky tests. Add a volume anomaly test to fct_orders, inject a 50 percent row drop and verify the alert fires.",
+          "deliverable": "Observability models, dashboard query and an alert from an injected anomaly",
+          "checks": [["Run dbt build three times and query the runs table", "Three invocation rows exist with success status", "Query output"], ["Inject a 50 percent row drop and run the anomaly test", "Test fails and an alert message is delivered", "Alert screenshot"], ["Run the p95 timing query", "Returns a time per model for the last 7 days", "Query output"]],
+          "objectives": ["Store and query dbt run metadata", "Detect anomalies in data volume and freshness", "Define SLOs and alerts for data products"]
+        },
+        {
+          "topic": "Security and Governance: Secrets, Roles, Grants and PII Handling",
+          "subtopics": ["Least-privilege warehouse roles for dev, CI and prod", "Service accounts and key rotation", "Secrets: env_var secret prefix, vaults and OIDC", "Grants configuration in dbt_project.yml", "Row and column masking policies applied after builds", "Tagging PII with meta and generating a data inventory", "Hashing and tokenising PII in staging", "Audit evidence: who changed what and when", "Package supply chain: pinning, hashes and review", "Access controls for the dbt platform: SSO, RBAC and audit logs"],
+          "tools": ["grants", "masking policies", "SSO", "env_var", "vault"],
+          "lab_task": "Define roles transformer, reporter and ci_runner with least privilege, set grants: select: [reporter] on marts in dbt_project.yml, tag PII columns with meta pii true, write a macro that applies a masking policy or hashed view for tagged columns, and write a manifest.json script listing every PII column and whether it is masked.",
+          "deliverable": "Role design, grants config, masking macro and a PII inventory report",
+          "checks": [["Run dbt build and query privileges", "reporter has SELECT on marts and no access to staging", "Query output"], ["Query a PII column as reporter", "Value returns masked or hashed", "Query output"], ["Run the PII inventory script", "Lists each pii true column with masked status and no unmasked entries", "Script output"]],
+          "objectives": ["Apply least privilege to dbt environments", "Protect PII with tagging and masking", "Produce governance evidence"]
+        },
+        {
+          "topic": "Large-Project Architecture: Layering, Naming, Project Evaluator and Refactoring",
+          "subtopics": ["Layer rules: staging, intermediate, marts and their dependency directions", "Naming and folder conventions at scale", "dbt_project_evaluator rules and fixing violations", "Detecting fanout, direct joins to sources and orphaned models", "Splitting models by reuse and grain", "Refactoring safely: parity tests with audit_helper", "Deprecating and deleting unused models", "Technical debt dashboard", "Style guide and enforced standards", "Contributor workflow and code owners"],
+          "tools": ["dbt_project_evaluator", "audit_helper", "CODEOWNERS", "refactoring", "dbt ls"],
+          "lab_task": "Install dbt_project_evaluator, run dbt build --select package:dbt_project_evaluator, and record the number of violations by rule. Fix the top three rule types, such as direct joins to sources, then refactor one 300-line model into three, proving equal output with audit_helper compare_queries and a CODEOWNERS entry.",
+          "deliverable": "Violation report before and after, refactored models and a parity proof",
+          "checks": [["Run the evaluator build before fixes", "A violation count by rule is produced and saved", "Terminal output"], ["Run it after fixing the top three rules", "Violation count for those rules is 0", "Terminal output"], ["Run audit_helper compare_queries on old and new model", "100 percent of rows match", "Query output"]],
+          "objectives": ["Enforce architecture rules automatically", "Refactor large models with parity proof", "Reduce technical debt measurably"]
+        },
+        {
+          "topic": "Legacy Migration: Stored Procedures and Legacy SQL to dbt",
+          "subtopics": ["Inventory of procedures, schedules and dependencies", "Decomposing procedures into staging, intermediate and mart models", "Replacing temp tables with CTEs or ephemeral models", "Replacing MERGE and cursor loops with incremental models", "Parallel run strategy and reconciliation", "Parity checks with audit_helper and row hash comparison", "Cutover plan and rollback", "Handling procedural side effects such as emails and file exports", "Estimation and sequencing by dependency", "Documenting business rules found in code"],
+          "tools": ["audit_helper", "stored procedures", "incremental models", "SQL", "reconciliation"],
+          "lab_task": "Take a 400-line stored procedure that loads fct_sales through 4 temp tables and a cursor, decompose it into staging, 3 intermediate models and an incremental fact, run old and new loads side by side for 7 simulated days, and reconcile with audit_helper compare_all_columns, reporting any mismatch and its cause.",
+          "deliverable": "Decomposition map, new models and a 7-day reconciliation report",
+          "checks": [["Run compare_all_columns on the old and new tables for day 1", "Reports a match percentage and lists mismatched columns", "Query output"], ["Fix the identified mismatch and repeat for 7 days", "Match is 100 percent for all 7 days", "Reconciliation report"], ["Review the cutover plan", "Includes rollback steps and an owner for each step", "Plan document"]],
+          "objectives": ["Decompose legacy SQL into dbt models", "Prove parity with reconciliation", "Plan cutover and rollback"]
+        },
+        {
+          "topic": "Testing Strategy at Scale: Unit Tests, Audit Helper and Data Diffs",
+          "subtopics": ["Test budget: which tests run on every pull request", "Unit tests for complex logic and regression fixtures", "Data diffs on pull requests using sampled or full comparison", "audit_helper compare_relations and primary key matching", "Handling expected differences in diffs", "Test performance and the cost of full-table tests", "Contract plus unit plus data test combination", "Flaky test detection and quarantine", "Tests for macros and packages", "Release criteria based on test results"],
+          "tools": ["audit_helper", "unit tests", "data diff", "dbt test", "CI"],
+          "lab_task": "Add a PR job that builds changed models into a pr_ schema, runs audit_helper compare_relations against production by primary key, posts mismatch counts as a pull request comment, and fails above a 0.1 percent threshold. Create a change that intentionally alters 2 percent of rows and show the job failing.",
+          "deliverable": "CI job with comparison output and a failing example pull request",
+          "checks": [["Open a pull request with no logic change", "Diff job reports 0 mismatching rows and passes", "PR comment"], ["Open a pull request that changes 2 percent of rows", "Job fails above the 0.1 percent threshold", "PR checks"], ["Review the comment on the failing pull request", "It lists mismatch counts per column", "PR comment"]],
+          "objectives": ["Combine test types into a risk-based strategy", "Automate data diffs in review", "Set measurable release gates"]
+        },
+        {
+          "topic": "Platform Integration: Orchestrators, Webhooks, Admin and Discovery APIs",
+          "subtopics": ["Triggering dbt platform jobs from Airflow, Dagster or Prefect", "Admin API v2 job run endpoints and polling", "Discovery API GraphQL: models, runs, tests and lineage queries", "Webhooks for job events and verifying signatures", "Terraform provider for projects, jobs and environments", "Service tokens and scope design", "Event-driven runs after ingestion completes", "Sending dbt results to ticketing and chat tools", "Rate limits and retries", "Idempotent triggers and run deduplication"],
+          "tools": ["Admin API", "Discovery API", "webhooks", "Terraform", "Airflow"],
+          "lab_task": "Write a Python script calling the dbt platform Admin API to trigger a job with cause set, poll until completion, and fail with the run URL on error. Add a webhook receiver that validates the signature header, query the Discovery API for models with failed tests, and manage the job in Terraform.",
+          "deliverable": "Trigger script, webhook receiver, Discovery query and Terraform job definition",
+          "checks": [["Run the trigger script on a good job", "Script prints a run id and exits 0 when status is Success", "Terminal output"], ["Send a webhook with an invalid signature", "Receiver responds 401 and takes no action", "HTTP response"], ["Run the Discovery query after a failed test", "Returns the failing model and test name", "JSON output"]],
+          "objectives": ["Automate dbt platform operations through APIs", "Secure and verify webhooks", "Manage dbt platform resources as code"]
+        },
+        {
+          "topic": "Troubleshooting Production Incidents and Backfills",
+          "subtopics": ["Incident triage: scope, upstream versus model versus warehouse", "Reading run history, artifacts and query logs together", "Rolling back with clone or time travel where available", "Targeted backfills with --full-refresh on selected models", "Microbatch backfills by event time range", "Communicating impact with lineage and exposures", "Source data corrections and reprocessing snapshots carefully", "Post-incident review and preventive tests", "Failure modes: schema drift, late data, permission changes, warehouse limits", "Runbooks and drills"],
+          "tools": ["dbt retry", "dbt clone", "microbatch", "query history", "runbook"],
+          "lab_task": "Run a game day: inject schema drift in a source, a duplicate-producing upstream bug and a missing permission into a staging environment. For each, triage using artifacts and logs, decide the fix, run a targeted backfill with dbt build --select result:error+ or an event-time range, and write a post-incident review within 1 page.",
+          "deliverable": "Three incident timelines with fixes and a post-incident review",
+          "checks": [["Trigger the schema drift fault and run dbt build", "Failure names the changed column and the failing node", "Terminal log"], ["Backfill the affected date range with microbatch flags", "Only batches in that range are rebuilt", "Terminal log"], ["Compare row counts before and after repair", "Counts match the corrected source", "Query output"]],
+          "objectives": ["Triage dbt incidents with evidence", "Run safe targeted backfills", "Write preventive actions from reviews"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Project Mesh with Contracts, Semantic Layer and CI/CD",
+          "subtopics": ["Architecture decision record: domains, groups, access and project boundaries", "Producer project with contracts, versions and unit tests", "Consumer project with cross-project refs and semantic metrics", "CI/CD with state, defer, data diffs and gated deployment", "Observability, security controls and cost report", "Fusion readiness assessment and presentation to platform leadership"],
+          "tools": ["dbt Mesh", "dbt platform", "MetricFlow", "GitHub Actions", "Fusion engine", "audit_helper"],
+          "lab_task": "Split a 100-model project into a producer and a consumer project with at least 5 public contracted models, one versioned model with a deprecation date, cross-project refs, 4 validated metrics, a CI pipeline with data diff gate, artifact observability and a Fusion readiness check. Demonstrate a breaking change blocked in CI.",
+          "deliverable": "Two repositories, CI evidence, metric queries, cost and observability report and a leadership presentation",
+          "checks": [["Make a breaking column change to a public model", "Contract check fails in CI and merge is blocked", "PR checks"], ["Run the consumer build after the upstream release", "Cross-project refs resolve and the consumer build passes", "Run page"], ["Run mf query or the Semantic Layer API for 4 metrics", "All values match SQL reconciliation", "Comparison table"]],
+          "objectives": ["Deliver a governed multi-project dbt platform", "Prove breaking changes are blocked and metrics are consistent", "Present trade-offs and a rollout roadmap"]
+        }
+      ]
+    }
+  }
+}
