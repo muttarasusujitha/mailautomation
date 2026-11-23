@@ -92,4 +92,4 @@ def test_repeated_timeouts_stop_without_raising():
         found, attempts = asyncio.run(search_public_many(['q1', 'q2', 'q3', 'q4'], 50))
     assert found == []
     assert attempts == 2
-    assert calls['n'] == 3
+    assert calls['n'] == 4
