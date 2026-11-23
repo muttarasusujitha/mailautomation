@@ -1809,6 +1809,46 @@ def _quality(score: float) -> str:
     return "exploratory"
 
 
+def _trainer_location(trainer: Dict[str, Any]) -> str:
+    """Read the location consistently from profiles imported by any source."""
+    return _clean(
+        trainer.get("location")
+        or trainer.get("current_location")
+        or trainer.get("city")
+        or trainer.get("base_location")
+    )
+
+
+def _is_same_location(trainer: Dict[str, Any], preferred_location: str) -> bool:
+    preferred = _norm(preferred_location)
+    current = _norm(_trainer_location(trainer))
+    return bool(preferred and current and (preferred in current or current in preferred))
+
+
+def _location_balanced_trainers(
+    scored: List[Dict[str, Any]], preferred_location: str, limit: int = 10,
+) -> List[Dict[str, Any]]:
+    """Prefer five local and five other-location qualified trainers.
+
+    The input remains score-sorted.  If either group contains fewer than five,
+    its unused places are filled by the best remaining qualified trainers so a
+    client can still receive up to ten choices.
+    """
+    if not _clean(preferred_location):
+        return scored[:limit]
+    local = [trainer for trainer in scored if _is_same_location(trainer, preferred_location)]
+    other = [trainer for trainer in scored if not _is_same_location(trainer, preferred_location)]
+    chosen = local[:5] + other[:5]
+    chosen_ids = {_clean(trainer.get("trainer_id")) for trainer in chosen}
+    for trainer in scored:
+        if len(chosen) >= limit:
+            break
+        if _clean(trainer.get("trainer_id")) not in chosen_ids:
+            chosen.append(trainer)
+            chosen_ids.add(_clean(trainer.get("trainer_id")))
+    return chosen
+
+
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     # A pending profile review must remain visible to the administrator; it is
     # not evidence that the trainer is unsuitable for a new requirement.
@@ -1879,8 +1919,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     breakdown["experience"] = round(exp_score, 2)
 
     preferred_location = _clean(requirement.get("preferred_location") or requirement.get("location"))
-    trainer_location = _clean(trainer.get("location"))
-    location_score = 10.0 if preferred_location and _norm(preferred_location) in _norm(trainer_location) else 0.0
+    trainer_location = _trainer_location(trainer)
+    location_score = 10.0 if _is_same_location(trainer, preferred_location) else 0.0
     score += location_score
     breakdown["location"] = round(location_score, 2)
 
@@ -3135,9 +3175,10 @@ async def _sync_shortlist_with_trainers(
         reverse=True,
     )
 
-    # The Shortlist and Shortlist1 pipeline should present only the five
-    # highest ranked matches for a requirement.
-    top_n = 5
+    # Present up to ten qualified trainers. When a client has supplied a
+    # location, the first five are local and the next five are from other
+    # locations, while retaining the normal scoring within each group.
+    top_n = 10
     existing = existing or {}
     old_trainers = existing.get("top_trainers", []) or []
     old_by_id = {
@@ -3145,7 +3186,8 @@ async def _sync_shortlist_with_trainers(
         for trainer in old_trainers
         if trainer.get("trainer_id")
     }
-    top_trainers = scored[:top_n]
+    preferred_location = _clean(requirement.get("preferred_location") or requirement.get("location"))
+    top_trainers = _location_balanced_trainers(scored, preferred_location, top_n)
     # Preserve an already-selected trainer even when the refreshed matching
     # pool no longer contains that profile.  Selection is a workflow state,
     # not something that should be lost during a ranking refresh.
@@ -3192,7 +3234,13 @@ async def _sync_shortlist_with_trainers(
     # refreshed: the shortlist must contain only the current top candidate.
 
     now = datetime.utcnow()
+    local_count = sum(1 for trainer in top_trainers if _is_same_location(trainer, preferred_location))
+    other_count = len(top_trainers) - local_count
     warnings = [] if all_trainers else ["No trainers available in database."]
+    if preferred_location and local_count < 5:
+        warnings.append(f"Only {local_count} qualified trainer(s) are available in {preferred_location}.")
+    if preferred_location and other_count < 5:
+        warnings.append("Fewer than five qualified trainers are available outside the requested location.")
     doc = {
         "shortlist_id": existing.get("shortlist_id") or f"SL-{uuid.uuid4().hex[:8].upper()}",
         "requirement_id": req_id,
@@ -3201,6 +3249,10 @@ async def _sync_shortlist_with_trainers(
         "total_matched": len(scored),
         "total_trainers_scanned": len(all_trainers),
         "total_available": len(available_trainers),
+        "location_strategy": "five_local_five_other" if preferred_location else "top_ten_by_score",
+        "requested_location": preferred_location,
+        "local_trainer_count": local_count,
+        "other_location_trainer_count": other_count,
         "category_filter_applied": False,
         "no_category_match": bool(requirement.get("technology_needed")) and len(scored) == 0,
         "category_match_count": len(scored),
@@ -3231,6 +3283,8 @@ async def _sync_shortlist_with_trainers(
                     "available_trainers": len(available_trainers),
                     "ranked_count": len(scored),
                     "top_count": len(top_trainers),
+                    "local_trainer_count": local_count,
+                    "other_location_trainer_count": other_count,
                 },
                 "at": now.isoformat(),
             }
