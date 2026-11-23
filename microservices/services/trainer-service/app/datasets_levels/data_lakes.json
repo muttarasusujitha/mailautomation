@@ -1,0 +1,573 @@
+{
+  "domain": "Data Lakes",
+  "name": "Data Lakes",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["Data Lake Architecture", "Lakehouse Foundations", "Data Lake Engineering", "Data Lake on S3", "Open Table Formats", "Apache Iceberg Data Lake", "Lakehouse Engineering", "Cloud Data Lake"],
+  "certifications": ["AWS Certified Data Engineer – Associate", "Databricks Certified Data Engineer Associate", "Databricks Certified Data Engineer Professional", "Google Cloud Professional Data Engineer", "Microsoft Certified: Fabric Data Engineer Associate"],
+  "tools": ["Amazon S3", "Apache Parquet", "Apache Iceberg", "Delta Lake", "Apache Hudi", "AWS Glue Data Catalog", "AWS Lake Formation", "Apache Polaris", "Unity Catalog", "Trino", "Amazon Athena", "Apache Spark", "DuckDB", "Apache Kafka"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, developers and junior data engineers who know basic SQL and have used a cloud console or command line but have not built a data lake. Covers object storage mechanics on S3, ADLS Gen2 and GCS, bucket and prefix layout, raw file formats, Parquet internals and compression, Hive-style partitioning, querying files in place with DuckDB and Athena, the Glue Data Catalog, schema drift, medallion zones, Spark batch ingestion and cleaning, small-file compaction, IAM access control, encryption and lifecycle rules, cost awareness, and a clickstream lake capstone.",
+      "prerequisites": ["Writes SQL SELECT, JOIN and GROUP BY queries and basic Python or PySpark", "Uses a terminal and the AWS CLI, or has a MinIO or LocalStack sandbox, with permission to create buckets", "Has an AWS account or equivalent S3-compatible storage, DuckDB and Spark available for labs"],
+      "outcomes": ["Design a bucket, prefix and partition layout for raw, cleansed and curated data", "Build a Bronze, Silver and Gold pipeline in Parquet with PySpark and register it in the Glue Data Catalog", "Query lake data with DuckDB and Athena and explain bytes scanned and cost", "Secure a lake with least-privilege IAM, KMS encryption, versioning and lifecycle rules"],
+      "days": [
+        {
+          "topic": "What a Data Lake Is: Storage, Format and Catalog Layers",
+          "subtopics": ["Data lake, data warehouse and lakehouse compared in one sentence each", "Storage and compute separation and why it lowers cost", "The three layers: object storage, file or table format, catalog", "Query engines that read the same files: Athena, Trino, Spark, DuckDB", "Schema-on-read versus schema-on-write", "Typical lake users: data engineers, analysts, data scientists", "Failure modes: data swamp, small files, no data owner", "Cloud mapping: S3, ADLS Gen2 and Google Cloud Storage"],
+          "tools": ["Amazon S3", "AWS CLI", "MinIO", "DuckDB", "Athena"],
+          "lab_task": "Create a bucket with aws s3 mb s3://<name>-lake-dev (or mc mb local/lake-dev on MinIO). Generate 1,000,000 rows with DuckDB: COPY (SELECT i AS id FROM range(1000000) t(i)) TO 'ids.csv'. Upload it with aws s3 cp, query it in place with read_csv('s3://...'), and label which layer each tool occupied.",
+          "deliverable": "One-page layer map of the lab with the bucket listing, the query output and the tool-to-layer table",
+          "checks": [["Run aws s3 ls s3://<name>-lake-dev --human-readable", "ids.csv is listed with a size of about 6.6 MiB", "Terminal output"], ["Run SELECT count(*) FROM read_csv('s3://<name>-lake-dev/ids.csv') in DuckDB", "Returns 1000000 rows", "Query result screenshot"], ["Ask the learner which layer holds the object, which holds the schema and which runs the query", "Names object storage, catalog or reader-inferred schema, and query engine respectively", "Completed layer map"]],
+          "objectives": ["Distinguish a data lake, a warehouse and a lakehouse by storage, schema and compute behaviour", "Name the storage, format and catalog layers and give one product for each", "Query a file in object storage in place without loading it into a database"]
+        },
+        {
+          "topic": "Object Storage Mechanics on S3, ADLS Gen2 and GCS",
+          "subtopics": ["Buckets, containers and objects as a flat key space", "Prefixes are not folders: what ListObjectsV2 returns", "Strong read-after-write consistency on S3", "Object size limits: 5 GB single PUT, 5 TiB maximum object", "Multipart upload and the 10,000-part limit", "Request-rate guidance of 3,500 writes and 5,500 reads per second per prefix", "ADLS Gen2 hierarchical namespace and atomic rename", "Rename costs: copy plus delete on S3 versus metadata move on ADLS"],
+          "tools": ["Amazon S3", "AWS CLI", "s3api", "MinIO"],
+          "lab_task": "Upload a 200 MB file with aws s3 cp --expected-size and watch it use multipart. Run aws s3api list-objects-v2 --prefix raw/ --delimiter / --max-keys 5, then aws s3api list-multipart-uploads. Then 'rename' raw/a.csv with aws s3 mv and use aws s3api head-object to prove the new key exists and the old returns 404.",
+          "deliverable": "Notes with the three command outputs and a table comparing rename behaviour on S3 and ADLS Gen2",
+          "checks": [["Run aws s3api head-object on the old key after aws s3 mv", "Returns error 404 Not Found", "Terminal output"], ["Run list-objects-v2 with --delimiter / on a prefix holding two subprefixes", "CommonPrefixes lists both prefixes and Contents lists only direct objects", "JSON output"], ["Ask what happens to a 200 MB upload that is interrupted at 60%", "Uploaded parts remain and are billed until aborted; list-multipart-uploads shows the UploadId", "Command output and explanation"]],
+          "objectives": ["Explain why a prefix is not a directory and what that means for rename and listing", "State the key S3 size and request limits that affect lake design", "Compare flat and hierarchical namespaces for lake workloads"]
+        },
+        {
+          "topic": "Bucket and Prefix Layout for a Lake",
+          "subtopics": ["One bucket per zone or one per domain: trade-offs", "Naming convention: <org>-<env>-<region>-<zone>", "Prefix design: domain/dataset/partition/file", "Separating raw, cleansed and curated data by bucket for IAM and lifecycle", "Reserved prefixes: _tmp, _checkpoints, _quarantine", "Avoiding PII and secrets in key names", "Region choice, data residency and cross-region transfer cost", "Documenting the layout in a data dictionary"],
+          "tools": ["Amazon S3", "AWS CLI", "Terraform", "Markdown"],
+          "lab_task": "Create three buckets named acme-dev-eu-west-1-bronze, -silver and -gold with aws s3 mb --region eu-west-1. Put a sample prefix retail/orders/ingest_date=2026-01-01/ in bronze, enable Block Public Access with aws s3api put-public-access-block, and write a LAYOUT.md rule table. Confirm layout with aws s3 ls --recursive.",
+          "deliverable": "LAYOUT.md with naming rules, three created buckets and an example key for each zone",
+          "checks": [["Run aws s3 ls to list buckets", "Exactly three buckets match acme-dev-eu-west-1-*", "Terminal output"], ["Run aws s3api get-public-access-block on the bronze bucket", "All four flags BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets are true", "JSON output"], ["Review a key containing a customer email address", "Rejected by the layout rules because key names must hold no PII", "LAYOUT.md rule and review note"]],
+          "objectives": ["Design a bucket and prefix scheme that supports per-zone IAM and lifecycle rules", "Apply a naming convention that encodes environment, region and zone", "Block public access by default on every lake bucket"]
+        },
+        {
+          "topic": "Landing Raw Files: CSV, JSON Lines and Avro",
+          "subtopics": ["Why bronze keeps source files unchanged", "CSV pitfalls: delimiters, quotes, encodings, header rows", "JSON Lines versus a JSON array and why splittable matters", "Avro: row-oriented, schema embedded in the file", "Compression of raw files: gzip is not splittable, bzip2 and zstd notes", "Ingestion metadata: source system, load timestamp, batch id", "Idempotent landing with date-stamped prefixes", "Checksums and manifest files to prove completeness"],
+          "tools": ["AWS CLI", "DuckDB", "Python", "Amazon S3"],
+          "lab_task": "Generate a 500,000-row orders dataset in DuckDB and export it as orders.csv, orders.jsonl and orders.avro (via fastavro). Upload all three to raw/orders/ingest_date=2026-01-01/ with aws s3 sync, write a MANIFEST.json with each file's size and md5, and verify by comparing aws s3api head-object ETag with the md5 for the single-part CSV.",
+          "deliverable": "Three landed files, MANIFEST.json and a comparison of size per format",
+          "checks": [["Run SELECT count(*) on each of the three files in DuckDB", "Every format returns 500000 rows", "Query outputs"], ["Compare md5sum orders.csv with the S3 ETag of the uploaded object", "Values match for the single-part upload", "Terminal output"], ["Re-run aws s3 sync with no changes", "Zero files transferred, proving idempotent landing", "Sync output"]],
+          "objectives": ["Land the same data in CSV, JSON Lines and Avro and compare size and readability", "Record ingestion metadata so every raw file can be traced", "Verify file completeness with sizes and checksums"]
+        },
+        {
+          "topic": "Columnar Files with Parquet: Row Groups, Pages and Statistics",
+          "subtopics": ["Row layout versus columnar layout and why analytics prefers columns", "File anatomy: PAR1 magic bytes, row groups, column chunks, pages, footer", "Footer metadata: schema, row counts, min and max statistics", "Column pruning and predicate pushdown", "Logical types: DECIMAL, TIMESTAMP, DATE, STRING", "Nested types: STRUCT, LIST, MAP", "Inspecting files with parquet_metadata() and parquet_schema() in DuckDB", "Why row group size affects scan parallelism"],
+          "tools": ["DuckDB", "Apache Parquet", "PyArrow", "parquet-tools"],
+          "lab_task": "Convert orders.csv to Parquet with COPY orders TO 'orders.parquet' (FORMAT parquet, ROW_GROUP_SIZE 100000). Run SELECT row_group_id, num_rows, stats_min, stats_max FROM parquet_metadata('orders.parquet') for order_id, then compare file sizes of CSV and Parquet and the time of SELECT max(amount) on both.",
+          "deliverable": "Table of CSV versus Parquet size and query time with the parquet_metadata output",
+          "checks": [["Run parquet_metadata on a 500000-row file written with ROW_GROUP_SIZE 100000", "Returns 5 distinct row_group_id values with num_rows 100000 each", "Query output"], ["Read the first 4 bytes of orders.parquet with head -c 4", "Prints PAR1", "Terminal output"], ["Compare file size of orders.csv with orders.parquet", "Parquet is smaller by at least 3x", "du -h output"]],
+          "objectives": ["Describe Parquet's physical layout from file header to footer", "Read row group statistics to explain why a query skipped data", "Measure the size and speed gain of columnar storage over CSV"]
+        },
+        {
+          "topic": "Compression and Encoding: Snappy, ZSTD and Dictionary",
+          "subtopics": ["Encoding versus compression: dictionary, RLE, delta, then codec", "Codecs: UNCOMPRESSED, SNAPPY, GZIP, ZSTD, LZ4", "Speed versus ratio trade-offs for hot and cold data", "Spark setting spark.sql.parquet.compression.codec", "ZSTD compression levels", "Dictionary fallback when cardinality is high", "Sorting rows to improve run-length encoding", "Reading compression_codec and encodings from parquet_metadata"],
+          "tools": ["DuckDB", "PySpark", "Apache Parquet", "AWS CLI"],
+          "lab_task": "Write the same 2,000,000-row table four times with DuckDB COPY ... (FORMAT parquet, COMPRESSION snappy | zstd | gzip | uncompressed). Record file size and write time with ls -l and .timer on. Then write it sorted by country and compare sizes. Query parquet_metadata for compression and encodings columns.",
+          "deliverable": "Benchmark table of codec, size, write time and read time, with a recommendation per zone",
+          "checks": [["Write the same data with ZSTD and SNAPPY and compare sizes", "ZSTD file is smaller than the SNAPPY file", "ls -l output"], ["Read the compression column from parquet_metadata for each file", "Shows ZSTD, SNAPPY, GZIP and UNCOMPRESSED respectively", "Query output"], ["Write the table sorted by a low-cardinality column then unsorted", "Sorted file is smaller than the unsorted one", "File size comparison"]],
+          "objectives": ["Choose a Parquet codec by ratio and speed for hot and cold zones", "Show how sorting changes encoding efficiency", "Confirm codec and encodings from file metadata"]
+        },
+        {
+          "topic": "Hive-Style Partitioning and Partition Pruning",
+          "subtopics": ["Directory layout key=value under a table location", "Choosing partition columns: date, region, not user_id", "Cardinality and the many-small-files trap", "Writing partitions with Spark partitionBy and DuckDB PARTITION_BY", "Partition pruning and how to prove it with EXPLAIN", "Reading partitions with hive_partitioning=true", "Partition columns are in the path, not the file", "Partition limits: 100 open writers in Athena CTAS"],
+          "tools": ["DuckDB", "PySpark", "Amazon S3", "Athena"],
+          "lab_task": "Write 3,000,000 events over 30 days to s3://<bucket>/silver/events/ with COPY ... (FORMAT parquet, PARTITION_BY (event_date)). Count prefixes with aws s3 ls. Run SELECT count(*) WHERE event_date = '2026-01-15' with hive_partitioning=true under EXPLAIN ANALYZE and note files read versus total.",
+          "deliverable": "Partitioned dataset, EXPLAIN output and a note on files read with and without the filter",
+          "checks": [["Count event_date= prefixes under silver/events/", "30 prefixes", "aws s3 ls output"], ["Run EXPLAIN ANALYZE with event_date = '2026-01-15'", "Plan reads 1 file or partition instead of 30", "Plan output"], ["Partition the same data by user_id with 100000 distinct values", "Produces about 100000 tiny files, and the notes label it an anti-pattern", "File count and notes"]],
+          "objectives": ["Partition data by a low-cardinality column and verify pruning in a plan", "Explain why high-cardinality partition keys hurt", "Read partitioned data with the partition value restored as a column"]
+        },
+        {
+          "topic": "Querying Lake Files in Place with DuckDB",
+          "subtopics": ["Install and load the httpfs extension", "Creating an S3 secret with CREATE SECRET (TYPE S3)", "read_parquet with globs and hive_partitioning", "Reading CSV with read_csv and sniffing options", "Projection and filter pushdown to remote Parquet", "Local engine versus managed engine: when each fits", "Exporting results with COPY TO", "Safe credential handling: profiles and environment variables, no keys in notebooks"],
+          "tools": ["DuckDB", "Amazon S3", "AWS CLI", "Python"],
+          "lab_task": "In DuckDB run INSTALL httpfs; LOAD httpfs; CREATE SECRET (TYPE S3, PROVIDER credential_chain). Query read_parquet('s3://<bucket>/silver/events/*/*.parquet', hive_partitioning=true) for daily counts, then compare EXPLAIN ANALYZE for SELECT * versus SELECT user_id and note the bytes read.",
+          "deliverable": "SQL script with the daily count query and a note comparing bytes read for two projections",
+          "checks": [["Run daily count grouped by event_date", "Returns 30 rows summing to 3000000", "Query result"], ["Compare SELECT * with SELECT user_id on the same files", "The single-column query reads far less data in EXPLAIN ANALYZE", "Plan output"], ["Search the notebook and shell history for access keys", "No literal AWS keys appear; the credential_chain provider is used", "grep output"]],
+          "objectives": ["Query Parquet in S3 with DuckDB using a credential chain", "Observe projection and filter pushdown in a plan", "Export a query result back to the lake"]
+        },
+        {
+          "topic": "Glue Crawlers and the AWS Glue Data Catalog",
+          "subtopics": ["What a catalog stores: database, table, columns, location, SerDe", "Glue Data Catalog as a Hive metastore replacement", "Creating a crawler with aws glue create-crawler", "Crawler schedules, recrawl policy and schema change policy", "Partition discovery versus MSCK REPAIR TABLE", "Table properties: classification, compressionType, parquet.compression", "Crawler limits: wrong types, merged tables, cost per DPU-hour", "Defining tables with DDL when a crawler is unwanted"],
+          "tools": ["AWS Glue", "AWS CLI", "Athena", "Amazon S3"],
+          "lab_task": "Create database lake_demo with aws glue create-database. Create a crawler with aws glue create-crawler --targets S3Targets=[{Path=s3://<bucket>/silver/events/}] and run aws glue start-crawler. Poll aws glue get-crawler, then run aws glue get-table --name events and list partitions with aws glue get-partitions.",
+          "deliverable": "Glue database, table definition JSON and the partition list",
+          "checks": [["Run aws glue get-partitions --database-name lake_demo --table-name events", "Returns 30 partitions", "CLI output"], ["Inspect the table's Parameters.classification", "Value is parquet", "get-table JSON"], ["Add a new event_date prefix in S3 and re-run the crawler", "Partition count rises to 31", "get-partitions output"]],
+          "objectives": ["Register lake data in the Glue Data Catalog with a crawler", "Read table and partition metadata with the Glue API", "Decide when to use crawlers instead of explicit DDL"]
+        },
+        {
+          "topic": "Athena SQL over S3: Tables, CTAS and Scan Costs",
+          "subtopics": ["Athena engine version 3 is Trino-based", "Setting a workgroup and the query result location", "CREATE EXTERNAL TABLE and partition projection", "Partition projection keys: projection.enabled, projection.<col>.type, range, format", "CTAS to convert CSV to partitioned Parquet", "Billing by data scanned with a 10 MB minimum per query", "Reading Data scanned in the query statistics", "Workgroup per-query data usage control"],
+          "tools": ["Athena", "AWS Glue", "Amazon S3", "AWS CLI"],
+          "lab_task": "In workgroup lake-dev run CREATE TABLE silver_events WITH (format='PARQUET', partitioned_by=ARRAY['event_date'], external_location='s3://<bucket>/silver/ctas/') AS SELECT * FROM raw_events. Then run one query with and one without event_date filter, and read DataScannedInBytes from aws athena get-query-execution.",
+          "deliverable": "CTAS statement and a table comparing bytes scanned for CSV, Parquet and Parquet with filter",
+          "checks": [["Run SELECT count(*) from the raw CSV table, then from the Parquet table", "Parquet scans at least 70% fewer bytes", "get-query-execution output"], ["Add WHERE event_date = DATE '2026-01-15' to a Parquet query", "DataScannedInBytes drops to about one thirtieth of the unfiltered scan", "Query statistics"], ["Set BytesScannedCutoffPerQuery on the workgroup to 10485760 and run a larger scan", "Query is cancelled with a data usage limit error", "Athena error message"]],
+          "objectives": ["Create Athena tables over S3 and convert CSV to partitioned Parquet with CTAS", "Read bytes scanned and relate it to cost", "Cap query cost with workgroup limits"]
+        },
+        {
+          "topic": "Schema-on-Read, Schema Drift and Type Mismatches",
+          "subtopics": ["What schema-on-read means in practice", "Reader-inferred types versus declared types", "Drift: added, renamed, retyped and dropped columns", "Parquet column resolution by name versus by position", "Athena errors HIVE_BAD_DATA and HIVE_PARTITION_SCHEMA_MISMATCH", "Spark mergeSchema and its cost", "Quarantining bad records instead of failing the batch", "Writing a schema contract as JSON or DDL"],
+          "tools": ["PySpark", "Athena", "DuckDB", "Apache Parquet"],
+          "lab_task": "Write day1.parquet with amount as INT and day2.parquet with amount as DOUBLE plus a new column coupon. Read both with spark.read.option('mergeSchema','true').parquet(...) and note the result schema. Then query both in Athena through one table and capture the HIVE_BAD_DATA error. Fix by casting in a Silver step.",
+          "deliverable": "Drift test notes with the error message, the fixed Silver query and a schema contract file",
+          "checks": [["Read the two files with mergeSchema=true", "Schema contains amount as double and coupon as nullable string or null column", "printSchema output"], ["Query the two files in Athena through one table declared amount INT", "Fails with HIVE_BAD_DATA citing the double column", "Athena error text"], ["Run the Silver step that casts amount to DECIMAL(12,2)", "Both days read without error and row counts equal the sum of inputs", "Count query"]],
+          "objectives": ["Recognise the four kinds of schema drift and their effects on readers", "Handle a type mismatch with an explicit cast", "Define a schema contract for a Silver table"]
+        },
+        {
+          "topic": "Medallion Layers: Bronze, Silver and Gold Zones",
+          "subtopics": ["Bronze: append-only, source-faithful, replayable", "Silver: cleaned, deduplicated, conformed, typed", "Gold: business-level aggregates and marts", "Contract for each zone: owner, SLA, retention, access", "Where to add lineage columns like _source_file and _ingested_at", "Why not skip Bronze: reprocessing and audit", "Naming: bronze.orders, silver.orders, gold.daily_revenue", "Anti-patterns: business logic in Bronze, raw reads from Gold"],
+          "tools": ["PySpark", "Amazon S3", "Athena", "AWS Glue"],
+          "lab_task": "Build a three-zone pipeline over the orders dataset in PySpark: write bronze/orders unchanged with _source_file from input_file_name() and _ingested_at from current_timestamp(); write silver/orders cast and deduplicated on order_id; write gold/daily_revenue grouped by order_date. Register all three in Glue and query gold from Athena.",
+          "deliverable": "Three registered tables, the PySpark script and a zone contract table with owner and retention",
+          "checks": [["Compare count(*) of bronze.orders and silver.orders after injecting 1000 duplicate rows", "Bronze has 1000 more rows than Silver", "Count query output"], ["Select _source_file from bronze.orders limit 5", "Every row shows the source S3 path", "Query result"], ["Query gold.daily_revenue in Athena", "Sum of revenue equals the sum of silver amounts", "Reconciliation query"]],
+          "objectives": ["Explain what belongs in each medallion zone and what does not", "Add lineage columns at ingestion", "Reconcile Gold totals back to Silver and Bronze"]
+        },
+        {
+          "topic": "Batch Ingestion with Spark: From Source Files to Bronze",
+          "subtopics": ["SparkSession setup with the S3A connector and hadoop-aws", "Explicit schemas instead of inferSchema", "Read modes: PERMISSIVE, DROPMALFORMED, FAILFAST", "_corrupt_record column and badRecordsPath", "Incremental batches by ingest_date prefix", "Write modes: append, overwrite and dynamic partition overwrite", "spark.sql.sources.partitionOverwriteMode=dynamic", "Re-run safety: why plain append duplicates data"],
+          "tools": ["Apache Spark", "PySpark", "Amazon S3", "hadoop-aws"],
+          "lab_task": "With spark-submit and --packages org.apache.hadoop:hadoop-aws, read raw/orders/ingest_date=2026-01-01/ with an explicit StructType and mode PERMISSIVE, writing to bronze with partitionBy('ingest_date') and partitionOverwriteMode=dynamic. Inject 50 malformed lines, capture them in _corrupt_record, run the job twice, and verify the count is unchanged.",
+          "deliverable": "PySpark ingestion script, run log and a table of good, bad and total counts",
+          "checks": [["Run the job twice for the same ingest_date", "Bronze row count is identical after both runs", "count(*) output"], ["Filter _corrupt_record IS NOT NULL", "Returns exactly 50 rows", "Spark show() output"], ["Switch to FAILFAST with the 50 bad lines present", "Job fails with a malformed record exception", "Driver log"]],
+          "objectives": ["Ingest raw files with an explicit schema and handle malformed records", "Make a batch job safe to re-run", "Use dynamic partition overwrite to replace one day only"]
+        },
+        {
+          "topic": "Cleaning and Deduplicating Data in Silver with PySpark",
+          "subtopics": ["Trimming, casing and null normalisation", "Type casting with to_timestamp and cast to DECIMAL", "Deduplicating with dropDuplicates versus row_number() over a window", "Choosing the survivor: latest _ingested_at wins", "Business-key validation: not null, range and referential checks", "Rejecting rows to a _quarantine prefix with a reason column", "Counting rows in, out and rejected in every run", "Unit-testing transformations with small DataFrames"],
+          "tools": ["PySpark", "pytest", "Amazon S3", "Athena"],
+          "lab_task": "Write silver_orders.py: normalise strings, cast amount to DECIMAL(12,2), keep the latest row per order_id using row_number() over Window.partitionBy('order_id').orderBy(desc('_ingested_at')), send rows with null order_id or amount < 0 to s3://<bucket>/quarantine/orders/ with a reject_reason, and log in, out and rejected counts. Add a pytest for the dedupe rule.",
+          "deliverable": "Silver job, pytest file and run log showing rows in, out and rejected",
+          "checks": [["Input holds 10000 rows, of which 500 are exact duplicate rows and 20 have a null order_id (no overlap)", "Silver has 9480 rows and quarantine has 20", "Run log counts"], ["Run pytest on the dedupe test", "1 passed", "pytest output"], ["Check rows_in = rows_out + rows_rejected + rows_deduped", "Equation holds exactly", "Reconciliation printout"]],
+          "objectives": ["Apply deterministic deduplication with a window function", "Quarantine invalid rows with a reason instead of dropping silently", "Prove row counts reconcile across a transformation"]
+        },
+        {
+          "topic": "Small Files, File Sizing and Manual Compaction",
+          "subtopics": ["Why thousands of tiny files slow every engine", "Per-file open cost and S3 request charges", "Target sizes: 128 MB to 512 MB per Parquet file", "Causes: streaming micro-batches, over-partitioning, many writers", "repartition versus coalesce when writing", "spark.sql.files.maxRecordsPerFile and maxPartitionBytes", "Rewrite compaction with a read-and-rewrite job", "Measuring with aws s3 ls --summarize and Athena $path"],
+          "tools": ["PySpark", "AWS CLI", "Athena", "Amazon S3"],
+          "lab_task": "Write 10,000 rows per 1 MB batch into 2,000 small files under silver/clicks_small/. Measure with aws s3 ls --recursive --summarize, time Athena SELECT count(*), then compact with spark.read.parquet(...).repartition(8).write.parquet(...) and repeat both measurements. Record file counts and runtimes.",
+          "deliverable": "Before and after table of file count, average file size, request count and query time",
+          "checks": [["Run aws s3 ls --recursive --summarize before compaction", "Total Objects is 2000", "CLI summary"], ["Run it again after compaction", "Total Objects is 8 plus any _SUCCESS marker", "CLI summary"], ["Repeat the same Athena count query on both tables", "Compacted table finishes faster with identical count", "Athena run time"]],
+          "objectives": ["Diagnose small-file problems from object counts and sizes", "Compact files to a target size with a rewrite job", "Explain the S3 request cost of tiny files"]
+        },
+        {
+          "topic": "Lake Access Control with IAM and Bucket Policies",
+          "subtopics": ["Identity policies versus resource policies", "Least privilege: s3:GetObject, s3:PutObject, s3:ListBucket on the right ARNs", "Prefix scoping with s3:prefix conditions", "Roles for ingestion, transformation and analysts", "Explicit Deny and policy evaluation order", "Testing with aws iam simulate-principal-policy", "Cross-account access via bucket policy and role assumption", "Why per-user IAM does not scale and where Lake Formation fits"],
+          "tools": ["AWS IAM", "AWS CLI", "Amazon S3", "IAM Policy Simulator"],
+          "lab_task": "Create roles lake-ingest (write bronze only) and lake-analyst (read gold only) with inline policies scoped to bucket ARNs. Run aws iam simulate-principal-policy for s3:PutObject on bronze and s3:GetObject on silver for each role, then assume lake-analyst with aws sts assume-role and attempt aws s3 ls on bronze.",
+          "deliverable": "Two policy JSON files and a simulator results table",
+          "checks": [["Simulate s3:PutObject on the bronze bucket for lake-ingest", "EvalDecision is allowed", "Simulator output"], ["Simulate s3:GetObject on the silver bucket for lake-analyst", "EvalDecision is implicitDeny", "Simulator output"], ["Run aws s3 ls s3://<bronze> as lake-analyst", "Fails with AccessDenied", "Terminal error"]],
+          "objectives": ["Write least-privilege S3 policies scoped by zone", "Verify access with the policy simulator and a real assumed role", "Recognise the limits of IAM-only lake access control"]
+        },
+        {
+          "topic": "Encryption, Versioning and Object Protection on Lake Buckets",
+          "subtopics": ["SSE-S3 versus SSE-KMS and default bucket encryption", "S3 Bucket Keys to reduce KMS request cost", "Bucket versioning and delete markers", "Recovering a deleted object by removing a delete marker", "MFA delete and S3 Object Lock for retention", "Enforcing TLS with an aws:SecureTransport deny", "CloudTrail data events for object-level audit", "Cost of versioned noncurrent objects"],
+          "tools": ["Amazon S3", "AWS KMS", "AWS CLI", "CloudTrail"],
+          "lab_task": "Create a KMS key, set default encryption on the bronze bucket with aws s3api put-bucket-encryption using aws:kms and BucketKeyEnabled true, enable versioning, upload a file, delete it, and recover it by deleting the delete marker with aws s3api delete-object --version-id. Add a bucket policy that denies aws:SecureTransport false.",
+          "deliverable": "Bucket configuration output and a recovery runbook with the exact commands",
+          "checks": [["Run aws s3api head-object on a new upload", "ServerSideEncryption is aws:kms with the key ARN", "head-object JSON"], ["After deleting the object, run aws s3api list-object-versions", "A delete marker is the latest version and the earlier version remains", "JSON output"], ["Request the object over plain HTTP with curl", "Access is denied by the TLS policy", "curl response"]],
+          "objectives": ["Enable default KMS encryption and versioning on lake buckets", "Recover a deleted object from versions", "Enforce encrypted transport with a bucket policy"]
+        },
+        {
+          "topic": "Lifecycle Rules, Storage Classes and Retention",
+          "subtopics": ["S3 storage classes: Standard, Intelligent-Tiering, Standard-IA, Glacier tiers", "Minimum storage durations: 30 days for Standard-IA, 90 for Glacier tiers, 180 for Deep Archive", "128 KB minimum billable size for IA classes", "Lifecycle rules: Transition, Expiration, NoncurrentVersionExpiration", "AbortIncompleteMultipartUpload after 7 days", "Retention per zone: Bronze long, Silver medium, tmp short", "Retrieval time and fee impact on query engines", "Filtering rules by prefix and object size"],
+          "tools": ["Amazon S3", "AWS CLI", "S3 Storage Lens", "Terraform"],
+          "lab_task": "Apply a lifecycle configuration with aws s3api put-bucket-lifecycle-configuration: expire _tmp/ after 3 days, abort incomplete multipart uploads after 7 days, move raw/ to INTELLIGENT_TIERING after 0 days and expire noncurrent versions after 30 days. Read it back with get-bucket-lifecycle-configuration and write a retention table per zone.",
+          "deliverable": "Lifecycle JSON, a read-back output and a retention policy table by zone",
+          "checks": [["Run aws s3api get-bucket-lifecycle-configuration", "Shows four rules with the stated prefixes and day counts", "JSON output"], ["Review a rule that moves 50 KB objects to Standard-IA", "Flagged as a cost error because of the 128 KB billing minimum", "Review note"], ["Check the abort-multipart rule", "AbortIncompleteMultipartUpload DaysAfterInitiation is 7", "JSON field"]],
+          "objectives": ["Write lifecycle rules per zone including multipart cleanup", "State the minimum durations and size rules that make a transition a net cost", "Document retention by zone"]
+        },
+        {
+          "topic": "Lake Cost Awareness: Storage, Requests and Scan Billing",
+          "subtopics": ["Cost drivers: storage GB-month, requests, data transfer, compute, catalog", "Athena pay per TB scanned versus Spark cluster hours", "Request cost of small files and listing", "Cross-region and internet egress charges", "Cost allocation tags and workgroup tags", "AWS Cost Explorer filters by usage type", "Estimating monthly cost from the AWS Pricing Calculator", "Cheap wins: Parquet, partitions, compaction, lifecycle"],
+          "tools": ["AWS Cost Explorer", "AWS Pricing Calculator", "Athena", "S3 Storage Lens"],
+          "lab_task": "Using the current price sheet for your region, build a spreadsheet for a lake with 5 TB Bronze, 2 TB Silver, 200 GB Gold and 400 Athena queries per day scanning 50 GB each. Compute storage, request and Athena cost per month, then recompute after Parquet and partitioning cut scans to 2 GB per query and report the saving in percent.",
+          "deliverable": "Cost model spreadsheet with before and after scenarios and assumptions listed",
+          "checks": [["Compute Athena cost for 400 queries at 50 GB scanned each over 30 days", "Equals 600 TB scanned multiplied by the per-TB price", "Spreadsheet cell"], ["Recompute with 2 GB per query", "Athena scan cost falls to 4% of the original", "Spreadsheet cell"], ["Ask which line items remain unchanged after the optimisation", "Storage GB-month cost stays the same except for compression changes", "Written answer"]],
+          "objectives": ["Break a lake bill into storage, request, scan and transfer costs", "Quantify the saving from columnar formats and partitioning", "Use tags to attribute lake cost to teams"]
+        },
+        {
+          "topic": "Beginner Capstone: Clickstream Lake on S3 with Athena",
+          "subtopics": ["Land raw clickstream JSON Lines in Bronze with a manifest", "Build Silver with explicit schema, dedupe and quarantine", "Build Gold daily aggregates and register tables in Glue", "Secure with encryption, IAM roles and lifecycle rules", "Report scan bytes and monthly cost estimate", "Present the data dictionary and zone contracts"],
+          "tools": ["PySpark", "Athena", "AWS Glue", "Amazon S3", "AWS CLI"],
+          "lab_task": "Generate 5,000,000 clickstream events across 14 days. Land them as JSON Lines in bronze, build Silver Parquet partitioned by event_date with 1,000 injected duplicates and 200 bad rows quarantined, build gold daily_active_users, register in Glue, query in Athena, and apply SSE-KMS, role policies and lifecycle rules. Report bytes scanned per query.",
+          "deliverable": "Working three-zone lake, data dictionary, cost estimate and a 10-minute walkthrough",
+          "checks": [["Compare Bronze, Silver and quarantine row counts", "Bronze 5000000 (including 1000 duplicates and 200 bad rows); Silver 4998800; quarantine 200", "Reconciliation query"], ["Run daily_active_users for one day in Athena", "Scans under 5% of the full Silver size via partition pruning", "Athena statistics"], ["Run an analyst role against bronze", "Denied, while gold read succeeds", "Access test output"]],
+          "objectives": ["Deliver a complete three-zone lake with controls and reconciliation", "Demonstrate partition pruning and low scan cost", "Present design decisions with evidence"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers who can already build file-based lakes and need transactional table formats and governance. Covers Iceberg, Delta Lake and Hudi internals, schema and partition evolution, MERGE and time travel, table maintenance, REST catalogs with Apache Polaris, Unity Catalog, Lake Formation permissions and filters, Kafka streaming, Debezium change data capture, Trino federation, data skipping and clustering, orchestration with Airflow, data quality gates, lineage, and a CDC lakehouse capstone.",
+      "prerequisites": ["Has built Parquet pipelines with Spark or Athena and can read a Glue or Hive catalog entry", "Knows Python or Scala, Docker basics and Kafka concepts such as topics and partitions", "Has completed the beginner level or can partition, compact and secure an S3 lake without help"],
+      "outcomes": ["Create and operate Iceberg and Delta tables with schema evolution, MERGE, time travel and scheduled maintenance", "Run catalogs on Glue, Polaris and Unity Catalog and read the same tables from Spark and Trino", "Apply Lake Formation tags, row filters and column controls and verify them per persona", "Ingest streams and database changes into the lake with checkpoints, reconciliation and quality gates"],
+      "days": [
+        {
+          "topic": "Why Table Formats Exist: Metadata Layers over Parquet",
+          "subtopics": ["Limits of plain Parquet folders: no atomic commit, no safe update, listing cost", "ACID on object storage via a metadata log or tree", "The three open formats: Apache Iceberg, Delta Lake, Apache Hudi", "Snapshot isolation and optimistic concurrency in one paragraph", "Schema and partition evolution as table metadata", "Where the catalog fits relative to the table format", "Engine support matrix for Spark, Trino, Athena, Flink, DuckDB", "Choosing a format: ecosystem, catalog, workload, team skills"],
+          "tools": ["Apache Iceberg", "Delta Lake", "Apache Hudi", "PySpark", "DuckDB"],
+          "lab_task": "Show the failure of a plain Parquet folder: start a Spark job overwriting silver/orders and kill it at 50% with kill -9, then list the folder and count rows. Repeat with an Iceberg table created by CREATE TABLE lake.db.orders USING iceberg and an INSERT OVERWRITE killed the same way. Record row counts before and after.",
+          "deliverable": "Comparison report with the two failure experiments and a format selection matrix",
+          "checks": [["Kill the plain Parquet overwrite midway and run count(*)", "Count differs from the original, because files are partly deleted or partly written", "Spark count output"], ["Kill the Iceberg overwrite midway and run count(*)", "Count equals the original, because no new snapshot was committed", "Spark count output"], ["Ask which component made the Iceberg overwrite atomic", "The single atomic swap of the metadata pointer in the catalog", "Written answer"]],
+          "objectives": ["Explain what plain Parquet folders cannot guarantee", "Show atomic commit behaviour with a failure experiment", "Compare the three open table formats on ecosystem and workload fit"]
+        },
+        {
+          "topic": "Apache Iceberg Tables: Snapshots, Manifests and Metadata Files",
+          "subtopics": ["Metadata tree: catalog pointer, metadata.json, manifest list, manifests, data files", "Reading metadata.json: schemas, partition-specs, snapshots, current-snapshot-id", "Manifest lists and manifest files as Avro", "Format version 2 and row-level deletes", "Table properties: write.format.default, write.target-file-size-bytes", "Querying metadata tables: .snapshots, .history, .files, .manifests", "Spark catalog config: spark.sql.catalog.lake=org.apache.iceberg.spark.SparkCatalog", "Table location and absolute paths in metadata"],
+          "tools": ["Apache Iceberg", "PySpark", "PyIceberg", "Amazon S3", "DuckDB"],
+          "lab_task": "Configure a Spark catalog named lake (type hadoop, warehouse s3a://<bucket>/warehouse), run CREATE TABLE lake.db.orders (...) USING iceberg, INSERT three batches of 1000 rows, then aws s3 ls --recursive the table to see metadata/ and data/. Query lake.db.orders.snapshots and lake.db.orders.files and read the newest metadata.json.",
+          "deliverable": "Annotated listing of the metadata tree and output of the snapshots and files tables",
+          "checks": [["Run SELECT count(*) FROM lake.db.orders.snapshots after three inserts", "Returns 3", "Spark SQL output"], ["Count files in lake.db.orders.files", "Equals the number of Parquet files under data/ in S3", "Query and aws s3 ls output"], ["Open the latest metadata.json", "current-snapshot-id equals the committed_at latest snapshot_id in .snapshots", "JSON excerpt"]],
+          "objectives": ["Trace an Iceberg query from catalog pointer to data file", "Inspect snapshots and files through metadata tables", "Configure a Spark Iceberg catalog on object storage"]
+        },
+        {
+          "topic": "Iceberg Schema and Partition Evolution with Hidden Partitioning",
+          "subtopics": ["ALTER TABLE ADD, DROP, RENAME and ALTER COLUMN TYPE widening", "Column IDs and why renames do not break old files", "Hidden partitioning with transforms: day, month, hour, bucket, truncate", "ALTER TABLE ... ADD PARTITION FIELD and DROP PARTITION FIELD", "Old data keeps its old partition spec until rewritten", "Pruning with ts predicates without a derived partition column", "Evolution rules: safe promotions int to long and float to double", "Reading partition specs from metadata"],
+          "tools": ["Apache Iceberg", "PySpark", "Trino", "PyIceberg"],
+          "lab_task": "Create lake.db.events PARTITIONED BY (days(event_ts)), insert 100,000 rows over 10 days, then ALTER TABLE ADD PARTITION FIELD bucket(8, user_id) and insert 100,000 more. Rename column amount to total, widen int to bigint, and query with WHERE event_ts >= TIMESTAMP '2026-01-05'. Compare lake.db.events.partitions before and after.",
+          "deliverable": "Evolution script, partitions table output and a note on which files kept the old spec",
+          "checks": [["Query the partitions metadata table after adding bucket(8, user_id)", "New rows appear under the new spec while old rows keep days only", "Spark SQL output"], ["Select total after renaming amount to total", "Old and new rows both return values with no rewrite", "Query result"], ["Filter on event_ts without naming a partition column and run EXPLAIN", "Scan shows only matching day partitions", "Plan output"]],
+          "objectives": ["Evolve schema and partition layout without rewriting data", "Use hidden partition transforms to simplify queries", "Explain why Iceberg tracks columns by ID"]
+        },
+        {
+          "topic": "Delta Lake Tables: Transaction Log and Checkpoints",
+          "subtopics": ["_delta_log layout: numbered JSON commits and Parquet checkpoints", "Actions: metaData, protocol, add, remove, commitInfo", "Checkpoint every 10 commits by default", "Spark setup: io.delta.sql.DeltaSparkSessionExtension and DeltaCatalog", "DESCRIBE HISTORY and DESCRIBE DETAIL", "Protocol versions and table features such as deletionVectors", "Managed versus external tables", "Reading a Delta table from Trino, Athena and DuckDB delta_scan"],
+          "tools": ["Delta Lake", "PySpark", "DuckDB", "Trino", "Amazon S3"],
+          "lab_task": "Create a Delta table with df.write.format('delta').save('s3a://<bucket>/delta/orders'), run 12 appends of 1000 rows, then list _delta_log with aws s3 ls. Run DESCRIBE HISTORY and DESCRIBE DETAIL, open 00000000000000000000.json to find the add actions, then read the table in DuckDB with delta_scan() and compare counts.",
+          "deliverable": "Annotated _delta_log listing, DESCRIBE HISTORY output and a cross-engine count comparison",
+          "checks": [["List _delta_log after 12 commits", "Shows 12 JSON commit files and a 00000000000000000010.checkpoint.parquet", "aws s3 ls output"], ["Run DESCRIBE HISTORY and count rows", "12 versions with operation WRITE", "Spark output"], ["Run SELECT count(*) from delta_scan in DuckDB", "Returns 12000, equal to Spark", "DuckDB output"]],
+          "objectives": ["Read the Delta transaction log and identify add and remove actions", "Explain checkpoints and their effect on read speed", "Query one Delta table from two engines"]
+        },
+        {
+          "topic": "Apache Hudi: Copy-on-Write, Merge-on-Read and the Timeline",
+          "subtopics": ["The .hoodie directory and the timeline of instants", "Table types: COPY_ON_WRITE and MERGE_ON_READ", "Record key, ordering (precombine) field and partition path", "Write operations: insert, upsert, bulk_insert, delete", "Base files, log files and compaction", "Query types: snapshot, read-optimized, incremental", "Index types and why upserts need an index", "Where Hudi fits against Iceberg and Delta"],
+          "tools": ["Apache Hudi", "PySpark", "Amazon S3", "Athena"],
+          "lab_task": "Write a Hudi MOR table with hoodie.datasource.write.recordkey.field=order_id, hoodie.datasource.write.precombine.field=updated_at and operation upsert. Upsert 10,000 rows, then upsert 2,000 changed ones. List .hoodie and the partition folders, then query the snapshot and read-optimized views and compare the counts of changed values.",
+          "deliverable": "Notes with the timeline listing and a table of snapshot versus read-optimized results",
+          "checks": [["List .hoodie after the two upserts", "Timeline files show two deltacommit instants", "aws s3 ls output"], ["Query the snapshot view for a changed order_id", "Returns the updated value", "Query output"], ["Query the read-optimized view before compaction", "Still returns the old value, proving it reads only base files", "Query output"]],
+          "objectives": ["Describe Hudi's timeline and table types", "Run upserts with a record key and ordering field", "Explain why snapshot and read-optimized queries differ on MOR"]
+        },
+        {
+          "topic": "Row-Level Changes: MERGE, UPDATE and DELETE on Lake Tables",
+          "subtopics": ["Copy-on-write rewrite versus merge-on-read delete files", "MERGE INTO with WHEN MATCHED and WHEN NOT MATCHED", "Matching on a business key and ordering for latest-wins", "Spark settings write.merge.mode, write.update.mode, write.delete.mode", "Idempotent merges for retried batches", "Cost of a merge: files scanned and rewritten", "Reading rows_updated and rows_deleted from operation metrics", "Cardinality violation errors when the source has duplicate keys"],
+          "tools": ["Apache Iceberg", "Delta Lake", "PySpark", "Trino"],
+          "lab_task": "On lake.db.customers (100,000 rows) run MERGE INTO using a staging table of 5,000 changes: WHEN MATCHED AND s.op='d' THEN DELETE, WHEN MATCHED THEN UPDATE SET *, WHEN NOT MATCHED THEN INSERT *. Then repeat with duplicate keys in staging and capture the cardinality error. Fix with row_number() deduplication and read the snapshot summary.",
+          "deliverable": "Merge script, the error capture and the deduplicated fix with snapshot summary values",
+          "checks": [["Run the merge with 3,000 updates, 1,000 deletes and 1,000 inserts", "Row count is unchanged because 1,000 rows are inserted and 1,000 are deleted", "count(*) before and after"], ["Stage two rows with the same customer_id and merge", "Fails with a cardinality or multiple-match error", "Spark error text"], ["Re-run the identical merge after deduplication", "No further row count change, proving idempotence", "count(*) output"]],
+          "objectives": ["Apply inserts, updates and deletes in one MERGE", "Prevent duplicate-key merge failures", "Read merge effects from snapshot metadata"]
+        },
+        {
+          "topic": "Time Travel, Rollback and Snapshot Retention",
+          "subtopics": ["Querying FOR VERSION AS OF and FOR TIMESTAMP AS OF", "Delta VERSION AS OF and TIMESTAMP AS OF", "Rolling back with CALL system.rollback_to_snapshot", "Delta RESTORE TABLE ... TO VERSION AS OF", "Tags and branches in Iceberg for audits and WAP", "Retention windows and what expiry removes", "Delta delta.logRetentionDuration and delta.deletedFileRetentionDuration", "Write-audit-publish with a staging branch"],
+          "tools": ["Apache Iceberg", "Delta Lake", "PySpark", "Trino"],
+          "lab_task": "On lake.db.orders record the snapshot id, run a bad DELETE FROM lake.db.orders WHERE amount > 0, then query SELECT count(*) FROM lake.db.orders FOR VERSION AS OF <id>. Recover with CALL lake.system.rollback_to_snapshot('db.orders', <id>), create a tag with ALTER TABLE ... CREATE TAG audit_2026q1, and repeat the exercise on a Delta table with RESTORE.",
+          "deliverable": "Recovery runbook with the exact commands and before and after counts",
+          "checks": [["Run count(*) FOR VERSION AS OF the pre-delete snapshot", "Returns the original row count", "Spark output"], ["Run rollback_to_snapshot and count the current table", "Current count equals the original count", "Spark output"], ["Query refs metadata for the audit tag", "audit_2026q1 appears with the snapshot id as type TAG", "lake.db.orders.refs output"]],
+          "objectives": ["Recover from a bad write with time travel and rollback", "Use tags or branches for audit and publish workflows", "State what retention settings limit time travel"]
+        },
+        {
+          "topic": "Table Maintenance: Compaction, Expiry and Orphan Files",
+          "subtopics": ["Iceberg: rewrite_data_files, rewrite_manifests, expire_snapshots, remove_orphan_files", "Athena OPTIMIZE ... REWRITE DATA USING BIN_PACK and VACUUM", "Trino ALTER TABLE ... EXECUTE optimize and expire_snapshots", "Delta OPTIMIZE, VACUUM and the 7-day default retention", "Compaction strategies: binpack, sort, z-order", "Why VACUUM below retention breaks readers and time travel", "Managed maintenance with S3 Tables and Glue table optimizers", "Scheduling and measuring: files before and after"],
+          "tools": ["Apache Iceberg", "Delta Lake", "Athena", "Trino", "PySpark"],
+          "lab_task": "Insert 500 batches of 200 rows into lake.db.clicks to create 500 small files. Run CALL lake.system.rewrite_data_files(table => 'db.clicks', options => map('target-file-size-bytes','134217728')), then expire_snapshots with older_than and retain_last => 2, then remove_orphan_files. Compare the files metadata table and S3 object counts at every step.",
+          "deliverable": "Maintenance runbook with file count, object count and size at each step",
+          "checks": [["Count rows in lake.db.clicks.files before and after rewrite_data_files", "Falls from about 500 to 1 or a few files", "Query output"], ["Run aws s3 ls --recursive --summarize after rewrite but before expiry", "Object count is higher than after expire_snapshots", "CLI summary"], ["Run SELECT count(*) after all maintenance", "Equal to 100000, with no data change", "Query output"]],
+          "objectives": ["Run compaction, snapshot expiry and orphan cleanup in the correct order", "Measure each step by file and object counts", "Schedule maintenance and name managed alternatives"]
+        },
+        {
+          "topic": "Iceberg Catalogs: REST Catalog, Glue and Apache Polaris",
+          "subtopics": ["What a catalog does: name to metadata location, atomic swap", "Catalog types: Hadoop, Hive, JDBC, Glue, REST, Nessie", "The Iceberg REST catalog specification", "Apache Polaris: realms, catalogs, principals, principal roles, catalog roles", "Credential vending with X-Iceberg-Access-Delegation: vended-credentials", "Glue catalog config: catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog", "Why the Hadoop catalog is unsafe on S3 for concurrent writers", "Migrating between catalogs with register_table"],
+          "tools": ["Apache Polaris", "Iceberg REST Catalog", "AWS Glue", "PySpark", "Trino"],
+          "lab_task": "Run a Polaris container, create a catalog lake_cat with storage type S3 or MinIO via the management API, create principal and catalog roles, then point Spark at it with spark.sql.catalog.polaris.type=rest and uri. Create a table, then read it from Trino with iceberg.catalog.type=rest. Finally CALL system.register_table into a Glue catalog.",
+          "deliverable": "Catalog setup notes with the Spark and Trino config files and a register_table result",
+          "checks": [["Create a table from Spark through Polaris then SHOW TABLES from Trino", "The table appears in Trino with the same schema", "Trino output"], ["Connect with a principal that has no catalog role", "Request is rejected with a 403 Forbidden error", "Client error text"], ["Run register_table into the Glue catalog and read it", "Row count in Glue equals the source count", "Query output"]],
+          "objectives": ["Configure Spark and Trino against an Iceberg REST catalog", "Explain roles and credential vending in Polaris", "Move a table between catalogs without copying data"]
+        },
+        {
+          "topic": "Unity Catalog Metastores, External Locations and Credential Vending",
+          "subtopics": ["Three-level namespace: catalog.schema.table", "Metastore, storage credentials and external locations", "Managed versus external tables and volumes", "Open source Unity Catalog server and its REST API", "Iceberg REST endpoint exposed by Unity Catalog", "Credential vending for external engines", "Grants: USE CATALOG, USE SCHEMA, SELECT, MODIFY", "Where Unity Catalog overlaps with Glue and Polaris"],
+          "tools": ["Unity Catalog", "Databricks", "PySpark", "Trino"],
+          "lab_task": "Using Unity Catalog (open source server or a Databricks workspace), create catalog lake_uc, schema sales and an external table over an S3 path with CREATE TABLE ... LOCATION. GRANT USE CATALOG, USE SCHEMA and SELECT to a group, then query as a principal without USE SCHEMA and capture the error. Read the table from an external engine through the Iceberg REST endpoint.",
+          "deliverable": "Catalog object tree, grant statements and the denied and allowed query results",
+          "checks": [["Run SHOW GRANTS ON TABLE lake_uc.sales.orders", "Lists SELECT for the analyst group", "Query output"], ["Query as a user without USE SCHEMA", "Fails with a permission or not-found error that does not leak the table", "Error text"], ["Read the table from an external Spark or Trino client", "Count matches the count seen inside Unity Catalog", "Client output"]],
+          "objectives": ["Create catalogs, schemas and external tables in Unity Catalog", "Grant least-privilege access with the three-level model", "Read governed tables from an external engine"]
+        },
+        {
+          "topic": "Lake Formation: Databases, Tables and LF-Tags",
+          "subtopics": ["Lake Formation versus plain IAM for S3 access", "Registering an S3 location with aws lakeformation register-resource", "Data lake administrators and the IAMAllowedPrincipals default", "Grants with aws lakeformation grant-permissions", "LF-Tags: create-lf-tag, add-lf-tags-to-resource, LF-Tag policies", "Hybrid access mode for gradual migration", "Cross-account sharing via resource links", "Error: Insufficient Lake Formation permission(s)"],
+          "tools": ["AWS Lake Formation", "AWS Glue", "Athena", "AWS CLI", "AWS IAM"],
+          "lab_task": "Register s3://<bucket>/silver with aws lakeformation register-resource, remove IAMAllowedPrincipals from database lake_demo, then grant SELECT on events to role analyst with aws lakeformation grant-permissions. Create LF-Tag domain=sales, attach it to the table and grant by LF-Tag policy. Query via Athena as analyst before and after the grant.",
+          "deliverable": "Permission matrix, grant commands and the before and after Athena results",
+          "checks": [["Query events in Athena as analyst before any grant", "Fails with Insufficient Lake Formation permission(s)", "Athena error"], ["Run aws lakeformation list-permissions for the role after the grant", "Shows SELECT on lake_demo.events", "CLI output"], ["Tag a second table domain=sales", "Analyst can query it without a new table-level grant", "Athena result"]],
+          "objectives": ["Register S3 locations and govern Glue tables with Lake Formation", "Use LF-Tags to scale grants", "Diagnose the common Lake Formation permission errors"]
+        },
+        {
+          "topic": "Row Filters, Column Masking and Data Cells Filters",
+          "subtopics": ["Data cells filters: row filter expression plus column inclusion", "aws lakeformation create-data-cells-filter", "Column-level grants with excluded columns", "Masking patterns: hash, truncate, tokenise in Silver or views", "Dynamic masking on Databricks Unity Catalog row filters and column masks", "Engines that enforce Lake Formation: Athena, Redshift Spectrum, EMR", "Testing as each persona", "Limits: filters do not protect raw S3 objects read directly"],
+          "tools": ["AWS Lake Formation", "Athena", "Unity Catalog", "AWS CLI"],
+          "lab_task": "Create a data cells filter eu_orders on silver.orders with RowFilter region = 'EU' and columns excluding email, grant it to role eu_analyst, then run SELECT count(*), max(length(email)) in Athena as eu_analyst and as a full-access role. Try aws s3 cp of the underlying object as eu_analyst and record the result.",
+          "deliverable": "Filter definition, persona test matrix and an explanation of the direct S3 read result",
+          "checks": [["Run SELECT count(*) as eu_analyst", "Returns only the EU row count, lower than the full count", "Athena output"], ["Select the email column as eu_analyst", "Fails with a column not found or access error", "Athena error"], ["Run aws s3 cp on a silver object as eu_analyst", "Access denied because the location is registered and the role has no direct S3 grant", "CLI error"]],
+          "objectives": ["Restrict rows and columns with data cells filters", "Test access as each persona", "Explain why direct S3 access must be closed for filters to hold"]
+        },
+        {
+          "topic": "Streaming Ingestion: Kafka to Iceberg and Delta",
+          "subtopics": ["Micro-batch with Spark Structured Streaming trigger(processingTime)", "checkpointLocation and exactly-once file sinks", "Iceberg Kafka Connect sink and its commit interval", "Writing Delta with writeStream.format('delta') and toTable", "Small-file generation from frequent commits", "Event time, watermark and late data", "Exactly-once versus at-least-once and idempotent merges", "Backpressure: maxOffsetsPerTrigger"],
+          "tools": ["Apache Kafka", "PySpark", "Apache Iceberg", "Delta Lake", "Amazon S3"],
+          "lab_task": "Start Kafka with a topic clicks of 3 partitions, produce 100,000 JSON events with kafka-producer-perf-test, and write them with spark.readStream.format('kafka') to an Iceberg table using trigger(processingTime='30 seconds') and a checkpointLocation. Stop and restart the stream mid-way, then compare table count and distinct event_id.",
+          "deliverable": "Streaming job, checkpoint listing and the restart reconciliation of count and distinct count",
+          "checks": [["After the stream catches up run count(*) and count(distinct event_id)", "Both equal 100000", "Spark SQL output"], ["Stop the job and restart with the same checkpointLocation", "No duplicates and no gaps, count still 100000", "Count output"], ["Count files in lake.db.clicks.files after 20 micro-batches", "Shows about 20 or more small files, motivating compaction", "Metadata query"]],
+          "objectives": ["Stream Kafka data into a lake table with checkpoints", "Verify exactly-once outcomes after a restart", "Predict and measure small-file growth from micro-batches"]
+        },
+        {
+          "topic": "Change Data Capture into the Lake with Debezium and MERGE",
+          "subtopics": ["Log-based CDC versus query-based polling", "Debezium PostgreSQL connector: plugin.name=pgoutput, topic.prefix", "Event envelope: before, after, op values c, u, d, r, and source LSN", "Landing CDC events in Bronze unchanged", "Latest-per-key with row_number() ordered by LSN", "MERGE into Silver handling deletes", "Initial snapshot, snapshot.mode and backfill handling", "Replication slot lag and disk risk on the source"],
+          "tools": ["Debezium", "Apache Kafka", "PostgreSQL", "PySpark", "Apache Iceberg"],
+          "lab_task": "Run PostgreSQL with wal_level=logical and a Debezium connector for table customers. Insert 1,000 rows, update 300 and delete 100. Land the Kafka events to bronze.customers_cdc, then MERGE the latest row per id into silver.customers, treating op='d' as DELETE. Compare silver with SELECT count(*) FROM customers on the source.",
+          "deliverable": "CDC pipeline script, connector JSON and a source-versus-lake reconciliation",
+          "checks": [["Count rows in the PostgreSQL source and in silver.customers", "Both return 900", "Count outputs"], ["Count distinct op values in bronze", "Shows r, c, u and d", "Query output"], ["Run pg_replication_slots after stopping the connector", "Slot still exists with growing lag, shown by restart_lsn", "psql output"]],
+          "objectives": ["Capture database changes into Bronze with Debezium", "Apply inserts, updates and deletes to Silver with ordered MERGE", "Monitor replication slot health"]
+        },
+        {
+          "topic": "Trino on the Lake: Connectors, Catalogs and Federated Queries",
+          "subtopics": ["Coordinator and workers and the connector model", "Catalog property files in etc/catalog/*.properties", "Iceberg connector: iceberg.catalog.type = rest, glue, hive_metastore", "Hive and Delta connectors for existing lake tables", "Metadata tables with \"orders$snapshots\" and \"orders$files\"", "Federated joins between lake tables and PostgreSQL", "EXPLAIN and EXPLAIN ANALYZE for pushdown and splits", "Fault-tolerant execution with retry-policy=TASK"],
+          "tools": ["Trino", "Apache Iceberg", "PostgreSQL", "AWS Glue", "Docker"],
+          "lab_task": "Run Trino in Docker and add etc/catalog/lake.properties (connector.name=iceberg, iceberg.catalog.type=rest) and pg.properties for PostgreSQL. Join lake.db.orders with pg.public.customers on customer_id, run EXPLAIN ANALYZE, and query \"orders$snapshots\". Capture which filters were pushed to PostgreSQL.",
+          "deliverable": "Catalog files, federated join SQL and an EXPLAIN ANALYZE excerpt with pushdown notes",
+          "checks": [["Run SHOW CATALOGS", "Lists lake and pg alongside system", "Trino CLI output"], ["Run the federated join with WHERE c.country = 'DE'", "Plan shows the country predicate pushed into the PostgreSQL scan", "EXPLAIN output"], ["Query \"orders$snapshots\"", "Returns one row per committed snapshot, matching the Spark metadata table", "Trino output"]],
+          "objectives": ["Configure Trino catalogs for lake and relational sources", "Run and inspect a federated join", "Query Iceberg metadata tables from Trino"]
+        },
+        {
+          "topic": "Query Speed: Data Skipping, Sort Order, Z-Order and Clustering",
+          "subtopics": ["How min and max statistics enable file skipping", "Sort order on write: write.distribution-mode and ALTER TABLE WRITE ORDERED BY", "Iceberg rewrite_data_files with strategy => 'sort'", "Delta OPTIMIZE ... ZORDER BY and liquid clustering", "Bloom filters in Parquet for high-cardinality lookups", "Choosing sort keys from the query log", "Measuring files scanned and bytes read", "Over-clustering and write amplification"],
+          "tools": ["Apache Iceberg", "Delta Lake", "Trino", "Athena", "PySpark"],
+          "lab_task": "Load 50,000,000 rows into lake.db.events in random order, run a lookup on user_id = 4242 and record files scanned in EXPLAIN ANALYZE. Rewrite with CALL lake.system.rewrite_data_files(table=>'db.events', strategy=>'sort', sort_order=>'user_id'), repeat the lookup and compare files scanned and runtime.",
+          "deliverable": "Before and after table of files scanned, bytes read and runtime, with the chosen sort key justified",
+          "checks": [["Run the lookup before sorting", "Scans most or all data files, for example 200 of 200", "EXPLAIN ANALYZE output"], ["Run the lookup after the sort rewrite", "Scans 1 to 3 data files", "EXPLAIN ANALYZE output"], ["Compare count(*) before and after the rewrite", "Identical at 50000000", "Count output"]],
+          "objectives": ["Reduce scanned files by sorting on the filter column", "Read file statistics to prove skipping", "Weigh clustering benefits against rewrite cost"]
+        },
+        {
+          "topic": "Orchestrating Lake Pipelines: Dependencies, Backfills and Retries",
+          "subtopics": ["DAG design: ingest, validate, transform, publish", "Airflow operators: GlueJobOperator, AthenaOperator, SparkSubmitOperator", "Idempotent tasks keyed by logical date", "airflow dags backfill and catchup behaviour", "Retries, retry_delay and sensors for late files", "Partition-level overwrite for reruns", "SLAs, alerts and failure callbacks", "Data-aware scheduling with Airflow Assets"],
+          "tools": ["Apache Airflow", "AWS Glue", "Athena", "PySpark", "Amazon S3"],
+          "lab_task": "Write an Airflow DAG with tasks ingest_bronze, build_silver and publish_gold keyed on {{ ds }}, each overwriting only its date partition. Run airflow dags test lake_daily 2026-01-10, then airflow dags backfill -s 2026-01-01 -e 2026-01-07, then rerun one day and confirm identical counts.",
+          "deliverable": "DAG file, task logs and a backfill reconciliation table by date",
+          "checks": [["Run airflow dags backfill for 7 days", "7 DAG runs end in success", "airflow dags list-runs output"], ["Rerun 2026-01-03 a second time", "Row count for that day is unchanged", "Count query"], ["Force ingest_bronze to fail once with retries=2", "Task succeeds on a retry and the log shows attempt 2", "Task log"]],
+          "objectives": ["Build an idempotent partition-keyed pipeline", "Backfill a date range safely", "Configure retries and alerts for lake tasks"]
+        },
+        {
+          "topic": "Data Quality Gates: Contracts, Glue Data Quality and Deequ",
+          "subtopics": ["Quality dimensions: completeness, uniqueness, validity, freshness, volume", "Glue Data Quality rules in DQDL: IsComplete, IsUnique, ColumnValues, RowCount", "aws glue create-data-quality-ruleset and start-data-quality-ruleset-evaluation-run", "Deequ and Great Expectations alternatives", "Blocking publish on failed critical rules", "Anomaly rules and baselines", "Writing results to a quality table", "Data contracts: schema, semantics, SLA, owner"],
+          "tools": ["AWS Glue", "Great Expectations", "Deequ", "PySpark", "Athena"],
+          "lab_task": "Create a Glue Data Quality ruleset on silver.orders: IsComplete \"order_id\", IsUnique \"order_id\", ColumnValues \"amount\" >= 0, RowCount > 1000. Evaluate with aws glue start-data-quality-ruleset-evaluation-run on clean data, then after injecting 5 duplicate ids and 3 negative amounts. Make the DAG stop before publish on failure.",
+          "deliverable": "Ruleset, two evaluation results and the gate configuration",
+          "checks": [["Evaluate the clean table", "All 4 rules pass", "Evaluation result JSON"], ["Evaluate after injecting 5 duplicate ids and 3 negative amounts", "IsUnique and ColumnValues rules fail while IsComplete and RowCount pass", "Evaluation result JSON"], ["Run the pipeline with the bad data", "Publish task is skipped or failed and gold is unchanged", "Orchestrator run view"]],
+          "objectives": ["Write executable quality rules for a Silver table", "Gate publication on rule results", "Record results for trend analysis"]
+        },
+        {
+          "topic": "Lineage and Metadata: OpenLineage, Tags and Documentation",
+          "subtopics": ["Technical, business and operational metadata", "Table and column lineage and why it matters for impact analysis", "OpenLineage: jobs, runs, datasets and facets", "Spark listener io.openlineage.spark.agent.OpenLineageSparkListener", "Marquez as a lineage backend", "Catalog tags and glossary terms for owners and classification", "Comments on tables and columns", "Freshness and usage metadata from query logs"],
+          "tools": ["OpenLineage", "Marquez", "PySpark", "AWS Glue", "Unity Catalog"],
+          "lab_task": "Start Marquez with Docker Compose. Run a Spark job with spark.extraListeners=io.openlineage.spark.agent.OpenLineageSparkListener and spark.openlineage.transport.type=http pointing to Marquez. Run bronze to silver to gold, open the lineage graph on port 3000, and add owner and sensitivity tags to the gold table in the catalog.",
+          "deliverable": "Screenshot of the lineage graph, the Spark config and a tag and ownership table",
+          "checks": [["Open the gold dataset in Marquez", "Graph shows silver and bronze upstream datasets", "Lineage screenshot"], ["Query the Marquez API at /api/v1/namespaces", "Returns the lake namespace with the Spark jobs", "curl output"], ["Review the gold table in the catalog", "Owner and sensitivity tags are present", "Catalog view"]],
+          "objectives": ["Capture automatic lineage from Spark jobs", "Use lineage for impact analysis", "Attach owner and classification metadata in the catalog"]
+        },
+        {
+          "topic": "Intermediate Capstone: CDC Lakehouse with Iceberg and Trino",
+          "subtopics": ["Stream PostgreSQL changes into Bronze with Debezium and Kafka", "Merge into Iceberg Silver with idempotent deletes", "Gold aggregates queried from Trino and Athena", "Governance with catalog roles and a masked column", "Scheduled maintenance and quality gates", "Runbook with recovery and cost notes"],
+          "tools": ["Debezium", "Apache Iceberg", "Trino", "Apache Airflow", "Apache Polaris"],
+          "lab_task": "Build the pipeline: PostgreSQL to Debezium to Kafka to Spark merge into Iceberg Silver registered in Polaris, with gold revenue_by_day, a quality gate, daily rewrite_data_files and expire_snapshots, and Trino reading all tables. Apply 10,000 inserts, 3,000 updates and 1,000 deletes and prove source and Silver match.",
+          "deliverable": "Running pipeline, reconciliation report, runbook and a demonstration of one rollback",
+          "checks": [["Compare source and Silver counts and a column checksum", "Counts and sum(amount) are equal", "Reconciliation query"], ["Run an analyst principal without access to email", "Email column is denied or masked while revenue is readable", "Trino output"], ["Roll back Silver to the pre-update snapshot", "Counts and sums return to the earlier values", "Rollback output"]],
+          "objectives": ["Deliver an end-to-end CDC lakehouse with governance and maintenance", "Prove correctness with reconciliation", "Demonstrate recovery from a bad change"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers and platform architects who run production lakes. Covers multi-account topology, table format interoperability, Iceberg delete files and deletion vectors, merge-on-read compaction economics, Flink exactly-once writes, concurrency control, Spark, Trino and Athena tuning, metadata scaling, network and KMS hardening, classification with Macie, right-to-erasure operations, replication and disaster recovery, FinOps, data products, point-in-time ML datasets, unstructured data, Hive migration, production troubleshooting, and a governed multi-engine platform capstone.",
+      "prerequisites": ["Operates Iceberg or Delta tables in production and has tuned Spark or Trino jobs", "Understands IAM, KMS, VPC endpoints and cross-account access on AWS or an equivalent cloud", "Has completed the intermediate level or has run CDC and streaming ingestion into lake tables"],
+      "outcomes": ["Architect a governed multi-account, multi-engine lakehouse with documented trade-offs", "Tune write, read and metadata performance using measured evidence from query plans and snapshot metadata", "Operate erasure, replication, disaster recovery and FinOps controls with tested runbooks", "Troubleshoot failed commits, stale metadata, throttling and permission faults in production"],
+      "days": [
+        {
+          "topic": "Multi-Account Lake Topology: Hub, Spokes and Shared Catalogs",
+          "subtopics": ["Account roles: producer, consumer, central governance, shared services", "Central catalog with cross-account Lake Formation sharing", "Resource links and RAM shares", "Network and region boundaries", "Environment promotion: dev, test, prod buckets and catalogs", "Ownership model: domain teams own data, platform owns the rails", "Service control policies as guardrails", "Reference diagram and decision record"],
+          "tools": ["AWS Lake Formation", "AWS Glue", "AWS RAM", "AWS Organizations", "Terraform"],
+          "lab_task": "Using two accounts, share database sales from the producer account to the consumer with aws lakeformation grant-permissions --principal DataLakePrincipalIdentifier=<account-id> and permissions SELECT with grant option. In the consumer create a resource link with aws glue create-database --database-input TargetDatabase, then query it in Athena and record the errors you hit.",
+          "deliverable": "Topology diagram, the share commands and a decision record on central versus federated catalogs",
+          "checks": [["Query the resource-linked database in the consumer account", "Returns producer rows through Athena", "Athena result"], ["Revoke the share in the producer and re-run the query", "Fails with an access error in the consumer", "Athena error"], ["Review the diagram for production and development buckets", "Shows separate buckets, catalogs and roles per environment", "Diagram"]],
+          "objectives": ["Design a multi-account lake with central governance", "Share tables across accounts without copying data", "Record architecture decisions with trade-offs"]
+        },
+        {
+          "topic": "Table Format Interoperability: UniForm, Apache XTable and Metadata Translation",
+          "subtopics": ["Why one copy of data must serve several engines", "Delta UniForm: Iceberg metadata generated from Delta commits", "Apache XTable: translating metadata between Iceberg, Delta and Hudi", "Metadata-only conversion and its lag", "Feature gaps: deletion vectors, row tracking, partition transforms", "Reading one dataset from Trino, Athena and Spark in different formats", "Catalog entries per format", "Deciding between conversion, dual write and choosing one format"],
+          "tools": ["Apache XTable", "Delta Lake", "Apache Iceberg", "Trino", "PySpark"],
+          "lab_task": "Write a Delta table with delta.universalFormat.enabledFormats='iceberg', or run Apache XTable with a dataset config converting Delta to Iceberg. Read the same files as Delta in Spark and Iceberg in Trino, append 10,000 rows in Delta, and measure how long until the Iceberg view shows them. List which table features break conversion.",
+          "deliverable": "Interoperability test report with latency measured and a feature gap list",
+          "checks": [["Append 10,000 rows in Delta and query Iceberg", "Iceberg count equals the Delta count after the sync completes", "Count in both engines"], ["Run ls on the table directory", "Both _delta_log and metadata/ exist next to one set of Parquet files", "Directory listing"], ["Enable a feature unsupported by the target format and run conversion", "Conversion fails or the feature is dropped, as recorded", "Tool log"]],
+          "objectives": ["Expose one dataset to multiple engines through metadata translation", "Measure translation lag", "List table features that block interoperability"]
+        },
+        {
+          "topic": "Iceberg Delete Files, Deletion Vectors and Puffin Statistics",
+          "subtopics": ["Position deletes and equality deletes in format version 2", "Read cost of accumulating delete files", "Format version 3 deletion vectors stored in Puffin files", "Delta deletion vectors and Hudi log files compared", "Puffin files for statistics such as NDV sketches", "rewrite_position_delete_files and compaction that applies deletes", "Reading delete_files from the metadata tables", "Engine support checks before upgrading format version"],
+          "tools": ["Apache Iceberg", "PySpark", "Trino", "DuckDB"],
+          "lab_task": "Create lake.db.t with 'format-version'='2' and write.delete.mode='merge-on-read'. Insert 5,000,000 rows, delete 1% across many files, and query lake.db.t.delete_files. Time a full scan, then CALL rewrite_data_files with 'delete-file-threshold'='1', rescan and compare. Record which engines you tested reading the deletes.",
+          "deliverable": "Table of delete file count, scan time before and after rewrite, and engine compatibility",
+          "checks": [["Query lake.db.t.delete_files after the delete", "Returns one or more rows with content of position deletes", "Metadata output"], ["Rewrite data files with delete-file-threshold 1", "delete_files returns 0 rows for the rewritten files", "Metadata output"], ["Run count(*) before and after rewrite", "Both return 4950000", "Count output"]],
+          "objectives": ["Explain how deletes are represented and applied at read time", "Measure the read penalty of delete files", "Remove delete files with targeted compaction"]
+        },
+        {
+          "topic": "Merge-on-Read Tuning and Compaction Strategy at Scale",
+          "subtopics": ["Copy-on-write versus merge-on-read by workload: read heavy versus update heavy", "Hudi compaction scheduling and inline versus async", "Iceberg and Delta rewrite sizing by partition", "Bin-pack versus sort compaction cost", "Concurrent compaction and writer conflicts", "Compaction cadence from file-count and delete-ratio triggers", "Cost model: rewritten bytes per day", "Managed table optimisers on Glue and S3 Tables"],
+          "tools": ["Apache Iceberg", "Apache Hudi", "Delta Lake", "AWS Glue", "PySpark"],
+          "lab_task": "Simulate 1,000,000 updates per hour against a 500 GB table in copy-on-write and merge-on-read modes using a scaled sample of 5 GB. Record bytes written per batch from the snapshot summary (added-files-size, removed-files-size) and read time after 20 batches. Then run compaction and calculate a cadence that keeps reads under a stated target.",
+          "deliverable": "Write amplification table, read latency curve and a compaction cadence recommendation",
+          "checks": [["Read added-files-size and removed-files-size per batch in both modes", "Copy-on-write rewrites several times more bytes per batch than merge-on-read", "Snapshot summary values"], ["Run the same read after 20 batches before compaction", "Merge-on-read read is slower than copy-on-write", "Timing table"], ["Run compaction on the merge-on-read table", "Read time returns to within 10% of copy-on-write", "Timing table"]],
+          "objectives": ["Choose copy-on-write or merge-on-read from workload numbers", "Quantify write amplification", "Set a compaction cadence from measured read decay"]
+        },
+        {
+          "topic": "Exactly-Once Streaming Writes with Flink and Iceberg",
+          "subtopics": ["Flink checkpoints and two-phase commit to Iceberg", "Commit on checkpoint: interval equals data latency", "Upsert mode: write.upsert.enabled with equality fields", "Equality deletes and the read cost they bring", "Checkpoint storage on S3 and state backends", "Recovering from savepoints", "Handling late data and watermarks", "Monitoring checkpoint duration and commit lag"],
+          "tools": ["Apache Flink", "Apache Iceberg", "Apache Kafka", "Amazon S3"],
+          "lab_task": "Run a Flink SQL job reading a Kafka topic of keyed upserts and writing to an Iceberg table with 'write.upsert.enabled'='true' and a primary key, with execution.checkpointing.interval = 60s. Produce 1,000,000 events over 10,000 keys, kill a TaskManager mid-run, let the job recover, then compare table count with distinct keys and with the latest value per key.",
+          "deliverable": "Flink job definition, recovery log and reconciliation results",
+          "checks": [["After recovery run count(*) and count(distinct id)", "Both return 10000", "Query output"], ["Compare the latest value per key between Kafka and the table", "Zero mismatches", "Diff query"], ["Check the Flink UI checkpoint history around the failure", "A failed or restored checkpoint is shown, then later checkpoints complete", "Flink UI screenshot"]],
+          "objectives": ["Configure Flink to write Iceberg with exactly-once semantics", "Recover from a worker failure without duplicates", "Relate checkpoint interval to freshness and file counts"]
+        },
+        {
+          "topic": "Concurrency Control: Optimistic Commits and Conflict Resolution",
+          "subtopics": ["Optimistic concurrency and the atomic swap", "Isolation levels: serializable versus snapshot in Iceberg merges", "Delta exceptions: ConcurrentAppendException and ConcurrentDeleteReadException", "Iceberg CommitFailedException and commit.retry.num-retries", "Hudi multi-writer with lock providers", "Partition-disjoint writers as a design pattern", "Compaction versus writer collisions", "Catalog-level locking and Glue conflict behaviour"],
+          "tools": ["Apache Iceberg", "Delta Lake", "PySpark", "Apache Hudi"],
+          "lab_task": "Start two Spark jobs that both run MERGE INTO lake.db.accounts on overlapping rows, with write.merge.isolation-level set to serializable. Capture the commit failure, then tune commit.retry.num-retries and partition the jobs by region so they do not overlap. Repeat on a Delta table and record ConcurrentAppendException.",
+          "deliverable": "Conflict matrix of format, scenario, outcome and the mitigation applied",
+          "checks": [["Run both overlapping merges at once", "One job fails with a commit conflict error", "Driver log"], ["Run the jobs on disjoint region partitions", "Both succeed and the final count equals the sum of changes", "Job logs"], ["Repeat on Delta with overlapping files", "Raises ConcurrentAppendException or a related concurrency exception", "Driver log"]],
+          "objectives": ["Predict which concurrent writes will conflict", "Resolve conflicts through retry and partition-disjoint design", "Compare conflict behaviour across formats"]
+        },
+        {
+          "topic": "Spark Performance Tuning for Lake Workloads: AQE, Shuffle and Skew",
+          "subtopics": ["Reading the Spark UI: stages, tasks, shuffle read and spill", "spark.sql.shuffle.partitions default 200 and adaptive coalescing", "Adaptive Query Execution: coalesce, skew join, broadcast switch", "spark.sql.files.maxPartitionBytes and file split sizing", "Broadcast threshold spark.sql.autoBroadcastJoinThreshold", "Salting a skewed join key", "S3A tuning: fs.s3a.connection.maximum, fast upload, committers", "Executor memory and off-heap settings"],
+          "tools": ["Apache Spark", "Spark UI", "PySpark", "Amazon S3"],
+          "lab_task": "Join a 200 GB-scale facts table (scaled to 20 GB locally or on a small cluster) with a skewed key where 40% of rows share one customer_id. Run with spark.sql.adaptive.enabled=false and record the longest task time in the Spark UI. Enable AQE with skewJoin.enabled=true and compare stage time, max task time and shuffle spill.",
+          "deliverable": "Tuning report with Spark UI screenshots, settings changed and before and after metrics",
+          "checks": [["Check max task duration against median in the slow stage with AQE off", "Max is at least 10x the median", "Spark UI stage page"], ["Enable AQE skew join handling and rerun", "Skewed partition is split and max task time drops", "Spark UI stage page"], ["Compare output row counts of both runs", "Identical", "Count output"]],
+          "objectives": ["Diagnose skew and spill from the Spark UI", "Apply AQE and join settings with measured effect", "Tune file split size and S3A for lake reads"]
+        },
+        {
+          "topic": "Trino and Athena Query Engineering at Scale",
+          "subtopics": ["Statistics and cost-based optimisation: ANALYZE for Iceberg tables", "Join distribution: broadcast versus partitioned", "Memory settings: query.max-memory and spill", "Resource groups in Trino and workgroups in Athena", "Athena provisioned capacity measured in DPUs", "Result reuse and query result caching", "Reading EXPLAIN ANALYZE operators and skew", "Error: Query exhausted resources at this scale factor"],
+          "tools": ["Trino", "Athena", "Apache Iceberg", "AWS CLI"],
+          "lab_task": "In Trino run ANALYZE lake.db.orders then EXPLAIN a join of 500,000,000 fact rows with a 2,000,000 row dimension and compare the join distribution with and without statistics. Create two Athena workgroups with different BytesScannedCutoffPerQuery and tags, run the same workload on both, and compare scan limits hit and cost by tag.",
+          "deliverable": "Plan comparisons, workgroup definitions and a workload isolation recommendation",
+          "checks": [["Compare EXPLAIN before and after ANALYZE", "Plan switches to a broadcast join of the dimension table", "EXPLAIN output"], ["Run a large scan in the restricted workgroup", "Cancelled by the per-query data usage limit", "Athena error"], ["Filter Cost Explorer by the workgroup tag", "Costs are separated per workgroup", "Cost report"]],
+          "objectives": ["Use statistics and join strategies to change query plans", "Isolate workloads with resource groups and workgroups", "Control scan cost by workgroup"]
+        },
+        {
+          "topic": "Metadata Scaling: Manifest Pruning, Partition Stats and Catalog Throttling",
+          "subtopics": ["Manifest count growth and planning time", "rewrite_manifests and manifest merge settings", "Partition statistics files and metadata-only queries", "Planning time versus execution time in EXPLAIN ANALYZE", "S3 503 SlowDown and prefix distribution with write.object-storage.enabled", "Glue API ThrottlingException and retries", "Delta log checkpoints and log replay time", "Partition count limits in Glue and Athena"],
+          "tools": ["Apache Iceberg", "Trino", "AWS Glue", "Amazon S3"],
+          "lab_task": "Create an Iceberg table with 20,000 commits of small inserts, then time planning with EXPLAIN ANALYZE in Trino (planning time in the output). Run CALL lake.system.rewrite_manifests('db.t'), time planning again, and enable write.object-storage.enabled=true. Count manifests in lake.db.t.manifests before and after.",
+          "deliverable": "Planning time table with manifest counts and a note on object key distribution",
+          "checks": [["Query count(*) FROM lake.db.t.manifests before and after rewrite_manifests", "Falls by at least 10x", "Metadata output"], ["Compare planning time before and after", "Planning time drops with identical results", "EXPLAIN ANALYZE output"], ["List new data file keys with write.object-storage.enabled", "Keys start with hashed prefixes spread across the key space", "aws s3 ls output"]],
+          "objectives": ["Detect metadata bloat as a planning bottleneck", "Reduce manifest counts with targeted rewrites", "Avoid S3 and catalog throttling with key distribution"]
+        },
+        {
+          "topic": "Lake Security Hardening: Endpoints, KMS Grants and Credential Vending",
+          "subtopics": ["Private access with S3 gateway VPC endpoints and aws:SourceVpce policies", "Endpoint policies as a second control", "KMS key policy, grants and encryption context", "Credential vending versus long-lived access keys", "S3 Access Grants and Access Points for per-team scoping", "Block Public Access, Object Ownership and disabled ACLs", "CloudTrail data events and Athena queries on logs", "Tabletop test: stolen role credential"],
+          "tools": ["Amazon S3", "AWS KMS", "VPC Endpoints", "CloudTrail", "AWS IAM"],
+          "lab_task": "Add a gateway endpoint for com.amazonaws.<region>.s3 and a bucket policy that denies all requests where aws:SourceVpce is not the endpoint ID. Test from inside the VPC and from a laptop, enable CloudTrail data events for the bucket, then query the log in Athena to show who read which object during the test.",
+          "deliverable": "Hardened bucket policy, test evidence and an Athena query over CloudTrail logs",
+          "checks": [["Run aws s3 ls from the laptop against the bucket", "AccessDenied", "Terminal error"], ["Run the same command from an instance in the VPC", "Lists objects", "Terminal output"], ["Query CloudTrail events for GetObject during the test", "Shows the instance role and the denied laptop attempt", "Athena result"]],
+          "objectives": ["Restrict lake bucket access to a private network path", "Audit object-level access with CloudTrail data events", "Replace static keys with vended credentials"]
+        },
+        {
+          "topic": "Sensitive Data Governance: Classification, Macie and Tag-Based Policy",
+          "subtopics": ["Data classes: public, internal, confidential, restricted", "Discovering PII with Amazon Macie and Glue sensitive data detection", "Classification tags on tables and columns", "LF-Tag and Unity Catalog tag policies driven by classification", "Tokenisation and format-preserving masks in Silver", "Purpose-based access and consent flags", "Evidence for audits: access reports and policy exports", "Quarterly access review process"],
+          "tools": ["Amazon Macie", "AWS Lake Formation", "AWS Glue", "Unity Catalog"],
+          "lab_task": "Seed a bucket with 1,000 synthetic customer files containing emails and card-like numbers. Run an Amazon Macie classification job and read findings with aws macie2 list-findings. Tag the affected columns class=restricted in Lake Formation, and verify that an analyst role with only class=internal loses access to them in Athena.",
+          "deliverable": "Findings summary, tag policy configuration and test results by role",
+          "checks": [["Run aws macie2 list-findings after the job", "Reports the seeded email and credit card findings, by count", "CLI output"], ["Query a class=restricted column as the analyst", "Denied", "Athena error"], ["Query a class=internal column as the analyst", "Returns data", "Athena result"]],
+          "objectives": ["Discover sensitive data automatically in lake storage", "Drive access with classification tags", "Produce audit evidence for access reviews"]
+        },
+        {
+          "topic": "Privacy Operations: Right to Erasure and Physical Deletion",
+          "subtopics": ["Why a logical DELETE does not remove bytes from storage", "Erasure workflow: locate, delete, expire snapshots, remove orphans", "Delta VACUUM and Iceberg expire_snapshots with remove_orphan_files", "S3 versioning and noncurrent version expiry", "Backups, replicas and derived Gold tables", "Crypto-shredding with per-subject keys", "Proof of deletion and logging the request", "Deadline planning for a one-month response window"],
+          "tools": ["Apache Iceberg", "Delta Lake", "PySpark", "Amazon S3"],
+          "lab_task": "Insert 1,000 customers including subject_id 777 into lake.db.customers, run DELETE FROM lake.db.customers WHERE subject_id = 777, and prove the data is still readable via FOR VERSION AS OF and by scanning the old Parquet file with DuckDB. Then expire snapshots, remove orphan files, expire noncurrent S3 versions and re-run the scan.",
+          "deliverable": "Erasure runbook with proof queries before and after physical deletion",
+          "checks": [["Query FOR VERSION AS OF the old snapshot after the DELETE", "Still returns subject 777", "Query output"], ["Read the old Parquet file directly with DuckDB after expiry and orphan cleanup", "File no longer exists and subject 777 is not found anywhere", "DuckDB error or empty result"], ["Run aws s3api list-object-versions for the old key", "No remaining version after noncurrent expiry", "CLI output"]],
+          "objectives": ["Explain why logical deletes leave recoverable data", "Run a physical erasure end to end", "Provide evidence that deletion completed"]
+        },
+        {
+          "topic": "Cross-Region Replication and Disaster Recovery for Lakes",
+          "subtopics": ["RPO and RTO targets for lake tiers", "S3 Cross-Region Replication rules and the versioning requirement", "Replication Time Control and its 15-minute objective", "Replicating data but not catalog state", "Iceberg absolute paths and registering tables in the DR region", "Delta log replication ordering risk", "Glue catalog backup and recreate with Terraform", "Failover drill and failback"],
+          "tools": ["Amazon S3", "AWS Glue", "Apache Iceberg", "Terraform", "AWS CLI"],
+          "lab_task": "Enable versioning on source and destination buckets and create a replication rule with aws s3api put-bucket-replication. Replicate an Iceberg table, then in the DR region read it with CALL dr.system.register_table(table => 'db.orders', metadata_file => '<latest metadata.json>') and note the path problem. Time replication lag over 1,000 objects.",
+          "deliverable": "DR runbook, replication lag figures and the Iceberg path finding with the chosen mitigation",
+          "checks": [["Run aws s3api head-object on a replicated key", "ReplicationStatus is REPLICA on the destination object", "head-object output"], ["Measure time for 1,000 new objects to appear in the destination", "All objects present within the measured lag, recorded in seconds", "Timing log"], ["Query the table in the DR region", "Count matches the source or the failure to resolve source paths is documented with the mitigation", "Query output and note"]],
+          "objectives": ["Configure replication for a lake and measure lag", "Handle table metadata that holds absolute paths", "Write a tested DR runbook"]
+        },
+        {
+          "topic": "FinOps for Lakes: Attribution, Scan Budgets and Storage Optimisation",
+          "subtopics": ["Cost allocation tags on buckets, workgroups, jobs and clusters", "S3 Storage Lens and S3 Inventory for storage analysis", "AWS Cost and Usage Report with Athena", "Finding cold data with last access analysis and Intelligent-Tiering", "Top queries by bytes scanned from Athena query history", "Showback and chargeback by domain", "Budgets and anomaly detection", "Savings: compaction, ZSTD, snapshot expiry, versions cleanup"],
+          "tools": ["S3 Storage Lens", "AWS Cost Explorer", "S3 Inventory", "Athena", "AWS Budgets"],
+          "lab_task": "Enable S3 Inventory in Parquet on the lake buckets and query it in Athena to list the top 10 prefixes by size and the noncurrent version bytes. Pull Athena query history with aws athena list-query-executions plus batch-get-query-execution and rank queries by DataScannedInBytes. Create an AWS Budget with an 80% alert.",
+          "deliverable": "Cost review document with three savings actions sized in GB or USD and a budget configuration",
+          "checks": [["Query the S3 Inventory table for the top 10 prefixes by size", "Returns 10 rows with sizes in GB", "Athena result"], ["Rank query executions by DataScannedInBytes", "Top 5 queries account for the stated percentage of total bytes", "Ranking output"], ["Describe the budget with aws budgets describe-budget", "Shows an 80% notification threshold", "CLI output"]],
+          "objectives": ["Attribute lake cost to teams and queries", "Find savings from inventory and query history", "Set budgets and alerts"]
+        },
+        {
+          "topic": "Data Products on the Lake: Contracts, Versioning and Sharing",
+          "subtopics": ["Data product definition: owner, schema, SLA, quality, discoverability", "Contract files in YAML with schema, semantics, freshness", "Breaking versus non-breaking schema changes", "Versioned product tables and deprecation windows", "Sharing: Delta Sharing, Iceberg REST catalog sharing, Lake Formation", "Consumer onboarding and access requests", "Publishing a product to the catalog with metadata", "Measuring product usage and satisfaction"],
+          "tools": ["Delta Sharing", "Apache Iceberg", "AWS Lake Formation", "dbt", "Unity Catalog"],
+          "lab_task": "Write a YAML data contract for gold.daily_revenue with owner, schema, freshness 06:00 UTC and unique key. Add a CI test with pytest that fails when a column is dropped or retyped. Publish through Delta Sharing (delta-sharing client load_as_pandas) or a Lake Formation share and have a second team read it without copying data.",
+          "deliverable": "Contract file, CI test results and a consumer read demonstration",
+          "checks": [["Drop column revenue in a proposed change and run the CI test", "Test fails citing a breaking change", "pytest output"], ["Add a nullable column and run the CI test", "Test passes as non-breaking", "pytest output"], ["Read the shared table from a second team's environment", "Row count matches the producer count with no data copy", "Consumer output"]],
+          "objectives": ["Define a data product with an enforceable contract", "Detect breaking changes in CI", "Share a product without copying data"]
+        },
+        {
+          "topic": "ML Datasets on the Lake: Point-in-Time Correct Training Sets",
+          "subtopics": ["Label leakage and why point-in-time joins matter", "Feature tables with event time and valid-from columns", "DuckDB and Spark ASOF-style joins", "Using snapshots to reproduce a training set", "Dataset versioning: snapshot id recorded with the model", "Sampling and splits by time rather than random", "Parquet or Iceberg for training reads and shuffling", "Hand-off to feature stores and model registries"],
+          "tools": ["DuckDB", "PySpark", "Apache Iceberg", "MLflow"],
+          "lab_task": "Create labels (1,000,000 rows with label_ts) and a features table with feature_ts. Build training data with a naive join on latest feature and with DuckDB ASOF JOIN ON l.entity_id = f.entity_id AND l.label_ts >= f.feature_ts. Count rows where feature_ts > label_ts in each, and log the Iceberg snapshot id with MLflow.",
+          "deliverable": "Notebook with both joins, leakage counts and the recorded snapshot id",
+          "checks": [["Count rows with feature_ts > label_ts in the naive join", "Returns a nonzero number of leaked rows", "Query output"], ["Count the same in the ASOF join result", "Returns 0", "Query output"], ["Reload the training set FOR VERSION AS OF the logged snapshot id", "Row count and checksum equal the original training set", "Checksum output"]],
+          "objectives": ["Build training sets without time leakage", "Reproduce a training set from a table snapshot", "Record dataset versions with models"]
+        },
+        {
+          "topic": "Documents, Embeddings and Media on the Lake",
+          "subtopics": ["Unstructured data: manifests of object URIs with metadata", "Content hash for deduplication", "Extraction pipelines from PDF and images to text tables", "Embeddings as FLOAT arrays in Parquet or Iceberg", "When a dedicated vector index is needed instead of a scan", "Access control for sensitive documents", "Large object layout and S3 request patterns", "Governance of derived data: lineage from document to chunk"],
+          "tools": ["Amazon S3", "PySpark", "Apache Iceberg", "DuckDB"],
+          "lab_task": "Upload 1,000 PDFs to s3://<bucket>/docs/ and build an Iceberg table docs_manifest (uri, sha256, size, content_type, ingested_at). Extract text into docs_text, chunk to 500 tokens, store 384-dimension embeddings as ARRAY<FLOAT>, and run a cosine-similarity top 5 query in DuckDB. Time it with 1,000 and then 100,000 chunks.",
+          "deliverable": "Manifest and chunk tables, similarity query and timing table with a recommendation on index need",
+          "checks": [["Compare count(*) of docs_manifest with objects under docs/", "Both equal 1000", "Query and CLI output"], ["Insert the same file again under a new key", "sha256 duplicate query returns 2 rows for that hash", "Query output"], ["Time the top 5 similarity query at 100,000 chunks versus 1,000", "Runtime grows roughly with row count, motivating an index beyond a threshold", "Timing table"]],
+          "objectives": ["Catalogue unstructured objects in a lake table", "Store derived embeddings with lineage", "Decide when scan-based similarity stops being enough"]
+        },
+        {
+          "topic": "Migrating HDFS and Hive Tables to Iceberg on Object Storage",
+          "subtopics": ["Inventory: tables, formats, partitions, sizes, consumers", "Data copy with S3DistCp or distcp -update to S3", "Iceberg procedures: snapshot, migrate, add_files", "In-place migrate versus shadow table and cut-over", "Hive Metastore to Glue or REST catalog", "Rewriting small files and partition layouts during migration", "Validation: counts, checksums, sampled row comparison", "Cut-over, rollback and decommissioning"],
+          "tools": ["Apache Hive", "Apache Iceberg", "S3DistCp", "PySpark", "AWS Glue"],
+          "lab_task": "Take a Hive external table of 50 million rows in Parquet on S3. Run CALL spark_catalog.system.snapshot('db.src', 'db.src_iceberg') to test, validate counts and a column checksum, then CALL system.migrate('db.src'). Time queries before and after and record what changed in the Hive Metastore properties.",
+          "deliverable": "Migration runbook with validation queries, rollback steps and before and after timings",
+          "checks": [["Compare count(*) and sum(hash(id)) between the source and the snapshot table", "Both equal", "Query output"], ["Run SHOW TBLPROPERTIES on the migrated table", "Shows table_type=ICEBERG and a metadata_location", "Spark SQL output"], ["Run the cut-over rollback steps on a copy", "Original Hive table is readable with the same count", "Query output"]],
+          "objectives": ["Plan a table-by-table migration to Iceberg", "Validate a migration with counts and checksums", "Cut over with a tested rollback"]
+        },
+        {
+          "topic": "Troubleshooting Production Lakes: Failed Commits, Slow Scans and Stale Metadata",
+          "subtopics": ["Triage order: freshness, correctness, cost, performance", "Failed commits and orphaned files after job kills", "Stale metadata: table points to an old metadata.json", "Athena errors: HIVE_BAD_DATA, HIVE_CURSOR_ERROR, TABLE_NOT_FOUND", "Missing partitions and MSCK REPAIR TABLE", "Slow scans: small files, skew, missing statistics", "S3 errors: 503 SlowDown, 403 AccessDenied, NoSuchKey", "Post-incident review template"],
+          "tools": ["Athena", "Apache Spark", "Apache Iceberg", "CloudTrail", "AWS CLI"],
+          "lab_task": "Run five injected faults against a lake: delete a Parquet file referenced by an Iceberg manifest, add an unregistered partition, change a column type, revoke a Lake Formation grant, and create 5,000 tiny files. For each, record the exact error or symptom, the diagnostic command, the fix and the time to recover.",
+          "deliverable": "Troubleshooting guide with five entries of symptom, command, cause and fix",
+          "checks": [["Query the Iceberg table after deleting a referenced data file", "Fails with a file not found or NoSuchKey error naming the missing path", "Error text"], ["Query the table with the unregistered partition", "Returns zero rows for that partition until MSCK REPAIR TABLE or the crawler adds it", "Athena output"], ["Query as the principal whose Lake Formation grant was revoked", "Fails with Insufficient Lake Formation permission(s)", "Athena error"]],
+          "objectives": ["Diagnose lake faults from errors and metadata", "Fix missing files, partitions and permissions safely", "Write a post-incident review"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Multi-Engine Lakehouse Platform",
+          "subtopics": ["Design a lake with one Iceberg REST catalog serving Spark, Trino and Athena or DuckDB", "Implement ingestion by CDC and streaming with exactly-once reconciliation", "Enforce governance with classification tags, masks and audited access", "Operate with maintenance schedules, DR and cost budgets", "Prove erasure and recovery with runbooks", "Defend the architecture in a review with measured numbers"],
+          "tools": ["Apache Polaris", "Apache Iceberg", "Trino", "Apache Spark", "Apache Flink", "AWS Lake Formation"],
+          "lab_task": "Build a platform with a REST catalog, S3 storage, a streaming path (Kafka to Flink to Iceberg) and a batch path (Spark), queried by Trino and Spark. Add tag-based access with a masked PII column, daily compaction and expiry, a replicated DR bucket, and a cost budget. Run a 10M-row test, an erasure request and a rollback drill.",
+          "deliverable": "Platform repository, architecture decision records, runbooks and a recorded review with measured results",
+          "checks": [["Query the same table from Spark and Trino", "Counts and a column checksum are identical", "Query outputs"], ["Run the erasure request for one subject then scan old snapshots", "Subject data is absent after expiry and orphan cleanup", "Proof queries"], ["Run the rollback drill after a bad merge", "Table returns to the prior snapshot values within the stated recovery time", "Drill log"]],
+          "objectives": ["Deliver a governed multi-engine platform with measured behaviour", "Demonstrate erasure, recovery and DR drills", "Justify design trade-offs with cost and performance data"]
+        }
+      ]
+    }
+  }
+}

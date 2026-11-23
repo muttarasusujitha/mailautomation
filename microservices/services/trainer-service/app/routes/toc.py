@@ -44,7 +44,7 @@ class TocRequest(BaseModel):
     notes: Optional[str] = ""
     requirement_id: Optional[str] = None
     client_email: Optional[str] = None
-    excel_layout: Literal["auto", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
+    excel_layout: Literal["auto", "course_workbook", "daily_plan", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
     trainer_email: Optional[str] = None
@@ -875,7 +875,13 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     client_email = normalize_client_email(payload.client_email)
     if not client_email and payload.requirement_id:
         client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
-    toc["excel_layout"] = await select_toc_layout(db, payload.excel_layout, client_email, payload.toc_id)
+    # The clean, single-sheet daily plan is the default client-facing workbook.
+    # The ten themed reference layouts stay available only when explicitly asked for.
+    requested_layout = (payload.excel_layout or "auto").strip().lower()
+    if requested_layout in ("", "auto"):
+        toc["excel_layout"] = "course_workbook"
+    else:
+        toc["excel_layout"] = await select_toc_layout(db, requested_layout, client_email, payload.toc_id)
 
     await db.toc_generations.insert_one({
         "toc_id": toc_id,

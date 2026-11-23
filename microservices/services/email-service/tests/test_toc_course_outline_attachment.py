@@ -78,3 +78,19 @@ def test_no_attachments_without_technology_or_duration(monkeypatch):
     assert asyncio.run(inbox._create_standalone_toc_attachments(technology="", duration_days=5)) == []
     assert asyncio.run(inbox._create_standalone_toc_attachments(technology="DevOps", duration_days=0)) == []
     assert calls == []
+
+
+def test_combined_reply_renders_the_existing_agenda(monkeypatch):
+    agenda = {"days": [{"day": 1, "focus_area": "Shell scripting"}]}
+    calls = []
+
+    async def post(client, url, *, json):
+        assert json["toc"] == agenda
+        calls.append(url)
+        return _Response(content=b"%PDF-outline" if url.endswith("generate-pdf") else b"workbook")
+
+    monkeypatch.setattr(inbox, "_post_with_local_fallback", post)
+    monkeypatch.setattr(inbox.httpx, "AsyncClient", _Client)
+    files = asyncio.run(inbox._create_standalone_toc_attachments(
+        technology="DevOps", duration_days=1, toc_data=agenda))
+    assert len(files) == len(calls) == 2

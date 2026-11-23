@@ -1,0 +1,573 @@
+{
+  "domain": "Ruby",
+  "name": "Ruby",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["Ruby Programming", "Ruby Language", "Advanced Ruby", "Ruby Lang", "Ruby Scripting", "Ruby Developer", "Ruby Gems and Tooling", "Ruby Concurrency"],
+  "certifications": ["Ruby Association Certified Ruby Programmer Silver", "Ruby Association Certified Ruby Programmer Gold"],
+  "tools": ["Ruby", "mise", "IRB", "RubyGems", "Bundler", "Rake", "RuboCop", "Minitest", "RSpec", "debug gem (rdbg)", "Ruby LSP", "Visual Studio Code", "RBS and Steep", "stackprof"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For programmers new to Ruby, or to programming in a scripting language. Covers installing Ruby 4.0 with mise, irb and ruby -w, objects and literals, numbers and precision, strings and encodings, control flow, arrays, hashes and Enumerable, methods, blocks and lambdas, classes, modules, Struct, Data and Set, exceptions, files, regular expressions, JSON, CSV and YAML, Bundler, and a log-summary command-line capstone.",
+      "prerequisites": ["Has written basic programs or scripts in any language, including variables, conditions and loops", "Uses a terminal confidently for navigation, environment variables and running commands", "Has a Linux, macOS or Windows laptop where Ruby, Git and an editor such as Visual Studio Code can be installed"],
+      "outcomes": ["Install and pin a Ruby version and run, lint and debug scripts with irb, ruby -w and RuboCop", "Write idiomatic Ruby using collections, Enumerable, blocks, classes, modules and value objects", "Handle errors, files, text and common data formats such as JSON, CSV and YAML safely", "Deliver a tested, lint-clean command-line tool that uses Bundler and Minitest"],
+      "days": [
+        {
+          "topic": "Toolchain Setup with mise, irb and ruby -w",
+          "subtopics": ["Choosing a Ruby: CRuby releases, the yearly 25 December release and the support policy", "Installing Ruby with mise, rbenv or ruby-build, and RubyInstaller with MSYS2 on Windows", "Pinning a version with .ruby-version or mise.toml", "ruby -v, gem env and which ruby to see what is actually running", "Running scripts, ruby -e one-liners and the shebang line", "ruby -c for syntax checks and ruby -w for warnings", "irb: history, multiline editing, show_source and ls", "ri and ri String#strip for offline documentation", "Ruby LSP and Visual Studio Code for completion and formatting", "Where Ruby looks for code: $LOAD_PATH, require and require_relative"],
+          "tools": ["mise", "Ruby", "irb", "ri", "Ruby LSP", "Visual Studio Code"],
+          "lab_task": "Install Ruby 4.0 with mise use ruby@4.0, then run ruby -v and gem env home. Create hello.rb with a shebang that prints RUBY_VERSION, run ruby -c hello.rb, add an unused local variable and run ruby -w hello.rb. Open irb, use ls String and show_source on one method, and run ri Array#sum.",
+          "deliverable": "Setup log with ruby -v, gem env home, the -c and -w outputs, and a one-page note on how the version is pinned",
+          "checks": [["Run ruby -v after mise use ruby@4.0", "Output starts with ruby 4.0 and shows the platform in brackets", "Terminal screenshot"], ["Run ruby -c hello.rb on a valid script", "Prints Syntax OK and exits with status 0", "Terminal output and echo $?"], ["Run ruby -w on a file with an unused local variable x", "Warns 'assigned but unused variable - x' with the file name and line number", "Warning text"]],
+          "objectives": ["Install and pin a Ruby version", "Run scripts and one-liners and read warnings", "Use irb and ri to explore the language offline"]
+        },
+        {
+          "topic": "Objects, Variables and Core Literals",
+          "subtopics": ["Everything is an object: 5.class, nil.class and true.class", "Local variables, @instance variables, $globals and CONSTANTS and their scope", "Assignment, parallel assignment and swapping with a, b = b, a", "nil, true and false and the NilClass methods to_a and to_s", "Literals: integers with underscores, floats, strings, symbols, arrays, hashes and ranges", "object_id, equal? and why two equal strings are different objects", "frozen? and the # frozen_string_literal: true magic comment", "Chilled string literals and the warning on mutation under -W:deprecated", "dup and clone, and shallow copies", "Type conversion: Integer(\"42\"), Float(), String() and the to_i family"],
+          "tools": ["irb", "Ruby", "ruby -w", "Visual Studio Code"],
+          "lab_task": "In irb, print the class of 5, 5.5, 'a', :a, nil, [], {} and 1..3. Add # frozen_string_literal: true to a script, run a = 'x'; a << 'y' and capture the FrozenError. Compare Integer('42abc') with '42abc'.to_i and record both results. Show that :a.object_id repeats but 'a'.object_id does not.",
+          "deliverable": "Cheat sheet of 8 literal types with their classes plus a captured FrozenError and a strict-versus-lenient conversion table",
+          "checks": [["Run a = 'x'; a << 'y' under # frozen_string_literal: true", "Raises FrozenError with message can't modify frozen String: \"x\"", "Script output"], ["Run Integer('42abc')", "Raises ArgumentError: invalid value for Integer(): \"42abc\"", "Exception message"], ["Run '42abc'.to_i", "Returns 42 without raising", "irb output"]],
+          "objectives": ["Explain that every value is an object with a class", "Use frozen strings and understand copies", "Choose strict or lenient conversion deliberately"]
+        },
+        {
+          "topic": "Numbers, Operators and Precision",
+          "subtopics": ["Integer has arbitrary size: 2**100 and 1_000_000", "Integer division, modulo and remainder with negative operands: -7 / 2 and -7 % 3", "divmod, fdiv, Integer.sqrt and abs", "Float and IEEE 754: 0.1 + 0.2, Float::EPSILON and Float::INFINITY", "Rational and Complex literals: 1/3r and 2i", "BigDecimal for money and why it is a bundled gem that must be in the Gemfile", "Rounding: round, floor, ceil, truncate and half: :even", "Comparison and spaceship <=>, and between? and clamp", "Operator precedence, ** associativity and the safe navigation operator &.", "ZeroDivisionError for integers versus Infinity for floats"],
+          "tools": ["irb", "Ruby", "BigDecimal", "Bundler"],
+          "lab_task": "In irb compute 10 / 3, -7 / 2, -7 % 3, -7.remainder(3) and 10.fdiv(3). Show 0.1 + 0.2 == 0.3 is false, then repeat with BigDecimal('0.1') + BigDecimal('0.2') == BigDecimal('0.3'). Compare 2.5.round with 2.5.round(half: :even) and trigger 1 / 0 to capture ZeroDivisionError.",
+          "deliverable": "Notebook of operator results with a table showing which type to choose for counts, measurements and money",
+          "checks": [["Evaluate -7 / 2 and -7 % 3", "Prints -4 and 2 because integer division floors", "irb transcript"], ["Evaluate 0.1 + 0.2", "Prints 0.30000000000000004", "irb transcript"], ["Evaluate 1 / 0", "Raises ZeroDivisionError with message divided by 0", "Exception message"]],
+          "objectives": ["Predict results of integer and float arithmetic", "Pick Float, Rational or BigDecimal for a task", "Apply explicit rounding rules"]
+        },
+        {
+          "topic": "Strings, Symbols and Encodings",
+          "subtopics": ["Single versus double quotes and interpolation", "Heredocs with <<~TEXT and squiggly indentation removal", "String methods: strip, split, center, ljust, tr, delete, squeeze and each_char", "format and String#% with %05.1f and %-10s", "Mutating methods ending in ! versus returning copies", "Symbols: identity, to_proc and when to prefer them over strings", "Encodings: length versus bytesize, force_encoding and valid_encoding?", "encode with invalid: :replace and Encoding::UndefinedConversionError", "Unicode: unicode_normalize and grapheme_clusters", "Building strings efficiently with << and Array#join"],
+          "tools": ["irb", "Ruby", "ruby -w", "Visual Studio Code"],
+          "lab_task": "In irb compare 'héllo'.length with 'héllo'.bytesize. Run 'é'.encode('US-ASCII') and capture the error, then retry with undef: :replace. Write a script that prints format('%-10s|%05.1f', 'pi', 3.14159) and a <<~TEXT heredoc. Show :a.object_id == :a.object_id is true while 'a'.object_id == 'a'.object_id is false.",
+          "deliverable": "String handling notes with captured encoding error and the output of format and heredoc examples",
+          "checks": [["Evaluate 'héllo'.length and 'héllo'.bytesize", "Returns 5 and 6", "irb transcript"], ["Run 'é'.encode('US-ASCII')", "Raises Encoding::UndefinedConversionError: U+00E9 from UTF-8 to US-ASCII", "Exception message"], ["Evaluate format('%05.1f', 3.14159)", "Returns the string 003.1", "irb output"]],
+          "objectives": ["Manipulate strings without unintended mutation", "Explain characters versus bytes", "Handle encoding errors explicitly"]
+        },
+        {
+          "topic": "Conditionals, Truthiness and case Expressions",
+          "subtopics": ["Only nil and false are falsy: 0, '' and [] are truthy", "if, elsif, else, unless and statement modifiers", "if as an expression that returns a value", "The ternary operator and its readability limits", "and, or and not versus &&, || and !", "Safe navigation &., ||= and &&= for defaults", "case/when with ranges, classes, regexes and lambdas through ===", "case without a subject and then versus newline forms", "Guard clauses with early return", "Variables assigned in a branch that never ran are nil"],
+          "tools": ["irb", "Ruby", "ruby -w", "RuboCop"],
+          "lab_task": "Write grade.rb that maps scores to letters with case 85 when 90.. then 'A' when 80...90 then 'B' and an else branch. Print the results for 95, 85, 80, 79 and nil. Show that 0 ? 'truthy' : 'falsy' prints truthy, and that x = 5 if false leaves x as nil. Run rubocop on the file and fix every offense it reports.",
+          "deliverable": "grade.rb with a table of inputs and results and a clean RuboCop run",
+          "checks": [["Run grade for 85", "Returns B because 80...90 includes 85", "Script output"], ["Evaluate 0 ? 'truthy' : 'falsy'", "Prints truthy", "irb output"], ["Run x = 5 if false; p x", "Prints nil and no NameError", "Terminal output"]],
+          "objectives": ["Apply Ruby truthiness rules correctly", "Use case with ranges and classes", "Write guard clauses instead of nested conditionals"]
+        },
+        {
+          "topic": "Loops, Ranges and Iteration Idioms",
+          "subtopics": ["each, times, upto, downto and step instead of for", "while, until and loop do with break and next", "break with a value and redo risks", "Ranges: inclusive 1..5, exclusive 1...5 and endless 1..", "Range#step, % and to_a", "each_with_index, each_with_object and with_index(1)", "each_slice and each_cons for windows", "Why the for loop leaks its variable into the outer scope", "Infinite loops and reading until EOF with while line = gets", "Loop performance: block overhead versus while"],
+          "tools": ["irb", "Ruby", "ruby -w", "Visual Studio Code"],
+          "lab_task": "Write loops.rb that prints 1.step(10, 3).to_a, 10.downto(7).to_a and (1..10).each_slice(4).to_a. Use loop do with break to read lines from STDIN until the word quit, then print the line count. Demonstrate that for i in 1..3 leaves i defined after the loop, then rewrite it with each and show NameError for i.",
+          "deliverable": "loops.rb with captured output and a note choosing between each, while and loop",
+          "checks": [["Evaluate 1.step(10, 3).to_a", "Returns [1, 4, 7, 10]", "irb output"], ["Evaluate (1..10).each_slice(4).to_a", "Returns [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10]]", "irb output"], ["Print i after for i in 1..3 and after 3.times { |i| }", "First prints 3, second raises NameError for i", "Script output"]],
+          "objectives": ["Choose the right iteration construct", "Use ranges and steps without building arrays", "Control loops with break and next"]
+        },
+        {
+          "topic": "Arrays: Creation, Slicing and Mutation",
+          "subtopics": ["Literals, %w[] and %i[] word arrays, Array.new(n) { } and Array(x)", "Shared-reference trap: Array.new(3, [])", "Indexing, negative indexes, ranges and a[1..]", "first, last, take, drop, dig and fetch with defaults", "push, <<, pop, shift, unshift and insert", "delete, delete_at, delete_if, compact and clear", "sort, sort_by, min, max, sum and reverse", "uniq, flatten, zip, product, transpose and rotate", "Set operations with & | - and when to use Set", "dup versus freeze and mutation through aliases"],
+          "tools": ["irb", "Ruby", "Set", "ruby -w"],
+          "lab_task": "Create a = Array.new(3, []) then a[0] << 1 and record the shared-reference result, then rebuild with Array.new(3) { [] }. Evaluate [1,2,3,4,5][1..-2], [3,1,2].sort.reverse and [[1,2],[3,4]].transpose. Convert a sorted list of 1,000 random integers into a Set and compare include? timings with Benchmark.realtime.",
+          "deliverable": "Array exercise sheet with the shared-reference bug reproduced and fixed, and a timing comparison between Array and Set",
+          "checks": [["Run a = Array.new(3, []); a[0] << 1; p a", "Prints [[1], [1], [1]]", "Terminal output"], ["Evaluate [1,2,3,4,5][1..-2]", "Returns [2, 3, 4]", "irb output"], ["Evaluate [1,2,3].fetch(5)", "Raises IndexError: index 5 outside of array bounds: -3...3", "Exception message"]],
+          "objectives": ["Create, slice and mutate arrays safely", "Avoid shared-reference bugs", "Use sort_by, zip and transpose for common tasks"]
+        },
+        {
+          "topic": "Hashes: Defaults, Keys and Iteration",
+          "subtopics": ["Symbol keys with name: syntax versus string keys and the Ruby 3.4 inspect format", "fetch with defaults and the KeyError message", "Hash.new(0) counters and Hash.new { |h, k| h[k] = [] }", "Insertion order is guaranteed", "each_pair, map, to_h { } and transform_values", "select, reject, filter_map, min_by and sum over pairs", "merge with a block for conflict resolution", "dig for nested data and except for removing keys", "group_by and tally, and sort_by { |_, v| -v }", "compare_by_identity and mutable keys as a trap"],
+          "tools": ["irb", "Ruby", "JSON", "ruby -w"],
+          "lab_task": "Count word frequencies in a paragraph with Hash.new(0), print the top 3 with sort_by { |_, v| -v }.first(3), then build the same result with tally. Show p({name: 'Ada', 'k' => 1, 1 => 2}) output under Ruby 3.4+. Call {a: 1}.fetch(:x) and capture the KeyError. Merge two hashes with a block that sums colliding values.",
+          "deliverable": "words.rb with the frequency table and a note on the inspect format and fetch versus []",
+          "checks": [["Run p({name: 'Ada', 'k' => 1, 1 => 2})", "Prints {name: \"Ada\", \"k\" => 1, 1 => 2}", "Terminal output"], ["Run {a: 1}.fetch(:x)", "Raises KeyError: key not found: :x", "Exception message"], ["Run {a: 1, b: 2}.merge({b: 3}) { |_k, o, n| o + n }", "Returns {a: 1, b: 5}", "irb output"]],
+          "objectives": ["Build counters and grouped hashes", "Access nested data safely", "Read and write the current hash inspect format"]
+        },
+        {
+          "topic": "Enumerable: map, select, reduce and group_by",
+          "subtopics": ["map, flat_map, filter_map and each_with_object", "select, reject, find, find_index and partition", "reduce with a symbol, with an initial value and with a block", "sum, min_by, max_by, minmax and sort_by", "group_by, tally, chunk_while and slice_when", "all?, any?, none? and one? with patterns", "zip, each_cons and take_while", "Numbered block parameter _1 and the it parameter", "Symbol#to_proc with &:upcase and Method#to_proc", "Which methods return arrays and which return enumerators"],
+          "tools": ["irb", "Ruby", "Enumerable", "RuboCop"],
+          "lab_task": "Given an array of 10 order hashes with :customer, :total and :status, use select, group_by, sum and max_by to print revenue per customer and the largest order. Rewrite one chain with the it parameter and one with &:method. Evaluate (1..6).each_slice(2).map(&:sum) and %w[apple bob cat].group_by(&:size) and record the exact outputs.",
+          "deliverable": "orders.rb with five Enumerable chains and a short note on readability trade-offs",
+          "checks": [["Evaluate (1..6).each_slice(2).map(&:sum)", "Returns [3, 7, 11]", "irb output"], ["Evaluate %w[apple bob cat].group_by(&:size)", "Returns {5 => [\"apple\"], 3 => [\"bob\", \"cat\"]}", "irb output"], ["Evaluate [1, 2].map { it * 2 }", "Returns [2, 4]", "irb output"]],
+          "objectives": ["Transform collections with Enumerable chains", "Group and aggregate data", "Use it, _1 and &:sym appropriately"]
+        },
+        {
+          "topic": "Methods, Arguments and Return Values",
+          "subtopics": ["def, implicit return and returning several values", "Default, splat *args and keyword arguments", "Required keywords and **opts", "Anonymous forwarding with *, ** and & and the ... shorthand", "Endless methods: def square(x) = x * x", "Predicate ? and bang ! naming conventions", "Argument errors: wrong number of arguments and missing keyword", "Method objects: method(:name), arity and parameters", "Scope: methods do not see outer local variables", "Visibility with private and top-level methods on Object"],
+          "tools": ["irb", "Ruby", "ruby -w", "RuboCop"],
+          "lab_task": "Write def f(a, b = 2, *rest, k:, o: 1, **opts, &blk) and call it with too few positional arguments, without k:, and with unknown keywords. Capture the ArgumentError messages. Add def square(x) = x * x. Print method(:f).parameters and method(:f).arity. Write a wrapper using the ... shorthand that forwards to f and log each call.",
+          "deliverable": "methods.rb with captured error messages, parameters output and a forwarding wrapper",
+          "checks": [["Call f(1) with required keyword k: omitted", "Raises ArgumentError: missing keyword: :k", "Exception message"], ["Call def g(a, b); end; g(1)", "Raises ArgumentError: wrong number of arguments (given 1, expected 2)", "Exception message"], ["Evaluate square(4) using the endless method", "Returns 16", "irb output"]],
+          "objectives": ["Define methods with positional and keyword arguments", "Read ArgumentError messages", "Forward arguments with ... correctly"]
+        },
+        {
+          "topic": "Blocks, Procs, Lambdas and yield",
+          "subtopics": ["yield, block_given? and passing &block through", "Writing your own each that yields to a block", "Proc.new, proc, lambda and the -> literal", "Lambdas check arity, procs do not", "return inside a proc versus a lambda and LocalJumpError", "Closures capture local variables by reference", "Currying with curry and composition with >> and <<", "Method#to_proc and Symbol#to_proc", "Block-local variables |x; y|", "Callbacks and strategy objects with lambdas"],
+          "tools": ["irb", "Ruby", "ruby -w", "Visual Studio Code"],
+          "lab_task": "Implement my_map(array) that yields each element and collects results. Create add = ->(a, b) { a + b } and prove add.curry[1][2] == 3. Call ->(a, b) {}.call(1) and proc { |a, b| [a, b] }.call(1) and compare. Build a counter closure with a captured count and call it three times. Compose upcase and exclaim lambdas with >>.",
+          "deliverable": "blocks.rb with my_map, a closure counter, a curried adder and captured lambda/proc differences",
+          "checks": [["Call ->(a, b) {}.call(1)", "Raises ArgumentError: wrong number of arguments (given 1, expected 2)", "Exception message"], ["Call proc { |a, b| [a, b] }.call(1)", "Returns [1, nil]", "irb output"], ["Call a counter closure three times", "Returns 1, 2 and 3 because the captured variable persists", "Script output"]],
+          "objectives": ["Write methods that accept and yield to blocks", "Explain lambda versus proc behaviour", "Use closures, currying and composition"]
+        },
+        {
+          "topic": "Classes, Objects and Instance State",
+          "subtopics": ["class, initialize and instance variables", "attr_reader, attr_writer and attr_accessor", "to_s versus inspect and overriding both", "Class methods with def self.x and class-level instance variables", "Class variables @@ and why to avoid them", "Visibility: public, private and protected, and the error messages", "Equality: == and the default identity comparison", "respond_to?, instance_variables and is_a? versus instance_of?", "Constants in classes and freeze", "Object lifecycle: new, allocate and garbage collection"],
+          "tools": ["irb", "Ruby", "ruby -w", "RuboCop"],
+          "lab_task": "Create an Account class with initialize(owner, balance), attr_reader :balance, deposit and withdraw, a private method audit, and a to_s override. Call account.audit and capture the NoMethodError. Print account.inspect and account.instance_variables. Raise an ArgumentError in withdraw when funds are insufficient and show it with a failing call.",
+          "deliverable": "account.rb with output showing inspect, to_s, the private-call error and the insufficient-funds error",
+          "checks": [["Call account.audit on a private method", "Raises NoMethodError: private method 'audit' called for an instance of Account", "Exception message"], ["Call account.instance_variables", "Returns [:@owner, :@balance]", "irb output"], ["Call withdraw with an amount above the balance", "Raises ArgumentError with the message you defined and the balance is unchanged", "Script output"]],
+          "objectives": ["Model state and behaviour in a class", "Control visibility", "Explain to_s, inspect and equality"]
+        },
+        {
+          "topic": "Inheritance, Modules and Mixins",
+          "subtopics": ["Subclassing with < and super with and without parentheses", "ancestors and method lookup order", "include, extend and prepend", "Comparable with <=> for sorting and clamp", "Enumerable with each for map, select and sort", "Namespaces with module and the :: operator", "module_function and utility modules", "Duck typing instead of type checks", "Composition versus inheritance", "Method overriding and calling super with changed arguments"],
+          "tools": ["irb", "Ruby", "Comparable", "Enumerable"],
+          "lab_task": "Define Animal and Dog < Animal with an overridden speak that calls super. Print Dog.ancestors. Create a Version class that includes Comparable via <=> on [major, minor, patch] and sort ['1.10.0', '1.9.9'] as Version objects. Create a Playlist that includes Enumerable and defines each, then call map, select, min_by and sort_by on it.",
+          "deliverable": "Inheritance.rb with ancestors output, a sorted Version list and an Enumerable Playlist",
+          "checks": [["Print Dog.ancestors", "Shows [Dog, Animal, Object, Kernel, BasicObject]", "Script output"], ["Sort Version 1.10.0 against 1.9.9 using Comparable", "1.9.9 sorts before 1.10.0", "Script output"], ["Call Playlist#min_by after including Enumerable", "Returns the shortest track without defining min_by", "irb output"]],
+          "objectives": ["Use inheritance and super correctly", "Add behaviour with Comparable and Enumerable", "Read the ancestors chain"]
+        },
+        {
+          "topic": "Struct, Data and Set Value Objects",
+          "subtopics": ["Struct.new with keyword_init: true", "Struct limits: mutable and loosely typed", "Data.define for immutable value objects", "Data#with, to_h and positional versus keyword construction", "Data errors: missing keyword and unknown attribute", "Equality and hash behaviour of value objects", "Set as a core class: union, intersection, subset? and add?", "Pattern matching with deconstruct and deconstruct_keys", "Choosing Hash, Struct, Data or a full class", "frozen value objects as hash keys"],
+          "tools": ["irb", "Ruby", "Data", "Set"],
+          "lab_task": "Define Point = Data.define(:lat, :lng) and create a point, then use with(lat: 5) and capture the inspect output. Call Point.new(lat: 1) and record the ArgumentError. Compare Point.new(1, 2) == Point.new(1, 2). Create a Struct version and mutate it to show the difference. Evaluate Set[1, 2] | Set[2, 3] and Set[1].add?(1).",
+          "deliverable": "Value-object notes with Data and Struct side by side and a decision table for Hash, Struct, Data and class",
+          "checks": [["Call Point.new(lat: 1)", "Raises ArgumentError: missing keyword: :lng", "Exception message"], ["Evaluate Point.new(1, 2).with(lat: 5)", "Returns #<data Point lat=5, lng=2>", "irb output"], ["Evaluate Set[1].add?(1)", "Returns nil because the element already exists", "irb output"]],
+          "objectives": ["Model immutable data with Data.define", "Contrast Struct, Data and Hash", "Use Set for uniqueness and set algebra"]
+        },
+        {
+          "topic": "Exceptions: raise, rescue, ensure and retry",
+          "subtopics": ["The exception hierarchy: Exception, StandardError and SystemExit", "Why bare rescue catches StandardError only", "rescue => e, e.message, e.backtrace and e.cause", "Custom error classes with extra fields", "ensure for cleanup and else for the success path", "retry with an attempt counter and backoff", "Re-raising with raise and wrapping with cause", "catch and throw for non-error control flow", "exit, abort and exit status codes", "Common errors: ArgumentError, TypeError, KeyError, Errno::ENOENT and NoMethodError"],
+          "tools": ["irb", "Ruby", "ruby -w", "RuboCop"],
+          "lab_task": "Write retry.rb with class RateLimited < StandardError and a method that fails twice then succeeds. Retry up to 3 times with sleep(0.1 * 2**attempt), and print each attempt. Rescue Errno::ENOENT from File.read('missing.txt') and print its message. Show that rescue Exception catches Interrupt and explain why that is wrong. Add an ensure that prints cleanup.",
+          "deliverable": "retry.rb with attempt logs, the ENOENT message and a note on why not to rescue Exception",
+          "checks": [["Call File.read('missing.txt')", "Raises Errno::ENOENT: No such file or directory @ rb_sysopen - missing.txt", "Exception message"], ["Run the flaky method with 3 attempts allowed", "Prints attempts 1 and 2 as failures and attempt 3 as success", "Script output"], ["Raise inside begin with ensure", "The ensure block prints cleanup before the exception leaves", "Script output"]],
+          "objectives": ["Handle and raise exceptions precisely", "Retry safely with a limit", "Define custom errors"]
+        },
+        {
+          "topic": "Files, Paths and Directories",
+          "subtopics": ["File.read, File.write and File.open with a block", "Modes r, w, a, r+ and binary b", "File.foreach and IO.readlines(chomp: true) for large files", "File.join, File.basename, File.extname and File.expand_path", "Dir.glob with ** and Dir.children", "Pathname for path arithmetic", "FileUtils.mkdir_p, cp, mv and rm_rf cautions", "Tempfile and Dir.mktmpdir for tests", "File.stat, mtime and permissions", "__FILE__, __dir__ and the if __FILE__ == $0 guard"],
+          "tools": ["irb", "Ruby", "Pathname", "FileUtils"],
+          "lab_task": "Write files.rb that creates a temp directory with Dir.mktmpdir, writes three .txt files, then lists them with Dir.glob('**/*.txt') and Pathname#children. Read one file line by line with File.foreach and count lines. Confirm File.write('a.txt', \"hi\\n\") returns 3. Open a path that does not exist and print the Errno::ENOENT class.",
+          "deliverable": "files.rb with printed directory listing, line counts and error handling for a missing file",
+          "checks": [["Run File.write('a.txt', \"hi\\n\")", "Returns 3, the number of bytes written", "irb output"], ["Run Dir.glob('**/*.txt') in the temp tree", "Returns all three files with relative paths", "Script output"], ["Run File.read on a missing path", "Raises Errno::ENOENT", "Exception class"]],
+          "objectives": ["Read and write files safely", "Navigate directories and paths", "Use temporary files in tests"]
+        },
+        {
+          "topic": "Regular Expressions and Text Parsing",
+          "subtopics": ["Match operators =~, match and match? and when each is cheapest", "Named captures (?<year>\\d{4}) and MatchData", "scan, gsub with a hash and a block, and sub", "Anchors: \\A and \\z versus ^ and $ (always line anchors)", "Quantifiers, greedy versus lazy and character classes", "Lookahead and lookbehind", "The /x flag for readable patterns and /i /m options", "Regexp.escape and Regexp.union for user input", "Regexp.timeout and Regexp::TimeoutError", "Parsing a log line into a Hash"],
+          "tools": ["irb", "Ruby", "Rubular", "Regexp"],
+          "lab_task": "Write a regex with named captures for the Common Log Format line 127.0.0.1 - - [10/Oct/2026:13:55:36 +0000] \"GET /a HTTP/1.1\" 200 2326 and print ip, method, path, status and bytes as a Hash. Test it with match? on 5 valid and 5 invalid lines. Evaluate 'a1b22'.scan(/\\d+/) and \"2026-07-04\".match(/(?<y>\\d+)-(?<m>\\d+)/)[:m].",
+          "deliverable": "log_regex.rb with the /x commented pattern and a 10-line pass/fail table",
+          "checks": [["Evaluate 'a1b22'.scan(/\\d+/)", "Returns [\"1\", \"22\"]", "irb output"], ["Match the sample log line", "Returns status 200 and bytes 2326 as strings", "Script output"], ["Run match? on a malformed line", "Returns false and does not raise", "Script output"]],
+          "objectives": ["Write readable regexes with named captures", "Pick anchors and quantifiers correctly", "Escape untrusted text in patterns"]
+        },
+        {
+          "topic": "JSON, CSV and YAML Data Handling",
+          "subtopics": ["JSON.parse with symbolize_names: true", "JSON.generate, pretty_generate and custom to_json", "JSON::ParserError handling", "CSV.read, CSV.foreach, headers: true and converters", "csv as a bundled gem from Ruby 3.4 and the Gemfile entry it needs", "YAML.load_file, YAML.dump and YAML.safe_load", "Psych::DisallowedClass and permitted_classes", "Dates and symbols in YAML", "Round-tripping data between formats", "Streaming large CSV files row by row"],
+          "tools": ["Ruby", "JSON", "CSV", "YAML", "Bundler"],
+          "lab_task": "Convert a 1,000-row CSV with headers to JSON using CSV.foreach(headers: true) and JSON.pretty_generate, then read it back with symbolize_names: true. Call YAML.safe_load(':a: 1') and capture Psych::DisallowedClass, then permit Symbol. Add gem 'csv' to the Gemfile and confirm bundle exec ruby -e 'require \"csv\"' succeeds.",
+          "deliverable": "converter.rb, a sample JSON output and a table of safe_load exceptions with their fixes",
+          "checks": [["Run YAML.safe_load(':a: 1')", "Raises Psych::DisallowedClass: Tried to load unspecified class: Symbol", "Exception message"], ["Run JSON.parse('{bad')", "Raises JSON::ParserError", "Exception class"], ["Count rows in the generated JSON array", "Equals 1000, the CSV data rows excluding the header", "Count printed by script"]],
+          "objectives": ["Convert between CSV, JSON and YAML", "Load YAML safely", "Handle parse errors"]
+        },
+        {
+          "topic": "Gems and Bundler Fundamentals",
+          "subtopics": ["gem install, gem list, gem uninstall and gem env", "Gemfile, source and gem declarations", "Version constraints: ~> 1.4, >= and exact pins", "Gemfile.lock and why it is committed for applications", "bundle install, bundle exec and bundle list", "bundle add, bundle update --conservative and bundle outdated", "Groups with group :test and BUNDLE_WITHOUT", "bundle config set --local path vendor/bundle", "Platforms and bundle lock --add-platform x86_64-linux", "Reading Bundler::GemNotFound and version conflict messages"],
+          "tools": ["Bundler", "RubyGems", "Ruby", "Rake", "Git"],
+          "lab_task": "Run bundle init, then bundle add rake rubocop --group development and bundle add minitest. Commit Gemfile and Gemfile.lock. Run bundle exec rake --version and bundle list. Pin rake with '~> 13.0', run bundle outdated, and then bundle update rake --conservative. Install into vendor/bundle with bundle config set --local path.",
+          "deliverable": "Project with Gemfile, Gemfile.lock and a write-up of what each constraint allows",
+          "checks": [["Run bundle exec rake --version", "Prints the version resolved in Gemfile.lock", "Terminal output"], ["Run bundle list after bundle install", "Lists rake, rubocop and minitest with resolved versions", "Command output"], ["Add a gem that does not exist with bundle add nonexistent-gem-xyz", "Fails with Could not find gem 'nonexistent-gem-xyz'", "Error text"]],
+          "objectives": ["Manage dependencies with Bundler", "Read and commit a Gemfile.lock", "Update gems conservatively"]
+        },
+        {
+          "topic": "Beginner Capstone: Access Log Summary Command-Line Tool",
+          "subtopics": ["Parse Common Log Format lines with a named-capture regex", "Count requests per status and top 5 paths with tally and sort_by", "Print a report as a text table or as JSON with a --json flag", "Handle missing files and malformed lines with exit codes 0, 1 and 2", "Cover the parser and report with Minitest tests", "Package the project with Gemfile, README and rubocop clean"],
+          "tools": ["Ruby", "Minitest", "Bundler", "RuboCop", "Git"],
+          "lab_task": "Build bin/logsum that reads an access log from a path or STDIN, skips lines that do not match, and prints total requests, a status-code table and the top 5 paths. Exit 2 for a missing file. Add test/parser_test.rb with 6 Minitest cases, run bundle exec ruby -Itest test/parser_test.rb and bundle exec rubocop with zero offenses.",
+          "deliverable": "Git repository with bin/logsum, lib/, test/, Gemfile, Gemfile.lock and a README with sample output",
+          "checks": [["Run bin/logsum on a 1,000-line sample log", "Totals match the lines that parse and the top-5 paths are sorted by count descending", "Report output"], ["Run bin/logsum missing.log", "Prints an error to STDERR and exits with status 2", "Terminal output and echo $?"], ["Run bundle exec ruby -Itest test/parser_test.rb", "Prints 6 runs, 0 failures, 0 errors", "Minitest summary line"]],
+          "objectives": ["Combine regexes, hashes and files in one tool", "Write tests for a parser", "Deliver a lint-clean, documented project"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Ruby developers who write scripts and small libraries and want professional habits. Covers pattern matching, the object model, metaprogramming, refinements, lazy enumerators, equality contracts, Minitest and RSpec, SimpleCov and mutation testing, debugging with the debug gem, RuboCop, RBS, Steep and Sorbet, building and publishing gems, OptionParser and Thor CLIs, subprocess scripting, HTTP clients, threads, SQLite and Sequel, logging and configuration, and a lockfile auditor gem capstone.",
+      "prerequisites": ["Completed the beginner level or can write classes, modules, blocks and Enumerable chains without help", "Has used Bundler, Git and a test runner at least once", "Can read a stack trace and fix a failing script"],
+      "outcomes": ["Use the object model, pattern matching and metaprogramming deliberately and safely", "Test, lint, type-check and debug Ruby code with Minitest, RSpec, RuboCop, RBS and rdbg", "Build, document and package gems and command-line tools that call HTTP APIs and databases", "Write threaded I/O code with correct synchronisation, configuration and structured logging"],
+      "days": [
+        {
+          "topic": "Pattern Matching with case/in, Pins and Deconstruction",
+          "subtopics": ["case/in with array, hash and find patterns", "Binding with => name and pinning with ^variable and ^(expression)", "Guards with if and unless", "Alternative patterns with | and nil patterns", "Standalone value in pattern and value => pattern", "deconstruct and deconstruct_keys on your own classes", "Pattern matching on Struct and Data", "NoMatchingPatternError and NoMatchingPatternKeyError messages", "Parsing JSON payloads with patterns", "Pattern matching versus case/when and dig"],
+          "tools": ["Ruby", "irb", "Data", "RuboCop"],
+          "lab_task": "Write events.rb that takes parsed JSON events such as {type: 'login', user: {id: 7, roles: ['admin']}} and uses case/in with find patterns [*, 'admin', *], pinned values and guards to route them. Implement deconstruct_keys on a Money class. Trigger NoMatchingPatternKeyError with case {a: 1} in {b:} and record the message.",
+          "deliverable": "events.rb with 8 routed sample events and captured NoMatchingPattern errors",
+          "checks": [["Run case {a: 1} in {b:} end", "Raises NoMatchingPatternKeyError: {a: 1}: key not found: :b", "Exception message"], ["Run case 5 in String end", "Raises NoMatchingPatternError: 5: String === 5 does not return true", "Exception message"], ["Match {user: {roles: ['admin']}} with a find pattern for 'admin'", "Branch executes and binds the user id", "Script output"]],
+          "objectives": ["Destructure nested data with patterns", "Implement deconstruct and deconstruct_keys", "Read pattern matching errors"]
+        },
+        {
+          "topic": "Object Model: Singleton Classes and Method Lookup",
+          "subtopics": ["Classes are objects: Class.ancestors", "Method lookup path with ancestors and instance_method(:x).owner", "Singleton classes and class << self", "extend versus include, and where class methods live", "Module#prepend and the lookup order", "super_method and Method#source_location", "Constant lookup: Module.nesting and const_get", "instance_variable_get and instance_variable_set", "ObjectSpace.each_object(Class) and Class#subclasses", "BasicObject and why Object includes Kernel"],
+          "tools": ["irb", "Ruby", "Method", "ObjectSpace"],
+          "lab_task": "Define a module Loud with a shout method, a class Dog that includes it, and a singleton method on one dog. Print Dog.ancestors, dog.singleton_class.instance_methods(false), dog.method(:shout).owner and dog.method(:shout).source_location. Compare include, extend and prepend with a method that calls super. Print Class.ancestors.",
+          "deliverable": "Model diagram with printed ancestors for include, extend and prepend plus the method owner table",
+          "checks": [["Print Class.ancestors", "Prints [Class, Module, Object, Kernel, BasicObject]", "irb output"], ["Call dog.method(:shout).owner", "Returns Loud, the module that defines the method", "irb output"], ["Define def dog.sit on one instance and call it on another dog", "Raises NoMethodError: undefined method 'sit' for an instance of Dog", "Exception message"]],
+          "objectives": ["Trace method lookup", "Explain singleton classes and class methods", "Compare include, extend and prepend"]
+        },
+        {
+          "topic": "Metaprogramming with define_method and method_missing",
+          "subtopics": ["define_method and closures for generated methods", "send versus public_send and visibility bypass", "method_missing with respond_to_missing?", "Class.new and class_eval for dynamic classes", "instance_variable_get and set for serialisation", "Hooks: inherited, included, method_added", "alias_method and wrapping methods", "const_missing and const_set", "Costs: debuggability, performance and NoMethodError messages", "Replacing metaprogramming with explicit code"],
+          "tools": ["Ruby", "irb", "Method", "RuboCop"],
+          "lab_task": "Write a Settings class that stores values in a hash and exposes them through method_missing for name and name=, plus respond_to_missing?. Then generate the same accessors with define_method and compare. Confirm settings.respond_to?(:port) is true after setting port. Call an unset getter on a plain class and capture NoMethodError. Benchmark method_missing against define_method with 1 million calls.",
+          "deliverable": "settings.rb with both implementations, benchmark numbers and a recommendation",
+          "checks": [["Call settings.port after settings.port = 8080", "Returns 8080 through method_missing", "Script output"], ["Call settings.respond_to?(:port)", "Returns true only because respond_to_missing? is defined", "irb output"], ["Call an undefined method on Ghost.new", "Raises NoMethodError: undefined method 'foo' for an instance of Ghost", "Exception message"]],
+          "objectives": ["Generate methods dynamically", "Implement method_missing correctly", "Weigh metaprogramming costs"]
+        },
+        {
+          "topic": "Refinements, prepend and Safe Monkey Patching",
+          "subtopics": ["Why global monkey patches break gems", "refine and using, and file-scope activation", "What refinements cannot reach: respond_to? and some reflection", "Module#prepend for wrapping with super", "Detecting patches with instance_method(:x).owner and source_location", "Warning.warn and deprecation messages for patches", "Avoiding collisions: namespaced helpers and delegation", "Testing code that uses refinements", "Ruby::Box as a future isolation tool for patches", "Review rules for core-class extensions"],
+          "tools": ["Ruby", "irb", "Minitest", "RuboCop"],
+          "lab_task": "Create a refinement String#shout that appends '!' and activate it with using only in one file. Show another file calling the same method raises NoMethodError. Then wrap a Logger-like class method with Module#prepend and call super. Print the ancestors and use instance_method(:log).owner to prove the wrapper is first. Write a Minitest test for the refinement.",
+          "deliverable": "Two files proving scope plus a prepend wrapper and a test passing under rake test",
+          "checks": [["Call 'a'.shout in the file with using", "Returns \"a!\"", "Script output"], ["Call 'a'.shout in a file without using", "Raises NoMethodError: undefined method 'shout' for an instance of String", "Exception message"], ["Print Wrapped.ancestors after prepend", "The prepended module appears before the class", "Script output"]],
+          "objectives": ["Scope extensions with refinements", "Wrap methods with prepend", "Avoid global monkey patches"]
+        },
+        {
+          "topic": "Lazy Enumerators, Enumerator::Yielder and External Iteration",
+          "subtopics": ["Enumerator.new { |y| y << v } for generators", "External iteration with next, peek, rewind and StopIteration", "Enumerator.produce for sequences", "lazy with select, map, take_while and first", "Lazy versus eager: memory and evaluation order", "Enumerator::Chain and Enumerator.product", "with_index, with_object and each_entry", "Reading huge files lazily with File.foreach", "Infinite sequences and termination", "Enumerators and fibers: why next is slower than each"],
+          "tools": ["Ruby", "irb", "Enumerator", "Benchmark"],
+          "lab_task": "Build a prime generator with Enumerator.new and a Fibonacci sequence with Enumerator.produce([0, 1]) { |a, b| [b, a + b] }. Evaluate (1..Float::INFINITY).lazy.select(&:even?).map { _1 * 2 }.first(3). Use next and peek until StopIteration. Stream a 500 MB file with File.foreach(path).lazy.grep(/ERROR/).first(10) and measure peak memory.",
+          "deliverable": "Generators with lazy pipelines and a memory comparison of eager versus lazy reading",
+          "checks": [["Evaluate (1..Float::INFINITY).lazy.select(&:even?).map { _1 * 2 }.first(3)", "Returns [4, 8, 12]", "irb output"], ["Evaluate Enumerator.produce(1) { _1 * 2 }.take(5)", "Returns [1, 2, 4, 8, 16]", "irb output"], ["Call next past the end of a 2-element enumerator", "Raises StopIteration: iteration reached an end", "Exception message"]],
+          "objectives": ["Write generators with Enumerator", "Process unbounded data lazily", "Use external iteration safely"]
+        },
+        {
+          "topic": "Equality, Hashing and Comparable Contracts",
+          "subtopics": ["==, equal?, eql? and === and what each answers", "The eql? and hash contract for Hash keys and uniq", "1 == 1.0 versus 1.eql?(1.0)", "Implementing <=> and Comparable", "Errors: comparison of Foo with Foo failed", "coerce for numeric-like classes", "Implicit conversion: to_str, to_ary, to_proc", "Defining == for value objects and hash from fields", "Mutable keys and frozen keys", "sort versus sort_by and stability"],
+          "tools": ["Ruby", "irb", "Comparable", "Minitest"],
+          "lab_task": "Write a Money class with amount and currency that defines ==, eql?, hash and <=>, then include Comparable. Prove [Money.new(5,'USD'), Money.new(5,'USD')].uniq.size is 1 and that without hash it is 2. Compare 1.eql?(1.0) and {1 => :a}[1.0]. Trigger the comparison failed error by sorting two plain Objects.",
+          "deliverable": "money.rb with uniq and Hash lookup demonstrations and a Minitest suite for the contracts",
+          "checks": [["Evaluate [Money.new(5,'USD'), Money.new(5,'USD')].uniq.size", "Returns 1 after eql? and hash are defined", "Test output"], ["Evaluate {1 => :a}[1.0]", "Returns nil because 1.eql?(1.0) is false", "irb output"], ["Run [Object.new, Object.new].sort", "Raises ArgumentError: comparison of Object with Object failed", "Exception message"]],
+          "objectives": ["Implement equality contracts correctly", "Use objects as hash keys", "Add ordering with Comparable"]
+        },
+        {
+          "topic": "Minitest: Assertions, Fixtures and Stubs",
+          "subtopics": ["Minitest::Test, setup and teardown", "assert_equal, assert_nil, assert_in_delta and assert_raises", "Reading Expected and Actual failure output", "Minitest::Spec with describe and it", "Running one test with -n /pattern/ and --seed for reproducibility", "Rake::TestTask and bundle exec rake test", "Stubbing with Object#stub and Minitest::Mock", "Randomised order and order-dependence bugs", "parallelize_me! and thread safety in tests", "Test design: arrange, act, assert"],
+          "tools": ["Minitest", "Rake", "Ruby", "Bundler", "SimpleCov"],
+          "lab_task": "Create test/calculator_test.rb with 8 tests, including assert_raises(ZeroDivisionError) and assert_in_delta. Run ruby -Itest test/calculator_test.rb --seed 1234 twice and confirm identical order. Run only one test with -n /divide/. Break one assertion and capture the Expected/Actual output. Add Rake::TestTask and run bundle exec rake test. Stub Time.now in one test.",
+          "deliverable": "Test suite with a passing run, one intentional failure captured and a rake test task",
+          "checks": [["Run the suite with --seed 1234 twice", "Same test order and same results in both runs", "Two terminal outputs"], ["Run with -n /divide/", "Only matching tests execute and the summary shows their count", "Minitest summary"], ["Break assert_equal 4, add(2, 3)", "Failure prints Expected: 4 and Actual: 5 with the file and line", "Failure output"]],
+          "objectives": ["Write and run Minitest suites", "Reproduce failures with seeds", "Stub time and collaborators"]
+        },
+        {
+          "topic": "RSpec: Examples, Let, Doubles and Matchers",
+          "subtopics": ["rspec --init and the .rspec file", "describe, context and it, with documentation format", "let, let! and subject lazy evaluation", "expect(...).to eq, include, match and raise_error", "change { } matchers", "instance_double, allow, receive and have_received", "verify_partial_doubles and why doubles should be verified", "shared_examples and tags such as --tag slow", "--bisect, --fail-fast and --only-failures", "RSpec versus Minitest trade-offs"],
+          "tools": ["RSpec", "Ruby", "Bundler", "Rake", "SimpleCov"],
+          "lab_task": "Run bundle exec rspec --init, then write spec/cart_spec.rb with describe, context, let, subject and 10 examples using eq, change, raise_error and include. Use instance_double(PaymentGateway) with allow and have_received. Run rspec --format documentation and then with --tag slow excluded. Add config.example_status_persistence_file_path and run rspec --only-failures.",
+          "deliverable": "Spec suite with documentation output, a verified double and a persisted-failures run",
+          "checks": [["Run bundle exec rspec --format documentation", "Prints the nested describe/context text and 10 examples, 0 failures", "RSpec output"], ["Stub a method that does not exist on an instance_double", "Fails with the double does not implement the method error", "Failure output"], ["Run rspec --only-failures after one failing run", "Only the previously failed examples execute", "Terminal output"]],
+          "objectives": ["Write readable RSpec suites", "Use verified doubles", "Run subsets and diagnose failures"]
+        },
+        {
+          "topic": "Coverage and Mutation Testing: SimpleCov and Mutant",
+          "subtopics": ["SimpleCov.start before loading application code", "Line versus branch coverage with enable_coverage :branch", "minimum_coverage line: 90, branch: 80 and exit status 2", "Reading coverage/index.html and .resultset.json", "Merging results across parallel runs", "What coverage cannot tell you", "Mutation testing: surviving mutants as missing assertions", "Mutant: mutant run --usage opensource and the licence terms", "Killing mutants with boundary tests", "Setting a CI gate without chasing 100 percent"],
+          "tools": ["SimpleCov", "Mutant", "RSpec", "Minitest", "Ruby"],
+          "lab_task": "Add SimpleCov with enable_coverage :branch and minimum_coverage line: 90, branch: 80 to a library of 3 classes. Run the suite and open coverage/index.html. Delete one test and confirm the run exits with status 2. Run mutant on one class, list two alive mutations and add tests to kill them. Report line, branch and mutation scores before and after.",
+          "deliverable": "Before and after coverage report with a table of alive mutants and the tests that killed them",
+          "checks": [["Remove tests so line coverage drops below 90", "Suite exits with status 2 and prints the minimum coverage message", "echo $? and output"], ["Open coverage/index.html", "Shows per-file line coverage and highlights uncovered branches", "Screenshot"], ["Run mutant after adding boundary tests", "Alive mutation count is lower than before", "Mutant report"]],
+          "objectives": ["Gate builds on coverage", "Interpret branch coverage", "Use mutation testing to find weak tests"]
+        },
+        {
+          "topic": "Debugging with irb, the debug Gem and Logging Probes",
+          "subtopics": ["binding.irb and irb commands: ls, show_source, edit and debug", "The debug gem: debugger, rdbg and breakpoints", "Stepping with next, step, finish and continue", "Inspecting with bt, info, p, pp and display", "Watchpoints and catch NoMethodError", "Remote debugging with rdbg --open and rdbg -A", "Debugging under bundle exec rake test with rdbg -c --", "p versus puts versus pp for inspection", "Reading backtraces and Exception#full_message", "Using caller and TracePoint for temporary probes"],
+          "tools": ["debug gem (rdbg)", "irb", "Ruby", "Visual Studio Code", "Minitest"],
+          "lab_task": "Take a buggy program that returns wrong totals for a nested array. Put a debugger call before the loop, run rdbg buggy.rb, set a breakpoint with b buggy.rb:12, use next, info and p to find the faulty variable and fix it. Then drop binding.irb in the test, run the failing test, and inspect with ls and show_source. Record the commands used.",
+          "deliverable": "Debugging transcript with breakpoint, watch or catch usage, the root cause and the fix",
+          "checks": [["Run rdbg buggy.rb and issue b buggy.rb:12 then c", "Execution stops at line 12 and info shows the local variables", "Debugger transcript"], ["Use catch NoMethodError and continue", "The debugger stops when the error is raised before the program exits", "Debugger transcript"], ["Rerun the program after the fix", "Prints the expected total", "Terminal output"]],
+          "objectives": ["Use breakpoints and stepping", "Inspect state with irb and rdbg", "Debug a failing test"]
+        },
+        {
+          "topic": "Linting and Formatting with RuboCop and Standard",
+          "subtopics": ["Installing RuboCop and rubocop --init", ".rubocop.yml: AllCops, TargetRubyVersion and NewCops: enable", "Safe -a versus unsafe -A autocorrect", "Running one cop with --only Style/StringLiterals", "Adopting on a legacy codebase with --auto-gen-config and .rubocop_todo.yml", "Plugins: rubocop-rspec, rubocop-performance and the plugins key", "Inline disables with rubocop:disable and their cost", "Metrics cops: MethodLength, AbcSize and what they signal", "Standard as a zero-config alternative", "Editor integration with Ruby LSP and a CI gate"],
+          "tools": ["RuboCop", "Standard", "Ruby LSP", "Visual Studio Code", "Bundler"],
+          "lab_task": "Take a deliberately messy 200-line script. Run bundle exec rubocop and record the offense count. Fix the safe ones with rubocop -a. Generate rubocop --auto-gen-config and show the todo file. Configure .rubocop.yml with TargetRubyVersion and NewCops: enable, add rubocop-performance, and make the check fail CI on any new offense. Compare with standardrb.",
+          "deliverable": "Before and after offense counts, .rubocop.yml, .rubocop_todo.yml and a CI step",
+          "checks": [["Run bundle exec rubocop on the messy script", "Reports N offenses and exits with status 1", "Output and echo $?"], ["Run bundle exec rubocop -a", "Correctable offenses are fixed and the remaining count is lower", "Output"], ["Run bundle exec rubocop with the generated todo file", "Exits with status 0 while todo entries are excluded", "echo $?"]],
+          "objectives": ["Configure RuboCop for a project", "Adopt linting on legacy code", "Choose between RuboCop and Standard"]
+        },
+        {
+          "topic": "Type Signatures with RBS, Steep and Sorbet",
+          "subtopics": ["Why optional types: documentation, tooling and bug discovery", "RBS syntax in sig/*.rbs for classes, methods and generics", "rbs prototype rb and rbs validate", "rbs collection for gem signatures", "Steep: steep init and steep check", "Sorbet: srb init, typed levels and sig blocks", "T.let, T.nilable and runtime checks with sorbet-runtime", "TypeProf for inference", "Gradual adoption and ignoring dynamic code", "Choosing RBS and Steep versus Sorbet"],
+          "tools": ["RBS", "Steep", "Sorbet", "TypeProf", "Ruby LSP"],
+          "lab_task": "Run rbs prototype rb lib/invoice.rb > sig/invoice.rbs and tighten the signatures by hand. Add Steepfile with check 'lib' and signature 'sig', run steep check, and fix one deliberate type error such as passing a String where Integer is expected. In a second copy, add sorbet with srb init and a sig block with params and returns, then trigger the runtime TypeError.",
+          "deliverable": "Typed copy of a small library with sig files, a clean steep check and a Sorbet runtime failure screenshot",
+          "checks": [["Run rbs validate in the project", "Exits with status 0 and no validation errors", "echo $?"], ["Introduce a String where Integer is declared and run steep check", "Reports a type error naming the argument and file line", "Steep output"], ["Call a sorbet-runtime method with the wrong type", "Raises TypeError describing the expected and actual types", "Exception message"]],
+          "objectives": ["Write RBS signatures", "Check code with Steep", "Compare RBS and Sorbet adoption paths"]
+        },
+        {
+          "topic": "Building and Publishing Gems",
+          "subtopics": ["bundle gem name --test=minitest --linter=rubocop --ci=github", "Gem layout: lib, exe, sig and the version constant", "The gemspec: summary, required_ruby_version, files and executables", "Dependencies: add_dependency versus add_development_dependency", "gem build and the Successfully built RubyGem output", "gem install ./pkg.gem and gem contents", "Metadata: rubygems_mfa_required, source_code_uri and changelog_uri", "gem push, API keys and rake release", "Trusted publishing from GitHub Actions through OIDC", "gem yank and semantic versioning"],
+          "tools": ["RubyGems", "Bundler", "Rake", "GitHub Actions", "Minitest"],
+          "lab_task": "Run bundle gem greeter --test=minitest --linter=rubocop --ci=github, fill in the gemspec, set metadata['rubygems_mfa_required'] = 'true', and add an exe/greeter script. Run gem build greeter.gemspec, install it with gem install ./greeter-0.1.0.gem and run greeter. Inspect the file list with gem contents greeter. Do not push to the real index.",
+          "deliverable": "A buildable gem with the generated .gem file listing and a checklist for a real release",
+          "checks": [["Run gem build greeter.gemspec", "Prints Successfully built RubyGem with Name greeter, Version 0.1.0 and File greeter-0.1.0.gem", "Command output"], ["Run gem install ./greeter-0.1.0.gem then greeter", "The executable runs from PATH and prints its greeting", "Terminal output"], ["Run gem contents greeter", "Lists lib and exe files and no test or coverage artefacts", "Command output"]],
+          "objectives": ["Scaffold and build a gem", "Write a correct gemspec", "Explain a secure release workflow"]
+        },
+        {
+          "topic": "Command-Line Tools with OptionParser and Thor",
+          "subtopics": ["OptionParser: banner, on, parse! and into: opts", "Short and long flags, arguments and type coercion", "OptionParser::InvalidOption and MissingArgument", "Auto --help and --version", "Thor: commands, desc, option and subcommands", "exit_on_failure? and exit codes: 0, 1 and 64", "STDIN, ARGF and tty? detection", "stderr versus stdout and warn", "Colour output and NO_COLOR", "Testing CLIs with Open3 and exit statuses"],
+          "tools": ["OptionParser", "Thor", "Ruby", "Open3", "Minitest"],
+          "lab_task": "Build exe/inv with OptionParser supporting --format json|text, -v, --limit N and --help. Print the usage on a bad flag and exit 64. Then rebuild it with Thor subcommands list and show. Run inv --bogus and capture the OptionParser::InvalidOption message. Add an Open3.capture3 test that asserts stdout, stderr and exit status for three cases.",
+          "deliverable": "CLI in both libraries, a usage screenshot and a 3-case subprocess test",
+          "checks": [["Run exe/inv --bogus", "Prints invalid option: --bogus to STDERR and exits 64", "Terminal output and echo $?"], ["Run exe/inv --format json", "Writes JSON to STDOUT and nothing to STDERR", "Captured output"], ["Run exe/inv --help", "Prints the banner with every option and exits 0", "Terminal output"]],
+          "objectives": ["Build a CLI with OptionParser", "Use exit codes and streams correctly", "Test a CLI through a subprocess"]
+        },
+        {
+          "topic": "Shell Scripting with Open3, FileUtils and Process",
+          "subtopics": ["system, backticks and $? and their return values", "Open3.capture3 and popen3 for stdout, stderr and status", "Array arguments versus a shell string", "Shellwords.escape and why not to interpolate", "Process.spawn, wait and Process::Status", "FileUtils: mkdir_p, cp_r, mv and rm_rf with verbose: and noop:", "Signal.trap and clean shutdown", "ENV.fetch and per-command environment hashes", "ruby -n -p -i -e one-liners for text processing", "Timeouts on subprocesses"],
+          "tools": ["Ruby", "Open3", "FileUtils", "Process", "ShellCheck"],
+          "lab_task": "Write backup.rb that creates a timestamped directory, copies *.log files with FileUtils.cp, runs tar through Open3.capture3('tar', '-czf', archive, dir), and aborts with a clear message on non-zero status. Show system('exit 3') returns false with $?.exitstatus 3 and system('nonexistent_cmd') returns nil. Add a one-liner ruby -ne 'print if /ERROR/' app.log.",
+          "deliverable": "backup.rb with a dry-run mode using noop: true and a table of return values from system, backticks and capture3",
+          "checks": [["Run system('exit 3') then read $?.exitstatus", "system returns false and the status is 3", "irb output"], ["Run system('nonexistent_cmd_x')", "Returns nil because the command could not be started", "irb output"], ["Run backup.rb with FileUtils noop: true", "Prints the planned cp commands and creates no files", "Terminal output and directory listing"]],
+          "objectives": ["Run subprocesses safely", "Interpret exit statuses", "Automate file tasks with FileUtils"]
+        },
+        {
+          "topic": "HTTP Clients with Net::HTTP and Faraday",
+          "subtopics": ["Net::HTTP.get_response and Net::HTTP.start with use_ssl: true", "open_timeout, read_timeout and Net::OpenTimeout and Net::ReadTimeout", "Response classes: Net::HTTPSuccess and status handling", "JSON requests and responses", "Faraday connections, middleware and request :json", "faraday-retry for max, interval and backoff_factor", "Faraday::TimeoutError and raise_error middleware", "Idempotency and which verbs can be retried", "Testing with WebMock stub_request and disable_net_connect!", "Redirects, gzip and User-Agent"],
+          "tools": ["Net::HTTP", "Faraday", "WebMock", "Ruby", "Minitest"],
+          "lab_task": "Write client.rb that GETs a JSON endpoint with Net::HTTP using open_timeout: 2 and read_timeout: 3. Rebuild it with Faraday and the faraday-retry middleware (max: 3, interval: 0.2, backoff_factor: 2). With WebMock stub the first two responses as 503 and the third as 200, and assert exactly 3 requests were made. Stub a timeout and confirm Faraday::TimeoutError.",
+          "deliverable": "client.rb with both versions and a Minitest file using WebMock for retry and timeout cases",
+          "checks": [["Stub 503, 503, 200 and call the client", "Returns the parsed body and WebMock records 3 requests", "Test output"], ["Stub the request with .to_timeout", "Client raises Faraday::TimeoutError after the configured retries", "Exception class"], ["Call an unstubbed URL while WebMock is on", "Raises WebMock::NetConnectNotAllowedError", "Exception message"]],
+          "objectives": ["Call HTTP APIs with explicit timeouts", "Retry safely", "Test HTTP code without a network"]
+        },
+        {
+          "topic": "Threads, Mutex and Queue",
+          "subtopics": ["Thread.new, join and value", "The GVL: what threads can and cannot speed up", "I/O-bound speed-up: ten sleeps in about one second", "Race conditions with read-modify-write and Mutex#synchronize", "Queue and SizedQueue for producer/consumer pipelines", "Queue#close and pop returning nil", "ConditionVariable and Queue#pop(timeout:)", "report_on_exception and abort_on_exception", "Thread-local, fiber-local and thread_variable_get", "Timeout.timeout pitfalls and thread kill"],
+          "tools": ["Ruby", "Thread", "Mutex", "Queue", "Benchmark"],
+          "lab_task": "Time 10 threads each running sleep 1 and confirm total wall time is about 1 second versus 10 serial. Build a lost-update demo with a shared counter, 10 threads and a Thread.pass between read and write, then fix it with Mutex#synchronize. Implement a producer/consumer with SizedQueue(5), 3 workers and a close signal, and process 1,000 jobs.",
+          "deliverable": "threads.rb with timing results, a reproduced lost update and a worker pool processing 1,000 jobs",
+          "checks": [["Run 10 threads each sleeping 1 second and time them", "Total is about 1.0 seconds, not 10", "Benchmark output"], ["Run the counter demo without a Mutex", "Final count is below 10 * iterations", "Script output"], ["Run the SizedQueue pipeline", "Exactly 1000 jobs are processed and all workers exit after close", "Script output"]],
+          "objectives": ["Use threads for I/O concurrency", "Remove races with Mutex and Queue", "Build a worker pool"]
+        },
+        {
+          "topic": "Databases with SQLite3 and Sequel",
+          "subtopics": ["SQLite3::Database, execute and results_as_hash", "Placeholders ? and why string interpolation is SQL injection", "Transactions with transaction and rollback on exceptions", "PRAGMA foreign_keys = ON and journal_mode = WAL", "Constraint errors: SQLite3::ConstraintException", "Sequel.sqlite, create_table and datasets", "Sequel migrations and sequel -m", "Sequel::UniqueConstraintViolation and Sequel::Model basics", "Batch inserts and performance with transactions", "Connection handling and thread safety"],
+          "tools": ["SQLite3", "Sequel", "Ruby", "Minitest", "sqlite3 CLI"],
+          "lab_task": "Create users and orders tables with a UNIQUE email and a foreign key. Insert 10,000 rows with placeholders, once without a transaction and once inside DB.transaction, and time both. Insert a duplicate email and capture the constraint error. Run a query with string interpolation using the input x' OR '1'='1 and show the leak, then fix it with placeholders.",
+          "deliverable": "db.rb with timings, the constraint error, the injection demo and its fix, plus a Sequel migration",
+          "checks": [["Insert a duplicate email", "Raises a unique constraint error naming users.email", "Exception message"], ["Insert 10,000 rows in one transaction versus without one", "The transactional run is many times faster", "Timing table"], ["Query with the input x' OR '1'='1 using placeholders", "Returns 0 rows", "Query result"]],
+          "objectives": ["Run safe parameterised SQL", "Use transactions and constraints", "Model data with Sequel"]
+        },
+        {
+          "topic": "Logging, Configuration and Environment",
+          "subtopics": ["Logger.new, levels, progname and formatter", "Lazy messages with logger.info { expensive }", "Log rotation with Logger.new(path, 5, 1_048_576)", "Structured JSON log lines", "ENV.fetch with defaults and KeyError for required settings", "dotenv for development and why not in production", "Config files: YAML with ERB and a frozen Data config object", "Secrets: never log them and redact patterns", "warn(uplevel:) and Warning.warn for library messages", "at_exit hooks and Signal.trap for shutdown logging"],
+          "tools": ["Logger", "dotenv", "YAML", "Ruby", "Minitest"],
+          "lab_task": "Create config.rb that builds a Data config from ENV.fetch('DATABASE_URL') and ENV.fetch('PORT', '3000').to_i, failing fast with KeyError if DATABASE_URL is missing. Add a JSON Logger formatter that outputs timestamp, level, message and request_id, and a redaction that replaces password=... with password=[FILTERED]. Run with and without the variable and capture both results.",
+          "deliverable": "config.rb and logging.rb with sample log lines and a failing-fast run",
+          "checks": [["Run without DATABASE_URL", "Raises KeyError: key not found: \"DATABASE_URL\"", "Exception message"], ["Log 'login password=hunter2'", "Output line contains password=[FILTERED] and not hunter2", "Log output"], ["Parse each log line with JSON.parse", "Every line is valid JSON with level and timestamp keys", "Validation script output"]],
+          "objectives": ["Configure apps from the environment", "Emit structured logs", "Prevent secrets from reaching logs"]
+        },
+        {
+          "topic": "Intermediate Capstone: Lockfile Auditor Gem with CLI, Tests and RBS",
+          "subtopics": ["Parse Gemfile.lock with Bundler::LockfileParser and list specs", "Query the rubygems.org versions API with timeouts and retries", "Report outdated and yanked dependencies as table and JSON", "Cover the library with Minitest, WebMock and SimpleCov at 90 percent", "Lint with RuboCop and type with RBS and Steep", "Build the gem and install it from the .gem file"],
+          "tools": ["Bundler", "Thor", "Faraday", "Minitest", "RuboCop", "Steep"],
+          "lab_task": "Build a gem lockaudit with exe/lockaudit check Gemfile.lock. Use Bundler::LockfileParser, query https://rubygems.org/api/v1/versions/<name>/latest.json with Faraday retries, and print a table of gem, locked and latest. Provide --json and exit status 1 when anything is outdated. Add WebMock tests, SimpleCov minimum 90, RuboCop clean, sig/ files with steep check, and gem build.",
+          "deliverable": "Repository with the gem, passing tests, steep check, rubocop and a built lockaudit-0.1.0.gem",
+          "checks": [["Run lockaudit check on a lockfile with one outdated gem", "Prints that gem with locked and latest versions and exits 1", "Terminal output and echo $?"], ["Run bundle exec rake test", "All tests pass with SimpleCov line coverage at 90 percent or higher", "Coverage summary"], ["Run steep check and rubocop", "Steep reports no type errors and RuboCop reports no offenses", "Both outputs"]],
+          "objectives": ["Combine parsing, HTTP, CLI and tests in a gem", "Meet quality gates for lint, types and coverage", "Package and install the gem locally"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Ruby developers who own libraries, tools or performance-sensitive services. Covers fibers and the fiber scheduler, the Async gem, Ractors with Ractor::Port, the GVL and concurrency model choice, fork and copy-on-write, Ruby::Box, profiling with stackprof and Vernier, memory profiling, GC tuning, YJIT and ZJIT, benchmarking, C and Rust native extensions, FFI, supply-chain and application security, DSL design, TracePoint and Prism, gem maintenance, Ruby upgrades, and a parallel log-engine capstone.",
+      "prerequisites": ["Completed the intermediate level or has shipped a gem or production Ruby tool", "Comfortable with threads, processes and reading profiler output", "Can read C or Rust well enough to follow a small native extension"],
+      "outcomes": ["Choose between threads, fibers, processes and Ractors using measurements", "Profile CPU, allocation and GC behaviour and prove an optimisation with data", "Write native extensions and FFI bindings and judge when they are worth the cost", "Harden dependencies and code against supply-chain, injection and deserialisation risks and run Ruby upgrades safely"],
+      "days": [
+        {
+          "topic": "Fibers and the Fiber Scheduler Interface",
+          "subtopics": ["Fiber.new, resume and Fiber.yield as coroutines", "Fiber states: alive? and the FiberError after termination", "Passing values in and out of resume and yield", "Enumerator#next as a fiber under the hood", "Fiber storage with Fiber[] and Fiber#storage", "Blocking versus non-blocking fibers: Fiber.new(blocking: false)", "Fiber.set_scheduler and Fiber.schedule", "Scheduler hooks: io_wait, kernel_sleep, block, unblock and close", "What the scheduler intercepts: sleep, sockets, Queue and Mutex", "Cost model: fibers versus threads for 10,000 tasks"],
+          "tools": ["Ruby", "Fiber", "Benchmark", "irb", "async gem"],
+          "lab_task": "Write a Fibonacci generator with Fiber.new and Fiber.yield and call resume 1,000,000 times, then compare with Enumerator#next using Benchmark.realtime. Resume a finished fiber and capture the FiberError. Create 10,000 fibers, resume each once, and report memory with GC.stat and /proc/self/status VmRSS. Store a request id with Fiber[:request_id] and read it in a child fiber.",
+          "deliverable": "fibers.rb with timings, a captured FiberError and a memory table for 10,000 fibers",
+          "checks": [["Resume a fiber after it returned", "Raises FiberError: attempt to resume a terminated fiber", "Exception message"], ["Set Fiber[:request_id] = 'r1' and read it inside Fiber.new", "The child fiber sees r1 through inherited storage", "Script output"], ["Create and resume 10,000 fibers", "All complete and VmRSS growth is measured and recorded", "Measurement table"]],
+          "objectives": ["Use fibers as coroutines", "Explain what a fiber scheduler intercepts", "Estimate the cost of fibers versus threads"]
+        },
+        {
+          "topic": "Structured Concurrency with the Async Gem",
+          "subtopics": ["Async do |task| and Sync for entry points", "task.async children and the rule that children end with the parent", "Async::Barrier for waiting on a group", "Async::Semaphore to cap concurrency", "task.with_timeout and Async::TimeoutError", "Async::Queue and Async::Condition", "Async::HTTP::Internet for concurrent requests", "Stopping tasks and cleanup with ensure", "Error propagation: wait raises the task exception", "Interop with threads and blocking C calls"],
+          "tools": ["async gem", "Ruby", "Async::HTTP", "Benchmark", "Minitest"],
+          "lab_task": "Run 50 tasks that each task.sleep(0.5) under a Semaphore limit of 10 and confirm total time is about 2.5 seconds. Add task.with_timeout(0.2) to one slow task and catch Async::TimeoutError. Use Async::Barrier to wait for the group. Replace sleep with Async::HTTP::Internet GETs against a local stub and compare against sequential requests.",
+          "deliverable": "async_pool.rb with timings for sequential, 10-wide and unlimited runs and a timeout case",
+          "checks": [["Run 50 half-second tasks with a semaphore of 10", "Total wall time is about 2.5 seconds", "Benchmark output"], ["Wrap a 1-second task in with_timeout(0.2)", "Raises Async::TimeoutError after about 0.2 seconds", "Exception and timing"], ["Stop the parent task while children are running", "Child tasks are stopped and their ensure blocks run", "Script output"]],
+          "objectives": ["Run bounded concurrent I/O with Async", "Apply timeouts and cancellation", "Reason about structured concurrency"]
+        },
+        {
+          "topic": "Ractors: Isolation, Shareable Objects and Ractor::Port",
+          "subtopics": ["Why Ractors exist: parallelism without the GVL", "Ractor.new, arguments and the block isolation rules", "Ractor::Port for messages and the move from Ractor#take", "Collecting results with value and join", "Ractor.make_shareable and Ractor.shareable?", "Ractor::IsolationError for outer variables and constants", "Moving versus copying objects and Ractor::MovedObject", "The experimental status and C-extension compatibility", "Worker-pool pattern with a request port", "Measuring speed-up on CPU-bound work"],
+          "tools": ["Ruby", "Ractor", "Benchmark", "Etc", "irb"],
+          "lab_task": "Compute primes below 2,000,000 split into 4 ranges: serially, with 4 Threads and with 4 Ractors. Gather results through Ractor::Port or Ractor#value. Report each wall time using Process.clock_gettime(Process::CLOCK_MONOTONIC) and Etc.nprocessors. Reference an outer local variable in a Ractor block, capture the error, then fix it by passing arguments. Make a config Hash shareable.",
+          "deliverable": "ractor_primes.rb with a three-way timing table and the isolation error fixed",
+          "checks": [["Time the prime job with threads and with Ractors on 4 or more cores", "Ractors take roughly one quarter to one half of the thread time; threads match the serial time", "Timing table"], ["Use an outer local variable inside Ractor.new", "Raises ArgumentError: can not isolate a Proc because it accesses outer variables", "Exception message"], ["Call Ractor.shareable?(Ractor.make_shareable({a: [1]}))", "Returns true and the nested array is frozen", "irb output"]],
+          "objectives": ["Run CPU-bound work in parallel with Ractors", "Obey isolation and shareability rules", "Measure speed-up honestly"]
+        },
+        {
+          "topic": "The GVL: Choosing Threads, Processes or Ractors",
+          "subtopics": ["What the global VM lock protects and what it releases", "Which operations release the GVL: blocking I/O, sleep and some C code", "Measuring GVL contention with GVL instrumentation and the gvl-tracing gem", "rb_thread_call_without_gvl in native extensions", "The M:N thread scheduler and RUBY_MN_THREADS", "Decision matrix: I/O-bound, CPU-bound, memory-bound and isolation needs", "Process pools versus Ractors versus threads", "Hybrid designs: processes with threads or fibers inside", "Memory and startup costs of each model", "Benchmarks that expose the difference"],
+          "tools": ["Ruby", "Etc", "gvl-tracing", "Benchmark", "Process"],
+          "lab_task": "Run one CPU task (SHA-256 of 5 MB repeated 200 times) and one I/O task (50 sleeps of 0.1 s) with 1, 4 and 8 workers using threads, forked processes and Ractors. Record wall time and CPU utilisation with /usr/bin/time -v. Build the decision table from the numbers, and produce a gvl-tracing timeline of the threaded CPU run.",
+          "deliverable": "Benchmark matrix of 2 workloads by 3 models by 3 worker counts, with a decision guide",
+          "checks": [["Run the CPU task with 4 threads", "Wall time stays near the single-thread time because the GVL serialises Ruby code", "Timing table"], ["Run the I/O task with 8 threads", "Wall time drops to about 0.7 seconds from 5 seconds serial", "Timing table"], ["Run the CPU task with 4 processes", "Wall time falls close to a quarter of serial on 4 or more cores", "Timing table"]],
+          "objectives": ["Explain the GVL precisely", "Select a concurrency model with data", "Read a GVL timeline"]
+        },
+        {
+          "topic": "Process Parallelism: fork, Copy-on-Write and Worker Pools",
+          "subtopics": ["Process.fork, Process.wait2 and Process::Status", "IO.pipe for results and Marshal safety between your own processes", "Pre-fork worker pools and graceful shutdown with Signal.trap", "Copy-on-write memory: Pss and Private_Dirty in /proc/<pid>/smaps_rollup", "GC.compact and Process.warmup before forking", "Fork safety: reconnect sockets, files and database handles in children", "Process._fork and Process.daemon", "Zombies, Process.detach and reaping", "Supervising workers with restart limits", "Parallel gem versus a hand-written pool"],
+          "tools": ["Ruby", "Process", "IO.pipe", "smem or /proc", "Benchmark"],
+          "lab_task": "Load a 200 MB array in a parent, call Process.warmup and GC.compact, then fork 4 workers that each read the data. Compare total RSS to total PSS from /proc/<pid>/smaps_rollup. Write results through IO.pipe, trap TERM in workers for graceful exit, kill one worker and restart it. Repeat without warmup and compare Private_Dirty.",
+          "deliverable": "Pre-fork worker script with a memory table of RSS versus PSS and a restart log",
+          "checks": [["Sum RSS and PSS across 4 forked workers", "Summed PSS is far below summed RSS because pages are shared", "Memory table"], ["Send SIGTERM to a worker", "It finishes its current job, exits 0 and the supervisor starts a replacement", "Supervisor log"], ["Compare Private_Dirty with and without warmup and compaction", "The warmed run has lower Private_Dirty per worker", "Measurement table"]],
+          "objectives": ["Build a pre-fork worker pool", "Measure copy-on-write sharing", "Handle signals and fork safety"]
+        },
+        {
+          "topic": "Ruby::Box and Isolated Namespaces",
+          "subtopics": ["What Ruby::Box isolates: constants, global variables, methods and loaded files", "Enabling with RUBY_BOX=1 and Ruby::Box.enabled?", "Creating a box, box.eval and box.require", "Loading two versions of one library side by side", "Patching core classes inside a box only", "Boxes and gems with C extensions", "The experimental status and the stability contract", "Test isolation use cases", "Blue-green and upgrade comparison scenarios", "Relationship to Ractors and refinements"],
+          "tools": ["Ruby", "Ruby::Box", "Bundler", "Minitest", "irb"],
+          "lab_task": "Start Ruby with RUBY_BOX=1 and confirm Ruby::Box.enabled?. Create a box, evaluate class String; def shout = upcase + '!'; end inside it, and show 'a'.shout works in the box but raises NoMethodError outside. Load two different versions of a small local library you wrote (lib_v1 and lib_v2) into two boxes and print both VERSION constants in one process.",
+          "deliverable": "box_demo.rb with both libraries loaded side by side and notes on current limitations",
+          "checks": [["Run Ruby::Box.enabled? with and without RUBY_BOX=1", "Returns true only when the variable is set", "Two outputs"], ["Call 'a'.shout outside the box after patching inside it", "Raises NoMethodError: undefined method 'shout' for an instance of String", "Exception message"], ["Load lib_v1 and lib_v2 in separate boxes", "Prints 1.0.0 and 2.0.0 from the same process", "Script output"]],
+          "objectives": ["Use Ruby::Box to isolate code", "Load two library versions together", "State the limits of an experimental feature"]
+        },
+        {
+          "topic": "CPU Profiling with stackprof, Vernier and rbspy",
+          "subtopics": ["Sampling versus tracing profilers and the overhead of each", "StackProf.run with mode: :cpu, :wall or :object", "stackprof file --text, --method and --flamegraph outputs", "Self time versus total time and reading callers", "Vernier.profile and the Firefox Profiler viewer", "Thread and GVL views in Vernier", "rbspy record --pid for a running process without code changes", "Wall versus CPU time for I/O-heavy code", "Making a stable benchmark before profiling", "Turning a flame graph into a change and verifying it"],
+          "tools": ["stackprof", "Vernier", "rbspy", "Ruby", "Firefox Profiler"],
+          "lab_task": "Take a slow script that parses 200,000 log lines. Profile it with StackProf.run(mode: :cpu, interval: 1000, out: 'tmp/sp.dump'), run stackprof tmp/sp.dump --text --limit 10 and identify the top frame. Capture a Vernier profile and open it in profiler.firefox.com. Fix the hotspot, re-profile and report the change in total time and top-frame share.",
+          "deliverable": "Profiling report with before and after text profiles, a flame graph and measured time saved",
+          "checks": [["Run stackprof on the slow script", "A single method accounts for the largest self-time share and is named in the output", "stackprof --text output"], ["Apply the fix and re-run the same input", "Runtime drops by the amount you predicted from the profile", "Timing table"], ["Open the Vernier profile", "Shows the hot method and the GVL or thread state timeline", "Screenshot"]],
+          "objectives": ["Profile CPU time with sampling tools", "Read flame graphs", "Verify an optimisation with data"]
+        },
+        {
+          "topic": "Allocation and Memory Profiling with memory_profiler and ObjectSpace",
+          "subtopics": ["Allocated versus retained objects and memory", "MemoryProfiler.report and pretty_print by gem, file and location", "ObjectSpace.memsize_of and require 'objspace'", "ObjectSpace.trace_object_allocations and allocation_sourcefile", "ObjectSpace.dump_all and heap analysis", "GC.stat keys: total_allocated_objects and heap_live_slots", "Common leaks: unbounded Hash caches, closures and global registries", "Reducing allocations: frozen strings, -'str' and avoiding intermediate arrays", "String building with << versus +", "Verifying a leak fix over repeated runs"],
+          "tools": ["memory_profiler", "ObjectSpace", "Ruby", "GC", "Benchmark"],
+          "lab_task": "Write a service object with an unbounded Hash cache keyed by request. Run 100,000 calls under MemoryProfiler.report and print the top retained locations with pretty_print(scale_bytes: true). Track GC.stat(:heap_live_slots) every 10,000 calls. Add a size-limited cache, repeat the run and show retained memory is flat. Reduce allocations in a hot method with frozen strings and measure total_allocated_objects before and after.",
+          "deliverable": "Leak report with before and after retained bytes and a chart of heap_live_slots over time",
+          "checks": [["Run the leaking service for 100,000 calls", "Retained objects grow with calls and the cache line is the top retained location", "MemoryProfiler report"], ["Run the fixed service for the same calls", "Retained memory stays flat within a small margin", "Report and heap_live_slots series"], ["Measure total_allocated_objects before and after optimisation", "Allocations per call fall by the number you record", "GC.stat diff"]],
+          "objectives": ["Locate memory retention", "Cut allocations", "Prove a leak fix"]
+        },
+        {
+          "topic": "Garbage Collector Tuning and Compaction",
+          "subtopics": ["Generational, incremental and mark-and-sweep phases", "GC.stat, GC.count, GC.total_time and GC.measure_total_time", "Environment variables: RUBY_GC_HEAP_INIT_SLOTS, RUBY_GC_HEAP_GROWTH_FACTOR and malloc limits", "GC.config and the modular GC option with RUBY_GC_LIBRARY", "GC.compact, auto_compact and when to use them", "GC.disable in short scripts and GC.stress for debugging", "Minor versus major collections and old-object growth", "Allocator choice: MALLOC_ARENA_MAX=2 and jemalloc", "Latency tail effects of GC pauses", "Tuning method: one change per run"],
+          "tools": ["Ruby", "GC", "jemalloc", "Benchmark", "/usr/bin/time"],
+          "lab_task": "Allocate 5 million short-lived objects in a loop and record GC.count, GC.stat(:major_gc_count) and GC.total_time. Repeat with RUBY_GC_HEAP_INIT_SLOTS=600000 and with a larger growth factor. Run the workload with MALLOC_ARENA_MAX=2 and report RSS from /usr/bin/time -v. Test GC.compact on a fragmented heap and report heap_live_slots versus heap_eden_pages before and after.",
+          "deliverable": "Tuning log with one change per row, GC counts, total_time and RSS for each run",
+          "checks": [["Run with default settings, then RUBY_GC_HEAP_INIT_SLOTS=600000", "GC.count is lower in the second run and total time is recorded", "Comparison table"], ["Run with MALLOC_ARENA_MAX=2", "Maximum resident set size is recorded and compared with the default run", "/usr/bin/time -v output"], ["Call GC.compact after freeing half the objects", "Compaction completes and heap page counts change", "GC.stat before and after"]],
+          "objectives": ["Read GC statistics", "Tune the collector one variable at a time", "Decide when compaction helps"]
+        },
+        {
+          "topic": "YJIT and ZJIT: Enabling, Statistics and Warm-up",
+          "subtopics": ["Interpreter versus JIT: what is compiled and when", "Enabling YJIT with --yjit, RUBY_YJIT_ENABLE=1 or RubyVM::YJIT.enable", "ruby --yjit -v and RubyVM::YJIT.enabled?", "YJIT statistics with --yjit-stats and runtime_stats[:ratio_in_yjit]", "Memory limits with --yjit-exec-mem-size", "ZJIT in Ruby 4.0 as an experimental option and its status", "Warm-up curves and short scripts", "Code that JITs poorly: heavy metaprogramming and polymorphism", "Benchmarking with and without JIT in CI", "Rollout checks: memory, startup and rollback flag"],
+          "tools": ["Ruby", "YJIT", "ZJIT", "benchmark-ips", "/usr/bin/time"],
+          "lab_task": "Benchmark a recursive fib(32) and a string-heavy loop with plain ruby, ruby --yjit and ruby --zjit if your build has it. Report wall time for 5 runs each, RSS, and RubyVM::YJIT.runtime_stats[:ratio_in_yjit]. Plot per-iteration times for the first 20 iterations to show warm-up. Confirm ruby --yjit -v prints +YJIT.",
+          "deliverable": "JIT comparison table with five-run medians, warm-up chart and a rollout checklist",
+          "checks": [["Run ruby --yjit -v", "Version banner includes +YJIT", "Terminal output"], ["Read RubyVM::YJIT.runtime_stats[:ratio_in_yjit] after the benchmark", "A percentage above 90 shows most instructions ran in compiled code", "Stats printout"], ["Compare median fib(32) time for interpreter and YJIT", "YJIT is faster by the measured percentage", "Timing table"]],
+          "objectives": ["Enable and verify a JIT", "Read JIT statistics", "Assess JIT rollout risks"]
+        },
+        {
+          "topic": "Benchmarking with benchmark-ips and Statistical Rigor",
+          "subtopics": ["Benchmark.realtime, bm and bmbm versus benchmark-ips", "ips config: time, warmup and compare!", "Reading iterations per second, standard deviation and slower-by ratios", "Process.clock_gettime(Process::CLOCK_MONOTONIC) over Time.now", "Dead-code elimination, constant folding and returning results", "Noise: CPU frequency, background processes and taskset pinning", "GC noise and GC.start before runs", "Comparing JIT on and off fairly", "hyperfine for CLI benchmarks", "Reporting: median, spread and effect size"],
+          "tools": ["benchmark-ips", "Benchmark", "Ruby", "hyperfine", "taskset"],
+          "lab_task": "Use benchmark-ips to compare String#+, <<, interpolation and Array#join for building a 20-part string, with time: 5 and warmup: 2. Run it three times and report the spread. Pin to a core with taskset -c 2. Add GC.start before the run and compare variance. Compare a CLI command with hyperfine --warmup 3 'ruby script.rb'.",
+          "deliverable": "Benchmark report with three runs per variant, the ranking, the variance and the conditions used",
+          "checks": [["Run x.compare! on four string-building variants", "Output ranks them with an x slower figure for each", "benchmark-ips output"], ["Run the benchmark three times", "Relative ranking is stable and the spread of ips is below 5 percent", "Three result tables"], ["Run hyperfine --warmup 3 on the script", "Reports mean, min, max and standard deviation over at least 10 runs", "hyperfine output"]],
+          "objectives": ["Write trustworthy micro-benchmarks", "Control noise", "Report results with variance"]
+        },
+        {
+          "topic": "Native Extensions: extconf.rb, the C API and rb_sys with Rust",
+          "subtopics": ["When native code pays off and when it does not", "Gem layout for ext/ and extconf.rb with create_makefile", "mkmf checks: have_header and have_library", "The C API: Init_ function, rb_define_method, VALUE and rb_raise", "TypedData and GC marking with rb_data_type_t", "Compiling with rake-compiler and bundle gem --ext=c", "Rust with rb_sys and magnus, and bundle gem --ext=rust", "Precompiled platform gems", "Releasing the GVL for long calls", "Benchmarking against pure Ruby"],
+          "tools": ["Ruby", "rake-compiler", "rb_sys", "magnus", "gcc or clang"],
+          "lab_task": "Run bundle gem fastsum --ext=c, implement FastSum.sum(array) in C that adds Integer elements and raises TypeError for others, wire up extconf.rb and rake compile, and test it. Benchmark against Array#sum for 1 million elements. Then repeat with --ext=rust and magnus and compare build setup effort, speed and error handling.",
+          "deliverable": "Two native versions with passing tests, a benchmark table and a write-up on build and distribution cost",
+          "checks": [["Run rake compile", "Produces the shared library under lib/fastsum and exits 0", "Build output"], ["Call FastSum.sum([1, 'a'])", "Raises TypeError from the extension", "Exception message"], ["Compare with Array#sum on 1,000,000 Integers", "Both results are equal and the timing table shows the measured ratio", "Benchmark output"]],
+          "objectives": ["Build a C extension", "Compare C and Rust extension workflows", "Judge whether native code is worth it"]
+        },
+        {
+          "topic": "Calling C Libraries with FFI and Fiddle",
+          "subtopics": ["FFI gem: ffi_lib and attach_function", "Types: :int, :string, :pointer and :size_t", "FFI::Struct and FFI::MemoryPointer", "Callbacks from C to Ruby", "Fiddle::Handle, Fiddle::Function and TYPE_ constants", "Fiddle as a bundled gem that may need a Gemfile entry", "Memory ownership: who frees what", "Crashes: segmentation faults and how to debug them", "Library lookup and platform differences", "FFI versus a native extension"],
+          "tools": ["ffi gem", "Fiddle", "Ruby", "libc", "gdb or lldb"],
+          "lab_task": "Use ffi to attach getpid and strlen from libc and compare getpid with Process.pid. Do the same with Fiddle::Function. Wrap qsort with a Ruby callback to sort 10 integers in an FFI::MemoryPointer. Deliberately pass a wrong argument type to trigger a crash or error, capture the output and explain it. Time 1 million strlen calls in FFI against String#bytesize.",
+          "deliverable": "ffi_demo.rb and fiddle_demo.rb with outputs, the crash analysis and a timing table",
+          "checks": [["Call the attached getpid", "Returns the same number as Process.pid", "Script output"], ["Sort 10 integers with qsort and a Ruby callback", "The buffer is in ascending order afterwards", "Printed array"], ["Time 1,000,000 calls via FFI versus String#bytesize", "Pure Ruby is faster for this small call, with figures recorded", "Timing table"]],
+          "objectives": ["Bind C functions from Ruby", "Manage memory and callbacks", "Choose FFI or a native extension"]
+        },
+        {
+          "topic": "Supply-Chain Security: bundler-audit, Checksums and Trusted Publishing",
+          "subtopics": ["Threats: typosquatting, account takeover and malicious updates", "bundler-audit check --update and the advisory database", "bundle outdated --strict and Dependabot", "Gemfile.lock checksums with bundle lock --add-checksums", "Frozen installs with bundle config set --local frozen true", "RubyGems MFA and the rubygems_mfa_required metadata", "Trusted publishing with GitHub Actions OIDC", "SBOMs with CycloneDX and Scorecard", "Reviewing a gem before adopting it: gem fetch, gem unpack, maintainers", "Responding to an advisory"],
+          "tools": ["bundler-audit", "Bundler", "RubyGems", "GitHub Actions", "CycloneDX"],
+          "lab_task": "Create a Gemfile pinning an old version of nokogiri and run bundle exec bundle-audit check --update. Record the advisory IDs and the Solution lines, then upgrade and re-run. Add checksums with bundle lock --add-checksums, enable frozen mode, and prove a modified Gemfile.lock fails to install. Add a GitHub Actions job that fails the build on advisories. Draft a trusted-publisher setup for a gem.",
+          "deliverable": "Audit report before and after, a lockfile with checksums, a CI job and a release hardening checklist",
+          "checks": [["Run bundle-audit check on the old pin", "Lists at least one advisory with CVE or GHSA id and a Solution to upgrade", "bundle-audit output"], ["Run bundle-audit after upgrading", "Prints No vulnerabilities found", "Terminal output"], ["Edit Gemfile.lock by hand under frozen mode and run bundle install", "Fails with an error about the lockfile or checksum mismatch", "Error text"]],
+          "objectives": ["Audit dependencies for known issues", "Lock and verify dependencies", "Plan a hardened gem release"]
+        },
+        {
+          "topic": "Security in Ruby: Marshal, YAML, Command Injection and ReDoS",
+          "subtopics": ["Marshal.load and unsafe YAML loading as object-injection risks", "YAML.safe_load and permitted_classes in practice", "Parsing untrusted data with JSON instead of Marshal", "Command injection: system with a string versus an array", "Path traversal: File.expand_path and start_with? checks", "Regexp.timeout and Regexp::TimeoutError", "Regexp.linear_time? and backreference patterns", "SecureRandom and constant-time comparison", "Password hashing with bcrypt or Argon2 gems", "Escaping output with ERB::Util.html_escape"],
+          "tools": ["Ruby", "Psych", "OpenSSL", "SecureRandom", "RuboCop"],
+          "lab_task": "Show system(\"ls #{input}\") running an injected command for input '; echo pwned', then fix it with system('ls', input). Demonstrate a path traversal with ../ against a base directory and block it. Set Regexp.timeout and trigger Regexp::TimeoutError with the pattern ^(\\w+\\s?)*\\1$ on a 35-character input. Load a hostile YAML document with unsafe_load in a sandbox and then safely with safe_load.",
+          "deliverable": "Vulnerable and fixed versions of four snippets with captured exploit and defence outputs",
+          "checks": [["Run the string form of system with '; echo pwned' as input", "Prints pwned, showing the injected command executed", "Terminal output"], ["Run the array form with the same input", "ls treats the input as a file name and reports it does not exist", "Terminal output"], ["Match the nested-quantifier pattern with Regexp.timeout = 0.2", "Raises Regexp::TimeoutError: regexp match timeout", "Exception message"]],
+          "objectives": ["Recognise unsafe deserialisation", "Prevent command and path injection", "Contain regex denial of service"]
+        },
+        {
+          "topic": "DSL Design with instance_eval, Builders and Binding",
+          "subtopics": ["What makes a good internal DSL", "instance_eval and instance_exec to change self in blocks", "Builder objects with method_missing and BasicObject", "Fluent interfaces returning self", "ERB templates with result_with_hash and binding", "Defining methods with define_method for declarative class macros", "Validating DSL input and giving helpful errors", "Scoping: closures versus instance_eval and the self surprise", "Documenting and testing a DSL", "When to prefer plain objects over a DSL"],
+          "tools": ["Ruby", "ERB", "Minitest", "RuboCop", "irb"],
+          "lab_task": "Design a Pipeline DSL: Pipeline.define { step :extract { ... }; step :transform, after: :extract { ... } }. Implement it with instance_eval, validate duplicate step names with a clear ArgumentError, and execute steps in dependency order. Add an HTML builder using BasicObject and method_missing that produces nested tags. Render a report with ERB.new(template, trim_mode: '-').result_with_hash.",
+          "deliverable": "Pipeline DSL and HTML builder with tests for ordering, errors and output",
+          "checks": [["Define two steps with the same name", "Raises ArgumentError naming the duplicate step", "Exception message"], ["Declare step :b after: :a and run", "Steps execute in order a then b", "Script output"], ["Build div { p 'x' } with the HTML builder", "Produces <div><p>x</p></div>", "Script output"]],
+          "objectives": ["Design an internal DSL", "Control self with instance_eval", "Test and document DSLs"]
+        },
+        {
+          "topic": "Introspection with TracePoint, ObjectSpace and Prism",
+          "subtopics": ["TracePoint events: :call, :return, :raise, :c_call and :line", "enable(target:) and overhead", "Call counting and a tiny tracer", "ObjectSpace.each_object, Class#subclasses and attached_object", "Method#source_location and Module#const_source_location", "RubyVM::InstructionSequence disassembly and ruby --dump=insns", "Prism.parse and Prism::CallNode for static analysis", "Writing a simple linter with Prism visitors", "Coverage and Debug APIs", "Where introspection belongs: tools, not production hot paths"],
+          "tools": ["Ruby", "TracePoint", "Prism", "ObjectSpace", "irb"],
+          "lab_task": "Write a tracer that uses TracePoint.new(:call, :return) to print an indented call tree for a small program and count calls per method. Compare run time with and without tracing. Parse a file with Prism.parse_file and use a Prism::Visitor to list every method definition with line numbers. Evaluate Prism.parse('a + b').value.statements.body.first.class and print the bytecode with ruby --dump=insns -e '1 + 2'.",
+          "deliverable": "Tracer, a Prism-based method lister and a table of tracing overhead",
+          "checks": [["Evaluate Prism.parse('a + b').value.statements.body.first.class", "Returns Prism::CallNode", "irb output"], ["Run the tracer on the sample program", "Prints an indented call tree and per-method call counts", "Tracer output"], ["Time the program with and without TracePoint enabled", "Traced run is slower by the recorded factor", "Timing table"]],
+          "objectives": ["Trace execution with TracePoint", "Analyse code statically with Prism", "Judge introspection costs"]
+        },
+        {
+          "topic": "Advanced Gem Maintenance: Versioning, Deprecation and Matrices",
+          "subtopics": ["Semantic versioning and Gem::Version comparison", "Gem::Requirement and pessimistic constraints", "Deprecation with warn(uplevel:, category: :deprecated)", "Warning[:deprecated] and Warning.warn overrides", "required_ruby_version and dropping old Rubies", "CI matrices with ruby/setup-ruby and bundler-cache", "Multiple dependency sets with Appraisal or BUNDLE_GEMFILE", "Changelogs and release notes", "gem yank and handling a bad release", "Compatibility with Ractors, Ruby::Box and frozen strings"],
+          "tools": ["RubyGems", "Bundler", "GitHub Actions", "Appraisal", "Minitest"],
+          "lab_task": "Take the greeter gem and add a deprecated method that calls warn('use new_name', uplevel: 1, category: :deprecated). Show that the warning appears only with Warning[:deprecated] = true or -W:deprecated. Add a GitHub Actions matrix over three Ruby versions plus head using ruby/setup-ruby with bundler-cache. Add two Gemfiles under gemfiles/ for old and new versions of one dependency and run tests with BUNDLE_GEMFILE.",
+          "deliverable": "CI matrix file, two dependency Gemfiles, deprecation tests and a CHANGELOG entry",
+          "checks": [["Evaluate Gem::Version.new('1.10.0') > Gem::Version.new('1.9.9')", "Returns true because versions compare numerically per segment", "irb output"], ["Call the deprecated method with and without -W:deprecated", "Warning shows only with the flag, including the caller file and line", "Terminal output"], ["Run the test suite with BUNDLE_GEMFILE=gemfiles/old.gemfile", "Tests run against the old dependency version shown by bundle list", "Test output"]],
+          "objectives": ["Version and deprecate gems responsibly", "Test across Ruby and dependency versions", "Handle a bad release"]
+        },
+        {
+          "topic": "Upgrading Ruby: Warnings, Deprecations and Compatibility",
+          "subtopics": ["Reading NEWS and release notes for each release", "Running with -W:deprecated and -w in tests", "Chilled string literals and frozen string literal futures", "Hash#inspect and error message format changes", "Keyword argument separation lessons", "Default gems becoming bundled gems and the Gemfile entries they need", "Set, Ractor and Ractor::Port API changes in 4.0", "gem pristine and rebuilding native extensions after an upgrade", "Staged rollout: CI on the new version, then canary, then all", "Rollback plan and version pinning"],
+          "tools": ["Ruby", "Bundler", "RuboCop", "mise", "GitHub Actions"],
+          "lab_task": "Take a legacy project on Ruby 3.2, upgrade to the current stable with mise, and run the tests with RUBYOPT=-W:deprecated. Collect each warning and LoadError. Add any newly bundled gems to the Gemfile, run bundle pristine for native gems and fix the failures. Update TargetRubyVersion in RuboCop, add the new version to the CI matrix and write a rollback note.",
+          "deliverable": "Upgrade log listing each failure, its cause and fix, plus the final green CI matrix",
+          "checks": [["Run the tests under the new Ruby with RUBYOPT=-W:deprecated", "Warnings are collected in a file and each has a recorded fix or an issue", "Warning log"], ["Remove a newly bundled gem from the Gemfile and run the app", "Fails with cannot load such file for that gem, which is then added", "Error output"], ["Run the CI matrix on old and new Ruby", "Both jobs pass", "CI summary"]],
+          "objectives": ["Plan and execute a Ruby upgrade", "Triage deprecations and bundled gem changes", "Prepare a rollback"]
+        },
+        {
+          "topic": "Advanced Capstone: Parallel Log Processing Engine with Ractors and Async",
+          "subtopics": ["Shard a 1 GB access log into line-aligned byte ranges", "Parse and aggregate shards in parallel with Ractors or processes", "Write results with Async tasks and a bounded semaphore", "Profile with stackprof and bring peak memory under budget", "Benchmark with benchmark-ips and YJIT on and off", "Test, lint and document with a decision record"],
+          "tools": ["Ruby", "Ractor", "async gem", "stackprof", "benchmark-ips", "RuboCop"],
+          "lab_task": "Build an engine that processes a 1 GB nginx log. Split by byte ranges aligned to newlines, parse in 4 Ractors or forked workers, merge per-status and per-path counts, and write a JSON report through Async. Compare with a single-process baseline. Verify identical sha256sum of the report, profile the hot path with stackprof, run with --yjit, and keep peak RSS under 500 MB.",
+          "deliverable": "Repository with engine, tests, benchmark report, profile, decision record and a README with measured results",
+          "checks": [["Compare the parallel report with the baseline report by sha256sum", "Hashes are identical", "sha256sum output"], ["Run the engine on 4 or more cores against the baseline", "Wall time is at least 3 times faster", "Benchmark table"], ["Run under /usr/bin/time -v", "Maximum resident set size is below 500 MB", "time output"]],
+          "objectives": ["Combine Ractors, processes and Async in one design", "Profile and tune against targets", "Document trade-offs in a decision record"]
+        }
+      ]
+    }
+  }
+}

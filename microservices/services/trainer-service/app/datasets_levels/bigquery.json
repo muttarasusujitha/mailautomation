@@ -1,0 +1,573 @@
+{
+  "domain": "BigQuery",
+  "name": "BigQuery",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["Google BigQuery", "BigQuery Data Warehouse", "GCP BigQuery", "BigQuery SQL", "BigQuery Analytics", "Google Cloud BigQuery", "BigQuery Data Engineering", "BigQuery ML"],
+  "certifications": ["Google Cloud Professional Data Engineer"],
+  "tools": ["BigQuery Studio", "bq CLI", "Google Cloud CLI", "INFORMATION_SCHEMA", "Dataform", "BigQuery ML", "Storage Write API", "BigLake", "Looker Studio", "Cloud Monitoring", "Terraform", "Python client library"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, developers and engineers who know basic SQL and are new to BigQuery. Covers projects, datasets and locations, GoogleSQL queries, data types, aggregation and window functions, joins, nested and repeated data, dates and JSON, DDL and DML, load jobs from Cloud Storage, schemas, partitioning and clustering, on-demand pricing and cost controls, IAM, scheduled queries, Looker Studio, and a retail analytics capstone.",
+      "prerequisites": ["Writes basic SQL: SELECT, WHERE, GROUP BY and JOIN", "Has a Google account and a Google Cloud project with billing or access to a project owner", "Uses a terminal to run commands and read output"],
+      "outcomes": ["Query, load and model data in BigQuery with GoogleSQL and the bq CLI", "Reduce scanned bytes with partitioning, clustering and dry runs", "Grant least-privilege access with IAM roles on datasets", "Deliver a partitioned, scheduled and governed analytics dataset with evidence of cost"],
+      "days": [
+        {
+          "topic": "Getting Started with BigQuery Studio, Projects and the bq CLI",
+          "subtopics": ["What BigQuery is: serverless, separated storage and compute", "Google Cloud projects, billing accounts and enabling the BigQuery API", "BigQuery Studio: explorer pane, query editor, saved queries and notebooks", "Installing the Google Cloud CLI and running gcloud auth login and bq init", "gcloud config set project and the default project for bq", "Running a query with bq query --use_legacy_sql=false", "Public datasets in bigquery-public-data and starring a project", "The sandbox compared with a billing-enabled project, including the 60-day default table expiration"],
+          "tools": ["BigQuery Studio", "Google Cloud CLI", "bq CLI", "Cloud Console", "bigquery-public-data"],
+          "lab_task": "Create or select a Google Cloud project, enable the BigQuery API, run gcloud auth login and bq init, then execute bq query --use_legacy_sql=false 'SELECT COUNT(*) AS n FROM `bigquery-public-data.samples.shakespeare`' and repeat the same query in BigQuery Studio. Record rows returned, bytes processed and job ID from both.",
+          "deliverable": "Workspace report with the project ID, the CLI and console query outputs, and the job IDs from bq ls -j",
+          "checks": [["Run bq version and gcloud config get-value project", "Both commands print a version string and your project ID", "Terminal output"], ["Run the shakespeare COUNT(*) query with bq query --location=EU", "Fails with Not found: Table bigquery-public-data:samples.shakespeare was not found in location EU", "Error message"], ["Run bq ls -j -n 5 after both queries", "Two DONE query jobs appear with their job IDs and durations", "bq ls output"]],
+          "objectives": ["Authenticate and select a project for BigQuery work", "Run queries from both BigQuery Studio and the bq CLI", "Explain why a query location must match the data location"]
+        },
+        {
+          "topic": "Resource Model: Projects, Datasets, Tables and Locations",
+          "subtopics": ["The hierarchy organisation, folder, project, dataset and table", "Fully qualified names project.dataset.table and backtick quoting", "Dataset locations: multi-region US and EU compared with single regions", "Why a dataset location cannot be changed after creation", "Table types: standard, view, materialized view, external, snapshot and clone", "Dataset options: default table expiration, description and labels", "bq mk --dataset and CREATE SCHEMA statements", "Listing objects with INFORMATION_SCHEMA.SCHEMATA and INFORMATION_SCHEMA.TABLES"],
+          "tools": ["bq CLI", "BigQuery Studio", "INFORMATION_SCHEMA"],
+          "lab_task": "Create dataset lab_us in location US and lab_eu in EU with bq mk --dataset --location, set --default_table_expiration 86400 on lab_us, create one table in each with CREATE TABLE AS SELECT, then list them with SELECT table_name, table_type FROM region-us.INFORMATION_SCHEMA.TABLES and bq show --format=prettyjson.",
+          "deliverable": "Two datasets with a table each and a short note on how location constrains joins",
+          "checks": [["Run bq show --format=prettyjson lab_eu", "The JSON shows location EU", "bq show output"], ["Join a table in lab_us with a table in lab_eu in one query", "The query fails because the tables are in different locations", "Error message"], ["Query region-us.INFORMATION_SCHEMA.TABLES for lab_us", "table_type is BASE TABLE for the new table", "Query result"]],
+          "objectives": ["Create datasets in a chosen location", "Name and reference tables with fully qualified names", "Describe the table types BigQuery offers"]
+        },
+        {
+          "topic": "GoogleSQL Queries: SELECT, WHERE and Functions",
+          "subtopics": ["GoogleSQL compared with legacy SQL and the --use_legacy_sql=false flag", "SELECT lists, aliases and SELECT * EXCEPT / REPLACE", "WHERE with comparison, BETWEEN, IN and LIKE", "ORDER BY, LIMIT and why LIMIT does not reduce bytes billed", "DISTINCT and COUNT(DISTINCT) compared with APPROX_COUNT_DISTINCT", "CASE expressions and IF, IFNULL, COALESCE", "Arithmetic, ROUND, DIV, MOD and SAFE_DIVIDE", "Pipe query syntax with ", "> as an alternative way to write queries"],
+          "tools": ["BigQuery Studio", "bq CLI", "thelook_ecommerce dataset"],
+          "lab_task": "Query bigquery-public-data.thelook_ecommerce.order_items to list the 10 highest sale_price rows with SELECT * EXCEPT(created_at), compare SELECT * LIMIT 10 against selecting two columns using the bytes processed shown in the editor, and compute average sale_price with ROUND and SAFE_DIVIDE.",
+          "deliverable": "Query file with five queries and a table of bytes processed per query",
+          "checks": [["Run SELECT * FROM order_items LIMIT 10 and SELECT id FROM order_items LIMIT 10", "The second query processes far fewer bytes than the first", "Bytes processed in the editor"], ["Run SELECT SAFE_DIVIDE(1, 0)", "Returns NULL instead of a division by zero error", "Query result"], ["Run SELECT 1 / 0", "Fails with Division by zero: 1 / 0", "Error message"]],
+          "objectives": ["Write filtered and sorted GoogleSQL queries", "Explain that LIMIT does not cut scanned bytes", "Use SAFE_ functions to avoid runtime errors"]
+        },
+        {
+          "topic": "Data Types, NULLs and Safe Casting",
+          "subtopics": ["INT64, FLOAT64, NUMERIC, BIGNUMERIC and BOOL", "STRING and BYTES", "DATE, DATETIME, TIME and TIMESTAMP", "GEOGRAPHY and JSON as column types", "CAST compared with SAFE_CAST and the error each gives", "Three-valued logic with NULL, IS NULL and IS NOT DISTINCT FROM", "NULL handling in aggregates, joins and ORDER BY NULLS FIRST", "Floating-point rounding and why money belongs in NUMERIC"],
+          "tools": ["BigQuery Studio", "bq CLI"],
+          "lab_task": "Run SELECT 0.1 + 0.2 = 0.3 with FLOAT64 and CAST(0.1 AS NUMERIC) + CAST(0.2 AS NUMERIC) = CAST(0.3 AS NUMERIC), compare CAST('abc' AS INT64) with SAFE_CAST('abc' AS INT64), and show how NULL = NULL differs from NULL IS NOT DISTINCT FROM NULL in a three-row table built with UNNEST.",
+          "deliverable": "Notebook of type-behaviour queries with results and a one-line rule for each",
+          "checks": [["Run SELECT 0.1 + 0.2 = 0.3 using FLOAT64 literals", "Returns false", "Query result"], ["Run SELECT CAST('abc' AS INT64)", "Fails with Bad int64 value: abc", "Error message"], ["Run SELECT NULL = NULL, NULL IS NOT DISTINCT FROM NULL", "Returns NULL and true", "Query result"]],
+          "objectives": ["Pick the right column type for a value", "Convert types safely", "Predict how NULL behaves in comparisons"]
+        },
+        {
+          "topic": "Aggregation, GROUP BY and Window Functions",
+          "subtopics": ["COUNT, SUM, AVG, MIN, MAX and COUNTIF", "GROUP BY, GROUP BY ROLLUP and GROUP BY ALL", "HAVING compared with WHERE and QUALIFY", "The error SELECT list expression references column which is neither grouped nor aggregated", "OVER with PARTITION BY and ORDER BY", "ROW_NUMBER, RANK, DENSE_RANK and NTILE", "LAG, LEAD and running totals with window frames", "ARRAY_AGG and STRING_AGG with ORDER BY and LIMIT"],
+          "tools": ["BigQuery Studio", "thelook_ecommerce dataset"],
+          "lab_task": "On thelook_ecommerce.order_items, compute revenue per product category with GROUP BY, keep categories above 100,000 revenue with HAVING, rank products inside each category with ROW_NUMBER() OVER (PARTITION BY category ORDER BY revenue DESC) and keep the top 3 with QUALIFY, and add a 7-day running total of orders per day.",
+          "deliverable": "Query set returning top 3 products per category and a running-total table",
+          "checks": [["Select a non-aggregated column next to SUM() without GROUP BY", "Fails with SELECT list expression references column which is neither grouped nor aggregated", "Error message"], ["Apply QUALIFY rn <= 3 to the ROW_NUMBER query", "No category has more than 3 rows in the result", "Result count per category"], ["Run SELECT COUNTIF(sale_price > 100) next to COUNT(*)", "COUNTIF is less than or equal to COUNT(*)", "Query result"]],
+          "objectives": ["Summarise data with GROUP BY and HAVING", "Rank and compare rows with window functions", "Filter window results with QUALIFY"]
+        },
+        {
+          "topic": "Joins, Set Operators and Subqueries",
+          "subtopics": ["INNER, LEFT, RIGHT and FULL OUTER JOIN", "CROSS JOIN and comma joins with UNNEST", "USING compared with ON", "Join fan-out and checking row counts before and after", "UNION ALL, UNION DISTINCT, INTERSECT and EXCEPT", "Subqueries, correlated subqueries and EXISTS", "WITH common table expressions and WITH RECURSIVE", "Scalar subquery error: more than one element"],
+          "tools": ["BigQuery Studio", "thelook_ecommerce dataset"],
+          "lab_task": "Join thelook_ecommerce.orders to users and order_items, count rows before and after each join to prove there is no fan-out, find users with no orders using LEFT JOIN ... WHERE o.order_id IS NULL and again using NOT EXISTS, and combine two monthly extracts with UNION ALL and UNION DISTINCT.",
+          "deliverable": "Join exercises with row counts and a note on which join type fits each question",
+          "checks": [["Compare COUNT(*) of orders with COUNT(*) after joining order_items", "The joined count is larger and equals the count of order_items rows", "Query results"], ["Use a subquery returning many rows where a scalar is expected", "Fails with Scalar subquery produced more than one element", "Error message"], ["Compare UNION ALL with UNION DISTINCT on duplicate input", "UNION DISTINCT returns fewer rows than UNION ALL", "Row counts"]],
+          "objectives": ["Choose the right join type", "Detect and avoid join fan-out", "Combine result sets with set operators"]
+        },
+        {
+          "topic": "ARRAY, STRUCT and Nested Repeated Data",
+          "subtopics": ["ARRAY and STRUCT types and why BigQuery denormalises", "Building arrays with ARRAY_AGG and ARRAY literals", "UNNEST with WITH OFFSET", "Querying STRUCT fields with dot notation", "Repeated RECORD fields in table schemas", "ARRAY_LENGTH, ARRAY_CONCAT and ARRAY subqueries", "Reading nested exports like GA4 events with UNNEST(event_params)", "Storage and cost comparison of nested compared with joined tables"],
+          "tools": ["BigQuery Studio", "bq CLI"],
+          "lab_task": "Build an orders table with an items ARRAY<STRUCT<sku STRING, qty INT64, price NUMERIC>> using ARRAY_AGG(STRUCT(...)) from order_items, query totals with UNNEST(items), and compare bytes processed and runtime for the nested table against the equivalent join of two flat tables.",
+          "deliverable": "Nested orders table, its schema in JSON and a comparison table of nested versus flat queries",
+          "checks": [["Run bq show --schema --format=prettyjson on the new table", "items has mode REPEATED and type RECORD", "Schema JSON"], ["Query SELECT items.sku FROM the nested table", "Fails with Cannot access field sku on a value with type ARRAY<STRUCT<...>>", "Error message"], ["Run UNNEST(items) with SUM(qty)", "The total equals the sum from the flat order_items source", "Query results"]],
+          "objectives": ["Model one-to-many data with ARRAY and STRUCT", "Flatten repeated fields with UNNEST", "Compare nested and normalised designs"]
+        },
+        {
+          "topic": "Working with Dates, Timestamps and Time Zones",
+          "subtopics": ["DATE, DATETIME, TIMESTAMP and what each stores", "CURRENT_DATE, CURRENT_TIMESTAMP and the UTC default", "DATE_TRUNC, TIMESTAMP_TRUNC and EXTRACT", "DATE_ADD, DATE_SUB and DATE_DIFF", "Time zones: AT TIME ZONE and the time_zone argument", "Parsing and formatting with PARSE_TIMESTAMP and FORMAT_TIMESTAMP", "GENERATE_DATE_ARRAY and filling gaps in a calendar", "Week definitions and why DATE_TRUNC(WEEK) starts on Sunday"],
+          "tools": ["BigQuery Studio", "thelook_ecommerce dataset"],
+          "lab_task": "Count thelook_ecommerce orders per month with DATE_TRUNC, convert created_at to Asia/Kolkata and America/Los_Angeles with DATETIME(ts, tz), find days with zero orders using GENERATE_DATE_ARRAY and a LEFT JOIN, and parse the string '03/11/2024 14:05' with PARSE_TIMESTAMP.",
+          "deliverable": "Date-handling query file with gap-filled daily order series",
+          "checks": [["Run SELECT DATE_TRUNC(DATE '2024-05-15', WEEK)", "Returns 2024-05-12, a Sunday", "Query result"], ["Run SELECT DATE_DIFF(DATE '2024-03-01', DATE '2024-02-01', DAY)", "Returns 29", "Query result"], ["Run SELECT DATETIME(TIMESTAMP '2024-01-01 00:00:00+00', 'Asia/Kolkata')", "Returns 2024-01-01T05:30:00", "Query result"]],
+          "objectives": ["Truncate and compare dates correctly", "Convert between time zones", "Generate a continuous calendar for gap filling"]
+        },
+        {
+          "topic": "Strings, Regular Expressions and JSON Functions",
+          "subtopics": ["CONCAT, SUBSTR, SPLIT, TRIM, LOWER and FORMAT", "REGEXP_CONTAINS, REGEXP_EXTRACT and REGEXP_REPLACE with RE2 syntax", "Why lookaheads are not supported in RE2", "NORMALIZE and collation basics", "JSON as a native column type", "JSON_VALUE, JSON_QUERY and JSON_EXTRACT_SCALAR", "TO_JSON_STRING and PARSE_JSON", "Storing semi-structured payloads: JSON column compared with STRING"],
+          "tools": ["BigQuery Studio", "bq CLI"],
+          "lab_task": "Load 20 sample log lines into a table with a payload JSON column, extract user IDs from URLs with REGEXP_EXTRACT(url, r'/users/(\\d+)'), read nested fields with JSON_VALUE(payload, '$.device.os'), count requests per operating system, and convert a STRUCT into JSON with TO_JSON_STRING.",
+          "deliverable": "Log-parsing queries with a per-OS request count",
+          "checks": [["Run SELECT REGEXP_EXTRACT('/users/42/orders', r'/users/(\\d+)')", "Returns the string 42", "Query result"], ["Use a lookahead such as (?=a) in REGEXP_CONTAINS", "Fails with an invalid regular expression error from RE2", "Error message"], ["Run SELECT JSON_VALUE(PARSE_JSON('{\"a\":{\"b\":7}}'), '$.a.b')", "Returns the string 7", "Query result"]],
+          "objectives": ["Clean and parse text with string and regex functions", "Read values from JSON columns", "Choose between STRING and JSON for payloads"]
+        },
+        {
+          "topic": "Creating Tables, Views and DML Statements",
+          "subtopics": ["CREATE TABLE with column definitions and OPTIONS", "CREATE TABLE AS SELECT and CREATE OR REPLACE TABLE", "CREATE VIEW and what a view costs each time it is queried", "INSERT, UPDATE, DELETE and TRUNCATE TABLE", "Table and column descriptions and labels", "Expiration with expiration_timestamp", "DML concurrency: running and queued mutating statements per table", "Cost of DML and why bulk statements beat row-by-row changes"],
+          "tools": ["BigQuery Studio", "bq CLI"],
+          "lab_task": "Create customers_lab with explicit column types and a column description, insert three rows, run UPDATE and DELETE statements, then CREATE VIEW v_active_customers and query it. Compare job statistics for one 1,000-row INSERT ... SELECT against 1,000 single-row INSERT statements using bq show -j.",
+          "deliverable": "SQL script with table, view and DML statements plus a job comparison note",
+          "checks": [["Run DELETE FROM customers_lab WHERE id = 2 and check num_dml_affected_rows", "Reports 1 row affected", "Job statistics"], ["Query v_active_customers after an UPDATE to the source table", "The view shows the updated values without any refresh", "Query result"], ["Run UPDATE customers_lab SET name = 'x' without a WHERE clause", "Fails with UPDATE must have a WHERE clause", "Error message"]],
+          "objectives": ["Create tables and views with DDL", "Change data with DML", "Explain why set-based DML is preferred"]
+        },
+        {
+          "topic": "Loading Data from Cloud Storage with Load Jobs",
+          "subtopics": ["Why load jobs are free compared with streaming", "bq load with --source_format CSV, NEWLINE_DELIMITED_JSON, AVRO and PARQUET", "Cloud Storage URIs and wildcards such as gs://bucket/path/*.csv", "--skip_leading_rows, --field_delimiter and --allow_quoted_newlines", "--replace, --noreplace and WRITE_TRUNCATE, WRITE_APPEND and WRITE_EMPTY", "LOAD DATA INTO and LOAD DATA OVERWRITE statements", "Self-describing formats: Avro and Parquet compared with CSV", "Reading job errors with bq show -j and the max_bad_records flag"],
+          "tools": ["bq CLI", "Cloud Storage", "gsutil and gcloud storage", "BigQuery Studio"],
+          "lab_task": "Upload a 10,000-row orders.csv and the same data as Parquet to a Cloud Storage bucket, load each with bq load --source_format and --skip_leading_rows=1, load a second CSV that has 5 malformed rows with --max_bad_records=2, then read the failure with bq show -j and fix it.",
+          "deliverable": "Load commands, job IDs and a table comparing CSV and Parquet loading",
+          "checks": [["Run bq load for orders.csv then SELECT COUNT(*)", "The count is 10,000", "Query result"], ["Load the file with 5 bad rows using --max_bad_records=2", "The job fails with Too many errors encountered and lists the bad row positions", "bq show -j output"], ["Load orders.parquet with no schema", "The table schema is read from the file and loads without a schema flag", "bq show --schema output"]],
+          "objectives": ["Load CSV and Parquet files with bq load", "Choose a write disposition", "Diagnose a failed load job"]
+        },
+        {
+          "topic": "Schemas, Autodetect and Schema Changes",
+          "subtopics": ["Writing a schema as JSON and as an inline string", "--autodetect and its sampling limits", "Column modes NULLABLE, REQUIRED and REPEATED", "Allowed changes: adding columns and relaxing REQUIRED to NULLABLE", "ALTER TABLE ADD COLUMN, DROP COLUMN, RENAME COLUMN and SET DATA TYPE", "Schema update options on load and query jobs", "Changing a column type by recreating the table", "bq show --schema and bq update --schema"],
+          "tools": ["bq CLI", "BigQuery Studio"],
+          "lab_task": "Load a CSV with --autodetect and inspect which types were chosen, replace it with an explicit JSON schema file, add a column with ALTER TABLE ADD COLUMN, then load a second file with an extra column using --schema_update_option=ALLOW_FIELD_ADDITION and confirm the schema with bq show --schema.",
+          "deliverable": "Schema JSON file, ALTER statements and a note on autodetect mistakes",
+          "checks": [["Load a CSV where a column holds 001 and 002 using --autodetect", "The column is detected as INT64 and the leading zeros are lost", "bq show --schema output"], ["Run ALTER TABLE ... ADD COLUMN region STRING", "The schema lists region as NULLABLE with NULL in existing rows", "Query result"], ["Try to change a REQUIRED column in place to a different data type", "The change is rejected and the table must be recreated", "Error message"]],
+          "objectives": ["Define explicit schemas", "List the schema changes allowed in place", "Avoid autodetect type surprises"]
+        },
+        {
+          "topic": "Partitioned Tables for Cost and Speed",
+          "subtopics": ["Partitioning types: time-unit column, ingestion time and integer range", "Daily, hourly, monthly and yearly granularity", "CREATE TABLE ... PARTITION BY DATE(created_at)", "The __PARTITIONS_SUMMARY__ metadata and INFORMATION_SCHEMA.PARTITIONS", "Partition pruning and filters that defeat it", "require_partition_filter and the error it raises", "partition_expiration_days", "Limit of 10,000 partitions per table and the NULL and UNPARTITIONED partitions"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA"],
+          "lab_task": "Create orders_part PARTITION BY DATE(created_at) with require_partition_filter=TRUE from thelook_ecommerce.orders, run the same one-day query on the unpartitioned copy and on orders_part, record bytes processed for both, and list partitions with INFORMATION_SCHEMA.PARTITIONS.",
+          "deliverable": "Partitioned table DDL with a bytes-processed comparison and partition listing",
+          "checks": [["Query orders_part with no filter on created_at", "Fails with Cannot query over table without a filter over column(s) 'created_at'", "Error message"], ["Run a one-day query on orders_part and the unpartitioned copy", "The partitioned query processes far fewer bytes", "Bytes processed"], ["Query INFORMATION_SCHEMA.PARTITIONS for orders_part", "One row per day appears with a total_rows value", "Query result"]],
+          "objectives": ["Create partitioned tables", "Write filters that prune partitions", "Enforce partition filters to protect cost"]
+        },
+        {
+          "topic": "Clustered Tables and Block Pruning",
+          "subtopics": ["How clustering sorts data into blocks by up to 4 columns", "Cluster column order and which filters benefit", "Clustering combined with partitioning", "Automatic re-clustering and no extra cost for it", "When clustering helps: high cardinality filters and aggregations", "Why the dry-run estimate is an upper bound for clustered tables", "CREATE TABLE ... CLUSTER BY and bq mk --clustering_fields", "Reading total_bytes_billed against estimates"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA"],
+          "lab_task": "Create events_clustered PARTITION BY DATE(created_at) CLUSTER BY user_id, event_type from thelook_ecommerce.events, run a query filtering user_id = 1234 against a copy without clustering, and compare total_bytes_processed and total_bytes_billed in INFORMATION_SCHEMA.JOBS_BY_PROJECT for both jobs.",
+          "deliverable": "Clustered table DDL and a table of bytes for clustered and unclustered runs",
+          "checks": [["Run bq show on events_clustered", "clustering.fields lists user_id and event_type", "bq show output"], ["Filter on user_id in both tables and read total_bytes_billed", "The clustered table bills fewer bytes", "INFORMATION_SCHEMA.JOBS_BY_PROJECT result"], ["Cluster by 5 columns in CREATE TABLE", "Fails because at most 4 clustering columns are allowed", "Error message"]],
+          "objectives": ["Choose clustering columns", "Combine partitioning and clustering", "Measure the saving from block pruning"]
+        },
+        {
+          "topic": "On-Demand Pricing, Dry Runs and Query Cost Controls",
+          "subtopics": ["On-demand billing per TiB scanned with the first TiB each month free", "The 10 MB minimum per table referenced", "bq query --dry_run and the estimated bytes", "--maximum_bytes_billed and the error when it is exceeded", "Custom quotas: QueryUsagePerDay and per-user limits", "Columns scanned compared with rows returned", "Storage prices: active compared with long-term logical storage", "Reading bytes billed in the job details and INFORMATION_SCHEMA.JOBS"],
+          "tools": ["bq CLI", "BigQuery Studio", "Google Cloud Billing reports"],
+          "lab_task": "Dry-run three queries with bq query --dry_run, run one with --maximum_bytes_billed=10000000 so it fails, rewrite it to select fewer columns and filter a partition so it passes, then read total_bytes_billed and compute the on-demand cost from the current per-TiB list price.",
+          "deliverable": "Cost worksheet with dry-run estimates, actual bytes billed and the computed cost",
+          "checks": [["Run the heavy query with --maximum_bytes_billed=10000000", "Fails with Query exceeded limit for bytes billed: 10000000", "Error message"], ["Run bq query --dry_run on the rewritten query", "Prints an estimate of bytes that will be processed with no job charge", "Terminal output"], ["Query a tiny table with INFORMATION_SCHEMA.JOBS", "total_bytes_billed is rounded up to the 10 MB minimum", "Query result"]],
+          "objectives": ["Estimate query cost before running", "Cap spending per query", "Calculate on-demand charges from bytes billed"]
+        },
+        {
+          "topic": "Query Results, Cache and Job History",
+          "subtopics": ["Anonymous result tables and the 24-hour result cache", "Conditions that disable the cache: non-deterministic functions and table changes", "Saving results to a destination table and --destination_table", "Exporting results to CSV, Google Sheets and Cloud Storage", "bq ls -j, bq show -j and job IDs", "Job states PENDING, RUNNING and DONE and errorResult", "INFORMATION_SCHEMA.JOBS_BY_USER for personal history", "Personal and project history in BigQuery Studio"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA"],
+          "lab_task": "Run the same query twice and confirm the second job reports cache_hit=true with 0 bytes billed, add CURRENT_TIMESTAMP() to the query to show the cache is skipped, save a result to a destination table with --destination_table, and list the last 10 jobs from INFORMATION_SCHEMA.JOBS_BY_USER.",
+          "deliverable": "Notes on cache behaviour with job IDs and the job-history query",
+          "checks": [["Run an identical query a second time", "Job statistics show cacheHit true and totalBytesBilled 0", "bq show -j output"], ["Add CURRENT_TIMESTAMP() to the query and rerun", "cacheHit is false and bytes are billed again", "bq show -j output"], ["Run the destination-table query a second time without --replace or --append_table", "Fails with Already Exists: Table", "Error message"]],
+          "objectives": ["Explain when cached results are used", "Save and export query results", "Find and inspect past jobs"]
+        },
+        {
+          "topic": "IAM Roles and Dataset Access for Analysts",
+          "subtopics": ["Principals, roles and permissions in Google Cloud IAM", "bigquery.jobUser compared with bigquery.dataViewer and bigquery.dataEditor", "bigquery.user, bigquery.admin and bigquery.resourceViewer", "Project-level and dataset-level grants", "Granting with gcloud projects add-iam-policy-binding and bq add-iam-policy-binding", "GRANT and REVOKE SQL statements on datasets", "Service accounts for scheduled and application queries", "The error User does not have bigquery.jobs.create permission"],
+          "tools": ["Cloud IAM", "bq CLI", "gcloud CLI", "BigQuery Studio"],
+          "lab_task": "Create a service account analyst-sa, grant roles/bigquery.dataViewer on one dataset only, run a query as that account with --impersonate_service_account and observe the failure, add roles/bigquery.jobUser at project level, repeat to succeed, and write one GRANT statement that gives the same read access in SQL.",
+          "deliverable": "IAM grant list with commands and the before-and-after query results",
+          "checks": [["Query the dataset as analyst-sa holding only dataViewer", "Fails with Access Denied: User does not have bigquery.jobs.create permission", "Error message"], ["Add roles/bigquery.jobUser and rerun", "The query returns rows", "Query result"], ["Query a second dataset that was never granted", "Fails with Access Denied for that dataset", "Error message"]],
+          "objectives": ["Grant least-privilege access to a dataset", "Separate permission to run jobs from permission to read data", "Use service accounts for non-interactive access"]
+        },
+        {
+          "topic": "Scheduled Queries and the BigQuery Data Transfer Service",
+          "subtopics": ["Scheduled queries and the schedule syntax every 24 hours", "Query parameters @run_time and @run_date", "Destination table templates with write preference", "Running as a service account", "Run history and notifications through Pub/Sub", "Backfills for a date range", "BigQuery Data Transfer Service sources such as Cloud Storage, Google Ads and YouTube", "Creating transfers with bq mk --transfer_config"],
+          "tools": ["BigQuery Studio", "bq CLI", "Data Transfer Service"],
+          "lab_task": "Create a scheduled query with bq mk --transfer_config --data_source=scheduled_query that appends yesterday's order totals using @run_date to a daily_totals table every 24 hours, trigger a backfill for the last 3 days with bq mk --transfer_run, and read the run history with bq ls --transfer_run.",
+          "deliverable": "Scheduled query configuration and a run history showing 3 successful backfill runs",
+          "checks": [["Run bq ls --transfer_config", "The scheduled query appears with state SUCCEEDED or PENDING", "bq output"], ["Backfill the last 3 days", "daily_totals contains 3 distinct run_date values", "Query result"], ["Edit the query to reference a missing table and wait for the run", "The run shows FAILED with a Not found error in its logs", "Run history"]],
+          "objectives": ["Schedule recurring SQL", "Backfill missed days with run parameters", "Read transfer run history"]
+        },
+        {
+          "topic": "Visualising with Looker Studio and Connected Sheets",
+          "subtopics": ["Connecting Looker Studio to BigQuery tables and custom queries", "Data source credentials: owner compared with viewer", "Report cost: each chart query scans data", "Pre-aggregated reporting tables and partition filters", "Looker Studio date range controls and parameters", "Connected Sheets pivot tables and extracts", "Sharing reports with viewers who have no BigQuery access", "Introduction to BI Engine acceleration for dashboards"],
+          "tools": ["Looker Studio", "Connected Sheets", "BigQuery Studio"],
+          "lab_task": "Build a reporting table daily_sales from order_items grouped by day and category, connect it to Looker Studio with owner credentials, build a time series and a category bar chart, then connect the same table from Google Sheets with Data > Data connectors > Connect to BigQuery and build a pivot table.",
+          "deliverable": "Looker Studio report link and a Sheets pivot over the same table",
+          "checks": [["Load the report and open INFORMATION_SCHEMA.JOBS_BY_PROJECT", "Looker Studio queries appear with a destination reporting table in their SQL", "Query result"], ["Switch data source credentials to viewer and open the report as a user without table access", "The charts show a permission error", "Screenshot"], ["Compare the pivot totals in Sheets with SUM(revenue) in BigQuery", "Both totals match", "Screenshot and query result"]],
+          "objectives": ["Connect BigQuery to dashboards", "Control the cost of dashboard queries", "Share reports without over-granting access"]
+        },
+        {
+          "topic": "Beginner Capstone: Retail Analytics Dataset in BigQuery",
+          "subtopics": ["Dataset design and naming for raw, staging and reporting layers", "Loading source files and enforcing schemas", "Partitioned and clustered fact tables", "Reporting views and a scheduled summary table", "Dataset-level IAM and cost controls", "Documentation with an evidence pack of job IDs and bytes billed"],
+          "tools": ["BigQuery Studio", "bq CLI", "Cloud Storage", "Looker Studio", "IAM"],
+          "lab_task": "Load orders, order_items and users CSV files into a raw dataset with explicit schemas, build a partitioned and clustered fact_sales table, create 3 reporting views, schedule a daily summary query, grant an analyst group dataViewer on reporting only, and set maximum_bytes_billed on each job. Present 5 business questions with costs.",
+          "deliverable": "Working retail dataset with DDL scripts, schedule, IAM list and a cost table for 5 questions",
+          "checks": [["Query fact_sales with a date filter and read bytes processed", "Fewer bytes are processed than a full-table scan of the same table", "Query statistics"], ["Run a query as the analyst group against the raw dataset", "Fails with Access Denied while reporting views succeed", "Error message and query result"], ["Check the scheduled query run history after the next trigger", "The latest run shows SUCCEEDED and a new day in the summary table", "Run history"]],
+          "objectives": ["Assemble an end-to-end analytics dataset", "Apply partitioning, IAM and cost controls together", "Present results with evidence of cost and correctness"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers and analytics engineers who run BigQuery in production. Covers scripting and UDFs, execution plans, INFORMATION_SCHEMA, time travel and snapshots, storage billing, Storage Write API streaming and CDC, Pub/Sub and Datastream ingestion, MERGE patterns, materialized views, search indexes, external tables, Dataform, row and column security, authorized views, editions pricing and BigQuery ML.",
+      "prerequisites": ["Completes the beginner level or equivalent BigQuery experience", "Writes window functions, MERGE and partition-filtered queries", "Uses git and a scripting language such as Python"],
+      "outcomes": ["Build streaming and batch pipelines with the Write API, Pub/Sub and Dataform", "Diagnose slow or costly queries from plans and INFORMATION_SCHEMA", "Secure data with row policies, policy tags and authorized views", "Train and evaluate BigQuery ML models and size capacity with editions"],
+      "days": [
+        {
+          "topic": "BigQuery Scripting, Stored Procedures and UDFs",
+          "subtopics": ["DECLARE, SET and multi-statement queries", "IF, LOOP, WHILE and FOR...IN control flow", "EXECUTE IMMEDIATE with USING parameters", "BEGIN ... EXCEPTION WHEN ERROR and @@error.message", "Stored procedures with IN, OUT and INOUT arguments", "SQL UDFs and table functions", "JavaScript UDFs and their limits", "Remote functions with Cloud Run and the call cost"],
+          "tools": ["BigQuery Studio", "bq CLI", "Cloud Run"],
+          "lab_task": "Write a script that DECLAREs a start date, loops over 7 days with FOR...IN, uses EXECUTE IMMEDIATE to insert each day into a log table, wraps the loop in BEGIN ... EXCEPTION WHEN ERROR, create a stored procedure sp_load_day(IN d DATE), and add a SQL UDF and a JavaScript UDF that clean phone numbers.",
+          "deliverable": "Script, stored procedure and two UDFs with test calls",
+          "checks": [["CALL sp_load_day on a date that already has rows", "The EXCEPTION block writes @@error.message to the log table instead of aborting", "Log table row"], ["Run the loop for 7 days", "The log table has 7 rows", "Query result"], ["Call the JavaScript UDF with NULL", "Returns NULL and the SQL UDF returns an empty string, showing the two behaviours differ", "Query result"]],
+          "objectives": ["Write multi-statement scripts", "Package logic in procedures and UDFs", "Handle errors inside scripts"]
+        },
+        {
+          "topic": "Query Execution Plans and Stage Analysis",
+          "subtopics": ["The execution graph in the Execution details tab", "Stages: input, join, aggregate, sort and output", "Slot time compared with elapsed time", "Records read, records written and shuffle bytes", "Reading the query plan through the jobs.get API and bq show --format=prettyjson -j", "Spotting a skewed stage by compute ratio max to avg", "Spill to disk and the Resources exceeded error", "Using the performance insights panel"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA"],
+          "lab_task": "Run a 3-table join with an ORDER BY on thelook_ecommerce, open Execution details, note the slowest stage, fetch the plan with bq show --format=prettyjson -j JOB_ID, record each stage's recordsRead, recordsWritten and compute ratio, then add a filter before the join and compare stage records and slot time.",
+          "deliverable": "Annotated execution plan before and after the filter with a stage table",
+          "checks": [["Read queryPlan from the job JSON", "Each stage lists name, status, recordsRead and recordsWritten", "bq show output"], ["Move the filter before the join", "Join stage recordsRead falls compared with the first run", "Plan comparison"], ["Read totalSlotMs and elapsed time for both runs", "Slot time is greater than elapsed time because work ran in parallel", "Job statistics"]],
+          "objectives": ["Read an execution graph", "Locate the stage that dominates time", "Verify an optimisation with plan statistics"]
+        },
+        {
+          "topic": "INFORMATION_SCHEMA Jobs and Storage Views",
+          "subtopics": ["Region qualifiers such as region-us.INFORMATION_SCHEMA.JOBS", "JOBS_BY_PROJECT, JOBS_BY_USER, JOBS_BY_FOLDER and JOBS_BY_ORGANIZATION", "Columns total_bytes_billed, total_slot_ms, creation_time, error_result and referenced_tables", "TABLE_STORAGE and TABLE_STORAGE_BY_PROJECT", "JOBS_TIMELINE for slot usage per second", "Partitioned search by creation_time to limit scanned bytes", "Retention of 180 days of job history", "Building a cost-by-user report"],
+          "tools": ["INFORMATION_SCHEMA", "BigQuery Studio", "Looker Studio"],
+          "lab_task": "Write queries on region-us.INFORMATION_SCHEMA.JOBS_BY_PROJECT for the last 30 days that return the top 10 users by SUM(total_bytes_billed), the 10 slowest queries by TIMESTAMP_DIFF(end_time, start_time, SECOND), the 10 most frequent error reasons, and the largest tables from TABLE_STORAGE. Save them as one view.",
+          "deliverable": "Cost and error report view with the four queries and sample output",
+          "checks": [["Run the user cost query with a creation_time filter", "Rows come back ordered with the largest billed bytes first", "Query result"], ["Query INFORMATION_SCHEMA.JOBS without a region qualifier in a project with multi-region data", "Fails or returns the wrong region unless region-us is stated", "Error message or result"], ["Compare total_logical_bytes with active_logical_bytes in TABLE_STORAGE", "total equals active plus long-term logical bytes", "Query result"]],
+          "objectives": ["Query job and storage metadata", "Build usage and cost reports", "Limit INFORMATION_SCHEMA scan cost with time filters"]
+        },
+        {
+          "topic": "Table Storage: Time Travel, Snapshots and Clones",
+          "subtopics": ["Time travel window of 2 to 7 days and max_time_travel_hours", "FOR SYSTEM_TIME AS OF queries", "Recovering a dropped table with bq cp and the @timestamp decorator", "Fail-safe period of 7 days and what it is for", "Table snapshots with CREATE SNAPSHOT TABLE and expiration", "Table clones with CREATE TABLE CLONE and storage billing", "Restoring from a snapshot", "Choosing clone, snapshot or copy for each use"],
+          "tools": ["BigQuery Studio", "bq CLI"],
+          "lab_task": "Delete 100 rows from a lab table, query the earlier state with FOR SYSTEM_TIME AS OF TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 10 MINUTE), restore them with INSERT ... SELECT, create a snapshot with a 7-day expiration, create a clone for testing, and compare billed storage for both in TABLE_STORAGE.",
+          "deliverable": "Recovery runbook with the three SQL statements and a storage comparison",
+          "checks": [["Query the table AS OF a time before the delete", "The 100 deleted rows are present", "Query result"], ["Query AS OF a time older than the time travel window", "Fails with Invalid snapshot time", "Error message"], ["Check storage of a fresh clone with no changes", "The clone adds no extra billed bytes until data diverges", "TABLE_STORAGE result"]],
+          "objectives": ["Recover data with time travel", "Create snapshots and clones", "Pick the right protection for each case"]
+        },
+        {
+          "topic": "Logical and Physical Storage Billing and Long-Term Storage",
+          "subtopics": ["Active and long-term storage: 90 days unmodified", "Logical bytes compared with physical (compressed) bytes", "Choosing storage billing with ALTER SCHEMA SET OPTIONS (storage_billing_model = 'PHYSICAL')", "Time travel and fail-safe bytes counted under physical billing", "Estimating the saving from TABLE_STORAGE columns", "The 24-hour wait and per-dataset scope of the switch", "What resets the 90-day clock", "Dataset and table expiration to remove unused data"],
+          "tools": ["INFORMATION_SCHEMA", "bq CLI", "BigQuery Studio"],
+          "lab_task": "Query INFORMATION_SCHEMA.TABLE_STORAGE_BY_PROJECT to compute for each dataset the logical cost against the physical cost using active_logical_bytes, active_physical_bytes and time_travel_physical_bytes, choose one dataset where physical wins, and apply storage_billing_model = 'PHYSICAL' with ALTER SCHEMA.",
+          "deliverable": "Storage billing comparison table for all datasets with a switch recommendation",
+          "checks": [["Query active_physical_bytes and active_logical_bytes for a text-heavy table", "Physical bytes are well below logical bytes for compressible data", "Query result"], ["Run ALTER SCHEMA ... SET OPTIONS (storage_billing_model = 'PHYSICAL')", "bq show for the dataset lists storageBillingModel PHYSICAL", "bq show output"], ["Run an UPDATE that touches a table not modified for 90 days", "Only the modified partitions return to active storage when partitioned", "TABLE_STORAGE result"]],
+          "objectives": ["Compare logical and physical billing", "Apply a billing model per dataset", "Reduce storage cost with expiration"]
+        },
+        {
+          "topic": "Streaming Ingestion with the Storage Write API",
+          "subtopics": ["Storage Write API compared with legacy tabledata.insertAll", "Stream types: default, committed, pending and buffered", "At-least-once on the default stream and exactly-once with offsets", "Protocol buffers and the writer schema", "Python and Java clients, including the managed writer", "Batch loading with pending streams and BatchCommitWriteStreams", "Error codes such as ALREADY_EXISTS and OFFSET_OUT_OF_RANGE", "Quotas, connection limits and the 10 MB request size"],
+          "tools": ["Storage Write API", "Python client", "Pub/Sub", "BigQuery Studio"],
+          "lab_task": "Using the google-cloud-bigquery-storage Python client, write 10,000 protobuf rows to the default stream of a events_stream table, then write 10,000 rows to a committed stream with explicit offsets, replay the same offsets once, and count rows. Compare with a pending stream finalised by BatchCommitWriteStreams.",
+          "deliverable": "Python writer scripts for three stream types with row counts after each test",
+          "checks": [["Write to the default stream and query within seconds", "COUNT(*) returns 10,000 rows", "Query result"], ["Replay the same committed-stream offsets", "The server returns ALREADY_EXISTS and the count stays at 20,000", "Client log and query result"], ["Query a pending stream before BatchCommitWriteStreams", "No rows are visible until the commit", "Query result"]],
+          "objectives": ["Choose a Write API stream type", "Achieve exactly-once writes with offsets", "Handle Write API errors"]
+        },
+        {
+          "topic": "Change Data Capture and Upserts with the Write API",
+          "subtopics": ["BigQuery change data capture with the _CHANGE_TYPE pseudo-column", "UPSERT and DELETE change types", "Unenforced PRIMARY KEY on the target table", "max_staleness and its effect on query freshness", "_CHANGE_SEQUENCE_NUMBER for ordering", "Merge cost compared with background apply", "Queries on tables with pending changes", "Limits: clustering on primary key columns"],
+          "tools": ["Storage Write API", "BigQuery Studio", "Python client"],
+          "lab_task": "Create an inventory table with PRIMARY KEY (sku) NOT ENFORCED, CLUSTER BY sku and OPTIONS (max_staleness = INTERVAL 15 MINUTE), stream 1,000 UPSERT rows and 50 DELETE rows to it with _CHANGE_TYPE, query the table immediately, and again after the staleness interval has passed.",
+          "deliverable": "CDC table DDL, writer script and freshness observations",
+          "checks": [["Send 50 DELETE rows for existing SKUs", "COUNT(*) falls by 50 after the table reaches freshness", "Query result"], ["Send two UPSERT rows for the same sku with higher _CHANGE_SEQUENCE_NUMBER on the second", "The table holds the second row's values", "Query result"], ["Query during the staleness window", "Results may lag by up to the max_staleness interval", "Timestamped query results"]],
+          "objectives": ["Apply inserts, updates and deletes with CDC", "Tune max_staleness against freshness needs", "Order changes with sequence numbers"]
+        },
+        {
+          "topic": "Pub/Sub BigQuery Subscriptions and Dataflow Templates",
+          "subtopics": ["Pub/Sub BigQuery subscriptions which write through the Storage Write API", "Topic schema and writing to a table by schema or by message data", "use_topic_schema and write_metadata settings", "Dead-letter topics for failed rows", "Dataflow templates: Pub/Sub to BigQuery and Cloud Storage to BigQuery", "Batch and streaming Dataflow cost compared with direct subscriptions", "Late data, duplicates and message_id deduplication", "Monitoring subscription backlog"],
+          "tools": ["Pub/Sub", "Dataflow", "bq CLI", "Cloud Monitoring"],
+          "lab_task": "Create a Pub/Sub topic with an Avro schema, create a BigQuery subscription with gcloud pubsub subscriptions create --bigquery-table and --use-topic-schema, publish 1,000 messages with gcloud pubsub topics publish, and count rows. Then publish 5 messages that violate the schema and observe the dead-letter topic.",
+          "deliverable": "Subscription configuration, publish script and row count evidence",
+          "checks": [["Publish 1,000 valid messages and query the table", "COUNT(*) returns 1,000", "Query result"], ["Publish 5 messages that do not match the schema", "They are not written and appear in the dead-letter topic", "Dead-letter subscription pull"], ["Check the subscription metric num_undelivered_messages after the burst", "The metric returns to 0 once all valid messages are written", "Cloud Monitoring chart"]],
+          "objectives": ["Stream messages into BigQuery without code", "Route bad messages to a dead-letter topic", "Pick between subscriptions and Dataflow"]
+        },
+        {
+          "topic": "Datastream and Database Replication into BigQuery",
+          "subtopics": ["Datastream sources: MySQL, PostgreSQL, Oracle and SQL Server", "Connection profiles and private connectivity", "Backfill compared with ongoing CDC", "BigQuery destination and the data_freshness setting", "Append-only compared with merge write mode", "Mapping of source types to BigQuery types", "Monitoring stream lag and the freshness metric", "Cost drivers: processed bytes and BigQuery change application"],
+          "tools": ["Datastream", "Cloud SQL", "BigQuery Studio", "Cloud Monitoring"],
+          "lab_task": "Create a Cloud SQL for PostgreSQL instance with logical replication enabled, a Datastream connection profile, a stream to BigQuery with merge mode and data_freshness of 900 seconds, run 500 inserts and 50 updates on the source, and verify both counts in BigQuery after the backfill.",
+          "deliverable": "Stream configuration and a source-versus-target reconciliation query",
+          "checks": [["Compare COUNT(*) in PostgreSQL with BigQuery after the backfill", "Both counts match", "Two query results"], ["Run UPDATE on 50 source rows", "BigQuery shows the new values within the data_freshness interval", "Query result with timestamps"], ["Read the stream freshness metric", "Freshness stays below the configured 900 seconds", "Monitoring chart"]],
+          "objectives": ["Replicate an operational database to BigQuery", "Choose a write mode and freshness", "Reconcile source and target counts"]
+        },
+        {
+          "topic": "MERGE, Deduplication and Incremental Loading Patterns",
+          "subtopics": ["MERGE with WHEN MATCHED, WHEN NOT MATCHED and WHEN NOT MATCHED BY SOURCE", "The error UPDATE/MERGE must match at most one source row for each target row", "Deduplicating with ROW_NUMBER and QUALIFY", "High-water-mark loading with a watermark table", "Partition-scoped MERGE to limit scanned bytes", "Slowly changing dimension type 2 with MERGE", "Idempotent loads and retry safety", "INSERT OVERWRITE style replacement with partition decorators"],
+          "tools": ["BigQuery Studio", "bq CLI"],
+          "lab_task": "Create a staging table with 5 duplicate customer keys, deduplicate it with ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at DESC) and QUALIFY, MERGE it into dim_customer with a partition-limited ON clause, then run the merge twice and confirm the second run changes 0 rows.",
+          "deliverable": "Idempotent MERGE script with row counts before and after each run",
+          "checks": [["MERGE with duplicate source keys and no deduplication", "Fails with UPDATE/MERGE must match at most one source row for each target row", "Error message"], ["Run the corrected MERGE a second time", "num_dml_affected_rows reports 0 for inserts and updates", "Job statistics"], ["Add a partition filter to the ON clause", "Bytes processed fall compared with the unfiltered MERGE", "Job statistics"]],
+          "objectives": ["Write idempotent MERGE statements", "Deduplicate staging data", "Limit scanned bytes in incremental loads"]
+        },
+        {
+          "topic": "Materialized Views and Search Indexes",
+          "subtopics": ["CREATE MATERIALIZED VIEW and allowed query shapes", "Automatic refresh, refresh_interval_minutes and enable_refresh", "max_staleness for fresher or cheaper reads", "Smart tuning: the optimiser rewriting base-table queries", "Reading bq show for last_refresh_time", "CREATE SEARCH INDEX ON table(ALL COLUMNS) and the SEARCH function", "Index coverage and index size shown in INFORMATION_SCHEMA.SEARCH_INDEXES", "Cost of maintenance compared with query savings"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA"],
+          "lab_task": "Create a materialized view of daily revenue by category, run a base-table query that matches it and inspect the job for materialized view usage, create a search index on a logs table, compare WHERE log LIKE '%timeout%' against SEARCH(log, 'timeout'), and read coverage in INFORMATION_SCHEMA.SEARCH_INDEXES.",
+          "deliverable": "Materialized view and search index DDL with bytes processed comparisons",
+          "checks": [["Insert new rows into the base table and query the materialized view", "Results include the new rows because BigQuery combines stored and fresh data", "Query result"], ["Query INFORMATION_SCHEMA.SEARCH_INDEXES", "index_status is ACTIVE and coverage_percentage reaches 100", "Query result"], ["Run SEARCH(log, 'timeout') against LIKE", "SEARCH scans fewer bytes with the same matching rows", "Job statistics"]],
+          "objectives": ["Create materialized views for repeated aggregates", "Index text for fast lookups", "Weigh maintenance cost against savings"]
+        },
+        {
+          "topic": "External Tables, Federated Queries and Object Tables",
+          "subtopics": ["External tables over Cloud Storage with CREATE EXTERNAL TABLE", "Hive partitioning options with hive_partition_uri_prefix", "Federated queries with EXTERNAL_QUERY to Cloud SQL and Spanner", "Connections and the service account they create", "Object tables for images and documents", "Metadata caching and max_staleness", "Performance and cost compared with native tables", "Limits: no clustering or partition expiry on plain external tables"],
+          "tools": ["BigQuery Studio", "Cloud Storage", "Cloud SQL", "bq CLI"],
+          "lab_task": "Create an external table over hive-partitioned Parquet in gs://bucket/orders/dt=YYYY-MM-DD/, query it with a dt filter, create a connection to Cloud SQL and run EXTERNAL_QUERY('us.my_conn', 'SELECT * FROM customers LIMIT 100'), and compare a 10 GB scan against the same data loaded as a native table.",
+          "deliverable": "External table and federated query definitions with a native comparison table",
+          "checks": [["Query the external table with WHERE dt = '2025-01-01'", "Only that folder is read and bytes processed shrink", "Job statistics"], ["Run EXTERNAL_QUERY with the connection's service account lacking Cloud SQL Client", "Fails with a permission error", "Error message"], ["Repeat the scan on the loaded native table", "The native table runs faster than the external scan", "Elapsed time comparison"]],
+          "objectives": ["Query data without loading it", "Join BigQuery with a live operational database", "Decide between external and native storage"]
+        },
+        {
+          "topic": "Dataform Workflows: SQLX, ref() and Dependencies",
+          "subtopics": ["Dataform repositories in BigQuery Studio and git connections", "workflow_settings.yaml with defaultProject, defaultDataset and defaultLocation", "SQLX files in definitions/ with config blocks", "ref() and automatic dependency ordering", "Types: table, view, incremental, declaration and operations", "JavaScript in includes/ and templating with ${...}", "dataform compile and dataform run with the CLI", "Workspace development, commits and the compiled graph"],
+          "tools": ["Dataform", "BigQuery Studio", "Dataform CLI", "Git"],
+          "lab_task": "Create a Dataform repository with workflow_settings.yaml and three SQLX files: a declaration for the raw orders table, a staging view that uses ${ref('raw_orders')}, and a mart table that uses ${ref('stg_orders')}. Run dataform compile, inspect the dependency graph, execute the workflow, and read the run log.",
+          "deliverable": "Dataform repository with 3 definitions and a successful run log",
+          "checks": [["Run dataform compile", "The compiled graph shows raw_orders, stg_orders and mart_orders in that dependency order", "Compiled graph"], ["Reference a table that does not exist with ref('missing')", "Compilation fails with Could not resolve missing", "Compilation error"], ["Execute the workflow", "stg_orders and mart_orders exist in the default dataset", "Run log and bq ls"]],
+          "objectives": ["Build a SQLX project", "Use ref() for dependency ordering", "Compile and execute a workflow"]
+        },
+        {
+          "topic": "Dataform Assertions, Incremental Tables and Release Configurations",
+          "subtopics": ["Built-in assertions: nonNull, uniqueKey and rowConditions", "Manual assertions as SQL returning failing rows", "Incremental tables with when(incremental(), ...)", "uniqueKey and updatePartitionFilter in config", "Release configurations with a cron schedule and git commitish", "Workflow configurations for scheduled runs", "Service account permissions for Dataform runs", "Run and failure notifications"],
+          "tools": ["Dataform", "BigQuery Studio", "Cloud Scheduler", "Cloud Monitoring"],
+          "lab_task": "Add assertions { nonNull: ['order_id'], uniqueKey: ['order_id'] } to the staging model, convert the mart to an incremental table with uniqueKey, create a release configuration compiling the main branch daily, add a workflow configuration at 02:00, insert a duplicate order_id to make the assertion fail and read the assertion view.",
+          "deliverable": "Project with assertions, an incremental mart and release and workflow schedules",
+          "checks": [["Insert a duplicate order_id and run the workflow", "The uniqueKey assertion fails and shows the duplicate rows", "Assertion run log"], ["Run the incremental model twice with no new data", "The second run inserts 0 rows", "Job statistics"], ["Check the release configuration after a git push", "A new compilation result appears for the latest commit", "Release configuration page"]],
+          "objectives": ["Test data quality with assertions", "Build incremental models", "Schedule workflows with release and workflow configurations"]
+        },
+        {
+          "topic": "Row-Level Security and Column-Level Security with Policy Tags",
+          "subtopics": ["CREATE ROW ACCESS POLICY ... GRANT TO ... FILTER USING", "Behaviour of tables with policies: users with no policy see 0 rows", "The bigquery.rowAccessPolicies.* permissions", "Policy tags and taxonomies in Dataplex Catalog", "Applying a policy tag to a column", "roles/datacatalog.categoryFineGrainedReader", "Access Denied: User does not have permission to access policy tag", "Inspecting policies with INFORMATION_SCHEMA.ROW_ACCESS_POLICIES"],
+          "tools": ["BigQuery Studio", "Dataplex Catalog", "IAM", "bq CLI"],
+          "lab_task": "On a sales table with region and email columns, create a row access policy that grants group emea-analysts rows WHERE region = 'EMEA', create a taxonomy with a Confidential policy tag, apply it to email, and test with one user in the group, one outside it, and one holding Fine-Grained Reader.",
+          "deliverable": "Policy definitions and a test matrix for three users",
+          "checks": [["Query as a user outside every policy", "Returns 0 rows with no error", "Query result"], ["SELECT email as a user without Fine-Grained Reader", "Fails with Access Denied: User does not have permission to access policy tag", "Error message"], ["Query as an emea-analysts member", "Only rows with region EMEA are returned", "Query result"]],
+          "objectives": ["Restrict rows by principal", "Protect sensitive columns with policy tags", "Test policies with different users"]
+        },
+        {
+          "topic": "Authorized Views, Authorized Datasets and Data Masking",
+          "subtopics": ["Authorized views and why the view dataset is separate", "Granting a view access to a source dataset", "Authorized datasets for many views at once", "Authorized routines and table functions", "Data masking rules on policy tags: hash, nullify, default value", "Masked reader role roles/bigquerydatapolicy.maskedReader", "Row filters inside a view with SESSION_USER()", "Comparison of views, row policies and masking"],
+          "tools": ["BigQuery Studio", "IAM", "Dataplex Catalog", "bq CLI"],
+          "lab_task": "Create a private dataset and a shared dataset, build a view in shared that selects non-sensitive columns and filters on SESSION_USER(), authorize the view on the private dataset, grant an analyst only the shared dataset, and add a SHA256 data policy for the email column.",
+          "deliverable": "Authorization configuration with test results for an analyst without access to the private dataset",
+          "checks": [["Query the view as an analyst with no access to the private dataset", "Returns rows from the view", "Query result"], ["Query the private base table directly as the same analyst", "Fails with Access Denied", "Error message"], ["Read email as a user with the masked reader role", "Returns a SHA256 hash and not the plain address", "Query result"]],
+          "objectives": ["Share data through authorized views", "Mask sensitive columns", "Compare the available access-control tools"]
+        },
+        {
+          "topic": "Choosing Between On-Demand and Editions Pricing",
+          "subtopics": ["On-demand compared with capacity pricing", "BigQuery editions: Standard, Enterprise and Enterprise Plus", "Slots, baseline slots and autoscaling max slots", "Pay as you go compared with 1-year and 3-year commitments", "Creating a reservation with bq mk --reservation", "Assignments for QUERY and PIPELINE job types", "Measuring slot demand from JOBS_TIMELINE", "Break-even between TiB scanned and slot-hours"],
+          "tools": ["bq CLI", "INFORMATION_SCHEMA", "Cloud Monitoring", "Google Cloud Billing reports"],
+          "lab_task": "From JOBS_TIMELINE_BY_PROJECT compute average and p95 slots per hour for 30 days and the TiB scanned, convert both into on-demand and Enterprise edition costs using current list prices, then create a reservation with 0 baseline and autoscale max of 100 slots and assign a test project.",
+          "deliverable": "Cost model spreadsheet with a recommendation and reservation commands",
+          "checks": [["Run the JOBS_TIMELINE query for 30 days", "It returns period_slot_ms by hour and p95 slots are computed", "Query result"], ["Run bq ls --reservation", "The test reservation appears with its edition and autoscale max", "bq output"], ["Run a query from the assigned project", "INFORMATION_SCHEMA.JOBS shows reservation_id set and no on-demand bytes billed", "Query result"]],
+          "objectives": ["Model on-demand and capacity costs", "Create a reservation and assign a project", "Choose pricing from measured slot demand"]
+        },
+        {
+          "topic": "BigQuery ML: Training and Evaluating Models",
+          "subtopics": ["CREATE MODEL with model_type LINEAR_REG, LOGISTIC_REG, KMEANS and BOOSTED_TREE_CLASSIFIER", "input_label_cols and data_split_method", "Feature preprocessing with the TRANSFORM clause", "ML.EVALUATE, ML.PREDICT and ML.EXPLAIN_PREDICT", "ML.FEATURE_IMPORTANCE and ML.CONFUSION_MATRIX", "Hyperparameter tuning with num_trials", "Exporting models and registering to Vertex AI", "Cost: bytes processed for training compared with slot usage"],
+          "tools": ["BigQuery ML", "BigQuery Studio", "Vertex AI"],
+          "lab_task": "Train a BOOSTED_TREE_CLASSIFIER with CREATE MODEL on the churn table using input_label_cols=['churned'], run ML.EVALUATE and read roc_auc, ML.CONFUSION_MATRIX, ML.FEATURE_IMPORTANCE, then use ML.PREDICT on 100 new customers and write predictions with probability to a table.",
+          "deliverable": "Trained model with evaluation metrics and a predictions table",
+          "checks": [["Run ML.EVALUATE on the held-out split", "roc_auc is above 0.5 and precision and recall are reported", "Query result"], ["Run ML.PREDICT on 100 customers", "100 rows return with predicted_churned and predicted_churned_probs", "Query result"], ["Run ML.FEATURE_IMPORTANCE", "Features are listed with importance_weight in descending order", "Query result"]],
+          "objectives": ["Train a model using only SQL", "Evaluate and interpret metrics", "Generate batch predictions"]
+        },
+        {
+          "topic": "Python Client Library, Terraform and CI for BigQuery",
+          "subtopics": ["google-cloud-bigquery Client, query(), result() and to_dataframe()", "Query parameters with ScalarQueryParameter", "Load jobs from DataFrames and URIs", "Application Default Credentials and service-account impersonation", "Terraform resources google_bigquery_dataset, google_bigquery_table and google_bigquery_dataset_iam_member", "Unit-testing SQL with dry runs and temporary datasets", "CI pipeline steps: plan, dry-run and deploy", "Retry policy and job labels for cost tracking"],
+          "tools": ["Python client", "Terraform", "GitHub Actions", "bq CLI"],
+          "lab_task": "Write a Python script that runs a parameterised query with @start_date, loads a DataFrame to a table, and sets labels={'team': 'analytics'}. Create the dataset, table and IAM binding with Terraform, run terraform plan and apply, then add a CI job that runs every .sql file with dry_run=True.",
+          "deliverable": "Python script, Terraform module and CI workflow file",
+          "checks": [["Run terraform plan on an empty project", "Plan shows 3 resources to add", "terraform plan output"], ["Pass a malformed SQL file to the CI dry-run job", "The job fails with a 400 Syntax error", "CI log"], ["Query INFORMATION_SCHEMA.JOBS for labels", "Jobs from the script carry the team label", "Query result"]],
+          "objectives": ["Run BigQuery from Python", "Manage datasets and tables with Terraform", "Validate SQL in CI"]
+        },
+        {
+          "topic": "Intermediate Capstone: Streaming and Batch Pipeline with Dataform",
+          "subtopics": ["Architecture with raw, staging and mart layers", "Streaming ingestion through the Storage Write API or a Pub/Sub subscription", "Dataform models with assertions and incremental loads", "Security with row policies and authorized views", "Cost model with reservation or on-demand", "Runbook with monitoring and recovery steps"],
+          "tools": ["BigQuery", "Dataform", "Pub/Sub", "Cloud Monitoring", "Terraform"],
+          "lab_task": "Build a pipeline: Pub/Sub BigQuery subscription into raw_events, Dataform staging with deduplication and assertions, an incremental mart, a row access policy for 2 regions, and a scheduled workflow every hour. Load 100,000 events, make 1,000 duplicates, and prove the mart count and cost.",
+          "deliverable": "Working pipeline with Terraform, Dataform repository, test results and a cost note",
+          "checks": [["Publish 1,000 duplicate events", "The staging view and mart contain no duplicate event_id", "Query result"], ["Query the mart as a user in only one region", "Only that region's rows return", "Query result"], ["Check the hourly workflow after 3 hours", "3 successful runs appear with assertions passing", "Run history"]],
+          "objectives": ["Combine streaming and batch modelling", "Apply security and quality controls to a pipeline", "Document operations and cost"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers, platform owners and architects. Covers reservation design and workload management, query tuning for skew, BI Engine, BigLake and Iceberg, the BigLake metastore, BigQuery Omni, Gemini and generative AI functions, vector search, forecasting, Dataplex governance, CMEK and VPC Service Controls, audit and monitoring, Analytics Hub, FinOps, disaster recovery, migration, and a governed lakehouse capstone.",
+      "prerequisites": ["Completes the intermediate level or equivalent production BigQuery experience", "Reads execution plans and INFORMATION_SCHEMA job data", "Knows Google Cloud IAM, networking and Terraform at working level"],
+      "outcomes": ["Design reservations and workload isolation from measured slot demand", "Build an open lakehouse using BigLake, Iceberg and shared catalogs", "Apply governance, encryption, audit and cross-region resilience", "Add Gemini, vector search and forecasting features with cost and quality controls"],
+      "days": [
+        {
+          "topic": "Slot Autoscaling, Commitments and Reservation Design",
+          "subtopics": ["Reservation hierarchy: administration project, reservations and assignments", "Baseline slots, autoscale max slots and scaling in 50-slot steps", "Capacity commitments of 1 year and 3 years compared with pay as you go", "Assignments at project, folder and organisation level", "Job types QUERY, PIPELINE, ML_EXTERNAL and BACKGROUND", "Reservation per environment: production, analytics and data science", "Slot sharing with ignore_idle_slots", "Reading reservation metrics in Cloud Monitoring and INFORMATION_SCHEMA.RESERVATIONS_TIMELINE"],
+          "tools": ["bq CLI", "Cloud Monitoring", "INFORMATION_SCHEMA", "Terraform"],
+          "lab_task": "Design three reservations prod_etl, bi and adhoc in an admin project: baseline 100, 50 and 0 slots with autoscale max of 500, 200 and 100. Create them with bq mk --reservation, assign projects, then use RESERVATIONS_TIMELINE and JOBS_TIMELINE to show slot use per reservation during a 1-hour load test.",
+          "deliverable": "Reservation design document with bq commands and a slot-usage chart",
+          "checks": [["Run bq ls --reservation", "prod_etl, bi and adhoc appear with their baseline and autoscale values", "bq output"], ["Run a heavy ETL query in an adhoc-assigned project with ignore_idle_slots=true", "The query is capped at that reservation's baseline plus autoscale slots", "RESERVATIONS_TIMELINE result"], ["Move a project to bi with bq mk --reservation_assignment", "The next job shows reservation_id bi in INFORMATION_SCHEMA.JOBS", "Query result"]],
+          "objectives": ["Design reservations for separate workloads", "Tune baseline and autoscale slots", "Verify assignment with job metadata"]
+        },
+        {
+          "topic": "Workload Management: Concurrency, Priorities and Fair Scheduling",
+          "subtopics": ["Fair scheduling of slots across queries in a reservation", "Query queues and the default concurrency settings", "Reservation concurrency target and job_concurrency", "Interactive and batch priority queries", "Idle slot sharing between reservations", "Pipeline and ML job-type assignments for isolation", "Detecting queueing with queued time and period_slot_ms", "Protecting dashboards from heavy ETL"],
+          "tools": ["bq CLI", "INFORMATION_SCHEMA", "Cloud Monitoring"],
+          "lab_task": "Run 40 concurrent queries with bq query --batch and 5 interactive dashboard queries in one reservation, record each query's queued time from INFORMATION_SCHEMA.JOBS (start_time minus creation_time), then move ETL to its own reservation and repeat the test.",
+          "deliverable": "Concurrency test report with queued time before and after isolation",
+          "checks": [["Run 40 batch queries and 5 interactive queries in one reservation", "Interactive p95 start delay is recorded and higher than baseline", "Query result"], ["Isolate ETL into a separate reservation and repeat", "Interactive p95 start delay falls", "Query result comparison"], ["Submit a query with --batch while the reservation is busy", "The job waits in PENDING until slots are free", "bq show -j output"]],
+          "objectives": ["Measure queueing", "Isolate workloads with separate reservations", "Keep interactive users responsive"]
+        },
+        {
+          "topic": "Query Optimisation for Skew, Shuffle and Join Strategies",
+          "subtopics": ["Data skew and hot join keys", "Broadcast joins compared with hash joins and join order", "Pre-aggregating before joins", "Approximate aggregation: APPROX_COUNT_DISTINCT and HLL_COUNT", "Avoiding ORDER BY on large results and the Resources exceeded error", "Selecting only needed columns and avoiding SELECT *", "Repeated CTE evaluation and temporary tables", "Performance insights in INFORMATION_SCHEMA.JOBS query_info"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA"],
+          "lab_task": "Create a fact table with 50 million rows where 40 percent have customer_id = 0, join it to a 1 million-row dimension and capture the plan, then fix the skew by filtering the placeholder key and pre-aggregating before the join. Compare slot ms, shuffle bytes and elapsed time of both versions.",
+          "deliverable": "Before-and-after plan comparison with timing and slot metrics",
+          "checks": [["Run the skewed join and read the stage compute ratio", "One stage shows a maximum-to-average compute ratio far above 1", "Execution details"], ["Run the rewritten query", "total_slot_ms falls compared with the skewed version", "INFORMATION_SCHEMA.JOBS"], ["Run APPROX_COUNT_DISTINCT beside COUNT(DISTINCT)", "Values differ by about 1 percent or less and the approximate query is cheaper", "Query result"]],
+          "objectives": ["Detect skew and heavy shuffles", "Rewrite queries to reduce slot use", "Use approximate aggregates where valid"]
+        },
+        {
+          "topic": "BI Engine Acceleration and Dashboard Latency",
+          "subtopics": ["BI Engine capacity reservation in GiB per project and location", "Preferred tables to limit memory use", "Full and partial acceleration and bi_engine_mode", "Supported query shapes and unsupported features", "Reading bi_engine_statistics in INFORMATION_SCHEMA.JOBS", "Looker Studio and Looker connections that benefit", "Capacity sizing against table size", "Monitoring with Cloud Monitoring BI Engine metrics"],
+          "tools": ["BI Engine", "Looker Studio", "INFORMATION_SCHEMA", "Cloud Monitoring"],
+          "lab_task": "Create a BI Engine reservation of 10 GiB in your dataset location, mark daily_sales as a preferred table, run the same dashboard query 10 times before and after, and read bi_engine_statistics.bi_engine_mode and acceleration_mode from INFORMATION_SCHEMA.JOBS for each run.",
+          "deliverable": "Latency comparison of 10 runs with BI Engine mode for each",
+          "checks": [["Run the dashboard query before the reservation", "bi_engine_mode is DISABLED", "INFORMATION_SCHEMA.JOBS"], ["Run it again with daily_sales preferred", "bi_engine_mode is FULL and latency drops", "Job statistics"], ["Run a query using an unsupported feature", "bi_engine_mode is PARTIAL or DISABLED with a reason listed", "bi_engine_reasons output"]],
+          "objectives": ["Configure BI Engine capacity", "Explain why a query is partly accelerated", "Measure latency improvement"]
+        },
+        {
+          "topic": "BigLake Tables and Fine-Grained Security on Cloud Storage",
+          "subtopics": ["BigLake tables compared with plain external tables", "Cloud resource connections and the delegated service account", "Granting storage.objectViewer on the bucket to the connection account", "Row-level and column-level security on files in Cloud Storage", "Metadata caching with max_staleness and the cost of refresh", "Hive partition layout and require_hive_partition_filter", "Supported formats: Parquet, ORC, Avro, CSV and JSON", "Access from Spark and Dataproc through the Storage Read API"],
+          "tools": ["BigLake", "Cloud Storage", "bq CLI", "Dataplex Catalog"],
+          "lab_task": "Create a CLOUD_RESOURCE connection with bq mk --connection, grant its service account roles/storage.objectViewer, create a BigLake table over Parquet files with CREATE EXTERNAL TABLE ... WITH CONNECTION, add a row access policy, and read it as a user with no bucket access.",
+          "deliverable": "BigLake table, connection and a test matrix of three users",
+          "checks": [["Query the table as a user with BigQuery access but no bucket permission", "The query succeeds because the connection account reads the files", "Query result"], ["Read the same bucket path directly as that user", "Fails with 403 storage.objects.get denied", "gcloud storage output"], ["Apply a row access policy for region = 'EU'", "The user sees only EU rows", "Query result"]],
+          "objectives": ["Create a BigLake table with delegated access", "Apply fine-grained policies to lake files", "Explain metadata caching"]
+        },
+        {
+          "topic": "Apache Iceberg Tables in BigQuery: Managed and External",
+          "subtopics": ["BigLake managed tables for Apache Iceberg with table_format = 'ICEBERG'", "CREATE TABLE ... WITH CONNECTION ... OPTIONS (file_format = 'PARQUET', storage_uri = 'gs://...')", "External Iceberg tables pointing at a metadata JSON file", "DML, streaming and time travel on managed Iceberg tables", "Background optimisation: compaction and clustering", "Iceberg snapshot metadata export", "Schema evolution behaviour", "Choosing managed Iceberg, external Iceberg or native storage"],
+          "tools": ["BigQuery Studio", "Cloud Storage", "BigLake", "Spark"],
+          "lab_task": "Create a BigLake managed Iceberg table over gs://bucket/iceberg/orders with a Cloud resource connection, insert 100,000 rows with INSERT ... SELECT, run an UPDATE and a streaming write, then inspect the metadata files that appear in the bucket with gcloud storage ls --recursive.",
+          "deliverable": "Iceberg table DDL, DML results and a listing of data and metadata files",
+          "checks": [["List the table's storage_uri path after the insert", "Parquet data files and a metadata directory exist", "gcloud storage ls output"], ["Run UPDATE on 1,000 rows", "num_dml_affected_rows is 1,000 and new snapshot metadata appears", "Job statistics and file listing"], ["Query the table with FOR SYSTEM_TIME AS OF before the update", "Rows show the pre-update values", "Query result"]],
+          "objectives": ["Create and operate managed Iceberg tables", "Compare Iceberg with native tables", "Inspect storage and metadata layout"]
+        },
+        {
+          "topic": "BigLake Metastore and Open Catalog Interoperability with Spark",
+          "subtopics": ["BigLake metastore as a shared catalog for BigQuery and open engines", "Iceberg REST catalog endpoint and engine configuration", "Using Spark on Dataproc or Serverless with the Iceberg catalog", "Namespaces and tables compared with datasets and tables", "Reading and writing the same table from BigQuery and Spark", "Credential vending and IAM for the catalog", "Table maintenance: snapshots expiry and orphan files", "Governance across engines"],
+          "tools": ["BigLake metastore", "Spark", "Dataproc", "Iceberg"],
+          "lab_task": "Configure a Spark session with the Iceberg catalog pointing at the BigLake metastore, create a namespace and a table from Spark, write 10,000 rows, query them in BigQuery, insert 1,000 more rows from BigQuery, and read the total back in Spark. Record the catalog settings used.",
+          "deliverable": "Spark configuration, a shared table and counts read from both engines",
+          "checks": [["Write 10,000 rows from Spark and count in BigQuery", "COUNT(*) returns 10,000", "Query result"], ["Insert 1,000 rows from BigQuery and count in Spark", "spark.table().count() returns 11,000", "Spark output"], ["Start Spark with a principal lacking catalog access", "The session fails with a 403 permission denied", "Spark error log"]],
+          "objectives": ["Share one table between BigQuery and Spark", "Configure an open catalog", "Maintain Iceberg tables across engines"]
+        },
+        {
+          "topic": "BigQuery Omni and Cross-Cloud Analytics",
+          "subtopics": ["BigQuery Omni regions on AWS and Azure", "Connections that use AWS IAM roles or Azure application identities", "Querying data in S3 and Azure Blob Storage with BigLake tables", "Cross-cloud transfer with CREATE TABLE AS SELECT and cross-cloud joins", "Supported SQL and the limits on result sizes", "Egress cost and pricing differences", "Dataset location names such as aws-us-east-1", "Security: IAM trust policy and permission boundaries"],
+          "tools": ["BigQuery Omni", "bq CLI", "AWS IAM", "Azure", "BigLake"],
+          "lab_task": "Create a dataset in aws-us-east-1, a connection with an AWS IAM role trust policy, a BigLake table over Parquet in an S3 bucket, query it, then use a cross-cloud CREATE TABLE AS SELECT to copy an aggregated result into a US dataset. Measure bytes moved.",
+          "deliverable": "Omni connection, table definitions and a cross-cloud transfer record",
+          "checks": [["Query the S3-backed table", "Rows return from the aws-us-east-1 location", "Query result"], ["Join the Omni table directly with a US table in a single query", "Fails because the datasets are in different locations", "Error message"], ["Run the cross-cloud CREATE TABLE AS SELECT", "The US table is created with the aggregated row count", "Job statistics"]],
+          "objectives": ["Query data on other clouds", "Configure cross-cloud trust", "Control cross-cloud transfer cost"]
+        },
+        {
+          "topic": "Remote Models, Gemini and Generative AI Functions in SQL",
+          "subtopics": ["CREATE MODEL ... REMOTE WITH CONNECTION for Gemini endpoints", "Connection service account with roles/aiplatform.user", "ML.GENERATE_TEXT and AI.GENERATE with prompts built in SQL", "Structured output with output_schema", "Generation parameters: temperature, max_output_tokens and flatten_json_output", "Quotas, row-level errors and retry handling", "Cost of tokens and batching", "Evaluating output quality with sample labels"],
+          "tools": ["BigQuery ML", "Vertex AI", "BigQuery Studio", "bq CLI"],
+          "lab_task": "Create a remote model on a Gemini endpoint with a cloud resource connection, grant roles/aiplatform.user to the connection account, run ML.GENERATE_TEXT over 200 support tickets to classify sentiment into 3 labels using a prompt column, and compare results against 50 hand-labelled rows.",
+          "deliverable": "Remote model DDL, prompt, results table and accuracy against labelled rows",
+          "checks": [["Run the model before granting aiplatform.user", "Fails with a permission denied error from Vertex AI", "Error message"], ["Run ML.GENERATE_TEXT on 200 tickets", "200 rows return with a status column that is empty for successes", "Query result"], ["Compare labels with 50 hand-labelled tickets", "Agreement percentage is computed and reported", "Query result"]],
+          "objectives": ["Call generative models from SQL", "Configure connection permissions", "Evaluate model output against labelled data"]
+        },
+        {
+          "topic": "Embeddings, Vector Indexes and VECTOR_SEARCH",
+          "subtopics": ["ML.GENERATE_EMBEDDING with a remote embedding model", "ARRAY<FLOAT64> embedding columns", "CREATE VECTOR INDEX with IVF and TREE_AH index types", "VECTOR_SEARCH with top_k and distance_type COSINE or EUCLIDEAN", "Brute force compared with index search and the use_brute_force option", "Recall measurement against exact search", "Pre-filtering and index rebuild behaviour", "Retrieval-augmented generation pattern entirely in BigQuery SQL"],
+          "tools": ["BigQuery ML", "Vertex AI", "BigQuery Studio"],
+          "lab_task": "Generate embeddings for 10,000 product descriptions with ML.GENERATE_EMBEDDING, create a vector index with CREATE VECTOR INDEX ... OPTIONS (index_type = 'IVF', distance_type = 'COSINE'), run VECTOR_SEARCH with top_k => 5 and again with use_brute_force => TRUE, and calculate recall over 100 query vectors.",
+          "deliverable": "Embedding table, vector index and a recall and latency comparison",
+          "checks": [["Query INFORMATION_SCHEMA.VECTOR_INDEXES", "index_status is ACTIVE with coverage_percentage of 100", "Query result"], ["Run VECTOR_SEARCH with top_k => 5", "5 rows per query vector return with a distance column", "Query result"], ["Compare index results with brute force over 100 queries", "Recall is calculated and the index query uses less slot time", "Result table"]],
+          "objectives": ["Create embeddings and a vector index", "Run similarity search in SQL", "Measure recall against exact search"]
+        },
+        {
+          "topic": "BigQuery ML Forecasting, Anomaly Detection and Imported Models",
+          "subtopics": ["ARIMA_PLUS time series models and holiday_region", "ML.FORECAST with horizon and confidence_level", "ML.DETECT_ANOMALIES with anomaly_prob_threshold", "Time series with multiple series via time_series_id_col", "Autoencoder and k-means anomaly detection", "Importing TensorFlow and ONNX models and remote Vertex AI endpoints", "Model versioning, export and registration in Vertex AI Model Registry", "Backtesting and error metrics"],
+          "tools": ["BigQuery ML", "Vertex AI", "BigQuery Studio"],
+          "lab_task": "Train an ARIMA_PLUS model on 2 years of daily orders by category with time_series_id_col, run ML.FORECAST for 30 days at confidence_level 0.9, hold out the last 30 days to compute MAPE, and run ML.DETECT_ANOMALIES to list days flagged as anomalies.",
+          "deliverable": "Forecast table, MAPE calculation and list of detected anomalies",
+          "checks": [["Run ML.FORECAST with horizon 30", "30 rows per category return with prediction_interval bounds", "Query result"], ["Compute MAPE on the 30 held-out days", "A single percentage per category is returned", "Query result"], ["Run ML.DETECT_ANOMALIES with a threshold of 0.95", "Rows with is_anomaly = TRUE are listed with their probability", "Query result"]],
+          "objectives": ["Forecast time series in SQL", "Detect anomalies", "Backtest a forecast"]
+        },
+        {
+          "topic": "Gemini in BigQuery: Data Canvas, Code Assist and Data Insights",
+          "subtopics": ["Gemini in BigQuery features: SQL generation, completion and explanation", "Data canvas for exploring with natural language", "Data insights and table descriptions from profiles", "Data preparation with suggested transformations", "BigQuery Studio notebooks and Python code generation", "What data and prompts are shared with the model and admin controls", "Reviewing generated SQL for correctness and cost", "Governance: enabling the Gemini API and IAM roles"],
+          "tools": ["BigQuery Studio", "Gemini in BigQuery", "Data canvas", "Dataplex Catalog"],
+          "lab_task": "Enable Gemini in BigQuery for the project, ask in natural language for monthly revenue by category on thelook_ecommerce, review the generated SQL with a dry run, generate insights for one table, build a data canvas of 4 nodes, and list 3 errors you corrected in the generated SQL.",
+          "deliverable": "Prompt log, corrected SQL and a data canvas link with review notes",
+          "checks": [["Run the generated SQL with --dry_run before executing", "A bytes estimate prints and no job charge occurs", "Terminal output"], ["Compare the generated revenue total with a hand-written query", "Both totals match, or the difference is explained", "Two query results"], ["Open the table Insights tab", "Generated questions and SQL appear with a table description", "Screenshot"]],
+          "objectives": ["Use Gemini to speed up SQL work", "Validate generated SQL for cost and accuracy", "Apply governance to AI assistance"]
+        },
+        {
+          "topic": "Data Governance with Dataplex: Lineage, Quality and Profiling",
+          "subtopics": ["Dataplex Universal Catalog and automatic BigQuery metadata", "Data lineage graphs for jobs and tables", "Data profile scans", "Data quality scans with rules: non-null, range, set and SQL assertion", "Scheduling scans and results exported to BigQuery", "Aspects, business glossary and tags", "Policy tags with Dataplex taxonomies", "Alerting on quality failures"],
+          "tools": ["Dataplex Universal Catalog", "Data lineage", "BigQuery Studio", "Cloud Monitoring"],
+          "lab_task": "Enable the Data Lineage API, run the Dataform pipeline, view the lineage graph for the mart table, create a data quality scan with 4 rules (non-null order_id, unique order_id, sale_price between 0 and 10000, status in a set), export results to BigQuery, and alert when the score is below 95 percent.",
+          "deliverable": "Lineage screenshot, scan definition and a results table",
+          "checks": [["Open lineage for the mart table", "Upstream raw and staging tables appear with the jobs between them", "Lineage screenshot"], ["Insert 20 rows with a negative sale_price and rerun the scan", "The range rule fails and shows the count of failing rows", "Scan results"], ["Query the exported results table", "Rows give rule name, passed ratio and run time", "Query result"]],
+          "objectives": ["Trace lineage", "Define data quality rules", "Report and alert on quality results"]
+        },
+        {
+          "topic": "Encryption: CMEK, Key Rotation and VPC Service Controls",
+          "subtopics": ["Default Google-managed encryption compared with customer-managed keys", "Cloud KMS key rings, key versions and rotation", "Setting default_kms_key_name on a dataset", "Granting roles/cloudkms.cryptoKeyEncrypterDecrypter to the BigQuery service agent", "What happens when a key is disabled", "VPC Service Controls perimeters and the bigquery.googleapis.com service", "Ingress and egress rules and access levels", "Private Google Access and dry-run mode for perimeters"],
+          "tools": ["Cloud KMS", "VPC Service Controls", "bq CLI", "IAM"],
+          "lab_task": "Create a key ring and key in the dataset location, set default_kms_key_name on a new dataset, grant the BigQuery service agent the encrypter role, create a table, check kmsKeyName with bq show, disable the key version and query again, then re-enable it. Add a VPC-SC perimeter in dry-run mode.",
+          "deliverable": "CMEK configuration, key test results and perimeter dry-run log",
+          "checks": [["Run bq show on the new table", "encryptionConfiguration.kmsKeyName shows the Cloud KMS key", "bq show output"], ["Disable the key version and query the table", "The query fails with a Cloud KMS permission or key-disabled error", "Error message"], ["Query from outside the perimeter in dry-run mode", "The audit log lists a VPC_SERVICE_CONTROLS violation without blocking", "Cloud Logging entry"]],
+          "objectives": ["Protect datasets with customer-managed keys", "Test the effect of key disablement", "Define a perimeter around BigQuery"]
+        },
+        {
+          "topic": "Audit Logging, Monitoring and Alerting for BigQuery",
+          "subtopics": ["Cloud Audit Logs: Admin Activity, Data Access and System Event", "BigQueryAuditMetadata and jobCompletedEvent", "Log sinks to BigQuery and log-based metrics", "Cloud Monitoring metrics: slots allocated, query execution time and uploaded bytes", "Alert policies on slot saturation and job errors", "Detecting expensive queries with total_bytes_billed alerts", "Querying who accessed which table", "Dashboards for platform health"],
+          "tools": ["Cloud Logging", "Cloud Monitoring", "INFORMATION_SCHEMA", "BigQuery Studio"],
+          "lab_task": "Create a log sink to a BigQuery dataset for cloudaudit.googleapis.com/data_access, run 5 queries as different users, write a query returning user, table and bytes billed from the sink table, then create an alert that fires when any single query bills more than 1 TiB.",
+          "deliverable": "Sink configuration, audit query and alert policy",
+          "checks": [["Query the sink dataset after 5 queries", "5 jobCompletedEvent rows appear with principal email", "Query result"], ["Run a query billing over the alert threshold in a test project with a lower threshold", "The alert policy opens an incident", "Cloud Monitoring incident"], ["Read a table as a user listed in the sink", "The log shows the table reference and the user", "Log entry"]],
+          "objectives": ["Audit data access", "Alert on unusual spend and load", "Query audit logs for investigations"]
+        },
+        {
+          "topic": "Data Sharing with Analytics Hub and Data Clean Rooms",
+          "subtopics": ["Analytics Hub exchanges, listings and subscribers", "Linked datasets and what is shared compared with copied", "Publisher and subscriber roles", "Sharing with another organisation", "Data clean rooms and analysis rules", "Aggregation thresholds and join restrictions", "Subscribing to public and commercial listings", "Revoking access and audit visibility"],
+          "tools": ["Analytics Hub", "BigQuery Studio", "IAM", "bq CLI"],
+          "lab_task": "Create an exchange and a listing for a reporting dataset, subscribe from a second project to create a linked dataset, query it, then create a clean room with an aggregation threshold rule of 50 and test queries that return small groups. Remove the subscription and check access.",
+          "deliverable": "Exchange, listing, subscription and clean room test results",
+          "checks": [["Query the linked dataset from the subscriber project", "Rows return and no data copy appears in storage billing", "Query result"], ["Run a clean room query returning a group of 10 users with a threshold of 50", "The query is blocked or the group is suppressed", "Query result"], ["Delete the subscription and query again", "Fails with Not found or Access Denied", "Error message"]],
+          "objectives": ["Share data without copying", "Apply clean room analysis rules", "Revoke and audit sharing"]
+        },
+        {
+          "topic": "Cost Governance: Quotas, Budgets and FinOps Reporting",
+          "subtopics": ["Project and user quotas: QueryUsagePerDay and QueryUsagePerUserPerDay", "Billing export to BigQuery and the cost table schema", "Labels on jobs, datasets and reservations for allocation", "Budgets and alerts in Cloud Billing", "Cost per team from INFORMATION_SCHEMA.JOBS and billing export", "Optimisation checklist: partition filters, materialised views, expiration, storage billing model", "Show-back reporting in Looker Studio", "Policy enforcement with organisation policies and Terraform"],
+          "tools": ["Cloud Billing", "INFORMATION_SCHEMA", "Looker Studio", "Terraform"],
+          "lab_task": "Enable Cloud Billing export to BigQuery, join cost rows for the BigQuery service with job labels from INFORMATION_SCHEMA.JOBS by team label, build a Looker Studio show-back report, set a custom quota of 5 TiB per day per user, and create a budget alert at 80 percent.",
+          "deliverable": "Cost allocation report with quota and budget configuration",
+          "checks": [["Query the billing export for service BigQuery in the last 7 days", "Cost per SKU returns, including analysis and storage SKUs", "Query result"], ["Run a query from a user over the QueryUsagePerUserPerDay quota", "Fails with Custom quota exceeded", "Error message"], ["Group jobs by the team label", "Each team's bytes billed sum is listed and unlabelled jobs are shown separately", "Query result"]],
+          "objectives": ["Allocate BigQuery cost to teams", "Enforce quotas and budgets", "Report savings opportunities"]
+        },
+        {
+          "topic": "Disaster Recovery: Cross-Region Replication and Managed DR",
+          "subtopics": ["Cross-region dataset replication with ALTER SCHEMA ... ADD REPLICA", "Primary and secondary replicas and replication lag", "Managed disaster recovery with failover reservations", "Failover with ALTER SCHEMA SET OPTIONS (primary_replica = ...)", "Recovery point and recovery time objectives", "Cross-region table copies compared with replication", "Testing failover and fall back", "Cost: replicated storage and data transfer"],
+          "tools": ["BigQuery Studio", "bq CLI", "INFORMATION_SCHEMA", "Cloud Monitoring"],
+          "lab_task": "Create a US dataset, add an EU replica with ALTER SCHEMA ... ADD REPLICA, load 100,000 rows, wait for replication, query the replica, run a planned failover that promotes the replica, record how long writes were unavailable, and run failover back. Read INFORMATION_SCHEMA.SCHEMATA_REPLICAS.",
+          "deliverable": "Failover runbook with measured replication lag and recovery time",
+          "checks": [["Query INFORMATION_SCHEMA.SCHEMATA_REPLICAS", "Both replicas list with the primary one marked and creation time", "Query result"], ["Count rows in the replica after replication", "Count equals 100,000", "Query result"], ["Write to the original primary after promotion", "The write fails because the replica is read-only", "Error message"]],
+          "objectives": ["Replicate datasets across regions", "Run and time a failover", "Cost out a recovery design"]
+        },
+        {
+          "topic": "Migrating Legacy Warehouse Workloads with the BigQuery Migration Service",
+          "subtopics": ["Assessment with the BigQuery migration assessment and the dwh-migration-dumper tool", "Batch SQL translator and interactive translator", "Dialect differences: DATE arithmetic, MERGE and procedural code", "Schema and data transfer with Data Transfer Service and transfer appliances", "Validation with the Data Validation Tool: row counts and column checksums", "Cutover plan: dual run and parallel reporting", "Performance re-baselining and slot sizing after the move", "Post-migration cleanup and decommissioning"],
+          "tools": ["BigQuery Migration Service", "Data Validation Tool", "Cloud Storage", "BigQuery Studio"],
+          "lab_task": "Extract metadata from a sample warehouse with dwh-migration-dumper, run the batch SQL translator on 20 queries, log failures by category, load the data, run the Data Validation Tool with row count and sum checks per table, and produce a cutover checklist with parallel-run exit criteria.",
+          "deliverable": "Translation report, validation results and a cutover checklist",
+          "checks": [["Run the batch translator on 20 queries", "A count of translated, warning and failed queries is reported", "Translation report"], ["Run the validation tool with row count on 5 tables", "Each table reports match or mismatch with counts", "Validation output"], ["Execute 3 translated queries against both systems", "Result sets are compared and differences are explained", "Comparison notes"]],
+          "objectives": ["Assess a legacy warehouse for migration", "Translate and validate SQL and data", "Plan a parallel-run cutover"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Lakehouse Platform on BigQuery",
+          "subtopics": ["Architecture with native, BigLake Iceberg and external layers", "Ingestion by Storage Write API, Pub/Sub and Datastream", "Reservations, budgets and per-team cost allocation", "Security with policy tags, row policies, CMEK and a perimeter", "Data quality, lineage and Gemini or vector features", "Disaster recovery, runbook and architecture review"],
+          "tools": ["BigQuery", "BigLake", "Dataform", "Dataplex Universal Catalog", "Terraform", "Cloud Monitoring"],
+          "lab_task": "Deliver a lakehouse for a regulated retailer: Terraform for datasets, reservations and CMEK, managed Iceberg tables for raw data, Dataform marts with assertions, policy tags and row policies, Dataplex quality scans, an EU replica with a tested failover, a cost report by team and a vector search feature. Present a 20-minute design review.",
+          "deliverable": "Terraform repository, Dataform project, runbook and a design-review deck with evidence",
+          "checks": [["Run terraform plan on the repository", "Plan lists datasets, reservations, assignments and keys with no unmanaged drift", "terraform plan output"], ["Query as a restricted analyst", "Policy-tagged columns are denied and rows are filtered", "Query results"], ["Execute the failover test", "Reads succeed from the new primary and recovery time is recorded within the target", "Failover log"]],
+          "objectives": ["Design and deliver a governed multi-layer platform", "Demonstrate security, cost and resilience controls", "Defend architecture decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

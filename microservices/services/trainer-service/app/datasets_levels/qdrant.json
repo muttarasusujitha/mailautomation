@@ -1,0 +1,573 @@
+{
+  "domain": "Qdrant",
+  "name": "Qdrant",
+  "category": "Generative AI and Agents",
+  "icon": "database",
+  "aliases": ["Qdrant Vector Database", "Vector Similarity Engine", "Qdrant DB", "QdrantDB", "Qdrant Cloud", "Qdrant Vector Search", "Qdrant Hybrid Search", "Qdrant Search Engine"],
+  "certifications": [],
+  "tools": ["Qdrant", "Qdrant Web UI", "Qdrant Cloud", "Qdrant Hybrid Cloud", "qdrant-client (Python)", "FastEmbed", "Docker", "Helm", "Kubernetes", "Prometheus", "Grafana", "gRPC", "curl", "Jupyter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers, data engineers and ML engineers who have used embeddings or a relational database but have not run a vector database. Covers running Qdrant in Docker with the Web UI, the collection, point, vector and payload data model, distance metrics, the Python qdrant-client in server and local mode, embedding text with FastEmbed, upserts, bulk loading, nearest-neighbour queries with query_points, payload filters and payload indexes, scroll and count, payload updates, named vectors, recommendation and grouping queries, collection aliases, snapshots, and a semantic document search capstone.",
+      "prerequisites": ["Writes Python 3 scripts with functions, virtual environments and pip installs", "Runs Docker containers and uses curl or an HTTP client to call a JSON REST API", "Understands at a high level what an embedding vector is and why similar texts get similar vectors"],
+      "outcomes": ["Run Qdrant locally with persistent storage and manage collections through the REST API, Web UI and Python client", "Embed text with FastEmbed, load points in bulk and answer nearest-neighbour queries with query_points", "Combine vector search with payload filters backed by the right payload indexes, and page through data with scroll and count", "Protect a collection with aliases and snapshots and ship a filtered semantic document search with measured hit rate"],
+      "days": [
+        {
+          "topic": "Running Qdrant Locally with Docker and the Web UI",
+          "subtopics": ["What Qdrant is: an open-source vector search engine written in Rust", "docker pull qdrant/qdrant and choosing a pinned image tag instead of latest", "Port 6333 for REST and the Web UI, port 6334 for gRPC", "Persisting data by mounting a host folder or volume at /qdrant/storage", "The Web UI at /dashboard: collections list, console and point browser", "Health endpoints /healthz, /livez and /readyz", "config/config.yaml and QDRANT__SECTION__KEY environment variable overrides", "Turning off anonymous usage telemetry with QDRANT__TELEMETRY_DISABLED=true", "Qdrant Cloud free-tier cluster as a managed alternative to local Docker"],
+          "tools": ["Docker", "Qdrant", "Qdrant Web UI", "curl"],
+          "lab_task": "Start Qdrant with docker run -d --name qdrant -p 6333:6333 -p 6334:6334 -v \"$(pwd)/qdrant_storage:/qdrant/storage\" qdrant/qdrant, call curl localhost:6333 and curl -i localhost:6333/readyz, open http://localhost:6333/dashboard and create collection demo from the console, then run docker restart qdrant and confirm with curl localhost:6333/collections that demo is still listed.",
+          "deliverable": "Setup notes with the docker command, the version JSON, readyz output and a Web UI screenshot",
+          "checks": [["curl http://localhost:6333", "JSON containing \"title\":\"qdrant - vector search engine\" and a version string", "Terminal output"], ["curl -i http://localhost:6333/readyz", "HTTP 200 with the body all shards are ready", "Terminal output"], ["docker restart qdrant, then GET /collections", "Collection demo is still listed because /qdrant/storage was mounted", "Before and after JSON"]],
+          "objectives": ["Run Qdrant in Docker with persistent storage", "Identify the REST, gRPC and Web UI entry points", "Check server health and version from the command line"]
+        },
+        {
+          "topic": "Qdrant Data Model: Collections, Points, Vectors and Payloads",
+          "subtopics": ["A collection as a named set of points that share vector configuration", "A point: an ID, one or more vectors and an optional JSON payload", "Point IDs as unsigned 64-bit integers or UUID strings", "Payloads as schemaless JSON: strings, numbers, booleans, arrays, nested objects and geo points", "Creating a collection with PUT /collections/{name} and a vectors block", "Upserting with PUT /collections/{name}/points and retrieving with POST /collections/{name}/points", "Reading GET /collections/{name}: status, points_count, indexed_vectors_count and config", "Deleting a collection with DELETE /collections/{name}", "Segments as the internal storage unit inside a collection"],
+          "tools": ["Qdrant Web UI console", "curl", "Qdrant REST API"],
+          "lab_task": "In the Web UI console create collection books with PUT /collections/books {\"vectors\":{\"size\":4,\"distance\":\"Cosine\"}}, upsert 5 points mixing integer IDs and UUIDs with payloads holding title, year and tags, read two back with POST /collections/books/points {\"ids\":[1,2],\"with_payload\":true}, then try upserting a 3-element vector and a point with ID \"abc\" and record both errors.",
+          "deliverable": "Console transcript with the create, upsert, retrieve and both failing requests",
+          "checks": [["GET /collections/books after upserting 5 points", "points_count is 5 and status is green", "JSON response"], ["Upsert a point whose vector has 3 elements", "400 Bad Request with Vector dimension error: expected dim: 4, got 3", "Console output"], ["Upsert a point with ID \"abc\"", "Request rejected because the ID is neither an unsigned integer nor a UUID", "Console output"]],
+          "objectives": ["Describe collections, points, vectors and payloads", "Create, inspect and delete a collection over REST", "Recognise ID and dimension validation errors"]
+        },
+        {
+          "topic": "Choosing Distance Metrics and Vector Dimensions for Qdrant Collections",
+          "subtopics": ["Cosine, Dot, Euclid and Manhattan distance options", "Cosine collections normalise vectors on insert, so the stored vector changes", "Score direction: higher is better for Cosine and Dot, lower is better for Euclid and Manhattan", "Matching the metric that the embedding model was trained for", "Vector size must equal the model output dimension", "Vector datatypes float32, float16 and uint8 through the datatype setting", "Rough RAM estimate: points × dimensions × 4 bytes × 1.5", "Changing the metric or size means creating a new collection and reloading", "Why Dot on unit-length vectors ranks the same as Cosine"],
+          "tools": ["Qdrant", "qdrant-client", "Python", "NumPy"],
+          "lab_task": "Create collections cos_demo, dot_demo and euclid_demo with size 2 and distances Cosine, Dot and Euclid, upsert the vectors [1,0], [0.7,0.7] and [3,0] as IDs 1-3 into each, query [1,0] with limit=3 and tabulate order and scores per metric, then retrieve ID 3 from cos_demo with with_vectors=True to show how it was stored.",
+          "deliverable": "Comparison table of ranking and scores per metric with the stored-vector observation",
+          "checks": [["Query dot_demo with [1,0]", "ID 3 ([3,0]) ranks first with score 3.0", "Query output"], ["Query euclid_demo with [1,0]", "Order is ID 1 (0.0), ID 2 (about 0.76), ID 3 (2.0)", "Query output"], ["Retrieve ID 3 from cos_demo with with_vectors=True", "Stored vector is [1.0, 0.0], not [3, 0]", "Retrieve output"]],
+          "objectives": ["Pick a distance metric that matches the embedding model", "Interpret score direction for each metric", "Estimate collection memory from size and dimensions"]
+        },
+        {
+          "topic": "Working with the Python qdrant-client",
+          "subtopics": ["pip install qdrant-client and keeping the client minor version close to the server", "QdrantClient(url=...) for a server and QdrantClient(\":memory:\") or path=... for local mode", "prefer_grpc=True and grpc_port=6334", "The models module: VectorParams, Distance, PointStruct, Filter", "collection_exists, create_collection, get_collection and delete_collection", "AsyncQdrantClient for asyncio applications", "timeout= and handling UnexpectedResponse status codes", "Other official clients: JavaScript/TypeScript, Rust, Go, Java and .NET"],
+          "tools": ["qdrant-client", "Python", "Qdrant", "Jupyter"],
+          "lab_task": "Write qdrant_demo.py that connects with QdrantClient(url=\"http://localhost:6333\"), creates collection notes with VectorParams(size=4, distance=Distance.COSINE) only when collection_exists returns False, upserts 3 PointStruct objects and prints get_collection(\"notes\").points_count; rerun it against QdrantClient(\":memory:\") and with prefer_grpc=True, timing 1,000 single-point upserts for REST and gRPC.",
+          "deliverable": "qdrant_demo.py with output from server, local and gRPC runs and a timing table",
+          "checks": [["Run qdrant_demo.py twice against the server", "Second run raises nothing and points_count stays 3", "Script output"], ["client.get_collection(\"missing\") over REST", "UnexpectedResponse with status 404 and Collection `missing` doesn't exist", "Traceback"], ["Time 1,000 single-point upserts over REST and gRPC", "Timing table lists a duration for both transports", "Timing table"]],
+          "objectives": ["Connect to Qdrant in server and local mode", "Write idempotent collection-creation code", "Handle client errors by status code"]
+        },
+        {
+          "topic": "Generating Embeddings with FastEmbed",
+          "subtopics": ["pip install fastembed and ONNX Runtime inference on CPU", "TextEmbedding(\"BAAI/bge-small-en-v1.5\") and its 384-dimension output", "TextEmbedding.list_supported_models() for names, dimensions and sizes", "embed() returning a generator of NumPy arrays", "batch_size and parallel arguments for throughput", "query_embed and passage_embed for asymmetric retrieval models", "Model download cache and the cache_dir argument", "fastembed-gpu for CUDA machines", "qdrant-client[fastembed] and models.Document for client-side embedding"],
+          "tools": ["FastEmbed", "qdrant-client", "Python", "ONNX Runtime"],
+          "lab_task": "Install fastembed, load TextEmbedding(\"BAAI/bge-small-en-v1.5\"), embed 200 product descriptions with batch_size=64 and record vectors per second, create collection products with size 384 and Cosine, upsert the vectors with text, title and category in the payload, then query with next(model.query_embed(\"waterproof hiking boots\")) and list the top 3 titles.",
+          "deliverable": "Embedding script, throughput figure and the top-3 results for the sample query",
+          "checks": [["len(next(model.embed([\"hello\"])))", "384", "Python output"], ["get_collection(\"products\").points_count after upload", "200", "Script output"], ["Query \"waterproof hiking boots\"", "Top 3 titles are footwear or outdoor products", "Result list"]],
+          "objectives": ["Embed text locally with FastEmbed", "Match collection size to the model dimension", "Run a first semantic query on real text"]
+        },
+        {
+          "topic": "Upserting, Retrieving and Deleting Points",
+          "subtopics": ["Upsert semantics: insert a new ID or replace an existing point", "PointStruct lists compared with the columnar Batch format", "wait=True compared with wait=False and the completed and acknowledged statuses", "retrieve with with_payload and with_vectors", "Deleting by ID with PointIdsList", "Deleting by condition with FilterSelector", "Deterministic IDs with uuid.uuid5 for idempotent reloads", "Operation IDs and the write-ahead log behind each update", "count(exact=True) to confirm results"],
+          "tools": ["qdrant-client", "Python uuid", "Qdrant Web UI"],
+          "lab_task": "Upsert 50 points whose IDs are uuid.uuid5(uuid.NAMESPACE_URL, url) with 10 tagged source=\"draft\", re-upsert the same 50 with a changed payload, upsert 10 more with wait=False and print the result status, delete 5 points by ID with PointIdsList and the 10 drafts with FilterSelector, then call count(exact=True) after each step.",
+          "deliverable": "Step log with counts after each operation and the UpdateResult objects",
+          "checks": [["Re-upsert the same 50 uuid5 IDs", "count(exact=True) still returns 50", "Script log"], ["Upsert 10 points with wait=False", "UpdateResult status is acknowledged", "Printed result"], ["Delete 5 by ID and 10 by filter source=draft", "count(exact=True) returns 45", "Script log"]],
+          "objectives": ["Write points idempotently with deterministic IDs", "Choose between wait=True and wait=False", "Delete points by ID and by filter"]
+        },
+        {
+          "topic": "Bulk Loading Data into a Qdrant Collection",
+          "subtopics": ["upload_points and upload_collection in qdrant-client", "batch_size, parallel and max_retries arguments", "Streaming points from a generator instead of a list in memory", "Typical batch sizes of 64 to 512 points depending on vector size", "The 32 MB REST body limit set by service.max_request_size_mb", "gRPC transport for higher ingest throughput", "Watching indexed_vectors_count catch up with points_count", "Status yellow while optimizers build indexes after a load"],
+          "tools": ["qdrant-client", "FastEmbed", "NumPy", "Qdrant Web UI"],
+          "lab_task": "Generate 100,000 random 384-dimension float32 vectors with NumPy, load them into collection bulk with client.upload_points(points=generator, batch_size=256, parallel=4), record load time, then poll get_collection every 5 seconds logging status, points_count and indexed_vectors_count until status is green, and finally try a single upsert of 50,000 points over REST.",
+          "deliverable": "Load script, timing log of the indexing catch-up and the oversized-request error",
+          "checks": [["get_collection after upload_points returns", "points_count is 100000", "Polling log"], ["Poll immediately after the load", "status is yellow and indexed_vectors_count is below points_count", "Polling log"], ["Single REST upsert of 50,000 points", "Request rejected for exceeding the 32 MB max_request_size_mb limit", "Error output"]],
+          "objectives": ["Load large datasets in batches", "Track background indexing after ingestion", "Stay within request size limits"]
+        },
+        {
+          "topic": "Running Nearest-Neighbour Queries with query_points",
+          "subtopics": ["client.query_points and POST /collections/{name}/points/query", "query vector, limit and offset", "with_payload as true, false, an include list or an exclude selector", "with_vectors for debugging", "score_threshold to drop weak matches", "Using an existing point ID as the query", "Why the older search method is deprecated in favour of query_points", "query_batch_points to send several queries in one request", "Reading ScoredPoint fields id, score, payload and version"],
+          "tools": ["qdrant-client", "FastEmbed", "curl"],
+          "lab_task": "Against products run query_points with a FastEmbed query vector and limit=5, repeat with with_payload=[\"title\",\"category\"], then with score_threshold=0.6, then with query set to an existing point ID, and finally send three different queries in one query_batch_points call, recording result count and latency for every variant in a table.",
+          "deliverable": "Query notebook with a table of variants, result counts and latency",
+          "checks": [["with_payload=[\"title\",\"category\"]", "Each payload contains only the title and category keys", "Result JSON"], ["score_threshold=0.6", "Every returned score is 0.6 or higher and fewer than 5 hits may come back", "Result list"], ["query_batch_points with 3 QueryRequest objects", "Response is a list of 3 separate result sets", "Printed response"]],
+          "objectives": ["Run vector queries with query_points", "Shape responses with payload selectors and thresholds", "Batch several queries into one call"]
+        },
+        {
+          "topic": "Payload Filtering with must, should and must_not",
+          "subtopics": ["Filter clauses must, should and must_not", "min_should for at least N matching conditions", "FieldCondition with MatchValue", "MatchAny and MatchExcept for lists of values", "Nesting Filter objects for OR inside AND logic", "Array payload fields match when any element matches", "HasIdCondition for restricting to known IDs", "Using the same Filter in query_points, scroll, count and delete", "Why unindexed filter fields slow down on large collections"],
+          "tools": ["qdrant-client", "FastEmbed", "pandas"],
+          "lab_task": "Add category, brand, price and in_stock payloads to products, run query_points with must category=\"footwear\", should brand in [\"Acme\",\"Trailco\"] and must_not in_stock=false, compare the top 10 with and without the filter, then run count with the same filter and check it against a pandas count of the source CSV.",
+          "deliverable": "Filter script, side-by-side result lists and the count comparison",
+          "checks": [["must category=footwear", "Every hit has category footwear", "Result payloads"], ["MatchExcept on brand with [\"Acme\"]", "No hit has brand Acme", "Result payloads"], ["count with the full filter compared with pandas", "Both counts are the same number", "Count comparison"]],
+          "objectives": ["Combine conditions with must, should and must_not", "Match against lists of values", "Reuse one filter across query, count and delete"]
+        },
+        {
+          "topic": "Range, Geo, Datetime and Full-Text Filters in Qdrant",
+          "subtopics": ["Range with gt, gte, lt and lte on numeric payloads", "DatetimeRange with RFC 3339 timestamps and time zones", "Geo payloads stored as {\"lon\": ..., \"lat\": ...}", "GeoRadius in metres, GeoBoundingBox and GeoPolygon", "MatchText on text fields backed by a full-text index", "ValuesCount for the length of array fields", "IsEmptyCondition and IsNullCondition", "Values of the wrong type silently failing to match"],
+          "tools": ["qdrant-client", "FastEmbed", "Python"],
+          "lab_task": "Load 500 shop points with price, opened_at timestamps, location {\"lon\",\"lat\"}, tags and description, create datetime, geo and text payload indexes, then answer five scroll queries: price 20-50 with Range, opened after 2024-01-01T00:00:00Z with DatetimeRange, within 5 km of a chosen point with GeoRadius, description containing \"organic\" with MatchText, and missing tags with IsEmpty.",
+          "deliverable": "Query script with the five filters, their result counts and a haversine cross-check",
+          "checks": [["GeoRadius with radius=5000", "Every returned shop is within 5 km by a haversine check", "Script output"], ["MatchText \"organic\" on description", "Only descriptions containing the token organic are returned", "Result payloads"], ["IsEmpty on tags", "Returns shops whose tags are missing, null or []", "Result IDs"]],
+          "objectives": ["Filter by numeric, date and geographic ranges", "Search payload text with a full-text index", "Find points with missing or empty fields"]
+        },
+        {
+          "topic": "Payload Indexes and Filter Speed in Qdrant",
+          "subtopics": ["create_payload_index with field_name and field_schema", "Index types keyword, integer, float, bool, geo, datetime, text and uuid", "How the query planner uses index cardinality to pick HNSW or payload scanning", "Filterable HNSW: extra graph links per indexed value", "Creating indexes before bulk loading so the HNSW build can use them", "Integer index parameters lookup and range", "payload_schema in the get_collection output", "delete_payload_index and on_disk payload indexes"],
+          "tools": ["qdrant-client", "Python timeit", "Qdrant Web UI"],
+          "lab_task": "On a 100,000-point collection with category and price payloads and no indexes, time 100 filtered query_points calls, then create a keyword index on category and a float index on price with create_payload_index, wait for status green, rerun the same 100 queries and report p50 and p95 latency before and after together with the payload_schema section.",
+          "deliverable": "Latency table before and after indexing with the payload_schema JSON",
+          "checks": [["get_collection after indexing", "payload_schema lists category as keyword and price as float with points counts", "JSON response"], ["p95 of 100 filtered queries before and after", "p95 is lower after the indexes are built", "Latency table"], ["delete_payload_index on category", "payload_schema no longer contains category", "JSON response"]],
+          "objectives": ["Choose payload index types per field", "Measure filter latency before and after indexing", "Explain why indexes belong before bulk loads"]
+        },
+        {
+          "topic": "Scroll, Count and Pagination in Qdrant",
+          "subtopics": ["scroll with limit and next_page_offset", "Iterating a whole collection until next_page_offset is None", "with_payload and with_vectors on scroll", "order_by on scroll and its range-index requirement", "count with exact=True compared with the approximate count", "offset in query_points and the cost of deep pages", "Default scroll order by point ID", "Exporting points to JSON Lines"],
+          "tools": ["qdrant-client", "Python", "jq"],
+          "lab_task": "Write export.py that scrolls products 1,000 points at a time following next_page_offset until it is None and writes each point as a JSON Lines record, compare the line count with count(exact=True), then scroll with order_by={\"key\":\"price\",\"direction\":\"desc\"} before and after creating a float index on price and list the 5 most expensive titles.",
+          "deliverable": "export.py, the JSONL file line count and the order_by results",
+          "checks": [["wc -l products.jsonl compared with count(exact=True)", "Line count equals the exact count", "Terminal output"], ["Final scroll page", "next_page_offset is None", "Script log"], ["order_by price before an index exists", "400 error saying order_by needs a range index on price", "Error output"]],
+          "objectives": ["Page through a collection with scroll", "Sort points by a payload field", "Count points exactly or approximately"]
+        },
+        {
+          "topic": "Editing Point Payloads in Place",
+          "subtopics": ["set_payload to merge new keys into existing payloads", "overwrite_payload to replace the whole payload", "delete_payload to remove listed keys", "clear_payload to empty a payload", "Selecting target points by ID list or by filter", "The key argument for updating a nested object path", "batch_update_points for several operations in one call", "Payload edits without re-sending vectors"],
+          "tools": ["qdrant-client", "Qdrant Web UI"],
+          "lab_task": "Select the 20 products with brand=\"Acme\" by filter and call set_payload to add discount=0.1, use set_payload with key=\"specs\" to change one nested field, overwrite_payload one point to {\"title\": ...}, delete_payload the discount key from five IDs and clear_payload one ID, then retrieve all affected points and record each payload.",
+          "deliverable": "Before and after payload dump for the affected points",
+          "checks": [["set_payload discount=0.1 with filter brand=Acme", "All 20 Acme products now have discount 0.1 and keep their other keys", "Retrieve output"], ["overwrite_payload on one point", "That payload contains only title", "Retrieve output"], ["clear_payload on one point", "Payload is {} while the vector is unchanged", "Retrieve output with vectors"]],
+          "objectives": ["Update payloads without reloading vectors", "Target updates by ID or filter", "Choose between merge, overwrite, delete and clear"]
+        },
+        {
+          "topic": "Named Vectors for Multi-Modal Points",
+          "subtopics": ["vectors_config as a dict of vector names to VectorParams", "Different sizes and distances per named vector", "Points that carry only some of the named vectors", "using= in query_points to pick the vector space", "FastEmbed ImageEmbedding(\"Qdrant/clip-ViT-B-32-vision\") with 512 dimensions", "Matching CLIP text model Qdrant/clip-ViT-B-32-text for text-to-image queries", "with_vectors=[\"image\"] to return one vector", "update_vectors and delete_vectors for a single named vector"],
+          "tools": ["qdrant-client", "FastEmbed", "Pillow"],
+          "lab_task": "Create collection catalog with named vectors text (384, Cosine, BAAI/bge-small-en-v1.5) and image (512, Cosine, Qdrant/clip-ViT-B-32-vision), embed 100 product photos and titles, upsert both vectors per point, then query using=\"image\" with the CLIP text embedding of \"red sneakers\" and using=\"text\" with the bge embedding, and compare the two top-5 lists.",
+          "deliverable": "Notebook with both result lists and an upsert attempt using an unknown vector name",
+          "checks": [["Upsert a point with vector name picture", "400 error Not existing vector name error: picture", "Error output"], ["query_points using=\"image\" with the CLIP text vector of red sneakers", "Top 5 are photos of red footwear", "Result list with thumbnails"], ["retrieve with with_vectors=[\"image\"]", "Only the image vector is returned, with 512 values", "Retrieve output"]],
+          "objectives": ["Store several embeddings on one point", "Query a chosen vector space with using", "Search images with text through CLIP"]
+        },
+        {
+          "topic": "Recommendation Queries with Positive and Negative Examples",
+          "subtopics": ["RecommendQuery and RecommendInput in the Query API", "Positive and negative examples as point IDs or raw vectors", "Strategy average_vector", "Strategy best_score and why it needs negatives to differ", "Input example points excluded from results", "Combining recommendations with payload filters", "lookup_from to take example vectors from another collection", "using with named vectors"],
+          "tools": ["qdrant-client", "FastEmbed"],
+          "lab_task": "Pick two products a user liked and one they disliked, call query_points with query=models.RecommendQuery(recommend=models.RecommendInput(positive=[a,b], negative=[c], strategy=\"average_vector\")) and limit=10, repeat with strategy=\"best_score\", add the filter in_stock=true to both, and record how many IDs the two top-10 lists share.",
+          "deliverable": "Recommendation script with both lists and the overlap count",
+          "checks": [["Both strategies with positive [a,b] and negative [c]", "None of a, b or c appear in the results", "Result IDs"], ["Add filter in_stock=true", "Every recommended product has in_stock true", "Result payloads"], ["Compare the two top-10 lists", "Shared-ID count between 0 and 10 is reported", "Overlap table"]],
+          "objectives": ["Build recommendations from liked and disliked items", "Compare recommendation strategies", "Constrain recommendations with filters"]
+        },
+        {
+          "topic": "Grouping Search Hits by Document with query_points_groups",
+          "subtopics": ["Why chunked documents return many hits from one source", "query_points_groups with group_by on a payload key", "limit as number of groups and group_size as hits per group", "with_lookup to fetch the parent record from another collection", "Group keys must be keyword or integer values", "Indexing the group_by field", "Filters together with grouping", "Grouping compared with client-side deduplication"],
+          "tools": ["qdrant-client", "FastEmbed", "Python"],
+          "lab_task": "Split 50 documents into about 500 chunks with doc_id in the payload and store titles in a docs collection, run a normal query_points with limit=10 to see repeated doc_id values, then call query_points_groups(group_by=\"doc_id\", limit=5, group_size=2, with_lookup=models.WithLookup(collection=\"docs\", with_payload=[\"title\"])) and record each group.",
+          "deliverable": "Grouping notebook with the ungrouped and grouped results",
+          "checks": [["Ungrouped query with limit=10", "At least one doc_id appears more than once", "Result payloads"], ["query_points_groups limit=5, group_size=2", "5 groups with distinct doc_id values and at most 2 hits each", "Group output"], ["with_lookup on the docs collection", "Each group carries the parent title from docs", "Group output"]],
+          "objectives": ["Deduplicate chunk hits per document", "Join group results to parent records", "Size groups with limit and group_size"]
+        },
+        {
+          "topic": "Qdrant Collection Aliases for Blue-Green Reindexing",
+          "subtopics": ["Aliases as alternate names that clients query", "update_collection_aliases with CreateAliasOperation", "DeleteAliasOperation and RenameAliasOperation", "Several alias actions applied atomically in one request", "Blue-green rebuilds of a collection with a new embedding model", "GET /aliases and GET /collections/{name}/aliases", "Keeping the previous collection for rollback", "Removing the old collection after the switch"],
+          "tools": ["qdrant-client", "FastEmbed", "curl"],
+          "lab_task": "Create products_v1 and alias products pointing to it, build products_v2 with a different FastEmbed model, run a loop that queries the alias products every 100 ms and logs errors, switch the alias with one update_collection_aliases call holding a delete and a create action, stop the loop after 30 s and confirm which collection now answers.",
+          "deliverable": "Alias switch script, the request log and GET /aliases output",
+          "checks": [["Query loop during the alias switch", "0 failed requests in the log", "Request log"], ["GET /aliases after the switch", "Alias products points to products_v2", "JSON response"], ["Switch the alias back in one call", "Alias products points to products_v1 again", "JSON response"]],
+          "objectives": ["Decouple clients from physical collection names", "Swap collections atomically", "Plan a rollback for reindexing"]
+        },
+        {
+          "topic": "Taking and Restoring Collection Snapshots",
+          "subtopics": ["create_snapshot and POST /collections/{name}/snapshots", "list_snapshots and the name, size and checksum fields", "Downloading GET /collections/{name}/snapshots/{snapshot_name}", "storage.snapshots_path and the default /qdrant/snapshots folder", "Recovering from a URL with PUT /collections/{name}/snapshots/recover", "Uploading a file with POST /collections/{name}/snapshots/upload?priority=snapshot", "Version compatibility of snapshots between Qdrant releases", "Deleting old snapshots to free disk"],
+          "tools": ["Qdrant", "curl", "sha256sum", "qdrant-client"],
+          "lab_task": "Record points_count and the top-5 IDs for a fixed query on products, create a snapshot, download it with curl, compare sha256sum with the returned checksum, delete the collection, restore it with curl -X POST 'http://localhost:6333/collections/products/snapshots/upload?priority=snapshot' -F 'snapshot=@products.snapshot' and repeat the count and query.",
+          "deliverable": "Backup and restore runbook with checksums, counts and query results",
+          "checks": [["create_snapshot on products", "Response contains name, size and a sha256 checksum", "API response"], ["sha256sum of the downloaded file", "Hash equals the checksum field", "Terminal output"], ["Count and fixed query after restore", "points_count and the top-5 IDs match the pre-backup values", "Comparison table"]],
+          "objectives": ["Back up a collection with snapshots", "Restore a collection from a file", "Verify a restore against a baseline"]
+        },
+        {
+          "topic": "Serving Qdrant Search from a Python Web Service",
+          "subtopics": ["One long-lived client per process instead of one per request", "AsyncQdrantClient inside async web frameworks", "QDRANT_URL and QDRANT_API_KEY read from environment variables", "Loading the FastEmbed model once at startup", "Building Filter objects from validated request parameters", "Capping limit to protect the server", "Mapping ScoredPoint objects to response JSON", "Timeouts, retries and a health route that calls get_collections"],
+          "tools": ["AsyncQdrantClient", "FastEmbed", "FastAPI", "hey"],
+          "lab_task": "Build a FastAPI app with GET /search?q=&category=&limit= that loads TextEmbedding once, caps limit at 20, runs AsyncQdrantClient.query_points on the products alias with an optional category filter and returns id, score and title, then send 200 requests with hey -n 200 -c 10 and record p95 latency and the error count.",
+          "deliverable": "Service source, sample responses and the hey latency report",
+          "checks": [["GET /search?q=boots&limit=500", "Response holds at most 20 results", "HTTP response"], ["hey -n 200 -c 10 against /search", "0 non-2xx responses and a reported p95 latency", "hey report"], ["Stop the Qdrant container and call /health", "Endpoint returns 503 instead of hanging", "HTTP response"]],
+          "objectives": ["Reuse one Qdrant client across requests", "Expose filtered search safely over HTTP", "Measure search latency under load"]
+        },
+        {
+          "topic": "Capstone: Semantic Document Search on Qdrant",
+          "subtopics": ["Chunking and embedding a document set with FastEmbed", "Collection design with payload indexes created before loading", "Filtered queries and grouping by document", "Alias-based switching between index versions", "Snapshot backup and verified restore", "Hit@5 evaluation with labelled queries"],
+          "tools": ["Qdrant", "qdrant-client", "FastEmbed", "Docker", "FastAPI"],
+          "lab_task": "Index at least 1,000 chunks from 100 documents into docs_v1 behind alias docs, with keyword indexes on doc_id and department, expose a search endpoint that filters by department and groups by doc_id, evaluate 20 labelled queries for hit@5, take and restore a snapshot into a new collection and switch the alias to it.",
+          "deliverable": "Repository with loader, service, evaluation script, snapshot runbook and a short report",
+          "checks": [["20 labelled queries through the endpoint", "Hit@5 is 0.8 or higher", "Evaluation report"], ["Query with department=finance", "All grouped results belong to finance documents", "HTTP response"], ["Switch alias docs to the restored collection", "Evaluation score is unchanged after the switch", "Before and after report"]],
+          "objectives": ["Build an end-to-end semantic search on Qdrant", "Measure retrieval quality with labelled queries", "Operate the index with aliases and snapshots"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run single-node Qdrant search with filters and want production-grade retrieval quality and efficiency. Covers sparse vectors with the IDF modifier, BM25 and SPLADE through FastEmbed, multi-stage Query API pipelines with prefetch, hybrid search with RRF and DBSF fusion, ColBERT multivectors, Matryoshka coarse-to-fine retrieval, discovery and context queries, order_by and sampling, formula-based score boosting, facets and the distance matrix, HNSW tuning and filtered search behaviour, segments and optimizers, storage modes, scalar, binary and product quantization, nested filters, payload-based multitenancy, the Helm chart on Kubernetes, and a hybrid search capstone.",
+      "prerequisites": ["Has built a Qdrant collection with payload indexes and filtered query_points calls, or completed the Qdrant beginner level", "Can compute retrieval metrics such as recall@k and MRR from labelled queries in Python", "Has Docker and kubectl access to a local Kubernetes such as kind or minikube"],
+      "outcomes": ["Build dense, sparse, multivector and fused hybrid retrieval pipelines with the Query API", "Tune HNSW, optimizer and storage settings and prove the effect with recall and latency measurements", "Cut memory with scalar, binary or product quantization while holding recall with rescoring and oversampling", "Serve many tenants from one collection and run Qdrant on Kubernetes with the official Helm chart"],
+      "days": [
+        {
+          "topic": "Sparse Vectors and the IDF Modifier in Qdrant",
+          "subtopics": ["sparse_vectors_config and SparseVectorParams", "SparseVector with parallel indices and values lists", "Dot-product scoring for sparse vectors", "Sparse inverted index instead of HNSW, giving exact results", "modifier=Modifier.IDF so Qdrant computes inverse document frequency", "SparseIndexParams(on_disk=True) for large vocabularies", "Sparse and dense named vectors on the same point", "Querying with using=\"<sparse name>\""],
+          "tools": ["qdrant-client", "Python"],
+          "lab_task": "Create collection kb_idf with sparse_vectors_config={\"terms\": SparseVectorParams(modifier=Modifier.IDF)} and kb_raw without the modifier, upsert the same 6 documents with hand-built term-ID sparse vectors where term 7 appears in every document and term 42 in one, query both collections with indices=[7,42], values=[1.0,1.0] and compare ranking and scores.",
+          "deliverable": "Notebook with both collections, the queries and a score comparison table",
+          "checks": [["Query kb_idf with terms 7 and 42", "The single document holding rare term 42 ranks first", "Query output"], ["Same query on kb_raw", "Scores are plain dot products of the stored weights", "Query output"], ["Upsert a SparseVector with 3 indices and 2 values", "Request rejected with a validation error on mismatched lengths", "Error output"]],
+          "objectives": ["Store and query sparse vectors", "Apply IDF weighting inside Qdrant", "Explain sparse index behaviour compared with HNSW"]
+        },
+        {
+          "topic": "BM25 and SPLADE Sparse Embeddings with FastEmbed",
+          "subtopics": ["SparseTextEmbedding in FastEmbed", "Qdrant/bm25 paired with Modifier.IDF in the collection", "Language-specific stemming and stopwords for Qdrant/bm25", "query_embed compared with embed for BM25 term weights", "prithivida/Splade_PP_en_v1 learned sparse expansion", "Sparse vector length and storage cost per document", "Lexical matching of codes, IDs and rare terms", "When sparse beats dense and when it does not"],
+          "tools": ["FastEmbed", "qdrant-client", "pandas"],
+          "lab_task": "Embed 2,000 support articles with SparseTextEmbedding(\"Qdrant/bm25\") and SparseTextEmbedding(\"prithivida/Splade_PP_en_v1\"), store them as named sparse vectors bm25 (with Modifier.IDF) and splade in collection support, run 20 queries including error codes such as ERR-4012, and record for each whether the target article is in the top 3.",
+          "deliverable": "Comparison table of top-3 hits per query for BM25 and SPLADE",
+          "checks": [["Query \"ERR-4012\" with bm25", "The article containing ERR-4012 is in the top 3", "Result list"], ["Average non-zero entries per document", "SPLADE vectors have more non-zero entries than BM25 vectors", "Statistics output"], ["Top-3 hit rate over 20 queries", "A hit rate is reported for each model", "Evaluation table"]],
+          "objectives": ["Generate sparse embeddings with FastEmbed", "Pair BM25 output with the IDF modifier", "Compare lexical and learned sparse retrieval"]
+        },
+        {
+          "topic": "Multi-Stage Queries with the Qdrant Query API",
+          "subtopics": ["Prefetch objects with query, using, filter and limit", "The outer query rescoring prefetched candidates", "Nested prefetch for three or more stages", "Where filters belong: prefetch, outer query or both", "Candidate limits and their effect on recall", "Per-stage params such as hnsw_ef", "Query inputs: vector, point ID or models.Document", "Debugging a pipeline by running each stage on its own"],
+          "tools": ["qdrant-client", "FastEmbed"],
+          "lab_task": "In a collection with named dense vectors body and title, run a query_points call with prefetch=models.Prefetch(query=body_vec, using=\"body\", filter=lang=\"en\", limit=100) and outer query=title_vec, using=\"title\", limit=10, then run each stage alone and compare top-10 overlap and latency for the pipeline and for single-stage title search.",
+          "deliverable": "Pipeline notebook with stage-by-stage results and a latency table",
+          "checks": [["Pipeline with prefetch limit=100", "All 10 outer results are among the 100 prefetched IDs", "Set comparison"], ["Filter lang=en only in the prefetch", "Every final hit has lang en", "Result payloads"], ["Prefetch limit=5 with outer limit=10", "Only 5 results come back", "Result count"]],
+          "objectives": ["Compose prefetch stages and outer queries", "Place filters at the right stage", "Reason about candidate limits"]
+        },
+        {
+          "topic": "Hybrid Search with Reciprocal Rank Fusion and DBSF",
+          "subtopics": ["Why dense and sparse retrieval miss different relevant documents", "FusionQuery(fusion=Fusion.RRF) over several prefetches", "Fusion.DBSF distribution-based score fusion", "Choosing prefetch limits for each branch", "Fused scores are rank-based and not comparable to cosine scores", "Applying the same filter to every branch", "Evaluating with recall@10 and MRR", "LangChain QdrantVectorStore with RetrievalMode.HYBRID as a consumer"],
+          "tools": ["qdrant-client", "FastEmbed", "ranx", "pandas"],
+          "lab_task": "Using collection support with dense (bge-small) and bm25 sparse vectors, run 30 labelled queries in four modes: dense only, bm25 only, RRF over 50 dense plus 50 sparse prefetch hits, and DBSF over the same prefetches, compute recall@10 and MRR for each with ranx, and split the results by keyword-style and natural-language queries.",
+          "deliverable": "Evaluation report comparing four retrieval modes on two query types",
+          "checks": [["RRF query with two prefetches of limit 50", "Up to 10 fused results with rank-based scores below 1", "Result list"], ["Recall@10 per mode", "A table with four recall values is produced", "Evaluation table"], ["Keyword-style queries such as part numbers", "Hybrid recall is at least the dense-only recall", "Per-query breakdown"]],
+          "objectives": ["Fuse dense and sparse results inside Qdrant", "Compare RRF and DBSF on labelled data", "Choose prefetch limits for hybrid search"]
+        },
+        {
+          "topic": "Late-Interaction Multivectors with ColBERT in Qdrant",
+          "subtopics": ["MultiVectorConfig with MultiVectorComparator.MAX_SIM", "LateInteractionTextEmbedding(\"colbert-ir/colbertv2.0\") with 128 dimensions per token", "Storage cost of one vector per token", "Disabling HNSW for rerank-only multivectors with HnswConfigDiff(m=0)", "Dense or hybrid prefetch followed by multivector rescoring", "Upsert format: a list of token vectors per point", "ColPali-style models for page images", "Quantizing multivectors to save memory"],
+          "tools": ["FastEmbed", "qdrant-client", "ranx"],
+          "lab_task": "Create collection kb_colbert with a dense vector and a colbert multivector (size 128, MAX_SIM, hnsw_config m=0), embed 2,000 articles with LateInteractionTextEmbedding, run 30 labelled queries as dense-only and as dense prefetch limit=100 reranked by query=colbert query vectors using=\"colbert\", and compare MRR, latency and disk usage.",
+          "deliverable": "Rerank evaluation with MRR, latency and storage figures",
+          "checks": [["Multivector length of one passage", "Number of 128-dimension token vectors grows with passage length", "Embedding output"], ["get_collection on kb_colbert", "colbert config shows multivector_config comparator max_sim and hnsw m 0", "JSON response"], ["MRR over 30 queries", "Reranked MRR is reported next to dense-only MRR", "Evaluation table"]],
+          "objectives": ["Store ColBERT token vectors as multivectors", "Rerank prefetched candidates with MaxSim", "Weigh rerank quality against storage cost"]
+        },
+        {
+          "topic": "Matryoshka Embeddings and Coarse-to-Fine Retrieval",
+          "subtopics": ["Matryoshka representation learning and truncatable embeddings", "Truncating to 64 or 256 dimensions and renormalising", "Storing small and full vectors as separate named vectors", "Nested prefetch: small vector, then full vector", "Keeping small vectors in RAM and full vectors on_disk", "Choosing candidate counts per stage", "Models that support truncation, such as nomic-embed-text-v1.5", "Recall and latency trade-off curves"],
+          "tools": ["FastEmbed", "qdrant-client", "NumPy"],
+          "lab_task": "Embed 100,000 passages with nomic-ai/nomic-embed-text-v1.5, store the first 64 dimensions renormalised as vector small and the full 768 as vector full with on_disk=True, run 100 queries as prefetch small limit=200 then full limit=10, and compare recall@10 and p95 latency with full-only search using exact=True as ground truth.",
+          "deliverable": "Coarse-to-fine benchmark with recall and latency at three candidate counts",
+          "checks": [["get_collection on the collection", "small has size 64 and full has size 768 with on_disk true", "JSON response"], ["Recall@10 of the two-stage query against exact full search", "Recall value reported for candidate counts 50, 200 and 500", "Benchmark table"], ["p95 latency of two-stage versus full-only HNSW", "Both p95 values are recorded with the RAM used", "Benchmark table"]],
+          "objectives": ["Use truncated embeddings for candidate generation", "Combine RAM and on-disk vectors in one pipeline", "Plot recall against candidate count"]
+        },
+        {
+          "topic": "Discovery and Context Queries in Qdrant",
+          "subtopics": ["DiscoverQuery with a target and context pairs", "ContextPair positive and negative examples", "ContextQuery without a target for exploration", "How context pairs split the space into preferred zones", "Scoring: context satisfaction first, then target similarity", "Raising hnsw_ef for context queries", "Combining discovery with filters", "Product and content exploration use cases"],
+          "tools": ["qdrant-client", "FastEmbed"],
+          "lab_task": "On the catalog collection run query_points with query=models.DiscoverQuery(discover=models.DiscoverInput(target=<id of a jacket>, context=[models.ContextPair(positive=<blue item>, negative=<red item>)])) and limit=10, then the same context as a ContextQuery with no target, and label each result by colour and category.",
+          "deliverable": "Labelled result tables for discovery and context queries",
+          "checks": [["DiscoverQuery with target jacket and blue over red", "Most top-10 hits are jackets and blue rather than red", "Labelled results"], ["ContextQuery with the same pair", "Results are mixed categories that lean blue", "Labelled results"], ["Add filter in_stock=true", "Every hit is in stock", "Result payloads"]],
+          "objectives": ["Steer search with positive and negative context pairs", "Use discovery for guided exploration", "Explain discovery scoring"]
+        },
+        {
+          "topic": "order_by, Random Sampling and Score Thresholds in the Query API",
+          "subtopics": ["OrderByQuery with key and direction", "start_from for continuing an ordered listing", "Range-enabled payload index requirement for order_by", "SampleQuery(sample=Sample.RANDOM) for random points", "score_threshold semantics per distance metric", "limit and offset with ordered results", "Duplicated entries when ordering by an array field", "Building feeds and annotation samples"],
+          "tools": ["qdrant-client", "Python"],
+          "lab_task": "Create a datetime index on published_at, list the 10 newest articles with query=models.OrderByQuery(order_by=models.OrderBy(key=\"published_at\", direction=\"desc\")), draw two random samples of 20 with SampleQuery and count overlap, and find the lowest score_threshold that still returns 5 results for 10 fixed queries.",
+          "deliverable": "Notebook with the newest list, sample overlap and threshold table",
+          "checks": [["OrderByQuery on published_at desc", "10 results sorted newest first", "Result payloads"], ["Two SampleQuery calls with limit 20", "The two samples differ in at least one ID", "Set comparison"], ["score_threshold above the best score", "Empty result list", "Query output"]],
+          "objectives": ["Sort results by payload values", "Sample random points for review", "Set score thresholds from measured data"]
+        },
+        {
+          "topic": "Score Boosting with Formula Queries",
+          "subtopics": ["FormulaQuery as the outer query over prefetched candidates", "$score for the prefetch score", "SumExpression and MultExpression", "Conditions evaluate to 1 or 0 inside a formula", "Payload keys as numeric variables", "defaults for missing payload values", "Decay expressions such as exp_decay, gauss_decay and lin_decay", "Geo distance in formulas for location-aware ranking"],
+          "tools": ["qdrant-client", "FastEmbed"],
+          "lab_task": "Prefetch 100 dense candidates for 10 queries, then apply query=models.FormulaQuery(formula=models.SumExpression(sum=[\"$score\", models.MultExpression(mult=[0.2, models.FieldCondition(key=\"featured\", match=models.MatchValue(value=True))]), models.MultExpression(mult=[0.05, \"popularity\"])]), defaults={\"popularity\": 0}) and compare ranks before and after.",
+          "deliverable": "Rank comparison table showing the effect of each boost term",
+          "checks": [["Formula with the featured term", "Featured items move up in the ranking", "Rank comparison"], ["Point without a popularity payload", "Scored using the default 0 without an error", "Query output"], ["Featured weight set to 0", "Ranking changes only because of popularity", "Rank comparison"]],
+          "objectives": ["Blend similarity with business signals", "Handle missing payload values in formulas", "Measure the effect of each boost"]
+        },
+        {
+          "topic": "Facet Counts and Distance Matrix Exploration in Qdrant",
+          "subtopics": ["client.facet with key, facet_filter and limit", "Facet keys need a keyword, integer or bool payload index", "exact=True versus approximate facet counts", "Feeding filter sidebars from facet results", "search_matrix_pairs with sample and limit", "search_matrix_offsets for sparse-matrix tooling", "Clustering and duplicate detection from the matrix", "Graph visualisation in the Web UI"],
+          "tools": ["qdrant-client", "SciPy", "scikit-learn", "Qdrant Web UI"],
+          "lab_task": "Call client.facet(\"products\", key=\"brand\", facet_filter=category=footwear, limit=10, exact=True) and check each count with count(), then call search_matrix_offsets(sample=300, limit=5), load the offsets into a scipy.sparse matrix and run connected components on pairs above score 0.95 to list near-duplicate groups.",
+          "deliverable": "Facet table with count checks and the near-duplicate report",
+          "checks": [["Facet brand with exact=True", "Each facet count equals count() with the matching filter", "Comparison table"], ["Facet on a field with no index", "Error saying the field needs a payload index", "Error output"], ["search_matrix_offsets sample=300 limit=5", "Offsets arrays have 1,500 entries", "Shape output"]],
+          "objectives": ["Produce facet counts for filter UIs", "Build a similarity graph over a sample", "Detect near-duplicate points"]
+        },
+        {
+          "topic": "Tuning HNSW m, ef_construct and hnsw_ef in Qdrant",
+          "subtopics": ["HNSW graph basics: layers, neighbours and greedy search", "m with a default of 16 and its memory cost", "ef_construct with a default of 100 and build time", "hnsw_ef in SearchParams at query time", "exact=True to get ground truth", "full_scan_threshold for small segments", "Changing hnsw_config with update_collection triggers a rebuild", "Per-named-vector HNSW settings and max_indexing_threads"],
+          "tools": ["qdrant-client", "NumPy", "docker stats", "vector-db-benchmark"],
+          "lab_task": "Load the same 200,000 vectors into three collections with hnsw_config m=8/ef_construct=64, m=16/ef_construct=100 and m=32/ef_construct=200, record build time until green, then for 200 queries measure recall@10 against exact=True and p95 latency at hnsw_ef 32, 64 and 128.",
+          "deliverable": "Recall, latency and build-time matrix for nine configurations",
+          "checks": [["Recall@10 for m=32 versus m=8 at hnsw_ef=64", "m=32 recall is equal or higher", "Benchmark table"], ["Raise hnsw_ef from 32 to 128 on one collection", "p95 latency increases", "Benchmark table"], ["Build time to green status", "m=32/ef_construct=200 takes the longest", "Timing log"]],
+          "objectives": ["Measure recall against exact search", "Tune build and search parameters", "Pick HNSW settings from evidence"]
+        },
+        {
+          "topic": "Filtered Vector Search Behaviour and the Query Planner",
+          "subtopics": ["Cardinality estimation from payload indexes", "Low-cardinality filters solved by payload index and exact scoring", "High-cardinality filters solved by HNSW traversal with the filter", "full_scan_threshold as the switch point", "Filterable HNSW links per indexed value and payload_m", "Why indexes must exist before the HNSW build", "Recall loss with restrictive filters and no index", "Measuring filtered recall against exact=True"],
+          "tools": ["qdrant-client", "NumPy", "pandas"],
+          "lab_task": "Build two 300,000-point collections, one with a keyword index on category created before loading and one without, where categories hold 50%, 5% and 0.1% of points, then for 100 queries per category measure recall@10 against exact=True and p95 latency in both collections.",
+          "deliverable": "Filtered recall and latency table by category size and index presence",
+          "checks": [["0.1% category in the indexed collection", "Recall@10 of 1.0 from the payload-index path", "Benchmark table"], ["5% category without a payload index", "Lower recall or higher latency than the indexed collection", "Benchmark table"], ["get_collection payload_schema in the indexed collection", "category listed as keyword with a points count", "JSON response"]],
+          "objectives": ["Explain how Qdrant plans filtered searches", "Measure filtered recall", "Order index creation and data loading correctly"]
+        },
+        {
+          "topic": "Qdrant Segments, Optimizers and Collection Status Colours",
+          "subtopics": ["Appendable and non-appendable segments", "Vacuum optimizer: deleted_threshold and vacuum_min_vector_number", "Merge optimizer: default_segment_number and max_segment_size", "Indexing optimizer and indexing_threshold", "Status green, yellow, grey and red", "Restarting paused optimizations from grey with update_collection", "flush_interval_sec and the write-ahead log wal_capacity_mb", "optimizer_status and segments_count in get_collection"],
+          "tools": ["qdrant-client", "Qdrant Web UI", "docker logs"],
+          "lab_task": "Create a collection with optimizers_config default_segment_number=2 and deleted_threshold=0.2, load 200,000 points, delete 30% by filter, and poll get_collection every 10 s logging status, segments_count, points_count and indexed_vectors_count until green, then lower indexing_threshold on a second collection and compare when indexing starts.",
+          "deliverable": "Optimizer timeline log with an annotated explanation of each change",
+          "checks": [["Poll during load", "status yellow while segments are optimized", "Polling log"], ["After deleting 30% and optimization finishing", "points_count is 140000 and status returns to green", "Polling log"], ["get_collection optimizer_status", "optimizer_status is ok", "JSON response"]],
+          "objectives": ["Read collection status and segment data", "Configure vacuum, merge and indexing optimizers", "Explain when optimizers run"]
+        },
+        {
+          "topic": "Qdrant Storage Modes: In-Memory, Memmap and On-Disk Payloads",
+          "subtopics": ["Vectors in RAM by default and on_disk=True in VectorParams", "Memory-mapped files and the operating system page cache", "on_disk_payload for large payloads", "hnsw_config on_disk for the graph", "Datatype float16 and uint8 to shrink vectors", "Docker --memory limits and OOM-killed containers", "Cold and warm cache latency", "storage.performance.async_scorer with io_uring on Linux"],
+          "tools": ["Docker", "docker stats", "qdrant-client", "NumPy"],
+          "lab_task": "Load 500,000 vectors of 768 dimensions twice, once in RAM and once with on_disk=True and on_disk_payload=True, run each container with docker run --memory 1g, record memory with docker stats and p95 latency for 200 queries right after restart and again after a warm-up pass.",
+          "deliverable": "Storage-mode comparison with memory, cold latency and warm latency",
+          "checks": [["In-RAM collection under --memory 1g", "Container is OOM-killed or fails to load, shown by docker inspect OOMKilled true", "docker inspect output"], ["on_disk collection under --memory 1g", "Queries succeed with memory under the limit", "docker stats output"], ["Cold versus warm p95 on the on_disk collection", "Warm p95 is lower than cold p95", "Latency table"]],
+          "objectives": ["Choose RAM or memmap storage per component", "Size containers for a storage mode", "Explain page-cache effects on latency"]
+        },
+        {
+          "topic": "Scalar Quantization and Rescoring in Qdrant",
+          "subtopics": ["ScalarQuantization with type int8 for 4x smaller vectors", "quantile to clip outliers, for example 0.99", "always_ram=True with original vectors on disk", "QuantizationSearchParams rescore and oversampling", "ignore=True to bypass quantization for a query", "Adding quantization to a live collection with update_collection", "Measuring recall loss against exact search", "Memory saved per million vectors"],
+          "tools": ["qdrant-client", "NumPy", "docker stats"],
+          "lab_task": "On a 500,000-vector collection with originals on_disk, enable ScalarQuantization(int8, quantile=0.99, always_ram=True) with update_collection, wait for green, then measure recall@10 and p95 latency for 200 queries with rescore off, rescore on and oversampling 2.0, plus RSS before and after.",
+          "deliverable": "Quantization report with recall, latency and memory for each setting",
+          "checks": [["get_collection after update", "quantization_config shows scalar int8 with always_ram true", "JSON response"], ["rescore=False versus rescore=True", "Recall@10 with rescore is equal or higher", "Benchmark table"], ["RSS before and after quantization with on_disk originals", "Resident memory drops", "docker stats output"]],
+          "objectives": ["Enable scalar quantization on a live collection", "Recover recall with rescore and oversampling", "Report memory savings"]
+        },
+        {
+          "topic": "Binary and Product Quantization Trade-offs",
+          "subtopics": ["BinaryQuantization at 1 bit per dimension for 32x compression", "Embedding models that keep quality under binary quantization", "Oversampling of 2 to 4 with rescoring for binary", "ProductQuantization compression ratios x4 to x64", "Slower indexing and lower recall with product quantization", "Choosing a method by model, dimension and RAM budget", "Newer multi-bit binary and asymmetric options in recent releases", "Re-running evaluation after changing quantization"],
+          "tools": ["qdrant-client", "FastEmbed", "NumPy"],
+          "lab_task": "Copy one 1024-dimension collection into three collections using scalar int8, binary and product x16 quantization, and for 200 queries record recall@10 against exact=True at oversampling 1, 2 and 4 with rescore=True, p95 latency and quantized memory reported by telemetry, then recommend one method.",
+          "deliverable": "Comparison matrix and a written recommendation for the dataset",
+          "checks": [["Binary with oversampling 1 versus 4", "Recall@10 at oversampling 4 is higher", "Benchmark table"], ["Quantized storage size", "Binary is the smallest and scalar the largest of the three", "Telemetry output"], ["Time to green after enabling", "Product quantization takes the longest to build", "Timing log"]],
+          "objectives": ["Compare scalar, binary and product quantization", "Tune oversampling for binary vectors", "Recommend quantization from measured results"]
+        },
+        {
+          "topic": "Nested Object Filters and Array Payloads in Qdrant",
+          "subtopics": ["Dot paths for nested keys such as address.city", "Array projection with [] such as ingredients[].name", "Plain conditions over arrays match across different elements", "NestedCondition to require all conditions on the same element", "has_id is not allowed inside a nested filter", "Payload indexes on nested keys", "ValuesCount and IsEmpty on arrays", "Flattening versus nesting payloads"],
+          "tools": ["qdrant-client", "Python"],
+          "lab_task": "Load 1,000 recipes whose payload has ingredients as an array of {name, allergen} objects, then compare a plain must with ingredients[].name=\"peanut\" and ingredients[].allergen=false against a NestedCondition on key ingredients requiring both on the same element, and explain the difference in counts.",
+          "deliverable": "Filter comparison with counts and three explained example recipes",
+          "checks": [["Plain filter on two array element conditions", "Matches recipes where the two conditions hold on different elements", "Example payloads"], ["NestedCondition with the same two conditions", "Returns a smaller count than the plain filter", "Count output"], ["HasIdCondition inside a nested filter", "Request rejected with an error", "Error output"]],
+          "objectives": ["Filter on nested objects and arrays", "Require conditions on the same array element", "Design payloads for nested filtering"]
+        },
+        {
+          "topic": "Multitenancy with Tenant Payload Indexes in Qdrant",
+          "subtopics": ["One shared collection compared with one collection per tenant", "Keyword payload index on tenant_id with is_tenant=true", "HnswConfigDiff(payload_m=16, m=0) to build per-tenant graphs only", "Every query must filter by tenant_id", "Co-locating tenant data on disk", "Why a query without the tenant filter falls back to slow scanning", "Limits of running thousands of collections", "Moving large tenants to dedicated shards later"],
+          "tools": ["qdrant-client", "NumPy", "pandas"],
+          "lab_task": "Load 200,000 points for 100 tenants into collection shared with a keyword index on tenant_id (is_tenant=true) and hnsw_config payload_m=16, m=0, then measure p95 latency and recall@10 for 100 tenant-filtered queries, compare with a global m=16 collection, and time one query without a tenant filter.",
+          "deliverable": "Multitenancy benchmark and a tenant-isolation note",
+          "checks": [["get_collection payload_schema", "tenant_id keyword index shows is_tenant true", "JSON response"], ["Tenant-filtered queries on the payload_m collection", "Recall@10 of at least 0.95 with recorded p95", "Benchmark table"], ["Query without a tenant filter", "Latency is far above the filtered p95", "Timing log"]],
+          "objectives": ["Partition one collection by tenant", "Build per-tenant HNSW graphs", "Enforce tenant filters in every query"]
+        },
+        {
+          "topic": "Running Qdrant on Kubernetes with the Helm Chart",
+          "subtopics": ["helm repo add qdrant https://qdrant.github.io/qdrant-helm", "StatefulSet, PersistentVolumeClaims and persistence.size", "resources requests and limits sized for vectors and indexes", "Passing config through the chart config values", "API key from a Kubernetes Secret", "Services for ports 6333, 6334 and 6335", "Readiness on /readyz and liveness on /livez", "helm upgrade and pinning image.tag"],
+          "tools": ["Helm", "Kubernetes", "kind", "kubectl", "Qdrant"],
+          "lab_task": "Create a kind cluster, run helm install qdrant qdrant/qdrant -f values.yaml with persistence.size=5Gi, an API key and a pinned image tag, port-forward 6333, load 10,000 points, delete the pod with kubectl delete pod qdrant-0, and confirm the pod returns ready with points_count unchanged.",
+          "deliverable": "values.yaml, kubectl output and the before and after counts",
+          "checks": [["kubectl get pvc", "One Bound PVC of 5Gi for qdrant-0", "kubectl output"], ["Call the API without the api-key header", "HTTP 401", "curl output"], ["Delete pod qdrant-0 and wait for ready", "points_count is still 10000", "API response"]],
+          "objectives": ["Install Qdrant with the official Helm chart", "Persist and secure a Qdrant pod", "Verify data survives pod rescheduling"]
+        },
+        {
+          "topic": "Capstone: Hybrid Search Service with Quantized Collections",
+          "subtopics": ["Dense, BM25 and ColBERT vectors in one collection", "RRF fusion with ColBERT reranking", "Scalar or binary quantization with rescoring", "Tenant partitioning with is_tenant indexes", "Helm-based install on Kubernetes", "Recall, MRR, latency and memory report"],
+          "tools": ["Qdrant", "FastEmbed", "qdrant-client", "Helm", "ranx"],
+          "lab_task": "On a Helm-installed Qdrant, index 50,000 support articles for 10 tenants with dense, bm25 and colbert vectors and scalar quantization, serve a pipeline of RRF over dense and sparse prefetches reranked by ColBERT with a mandatory tenant filter, and evaluate 50 labelled queries against a dense-only baseline.",
+          "deliverable": "Repository with collection config, service code, Helm values and an evaluation report",
+          "checks": [["50 labelled queries", "Pipeline MRR is higher than the dense-only baseline", "Evaluation report"], ["Query for tenant A", "No result has another tenant_id", "Result payloads"], ["p95 latency at 10 concurrent clients", "p95 is under 200 ms", "Load-test report"]],
+          "objectives": ["Combine hybrid retrieval, reranking and quantization", "Deliver a multi-tenant search service on Kubernetes", "Defend design choices with measurements"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, SREs and architects who operate Qdrant for production workloads. Covers distributed mode with Raft consensus, shard and replica planning, write and read consistency, shard transfers, user-defined sharding with shard keys, changing shard counts, failure recovery, shard snapshots and S3 storage for disaster recovery, API keys, JWT role-based access control, TLS and mutual TLS, strict mode, Prometheus metrics and alerting, slow-query diagnosis, bulk ingestion tuning including GPU indexing, capacity planning, rolling upgrades and migrations, Qdrant Cloud managed as code, Hybrid Cloud on your own Kubernetes, and a production multi-tenant cluster capstone.",
+      "prerequisites": ["Has tuned HNSW, quantization and payload indexes on Qdrant, or completed the Qdrant intermediate level", "Operates Docker Compose and Kubernetes workloads, including StatefulSets, Secrets and Helm releases", "Reads Prometheus metrics and writes basic Grafana dashboards and alert rules"],
+      "outcomes": ["Build and operate a multi-node Qdrant cluster with planned sharding, replication and consistency settings", "Recover from node loss and disasters using replica transfers, shard snapshots and tested runbooks", "Secure Qdrant with API keys, JWT RBAC, TLS and strict mode, and monitor it with Prometheus and Grafana", "Size, tune, upgrade and run Qdrant on Qdrant Cloud, Hybrid Cloud or self-managed Kubernetes"],
+      "days": [
+        {
+          "topic": "Bootstrapping a Qdrant Cluster with Raft Consensus",
+          "subtopics": ["cluster.enabled: true and QDRANT__CLUSTER__ENABLED", "Peer-to-peer port 6335", "Starting the first peer with --uri and others with --bootstrap", "Raft for cluster metadata such as collections and shard placement, not point data", "GET /cluster: peer_id, peers and raft_info with term, commit and leader", "Odd peer counts and quorum", "Peer IDs persisted in storage", "Removing a peer with DELETE /cluster/peer/{peer_id}"],
+          "tools": ["Docker Compose", "Qdrant", "curl", "jq"],
+          "lab_task": "Write a docker-compose.yml with three Qdrant services, node1 started with ./qdrant --uri http://node1:6335 and the others with --bootstrap http://node1:6335, run GET /cluster on every node with curl | jq .result.raft_info, stop the current leader, and record the new leader and term on the survivors.",
+          "deliverable": "Compose file, cluster status before and after leader loss and a short explanation",
+          "checks": [["GET /cluster on each node", "All three report the same leader and 3 peers", "jq output"], ["Stop the leader container", "A new leader is elected and term increases", "jq output"], ["Restart the stopped node", "It rejoins as a follower with its original peer_id", "jq output"]],
+          "objectives": ["Start a Qdrant cluster with bootstrap peers", "Read Raft state from the cluster API", "Explain quorum requirements"]
+        },
+        {
+          "topic": "Shard Number and Replication Factor Planning in Qdrant",
+          "subtopics": ["Shards as independent parts of a collection", "shard_number default tied to the node count at creation", "replication_factor and where replicas are placed", "Choosing shard_number for future node counts, for example 6 or 12", "GET /collections/{name}/cluster: local_shards, remote_shards and shard_transfers", "Raising replication_factor with update_collection then replicating shards", "Query fan-out across shards and result merging", "Shard size limits and rebuild times"],
+          "tools": ["Qdrant", "qdrant-client", "curl", "jq"],
+          "lab_task": "On the three-node cluster create collection orders with shard_number=6 and replication_factor=2, load 300,000 points, run GET /collections/orders/cluster on each node and build a table of shard IDs to peers, then raise replication_factor to 3 and add the missing replicas with replicate_shard operations.",
+          "deliverable": "Shard placement table before and after raising the replication factor",
+          "checks": [["Shard placement after creation", "12 replicas in total spread over 3 peers", "Placement table"], ["Every replica state", "All replicas report Active", "jq output"], ["After raising to replication_factor 3 and replicating", "Each peer holds all 6 shards", "Placement table"]],
+          "objectives": ["Plan shard and replica counts", "Inspect shard placement per peer", "Increase replication on a live collection"]
+        },
+        {
+          "topic": "Write Consistency, Read Consistency and Write Ordering",
+          "subtopics": ["write_consistency_factor on the collection", "Read consistency parameter: all, majority, quorum or a number", "Write ordering weak, medium and strong", "wait=true semantics in a cluster", "Replica divergence and eventual consistency", "Behaviour during node failure for each setting", "Latency cost of stronger guarantees", "Testing failure modes with docker pause"],
+          "tools": ["Docker Compose", "qdrant-client", "curl"],
+          "lab_task": "Create collection ledger with replication_factor=3 and write_consistency_factor=2, then with docker pause on one node and then two nodes, upsert with wait=true and query with consistency=\"majority\", record success, error and latency for each case, and repeat writes with ordering=\"strong\".",
+          "deliverable": "Consistency test matrix with outcomes and latencies",
+          "checks": [["One of three nodes paused, upsert wait=true", "Write succeeds", "API response"], ["Two of three nodes paused, same upsert", "Write fails because fewer than 2 replicas confirm", "Error output"], ["Query with consistency=all and one node paused", "Query fails or times out while majority succeeds", "API responses"]],
+          "objectives": ["Configure write and read consistency", "Predict behaviour under node loss", "Choose write ordering for a workload"]
+        },
+        {
+          "topic": "Moving and Replicating Shards with the Qdrant Cluster API",
+          "subtopics": ["POST /collections/{name}/cluster operations", "move_shard with shard_id, from_peer_id and to_peer_id", "replicate_shard and drop_replica", "abort_transfer for stuck transfers", "Transfer methods stream_records, snapshot and wal_delta", "Partial replica state during a transfer", "shard_transfers in collection cluster info", "Rebalancing after adding a node"],
+          "tools": ["Qdrant", "curl", "jq", "Docker Compose"],
+          "lab_task": "Add a fourth node to the cluster, move shard 0 of orders to it with POST /collections/orders/cluster {\"move_shard\":{\"shard_id\":0,\"from_peer_id\":A,\"to_peer_id\":D,\"method\":\"snapshot\"}}, poll until shard_transfers is empty, repeat for shard 1 with stream_records, and compare transfer time and count on the new node.",
+          "deliverable": "Rebalancing log with transfer methods, durations and final placement",
+          "checks": [["Poll during move_shard", "shard_transfers lists the transfer and the target replica is Partial", "jq output"], ["After the transfer completes", "Shard 0 is Active on peer D and gone from peer A", "Cluster info"], ["count(exact=True) on orders after both moves", "300000", "API response"]],
+          "objectives": ["Move and replicate shards between peers", "Pick a shard transfer method", "Rebalance after scaling out"]
+        },
+        {
+          "topic": "User-Defined Sharding with Shard Keys",
+          "subtopics": ["sharding_method=custom at collection creation", "create_shard_key with shard_key, shard_number, replication_factor and placement", "shard_key_selector on upsert and query", "Querying several shard keys in one request", "Upserts without a shard key on a custom-sharded collection", "delete_shard_key", "Dedicated shards for large tenants, payload partitioning for small ones", "Placement of shard keys on chosen peers"],
+          "tools": ["qdrant-client", "Qdrant", "curl"],
+          "lab_task": "Create collection regions with sharding_method=\"custom\", create shard keys eu and us with placement on different peers, upsert 50,000 points per key with shard_key_selector, query with shard_key_selector=\"eu\" and then [\"eu\",\"us\"], and inspect GET /collections/regions/cluster for shard_key labels.",
+          "deliverable": "Custom sharding script, placement output and query results",
+          "checks": [["Query with shard_key_selector=\"eu\"", "All hits come from eu points", "Result payloads"], ["Query without shard_key_selector", "Hits come from both eu and us shard keys", "Result payloads"], ["GET /collections/regions/cluster", "Shards are labelled eu and us on the chosen peers", "jq output"]],
+          "objectives": ["Route data with shard keys", "Place shard keys on specific peers", "Combine shard keys with payload multitenancy"]
+        },
+        {
+          "topic": "Changing Shard Counts: Resharding and Collection Migration",
+          "subtopics": ["Why shard_number is fixed at creation on self-hosted clusters", "Resharding a live collection on Qdrant Cloud", "Migrating to a new collection with a different shard_number", "Scroll-and-upsert copy scripts with checkpoints", "Dual writes during migration", "Alias switch to finish the migration", "Latency and disk impact while copying", "Verifying counts and sample queries after migration"],
+          "tools": ["qdrant-client", "Qdrant Cloud", "Python"],
+          "lab_task": "Create orders_v2 with shard_number=12 and the same vector, HNSW and quantization config as orders, copy all points with a checkpointed scroll-and-upsert script using batch 1,000 while dual-writing new orders to both, switch alias orders to orders_v2, and compare counts and 50 fixed queries.",
+          "deliverable": "Migration script, timeline and verification report",
+          "checks": [["count(exact=True) on both collections after the copy", "Counts match", "API responses"], ["Restart the copy script mid-run", "It resumes from the last checkpoint without duplicates", "Script log"], ["50 fixed queries before and after the alias switch", "Top-10 overlap is at least 0.95 per query", "Comparison report"]],
+          "objectives": ["Change shard counts safely", "Run a checkpointed collection copy", "Cut over with aliases and verify"]
+        },
+        {
+          "topic": "Node Failure, Replica States and Recovery in Qdrant",
+          "subtopics": ["Replica states Active, Dead, Partial, Initializing, Listener and Recovery", "Automatic recovery when a node returns", "Data loss risk with replication_factor 1", "Replacing a permanently lost peer", "DELETE /cluster/peer/{peer_id} with force", "Re-replicating shards to restore the replication factor", "Raft quorum loss and its symptoms", "Log lines that show transfers and state changes"],
+          "tools": ["Docker Compose", "curl", "jq", "docker logs"],
+          "lab_task": "With orders at replication_factor 2 on four nodes, kill one node with docker kill, check replica states on survivors, keep upserting 1,000 points, restart the node and time how long its replicas take to return to Active, then destroy the node volume and replace it with a new peer, removing the old peer and re-replicating its shards.",
+          "deliverable": "Failure drill runbook with state timelines and recovery times",
+          "checks": [["After docker kill on one node", "Replicas on that peer are reported Dead by the survivors", "Cluster info"], ["Node restarted with its volume", "Its replicas pass through Partial and return to Active", "Polling log"], ["After replacement and re-replication", "Every shard again has 2 Active replicas", "Placement table"]],
+          "objectives": ["Read replica states during failures", "Recover or replace a failed peer", "Restore the replication factor"]
+        },
+        {
+          "topic": "Shard Snapshots, S3 Storage and Disaster Recovery for Qdrant",
+          "subtopics": ["Collection snapshots in a cluster contain only local shards", "Shard snapshots at /collections/{name}/shards/{shard_id}/snapshots", "Full storage snapshots with POST /snapshots", "storage.snapshots_config with S3-compatible storage", "Recover priority values replica, snapshot and no_sync", "Restoring at startup with the --snapshot flag", "RPO and RTO targets and snapshot schedules", "Restore drills into an empty cluster"],
+          "tools": ["Qdrant", "MinIO", "curl", "cron"],
+          "lab_task": "Configure snapshots_config to write to a MinIO bucket, create shard snapshots for every shard of orders, start an empty three-node cluster, recreate orders with the same shard_number, recover each shard from its snapshot with priority=snapshot, and record restore time and counts against the RTO target.",
+          "deliverable": "DR runbook, snapshot inventory and restore timing",
+          "checks": [["List objects in the MinIO bucket", "One snapshot file per shard of orders", "mc ls output"], ["count(exact=True) on the restored cluster", "Equals the count at snapshot time", "API response"], ["Measured restore duration", "Duration is recorded and compared with the RTO target", "Runbook timing"]],
+          "objectives": ["Back up clustered collections per shard", "Store snapshots in object storage", "Run and time a full restore drill"]
+        },
+        {
+          "topic": "API Keys and Read-Only Keys for Qdrant",
+          "subtopics": ["service.api_key in config.yaml", "service.read_only_api_key for query-only clients", "QDRANT__SERVICE__API_KEY from a secret store", "api-key header and Authorization: Bearer", "api_key= in qdrant-client", "401 Unauthorized and 403 Forbidden responses", "Why keys need TLS on untrusted networks", "Rotating keys with rolling restarts"],
+          "tools": ["Qdrant", "curl", "qdrant-client", "Kubernetes Secrets"],
+          "lab_task": "Restart Qdrant with QDRANT__SERVICE__API_KEY and QDRANT__SERVICE__READ_ONLY_API_KEY taken from a Kubernetes Secret, then call GET /collections with no key, with the read-only key and with the full key, attempt an upsert with the read-only key, and rotate the full key with a rolling restart.",
+          "deliverable": "Access matrix of key types against operations and a rotation runbook",
+          "checks": [["GET /collections with no key", "HTTP 401", "curl -i output"], ["Upsert with the read-only key", "HTTP 403", "curl -i output"], ["Old full key after rotation", "Rejected with 401 while the new key works", "curl -i output"]],
+          "objectives": ["Enable API key authentication", "Separate read-only and full access", "Rotate keys without downtime"]
+        },
+        {
+          "topic": "JWT Role-Based Access Control in Qdrant",
+          "subtopics": ["service.jwt_rbac: true together with service.api_key", "Tokens signed with HS256 using the API key", "exp claim for expiry", "Global access claim r or m", "Collection-level access lists such as [{\"collection\":\"orders\",\"access\":\"r\"}]", "value_exists claim for revocable tokens", "Passing tokens in api-key or Authorization: Bearer", "Generating tokens with PyJWT or the Web UI"],
+          "tools": ["Qdrant", "PyJWT", "curl"],
+          "lab_task": "Enable jwt_rbac, sign three tokens with PyJWT using the API key and HS256: global read-only, read on orders only, and manage on orders with exp 5 minutes ahead, then test search, upsert and create_collection with each token, and test the third token again after it expires.",
+          "deliverable": "Token definitions and an operation-by-token result matrix",
+          "checks": [["Query collection regions with the orders-only token", "HTTP 403", "curl -i output"], ["Upsert into orders with the manage-on-orders token", "Upsert succeeds", "API response"], ["Use the manage token after exp passes", "HTTP 401", "curl -i output"]],
+          "objectives": ["Issue scoped JWTs for Qdrant", "Restrict access per collection", "Expire and revoke tokens"]
+        },
+        {
+          "topic": "TLS Encryption for Qdrant Clients and Peers",
+          "subtopics": ["service.enable_tls for REST and gRPC", "tls.cert, tls.key and tls.ca_cert paths", "cluster.p2p.enable_tls for peer traffic", "Mutual TLS with service.verify_https_client_certificate", "Certificate reload with tls.cert_ttl", "https:// URLs and CA bundles in qdrant-client", "Creating a test CA with openssl or mkcert", "Terminating TLS at an ingress as an alternative"],
+          "tools": ["OpenSSL", "Qdrant", "curl", "Docker Compose"],
+          "lab_task": "Create a CA and node certificates with openssl, enable service.enable_tls and cluster.p2p.enable_tls on the three-node cluster with bootstrap URIs changed to https, then call the API over plain http, over https with --cacert, and with verify_https_client_certificate on but no client certificate.",
+          "deliverable": "TLS configuration, certificate inventory and a connection test table",
+          "checks": [["curl http://node1:6333 with TLS enabled", "Connection fails", "curl output"], ["curl --cacert ca.pem https://node1:6333", "Version JSON returned", "curl output"], ["mTLS on, request without a client certificate", "TLS handshake rejected", "curl -v output"]],
+          "objectives": ["Encrypt client and peer traffic", "Require client certificates", "Configure clients to trust a private CA"]
+        },
+        {
+          "topic": "Strict Mode and Rate Limits for Shared Qdrant Clusters",
+          "subtopics": ["strict_mode_config enabled per collection", "max_query_limit", "max_timeout", "unindexed_filtering_retrieve and unindexed_filtering_update", "search_max_hnsw_ef and search_allow_exact", "read_rate_limit and write_rate_limit", "HTTP 429 Too Many Requests", "Rolling strict mode out on existing collections"],
+          "tools": ["qdrant-client", "curl", "hey"],
+          "lab_task": "Enable strict mode on orders with update_collection strict_mode_config enabled=true, max_query_limit=100, unindexed_filtering_retrieve=false and read_rate_limit=600, then send a query with limit=1000, a filter on an unindexed field and a burst with hey -n 2000 -c 50, recording each response code.",
+          "deliverable": "Strict mode policy and a table of blocked requests",
+          "checks": [["Query with limit=1000", "Rejected with an error naming the limit", "API response"], ["Filter on an unindexed field", "Rejected with an error saying an index is required", "API response"], ["hey burst above read_rate_limit", "Some responses are 429", "hey report"]],
+          "objectives": ["Guard shared collections with strict mode", "Apply read and write rate limits", "Prevent unindexed filter scans"]
+        },
+        {
+          "topic": "Qdrant Metrics, Telemetry and Grafana Alerts",
+          "subtopics": ["GET /metrics in Prometheus format", "GET /telemetry with details_level", "Request metrics such as rest_responses_total and rest_responses_duration_seconds", "gRPC counterparts of the request metrics", "Collection, point and cluster gauges", "/healthz, /livez and /readyz for probes", "Prometheus scrape config with the API key", "Alerts on p95 latency, error rate, non-green status and disk use"],
+          "tools": ["Prometheus", "Grafana", "Qdrant", "curl"],
+          "lab_task": "Add a Prometheus scrape job for all cluster nodes sending the api-key header, build a Grafana dashboard with request rate, p95 from rest_responses_duration_seconds and error rate per endpoint, write an alert rule for p95 above 300 ms for 5 minutes, and fire it by running a load test with hnsw_ef=2048.",
+          "deliverable": "Prometheus config, exported dashboard JSON, alert rule and alert screenshot",
+          "checks": [["curl /metrics with the API key", "Prometheus text output including rest_responses_total", "curl output"], ["Prometheus targets page", "All cluster nodes show state UP", "Screenshot"], ["Load test with hnsw_ef=2048", "p95 latency alert fires", "Alertmanager screenshot"]],
+          "objectives": ["Scrape and chart Qdrant metrics", "Use health endpoints for probes", "Alert on latency and error rates"]
+        },
+        {
+          "topic": "Diagnosing Slow Qdrant Queries and Optimizer Backlogs",
+          "subtopics": ["Filters on unindexed payload fields", "Oversized hnsw_ef, limit and deep offset values", "with_vectors and large payloads inflating responses", "Yellow or grey status and unindexed segments", "indexed_only to skip unindexed segments", "log_level DEBUG and slow request logs", "Per-endpoint durations from /telemetry", "Page-cache misses on on_disk data"],
+          "tools": ["Qdrant", "Prometheus", "Grafana", "qdrant-client"],
+          "lab_task": "Inject four faults into a staging collection: drop the category index, pause optimizations so status turns grey, request with_vectors=True on 100-hit queries, and set offset=10000; for each, locate the cause from metrics, telemetry or logs, apply the fix and record p95 before and after.",
+          "deliverable": "Diagnosis log with symptom, evidence, fix and p95 change per fault",
+          "checks": [["Dropped category index", "Filtered p95 rises and recovers after recreating the index", "Grafana panel"], ["Grey status", "Status returns to green after update_collection restarts optimizers", "API response"], ["with_vectors=True on 100-hit queries", "Response size drops after removing vectors", "Response size table"]],
+          "objectives": ["Trace slow queries to their cause", "Use telemetry and logs for diagnosis", "Verify fixes with before and after numbers"]
+        },
+        {
+          "topic": "Bulk Ingestion Tuning for Large Qdrant Collections",
+          "subtopics": ["Deferring HNSW with indexing_threshold=0 or m=0 during loads", "Restoring index settings after the load", "Parallel uploads over gRPC", "wait=False writes and backpressure", "Creating payload indexes before loading", "max_optimization_threads and indexing threads", "GPU HNSW indexing with the GPU image and QDRANT__GPU__INDEXING", "Tracking indexed_vectors_count during the build"],
+          "tools": ["qdrant-client", "Qdrant", "NumPy", "NVIDIA Container Toolkit"],
+          "lab_task": "Load 5,000,000 vectors of 768 dimensions twice: once with default settings and once with hnsw_config m=0 during upload over gRPC with parallel=8, then set m=16 and time the build to green. If a GPU is available, repeat the build with the GPU image and compare times.",
+          "deliverable": "Ingestion benchmark with upload time, build time and peak RAM per method",
+          "checks": [["Upload with m=0", "Upload time is lower than with default settings", "Timing table"], ["Set m=16 after the load", "Status yellow until indexed_vectors_count reaches the point count, then green", "Polling log"], ["Recall@10 after both methods", "Recall is within 0.01 between methods", "Benchmark table"]],
+          "objectives": ["Load millions of vectors efficiently", "Defer and rebuild indexes deliberately", "Evaluate GPU-assisted indexing"]
+        },
+        {
+          "topic": "Capacity Planning and Memory Sizing for Qdrant",
+          "subtopics": ["Vector RAM: points × dimensions × bytes per value", "Quantized vectors in RAM with originals on disk", "HNSW graph memory from m", "Payload and payload index memory", "Disk headroom for segment rebuilds", "IOPS needs for on_disk vectors", "Node count, shard count and replication in the estimate", "Validating estimates on a 1% sample"],
+          "tools": ["Qdrant", "Python", "docker stats", "vector-db-benchmark"],
+          "lab_task": "Write a sizing sheet for 100 million 768-dimension vectors with replication_factor 2 under three designs: all in RAM, scalar int8 in RAM with originals on disk, and binary in RAM with originals on disk, then load a 1,000,000-point sample of each design and compare measured RSS and disk with the estimate.",
+          "deliverable": "Sizing sheet, sample measurements and a recommended node layout",
+          "checks": [["All-in-RAM estimate for 100M × 768 float32", "About 307 GB of raw vectors before replication and overhead", "Sizing sheet"], ["Measured RSS of the 1M scalar sample", "Within 25% of the estimate", "docker stats output"], ["Recommended layout", "Node count, shard count and per-node RAM and disk stated", "Design document"]],
+          "objectives": ["Estimate RAM and disk for large collections", "Validate estimates with samples", "Choose node and shard layouts"]
+        },
+        {
+          "topic": "Rolling Upgrades and Data Migration into Qdrant",
+          "subtopics": ["Upgrading one minor version at a time", "Snapshots before every upgrade", "Rolling restarts node by node, waiting for Active replicas", "Helm StatefulSet upgrades and pod order", "Client compatibility checks between client and server versions", "Why storage format changes limit downgrades", "The Qdrant migration tool for moving data from other vector stores", "Verifying counts and sample queries after migration"],
+          "tools": ["Helm", "kubectl", "Qdrant", "qdrant-client"],
+          "lab_task": "On the Helm-installed three-node cluster with replication_factor 2, take snapshots, raise image.tag by one minor version with helm upgrade, run a query loop throughout and log errors, wait for all replicas Active, then migrate a 100,000-vector Chroma or second Qdrant collection with the migration tool and verify counts.",
+          "deliverable": "Upgrade runbook with error log, version checks and migration verification",
+          "checks": [["GET / on every node after the upgrade", "All nodes report the new version", "curl output"], ["Query loop during the rolling upgrade", "No failed requests with replication_factor 2", "Request log"], ["Migrated collection count", "100000 points", "API response"]],
+          "objectives": ["Upgrade a cluster without downtime", "Plan rollback with snapshots", "Migrate data from another vector store"]
+        },
+        {
+          "topic": "Operating Qdrant Cloud Clusters as Code",
+          "subtopics": ["Qdrant Cloud accounts, clusters and the free single-node tier", "Cloud providers and regions", "Database API keys scoped to clusters", "Management API keys for the Cloud API", "Terraform provider qdrant/qdrant-cloud", "Backup schedules and restore in the console", "Cluster metrics and logs in Qdrant Cloud", "Scaling nodes, disk and resharding from the console"],
+          "tools": ["Qdrant Cloud", "Terraform", "qdrant-client", "curl"],
+          "lab_task": "Use the qdrant/qdrant-cloud Terraform provider with a management API key to declare a cluster and a database API key, run terraform plan and apply, connect with QdrantClient(url=<cluster URL>, api_key=<key>), create a collection, configure a daily backup schedule, and destroy the cluster with terraform destroy.",
+          "deliverable": "Terraform configuration, plan output, connection test and backup settings",
+          "checks": [["terraform plan", "Plan shows the cluster and API key resources to add", "Plan output"], ["QdrantClient with the generated database key", "get_collections succeeds", "Script output"], ["Same request without the key", "HTTP 401", "curl output"]],
+          "objectives": ["Provision Qdrant Cloud clusters with Terraform", "Manage database and management keys", "Configure managed backups"]
+        },
+        {
+          "topic": "Qdrant Hybrid Cloud on Your Own Kubernetes",
+          "subtopics": ["Control plane in Qdrant Cloud and data plane in your cluster", "Creating a Hybrid Cloud environment in the console", "Installing the agent and operator with the generated Helm commands", "Outbound-only connectivity from your cluster", "Storage classes, node selectors and tolerations for database pods", "Creating clusters in the environment", "Backups using Kubernetes volume snapshots", "Hybrid Cloud compared with Private Cloud and self-managed Helm"],
+          "tools": ["Qdrant Hybrid Cloud", "Kubernetes", "Helm", "kubectl"],
+          "lab_task": "Create a Hybrid Cloud environment in the Qdrant Cloud console, run the generated Helm install commands in a dedicated namespace of your Kubernetes cluster, confirm the environment shows as connected, create a three-node Qdrant cluster with a chosen storage class, and connect with qdrant-client through a port-forward.",
+          "deliverable": "Environment setup record, kubectl listings and a connection test",
+          "checks": [["kubectl get pods -n <namespace>", "Agent and operator pods are Running", "kubectl output"], ["Environment status in the console", "Environment shows as connected", "Console screenshot"], ["kubectl get pvc for the new cluster", "Three Bound PVCs using the chosen storage class", "kubectl output"]],
+          "objectives": ["Connect your Kubernetes to Qdrant Hybrid Cloud", "Create managed clusters on your infrastructure", "Compare Hybrid Cloud with other hosting options"]
+        },
+        {
+          "topic": "Capstone: Production Multi-Tenant Qdrant Cluster",
+          "subtopics": ["Cluster topology with shards, replicas and shard keys", "JWT RBAC, TLS and strict mode", "Prometheus metrics, Grafana dashboards and alerts", "Shard snapshots to object storage and a restore drill", "Failure drill and rolling upgrade", "Capacity plan and runbooks"],
+          "tools": ["Qdrant", "Kubernetes", "Helm", "Prometheus", "Grafana", "MinIO"],
+          "lab_task": "Run a TLS-enabled cluster of at least three nodes with JWT RBAC and strict mode, host 100 small tenants through is_tenant partitioning and two large tenants on shard keys, ship dashboards and alerts, then perform a node-kill drill, a rolling minor upgrade and a snapshot restore while a query load runs.",
+          "deliverable": "Architecture document, configs, dashboards, drill reports and runbooks",
+          "checks": [["Tenant A token querying tenant B data", "HTTP 403 or zero results", "Access test log"], ["Node kill during the query load", "Error rate stays below 1% and replicas return to Active", "Grafana panel"], ["Snapshot restore drill", "Restored counts match and restore time meets the RTO", "Drill report"]],
+          "objectives": ["Design and run a production Qdrant cluster", "Prove resilience with drills", "Document operations for handover"]
+        }
+      ]
+    }
+  }
+}

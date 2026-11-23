@@ -233,6 +233,20 @@ def _checks(value: Any) -> List[str]:
     return list(dict.fromkeys(result))[:6]
 
 
+def roadmap_groups(roadmap: Any) -> List[Dict[str, Any]]:
+    """[{"stage": "Understand", "subtopics": [...]}, ...] -> headed topic groups "Step 1: Understand"."""
+    groups = []
+    for step in _list(roadmap):
+        if not isinstance(step, dict):
+            continue
+        items = [_split_item(item) for item in clean_subtopics(_list(step.get("subtopics")))]
+        items = [item for item in items if item["text"]]
+        stage = _text(step.get("stage"))
+        if stage and items:
+            groups.append({"heading": f"Step {len(groups) + 1}: {stage}", "lead": "", "items": items})
+    return groups
+
+
 def outline_from_flat(row: Dict[str, Any]) -> Dict[str, Any]:
     """Build an outline from a day or module's flat fields, skipping template text."""
     stored = row.get("outline")
@@ -240,6 +254,7 @@ def outline_from_flat(row: Dict[str, Any]) -> Dict[str, Any]:
         return stored
     items = [_split_item(item) for item in clean_subtopics(_list(row.get("subtopics")))]
     items = [item for item in items if item["text"]]
+    groups = roadmap_groups(row.get("roadmap"))
     lab = _lab_from_text(row.get("lab") or row.get("lab_task") or "")
     scenario = real_text(row.get("scenario"))
     if scenario and not lab["scenario"]:
@@ -249,7 +264,7 @@ def outline_from_flat(row: Dict[str, Any]) -> Dict[str, Any]:
     if deliverable:
         lab["deliverables"] = [deliverable]
     return {
-        "topic_groups": [{"heading": "", "lead": "", "items": items}] if items else [],
+        "topic_groups": groups or ([{"heading": "", "lead": "", "items": items}] if items else []),
         "principle": {"title": "", "lead": "", "points": []},
         "lab": lab,
         "assessment": real_text(row.get("assessment")),

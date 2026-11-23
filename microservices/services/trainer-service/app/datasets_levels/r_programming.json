@@ -1,0 +1,573 @@
+{
+  "domain": "R Programming",
+  "name": "R Programming",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["R", "R Language", "R Statistical Programming", "R Programming Data Analysis", "Tidyverse", "R for Data Science", "R Developer", "Shiny and R"],
+  "certifications": [],
+  "tools": ["R", "RStudio", "Positron", "Quarto", "tidyverse", "ggplot2", "Shiny", "renv", "testthat", "devtools", "targets", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, researchers and developers who are new to R. Covers installing R and RStudio, vectors, lists and data frames, functions and control flow, importing data with readr, tidy data with tidyr, wrangling with dplyr, strings and dates, visualisation with ggplot2, debugging, Quarto reports and a reproducible report capstone.",
+      "prerequisites": ["Comfortable with spreadsheets or another programming language at a basic level", "Can install software and manage files and folders on Windows, macOS or Linux", "Has a laptop with permission to install R, RStudio or Positron and Quarto"],
+      "outcomes": ["Write and debug R scripts using vectors, lists, data frames and functions", "Wrangle and reshape data with dplyr, tidyr, stringr and lubridate", "Create clear charts with ggplot2 and export them", "Produce a reproducible Quarto report from an organised RStudio project"],
+      "days": [
+        {
+          "topic": "R and RStudio Environment Setup",
+          "subtopics": ["Installing R from CRAN and choosing the right build for Windows, macOS (Intel or Apple silicon) and Linux", "Rtools on Windows and Xcode Command Line Tools on macOS for compiling packages", "RStudio Desktop and Positron as editors, and VS Code with the R extension", "Console, script editor, Environment pane, Files pane and Plots pane", "Running code: Ctrl/Cmd+Enter, source(), and Rscript from a terminal", "sessionInfo(), R.version.string and checking the R and OS versions", "install.packages(), library() and the difference between installing and loading", "Library paths: .libPaths() and where packages are stored", "Getting help with ?mean, help.search(), vignette() and example()", "Global options: Tools > Global Options, .Rprofile and why to never save the workspace to .RData"],
+          "tools": ["R", "RStudio", "Positron", "CRAN", "Rscript", "VS Code"],
+          "lab_task": "Install R and RStudio, run R.version.string and sessionInfo(), then install.packages(\"tidyverse\") and load it with library(tidyverse). Write hello.R that prints Sys.Date() and sum(1:100), run it from the console with source(\"hello.R\") and from a terminal with Rscript hello.R, and set Save workspace to Never.",
+          "deliverable": "Environment report with sessionInfo() output, hello.R and screenshots of both run methods",
+          "checks": [["Run sum(1:100) in the console and in Rscript hello.R", "Both print [1] 5050", "Console and terminal output"], ["Run library(tidyverse) after installation", "Attaches core packages including ggplot2 and dplyr with no conflict errors", "Startup message text"], ["Run library(notapackage)", "Error: there is no package called 'notapackage'", "Console error message"]],
+          "objectives": ["Install and verify R, RStudio and CRAN packages", "Run code interactively, from scripts and with Rscript", "Find help and session information when something fails"]
+        },
+        {
+          "topic": "Vectors, Types and Coercion",
+          "subtopics": ["Atomic vector types: logical, integer, double, character", "Creating vectors with c(), :, seq(), rep() and vector()", "typeof(), class(), is.numeric() and str()", "Implicit coercion order: logical to integer to double to character", "Explicit coercion with as.numeric() and as.integer() and the warning NAs introduced by coercion", "NA, NULL, NaN and Inf and how each propagates", "Recycling rules and the longer object length warning", "Vectorised arithmetic and comparison", "Integer limits: .Machine$integer.max and integer overflow", "Floating-point surprises: 0.1 + 0.2 == 0.3, all.equal() and isTRUE()"],
+          "tools": ["R", "RStudio", "base R", "str()"],
+          "lab_task": "In a script, build vectors with c(1, \"a\", TRUE), 1:3 + 1:2, as.numeric(\"abc\"), 2147483647L + 1L and 0.1 + 0.2 == 0.3. For each, record typeof() or the warning text, then fix the last one with all.equal() and write five sentences on R's coercion hierarchy.",
+          "deliverable": "Annotated script listing each expression, its result or warning and the rule that explains it",
+          "checks": [["Run typeof(c(1, \"a\", TRUE))", "Returns \"character\" because every element is coerced to the most general type", "Console output"], ["Run 1:3 + 1:2", "Returns 2 4 4 with warning: longer object length is not a multiple of shorter object length", "Console output and warning"], ["Run 2147483647L + 1L", "Returns NA with warning: NAs produced by integer overflow", "Console output and warning"]],
+          "objectives": ["Predict the type of a vector after implicit coercion", "Distinguish NA, NULL, NaN and Inf", "Compare floating-point numbers safely"]
+        },
+        {
+          "topic": "Subsetting Vectors by Position, Name and Condition",
+          "subtopics": ["Positive indexing with [ ] starting at 1", "Negative indexing to drop elements", "Logical indexing with comparisons and & | !", "Named vectors and indexing by name", "which(), which.max() and which.min()", "%in% and match() for membership tests", "Handling NA when subsetting: is.na() and na.rm = TRUE", "Replacing values with x[idx] <- value and ifelse()", "Out-of-range indexing returns NA and zero index returns an empty vector", "head(), tail(), rev(), sort(), order() and unique()"],
+          "tools": ["R", "RStudio", "base R"],
+          "lab_task": "Using the built-in airquality$Ozone vector, count missing values with sum(is.na()), extract days above 100 with logical indexing, find the day of the maximum with which.max(), replace NA with the median using x[is.na(x)] <- median(x, na.rm = TRUE), and report mean before and after.",
+          "deliverable": "Script with five subsetting examples and a before-and-after summary of Ozone",
+          "checks": [["Run sum(is.na(airquality$Ozone))", "Returns 37", "Console output"], ["Run max(airquality$Ozone, na.rm = TRUE) and which.max(airquality$Ozone)", "Returns 168 and index 117", "Console output"], ["Run x <- c(a = 1, b = 2); x[\"c\"]", "Returns <NA> with name <NA> instead of an error", "Console output"]],
+          "objectives": ["Select vector elements by position, name and condition", "Replace and filter values including NA", "Explain how out-of-range indices behave"]
+        },
+        {
+          "topic": "Lists, Matrices and Data Frames",
+          "subtopics": ["Lists as heterogeneous containers and the difference between [ ] and [[ ]]", "The $ operator and partial matching risk", "Nested lists and str() for inspection", "Matrices: matrix(), dim(), t() and byrow", "Matrix indexing, rbind(), cbind() and %*%", "Arrays and why dim attributes matter", "Data frames as lists of equal-length columns", "data.frame() and tibble() compared: printing, no partial matching, no row names", "nrow(), ncol(), names(), summary() and glimpse()", "Adding, removing and renaming columns in base R"],
+          "tools": ["R", "RStudio", "tibble", "str()"],
+          "lab_task": "Create a list with a name, a numeric vector and a data frame, access the vector with [[ ]] and $, build a 3x3 matrix and multiply it with %*%, then convert mtcars to a tibble with as_tibble(rownames = \"model\") and call glimpse(). Report rows, columns and column types.",
+          "deliverable": "Script with list, matrix and tibble examples plus a glimpse() output table",
+          "checks": [["Run class(my_list[1]) and class(my_list[[1]])", "[ ] returns \"list\" while [[ ]] returns the element's own class", "Console output"], ["Run dim(as_tibble(mtcars, rownames = \"model\"))", "Returns 32 12", "Console output"], ["Run matrix(1:6, nrow = 2) %*% matrix(1:6, nrow = 2)", "Error: non-conformable arguments", "Console error"]],
+          "objectives": ["Choose between vector, list, matrix and data frame", "Access list elements with [ ], [[ ]] and $", "Inspect a data frame with str() and glimpse()"]
+        },
+        {
+          "topic": "Writing Functions, Arguments and Scope",
+          "subtopics": ["function(x) bodies and the implicit return of the last expression", "Default arguments and named versus positional matching", "The ... argument and passing arguments on", "return() and early exit", "Argument validation with stopifnot() and if (!is.numeric(x)) stop()", "Lexical scoping and local versus global variables", "The native pipe |> and the \\(x) lambda shorthand", "Returning multiple values in a list", "Writing roxygen-style comments for your own functions", "Sourcing helper functions with source(\"R/helpers.R\")"],
+          "tools": ["R", "RStudio", "base R"],
+          "lab_task": "Write cv <- function(x, na.rm = FALSE) that returns sd(x) / mean(x) and stops with a clear message if x is not numeric. Test it with mtcars$mpg, with a vector containing NA with and without na.rm, and with \"a\". Rewrite a call using |> and an anonymous \\(x) function.",
+          "deliverable": "R/helpers.R containing cv() and a test script with four calls and their outputs",
+          "checks": [["Run cv(mtcars$mpg)", "Returns approximately 0.30 (sd 6.03 divided by mean 20.09)", "Console output"], ["Run cv(c(1, 2, NA)) then cv(c(1, 2, NA), na.rm = TRUE)", "First returns NA, second returns approximately 0.4714", "Console output"], ["Run cv(\"a\")", "Stops with your custom error message and no numeric result", "Console error"]],
+          "objectives": ["Define functions with defaults and validation", "Explain lexical scoping", "Use the native pipe and anonymous functions"]
+        },
+        {
+          "topic": "Control Flow, Loops and the apply Family",
+          "subtopics": ["if, else if and else, and the condition has length > 1 error since R 4.2", "ifelse() versus if for vectors", "switch() for multi-way branching", "for loops with seq_along() and why 1:length(x) is unsafe", "while, repeat and break", "Pre-allocating results with vector(\"numeric\", n)", "lapply() and sapply() and their return types", "vapply() with FUN.VALUE for type-safe results", "apply() over matrix rows and columns", "Map() and Reduce() in base R"],
+          "tools": ["R", "RStudio", "base R", "system.time()"],
+          "lab_task": "Compute the mean of every numeric column of iris three ways: a for loop over seq_along(), sapply(iris[1:4], mean) and vapply(iris[1:4], mean, numeric(1)). Then call if (c(TRUE, FALSE)) to observe the length error and show why seq_len(0) is safe where 1:0 is not.",
+          "deliverable": "Script with three equivalent implementations and notes on the two error cases",
+          "checks": [["Run sapply(iris[1:4], mean)", "Returns named values 5.843333, 3.057333, 3.758000, 1.199333", "Console output"], ["Run if (c(TRUE, FALSE)) print(\"x\")", "Error: the condition has length > 1", "Console error"], ["Run for (i in 1:0) print(i) then for (i in seq_len(0)) print(i)", "First prints 1 and 0, second prints nothing", "Console output"]],
+          "objectives": ["Write correct conditionals and loops", "Replace loops with apply-family functions", "Choose vapply() for predictable return types"]
+        },
+        {
+          "topic": "Factors, Dates and Text in Base R",
+          "subtopics": ["factor(), levels() and the integer codes behind a factor", "Ordered factors and comparisons", "droplevels() and relevel()", "cut() and table() for binning and counting", "stringsAsFactors default is FALSE since R 4.0", "as.Date() with format strings such as %d/%m/%Y", "Date arithmetic, difftime() and seq() by month", "format() for weekday and month names", "paste(), paste0(), nchar(), substr() and toupper()", "sprintf() and formatC() for fixed-width output"],
+          "tools": ["R", "RStudio", "base R"],
+          "lab_task": "Convert the iris Species column and a vector of sizes c(\"small\",\"large\",\"medium\") into factors, order the sizes with levels = c(\"small\",\"medium\",\"large\"), bin mtcars$mpg with cut(breaks = c(10, 20, 30, 40)) and table() it, then compute days between as.Date(\"2026-01-01\") and as.Date(\"2026-12-25\").",
+          "deliverable": "Script showing factor levels, a bin table and a date difference",
+          "checks": [["Run as.integer(factor(c(\"b\", \"a\", \"b\")))", "Returns 2 1 2 because levels sort alphabetically", "Console output"], ["Run as.Date(\"2026-12-25\") - as.Date(\"2026-01-01\")", "Returns Time difference of 358 days", "Console output"], ["Run as.Date(\"31/04/2026\", format = \"%d/%m/%Y\")", "Returns NA because April has 30 days", "Console output"]],
+          "objectives": ["Create and order factors", "Parse and calculate with dates", "Format strings with paste() and sprintf()"]
+        },
+        {
+          "topic": "Importing and Exporting Data with readr and readxl",
+          "subtopics": ["read_csv(), read_tsv() and read_delim() from readr", "Column type guessing and col_types = cols(...)", "problems() for parse failures", "na = and locale = locale(decimal_mark = \",\") for European files", "Encodings and guess_encoding()", "readxl::read_excel() with sheet and range", "write_csv() and the base write.csv() row.names gotcha", "saveRDS() and readRDS() versus .csv for R-only data", "Reading many files with list.files() and purrr::map()", "Never readRDS() a file from an untrusted source"],
+          "tools": ["readr", "readxl", "writexl", "here", "RStudio"],
+          "lab_task": "Create a CSV with a numeric column that has the text \"n/a\" in row 3, import it with read_csv(), inspect problems(), re-import with na = \"n/a\" and an explicit col_types = cols(amount = col_double()), write the result with write_csv() and round-trip it with saveRDS()/readRDS().",
+          "deliverable": "Import script, cleaned CSV and a note comparing guessed and declared column types",
+          "checks": [["Run read_csv() on the file without na =", "amount is read as character and spec shows col_character()", "spec() output"], ["Run read_csv() with na = \"n/a\" and col_types", "amount is double and row 3 is NA with zero problems()", "Console output"], ["Run identical(readRDS(\"x.rds\"), df) after saveRDS()", "Returns TRUE", "Console output"]],
+          "objectives": ["Import delimited and Excel files with explicit types", "Diagnose parsing problems", "Export data in portable and R-native formats"]
+        },
+        {
+          "topic": "RStudio Projects, Paths and Reproducible Scripts",
+          "subtopics": ["RStudio projects (.Rproj) and the project root", "Why setwd() breaks scripts on other machines", "here::here() for root-relative paths", "A standard folder layout: data/raw, data/clean, R, output", "Treating raw data as read-only", "Script order and numbering such as 01-import.R and 02-clean.R", "set.seed() and reproducible random numbers", "Restarting R and running top to bottom to prove reproducibility", "Git basics from RStudio: init, commit and .gitignore for .Rproj.user and .RData", "usethis::use_git() and use_github()"],
+          "tools": ["RStudio", "here", "usethis", "Git"],
+          "lab_task": "Create an RStudio project named sales-analysis, add the folders data/raw, data/clean, R and output, write R/01-import.R that reads data/raw/sales.csv with here(\"data\", \"raw\", \"sales.csv\"), run usethis::use_git(), commit, then open the project from another directory and confirm the script still runs.",
+          "deliverable": "Project folder with .Rproj, three scripts, .gitignore and one commit",
+          "checks": [["Run here::here() from a script inside R/", "Returns the project root, not the R subfolder", "Console output"], ["Restart R then run R/01-import.R", "Runs with no object-not-found errors", "Console log"], ["Run git status after adding .Rproj.user", "Shows .Rproj.user ignored and a clean working tree", "Terminal output"]],
+          "objectives": ["Organise an analysis as a self-contained project", "Use root-relative paths", "Commit work to Git from RStudio"]
+        },
+        {
+          "topic": "Tidy Data and Reshaping with tidyr",
+          "subtopics": ["The three rules of tidy data: variable per column, observation per row, value per cell", "Recognising wide and long layouts", "pivot_longer() with cols, names_to and values_to", "pivot_wider() with names_from and values_from", "names_pattern and names_sep for multi-part column names", "separate_wider_delim() and unite()", "drop_na() and replace_na()", "complete() and expand_grid() for missing combinations", "Duplicate keys and values_fn in pivot_wider()", "Checking dimensions before and after each reshape"],
+          "tools": ["tidyr", "dplyr", "tibble", "RStudio"],
+          "lab_task": "Take tidyr::billboard (317 rows, wk1 to wk76), reshape it with pivot_longer(starts_with(\"wk\"), names_to = \"week\", values_to = \"rank\", values_drop_na = TRUE), parse week to integer with readr::parse_number(), then pivot_wider() back for the top track and compare row counts.",
+          "deliverable": "Script with long and wide versions, dimension table and a one-paragraph tidy-data explanation",
+          "checks": [["Run dim(billboard)", "Returns 317 79", "Console output"], ["Run nrow() after pivot_longer with values_drop_na = TRUE", "Returns 5307 rows", "Console output"], ["Run pivot_wider() on data with duplicate keys", "Warning: values are not uniquely identified and list-columns are returned", "Console warning"]],
+          "objectives": ["Identify untidy layouts", "Reshape data with pivot_longer() and pivot_wider()", "Validate row counts after reshaping"]
+        },
+        {
+          "topic": "Data Wrangling with Core dplyr Verbs",
+          "subtopics": ["The five verbs: filter(), select(), mutate(), arrange(), summarise()", "Comparison and logical operators in filter() and between()", "select() helpers: starts_with(), ends_with(), contains(), where(), everything()", "rename() and relocate()", "mutate() with new, overwritten and lagged columns", "case_when() and if_else() for conditional columns", "arrange() with desc()", "distinct() and slice_max() / slice_head()", "Chaining verbs with |> and reading pipelines aloud", "Counting with count() and n()"],
+          "tools": ["dplyr", "nycflights13", "tidyverse", "RStudio"],
+          "lab_task": "Using nycflights13::flights (336,776 rows), filter month == 1 & dest == \"LAX\", select carrier, flight and delay columns, mutate gain = dep_delay - arr_delay and a case_when() category of Early, OnTime and Late, arrange by desc(arr_delay), and report the row count after each step.",
+          "deliverable": "Pipeline script with a row-count log for each verb and the top 5 delayed flights",
+          "checks": [["Run nrow(flights)", "Returns 336776", "Console output"], ["Run count(flights, origin)", "Returns three rows: EWR, JFK and LGA", "Tibble output"], ["Run filter(flights, month = 1)", "Error: we detected a named input, with a hint that = was used instead of ==", "Console error"]],
+          "objectives": ["Apply the core dplyr verbs in a pipeline", "Create conditional columns with case_when()", "Explain each step with row counts"]
+        },
+        {
+          "topic": "Grouped Summaries with group_by, summarise and .by",
+          "subtopics": ["group_by() and ungroup()", "summarise() with n(), mean(), median(), sd() and n_distinct()", "The .by argument available in dplyr 1.1 and later", "Handling NA with na.rm = TRUE", "Multiple grouping variables and the .groups message", "Grouped mutate() for within-group percentages", "slice_min() and slice_max() by group", "count() and add_count()", "arrange() after summarise() and the top_n() deprecation", "Reading grouped tibble headers: Groups: x [n]"],
+          "tools": ["dplyr", "nycflights13", "tidyverse"],
+          "lab_task": "From flights, compute per carrier the flight count, mean dep_delay with na.rm = TRUE and the share of flights delayed over 15 minutes, once with group_by() and once with .by = carrier, confirm they match, and add a share-of-total column with mutate(pct = n / sum(n)).",
+          "deliverable": "Summary table by carrier with both syntaxes and a note on when each is preferable",
+          "checks": [["Run n_distinct(flights$carrier)", "Returns 16", "Console output"], ["Run summarise(flights, m = mean(dep_delay))", "Returns NA because of missing values", "Tibble output"], ["Compare group_by(carrier) |> summarise() with summarise(.by = carrier)", "Same 16 rows and values, ungrouped result, row order may differ", "all.equal() after arrange(carrier)"]],
+          "objectives": ["Summarise data by group", "Use .by for per-operation grouping", "Compute within-group proportions"]
+        },
+        {
+          "topic": "Joining and Combining Tables",
+          "subtopics": ["Keys: primary, foreign and composite", "inner_join(), left_join(), right_join() and full_join()", "semi_join() and anti_join() as filtering joins", "by = join_by(a == b) for differently named keys", "Duplicate column suffixes with suffix =", "Many-to-many warnings and the relationship argument", "bind_rows() and bind_cols()", "Checking key uniqueness with count() and filter(n > 1)", "Join diagnostics: counting unmatched keys", "Set operations: union(), intersect() and setdiff()"],
+          "tools": ["dplyr", "nycflights13", "tidyverse"],
+          "lab_task": "Join flights to airlines with left_join(join_by(carrier)), to planes with join_by(tailnum), and to airports with join_by(dest == faa). After each join report nrow(); use anti_join() to count flights whose tailnum is missing from planes and explain the result.",
+          "deliverable": "Join script with row counts, an unmatched-key table and a join-selection guide",
+          "checks": [["Run nrow(airlines)", "Returns 16", "Console output"], ["Run left_join(flights, airlines, by = \"carrier\") and nrow()", "Returns 336776 rows because every carrier matches", "Console output"], ["Run anti_join(flights, planes, by = \"tailnum\") and nrow()", "Returns a non-zero count of unmatched flights", "Console output"]],
+          "objectives": ["Select the correct join type", "Join on differently named keys", "Detect unmatched and duplicated keys"]
+        },
+        {
+          "topic": "Text Processing with stringr and Regular Expressions",
+          "subtopics": ["str_detect(), str_count() and str_which()", "str_sub(), str_extract() and str_extract_all()", "str_replace() and str_replace_all()", "str_split() and str_split_i()", "str_trim(), str_squish(), str_to_lower() and str_to_title()", "str_pad(), str_c() and str_glue()", "Regex anchors, classes, quantifiers and groups", "Escaping with double backslashes and raw strings r\"(...)\"", "str_view() to debug a pattern", "Cleaning messy categorical labels and extracting IDs"],
+          "tools": ["stringr", "dplyr", "tidyverse", "regex101"],
+          "lab_task": "Using stringr::words (980 words), count words starting with a vowel with str_detect(words, \"^[aeiou]\"), extract the last two letters with str_sub(words, -2), and clean a vector of messy emails with str_squish(), str_to_lower() and a regex that extracts the domain after @.",
+          "deliverable": "Script with five regex patterns, their match counts and a cleaned email table",
+          "checks": [["Run length(words)", "Returns 980", "Console output"], ["Run str_detect(\"a.b\", \".\") and str_detect(\"a.b\", \"\\\\.\")", "Both TRUE, but the second matches only a literal dot", "Console output"], ["Run str_extract(\"Ana@Example.COM\", \"(?<=@).+\")", "Returns \"Example.COM\"", "Console output"]],
+          "objectives": ["Search and extract text with regex", "Clean inconsistent strings", "Debug patterns with str_view()"]
+        },
+        {
+          "topic": "Dates, Times and Time Zones with lubridate",
+          "subtopics": ["ymd(), mdy(), dmy() and ymd_hms() parsers", "Date components: year(), month(label = TRUE), wday() and yday()", "floor_date(), round_date() and ceiling_date()", "Durations versus periods: days(1) and ddays(1)", "Intervals and %within%", "Adding months safely with %m+%", "Time zones with with_tz() versus force_tz()", "Daylight-saving gaps and ambiguous times", "Making datetimes with make_datetime()", "Grouping data by week or month with floor_date()"],
+          "tools": ["lubridate", "dplyr", "nycflights13", "tidyverse"],
+          "lab_task": "Parse c(\"2026-03-01\", \"03/05/2026\") with ymd() and mdy(), build a datetime from flights year, month, day, hour and minute with make_datetime(), count flights per month with floor_date(), and test ymd_hms(\"2026-03-08 02:30:00\", tz = \"America/New_York\") for the DST gap.",
+          "deliverable": "Date script with parsed values, monthly counts and an explanation of the DST result",
+          "checks": [["Run ymd(\"2026-02-30\")", "Returns NA with warning: 1 failed to parse", "Console output"], ["Run ymd(\"2026-01-31\") + months(1)", "Returns NA because 31 February does not exist, while %m+% gives 2026-02-28", "Console output"], ["Run ymd_hms(\"2026-03-08 02:30:00\", tz = \"America/New_York\")", "Returns NA with a failed-to-parse warning because the time does not exist", "Console output"]],
+          "objectives": ["Parse dates in varied formats", "Distinguish periods from durations", "Handle time zones and DST correctly"]
+        },
+        {
+          "topic": "ggplot2 Layers, Aesthetics and Geoms",
+          "subtopics": ["Grammar of graphics: data, aesthetics, geoms, scales, facets, theme", "ggplot(data, aes()) and adding layers with +", "Mapping versus setting: aes(colour = x) versus colour = \"blue\"", "geom_point(), geom_line(), geom_col(), geom_histogram() and geom_boxplot()", "geom_smooth(method = \"lm\")", "geom_bar() with stat = \"count\" versus geom_col()", "position adjustments: dodge, stack, fill and jitter", "Overplotting and alpha", "labs() for titles, axis labels and captions", "Reading ggplot error messages such as object not found inside aes()"],
+          "tools": ["ggplot2", "palmerpenguins", "dplyr", "RStudio"],
+          "lab_task": "With palmerpenguins::penguins (344 rows), plot flipper_length_mm against body_mass_g coloured by species with geom_point(alpha = 0.6) and geom_smooth(method = \"lm\"), draw a boxplot of body mass by species, and a bar chart of counts by island and species with position = \"dodge\". Add labs() titles to all three.",
+          "deliverable": "Three labelled ggplot2 charts saved as PNG and the script that builds them",
+          "checks": [["Print the scatter plot of flipper length against body mass", "Warning: Removed 2 rows containing missing values", "Console warning"], ["Plot with aes(colour = \"blue\")", "Points are all one default colour with a legend entry named blue", "Plot screenshot"], ["Run ggplot(penguins) + geom_point(aes(x = mass))", "Error: object 'mass' not found", "Console error"]],
+          "objectives": ["Build charts layer by layer", "Distinguish mapped and fixed aesthetics", "Choose a geom to match the data"]
+        },
+        {
+          "topic": "ggplot2 Scales, Facets, Themes and Saving Plots",
+          "subtopics": ["scale_x_continuous(), scale_y_log10() and limits versus coord_cartesian()", "Colour scales: viridis, brewer and manual", "Colour-blind safe palettes", "Facets with facet_wrap(~ var) and facet_grid(rows ~ cols)", "Free scales with scales = \"free_y\"", "Complete themes: theme_minimal() and theme_bw()", "theme() tweaks: legend.position, axis.text and plot.title", "Labels with the scales package: label_comma(), label_percent()", "Annotations with annotate() and geom_text()", "ggsave() with width, height, units and dpi"],
+          "tools": ["ggplot2", "scales", "palmerpenguins", "ragg"],
+          "lab_task": "Rebuild the penguin scatter plot with scale_colour_viridis_d(), facet_wrap(~ island), theme_minimal(base_size = 12), legend.position = \"bottom\" and comma-formatted axes, then save it with ggsave(\"penguins.png\", width = 8, height = 5, dpi = 300) and check the file's pixel size.",
+          "deliverable": "A publication-style faceted PNG and a style note listing each theme and scale choice",
+          "checks": [["Run ggsave(\"penguins.png\", width = 8, height = 5, dpi = 300)", "Creates a 2400 x 1500 pixel PNG", "File properties"], ["Add scale_y_continuous(limits = c(2500, 5000)) to a plot with values above 5000", "Rows outside the limits are removed with a warning, unlike coord_cartesian()", "Console warning"], ["Add facet_wrap(~ island)", "Three panels appear: Biscoe, Dream and Torgersen", "Plot screenshot"]],
+          "objectives": ["Customise scales, themes and legends", "Compare groups with facets", "Export plots at a specified size and resolution"]
+        },
+        {
+          "topic": "Errors, Warnings and Debugging in R",
+          "subtopics": ["Reading error messages: object not found, could not find function, non-numeric argument to binary operator, subscript out of bounds", "Warnings versus errors and options(warn = 2)", "traceback() and rlang::last_trace()", "print() and message() debugging", "browser(), debugonce() and the RStudio debugger with breakpoints", "options(error = recover)", "tryCatch() with error, warning and finally handlers", "try(silent = TRUE) and inherits(res, \"try-error\")", "stop(), warning() and message() in your own functions", "Minimal reproducible examples with reprex::reprex()"],
+          "tools": ["RStudio", "reprex", "base R", "rlang"],
+          "lab_task": "Write ten broken snippets (typo in a name, 1 + \"a\", list(1)[[2]], missing package, wrong case in a function). Record each message and fix it. Wrap as.numeric(\"x\") in tryCatch() to return NA_real_ with a custom message, use debugonce() on cv() from Day 5, and produce a reprex of one failure.",
+          "deliverable": "Error catalogue with message, cause and fix, plus a tryCatch() example and one reprex",
+          "checks": [["Run 1 + \"a\"", "Error in 1 + \"a\": non-numeric argument to binary operator", "Console error"], ["Run list(1)[[2]]", "Error: subscript out of bounds", "Console error"], ["Run tryCatch(as.numeric(\"x\"), warning = function(w) NA_real_)", "Returns NA and no warning is printed", "Console output"]],
+          "objectives": ["Interpret common R error messages", "Handle conditions with tryCatch()", "Step through code with the debugger"]
+        },
+        {
+          "topic": "Quarto Documents: Your First Reports",
+          "subtopics": ["Quarto versus R Markdown and the quarto CLI bundled with RStudio", "YAML header: title, author, date, format", "Markdown text, headings, lists and links", "Code chunks with #| label, #| echo and #| eval options", "Inline code with `r nrow(df)`", "Figures and tables with #| fig-cap and knitr::kable()", "Cross-references such as @fig-scatter", "Output formats: html, pdf and docx", "embed-resources: true for single-file HTML", "quarto render, quarto preview and quarto check"],
+          "tools": ["Quarto", "RStudio", "knitr", "ggplot2"],
+          "lab_task": "Create report.qmd with a YAML header (format: html with embed-resources: true), a chunk labelled fig-scatter with #| fig-cap that plots mtcars wt against mpg, a kable() table of mean mpg by cyl, and inline text using `r nrow(mtcars)`. Run quarto check, then quarto render report.qmd.",
+          "deliverable": "report.qmd and a self-contained report.html with one captioned figure, one table and inline values",
+          "checks": [["Run quarto render report.qmd", "Creates report.html and the inline text shows 32 rows", "Render log and HTML"], ["Reference @fig-scatter in the text", "Renders as Figure 1 with a working link", "HTML screenshot"], ["Set #| echo: false on the chunk", "Code is hidden while the figure and table remain", "HTML screenshot"]],
+          "objectives": ["Write and render Quarto documents", "Control chunk output and captions", "Embed live results in text"]
+        },
+        {
+          "topic": "Beginner Capstone: Reproducible Analysis Report in Quarto",
+          "subtopics": ["Choose a public dataset and write three analysis questions", "Project structure with here() and numbered scripts", "Tidy and clean with tidyr, dplyr, stringr and lubridate", "Summaries and joins backed by row-count checks", "Three ggplot2 figures with a consistent theme", "Quarto document with a YAML header, code chunks, figure captions and render to HTML"],
+          "tools": ["RStudio", "Quarto", "tidyverse", "here", "Git"],
+          "lab_task": "Pick a public CSV (for example NYC flights or gapminder), build an RStudio project, clean and reshape it, produce one summary table and three ggplot2 charts, then write report.qmd with echo: false and embed-resources: true, run quarto render report.qmd, and commit the project to Git.",
+          "deliverable": "Git repository with the project, a rendered self-contained report.html and a one-page README",
+          "checks": [["Run quarto render report.qmd on a clean checkout", "Produces report.html with no errors and all figures embedded", "Render log and HTML file"], ["Restart R and run all scripts in order", "Every script runs without error and outputs match the report tables", "Console log"], ["Inspect the report's tables against row counts in the scripts", "Row counts agree at each cleaning step", "Counts table in the README"]],
+          "objectives": ["Deliver an end-to-end analysis from raw file to report", "Document assumptions and data checks", "Package the work reproducibly in Git"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For R users who can already wrangle data and plot with the tidyverse. Covers tidy evaluation, purrr, nested data and JSON, databases and web APIs, environments and object systems, building and testing packages, dependency management with renv, publication graphics, spatial data, parameterised Quarto reports, Shiny apps and modules, a tidymodels workflow and a package-plus-dashboard capstone.",
+      "prerequisites": ["Completes dplyr, tidyr and ggplot2 analyses without help", "Understands functions, scope and error handling in R", "Uses Git and a terminal for basic version control"],
+      "outcomes": ["Write reusable functions and tidyverse-style programming helpers", "Build, document, test and version R packages", "Create parameterised Quarto reports and modular Shiny applications", "Query databases and APIs and pin project dependencies"],
+      "days": [
+        {
+          "topic": "Tidy Evaluation and Programming with dplyr",
+          "subtopics": ["Data-masking versus tidy-select in dplyr arguments", "Embracing with {{ var }} in function arguments", "The .data and .env pronouns and .data[[\"col\"]]", "Passing column names as strings with all_of() and any_of()", "Dynamic names with the := operator and glue syntax \"{name}_mean\"", "across() with several columns and functions", "Writing a summarise_by() helper function", "Dots forwarding with ...", "Why R CMD check complains about no visible binding for global variable", "Error messages that mention object not found inside data masking"],
+          "tools": ["dplyr", "rlang", "tidyselect", "RStudio"],
+          "lab_task": "Write grouped_mean <- function(df, group, var) df |> summarise(\"{{var}}_mean\" := mean({{ var }}, na.rm = TRUE), .by = {{ group }}). Call it on penguins with species and body_mass_g, then on mtcars with cyl and mpg, then write a string-based version using .data[[var]] and test with a misspelled column.",
+          "deliverable": "R/grouped_mean.R with the embrace version, the string version and a test script",
+          "checks": [["Run grouped_mean(penguins, species, body_mass_g)", "Returns 3 rows with a column named body_mass_g_mean", "Tibble output"], ["Run grouped_mean(mtcars, cyl, mpg)", "Returns 3 rows for 4, 6 and 8 cylinders", "Tibble output"], ["Call the .data[[var]] version with var = \"mass\"", "Error: column mass not found in .data", "Console error"]],
+          "objectives": ["Write dplyr functions that accept column names", "Use .data and .env to avoid ambiguity", "Create dynamic column names"]
+        },
+        {
+          "topic": "Functional Programming with purrr",
+          "subtopics": ["map() and the typed variants map_dbl(), map_chr(), map_lgl()", "Formula shorthand versus the \\(x) lambda", "map2() and pmap() over several inputs", "walk() for side effects such as saving files", "imap() and names", "keep(), discard(), detect() and every()", "reduce() and accumulate()", "safely(), possibly() and quietly()", "list_rbind() and list_cbind() for combining results", ".progress = TRUE and error location messages in purrr 1.0"],
+          "tools": ["purrr", "dplyr", "readr", "tidyverse"],
+          "lab_task": "Split mtcars by cyl, fit lm(mpg ~ wt) in each group with map(), pull slopes with map_dbl(\\(m) coef(m)[[\"wt\"]], ...), read three CSVs from a folder with map() then list_rbind(names_to = \"file\"), and use possibly(read_csv, NULL) on a missing path.",
+          "deliverable": "Script with grouped model fits, a slope table, a multi-file import and a failure-tolerant read",
+          "checks": [["Run map_dbl(split(mtcars, mtcars$cyl), \\(d) mean(d$mpg))", "Returns named values 26.66364, 19.74286 and 15.10000", "Console output"], ["Run map_dbl(1:3, \\(x) c(x, x))", "Error identifying that the result must be a single value, naming element 1", "Console error"], ["Run possibly(read_csv, NULL)(\"missing.csv\")", "Returns NULL with no error", "Console output"]],
+          "objectives": ["Replace loops with typed map functions", "Combine iteration results into data frames", "Make iteration robust with safely() and possibly()"]
+        },
+        {
+          "topic": "List-Columns, Nesting and Rectangling JSON",
+          "subtopics": ["Nested data frames with nest() and unnest()", "List-columns and why they exist", "Modelling per group with nest() plus mutate(map())", "unnest_longer() and unnest_wider()", "hoist() to pull deeply nested fields", "jsonlite::fromJSON(simplifyVector = FALSE) versus the default", "toJSON(auto_unbox = TRUE)", "Reading NDJSON with stream_in()", "Handling missing and null fields", "Row-wise operations with rowwise()"],
+          "tools": ["tidyr", "jsonlite", "purrr", "dplyr"],
+          "lab_task": "Download https://api.github.com/repos/tidyverse/dplyr/issues?per_page=30 with jsonlite::read_json(), turn it into a tibble with tibble(issue = json) |> unnest_wider(issue), hoist() user$login and label names, count issues per user, and nest mtcars by cyl with a model list-column.",
+          "deliverable": "Rectangling script producing a 30-row issue table and a nested model table",
+          "checks": [["Run nrow(issues)", "Returns 30", "Console output"], ["Run hoist(issue, author = c(\"user\", \"login\"))", "Adds a character column author with one login per row", "Tibble output"], ["Run nest(mtcars, data = -cyl)", "Returns 3 rows with a list-column named data", "Tibble output"]],
+          "objectives": ["Rectangle nested JSON into tibbles", "Use list-columns for per-group objects", "Choose between unnest_longer, unnest_wider and hoist"]
+        },
+        {
+          "topic": "Window Functions, across() and Row-wise Operations",
+          "subtopics": ["across() with where(is.numeric) and a list of functions", "Naming outputs with .names", "if_any() and if_all() in filter()", "pick() for selecting columns inside functions", "Ranking: row_number(), min_rank(), dense_rank() and ntile()", "lag(), lead(), cumsum() and cummean()", "Running and rolling statistics with slider::slide_dbl()", "consecutive_id() and runs", "reframe() for multi-row summaries", "Missing data handling: coalesce(), na_if() and replace_na()"],
+          "tools": ["dplyr", "slider", "tidyr", "nycflights13"],
+          "lab_task": "On flights, compute mean and sd of dep_delay and arr_delay with summarise(across(c(dep_delay, arr_delay), list(mean = mean, sd = sd), na.rm = TRUE), .by = origin), rank carriers by median delay with min_rank(), add a 7-day rolling mean with slider::slide_dbl(), and filter rows where if_any(ends_with(\"delay\"), is.na).",
+          "deliverable": "Script with the across() summary, a ranking table and a rolling-mean column",
+          "checks": [["Run the across() summary", "Returns 3 rows for EWR, JFK and LGA with columns such as dep_delay_mean", "Tibble output"], ["Run lag(c(1, 2, 3))", "Returns NA 1 2", "Console output"], ["Run min_rank(c(10, 10, 20))", "Returns 1 1 3 because ties share the lowest rank", "Console output"]],
+          "objectives": ["Apply functions across many columns", "Build window and rolling calculations", "Use reframe() for multi-row summaries"]
+        },
+        {
+          "topic": "Categorical Data and Factors with forcats",
+          "subtopics": ["Why factors still matter: order in plots and modelling", "fct_reorder() and fct_reorder2() for plots", "fct_infreq() and fct_rev()", "fct_lump_n(), fct_lump_prop() and fct_lump_min()", "fct_recode() and fct_collapse()", "fct_relevel() and reference levels", "fct_na_value_to_level() for explicit NA", "Reading levels(), nlevels() and count()", "Factors in joins and bind_rows() warnings", "Ordered versus unordered factors in ggplot2"],
+          "tools": ["forcats", "ggplot2", "dplyr", "tidyverse"],
+          "lab_task": "With forcats::gss_cat (21,483 rows) lump relig to the top 5 with fct_lump_n(), compute mean tvhours by relig, plot it with fct_reorder() and geom_point(), then collapse partyid into Republican, Democrat, Independent and Other with fct_collapse() and tabulate.",
+          "deliverable": "Plot script with a reordered dot chart and a collapsed partyid table",
+          "checks": [["Run nrow(gss_cat)", "Returns 21483", "Console output"], ["Run nlevels(fct_lump_n(gss_cat$relig, n = 5))", "Returns 6 including the Other level", "Console output"], ["Plot tvhours by relig without fct_reorder()", "Levels appear alphabetically, which hides the ranking", "Plot screenshot"]],
+          "objectives": ["Reorder and lump factor levels for clear charts", "Recode categories consistently", "Set reference levels deliberately"]
+        },
+        {
+          "topic": "Databases from R with DBI, dbplyr and duckdb",
+          "subtopics": ["DBI connection lifecycle: dbConnect() and dbDisconnect()", "In-process DuckDB with duckdb::duckdb()", "dbWriteTable(), dbListTables() and dbGetQuery()", "Parameterised queries with params = list() to avoid SQL injection", "glue_sql() for safe interpolation", "dbplyr: tbl(), show_query(), collect() and compute()", "Lazy evaluation and when work happens in the database", "Translating dplyr verbs to SQL and unsupported functions", "Connecting to PostgreSQL with RPostgres and credentials from environment variables", "pool for Shiny apps and transactions with dbWithTransaction()"],
+          "tools": ["DBI", "dbplyr", "duckdb", "RPostgres", "SQLite"],
+          "lab_task": "Open an in-memory DuckDB connection, write nycflights13::flights with dbWriteTable(), build tbl(con, \"flights\") |> filter(dest == \"LAX\") |> summarise(n = n(), .by = carrier), print show_query(), run collect(), then query with dbGetQuery(con, \"SELECT ... WHERE dest = ?\", params = list(\"LAX\")).",
+          "deliverable": "Script with the lazy pipeline, the generated SQL and a parameterised query",
+          "checks": [["Run dbListTables(con)", "Returns \"flights\" after dbWriteTable()", "Console output"], ["Run class(tbl(con, \"flights\") |> filter(month == 1))", "Includes tbl_lazy and no rows are collected yet", "Console output"], ["Run show_query() on the pipeline", "Prints a SELECT ... WHERE dest = 'LAX' GROUP BY carrier statement", "Printed SQL"]],
+          "objectives": ["Query databases with DBI and dbplyr", "Understand lazy database queries", "Prevent SQL injection with parameters"]
+        },
+        {
+          "topic": "Web APIs and Scraping with httr2 and rvest",
+          "subtopics": ["HTTP basics: methods, status codes, headers", "Building requests: request(), req_url_path_append() and req_url_query()", "Authentication with req_auth_bearer_token() and keeping tokens in environment variables", "req_perform() and resp_body_json()", "req_retry(max_tries = 3) for 429 and 503", "req_throttle() and respectful rate limits", "req_error() and handling 404s", "Pagination loops and req_perform_iterative()", "rvest: read_html(), html_elements(), html_text2() and html_table()", "robots.txt, terms of service and polite scraping"],
+          "tools": ["httr2", "rvest", "jsonlite", "polite"],
+          "lab_task": "Build a request to https://api.github.com/repos/tidyverse/dplyr with req_headers(Accept = \"application/vnd.github+json\"), inspect it with req_dry_run(), perform it and read stargazers_count, add req_retry() and call https://httpbin.org/status/503 to see retries, then scrape a table with rvest::html_table().",
+          "deliverable": "API script with a dry-run printout, a retry demonstration and a scraped table",
+          "checks": [["Run resp_status(req_perform(request(\"https://api.github.com/repos/tidyverse/dplyr\")))", "Returns 200", "Console output"], ["Request https://httpbin.org/status/404 with the default error handling", "Error: HTTP 404 Not Found", "Console error"], ["Request https://httpbin.org/status/503 with req_retry(max_tries = 3)", "Three attempts are made, then the final HTTP 503 error is raised", "Console log"]],
+          "objectives": ["Call REST APIs reliably with retries and auth", "Parse JSON responses into tibbles", "Scrape HTML tables responsibly"]
+        },
+        {
+          "topic": "Environments, Closures and Lazy Evaluation",
+          "subtopics": ["Environments as mutable name-to-value maps", "environment(), globalenv(), parent.frame() and emptyenv()", "Lexical scope and the <<- operator", "Function factories and closures", "Lazy evaluation of arguments and force()", "Promises and default arguments that depend on other arguments", "on.exit(add = TRUE) for cleanup", "Copy-on-modify versus environments' reference semantics", "local() and sys.function()", "Using memoisation with a cache environment"],
+          "tools": ["base R", "rlang", "lobstr", "RStudio"],
+          "lab_task": "Write make_counter <- function() { i <- 0; function() { i <<- i + 1; i } } and show that two counters keep separate state, write a memoised fib() using new.env() as a cache and time fib(30) before and after with system.time(), and demonstrate lazy evaluation with f <- function(x) 10; f(stop(\"boom\")).",
+          "deliverable": "Script with two counters, a memoised Fibonacci and a lazy-evaluation note",
+          "checks": [["Call c1() twice and c2() once", "Returns 1, 2 and 1", "Console output"], ["Run f(stop(\"boom\")) with f <- function(x) 10", "Returns 10 and the error is never raised", "Console output"], ["Compare system.time(fib(30)) before and after memoisation", "Memoised run is at least 100 times faster", "Timing table"]],
+          "objectives": ["Explain environments and scope rules", "Build closures and function factories", "Use lazy evaluation and on.exit() correctly"]
+        },
+        {
+          "topic": "S3 Classes and Method Dispatch",
+          "subtopics": ["Objects, attributes and the class attribute", "Constructor, validator and helper pattern", "UseMethod() and NextMethod()", "Writing print(), format(), summary() and as.character() methods", "Arithmetic and comparison with Ops group generics", "Subsetting methods such as [.myclass", "inherits() and method resolution order", "methods() and getS3method()", "S3 classes for data frames: subclassing tibble", "Registering methods in a package with S3method() in NAMESPACE"],
+          "tools": ["base R", "vctrs", "rlang", "RStudio"],
+          "lab_task": "Create a money class with new_money(x, currency), validate_money(), a friendly money() helper, a print method that shows USD 12.50, a format method and an Ops method that errors when currencies differ. Add a [.money method to keep attributes and test with 5 inputs.",
+          "deliverable": "R/money.R with constructor, validator, helper, methods and a test script",
+          "checks": [["Run money(12.5, \"USD\") + money(2, \"USD\")", "Prints USD 14.50", "Console output"], ["Run money(1, \"USD\") + money(1, \"EUR\")", "Error stating the currencies do not match", "Console error"], ["Run class(money(1, \"USD\")[1])", "Returns \"money\" because the [ method keeps the class", "Console output"]],
+          "objectives": ["Create S3 classes with constructor, validator and helper", "Write and dispatch methods", "Control arithmetic and subsetting for a class"]
+        },
+        {
+          "topic": "R6 and S4 Object Systems",
+          "subtopics": ["When reference semantics are needed: R6 versus S3 copies", "R6Class(): public, private and active members", "initialize(), self and chaining with invisible(self)", "Inheritance with inherit = and super$", "clone(deep = TRUE) for nested R6 objects", "S4 classes with setClass(), slots and prototype", "setGeneric(), setMethod() and show()", "setValidity() and validObject()", "isVirtualClass() and abstract classes", "Bioconductor and S4 in the wild, and choosing the system"],
+          "tools": ["R6", "methods (S4)", "base R", "RStudio"],
+          "lab_task": "Implement a BankAccount R6 class with private balance, deposit(), withdraw() that rejects overdrafts, and a SavingsAccount subclass with add_interest(). Then implement the same Person class in S4 with setValidity(age >= 0) and show two instances of an R6 object to demonstrate reference semantics.",
+          "deliverable": "Two scripts, one with R6 classes and one with S4, plus a comparison table",
+          "checks": [["Run a <- BankAccount$new(100); b <- a; b$deposit(50); a$balance", "Returns 150 because b and a reference the same object", "Console output"], ["Run a$withdraw(1000)", "Stops with your insufficient funds error and the balance stays 150", "Console error"], ["Run new(\"Person\", name = \"Ana\", age = -1)", "Error: invalid class Person object with the validity message", "Console error"]],
+          "objectives": ["Build R6 classes with encapsulation", "Define S4 classes with validity checks", "Choose between S3, R6 and S4"]
+        },
+        {
+          "topic": "Building an R Package with usethis and devtools",
+          "subtopics": ["Package anatomy: DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/", "usethis::create_package() and use_r()", "devtools::load_all() and the edit-load-test loop", "roxygen2 tags: @param, @return, @examples, @export", "devtools::document() generating NAMESPACE and Rd files", "use_package(\"dplyr\") and Imports versus Suggests", "Calling pkg::fun and avoiding library() in package code", "use_mit_license() and licensing choices", "Package data with use_data() and documentation of datasets", "README.Rmd, use_readme_md() and vignettes with use_vignette()"],
+          "tools": ["usethis", "devtools", "roxygen2", "pkgdown", "Git"],
+          "lab_task": "Create a package called salestools with usethis::create_package(), add a function summarise_sales() that uses dplyr, document it with roxygen2 tags, run devtools::document(), use_package(\"dplyr\"), use_mit_license(), devtools::load_all() and install it with devtools::install(). Call it from a fresh R session.",
+          "deliverable": "salestools package directory with DESCRIPTION, NAMESPACE, man pages and a working installed function",
+          "checks": [["Run devtools::document()", "Writes NAMESPACE with export(summarise_sales) and man/summarise_sales.Rd", "File listing"], ["Run library(salestools) in a fresh session then ?summarise_sales", "The help page opens with parameters and examples", "Help page screenshot"], ["Remove @export and run document()", "NAMESPACE no longer exports the function and calling it fails with could not find function", "Console error"]],
+          "objectives": ["Create and document an R package", "Manage dependencies in DESCRIPTION", "Use the devtools workflow"]
+        },
+        {
+          "topic": "Automated Testing with testthat and Coverage",
+          "subtopics": ["testthat 3rd edition: Config/testthat/edition: 3", "test_that() blocks and expect_equal(), expect_identical(), expect_true()", "expect_error(), expect_warning() and expect_snapshot()", "Testing tolerance for floating-point numbers", "Fixtures: withr::local_options(), local_tempfile() and test files in tests/testthat/", "Mocking with local_mocked_bindings()", "Skipping tests with skip_on_cran() and skip_if_not_installed()", "Test-driven development with devtools::test()", "Coverage with covr::package_coverage() and covr::report()", "Reading failure output and fixing a failing test"],
+          "tools": ["testthat", "covr", "withr", "devtools"],
+          "lab_task": "In the salestools package run usethis::use_testthat(3), add use_test(\"summarise_sales\") with four tests (typical input, empty data frame, missing column error with expect_error(), snapshot of print output), run devtools::test(), then covr::package_coverage() and raise coverage above 90 percent.",
+          "deliverable": "tests/testthat folder with four test cases and a coverage report at or above 90 percent",
+          "checks": [["Run devtools::test()", "Reports [ FAIL 0 | WARN 0 | SKIP 0 | PASS n ] with n at least 4", "Console output"], ["Pass a data frame missing the amount column", "expect_error() passes on the column-not-found message", "Test output"], ["Run covr::percent_coverage(covr::package_coverage())", "Returns a value of 90 or higher", "Console output"]],
+          "objectives": ["Write unit tests with testthat 3e", "Test errors, warnings and printed output", "Measure and improve coverage"]
+        },
+        {
+          "topic": "Dependency Management with renv and Posit Package Manager",
+          "subtopics": ["Why projects break: version drift and global libraries", "renv::init(), renv::snapshot() and renv.lock", "renv::restore() on a clean machine", "renv::status() and renv::diagnostics()", "Project library versus the global cache and RENV_PATHS_CACHE", "Installing from CRAN, GitHub and Bioconductor with renv::install()", "pak::pak() for fast parallel installs", "Posit Public Package Manager date snapshots and Linux binaries", "Pinning the R version in renv.lock", "Updating safely with renv::update() and renv::history()"],
+          "tools": ["renv", "pak", "Posit Package Manager", "Git"],
+          "lab_task": "In the sales-analysis project run renv::init(), install dplyr, ggplot2 and readr, call renv::snapshot() and inspect renv.lock, delete the renv/library folder, run renv::restore() and verify versions with packageVersion(\"dplyr\"), then change the repo to a dated Posit Package Manager snapshot URL and re-lock.",
+          "deliverable": "Project with renv.lock under Git, restore evidence and a note on the snapshot repository choice",
+          "checks": [["Run renv::status() after snapshot()", "Reports No issues found -- the project is in a consistent state", "Console output"], ["Delete renv/library then run renv::restore()", "Packages reinstall at the versions recorded in renv.lock", "Console log"], ["Compare packageVersion(\"dplyr\") with the dplyr entry in renv.lock", "The two version strings match", "Console output and lockfile line"]],
+          "objectives": ["Make an R project reproducible with renv", "Restore an environment on a clean machine", "Use dated repositories for stable installs"]
+        },
+        {
+          "topic": "Publication Graphics: Themes, Annotation and Patchwork",
+          "subtopics": ["Writing a reusable theme function and theme_set()", "Brand colours with scale_*_manual() and named vectors", "ggrepel for non-overlapping labels", "ggtext and element_markdown() for rich text", "patchwork: p1 + p2, p1 / p2, plot_layout() and plot_annotation()", "Shared legends with guides = \"collect\"", "stat_summary() and error bars", "Reference lines, annotate() and geom_label()", "ragg devices and ggsave(device = ragg::agg_png)", "Accessible design: contrast, alt text with labs(alt = ) and colour-blind checks"],
+          "tools": ["ggplot2", "patchwork", "ggrepel", "ragg", "scales"],
+          "lab_task": "Define theme_company() and set it with theme_set(), then build three plots from gapminder 2007 (scatter with ggrepel labels, bar chart of continent medians, life-expectancy line chart), combine them with (p1 | p2) / p3 + plot_annotation(tag_levels = \"A\"), add alt text and save as 3000 x 2000 pixel PNG with ragg.",
+          "deliverable": "A three-panel figure, theme_company() function and an accessibility checklist",
+          "checks": [["Run ggsave(\"fig.png\", width = 10, height = 6.67, dpi = 300, device = ragg::agg_png)", "Creates a 3000 x 2000 pixel PNG", "File properties"], ["Combine plots with p1 + p2 + plot_layout(guides = \"collect\")", "A single shared legend appears", "Plot screenshot"], ["Run nrow(gapminder::gapminder)", "Returns 1704", "Console output"]],
+          "objectives": ["Create reusable organisation themes", "Compose multi-panel figures", "Make charts accessible and print-ready"]
+        },
+        {
+          "topic": "Spatial Data and Maps with sf",
+          "subtopics": ["Simple features and the sf data model", "st_read() and reading GeoPackage, GeoJSON and shapefiles", "Coordinate reference systems: EPSG:4326 versus projected CRS", "st_crs() and st_transform()", "geom_sf() and coord_sf()", "Spatial joins with st_join() and st_intersects()", "st_area(), st_length() and st_distance() with units", "Turning points into sf with st_as_sf(coords = c(\"lon\", \"lat\"), crs = 4326)", "Choropleth maps with scale_fill_viridis_c()", "Interactive maps with leaflet or mapview and S2 geometry notes"],
+          "tools": ["sf", "ggplot2", "leaflet", "tmap", "dplyr"],
+          "lab_task": "Read the bundled North Carolina shapefile with st_read(system.file(\"shape/nc.shp\", package = \"sf\")), check st_crs(), plot AREA with geom_sf(aes(fill = BIR74)), transform to EPSG:32119 and compute county areas with st_area(), then create three points with st_as_sf() and use st_join() to find their counties.",
+          "deliverable": "Map script with a choropleth, an area table in km squared and a point-in-polygon result",
+          "checks": [["Run st_read() on nc.shp", "Reports 100 features and 14 fields with geometry type MULTIPOLYGON", "Console output"], ["Run st_crs(nc)$input", "Returns NAD27 and the data is not in EPSG:4326", "Console output"], ["Run st_transform(nc, 32119) then st_crs()$epsg", "Returns 32119", "Console output"]],
+          "objectives": ["Import and plot spatial data", "Manage coordinate reference systems", "Perform spatial joins and measurements"]
+        },
+        {
+          "topic": "Parameterised Quarto Reports and Websites",
+          "subtopics": ["params in YAML and quarto render -P region:West", "Looping a report over many parameters with purrr and quarto::quarto_render()", "Tabsets, callouts, margin content and layout columns", "Cross-references, citations and bibliographies", "Quarto projects: _quarto.yml and multi-page websites", "Freeze and caching: execute: freeze: auto", "Brand and styling with themes and custom CSS", "Dashboards with format: dashboard", "Publishing with quarto publish gh-pages and Quarto Pub", "Tables with gt and reactable and printing to PDF with Typst"],
+          "tools": ["Quarto", "knitr", "gt", "purrr", "GitHub Pages"],
+          "lab_task": "Create report.qmd with params: region: West, filter a dataset by params$region, then render one HTML per region with purrr::walk() calling quarto::quarto_render(execute_params = list(region = r), output_file = paste0(r, \".html\")). Add _quarto.yml, a gt table and run quarto publish gh-pages.",
+          "deliverable": "Four rendered regional reports, a Quarto website project and a published URL",
+          "checks": [["Run quarto render report.qmd -P region:East", "Creates report.html filtered to East", "Render log"], ["Loop over four regions", "Four distinct HTML files are produced", "Directory listing"], ["Run quarto render twice with execute: freeze: auto", "The second run skips unchanged chunks and finishes faster", "Timing log"]],
+          "objectives": ["Generate reports from parameters", "Build multi-page Quarto sites", "Publish Quarto output"]
+        },
+        {
+          "topic": "Shiny Apps: Reactivity, Inputs and Outputs",
+          "subtopics": ["App structure: ui and server, runApp() and shinyApp()", "Inputs: selectInput, sliderInput, dateRangeInput and fileInput", "Outputs: renderPlot, renderTable, renderText and their *Output pairs", "Reactive graph: reactive(), observe(), observeEvent() and eventReactive()", "Why reactive values can only be read in a reactive context", "req() and validate(need()) for friendly empty states", "reactiveVal() and reactiveValues()", "isolate() and debouncing with debounce()", "Reactlog: options(shiny.reactlog = TRUE) and Ctrl+F3", "Downloads with downloadHandler()"],
+          "tools": ["Shiny", "RStudio", "ggplot2", "reactlog"],
+          "lab_task": "Build an app with a selectInput for species, a sliderInput for bill length and a renderPlot() plus renderTable() of penguins filtered by a shared reactive(). Add req(nrow(data()) > 0), an observeEvent() reset button, a downloadHandler() for CSV and use reactlog to confirm the plot and table invalidate together.",
+          "deliverable": "app.R with working inputs, plot, table and download, and a reactlog screenshot",
+          "checks": [["Select a species and move the slider", "Plot and table update to the same filtered rows", "Screen recording"], ["Filter so no rows remain", "The empty state is shown through req() instead of a red error", "Screenshot"], ["Read input$species at the top level of server", "Error: Operation not allowed without an active reactive context", "Console error"]],
+          "objectives": ["Build reactive Shiny apps", "Understand the reactive dependency graph", "Handle empty and invalid states"]
+        },
+        {
+          "topic": "Shiny Layouts, Modules and bslib Themes",
+          "subtopics": ["bslib page_sidebar(), layout_columns() and cards", "value_box() for headline metrics", "bs_theme() with Bootswatch and bs_add_rules()", "Dark mode with input_dark_mode()", "Why modules: namespacing and duplicate ids", "moduleServer() and NS() patterns", "Passing reactives into modules and returning values", "Testing modules with testServer()", "DT and reactable tables in apps", "Organising code into R/ files and golem versus plain structure"],
+          "tools": ["Shiny", "bslib", "DT", "shinytest2", "golem"],
+          "lab_task": "Refactor the penguins app into a filter module and a plot module with moduleServer(), place them in page_sidebar() with layout_columns() and value_box() for row count, apply bs_theme(bootswatch = \"flatly\"), instantiate the plot module twice and write a testServer() test checking the filtered count.",
+          "deliverable": "Modular Shiny app, a theme, a testServer test and a diagram of module inputs and outputs",
+          "checks": [["Use the same module id twice at the same level", "Error: duplicate ids in the UI and one output fails to render", "Console warning"], ["Instantiate the plot module with ids \"left\" and \"right\"", "Both instances work independently", "Screenshot"], ["Run the testServer() test", "Passes with the expected filtered row count", "Test output"]],
+          "objectives": ["Structure apps with modules", "Build modern layouts with bslib", "Test module logic without a browser"]
+        },
+        {
+          "topic": "Modelling Workflows with tidymodels and broom",
+          "subtopics": ["Scope: the modelling workflow, not statistical theory", "rsample::initial_split() with strata and training() / testing()", "recipes: step_normalize(), step_dummy() and step_impute_median()", "parsnip model specs and set_engine()", "workflows() bundling recipe and model", "fit(), predict() and augment()", "yardstick metrics: rmse(), rsq(), accuracy() and roc_auc()", "vfold_cv() and fit_resamples()", "tune_grid() with a small grid", "broom: tidy(), glance() and augment() for any model"],
+          "tools": ["tidymodels", "broom", "recipes", "yardstick", "parsnip"],
+          "lab_task": "Split mtcars or penguins 80/20 with initial_split(strata =), build a recipe, specify linear_reg() with the lm engine, bundle it in a workflow, fit on training data, compute rmse() and rsq() on test data with yardstick, run 5-fold fit_resamples() and use broom::tidy() to show coefficients.",
+          "deliverable": "Script with the workflow, test and resample metric tables and a tidy coefficient table",
+          "checks": [["Run initial_split(penguins, prop = 0.8)", "Training and testing rows sum to the full row count, about 80 and 20 percent", "Console output"], ["Run vfold_cv(train, v = 5)", "Returns 5 splits", "Tibble output"], ["Run broom::glance() on the model", "Returns a one-row tibble containing r.squared", "Console output"]],
+          "objectives": ["Build reproducible modelling workflows", "Evaluate models on held-out data", "Tidy model output with broom"]
+        },
+        {
+          "topic": "Intermediate Capstone: Documented R Package with a Shiny Dashboard",
+          "subtopics": ["Package a cleaned data-processing layer with tests", "Parameterised Quarto report from the package", "Shiny dashboard module using the package functions", "renv lockfile and a README with install steps", "GitHub Actions running R CMD check", "Release notes and a NEWS.md entry"],
+          "tools": ["usethis", "testthat", "Shiny", "Quarto", "renv", "GitHub Actions"],
+          "lab_task": "Combine the previous days: package at least four tested functions with roxygen docs, add a Shiny dashboard in inst/app using modules, add a parameterised Quarto report, lock with renv, and run usethis::use_github_action(\"check-standard\") so the repository passes R CMD check on Linux, macOS and Windows.",
+          "deliverable": "GitHub repository with the package, tests, dashboard, report, renv.lock and a green check workflow",
+          "checks": [["Run devtools::check()", "0 errors, 0 warnings and 0 notes", "Console summary"], ["Run devtools::test() and covr::package_coverage()", "All tests pass and coverage is 80 percent or higher", "Console output"], ["Push to GitHub", "The check-standard workflow passes on all matrix operating systems", "Actions run page"]],
+          "objectives": ["Integrate package, app and report in one repository", "Automate checks with CI", "Document the project for other users"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced R developers who need fast, reliable and secure R in production. Covers profiling, memory, data.table, Arrow and DuckDB, parallelism, Rcpp, metaprogramming, S7 and vctrs, targets pipelines, production and asynchronous Shiny, plumber APIs, Docker, CI/CD, scheduled jobs, Posit Connect deployment, CRAN release, Python integration, supply-chain security and a production service capstone.",
+      "prerequisites": ["Has built an R package or Shiny app with tests and version control", "Understands functions, environments and S3 classes", "Knows Docker and Git concepts at a working level"],
+      "outcomes": ["Profile and optimise R code for time and memory", "Build, containerise and deploy R APIs, apps and scheduled jobs", "Automate testing, checks and releases in CI", "Secure dependencies, secrets and inputs in production R"],
+      "days": [
+        {
+          "topic": "Profiling and Benchmarking with profvis and bench",
+          "subtopics": ["Measure first: system.time() versus bench::mark()", "bench::mark() output: min, median, itr/sec, mem_alloc and n_gc", "check = TRUE to verify equal results", "profvis::profvis() flame graph and data tab", "Rprof() and summaryRprof() for scripts", "Reading hot spots: self time versus total time", "Growing vectors with c() versus pre-allocation", "Vectorisation versus loops and the cost of repeated rbind()", "Byte-code compilation and the JIT", "Setting performance budgets and regression benchmarks in CI"],
+          "tools": ["bench", "profvis", "Rprof", "RStudio"],
+          "lab_task": "Benchmark three ways of building a 1e5 vector: growing with x <- c(x, i), pre-allocating with numeric(n), and vectorised i^2. Use bench::mark(check = TRUE) to compare time and mem_alloc, profile a slow data-frame loop with profvis, then fix the hot spot and document the speedup factor.",
+          "deliverable": "Benchmark report with the bench table, a profvis screenshot and before-and-after timings",
+          "checks": [["Run bench::mark() on growing versus pre-allocated vectors", "Pre-allocation shows lower median time and far lower mem_alloc", "bench table"], ["Run bench::mark(a, b) where results differ", "Error: Absolute and relative differences listed because results are not equal", "Console error"], ["Open profvis for the slow loop", "One line accounts for the majority of self time in the flame graph", "profvis screenshot"]],
+          "objectives": ["Measure R code reliably", "Locate bottlenecks with a profiler", "Quantify optimisation with reproducible benchmarks"]
+        },
+        {
+          "topic": "Memory, Copy-on-Modify and ALTREP",
+          "subtopics": ["How R stores vectors and attributes in memory", "Copy-on-modify and tracemem()", "lobstr::obj_size(), obj_addr() and mem_used()", "Shared elements: why list sizes are not additive", "ALTREP: obj_size(1:1e9) stays tiny", "Modify-in-place rules for functions and environments", "Garbage collection: gc() and what the numbers mean", "Character vector global string pool", "Reading large files in chunks with readr::read_csv_chunked()", "Avoiding memory blow-ups: removing intermediates, using Arrow and DuckDB"],
+          "tools": ["lobstr", "base R", "bench", "pryr (legacy)"],
+          "lab_task": "With lobstr and tracemem() show when x <- 1:10; y <- x; y[1] <- 99L copies, compare obj_size(1:1e9) with obj_size(runif(1e6)), measure a list sharing an element with obj_size(), run gc() before and after rm(), and process a 2 GB-style file in chunks with read_csv_chunked().",
+          "deliverable": "Memory lab notes with obj_size() values, tracemem() output and a chunked-read example",
+          "checks": [["Run lobstr::obj_size(1:1e9)", "Returns about 680 B because ALTREP stores a compact sequence", "Console output"], ["Run lobstr::obj_size(runif(1e6))", "Returns about 8 MB (8,000,048 B)", "Console output"], ["Run tracemem(y) then y[1] <- 99L", "Prints a tracemem copy message showing a new address", "Console output"]],
+          "objectives": ["Explain copy-on-modify", "Measure object sizes accurately", "Keep memory use bounded on large inputs"]
+        },
+        {
+          "topic": "Large Tabular Data with data.table",
+          "subtopics": ["The [i, j, by] form", "fread() and fwrite() speed", "Update by reference with := and why it differs from dplyr", "Chaining with [][]", ".N, .SD, .SDcols, .I and .GRP", "setkey(), setindex() and on = joins", "Fast aggregations and rolling joins", "Copy semantics: copy() and setDT()", "Reshaping with melt() and dcast()", "dtplyr and tidyverse interoperability"],
+          "tools": ["data.table", "dtplyr", "bench", "fread"],
+          "lab_task": "Generate a 10-million-row table with data.table (id, group, value), compare dplyr::summarise(.by = group), data.table dt[, .(m = mean(value)), by = group] and dtplyr lazy_dt() with bench::mark(), time fread() versus readr::read_csv() on the written file, and show := modifying without copying using tracemem().",
+          "deliverable": "Benchmark table of three engines on 10 million rows and a note on reference semantics",
+          "checks": [["Run dt[, .N, by = group]", "Counts add up to 10000000", "Console output"], ["Run dt2 <- dt; dt2[, z := 1]", "dt also gains column z because := modifies by reference", "Console output"], ["Run bench::mark() across the three engines", "All three give equal aggregate results and data.table has the lowest median time", "bench table"]],
+          "objectives": ["Use data.table syntax for fast aggregation", "Understand update by reference", "Compare engines fairly"]
+        },
+        {
+          "topic": "Larger-than-Memory Analytics with Arrow and DuckDB",
+          "subtopics": ["Columnar formats: Parquet and the Arrow memory model", "write_dataset() with partitioning = c(\"year\", \"month\")", "open_dataset() and lazy dplyr verbs on datasets", "Predicate and column pushdown", "collect() cost and when to stop", "Schemas, schema() and type mismatches across files", "DuckDB reading Parquet and CSV directly with read_parquet()", "to_duckdb() and to_arrow() zero-copy bridges", "Comparing CSV, RDS and Parquet size and read time", "S3 and cloud object storage paths"],
+          "tools": ["arrow", "duckdb", "dplyr", "Parquet"],
+          "lab_task": "Write nycflights13::flights to Parquet partitioned by month with write_dataset(), compare disk size with the CSV, open it with open_dataset(), run a filter, group_by and summarise pipeline and collect() only the result, then run the same query through DuckDB with read_parquet('flights/**/*.parquet').",
+          "deliverable": "Dataset folder with 12 partitions, a size comparison table and equal results from Arrow and DuckDB",
+          "checks": [["Run list.files(\"flights\")", "Shows 12 month=* directories", "Directory listing"], ["Compare file sizes of CSV and Parquet", "Parquet is substantially smaller than the CSV", "Size table"], ["Run the aggregate in Arrow and in DuckDB", "Both return identical carrier counts", "all.equal() output"]],
+          "objectives": ["Store data in partitioned Parquet", "Query datasets lazily with pushdown", "Combine Arrow and DuckDB"]
+        },
+        {
+          "topic": "Parallel and Asynchronous R with future and mirai",
+          "subtopics": ["When parallelism helps: embarrassingly parallel tasks and Amdahl's law", "future::plan(): sequential, multisession and multicore", "furrr::future_map() as a drop-in for map()", "Random numbers in parallel: furrr_options(seed = TRUE) and L'Ecuyer-CMRG", "Globals, packages and what is exported to workers", "parallel::detectCores() and not oversubscribing", "Windows versus Linux: fork versus PSOCK", "mirai: daemons(), mirai() and mirai_map()", "Progress reporting with progressr", "Serialisation overhead and chunk size"],
+          "tools": ["future", "furrr", "mirai", "parallel", "progressr"],
+          "lab_task": "Simulate 200 bootstraps of lm(mpg ~ wt) with map(), then future_map() under plan(multisession, workers = 4), and mirai_map() with daemons(4). Time each, verify results are reproducible with seed = TRUE, and find the task size at which parallel stops paying for overhead.",
+          "deliverable": "Timing table for sequential, future and mirai, and a reproducibility check",
+          "checks": [["Run the bootstrap sequentially and with 4 workers", "Parallel is faster for heavy tasks but slower for very small tasks", "Timing table"], ["Run future_map() twice with furrr_options(seed = 123)", "Both runs give identical results", "identical() output"], ["Run future_map() with random draws and no seed", "Warning: UNRELIABLE VALUE about random numbers without seed", "Console warning"]],
+          "objectives": ["Parallelise independent tasks safely", "Reproduce random results across workers", "Judge when parallelism is worth it"]
+        },
+        {
+          "topic": "Compiled Code with Rcpp and cpp11",
+          "subtopics": ["When R needs C++: loops that cannot be vectorised", "Toolchain: Rtools on Windows and compilers on macOS and Linux", "Rcpp::cppFunction() and sourceCpp()", "// [[Rcpp::export]] and compileAttributes()", "NumericVector, IntegerVector, List and DataFrame types", "NA handling in C++ and R_NaInt", "usethis::use_rcpp() in a package", "cpp11 with [[cpp11::register]] and doubles", "Error handling: stop() and exceptions", "Benchmarking against R and avoiding premature optimisation"],
+          "tools": ["Rcpp", "cpp11", "Rtools", "bench"],
+          "lab_task": "Implement a running-maximum loop in R and in C++ with Rcpp::cppFunction(\"NumericVector cummax_cpp(NumericVector x) {...}\"), check equality with cummax(), benchmark on 1e6 values with bench::mark(), then add the function to a package with usethis::use_rcpp() and call compileAttributes().",
+          "deliverable": "C++ source, the R package wrapper and a benchmark table against pure R and base cummax()",
+          "checks": [["Run all.equal(cummax_cpp(x), cummax(x))", "Returns TRUE", "Console output"], ["Run bench::mark() across three versions", "The C++ version is faster than the R loop and close to base cummax()", "bench table"], ["Call the function with a character vector", "Error: Not compatible with requested type: [type=character; target=double]", "Console error"]],
+          "objectives": ["Write and compile C++ functions for R", "Integrate compiled code into a package", "Benchmark compiled against vectorised R"]
+        },
+        {
+          "topic": "Metaprogramming: Expressions, Quosures and Domain-Specific Languages",
+          "subtopics": ["Code is data: quote(), expr() and bquote()", "Abstract syntax trees with lobstr::ast()", "Calls, symbols and constants", "substitute(), deparse() and match.call()", "eval() with an environment or data mask", "rlang: enquo(), enquos(), !!, !!! and {{ }}", "Quosures and why they carry environments", "Building calls programmatically with call2()", "A small DSL: a rule-based filter language", "Security: never eval(parse(text = user_input))"],
+          "tools": ["rlang", "lobstr", "base R", "RStudio"],
+          "lab_task": "Print lobstr::ast(f(x, y + 1)), write my_summary <- function(df, expr) that uses enquo(expr) and eval_tidy() to evaluate expressions against df, build mean(x) calls with call2() for several columns, and implement a mini DSL that turns \"age > 30 & city == 'Leeds'\" into a safe filter by parsing allowed symbols only.",
+          "deliverable": "Script with an AST dump, a data-masking helper and a whitelist-based DSL evaluator",
+          "checks": [["Run my_summary(mtcars, mean(mpg))", "Returns 20.09062", "Console output"], ["Run call2(\"mean\", quote(x), na.rm = TRUE)", "Prints mean(x, na.rm = TRUE)", "Console output"], ["Evaluate a DSL string containing system(\"ls\")", "Rejected with an error because the function is not allowlisted", "Console error"]],
+          "objectives": ["Inspect and construct R code as data", "Write data-masking functions", "Evaluate user expressions safely"]
+        },
+        {
+          "topic": "Modern Types with S7 and vctrs",
+          "subtopics": ["Why S7: formal classes with S3 compatibility", "new_class() with properties and types", "validator functions and prop() access", "new_generic() and method()", "Multiple dispatch", "Constructors, convert() and inheritance with parent =", "Compatibility with S3 and S4 and migrating", "vctrs: vec_ptype(), vec_cast() and vec_ptype2()", "Custom vector classes with new_vctr() and format methods", "Using vctrs types inside tibbles"],
+          "tools": ["S7", "vctrs", "rlang", "tibble"],
+          "lab_task": "Define an S7 class Temperature with a numeric value and a unit validator, a generic to_celsius() with methods for Celsius, Fahrenheit and Kelvin, then create a vctrs-based temperature vector with new_vctr(), implement vec_ptype2() and vec_cast() for combining, and put it in a tibble.",
+          "deliverable": "S7 class definition, a vctrs vector class and tests for casting and combining",
+          "checks": [["Create Temperature(value = \"hot\")", "Error from S7 type check: value must be numeric", "Console error"], ["Run to_celsius(Temperature(212, \"F\"))", "Returns 100", "Console output"], ["Combine the vctrs temperature with a double using vec_c()", "Result follows your vec_ptype2() rule or errors with can't combine", "Console output"]],
+          "objectives": ["Create formal classes with S7", "Design vector types with vctrs", "Choose a class system for a new package"]
+        },
+        {
+          "topic": "Reproducible Pipelines with targets",
+          "subtopics": ["Why pipelines: skipping up-to-date work and tracking dependencies", "_targets.R, tar_target() and tar_option_set(packages = )", "tar_make() and the _targets/ store", "tar_read(), tar_load() and tar_meta()", "tar_visnetwork() and tar_outdated()", "File targets with format = \"file\"", "Dynamic branching: pattern = map(x)", "Static branching with tarchetypes::tar_map()", "Parallel execution with crew controllers", "Quarto and tar_quarto() reports and tar_cue() options"],
+          "tools": ["targets", "tarchetypes", "crew", "Quarto"],
+          "lab_task": "Convert the capstone analysis into a targets pipeline with a file target for raw data, targets for cleaning, a model per region using pattern = map(region) and a Quarto report. Run tar_make(), change one cleaning function, run tar_outdated() and tar_make() again, and compare which targets rebuild.",
+          "deliverable": "A _targets.R pipeline, a dependency graph image and a log showing selective rebuilds",
+          "checks": [["Run tar_make() twice with no changes", "Second run reports all targets skipped", "Console log"], ["Edit the cleaning function and run tar_outdated()", "Lists the cleaning target and everything downstream, but not the raw file target", "Console output"], ["Run tar_make(callr_function = NULL) after adding an error", "The failing target is named and earlier targets remain stored", "Console log"]],
+          "objectives": ["Build dependency-aware pipelines", "Branch over data subsets", "Rebuild only what changed"]
+        },
+        {
+          "topic": "Shiny in Production: Performance, Testing and Hardening",
+          "subtopics": ["Profiling Shiny with profvis and reactlog", "Caching with bindCache() and cache keys", "Moving heavy work out of the reactive graph", "Debouncing, throttling and updateXxx() patterns", "Connection pools with pool and avoiding global connections", "shinytest2: AppDriver, record_test() and snapshots", "Load testing with shinyloadtest and shinycannon", "Input validation and avoiding eval() on input", "options(shiny.sanitize.errors = TRUE)", "Authentication, authorisation and session$user"],
+          "tools": ["Shiny", "shinytest2", "shinyloadtest", "profvis", "pool"],
+          "lab_task": "Take the capstone dashboard, add bindCache() to the slow plot, record a shinytest2 test with AppDriver$new() that sets input$species and expects a snapshot, then record a session and replay it with shinycannon at 1, 5 and 20 workers and compare p95 latency before and after caching.",
+          "deliverable": "Shiny app with caching, one shinytest2 test and a load-test report with p95 latency",
+          "checks": [["Run the shinytest2 test", "Passes and a stored snapshot is compared on later runs", "Test output"], ["Load test at 20 workers before and after bindCache()", "p95 latency is lower after caching", "shinyloadtest report"], ["Set options(shiny.sanitize.errors = TRUE) and trigger an error", "The browser shows a generic message while the server log keeps the details", "Screenshot and log"]],
+          "objectives": ["Speed up Shiny apps with caching and profiling", "Automate UI tests", "Load-test and harden an app"]
+        },
+        {
+          "topic": "Asynchronous Shiny with ExtendedTask and promises",
+          "subtopics": ["Why one R process blocks every user in a Shiny session", "promises and future_promise() with %...>%", "ExtendedTask$new() and invoke()", "Task status: $status(), $result() and error handling", "bind_task_button() and disabling buttons while running", "mirai integration for non-blocking tasks", "Progress bars with Progress and withProgress()", "Cancelling and timeouts", "Passing data safely: reactive values must be read before the async call", "Scaling: multiple R processes and sticky sessions"],
+          "tools": ["Shiny", "promises", "future", "mirai", "bslib"],
+          "lab_task": "Add a 10-second simulated report to the Shiny app using ExtendedTask$new(function(n) mirai::mirai(...)) or future_promise(), a bind_task_button(), and a status display. Open two browser sessions, start the task in one, and show that the second stays responsive; then cause an error and show it surfaces in the UI.",
+          "deliverable": "App with an asynchronous task, a responsiveness demonstration and an error-handling path",
+          "checks": [["Click Run in session A and use a widget in session B", "Session B responds immediately while A is running", "Screen recording"], ["Replace the async call with Sys.sleep(10) in a normal reactive", "Session B freezes until the task ends", "Screen recording"], ["Make the task call stop(\"boom\")", "The UI shows the error message and the button returns to its ready state", "Screenshot"]],
+          "objectives": ["Run long tasks without blocking other users", "Use ExtendedTask correctly", "Surface task errors to the user"]
+        },
+        {
+          "topic": "Serving R as APIs with plumber and vetiver",
+          "subtopics": ["Annotated endpoints: #* @get, #* @post, #* @param", "pr(), pr_run() and plumb()", "Serialisers and returning JSON", "Filters, error handling and status codes with res$status", "OpenAPI spec at /openapi.json and docs at /__docs__/", "Request validation and 400 responses", "Authentication via headers and secrets from the environment", "vetiver_model(), vetiver_pin_write() and vetiver_api()", "Testing endpoints with httr2 and testthat", "Statelessness, concurrency limits and when to use another stack"],
+          "tools": ["plumber", "vetiver", "httr2", "pins", "testthat"],
+          "lab_task": "Create plumber.R with GET /health returning {\"status\":\"ok\"} and POST /predict that accepts JSON with wt and hp, validates them (400 on missing), and returns a prediction from a saved lm. Run it on port 8000, test with curl and an httr2 test, and publish the model with vetiver_api().",
+          "deliverable": "plumber API with two endpoints, an OpenAPI page screenshot and automated endpoint tests",
+          "checks": [["Run curl http://localhost:8000/health", "Returns HTTP 200 with {\"status\":\"ok\"}", "curl output"], ["POST /predict with wt missing", "Returns HTTP 400 and an error message naming wt", "curl output"], ["Open http://localhost:8000/__docs__/", "Swagger UI lists both endpoints", "Screenshot"]],
+          "objectives": ["Expose R functions as REST endpoints", "Validate requests and return correct status codes", "Document and test an API"]
+        },
+        {
+          "topic": "Containerised R Deployment with Docker and rocker",
+          "subtopics": ["Rocker images: r-ver, rstudio, shiny and verse", "Pinning the R version and using a dated package snapshot", "Using renv.lock in the build: renv::restore() layer caching", "System libraries: libcurl, libssl and libxml2 for common packages", "Multi-stage builds to shrink images", "Running as a non-root USER", "EXPOSE, CMD and binding to 0.0.0.0", "HEALTHCHECK against /health", "Image size checks with docker image ls and docker history", "Environment configuration and secrets at runtime with -e and secret mounts"],
+          "tools": ["Docker", "rocker", "renv", "Posit Package Manager"],
+          "lab_task": "Write a Dockerfile starting from a pinned rocker/r-ver tag that copies renv.lock, runs renv::restore(), copies plumber.R and runs plumber::pr_run on 0.0.0.0:8000 as a non-root user. Build it, run it with docker run --rm -p 8000:8000, check /health, and compare build time with and without a cached renv layer.",
+          "deliverable": "Dockerfile, a .dockerignore, build logs and a note on image size and cache behaviour",
+          "checks": [["Run docker build -t r-api:1.0 .", "Build succeeds and the renv::restore() layer is reused when only plumber.R changes", "Build log"], ["Run docker run --rm -p 8000:8000 r-api:1.0 and call /health", "Returns HTTP 200", "curl output"], ["Run docker run --rm r-api:1.0 id -u", "Prints a non-zero UID, confirming the container does not run as root", "Terminal output"]],
+          "objectives": ["Build reproducible R images", "Optimise layers and image size", "Run containers with least privilege"]
+        },
+        {
+          "topic": "CI/CD for R Packages and Projects with GitHub Actions",
+          "subtopics": ["usethis::use_github_action(\"check-standard\")", "r-lib/actions: setup-r, setup-r-dependencies and check-r-package", "Matrix builds across Linux, macOS and Windows and R release, devel and oldrel", "setup-renv for renv projects and dependency caching", "Test coverage upload to Codecov", "pkgdown site deployment to GitHub Pages", "Linting with lintr and formatting with styler", "Secrets and permissions in workflows", "Docker image build and push on tag", "Branch protection and required checks"],
+          "tools": ["GitHub Actions", "r-lib/actions", "lintr", "styler", "pkgdown"],
+          "lab_task": "Add check-standard, test-coverage and pkgdown workflows to the capstone repository, add a lintr job, make a deliberate failing test to confirm the workflow turns red, fix it, and configure branch protection so a pull request cannot merge until R-CMD-check passes on all matrix entries.",
+          "deliverable": "Three workflow files, screenshots of a red then green run and the branch-protection rule",
+          "checks": [["Push a failing test", "The R-CMD-check job fails on every matrix entry", "Actions run"], ["Push the fix", "All matrix jobs pass and the workflow is green", "Actions run"], ["Open a pull request with a failing check", "Merge is blocked by branch protection", "Pull request screenshot"]],
+          "objectives": ["Automate package checks across platforms", "Publish documentation and coverage", "Enforce quality gates on merges"]
+        },
+        {
+          "topic": "Configuration, Logging and Scheduling Production R Scripts",
+          "subtopics": ["Rscript, commandArgs(trailingOnly = TRUE) and argument parsing with optparse or argparse", "Exit codes: quit(status = 1) and failing loudly", "Configuration with config.yml and R_CONFIG_ACTIVE", "Environment variables: Sys.getenv(), .Renviron and no secrets in code", "Structured logging with the logger package: log_info(), log_threshold(), JSON layout", "cli for user messages and progress", "options(warn = 2) for strict runs", "Retries and idempotent jobs", "Scheduling with cron, Windows Task Scheduler and Posit Connect schedules", "Monitoring outputs: row counts, file freshness and alerts"],
+          "tools": ["Rscript", "config", "logger", "cli", "cron"],
+          "lab_task": "Convert the capstone ETL into etl.R that accepts --date, reads config.yml with default and production blocks, logs JSON lines with logger to a file, exits with status 1 on any error, and is scheduled with a cron entry. Run it with a valid and an invalid date and check $? and the log.",
+          "deliverable": "etl.R, config.yml, a log file with JSON lines and a cron entry",
+          "checks": [["Run Rscript etl.R --date 2026-03-01 and echo $?", "Prints 0 and logs a row-count message", "Terminal output"], ["Run Rscript etl.R --date notadate and echo $?", "Prints 1 and logs an error entry", "Terminal output"], ["Set R_CONFIG_ACTIVE=production", "The script reads the production database and output paths", "Log line"]],
+          "objectives": ["Make scripts configurable and scriptable", "Log structured events and exit codes", "Schedule jobs reliably"]
+        },
+        {
+          "topic": "Deployment to Posit Connect and shinyapps.io",
+          "subtopics": ["Deployment targets: Posit Connect, shinyapps.io, Shiny Server and ShinyProxy", "rsconnect::deployApp(), deployDoc() and deployAPI()", "manifest.json with rsconnect::writeManifest() and git-backed deployment", "Account and server setup: setAccountInfo() and addServer()", "API keys and the connectapi package", "Environment variables and vanity URLs on the server", "Scheduled and parameterised Quarto reports on Connect", "Access control: viewers, collaborators and groups", "quarto publish connect", "Rollback, logs and versioned bundles"],
+          "tools": ["Posit Connect", "rsconnect", "connectapi", "shinyapps.io", "Quarto"],
+          "lab_task": "Deploy the dashboard to shinyapps.io with rsconnect::setAccountInfo() and deployApp(), add an environment variable through the dashboard, generate manifest.json with writeManifest(), publish a Quarto report with quarto publish, deploy a second version, view logs and roll back to the previous bundle.",
+          "deliverable": "Deployed app URL, manifest.json and a log showing a version rollback",
+          "checks": [["Run rsconnect::deployApp()", "Ends with a published URL and the app loads in the browser", "Console output and screenshot"], ["Read Sys.getenv(\"API_BASE\") in the app", "Returns the value configured in the server settings, not the local value", "App display"], ["Redeploy a broken version then roll back", "Previous bundle serves traffic again", "Server bundle list"]],
+          "objectives": ["Deploy R apps and reports to a managed server", "Manage environment variables and access", "Roll back safely"]
+        },
+        {
+          "topic": "Releasing to CRAN: R CMD check, Versioning and Maintenance",
+          "subtopics": ["CRAN policies and what to expect from maintainers", "R CMD build, R CMD check --as-cran and devtools::check()", "Common NOTEs: no visible binding, New submission and unstated dependencies", "Examples and tests run time limits and skip_on_cran()", "Checking on other platforms: check_win_devel(), rhub::rhub_check() and urlchecker::url_check()", "DESCRIPTION: Authors@R, Title case, Description and License", "cran-comments.md and submitting with devtools::submit_cran()", "Semantic versioning, NEWS.md and lifecycle badges with lifecycle::deprecate_warn()", "Reverse dependency checks with revdepcheck", "Maintenance: responding to CRAN emails and yearly updates"],
+          "tools": ["devtools", "rhub", "urlchecker", "revdepcheck", "lifecycle"],
+          "lab_task": "Take salestools to submission readiness: run devtools::check(cran = TRUE) until 0 errors, 0 warnings and only the New submission note, run check_win_devel() and rhub::rhub_check(), run urlchecker::url_check(), write cran-comments.md and NEWS.md, and deprecate one function with lifecycle::deprecate_warn().",
+          "deliverable": "Submission-ready tarball, cran-comments.md, check logs from two platforms and a deprecation example",
+          "checks": [["Run devtools::check(cran = TRUE)", "0 errors, 0 warnings and at most 1 note (New submission)", "Check summary"], ["Run urlchecker::url_check()", "Reports no broken or redirected URLs", "Console output"], ["Call the deprecated function", "Warns once with a lifecycle message pointing to the replacement", "Console warning"]],
+          "objectives": ["Prepare a package for CRAN", "Fix common check issues", "Version and deprecate responsibly"]
+        },
+        {
+          "topic": "Python Integration with reticulate and Quarto",
+          "subtopics": ["When to mix R and Python and when not to", "Python environments: virtualenv, conda and py_require()", "import(), source_python() and py_run_string()", "Type conversion for vectors, lists, data frames and NumPy arrays", "Zero-copy sharing with Arrow", "Sharing objects in Quarto: py$x from R and r.x from Python", "Python chunks and the Jupyter engine in Quarto", "Calling R from Python with rpy2 and Rscript", "Deploying mixed-language projects with pinned environments", "Debugging errors across the language boundary"],
+          "tools": ["reticulate", "Python", "Quarto", "arrow", "uv"],
+          "lab_task": "Create a Python environment with reticulate, import pandas, build a data frame in Python and read it in R with py$df, train a scikit-learn model in a Python chunk, plot the predictions in an R ggplot2 chunk, render a Quarto document containing both, and record how the environment is pinned.",
+          "deliverable": "Quarto document mixing R and Python chunks and an environment file",
+          "checks": [["Run reticulate::py_config()", "Shows the Python path and version being used", "Console output"], ["Pass a pandas DataFrame to R through py$df", "R receives a data.frame with identical row count and column names", "Console output"], ["Render the mixed document on a clean machine", "Completes using the pinned environment with no missing module errors", "Render log"]],
+          "objectives": ["Share data between R and Python", "Manage Python environments from R", "Render mixed-language reports"]
+        },
+        {
+          "topic": "Supply-Chain Security and Secrets in R Projects",
+          "subtopics": ["Threat model: package sources, install scripts, data files and credentials", "CVE-2024-27322 and why readRDS() on untrusted files is risky", "Auditing dependencies with pak::pkg_deps(), renv::status() and oysteR", "Repository integrity: HTTPS repos and dated snapshots", "Pinning with renv.lock and reviewing lockfile diffs", "Secrets: keyring, .Renviron outside Git and httr2::secret_encrypt()", "Secret scanning in Git history with gitleaks", "SQL and code injection in apps: parameters, glue_sql() and no eval()", "Least-privilege database users and API tokens", "Incident response: rotating credentials and rebuilding images"],
+          "tools": ["renv", "oysteR", "keyring", "gitleaks", "pak"],
+          "lab_task": "Audit the capstone: run oysteR::audit_installed_r_pkgs(), review renv.lock changes with git diff, move credentials to keyring or .Renviron, add .Renviron to .gitignore, scan history with gitleaks detect, replace one string-built SQL query with params = list(), and write a short remediation report.",
+          "deliverable": "Security audit with scan outputs, fixed code and a prioritised remediation list",
+          "checks": [["Run gitleaks detect on the repository", "Reports 0 leaks after credentials are removed and rotated", "gitleaks report"], ["Search the code for paste() inside dbGetQuery()", "No string-built SQL remains and a params = list() query returns the same rows", "grep output and query result"], ["Run renv::status()", "Reports no drift between library and lockfile", "Console output"]],
+          "objectives": ["Audit R dependencies and data files", "Manage secrets safely", "Remove injection risks from R code"]
+        },
+        {
+          "topic": "Advanced Capstone: Production R Analytics Service",
+          "subtopics": ["Architecture: targets pipeline, Parquet store, plumber API and Shiny front end", "Dockerised deployment with renv and a non-root user", "CI/CD with tests, lintr and image build", "Performance budget: profiled and benchmarked hot spots", "Security review: secrets, injection and dependency audit", "Runbook with logging, scheduling, monitoring and rollback"],
+          "tools": ["targets", "plumber", "Shiny", "Docker", "GitHub Actions", "Posit Connect"],
+          "lab_task": "Build a production-style R service: a targets pipeline writes Parquet, a plumber API serves a model, and a Shiny app consumes it. Containerise with Docker, add GitHub Actions for check, tests and image build, benchmark one hot path with bench, run a secret scan, and write a runbook with deployment and rollback steps.",
+          "deliverable": "Repository with pipeline, API, app, Dockerfile, workflows, benchmark report, security scan and runbook",
+          "checks": [["Run docker compose up and call /health, /predict and open the app", "All three respond and the app displays API results", "Terminal output and screenshot"], ["Push a change", "CI passes tests, lintr and image build", "Actions run"], ["Follow the runbook rollback step", "Previous image tag is restored and /health returns 200", "Terminal output"]],
+          "objectives": ["Integrate pipeline, API and app into one service", "Prove performance, security and deployability", "Document operations for other teams"]
+        }
+      ]
+    }
+  }
+}
