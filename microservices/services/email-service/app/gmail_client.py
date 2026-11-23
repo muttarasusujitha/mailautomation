@@ -376,7 +376,7 @@ def send_gmail_oauth(
         logger.exception("Gmail OAuth send failed to %s", to)
         if is_send_quota_error(exc) and settings.effective_gmail_fallback_pass:
             logger.warning("Primary Gmail OAuth sender hit quota; retrying with fallback SMTP sender")
-            return send_smtp(
+            fallback_success, fallback_error = send_smtp(
                 to,
                 subject,
                 body,
@@ -392,6 +392,13 @@ def send_gmail_oauth(
                 attachments=attachments,
                 message_id_header=message_id_header,
             )
+            if fallback_success:
+                return True, ""
+            # Preserve Google's retry timestamp even when the SMTP fallback
+            # has a separate transport problem.  Workflow callers use it to
+            # defer the next attempt rather than marking the message as a
+            # permanent manual failure or repeatedly retrying immediately.
+            return False, f"{_friendly_send_error(exc)} SMTP fallback failed: {fallback_error}"
         return False, _friendly_send_error(exc)
 
 
@@ -717,8 +724,7 @@ def check_gmail_api_replies(
     """Poll Gmail API inbox for recent messages using OAuth."""
     service, error = _load_oauth_service()
     if not service:
-        logger.warning("Gmail API check skipped: %s", error)
-        return []
+        raise RuntimeError(f"Gmail API inbox polling is unavailable: {error or 'OAuth service could not be loaded'}")
 
     if search_query:
         query = search_query
@@ -739,9 +745,10 @@ def check_gmail_api_replies(
             query_parts.append("(" + " OR ".join(f"from:{sender}" for sender in sender_filters[:100]) + ")")
         else:
             query_parts.append(
-                '("training requirement" OR "trainer requirement" OR "requirement for" OR '
-                '"please share suitable trainer" OR "trainer profiles" OR "commercials" OR "TOC" OR '
-                'interview OR selected OR approved OR proceed OR rejected OR availability OR slot)'
+                '(training OR trainer OR trainers OR requirement OR requirements OR instructor OR '
+                'facilitator OR batch OR workshop OR course OR "corporate learning" OR '
+                'commercials OR TOC OR interview OR selected OR approved OR proceed OR '
+                'rejected OR availability OR slot)'
             )
         query = " ".join(query_parts)
 
@@ -754,6 +761,7 @@ def check_gmail_api_replies(
             maxResults=max(1, min(max_messages, 500)),
         ).execute()
         messages = response.get("messages") or []
+        logger.info("Gmail API inbox query returned %s message(s)", len(messages))
         for item in messages[:max_messages]:
             gmail_id = item.get("id")
             if not gmail_id:
@@ -875,6 +883,7 @@ def check_gmail_api_replies(
                     break
                 logger.exception("Gmail API message fetch failed for %s", gmail_id)
                 continue
-    except Exception:
+    except Exception as exc:
         logger.exception("Gmail API inbox check failed")
+        raise RuntimeError(f"Gmail API inbox check failed: {exc}") from exc
     return replies

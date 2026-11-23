@@ -29,6 +29,7 @@ def test_fresh_browser_check_saves_only_verified_search_and_always_closes(ready,
     monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
     playwright = MagicMock()
     context = playwright.chromium.launch_persistent_context.return_value
+    context.new_page.return_value.goto.return_value.status = 200
     with patch('app.linkedin_authenticate.load_session', return_value=[]), \
             patch('app.linkedin_authenticate.search_ready', return_value=ready), \
             patch('app.linkedin_authenticate.save_session') as save:
@@ -43,3 +44,20 @@ def test_fresh_browser_check_saves_only_verified_search_and_always_closes(ready,
     target = context.new_page.return_value.goto.call_args.args[0]
     assert '/search/results/people/' in target
     assert 'sap+trainer' in target
+
+
+@pytest.mark.parametrize('status', [403, 429, 500, None])
+def test_failed_search_response_never_verifies_or_clears_block(status, tmp_path, monkeypatch):
+    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+    playwright = MagicMock()
+    context = playwright.chromium.launch_persistent_context.return_value
+    context.new_page.return_value.goto.return_value = None if status is None else MagicMock(status=status)
+    with patch('app.linkedin_authenticate.load_session', return_value=[]), \
+            patch('app.linkedin_authenticate.search_ready', return_value=True), \
+            patch('app.linkedin_authenticate.save_session') as save, \
+            patch('app.linkedin_authenticate.clear_session_block') as clear:
+        with pytest.raises(ValueError, match='HTTP'):
+            verify_search(playwright, 'Python', 'trainer')
+        save.assert_not_called()
+        clear.assert_not_called()
+    context.close.assert_called_once()

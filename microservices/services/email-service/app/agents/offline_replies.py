@@ -227,6 +227,12 @@ def _is_signature_paragraph(paragraph: str) -> bool:
 def _sentence_leaks_secret(sentence: str, forbidden_tokens: List[str]) -> bool:
     if sentence.lower().startswith("we cannot share"):
         return False
+    if re.fullmatch(
+        r"AWS Mumbai pricing will be used if no cloud provider is specified\.",
+        sentence.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return False
     if any(pattern.search(sentence) for pattern in _SECRET_PHRASES):
         return True
     if re.search(r"(?i)\bclient(?:'s|s)?\s+budget\b", sentence) and not sentence.lower().startswith("we cannot share"):
@@ -715,5 +721,47 @@ async def reply_for_stored_message(db: Any, email_doc: Dict[str, Any]) -> Dict[s
         requirement = await _optional_find(db, "requirements", {"requirement_id": requirement_id})
     elif extracted.get("client_email"):
         requirement = await _optional_find(db, "requirements", {"client_email": extracted.get("client_email")})
+    engine_reply = _first_requirement_engine_reply(email_doc, subject, message, current_extracted, requirement)
+    if engine_reply:
+        return engine_reply
     merged = merge_client_facts(extracted, requirement, message)
     return offline_client_requirement_reply(merged, message)
+
+
+def _first_requirement_engine_reply(
+    email_doc: Dict[str, Any],
+    subject: str,
+    message: str,
+    extracted: Dict[str, Any],
+    requirement: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Regenerate a first requirement reply with the same templates as the automatic reply.
+
+    Later messages in a thread keep the thread-aware template above. Facts come
+    from the current email only and are checked against its text.
+    """
+    from app.agents.reply_precheck import build_reply_plan, check_reply, is_vendor_pitch, render_plan_reply
+    from app.routes.inbox import _is_reply_thread, _requirement_flow_from_email
+
+    if not extracted.get("is_training_request") or extracted.get("is_non_client_email"):
+        return {}
+    if _is_reply_thread(subject, email_doc) or is_vendor_pitch(message):
+        return {}
+    stored_flow = _text(requirement.get("batch_flow") or requirement.get("batch_type")).lower()
+    if stored_flow in {"confirmed", "proposal"}:
+        batch = stored_flow
+    else:
+        batch = _requirement_flow_from_email(extracted, message)
+    plan = build_reply_plan(
+        message, extracted, batch, email_doc.get("from_name") or "",
+        subject=subject, seed=_text(email_doc.get("email_id")),
+    )
+    body = render_plan_reply(plan)
+    if check_reply(body, plan):
+        return {}
+    clean_subject = re.sub(r"^\s*(?:re|fw|fwd)\s*:\s*", "", subject, flags=re.IGNORECASE)
+    return {
+        "subject": f"Re: {clean_subject}" if clean_subject else "Re: Training Requirement",
+        "body": body,
+        "template_key": "personalization_engine",
+    }

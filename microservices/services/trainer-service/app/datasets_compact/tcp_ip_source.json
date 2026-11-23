@@ -1,6 +1,6 @@
 {
   "domain": "TCP/IP",
-  "name": "TCP/IP â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "TCP/IP – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "TCP/IP Networking",
     "Internet Protocol Suite"
@@ -27,9 +27,6 @@
         "Use cases",
         "Threats or failure modes",
         "Lab setup",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
         "OSI/TCP-IP models",
         "Ethernet",
         "ARP",
@@ -113,22 +110,7 @@
         "Addressing/identity concepts",
         "State",
         "Control plane/data plane",
-        "Common configurations",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Common configurations"
       ],
       "tools": [
         "Wireshark",
@@ -200,22 +182,7 @@
         "Scalability",
         "Trust boundaries",
         "Failure domains",
-        "Cloud considerations",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Cloud considerations"
       ],
       "tools": [
         "Wireshark",
@@ -287,22 +254,7 @@
         "Certificates/keys",
         "Hardening",
         "Least privilege",
-        "Logging and auditing",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Logging and auditing"
       ],
       "tools": [
         "Wireshark",
@@ -374,22 +326,7 @@
         "Common faults",
         "Diagnostic commands",
         "Alerting",
-        "Incident workflow",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Incident workflow"
       ],
       "tools": [
         "Wireshark",
@@ -462,22 +399,7 @@
         "Change control",
         "Versioning",
         "Testing",
-        "Operational runbooks",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Operational runbooks"
       ],
       "tools": [
         "Wireshark",
@@ -549,22 +471,7 @@
         "Performance",
         "High availability",
         "Disaster recovery",
-        "Cost considerations",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Cost considerations"
       ],
       "tools": [
         "Wireshark",
@@ -638,22 +545,7 @@
         "Testing",
         "Monitoring",
         "Troubleshooting",
-        "Documentation",
-        "TCP/IP terminology and feature mapping for this topic",
-        "TCP/IP configuration and implementation considerations",
-        "TCP/IP best practices and common mistakes for this topic",
-        "OSI/TCP-IP models",
-        "Ethernet",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "subnetting",
-        "TCP",
-        "UDP",
-        "ICMP",
-        "ports",
-        "routing",
-        "NAT"
+        "Documentation"
       ],
       "tools": [
         "Wireshark",
@@ -722,5 +614,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

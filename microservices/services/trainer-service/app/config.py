@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     INTERNAL_SERVICE_TOKEN: str = ""
 
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"

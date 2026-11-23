@@ -89,6 +89,7 @@ Thumbs.db
 !/frontend/src/pages/TrainerApplications.jsx
 !/frontend/src/pages/ClientPortal.jsx
 !/frontend/src/pages/PartnerOpportunities.jsx
+!/frontend/src/pages/TravelBookings.jsx
 
 # Logs and runtime
 .scannerwork/
@@ -97,3 +98,6 @@ htmlcov/
 # Ignore sensitive email service OAuth token config
 microservices/services/email-service/config/token.json
 microservices/services/intelligence-service/naukri-bot-profile/
+
+# Model drafts for level-course modules (applied content lives in datasets_levels)
+microservices/services/trainer-service/curriculum_module_drafts/

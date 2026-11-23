@@ -1,12 +1,11 @@
 # Client package workflow
 
 1. A linked trainer reply supplies profile information and three dated interview options. Mail 1 asks the trainer to confirm the offered commercials or provide a proposed rate.
-2. The inbox calls `POST /api/v1/shortlists/send-client-slots` to prepare the package. Despite the legacy route name, this does not authorize a new delivery. A legacy `approved: true` field cannot bypass review.
-3. The trainer service saves the complete email and attachments in `client_handoff_packages`. Profile and ToC are required; lab cost is required only when requested by the client. A requested document failure leaves preparation incomplete and reports the upstream error.
-4. In either Shortlist page, choose **Review client package**. Review the recipient, commercials, slots, email and downloadable documents. **Rebuild from latest details** is available before approval and creates a new version.
-5. **Approve & send to client** submits the reviewed package ID. A stale version or changed client recipient is rejected. Email wording and attachments are frozen after approval. The email service owns the single delivery log and persistent idempotency key.
-6. Approved failures are retained in the database and retried by the trainer service every 30 seconds when their retry window is due (five minutes after a failed attempt). A three-minute worker lease prevents competing retries and recovers after a process crash. Unapproved packages are never sent by this worker.
-7. Only a reply from the linked client after a delivered handoff can select a slot. Existing calendar handling creates the meeting with both client and trainer as attendees.
+2. The inbox calls `POST /api/v1/shortlists/send-client-slots`. The trainer service validates the reply, builds the package, marks it approved for this automated workflow, and immediately attempts delivery. There is no manual approval step in this path. The review panel lets the team view the saved package and delivery status.
+3. The trainer profile, ToC, lab-cost workbook, and interview slots are included as one package. If participant count or lab hours are missing, the workbook uses the approved one-participant / three-hour baseline and the email discloses those assumptions. Document-generation failures prevent the email from being sent.
+4. The email wording and attachments are frozen in `client_handoff_packages`. Email service owns the single delivery log and persistent idempotency key, so retries reuse the same package and do not intentionally send duplicates.
+5. Transient send failures are retained and retried by the trainer service every 30 seconds once their retry window is due (five minutes after a failed attempt). A three-minute worker lease prevents competing retries and recovers after a process crash.
+6. A reply from the linked client can select a slot only after a delivered handoff. Existing calendar handling creates the meeting with both client and trainer as attendees.
 
 ## Deploy local changes
 

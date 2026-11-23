@@ -20,7 +20,7 @@ export function leadSearchWarnings(data) {
   return messages
 }
 
-export const AUTOMATIC_LINKEDIN_DOMAINS = ['Python', 'AWS']
+export const AUTOMATIC_LINKEDIN_DOMAINS = ['Python']
 
 export function linkedInSearchDomains(domainText) {
   const entered = String(domainText || '')
@@ -38,7 +38,7 @@ export function linkedInSearchPayload(mode, domainText) {
     source: 'linkedin',
     mode: trainerSearch ? 'trainer' : 'client',
     domains: linkedInSearchDomains(domainText),
-    max_results: trainerSearch ? 60 : 50,
+    max_results: trainerSearch ? 100 : 50,
     save: true,
     max_queries: trainerSearch ? 8 : 2,
     max_domains: 4,
@@ -78,6 +78,44 @@ export function outcomeLine(outcome = {}) {
       ? ' Partial results; the target is not guaranteed.'
       : ' Target not reached.'
   return `${outcome.domain}: ${matched} found (target: ${target}).${gap}`
+}
+
+const SOURCE_STATUS_TEXT = {
+  ok: 'worked',
+  filtered: 'results did not match',
+  no_results: 'no profiles',
+  blocked: 'blocked',
+  paused: 'paused',
+  error: 'not answering',
+  not_configured: 'not configured',
+  not_needed: 'not needed',
+  not_run: 'not run',
+}
+
+// One line per search source, e.g. "Bing: worked, 18 matching profiles".
+export function sourceReportLines(outcome = {}) {
+  const sources = Array.isArray(outcome.sources) ? outcome.sources : []
+  return sources.map(source => {
+    const status = SOURCE_STATUS_TEXT[source?.status] || source?.status || 'unknown'
+    const count = Number(source?.qualified) || 0
+    const found = count ? `, ${count} matching profile${count === 1 ? '' : 's'}` : ''
+    const reason = source?.status !== 'ok' && source?.reason ? ` (${source.reason})` : ''
+    return {
+      key: source?.source || source?.label,
+      ok: source?.status === 'ok',
+      text: `${source?.label || source?.source}: ${status}${found}${reason}`,
+    }
+  })
+}
+
+export function leadSourceLabel(lead = {}) {
+  if (lead.discovery_provider === 'public_fallback') return 'Public indexed search fallback'
+  if (lead.discovery_provider === 'trainer_finder') {
+    const engines = Array.isArray(lead.found_by) ? lead.found_by.join(', ') : ''
+    return engines ? `Web search (${engines})` : 'Web search'
+  }
+  if (lead.discovery_provider === 'linkedin_account') return 'LinkedIn account'
+  return lead.source || 'Public Search'
 }
 
 export function collectionOutcomeLines(outcomes) {

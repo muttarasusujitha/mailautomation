@@ -1,0 +1,573 @@
+{
+  "domain": "PyTorch",
+  "name": "Deep Learning with PyTorch",
+  "category": "Data Science and Machine Learning",
+  "icon": "flame",
+  "aliases": ["Pytorch", "PyTorch Deep Learning", "Deep Learning with PyTorch", "PyTorch Training", "PyTorch Developer", "PyTorch Lightning", "torch", "PyTorch for Deep Learning"],
+  "certifications": ["No vendor certification; assessed by capstone project", "DeepLearning.AI PyTorch for Deep Learning Professional Certificate as a companion"],
+  "tools": ["PyTorch", "torchvision", "torchaudio", "PyTorch Lightning", "Hugging Face Transformers", "TensorBoard", "Weights & Biases", "CUDA", "Jupyter"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers and data scientists starting deep learning. Covers PyTorch set-up and GPUs, tensors, autograd, a linear model from scratch, nn.Module and losses, optimisers and the training loop, datasets and data loaders, GPU training, fully connected and convolutional networks, transfer learning, regularisation, evaluation, checkpoints, recurrent networks, text classification, TensorBoard, debugging training and serving a model behind an API.",
+      "prerequisites": ["Writes Python with functions, classes and NumPy", "Knows basic machine learning ideas such as training and test data", "Remembers school-level algebra and derivatives"],
+      "outcomes": ["Build and train neural networks in PyTorch", "Prepare data with datasets and data loaders", "Train image and text models with transfer learning", "Evaluate, debug, save and serve PyTorch models"],
+      "days": [
+        {
+          "topic": "PyTorch Overview and Environment Setup",
+          "subtopics": ["What deep learning is and where PyTorch fits", "PyTorch compared with TensorFlow and JAX", "Installing PyTorch with CUDA or CPU builds", "Checking GPU access", "Jupyter and VS Code for PyTorch work", "Google Colab and Kaggle for free GPUs", "The PyTorch ecosystem: torchvision, torchaudio and Lightning", "Reproducible environments with uv or conda", "Reading PyTorch documentation and tutorials", "The course project: a product image classifier"],
+          "tools": ["PyTorch", "CUDA", "Jupyter", "Google Colab", "uv or conda"],
+          "lab_task": "Install PyTorch locally and in Colab, confirm GPU access, run a tiny model on CPU and GPU, compare the speed and pin the environment for the course.",
+          "deliverable": "Working environment with a pinned requirements file",
+          "checks": [["Check the GPU", "torch.cuda.is_available returns True on the GPU machine", "Notebook output"], ["Compare devices", "Same model run on CPU and GPU with timings", "Timing table"], ["Pin versions", "Environment file recreates the setup", "Environment file"]],
+          "objectives": ["Explain what PyTorch is for", "Set up a deep learning environment", "Use GPUs from PyTorch"]
+        },
+        {
+          "topic": "Tensors: Creation, Shapes and Operations",
+          "subtopics": ["Creating tensors", "Data types and devices", "Shapes, reshape and view", "Indexing and slicing", "Broadcasting", "Matrix multiplication", "Moving between NumPy and PyTorch", "Common shape errors"],
+          "tools": ["PyTorch", "Jupyter"],
+          "lab_task": "Solve fifteen tensor exercises covering creation, reshaping, broadcasting and matrix multiplication, then fix five planted shape errors.",
+          "deliverable": "Tensor exercise notebook",
+          "checks": [["Solve exercises", "All fifteen outputs match expected tensors", "Notebook output"], ["Fix shape errors", "Five errors fixed with explanations", "Notebook notes"], ["Convert with NumPy", "Data round-trips between NumPy and PyTorch", "Notebook output"]],
+          "objectives": ["Work with tensors", "Use broadcasting", "Read and fix shape errors"]
+        },
+        {
+          "topic": "Autograd and Gradients",
+          "subtopics": ["Gradients and why training needs them", "requires_grad", "The computation graph", "backward and grad", "Gradient accumulation", "no_grad and inference mode", "Detaching tensors", "Checking gradients numerically"],
+          "tools": ["PyTorch autograd", "Jupyter"],
+          "lab_task": "Compute gradients of simple functions with autograd, compare them with hand calculations and numerical estimates, and show gradient accumulation and how to clear it.",
+          "deliverable": "Autograd notebook",
+          "checks": [["Compare gradients", "Autograd matches hand and numerical gradients", "Notebook output"], ["Show accumulation", "Gradients add up until zeroed", "Notebook output"], ["Use no_grad", "No graph built inside no_grad", "Notebook output"]],
+          "objectives": ["Explain automatic differentiation", "Use autograd", "Control gradient tracking"]
+        },
+        {
+          "topic": "Building a Linear Model from Scratch",
+          "subtopics": ["Linear regression as a neural network", "Parameters as tensors", "Loss as a function", "Gradient descent by hand", "Learning rate effects", "Mini-batches", "Plotting the loss curve", "Comparing with scikit-learn"],
+          "tools": ["PyTorch", "Matplotlib", "scikit-learn"],
+          "lab_task": "Train a linear regression model from scratch with tensors and manual gradient descent, try three learning rates and compare the result with scikit-learn.",
+          "deliverable": "From-scratch training notebook",
+          "checks": [["Train the model", "Loss falls steadily", "Loss curve"], ["Compare learning rates", "Effect of three learning rates explained", "Plot and notes"], ["Match scikit-learn", "Weights close to the scikit-learn solution", "Comparison output"]],
+          "objectives": ["Train a model from scratch", "Understand gradient descent", "Choose learning rates"]
+        },
+        {
+          "topic": "nn.Module, Layers and Loss Functions",
+          "subtopics": ["nn.Module and parameters", "Linear, activation and dropout layers", "nn.Sequential", "Custom modules", "Loss functions for regression and classification", "Initialisation", "Inspecting parameters", "Moving models to devices"],
+          "tools": ["torch.nn", "Jupyter"],
+          "lab_task": "Rebuild the linear model with nn.Module, build a small classifier with nn.Sequential and a custom module, pick the right loss for each and count parameters.",
+          "deliverable": "Model definitions notebook",
+          "checks": [["Build modules", "Both models produce outputs of the right shape", "Notebook output"], ["Choose losses", "Correct loss used for regression and classification", "Code review"], ["Count parameters", "Parameter counts match hand calculations", "Notebook output"]],
+          "objectives": ["Define models with nn.Module", "Choose loss functions", "Inspect model parameters"]
+        },
+        {
+          "topic": "Optimisers and the Training Loop",
+          "subtopics": ["The standard training loop", "SGD, momentum and Adam", "zero_grad, backward and step", "Training and evaluation modes", "Tracking metrics during training", "Learning rate schedules in brief", "Early stopping in brief", "Writing a reusable train function"],
+          "tools": ["torch.optim", "Jupyter"],
+          "lab_task": "Write a reusable training loop with training and validation phases, compare SGD and Adam on the same task and log loss and accuracy each epoch.",
+          "deliverable": "Reusable training function",
+          "checks": [["Run the loop", "Training and validation metrics logged each epoch", "Training log"], ["Compare optimisers", "SGD and Adam results compared", "Plot and notes"], ["Switch modes", "Model uses train and eval modes correctly", "Code review"]],
+          "objectives": ["Write training loops", "Use optimisers", "Track training metrics"]
+        },
+        {
+          "topic": "Datasets and DataLoaders",
+          "subtopics": ["The Dataset class", "Custom datasets from files", "DataLoader batching and shuffling", "Workers and pinned memory", "Train, validation and test splits", "Transforms", "Handling imbalanced data with samplers", "Checking a batch visually"],
+          "tools": ["torch.utils.data", "torchvision transforms"],
+          "lab_task": "Write a custom dataset for product images from a CSV, split it, load batches with workers and a weighted sampler for rare classes, and view a sample batch.",
+          "deliverable": "Dataset and data loader code",
+          "checks": [["Load a batch", "Batch tensors have the expected shapes", "Notebook output"], ["Balance classes", "Rare classes appear more often with the sampler", "Count table"], ["View samples", "Images and labels shown correctly", "Image grid"]],
+          "objectives": ["Load data with Dataset and DataLoader", "Split data", "Handle class imbalance"]
+        },
+        {
+          "topic": "Training on GPUs",
+          "subtopics": ["Moving models and data to the GPU", "Batch size and GPU memory", "Monitoring GPU use with nvidia-smi", "Speed differences between CPU and GPU", "Common device errors", "Using Colab or cloud GPUs", "Freeing GPU memory", "Device-agnostic code"],
+          "tools": ["CUDA", "nvidia-smi", "Google Colab"],
+          "lab_task": "Make the training code device-agnostic, train on a GPU, find the largest batch size that fits, monitor use with nvidia-smi and fix a device mismatch error.",
+          "deliverable": "Device-agnostic training script",
+          "checks": [["Train on GPU", "Training runs on the GPU", "nvidia-smi output"], ["Find batch size", "Largest working batch size recorded", "Notes"], ["Fix device errors", "Device mismatch error fixed", "Code diff"]],
+          "objectives": ["Train on GPUs", "Manage GPU memory", "Write device-agnostic code"]
+        },
+        {
+          "topic": "Classification with Fully Connected Networks",
+          "subtopics": ["Multi-layer perceptrons", "Activation functions", "Softmax and cross-entropy", "Accuracy and confusion matrices", "Overfitting signs", "Hidden layer sizes", "Tabular data with neural networks", "Comparing with tree models"],
+          "tools": ["PyTorch", "scikit-learn metrics"],
+          "lab_task": "Train an MLP classifier on Fashion-MNIST and on a tabular dataset, plot confusion matrices and compare the tabular result with a gradient boosting model.",
+          "deliverable": "MLP experiments with comparison",
+          "checks": [["Train on images", "Fashion-MNIST accuracy above 85 percent", "Evaluation output"], ["Read errors", "Most confused classes identified", "Confusion matrix"], ["Compare models", "MLP compared with gradient boosting on tabular data", "Comparison table"]],
+          "objectives": ["Build classifiers with MLPs", "Evaluate with confusion matrices", "Know when deep learning helps"]
+        },
+        {
+          "topic": "Convolutional Neural Networks for Images",
+          "subtopics": ["Convolutions, filters and feature maps", "Padding, stride and pooling", "Building a CNN in PyTorch", "Batch normalisation", "Receptive fields", "Visualising filters and activations", "CNN architectures in brief", "Training CNNs efficiently"],
+          "tools": ["PyTorch", "torchvision", "Matplotlib"],
+          "lab_task": "Build and train a CNN for product images, add batch normalisation, visualise first-layer filters and feature maps and compare accuracy with the MLP.",
+          "deliverable": "CNN model and visualisations",
+          "checks": [["Beat the MLP", "CNN accuracy higher than the MLP", "Comparison table"], ["Add batch normalisation", "Training faster or more stable with batch norm", "Loss curves"], ["Visualise features", "Filters and feature maps plotted", "Image grid"]],
+          "objectives": ["Build CNNs", "Use batch normalisation", "Interpret convolutional features"]
+        },
+        {
+          "topic": "Transfer Learning with torchvision Models",
+          "subtopics": ["Why transfer learning works", "Pretrained models and weights", "Feature extraction", "Fine-tuning layers", "Matching input preprocessing", "Learning rates for fine-tuning", "Choosing a backbone", "Comparing with training from scratch"],
+          "tools": ["torchvision models", "PyTorch"],
+          "lab_task": "Fine-tune a pretrained ResNet or EfficientNet on the product images with feature extraction and then full fine-tuning, and compare with the CNN trained from scratch.",
+          "deliverable": "Fine-tuned model and comparison",
+          "checks": [["Extract features", "Frozen backbone with a new head trains quickly", "Training log"], ["Fine-tune", "Full fine-tuning improves accuracy further", "Comparison table"], ["Beat scratch training", "Transfer learning beats the scratch CNN", "Comparison table"]],
+          "objectives": ["Use pretrained models", "Fine-tune for a new task", "Choose backbones"]
+        },
+        {
+          "topic": "Regularisation: Dropout, Weight Decay and Early Stopping",
+          "subtopics": ["Overfitting and underfitting", "Dropout", "Weight decay", "Data augmentation as regularisation", "Early stopping", "Label smoothing", "Validation curves", "Choosing regularisation"],
+          "tools": ["PyTorch", "torchvision transforms"],
+          "lab_task": "Overfit a model on a small dataset on purpose, then fix it with augmentation, dropout, weight decay and early stopping, and compare validation curves.",
+          "deliverable": "Regularisation experiments",
+          "checks": [["Show overfitting", "Gap between training and validation accuracy shown", "Curves"], ["Reduce the gap", "Gap reduced by regularisation", "Curves"], ["Stop early", "Training stops at the best validation epoch", "Training log"]],
+          "objectives": ["Diagnose overfitting", "Apply regularisation", "Use early stopping"]
+        },
+        {
+          "topic": "Evaluating Models: Metrics and Validation",
+          "subtopics": ["Accuracy and its limits", "Precision, recall and F1", "ROC and PR curves", "Per-class metrics", "Calibration", "Cross-validation for small data", "Error analysis", "Reporting results honestly"],
+          "tools": ["scikit-learn metrics", "torchmetrics", "Matplotlib"],
+          "lab_task": "Evaluate the fine-tuned classifier with per-class precision and recall, PR curves and calibration, analyse the worst errors and write an evaluation report.",
+          "deliverable": "Evaluation report",
+          "checks": [["Report per-class metrics", "Precision and recall shown per class", "Metrics table"], ["Check calibration", "Calibration plotted and explained", "Calibration plot"], ["Analyse errors", "Patterns in the worst errors described", "Error analysis notes"]],
+          "objectives": ["Evaluate deep learning models", "Choose metrics", "Analyse errors"]
+        },
+        {
+          "topic": "Saving, Loading and Checkpointing Models",
+          "subtopics": ["state_dict", "Saving and loading models", "Checkpoints with optimiser state", "Resuming training", "Saving the best model", "Loading on a different device", "Safe loading of untrusted files", "Organising model files"],
+          "tools": ["torch.save", "torch.load", "safetensors"],
+          "lab_task": "Save checkpoints during training, resume after a deliberate stop, keep the best model, load it on CPU and store weights in safetensors format.",
+          "deliverable": "Checkpointing code and saved models",
+          "checks": [["Resume training", "Training resumes from the checkpoint with the same metrics", "Training log"], ["Load on CPU", "GPU-trained model loads and predicts on CPU", "Notebook output"], ["Use safetensors", "Weights saved and loaded with safetensors", "Notebook output"]],
+          "objectives": ["Save and load models", "Resume training", "Store weights safely"]
+        },
+        {
+          "topic": "Recurrent Networks and Sequences",
+          "subtopics": ["Sequence data", "RNNs, LSTMs and GRUs", "Packing variable-length sequences", "Sequence classification", "Sequence prediction", "Vanishing gradients", "Gradient clipping", "When to use transformers instead"],
+          "tools": ["torch.nn RNN layers", "PyTorch"],
+          "lab_task": "Classify sensor sequences with an LSTM, handle variable lengths with packing, clip gradients and compare LSTM and GRU accuracy and speed.",
+          "deliverable": "Sequence model notebook",
+          "checks": [["Classify sequences", "LSTM beats a simple baseline", "Comparison table"], ["Handle lengths", "Variable-length batches processed with packing", "Notebook output"], ["Clip gradients", "Training stable with gradient clipping", "Loss curves"]],
+          "objectives": ["Build recurrent networks", "Handle variable-length sequences", "Stabilise training"]
+        },
+        {
+          "topic": "Text Classification with Embeddings",
+          "subtopics": ["Tokenisation", "Vocabularies and padding", "Embedding layers", "Pretrained word vectors", "Bag-of-embeddings and LSTM classifiers", "Handling long texts", "Evaluating text classifiers", "Moving to transformer models"],
+          "tools": ["PyTorch", "Hugging Face tokenizers"],
+          "lab_task": "Build a review sentiment classifier with an embedding layer, compare random and pretrained embeddings, and evaluate it on a held-out set.",
+          "deliverable": "Text classifier and evaluation",
+          "checks": [["Train the classifier", "Accuracy above the baseline", "Evaluation output"], ["Compare embeddings", "Pretrained embeddings compared with random ones", "Comparison table"], ["Handle padding", "Padding masked or handled correctly", "Code review"]],
+          "objectives": ["Process text for deep learning", "Use embeddings", "Build text classifiers"]
+        },
+        {
+          "topic": "Visualising Training with TensorBoard",
+          "subtopics": ["Logging scalars", "Logging images and histograms", "Comparing runs", "Logging the model graph", "Hyperparameter logging", "Embedding projector", "Organising runs", "Using TensorBoard in Colab"],
+          "tools": ["TensorBoard", "torch.utils.tensorboard"],
+          "lab_task": "Log losses, accuracy, learning rate, sample predictions and weight histograms to TensorBoard for three runs and compare them side by side.",
+          "deliverable": "TensorBoard logs for three runs",
+          "checks": [["Compare runs", "Three runs compared in one view", "TensorBoard screenshot"], ["Log images", "Sample predictions shown as images", "TensorBoard screenshot"], ["Log hyperparameters", "Hyperparameters linked to results", "HParams screenshot"]],
+          "objectives": ["Visualise training", "Compare experiments", "Log useful artefacts"]
+        },
+        {
+          "topic": "Debugging Training: Shapes, NaNs and Overfitting",
+          "subtopics": ["A checklist for training problems", "Overfitting a single batch", "NaN and infinite losses", "Exploding and vanishing gradients", "Data leaks and label errors", "Learning rate problems", "Hooks for inspecting activations", "Writing up a fix"],
+          "tools": ["PyTorch hooks", "anomaly detection", "TensorBoard"],
+          "lab_task": "Fix five broken training scripts with problems in shapes, NaNs, learning rate, data leakage and frozen layers, using single-batch overfitting and hooks.",
+          "deliverable": "Debugging notes for five scripts",
+          "checks": [["Overfit one batch", "Model reaches near-zero loss on one batch", "Training log"], ["Fix NaNs", "NaN source found with anomaly detection and fixed", "Notes"], ["Find a leak", "Data leakage found and removed", "Notes"]],
+          "objectives": ["Debug training problems", "Use systematic checks", "Inspect activations with hooks"]
+        },
+        {
+          "topic": "Serving a PyTorch Model Behind an API",
+          "subtopics": ["Preparing a model for inference", "eval mode and inference_mode", "Preprocessing in the service", "Building an API with FastAPI", "Batching requests", "Model versioning", "Containerising the service", "Measuring latency"],
+          "tools": ["PyTorch", "FastAPI", "Docker"],
+          "lab_task": "Serve the image classifier from a FastAPI service with matching preprocessing, return labels with confidence and model version, containerise it and measure latency.",
+          "deliverable": "Model service in a container",
+          "checks": [["Predict through the API", "API returns labels with confidence", "API response"], ["Match preprocessing", "API results match notebook results", "Comparison output"], ["Measure latency", "p95 latency recorded", "Load test output"]],
+          "objectives": ["Serve PyTorch models", "Keep preprocessing consistent", "Measure inference latency"]
+        },
+        {
+          "topic": "Beginner Capstone: Image Classifier from Data to API",
+          "subtopics": ["Data", "Model", "Evaluation", "Serving"],
+          "tools": ["PyTorch", "torchvision", "TensorBoard", "FastAPI", "Docker"],
+          "lab_task": "Build a product image classifier end to end: dataset and loaders, transfer learning with regularisation, evaluation and error analysis, checkpoints and a served API, then present it.",
+          "deliverable": "Repository, evaluation report and running API",
+          "checks": [["Meet the target", "Test accuracy meets the agreed target", "Evaluation report"], ["Serve the model", "API returns predictions for new images", "Demo recording"], ["Explain the model", "Choices and errors explained", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one project", "Build a complete deep learning solution", "Present results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who already train models in PyTorch. Covers PyTorch Lightning, custom datasets and augmentation, attention and transformers from scratch, fine-tuning with Hugging Face, mixed precision, learning rate schedules, detection and segmentation, torch.compile, experiment tracking, Optuna, distributed data parallel, export with torch.export and ONNX, quantisation and pruning, autoencoders and VAEs, diffusion models, time series, graph neural networks, testing and profiling.",
+      "prerequisites": ["Has trained CNNs or RNNs in PyTorch", "Comfortable with training loops, data loaders and GPUs", "Knows evaluation metrics"],
+      "outcomes": ["Write clean, scalable PyTorch training code", "Fine-tune transformers and vision models", "Speed up, scale and compress models", "Build generative, time series and graph models"],
+      "days": [
+        {
+          "topic": "Writing Clean Training Code with PyTorch Lightning",
+          "subtopics": ["Why structure training code", "LightningModule and Trainer", "Callbacks and loggers", "Checkpointing with Lightning", "Configuration with LightningCLI", "Multi-device support", "Lightning compared with plain PyTorch", "Migrating an existing project"],
+          "tools": ["PyTorch Lightning", "TensorBoard or W&B"],
+          "lab_task": "Move the image classifier into a LightningModule with callbacks, logging, checkpoints and a CLI config, and run it on CPU and GPU with no code changes.",
+          "deliverable": "Lightning project with configuration",
+          "checks": [["Run with the CLI", "Training runs from a config file", "Terminal output"], ["Switch devices", "Same code runs on CPU and GPU", "Training logs"], ["Use callbacks", "Early stopping and checkpoints work", "Training log"]],
+          "objectives": ["Structure training with Lightning", "Use callbacks and loggers", "Configure experiments"]
+        },
+        {
+          "topic": "Custom Datasets, Transforms and Augmentation",
+          "subtopics": ["Datasets for images, text and tables", "torchvision transforms v2", "Augmentation for images and boxes", "MixUp and CutMix", "Augmentation for text and audio", "Caching and preprocessing", "Streaming large datasets", "Measuring augmentation value"],
+          "tools": ["torchvision transforms v2", "Albumentations", "Hugging Face Datasets"],
+          "lab_task": "Build datasets for images with bounding boxes and for audio, add augmentations including MixUp, stream a large dataset and measure the accuracy gained.",
+          "deliverable": "Dataset and augmentation library",
+          "checks": [["Augment boxes", "Boxes stay aligned after augmentation", "Image grid"], ["Use MixUp", "MixUp improves validation accuracy", "Comparison table"], ["Stream data", "Large dataset trained without loading it all", "Training log"]],
+          "objectives": ["Build custom datasets", "Augment data correctly", "Stream large datasets"]
+        },
+        {
+          "topic": "Transformers in PyTorch: Attention from Scratch",
+          "subtopics": ["Attention and why it works", "Scaled dot-product attention", "Multi-head attention", "Positional encoding", "Transformer encoder blocks", "Masks", "scaled_dot_product_attention in PyTorch", "Training a small transformer"],
+          "tools": ["PyTorch", "Jupyter"],
+          "lab_task": "Implement multi-head attention and a small transformer encoder from scratch, check it against PyTorch's built-in attention and train it on a text classification task.",
+          "deliverable": "Transformer implementation with tests",
+          "checks": [["Match built-in attention", "Outputs match scaled_dot_product_attention", "Test output"], ["Apply masks", "Padding tokens ignored by attention", "Test output"], ["Train", "Small transformer beats the LSTM baseline", "Comparison table"]],
+          "objectives": ["Explain attention", "Implement transformer blocks", "Train small transformers"]
+        },
+        {
+          "topic": "Fine-Tuning Pretrained Models with Hugging Face",
+          "subtopics": ["The Hugging Face Hub", "AutoModel and AutoTokenizer", "The Trainer API", "Fine-tuning for classification", "Fine-tuning vision transformers", "Evaluation with the evaluate library", "Pushing models to the Hub", "Licences and model cards"],
+          "tools": ["Hugging Face Transformers", "Datasets", "evaluate"],
+          "lab_task": "Fine-tune a pretrained text model and a vision transformer with the Trainer API, evaluate them, write model cards and push them to a private Hub repository.",
+          "deliverable": "Fine-tuned models with model cards",
+          "checks": [["Fine-tune text", "Text model beats the from-scratch baseline", "Comparison table"], ["Fine-tune vision", "Vision transformer reaches the target accuracy", "Evaluation output"], ["Publish", "Models and cards in the private Hub repository", "Hub screenshot"]],
+          "objectives": ["Fine-tune pretrained models", "Use Hugging Face tools", "Document models"]
+        },
+        {
+          "topic": "Mixed Precision Training",
+          "subtopics": ["Floating point formats: FP32, FP16 and BF16", "Automatic mixed precision with autocast", "Gradient scaling", "Speed and memory gains", "Numerical issues", "Hardware support", "Mixed precision in Lightning", "Checking accuracy is preserved"],
+          "tools": ["torch.amp", "CUDA GPUs"],
+          "lab_task": "Train the classifier in FP32, FP16 with gradient scaling and BF16, and compare speed, memory and accuracy.",
+          "deliverable": "Precision comparison report",
+          "checks": [["Train with AMP", "Mixed precision run completes without NaNs", "Training log"], ["Compare speed and memory", "Faster training and lower memory recorded", "Comparison table"], ["Keep accuracy", "Accuracy matches FP32 within tolerance", "Evaluation output"]],
+          "objectives": ["Use mixed precision", "Avoid numerical problems", "Measure the gains"]
+        },
+        {
+          "topic": "Learning Rate Schedules and Optimisation Tricks",
+          "subtopics": ["Learning rate finders", "Warm-up", "Cosine and one-cycle schedules", "AdamW and weight decay", "Gradient accumulation for large batches", "Gradient clipping", "Exponential moving averages of weights", "Comparing training recipes"],
+          "tools": ["torch.optim.lr_scheduler", "PyTorch"],
+          "lab_task": "Find a good learning rate, compare constant, cosine with warm-up and one-cycle schedules, add gradient accumulation and weight averaging and pick the best recipe.",
+          "deliverable": "Training recipe comparison",
+          "checks": [["Find the learning rate", "Learning rate finder plot used to choose a value", "Plot"], ["Compare schedules", "Schedules compared on accuracy and time", "Comparison table"], ["Accumulate gradients", "Effective batch size increased without more memory", "Training log"]],
+          "objectives": ["Tune learning rates", "Use schedules", "Build training recipes"]
+        },
+        {
+          "topic": "Object Detection and Segmentation",
+          "subtopics": ["Detection tasks and outputs", "Bounding boxes and anchors", "Faster R-CNN and modern detectors in torchvision", "Semantic and instance segmentation", "Mask R-CNN", "Detection metrics: IoU and mAP", "Annotation formats", "Fine-tuning a detector on custom data"],
+          "tools": ["torchvision detection models", "pycocotools", "Annotation tools"],
+          "lab_task": "Fine-tune a torchvision detector on a small custom dataset of shelf products, compute mAP and train a segmentation model for product masks.",
+          "deliverable": "Detection and segmentation models with metrics",
+          "checks": [["Detect products", "Detector finds products with the target mAP", "Evaluation output"], ["Segment products", "Masks match products on test images", "Image grid"], ["Explain metrics", "IoU and mAP explained with examples", "Notes"]],
+          "objectives": ["Train detectors", "Train segmentation models", "Evaluate with IoU and mAP"]
+        },
+        {
+          "topic": "torch.compile for Faster Models",
+          "subtopics": ["What torch.compile does", "Graph breaks", "Compile modes", "Dynamic shapes", "Measuring speed-ups", "Debugging compiled models", "When compile does not help", "Using compile in training and inference"],
+          "tools": ["torch.compile", "PyTorch profiler"],
+          "lab_task": "Compile the training and inference code, find and remove graph breaks, compare compile modes and record speed-ups and compile time.",
+          "deliverable": "Compilation report",
+          "checks": [["Remove graph breaks", "Graph break count reduced", "Compile logs"], ["Measure speed-up", "Training and inference speed-ups recorded", "Timing table"], ["Compare modes", "Modes compared on speed and compile time", "Comparison table"]],
+          "objectives": ["Use torch.compile", "Remove graph breaks", "Measure speed-ups"]
+        },
+        {
+          "topic": "Tracking PyTorch Experiments with Weights & Biases and MLflow",
+          "subtopics": ["Why track experiments", "Logging metrics, parameters and artefacts", "Comparing runs", "Model registries", "Sweeps in Weights & Biases", "MLflow tracking server", "Reproducibility metadata", "Choosing a tracking tool"],
+          "tools": ["Weights & Biases", "MLflow"],
+          "lab_task": "Track twenty training runs in Weights & Biases and MLflow with configs, metrics and artefacts, compare them and register the best model.",
+          "deliverable": "Tracked experiments and registered model",
+          "checks": [["Compare runs", "Best run identified from tracked metrics", "Dashboard screenshot"], ["Register", "Best model registered with metadata", "Registry screenshot"], ["Reproduce", "Best run reproduced from its logged config", "Training log"]],
+          "objectives": ["Track experiments", "Compare runs", "Register models"]
+        },
+        {
+          "topic": "Hyperparameter Search with Optuna",
+          "subtopics": ["Search spaces", "Samplers: random and TPE", "Pruning bad trials", "Multi-objective search", "Parallel trials", "Visualising studies", "Avoiding overfitting the validation set", "Search budgets"],
+          "tools": ["Optuna", "PyTorch Lightning"],
+          "lab_task": "Search learning rate, batch size, dropout and architecture size with Optuna, prune weak trials, compare with the hand-tuned recipe and check on a held-out test set.",
+          "deliverable": "Optuna study and results",
+          "checks": [["Prune trials", "Weak trials stopped early", "Study log"], ["Beat hand tuning", "Best trial beats the hand-tuned recipe", "Comparison table"], ["Check on test data", "Gain holds on the held-out test set", "Evaluation output"]],
+          "objectives": ["Search hyperparameters", "Use pruning", "Avoid validation overfitting"]
+        },
+        {
+          "topic": "Multi-GPU Training with Distributed Data Parallel",
+          "subtopics": ["Data parallelism", "DistributedDataParallel", "torchrun", "Distributed samplers", "Gradient synchronisation", "Batch size and learning rate scaling", "Saving checkpoints in distributed jobs", "Common distributed errors"],
+          "tools": ["torch.distributed", "torchrun", "Multi-GPU machine"],
+          "lab_task": "Convert the training script to DistributedDataParallel, run it with torchrun on two or more GPUs, scale batch size and learning rate and compare speed.",
+          "deliverable": "Distributed training script with results",
+          "checks": [["Run on several GPUs", "Training runs on all GPUs", "nvidia-smi output"], ["Scale correctly", "Accuracy holds after scaling batch size and learning rate", "Evaluation output"], ["Measure speed", "Speed-up with more GPUs recorded", "Timing table"]],
+          "objectives": ["Train on multiple GPUs", "Use DDP and torchrun", "Scale training correctly"]
+        },
+        {
+          "topic": "Exporting Models: TorchScript, ONNX and torch.export",
+          "subtopics": ["Why export models", "torch.export and exported programs", "ONNX export", "TorchScript and its status", "Running ONNX models with ONNX Runtime", "Checking numerical parity", "Dynamic shapes in export", "Choosing an export path"],
+          "tools": ["torch.export", "ONNX", "ONNX Runtime"],
+          "lab_task": "Export the classifier with torch.export and to ONNX, run it with ONNX Runtime, check outputs match PyTorch and compare inference speed.",
+          "deliverable": "Exported models with parity tests",
+          "checks": [["Export to ONNX", "ONNX model runs in ONNX Runtime", "Notebook output"], ["Check parity", "Outputs match PyTorch within tolerance", "Test output"], ["Compare speed", "Inference speed compared", "Timing table"]],
+          "objectives": ["Export PyTorch models", "Run models outside PyTorch", "Check numerical parity"]
+        },
+        {
+          "topic": "Model Optimisation: Quantisation and Pruning",
+          "subtopics": ["Why compress models", "Post-training quantisation", "Quantisation-aware training", "Weight-only quantisation for large models", "Pruning", "Knowledge distillation", "Accuracy and speed trade-offs", "Measuring model size and latency"],
+          "tools": ["torchao", "PyTorch quantisation tools", "Distillation scripts"],
+          "lab_task": "Quantise and prune the classifier, distil it into a smaller student and compare size, latency and accuracy for each option.",
+          "deliverable": "Compression comparison report",
+          "checks": [["Quantise", "Model size reduced with acceptable accuracy", "Comparison table"], ["Distil", "Student model close to the teacher's accuracy", "Evaluation output"], ["Measure latency", "Latency compared for all options", "Timing table"]],
+          "objectives": ["Compress models", "Use quantisation and distillation", "Balance accuracy and speed"]
+        },
+        {
+          "topic": "Generative Models: Autoencoders and VAEs",
+          "subtopics": ["Autoencoders", "Denoising autoencoders", "Variational autoencoders", "The reparameterisation trick", "Latent spaces", "Anomaly detection with autoencoders", "Generating new samples", "Evaluating generative models"],
+          "tools": ["PyTorch", "Matplotlib"],
+          "lab_task": "Train a denoising autoencoder and a VAE on product images, explore the latent space, generate new samples and use reconstruction error to spot anomalies.",
+          "deliverable": "Generative models notebook",
+          "checks": [["Denoise", "Noisy images cleaned by the autoencoder", "Image grid"], ["Generate", "VAE samples look like the training data", "Image grid"], ["Detect anomalies", "Anomalous images get high reconstruction error", "Results table"]],
+          "objectives": ["Build autoencoders", "Train VAEs", "Use reconstruction for anomaly detection"]
+        },
+        {
+          "topic": "Diffusion Models in Practice",
+          "subtopics": ["How diffusion models work", "Noise schedules", "U-Net denoisers", "Training a small diffusion model", "Sampling and guidance", "Using pretrained pipelines with diffusers", "Fine-tuning with LoRA", "Responsible use of image generation"],
+          "tools": ["Hugging Face diffusers", "PyTorch"],
+          "lab_task": "Train a small diffusion model on simple images, generate samples, run a pretrained text-to-image pipeline and fine-tune it with LoRA on a few product photos.",
+          "deliverable": "Diffusion experiments",
+          "checks": [["Train a small model", "Generated samples improve over training", "Image grids"], ["Use a pipeline", "Pretrained pipeline produces images from prompts", "Image grid"], ["Fine-tune with LoRA", "Fine-tuned model shows the product style", "Image grid"]],
+          "objectives": ["Explain diffusion models", "Use diffusion pipelines", "Fine-tune with LoRA"]
+        },
+        {
+          "topic": "Time Series Forecasting with Deep Learning",
+          "subtopics": ["Framing forecasting as supervised learning", "Windows and horizons", "LSTM and temporal convolution models", "Transformer forecasters", "Scaling and covariates", "Backtesting", "Probabilistic forecasts", "Comparing with classical methods"],
+          "tools": ["PyTorch", "PyTorch Forecasting or Darts"],
+          "lab_task": "Forecast store demand with an LSTM and a transformer forecaster, backtest them against a seasonal baseline and produce prediction intervals.",
+          "deliverable": "Forecasting models and backtest report",
+          "checks": [["Backtest", "Models evaluated with rolling backtests", "Backtest table"], ["Beat the baseline", "Deep model beats the seasonal baseline", "Comparison table"], ["Give intervals", "Prediction intervals produced and checked", "Plot"]],
+          "objectives": ["Forecast with deep learning", "Backtest models", "Produce probabilistic forecasts"]
+        },
+        {
+          "topic": "Graph Neural Networks with PyTorch Geometric",
+          "subtopics": ["Graph data", "Message passing", "GCN and GraphSAGE", "Node classification", "Link prediction", "Mini-batching graphs", "Graph datasets", "Use cases in fraud and recommendations"],
+          "tools": ["PyTorch Geometric", "PyTorch"],
+          "lab_task": "Train a GCN for node classification and a GraphSAGE model for link prediction on a transactions graph, and compare with a non-graph baseline.",
+          "deliverable": "GNN experiments",
+          "checks": [["Classify nodes", "GCN beats a feature-only baseline", "Comparison table"], ["Predict links", "Link prediction AUC reported", "Evaluation output"], ["Batch large graphs", "Neighbour sampling trains on a large graph", "Training log"]],
+          "objectives": ["Model graph data", "Build GNNs", "Apply GNNs to real problems"]
+        },
+        {
+          "topic": "Testing and Reproducibility for Training Code",
+          "subtopics": ["Seeds and determinism", "Unit tests for models and data", "Shape and gradient tests", "Overfitting tests", "Regression tests for metrics", "Configuration management", "Data versioning", "CI for model code"],
+          "tools": ["pytest", "Hydra", "DVC"],
+          "lab_task": "Add tests for data, model shapes, gradients and a small overfitting test, control seeds, manage configs with Hydra, version data with DVC and run tests in CI.",
+          "deliverable": "Tested and reproducible project",
+          "checks": [["Run tests", "Model and data tests pass in CI", "CI run"], ["Reproduce a run", "Same seed and config give the same metrics", "Training logs"], ["Version data", "Data version tied to each run", "DVC output"]],
+          "objectives": ["Test training code", "Make runs reproducible", "Version data and configs"]
+        },
+        {
+          "topic": "Profiling PyTorch Training",
+          "subtopics": ["Where training time goes", "PyTorch profiler", "Data loading bottlenecks", "GPU utilisation", "Memory profiling", "Kernel and operator views", "Fixing common bottlenecks", "Profiling in TensorBoard"],
+          "tools": ["torch.profiler", "TensorBoard", "nvidia-smi"],
+          "lab_task": "Profile a slow training run, find data loading and kernel bottlenecks, fix them and show higher GPU use and shorter epochs.",
+          "deliverable": "Profiling report",
+          "checks": [["Find the bottleneck", "Main bottleneck identified in the profile", "Profiler screenshot"], ["Raise GPU use", "GPU utilisation higher after fixes", "nvidia-smi comparison"], ["Shorten epochs", "Epoch time reduced", "Timing table"]],
+          "objectives": ["Profile PyTorch training", "Fix bottlenecks", "Improve GPU utilisation"]
+        },
+        {
+          "topic": "Intermediate Capstone: Fine-Tuned Vision Transformer Service",
+          "subtopics": ["Data and training", "Optimisation", "Export and serving", "Report"],
+          "tools": ["PyTorch Lightning", "Hugging Face Transformers", "Optuna", "ONNX Runtime", "Weights & Biases"],
+          "lab_task": "Fine-tune a vision transformer with augmentation, mixed precision and tuned hyperparameters, track experiments, quantise and export it, serve it and report results.",
+          "deliverable": "Model, experiments, service and report",
+          "checks": [["Meet the target", "Accuracy meets the agreed target", "Evaluation report"], ["Serve efficiently", "Exported model meets the latency target", "Load test results"], ["Reproduce", "Final run reproducible from tracked config", "Training log"]],
+          "objectives": ["Combine the intermediate topics in one project", "Ship an optimised deep learning model", "Prove reproducibility"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior ML engineers and researchers. Covers PyTorch internals, custom operators and Triton kernels, FSDP and large model training, training small language models, LoRA and QLoRA, LLM inference optimisation with vLLM, cluster training with Ray or Kubernetes, memory optimisation, mixture-of-experts and model parallelism, advanced compilation, ExecuTorch, RLHF concepts and DPO, multimodal models, evaluation at scale, data pipelines, reproducible research, cost and carbon, distributed debugging and leading deep learning projects.",
+      "prerequisites": ["Several years training deep learning models in PyTorch", "Strong Python, linear algebra and GPU knowledge", "Has trained models on multiple GPUs"],
+      "outcomes": ["Train and serve large models efficiently", "Extend PyTorch with custom kernels and compilation", "Scale training on clusters and debug distributed jobs", "Lead deep learning projects with sound evaluation"],
+      "days": [
+        {
+          "topic": "PyTorch Internals: Tensors, Dispatcher and Autograd Engine",
+          "subtopics": ["Tensor storage, strides and views", "The dispatcher and backends", "How autograd records and replays operations", "Custom autograd functions", "The CUDA caching allocator", "Streams and asynchronous execution", "Reading PyTorch source code", "Internals that matter for performance"],
+          "tools": ["PyTorch source code", "torch.autograd.Function", "CUDA tools"],
+          "lab_task": "Explore strides and views, write a custom autograd function with a hand-written backward, inspect the caching allocator and explain an asynchronous timing mistake.",
+          "deliverable": "Internals notebook",
+          "checks": [["Write a custom function", "Custom backward passes gradcheck", "gradcheck output"], ["Explain strides", "View and copy behaviour explained with strides", "Notes"], ["Fix timing", "Correct GPU timing with synchronisation shown", "Timing output"]],
+          "objectives": ["Explain PyTorch internals", "Write custom autograd functions", "Time GPU code correctly"]
+        },
+        {
+          "topic": "Writing Custom Operators and CUDA Kernels with Triton",
+          "subtopics": ["When custom kernels are worth it", "Triton programming model", "Writing a fused kernel", "Registering custom operators", "Autograd for custom operators", "Benchmarking kernels", "Correctness testing", "Using kernels with torch.compile"],
+          "tools": ["Triton", "torch.library", "CUDA GPU"],
+          "lab_task": "Write a fused Triton kernel for a layer-norm or activation pattern, register it as a custom operator with autograd, test correctness and benchmark against PyTorch.",
+          "deliverable": "Custom operator with tests and benchmarks",
+          "checks": [["Test correctness", "Kernel outputs match the reference", "Test output"], ["Benchmark", "Speed-up over the PyTorch version recorded", "Benchmark results"], ["Use with compile", "Operator works inside a compiled model", "Run output"]],
+          "objectives": ["Write Triton kernels", "Register custom operators", "Benchmark and test kernels"]
+        },
+        {
+          "topic": "Fully Sharded Data Parallel and Large Model Training",
+          "subtopics": ["Why models outgrow one GPU", "Sharding parameters, gradients and optimiser state", "FSDP2 basics", "Wrapping policies", "Mixed precision with FSDP", "Checkpointing sharded models", "Throughput and memory trade-offs", "FSDP compared with DeepSpeed ZeRO"],
+          "tools": ["FSDP", "torchrun", "DeepSpeed for comparison"],
+          "lab_task": "Train a model too large for one GPU with FSDP, tune wrapping and precision, save and reload sharded checkpoints and compare memory with DDP.",
+          "deliverable": "FSDP training setup and report",
+          "checks": [["Fit the model", "Model trains across GPUs that could not hold it alone", "Memory report"], ["Save checkpoints", "Sharded checkpoint saved and reloaded", "Training log"], ["Compare with DDP", "Memory and throughput compared", "Comparison table"]],
+          "objectives": ["Train large models with FSDP", "Manage sharded checkpoints", "Compare sharding approaches"]
+        },
+        {
+          "topic": "Training Language Models from Scratch at Small Scale",
+          "subtopics": ["Tokeniser training", "Decoder-only transformer architecture", "Data preparation and packing", "Training loop for language models", "Scaling laws in brief", "Evaluation with perplexity", "Sampling strategies", "Lessons for larger runs"],
+          "tools": ["PyTorch", "Hugging Face tokenizers", "Datasets"],
+          "lab_task": "Train a tokeniser and a small decoder-only language model on a domain corpus, track perplexity, try sampling strategies and write lessons for scaling up.",
+          "deliverable": "Small language model and training report",
+          "checks": [["Train the tokeniser", "Tokeniser trained on the corpus", "Tokeniser files"], ["Reduce perplexity", "Validation perplexity falls during training", "Training curves"], ["Sample text", "Samples compared across sampling settings", "Sample outputs"]],
+          "objectives": ["Train language models from scratch", "Evaluate with perplexity", "Understand scaling behaviour"]
+        },
+        {
+          "topic": "Parameter-Efficient Fine-Tuning in PyTorch with LoRA, QLoRA and PEFT",
+          "subtopics": ["Why parameter-efficient fine-tuning", "LoRA adapters", "QLoRA with 4-bit base models", "Choosing ranks and target modules", "Instruction datasets and chat templates", "Evaluating fine-tuned models", "Merging and serving adapters", "Risks: overfitting and forgetting"],
+          "tools": ["Hugging Face PEFT", "bitsandbytes", "TRL"],
+          "lab_task": "Fine-tune an open language model with LoRA and QLoRA on a support dataset, compare memory and quality, merge an adapter and evaluate against the base model.",
+          "deliverable": "Fine-tuned adapters with evaluation",
+          "checks": [["Fit in memory", "QLoRA run fits on a single GPU", "Memory report"], ["Improve quality", "Fine-tuned model beats the base on the evaluation set", "Evaluation results"], ["Merge adapters", "Merged model gives the same outputs", "Test output"]],
+          "objectives": ["Fine-tune language models efficiently", "Use LoRA and QLoRA", "Evaluate fine-tuned models"]
+        },
+        {
+          "topic": "Inference Optimisation for LLMs: KV Caching, Batching and vLLM",
+          "subtopics": ["Where LLM inference time goes", "KV caching", "Continuous batching", "Paged attention", "Quantised inference", "Speculative decoding", "Serving with vLLM", "Measuring throughput and latency"],
+          "tools": ["vLLM", "PyTorch", "Load testing tools"],
+          "lab_task": "Serve a language model with plain PyTorch and with vLLM, add quantisation and continuous batching, and compare tokens per second and latency under load.",
+          "deliverable": "Inference benchmark report",
+          "checks": [["Compare servers", "vLLM throughput compared with plain PyTorch", "Benchmark results"], ["Quantise", "Quantised model faster with acceptable quality", "Comparison table"], ["Load test", "Latency measured at three concurrency levels", "Load test results"]],
+          "objectives": ["Optimise LLM inference", "Serve with vLLM", "Measure serving performance"]
+        },
+        {
+          "topic": "Distributed Training on Clusters with Ray or Kubernetes",
+          "subtopics": ["Cluster options for training", "Ray Train", "Kubernetes training jobs and operators", "Fault tolerance and elastic training", "Shared storage and data access", "Scheduling GPUs", "Experiment tracking across nodes", "Cost control"],
+          "tools": ["Ray Train", "Kubernetes", "Kubeflow Training Operator"],
+          "lab_task": "Run a multi-node training job with Ray Train or a Kubernetes training operator, survive a node failure with checkpoints and track cost per run.",
+          "deliverable": "Cluster training setup and report",
+          "checks": [["Run multi-node", "Job runs across several nodes", "Job logs"], ["Survive failure", "Training resumes after a node is lost", "Job logs"], ["Track cost", "Cost per training run calculated", "Cost report"]],
+          "objectives": ["Train on clusters", "Make training fault tolerant", "Control training cost"]
+        },
+        {
+          "topic": "Memory Optimisation: Activation Checkpointing and Offloading",
+          "subtopics": ["Where training memory goes", "Activation checkpointing", "CPU offloading", "Optimiser choices for memory", "8-bit optimisers", "Sequence length and memory", "Memory snapshots", "Trade-offs between memory and speed"],
+          "tools": ["torch.utils.checkpoint", "Memory snapshot tools", "bitsandbytes"],
+          "lab_task": "Profile memory for a long-sequence model, apply activation checkpointing, offloading and 8-bit optimisers, and chart memory against speed.",
+          "deliverable": "Memory optimisation report",
+          "checks": [["Profile memory", "Memory use broken down by type", "Memory snapshot"], ["Cut memory", "Peak memory reduced with each technique", "Comparison table"], ["Weigh trade-offs", "Speed cost of each technique recorded", "Comparison table"]],
+          "objectives": ["Reduce training memory", "Use checkpointing and offloading", "Balance memory and speed"]
+        },
+        {
+          "topic": "Mixture-of-Experts and Model Parallelism",
+          "subtopics": ["Tensor parallelism", "Pipeline parallelism", "Mixture-of-experts layers", "Routing and load balancing", "Expert parallelism", "Communication costs", "Combining parallelism types", "When each approach fits"],
+          "tools": ["PyTorch distributed", "Tensor parallel APIs", "MoE implementations"],
+          "lab_task": "Add a mixture-of-experts layer to a small transformer, measure routing balance, run tensor parallelism across two GPUs and compare communication costs.",
+          "deliverable": "Parallelism experiments",
+          "checks": [["Balance experts", "Load balancing loss keeps experts used", "Routing statistics"], ["Run tensor parallel", "Model runs split across two GPUs", "Run output"], ["Compare costs", "Communication overhead measured", "Profiler output"]],
+          "objectives": ["Use model parallelism", "Build mixture-of-experts layers", "Weigh communication costs"]
+        },
+        {
+          "topic": "Advanced torch.compile and Graph Capture",
+          "subtopics": ["Dynamo, AOTAutograd and Inductor", "Guards and recompilation", "Compiling distributed models", "Custom backends", "Regional compilation", "CUDA graphs", "Debugging compiler issues", "Compilation in production"],
+          "tools": ["torch.compile", "TORCH_LOGS", "Inductor"],
+          "lab_task": "Compile a distributed training job, reduce recompilations caused by guards, use regional compilation to cut compile time and enable CUDA graphs for inference.",
+          "deliverable": "Compilation engineering report",
+          "checks": [["Cut recompilations", "Recompilations reduced", "Compile logs"], ["Cut compile time", "Regional compilation shortens start-up", "Timing table"], ["Use CUDA graphs", "Inference latency lower with CUDA graphs", "Benchmark results"]],
+          "objectives": ["Master torch.compile", "Control recompilation", "Use compilation in production"]
+        },
+        {
+          "topic": "On-Device Deployment with ExecuTorch",
+          "subtopics": ["Why run models on devices", "ExecuTorch overview", "Exporting models for mobile", "Backends and delegates", "Quantisation for devices", "Measuring on-device latency", "Memory limits on devices", "Updating models in apps"],
+          "tools": ["ExecuTorch", "torch.export", "Android or iOS test app"],
+          "lab_task": "Export a small vision model with ExecuTorch, quantise it, run it in a sample mobile app and measure latency and memory on a phone.",
+          "deliverable": "On-device model with measurements",
+          "checks": [["Run on a device", "Model predicts in the mobile app", "Screen recording"], ["Quantise", "Quantised model smaller with acceptable accuracy", "Comparison table"], ["Measure latency", "On-device latency recorded", "Benchmark output"]],
+          "objectives": ["Deploy models on devices", "Use ExecuTorch", "Optimise for mobile limits"]
+        },
+        {
+          "topic": "Preference Tuning: RLHF Concepts and Direct Preference Optimisation",
+          "subtopics": ["Why align models with preferences", "Reward models", "RLHF with PPO at a high level", "Direct preference optimisation", "Preference datasets", "Evaluating alignment", "Risks and limits", "Tools for preference tuning"],
+          "tools": ["TRL", "Hugging Face Transformers", "Preference datasets"],
+          "lab_task": "Fine-tune a small instruction model with DPO on a preference dataset, compare responses before and after with human and automatic judgements and discuss limits.",
+          "deliverable": "DPO experiment and evaluation",
+          "checks": [["Train with DPO", "Training reward margins improve", "Training log"], ["Compare responses", "Preferred responses chosen more often after tuning", "Evaluation results"], ["Discuss limits", "Risks and limits of the approach written", "Notes"]],
+          "objectives": ["Explain preference tuning", "Apply DPO", "Evaluate aligned models"]
+        },
+        {
+          "topic": "Multimodal Models",
+          "subtopics": ["Combining images and text", "Contrastive models such as CLIP", "Vision-language models", "Fine-tuning multimodal models", "Image and text retrieval", "Evaluation for multimodal tasks", "Serving multimodal models", "Use cases"],
+          "tools": ["OpenCLIP", "Hugging Face Transformers", "PyTorch"],
+          "lab_task": "Build image-text search over a product catalogue with a CLIP model, fine-tune it on product captions and evaluate retrieval before and after.",
+          "deliverable": "Multimodal search with evaluation",
+          "checks": [["Search by text", "Relevant product images returned for text queries", "Results grid"], ["Fine-tune", "Retrieval recall improves after fine-tuning", "Evaluation table"], ["Serve", "Search runs behind an API", "API response"]],
+          "objectives": ["Use multimodal models", "Fine-tune contrastive models", "Evaluate retrieval"]
+        },
+        {
+          "topic": "Evaluation at Scale for Deep Learning Models",
+          "subtopics": ["Evaluation design", "Held-out and out-of-distribution sets", "Slice-based evaluation", "Robustness tests", "Statistical significance", "Evaluation harnesses for language models", "Human evaluation", "Reporting results"],
+          "tools": ["lm-evaluation-harness", "torchmetrics", "Statistical tests"],
+          "lab_task": "Build an evaluation suite with slices, out-of-distribution sets and robustness tests, run language model benchmarks with a harness and report results with confidence intervals.",
+          "deliverable": "Evaluation suite and report",
+          "checks": [["Evaluate slices", "Weak slices identified", "Slice table"], ["Test robustness", "Performance under corruptions measured", "Robustness table"], ["Report significance", "Differences reported with confidence intervals", "Report"]],
+          "objectives": ["Design evaluation suites", "Test robustness", "Report results rigorously"]
+        },
+        {
+          "topic": "Data Pipelines for Large-Scale Training",
+          "subtopics": ["Data quality for deep learning", "Deduplication", "Filtering and labelling at scale", "Sharded datasets and WebDataset", "Streaming from object storage", "Data loader throughput", "Data mixing", "Tracking data provenance"],
+          "tools": ["WebDataset", "Hugging Face Datasets", "Object storage"],
+          "lab_task": "Build a sharded, deduplicated and filtered training dataset in object storage, stream it at full GPU speed and record provenance for every shard.",
+          "deliverable": "Training data pipeline",
+          "checks": [["Deduplicate", "Near-duplicates removed with counts reported", "Pipeline report"], ["Stream fast", "Data loading keeps GPUs busy", "GPU utilisation chart"], ["Track provenance", "Every shard traced to its sources", "Provenance log"]],
+          "objectives": ["Build training data pipelines", "Deduplicate and filter at scale", "Stream data efficiently"]
+        },
+        {
+          "topic": "Reproducible Research and Ablation Studies",
+          "subtopics": ["Designing experiments", "Baselines and ablations", "Controlling randomness", "Statistical comparisons across seeds", "Experiment logs and papers", "Code release practices", "Reviewing others' results", "Avoiding common research mistakes"],
+          "tools": ["Weights & Biases or MLflow", "Hydra", "Statistical tests"],
+          "lab_task": "Run an ablation study of three model changes across five seeds, compare results statistically and write a short research note with released code.",
+          "deliverable": "Ablation study and research note",
+          "checks": [["Run ablations", "Each change tested across five seeds", "Results table"], ["Compare statistically", "Significant and non-significant changes identified", "Statistical output"], ["Release code", "Results reproducible from the released code", "Repository"]],
+          "objectives": ["Run rigorous experiments", "Use ablations", "Report research results"]
+        },
+        {
+          "topic": "Cost and Carbon Efficiency in Training",
+          "subtopics": ["Measuring training cost", "GPU choice and utilisation", "Spot and preemptible instances", "Efficient architectures and recipes", "Measuring energy and carbon", "Reusing pretrained models", "Budgets for experiments", "Reporting efficiency"],
+          "tools": ["Cloud pricing", "CodeCarbon", "GPU monitoring"],
+          "lab_task": "Measure cost and carbon for a training run, cut both with better utilisation, spot instances and a more efficient recipe, and report the savings.",
+          "deliverable": "Efficiency report",
+          "checks": [["Measure", "Cost and carbon per run recorded", "Measurement report"], ["Cut cost", "Cost reduced with the same accuracy", "Comparison table"], ["Use spot instances", "Training survives a spot interruption", "Training log"]],
+          "objectives": ["Measure training cost and carbon", "Reduce waste", "Report efficiency"]
+        },
+        {
+          "topic": "Debugging Distributed Training Failures",
+          "subtopics": ["Common distributed failure modes", "Hangs and deadlocks", "NCCL errors", "Uneven data and stragglers", "Loss divergence at scale", "Debug tools and environment flags", "Reproducing failures at small scale", "Writing runbooks"],
+          "tools": ["torch.distributed debug flags", "NCCL debug", "py-spy"],
+          "lab_task": "Diagnose four broken distributed jobs: a hang, an NCCL error, a straggler and a divergence, fix each and write a runbook.",
+          "deliverable": "Debugging runbook",
+          "checks": [["Fix a hang", "Hang cause found and fixed", "Notes"], ["Fix NCCL errors", "NCCL error resolved", "Job logs"], ["Write the runbook", "Runbook covers each failure type", "Runbook"]],
+          "objectives": ["Debug distributed training", "Use distributed debug tools", "Prevent repeat failures"]
+        },
+        {
+          "topic": "Leading Deep Learning Projects",
+          "subtopics": ["Framing problems for deep learning", "Data and labelling strategy", "Build or fine-tune decisions", "Project risks and milestones", "Team roles", "Communicating results to stakeholders", "Responsible AI reviews", "Moving from research to production"],
+          "tools": ["Project templates", "Decision records", "Risk registers"],
+          "lab_task": "Plan a deep learning project from problem framing to production with data strategy, build or fine-tune decision, milestones, risks and a responsible AI review, and present it.",
+          "deliverable": "Project plan and presentation",
+          "checks": [["Frame the problem", "Success metric tied to business value", "Project plan"], ["Decide build or fine-tune", "Decision justified with cost and risk", "Decision record"], ["Present", "Stakeholder questions answered", "Presentation notes"]],
+          "objectives": ["Lead deep learning projects", "Make build or fine-tune decisions", "Communicate with stakeholders"]
+        },
+        {
+          "topic": "Advanced Capstone: Domain LLM Fine-Tuning and Serving Platform",
+          "subtopics": ["Data", "Training", "Serving", "Defence"],
+          "tools": ["PyTorch", "PEFT", "FSDP", "vLLM", "Evaluation harness", "Weights & Biases"],
+          "lab_task": "Build a domain language model system with a curated dataset, efficient fine-tuning at scale, preference tuning, rigorous evaluation and optimised serving, then defend it to a review panel.",
+          "deliverable": "Model, evaluation report, serving setup and defence",
+          "checks": [["Prove quality", "Model beats the base on the domain evaluation", "Evaluation report"], ["Serve efficiently", "Serving meets throughput and latency targets", "Load test results"], ["Defend the work", "Panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one project", "Build a domain LLM system", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}

@@ -7,7 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, outcomeLine, visibleSearchLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, sourceReportLines, visibleSearchLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
@@ -403,10 +403,10 @@ export default function LinkedInSearch() {
               className="input bg-[#eaf6ff]"
               value={searchDomains}
               onChange={e => setSearchDomains(e.target.value)}
-              placeholder={isTrainer ? 'Python, AWS' : 'Python, AWS'}
+              placeholder="Python"
             />
             <p className="mt-1 text-xs text-slate-400">
-              <strong>Automatic search:</strong> {isTrainer ? 'At least 60 trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below. The trainer search stops once 60 profiles are saved.
+              <strong>Automatic search:</strong> {isTrainer ? 'Up to 100 trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below. Search matches appear here as soon as the search finishes; trainer profile collection stops at 100.
               Change the domains and choose {isTrainer ? 'Find Profiles' : 'Find Client Posts'} to search again. Fetching does not send email.
             </p>
           </div>
@@ -421,9 +421,12 @@ export default function LinkedInSearch() {
         <p className="text-sm font-semibold text-slate-800">{searchReport.requestFailed ? 'Search request did not complete.' : `Last search: ${searchReport.found || 0} matches; ${searchReport.saved_count || 0} new results saved.`}</p>
         {(searchReport.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below.</p>}
         {!searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches); setSelectedDomain('all') }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
-        {(searchReport.domain_outcomes || []).map(outcome => <p key={outcome.domain} className="text-sm text-slate-600">
-          {outcomeLine(outcome)}
-        </p>)}
+        {(searchReport.domain_outcomes || []).map(outcome => <div key={outcome.domain} className="space-y-1">
+          <p className="text-sm text-slate-600">{outcomeLine(outcome)}</p>
+          {sourceReportLines(outcome).length > 0 && <ul className="ml-4 list-disc text-xs text-slate-500">
+            {sourceReportLines(outcome).map(line => <li key={line.key} className={line.ok ? 'text-emerald-700' : undefined}>{line.text}</li>)}
+          </ul>}
+        </div>)}
         {searchReport.warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
         {searchReport.warnings.length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}
       </section>}
@@ -535,7 +538,7 @@ export default function LinkedInSearch() {
                     </div>
                     <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                       <span className="font-semibold text-slate-800">{lead.domain || 'Domain pending'}</span>
-                      <span>from {lead.discovery_provider === 'public_fallback' ? 'Public indexed search fallback' : lead.source || 'Public Search'}</span>
+                      <span>from {leadSourceLabel(lead)}</span>
                     </p>
                   </div>
                 </div>

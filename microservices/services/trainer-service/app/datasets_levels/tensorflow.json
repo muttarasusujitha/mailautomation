@@ -1,0 +1,573 @@
+{
+  "domain": "TensorFlow",
+  "name": "Deep Learning with TensorFlow and Keras",
+  "category": "Data Science and Machine Learning",
+  "icon": "brain-circuit",
+  "aliases": ["Tensorflow", "TensorFlow 2", "TensorFlow Keras", "Keras", "Keras 3", "Deep Learning with TensorFlow", "TensorFlow Developer", "TensorFlow Training", "TFX", "TensorFlow Extended", "LiteRT", "TensorFlow Lite"],
+  "certifications": ["No vendor certification since the TensorFlow Developer Certificate closed; assessed by capstone project", "Google Cloud Professional Machine Learning Engineer as a companion certification"],
+  "tools": ["TensorFlow", "Keras 3", "tf.data", "TensorBoard", "KerasTuner", "KerasHub", "TensorFlow Serving", "LiteRT", "TFX", "Vertex AI"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers and data scientists starting deep learning with TensorFlow. Covers set-up and GPUs, tensors, GradientTape, Keras Sequential and Functional models, compiling and training, tf.data, CNNs, augmentation layers, transfer learning, text preprocessing and classification, LSTMs and GRUs, callbacks and TensorBoard, regularisation, saving in the Keras format, custom layers, GPUs and TPUs, evaluation and deploying a model as a REST service.",
+      "prerequisites": ["Writes Python with functions, classes and NumPy", "Knows basic machine learning ideas", "Remembers school-level algebra"],
+      "outcomes": ["Build and train neural networks with Keras", "Prepare data with tf.data and preprocessing layers", "Train image and text models with transfer learning", "Evaluate, save and deploy TensorFlow models"],
+      "days": [
+        {
+          "topic": "TensorFlow Overview and Environment Setup",
+          "subtopics": ["What TensorFlow and Keras are", "Keras 3 and its backends", "TensorFlow compared with PyTorch and JAX", "Installing TensorFlow with GPU support", "Checking GPU and TPU access", "Google Colab and Kaggle notebooks", "The TensorFlow ecosystem: tf.data, TensorBoard, Serving and LiteRT", "Reproducible environments", "Reading the documentation and guides", "The course project: a product image classifier"],
+          "tools": ["TensorFlow", "Keras", "Google Colab", "Jupyter"],
+          "lab_task": "Install TensorFlow locally and open Colab, confirm GPU access, train a tiny Keras model on CPU and GPU, compare speed and pin the environment.",
+          "deliverable": "Working environment with pinned requirements",
+          "checks": [["Check the GPU", "TensorFlow lists the GPU device", "Notebook output"], ["Compare devices", "Same model trained on CPU and GPU with timings", "Timing table"], ["Pin versions", "Environment file recreates the setup", "Environment file"]],
+          "objectives": ["Explain TensorFlow and Keras", "Set up an environment", "Use GPUs from TensorFlow"]
+        },
+        {
+          "topic": "Tensors and Operations in TensorFlow",
+          "subtopics": ["Creating tensors", "Data types and shapes", "Indexing and reshaping", "Broadcasting", "Variables", "Converting between NumPy and TensorFlow", "Eager execution", "Common shape errors"],
+          "tools": ["TensorFlow", "Jupyter"],
+          "lab_task": "Solve fifteen tensor exercises covering creation, reshaping, broadcasting and variables, and fix five planted shape errors.",
+          "deliverable": "Tensor exercise notebook",
+          "checks": [["Solve exercises", "All fifteen outputs match expected tensors", "Notebook output"], ["Fix shape errors", "Five errors fixed with explanations", "Notebook notes"], ["Use variables", "Variables updated in place correctly", "Notebook output"]],
+          "objectives": ["Work with TensorFlow tensors", "Use variables", "Fix shape errors"]
+        },
+        {
+          "topic": "Automatic Differentiation with GradientTape",
+          "subtopics": ["Why gradients matter for training", "tf.GradientTape", "Watching tensors", "Gradients of multiple variables", "Persistent tapes", "Stopping gradients", "A linear model trained by hand", "Checking gradients numerically"],
+          "tools": ["TensorFlow", "Jupyter"],
+          "lab_task": "Compute gradients with GradientTape, train a linear regression model by hand with gradient descent and compare learning rates.",
+          "deliverable": "GradientTape notebook",
+          "checks": [["Compare gradients", "Tape gradients match hand calculations", "Notebook output"], ["Train by hand", "Loss falls steadily during manual training", "Loss curve"], ["Compare learning rates", "Effect of three learning rates explained", "Plot and notes"]],
+          "objectives": ["Use automatic differentiation", "Train a model by hand", "Choose learning rates"]
+        },
+        {
+          "topic": "Keras Sequential Models",
+          "subtopics": ["Layers and models", "The Sequential API", "Dense and activation layers", "Input shapes", "model.summary and parameter counts", "Building a classifier", "Building a regression model", "Limits of Sequential models"],
+          "tools": ["Keras", "TensorFlow"],
+          "lab_task": "Build Sequential models for classification and regression, read their summaries, check parameter counts by hand and run predictions before training.",
+          "deliverable": "Sequential model notebook",
+          "checks": [["Build models", "Both models produce outputs of the right shape", "Notebook output"], ["Count parameters", "Counts match hand calculations", "Notebook output"], ["Explain limits", "Cases that need the Functional API listed", "Notes"]],
+          "objectives": ["Build Sequential models", "Read model summaries", "Know when to use other APIs"]
+        },
+        {
+          "topic": "The Keras Functional API",
+          "subtopics": ["Inputs and outputs as tensors", "Multi-input models", "Multi-output models", "Shared layers", "Residual connections", "Plotting models", "Functional compared with subclassed models", "Reusing models as layers"],
+          "tools": ["Keras Functional API", "plot_model"],
+          "lab_task": "Build a product model that takes an image and tabular features and predicts category and price, with a shared layer and a residual block, and plot it.",
+          "deliverable": "Multi-input, multi-output model",
+          "checks": [["Build the model", "Model accepts two inputs and returns two outputs", "Model plot"], ["Share layers", "Shared layer weights used in two branches", "Model summary"], ["Add a residual", "Residual block connects correctly", "Model plot"]],
+          "objectives": ["Use the Functional API", "Build multi-input and multi-output models", "Add residual connections"]
+        },
+        {
+          "topic": "Compiling and Training: Losses, Optimisers and Metrics",
+          "subtopics": ["compile and fit", "Choosing losses", "Optimisers: SGD, Adam and AdamW", "Metrics", "Validation data and splits", "Batch size and epochs", "History objects and curves", "Training multi-output models"],
+          "tools": ["Keras", "Matplotlib"],
+          "lab_task": "Train the product model with suitable losses and metrics per output, compare optimisers and plot training and validation curves.",
+          "deliverable": "Training notebook with curves",
+          "checks": [["Train", "Both outputs improve during training", "Training curves"], ["Compare optimisers", "Optimisers compared on validation metrics", "Comparison table"], ["Weight losses", "Loss weights balance the two outputs", "Training log"]],
+          "objectives": ["Train Keras models", "Choose losses and metrics", "Read training curves"]
+        },
+        {
+          "topic": "Loading Data with tf.data",
+          "subtopics": ["The tf.data API", "Datasets from tensors, files and directories", "map, batch, shuffle and prefetch", "Caching", "Parallel calls", "Reading TFRecord files", "Image datasets from folders", "Checking pipeline speed"],
+          "tools": ["tf.data", "TFRecord", "TensorFlow"],
+          "lab_task": "Build a tf.data pipeline that reads product images from folders, decodes, resizes, shuffles, batches, caches and prefetches them, and measure its speed.",
+          "deliverable": "Input pipeline with measurements",
+          "checks": [["Load batches", "Batches have the expected shapes and labels", "Notebook output"], ["Speed up", "Prefetch and parallel calls raise throughput", "Timing table"], ["Use TFRecords", "Data written to and read from TFRecord files", "Notebook output"]],
+          "objectives": ["Build input pipelines", "Speed up data loading", "Use TFRecord files"]
+        },
+        {
+          "topic": "Image Classification with Convolutional Networks",
+          "subtopics": ["Convolutions and pooling", "Building a CNN in Keras", "Batch normalisation", "Global average pooling", "Training on product images", "Visualising feature maps", "Comparing with dense networks", "Common CNN mistakes"],
+          "tools": ["Keras", "TensorFlow", "Matplotlib"],
+          "lab_task": "Build and train a CNN on the product images, add batch normalisation, visualise feature maps and compare with a dense network.",
+          "deliverable": "CNN model and visualisations",
+          "checks": [["Beat dense models", "CNN accuracy higher than the dense network", "Comparison table"], ["Add batch normalisation", "Training more stable with batch normalisation", "Loss curves"], ["Visualise", "Feature maps plotted for sample images", "Image grid"]],
+          "objectives": ["Build CNNs in Keras", "Use batch normalisation", "Interpret feature maps"]
+        },
+        {
+          "topic": "Data Augmentation with Keras Layers",
+          "subtopics": ["Why augmentation helps", "Preprocessing layers", "RandomFlip, RandomRotation and RandomZoom", "Augmentation inside the model", "Augmentation in tf.data", "Normalisation layers", "Checking augmented images", "Measuring the gain"],
+          "tools": ["Keras preprocessing layers", "tf.data"],
+          "lab_task": "Add augmentation layers inside the model and in the tf.data pipeline, view augmented samples and measure the effect on validation accuracy.",
+          "deliverable": "Augmentation experiments",
+          "checks": [["View samples", "Augmented images look realistic", "Image grid"], ["Compare placements", "Model and pipeline augmentation compared", "Comparison table"], ["Measure gain", "Validation accuracy improves with augmentation", "Training curves"]],
+          "objectives": ["Augment image data", "Use preprocessing layers", "Measure augmentation value"]
+        },
+        {
+          "topic": "Transfer Learning with Keras Applications",
+          "subtopics": ["Pretrained models in Keras", "Feature extraction", "Fine-tuning top layers", "Freezing and unfreezing", "Matching preprocessing", "Learning rates for fine-tuning", "Choosing a base model", "Comparing with training from scratch"],
+          "tools": ["Keras Applications", "KerasHub"],
+          "lab_task": "Fine-tune a pretrained EfficientNet on the product images with feature extraction then fine-tuning, and compare with the CNN trained from scratch.",
+          "deliverable": "Fine-tuned model and comparison",
+          "checks": [["Extract features", "Frozen base with a new head trains quickly", "Training log"], ["Fine-tune", "Unfreezing improves accuracy further", "Comparison table"], ["Beat scratch training", "Transfer learning beats the scratch CNN", "Comparison table"]],
+          "objectives": ["Use pretrained models", "Fine-tune in Keras", "Choose base models"]
+        },
+        {
+          "topic": "Text Preprocessing and Classification",
+          "subtopics": ["Text as data", "TextVectorization layer", "Vocabularies and sequence length", "Embedding layers", "Bag-of-words and embedding models", "Pretrained text encoders from KerasHub", "Evaluating text classifiers", "Handling long texts"],
+          "tools": ["Keras TextVectorization", "KerasHub", "TensorFlow"],
+          "lab_task": "Build a review sentiment classifier with TextVectorization and embeddings, then fine-tune a pretrained KerasHub encoder and compare results.",
+          "deliverable": "Text classifiers with comparison",
+          "checks": [["Train a baseline", "Embedding model beats the majority-class baseline", "Evaluation output"], ["Fine-tune an encoder", "Pretrained encoder beats the baseline model", "Comparison table"], ["Vectorise text", "Vocabulary and lengths chosen and justified", "Notes"]],
+          "objectives": ["Prepare text for Keras", "Build text classifiers", "Use pretrained text encoders"]
+        },
+        {
+          "topic": "Sequence Models with LSTMs and GRUs",
+          "subtopics": ["Sequence data", "SimpleRNN, LSTM and GRU layers", "Bidirectional layers", "Masking padded steps", "Stacking recurrent layers", "Sequence prediction", "Gradient clipping", "When to use transformers instead"],
+          "tools": ["Keras recurrent layers", "TensorFlow"],
+          "lab_task": "Classify sensor sequences with LSTM and GRU models, mask padding, try bidirectional layers and compare accuracy and speed.",
+          "deliverable": "Sequence model notebook",
+          "checks": [["Mask padding", "Padded steps ignored by the model", "Test output"], ["Compare layers", "LSTM, GRU and bidirectional results compared", "Comparison table"], ["Clip gradients", "Training stable with clipping", "Loss curves"]],
+          "objectives": ["Build recurrent models", "Mask variable-length sequences", "Compare recurrent layers"]
+        },
+        {
+          "topic": "Callbacks: Early Stopping, Checkpoints and TensorBoard",
+          "subtopics": ["What callbacks do", "EarlyStopping", "ModelCheckpoint", "ReduceLROnPlateau", "TensorBoard callback", "CSV logging", "Writing a custom callback", "Organising runs"],
+          "tools": ["Keras callbacks", "TensorBoard"],
+          "lab_task": "Add early stopping, best-model checkpoints, learning rate reduction and TensorBoard logging to training, write a custom callback and compare three runs in TensorBoard.",
+          "deliverable": "Training with callbacks and TensorBoard logs",
+          "checks": [["Stop early", "Training stops at the best validation epoch", "Training log"], ["Save the best model", "Best checkpoint saved and reloaded", "Notebook output"], ["Compare runs", "Three runs compared in TensorBoard", "TensorBoard screenshot"]],
+          "objectives": ["Use Keras callbacks", "Log to TensorBoard", "Write custom callbacks"]
+        },
+        {
+          "topic": "Overfitting and Regularisation in Keras",
+          "subtopics": ["Spotting overfitting", "Dropout layers", "L1 and L2 regularisers", "Augmentation as regularisation", "Early stopping as regularisation", "Model capacity", "Validation curves", "Choosing regularisation"],
+          "tools": ["Keras", "TensorFlow"],
+          "lab_task": "Overfit a model on a small dataset, then fix it with dropout, L2 regularisation, augmentation and early stopping, comparing validation curves.",
+          "deliverable": "Regularisation experiments",
+          "checks": [["Show overfitting", "Training and validation gap shown", "Curves"], ["Reduce the gap", "Regularisation narrows the gap", "Curves"], ["Compare methods", "Each method's effect recorded", "Comparison table"]],
+          "objectives": ["Diagnose overfitting", "Regularise Keras models", "Choose methods"]
+        },
+        {
+          "topic": "Saving and Loading Models in the Keras Format",
+          "subtopics": ["The .keras format", "Saving weights only", "Loading models with custom objects", "SavedModel export for serving", "Versioning saved models", "Checking loaded models", "Moving models between machines", "Safe loading of untrusted files"],
+          "tools": ["Keras saving APIs", "SavedModel"],
+          "lab_task": "Save the classifier in the .keras format, reload it with a custom layer, export a SavedModel for serving and check predictions match after each step.",
+          "deliverable": "Saved models with checks",
+          "checks": [["Reload a model", "Reloaded model gives identical predictions", "Notebook output"], ["Load custom objects", "Model with a custom layer reloads correctly", "Notebook output"], ["Export for serving", "SavedModel exported with a signature", "Directory listing"]],
+          "objectives": ["Save and load Keras models", "Handle custom objects", "Export models for serving"]
+        },
+        {
+          "topic": "Custom Layers and Models",
+          "subtopics": ["Subclassing Layer", "Weights and build", "call and training arguments", "Subclassing Model", "Custom training step with train_step", "Custom losses and metrics", "Serialisation of custom classes", "Testing custom components"],
+          "tools": ["Keras", "TensorFlow"],
+          "lab_task": "Write a custom attention-pooling layer, a custom metric and a model with its own train_step, test them and save and reload the model.",
+          "deliverable": "Custom components with tests",
+          "checks": [["Build a custom layer", "Layer works inside a Functional model", "Notebook output"], ["Override train_step", "Custom step trains the model correctly", "Training log"], ["Test components", "Unit tests pass for the layer and metric", "Test output"]],
+          "objectives": ["Write custom layers", "Customise training steps", "Test custom components"]
+        },
+        {
+          "topic": "Training on GPUs and TPUs",
+          "subtopics": ["Device placement", "Mixed precision in Keras", "Batch size and memory", "tf.distribute strategies in brief", "TPUs in Colab or Cloud", "Monitoring GPU use", "Common device errors", "Choosing hardware"],
+          "tools": ["TensorFlow", "Keras mixed precision", "Colab TPU"],
+          "lab_task": "Train with mixed precision on a GPU, run the same model on a Colab TPU with a distribution strategy and compare speed and accuracy.",
+          "deliverable": "Hardware comparison notes",
+          "checks": [["Use mixed precision", "Training faster with mixed precision", "Timing table"], ["Run on a TPU", "Model trains on a TPU", "Notebook output"], ["Compare hardware", "Speed and accuracy compared", "Comparison table"]],
+          "objectives": ["Train on GPUs and TPUs", "Use mixed precision", "Choose hardware"]
+        },
+        {
+          "topic": "Evaluating and Interpreting Models",
+          "subtopics": ["Evaluation with model.evaluate", "Precision, recall and confusion matrices", "Per-class metrics", "Calibration", "Error analysis", "Saliency maps and Grad-CAM", "Reporting results", "Avoiding data leakage"],
+          "tools": ["Keras", "scikit-learn metrics", "Grad-CAM"],
+          "lab_task": "Evaluate the classifier with per-class metrics and a confusion matrix, explain predictions with Grad-CAM and write an evaluation report.",
+          "deliverable": "Evaluation report",
+          "checks": [["Report per-class metrics", "Precision and recall shown per class", "Metrics table"], ["Explain predictions", "Grad-CAM highlights the relevant image regions", "Image grid"], ["Analyse errors", "Error patterns described", "Notes"]],
+          "objectives": ["Evaluate Keras models", "Explain predictions", "Report results"]
+        },
+        {
+          "topic": "Deploying a Model as a REST Service",
+          "subtopics": ["Preparing a model for serving", "TensorFlow Serving basics", "REST and gRPC endpoints", "Preprocessing inside the model", "Model versions in Serving", "Running Serving in Docker", "Calling the service from Python", "Measuring latency"],
+          "tools": ["TensorFlow Serving", "Docker", "Python requests"],
+          "lab_task": "Serve the exported classifier with TensorFlow Serving in Docker, call it over REST, roll out a second model version and measure latency.",
+          "deliverable": "Served model with latency results",
+          "checks": [["Call the API", "REST API returns predictions", "API response"], ["Roll out a version", "Second version served without downtime", "API responses"], ["Measure latency", "p95 latency recorded", "Load test output"]],
+          "objectives": ["Serve TensorFlow models", "Manage model versions", "Measure serving latency"]
+        },
+        {
+          "topic": "Beginner Capstone: Product Image Classifier",
+          "subtopics": ["Data", "Model", "Evaluation", "Deployment"],
+          "tools": ["TensorFlow", "Keras", "tf.data", "TensorBoard", "TensorFlow Serving"],
+          "lab_task": "Build a product image classifier with a tf.data pipeline, augmentation, transfer learning, callbacks, evaluation with Grad-CAM and a served REST endpoint, then present it.",
+          "deliverable": "Repository, evaluation report and running service",
+          "checks": [["Meet the target", "Test accuracy meets the agreed target", "Evaluation report"], ["Serve the model", "REST service returns predictions for new images", "Demo recording"], ["Explain the model", "Choices and errors explained", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one project", "Build a complete TensorFlow solution", "Present results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who already train models with Keras. Covers custom training loops, advanced tf.data, Keras 3 multi-backend models, attention and transformers, KerasHub fine-tuning, detection and segmentation, tf.distribute, mixed precision and XLA, KerasTuner, TFX pipelines, model analysis and fairness, TensorFlow Serving in production, LiteRT, TensorFlow.js, forecasting, recommenders, generative models, profiling and testing.",
+      "prerequisites": ["Has trained CNNs or text models with Keras", "Comfortable with tf.data and callbacks", "Knows evaluation metrics"],
+      "outcomes": ["Write flexible, scalable TensorFlow training code", "Fine-tune transformers and vision models", "Build production pipelines with TFX and serving", "Deploy models to mobile, browser and servers"],
+      "days": [
+        {
+          "topic": "Custom Training Loops",
+          "subtopics": ["When fit is not enough", "Writing a loop with GradientTape", "tf.function for speed", "Metrics in custom loops", "Gradient accumulation", "Multiple optimisers", "Logging in custom loops", "Debugging tf.function code"],
+          "tools": ["TensorFlow", "tf.function", "TensorBoard"],
+          "lab_task": "Write a custom training loop with tf.function, metrics, gradient accumulation and TensorBoard logging, and check it matches model.fit results.",
+          "deliverable": "Custom training loop",
+          "checks": [["Match fit", "Custom loop results close to model.fit", "Comparison table"], ["Speed up", "tf.function makes the loop faster", "Timing table"], ["Accumulate gradients", "Larger effective batch without more memory", "Training log"]],
+          "objectives": ["Write custom training loops", "Use tf.function", "Debug graph code"]
+        },
+        {
+          "topic": "Advanced tf.data Pipelines and Performance",
+          "subtopics": ["Interleave for many files", "Autotuning", "Snapshot and cache strategies", "Sharding input for distributed training", "Handling large text and image corpora", "Data validation in the pipeline", "The tf.data service", "Profiling input pipelines"],
+          "tools": ["tf.data", "TensorFlow Profiler"],
+          "lab_task": "Rebuild the input pipeline for a large sharded dataset with interleave, autotune and snapshots, profile it and remove the input bottleneck.",
+          "deliverable": "Optimised input pipeline",
+          "checks": [["Remove the bottleneck", "GPU no longer waits for input", "Profiler screenshot"], ["Read many files", "Interleave reads shards in parallel", "Throughput table"], ["Use snapshots", "Second epoch faster with snapshots", "Timing table"]],
+          "objectives": ["Optimise tf.data at scale", "Profile input pipelines", "Feed accelerators fully"]
+        },
+        {
+          "topic": "Keras 3 Multi-Backend Models",
+          "subtopics": ["Keras 3 design", "Backends: TensorFlow, JAX and PyTorch", "Writing backend-agnostic code with keras.ops", "Switching backends", "Performance differences", "Using Keras models in PyTorch or JAX training", "Saving and loading across backends", "Limits of multi-backend code"],
+          "tools": ["Keras 3", "JAX", "PyTorch", "TensorFlow"],
+          "lab_task": "Write a model with keras.ops only, train it on the TensorFlow, JAX and PyTorch backends, compare speed and save and reload it across backends.",
+          "deliverable": "Multi-backend model and comparison",
+          "checks": [["Train on three backends", "Same code trains on all three", "Training logs"], ["Compare speed", "Training speed compared per backend", "Timing table"], ["Move across backends", "Model saved on one backend loads on another", "Notebook output"]],
+          "objectives": ["Use Keras 3 backends", "Write backend-agnostic code", "Compare backends"]
+        },
+        {
+          "topic": "Transformers and Attention in Keras",
+          "subtopics": ["Attention mechanisms", "MultiHeadAttention layer", "Positional embeddings", "Transformer encoder blocks", "Masks", "Building a text classifier transformer", "Vision transformers in Keras", "Training tips for transformers"],
+          "tools": ["Keras", "KerasHub"],
+          "lab_task": "Build a transformer encoder for text classification with MultiHeadAttention, masks and positional embeddings, then train a small vision transformer.",
+          "deliverable": "Transformer models",
+          "checks": [["Apply masks", "Padded tokens ignored", "Test output"], ["Train a text transformer", "Transformer beats the LSTM baseline", "Comparison table"], ["Train a vision transformer", "Small ViT trains on product images", "Training log"]],
+          "objectives": ["Build transformers in Keras", "Use attention layers", "Train text and vision transformers"]
+        },
+        {
+          "topic": "Fine-Tuning Pretrained Models with KerasHub",
+          "subtopics": ["KerasHub presets", "Text classification with pretrained backbones", "Generative language models in KerasHub", "Image models in KerasHub", "Tokenisers and preprocessors", "Fine-tuning with LoRA in Keras", "Evaluation and export", "Licences and model cards"],
+          "tools": ["KerasHub", "Keras 3"],
+          "lab_task": "Fine-tune a KerasHub text backbone for support ticket routing and a small generative model with LoRA, evaluate both and write model cards.",
+          "deliverable": "Fine-tuned models with model cards",
+          "checks": [["Route tickets", "Fine-tuned classifier beats the baseline", "Evaluation output"], ["Fine-tune with LoRA", "Generative model adapts to the domain style", "Sample outputs"], ["Document", "Model cards written", "Model cards"]],
+          "objectives": ["Fine-tune with KerasHub", "Use LoRA in Keras", "Document models"]
+        },
+        {
+          "topic": "Object Detection and Segmentation with Keras",
+          "subtopics": ["Detection and segmentation tasks", "Bounding box formats", "Pretrained detectors in KerasHub", "Segmentation models", "IoU and mAP", "Augmentation for boxes and masks", "Fine-tuning on custom data", "Inference and visualisation"],
+          "tools": ["KerasHub", "Keras", "Annotation tools"],
+          "lab_task": "Fine-tune a pretrained detector on shelf images, compute mAP, train a segmentation model for product masks and visualise predictions.",
+          "deliverable": "Detection and segmentation models",
+          "checks": [["Detect products", "Detector reaches the target mAP", "Evaluation output"], ["Segment products", "Masks match products on test images", "Image grid"], ["Augment boxes", "Boxes stay aligned after augmentation", "Image grid"]],
+          "objectives": ["Train detectors in Keras", "Train segmentation models", "Evaluate detection"]
+        },
+        {
+          "topic": "Distributed Training with tf.distribute",
+          "subtopics": ["Distribution strategies", "MirroredStrategy for multi-GPU", "MultiWorkerMirroredStrategy", "TPUStrategy", "Scaling batch size and learning rate", "Distributed datasets", "Checkpointing distributed training", "Fault tolerance"],
+          "tools": ["tf.distribute", "Multi-GPU machine", "TPU"],
+          "lab_task": "Train the classifier with MirroredStrategy on several GPUs and with TPUStrategy, scale batch size and learning rate and compare speed and accuracy.",
+          "deliverable": "Distributed training report",
+          "checks": [["Use several GPUs", "Training runs on all GPUs", "Device logs"], ["Scale correctly", "Accuracy holds after scaling", "Evaluation output"], ["Use TPUs", "Model trains with TPUStrategy", "Notebook output"]],
+          "objectives": ["Distribute training", "Scale batch sizes", "Use TPUs"]
+        },
+        {
+          "topic": "Mixed Precision and XLA Compilation",
+          "subtopics": ["Mixed precision policies", "Loss scaling", "XLA and jit_compile", "Measuring speed-ups", "Numerical issues", "Hardware support", "Combining mixed precision and XLA", "When XLA does not help"],
+          "tools": ["Keras mixed precision", "XLA", "TensorFlow Profiler"],
+          "lab_task": "Train with mixed precision and XLA separately and together, compare speed, memory and accuracy, and explain any slowdowns.",
+          "deliverable": "Performance comparison",
+          "checks": [["Use mixed precision", "Mixed precision run stable and faster", "Training log"], ["Use XLA", "jit_compile speed-up measured", "Timing table"], ["Keep accuracy", "Accuracy within tolerance of FP32", "Evaluation output"]],
+          "objectives": ["Use mixed precision", "Compile with XLA", "Measure performance"]
+        },
+        {
+          "topic": "Hyperparameter Tuning with KerasTuner",
+          "subtopics": ["Search spaces in KerasTuner", "Random, Bayesian and Hyperband search", "Tuning architecture and training settings", "Early stopping in tuning", "Distributed tuning", "Reviewing results", "Avoiding validation overfitting", "Tuning budgets"],
+          "tools": ["KerasTuner", "Keras"],
+          "lab_task": "Tune layer sizes, dropout and learning rate with Hyperband and Bayesian search, compare with the hand-tuned model and confirm on a test set.",
+          "deliverable": "Tuning study and results",
+          "checks": [["Run Hyperband", "Weak trials stopped early", "Tuner log"], ["Beat hand tuning", "Best trial beats the hand-tuned model", "Comparison table"], ["Confirm on test data", "Gain holds on the test set", "Evaluation output"]],
+          "objectives": ["Tune hyperparameters", "Use KerasTuner strategies", "Avoid validation overfitting"]
+        },
+        {
+          "topic": "TensorFlow Extended (TFX) Pipelines",
+          "subtopics": ["Production ML pipelines", "TFX components: ExampleGen, StatisticsGen, SchemaGen, Transform, Trainer, Evaluator and Pusher", "Running pipelines locally", "Orchestrators", "Metadata tracking", "Pipeline artefacts", "Testing pipelines", "When to use TFX"],
+          "tools": ["TFX", "TensorFlow Transform", "ML Metadata"],
+          "lab_task": "Build a TFX pipeline for the product classifier from data ingestion to model push, run it locally and inspect artefacts and metadata.",
+          "deliverable": "TFX pipeline",
+          "checks": [["Run the pipeline", "All components complete", "Pipeline run output"], ["Inspect metadata", "Artefact lineage shown in ML Metadata", "Metadata output"], ["Gate on evaluation", "Model pushed only when it beats the baseline", "Evaluator output"]],
+          "objectives": ["Build TFX pipelines", "Track pipeline metadata", "Gate model releases"]
+        },
+        {
+          "topic": "Model Analysis and Fairness Checks",
+          "subtopics": ["Sliced evaluation", "TensorFlow Model Analysis", "Fairness indicators", "Choosing slices", "Thresholds and trade-offs", "Reporting fairness results", "Mitigation options", "Documenting limits"],
+          "tools": ["TensorFlow Model Analysis", "Fairness Indicators"],
+          "lab_task": "Evaluate a loan approval model across slices with Model Analysis and Fairness Indicators, find a disparity, try a mitigation and document the result.",
+          "deliverable": "Fairness analysis report",
+          "checks": [["Evaluate slices", "Metrics shown per slice", "Analysis output"], ["Find a disparity", "Disparity between groups identified", "Fairness chart"], ["Mitigate", "Mitigation reduces the gap with trade-offs stated", "Comparison table"]],
+          "objectives": ["Evaluate models by slice", "Check fairness", "Document model limits"]
+        },
+        {
+          "topic": "TensorFlow Serving in Production",
+          "subtopics": ["Serving architecture", "Batching configuration", "Model version policies", "Canary and A/B releases", "Monitoring Serving", "Serving on Kubernetes", "Security for model endpoints", "Load testing"],
+          "tools": ["TensorFlow Serving", "Kubernetes", "Prometheus"],
+          "lab_task": "Run TensorFlow Serving on Kubernetes with batching, two model versions, a canary rollout, Prometheus metrics and a load test.",
+          "deliverable": "Production serving setup",
+          "checks": [["Tune batching", "Throughput higher with batching", "Load test results"], ["Run a canary", "New version gets a share of traffic", "Traffic metrics"], ["Monitor", "Request latency and errors shown", "Dashboard screenshot"]],
+          "objectives": ["Run TensorFlow Serving in production", "Release models safely", "Monitor serving"]
+        },
+        {
+          "topic": "LiteRT for Mobile and Edge Devices",
+          "subtopics": ["LiteRT, the successor to TensorFlow Lite", "Converting models", "Post-training quantisation", "Delegates for GPU and NPU", "Running models on Android", "Microcontrollers in brief", "Measuring on-device performance", "Updating models on devices"],
+          "tools": ["LiteRT", "TensorFlow converter", "Android test app"],
+          "lab_task": "Convert the classifier to LiteRT, quantise it, run it in a sample Android app with a GPU delegate and measure latency, size and accuracy.",
+          "deliverable": "On-device model with measurements",
+          "checks": [["Convert", "LiteRT model runs on the device", "Screen recording"], ["Quantise", "Model smaller with acceptable accuracy", "Comparison table"], ["Use a delegate", "Latency lower with the GPU delegate", "Benchmark output"]],
+          "objectives": ["Deploy models to devices", "Quantise for mobile", "Use hardware delegates"]
+        },
+        {
+          "topic": "TensorFlow.js in the Browser",
+          "subtopics": ["TensorFlow.js overview", "Converting Keras models", "Running models in the browser", "WebGL and WebGPU backends", "Privacy benefits of in-browser inference", "Training in the browser", "Performance considerations", "Packaging for web apps"],
+          "tools": ["TensorFlow.js", "Web browser", "JavaScript"],
+          "lab_task": "Convert the classifier to TensorFlow.js, run it in a web page on webcam images with the WebGPU or WebGL backend and measure frames per second.",
+          "deliverable": "Browser demo with measurements",
+          "checks": [["Run in the browser", "Page classifies webcam images", "Screen recording"], ["Compare backends", "Speed compared across backends", "Timing table"], ["Keep data local", "No images sent to a server", "Network log"]],
+          "objectives": ["Run models in the browser", "Convert Keras models", "Measure browser performance"]
+        },
+        {
+          "topic": "Time Series Forecasting with TensorFlow",
+          "subtopics": ["Windowing time series", "Dense, CNN and LSTM forecasters", "Multi-step forecasts", "Covariates and calendar features", "Backtesting", "Baselines", "Probabilistic outputs", "Deploying forecasts"],
+          "tools": ["TensorFlow", "Keras", "Pandas"],
+          "lab_task": "Build windowed datasets for store demand, compare dense, CNN and LSTM forecasters against a seasonal baseline with backtesting and produce prediction intervals.",
+          "deliverable": "Forecasting models with backtests",
+          "checks": [["Backtest", "Models evaluated with rolling backtests", "Backtest table"], ["Beat the baseline", "Best model beats the seasonal baseline", "Comparison table"], ["Give intervals", "Prediction intervals produced", "Plot"]],
+          "objectives": ["Forecast with TensorFlow", "Backtest forecasts", "Produce intervals"]
+        },
+        {
+          "topic": "Recommendation Models with TensorFlow Recommenders",
+          "subtopics": ["Retrieval and ranking", "Two-tower models", "Embeddings for users and items", "Training with implicit feedback", "Evaluation with top-k metrics", "Serving retrieval with approximate search", "Cold start", "Business metrics"],
+          "tools": ["TensorFlow Recommenders", "ScaNN"],
+          "lab_task": "Build a two-tower retrieval model and a ranking model for products, evaluate with top-k metrics and serve fast retrieval with approximate nearest neighbours.",
+          "deliverable": "Recommender with evaluation",
+          "checks": [["Retrieve", "Top-k recall reported", "Evaluation output"], ["Rank", "Ranking model improves on retrieval order", "Evaluation output"], ["Serve fast", "Approximate search returns results quickly", "Timing output"]],
+          "objectives": ["Build recommenders", "Use two-tower models", "Serve retrieval at speed"]
+        },
+        {
+          "topic": "Generative Models: Autoencoders, GANs and Diffusion in Keras",
+          "subtopics": ["Autoencoders and VAEs", "Generative adversarial networks", "Training stability for GANs", "Diffusion models in KerasHub", "Text-to-image pipelines", "Evaluating generated samples", "Anomaly detection with autoencoders", "Responsible use"],
+          "tools": ["Keras", "KerasHub"],
+          "lab_task": "Train a VAE and a small GAN on product images, generate images with a pretrained diffusion model and use the autoencoder for anomaly detection.",
+          "deliverable": "Generative experiments",
+          "checks": [["Train a GAN", "Generated images improve over training", "Image grids"], ["Use diffusion", "Pretrained model creates images from prompts", "Image grid"], ["Detect anomalies", "Anomalies get high reconstruction error", "Results table"]],
+          "objectives": ["Build generative models in Keras", "Use diffusion pipelines", "Apply autoencoders to anomalies"]
+        },
+        {
+          "topic": "Profiling with the TensorFlow Profiler",
+          "subtopics": ["Where training time goes", "Trace viewer", "Input pipeline analysis", "Operator statistics", "Memory profiling", "GPU kernel views", "Fixing common bottlenecks", "Profiling in TensorBoard"],
+          "tools": ["TensorFlow Profiler", "TensorBoard"],
+          "lab_task": "Profile a slow training run, find input and operator bottlenecks, fix them and show shorter epochs and higher device use.",
+          "deliverable": "Profiling report",
+          "checks": [["Find the bottleneck", "Main bottleneck identified", "Profiler screenshot"], ["Fix it", "Epoch time reduced", "Timing table"], ["Raise device use", "Device utilisation higher after fixes", "Profiler comparison"]],
+          "objectives": ["Profile TensorFlow training", "Fix bottlenecks", "Use device time well"]
+        },
+        {
+          "topic": "Testing and Reproducibility for TensorFlow Code",
+          "subtopics": ["Seeds and determinism", "Unit tests with tf.test", "Testing layers and models", "Testing data pipelines", "Regression tests for metrics", "Configuration management", "Data and model versioning", "CI for TensorFlow projects"],
+          "tools": ["tf.test", "pytest", "DVC", "GitHub Actions"],
+          "lab_task": "Add unit tests for layers, pipelines and a small training run, make runs deterministic, version data and models and run the tests in CI.",
+          "deliverable": "Tested and reproducible project",
+          "checks": [["Run tests", "Tests pass in CI", "CI run"], ["Reproduce", "Same seed and config give the same metrics", "Training logs"], ["Version artefacts", "Data and model versions tied to runs", "DVC output"]],
+          "objectives": ["Test TensorFlow code", "Make runs reproducible", "Version data and models"]
+        },
+        {
+          "topic": "Intermediate Capstone: End-to-End TFX Pipeline",
+          "subtopics": ["Pipeline design", "Training and tuning", "Serving and devices", "Report"],
+          "tools": ["TFX", "KerasTuner", "TensorFlow Serving", "LiteRT", "TensorFlow Model Analysis"],
+          "lab_task": "Build a TFX pipeline with validation, tuning, fairness-aware evaluation and pushing to TensorFlow Serving, plus a LiteRT export for mobile, then report results.",
+          "deliverable": "Pipeline, deployed models and report",
+          "checks": [["Run the pipeline", "Pipeline trains, evaluates and pushes the model", "Pipeline run"], ["Serve and export", "Model served on the server and running on a phone", "Demo recording"], ["Show analysis", "Sliced and fairness results reported", "Analysis report"]],
+          "objectives": ["Combine the intermediate topics in one pipeline", "Deliver models to servers and devices", "Report model quality"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior ML engineers and platform teams using TensorFlow. Covers graph internals and AutoGraph, custom ops and XLA, large-scale distributed training on TPUs and GPUs, the Model Optimization Toolkit, JAX interoperability, large language models in Keras, parameter-efficient fine-tuning, serving at scale, TFX with Vertex AI, federated learning, privacy-preserving ML, on-device ML at scale, explainability, data validation and drift, migrating TensorFlow 1 code, choosing frameworks, input pipeline engineering, production debugging and platform leadership.",
+      "prerequisites": ["Several years building models with TensorFlow and Keras", "Strong Python and ML engineering skills", "Has deployed models to production"],
+      "outcomes": ["Engineer large-scale TensorFlow training and serving", "Build private, fair and explainable ML systems", "Run production ML platforms on TFX and Vertex AI", "Lead framework and platform decisions"],
+      "days": [
+        {
+          "topic": "TensorFlow Internals: Graphs, tf.function and AutoGraph",
+          "subtopics": ["Eager and graph execution", "How tf.function traces code", "AutoGraph conversion", "Retracing and input signatures", "Concrete functions", "Graph optimisations with Grappler", "Debugging traced code", "Internals that matter for performance"],
+          "tools": ["TensorFlow", "tf.function", "TensorBoard graph view"],
+          "lab_task": "Trace functions with different inputs to show retracing, fix it with input signatures, inspect concrete functions and explain an AutoGraph conversion.",
+          "deliverable": "Internals notebook",
+          "checks": [["Show retracing", "Retracing count reduced with signatures", "Notebook output"], ["Inspect graphs", "Concrete function graph explained", "Graph screenshot"], ["Explain AutoGraph", "Python control flow converted as described", "Notes"]],
+          "objectives": ["Explain TensorFlow execution", "Control tracing", "Debug graph code"]
+        },
+        {
+          "topic": "Custom Ops and XLA",
+          "subtopics": ["When custom ops are needed", "Writing ops in Python with tf.numpy_function and limits", "Custom C++ ops in brief", "XLA compilation in depth", "Fusion and memory benefits", "Debugging XLA", "Custom gradients", "Benchmarking ops"],
+          "tools": ["TensorFlow", "XLA", "tf.custom_gradient"],
+          "lab_task": "Implement a fused operation with XLA, add a custom gradient for numerical stability, benchmark it and debug a compilation failure.",
+          "deliverable": "Custom operation with benchmarks",
+          "checks": [["Add a custom gradient", "Gradient stable where the default failed", "Test output"], ["Benchmark", "XLA version faster than the unfused version", "Benchmark results"], ["Debug XLA", "Compilation failure diagnosed and fixed", "Notes"]],
+          "objectives": ["Extend TensorFlow", "Use XLA effectively", "Write custom gradients"]
+        },
+        {
+          "topic": "Large-Scale Distributed Training on TPUs and GPUs",
+          "subtopics": ["Multi-worker training", "Parameter server training", "TPU pods", "Input sharding at scale", "Checkpointing and preemption", "Communication bottlenecks", "Monitoring large jobs", "Cost of large runs"],
+          "tools": ["tf.distribute", "Cloud TPUs", "Vertex AI Training"],
+          "lab_task": "Run a multi-worker training job on cloud GPUs or TPUs with sharded input, preemption-safe checkpoints and monitoring, and estimate cost per run.",
+          "deliverable": "Large-scale training report",
+          "checks": [["Scale out", "Throughput grows with more workers", "Scaling chart"], ["Survive preemption", "Training resumes after a worker is preempted", "Job logs"], ["Estimate cost", "Cost per run calculated", "Cost report"]],
+          "objectives": ["Train at scale", "Handle preemption", "Control training cost"]
+        },
+        {
+          "topic": "Model Optimization Toolkit: Quantisation, Pruning and Clustering",
+          "subtopics": ["Why optimise models", "Quantisation-aware training", "Pruning schedules", "Weight clustering", "Combining techniques", "Accuracy and latency trade-offs", "Optimising for servers and devices", "Measuring results"],
+          "tools": ["TensorFlow Model Optimization Toolkit", "LiteRT"],
+          "lab_task": "Apply quantisation-aware training, pruning and clustering to the classifier, combine them and compare size, latency and accuracy on server and phone.",
+          "deliverable": "Optimisation comparison report",
+          "checks": [["Quantise during training", "QAT model keeps accuracy after quantisation", "Comparison table"], ["Prune", "Pruned model smaller with acceptable accuracy", "Comparison table"], ["Measure", "Latency compared on server and phone", "Benchmark results"]],
+          "objectives": ["Optimise models", "Combine compression methods", "Measure trade-offs"]
+        },
+        {
+          "topic": "JAX Interoperability and Keras 3 Backends at Scale",
+          "subtopics": ["Why teams mix TensorFlow and JAX", "Keras 3 on JAX for large training", "JAX transformations: jit, grad and vmap", "Sharding with JAX", "Moving models between frameworks", "Performance comparisons at scale", "Tooling differences", "Choosing a backend for a project"],
+          "tools": ["JAX", "Keras 3", "TensorFlow"],
+          "lab_task": "Train the same Keras model on the JAX and TensorFlow backends at larger scale, use jit and vmap in a custom step, and compare throughput and tooling.",
+          "deliverable": "Backend comparison at scale",
+          "checks": [["Train on JAX", "Model trains with the JAX backend at scale", "Training log"], ["Use transformations", "Custom step uses jit and vmap correctly", "Notebook output"], ["Compare", "Throughput and tooling compared", "Comparison table"]],
+          "objectives": ["Use JAX with Keras", "Compare backends at scale", "Choose a backend"]
+        },
+        {
+          "topic": "Large Language Models with Keras and KerasHub",
+          "subtopics": ["Language model presets in KerasHub", "Tokenisation and preprocessing", "Generation and sampling", "Fine-tuning on domain data", "Evaluation of generated text", "Serving language models", "Safety filters", "Costs of language models"],
+          "tools": ["KerasHub", "Keras 3", "JAX or TensorFlow backend"],
+          "lab_task": "Load a language model preset, fine-tune it on support conversations, compare sampling settings, evaluate outputs and add a simple safety filter.",
+          "deliverable": "Fine-tuned language model with evaluation",
+          "checks": [["Fine-tune", "Fine-tuned model follows the domain style", "Sample outputs"], ["Compare sampling", "Sampling settings compared on quality", "Evaluation table"], ["Filter output", "Safety filter blocks unsafe responses", "Test output"]],
+          "objectives": ["Work with language models in Keras", "Fine-tune and evaluate them", "Add safety controls"]
+        },
+        {
+          "topic": "Parameter-Efficient Fine-Tuning in Keras",
+          "subtopics": ["Why parameter-efficient fine-tuning", "LoRA in Keras", "Choosing ranks and layers", "Quantised base models", "Training on limited hardware", "Merging adapters", "Evaluating adapters", "Managing many adapters"],
+          "tools": ["KerasHub", "Keras 3"],
+          "lab_task": "Fine-tune a language model with LoRA at three ranks, compare quality, memory and speed, merge the best adapter and manage adapters for two customers.",
+          "deliverable": "Adapter comparison and merged model",
+          "checks": [["Compare ranks", "Quality and memory compared across ranks", "Comparison table"], ["Merge", "Merged model matches adapter outputs", "Test output"], ["Manage adapters", "Correct adapter loaded per customer", "Test output"]],
+          "objectives": ["Fine-tune efficiently in Keras", "Choose LoRA settings", "Manage adapters"]
+        },
+        {
+          "topic": "Serving at Scale: Batching, Versioning and Canary Releases",
+          "subtopics": ["Serving architectures at scale", "Dynamic batching tuning", "Model warm-up", "Version policies and rollback", "Canary and shadow deployments", "Autoscaling serving", "Monitoring models in production", "Cost per prediction"],
+          "tools": ["TensorFlow Serving", "Kubernetes", "Prometheus", "Load testing tools"],
+          "lab_task": "Tune batching and warm-up for a high-traffic endpoint, run shadow and canary releases, autoscale on load and report cost per thousand predictions.",
+          "deliverable": "Serving at scale report",
+          "checks": [["Tune batching", "Throughput higher at the same latency", "Load test results"], ["Shadow a model", "New model receives mirrored traffic without user impact", "Comparison report"], ["Report cost", "Cost per thousand predictions calculated", "Cost report"]],
+          "objectives": ["Serve models at scale", "Release models safely", "Control serving cost"]
+        },
+        {
+          "topic": "Production ML Pipelines with TFX and Vertex AI",
+          "subtopics": ["TFX on Vertex AI Pipelines", "Continuous training", "Triggering retraining", "Model registry and endpoints", "Monitoring and alerting", "Pipeline CI/CD", "Governance and approvals", "Costs of managed pipelines"],
+          "tools": ["TFX", "Vertex AI Pipelines", "Vertex AI Model Registry"],
+          "lab_task": "Run the TFX pipeline on Vertex AI with scheduled retraining, model registry, an approval step and deployment to an endpoint with monitoring.",
+          "deliverable": "Managed pipeline with monitoring",
+          "checks": [["Retrain on schedule", "Pipeline retrains and registers a new model", "Pipeline runs"], ["Approve", "Deployment waits for approval", "Pipeline log"], ["Monitor", "Endpoint monitoring alerts on drift", "Alert screenshot"]],
+          "objectives": ["Run TFX on Vertex AI", "Automate retraining", "Govern model releases"]
+        },
+        {
+          "topic": "Federated Learning with TensorFlow Federated",
+          "subtopics": ["Why federated learning", "Federated averaging", "Simulating clients", "Non-identical client data", "Communication costs", "Privacy considerations", "Evaluation in federated settings", "Real-world deployments"],
+          "tools": ["TensorFlow Federated", "TensorFlow"],
+          "lab_task": "Simulate federated training across 50 clients with uneven data, compare with central training and measure communication rounds and accuracy.",
+          "deliverable": "Federated learning experiment",
+          "checks": [["Train federated", "Federated model reaches useful accuracy", "Training log"], ["Compare with central", "Accuracy compared with central training", "Comparison table"], ["Measure communication", "Rounds and bytes measured", "Metrics table"]],
+          "objectives": ["Explain federated learning", "Simulate federated training", "Weigh its trade-offs"]
+        },
+        {
+          "topic": "Privacy-Preserving ML with TensorFlow Privacy",
+          "subtopics": ["Privacy risks in ML models", "Differential privacy concepts", "DP-SGD", "Privacy budgets", "Membership inference tests", "Accuracy trade-offs", "Documenting privacy guarantees", "Regulations and privacy"],
+          "tools": ["TensorFlow Privacy", "TensorFlow"],
+          "lab_task": "Train a model with DP-SGD at two privacy budgets, run a membership inference test against private and non-private models and document the trade-offs.",
+          "deliverable": "Privacy experiment and documentation",
+          "checks": [["Train with DP-SGD", "Private models trained at two budgets", "Training log"], ["Test membership inference", "Attack success lower for private models", "Attack results"], ["Document", "Privacy guarantees and costs documented", "Report"]],
+          "objectives": ["Train private models", "Measure privacy risk", "Document privacy trade-offs"]
+        },
+        {
+          "topic": "On-Device ML at Scale with LiteRT",
+          "subtopics": ["Fleet deployment of on-device models", "Hardware diversity on Android", "Delegates and fallbacks", "Model updates through app releases or downloads", "On-device evaluation and telemetry", "Battery and memory budgets", "Privacy on device", "Managing many model variants"],
+          "tools": ["LiteRT", "Firebase ML or a model delivery service", "Android test devices"],
+          "lab_task": "Plan delivery of a model to a varied Android fleet, test delegates and fallbacks on three devices, download model updates at runtime and collect on-device metrics.",
+          "deliverable": "On-device delivery plan and test results",
+          "checks": [["Test devices", "Model works on three different devices with fallbacks", "Test log"], ["Update models", "New model downloaded without an app release", "Screen recording"], ["Collect metrics", "On-device latency reported from devices", "Metrics dashboard"]],
+          "objectives": ["Deploy on-device ML at scale", "Handle hardware diversity", "Update models safely"]
+        },
+        {
+          "topic": "Explainability for Deep Models",
+          "subtopics": ["Why explanations matter", "Integrated gradients", "Grad-CAM for images", "SHAP for deep models", "Explaining text models", "Checking explanation quality", "Explaining to stakeholders", "Limits of explanations"],
+          "tools": ["TensorFlow", "Integrated gradients", "SHAP"],
+          "lab_task": "Explain image, text and tabular model predictions with Grad-CAM, integrated gradients and SHAP, check whether explanations are stable and present them to a business audience.",
+          "deliverable": "Explainability report",
+          "checks": [["Explain images", "Grad-CAM highlights relevant regions", "Image grid"], ["Check stability", "Explanations compared across similar inputs", "Stability notes"], ["Present", "Business audience questions answered", "Presentation notes"]],
+          "objectives": ["Explain deep models", "Check explanation quality", "Communicate explanations"]
+        },
+        {
+          "topic": "Data Validation and Drift Monitoring with TFDV",
+          "subtopics": ["Data validation in ML systems", "Schemas and statistics with TFDV", "Detecting anomalies", "Training-serving skew", "Drift detection", "Alerting on drift", "Retraining triggers", "Documenting data expectations"],
+          "tools": ["TensorFlow Data Validation", "TFX", "Monitoring tools"],
+          "lab_task": "Build schemas and statistics for training data, detect anomalies and skew in serving data, alert on drift and trigger retraining.",
+          "deliverable": "Validation and drift monitoring setup",
+          "checks": [["Detect anomalies", "Bad serving batch flagged against the schema", "TFDV output"], ["Detect skew", "Training-serving skew found", "TFDV output"], ["Trigger retraining", "Drift alert starts the retraining pipeline", "Pipeline run"]],
+          "objectives": ["Validate ML data", "Detect drift and skew", "Trigger retraining"]
+        },
+        {
+          "topic": "Migrating TensorFlow 1 and Estimator Code",
+          "subtopics": ["Recognising TensorFlow 1 patterns", "Sessions and placeholders", "Estimators and their replacements", "tf_upgrade_v2 and compatibility modules", "Converting to Keras models", "Converting checkpoints", "Testing parity", "Planning migrations"],
+          "tools": ["tf_upgrade_v2", "tf.compat.v1", "Keras"],
+          "lab_task": "Migrate a TensorFlow 1 Estimator model to Keras, convert its checkpoints, prove output parity and plan the migration of the remaining models.",
+          "deliverable": "Migrated model and migration plan",
+          "checks": [["Convert code", "Model rewritten in Keras", "Code diff"], ["Prove parity", "Outputs match the old model", "Test output"], ["Plan the rest", "Remaining models ranked by effort and risk", "Migration plan"]],
+          "objectives": ["Migrate legacy TensorFlow code", "Prove parity", "Plan migrations"]
+        },
+        {
+          "topic": "Choosing Between TensorFlow, PyTorch and JAX",
+          "subtopics": ["Strengths of each framework", "Ecosystem and hiring", "Production tooling", "Research and model availability", "Performance on different hardware", "Interoperability options", "Migration costs", "Making a framework decision"],
+          "tools": ["TensorFlow", "PyTorch", "JAX", "Decision records"],
+          "lab_task": "Build the same small model in all three frameworks, compare developer experience, performance and production tooling, and write a framework recommendation.",
+          "deliverable": "Framework comparison and recommendation",
+          "checks": [["Build in three frameworks", "Same model works in all three", "Training logs"], ["Compare", "Criteria scored for each framework", "Comparison table"], ["Recommend", "Recommendation fits the team's context", "Decision record"]],
+          "objectives": ["Compare deep learning frameworks", "Weigh migration costs", "Make framework decisions"]
+        },
+        {
+          "topic": "Performance Engineering for Training Input Pipelines",
+          "subtopics": ["Input-bound training at scale", "Storage formats for training data", "Reading from object storage", "Preprocessing on accelerators", "The tf.data service for disaggregated input", "Caching tiers", "Measuring input throughput", "Budgets for input pipelines"],
+          "tools": ["tf.data service", "TensorFlow Profiler", "Object storage"],
+          "lab_task": "Make a large training job input-bound on purpose, move preprocessing to a tf.data service fleet, tune storage formats and caching and restore full accelerator use.",
+          "deliverable": "Input engineering report",
+          "checks": [["Show the input bound", "Profiler shows accelerators waiting on input", "Profiler screenshot"], ["Scale input", "tf.data service raises throughput", "Throughput table"], ["Restore utilisation", "Accelerator use back near full", "Profiler comparison"]],
+          "objectives": ["Engineer input pipelines at scale", "Use the tf.data service", "Keep accelerators busy"]
+        },
+        {
+          "topic": "Debugging Production Model Issues",
+          "subtopics": ["Model incidents in production", "Bad predictions from data changes", "Training-serving skew", "Latency regressions", "Version mix-ups", "Silent accuracy decay", "Investigation tools", "Post-incident reviews"],
+          "tools": ["TFDV", "TensorFlow Serving logs", "Monitoring dashboards"],
+          "lab_task": "Work through four model incidents: a skewed feature, a latency regression, a wrong model version and slow accuracy decay, fix each and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Fix skew", "Skewed feature found and fixed", "Notes"], ["Fix the version mix-up", "Correct model version restored", "Serving logs"], ["Write the review", "Review lists causes and follow-ups", "Post-incident review"]],
+          "objectives": ["Debug production models", "Find data and serving issues", "Learn from incidents"]
+        },
+        {
+          "topic": "Leading Deep Learning Platforms",
+          "subtopics": ["Platform responsibilities for ML teams", "Shared tooling and templates", "Compute governance and quotas", "Model governance and approvals", "Supporting many teams", "Measuring platform value", "Roadmaps", "Communicating with leadership"],
+          "tools": ["Platform templates", "Governance documents", "Dashboards"],
+          "lab_task": "Design an internal deep learning platform for five teams with templates, compute quotas, model governance and value metrics, and present a roadmap.",
+          "deliverable": "Platform design and roadmap",
+          "checks": [["Set quotas", "Compute quotas defined per team", "Platform design"], ["Govern models", "Approval steps defined for production models", "Governance document"], ["Present the roadmap", "Leadership questions answered", "Presentation notes"]],
+          "objectives": ["Lead ML platforms", "Govern compute and models", "Measure platform value"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Recommender on TFX and Vertex AI",
+          "subtopics": ["Architecture", "Training and optimisation", "Serving and monitoring", "Defence"],
+          "tools": ["TensorFlow Recommenders", "TFX", "Vertex AI", "TensorFlow Serving", "TFDV"],
+          "lab_task": "Build a production recommender with a TFX pipeline on Vertex AI, two-tower retrieval and ranking, data validation, privacy review, serving at scale and drift monitoring, then defend it to a review panel.",
+          "deliverable": "Pipeline, deployed system, reports and defence",
+          "checks": [["Prove quality", "Offline metrics meet targets and beat the baseline", "Evaluation report"], ["Serve at scale", "Serving meets latency and cost targets", "Load test results"], ["Defend the design", "Panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one system", "Run a production ML system", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

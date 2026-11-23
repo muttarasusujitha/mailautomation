@@ -54,6 +54,7 @@ const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedule
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const PurchaseOrders = lazyWithRetry(() => import('./pages/PurchaseOrders'))
 const FinanceApprovals = lazyWithRetry(() => import('./pages/FinanceApprovals'))
+const TravelBookings = lazyWithRetry(() => import('./pages/TravelBookings'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
@@ -89,7 +90,11 @@ function RouteBoundary({ children }) {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
-  const [authReady, setAuthReady] = useState(false)
+  const [authReady, setAuthReady] = useState(() => {
+    // Keep public auth routes available while session restoration is checked.
+    return !['/login', '/admin-login', '/trainer-login', '/client-login', '/reset-password']
+      .includes(window.location.pathname)
+  })
   useEffect(() => {
     let active = true
     const expired = () => { setIsLoggedIn(false); setUser(null) }
@@ -181,6 +186,7 @@ export default function App() {
             <Route path="invoices" element={<Invoices />} />
             <Route path="purchase-orders" element={<PurchaseOrders />} />
             <Route path="finance-approvals" element={<FinanceApprovals />} />
+            <Route path="travel-bookings" element={<TravelBookings />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<PrivateRoute isLoggedIn={isLoggedIn} user={user} adminOnly><Admin /></PrivateRoute>} />
