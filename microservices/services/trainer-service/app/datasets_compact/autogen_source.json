@@ -1,6 +1,6 @@
 {
   "domain": "AutoGen",
-  "name": "AutoGen â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "AutoGen – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "Microsoft AutoGen",
     "Agent Framework"
@@ -25,9 +25,6 @@
         "Environment setup",
         "SDK/runtime setup",
         "First example",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
         "agents",
         "messages",
         "tools",
@@ -111,21 +108,7 @@
         "Schemas",
         "Metadata",
         "Validation",
-        "Preprocessing",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Preprocessing"
       ],
       "tools": [
         "AutoGen",
@@ -197,21 +180,7 @@
         "Batching",
         "Error handling",
         "Reproducibility",
-        "Result interpretation",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Result interpretation"
       ],
       "tools": [
         "AutoGen",
@@ -283,21 +252,7 @@
         "Streaming",
         "Structured outputs",
         "Hybrid techniques",
-        "Performance trade-offs",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Performance trade-offs"
       ],
       "tools": [
         "AutoGen",
@@ -369,21 +324,7 @@
         "Test sets",
         "Failure analysis",
         "Regression testing",
-        "Human review",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Human review"
       ],
       "tools": [
         "AutoGen",
@@ -455,21 +396,7 @@
         "Access control",
         "Abuse prevention",
         "Policy controls",
-        "Auditability",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Auditability"
       ],
       "tools": [
         "AutoGen",
@@ -542,21 +469,7 @@
         "Caching",
         "Fallbacks",
         "Observability",
-        "Reliability",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Reliability"
       ],
       "tools": [
         "AutoGen",
@@ -628,21 +541,7 @@
         "Agents or workflows",
         "Web/backend integration",
         "Streaming",
-        "Testing",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Testing"
       ],
       "tools": [
         "AutoGen",
@@ -714,21 +613,7 @@
         "Versioning",
         "Rollbacks",
         "Performance tuning",
-        "Incident handling",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging",
-        "evaluation"
+        "Incident handling"
       ],
       "tools": [
         "AutoGen",
@@ -797,24 +682,10 @@
         "Requirements",
         "Data",
         "Implementation",
-        "Evaluation",
         "Safety",
         "Observability",
         "Deployment",
-        "Documentation",
-        "AutoGen terminology and feature mapping for this topic",
-        "AutoGen configuration and implementation considerations",
-        "AutoGen best practices and common mistakes for this topic",
-        "agents",
-        "messages",
-        "tools",
-        "group chat concepts",
-        "termination conditions",
-        "human-in-the-loop",
-        "code execution concepts",
-        "multi-agent workflows",
-        "state",
-        "logging"
+        "Documentation"
       ],
       "tools": [
         "AutoGen",
@@ -882,5 +753,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

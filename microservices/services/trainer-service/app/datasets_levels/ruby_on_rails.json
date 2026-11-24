@@ -1,0 +1,573 @@
+{
+  "domain": "Ruby on Rails",
+  "name": "Ruby on Rails",
+  "category": "Web and Full Stack Development",
+  "icon": "code",
+  "aliases": ["Rails", "RoR", "Ruby on Rails Framework", "Rails Full Stack", "Rails 8", "Rails Developer", "Ruby on Rails Developer", "Rails Web Development"],
+  "certifications": ["Ruby Association Certified Ruby Programmer"],
+  "tools": ["Ruby", "Rails 8", "Bundler", "Puma", "PostgreSQL", "SQLite", "Hotwire", "Solid Queue", "Kamal", "Docker", "Minitest", "RuboCop", "Brakeman", "Visual Studio Code"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know Ruby basics such as classes, blocks and hashes and are new to Rails. Covers installing Rails 8, the directory layout and Zeitwerk, the request lifecycle, routing, controllers with params.expect, ERB views, migrations, Active Record queries, validations, associations, forms, Turbo Drive and Frames, the built-in authentication generator, credentials, Minitest, debugging, linting with RuboCop and Brakeman, and a bookmarks application capstone.",
+      "prerequisites": ["Writes small Ruby programs using classes, modules, blocks and hashes", "Knows basic HTML and HTTP concepts such as methods, status codes and forms", "Has a laptop with a terminal, Git and rights to install Ruby, SQLite and an editor such as Visual Studio Code"],
+      "outcomes": ["Generate, run and navigate a Rails 8 application and explain its request lifecycle", "Model data with migrations, validations and associations and query it with Active Record", "Build forms, views and Turbo-enhanced pages with safe parameter handling and sign-in", "Test, lint and scan a small application with Minitest, RuboCop and Brakeman"],
+      "days": [
+        {
+          "topic": "Installing Rails 8 and Generating a New Application",
+          "subtopics": ["Ruby version managers: mise, rbenv and asdf", "Installing Ruby and checking ruby -v against the Gemfile ruby line", "gem install rails and rails -v", "rails new options: --database, --css, --skip-kamal and --skip-solid", "What Rails 8 generates by default: SQLite, Propshaft, importmap, Solid Queue, Kamal", "bin/rails server and the Puma banner on port 3000", "bin/dev and Procfile.dev when a CSS build is used", "bin/rails about and the environment report", "Editor setup with Visual Studio Code and the ruby-lsp extension"],
+          "tools": ["Ruby", "Rails 8", "Bundler", "Puma", "Visual Studio Code", "ruby-lsp"],
+          "lab_task": "Install Ruby and Rails 8 with mise, run rails new shelf --database=sqlite3, start bin/rails server, and open http://localhost:3000. Run bin/rails about and record the Rails, Ruby and database adapter lines. Then run rails new shelf_pg --database=postgresql --skip-kamal and diff the two Gemfiles to list the gems that differ.",
+          "deliverable": "Install log, bin/rails about output and a Gemfile diff between the SQLite and PostgreSQL applications",
+          "checks": [["Run bin/rails about in the new app", "Rails version shows 8.x and the database adapter shows sqlite3", "Terminal output"], ["Open http://localhost:3000 after bin/rails server", "The default Rails welcome page renders with HTTP 200", "Browser screenshot"], ["Diff the Gemfiles of shelf and shelf_pg", "The pg gem appears in shelf_pg and the sqlite3 gem appears only in shelf", "diff output"]],
+          "objectives": ["Install Ruby and Rails 8 with a version manager", "Generate and boot a new application", "Explain which defaults Rails 8 enables out of the box"]
+        },
+        {
+          "topic": "Anatomy of a Rails App: Directories, Zeitwerk and Autoloading",
+          "subtopics": ["app/models, app/controllers, app/views and app/helpers roles", "config/, db/, lib/, public/ and storage/ directories", "bin/ binstubs: rails, setup, dev, rubocop, brakeman", "Zeitwerk naming: file path to constant name", "bin/rails zeitwerk:check and its All is good! output", "Adding app/services and why no require is needed", "config/application.rb and config.load_defaults 8.0", "Initializers, config/environments and eager_load", "Reading Gemfile and Gemfile.lock for the default gem set"],
+          "tools": ["Rails 8", "Zeitwerk", "Bundler", "bin/rails"],
+          "lab_task": "In the shelf app create app/services/greeting.rb defining Greeting with a call method, then call Greeting.new.call in bin/rails console without any require. Rename the file to greetings.rb, run bin/rails zeitwerk:check, and record the NameError or expectation message. Restore the name and confirm the check prints All is good!.",
+          "deliverable": "Short note with the console session, the failing zeitwerk:check output and the fix",
+          "checks": [["Call Greeting.new.call in bin/rails console", "The method returns its string without any require statement", "Console transcript"], ["Rename greeting.rb to greetings.rb and run bin/rails zeitwerk:check", "Zeitwerk reports it expected greetings.rb to define Greetings", "Command output"], ["Restore the file name and rerun the check", "The command prints All is good!", "Command output"]],
+          "objectives": ["Locate each kind of code in the Rails directory tree", "Explain how Zeitwerk maps files to constants", "Run the autoloading check and fix a naming error"]
+        },
+        {
+          "topic": "Request Lifecycle: Puma, Rack and the Middleware Stack",
+          "subtopics": ["A request from browser to Puma to Rack to the router", "bin/rails middleware and reading the stack in order", "What ActionDispatch::Static, Rack::Sendfile and ActionDispatch::Cookies do", "Rails.application.routes as a Rack endpoint", "Controller to view to response rendering order", "Request and response objects: request.format, request.headers, response.status", "Request IDs: X-Request-Id and the log tag", "Reading development.log for one full request", "Writing a small custom middleware in app/middleware", "Health endpoint /up and Rails::HealthController"],
+          "tools": ["Rack", "Puma", "bin/rails", "curl"],
+          "lab_task": "Run bin/rails middleware and save the list. Add app/middleware/timing_header.rb that sets an X-Runtime-Ms response header, insert it in config/application.rb with config.middleware.use, and request /up using curl -i. Record the header value and the request ID from log/development.log for the same request.",
+          "deliverable": "Middleware list, the custom class and a curl -i capture showing the new header",
+          "checks": [["Run bin/rails middleware", "ActionDispatch::RequestId is listed before Rails::Rack::Logger", "Command output"], ["Call curl -i http://localhost:3000/up", "Status 200 and an X-Runtime-Ms header are returned", "curl output"], ["Search log/development.log for the request ID from the response", "A Started GET \"/up\" line carries the same ID", "Log excerpt"]],
+          "objectives": ["Trace a request through the Rack stack", "Read the middleware list and log for one request", "Add and verify a small middleware"]
+        },
+        {
+          "topic": "Routing: Resources, Constraints and bin/rails routes",
+          "subtopics": ["root, get and post routes and the route DSL", "resources and the seven RESTful actions", "Singular resource and only:/except: filters", "Nested resources and shallow: true", "member and collection routes", "Path and URL helpers: books_path vs books_url", "Constraints: segment regex, subdomain and lambda constraints", "namespace, scope and module options", "bin/rails routes -g and -c filters, and /rails/info/routes", "Redirect and mount routes", "Route params and format suffixes"],
+          "tools": ["bin/rails", "Rails 8", "curl"],
+          "lab_task": "In the shelf app add resources :books with a nested resources :notes, shallow: true, and a collection route get :recent on books. Run bin/rails routes -g note and count the generated lines. Add a constraint id: /\\d+/ and request /books/abc with curl to see the routing error.",
+          "deliverable": "routes.rb file, routes output filtered for note and the constraint test",
+          "checks": [["Run bin/rails routes -g note", "Seven nested note routes are listed with shallow paths such as /notes/:id", "Command output"], ["Request /books/abc with the id constraint set", "A 404 Not Found response from ActionController::RoutingError is returned", "curl output"], ["Call recent_books_path in bin/rails console via app", "It returns \"/books/recent\"", "Console transcript"]],
+          "objectives": ["Declare RESTful and custom routes", "Read and filter the generated route table", "Restrict routes with constraints"]
+        },
+        {
+          "topic": "Controllers: Actions, Params and Strong Parameters with params.expect",
+          "subtopics": ["Controller classes, actions and implicit rendering", "params: path, query and body sources", "params.require.permit and the Rails 8 params.expect form", "ActionController::ParameterMissing and the 400 response", "before_action, after_action and skip_before_action", "render vs redirect_to and the HTTP status codes", "Rendering formats with respond_to", "head and status symbols such as :unprocessable_content", "DoubleRenderError and how to avoid it", "rescue_from for RecordNotFound"],
+          "tools": ["Rails 8", "bin/rails", "curl", "Postman"],
+          "lab_task": "Generate a BooksController with bin/rails generate controller Books index create. Implement create using params.expect(book: [:title, :author]). Post JSON with curl once with a full book payload and once with an empty body, and record the status codes. Add rescue_from ActiveRecord::RecordNotFound to return 404 for /books/999.",
+          "deliverable": "BooksController, curl transcripts for good and empty payloads and the 404 test",
+          "checks": [["POST a body with book[title] and book[author]", "The record is created and the action responds with 302 or 201", "curl output and log line"], ["POST an empty body to the same action", "ActionController::ParameterMissing yields HTTP 400", "curl output and log"], ["GET /books/999 with rescue_from active", "A 404 response is returned instead of a stack trace page", "curl output"]],
+          "objectives": ["Handle parameters safely with params.expect", "Choose between render, redirect and head", "Map errors to correct HTTP statuses"]
+        },
+        {
+          "topic": "Views: ERB, Layouts, Partials and Helpers",
+          "subtopics": ["ERB tags: <%= %> vs <% %> and output escaping", "app/views/layouts/application.html.erb and yield", "content_for and yield :head", "Partials, locals: and render collection:", "Template naming and the render lookup path", "link_to, button_to and image_tag helpers", "Custom helpers in app/helpers", "HTML safety: html_safe, sanitize and raw", "Variants and formats such as show.turbo_stream.erb", "Debugging missing template errors"],
+          "tools": ["ERB", "Rails 8", "bin/rails", "Visual Studio Code"],
+          "lab_task": "Create books/_book.html.erb and render it with render @books from index. Add a helper reading_time(book) in BooksHelper. Store the title <script>alert(1)</script> in a book and confirm the page shows escaped text. Rename the partial temporarily and record the ActionView::MissingTemplate message.",
+          "deliverable": "Index view, partial, helper and screenshots of the escaped output and the missing template error",
+          "checks": [["Render index with three books via render @books", "Three list items appear from one partial call", "Page HTML source"], ["Save a title containing <script>alert(1)</script>", "Page source shows &lt;script&gt; and no alert runs", "View source screenshot"], ["Rename _book.html.erb and reload", "ActionView::MissingTemplate names the searched paths", "Error page text"]],
+          "objectives": ["Build pages from layouts and partials", "Explain automatic output escaping", "Write and use view helpers"]
+        },
+        {
+          "topic": "Migrations and the Schema: Creating Tables with Generators",
+          "subtopics": ["bin/rails generate model and generate migration naming rules", "create_table, add_column, add_reference and add_index", "Column types and null: false, default: and limit:", "bin/rails db:migrate, db:rollback STEP=1 and db:migrate:status", "db/schema.rb vs structure.sql and schema_format", "Reversible migrations: change vs up/down", "db:prepare, db:reset and db:seed", "Foreign keys and foreign_key: true", "ActiveRecord::PendingMigrationError and how to fix it", "Timestamps and t.timestamps"],
+          "tools": ["bin/rails", "SQLite", "PostgreSQL", "Rails 8"],
+          "lab_task": "Run bin/rails generate model Book title:string author:string isbn:string:index published_on:date and edit the migration so title is null: false. Migrate, roll back one step, migrate again and check db:migrate:status. Start the server before migrating on a second copy to see PendingMigrationError, then read db/schema.rb.",
+          "deliverable": "Migration file, db/schema.rb diff and db:migrate:status output",
+          "checks": [["Run bin/rails db:migrate", "db/schema.rb lists a books table with title null: false", "schema.rb excerpt"], ["Run bin/rails db:rollback then db:migrate:status", "The CreateBooks row shows down until migrated again", "Command output"], ["Load a page while the migration is pending", "ActiveRecord::PendingMigrationError appears with a run bin/rails db:migrate hint", "Browser error page"]],
+          "objectives": ["Create and run reversible migrations", "Read schema.rb as the source of truth", "Recover from pending migration errors"]
+        },
+        {
+          "topic": "Active Record CRUD and Query Interface",
+          "subtopics": ["create, new plus save, update and destroy", "find, find_by, find_by! and RecordNotFound", "where with hashes, ranges and arrays", "order, limit, offset and pluck", "count, exists?, sum and average", "first, last and take with ordering caveats", "to_sql and explain for inspecting queries", "update_all, delete_all and skipping callbacks", "Dirty tracking: changed?, saved_change_to_title?", "insert_all and upsert_all for batch writes"],
+          "tools": ["bin/rails console", "Active Record", "SQLite"],
+          "lab_task": "In bin/rails console create 25 Book rows with insert_all, then run Book.where(published_on: 2020..).order(:title).limit(5).to_sql and Book.pluck(:title).first(3). Compare Book.find(9999) with Book.find_by(id: 9999). Run Book.update_all(isbn: nil) and note that updated_at does not change.",
+          "deliverable": "Console session log with SQL strings, counts and the three lookup outcomes",
+          "checks": [["Run Book.count after insert_all of 25 rows", "The count is 25", "Console output"], ["Run Book.find(9999)", "ActiveRecord::RecordNotFound is raised", "Console output"], ["Run Book.find_by(id: 9999)", "It returns nil without raising", "Console output"]],
+          "objectives": ["Perform CRUD from the console", "Choose find, find_by or where correctly", "Inspect generated SQL"]
+        },
+        {
+          "topic": "Validations, Callbacks and Normalizes",
+          "subtopics": ["presence, length, numericality and format validations", "uniqueness validation and the matching unique index", "valid?, errors.full_messages and save vs save!", "Custom validate methods and validates_with", "Conditional validations with if: and on: :create", "Callbacks: before_validation, after_commit and the order", "Why after_commit beats after_save for side effects", "normalizes to strip and downcase attributes", "Avoiding callback-heavy models", "Validation errors and HTTP status 422"],
+          "tools": ["Active Record", "bin/rails console", "Minitest"],
+          "lab_task": "Add validates :title, presence: true, :isbn, uniqueness: true to Book and a unique index on isbn. Add normalizes :isbn, with: ->(v) { v.delete(\"-\") }. Create two books with ISBNs 978-1-23456-789-7 and 9781234567897, record the validation message, then bypass validation with insert_all and record the database error.",
+          "deliverable": "Model code, console transcript and the exception from the unique index",
+          "checks": [["Save Book.new(title: nil)", "valid? returns false and errors include \"Title can't be blank\"", "Console output"], ["Save the second book with the same ISBN after normalization", "errors show \"Isbn has already been taken\"", "Console output"], ["insert_all a duplicate ISBN skipping validations", "ActiveRecord::RecordNotUnique is raised by the index", "Console output"]],
+          "objectives": ["Write validations with matching constraints", "Pick the right callback for side effects", "Normalize attributes before validation"]
+        },
+        {
+          "topic": "Associations: belongs_to, has_many and Through",
+          "subtopics": ["belongs_to required by default and optional: true", "has_many, has_one and dependent: options", "has_many :through and join models", "Foreign key naming and the class_name: option", "Inverse associations and inverse_of", "Counter caches with counter_cache: true", "Building records through associations: author.books.create", "Polymorphic associations and the type column", "Association errors: HasManyThroughAssociationNotFoundError", "Delegations and delegate_missing_to"],
+          "tools": ["Active Record", "bin/rails console", "SQLite"],
+          "lab_task": "Add Author, Book and Review models with Author has_many :books, Book has_many :reviews and a Reader has_many :reviewed_books, through: :reviews. Seed 3 authors, 12 books and 30 reviews. Use dependent: :destroy on books, delete one author and record how many books and reviews disappear. Add counter_cache for reviews_count.",
+          "deliverable": "Models, seed script and the cascade delete counts",
+          "checks": [["Create a Book without an author", "Validation fails with \"Author must exist\"", "Console output"], ["Destroy an author owning 4 books with 10 reviews", "Book.count drops by 4 and Review.count by 10", "Counts before and after"], ["Add a review and read book.reviews_count", "The counter cache value increments by 1 with no COUNT query", "Log excerpt"]],
+          "objectives": ["Model one-to-many and many-to-many relations", "Select dependent options deliberately", "Use counter caches for cheap counts"]
+        },
+        {
+          "topic": "Forms: form_with, Flash Messages and Error Display",
+          "subtopics": ["form_with model: and URL inference", "Field helpers: text_field, select, check_box, date_field", "CSRF tokens and the authenticity_token hidden field", "Strong params in create and update actions", "Rendering errors with status: :unprocessable_content", "flash and flash.now with redirects", "Turbo form submission and why 422 is needed", "Labels, aria attributes and accessible errors", "Custom form builders and field_with_errors", "File and hidden fields"],
+          "tools": ["Rails 8", "Turbo", "ERB", "Capybara"],
+          "lab_task": "Build the new and edit forms for books with form_with. In create, render :new with status: :unprocessable_content on failure and redirect_to with flash[:notice] on success. Submit an empty title and verify the error list and 422 in the server log. Remove the status option and describe how Turbo behaves.",
+          "deliverable": "Form partial, controller and screenshots of success and failure paths",
+          "checks": [["Submit the form with an empty title", "The form re-renders with errors and the log shows 422 Unprocessable Content", "Screenshot and log"], ["Submit a valid book", "A 302 redirect and the flash notice \"Book created\" appear", "Browser screenshot"], ["Inspect the form HTML", "A hidden authenticity_token field is present", "View source excerpt"]],
+          "objectives": ["Build forms bound to models", "Show validation errors with correct status codes", "Explain CSRF tokens in forms"]
+        },
+        {
+          "topic": "Scaffolds and Generators: Reading What Rails Writes",
+          "subtopics": ["bin/rails generate scaffold and the files it creates", "Generator options: --skip-routes, --no-test-framework", "bin/rails destroy to revert generated files", "Reading the scaffold controller line by line", "Scaffold templates and the jbuilder views", "Customising generators in config.generators", "lib/templates for project-wide template overrides", "bin/rails generate resource vs scaffold vs model", "Generated fixtures and tests", "When not to use scaffolds"],
+          "tools": ["bin/rails", "Rails 8", "Git"],
+          "lab_task": "Run bin/rails generate scaffold Publisher name:string country:string, migrate, and list every created file with git status. Run bin/rails destroy scaffold Publisher and confirm the files are removed but the migration is not applied back. Regenerate with --skip-routes and count how many files differ from the first run.",
+          "deliverable": "git status listing before and after destroy, with a note on every generated file",
+          "checks": [["Run the scaffold generator", "A model, controller, views, migration, fixtures and tests are created", "git status output"], ["Run bin/rails destroy scaffold Publisher", "Generated files are deleted and the publishers table remains until rolled back", "git status and schema output"], ["Open the scaffold controller", "Seven actions and a params.expect private method are present", "Controller file"]],
+          "objectives": ["Generate and read scaffold output", "Revert generated code cleanly", "Decide when scaffolds are appropriate"]
+        },
+        {
+          "topic": "Asset Delivery: Propshaft, Import Maps and Tailwind",
+          "subtopics": ["Propshaft versus Sprockets and what Rails 8 uses", "app/assets and digested file names", "stylesheet_link_tag and asset_path helpers", "bin/rails assets:precompile and public/assets", "config/importmap.rb and bin/importmap pin", "javascript_importmap_tags and app/javascript", "Tailwind via tailwindcss-rails and bin/dev", "Cache headers and fingerprinted URLs", "jsbundling and cssbundling as alternatives", "Missing asset errors: Propshaft::MissingAssetError"],
+          "tools": ["Propshaft", "importmap-rails", "Tailwind CSS", "bin/rails"],
+          "lab_task": "Run bin/importmap pin local-time and check config/importmap.rb. Add tailwindcss-rails with bin/rails tailwindcss:install, start bin/dev and style the books index. Run RAILS_ENV=production bin/rails assets:precompile and list public/assets to find the digested file names. Reference a missing image to see the error.",
+          "deliverable": "importmap.rb, Tailwind-styled page and precompile output with digested file names",
+          "checks": [["Run bin/importmap pin local-time", "A pin line for local-time is added to config/importmap.rb", "File diff"], ["Run RAILS_ENV=production bin/rails assets:precompile", "Files in public/assets carry a hash in their name", "ls output"], ["Call image_tag with a missing file", "Propshaft::MissingAssetError names the asset", "Error page"]],
+          "objectives": ["Explain the Rails 8 asset pipeline", "Add JavaScript with import maps", "Precompile and verify assets"]
+        },
+        {
+          "topic": "Hotwire Turbo Drive and Turbo Frames",
+          "subtopics": ["Turbo Drive: link and form interception", "data-turbo-false and data-turbo-track", "Turbo Frames: turbo_frame_tag and lazy src loading", "Frame targeting with data-turbo-frame and _top", "Content missing error inside a frame", "Progress bar and data-turbo-permanent", "turbo_confirm and data-turbo-method", "Back button, cache and data-turbo-cache-control", "Inspecting requests: Turbo-Frame header", "Testing frame responses"],
+          "tools": ["Turbo", "Rails 8", "Browser DevTools", "Capybara"],
+          "lab_task": "Wrap each book row in turbo_frame_tag dom_id(book) and make the edit link replace only that row. Open the browser Network tab, click Edit and record the Turbo-Frame request header. Then remove the matching frame from edit.html.erb and record the Content missing text.",
+          "deliverable": "Frame-enabled index and edit views with a Network tab screenshot",
+          "checks": [["Click Edit on a row with frames in place", "Only the row changes and the request has a Turbo-Frame header", "DevTools Network tab"], ["Remove the frame from edit.html.erb", "The frame shows the text Content missing", "Browser screenshot"], ["Add data-turbo-false to one link", "The click triggers a full page load with no Turbo-Frame header", "DevTools Network tab"]],
+          "objectives": ["Speed up navigation with Turbo Drive", "Update page regions with Turbo Frames", "Debug frame mismatches with DevTools"]
+        },
+        {
+          "topic": "Sessions, Cookies and the Built-in Authentication Generator",
+          "subtopics": ["Cookie store sessions and secret_key_base", "session, cookies.signed and cookies.encrypted", "has_secure_password and the bcrypt gem", "bin/rails generate authentication in Rails 8", "Generated User, Session and Current models", "Authentication concern: require_authentication and allow_unauthenticated_access", "Password reset mailer and generates_token_for", "authenticate_by and timing-safe lookups", "Cookie flags: httponly, secure, same_site", "Logout and session invalidation"],
+          "tools": ["Rails 8", "bcrypt", "bin/rails", "Action Mailer"],
+          "lab_task": "Run bin/rails generate authentication and migrate. Create a user in the console with User.create!(email_address: \"a@example.com\", password: \"s3cret-pass\"). Sign in through /session/new, inspect the session cookie flags in DevTools, and request a protected page while signed out to record the redirect target.",
+          "deliverable": "Generated auth files list, a working sign-in and a cookie flag screenshot",
+          "checks": [["Request a protected page when signed out", "A 302 redirect to /session/new is returned", "curl -i output"], ["Sign in with the right password", "A signed session_id cookie is set with HttpOnly and SameSite=Lax", "DevTools Application tab"], ["Sign in with a wrong password", "The page redirects back with an alert and no session cookie is set", "Browser screenshot"]],
+          "objectives": ["Use the generated authentication system", "Explain how Rails stores sessions safely", "Protect pages with a before_action concern"]
+        },
+        {
+          "topic": "Environments, Credentials and Configuration",
+          "subtopics": ["development, test and production environments", "config/environments/*.rb and config.x custom settings", "config/credentials.yml.enc and config/master.key", "bin/rails credentials:edit and per-environment credentials", "Rails.application.credentials.dig", "ENV variables and the fail-fast fetch pattern", "database.yml with ERB and DATABASE_URL", "config.hosts and the Blocked hosts error", "Time zone and locale defaults", "Never committing master.key"],
+          "tools": ["bin/rails", "Rails 8", "Git", "EDITOR"],
+          "lab_task": "Run EDITOR=\"code --wait\" bin/rails credentials:edit and add stripe: { key: abc123 }. Read it with Rails.application.credentials.dig(:stripe, :key) in the console. Set config.x.support_email in production.rb and read Rails.configuration.x.support_email. Confirm master.key is listed in .gitignore.",
+          "deliverable": "Edited credentials structure (without values), console reads and a .gitignore check",
+          "checks": [["Read the credential in bin/rails console", "dig(:stripe, :key) returns \"abc123\"", "Console output"], ["Run git check-ignore config/master.key", "The path is printed, so it is ignored", "Terminal output"], ["Request the app with a host not in config.hosts", "The Blocked hosts error page appears", "Browser screenshot"]],
+          "objectives": ["Configure per-environment behaviour", "Store secrets in encrypted credentials", "Keep keys out of version control"]
+        },
+        {
+          "topic": "Minitest: Models, Controllers and Fixtures",
+          "subtopics": ["bin/rails test and running single files or lines", "test/models, test/controllers and test_helper.rb", "Fixtures in test/fixtures and ERB inside fixtures", "assert, assert_equal, assert_difference and assert_raises", "ActionDispatch::IntegrationTest with get, post and follow_redirect!", "assert_response and assert_select", "Parallel testing and parallelize(workers: :number_of_processors)", "Test database load and db:test:prepare", "Reading failures: expected vs actual diffs", "Coverage targets without chasing 100 percent"],
+          "tools": ["Minitest", "bin/rails", "Fixtures", "SimpleCov"],
+          "lab_task": "Write test/models/book_test.rb with a test that an empty title is invalid and test/controllers/books_controller_test.rb that posts a valid book with assert_difference(\"Book.count\", 1). Run bin/rails test, then run bin/rails test test/models/book_test.rb:6. Break one assertion deliberately and copy the failure message.",
+          "deliverable": "Two test files and a bin/rails test run log with one deliberate failure",
+          "checks": [["Run bin/rails test with the new tests", "The summary shows 0 failures and 0 errors", "Terminal summary line"], ["Run the model test by file and line number", "Exactly 1 run, 1 assertion is reported", "Terminal output"], ["Change an expected value to a wrong one", "Minitest prints Expected and Actual values for the failing assertion", "Failure output"]],
+          "objectives": ["Write model and controller tests", "Use fixtures and assertions effectively", "Read failures and run tests selectively"]
+        },
+        {
+          "topic": "Debugging: Logs, Rails Console and the debug Gem",
+          "subtopics": ["log/development.log structure and log levels", "Rails.logger.info, debug and tagged logging", "bin/rails console --sandbox and reload!", "The debug gem: debugger, binding.break and commands", "Web console on error pages", "Reading a stack trace and the application trace filter", "Common errors: NoMethodError on nil, NameError, ArgumentError", "ActiveRecord query log with verbose_query_logs", "bin/rails runner for one-off scripts", "Reproducing bugs from a failing test"],
+          "tools": ["debug gem", "bin/rails console", "Rails.logger", "web-console"],
+          "lab_task": "Add debugger inside BooksController#create and submit the form. In the terminal use info, p params, next and continue. Run bin/rails console --sandbox, create a record and exit to prove the rollback. Trigger a NoMethodError on nil in a view and list the first application frame of the trace.",
+          "deliverable": "Debugger session transcript, sandbox rollback proof and an annotated stack trace",
+          "checks": [["Submit the form with debugger in create", "The terminal stops at the debugger line and shows the params", "Terminal transcript"], ["Create a record in console --sandbox, exit and reopen", "Book.count returns the earlier value", "Console output"], ["Call a method on nil in a view", "NoMethodError names the view file and line", "Error page"]],
+          "objectives": ["Use the debug gem to pause a request", "Read logs and stack traces efficiently", "Use sandbox mode and runner safely"]
+        },
+        {
+          "topic": "Code Quality: bin/rubocop, bin/brakeman and bin/ci",
+          "subtopics": ["rubocop-rails-omakase and the generated .rubocop.yml", "bin/rubocop -a and autocorrect safety", "Brakeman warnings, confidence levels and brakeman.ignore", "bin/importmap audit and bundler-audit for gems", "Rails 8.1 config/ci.rb and bin/ci steps", "GitHub Actions workflow generated in .github/workflows/ci.yml", "Dependabot configuration", "Git commit hygiene and branch naming", "Pull request checklist", "Failing fast on style and security errors"],
+          "tools": ["RuboCop", "Brakeman", "bundler-audit", "GitHub Actions", "Git"],
+          "lab_task": "Run bin/rubocop and bin/brakeman -q in the shelf app. Add Book.where(\"title = '#{params[:q]}'\") to a controller, rerun Brakeman and record the SQL Injection warning with its confidence. Fix it with a hash condition and rerun until zero warnings. Open .github/workflows/ci.yml and list its jobs.",
+          "deliverable": "Before and after Brakeman reports and a list of CI jobs",
+          "checks": [["Run bin/brakeman with the unsafe interpolated query", "A SQL Injection warning with High confidence is listed", "Brakeman report"], ["Fix the query and rerun", "The report shows 0 security warnings", "Brakeman report"], ["Run bin/rubocop", "No offenses are reported or each offense is listed with a cop name", "RuboCop output"]],
+          "objectives": ["Run linting and static security checks", "Interpret Brakeman findings", "Read the generated CI workflow"]
+        },
+        {
+          "topic": "Beginner Capstone: Team Bookmarks Manager",
+          "subtopics": ["Requirements, wireframes and route design for bookmarks, tags and users", "Models, migrations and associations with validations", "Authentication with the Rails 8 generator and per-user scoping", "Controllers, forms and Turbo Frame inline editing", "Minitest coverage for models and request flows", "Brakeman, RuboCop and README with run instructions"],
+          "tools": ["Rails 8", "Minitest", "RuboCop", "Brakeman", "Git"],
+          "lab_task": "Build Bookmarks Manager: sign-in, CRUD for bookmarks with url, title and tags, a per-user scope so users never see others' records, search by tag, and Turbo Frame inline edit. Ship at least 15 passing Minitest tests, zero Brakeman warnings, seeds with 2 users and 20 bookmarks, and a README.",
+          "deliverable": "Git repository with the app, tests, seeds, README and a recorded demo",
+          "checks": [["Run bin/rails test", "At least 15 tests run with 0 failures", "Test summary"], ["Sign in as user A and request user B's bookmark by ID", "The response is 404 and no data from user B is shown", "curl or test output"], ["Run bin/brakeman -q", "0 warnings are reported", "Brakeman output"]],
+          "objectives": ["Combine routing, models, forms and authentication in one app", "Scope data per user and prove it with tests", "Deliver a documented and linted application"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic Rails application and need production-style features. Covers query composition and N+1 removal, safe migrations, enums and attributes, service objects, Turbo Streams, Stimulus, nested forms, Active Storage, Action Text, mailers, Solid Queue, caching with Solid Cache, JSON APIs, Pundit authorization, internationalization, system tests, test doubles for external services, engines and a helpdesk capstone.",
+      "prerequisites": ["Has built a CRUD Rails application with models, associations and authentication", "Reads SQL and uses the Rails console and Minitest", "Can use Git branches and a CI service such as GitHub Actions"],
+      "outcomes": ["Write efficient queries and migrations that stay fast and safe as tables grow", "Build real-time Hotwire interfaces and rich features with Active Storage, Action Text and mailers", "Run background jobs, caching and authorization with Rails 8 defaults", "Test browser, job and HTTP boundary behaviour reliably and package reusable code as engines"],
+      "days": [
+        {
+          "topic": "Scopes, Joins and Query Composition",
+          "subtopics": ["Named scopes and default_scope pitfalls", "Chaining relations and lazy evaluation", "joins, left_joins and the INNER vs LEFT OUTER SQL", "where.not, or and merge for combining conditions", "group, having and calculations", "select, distinct and subqueries with where(id: relation)", "Arel.sql and sanitizing raw SQL fragments", "find_each, find_in_batches and in_batches", "Enum scopes and the unscoped escape hatch", "Query objects when scopes get long"],
+          "tools": ["Active Record", "bin/rails console", "PostgreSQL", "Rails 8"],
+          "lab_task": "In a bookstore app write scopes Book.published, Book.by_author(name) and Book.popular(min) joining reviews with group and having. Print each relation's to_sql, then iterate 50,000 seeded books with find_each(batch_size: 1000) and count the SELECT statements in the log. Compare with Book.all.each memory use in the console.",
+          "deliverable": "Scope code, SQL strings and a log count of batch queries",
+          "checks": [["Call Book.published.by_author(\"Ito\").to_sql", "One SELECT contains both WHERE conditions joined by AND", "Console output"], ["Iterate 50,000 rows with find_each(batch_size: 1000)", "The log shows 50 batched SELECT statements with LIMIT 1000", "Log count"], ["Call Book.popular(5).count", "A Hash keyed by id is returned because of group, not an Integer", "Console output"]],
+          "objectives": ["Compose reusable queries", "Choose the correct join type", "Process large tables in batches"]
+        },
+        {
+          "topic": "Eliminating N+1 Queries with includes and strict_loading",
+          "subtopics": ["Recognising N+1 in logs and in the Rails query count", "includes, preload and eager_load differences", "Eager loading with references and where on joined tables", "strict_loading and strict_loading_by_default", "ActiveRecord::StrictLoadingViolationError and its fix", "Bullet gem in development", "Counter caches and select with joins as alternatives", "load_async for parallel independent queries", "Nested includes and has_many through loading", "Verifying with a request spec that counts queries"],
+          "tools": ["Bullet", "Active Record", "rack-mini-profiler", "Minitest"],
+          "lab_task": "Render 25 books with their authors and reviews in a naive index and count the queries in log/development.log. Fix it with includes(:author, reviews: :reader). Turn on strict_loading on the relation and trigger ActiveRecord::StrictLoadingViolationError, then add Bullet and check its warning. Write a test using assert_queries_count to lock the result.",
+          "deliverable": "Before and after query counts, strict_loading error text and a regression test",
+          "checks": [["Load the naive index with 25 books", "The log shows 1 + 25 + 25 queries or more", "Log excerpt"], ["Load the fixed index with includes", "The log shows 3 SELECT statements for books, authors and reviews", "Log excerpt"], ["Access an unloaded association on a strict_loading record", "ActiveRecord::StrictLoadingViolationError is raised", "Console output"]],
+          "objectives": ["Detect N+1 queries from logs and tools", "Fix them with the right eager loading method", "Prevent regressions with strict_loading and tests"]
+        },
+        {
+          "topic": "Safe Migrations, Indexes and Constraints",
+          "subtopics": ["Index design: composite order, partial and unique indexes", "add_index algorithm: :concurrently with disable_ddl_transaction!", "Foreign keys, check constraints and add_check_constraint", "NOT VALIDATE then validate_check_constraint", "Backfilling data outside the schema migration", "Column type changes and table rewrites", "Rollback-safe changes and irreversible migrations", "Model-level validations paired with database constraints", "Reading EXPLAIN to prove an index is used", "db:migrate in CI against a copy of production schema"],
+          "tools": ["PostgreSQL", "bin/rails", "psql", "strong_migrations"],
+          "lab_task": "On PostgreSQL create a 1,000,000-row orders table with generate_series, run EXPLAIN ANALYZE on a lookup by customer_id, then add the index with algorithm: :concurrently and disable_ddl_transaction!. Re-run EXPLAIN ANALYZE and add a check constraint amount_cents >= 0 with validate: false followed by a validating migration.",
+          "deliverable": "Migrations, two EXPLAIN ANALYZE outputs and constraint test results",
+          "checks": [["Run EXPLAIN ANALYZE before the index", "The plan shows Seq Scan on orders", "psql output"], ["Run EXPLAIN ANALYZE after the concurrent index", "The plan shows an Index Scan using the new index and execution time falls", "psql output"], ["Insert a row with amount_cents = -1", "PostgreSQL raises a check_violation error from the constraint", "Console output"]],
+          "objectives": ["Add indexes without blocking writes", "Use database constraints as a second line of defence", "Prove performance changes with EXPLAIN"]
+        },
+        {
+          "topic": "Enums, Store Attributes and the Attributes API",
+          "subtopics": ["enum with integer and string backing values", "Rails 8 enum validate: true option and invalid values", "Enum scopes, predicates and bang methods", "store_accessor with jsonb or text columns", "The attribute API: custom types and defaults", "ActiveModel::Type and casting behaviour", "Virtual attributes and attribute aliases", "Money as integer cents with a value object", "composed_of alternatives and serialize", "Default values in database vs model"],
+          "tools": ["Active Record", "PostgreSQL", "bin/rails console"],
+          "lab_task": "Add enum :status, { draft: 0, published: 1, archived: 2 }, validate: true to Article. Try Article.new(status: \"deleted\") and record the result with and without validate: true. Add a settings jsonb column with store_accessor :settings, :theme, :locale, and a Money custom attribute type that stores cents.",
+          "deliverable": "Model code and a console log for valid, invalid and stored values",
+          "checks": [["Run Article.new(status: \"deleted\").valid?", "With validate: true it returns false and no ArgumentError is raised", "Console output"], ["Call Article.published.to_sql", "The SQL contains status = 1", "Console output"], ["Set article.theme = \"dark\" and save", "settings in the database is {\"theme\":\"dark\"}", "Query result"]],
+          "objectives": ["Model state with enums safely", "Store flexible data with store_accessor", "Define custom attribute types"]
+        },
+        {
+          "topic": "Service Objects, Concerns and Domain Boundaries",
+          "subtopics": ["Fat models, fat controllers and where logic belongs", "ActiveSupport::Concern for shared behaviour", "Plain Ruby service objects with a call interface", "Result objects instead of exceptions for control flow", "Form objects and query objects compared", "Current attributes with ActiveSupport::CurrentAttributes", "Dependency injection for HTTP clients and clocks", "Naming and folder structure in app/models vs app/services", "Transactions around multi-step operations", "When a service object is overkill"],
+          "tools": ["Rails 8", "Minitest", "ActiveSupport", "RuboCop"],
+          "lab_task": "Extract the order checkout logic from OrdersController into Orders::Checkout with a call method that returns a Result with success? and errors. Wrap stock decrement and payment record creation in ApplicationRecord.transaction. Write 3 unit tests: success, out of stock rollback and payment failure rollback.",
+          "deliverable": "Service class, slimmed controller and three passing tests",
+          "checks": [["Run checkout for an in-stock item", "Result is success and stock decreases by the quantity", "Test output"], ["Run checkout when payment raises", "The transaction rolls back and stock is unchanged", "Test output"], ["Count lines in the refactored controller action", "The create action has 8 lines or fewer", "File listing"]],
+          "objectives": ["Move business logic out of controllers", "Return explicit results from services", "Keep multi-step writes atomic"]
+        },
+        {
+          "topic": "Turbo Streams and Model Broadcasts",
+          "subtopics": ["Seven stream actions: append, prepend, replace, update, remove, before, after", "respond_to format.turbo_stream and the MIME type", "turbo_stream.erb templates and tag helpers", "broadcasts_to and broadcast_append_later_to", "turbo_stream_from and the subscription signed stream name", "Streams over Action Cable and Solid Cable", "Targets with dom_id and unique ids", "Morph method on replace and update", "Authorization of streams and private data", "Testing with assert_turbo_stream"],
+          "tools": ["Turbo", "Action Cable", "Solid Cable", "Capybara"],
+          "lab_task": "Add a Comment model with broadcasts_to :post. Put turbo_stream_from @post on posts/show. Open the page in two browsers, create a comment in one and confirm it appears in the other without reload. In DevTools find the WebSocket frames and record the stream name. Write a test using assert_turbo_stream.",
+          "deliverable": "Working live comments, DevTools WebSocket capture and a passing turbo_stream test",
+          "checks": [["Create a comment in browser A", "The comment appears in browser B within 1 second without reload", "Screen recording"], ["Inspect the WebSocket in DevTools", "A subscribe frame carries a signed_stream_name", "DevTools capture"], ["Run the turbo_stream test", "assert_turbo_stream action: :append finds the target", "Test output"]],
+          "objectives": ["Update pages in real time with Turbo Streams", "Broadcast from models in background jobs", "Test stream responses"]
+        },
+        {
+          "topic": "Stimulus Controllers: Values, Targets and Actions",
+          "subtopics": ["Controller naming: data-controller and file names", "Targets and the connect/disconnect lifecycle", "Actions: data-action syntax with event and modifiers", "Values, classes and outlets", "Registering controllers with import maps and eagerLoadControllersFrom", "Debouncing and fetch with the Rails request.js library", "Stimulus with Turbo: re-connect after render", "Accessibility with focus and aria attributes", "Testing with system tests", "Avoiding jQuery-style global code"],
+          "tools": ["Stimulus", "importmap-rails", "Browser DevTools", "Capybara"],
+          "lab_task": "Write app/javascript/controllers/search_controller.js with an input target, a debounce value of 300 ms and a requestSubmit call on a search form. Connect it with data-controller=\"search\" and data-action=\"input->search#queue\". Verify in DevTools that typing six characters quickly sends one request.",
+          "deliverable": "Stimulus controller, view markup and a Network tab capture",
+          "checks": [["Type 6 characters within 200 ms", "Only 1 request to /books?q= is sent", "DevTools Network tab"], ["Open the page in a debugger", "The element has data-controller=\"search\" and connect() logs once", "Console output"], ["Navigate away with Turbo and back", "disconnect() runs and no duplicate listener fires", "Console output"]],
+          "objectives": ["Add behaviour with Stimulus", "Use values and targets properly", "Clean up listeners in disconnect"]
+        },
+        {
+          "topic": "Nested Attributes, Form Objects and ActiveModel",
+          "subtopics": ["accepts_nested_attributes_for and allow_destroy", "fields_for and Rails 8 params.expect with arrays", "Adding rows with Stimulus and templates", "ActiveModel::Model and ActiveModel::Attributes", "Form objects spanning several models", "Validations on form objects", "Rendering errors from nested records", "reject_if and limit options", "Strong params for nested hashes and _destroy", "Testing multi-model submission"],
+          "tools": ["ActiveModel", "Stimulus", "Rails 8", "Minitest"],
+          "lab_task": "Build an Invoice form with nested line_items using accepts_nested_attributes_for with allow_destroy: true and a Stimulus add-row button. Submit 3 line items with one marked _destroy. Then implement Registration as an ActiveModel::Model form object that creates a User and an Account in one transaction.",
+          "deliverable": "Nested form, form object and tests covering create and destroy",
+          "checks": [["Submit 3 line items with one _destroy=1 on an existing invoice", "LineItem.count decreases by 1 and 2 remain", "Console count"], ["Submit an invalid line item price", "The form re-renders with the error under that row and status 422", "Screenshot"], ["Call Registration.new(valid_params).save with a failing Account", "No User row remains because the transaction rolled back", "Test output"]],
+          "objectives": ["Edit parent and child records in one form", "Write form objects with ActiveModel", "Handle nested errors"]
+        },
+        {
+          "topic": "Active Storage: Uploads, Variants and Direct Uploads",
+          "subtopics": ["bin/rails active_storage:install and the three tables", "has_one_attached and has_many_attached", "config/storage.yml services: Disk, S3 and others", "Image variants with image_processing and libvips", "Variant processing on demand and preprocessed: true", "Direct uploads and the activestorage.js module", "Content type and size validation", "Purging: purge vs purge_later", "Signed blob URLs and expiry", "Mirroring and private access"],
+          "tools": ["Active Storage", "libvips", "image_processing", "MinIO"],
+          "lab_task": "Add has_one_attached :cover to Book with a variant :thumb resizing to 200x200 and attach a 4 MB JPEG. Validate content type image/jpeg or image/png and a 5 MB limit in the model. Point storage.yml at a local MinIO bucket and test a direct upload. Record the signed URL and its expiry.",
+          "deliverable": "Model code, storage.yml and screenshots of upload, variant and rejection",
+          "checks": [["Upload a 6 MB image", "The model rejects it with a size error message", "Console output"], ["Request the :thumb variant", "A 200x200 image is served from a /rails/active_storage/representations URL", "Browser and file info"], ["Call book.cover.purge", "The blob and the object in the bucket are removed", "MinIO listing"]],
+          "objectives": ["Attach and serve files", "Validate uploads in the model", "Process image variants safely"]
+        },
+        {
+          "topic": "Action Text and Rich Content",
+          "subtopics": ["bin/rails action_text:install and the Trix editor", "has_rich_text and the action_text_rich_texts table", "rich_text_area in forms", "Rendering with the .to_s and layout of action_text/content", "Embedded attachments and Active Storage", "Sanitization allowlist and custom tags", "Searching rich text content", "Mentions through custom attachables", "Performance: includes(:rich_text_body)", "Exporting to plain text"],
+          "tools": ["Action Text", "Trix", "Active Storage", "Rails 8"],
+          "lab_task": "Install Action Text and add has_rich_text :body to Post. Save a body containing bold text and a pasted image, and a hostile <script> tag using the console. Print post.body.to_plain_text and post.body.to_s. Then run the posts index with and without includes(:rich_text_body) and compare query counts.",
+          "deliverable": "Working editor, console output of sanitised content and query count comparison",
+          "checks": [["Save a body containing <script>alert(1)</script>", "The rendered HTML contains no script element", "Rendered HTML"], ["Call post.body.to_plain_text", "Only the readable text is returned without tags", "Console output"], ["Load 20 posts with includes(:rich_text_body)", "Rich text queries fall from 20 to 1", "Log excerpt"]],
+          "objectives": ["Add rich text editing", "Sanitise and render rich content safely", "Avoid N+1 on rich text"]
+        },
+        {
+          "topic": "Action Mailer, Previews and Action Mailbox",
+          "subtopics": ["Mailer classes, mail(to:, subject:) and layouts", "deliver_now vs deliver_later", "Mailer previews at /rails/mailers", "SMTP settings in credentials and delivery_method", "Multipart HTML and text templates", "Attachments and inline images", "Asset and URL host options: default_url_options", "Action Mailbox routing and inbound ingress", "letter_opener and mailcatcher in development", "Mailer tests with assert_emails"],
+          "tools": ["Action Mailer", "Action Mailbox", "letter_opener", "Mailpit"],
+          "lab_task": "Create OrderMailer#confirmation with HTML and text templates and a preview in test/mailers/previews. Send with deliver_later, run MailPit and confirm receipt on port 8025. Write a test using assert_emails 1 and assert_enqueued_emails. Then configure default_url_options and verify links use the right host.",
+          "deliverable": "Mailer, preview, test and Mailpit screenshot",
+          "checks": [["Open /rails/mailers/order_mailer/confirmation", "The HTML and text parts both render", "Browser screenshot"], ["Call deliver_later in the test with a queue adapter", "assert_enqueued_emails reports 1", "Test output"], ["Open the delivered message in Mailpit", "Links start with the configured host and not localhost:3000", "Mailpit screenshot"]],
+          "objectives": ["Send and preview email", "Queue email delivery", "Test mail with assertions"]
+        },
+        {
+          "topic": "Solid Queue: Backends, Queues and Recurring Tasks",
+          "subtopics": ["Active Job API: perform_later, set(wait:) and queue_as", "Solid Queue tables in db/queue_schema.rb", "config/queue.yml: workers, threads, processes and polling_interval", "Running bin/jobs and SOLID_QUEUE_IN_PUMA=1", "Queue priorities and queue name lists", "config/recurring.yml and cron-style schedules", "Concurrency controls with limits_concurrency", "Mission Control Jobs dashboard", "Retrying and discarding failed jobs", "Why a database-backed queue is acceptable"],
+          "tools": ["Solid Queue", "Active Job", "Mission Control Jobs", "SQLite", "PostgreSQL"],
+          "lab_task": "Create ReportJob queued on :reports. Configure config/queue.yml with 2 threads for the reports queue, run bin/jobs, and enqueue 20 jobs from the console. Add a daily recurring entry in config/recurring.yml and apply limits_concurrency to: 1. Mount Mission Control Jobs and record counts for ready, in progress and failed jobs.",
+          "deliverable": "queue.yml, recurring.yml and dashboard screenshot with job counts",
+          "checks": [["Enqueue 20 ReportJob records and start bin/jobs", "All 20 finish and solid_queue_jobs shows finished_at set", "Dashboard screenshot"], ["Enqueue two jobs with the same concurrency key", "One runs while the other waits in blocked executions", "Dashboard screenshot"], ["Make a job raise an error", "It appears under failed jobs with the exception class", "Dashboard screenshot"]],
+          "objectives": ["Run background jobs with Solid Queue", "Tune queues and concurrency", "Schedule recurring work"]
+        },
+        {
+          "topic": "Caching: Fragment, Russian Doll and Solid Cache",
+          "subtopics": ["Rails.cache.fetch, write, read and expires_in", "cache_store options: memory_store, solid_cache_store", "config/cache.yml and db/cache_schema.rb in Rails 8", "Fragment caching with the cache helper", "Russian doll caching and touch: true on belongs_to", "cache_key_with_version and recyclable keys", "Low-level caching of expensive calls", "HTTP caching: stale?, fresh_when and ETag", "Cache invalidation pitfalls and cache stampede", "Measuring hit ratio"],
+          "tools": ["Solid Cache", "Rails.cache", "curl", "rack-mini-profiler"],
+          "lab_task": "Enable caching with bin/rails dev:cache. Wrap book cards in cache book do and nest reviews with touch: true. Load the page twice and compare the response time in the log. Update one review and confirm only its fragments are regenerated. Use curl with If-None-Match and fresh_when to receive a 304.",
+          "deliverable": "Cache configuration, two timing logs and a 304 curl capture",
+          "checks": [["Load the index a second time with caching on", "The log shows Read fragment ... hit and lower view time", "Log excerpt"], ["Update one review", "Only the review and parent book fragments are rewritten", "Log excerpt"], ["Repeat the request with the ETag in If-None-Match", "The server answers 304 Not Modified", "curl -i output"]],
+          "objectives": ["Cache fragments and data correctly", "Invalidate with touch and versioned keys", "Use HTTP caching headers"]
+        },
+        {
+          "topic": "JSON APIs: API-only Mode, Serialization and Versioning",
+          "subtopics": ["rails new --api and ActionController::API", "render json: and jbuilder views", "Serialisation options: jbuilder, Alba and as_json", "Status codes and error envelopes: RFC 9457 problem details", "Versioning by path vs header", "Pagination with pagy and Link headers", "Token authentication with Authorization: Bearer", "CORS with rack-cors", "Rate limiting with the rate_limit macro and 429", "OpenAPI documentation with rswag or similar"],
+          "tools": ["Rails 8", "jbuilder", "Alba", "pagy", "Postman", "rack-cors"],
+          "lab_task": "Create a /api/v1/books JSON API with pagy, a problem+json error format and an Authorization: Bearer token check. Add rate_limit to: 5, within: 1.minute on the token endpoint. Call it 6 times with curl in one minute and record the 429. Document two endpoints in an OpenAPI file and import it into Postman.",
+          "deliverable": "API controllers, OpenAPI file and curl log with 200, 401 and 429 responses",
+          "checks": [["Request /api/v1/books without a token", "401 Unauthorized with an application/problem+json body", "curl -i output"], ["Request /api/v1/books?page=2 with a token", "200 OK and a Link header with rel=\"next\"", "curl -i output"], ["Call the rate-limited endpoint 6 times in one minute", "The sixth call returns 429 Too Many Requests", "curl output"]],
+          "objectives": ["Build a versioned JSON API", "Return consistent error responses", "Protect endpoints with tokens and rate limits"]
+        },
+        {
+          "topic": "Authorization Policies with Pundit",
+          "subtopics": ["Authentication vs authorization and role models", "Pundit policies: Scope, record and user", "authorize and policy_scope in controllers", "verify_authorized and after_action checks", "Role enums and per-record ownership rules", "Handling Pundit::NotAuthorizedError with 403 or 404", "Policy tests with Minitest", "Views: policy(record).edit? gating", "Avoiding authorization in views only", "Alternatives: Action Policy and CanCanCan"],
+          "tools": ["Pundit", "Rails 8", "Minitest", "bin/rails"],
+          "lab_task": "Add Pundit with Role enum values reader, editor and admin. Write PostPolicy where editors update only their own posts and admins update any. Add verify_authorized and rescue Pundit::NotAuthorizedError with a 403. Test the 3x3 matrix of role and action in test/policies and show a failing test when one rule is missing.",
+          "deliverable": "Policies, controller wiring and a policy test matrix",
+          "checks": [["Editor updates another editor's post", "The response is 403 Forbidden", "Request test output"], ["Admin updates any post", "The response is 302 to the post", "Request test output"], ["Skip authorize in one action", "Pundit::AuthorizationNotPerformedError is raised in tests", "Test failure output"]],
+          "objectives": ["Separate authentication from authorization", "Write and test policies", "Enforce authorization on every action"]
+        },
+        {
+          "topic": "Internationalization, Time Zones and Pluralization",
+          "subtopics": ["I18n.t, config/locales/*.yml and lazy lookup", "Locale detection from Accept-Language and params", "default_locale, available_locales and fallbacks", "Interpolation, pluralization and count: rules", "Model names and attribute translations", "I18n.l and date formats with time zones", "Time.zone, config.time_zone and in_time_zone", "Storing UTC and presenting local times", "i18n-tasks for missing and unused keys", "Translation errors: I18n::MissingTranslationData in tests"],
+          "tools": ["I18n", "i18n-tasks", "Rails 8", "tzinfo"],
+          "lab_task": "Add fr and ja locales for the books pages with a pluralized books.count key, a Time.use_zone around each request based on the user's zone, and i18n-tasks missing. Set config.i18n.raise_on_missing_translations = true in test. Render an event at 2026-03-29 01:30 UTC in Europe/Paris and Asia/Tokyo and record both strings.",
+          "deliverable": "Locale files, a zone-aware controller concern and i18n-tasks report",
+          "checks": [["Request with Accept-Language: fr", "Headings render with the fr translations", "curl output"], ["Run i18n-tasks missing", "It lists zero missing keys after translation", "Command output"], ["Render the same UTC time in two zones", "The Paris and Tokyo strings differ and match the zone offsets", "Console output"]],
+          "objectives": ["Translate an application", "Handle plural rules and zones correctly", "Detect missing translations automatically"]
+        },
+        {
+          "topic": "System Tests, Capybara and Fixtures Versus Factories",
+          "subtopics": ["ApplicationSystemTestCase and driven_by options", "Selenium Chrome and headless mode", "Capybara finders, within and have_text", "Waiting behaviour and flaky test causes", "Screenshots on failure in tmp/screenshots", "Fixtures vs FactoryBot trade-offs", "Test data strategies for associations", "Parallel system tests and database isolation", "Testing Turbo and Stimulus interactions", "Running tests in CI with bin/rails test:system"],
+          "tools": ["Capybara", "Selenium", "FactoryBot", "Minitest", "GitHub Actions"],
+          "lab_task": "Write system tests for sign-in, adding a book and inline editing with Turbo Frames. Use headless Chrome and fixtures for users. Introduce a deliberate race by clicking before the page loads, then fix it with have_selector waits. Run bin/rails test:system 10 times and record the number of failures before and after.",
+          "deliverable": "System test suite and a 10-run stability table",
+          "checks": [["Run bin/rails test:system", "All tests pass and each takes under 10 seconds", "Terminal summary"], ["Make a test fail", "A PNG screenshot is saved under tmp/screenshots", "File listing"], ["Run the suite 10 times after fixing waits", "0 flaky failures are recorded", "Run table"]],
+          "objectives": ["Write reliable browser tests", "Pick a test data approach", "Eliminate flakiness"]
+        },
+        {
+          "topic": "Testing Jobs, Mailers and HTTP Boundaries with WebMock",
+          "subtopics": ["ActiveJob::TestHelper: assert_enqueued_with and perform_enqueued_jobs", "ActionMailer assertions with deliveries", "WebMock stub_request and disable_net_connect!", "VCR cassettes and filtering secrets", "Time travel with travel_to and freeze_time", "Stubbing with Minitest stub and mocks", "Contract tests for external APIs", "Testing Active Storage with fixture_file_upload", "Testing broadcasts with assert_broadcasts", "Keeping unit tests under a time budget"],
+          "tools": ["WebMock", "VCR", "Minitest", "ActiveJob::TestHelper"],
+          "lab_task": "Add a ShippingRate client calling https://api.carrier.example/rates with Net::HTTP. Stub it with WebMock for 200, 429 and timeout cases. Write tests that assert retries on timeout using retry_on, that the job is enqueued with assert_enqueued_with, and that freeze_time controls an expiry. Run the suite and confirm no real network call occurs.",
+          "deliverable": "Client, three stubbed scenarios and the test log",
+          "checks": [["Run the 200 stub scenario", "The client returns parsed rates and the test passes", "Test output"], ["Run the timeout scenario", "The job is re-enqueued with a wait value", "Test output"], ["Call an unstubbed URL in a test", "WebMock::NetConnectNotAllowedError is raised", "Test failure output"]],
+          "objectives": ["Isolate tests from the network", "Test jobs, mail and time-dependent code", "Control retries and failures in tests"]
+        },
+        {
+          "topic": "Engines and Gems: Extracting Reusable Rails Code",
+          "subtopics": ["bin/rails plugin new --mountable and isolate_namespace", "Engine routes, migrations and mount in routes.rb", "Railtie vs Engine and initializer hooks", "Gem specs, version constraints and bundle config", "Path and git gem sources in the Gemfile", "Configuration objects and config.x for engines", "Testing with a dummy application", "Overriding engine views and models safely", "Publishing to a private gem server", "When to extract and when not to"],
+          "tools": ["Rails Engine", "Bundler", "RubyGems", "bin/rails"],
+          "lab_task": "Generate a mountable engine called helpdesk_kit with bin/rails plugin new helpdesk_kit --mountable. Add a Ticket model and routes, mount it at /support in the host app, and run its migrations through the install task. Run both the engine tests and the host test suite and record the results.",
+          "deliverable": "Engine source, host mount and two passing test runs",
+          "checks": [["Run bin/rails routes in the host", "Routes for helpdesk_kit appear under /support", "Command output"], ["Run the engine's dummy-app tests", "They pass without the host app", "Terminal summary"], ["Check the table name for Ticket", "It is prefixed helpdesk_kit_tickets by isolate_namespace", "schema.rb excerpt"]],
+          "objectives": ["Build a mountable engine", "Mount and test it from a host app", "Judge when extraction pays off"]
+        },
+        {
+          "topic": "Intermediate Capstone: Helpdesk Ticketing App with Hotwire, Solid Queue and Tests",
+          "subtopics": ["Domain model for tickets, comments, agents and SLA timers", "Role-based access with Pundit and tenant-safe queries", "Hotwire live updates with Turbo Streams and Stimulus filters", "Mail notifications and Solid Queue recurring SLA checks", "Active Storage attachments and Action Text replies", "System, job and policy test suite with CI workflow"],
+          "tools": ["Rails 8", "Hotwire", "Solid Queue", "Pundit", "Capybara"],
+          "lab_task": "Build a helpdesk app with customers, agents and admins. Tickets support attachments, rich-text replies and live status updates, with an hourly Solid Queue job that flags tickets older than 4 hours without reply. Include Pundit policies, no N+1 queries on the index, 40 or more tests and a green CI workflow.",
+          "deliverable": "Repository with app, CI run link, seed data and a demo script",
+          "checks": [["Run bin/rails test and test:system", "40 or more tests run with 0 failures", "Test summaries"], ["Load the tickets index with 50 seeded tickets", "No more than 6 SQL queries are logged", "Log excerpt"], ["Run the SLA job with a ticket idle for 5 hours", "The ticket is flagged and one email is enqueued", "Job log and Mailpit"]],
+          "objectives": ["Integrate Hotwire, background jobs and authorization in one app", "Control query counts and test coverage", "Deliver with CI and seed data"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers and technical leads running Rails in production. Covers multiple databases, multi-tenancy, PostgreSQL features, zero-downtime migrations, locking and idempotency, Puma tuning, profiling, job reliability, Action Cable at scale, Kamal deployment, hardened Docker images, security hardening, encryption, structured logging, OpenTelemetry, framework internals, upgrades, modular monoliths and a multi-tenant SaaS capstone.",
+      "prerequisites": ["Has shipped and maintained a Rails application with background jobs and a test suite", "Understands SQL execution plans, indexes and transactions", "Has used Docker and a Linux server over SSH"],
+      "outcomes": ["Design data access across replicas, tenants and PostgreSQL features without losing consistency", "Operate Rails with tuned Puma, reliable jobs, structured logs and traces", "Deploy and roll back with Kamal on hardened containers and security controls", "Upgrade Rails and enforce module boundaries in a large codebase"],
+      "days": [
+        {
+          "topic": "Multiple Databases: Roles, Replicas and Horizontal Sharding",
+          "subtopics": ["database.yml with primary, primary_replica and replica: true", "connects_to database: { writing:, reading: }", "connected_to(role: :reading) and prevent_writes", "Automatic role switching and the replication delay setting", "ActiveRecord::ReadOnlyError when writing on a replica", "Horizontal sharding with connects_to shards:", "Per-database migrations: db:migrate:primary", "Rails 8 separate databases for queue, cache and cable", "Transactions that cross databases", "Testing multiple databases and fixtures per database"],
+          "tools": ["PostgreSQL", "Active Record", "pgbench", "bin/rails"],
+          "lab_task": "Run a PostgreSQL primary and streaming replica with Docker Compose. Configure primary_replica in database.yml, enable the DatabaseSelector middleware with delay: 2.seconds, and prove that GET requests read from the replica and POST goes to the primary using query log tags. Trigger ActiveRecord::ReadOnlyError inside connected_to(role: :reading).",
+          "deliverable": "Compose file, database.yml and logs showing role per request",
+          "checks": [["Send a GET request to the index", "Query log tags show the replica role and replica host", "Log excerpt"], ["Send a POST then immediately a GET", "The GET uses the primary during the 2 second delay window", "Log excerpt"], ["Write inside connected_to(role: :reading)", "ActiveRecord::ReadOnlyError is raised", "Console output"]],
+          "objectives": ["Route reads and writes to the right database", "Handle replication delay", "Operate separate databases per concern"]
+        },
+        {
+          "topic": "Multi-Tenancy: Subdomains, Current and Row Scoping",
+          "subtopics": ["Tenancy models: shared schema, schema per tenant and database per tenant", "Row scoping with tenant_id and default scopes risks", "Resolving tenants from subdomain, path or header", "Current.account and request-scoped state", "Foreign keys that include tenant_id", "Background jobs and tenant context serialisation", "Preventing cross-tenant leaks with strict_loading and tests", "PostgreSQL row level security with SET LOCAL", "acts_as_tenant and Apartment trade-offs", "Tenant-aware caching keys and Active Storage paths"],
+          "tools": ["PostgreSQL", "Current attributes", "acts_as_tenant", "Rails 8"],
+          "lab_task": "Convert the helpdesk app to row-scoped tenancy using Current.account resolved from request.subdomain. Add account_id to all tables with composite foreign keys, enable PostgreSQL row level security with SET LOCAL app.account_id, and pass the account into every Active Job. Write a test that requests tenant B's record through tenant A's host.",
+          "deliverable": "Tenant resolver, migrations, RLS policy and cross-tenant test",
+          "checks": [["Request /tickets/7 on the other tenant's subdomain", "The response is 404 and no row data is returned", "Request test output"], ["Run a query with app.account_id unset", "PostgreSQL returns 0 rows because of the row level policy", "psql output"], ["Enqueue a job from tenant A and run it", "Current.account inside perform is tenant A", "Job log"]],
+          "objectives": ["Isolate tenant data at several layers", "Carry tenant context into jobs", "Prove isolation with automated tests"]
+        },
+        {
+          "topic": "PostgreSQL Features in Rails: JSONB, Full-Text Search and Partial Indexes",
+          "subtopics": ["jsonb columns, GIN indexes and the -> and ->> operators", "where with jsonb queries and store_accessor", "Full-text search with tsvector generated columns", "pg_search gem scopes and ranking", "Trigram search with pg_trgm and similarity", "Partial and expression indexes in migrations", "Enum types, arrays and ranges", "Advisory locks with with_advisory_lock", "LISTEN/NOTIFY and its limits", "Choosing between Postgres features and extra services"],
+          "tools": ["PostgreSQL", "pg_search", "pg_trgm", "psql"],
+          "lab_task": "Add a jsonb metadata column with a GIN index and a tsvector generated column on articles with a GIN index. Seed 200,000 articles, query by metadata->>'lang' and by to_tsquery, and compare EXPLAIN ANALYZE before and after indexes. Add pg_search_scope with ranking and verify typo tolerance using pg_trgm.",
+          "deliverable": "Migrations, 4 EXPLAIN ANALYZE plans and a ranked search result sample",
+          "checks": [["EXPLAIN ANALYZE the tsvector query without an index", "Seq Scan with execution time in the hundreds of milliseconds", "psql output"], ["EXPLAIN ANALYZE after adding the GIN index", "A Bitmap Index Scan on the GIN index with lower execution time", "psql output"], ["Search for \"railz\" using trigram similarity", "Rows containing \"rails\" are returned", "Console output"]],
+          "objectives": ["Use PostgreSQL features through Rails", "Index jsonb and text search columns", "Verify plans with EXPLAIN ANALYZE"]
+        },
+        {
+          "topic": "Zero-Downtime Migrations with strong_migrations and Online Backfills",
+          "subtopics": ["Unsafe operations: remove_column, rename_column and change_column_type", "strong_migrations checks and safety_assured", "Expand, migrate and contract pattern", "ignored_columns while removing columns", "Backfills in batches with throttling and a job", "lock_timeout and statement_timeout in migrations", "Adding NOT NULL safely with check constraints", "Large table indexes and replication lag", "Running migrations during a Kamal deploy", "Rollback plans and feature flags"],
+          "tools": ["strong_migrations", "PostgreSQL", "Solid Queue", "Kamal"],
+          "lab_task": "Rename users.name to full_name on a 2,000,000-row table with the expand-contract pattern: add the new column, dual-write, backfill in 10,000-row batches through a Solid Queue job, switch reads and drop the old column using ignored_columns. Show strong_migrations blocking the direct rename_column and record the lock wait while a long query runs.",
+          "deliverable": "Four migrations, backfill job and a log of strong_migrations output",
+          "checks": [["Add a direct rename_column migration", "strong_migrations raises an error naming the unsafe operation", "Migration output"], ["Run the backfill job", "The count of rows with full_name IS NULL reaches 0", "SQL query result"], ["Set lock_timeout to 2s and migrate while a transaction holds a lock", "PG::LockNotAvailable is raised and the app keeps serving", "Migration output and curl results"]],
+          "objectives": ["Plan multi-step schema changes", "Backfill large tables safely", "Avoid long locks in production"]
+        },
+        {
+          "topic": "Locking, Transactions and Idempotent Writes",
+          "subtopics": ["Transaction isolation levels and Rails isolation: option", "Optimistic locking with lock_version and StaleObjectError", "Pessimistic locking with lock! and with_lock", "SELECT FOR UPDATE SKIP LOCKED for work queues", "Deadlock detection and ActiveRecord::Deadlocked retries", "Unique indexes and create_or_find_by vs find_or_create_by", "Idempotency keys for payment and webhook endpoints", "after_commit and transaction-safe enqueue", "upsert_all with unique_by", "Testing concurrency with threads"],
+          "tools": ["PostgreSQL", "Active Record", "Minitest", "Threads"],
+          "lab_task": "Build a seat reservation endpoint and a thread-based test where 20 threads book the last 5 seats. Show overbooking with a naive read-modify-write, then fix it with with_lock and again with lock_version. Add an Idempotency-Key header table with a unique index and prove that a repeated POST creates a single record.",
+          "deliverable": "Reservation code, concurrency tests and idempotency table",
+          "checks": [["Run 20 threads against the naive code", "More than 5 reservations are created, proving a race", "Test output"], ["Run the same test with with_lock", "Exactly 5 reservations exist and 15 requests are rejected", "Test output"], ["Send the same POST twice with one Idempotency-Key", "One record exists and both responses have the same body", "curl output and count"]],
+          "objectives": ["Prevent race conditions with locks", "Design idempotent endpoints", "Test concurrent code"]
+        },
+        {
+          "topic": "Puma Tuning: Threads, Workers and Memory Behaviour",
+          "subtopics": ["RAILS_MAX_THREADS, WEB_CONCURRENCY and config/puma.rb", "Threads vs workers with the GVL in mind", "preload_app! and fork copy-on-write", "Active Record pool size and pool timeout errors", "ActiveRecord::ConnectionTimeoutError diagnosis", "Memory growth and puma_worker_killer trade-offs", "Request queueing and queue time headers", "Thruster in front of Puma", "Load testing with k6 or oha", "Reading Puma stats via the control app"],
+          "tools": ["Puma", "k6", "Thruster", "ps", "Rails 8"],
+          "lab_task": "Run the app in production mode with 1 worker and 5 threads, then with 2 workers and 3 threads each. Using k6 at 50 virtual users for 60 seconds against a page that sleeps 100 ms in a database query, record requests per second, p95 latency and RSS per worker with ps. Provoke ConnectionTimeoutError by setting pool to 2.",
+          "deliverable": "Results table for both configurations and the pool timeout trace",
+          "checks": [["Run k6 with 50 users against the 1x5 configuration", "A throughput and p95 value are recorded", "k6 summary"], ["Run the same test with 2 workers x 3 threads", "Throughput differs and RSS per worker is measured", "k6 summary and ps output"], ["Set pool: 2 with 5 threads and load the app", "ActiveRecord::ConnectionTimeoutError appears in the log", "Log excerpt"]],
+          "objectives": ["Size Puma for the workload", "Relate threads to the connection pool", "Measure instead of guessing"]
+        },
+        {
+          "topic": "Profiling Rails: rack-mini-profiler, stackprof and Allocation Reports",
+          "subtopics": ["rack-mini-profiler badges and SQL timings", "stackprof in wall, cpu and object modes", "Vernier and flamegraph reading", "memory_profiler for per-request allocations", "derailed_benchmarks for boot and memory", "Server-Timing headers and DevTools", "ActiveSupport::Notifications timing of view rendering", "Finding slow partial collections", "Benchmark with benchmark-ips on hot methods", "Fix, re-measure and record the delta"],
+          "tools": ["rack-mini-profiler", "stackprof", "Vernier", "memory_profiler", "derailed_benchmarks"],
+          "lab_task": "Pick the slowest page of the helpdesk app with 5,000 tickets, profile it with rack-mini-profiler and stackprof, and identify the top 3 methods. Fix two problems such as a view loop calling a helper repeatedly and an unneeded serialisation. Report p50 response time and allocation counts from memory_profiler before and after.",
+          "deliverable": "Profiling report with flamegraph, three findings and before/after metrics",
+          "checks": [["Profile the page with stackprof", "A report lists the top 3 methods by sample percentage", "stackprof output"], ["Run memory_profiler before and after the fix", "Total allocated objects drop by at least 20 percent", "memory_profiler report"], ["Measure p50 with 100 requests", "The median is lower after the change", "Benchmark table"]],
+          "objectives": ["Find hotspots with sampling profilers", "Measure allocations per request", "Prove an optimisation with numbers"]
+        },
+        {
+          "topic": "Active Job Reliability: Retries, Discard and Job Idempotency",
+          "subtopics": ["retry_on with wait: :polynomially_longer and attempts", "discard_on and DeserializationError", "Idempotent job design with unique keys", "Job arguments: GlobalID and serialisation limits", "enqueue_after_transaction_commit in Rails 8", "Rails 8.1 Active Job continuations with step blocks", "Failure callbacks and error reporting with Rails.error", "Dead letter handling and manual retry in Mission Control", "Queue latency and size monitoring", "Graceful shutdown on SIGTERM"],
+          "tools": ["Active Job", "Solid Queue", "Mission Control Jobs", "Rails.error"],
+          "lab_task": "Write ImportJob that processes 1,000 rows in a continuation with a step per 100 rows. Raise an error on row 650, retry using retry_on with 3 attempts, and prove that the job resumes at step 7 rather than step 1. Send SIGTERM to bin/jobs during processing and confirm the job is re-enqueued and no row is processed twice.",
+          "deliverable": "Job code, run log with step resume and shutdown test",
+          "checks": [["Fail at row 650 and retry", "The log shows processing resumes from the step covering row 650", "Job log"], ["Send SIGTERM during processing", "The job is interrupted and appears again in ready executions", "Dashboard screenshot"], ["Count processed rows after completion", "Exactly 1,000 rows are marked processed with no duplicates", "SQL count"]],
+          "objectives": ["Make background work retry safely", "Resume long jobs after interruptions", "Observe queue health"]
+        },
+        {
+          "topic": "Solid Cable and Action Cable at Scale",
+          "subtopics": ["Action Cable architecture: connection, channel and stream", "Connection identification with cookies and tokens", "config/cable.yml adapters: solid_cable, redis, async", "Solid Cable tables and polling_interval", "Channel authorisation with reject and stream_for", "Broadcast fan-out cost and message sizes", "Heartbeats, reconnection and the ping message", "allowed_request_origins and cross-origin errors", "Load testing WebSocket connections", "Sizing server threads for connections"],
+          "tools": ["Action Cable", "Solid Cable", "Redis", "k6", "websocat"],
+          "lab_task": "Run the app with config/cable.yml set to solid_cable, polling_interval 0.1 seconds. Open 500 WebSocket connections with k6, broadcast 1 message per second to one stream for 2 minutes and record the delivery delay. Reject a connection with a bad token, then change origin settings to reproduce a disallowed origin log message.",
+          "deliverable": "cable.yml, load test summary and rejection logs",
+          "checks": [["Broadcast to 500 subscribers", "All 500 receive the message and p95 delay is recorded", "k6 summary"], ["Connect without a valid token", "The server closes the connection with an unauthorized message", "websocat output"], ["Connect from an unlisted Origin header", "Request origin not allowed appears in the log", "Log excerpt"]],
+          "objectives": ["Operate Action Cable beyond one user", "Secure WebSocket connections", "Measure fan-out latency"]
+        },
+        {
+          "topic": "Kamal 2: Deploying Rails to Your Own Servers",
+          "subtopics": ["kamal init and config/deploy.yml", "Servers, registry and builder settings", ".kamal/secrets and fetching from a password manager", "kamal setup vs kamal deploy", "kamal-proxy, health checks on /up and zero-downtime swaps", "Accessories: PostgreSQL, Redis and volumes", "Roles: web and job on separate hosts", "kamal app logs, details, exec and rollback", "Let's Encrypt TLS with proxy ssl: true", "Hooks in .kamal/hooks"],
+          "tools": ["Kamal", "Docker", "kamal-proxy", "SSH", "Let's Encrypt"],
+          "lab_task": "Provision two small Linux VMs, edit config/deploy.yml for a web role and a job role running bin/jobs, add a PostgreSQL accessory, and run kamal setup. Deploy a version that displays a changed footer, then a version that fails its /up health check. Confirm that the failed release never receives traffic and run kamal rollback.",
+          "deliverable": "deploy.yml, secrets file template and a deploy log with one failed release",
+          "checks": [["Run kamal deploy with a healthy release", "The new container is routed after /up returns 200 with no failed requests", "Deploy log and curl loop"], ["Deploy a build whose /up returns 500", "kamal-proxy keeps the old container and the deploy fails", "Deploy log"], ["Run kamal rollback to the previous version", "The old version string appears in the page footer", "curl output"]],
+          "objectives": ["Deploy Rails with Kamal", "Run web and job roles separately", "Roll back safely"]
+        },
+        {
+          "topic": "Docker, Thruster and the Rails Production Image",
+          "subtopics": ["Reading the generated Dockerfile stage by stage", "Base image, jemalloc and bootsnap precompile", "Multi-stage builds and image size", "bin/docker-entrypoint and db:prepare", "Thruster as HTTP/2 front proxy with gzip and asset caching", "Non-root user and read-only file systems", "RAILS_MASTER_KEY at build vs run time", "Persistent storage volume for SQLite", "BuildKit caching and .dockerignore", "Scanning images with trivy"],
+          "tools": ["Docker", "Thruster", "trivy", "jemalloc", "Rails 8"],
+          "lab_task": "Build the generated Dockerfile and record the image size. Reduce it with a tighter .dockerignore and verify a rebuild after a one-line code change takes under 30 seconds because of layer caching. Run it with a read-only filesystem and a tmpfs for /rails/tmp, scan with trivy image and note the High and Critical counts.",
+          "deliverable": "Image size table, build time comparison and trivy summary",
+          "checks": [["Build the image twice after a one-line change", "The second build reuses the bundle layer and finishes in under 30 seconds", "Docker build output"], ["Run with --read-only and tmpfs for tmp and log", "The container starts and /up returns 200", "docker run output and curl"], ["Run trivy image on the build", "High and Critical counts are recorded with the fixed-in versions", "trivy report"]],
+          "objectives": ["Read and improve the Rails Dockerfile", "Explain Thruster's role", "Run a minimal, scanned container"]
+        },
+        {
+          "topic": "Hardening: Content Security Policy, rate_limit and allow_browser",
+          "subtopics": ["config/initializers/content_security_policy.rb and nonces", "CSP report-only mode and report URIs", "Security headers: HSTS, X-Frame-Options, Referrer-Policy", "rate_limit in controllers with store and by:", "Rack::Attack for IP and path throttles", "allow_browser versions: :modern and the 426 response", "Brute-force defence on login", "CSRF protection and SameSite cookies", "Mass assignment and open redirect checks", "ssl_options, force_ssl and trusted proxies"],
+          "tools": ["Content Security Policy", "Rack::Attack", "Brakeman", "curl", "OWASP ZAP"],
+          "lab_task": "Enable a strict CSP with nonces and run it in report-only mode first, then enforce it. Add rate_limit to: 5, within: 3.minutes on SessionsController#create and allow_browser versions: :modern. Use curl to send 6 bad logins and an old User-Agent, then run OWASP ZAP baseline and fix one finding.",
+          "deliverable": "CSP config, rate limit logs and a ZAP baseline report with one fix",
+          "checks": [["Send 6 failed logins within 3 minutes", "The sixth response is 429 Too Many Requests", "curl output"], ["Request with an unsupported User-Agent", "The server responds 426 Upgrade Required", "curl -i output"], ["Inject an inline script in a page", "The browser blocks it and a CSP violation is logged", "DevTools console"]],
+          "objectives": ["Configure CSP and security headers", "Throttle abusive requests", "Verify hardening with scanners"]
+        },
+        {
+          "topic": "Active Record Encryption, Credentials Rotation and Secrets",
+          "subtopics": ["encrypts :attribute with deterministic and non-deterministic modes", "Key generation: bin/rails db:encryption:init", "Querying deterministic columns and ignore_case", "support_unencrypted_data and migrating existing rows", "Key rotation with previous keys", "filter_parameters and log redaction", "Credentials per environment and key rotation steps", "Secrets in Kamal with password managers", "Message verifiers and generates_token_for", "Compliance mapping: what to encrypt and what to hash"],
+          "tools": ["Active Record Encryption", "bin/rails", "PostgreSQL", "Kamal"],
+          "lab_task": "Encrypt users.phone deterministically and users.notes non-deterministically with encrypts. Migrate 10,000 existing plaintext rows with support_unencrypted_data and encrypt!. Add a second primary key to config.active_record.encryption.primary_key, rotate, and confirm old rows still decrypt. Check the database column with psql and confirm filter_parameters hides the phone in logs.",
+          "deliverable": "Encryption config (without keys), migration script and database samples",
+          "checks": [["Select phone from users using psql", "Values are ciphertext JSON and not the phone number", "psql output"], ["Run User.where(phone: \"555-0100\") with deterministic encryption", "The matching row is returned", "Console output"], ["Submit a form with the phone parameter", "The log line shows [FILTERED] for phone", "Log excerpt"]],
+          "objectives": ["Encrypt sensitive columns", "Rotate keys without data loss", "Keep secrets out of logs"]
+        },
+        {
+          "topic": "Structured Logging, Query Log Tags and Health Checks",
+          "subtopics": ["Log levels and production log_level", "Tagged logging with request_id and tags", "Lograge or Rails 8.1 structured logging", "JSON log fields for latency, status and user ID", "Query log tags: config.active_record.query_log_tags", "Filtering sensitive parameters", "Liveness vs readiness: /up and a custom /ready check", "Error reporting with Rails.error.report", "Log volume, sampling and retention costs", "Shipping logs to Loki or another backend"],
+          "tools": ["Lograge", "Rails.logger", "Loki", "Query log tags", "curl"],
+          "lab_task": "Switch production logging to one JSON line per request including request_id, duration_ms, status and user_id. Enable query_log_tags with controller and action, add a /ready route that checks the database and queue, and ship logs to Loki with Docker Compose. Query Loki for requests slower than 500 ms.",
+          "deliverable": "Logging config, a sample JSON log line and a Loki query result",
+          "checks": [["Request one page and read the log", "A single JSON line contains request_id and duration_ms", "Log excerpt"], ["Inspect a SQL statement in the PostgreSQL log", "The query ends with a comment containing the controller and action", "pg log"], ["Stop the database and call /ready", "The response is 503 while /up still returns 200", "curl output"]],
+          "objectives": ["Produce structured, searchable logs", "Tag SQL with request context", "Separate liveness from readiness"]
+        },
+        {
+          "topic": "ActiveSupport::Notifications, Rails.event and OpenTelemetry Traces",
+          "subtopics": ["ActiveSupport::Notifications.subscribe and instrument", "Built-in events: process_action.action_controller and sql.active_record", "Rails 8.1 Rails.event structured events and subscribers", "OpenTelemetry Ruby SDK and the rails instrumentation gem", "OTLP export to a collector", "Span attributes and error status", "Trace context propagation to Active Job", "Sampling strategies", "Metrics: histograms for latency", "Correlating traces with logs"],
+          "tools": ["OpenTelemetry", "Rails.event", "Jaeger", "Grafana", "OTLP"],
+          "lab_task": "Add opentelemetry-sdk and opentelemetry-instrumentation-rails, export to a local OpenTelemetry Collector and Jaeger. Create a custom span around the checkout service with an order.total attribute. Confirm one trace includes the HTTP request, SQL spans and the Active Job span after enqueue. Add a notifications subscriber that logs events slower than 200 ms.",
+          "deliverable": "OpenTelemetry config, Jaeger trace screenshot and subscriber code",
+          "checks": [["Open the trace for POST /checkout in Jaeger", "Spans for the request, SQL queries and the custom span are present", "Jaeger screenshot"], ["Inspect the custom span attributes", "order.total is present with the expected number", "Jaeger screenshot"], ["Trigger a request slower than 200 ms", "The subscriber logs the event name and duration", "Log excerpt"]],
+          "objectives": ["Instrument Rails with notifications and events", "Export traces with OpenTelemetry", "Link traces to jobs"]
+        },
+        {
+          "topic": "Rails Internals: Railties, Initializers and Eager Loading",
+          "subtopics": ["Boot sequence: config/boot.rb, application.rb and environment.rb", "Railtie and Engine initializers and ordering", "bin/rails initializers and the order output", "Zeitwerk setup, eager_load_paths and to_prepare hooks", "ActiveSupport.on_load hooks", "Reloader and why constants are reloaded", "Boot time with bootsnap and derailed", "Rack app and Rails.application.config.middleware", "Configuration inheritance and config_for", "Reading the Rails source with bundle open"],
+          "tools": ["Railties", "Zeitwerk", "bootsnap", "bundle open"],
+          "lab_task": "Run bin/rails initializers and capture the first 20 entries. Add an initializer that registers an ActiveSupport.on_load(:active_record) hook and prints the model class when it loads. Use bundle open railties to find where initializers are run, then measure bin/rails runner \"1\" with and without bootsnap using hyperfine.",
+          "deliverable": "Initializer order excerpt, on_load hook output and boot timing table",
+          "checks": [["Run bin/rails initializers", "The list shows initializers in execution order with owning class", "Command output"], ["Start bin/rails runner \"1\"", "The on_load message prints once when Active Record loads", "Terminal output"], ["Compare boot time with and without bootsnap", "The bootsnap run is faster by a measured number of milliseconds", "hyperfine output"]],
+          "objectives": ["Explain the Rails boot order", "Hook into framework loading safely", "Read framework source code"]
+        },
+        {
+          "topic": "Upgrading Rails: Deprecations, load_defaults and app:update",
+          "subtopics": ["Upgrade path: one minor version at a time", "bin/rails app:update and diff review", "config.load_defaults and new_framework_defaults files", "Deprecation behaviours: :raise in test and :stderr", "Gem compatibility with bundle outdated and Appraisal", "Rails support policy and security-only releases", "Ruby version bumps and Rails compatibility", "Cross-version CI matrix", "Staged rollout with a feature flag", "Rollback plan and release notes"],
+          "tools": ["bin/rails", "Bundler", "Appraisal", "GitHub Actions"],
+          "lab_task": "Take a sample app on Rails 7.2 and upgrade it to Rails 8 in two steps. Set config.active_support.deprecation = :raise in test, fix each deprecation, run bin/rails app:update and review each diff, then raise config.load_defaults gradually using the new_framework_defaults file. Create a CI matrix running both versions.",
+          "deliverable": "Upgrade log with the number of deprecations fixed and the final CI matrix",
+          "checks": [["Run the test suite with deprecations set to raise", "Each deprecation fails a test until fixed and the final run has 0", "Test output"], ["Run bin/rails app:update", "The diff lists config files to merge with no unreviewed overwrites", "Terminal output"], ["Run CI on both Rails versions", "Both jobs pass", "CI run"]],
+          "objectives": ["Upgrade Rails in small safe steps", "Handle deprecations systematically", "Maintain a compatibility matrix"]
+        },
+        {
+          "topic": "Modular Monolith: Packwerk, Engines and Boundaries",
+          "subtopics": ["Coupling and cohesion in large Rails codebases", "Packwerk packages, package.yml and dependencies", "packwerk check, update-todo and violation types", "Public interface folders: app/public", "Engines vs packs vs gems", "Event-based decoupling with notifications", "Data ownership and foreign keys across packs", "Incremental adoption using todo files", "Dependency graphs and CI enforcement", "When to split a service"],
+          "tools": ["Packwerk", "Zeitwerk", "Rails Engine", "GitHub Actions"],
+          "lab_task": "Split the helpdesk app into billing, tickets and accounts packs using Packwerk. Run bin/packwerk check, record the initial violation count, resolve at least 10 with public APIs, and keep the rest in package_todo.yml. Add the check to CI so a new violation fails the build.",
+          "deliverable": "package.yml files, violation counts over time and CI failure proof",
+          "checks": [["Run bin/packwerk check first", "The initial violation count is recorded in the report", "Packwerk output"], ["Call a private constant from another pack", "Packwerk reports a privacy violation", "Packwerk output"], ["Push the change to CI", "The build fails on the new violation", "CI log"]],
+          "objectives": ["Enforce module boundaries", "Reduce coupling step by step", "Decide when to extract services"]
+        },
+        {
+          "topic": "Turbo Morphing, Page Refreshes and Server-Rendered UI Performance",
+          "subtopics": ["Turbo 8 page refreshes: turbo_refreshes_with method: :morph", "turbo-permanent and data-turbo-permanent", "broadcasts_refreshes and the debounce of refresh streams", "Preserving scroll with scroll: :preserve", "Morphing and Stimulus state", "View Transitions and prefetching links", "Lazy frames and loading: :lazy", "Server timing vs perceived latency", "Cache headers for Turbo pages", "Testing morph behaviour"],
+          "tools": ["Turbo", "Stimulus", "Action Cable", "Lighthouse"],
+          "lab_task": "Enable turbo_refreshes_with method: :morph and scroll: :preserve on the tickets page, and use broadcasts_refreshes on Ticket. Open two browsers, change a ticket in one and verify the other page updates while keeping scroll position and an open dropdown marked data-turbo-permanent. Compare Lighthouse before and after prefetching links.",
+          "deliverable": "Morph configuration, screen recording and a Lighthouse comparison",
+          "checks": [["Update a ticket in browser A", "Browser B refreshes without losing scroll position", "Screen recording"], ["Count refresh requests after 10 quick updates", "Debouncing collapses them into fewer than 10 page requests", "DevTools Network tab"], ["Run Lighthouse before and after prefetch", "Largest Contentful Paint values are recorded for both runs", "Lighthouse reports"]],
+          "objectives": ["Use morphing refreshes safely", "Preserve client state during updates", "Measure UI performance"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant SaaS on Kamal with Solid Queue and Observability",
+          "subtopics": ["Architecture decision record covering tenancy, database and queue choices", "Tenant-isolated data model with row level security and tests", "Zero-downtime Kamal deployment with a web and a job role", "Reliability: idempotent jobs, rate limits and encrypted fields", "Observability with JSON logs, traces and a Grafana dashboard", "Load test, runbook and final review presentation"],
+          "tools": ["Rails 8", "Kamal", "Solid Queue", "PostgreSQL", "OpenTelemetry", "k6"],
+          "lab_task": "Deliver a multi-tenant SaaS on two servers using Kamal with web and job roles, PostgreSQL row level security, Solid Queue jobs, encrypted columns and rate limits. Include traces and a dashboard, a k6 test at 100 users for 5 minutes with p95 under 500 ms, a zero-downtime deploy during the test, and a runbook.",
+          "deliverable": "Repository, ADR, deployed URL, k6 results, dashboard export and runbook",
+          "checks": [["Run k6 at 100 users for 5 minutes", "p95 latency is below 500 ms with an error rate under 1 percent", "k6 summary"], ["Deploy a new release during the load test", "No more than 0.1 percent of requests fail", "k6 summary and deploy log"], ["Request tenant B's data with tenant A's session", "A 404 response is returned and the attempt is logged", "Log excerpt"]],
+          "objectives": ["Integrate data, queue, deployment and observability decisions in one system", "Validate reliability under load", "Document operations for a team"]
+        }
+      ]
+    }
+  }
+}

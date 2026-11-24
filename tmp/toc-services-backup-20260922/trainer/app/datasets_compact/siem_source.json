@@ -1,0 +1,371 @@
+{
+    "domain":  "SIEM",
+    "name":  "SIEM â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Security Information and Event Management",
+                    "Security Monitoring"
+                ],
+    "tools":  [
+                  "Splunk",
+                  "Elastic Security",
+                  "Microsoft Sentinel"
+              ],
+    "certifications":  [
+                           "SIEM official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate SIEM fundamentals.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using SIEM.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Inspect and configure core SIEM components.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using SIEM.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for SIEM.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using SIEM.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using SIEM.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated SIEM issue.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using SIEM.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Automate a repeatable SIEM configuration task.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using SIEM.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using SIEM.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "SIEM terminology and feature mapping for this topic",
+                                       "SIEM configuration and implementation considerations",
+                                       "SIEM best practices and common mistakes for this topic",
+                                       "log collection",
+                                       "normalization",
+                                       "parsing",
+                                       "correlation",
+                                       "detections",
+                                       "use cases",
+                                       "alerts",
+                                       "dashboards",
+                                       "threat hunting",
+                                       "retention",
+                                       "SOAR concepts",
+                                       "incident response"
+                                   ],
+                     "tools":  [
+                                   "Splunk",
+                                   "Elastic Security",
+                                   "Microsoft Sentinel"
+                               ],
+                     "lab_task":  "Build and document an end-to-end SIEM solution.",
+                     "technology":  "SIEM",
+                     "technology_id":  "siem",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of SIEM.",
+                                                 "Configure or implement the key SIEM features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using SIEM.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "siem"
+}

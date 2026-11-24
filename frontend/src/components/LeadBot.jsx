@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Bot, Pause, Play, Search } from 'lucide-react'
 import api from '../utils/api'
@@ -7,7 +7,8 @@ import { collectionOutcomeLines } from '../utils/leadSearchFeedback'
 function stamp(value) {
   if (!value) return ''
   const text = String(value)
-  return text.endsWith('Z') || text.includes('+') ? text : `${text} (UTC)`
+  const date = new Date(text.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(text) ? text : `${text}Z`)
+  return Number.isNaN(date.getTime()) ? text : date.toLocaleString(undefined, { timeZoneName: 'short' })
 }
 
 function domainList(value) {
@@ -39,6 +40,29 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
   const [config, setConfig] = useState(null)
   const [domainsText, setDomainsText] = useState('')
   const [saving, setSaving] = useState(false)
+  const [connection, setConnection] = useState(null)
+  const [showConnection, setShowConnection] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    const refresh = () => api.get('/linkedin-leads/bot/connection/status')
+      .then(res => { if (active) setConnection(res.data) })
+      .catch(() => { if (active) setConnection({ state: 'unavailable', message: 'Unable to load LinkedIn connection status.' }) })
+    refresh()
+    const timer = window.setInterval(refresh, 15000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [])
+
+  const verifyConnection = async () => {
+    setVerifying(true)
+    try {
+      const res = await api.post('/linkedin-leads/bot/connection/verify', {}, { timeout: 75000 })
+      setConnection(res.data)
+    } catch (error) {
+      toast.error(error.message || 'Unable to verify LinkedIn connection')
+    } finally { setVerifying(false) }
+  }
 
   useEffect(() => {
     let stop = false
@@ -98,11 +122,36 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
           </h2>
           <p className="mt-1 text-xs text-slate-500">
             {isTrainer
-              ? 'Searches trainer profiles every hour while enabled. Uses your connected LinkedIn account. No public web search, paid API, or outreach emails. Matches require review.'
-              : 'Searches training-request posts every ten minutes while enabled. Uses your connected LinkedIn account. No public web search, paid API, or outreach emails. Matches require review.'}
+              ? 'Automatic collection uses your connected LinkedIn account. Manual LinkedIn searches fall back to public indexed results if LinkedIn limits the session. No paid API or outreach emails. Matches require review.'
+              : 'Automatic collection uses your connected LinkedIn account. Manual LinkedIn searches fall back to public indexed results if LinkedIn limits the session. No paid API or outreach emails. Matches require review.'}
           </p>
         </div>
       </div>
+
+      <label className="block text-xs font-semibold text-slate-600">
+        LinkedIn connection: {connection?.state?.replaceAll('_', ' ') || 'checking'}
+      </label>
+      <p className="text-sm text-slate-700" role="status">{connection?.message}</p>
+      {connection?.retry_after && (
+        <p className="text-sm text-amber-800" role="status">
+          Account searches are cooling down until {stamp(connection.retry_after)} after LinkedIn rejected requests.
+          Enabled bots can retry on their next scheduled run after that time; results are not guaranteed.
+        </p>
+      )}
+      <button type="button" className="btn-secondary text-sm" onClick={() => setShowConnection(value => !value)} aria-expanded={showConnection}>
+        Connect / reconnect LinkedIn
+      </button>
+      {showConnection && (
+        <div className="rounded border bg-white p-3 space-y-3 text-sm">
+          <p>The bot needs its own LinkedIn sign-in on the server. Signing into LinkedIn in your normal browser does not connect this bot.</p>
+          <p>Ask your server administrator to open the bot’s sign-in helper on a display-enabled server session, complete LinkedIn verification, and wait for “SESSION_READY”. This app does not yet provide an embedded server login window.</p>
+          <p>After the server login is complete, verify the connection here, then enable collection.</p>
+          <button type="button" className="btn-primary text-sm" disabled={verifying || connection?.state === 'paused'} onClick={verifyConnection}>
+            {verifying ? 'Verifying LinkedIn…' : 'Verify server connection'}
+          </button>
+          {connection?.retry_after && <p>Retry after: {stamp(connection.retry_after)}</p>}
+        </div>
+      )}
 
       <label className="block text-xs font-semibold text-slate-600">
         Domains (up to four)
@@ -134,9 +183,15 @@ export default function LeadBot({ mode = 'trainer', onRefresh, onUseDomains, onV
       <p className="text-sm font-semibold text-slate-800">
         {config?.enabled ? 'Enabled' : 'Paused'} · Last automatic run: {runLabel} · Found: {config?.found || 0} · Saved: {config?.saved || 0}
       </p>
+      {!isTrainer && Number(config?.target || 0) > 0 && (
+        <p className="text-xs text-slate-600">
+          Overall scan target: {config.target} training-request posts
+          {!config.target_met && ' (target not reached in this run)'}
+        </p>
+      )}
       <p className="text-xs text-slate-500">This panel shows the automatic collection run. Searches started with Find Profiles or Find Client Posts report their results below.</p>
       <CollectionOutcomes outcomes={config?.domain_outcomes} />
-      {warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
+      {warnings.map(message => <p key={message} className="text-sm text-amber-800">Previous run: {message}</p>)}
       {isTrainer && <p className="text-xs text-slate-500">Saved counts new profiles only. Existing profiles keep their original domain label.</p>}
       {(config?.last_finished || config?.next_run) && (
         <p className="text-xs text-slate-500">

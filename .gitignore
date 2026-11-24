@@ -54,7 +54,6 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
-<<<<<<< HEAD
 .runlogs/
 .scannerwork/
 *.log
@@ -72,6 +71,8 @@ Thumbs.db
 !/frontend/src/utils/useLiveShortlist.js
 !/frontend/src/utils/pipelineRecords.js
 !/frontend/src/utils/pipelineRecords.test.js
+!/frontend/src/utils/navigation.js
+!/frontend/src/utils/navigation.test.js
 !/frontend/src/utils/usePipelineRecords.js
 !/frontend/src/components/
 /frontend/src/components/*
@@ -83,13 +84,20 @@ Thumbs.db
 !/frontend/src/pages/
 /frontend/src/pages/*
 !/frontend/src/pages/PurchaseOrders.jsx
+!/frontend/src/pages/FinanceApprovals.jsx
+!/frontend/src/pages/TrainerPortal.jsx
+!/frontend/src/pages/TrainerApplications.jsx
+!/frontend/src/pages/ClientPortal.jsx
+!/frontend/src/pages/PartnerOpportunities.jsx
+!/frontend/src/pages/TravelBookings.jsx
 
 # Logs and runtime
 .scannerwork/
 .coverage
 htmlcov/
-=======
-
 # Ignore sensitive email service OAuth token config
 microservices/services/email-service/config/token.json
->>>>>>> 884f222 (Remove OAuth token file from history and ignore it)
+microservices/services/intelligence-service/naukri-bot-profile/
+
+# Model drafts for level-course modules (applied content lives in datasets_levels)
+microservices/services/trainer-service/curriculum_module_drafts/

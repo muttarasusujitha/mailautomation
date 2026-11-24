@@ -1,0 +1,573 @@
+{
+  "domain": "Webhooks",
+  "name": "Webhooks",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "link",
+  "aliases": ["Webhook Integration", "Event Callbacks", "Webhook Development", "HTTP Callbacks", "Webhook Delivery", "Standard Webhooks", "Webhook Engineering", "Webhook Security"],
+  "certifications": [],
+  "tools": ["Postman", "ngrok", "Hookdeck CLI", "Stripe CLI", "GitHub Webhooks", "Slack API", "Standard Webhooks libraries", "WireMock", "k6", "PostgreSQL", "Amazon SQS", "Prometheus", "Grafana", "Svix"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who call HTTP APIs and now need to receive or understand webhooks. Covers push callbacks versus polling, the anatomy of a webhook request, building local receivers in Python with FastAPI and Node.js with Express, tunnels for local development, HMAC-SHA256 signature verification with the raw body, replay protection with timestamps, the real signing schemes of GitHub, Stripe and Slack, the Slack three-second rule, acknowledging fast and processing later, first idempotency tables, safe logging, and a multi-provider receiver capstone.",
+      "prerequisites": ["Has written a program that calls a REST API with curl, Postman or an HTTP library and reads JSON responses", "Knows HTTP basics: methods, headers, status codes and request bodies", "Has Python 3.11 or later or Node.js 22 or later, Docker, a free ngrok or Hookdeck account and a GitHub account with a test repository"],
+      "outcomes": ["Explain how webhooks differ from polling and read every part of an incoming webhook request", "Build a receiver that verifies HMAC signatures against the raw body, rejects stale timestamps and returns correct status codes", "Receive and verify real events from GitHub, Stripe and Slack using their documented headers and tooling", "Acknowledge within the sender's timeout, process work in the background and ignore duplicate deliveries"],
+      "days": [
+        {
+          "topic": "What a Webhook Is: Push Callbacks versus Polling",
+          "subtopics": ["Polling an API every N seconds and its cost in requests and latency", "A webhook as an HTTP POST sent by the provider when an event happens", "Producer, consumer, event, subscription and endpoint vocabulary", "Why webhooks are called reverse APIs or HTTP callbacks", "Typical uses: payments, source control, chat, shipping and CRM events", "Delivery guarantees: at-least-once, no ordering and no exactly-once", "Webhooks versus WebSockets, Server-Sent Events and message brokers", "Trade-offs: public endpoint exposure, retries and lost events"],
+          "tools": ["curl", "Postman", "webhook.site", "Python", "jq"],
+          "lab_task": "Create a free webhook.site URL, then write a Python script that polls GET https://api.github.com/repos/<you>/<repo>/events every 10 seconds for 5 minutes and counts requests. Add a GitHub repository webhook pointing at the webhook.site URL, push 3 commits, and compare: record polling request count and delay against the 3 push deliveries received.",
+          "deliverable": "Comparison table of polling and webhooks with measured request counts, latency and a recommendation",
+          "checks": [["Poll for 5 minutes at 10-second intervals", "30 polling requests are logged, of which at most 3 contain new events", "Script output with request counter"], ["Push 3 commits to a repository with a webhook configured", "webhook.site shows exactly 3 POST requests with X-GitHub-Event: push", "webhook.site request list screenshot"], ["Compare delivery time with polling time for the same push", "Webhook arrives in seconds while polling lags by up to the 10-second interval", "Timestamps in the comparison table"]],
+          "objectives": ["Contrast polling with push delivery using measured numbers", "Use the producer, consumer and endpoint vocabulary correctly", "State what a webhook does and does not guarantee"]
+        },
+        {
+          "topic": "Anatomy of a Webhook Request: Method, Headers, Body and Status Codes",
+          "subtopics": ["POST method and why the provider chooses it", "Request line, Host, User-Agent and Content-Length", "Content-Type: application/json versus application/x-www-form-urlencoded", "Provider headers such as X-GitHub-Event, X-GitHub-Delivery, Stripe-Signature and X-Slack-Signature", "Event id, event type, timestamp and data fields in a body", "Response status codes and what the sender does with each", "Request size limits and why GitHub caps payloads at 25 MB", "Reading raw HTTP with nc and curl --trace-ascii"],
+          "tools": ["curl", "nc", "Postman", "webhook.site", "jq"],
+          "lab_task": "Run nc -l 9000 in one terminal, then send curl -X POST http://localhost:9000/hook -H 'Content-Type: application/json' -H 'X-Event-Type: order.created' -d '{\"id\":\"evt_1\",\"type\":\"order.created\"}'. Save the raw request, label the request line, each header and the body, then repeat with --data-urlencode and note how Content-Type and the body change.",
+          "deliverable": "Annotated raw HTTP capture for JSON and form-encoded requests",
+          "checks": [["Send the JSON curl request to the nc listener", "nc prints POST /hook HTTP/1.1 and Content-Type: application/json", "Saved nc output"], ["Count the bytes in the JSON body and compare with Content-Length", "Content-Length equals the body byte count exactly", "Annotated capture"], ["Repeat with --data-urlencode payload=value", "Content-Type becomes application/x-www-form-urlencoded and the body is payload=value", "Second capture"]],
+          "objectives": ["Identify every part of a webhook HTTP request", "Distinguish JSON and form-encoded bodies by headers", "Map response status codes to sender behaviour"]
+        },
+        {
+          "topic": "Local Receiver in Python with FastAPI",
+          "subtopics": ["Creating a virtualenv and installing fastapi and uvicorn", "A POST route that reads await request.body() as raw bytes", "Parsing JSON only after reading the raw bytes", "Returning 200, 202 and 204 deliberately", "Returning 400 for malformed JSON and 405 for wrong methods", "Running uvicorn main:app --port 8000 --reload", "Structured logging of event id, type and receive time", "Smoke tests with curl and pytest TestClient"],
+          "tools": ["Python", "FastAPI", "uvicorn", "pytest", "curl", "httpx"],
+          "lab_task": "Create main.py with POST /webhooks/demo that reads the raw body, parses JSON, logs the id and type fields and returns 202 with {\"received\":true}. Return 400 for invalid JSON. Write 3 pytest tests with TestClient covering a valid event, invalid JSON and a GET request, and run pytest -q until 3 tests pass.",
+          "deliverable": "FastAPI receiver with a passing pytest suite",
+          "checks": [["POST valid JSON with id and type", "Response is 202 and the log line contains the event id", "pytest output and log line"], ["POST the body {not json", "Response is 400 and no event is logged", "pytest output"], ["Send GET /webhooks/demo", "Response is 405 Method Not Allowed", "pytest output showing 3 passed"]],
+          "objectives": ["Read the raw request body before parsing", "Return intentional status codes for success and error cases", "Test a receiver without a real provider"]
+        },
+        {
+          "topic": "Receiving Webhooks in Node.js with Express and the Raw Body",
+          "subtopics": ["Installing express with npm and a package.json start script", "express.json() versus express.raw({type: 'application/json'})", "Why re-serialising parsed JSON breaks signatures", "Route-level body parsers to keep raw bytes only where needed", "Buffer handling and the 1 MB default limit", "Async handlers and error middleware", "Environment variables with process.env and --env-file", "Equivalent behaviour to the FastAPI receiver"],
+          "tools": ["Node.js", "Express", "npm", "curl", "Postman", "Vitest"],
+          "lab_task": "Create server.js with Express on port 3000 and POST /webhooks/demo using express.raw({type:'application/json', limit:'1mb'}). Log req.body.length, parse JSON inside a try block, return 202, and return 400 on parse errors. Send a body with an extra space and show that the Buffer length differs from the length of JSON.stringify(JSON.parse(body)).",
+          "deliverable": "Express receiver and a note showing why raw bytes must be preserved",
+          "checks": [["POST {\"a\":1} and {\"a\": 1}", "Logged Buffer lengths are 7 and 8", "Server log"], ["Compare raw length with JSON.stringify of the parsed body for {\"a\": 1}", "Raw length 8 differs from re-serialised length 7", "Console output"], ["POST invalid JSON", "Response is 400 and the process keeps running", "curl output"]],
+          "objectives": ["Capture raw request bytes in Express", "Explain why parsed and re-serialised JSON fails signature checks", "Run the same behaviour in two languages"]
+        },
+        {
+          "topic": "Public Tunnels for Local Development with ngrok and Hookdeck CLI",
+          "subtopics": ["Why providers cannot reach localhost", "ngrok http 8000 and the forwarding URL", "The ngrok inspector at http://127.0.0.1:4040 and request replay", "hookdeck listen 8000 and a stable source URL", "Random URLs versus reserved or static domains", "Tunnel risks: anyone with the URL can post to it", "Updating the provider webhook URL after a restart", "Alternatives such as smee.io and Cloudflare Tunnel"],
+          "tools": ["ngrok", "Hookdeck CLI", "smee.io", "curl", "Postman"],
+          "lab_task": "Start the FastAPI receiver on port 8000, run ngrok http 8000, copy the https forwarding URL and send a curl POST to it from a phone hotspot or another network. Open http://127.0.0.1:4040, replay the request twice from the inspector, then restart ngrok and record that the URL changed. Repeat with hookdeck listen 8000.",
+          "deliverable": "Tunnel runbook with URLs, inspector screenshots and a risk note",
+          "checks": [["POST to the public ngrok URL from another network", "Local receiver logs the event and returns 202", "Receiver log and curl output"], ["Click Replay in the ngrok inspector twice", "Receiver logs 2 more identical requests (3 total)", "Receiver log"], ["Stop and restart ngrok without a reserved domain", "The forwarding hostname is different from the first run", "Two recorded URLs"]],
+          "objectives": ["Expose a local receiver safely for testing", "Replay captured requests without re-triggering the provider", "Describe the risks of an open tunnel"]
+        },
+        {
+          "topic": "Inspecting and Replaying Requests with Postman, curl and webhook.site",
+          "subtopics": ["Postman collections, environments and pre-request scripts", "Building a signed request in a Postman pre-request script with CryptoJS", "curl flags: -i, -v, -H, --data-binary and --fail-with-body", "webhook.site custom response status and delay", "Simulating slow and failing receivers for later retry labs", "Saving requests as fixtures in a fixtures directory", "Replaying a fixture with curl --data-binary @file", "jq to extract fields from saved payloads"],
+          "tools": ["Postman", "curl", "webhook.site", "jq", "Newman"],
+          "lab_task": "Build a Postman collection with 3 requests to your receiver: valid event, duplicate event and malformed event. Add tests that assert pm.response.code. Export it, then run newman run webhooks.postman_collection.json and confirm the summary shows 3 requests and 0 failed assertions. Save the three bodies in fixtures/ and replay one with curl --data-binary @fixtures/valid.json.",
+          "deliverable": "Postman collection, fixtures directory and a Newman run report",
+          "checks": [["Run newman on the exported collection", "Summary shows 3 requests executed and 0 assertion failures", "Newman console output"], ["Replay fixtures/valid.json with curl --data-binary", "HTTP/1.1 202 is printed with -i", "curl output"], ["Set webhook.site to return status 500 and post once", "curl --fail-with-body exits with code 22", "Shell exit code"]],
+          "objectives": ["Create repeatable webhook requests as fixtures", "Automate request checks with Newman", "Simulate failing responses for later labs"]
+        },
+        {
+          "topic": "JSON and Form-Encoded Payloads, Content Types and Parsing Pitfalls",
+          "subtopics": ["Content-Type negotiation and charset", "GitHub choosing application/json or application/x-www-form-urlencoded per hook", "Form-encoded payload=<json> wrapping and url-decoding", "Slack slash commands as form data and Events API as JSON", "Unicode, large integers and float precision in JSON", "Unknown fields and forward compatibility", "Schema validation with Pydantic or Zod", "Rejecting payloads with 413 and 415 correctly"],
+          "tools": ["Python", "Pydantic", "Node.js", "Zod", "curl", "jq"],
+          "lab_task": "Extend the FastAPI receiver to accept both application/json and application/x-www-form-urlencoded with a payload= field. Validate events with a Pydantic model that ignores unknown fields. Return 415 for text/plain and 413 for bodies above 1 MB. Write 5 pytest cases: JSON, form, unknown field, text/plain and a 2 MB body.",
+          "deliverable": "Receiver with content-type handling and 5 passing tests",
+          "checks": [["POST the same event as JSON and as payload=<urlencoded json>", "Both produce the same parsed event id in the log", "Log lines and pytest output"], ["POST with Content-Type: text/plain", "Response is 415 Unsupported Media Type", "pytest output"], ["POST a 2 MB body", "Response is 413 Payload Too Large", "pytest output with 5 passed"]],
+          "objectives": ["Handle JSON and form-encoded bodies from different providers", "Validate payloads while tolerating new fields", "Reject unsupported or oversized input with correct codes"]
+        },
+        {
+          "topic": "Response Codes and Timeouts: What 2xx, 4xx and 5xx Tell the Sender",
+          "subtopics": ["2xx means accepted and ends delivery", "3xx redirects and why most senders do not follow them", "4xx as a permanent client failure and the 410 Gone convention", "5xx and timeouts as retryable failures", "429 and the Retry-After header", "Sender timeouts: GitHub 10 seconds, Slack 3 seconds, Stripe a few seconds to start", "Slow handlers causing duplicate deliveries", "Measuring handler duration with time.perf_counter"],
+          "tools": ["Python", "FastAPI", "webhook.site", "curl", "Docker"],
+          "lab_task": "Add a /slow endpoint that sleeps 12 seconds and a /flaky endpoint that returns 500 for the first 2 calls per event id and 200 on the third. Configure a GitHub webhook to your tunnel, trigger a ping, and record from Recent Deliveries which status GitHub shows for the slow endpoint. Write down for each of 200, 301, 400, 410, 429 and 500 whether a sender should retry.",
+          "deliverable": "Status-code decision table and delivery evidence from GitHub",
+          "checks": [["Call /slow with a 10-second client timeout using curl --max-time 10", "curl exits with code 28 (operation timed out)", "Shell exit code"], ["Call /flaky three times with the same event id", "Responses are 500, 500, 200 in order", "curl output"], ["Review GitHub Recent Deliveries for /slow", "The delivery is marked failed with a timeout message", "Delivery screenshot"]],
+          "objectives": ["Choose the right response code for each outcome", "Explain how sender timeouts cause duplicates", "Reproduce a timeout and a transient failure on demand"]
+        },
+        {
+          "topic": "HMAC Signature Verification with SHA-256",
+          "subtopics": ["Shared secret, message and MAC definitions", "HMAC-SHA256 with hmac.new in Python and crypto.createHmac in Node", "Hex versus base64 digest encodings", "Signing the exact raw bytes", "Constant-time comparison with hmac.compare_digest and crypto.timingSafeEqual", "timingSafeEqual throwing when buffer lengths differ", "Why == comparison leaks timing information", "Test vector: secret 'It's a Secret to Everybody' and body 'Hello, World!'"],
+          "tools": ["Python", "Node.js", "openssl", "curl", "pytest"],
+          "lab_task": "Implement verify(secret, body, header) in Python and Node. Using secret \"It's a Secret to Everybody\" and body \"Hello, World!\" confirm the digest starts 757107ea0eb2509f. Add the check to the FastAPI route so a missing or wrong X-Hub-Signature-256 returns 401. Cross-check one value with echo -n 'Hello, World!' | openssl dgst -sha256 -hmac \"It's a Secret to Everybody\".",
+          "deliverable": "Verification function in two languages with test vectors and a 401 path",
+          "checks": [["Compute the HMAC for the test vector in Python, Node and openssl", "All three print 757107ea0eb2509fc211221cce984b8a37570b6d7586c22c46f4379c8b043e17", "Three terminal outputs"], ["POST with a wrong signature", "Response is 401 and the handler does not run", "curl output and log"], ["Add one trailing newline to the signed body but not the sent body", "Verification fails with 401 because the bytes differ", "pytest output"]],
+          "objectives": ["Compute and verify HMAC-SHA256 signatures", "Use constant-time comparison", "Explain why the signature covers the exact raw bytes"]
+        },
+        {
+          "topic": "Replay Attacks and Timestamp Tolerance",
+          "subtopics": ["What a replay attack is and what an attacker gains", "Signed timestamps in Stripe t= and Slack X-Slack-Request-Timestamp", "Tolerance windows: five minutes in Stripe and Slack", "Clock skew and NTP", "Rejecting stale and future timestamps", "Timestamp alone versus timestamp plus event id store", "Why GitHub relies on delivery ids rather than a signed timestamp", "Logging rejected requests without leaking the secret"],
+          "tools": ["Python", "curl", "openssl", "pytest", "chrony"],
+          "lab_task": "Build a generic signed scheme: header X-Demo-Timestamp and X-Demo-Signature = HMAC-SHA256 of '<timestamp>.<body>'. Reject timestamps more than 300 seconds old or 60 seconds in the future with 401. Capture a valid request, replay it unchanged after 6 minutes using a frozen clock in pytest, and confirm rejection. Add 4 tests for fresh, stale, future and tampered-body requests.",
+          "deliverable": "Timestamped signing scheme with 4 passing tests",
+          "checks": [["Send a fresh signed request", "Response is 202", "pytest output"], ["Replay the same request with the clock advanced 6 minutes", "Response is 401 with reason stale_timestamp", "pytest output and log"], ["Change one byte of the body and keep the old signature", "Response is 401 with reason bad_signature", "pytest output with 4 passed"]],
+          "objectives": ["Defend against replayed requests with signed timestamps", "Choose and justify a tolerance window", "Log rejections safely"]
+        },
+        {
+          "topic": "GitHub Webhooks: Repository Hooks, Events and Delivery Headers",
+          "subtopics": ["Creating a repository webhook in Settings and with gh api", "Payload URL, content type, secret and SSL verification", "Choosing events: push, pull_request, issues, release and workflow_run", "The ping event on creation", "Headers X-GitHub-Event, X-GitHub-Delivery, X-GitHub-Hook-ID and User-Agent GitHub-Hookshot", "Reading a push payload: ref, before, after, commits and repository", "Recent Deliveries and the 3-day retention", "Organization and GitHub App webhooks compared with repository hooks"],
+          "tools": ["GitHub", "gh CLI", "ngrok", "FastAPI", "jq"],
+          "lab_task": "Create a webhook on a test repository with gh api repos/<you>/<repo>/hooks -f name=web -f 'config[url]=<ngrok>/webhooks/github' -f 'config[content_type]=json' -f 'config[secret]=<secret>' -F 'events[]=push' -F 'events[]=pull_request'. Log the event type and delivery id in your receiver, push a commit, open a pull request and list deliveries with gh api repos/<you>/<repo>/hooks/<id>/deliveries.",
+          "deliverable": "Working GitHub webhook with a table of received event types and delivery ids",
+          "checks": [["Create the hook and let GitHub send its first request", "Receiver logs X-GitHub-Event: ping with a zen field in the body", "Receiver log"], ["Push one commit", "Receiver logs event push and a payload whose commits array has length 1", "Log and payload excerpt"], ["List deliveries with gh api", "The list shows the delivery ids logged by the receiver with status_code 202", "gh api output"]],
+          "objectives": ["Configure a GitHub repository webhook from the CLI", "Read event and delivery headers", "Find and interpret delivery history"]
+        },
+        {
+          "topic": "Verifying GitHub Signatures and Redelivering Failed Deliveries",
+          "subtopics": ["X-Hub-Signature-256 format sha256=<hex>", "The legacy SHA-1 X-Hub-Signature header and why to ignore it", "Verifying with the raw body and the hook secret", "Returning 401 or 403 on mismatch", "Why GitHub does not retry automatically", "Manual redelivery in the UI", "Redelivery through POST /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}/attempts", "Handling the same X-GitHub-Delivery twice"],
+          "tools": ["GitHub", "gh CLI", "FastAPI", "Python", "ngrok"],
+          "lab_task": "Add X-Hub-Signature-256 verification to the GitHub route. Trigger a push with the wrong secret in the hook and confirm the response is 401 in Recent Deliveries. Fix the secret, then redeliver the failed delivery with gh api -X POST repos/<you>/<repo>/hooks/<id>/deliveries/<delivery_id>/attempts and confirm a new attempt with status 202 and the same X-GitHub-Delivery value.",
+          "deliverable": "GitHub verification code and evidence of a failed then redelivered request",
+          "checks": [["Push with a mismatched secret", "GitHub shows status 401 for that delivery", "Recent Deliveries screenshot"], ["Redeliver the same delivery after fixing the secret", "A new attempt returns 202 and keeps the same X-GitHub-Delivery id", "gh api output"], ["Send the legacy sha1 header only with curl", "Request is rejected with 401 because X-Hub-Signature-256 is missing", "curl output"]],
+          "objectives": ["Verify GitHub signatures correctly", "Recover from failed deliveries by redelivery", "Explain the absence of automatic retries"]
+        },
+        {
+          "topic": "Stripe Webhooks: Endpoints, Events and the Stripe CLI",
+          "subtopics": ["Webhook endpoints in the Dashboard and with the API", "Event objects: id evt_, type, created, livemode and data.object", "Common events: payment_intent.succeeded, checkout.session.completed and invoice.paid", "stripe login and stripe listen --forward-to localhost:4242/webhook", "The whsec_ signing secret printed by the CLI", "stripe trigger payment_intent.succeeded", "Test mode and live mode endpoints being separate", "stripe events resend evt_..."],
+          "tools": ["Stripe CLI", "Stripe Dashboard", "FastAPI", "Node.js", "jq"],
+          "lab_task": "Install the Stripe CLI, run stripe login with a test-mode account, start stripe listen --forward-to localhost:4242/webhook and copy the whsec_ secret. Run stripe trigger payment_intent.succeeded and stripe trigger checkout.session.completed. Log id, type and livemode for each event, then resend one with stripe events resend <evt_id> and compare the two deliveries.",
+          "deliverable": "Stripe CLI forwarding setup and an event log with ids and types",
+          "checks": [["Run stripe trigger payment_intent.succeeded", "Receiver logs type payment_intent.succeeded and livemode false", "Receiver log"], ["Run stripe trigger checkout.session.completed", "Receiver logs a different evt_ id and type checkout.session.completed", "Receiver log"], ["Resend an existing event with stripe events resend", "Receiver sees the same evt_ id a second time", "Receiver log with both lines"]],
+          "objectives": ["Forward Stripe test events to a local receiver", "Read the Stripe event object", "Resend an event and observe the duplicate"]
+        },
+        {
+          "topic": "Verifying Stripe Signatures with constructEvent",
+          "subtopics": ["Stripe-Signature header: t=<timestamp>,v1=<signature>", "Signed payload as '<t>.<raw body>'", "stripe.webhooks.constructEvent in Node and stripe.Webhook.construct_event in Python", "Default 300-second tolerance", "SignatureVerificationError and returning 400", "Why express.json() causes the classic verification failure", "Several v1 signatures during secret rotation", "Writing the verifier by hand to understand it"],
+          "tools": ["Stripe CLI", "Node.js", "Python", "Express", "FastAPI"],
+          "lab_task": "Verify Stripe events twice: with stripe.webhooks.constructEvent(rawBody, sig, endpointSecret) in Express, then a hand-written HMAC of '<t>.<body>' using the v1 value. Return 400 on SignatureVerificationError. Break it deliberately by putting app.use(express.json()) before the route and record the error; fix it with express.raw. Run stripe trigger payment_intent.succeeded to confirm a 200.",
+          "deliverable": "Stripe receiver that verifies by library and by hand, with the failure case documented",
+          "checks": [["Trigger an event with the correct endpoint secret", "Receiver returns 200 and logs the event type", "Receiver log"], ["Use the wrong whsec_ value", "Receiver returns 400 with a signature verification error", "CLI listen output showing 400"], ["Parse the body with express.json before verification", "constructEvent throws because the payload is not the raw body", "Error stack trace"]],
+          "objectives": ["Verify Stripe signatures with the official library", "Reproduce the hand-written algorithm", "Diagnose the parsed-body mistake"]
+        },
+        {
+          "topic": "Slack Events API: URL Verification and Signing Secrets",
+          "subtopics": ["Creating a Slack app at api.slack.com/apps", "Event Subscriptions and the Request URL", "The url_verification request and returning the challenge value", "event_callback envelope: team_id, event_id, event_time and event", "Subscribing to bot events such as app_mention and message.channels", "X-Slack-Signature v0=<hex> and X-Slack-Request-Timestamp", "Base string v0:<timestamp>:<raw body>", "Rejecting timestamps older than five minutes"],
+          "tools": ["Slack", "ngrok", "FastAPI", "Python", "curl"],
+          "lab_task": "Create a Slack app in a free test workspace, enable Event Subscriptions with your ngrok URL and answer the url_verification challenge. Implement the v0 signature check using the signing secret from Basic Information and a 5-minute timestamp window. Subscribe to app_mention, mention the bot in a channel and log event_id and event.type from the envelope.",
+          "deliverable": "Verified Slack Events API endpoint with a logged app_mention event",
+          "checks": [["Save the Request URL in Event Subscriptions", "Slack shows Verified after the receiver echoes the challenge", "Slack UI screenshot"], ["Mention the bot in a channel", "Receiver logs event.type app_mention and an event_id starting with Ev", "Receiver log"], ["Send a curl request with a bad X-Slack-Signature", "Response is 401", "curl output"]],
+          "objectives": ["Complete Slack URL verification", "Verify Slack v0 signatures", "Read the event_callback envelope"]
+        },
+        {
+          "topic": "Slack Slash Commands and Interactivity: Three-Second Acknowledgement",
+          "subtopics": ["Slash commands as form-encoded POSTs with command, text, user_id and response_url", "Responding within 3 seconds", "response_type in_channel versus ephemeral", "Delayed replies through response_url (up to 5 uses within 30 minutes)", "trigger_id lifetime of 3 seconds for opening modals", "Interactive payloads in a payload= form field", "Retry headers X-Slack-Retry-Num and X-Slack-Retry-Reason", "Why a 200 with an empty body is a valid acknowledgement"],
+          "tools": ["Slack", "ngrok", "FastAPI", "Python", "httpx"],
+          "lab_task": "Add a /slack/commands route for /report. Verify the signature, return 200 immediately with 'Working on it', then POST the result to response_url from a background task after a 5-second sleep. Run /report in Slack. Then change the sleep to the handler itself (4 seconds) and capture the operation_timeout error Slack shows.",
+          "deliverable": "Slash command that acknowledges fast and replies later, plus the timeout failure evidence",
+          "checks": [["Run /report with the background reply", "Slack shows Working on it immediately and the final message about 5 seconds later", "Slack screenshot"], ["Make the handler block for 4 seconds", "Slack shows a timeout error such as operation_timeout", "Slack screenshot"], ["Inspect the form body of the command", "Fields command, text, user_id and response_url are present", "Receiver log"]],
+          "objectives": ["Meet Slack's three-second acknowledgement rule", "Reply later through response_url", "Read slash command and interactive payloads"]
+        },
+        {
+          "topic": "Acknowledge Fast, Process Later: A First Background Worker",
+          "subtopics": ["Separating receive, verify, store and process steps", "Persisting the raw event before returning 2xx", "FastAPI BackgroundTasks and its limits", "A SQLite or Postgres events table with status columns", "A worker loop that picks pending events", "Process crash and what happens to in-memory work", "Returning 202 versus 200", "Measuring acknowledgement latency below 100 ms"],
+          "tools": ["FastAPI", "SQLite", "Python", "curl", "hey"],
+          "lab_task": "Create an events table (id, provider, type, body, status, received_at). Change the receiver to verify, insert with status 'pending' and return 202. Add worker.py that polls every second, sets status 'done' after a 3-second simulated job. Send 20 events with hey -n 20 -c 4 and confirm the p95 response time and that all 20 rows reach done.",
+          "deliverable": "Receiver and worker with stored events and latency evidence",
+          "checks": [["Send 20 events with hey -n 20 -c 4", "hey reports all 20 responses as [202] and p95 latency under 100 ms", "hey output"], ["Query SELECT status, count(*) FROM events GROUP BY status after 30 seconds", "Result is done 20", "SQL output"], ["Kill worker.py mid-run, restart it", "Pending rows are processed after restart and no row is lost", "SQL output and worker log"]],
+          "objectives": ["Acknowledge quickly after persisting the event", "Move slow work to a worker", "Show that events survive a worker crash"]
+        },
+        {
+          "topic": "Duplicate Deliveries and a First Idempotency Table",
+          "subtopics": ["Why duplicates happen: retries, timeouts and manual redelivery", "Natural keys: X-GitHub-Delivery, Stripe evt_ id and Slack event_id", "A processed_events table with a primary key", "INSERT ... ON CONFLICT DO NOTHING and checking the row count", "Insert-then-process versus process-then-insert ordering", "What to do when processing fails after the insert", "Idempotent effects such as upserts and set operations", "Cleaning up old ids with a retention policy"],
+          "tools": ["SQLite", "PostgreSQL", "Python", "curl", "pytest"],
+          "lab_task": "Add table processed_events(provider text, event_id text, PRIMARY KEY(provider, event_id)). In the receiver run INSERT ... ON CONFLICT DO NOTHING and skip work when 0 rows are inserted. Send the same Stripe event id 5 times with a loop of curl calls and assert the order-count side effect is 1. Then simulate a crash after insert and describe the lost-work risk.",
+          "deliverable": "Idempotent receiver with a duplicate test and a written failure-mode note",
+          "checks": [["Send the same event id 5 times", "Side-effect counter is 1 and 4 requests log duplicate_ignored", "Test output and log"], ["Send 5 distinct event ids", "Side-effect counter is 5", "Test output"], ["Crash after insert and before processing, then resend", "The event is skipped, which exposes the lost-work gap", "Written note with log excerpt"]],
+          "objectives": ["Use provider event ids as idempotency keys", "Implement a duplicate check with a unique constraint", "Recognise the insert-then-crash gap"]
+        },
+        {
+          "topic": "Logging, Secrets Handling and Configuration for Receivers",
+          "subtopics": ["Secrets in environment variables, never in Git", ".env files and .gitignore", "Docker secrets and cloud secret managers at a glance", "One secret per provider and per environment", "Redacting Authorization, Stripe-Signature and signature headers in logs", "Logging event id, type and decision, not full payload bodies with personal data", "HTTPS only and certificate validity", "Rotating a leaked secret and checking git history with gitleaks"],
+          "tools": ["gitleaks", "Docker", "Python", "dotenv", "GitHub", "curl"],
+          "lab_task": "Move all signing secrets to environment variables loaded with python-dotenv. Add a logging filter that replaces Stripe-Signature, X-Hub-Signature-256 and X-Slack-Signature values with [redacted]. Run gitleaks detect --source . on the repository, plant a fake whsec_ secret in a file to prove detection, then remove it and rotate the secret in the Stripe CLI listen session.",
+          "deliverable": "Receiver configuration with redaction filter and a clean gitleaks report",
+          "checks": [["Log a request that carries Stripe-Signature", "The log shows Stripe-Signature=[redacted]", "Log excerpt"], ["Run gitleaks detect with the planted secret", "gitleaks reports 1 leak and exits with code 1", "gitleaks output"], ["Run gitleaks again after removal", "gitleaks reports no leaks found", "gitleaks output"]],
+          "objectives": ["Keep webhook secrets out of code and logs", "Redact sensitive headers", "Detect leaked secrets before they are pushed"]
+        },
+        {
+          "topic": "Beginner Capstone: Multi-Provider Webhook Receiver",
+          "subtopics": ["Requirements and a one-page design of the three provider routes", "GitHub, Stripe and Slack verification behind one common interface", "Event store, idempotency table and background worker", "Fixtures and automated tests for good, bad and duplicate requests", "Tunnel, provider configuration and a live run", "Runbook and demo of failure handling"],
+          "tools": ["FastAPI", "ngrok", "Stripe CLI", "GitHub", "Slack", "pytest"],
+          "lab_task": "Build one FastAPI service with /webhooks/github, /webhooks/stripe and /webhooks/slack. Each route verifies its signature on the raw body, stores the event, returns within 100 ms and lets a worker process it. Add an idempotency table, 12 pytest tests and live runs: push to GitHub, stripe trigger payment_intent.succeeded and an app_mention in Slack.",
+          "deliverable": "Repository with the service, 12 passing tests, live-run evidence and a runbook",
+          "checks": [["Run pytest -q", "12 tests pass including a bad signature and a duplicate per provider", "pytest output"], ["Trigger one live event per provider", "Three rows with status done exist, one per provider", "SQL output"], ["Resend the same Stripe and GitHub events", "No new processed rows appear and duplicates are logged", "SQL output and log"]],
+          "objectives": ["Combine verification, storage and idempotency across providers", "Prove behaviour with automated tests and live events", "Document the receiver for an operator"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic webhook receiver and now run webhooks in production for payments, source control and chat. Covers event envelopes and schema versioning, thin versus fat payloads, queue-backed ingestion with Amazon SQS, Postgres SKIP LOCKED and Redis Streams, idempotency under concurrency, out-of-order events, consumer retry policy, GitHub Apps with Octokit, Stripe billing events and secret rotation, Slack retries and Bolt, the Standard Webhooks specification, and the first webhook sender with a transactional outbox, signed delivery, delivery logs and a provider and consumer capstone.",
+      "prerequisites": ["Has built a webhook receiver that verifies HMAC signatures on the raw body and returns correct status codes", "Knows SQL basics, can run PostgreSQL and Redis in Docker and has used a message queue or job library", "Has an AWS account or LocalStack, a Stripe test-mode account and a GitHub account able to create a GitHub App"],
+      "outcomes": ["Ingest webhooks through durable queues and process them with idempotent, ordered-safe consumers and sensible retry policies", "Operate real GitHub, Stripe and Slack integrations including billing events, GitHub Apps and secret rotation", "Sign and verify messages with the Standard Webhooks specification using official libraries", "Build a webhook sender with an event catalog, transactional outbox, signed delivery workers and attempt logs"],
+      "days": [
+        {
+          "topic": "Webhook Event Envelopes, Naming and Schema Versioning",
+          "subtopics": ["Envelope fields: id, type, created_at, api_version and data", "Dot-delimited type names such as invoice.paid and user.created", "Past-tense naming conventions", "Additive versus breaking changes", "Version in the URL, in a header or in the payload", "Stripe pinning an API version per endpoint", "Unknown-field tolerance on consumers", "A deprecation notice and sunset window for old versions"],
+          "tools": ["JSON Schema", "Python", "Pydantic", "Ajv", "jq"],
+          "lab_task": "Design an event catalog for an orders service with 5 events (order.created, order.paid, order.shipped, order.refunded, order.cancelled). Write JSON Schema 2020-12 files with a common envelope, validate sample payloads with ajv or jsonschema, then add a v2 of order.paid that adds a currency field and confirm v1 consumers still validate while a renamed field fails.",
+          "deliverable": "Event catalog with 5 JSON Schemas, samples and a compatibility note",
+          "checks": [["Validate 5 sample payloads against their schemas", "5 of 5 validate with exit code 0", "Validator output"], ["Add currency to order.paid v2 and validate a v1 payload against v2 with currency optional", "v1 payload still validates", "Validator output"], ["Rename amount to total in a sample and validate against the old schema", "Validation fails with a required property amount error", "Validator output"]],
+          "objectives": ["Design a consistent event envelope and naming scheme", "Classify schema changes as breaking or additive", "Plan versioning and deprecation"]
+        },
+        {
+          "topic": "Payload Design: Thin versus Fat Events and Fetch-Back",
+          "subtopics": ["Fat events carrying the full resource state", "Thin events carrying only an id and type", "Fetch-back with an authenticated GET after receipt", "Stale data when a fat event arrives late", "Payload size, PII exposure and the 25 MB GitHub limit", "Stripe thin events with the v2 event API", "Cost of fetch-back on rate limits", "Choosing per event with a decision table"],
+          "tools": ["Stripe CLI", "Python", "FastAPI", "httpx", "PostgreSQL"],
+          "lab_task": "Implement two handlers for invoice.paid: a fat handler that trusts event.data.object and a thin handler that reads only the invoice id and fetches GET /v1/invoices/<id> with the Stripe SDK. Replay an older event after changing the invoice in test mode, then compare what each handler stores. Count the extra API calls per 100 events.",
+          "deliverable": "Side-by-side thin and fat handlers with a decision table and measured API calls",
+          "checks": [["Replay an older invoice.paid event after the invoice was edited", "Fat handler stores the old amount and thin handler stores the current amount", "Database rows"], ["Process 100 events with each handler", "Thin handler makes 100 extra API calls and fat makes 0", "Call counters"], ["Remove personal fields from the payload by using the thin pattern", "Stored event rows contain no customer email", "Database query"]],
+          "objectives": ["Compare thin and fat webhook payloads", "Avoid acting on stale data", "Choose a pattern with a decision table"]
+        },
+        {
+          "topic": "Queue-Backed Ingestion with Amazon SQS and Dead-Letter Queues",
+          "subtopics": ["API Gateway or ALB to a verify-and-enqueue function", "Standard queues: at-least-once and best-effort ordering", "FIFO queues, MessageGroupId and the 5-minute deduplication window", "Visibility timeout (30 seconds by default) and ChangeMessageVisibility", "Redrive policy with maxReceiveCount", "Dead-letter queue and redrive to source", "Message retention (4 days default, 14 maximum)", "LocalStack for local tests"],
+          "tools": ["Amazon SQS", "LocalStack", "AWS CLI", "Python", "boto3", "Docker"],
+          "lab_task": "On LocalStack create queue webhooks and DLQ webhooks-dlq with a redrive policy maxReceiveCount=3 using aws --endpoint-url http://localhost:4566 sqs create-queue. Make the receiver verify then send_message and return 202. Write a consumer that fails on events of type poison.test, send 1 poison and 10 good events and confirm the poison message lands in the DLQ.",
+          "deliverable": "SQS ingestion with a working DLQ and a redrive test",
+          "checks": [["Send 10 good events and 1 poison event", "Queue drains to 0 and the DLQ ApproximateNumberOfMessages is 1", "aws sqs get-queue-attributes output"], ["Check ReceiveCount on the DLQ message", "Attribute ApproximateReceiveCount is greater than 3", "Message attributes"], ["Use start-message-move-task from the DLQ after fixing the consumer", "DLQ returns to 0 and the event is processed", "aws CLI output"]],
+          "objectives": ["Buffer webhook ingestion with SQS", "Configure a dead-letter queue", "Redrive failed messages after a fix"]
+        },
+        {
+          "topic": "Postgres as a Job Queue with SKIP LOCKED",
+          "subtopics": ["An events table with status, attempts and next_run_at", "SELECT ... FOR UPDATE SKIP LOCKED LIMIT n", "Claiming jobs in a short transaction", "Visibility via locked_until and heartbeat columns", "Retries with next_run_at and attempts", "Indexes for pending rows: partial index WHERE status='pending'", "Throughput limits and when to move to a broker", "Libraries such as Graphile Worker, pg-boss and Procrastinate"],
+          "tools": ["PostgreSQL", "psql", "Python", "pgbench", "pg-boss"],
+          "lab_task": "Create events(id, body, status, attempts, next_run_at) with a partial index on pending rows. Write a worker using SELECT id FROM events WHERE status='pending' AND next_run_at<=now() ORDER BY id LIMIT 10 FOR UPDATE SKIP LOCKED. Insert 10,000 rows, run 4 workers and prove that no event is processed twice by counting rows per id in a processed log.",
+          "deliverable": "Postgres queue with four workers and a no-duplicate proof",
+          "checks": [["Run 4 workers on 10,000 events", "All 10,000 rows reach done and the processed log has 10,000 distinct ids", "SQL counts"], ["Query rows processed more than once", "Zero rows are returned", "SQL output"], ["Run EXPLAIN on the claim query", "The plan uses the partial index rather than a sequential scan", "EXPLAIN output"]],
+          "objectives": ["Build a safe multi-worker queue in Postgres", "Use SKIP LOCKED for claiming", "Know when Postgres is no longer enough"]
+        },
+        {
+          "topic": "Redis Streams and BullMQ Consumers",
+          "subtopics": ["XADD, XLEN and XRANGE", "Consumer groups: XGROUP CREATE and XREADGROUP", "Acknowledgement with XACK and pending entries with XPENDING", "Recovering stuck messages with XAUTOCLAIM", "BullMQ queues, workers and attempts", "BullMQ backoff: {type: 'exponential', delay: 1000}", "Redis persistence: AOF versus RDB and message loss on failover", "Stream trimming with MAXLEN"],
+          "tools": ["Redis", "BullMQ", "Node.js", "redis-cli", "Docker"],
+          "lab_task": "Create a stream webhooks with XADD and a group workers with XGROUP CREATE webhooks workers $ MKSTREAM. Start two consumers using XREADGROUP, crash one before XACK, then recover its entries with XAUTOCLAIM webhooks workers w2 60000 0-0. Rebuild the same flow with BullMQ using attempts: 5 and exponential backoff and compare the code.",
+          "deliverable": "Redis Streams consumer group and a BullMQ version with a recovery demonstration",
+          "checks": [["Add 100 entries and consume with two consumers", "XPENDING shows 0 pending after both ack and XLEN is 100", "redis-cli output"], ["Kill a consumer before XACK and run XAUTOCLAIM", "The other consumer claims the stuck entries and XPENDING returns to 0", "redis-cli output"], ["Make a BullMQ job throw 3 times", "Job succeeds on attempt 4 with delays of about 1, 2 and 4 seconds", "BullMQ log"]],
+          "objectives": ["Process webhook jobs with Redis Streams", "Recover pending messages after a crash", "Configure retries in BullMQ"]
+        },
+        {
+          "topic": "Idempotency Keys, Unique Constraints and Exactly-Once Effects",
+          "subtopics": ["At-least-once delivery plus idempotent handling equals effectively once", "Unique constraint on (provider, event_id)", "Claim, process and complete states with a lease", "Two concurrent deliveries of the same id", "Idempotent side effects: external API calls with Idempotency-Key headers", "Stripe Idempotency-Key header for outbound calls", "Transactions that include the dedupe insert and the business change", "Cleanup and retention of idempotency rows"],
+          "tools": ["PostgreSQL", "Python", "pytest", "Stripe CLI", "k6"],
+          "lab_task": "Implement a handler that, in one Postgres transaction, inserts into processed_events and updates a balances table. Fire the same event 50 times concurrently with k6 (50 VUs, 1 iteration each) and prove the balance changed once. Then add an outbound call that sends an Idempotency-Key header equal to the event id and show a retry does not charge twice in Stripe test mode.",
+          "deliverable": "Transactional idempotent handler with a concurrency proof",
+          "checks": [["Send the same event id from 50 concurrent clients", "balances changes by exactly one unit and 49 requests are logged as duplicates", "SQL query and k6 output"], ["Roll back the transaction by forcing an exception after the insert", "No processed_events row remains, so a retry processes the event", "SQL output"], ["Repeat a Stripe call with the same Idempotency-Key", "Stripe returns the same object id and only one charge exists", "Stripe Dashboard or CLI output"]],
+          "objectives": ["Make handlers idempotent under concurrency", "Combine the dedupe insert with the business change in one transaction", "Use idempotency keys on outbound calls"]
+        },
+        {
+          "topic": "Event Ordering, Out-of-Order Delivery and Version Guards",
+          "subtopics": ["Why order is not guaranteed: retries, parallel workers and network paths", "Sequence numbers versus timestamps", "Version guards such as UPDATE ... WHERE version < :new", "Using updated_at or a monotonic revision from the provider", "Parking events that depend on a missing parent", "Stripe documents that events may arrive out of order", "Per-key ordering with FIFO MessageGroupId or Kafka partition keys", "Refetch as the reconciliation fallback"],
+          "tools": ["PostgreSQL", "Python", "pytest", "Stripe CLI", "SQS FIFO"],
+          "lab_task": "Model subscription.updated events carrying revision numbers. Write an upsert that only applies an event when revision is greater than the stored revision. Feed revisions 3, 1, 2, 5, 4 in that order and assert the final stored revision is 5 and revisions 1, 2 and 4 are recorded as stale. Add a parking table for events whose parent customer does not exist yet.",
+          "deliverable": "Out-of-order safe handler with a table-driven test",
+          "checks": [["Feed revisions 3, 1, 2, 5, 4", "Final stored revision is 5", "pytest output"], ["Count stale events", "Exactly 3 events (1, 2, 4) are logged as stale", "Log and test output"], ["Send an event whose customer is unknown", "The event is parked and applied after the customer.created event arrives", "SQL before and after"]],
+          "objectives": ["Handle out-of-order events safely", "Use revisions as version guards", "Park events with missing dependencies"]
+        },
+        {
+          "topic": "Consumer Retry Policy: Backoff, Jitter and Poison Messages",
+          "subtopics": ["Transient versus permanent failures", "Exponential backoff: delay = min(cap, base * 2^attempt)", "Full jitter: random(0, delay)", "Maximum attempts and total retry duration", "Poison messages and quarantine", "Respecting Retry-After and 429 from downstream APIs", "Retry storms and thundering herds after an outage", "Metrics: retries per event and age of the oldest pending event"],
+          "tools": ["Python", "pytest", "Prometheus", "Redis", "k6"],
+          "lab_task": "Write retry_delay(attempt, base=2, cap=600) with full jitter. Simulate 1,000 failing events retrying in lockstep with and without jitter for 6 attempts and plot the number of retries per second in each case with matplotlib. Add classification so 400 and 422 go straight to quarantine while 429, 500, 502 and 503 retry and honour Retry-After.",
+          "deliverable": "Retry policy module, a jitter comparison chart and a failure classification table",
+          "checks": [["Call retry_delay for attempts 0 to 9 with cap 600", "No value exceeds 600 seconds and the median grows roughly doubling", "pytest output"], ["Compare peak retries per second with and without jitter for 1,000 events", "Jittered peak is at least 5 times lower than the lockstep peak", "Chart and numbers"], ["Return 422 from the downstream", "Event goes to quarantine after 1 attempt, not 6", "Event row status"]],
+          "objectives": ["Design a retry policy with backoff and jitter", "Classify failures as retryable or permanent", "Avoid retry storms"]
+        },
+        {
+          "topic": "GitHub App Webhooks and Octokit Event Handling",
+          "subtopics": ["GitHub Apps versus repository and organization webhooks", "One app webhook URL for every installation", "installation and installation_repositories events", "@octokit/webhooks and webhooks.on('pull_request.opened')", "Verifying with the app webhook secret", "Installation access tokens through the app JWT", "Smee.io for local delivery", "Permissions and which events they unlock"],
+          "tools": ["GitHub Apps", "Octokit", "Node.js", "smee-client", "gh CLI"],
+          "lab_task": "Register a GitHub App with permission Pull requests: read and write, subscribe to pull_request, set the webhook secret and smee.io URL. Using @octokit/webhooks handle pull_request.opened by creating a comment with an installation token. Install the app on a test repository, open a pull request and confirm the comment appears within 10 seconds.",
+          "deliverable": "Working GitHub App that comments on new pull requests",
+          "checks": [["Open a pull request on the installed repository", "Receiver logs pull_request.opened with an installation id and a comment is posted", "Log and PR screenshot"], ["Open a pull request on an uninstalled repository", "No webhook arrives for that repository", "Absence in smee.io and App advanced deliveries"], ["Send a request with a bad secret signature using curl", "Octokit webhooks throws a signature mismatch and the route returns 401", "curl output and log"]],
+          "objectives": ["Build a GitHub App webhook handler", "Authenticate as an installation", "Compare App hooks with repository hooks"]
+        },
+        {
+          "topic": "Stripe Billing Events: Subscriptions, Invoices and Disputes",
+          "subtopics": ["checkout.session.completed as the start of fulfilment", "customer.subscription.created, updated and deleted", "invoice.paid and invoice.payment_failed", "charge.dispute.created and evidence deadlines", "Entitlement as a function of subscription state", "Using stripe trigger and test clocks", "Fixtures with stripe fixtures files", "Handling unknown event types by returning 200"],
+          "tools": ["Stripe CLI", "Stripe Dashboard", "Python", "PostgreSQL", "pytest"],
+          "lab_task": "Build an entitlement table driven by Stripe events. Handle checkout.session.completed, customer.subscription.updated, customer.subscription.deleted and invoice.payment_failed. Use a test clock to advance a subscription 31 days, confirm invoice.paid arrives, then trigger invoice.payment_failed and assert access moves to past_due. Return 200 for unknown types.",
+          "deliverable": "Entitlement service driven by billing events with a test-clock run",
+          "checks": [["Complete a test Checkout session", "A row with status active exists for the customer", "SQL output"], ["Advance the test clock 31 days", "invoice.paid is received and current_period_end moves forward by one month", "Receiver log and SQL"], ["Trigger invoice.payment_failed", "Entitlement status changes to past_due", "SQL output"]],
+          "objectives": ["Drive access from subscription events", "Use test clocks to exercise billing", "Ignore unknown event types safely"]
+        },
+        {
+          "topic": "Stripe Event Destinations, Thin Events and Endpoint Secret Rotation",
+          "subtopics": ["Dashboard webhook endpoints versus event destinations", "Thin events and fetching the event with the v2 API", "Choosing event types and connected account events", "Endpoint signing secret per endpoint", "Rolling a secret with a delay so both verify", "Several v1 signatures in Stripe-Signature during rotation", "Disabled endpoints and the failure emails", "Listing and replaying events with the API"],
+          "tools": ["Stripe Dashboard", "Stripe CLI", "Node.js", "jq", "curl"],
+          "lab_task": "Create a second endpoint for the same URL in test mode, roll its signing secret with a 1-hour expiry for the old secret, and update the receiver to try a list of secrets (new first, then old). Send events during the overlap, remove the old secret, then confirm events signed only with the old secret now fail with 400.",
+          "deliverable": "Zero-downtime secret rotation runbook with test evidence",
+          "checks": [["Send an event during the overlap window", "Verification succeeds with the new secret and returns 200", "Receiver log"], ["Verify a captured old-secret event after dropping the old secret", "Receiver returns 400", "pytest or curl output"], ["List events with stripe events list --limit 5", "Five evt_ ids are printed and one matches a logged id", "CLI output"]],
+          "objectives": ["Rotate a Stripe signing secret without downtime", "Distinguish thin and snapshot events", "Replay events through the API"]
+        },
+        {
+          "topic": "Slack Retries, Interactivity and Bolt Receivers",
+          "subtopics": ["Slack retries failed Events API deliveries three times", "X-Slack-Retry-Num and X-Slack-Retry-Reason headers", "Ignoring retried events using event_id", "Bolt for Python and Bolt for JavaScript receivers", "ack() semantics and lazy listeners", "Socket Mode versus HTTP request URLs", "Interactive components and view_submission responses", "Rate limits when replying: chat.postMessage about 1 per second per channel"],
+          "tools": ["Slack", "Bolt for Python", "Bolt for JavaScript", "ngrok", "Redis"],
+          "lab_task": "Port your Slack route to Bolt for Python with the HTTP receiver. Use ack() immediately and a lazy listener for slow work. Make the endpoint return 500 once for an app_mention and capture X-Slack-Retry-Num: 1 and X-Slack-Retry-Reason: http_error. Deduplicate on event_id in Redis with SET NX EX 3600 so the reply posts once.",
+          "deliverable": "Bolt app with dedupe and a captured retry sequence",
+          "checks": [["Force one 500 for an app_mention", "Slack redelivers with X-Slack-Retry-Num 1", "Receiver log"], ["Process the original and retried delivery", "Exactly 1 reply is posted in the channel", "Slack screenshot and Redis key"], ["Run redis-cli TTL on the dedupe key", "TTL is between 3500 and 3600 seconds", "redis-cli output"]],
+          "objectives": ["Handle Slack retries without duplicate replies", "Use Bolt acknowledgement correctly", "Choose between Socket Mode and HTTP"]
+        },
+        {
+          "topic": "Standard Webhooks Specification: Headers and Signed Content",
+          "subtopics": ["Goals of the Standard Webhooks specification", "Headers webhook-id, webhook-timestamp and webhook-signature", "Signed content '<id>.<timestamp>.<body>'", "HMAC-SHA256 with a base64-encoded signature and v1, prefix", "Secrets with the whsec_ prefix and base64 key", "Space-separated multiple signatures for rotation", "Timestamp in Unix seconds and a tolerance window", "Event payload shape: type, timestamp and data"],
+          "tools": ["Python", "openssl", "curl", "Standard Webhooks libraries", "jq"],
+          "lab_task": "Implement signing and verification of the Standard Webhooks scheme by hand in Python: decode the secret after removing whsec_, sign '<id>.<timestamp>.<body>' with HMAC-SHA256, base64-encode and prefix v1,. Send 3 requests with curl: valid, wrong timestamp and a header carrying two signatures where only the second is valid. Assert accept, reject and accept.",
+          "deliverable": "Hand-written Standard Webhooks signer and verifier with 3 passing cases",
+          "checks": [["Send a request signed with the current timestamp", "Verifier returns accepted", "Test output"], ["Send a request with the timestamp 10 minutes old", "Verifier rejects with a timestamp error", "Test output"], ["Send a webhook-signature header 'v1,bad v1,<good>'", "Verifier accepts because one signature matches", "Test output"]],
+          "objectives": ["Sign messages according to Standard Webhooks", "Support multiple signatures during rotation", "Explain why id, timestamp and body are all signed"]
+        },
+        {
+          "topic": "Verifying Standard Webhooks with Official Libraries",
+          "subtopics": ["pip install standardwebhooks and npm install standardwebhooks", "Webhook(secret).verify(payload, headers)", "WebhookVerificationError and returning 400 or 401", "Passing the raw string or bytes body", "Header casing and framework normalisation", "Cross-checking the library against the hand-written verifier", "Testing with a known secret and fixture files", "Interoperability across providers that follow the spec"],
+          "tools": ["standardwebhooks", "Python", "Node.js", "pytest", "FastAPI"],
+          "lab_task": "Install standardwebhooks for Python and Node. Verify the 3 requests from the previous lab with the library and compare results to your hand-written verifier. Add a FastAPI route and an Express route using the library, return 400 on WebhookVerificationError, and run 6 tests (valid, tampered body, wrong secret, missing header, stale timestamp and future timestamp).",
+          "deliverable": "Library-based verifiers in two languages with 6 passing tests",
+          "checks": [["Run the 6 tests in Python and Node", "6 of 6 pass in each language", "Test runner output"], ["Compare library and hand-written results for the same 3 requests", "All 3 decisions match", "Comparison table"], ["Send a request without webhook-id", "Response is 400 and the error type is WebhookVerificationError", "curl output"]],
+          "objectives": ["Verify Standard Webhooks messages with the official library", "Test accept and reject cases", "Validate interoperability with your own signer"]
+        },
+        {
+          "topic": "Building a Webhook Sender: Subscriptions and Event Catalog",
+          "subtopics": ["Subscription model: endpoint URL, event types, status and secret", "Create, list, update and delete endpoint API", "Event type filtering and wildcards", "URL validation: https only and no credentials", "Secret generation with 24 random bytes encoded as whsec_ plus base64", "Test event button and ping event", "Per-tenant ownership checks", "OpenAPI description of the subscription API"],
+          "tools": ["FastAPI", "PostgreSQL", "OpenAPI", "Python", "curl", "pytest"],
+          "lab_task": "Build POST /v1/webhook-endpoints, GET, PATCH and DELETE with tables endpoints(id, tenant_id, url, event_types, secret, status). Reject non-https URLs and URLs with embedded credentials, generate whsec_ secrets with secrets.token_bytes(24), return the secret only on creation, and add POST /v1/webhook-endpoints/{id}/test that enqueues a ping event. Cover 8 cases in pytest.",
+          "deliverable": "Subscription API with a ping event and 8 passing tests",
+          "checks": [["Create an endpoint with http://example.com", "Response is 422 with an https required message", "pytest output"], ["GET the endpoint after creation", "Response omits the secret field", "curl output"], ["Call another tenant's endpoint id", "Response is 404", "pytest output with 8 passed"]],
+          "objectives": ["Design a webhook subscription API", "Generate and expose secrets safely", "Enforce tenant ownership"]
+        },
+        {
+          "topic": "Transactional Outbox for Reliable Event Publishing",
+          "subtopics": ["The dual-write problem: database commit and queue publish", "Outbox table written in the same transaction as business data", "A relay that polls and publishes with SKIP LOCKED", "Change data capture with Debezium as an alternative", "At-least-once publish and consumer idempotency", "Outbox cleanup and partitioning", "Ordering by id within an aggregate", "Monitoring outbox lag"],
+          "tools": ["PostgreSQL", "Python", "Debezium", "Docker", "psql"],
+          "lab_task": "In one transaction insert an order and an outbox row with the order.created event. Write a relay that claims 100 rows with FOR UPDATE SKIP LOCKED, enqueues delivery jobs and marks them published. Kill the relay after enqueue but before the mark, restart, and show the job is enqueued twice while the delivery id stays the same so the consumer can dedupe.",
+          "deliverable": "Outbox implementation and a documented crash-recovery run",
+          "checks": [["Commit an order with the outbox insert", "Both rows exist or neither exists after a forced rollback test", "SQL output"], ["Run the relay on 1,000 outbox rows", "1,000 rows are marked published and the lag query returns 0", "SQL output"], ["Kill the relay between enqueue and mark", "After restart the same event id is enqueued twice and one delivery succeeds", "Queue and delivery log"]],
+          "objectives": ["Eliminate the dual-write problem with an outbox", "Relay events with SKIP LOCKED", "Accept duplicates and rely on idempotent consumers"]
+        },
+        {
+          "topic": "Delivery Workers: HTTP Client Settings, Timeouts and Redirects",
+          "subtopics": ["Connect, read and total timeouts", "Typical 5 to 30 second total timeout for deliveries", "Not following redirects by default", "Connection pooling and keep-alive", "TLS verification and certificate errors", "User-Agent and per-event headers", "Response body size cap when storing results", "Mapping outcomes to success, retry and fail"],
+          "tools": ["Python", "httpx", "WireMock", "Docker", "pytest"],
+          "lab_task": "Write deliver(endpoint, event) with httpx using timeout=httpx.Timeout(10, connect=3), follow_redirects=False and a User-Agent. Store status and first 1 KB of the response. Test against WireMock stubs for 200, 301, 500, a 15-second delay and a TLS error and record the outcome class (success, retry, fail) for each of the 5 cases.",
+          "deliverable": "Delivery worker with a five-case outcome matrix",
+          "checks": [["Deliver to a stub that delays 15 seconds", "Outcome is timeout classified as retry after about 10 seconds", "Test output with elapsed time"], ["Deliver to a 301 stub", "Redirect is not followed and the outcome is fail without retry", "Test output"], ["Deliver to a stub with an invalid certificate", "Outcome is a TLS error classified as retry and logged with the reason", "Test output"]],
+          "objectives": ["Configure an HTTP client for webhook delivery", "Classify delivery outcomes", "Cap stored response size"]
+        },
+        {
+          "topic": "Signing Outbound Requests and Rotating Secrets",
+          "subtopics": ["Per-endpoint secrets and why never to share one", "Signing with Standard Webhooks headers", "Generating a fresh timestamp for every attempt", "Same webhook-id across retries", "Rotation: add the new secret, sign with both, retire the old", "Grace period length and customer communication", "Storing secrets encrypted at rest with a KMS or Fernet key", "Showing the secret once and offering regenerate"],
+          "tools": ["Python", "standardwebhooks", "PostgreSQL", "cryptography", "pytest"],
+          "lab_task": "Add signing to the delivery worker using the standardwebhooks library: webhook-id is the event id, timestamp is the current time for every attempt, and secrets are stored encrypted with Fernet. Implement rotation that signs with both secrets for 24 hours. Verify a delivered message in a test consumer using the old secret only and then the new secret only.",
+          "deliverable": "Signing delivery worker with dual-secret rotation and tests",
+          "checks": [["Verify during the grace period with only the old secret", "Verification succeeds on the first signature entry", "pytest output"], ["Verify during the grace period with only the new secret", "Verification also succeeds because both signatures are present in the header", "pytest output"], ["Retry a failed delivery", "webhook-id is unchanged and webhook-timestamp is newer", "Delivery log with two attempts"]],
+          "objectives": ["Sign outbound webhooks per endpoint", "Rotate secrets without breaking customers", "Keep secrets encrypted at rest"]
+        },
+        {
+          "topic": "Delivery Logs and Attempt Records",
+          "subtopics": ["Tables: messages, attempts and endpoints", "Attempt fields: attempt_no, started_at, duration_ms, status_code, response_excerpt and error", "Storing request headers with the signature redacted", "Next attempt time and final state", "Retention windows such as 30 days", "Indexes for per-endpoint and per-event lookup", "Manual resend of one message", "Querying: success rate and p95 per endpoint"],
+          "tools": ["PostgreSQL", "Python", "FastAPI", "psql", "Metabase"],
+          "lab_task": "Add attempts(message_id, attempt_no, started_at, duration_ms, status_code, error, response_excerpt) and write a row for every delivery attempt. Add GET /v1/webhook-endpoints/{id}/attempts and POST /v1/messages/{id}/resend. Run 200 deliveries against a WireMock endpoint that fails 20 percent and write SQL for success rate and p95 duration per endpoint.",
+          "deliverable": "Attempt log, API and SQL report for success rate and p95",
+          "checks": [["Deliver 200 messages to a stub failing 20 percent", "Success rate on the first attempt is between 70 and 90 percent", "SQL output"], ["Call resend for a failed message", "A new attempt row is added and attempt_no increments by 1", "SQL output"], ["Run EXPLAIN on the attempts-by-endpoint query", "Plan uses an index scan on (endpoint_id, started_at)", "EXPLAIN output"]],
+          "objectives": ["Record every delivery attempt", "Query reliability per endpoint", "Offer manual resend"]
+        },
+        {
+          "topic": "Intermediate Capstone: Provider and Consumer Pair with Retries",
+          "subtopics": ["Event catalog, schemas and an architecture sketch for provider and consumer", "Subscription API, outbox and signed delivery with Standard Webhooks", "Consumer with SQS or Redis queue, idempotency and out-of-order guards", "Retry policy with jitter and a dead-letter path", "Failure drills: timeouts, 500 responses and duplicate sends", "Runbook and reliability report"],
+          "tools": ["FastAPI", "PostgreSQL", "Amazon SQS", "standardwebhooks", "WireMock", "pytest"],
+          "lab_task": "Build a provider (subscription API, outbox, signed delivery, attempt log) and a consumer (verify, queue, idempotent worker, DLQ) in Docker Compose. Send 1,000 order events while the consumer returns 500 for 10 percent of first attempts and duplicates 5 percent. Prove that every event is processed exactly once in business effect and report attempt counts.",
+          "deliverable": "Compose repository, test report with 1,000 events and a reliability write-up",
+          "checks": [["Send 1,000 events with injected failures", "Consumer business table has exactly 1,000 distinct orders", "SQL count"], ["Count attempts per message", "Average attempts is between 1.05 and 1.2 and the maximum is 5 or fewer", "SQL aggregate"], ["Poison one event so it never succeeds", "It reaches the DLQ after the configured attempts and the other 999 are unaffected", "Queue attributes and SQL"]],
+          "objectives": ["Run a provider and consumer together under injected failure", "Prove exactly-once effects with evidence", "Document recovery steps"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and platform teams who run a webhook delivery service or very high-volume receivers. Covers retry schedules and endpoint disabling, circuit breakers and per-endpoint concurrency, SSRF defence with address blocklists, DNS rebinding, IP pinning and egress proxies such as Smokescreen, Ed25519 asymmetric signatures, multi-tenant fairness, scaling ingestion and delivery with autoscaling and Kafka, Prometheus and Grafana delivery dashboards, customer-facing delivery portals, OpenTelemetry tracing, contract and load testing, chaos drills, replay and disaster recovery, endpoint verification handshakes, OpenAPI 3.1 and AsyncAPI documentation, build versus buy, and a multi-tenant delivery platform capstone.",
+      "prerequisites": ["Has built a webhook sender with signing, retries and an attempt log, and consumers with idempotent handlers", "Operates services with Docker or Kubernetes, PostgreSQL, a message broker and Prometheus metrics", "Understands DNS, TLS, private IP ranges and basic network policy concepts"],
+      "outcomes": ["Harden outbound delivery against SSRF, DNS rebinding and abusive endpoints with layered controls that are tested", "Scale ingestion and delivery for thousands of messages per second while keeping tenants isolated and fair", "Operate delivery with dashboards, alerts, traces, replay tooling and a customer-facing portal", "Test webhook systems with contract tests, load tests and failure injection and decide between building and buying"],
+      "days": [
+        {
+          "topic": "Retry Schedules, Endpoint Disabling and Failure Budgets",
+          "subtopics": ["Fixed schedule versus exponential with jitter", "A sample eight-attempt schedule from immediate to about ten hours", "Total retry window of hours to days", "Which statuses retry and which fail permanently", "Disabling an endpoint after sustained failure such as 5 days", "Notifying owners before and after disabling", "Re-enabling with a recovery replay of missed messages", "Failure budget per endpoint and per tenant"],
+          "tools": ["Python", "PostgreSQL", "Prometheus", "pytest", "Grafana"],
+          "lab_task": "Implement a schedule table of delays (0, 5s, 5m, 30m, 2h, 5h, 10h, 10h) with 20 percent jitter and store next_attempt_at. Add a rule that disables an endpoint after 5 days of consecutive failures and sends an email event. Use a simulated clock to run 6 days of failure, then re-enable and replay all missed messages, checking the count.",
+          "deliverable": "Retry scheduler with endpoint disabling and a simulated six-day run",
+          "checks": [["Simulate a message failing every attempt", "8 attempts occur and the message ends in failed state with a final next_attempt_at of null", "Attempt table"], ["Run 5 days of consecutive failures for one endpoint", "Endpoint status becomes disabled and one notification event is emitted", "SQL and notification log"], ["Re-enable and replay", "All messages created while disabled are delivered and the count matches the stored backlog", "SQL count"]],
+          "objectives": ["Define a retry schedule and its limits", "Disable failing endpoints with notice", "Recover missed messages after re-enabling"]
+        },
+        {
+          "topic": "Circuit Breakers and Per-Endpoint Concurrency Limits",
+          "subtopics": ["Closed, open and half-open breaker states", "Failure-rate versus consecutive-failure triggers", "Breaker per endpoint, not per tenant or global", "Per-endpoint concurrency caps such as 5 in-flight requests", "Slow endpoints consuming worker threads", "Head-of-line blocking in shared queues", "Backpressure signals: 429 and Retry-After from the receiver", "Parking messages while the breaker is open instead of burning attempts"],
+          "tools": ["Python", "Redis", "httpx", "WireMock", "k6"],
+          "lab_task": "Implement a Redis-backed breaker that opens after 10 consecutive failures, waits 30 seconds, then allows 1 probe in half-open state. Add a semaphore of 5 concurrent requests per endpoint. Point 50 workers at one stub delaying 10 seconds and one healthy stub, and show healthy endpoint throughput stays above 90 percent of baseline.",
+          "deliverable": "Breaker and concurrency limiter with a noisy-neighbour experiment",
+          "checks": [["Fail an endpoint 10 times in a row", "Breaker state becomes open and no request reaches the stub for 30 seconds", "WireMock request journal"], ["After the wait time send one probe to a healthy stub", "Breaker closes and normal delivery resumes", "Breaker state log"], ["Run healthy and 10-second-delay endpoints together", "Healthy endpoint keeps at least 90 percent of baseline throughput", "k6 or script summary"]],
+          "objectives": ["Protect workers from slow endpoints", "Apply breakers per endpoint", "Avoid head-of-line blocking"]
+        },
+        {
+          "topic": "SSRF Defense for Outbound Delivery: Address Blocklists",
+          "subtopics": ["Why user-supplied webhook URLs are an SSRF primitive", "Blocking loopback 127.0.0.0/8 and ::1", "Blocking private 10/8, 172.16/12, 192.168/16 and fc00::/7", "Blocking link-local 169.254.0.0/16 and fe80::/10, including the cloud metadata address 169.254.169.254", "Blocking carrier-grade NAT 100.64.0.0/10 and 0.0.0.0/8", "IPv4-mapped IPv6 such as ::ffff:127.0.0.1", "Encoded forms: decimal 2130706433, octal and hex hosts", "ipaddress.ip_address(x).is_global as an allow-list check"],
+          "tools": ["Python", "ipaddress", "pytest", "curl", "Docker"],
+          "lab_task": "Write validate_target(url) that allows only https on ports 443 and 8443, resolves all A and AAAA records with socket.getaddrinfo and rejects any address where ip.is_global is false. Test 25 hostile URLs including http://127.0.0.1, http://[::1], http://2130706433, http://0x7f.1, http://169.254.169.254, http://[::ffff:127.0.0.1] and localtest.me.",
+          "deliverable": "URL validator with a 25-case hostile corpus",
+          "checks": [["Run the 25 hostile URLs through validate_target", "All 25 are rejected", "pytest output"], ["Validate https://example.com", "It is accepted and the resolved addresses are logged", "pytest output"], ["Validate a hostname with one public and one private A record", "It is rejected because any private address fails the check", "pytest output"]],
+          "objectives": ["Block internal address ranges for user-supplied URLs", "Handle encoded and mapped address forms", "Build a hostile URL test corpus"]
+        },
+        {
+          "topic": "DNS Rebinding, Redirects and IP Pinning",
+          "subtopics": ["Time-of-check to time-of-use between validation and connection", "Rebinding with a DNS name that alternates a public and a private answer", "Resolving once and connecting to the validated IP", "Keeping the Host header and TLS SNI as the original hostname", "Custom transports or resolver hooks in httpx and requests", "Redirects as an SSRF bypass and redirect re-validation", "Disabling redirects as the simpler policy", "Re-validating URLs at delivery time, not only at creation"],
+          "tools": ["Python", "httpx", "dnsmasq", "mitmproxy", "pytest"],
+          "lab_task": "Run a local dnsmasq that answers rebind.test with 93.184.216.34 first and 127.0.0.1 second. Show that a validate-then-connect implementation reaches a localhost stub, then fix it by resolving once, validating and connecting to the pinned IP with SNI and Host set to rebind.test. Also show that a 302 to http://169.254.169.254 is blocked by follow_redirects=False.",
+          "deliverable": "Rebinding exploit, fixed pinned-IP client and redirect test",
+          "checks": [["Run the naive client against rebind.test", "The localhost stub receives the request, proving the bypass", "Stub access log"], ["Run the pinned client against rebind.test", "No request reaches the localhost stub and the target is rejected", "Stub access log and test output"], ["Deliver to a stub returning 302 to the metadata address", "Client does not follow the redirect and records outcome redirect_blocked", "Attempt row"]],
+          "objectives": ["Demonstrate and fix DNS rebinding", "Pin validated IPs while keeping TLS correct", "Treat redirects as untrusted"]
+        },
+        {
+          "topic": "Egress Proxies with Smokescreen and Network Policies",
+          "subtopics": ["Defence in depth: application checks plus network controls", "Smokescreen as a CONNECT proxy with ACLs and deny of private ranges", "Running delivery workers in a subnet without access to internal services", "Kubernetes NetworkPolicy egress with ipBlock and except", "Blocking the metadata endpoint and requiring IMDSv2 on AWS", "Allowing only the proxy from the worker pod", "Proxy logs as an audit trail of destinations", "Testing from inside the worker with curl"],
+          "tools": ["Smokescreen", "Kubernetes", "kind", "curl", "AWS CLI", "Docker"],
+          "lab_task": "In kind deploy delivery workers that can reach only a Smokescreen proxy through a NetworkPolicy. Configure Smokescreen with default role ACL enforce mode and test from a worker pod using curl -x http://smokescreen:4750. Confirm the proxy refuses 10.0.0.1, 169.254.169.254 and an internal service, allows https://example.com, and that a direct curl bypassing the proxy times out.",
+          "deliverable": "Egress-controlled worker deployment with four test results",
+          "checks": [["From a worker pod curl https://example.com via the proxy", "HTTP 200 is returned", "kubectl exec output"], ["curl http://169.254.169.254 via the proxy", "Proxy returns a denied response and logs the blocked destination", "curl output and proxy log"], ["curl https://example.com directly without the proxy", "Connection times out because NetworkPolicy denies egress", "curl output with exit code 28"]],
+          "objectives": ["Add network-level SSRF controls", "Force worker egress through an allow-listing proxy", "Verify controls from inside the pod"]
+        },
+        {
+          "topic": "Asymmetric Signatures with Ed25519 and Public Key Distribution",
+          "subtopics": ["Why asymmetric signatures: consumers cannot forge messages", "Standard Webhooks v1a, signatures with Ed25519", "Key generation with openssl genpkey -algorithm ed25519", "Signing the same id.timestamp.body content", "Publishing public keys with a JWKS-style endpoint and key ids", "Rotation with overlapping keys", "Verification cost compared with HMAC", "Choosing HMAC or Ed25519 per audience"],
+          "tools": ["openssl", "Python", "cryptography", "Node.js", "curl"],
+          "lab_task": "Generate an Ed25519 key pair with openssl, sign '<id>.<timestamp>.<body>' in Python with cryptography, send it with the signature header v1a,<base64> and verify in Node with crypto.verify(null, ...). Publish the public key in a JSON endpoint with a kid and verify 3 messages across a key rotation where both kids are published. Benchmark 10,000 HMAC versus Ed25519 verifications.",
+          "deliverable": "Ed25519 signer and verifier with rotation test and benchmark table",
+          "checks": [["Verify a valid Ed25519 signed message in Node", "Verification returns true", "Node output"], ["Modify one byte of the body", "Verification returns false", "Node output"], ["Verify messages signed by kid-1 and kid-2 with both keys published", "Both messages verify using the key selected by kid", "Test output"]],
+          "objectives": ["Sign webhooks with Ed25519", "Publish and rotate public keys", "Compare HMAC and asymmetric trade-offs"]
+        },
+        {
+          "topic": "Multi-Tenant Fairness, Noisy Neighbours and Rate Limits",
+          "subtopics": ["One big tenant starving others in a shared queue", "Per-tenant queues or per-tenant tokens", "Weighted fair queuing and round-robin dequeue", "Per-endpoint rate limits such as 10 requests per second", "Token bucket in Redis with a Lua script", "Quotas on endpoints per tenant and payload size", "Bulk event bursts and smoothing", "Priority lanes for time-sensitive events"],
+          "tools": ["Redis", "Python", "k6", "PostgreSQL", "Prometheus"],
+          "lab_task": "Implement a token bucket in Redis Lua with rate 10 per second and burst 20 per endpoint. Create tenant A with 100,000 pending messages and tenant B with 100. Compare FIFO against a round-robin per-tenant dequeue and measure tenant B's p95 queue wait in each case. Target at least a 10 times improvement for B with round-robin.",
+          "deliverable": "Per-endpoint limiter and a fairness experiment with measured queue wait",
+          "checks": [["Send 100 requests in 1 second to one endpoint", "No more than 30 are allowed (burst 20 plus about 10 refilled)", "Limiter counters"], ["Measure tenant B queue wait with FIFO", "p95 wait exceeds the time to drain tenant A's backlog", "Metrics output"], ["Measure tenant B queue wait with round-robin", "p95 wait is at least 10 times lower than with FIFO", "Metrics comparison"]],
+          "objectives": ["Prevent noisy neighbours", "Rate limit deliveries per endpoint", "Prove fairness with measurements"]
+        },
+        {
+          "topic": "Scaling Ingestion: Load Balancers, Autoscaling and Backpressure",
+          "subtopics": ["Stateless receivers behind an ALB or Nginx", "Verify, enqueue and respond as the only work", "Request size limits and slow-client protection", "Autoscaling on CPU and requests per target", "Sizing for bursts: Black Friday style spikes of 20 times", "Backpressure by returning 503 with Retry-After versus buffering", "Queue depth as the scaling signal for workers", "Connection reuse to the database and the queue"],
+          "tools": ["Nginx", "Kubernetes", "k6", "KEDA", "Prometheus", "Docker"],
+          "lab_task": "Deploy the receiver with 2 replicas behind Nginx in kind. Run k6 with a ramping-arrival-rate from 100 to 2,000 requests per second for 3 minutes with a payload of 4 KB. Add a KEDA ScaledObject on queue depth for workers. Record p95 latency, error rate and the replica count over time and tune until errors stay below 0.1 percent.",
+          "deliverable": "Load profile, autoscaling configuration and a tuning report",
+          "checks": [["Run the ramp to 2,000 requests per second", "k6 reports http_req_failed below 0.1 percent", "k6 summary"], ["Check p95 acknowledgement latency", "p95 stays below 200 ms during the ramp", "k6 summary"], ["Watch worker replicas as queue depth rises", "KEDA scales workers up and back down after the queue drains to 0", "kubectl get hpa output"]],
+          "objectives": ["Scale a receiver horizontally", "Autoscale workers on queue depth", "Apply backpressure deliberately"]
+        },
+        {
+          "topic": "Scaling Delivery: Sharded Queues and Worker Pools with Kafka",
+          "subtopics": ["Kafka topics partitioned by endpoint_id", "Consumer groups and partition assignment", "Per-partition ordering for per-endpoint order", "Retry topics with delays (retry-1m, retry-10m, retry-1h)", "Dead-letter topic and a replay tool", "Rebalancing and in-flight requests", "Lag as the key metric with kafka-consumer-groups.sh --describe", "Sizing partitions and workers for 5,000 deliveries per second"],
+          "tools": ["Apache Kafka", "Python", "kcat", "Docker", "Prometheus"],
+          "lab_task": "Create topic deliveries with 12 partitions and keys of endpoint_id. Run 6 consumers in one group delivering to WireMock with retry topics for 1m and 10m delays and a DLT. Produce 500,000 messages with 1,000 endpoints, measure throughput and max lag using kafka-consumer-groups.sh --describe --group delivery, and confirm per-endpoint order using a sequence column.",
+          "deliverable": "Kafka delivery pipeline with throughput, lag and ordering evidence",
+          "checks": [["Produce 500,000 messages with 1,000 endpoint keys", "All 500,000 are delivered or in the DLT and lag returns to 0", "kafka-consumer-groups output"], ["Check per-endpoint sequence numbers in WireMock", "Zero out-of-order pairs for any endpoint", "Verification script output"], ["Kill one consumer during the run", "Partitions rebalance and no message is lost", "Delivery count and group describe output"]],
+          "objectives": ["Shard delivery by endpoint with Kafka", "Implement delayed retry topics", "Measure lag and throughput"]
+        },
+        {
+          "topic": "Delivery Dashboard: Metrics with Prometheus and Grafana",
+          "subtopics": ["Counters: webhook_attempts_total{status_class, tenant_tier}", "Histogram: webhook_delivery_duration_seconds", "Gauges: queue depth and oldest message age", "Cardinality control: no raw endpoint URL labels", "histogram_quantile(0.95, sum by (le) (rate(...[5m])))", "Grafana panels: success rate, p95, backlog and retries", "Alert rules: oldest message age above 10 minutes and success rate below 95 percent", "SLO of 99.9 percent delivered within 5 minutes"],
+          "tools": ["Prometheus", "Grafana", "Alertmanager", "Python", "k6"],
+          "lab_task": "Instrument the delivery worker with prometheus_client counters, a duration histogram and an oldest_message_age_seconds gauge. Build a Grafana dashboard with 6 panels and alert rules for oldest age over 600 seconds and 5-minute success rate under 95 percent. Inject 30 percent failures into WireMock for 10 minutes and confirm both alerts fire and then resolve.",
+          "deliverable": "Instrumented worker, dashboard JSON and alert rules with a fired-alert capture",
+          "checks": [["Run the failure injection for 10 minutes", "The success-rate alert enters firing state within 6 minutes", "Alertmanager screenshot"], ["Query histogram_quantile(0.95, ...) during normal load", "A p95 value in seconds is returned and matches the dashboard panel", "Prometheus query output"], ["Check label cardinality", "Series count for the attempts metric stays below 500 with 1,000 endpoints", "count({__name__=...}) result"]],
+          "objectives": ["Instrument delivery with the right metrics", "Build a useful dashboard", "Create alerts tied to an SLO"]
+        },
+        {
+          "topic": "Customer-Facing Delivery Portal: Attempt History, Replay and Filters",
+          "subtopics": ["What customers need: endpoint status, last 30 days of messages and error reasons", "Filtering by event type, status and time", "Attempt detail with request body, response excerpt and duration", "Replay one message and replay a failed range", "Recovering all failed messages for an endpoint since a timestamp", "Redaction of secrets and tenant isolation in the API", "Embeddable portal with signed short-lived tokens", "Pagination with cursors for large histories"],
+          "tools": ["FastAPI", "React", "PostgreSQL", "Playwright", "JWT"],
+          "lab_task": "Build GET /v1/endpoints/{id}/messages with filters status, event_type and since plus cursor pagination, and POST /v1/endpoints/{id}/recover?since=<ts> that requeues failed messages. Add a small React page listing attempts with a Replay button. Use signed 15-minute portal tokens scoped to one tenant and write a Playwright test of the replay flow.",
+          "deliverable": "Portal API, React page and a passing Playwright replay test",
+          "checks": [["Request messages with status=failed and a cursor", "Only failed messages are returned and the next cursor yields the following page without overlap", "API output"], ["Use a portal token for tenant A on tenant B's endpoint", "Response is 404 or 403 and no data is returned", "curl output"], ["Run recover for 25 failed messages", "25 messages are requeued and delivered after the stub is fixed", "SQL count and Playwright report"]],
+          "objectives": ["Expose delivery history to customers safely", "Provide replay and bulk recovery", "Isolate tenants in the portal"]
+        },
+        {
+          "topic": "Tracing Webhooks with OpenTelemetry Context",
+          "subtopics": ["W3C traceparent propagation", "Spans for receive, verify, enqueue, process and deliver", "Carrying trace context through queue message attributes", "Links versus parent-child relationships for async work", "Sending traceparent on outbound deliveries and caveats about trust", "Span attributes: event id, type and attempt number without personal data", "Sampling: tail sampling for failed deliveries", "Jaeger or Tempo to view the full path"],
+          "tools": ["OpenTelemetry", "Jaeger", "Python", "OpenTelemetry Collector", "Docker"],
+          "lab_task": "Instrument the provider and consumer with OpenTelemetry. Inject traceparent into the outbox row and queue message attributes, create a span link from delivery to the originating request, and run the OpenTelemetry Collector with a tail-sampling policy that keeps all traces with status ERROR plus 5 percent of others. Find one slow delivery in Jaeger by trace id.",
+          "deliverable": "Traced pipeline with Collector configuration and a Jaeger screenshot",
+          "checks": [["Create an order and follow the trace id in Jaeger", "One trace shows spans for api, outbox relay and delivery with the same trace id or a link", "Jaeger screenshot"], ["Force a 500 delivery", "The trace is retained by tail sampling and shows an error status", "Jaeger screenshot"], ["Send 1,000 successful requests", "About 5 percent (between 30 and 80) traces are stored", "Jaeger count or Collector metrics"]],
+          "objectives": ["Propagate trace context across asynchronous hops", "Use span links appropriately", "Configure tail sampling for errors"]
+        },
+        {
+          "topic": "Contract Testing and Consumer Mocks for Webhooks",
+          "subtopics": ["Contract testing of the payload schema between provider and consumers", "Consumer-driven contracts with Pact message pacts", "WireMock stubs for consumer endpoints", "WireMock fault types: fixedDelay, CONNECTION_RESET_BY_PEER and EMPTY_RESPONSE", "Scenarios for 500 then 200 sequences", "The request journal at /__admin/requests", "Fixtures for provider payloads and golden-file tests", "Running tests in CI with Docker"],
+          "tools": ["WireMock", "Pact", "pytest", "Docker", "GitHub Actions"],
+          "lab_task": "Write WireMock stubs: a scenario returning 500 twice and then 200, a fixedDelay of 12000, and CONNECTION_RESET_BY_PEER. Run the sender against them and assert attempt counts through GET /__admin/requests. Add a Pact message contract for order.paid so removing the amount field fails the provider build, then wire both into GitHub Actions.",
+          "deliverable": "Stub library, contract test and a CI workflow that fails on a breaking payload change",
+          "checks": [["Run the 500-500-200 scenario", "The journal shows 3 requests to the endpoint and the message ends delivered", "WireMock journal"], ["Remove the amount field from the provider payload", "Pact verification fails citing the missing amount", "CI log"], ["Run the full suite in GitHub Actions", "All jobs pass on the main branch with the intact payload", "Workflow run"]],
+          "objectives": ["Simulate failing consumers deterministically", "Protect payloads with contract tests", "Run webhook tests in CI"]
+        },
+        {
+          "topic": "Load Testing Receivers and Senders with k6",
+          "subtopics": ["Receiver load: signed requests generated in k6 with k6/crypto hmac", "Arrival-rate executors versus VU-based executors", "Thresholds: http_req_failed rate<0.001 and http_req_duration p(95)<300", "Sender load: 100,000 messages across 5,000 stub endpoints", "Stub receivers that vary latency and error rate", "Finding saturation: CPU, connections, database locks and queue depth", "Soak tests of 1 hour for leaks", "Reporting with percentiles and error classes"],
+          "tools": ["k6", "Python", "Grafana", "Prometheus", "Docker"],
+          "lab_task": "Write k6 using constant-arrival-rate at 500 rps for 5 minutes with HMAC-signed bodies from k6/crypto and thresholds http_req_failed<0.001 and p(95)<300. Then raise to 1,500 rps to find the breaking point, record the first resource that saturates, and fix it. Re-run to show the threshold passes at the higher rate or document the next limit.",
+          "deliverable": "k6 scripts, results before and after tuning and a saturation analysis",
+          "checks": [["Run 500 rps for 5 minutes", "k6 exits 0 with both thresholds passing", "k6 summary"], ["Run 1,500 rps", "At least one threshold is crossed and the saturated resource is named with a metric", "k6 summary and Grafana panel"], ["Re-run after the fix", "p95 improves by at least 30 percent at the same rate", "Before and after summaries"]],
+          "objectives": ["Load test signed webhook traffic", "Find and remove the first bottleneck", "Report results with percentiles"]
+        },
+        {
+          "topic": "Chaos and Failure Injection: Slow, Flaky and Hostile Endpoints",
+          "subtopics": ["Toxiproxy toxics: latency, timeout, slow_close and reset_peer", "Hostile receivers: endless response bodies, tarpit connections and gzip bombs", "Response size cap and total deadline enforcement", "Worker kill during delivery and redelivery after restart", "Database failover and queue outage drills", "Clock skew injection for signature timestamps", "Game day plan with hypotheses and abort criteria", "Turning findings into regression tests"],
+          "tools": ["Toxiproxy", "Python", "Docker", "WireMock", "pytest"],
+          "lab_task": "Run a Toxiproxy proxy in front of a stub receiver and apply latency 15000 ms, reset_peer and a 5 GB endless response body. Confirm the worker enforces a 10-second deadline, a 1 MB response cap and does not leak connections (check open sockets with ss -tn before and after). Kill the worker mid-delivery and show the message is retried after restart.",
+          "deliverable": "Chaos experiment log, fixes made and regression tests",
+          "checks": [["Apply a 15-second latency toxic", "Delivery times out at 10 seconds plus or minus 1 second and is retried", "Attempt row durations"], ["Serve an endless response body", "Worker stops reading at 1 MB and records response_too_large", "Attempt row and worker log"], ["Count open sockets before and after 1,000 failing deliveries", "Socket count returns to within 5 of the starting value", "ss -tn counts"]],
+          "objectives": ["Inject realistic failures into webhook delivery", "Enforce deadlines and size caps", "Convert findings into tests"]
+        },
+        {
+          "topic": "Disaster Recovery: Replay, Backfill and Event Retention",
+          "subtopics": ["Retention periods for events, attempts and payloads", "Replaying from the event store after a consumer outage", "Backfill by time range with rate limiting", "Marking replayed messages with a header such as webhook-replay: true", "Idempotency on the receiver side during mass replay", "Queue loss versus database loss and RPO and RTO targets", "Point-in-time recovery for PostgreSQL", "Reconciliation jobs comparing provider and consumer state"],
+          "tools": ["PostgreSQL", "Python", "pgBackRest", "Stripe CLI", "Redis"],
+          "lab_task": "Simulate loss of the queue by flushing Redis with 50,000 pending jobs. Rebuild the queue from the PostgreSQL messages table using a replay script limited to 200 jobs per second and a webhook-replay header. Then write a reconciliation job that compares consumer orders against Stripe events from the last 7 days and prints missing ids. Measure RTO from flush to empty backlog.",
+          "deliverable": "Replay tool, reconciliation report and RPO and RTO measurements",
+          "checks": [["Flush the queue then run replay", "All 50,000 undelivered messages are re-enqueued and the rate never exceeds 200 per second", "Replay log"], ["Run replay twice", "The second run creates 0 new business effects because ids are deduplicated", "SQL count"], ["Delete 5 consumer rows and run reconciliation", "Exactly those 5 event ids are listed as missing", "Reconciliation output"]],
+          "objectives": ["Rebuild a lost queue from durable storage", "Replay at a controlled rate", "Reconcile consumer and provider state"]
+        },
+        {
+          "topic": "Endpoint Verification Handshakes and Abuse Protection",
+          "subtopics": ["Ownership proof before sending real events", "Challenge-response as used by the Slack url_verification flow", "CloudEvents HTTP webhook validation with OPTIONS and WebHook-Request-Origin", "WebHook-Allowed-Origin and WebHook-Allowed-Rate response headers", "Token or code echo validation", "Preventing webhook amplification against third-party hosts", "Rate limits on endpoint creation and test events", "Blocking abusive targets and monitoring for DDoS usage"],
+          "tools": ["Python", "curl", "FastAPI", "CloudEvents", "Redis"],
+          "lab_task": "Implement a verification step: on endpoint creation send POST with a type endpoint.verification and a random challenge; the endpoint must return it within 5 seconds as JSON before status becomes active. Add the CloudEvents OPTIONS handshake with WebHook-Request-Origin. Then add a rate limit of 5 endpoint creations per hour per tenant and block an attempt to register a victim host that fails verification.",
+          "deliverable": "Verification flow with handshake tests and abuse limits",
+          "checks": [["Create an endpoint whose server echoes the challenge", "Status moves from pending to active", "API response"], ["Create an endpoint that does not echo the challenge", "Status stays pending and no real events are sent to it", "API response and attempt table"], ["Create 6 endpoints in one hour", "The sixth request returns 429", "curl output"]],
+          "objectives": ["Verify endpoint ownership before delivery", "Implement the CloudEvents handshake", "Stop abuse of the sender as an attack tool"]
+        },
+        {
+          "topic": "OpenAPI 3.1 Webhooks and AsyncAPI Documentation",
+          "subtopics": ["The top-level webhooks object in OpenAPI 3.1", "callbacks in OpenAPI 3.0 compared with webhooks", "Describing events, headers and signatures in the spec", "AsyncAPI for event-driven descriptions", "Linting with Spectral and Redocly", "Generating docs and example payloads", "Publishing a changelog and a signature verification guide per language", "Testing docs against real payloads"],
+          "tools": ["OpenAPI", "Redocly", "Spectral", "AsyncAPI Studio", "Python"],
+          "lab_task": "Write openapi.yaml 3.1 with a webhooks section for order.created and order.paid including webhook-id, webhook-timestamp and webhook-signature headers and the schemas from the catalog. Lint with npx @stoplight/spectral-cli lint and render with Redocly. Add a test that validates 10 real captured payloads against the schemas and fails when a field changes.",
+          "deliverable": "OpenAPI 3.1 webhook description with lint and payload validation",
+          "checks": [["Run spectral lint on openapi.yaml", "Zero errors are reported", "Spectral output"], ["Validate 10 captured payloads", "10 of 10 validate against the webhook schemas", "Test output"], ["Rename a payload field in the code only", "The documentation test fails and names the field", "Test output"]],
+          "objectives": ["Document webhooks with OpenAPI 3.1", "Lint documentation automatically", "Keep docs aligned with payloads"]
+        },
+        {
+          "topic": "Build versus Buy: Svix, Hookdeck and Managed Gateways",
+          "subtopics": ["Scope of a webhook platform: signing, retries, portal, replay and scale", "Svix as a sending platform and open-source server", "Hookdeck for inbound and outbound gateways and queues", "Cloud services: Amazon EventBridge API destinations and Azure Event Grid", "Build cost: people, on-call and security reviews", "Vendor data residency, lock-in and signature compatibility with Standard Webhooks", "Migration plan from in-house to managed without breaking consumers", "Decision matrix with weights"],
+          "tools": ["Svix", "Hookdeck", "Amazon EventBridge", "Python", "curl"],
+          "lab_task": "Prototype the same send path three ways: your in-house sender, Svix (self-hosted container or free tier) and an EventBridge API destination. Send 1,000 events to a stub, record setup time, delivered count, retry behaviour with a 20 percent failing stub and what each offers for replay and portal. Complete a weighted decision matrix with at least 8 criteria and a recommendation.",
+          "deliverable": "Three prototypes, measurements and a weighted recommendation",
+          "checks": [["Send 1,000 events through each option", "Each option reports 1,000 messages accepted and the delivered counts are recorded", "Stub counts per option"], ["Use a stub failing 20 percent", "Each option retries and eventually delivers all, or the gap is documented", "Attempt logs"], ["Complete the matrix with weights summing to 100", "A single ranked recommendation with a stated reason is produced", "Decision matrix document"]],
+          "objectives": ["Compare in-house and managed webhook platforms", "Quantify cost and risk", "Plan a migration that keeps signatures compatible"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant Webhook Delivery Platform",
+          "subtopics": ["Architecture decision record covering ingestion, queueing, delivery and storage", "SSRF defence with address validation, IP pinning and an egress proxy", "Standard Webhooks signing with rotation and optional Ed25519", "Fair multi-tenant scheduling, circuit breakers and retry schedule", "Dashboard, alerts, traces, portal and replay", "Load, chaos and security test evidence with a go-live review"],
+          "tools": ["Kafka", "PostgreSQL", "Kubernetes", "Smokescreen", "Prometheus", "k6"],
+          "lab_task": "Build a platform that accepts events from 20 tenants through an API, writes an outbox, delivers signed webhooks through Kafka-backed workers and an egress proxy, and exposes a portal with replay. Prove 1,000 messages per second sustained for 10 minutes, tenant fairness under a 100,000-message burst, SSRF rejection of a 25-URL corpus and recovery from a worker kill and a queue flush.",
+          "deliverable": "Repository, ADR, dashboards, test reports and a 20-minute go-live review",
+          "checks": [["Run 1,000 messages per second for 10 minutes", "99.9 percent are delivered within 5 minutes and p95 acknowledgement is below 200 ms", "k6 and Grafana evidence"], ["Run the 25-URL SSRF corpus and a rebinding test", "All 25 are rejected and the rebinding stub receives zero requests", "Test report and stub log"], ["Kill a worker and flush the queue during load", "No message is lost, replay completes and business effects stay exactly once", "SQL reconciliation and dashboard"]],
+          "objectives": ["Integrate reliability, security and scale in one platform", "Prove behaviour with load, chaos and security tests", "Defend the design in a go-live review"]
+        }
+      ]
+    }
+  }
+}

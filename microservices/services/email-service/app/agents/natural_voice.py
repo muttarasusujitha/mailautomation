@@ -50,10 +50,8 @@ _GREETING_LINE = re.compile(
     r"^(?:hi|hello|dear)\b\s*([^,!\n]{0,70})?[,!]?\s*$",
     re.IGNORECASE,
 )
-# Each professional requirement note opens with its own "Thank you" sentence
-# and stays as written. A line that already starts with "Thanks for sharing"
-# is unchanged here, and apply_voice still prefixes that literal opener with
-# "Greetings of the day!".
+# Requirement replies keep a simple greeting and a direct thank-you. Avoid
+# adding ceremonial greetings that do not appear in the team's normal mail.
 _PROFESSIONAL_ACK_OPENING = re.compile(
     r"Thank you for (?:sharing|sending over|sending us|providing) (?:the|your) (?!required details\b).+?"
     r"(?:training requirements|training requirement|training details|requirement with us|requirement)\.",
@@ -91,6 +89,13 @@ _PHRASES = (
     ("the concerned team", "the team"),
     (" as applicable", ""),
     (" accordingly", ""),
+    ("review internally", "review this"),
+    ("check internally", "check this"),
+    ("discuss internally", "discuss this"),
+    ("internal review", "review"),
+    ("internal team", "team"),
+    ("internal process", "process"),
+    ("internal workflow", "process"),
 )
 
 
@@ -183,6 +188,35 @@ def smooth_wording(body: str) -> str:
     text = re.sub(r" {2,}", " ", text)
     text = re.sub(r"\bKindly\b", "Please", text)
     text = re.sub(r"\bkindly\b", "please", text)
+    # Emails describe the recipient's next step, never the private operating
+    # details behind it. These replacements run for templates and model drafts.
+    text = re.sub(r"(?i)\bfor internal use only\b[.:;]?", "", text)
+    text = re.sub(r"(?i)\binternal notes?\b", "the details", text)
+    text = re.sub(
+        r"(?i)\busing (?:the )?internal (?:defaults?|assumptions?|calculations?)"
+        r" and shar(?:e|ing) (?:the )?internal calculation",
+        "and share the confirmed details",
+        text,
+    )
+    text = re.sub(r"(?i)\binternal (?:defaults?|assumptions?|calculations?)\b", "confirmed details", text)
+    text = re.sub(r"(?i)\binternal (?:rates?|margins?|allocations?)\b", "details", text)
+    # Deterministic replies and model drafts share this pass, so keep their
+    # everyday wording consistent across every template, not just one route.
+    for pattern, replacement in (
+        (r"\bwe will\b", "we'll"),
+        (r"\bwe have\b", "we've"),
+        (r"\bwe are\b", "we're"),
+        (r"\bI will\b", "I'll"),
+        (r"\bI have\b", "I've"),
+        (r"\bI am\b", "I'm"),
+    ):
+        text = re.sub(
+            pattern,
+            lambda match, value=replacement: value[0].upper() + value[1:]
+            if match.group(0)[0].isupper() else value,
+            text,
+            flags=re.IGNORECASE,
+        )
     return text
 
 
@@ -199,14 +233,6 @@ def apply_voice(body: str, voice: str = ANNAPURNA) -> str:
             lines[0] = greeting_line(match.group(1) or "", voice)
         elif re.match(r"^dear\s+team\s*$", lines[0].strip(), re.IGNORECASE):
             lines[0] = greeting_line("", voice)
-    if voice == ANNAPURNA:
-        for index, line in enumerate(lines):
-            stripped = line.strip()
-            if not stripped or _GREETING_LINE.match(stripped):
-                continue
-            if stripped.startswith("Thanks for sharing") and not stripped.lower().startswith("greetings of the day"):
-                lines[index] = f"Greetings of the day! {stripped}"
-            break
     sign_at = next(
         (index for index in range(len(lines) - 1, -1, -1) if _SIGNOFF_LINE.match(lines[index].strip())),
         None,

@@ -34,7 +34,7 @@ def test_missing_input_pauses_until_requirement_changes(monkeypatch):
     monkeypatch.setattr(inbox, '_post_with_local_fallback', post)
     reply = {'requirement_id': 'REQ-1', 'trainer_id': 'TR-1', 'from_email': 'trainer@example.com',
              'source_outbound_mail_type': 'mail1',
-             'body': 'All times are IST: Nov 6, 2026 - 10 AM, 2:15 PM and 4.30 PM.'}
+             'body': 'All times are IST: Nov 6, 2099 - 10 AM, 2:15 PM and 4.30 PM.'}
     paused = asyncio.run(inbox._handle_trainer_slot_reply(db, reply))
     assert paused['needs_input'] and not paused['attempted']
     post.assert_not_awaited()
@@ -72,14 +72,14 @@ def test_three_inline_slots_prepare_package_without_recording_delivery(monkeypat
     result = asyncio.run(inbox._handle_trainer_slot_reply(db, {
         'requirement_id': 'REQ-1', 'trainer_id': 'TR-1', 'from_email': 'trainer@example.com',
         'source_outbound_mail_type': 'mail1',
-        'body': 'All times are IST: Nov 6, 2026 - 10 AM, 2:15 PM and 4.30 PM.',
+        'body': 'All times are IST: Nov 6, 2099 - 10 AM, 2:15 PM and 4.30 PM.',
     }))
     assert result['pending_approval'] is True
     assert result['success'] is False
     assert not result.get('retry_pending')
     assert requests[0]['slot_text'].splitlines() == [
-        '06 November 2026, 10:00 AM IST', '06 November 2026, 02:15 PM IST',
-        '06 November 2026, 04:30 PM IST',
+        '06 November 2099, 10:00 AM IST', '06 November 2099, 02:15 PM IST',
+        '06 November 2099, 04:30 PM IST',
     ]
     db['email_logs'].insert_one.assert_not_awaited()
     db['shortlists'].update_one.assert_not_awaited()

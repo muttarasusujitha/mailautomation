@@ -1,0 +1,573 @@
+{
+  "domain": "Machine Learning",
+  "name": "Machine Learning",
+  "category": "Data Science and Machine Learning",
+  "icon": "brain",
+  "aliases": ["Machine Learning with Python", "Applied Machine Learning", "ML Engineering", "Machine Learning Engineer", "Machine Learning Engineering", "Predictive Modelling", "Predictive Analytics", "Machine Learning Fundamentals"],
+  "certifications": ["AWS Certified Machine Learning Engineer - Associate (MLA-C01)", "Microsoft Certified: Azure Data Scientist Associate (DP-100)", "Google Cloud Professional Machine Learning Engineer"],
+  "tools": ["Python 3.12", "Jupyter", "NumPy", "pandas", "scikit-learn", "MLflow"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts and developers new to machine learning. Covers the ML workflow, Python data tools, exploring data, regression and classification, evaluation and validation, trees and ensembles, feature engineering, clustering and dimensionality reduction, and saving and serving a first model.",
+      "prerequisites": ["Writes basic Python: variables, functions, lists and loops", "School-level maths: averages, percentages and graphs", "Has used Excel or SQL to work with data"],
+      "outcomes": ["Explain how machine learning works and when to use it", "Prepare data and build regression, classification and clustering models with scikit-learn", "Evaluate models honestly with validation and the right metrics", "Save a trained model and serve predictions"],
+      "days": [
+        {
+          "topic": "Machine Learning Overview and Environment Setup",
+          "subtopics": ["What machine learning is and is not", "Supervised, unsupervised and reinforcement learning", "Typical business use cases", "The ML workflow from question to deployment", "Data, features, labels and models", "Installing Python, Jupyter and libraries", "Virtual environments", "Notebook good practice", "Datasets used in the course", "Course project overview"],
+          "tools": ["Python 3.12", "Jupyter", "scikit-learn"],
+          "lab_task": "Set up the environment, load a housing dataset, train a first model with three lines of scikit-learn, and classify ten business problems as regression, classification, clustering or not ML.",
+          "deliverable": "Working notebook and classification table",
+          "checks": [["Train the first model", "Predictions printed for five houses", "Notebook output"], ["Import scikit-learn, pandas and NumPy", "Versions printed with no errors", "Notebook output"], ["Review the ten problems", "At least eight match the answer key with reasons", "Classification table"]],
+          "objectives": ["Explain types of machine learning", "Set up an ML environment", "Recognise ML problems"]
+        },
+        {
+          "topic": "NumPy and pandas for Machine Learning",
+          "subtopics": ["NumPy arrays and vectorised operations", "Shapes and broadcasting", "pandas DataFrames", "Selecting and filtering", "Handling missing values", "Grouping and aggregation", "Merging datasets", "Converting data for scikit-learn"],
+          "tools": ["NumPy", "pandas", "Jupyter"],
+          "lab_task": "Load customer and transaction data, merge them, handle missing values, compute per-customer features with groupby and produce feature and label arrays ready for modelling.",
+          "deliverable": "Notebook with a clean feature table",
+          "checks": [["Count missing values before and after", "No missing values remain in features", "Notebook output"], ["Compare a groupby total with a manual check", "Values match", "Notebook output"], ["Print feature array shape", "One row per customer", "Notebook output"]],
+          "objectives": ["Manipulate data with NumPy and pandas", "Prepare feature tables", "Handle missing data"]
+        },
+        {
+          "topic": "Exploratory Data Analysis and Visualisation",
+          "subtopics": ["Summary statistics", "Distributions and histograms", "Box plots and outliers", "Correlation and heat maps", "Relationships with scatter plots", "Categorical variables", "Target imbalance", "Writing EDA findings"],
+          "tools": ["pandas", "Matplotlib", "seaborn"],
+          "lab_task": "Explore a churn dataset: plot distributions, find outliers, check correlations and class balance, and write five findings that will shape the model.",
+          "deliverable": "EDA notebook and findings",
+          "checks": [["Plot the target distribution", "Imbalance quantified", "Chart"], ["Find highly correlated features", "Pairs listed with values", "Heat map"], ["Review the findings", "Each tied to a modelling decision", "Findings note"]],
+          "objectives": ["Explore data before modelling", "Visualise relationships", "Turn findings into decisions"]
+        },
+        {
+          "topic": "Statistics for Machine Learning",
+          "subtopics": ["Mean, median, variance and standard deviation", "Probability basics", "Normal and other distributions", "Sampling and the central limit theorem", "Hypothesis testing in brief", "Correlation versus causation", "Bias and variance", "Overfitting and underfitting"],
+          "tools": ["NumPy", "SciPy", "Jupyter"],
+          "lab_task": "Simulate samples to show the central limit theorem, test whether two marketing groups differ, and fit polynomials of increasing degree to show underfitting and overfitting.",
+          "deliverable": "Notebook with simulations and explanations",
+          "checks": [["Plot sample means", "Approximately normal", "Chart"], ["Run the test on the two groups", "p-value reported and interpreted", "Notebook output"], ["Compare train and test error by degree", "Overfitting shown as test error rises", "Chart"]],
+          "objectives": ["Use statistics for ML", "Explain bias and variance", "Recognise overfitting"]
+        },
+        {
+          "topic": "Linear Regression",
+          "subtopics": ["Simple linear regression", "Multiple linear regression", "Least squares", "Coefficients and their meaning", "Assumptions", "Categorical features with one-hot encoding", "Regression metrics: MAE, RMSE, R-squared", "Residual analysis"],
+          "tools": ["scikit-learn", "statsmodels", "pandas"],
+          "lab_task": "Predict house prices with multiple linear regression, encode categorical features, interpret coefficients, evaluate on a test set and inspect residuals.",
+          "deliverable": "Regression notebook",
+          "checks": [["Evaluate on the test set", "MAE and RMSE reported", "Notebook output"], ["Interpret one coefficient", "Correct meaning in plain words", "Written note"], ["Plot residuals", "Pattern discussed", "Chart"]],
+          "objectives": ["Build regression models", "Interpret coefficients", "Evaluate regression"]
+        },
+        {
+          "topic": "Logistic Regression and Classification",
+          "subtopics": ["Classification problems", "The logistic function", "Decision thresholds", "Probabilities versus labels", "Multiclass classification", "Regularisation in brief", "Feature scaling", "Interpreting coefficients as odds"],
+          "tools": ["scikit-learn", "pandas"],
+          "lab_task": "Predict customer churn with logistic regression, scale features, compare thresholds of 0.3, 0.5 and 0.7, and explain the effect on missed churners.",
+          "deliverable": "Classification notebook",
+          "checks": [["Compare thresholds", "Recall and precision recorded for each", "Table"], ["Train without scaling and with", "Convergence and results compared", "Notebook output"], ["Explain one coefficient as odds", "Correct interpretation", "Written note"]],
+          "objectives": ["Build classifiers", "Choose thresholds", "Interpret logistic regression"]
+        },
+        {
+          "topic": "Model Evaluation: Metrics, Train-Test Split and Cross-Validation",
+          "subtopics": ["Train, validation and test sets", "Data leakage", "K-fold cross-validation", "Stratified splits", "Confusion matrix", "Precision, recall and F1", "ROC and AUC", "Choosing metrics for the business"],
+          "tools": ["scikit-learn", "Matplotlib"],
+          "lab_task": "Evaluate the churn model with stratified five-fold cross-validation, plot the confusion matrix and ROC curve, and show how a leaked feature inflates the score.",
+          "deliverable": "Evaluation notebook",
+          "checks": [["Run cross-validation", "Mean and spread of scores reported", "Notebook output"], ["Add the leaked feature", "Score jumps and the leak is explained", "Notebook output"], ["Pick a metric for the business case", "Choice justified by costs of errors", "Written note"]],
+          "objectives": ["Evaluate models honestly", "Avoid leakage", "Choose business metrics"]
+        },
+        {
+          "topic": "Decision Trees",
+          "subtopics": ["How trees split", "Gini and entropy", "Depth and overfitting", "Pruning", "Trees for regression", "Visualising a tree", "Feature importance", "Pros and cons of trees"],
+          "tools": ["scikit-learn", "Matplotlib"],
+          "lab_task": "Train decision trees of different depths on the churn data, plot train and validation scores against depth, visualise the chosen tree and explain its top rules.",
+          "deliverable": "Tree notebook with the plotted tree",
+          "checks": [["Plot scores by depth", "Best depth chosen from validation", "Chart"], ["Visualise the tree", "Top splits readable", "Chart"], ["Explain the top rule", "Plain-language explanation", "Written note"]],
+          "objectives": ["Build decision trees", "Control overfitting", "Explain tree rules"]
+        },
+        {
+          "topic": "Ensemble Methods: Random Forests and a First Look at Boosting",
+          "subtopics": ["Why ensembles work", "Bagging", "Random forests", "Out-of-bag score", "Boosting idea", "Gradient boosting in scikit-learn", "Feature importance from ensembles", "Comparing with single trees"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Compare a decision tree, random forest and gradient boosting on the churn data with cross-validation, and report accuracy, AUC and training time.",
+          "deliverable": "Comparison notebook",
+          "checks": [["Compare cross-validated AUC", "Ensembles beat the single tree", "Table"], ["Report the out-of-bag score", "Close to the cross-validation score", "Notebook output"], ["Compare training time", "Times recorded", "Table"]],
+          "objectives": ["Use ensemble models", "Compare models fairly", "Explain why ensembles help"]
+        },
+        {
+          "topic": "Feature Engineering",
+          "subtopics": ["Numeric transformations and scaling", "Binning", "Encoding categories: one-hot, ordinal, target", "Date and time features", "Text length and keyword features", "Interaction features", "Handling outliers", "Feature selection"],
+          "tools": ["scikit-learn", "pandas"],
+          "lab_task": "Engineer date, ratio, interaction and encoded features for the churn data, select the most useful ones and show the gain in AUC over raw features.",
+          "deliverable": "Feature engineering notebook",
+          "checks": [["Compare AUC with raw and engineered features", "Engineered features improve AUC", "Table"], ["Apply target encoding inside cross-validation", "No leakage", "Code review"], ["Run feature selection", "Selected features listed with scores", "Notebook output"]],
+          "objectives": ["Create useful features", "Encode categories safely", "Select features"]
+        },
+        {
+          "topic": "Preprocessing Pipelines in scikit-learn",
+          "subtopics": ["Why pipelines", "ColumnTransformer", "Imputers", "Scalers and encoders", "Pipelines with models", "Cross-validation with pipelines", "Custom transformers", "Saving pipelines"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Wrap all preprocessing and the model in one pipeline with ColumnTransformer, run cross-validation on it and add a custom transformer for a ratio feature.",
+          "deliverable": "Pipeline code and results",
+          "checks": [["Fit the pipeline on raw data", "Runs end to end with no manual steps", "Notebook output"], ["Cross-validate the pipeline", "Scores match the earlier manual version", "Table"], ["Add new data with missing values", "Pipeline handles it", "Notebook output"]],
+          "objectives": ["Build ML pipelines", "Prevent preprocessing leakage", "Write custom transformers"]
+        },
+        {
+          "topic": "Other Classic Algorithms: k-Nearest Neighbours, SVM and Naive Bayes",
+          "subtopics": ["k-nearest neighbours", "Distance and scaling", "Support vector machines", "Kernels", "Naive Bayes for text", "Choosing algorithms by data size and type", "Speed and memory", "Algorithm cheat sheet"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Compare k-NN, SVM and naive Bayes on a tabular dataset and a short text dataset, and recommend an algorithm for each with reasons.",
+          "deliverable": "Comparison notebook and recommendations",
+          "checks": [["Run k-NN without scaling and with", "Scaling changes the result", "Table"], ["Classify the text data with naive Bayes", "Accuracy reported", "Notebook output"], ["Review the recommendations", "Based on accuracy, speed and data type", "Note"]],
+          "objectives": ["Use classic algorithms", "Compare them on different data", "Choose algorithms"]
+        },
+        {
+          "topic": "Clustering and Customer Segmentation",
+          "subtopics": ["Unsupervised learning", "K-means", "Choosing k with elbow and silhouette", "Hierarchical clustering", "DBSCAN", "Scaling before clustering", "Profiling clusters", "Using segments in business"],
+          "tools": ["scikit-learn", "pandas", "Matplotlib"],
+          "lab_task": "Segment customers by purchase behaviour with k-means, choose k with silhouette scores, compare with DBSCAN and describe each segment for marketing.",
+          "deliverable": "Segmentation notebook and segment profiles",
+          "checks": [["Plot silhouette scores", "Chosen k justified", "Chart"], ["Profile segments", "Each has a clear description", "Profile table"], ["Compare with DBSCAN", "Differences and outliers explained", "Notebook output"]],
+          "objectives": ["Cluster data", "Choose the number of clusters", "Turn clusters into segments"]
+        },
+        {
+          "topic": "Dimensionality Reduction with PCA",
+          "subtopics": ["The curse of dimensionality", "Principal component analysis", "Explained variance", "Choosing components", "PCA for visualisation", "PCA before modelling", "t-SNE and UMAP in brief", "Limits of PCA"],
+          "tools": ["scikit-learn", "Matplotlib"],
+          "lab_task": "Apply PCA to a 60-feature dataset, choose components for 95 percent of variance, visualise the data in two dimensions and compare model speed and accuracy with and without PCA.",
+          "deliverable": "PCA notebook",
+          "checks": [["Plot cumulative explained variance", "Components for 95 percent identified", "Chart"], ["Compare model accuracy and speed", "Trade-off recorded", "Table"], ["Plot in two dimensions", "Classes visible", "Chart"]],
+          "objectives": ["Reduce dimensions with PCA", "Visualise high-dimensional data", "Judge when PCA helps"]
+        },
+        {
+          "topic": "Imbalanced Data",
+          "subtopics": ["Why imbalance hurts", "Accuracy paradox", "Class weights", "Oversampling and SMOTE", "Undersampling", "Threshold moving", "Precision-recall curves", "Cost-sensitive evaluation"],
+          "tools": ["scikit-learn", "imbalanced-learn"],
+          "lab_task": "Build a fraud model on data with 1 percent fraud, show the accuracy paradox, compare class weights, SMOTE and threshold moving and pick the best by expected cost.",
+          "deliverable": "Imbalance notebook with cost comparison",
+          "checks": [["Train a model that predicts no fraud", "High accuracy but zero recall shown", "Notebook output"], ["Compare methods by expected cost", "Best method chosen", "Table"], ["Apply SMOTE inside cross-validation", "No leakage", "Code review"]],
+          "objectives": ["Handle imbalanced data", "Use the right metrics", "Choose by business cost"]
+        },
+        {
+          "topic": "Hyperparameter Tuning and Model Selection",
+          "subtopics": ["Parameters versus hyperparameters", "Grid search", "Random search", "Nested cross-validation in brief", "Learning curves", "Validation curves", "Comparing tuned models", "Avoiding test set overuse"],
+          "tools": ["scikit-learn"],
+          "lab_task": "Tune a random forest and gradient boosting model with random search, plot learning curves, select a final model and report its test score once.",
+          "deliverable": "Tuning notebook and final model choice",
+          "checks": [["Run random search", "Best parameters and scores reported", "Notebook output"], ["Plot learning curves", "More data would or would not help is explained", "Chart"], ["Report the test score", "Evaluated once at the end", "Notebook output"]],
+          "objectives": ["Tune models", "Select models fairly", "Protect the test set"]
+        },
+        {
+          "topic": "Saving, Loading and Serving a Model",
+          "subtopics": ["Saving pipelines with joblib", "Model versioning by file name and metadata", "Loading models", "Predicting on new data", "A simple FastAPI prediction endpoint", "Input validation", "Testing the endpoint", "Batch scoring"],
+          "tools": ["joblib", "FastAPI", "Python 3.12"],
+          "lab_task": "Save the churn pipeline, serve it through a FastAPI endpoint with input validation, test it with sample requests and run a batch scoring job on a CSV.",
+          "deliverable": "Model file, API code and batch output",
+          "checks": [["Send a valid request", "Probability returned", "API response"], ["Send a request with a missing field", "422 error with the field named", "API response"], ["Run batch scoring", "Scores written for all rows", "Output file"]],
+          "objectives": ["Save and load models", "Serve predictions", "Score in batches"]
+        },
+        {
+          "topic": "Interpreting and Explaining Models",
+          "subtopics": ["Why interpretation matters", "Coefficients and feature importance", "Permutation importance", "Partial dependence plots", "SHAP in brief", "Explaining single predictions", "Communicating to business users", "Limits of explanations"],
+          "tools": ["scikit-learn", "SHAP"],
+          "lab_task": "Explain the churn model with permutation importance, partial dependence and SHAP for three individual customers, and write a one-page explanation for the business.",
+          "deliverable": "Interpretation notebook and business explanation",
+          "checks": [["Compare permutation importance with built-in importance", "Differences explained", "Table"], ["Explain one customer's prediction", "Top factors listed", "SHAP plot"], ["Review the business explanation", "Clear without jargon", "Explanation page"]],
+          "objectives": ["Interpret models", "Explain predictions", "Communicate to business users"]
+        },
+        {
+          "topic": "Responsible Machine Learning: Bias, Fairness and Privacy",
+          "subtopics": ["Sources of bias in data", "Fairness metrics", "Checking performance by group", "Proxy features", "Privacy and personal data", "Documentation with model cards", "Human oversight", "Regulations in brief"],
+          "tools": ["scikit-learn", "Fairlearn"],
+          "lab_task": "Check the loan approval model for performance differences across groups, find a proxy feature, try a mitigation and write a model card.",
+          "deliverable": "Fairness analysis, mitigation results and model card",
+          "checks": [["Compare recall by group", "Differences measured", "Fairness table"], ["Remove the proxy feature", "Effect on fairness and accuracy recorded", "Comparison"], ["Review the model card", "Purpose, data, metrics and limits covered", "Model card"]],
+          "objectives": ["Detect bias in models", "Measure fairness", "Document models responsibly"]
+        },
+        {
+          "topic": "Beginner Capstone: Customer Churn Prediction End to End",
+          "subtopics": ["Problem framing and metrics", "EDA and feature engineering", "Pipeline and model comparison", "Tuning and evaluation", "Interpretation and fairness check", "Serving and presentation"],
+          "tools": ["Python 3.12", "pandas", "scikit-learn", "SHAP", "FastAPI"],
+          "lab_task": "Build a churn prediction solution from raw data: EDA, features, a pipeline, model comparison and tuning, honest evaluation, interpretation, a fairness check and a prediction API, then present it.",
+          "deliverable": "Notebook, model, API and a 10-minute presentation",
+          "checks": [["Report the final test score", "Evaluated once with the chosen business metric", "Notebook output"], ["Call the API with a new customer", "Returns a probability", "API response"], ["Present the top churn drivers", "Supported by interpretation results", "Presentation"]],
+          "objectives": ["Combine the beginner topics in one project", "Evaluate honestly", "Present to business stakeholders"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who build models with scikit-learn. Covers gradient boosting, time series forecasting, text and image models, recommender systems, anomaly detection, deep learning with PyTorch, explainability, experiment tracking, reproducible pipelines, deployment, monitoring and ML on cloud platforms.",
+      "prerequisites": ["Builds and evaluates scikit-learn pipelines", "Understands cross-validation, metrics and feature engineering", "Writes Python confidently and uses Git"],
+      "outcomes": ["Build strong models with boosting, deep learning and specialised methods", "Track experiments and build reproducible ML pipelines", "Deploy, monitor and retrain models", "Use a cloud ML platform end to end"],
+      "days": [
+        {
+          "topic": "Gradient Boosting with XGBoost, LightGBM and CatBoost",
+          "subtopics": ["How gradient boosting works", "Learning rate, trees and depth", "Early stopping", "Handling categorical features", "Regularisation", "GPU training", "Comparing the three libraries", "Tuning strategy"],
+          "tools": ["XGBoost", "LightGBM", "CatBoost"],
+          "lab_task": "Train XGBoost, LightGBM and CatBoost on a credit risk dataset with early stopping and native categorical handling, tune the best one and compare AUC and training time.",
+          "deliverable": "Boosting notebook and comparison",
+          "checks": [["Use early stopping", "Training stops before the maximum rounds", "Training log"], ["Compare AUC", "Results for all three recorded", "Table"], ["Compare training time", "Recorded with the same settings", "Table"]],
+          "objectives": ["Use gradient boosting libraries", "Tune boosting models", "Compare libraries"]
+        },
+        {
+          "topic": "Advanced Feature Engineering and Feature Stores in Brief",
+          "subtopics": ["Aggregations over time windows", "Lag features", "Target encoding with smoothing", "Feature crosses", "Text and embedding features", "Automated feature generation", "Point-in-time correctness", "Feature stores overview"],
+          "tools": ["pandas", "scikit-learn", "Featuretools"],
+          "lab_task": "Build rolling-window and lag features for transaction data with point-in-time correctness, compare against a leaky version and measure the real gain.",
+          "deliverable": "Feature notebook and leakage comparison",
+          "checks": [["Compare leaky and point-in-time features", "Leaky version scores unrealistically high", "Table"], ["Measure the real gain", "Improvement over the baseline recorded", "Table"], ["Review the feature code", "Only past data used for each row", "Code review"]],
+          "objectives": ["Engineer time-based features", "Avoid leakage", "Explain feature stores"]
+        },
+        {
+          "topic": "Time Series Forecasting",
+          "subtopics": ["Time series components", "Train-test splits for time", "Baselines: naive and seasonal naive", "ARIMA and exponential smoothing", "Prophet", "Machine learning for time series", "Forecast metrics: MAPE, sMAPE, MASE", "Backtesting"],
+          "tools": ["statsmodels", "Prophet", "LightGBM"],
+          "lab_task": "Forecast weekly sales for 50 stores with seasonal naive, ETS, Prophet and LightGBM, backtest over six folds and choose a method by MASE.",
+          "deliverable": "Forecasting notebook and backtest results",
+          "checks": [["Run the backtest", "MASE recorded per method and fold", "Table"], ["Beat the seasonal naive baseline", "Chosen method has lower MASE", "Table"], ["Plot a forecast", "Actuals and forecast with intervals", "Chart"]],
+          "objectives": ["Forecast time series", "Backtest correctly", "Choose methods with baselines"]
+        },
+        {
+          "topic": "Machine Learning for Text",
+          "subtopics": ["Text cleaning and tokenisation", "Bag of words and TF-IDF", "Linear models for text", "Word embeddings", "Sentence embeddings", "Text classification", "Topic modelling", "Evaluating text models"],
+          "tools": ["scikit-learn", "sentence-transformers", "spaCy"],
+          "lab_task": "Classify support tickets into categories with TF-IDF and logistic regression and with sentence embeddings, compare accuracy and find topics in uncategorised tickets.",
+          "deliverable": "Text notebook and comparison",
+          "checks": [["Compare TF-IDF and embeddings", "Accuracy recorded for both", "Table"], ["Inspect top TF-IDF words per class", "Words make sense for each class", "Notebook output"], ["Find topics", "Topics labelled", "Topic list"]],
+          "objectives": ["Build text models", "Compare text representations", "Find topics"]
+        },
+        {
+          "topic": "Deep Learning with PyTorch: Networks and Training Loops",
+          "subtopics": ["Tensors and autograd", "Neural network layers", "Activation functions", "Loss functions and optimisers", "Training loops", "Batches and data loaders", "Overfitting and regularisation: dropout, weight decay", "GPU training"],
+          "tools": ["PyTorch", "Jupyter"],
+          "lab_task": "Build and train a neural network on tabular churn data in PyTorch with a training loop, early stopping and dropout, and compare it with gradient boosting.",
+          "deliverable": "PyTorch notebook and comparison",
+          "checks": [["Plot training and validation loss", "Early stopping triggers before overfitting", "Chart"], ["Compare with boosting", "AUC recorded for both with an explanation", "Table"], ["Train on GPU if available", "Time compared with CPU", "Notebook output"]],
+          "objectives": ["Build neural networks in PyTorch", "Write training loops", "Compare with classic models"]
+        },
+        {
+          "topic": "Computer Vision with Convolutional Networks and Transfer Learning",
+          "subtopics": ["Convolutions and pooling", "CNN architectures in brief", "Image data loading and augmentation", "Transfer learning with pretrained models", "Fine-tuning", "Evaluating image models", "Grad-CAM for explanations", "Deploying image models"],
+          "tools": ["PyTorch", "torchvision", "timm"],
+          "lab_task": "Fine-tune a pretrained CNN to classify product defects from 2,000 images with augmentation, evaluate per class and show Grad-CAM heat maps for mistakes.",
+          "deliverable": "Vision notebook, model and heat maps",
+          "checks": [["Compare training from scratch and transfer learning", "Transfer learning is much better", "Table"], ["Report per-class accuracy", "Weakest class identified", "Table"], ["Show Grad-CAM on a mistake", "Heat map explains what the model looked at", "Image"]],
+          "objectives": ["Build image models", "Use transfer learning", "Explain image predictions"]
+        },
+        {
+          "topic": "Recommender Systems",
+          "subtopics": ["Recommendation problems", "Popularity baselines", "Content-based filtering", "Collaborative filtering", "Matrix factorisation", "Implicit feedback", "Evaluation: precision@k, recall@k, NDCG", "Cold start"],
+          "tools": ["implicit", "scikit-learn", "pandas"],
+          "lab_task": "Build popularity, content-based and matrix factorisation recommenders for a product catalogue, evaluate with precision@10 and handle cold-start users.",
+          "deliverable": "Recommender notebook and evaluation",
+          "checks": [["Compare with the popularity baseline", "Matrix factorisation scores higher", "Table"], ["Recommend for a new user", "Cold-start strategy returns sensible items", "Notebook output"], ["Report NDCG@10", "Calculated for all methods", "Table"]],
+          "objectives": ["Build recommenders", "Evaluate ranking", "Handle cold start"]
+        },
+        {
+          "topic": "Anomaly Detection",
+          "subtopics": ["Types of anomalies", "Statistical methods", "Isolation forest", "Local outlier factor", "Autoencoders in brief", "Time series anomalies", "Evaluating with few labels", "Alerting design"],
+          "tools": ["scikit-learn", "PyOD"],
+          "lab_task": "Detect anomalies in server metrics and transactions with statistical rules, isolation forest and LOF, evaluate on the few labelled cases and design an alert threshold.",
+          "deliverable": "Anomaly notebook and alert design",
+          "checks": [["Compare methods on labelled anomalies", "Recall at a fixed alert rate recorded", "Table"], ["Set the alert threshold", "Alerts per day within the agreed limit", "Analysis"], ["Inspect a false alarm", "Cause explained", "Note"]],
+          "objectives": ["Detect anomalies", "Evaluate with few labels", "Design alerts"]
+        },
+        {
+          "topic": "Explainable AI with SHAP and LIME",
+          "subtopics": ["Global and local explanations", "SHAP values in depth", "TreeSHAP and KernelSHAP", "LIME", "Explanation stability", "Explaining to regulators and customers", "Counterfactual explanations", "Pitfalls of explanations"],
+          "tools": ["SHAP", "LIME", "DiCE"],
+          "lab_task": "Explain the credit risk model globally and for five rejected applicants with SHAP and LIME, compare explanations, and generate counterfactuals that would change the decision.",
+          "deliverable": "Explanation notebook and applicant explanations",
+          "checks": [["Compare SHAP and LIME for one applicant", "Agreement and differences noted", "Comparison"], ["Generate a counterfactual", "Smallest realistic change that flips the decision", "Notebook output"], ["Write a customer explanation", "Clear and accurate", "Explanation text"]],
+          "objectives": ["Explain models in depth", "Compare explanation methods", "Produce counterfactuals"]
+        },
+        {
+          "topic": "Data Labelling, Active Learning and Weak Supervision",
+          "subtopics": ["When labels are the bottleneck", "Labelling tools and guidelines", "Measuring label quality and agreement", "Active learning to choose what to label", "Weak supervision with labelling functions", "Semi-supervised learning in brief", "Label noise and its effects", "Budgeting labelling work"],
+          "tools": ["Label Studio", "modAL", "Snorkel", "scikit-learn"],
+          "lab_task": "Label 300 support tickets with guidelines and two annotators, use active learning to pick the next 200, add weak supervision rules and compare accuracy against labelling at random.",
+          "deliverable": "Labelled data, agreement score and learning curves",
+          "checks": [["Measure annotator agreement", "Agreement score reported with disagreements reviewed", "Agreement report"], ["Compare active learning with random labelling", "Higher accuracy for the same number of labels", "Learning curve"], ["Add weak supervision rules", "Coverage and accuracy of each rule recorded", "Rule report"]],
+          "objectives": ["Get labels efficiently", "Measure label quality", "Use active learning and weak supervision"]
+        },
+        {
+          "topic": "Experiment Tracking with MLflow",
+          "subtopics": ["Why track experiments", "Runs, parameters, metrics and artifacts", "Autologging", "Comparing runs", "Model registry", "Model stages and aliases", "Reproducing a run", "Team workflows"],
+          "tools": ["MLflow", "scikit-learn", "XGBoost"],
+          "lab_task": "Track 20 credit risk experiments in MLflow, compare them in the UI, register the best model and reproduce it from the logged run.",
+          "deliverable": "MLflow experiments and registered model",
+          "checks": [["Compare runs in the UI", "Best run identified by metric", "Screenshot"], ["Register the model", "Version appears in the registry", "Screenshot"], ["Reproduce the best run", "Same metric within tolerance", "Notebook output"]],
+          "objectives": ["Track experiments", "Use a model registry", "Reproduce results"]
+        },
+        {
+          "topic": "Hyperparameter Optimisation with Optuna",
+          "subtopics": ["Search spaces", "Bayesian optimisation", "Pruning unpromising trials", "Multi-objective optimisation", "Parallel trials", "Visualising studies", "Budgets and stopping", "Avoiding overfitting the validation set"],
+          "tools": ["Optuna", "LightGBM", "MLflow"],
+          "lab_task": "Tune LightGBM with Optuna using pruning and a time budget, optimise AUC and latency together and log the study to MLflow.",
+          "deliverable": "Optuna study, plots and best model",
+          "checks": [["Compare with random search at the same budget", "Optuna finds a better or equal score", "Table"], ["Show pruned trials", "Unpromising trials stopped early", "Study plot"], ["Show the Pareto front", "Trade-off between AUC and latency", "Plot"]],
+          "objectives": ["Optimise hyperparameters efficiently", "Prune trials", "Balance several objectives"]
+        },
+        {
+          "topic": "Reproducible ML Pipelines and Data Versioning",
+          "subtopics": ["Project structure", "Configuration files", "Data versioning with DVC", "Pipeline stages", "Random seeds and determinism", "Environment locking", "Testing ML code", "Code review for ML"],
+          "tools": ["DVC", "Git", "pytest", "Hydra"],
+          "lab_task": "Turn the credit risk notebook into a DVC pipeline with versioned data, configuration files and tests, and reproduce results on a clean machine.",
+          "deliverable": "Repository with DVC pipeline and tests",
+          "checks": [["Run dvc repro on a clean clone", "Same metrics as the original", "Terminal output"], ["Change one parameter", "Only affected stages rerun", "dvc repro output"], ["Run the tests", "All pass", "pytest output"]],
+          "objectives": ["Build reproducible pipelines", "Version data", "Test ML code"]
+        },
+        {
+          "topic": "Deploying Models as Services",
+          "subtopics": ["Online and batch serving", "FastAPI model services", "Containers with Docker", "Model loading and warm-up", "Input validation and schemas", "Latency and throughput", "Scaling services", "Shadow and canary releases"],
+          "tools": ["FastAPI", "Docker", "Locust"],
+          "lab_task": "Deploy the registered model as a FastAPI service in Docker, load-test it, release a new version in shadow mode and compare its predictions with the live model.",
+          "deliverable": "Service, image, load test report and shadow comparison",
+          "checks": [["Load-test with 100 users", "p95 latency recorded under the target", "Locust report"], ["Run shadow mode", "New model predictions logged without affecting responses", "Logs"], ["Compare shadow and live predictions", "Agreement rate reported", "Comparison"]],
+          "objectives": ["Deploy models as services", "Test performance", "Release models safely"]
+        },
+        {
+          "topic": "Model Monitoring and Retraining",
+          "subtopics": ["What to monitor: data, predictions and outcomes", "Data drift and concept drift", "Drift tests", "Performance monitoring with delayed labels", "Alerting", "Retraining triggers", "Automated retraining pipelines", "Champion and challenger"],
+          "tools": ["Evidently", "MLflow", "Prometheus"],
+          "lab_task": "Monitor the deployed model with Evidently, simulate drift in incoming data, trigger retraining and promote the challenger only if it beats the champion.",
+          "deliverable": "Monitoring reports, retraining pipeline and promotion record",
+          "checks": [["Inject drifted data", "Drift report flags the features", "Evidently report"], ["Trigger retraining", "New model trained and evaluated", "Pipeline log"], ["Compare champion and challenger", "Promotion follows the rule", "Promotion record"]],
+          "objectives": ["Monitor models in production", "Detect drift", "Retrain safely"]
+        },
+        {
+          "topic": "Machine Learning on Cloud Platforms",
+          "subtopics": ["Managed ML services: SageMaker, Azure ML, Vertex AI", "Training jobs", "Managed notebooks", "Model registries", "Endpoints", "Pipelines", "Cost management", "Choosing a platform"],
+          "tools": ["Amazon SageMaker", "Azure Machine Learning", "Vertex AI"],
+          "lab_task": "Train, register and deploy the credit risk model on one cloud ML platform with a pipeline, call the endpoint and compare effort and cost with the self-managed set-up.",
+          "deliverable": "Cloud pipeline, endpoint and comparison",
+          "checks": [["Run the cloud pipeline", "Model trained and registered", "Pipeline run"], ["Call the endpoint", "Prediction returned", "API response"], ["Compare cost and effort", "Recorded with assumptions", "Comparison sheet"]],
+          "objectives": ["Use a cloud ML platform", "Deploy managed endpoints", "Compare with self-managed"]
+        },
+        {
+          "topic": "AutoML and Baseline Building",
+          "subtopics": ["What AutoML does", "AutoML tools", "Using AutoML for baselines", "Reading AutoML leaderboards", "Exporting AutoML models", "Limits and risks", "When custom models win", "Cost of AutoML"],
+          "tools": ["FLAML", "AutoGluon", "Azure AutoML"],
+          "lab_task": "Run AutoML on the credit risk data with a fixed time budget, compare the leaderboard with your tuned model and decide which to deploy.",
+          "deliverable": "AutoML results and decision note",
+          "checks": [["Run AutoML for 30 minutes", "Leaderboard produced", "Output"], ["Compare with your tuned model", "AUC and complexity compared", "Table"], ["Review the decision note", "Choice justified", "Note"]],
+          "objectives": ["Use AutoML", "Build baselines quickly", "Decide between AutoML and custom models"]
+        },
+        {
+          "topic": "Causal Thinking and A/B Testing for ML",
+          "subtopics": ["Correlation versus causation", "Randomised experiments", "A/B test design and sample size", "Analysing results", "Common pitfalls: peeking and novelty", "Measuring model impact on business", "Uplift modelling in brief", "Reporting experiments"],
+          "tools": ["SciPy", "statsmodels", "pandas"],
+          "lab_task": "Design an A/B test to measure whether the churn model's retention offers work, calculate sample size, analyse simulated results and report the business impact.",
+          "deliverable": "Test design, analysis and report",
+          "checks": [["Calculate sample size", "Correct for the stated effect and power", "Calculation"], ["Analyse results", "Effect and confidence interval reported", "Notebook output"], ["Show the peeking problem with a simulation", "False positives increase", "Chart"]],
+          "objectives": ["Measure model impact", "Design A/B tests", "Avoid common pitfalls"]
+        },
+        {
+          "topic": "ML Project Delivery and Stakeholder Communication",
+          "subtopics": ["Framing ML projects", "Success criteria", "Data and labelling plans", "Estimating effort", "Communicating uncertainty", "Presenting model results", "Handover to operations", "Post-launch reviews"],
+          "tools": ["Project templates", "Slides"],
+          "lab_task": "Write a project brief for a demand forecasting project with success criteria, data plan, risks and timeline, and present model results to a mock business audience.",
+          "deliverable": "Project brief and presentation",
+          "checks": [["Review the success criteria", "Measurable and tied to business value", "Project brief"], ["Review the risk list", "Data, model and adoption risks covered", "Project brief"], ["Answer audience questions", "Results explained without jargon", "Presentation"]],
+          "objectives": ["Plan ML projects", "Communicate with stakeholders", "Hand over to operations"]
+        },
+        {
+          "topic": "Intermediate Capstone: Production Credit Risk Model",
+          "subtopics": ["Problem framing and data", "Features, boosting and tuning", "Explainability and fairness", "Tracking, pipeline and registry", "Deployment and monitoring", "Demo and design defence"],
+          "tools": ["LightGBM", "Optuna", "MLflow", "DVC", "FastAPI", "Docker", "Evidently"],
+          "lab_task": "Deliver a credit risk model with point-in-time features, tuned boosting, SHAP explanations, a fairness review, a DVC pipeline, MLflow registry, a containerised API and drift monitoring with retraining, then present it.",
+          "deliverable": "Repository, registered model, API, monitoring reports and a 15-minute demo",
+          "checks": [["Reproduce the model from the pipeline", "Same metrics", "Terminal output"], ["Inject drift", "Monitoring alerts and retraining runs", "Reports and logs"], ["Explain a rejected applicant", "Clear SHAP-based explanation", "Demo"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Prove quality and operations", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For ML engineers and senior data scientists. Covers ML system design, distributed training, transformers and fine-tuning, feature stores and MLOps at scale, low-latency serving and model compression, causal inference, advanced forecasting, graph and reinforcement learning, monitoring, security, governance and ML strategy.",
+      "prerequisites": ["Has deployed and monitored ML models in production", "Works with PyTorch and gradient boosting", "Uses experiment tracking and CI for ML"],
+      "outcomes": ["Design ML systems for scale, latency and reliability", "Train, fine-tune and serve large models efficiently", "Apply causal, graph and reinforcement learning where they fit", "Run governed, secure ML platforms"],
+      "days": [
+        {
+          "topic": "Machine Learning System Design",
+          "subtopics": ["Framing an ML system", "Requirements: latency, throughput, freshness", "Data and feature architecture", "Training and serving architecture", "Online versus batch predictions", "Feedback loops", "Failure modes", "Design reviews"],
+          "tools": ["Diagramming tool", "Architecture decision record template"],
+          "lab_task": "Design a real-time fraud detection system for 5,000 transactions per second, covering features, models, serving, feedback and failure handling, and defend it in a design review.",
+          "deliverable": "Design document and review notes",
+          "checks": [["Review latency budget", "Every component fits within 100 ms total", "Design document"], ["Review failure handling", "Fallback defined for each dependency", "Design document"], ["Answer review questions", "Design choices defended", "Review notes"]],
+          "objectives": ["Design ML systems", "Plan for latency and failure", "Run design reviews"]
+        },
+        {
+          "topic": "Distributed Training and GPU Efficiency",
+          "subtopics": ["Data parallel and model parallel training", "PyTorch DDP and FSDP", "Mixed precision", "Gradient accumulation and checkpointing", "Ray Train", "Profiling GPU use", "Cost of training", "Scaling efficiency"],
+          "tools": ["PyTorch", "Ray", "NVIDIA tools"],
+          "lab_task": "Train an image model on one and four GPUs with DDP and mixed precision, profile utilisation and report scaling efficiency and cost per epoch.",
+          "deliverable": "Training scripts, profiles and scaling report",
+          "checks": [["Compare one and four GPUs", "Speed-up and efficiency recorded", "Scaling report"], ["Enable mixed precision", "Faster with the same accuracy", "Comparison"], ["Profile GPU use", "Bottleneck identified", "Profiler output"]],
+          "objectives": ["Train models on many GPUs", "Use mixed precision", "Measure scaling efficiency"]
+        },
+        {
+          "topic": "Transformers and Fine-Tuning Pretrained Models",
+          "subtopics": ["Transformer architecture in brief", "Hugging Face Transformers", "Fine-tuning for classification", "Parameter-efficient fine-tuning with LoRA", "Tokenisation choices", "Evaluation of fine-tuned models", "Domain adaptation", "When to use LLM prompting instead"],
+          "tools": ["Hugging Face Transformers", "PEFT", "PyTorch"],
+          "lab_task": "Fine-tune a pretrained transformer with LoRA to classify contract clauses, compare it with TF-IDF and with prompting a large model, and report accuracy and cost.",
+          "deliverable": "Fine-tuned model and comparison",
+          "checks": [["Compare three approaches", "Accuracy and cost for each recorded", "Table"], ["Count trainable parameters with LoRA", "Small fraction of the full model", "Notebook output"], ["Evaluate on a held-out domain", "Performance drop measured", "Table"]],
+          "objectives": ["Fine-tune transformers", "Use parameter-efficient methods", "Choose between fine-tuning and prompting"]
+        },
+        {
+          "topic": "Feature Stores and Feature Platforms",
+          "subtopics": ["Offline and online stores", "Feature definitions as code", "Point-in-time joins at scale", "Streaming features", "Feature reuse across teams", "Feature monitoring", "Feast, Tecton and cloud feature stores", "Governance of features"],
+          "tools": ["Feast", "Redis", "Spark"],
+          "lab_task": "Define features for fraud detection in Feast with batch and streaming sources, serve them online under 10 ms and generate point-in-time training data.",
+          "deliverable": "Feature repository, online store and training dataset",
+          "checks": [["Read online features", "Under 10 ms at p95", "Latency measurement"], ["Compare online and offline values", "Match for the same entity and time", "Comparison"], ["Generate training data", "Point-in-time correct", "Validation output"]],
+          "objectives": ["Build feature platforms", "Serve features online", "Share features across teams"]
+        },
+        {
+          "topic": "MLOps at Scale: CI/CD, Pipelines and Platforms",
+          "subtopics": ["ML pipeline orchestration: Kubeflow, Airflow, cloud pipelines", "CI for ML code and data", "Continuous training", "Model validation gates", "Deployment strategies", "Platform components", "Multi-team ML platforms", "Measuring ML delivery"],
+          "tools": ["Kubeflow Pipelines", "GitHub Actions", "MLflow", "Argo CD"],
+          "lab_task": "Build a pipeline that validates data, trains, evaluates against gates, registers and deploys a model by GitOps, and blocks a worse model.",
+          "deliverable": "Pipeline definitions and release records",
+          "checks": [["Run with good data", "Model deployed through GitOps", "Pipeline log"], ["Run with a model that fails the gate", "Deployment blocked", "Pipeline log"], ["Report lead time from commit to deployment", "Metric recorded", "Dashboard"]],
+          "objectives": ["Automate ML delivery", "Gate model releases", "Build ML platforms"]
+        },
+        {
+          "topic": "Low-Latency Model Serving at Scale",
+          "subtopics": ["Serving frameworks: Triton, TorchServe, KServe, BentoML", "Batching and concurrency", "GPU and CPU serving", "Autoscaling", "Caching predictions", "Multi-model serving", "Latency budgets", "Load testing"],
+          "tools": ["NVIDIA Triton", "KServe", "Kubernetes", "Locust"],
+          "lab_task": "Serve the fraud model and an image model on KServe with Triton, tune dynamic batching, autoscale under load and keep p99 latency under the target.",
+          "deliverable": "Serving configuration, load test report and scaling graph",
+          "checks": [["Load-test at target traffic", "p99 under the target", "Load test report"], ["Enable dynamic batching", "Throughput increases", "Comparison"], ["Increase load", "Autoscaler adds replicas", "Kubernetes events"]],
+          "objectives": ["Serve models at scale", "Tune batching", "Autoscale serving"]
+        },
+        {
+          "topic": "Model Compression: Quantisation, Pruning and Distillation",
+          "subtopics": ["Why compress models", "Post-training quantisation", "Quantisation-aware training", "Pruning", "Knowledge distillation", "ONNX and runtime optimisation", "Accuracy versus speed trade-offs", "Edge deployment"],
+          "tools": ["PyTorch", "ONNX Runtime", "TensorRT"],
+          "lab_task": "Quantise and distil the image model, export to ONNX, compare size, latency and accuracy, and run it on a CPU-only device.",
+          "deliverable": "Compressed models and comparison",
+          "checks": [["Compare model sizes", "Compressed models are much smaller", "Table"], ["Compare accuracy", "Drop within the agreed limit", "Table"], ["Run on a CPU device", "Latency meets the edge target", "Benchmark output"]],
+          "objectives": ["Compress models", "Export to optimised runtimes", "Deploy to the edge"]
+        },
+        {
+          "topic": "Causal Inference and Uplift Modelling",
+          "subtopics": ["Potential outcomes", "Confounding", "Propensity scores", "Difference in differences", "Instrumental variables in brief", "Uplift models", "Evaluating uplift with Qini curves", "Using causal results in decisions"],
+          "tools": ["DoWhy", "EconML", "CausalML"],
+          "lab_task": "Estimate the effect of a loyalty programme from observational data with propensity scores, build an uplift model for a retention offer and evaluate it with a Qini curve.",
+          "deliverable": "Causal analysis, uplift model and evaluation",
+          "checks": [["Compare naive and adjusted effect estimates", "Confounding effect shown", "Comparison"], ["Plot the Qini curve", "Uplift model beats random targeting", "Chart"], ["Run a refutation test", "Estimate is robust or the weakness is stated", "DoWhy output"]],
+          "objectives": ["Estimate causal effects", "Build uplift models", "Use causal results in decisions"]
+        },
+        {
+          "topic": "Advanced Time Series and Probabilistic Forecasting",
+          "subtopics": ["Global models across many series", "Deep learning forecasters: N-BEATS, Temporal Fusion Transformer", "Foundation models for time series", "Probabilistic forecasts and quantiles", "Hierarchical reconciliation", "Exogenous variables", "Forecast evaluation at scale", "Forecasting in production"],
+          "tools": ["Darts", "NeuralForecast", "statsforecast"],
+          "lab_task": "Forecast 1,000 product series with a global LightGBM, a deep forecaster and a time series foundation model, produce quantile forecasts and reconcile them across the hierarchy.",
+          "deliverable": "Forecasting pipeline and evaluation",
+          "checks": [["Compare methods on backtests", "Accuracy and cost recorded", "Table"], ["Check quantile coverage", "90 percent intervals cover about 90 percent", "Coverage table"], ["Reconcile the hierarchy", "Store totals equal the sum of products", "Check output"]],
+          "objectives": ["Forecast at scale", "Produce probabilistic forecasts", "Reconcile hierarchies"]
+        },
+        {
+          "topic": "Graph Machine Learning",
+          "subtopics": ["Graph data and use cases", "Node and edge features", "Graph embeddings", "Graph neural networks", "Link prediction", "Fraud rings and communities", "Scaling graph ML", "Graph databases with ML"],
+          "tools": ["PyTorch Geometric", "NetworkX", "Neo4j"],
+          "lab_task": "Build a transaction graph, train a graph neural network to detect fraudulent accounts and compare it with a tabular model using hand-made graph features.",
+          "deliverable": "Graph notebook and comparison",
+          "checks": [["Compare GNN and tabular model", "Metrics for both recorded", "Table"], ["Find a fraud ring", "Community detected and shown", "Graph image"], ["Predict links", "AUC reported", "Notebook output"]],
+          "objectives": ["Apply ML to graphs", "Build graph neural networks", "Compare with tabular approaches"]
+        },
+        {
+          "topic": "Reinforcement Learning and Bandits for Decisions",
+          "subtopics": ["Reinforcement learning concepts", "Multi-armed bandits", "Contextual bandits", "Exploration versus exploitation", "Offline evaluation of policies", "Q-learning in brief", "Simulation environments", "When RL is practical"],
+          "tools": ["Vowpal Wabbit", "Gymnasium", "Python 3.12"],
+          "lab_task": "Use a contextual bandit to choose which offer to show customers in a simulator, compare it with A/B testing on regret and evaluate a policy offline from logs.",
+          "deliverable": "Bandit notebook, regret comparison and offline evaluation",
+          "checks": [["Compare regret with A/B testing", "Bandit has lower cumulative regret", "Chart"], ["Evaluate a policy offline", "Estimate with confidence interval", "Notebook output"], ["Explain when RL is not suitable", "Clear criteria", "Written note"]],
+          "objectives": ["Use bandits for decisions", "Evaluate policies offline", "Judge when RL fits"]
+        },
+        {
+          "topic": "Monitoring, Drift and Model Health at Scale",
+          "subtopics": ["Monitoring hundreds of models", "Feature and prediction drift at scale", "Delayed and partial labels", "Segment-level monitoring", "Root cause analysis for model issues", "Alert fatigue", "Monitoring dashboards and SLOs", "Retraining policies"],
+          "tools": ["Evidently", "Prometheus", "Grafana", "WhyLabs or Arize"],
+          "lab_task": "Set up monitoring for 50 models with segment-level drift and performance, SLOs and alert routing, and diagnose an injected issue to its root cause.",
+          "deliverable": "Monitoring set-up, SLOs and diagnosis report",
+          "checks": [["Inject a segment-specific drift", "Alert identifies the segment", "Alert"], ["Diagnose the issue", "Root cause found and documented", "Diagnosis report"], ["Review alert volume", "Alerts within the agreed daily limit", "Dashboard"]],
+          "objectives": ["Monitor ML at scale", "Find root causes", "Control alert fatigue"]
+        },
+        {
+          "topic": "Security of Machine Learning Systems",
+          "subtopics": ["Threats to ML systems", "Data poisoning", "Adversarial examples", "Model extraction and inversion", "Securing training pipelines", "Model and dataset supply chain", "Access control for models and features", "Red-teaming ML"],
+          "tools": ["Adversarial Robustness Toolbox", "Python 3.12"],
+          "lab_task": "Attack the image model with adversarial examples and the training data with poisoning, add defences, and red-team the model API for extraction.",
+          "deliverable": "Attack results, defences and red-team report",
+          "checks": [["Run adversarial attacks", "Accuracy drop measured before and after defences", "Table"], ["Poison 1 percent of training data", "Effect measured and detection tested", "Report"], ["Attempt model extraction through the API", "Rate limits and monitoring stop or detect it", "Logs"]],
+          "objectives": ["Recognise ML security threats", "Defend models", "Red-team ML systems"]
+        },
+        {
+          "topic": "Privacy-Preserving Machine Learning: Federated Learning and Differential Privacy",
+          "subtopics": ["Privacy risks in training data and models", "Membership inference", "Differential privacy and the privacy budget", "DP-SGD training", "Federated learning", "Secure aggregation in brief", "Synthetic data for privacy", "Trade-offs between privacy and accuracy"],
+          "tools": ["Opacus", "Flower", "PyTorch"],
+          "lab_task": "Train the churn model with DP-SGD at three privacy budgets, run a membership inference test on each, and train a federated version across three simulated branches.",
+          "deliverable": "Privacy experiments, attack results and federated model",
+          "checks": [["Compare accuracy at three privacy budgets", "Trade-off recorded", "Table"], ["Run membership inference", "Attack success falls as privacy increases", "Attack results"], ["Train the federated model", "Accuracy close to central training with no raw data shared", "Comparison"]],
+          "objectives": ["Protect training data", "Train with differential privacy", "Use federated learning"]
+        },
+        {
+          "topic": "ML Governance, Risk and Regulation",
+          "subtopics": ["Model risk management", "Model inventory", "Validation and independent review", "Documentation: model cards and datasheets", "Approval workflows", "EU AI Act and sector rules", "Audit trails", "Decommissioning models"],
+          "tools": ["MLflow", "Model card templates", "Risk register"],
+          "lab_task": "Build a model inventory for five models, perform an independent validation of one, write its model card and datasheet and set up an approval workflow.",
+          "deliverable": "Inventory, validation report, documentation and workflow",
+          "checks": [["Review the inventory", "Risk tier and owner for each model", "Inventory"], ["Review the validation", "Data, performance and fairness covered", "Validation report"], ["Try to deploy without approval", "Workflow blocks deployment", "Pipeline log"]],
+          "objectives": ["Govern ML models", "Validate models independently", "Meet regulatory duties"]
+        },
+        {
+          "topic": "Machine Learning with Large Language Models",
+          "subtopics": ["When to use LLMs in ML systems", "Embeddings as features", "LLMs for labelling data", "Evaluating LLM labels", "LLM classifiers versus trained models", "Cost and latency", "Combining LLMs and classic models", "Monitoring LLM components"],
+          "tools": ["OpenAI or open-weight models", "sentence-transformers", "scikit-learn"],
+          "lab_task": "Label 5,000 tickets with an LLM, check label quality against human labels, train a small model on the LLM labels and compare cost and accuracy with calling the LLM directly.",
+          "deliverable": "Labelling pipeline, quality report and comparison",
+          "checks": [["Compare LLM labels with human labels", "Agreement measured", "Quality report"], ["Train on LLM labels", "Small model accuracy recorded", "Table"], ["Compare cost per 1,000 predictions", "Both options costed", "Cost table"]],
+          "objectives": ["Use LLMs inside ML systems", "Label data with LLMs", "Balance cost and accuracy"]
+        },
+        {
+          "topic": "Optimising Business Decisions with ML",
+          "subtopics": ["From predictions to decisions", "Expected value and cost matrices", "Optimisation on top of predictions", "Pricing models", "Inventory decisions", "Constraints and solvers", "Simulating decision policies", "Measuring decision quality"],
+          "tools": ["scikit-learn", "OR-Tools", "pandas"],
+          "lab_task": "Turn demand forecasts into inventory orders with an optimisation model under budget and capacity limits, simulate the policy and compare cost with a simple rule.",
+          "deliverable": "Decision model, simulation and comparison",
+          "checks": [["Run the optimisation", "All constraints met", "Solver output"], ["Simulate both policies", "Optimised policy has lower total cost", "Simulation results"], ["Change the budget", "Orders change as expected", "Comparison"]],
+          "objectives": ["Turn predictions into decisions", "Use optimisation", "Measure decision quality"]
+        },
+        {
+          "topic": "Troubleshooting ML in Production",
+          "subtopics": ["Silent model failures", "Training and serving skew", "Data pipeline breaks", "Latency incidents", "Bad model releases", "Rollback", "Root cause analysis", "Post-incident reviews"],
+          "tools": ["MLflow", "Grafana", "Evidently"],
+          "lab_task": "Resolve four injected incidents (training-serving skew, a broken feature pipeline, a latency spike and a bad release), roll back where needed and write runbooks.",
+          "deliverable": "Incident records, fixes and runbooks",
+          "checks": [["Find the training-serving skew", "Mismatched feature identified", "Comparison"], ["Roll back the bad release", "Previous model serving within minutes", "Logs"], ["Write a runbook for latency spikes", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot ML systems", "Roll back safely", "Write runbooks"]
+        },
+        {
+          "topic": "ML Strategy, Team Structure and Value",
+          "subtopics": ["Choosing ML use cases", "Portfolio management", "Build, buy or use foundation models", "ML team roles", "Platform versus product teams", "Measuring ML value", "Roadmaps", "Presenting to leadership"],
+          "tools": ["Use case scoring template", "Spreadsheet"],
+          "lab_task": "Score ten ML use cases for a provided company by value and feasibility, build a roadmap and team plan, and present it to a mock leadership team.",
+          "deliverable": "Use case scores, roadmap and presentation",
+          "checks": [["Score the use cases", "Scores justified with data", "Scoring sheet"], ["Review the roadmap", "Sequencing follows value and dependencies", "Roadmap"], ["Answer leadership questions", "Strategy defended with evidence", "Presentation"]],
+          "objectives": ["Build an ML strategy", "Prioritise use cases", "Communicate value"]
+        },
+        {
+          "topic": "Advanced Capstone: Real-Time ML Platform",
+          "subtopics": ["System design and requirements", "Feature platform and training at scale", "Low-latency serving and compression", "MLOps pipeline with gates", "Monitoring, security and governance", "Board presentation and design defence"],
+          "tools": ["Feast", "PyTorch", "KServe", "Kubeflow Pipelines", "MLflow", "Evidently"],
+          "lab_task": "Deliver a real-time fraud platform with online features, a distributed-trained model, compressed low-latency serving, gated CI/CD, segment-level monitoring, security testing and governance records, then present it to a mock board.",
+          "deliverable": "Platform repositories, load test and monitoring reports, governance records and a 20-minute presentation",
+          "checks": [["Load-test at target traffic", "p99 latency within the budget", "Load test report"], ["Release a worse model", "Gate blocks the release", "Pipeline log"], ["Inject drift in one segment", "Alert identifies the segment and retraining runs", "Alerts and logs"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove latency, quality and control", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}

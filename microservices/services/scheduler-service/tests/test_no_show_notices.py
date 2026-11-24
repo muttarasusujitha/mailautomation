@@ -21,7 +21,7 @@ class Collection:
     async def update_many(self, query, update): self.updates.append((query, update))
 
 
-def test_no_show_notice_is_eight_minutes_after_start_and_reaches_missing_party_and_clahan(monkeypatch):
+def test_no_show_notice_is_ten_minutes_after_start_and_only_reaches_missing_trainer(monkeypatch):
     now = datetime.utcnow()
     log = {
         "email_id": "EML-NOSHOW", "direction": "outbound", "mail_type": "mail4", "status": "sent",
@@ -45,11 +45,34 @@ def test_no_show_notice_is_eight_minutes_after_start_and_reaches_missing_party_a
 
     monkeypatch.setattr(no_show_notices.httpx, "post", lambda _url, json, timeout: (sent.append(json) or Response()))
     result = asyncio.run(no_show_notices._send_due_no_show_notices())
-    assert result["sent"] == 3
-    assert {item["to"] for item in sent} == {"trainer@example.com", "client@example.com", "sujithaofficial784@gmail.com"}
-    clahan = next(item for item in sent if item["to"] == "sujithaofficial784@gmail.com")
-    assert "trainer joined" in clahan["body"]
-    client = next(item for item in sent if item["to"] == "client@example.com")
-    assert "trainer joined" in client["body"]
+    assert result["sent"] == 1
+    assert {item["to"] for item in sent} == {"trainer@example.com"}
     assert all("10 minutes ago" in item["body"] for item in sent)
+    assert all(item["mail_type"] == "meet_no_show_notice" for item in sent)
     assert any(update.get("$set", {}).get("followup_suppressed") is True for _, update in emails.updates)
+
+
+def test_joined_trainer_gets_no_alert_when_only_client_is_missing(monkeypatch):
+    now = datetime.utcnow()
+    log = {
+        "email_id": "EML-CLIENT-NOSHOW", "direction": "outbound", "mail_type": "mail4", "status": "sent",
+        "interview_scheduled": True, "interview_at": now - timedelta(minutes=10),
+        "meet_bot_status": "joined", "meet_attendance_source": "meet_bot_visible_participants",
+        "meet_participant_view_available": True, "meet_attendance_observed_at": now,
+        "trainer_email": "trainer@example.com", "trainer_name": "Trainer",
+        "trainer_attendance_identity_available": True, "trainer_joined": True,
+        "client_email": "client@example.com", "client_name": "Client",
+        "client_attendance_identity_available": True, "client_joined": False,
+        "interview_link": "https://meet.google.com/example", "technology": "DevOps",
+    }
+    emails = Collection([log])
+    monkeypatch.setattr(no_show_notices, "get_db", lambda: {"email_logs": emails, "shortlists": Collection([])})
+    monkeypatch.setattr(no_show_notices.httpx, "post", lambda *_args, **_kwargs: (_ for _ in ()).throw(
+        AssertionError("no email should be sent when the trainer joined")
+    ))
+
+    result = asyncio.run(no_show_notices._send_due_no_show_notices())
+
+    assert result["sent"] == 0
+    assert result["skipped"] == 1
+    assert emails.updates[-1][1]["$set"]["no_show_check_result"] == "client_missing_trainer_joined"

@@ -1,0 +1,67 @@
+[
+  {
+    "file": "datasets_compact/python_30.json", "topic": "File Handling & Exceptions",
+    "prerequisites": ["Python functions, lists, dictionaries and basic exception handling"],
+    "subtopics": ["csv.DictReader and explicit field conversion", "Required fields and duplicate order IDs", "ISO date validation and rejection reasons", "Separate row validation from file I/O", "Missing file versus invalid row handling", "Regression tests for valid and rejected rows"],
+    "scenario": "A finance team receives a sales export whose invalid records must be isolated without silently losing valid orders.",
+    "lab": "Implement validate_sales(input_path, accepted_path, rejected_path). Read a supplied ten-row CSV; reject missing IDs, repeated IDs, impossible dates and negative amounts. Retain the first occurrence of a duplicate ID. Write accepted rows and rejected rows with row number and reason. Missing input must fail clearly without reporting success.",
+    "deliverable": "validator.py, accepted.csv, rejected.csv and automated tests covering all four rejection rules and a missing input file",
+    "learning_objectives": ["Partition ten input records into six accepted and four rejected records with no omissions", "Explain and test first-occurrence duplicate handling and distinguish row errors from file errors"],
+    "assessment": "The ten-row fixture produces six accepted rows and four rejected rows with the expected reasons. Accepted amounts sum to 210.00. All input row numbers occur exactly once across the two outputs. A missing input raises a clear file error; a repeated run yields identical output.",
+    "preparation_requirements": ["Provide ten rows: six valid amounts of 10, 20, 30, 40, 50 and 60; one missing ID, one duplicate of a valid ID, one date of 2026-02-30 and one negative amount", "Use UTF-8 CSV columns order_id, order_date, amount; supply expected rejected row numbers separately"],
+    "source_urls": ["https://docs.python.org/3/library/csv.html", "https://docs.python.org/3/library/unittest.html"],
+    "schedule": [[25, "Demonstration", "Trace DictReader values and one rejected row", "Annotated record and rejection reason"], [65, "Guided lab", "Implement parsing, validation and separate output files", "Six accepted records and four rejection records"], [40, "Independent exercise", "Add missing-file and repeated-run tests", "Tests expose silent row loss or nondeterministic results"], [20, "Assessment", "Run the fixture and reconcile counts and accepted total", "Reconciliation and passing checks"]]
+  },
+  {
+    "file": "reference_curricula/aws_cloud_security_devops_sre.json", "reference_day": 6,
+    "prerequisites": ["Web ACL associations, HTTP requests and basic CloudWatch log navigation"],
+    "subtopics": ["Count-mode observation before rule promotion", "Labelled benign and malicious request fixtures", "Rule-match evidence and benign false positives", "Rate-based rule aggregation and test limits", "Promotion and rollback criteria", "Bot Control, Shield and central policy scope as demonstrations"],
+    "scenario": "A candidate WAF rule matches both suspicious requests and a legitimate search request. The team must decide whether to promote it without blocking ordinary users.",
+    "lab": "Use a prepared training Web ACL in Count mode. Replay ten labelled requests containing eight benign cases and two suspicious cases against the isolated lab application. Capture the matched rule for each request, investigate the seeded benign false positive and adjust the candidate rule. Demonstrate rate-rule behaviour separately using a bounded trainer-controlled request run.",
+    "deliverable": "Ten-row request/result matrix, before-and-after rule configuration, false-positive investigation and promotion/rollback decision",
+    "learning_objectives": ["Trace each fixture request to observed WAF rule evidence", "Reduce the seeded false positive while retaining matches for both suspicious fixtures", "Explain why a small passing fixture is insufficient evidence for production promotion"],
+    "assessment": "All ten request IDs have traceable results. Both suspicious fixtures still match the intended rule; none of the eight benign fixtures matches it after tuning. Record remaining coverage limits and a rollback condition. Count mode is not reported as having blocked a request.",
+    "preparation_requirements": ["Trainer-owned isolated application, Web ACL, logs and labelled request fixtures with expected matches", "Prepare the false-positive rule and cap the separate rate test; do not use production traffic", "Confirm account access and service availability; paid optional features may use recorded demonstrations"],
+    "source_urls": ["https://docs.aws.amazon.com/waf/latest/developerguide/web-acl-testing.html"],
+    "schedule": [[35, "Demonstration", "Trace Count-mode matches and distinguish matches from blocks", "Annotated request log"], [95, "Guided lab", "Run ten cases and investigate the false positive", "Baseline request/result matrix"], [65, "Independent exercise", "Tune and rerun cases; observe bounded rate-rule demo", "Comparison matrix and tuning rationale"], [45, "Assessment", "Defend promotion criteria and discuss optional central controls", "Decision with limitations and rollback conditions"]]
+  },
+  {
+    "file": "reference_curricula/training_for_quality_engineers.json", "topic_prefix": "2.",
+    "prerequisites": ["Basic Python functions, exceptions and HTTP concepts"],
+    "subtopics": ["PyTest fixtures and independent test data", "Parameterised valid, invalid and boundary cases", "Page objects and separation of assertions", "Explicit browser waits and reliable selectors", "Failure diagnostics and report interpretation", "Cleanup and repeatable execution"],
+    "scenario": "A checkout UI accepts invalid quantities and a shared test cart causes order-dependent failures. The team needs a repeatable test framework that exposes both defects.",
+    "lab": "Extend a supplied local shop and test skeleton. Create independent cart fixtures, page objects and parameterised quantity tests for -1, 0, 1, 5 and 6 under an allowed range of 1 to 5. Run against a seeded faulty build and a corrected build. Capture failure diagnostics and rerun in reverse case order.",
+    "deliverable": "PyTest suite, cart fixtures, checkout page object, failure diagnostics and reports for faulty and corrected builds",
+    "learning_objectives": ["Detect acceptance of invalid checkout quantities through observable assertions", "Eliminate shared-cart state so case order does not affect results", "Separate application defects from test setup failures using captured diagnostics"],
+    "assessment": "The faulty build fails the designated invalid-quantity cases. The corrected build passes all five cases. Reversing execution order preserves results. Each failed case reports input, expected behaviour and observed behaviour; no fixed sleep is used as the only readiness check.",
+    "preparation_requirements": ["Provide local faulty and corrected shop builds, browser driver, stable test selectors and a starter repository", "Supply the 1-to-5 quantity rule and expected behaviour; reserve Python introduction as prerequisite remediation rather than silently consuming lab time"],
+    "source_urls": ["https://pytest.org/en/stable/how-to/parametrize.html"],
+    "schedule": [[120, "Demonstration", "Inspect the starter and trace fixtures, selectors and assertions", "One isolated checkout test"], [300, "Guided lab", "Build parameterised cases, page objects and failure diagnostics", "Executable suite and faulty-build report"], [210, "Independent exercise", "Remove state leakage and test corrected build in reverse order", "Stable comparison reports"], [90, "Assessment", "Explain every seeded failure and demonstrate cleanup", "Reviewed framework and evidence"]]
+  },
+  {
+    "file": "reference_curricula/enterprise_ai_readiness_genai_for_bi_capstone_track.json", "code": "M2",
+    "prerequisites": ["Power BI or Tableau relationships and basic sales measures"],
+    "subtopics": ["Fact grain versus dimension attributes", "Unique keys and one-to-many relationships", "Fan-out and double-counted measures", "Business glossary and schema metadata", "AI-readable schema with explicit unknowns"],
+    "scenario": "An AI-generated sales model joins product tags directly to order lines, doubling the value of one order. The team must describe a semantic model that prevents the error.",
+    "lab": "Use three order lines worth 100, 60 and 40 and a product-tag table that duplicates the first line under a naive join. Inspect the resulting 300 total against the correct 200 baseline. Create a grain and relationship map and a JSON metadata description with table keys, relationship cardinalities, measure definitions and unresolved questions. Review an intentionally incorrect AI-produced schema.",
+    "deliverable": "Relationship diagram, JSON schema description and reconciliation of 300 incorrect versus 200 correct sales",
+    "learning_objectives": ["Identify the join that inflates sales from 200 to 300", "Describe grain, keys and cardinalities without inventing missing business definitions", "Reject a generated schema that allows the demonstrated double count"],
+    "assessment": "The submitted model reproduces the 200 baseline. Its metadata names order-line grain and the product-tag multiplicity. The review identifies the seeded relationship error and records unknown KPI definitions as questions rather than invented values.",
+    "preparation_requirements": ["Prepare order-line, product and product-tag tables plus the deliberately incorrect schema", "Provide a working BI environment and metadata skeleton; AI-generated metadata must be checked against the supplied tables"],
+    "source_urls": ["https://learn.microsoft.com/en-us/power-bi/guidance/star-schema"],
+    "schedule": [[20, "Demonstration", "Show the naive join and inflated aggregate", "300 versus 200 reconciliation"], [40, "Guided lab", "Map grain, keys and relationships", "Reviewed relationship diagram"], [30, "Independent exercise", "Correct generated metadata and list unknowns", "JSON metadata and questions"], [15, "Assessment", "Recompute total and defend relationship choices", "200 baseline with explanation"]]
+  },
+  {
+    "file": "reference_curricula/engineering_security_product.json", "code": "M6",
+    "prerequisites": ["HTTP handlers, SQL queries and unit/integration tests"],
+    "subtopics": ["Untrusted input crossing a query boundary", "Parameter binding versus string concatenation", "Authentication and authorisation regression cases", "Output-context review for reflected content", "AI-proposed patch review and reproducible evidence"],
+    "scenario": "A deliberately insecure local application builds a customer lookup query from user input. A generated patch hides the error message but leaves the unsafe query construction intact.",
+    "lab": "Inspect the prepared local repository and test evidence. Reject the cosmetic patch, replace concatenated query construction with parameter binding and add a regression test for the supplied hostile input. Re-run ordinary lookups. Use supplied tests to review separate authentication-bypass and reflected-output findings; distinguish fixed issues from issues still open.",
+    "deliverable": "Minimal query patch, before/after regression results and a findings register separating verified fixes from unresolved findings",
+    "learning_objectives": ["Trace untrusted input to the unsafe database call", "Demonstrate a regression test that fails before the query fix and passes after it", "Reject unsupported AI claims that all security findings are resolved"],
+    "assessment": "The query regression fails on the seeded vulnerable build and passes with bound parameters. Valid lookup tests still pass. The findings register cites evidence for each status and does not label the separate authentication or output issue fixed without passing its test.",
+    "preparation_requirements": ["Provide a local-only vulnerable application, disposable database, fixed test inputs and baseline test suite", "Supply expected findings separately; no production endpoint or customer data is needed"],
+    "source_urls": ["https://community.owasp.org/attacks/SQL_Injection"],
+    "schedule": [[20, "Demonstration", "Trace query construction and inspect the cosmetic patch", "Annotated unsafe data flow"], [40, "Guided lab", "Write failing regression and implement bound parameters", "Minimal patch and before/after test"], [25, "Independent exercise", "Run valid lookups and review separate seeded findings", "Findings register with evidence"], [20, "Assessment", "Defend patch scope and unresolved issues", "Reviewed tests and explicit limitations"]]
+  }
+]

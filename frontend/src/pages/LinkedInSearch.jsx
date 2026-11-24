@@ -7,11 +7,12 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, outcomeLine, visibleSearchLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, outcomeLine, sourceReportLines, visibleSearchLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
+const MAX_VISIBLE_LEADS = 500
 const STATUS_LABELS = {
   all: 'All',
   new: 'New',
@@ -103,7 +104,9 @@ function isTrainerProviderProfile(lead) {
     || lead?.lead_type === 'resume_trainer_post'
   const hasName = Boolean(String(lead?.trainer_name || lead?.name || lead?.headline || '').trim())
   const saysTrainer = /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
-  return Boolean(hasTrainerUrl && hasSkillMatch && (saysTrainer || hasName || lead?.lead_type === 'trainer_profile'))
+  // People search often returns a trainer whose visible card does not repeat the skill.
+  const skillShown = !terms.length || terms.some(term => text.includes(term)) || saysTrainer || lead?.lead_type === 'trainer_profile'
+  return Boolean(hasTrainerUrl && (hasSkillMatch || skillShown) && (saysTrainer || hasName || lead?.lead_type === 'trainer_profile'))
 }
 
 function leadEmail(lead) {
@@ -118,6 +121,7 @@ export default function LinkedInSearch() {
   const navigate = useNavigate()
   const [mode, setMode] = useState('client')
   const [leads, setLeads] = useState([])
+  const [storedTotal, setStoredTotal] = useState(0)
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('all')
@@ -140,13 +144,16 @@ export default function LinkedInSearch() {
     try {
       const trainerList = searchMode === 'trainer'
       const endpoint = trainerList ? '/trainer-profile-leads' : '/client-leads'
-      const params = { q: query.trim(), limit: 150 }
+      // The API supports up to 500. A 150-row browser cap made the dashboard
+      // look frozen even when the collector had saved additional posts.
+      const params = { q: query.trim(), limit: MAX_VISIBLE_LEADS }
       if (statusFilter !== 'all') params.status = statusFilter
       const res = await api.get(endpoint, { params })
       if (token !== listToken.current) return []
       const rows = res.data.leads || []
       const visible = trainerList ? rows.filter(isTrainerProviderProfile) : rows
       setLeads(visible)
+      setStoredTotal(Number(res.data.total || rows.length))
       return visible
     } catch (e) {
       if (token === listToken.current) toast.error(e.message)
@@ -162,7 +169,21 @@ export default function LinkedInSearch() {
     searchingRef.current = true
     setSearching(true)
     setSearchReport(null)
+    setSelectedDomain('all')
     try {
+      const savedListEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
+      try {
+        const savedRes = await api.get(savedListEndpoint, { params: { q: '', limit: MAX_VISIBLE_LEADS } })
+        if (token === listToken.current) {
+          const savedNow = trainerSearch
+            ? (savedRes.data.leads || []).filter(isTrainerProviderProfile)
+            : (savedRes.data.leads || [])
+          setLeads(savedNow)
+          setStoredTotal(Number(savedRes.data.total || savedRes.data.leads?.length || 0))
+        }
+      } catch {
+        // The search below still reports its own result. Saved rows stay as they are.
+      }
       const payload = linkedInSearchPayload(searchMode, domainText)
       const res = await api.post('/linkedin-leads/search', payload)
       if (token !== listToken.current) return
@@ -170,7 +191,11 @@ export default function LinkedInSearch() {
       const skippedCount = res.data.skipped_count || 0
       const autoSentCount = res.data.auto_sent_count || 0
       const warnings = leadSearchWarnings(res.data)
-      setSearchReport({ ...res.data, warnings })
+      const queuedRetries = res.data.queued_retries || []
+      const retryMessage = queuedRetries.length
+        ? `${queuedRetries.map(item => item.domain).join(', ')} search is queued for automatic retry when a source becomes available.`
+        : ''
+      setSearchReport({ ...res.data, warnings: retryMessage ? [...warnings, retryMessage] : warnings })
       setShowSearchMatches((res.data.results || []).length > 0)
       if (!automatic && savedCount) {
         const savedText = `Saved ${savedCount} LinkedIn result${savedCount === 1 ? '' : 's'}`
@@ -193,12 +218,13 @@ export default function LinkedInSearch() {
       setSelectedDomain('all')
       setQ('')
       const listEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
-      const listRes = await api.get(listEndpoint, { params: { q: '', limit: 150 } })
+      const listRes = await api.get(listEndpoint, { params: { q: '', limit: MAX_VISIBLE_LEADS } })
       if (token !== listToken.current) return
       const saved = trainerSearch
         ? (listRes.data.leads || []).filter(isTrainerProviderProfile)
         : (listRes.data.leads || [])
       setLeads(mergeSearchLeads(saved, res.data.results || []))
+      setStoredTotal(Number(listRes.data.total || saved.length))
     } catch (e) {
       if (token !== listToken.current) return
       setSearchReport(current => current
@@ -224,11 +250,11 @@ export default function LinkedInSearch() {
   }, [filter])
   useEffect(() => {
     const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
-    setLeads([])
     setSelectedDomain('all')
     setSearchDomains(domains)
     setSearchReport(null)
     setShowSearchMatches(false)
+    setStoredTotal(0)
     runSearch({ domainText: domains, automatic: true, searchMode: mode })
     return () => { listToken.current += 1 }
   }, [mode])
@@ -313,11 +339,15 @@ export default function LinkedInSearch() {
   }, [leads])
 
   const visibleLeads = useMemo(() => {
-    const fetched = visibleSearchLeads(leads, searchReport?.results, showSearchMatches)
-    if (showSearchMatches && fetched.length) return fetched
-    if (selectedDomain === 'all') return leads
+    const searchHits = (searchReport?.results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
+    // A selected domain must win over the temporary latest-search view.  The
+    // headline cards and result list therefore always describe the same set.
+    const source = showSearchMatches && searchHits.length
+      ? visibleSearchLeads([], searchReport.results, true)
+      : leads
+    if (selectedDomain === 'all') return source
     const selected = selectedDomain.toLowerCase()
-    return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    return source.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
@@ -387,10 +417,10 @@ export default function LinkedInSearch() {
               className="input bg-[#eaf6ff]"
               value={searchDomains}
               onChange={e => setSearchDomains(e.target.value)}
-              placeholder={isTrainer ? 'Python, AWS' : 'Python, AWS'}
+              placeholder="Python"
             />
             <p className="mt-1 text-xs text-slate-400">
-              <strong>Automatic search:</strong> {isTrainer ? 'At least 60 trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below. The trainer search stops once 60 profiles are saved.
+              <strong>Automatic search:</strong> {isTrainer ? 'Up to 100 trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below. Search matches appear here as soon as the search finishes; trainer profile collection stops at 100.
               Change the domains and choose {isTrainer ? 'Find Profiles' : 'Find Client Posts'} to search again. Fetching does not send email.
             </p>
           </div>
@@ -405,9 +435,12 @@ export default function LinkedInSearch() {
         <p className="text-sm font-semibold text-slate-800">{searchReport.requestFailed ? 'Search request did not complete.' : `Last search: ${searchReport.found || 0} matches; ${searchReport.saved_count || 0} new results saved.`}</p>
         {(searchReport.skipped || []).some(item => item.reason === 'already_saved_updated' || item.reason === 'already_saved') && <p className="text-sm text-slate-600">Some matches were already saved. They are included in the search matches below.</p>}
         {!searchReport.requestFailed && <button className="btn-secondary text-sm" onClick={() => { setShowSearchMatches(!showSearchMatches); setSelectedDomain('all') }}>{showSearchMatches ? 'Show all saved results' : 'Show latest search matches'}</button>}
-        {(searchReport.domain_outcomes || []).map(outcome => <p key={outcome.domain} className="text-sm text-slate-600">
-          {outcomeLine(outcome)}
-        </p>)}
+        {(searchReport.domain_outcomes || []).map(outcome => <div key={outcome.domain} className="space-y-1">
+          <p className="text-sm text-slate-600">{outcomeLine(outcome)}</p>
+          {sourceReportLines(outcome).length > 0 && <ul className="ml-4 list-disc text-xs text-slate-500">
+            {sourceReportLines(outcome).map(line => <li key={line.key} className={line.ok ? 'text-emerald-700' : undefined}>{line.text}</li>)}
+          </ul>}
+        </div>)}
         {searchReport.warnings.map(message => <p key={message} className="text-sm text-amber-800">{message}</p>)}
         {searchReport.warnings.length > 0 && <p className="text-xs text-slate-600">Any results already saved remain available below.</p>}
       </section>}
@@ -427,7 +460,7 @@ export default function LinkedInSearch() {
       <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-3">
         <div className="mb-2 flex items-center justify-between gap-3">
           <p className="text-sm font-bold text-slate-800">Domain Results</p>
-          <span className="text-xs font-semibold text-slate-400">{visibleLeads.length} visible</span>
+          <span className="text-xs font-semibold text-slate-400">{visibleLeads.length} visible{selectedDomain === 'all' && storedTotal > visibleLeads.length ? ` of ${storedTotal} saved` : ''}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -479,17 +512,28 @@ export default function LinkedInSearch() {
 
       {isTrainer && <TrustLegend />}
 
-      {loading ? (
-        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
-      ) : searching ? (
-        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-16 text-center text-slate-500">
-          <RefreshCw className="mx-auto mb-3 h-10 w-10 animate-spin text-blue-600" />
-          <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
+      {searching && (
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] px-4 py-3 text-center text-sm text-slate-500">
+          <RefreshCw className="mr-2 inline h-4 w-4 animate-spin text-blue-600" />
+          Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search. Saved profiles stay in the list.
         </div>
+      )}
+
+      {loading && !visibleLeads.length ? (
+        <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
       ) : visibleLeads.length ? (
-        <div className="linkedin-result-list">
+        <div className="flex flex-col gap-5">
           {visibleLeads.map(lead => (
-            <article key={lead.lead_id || lead.source_url || lead.linkedin_url} className="linkedin-result-card">
+            <article
+              key={lead.lead_id || lead.source_url || lead.linkedin_url}
+              className="rounded-xl border border-slate-300 bg-white p-5 shadow-sm"
+              style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.10)',
+                marginBottom: '1.25rem',
+              }}
+            >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-blue-100 bg-blue-50 text-sm font-bold uppercase text-blue-700">
@@ -508,7 +552,7 @@ export default function LinkedInSearch() {
                     </div>
                     <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                       <span className="font-semibold text-slate-800">{lead.domain || 'Domain pending'}</span>
-                      <span>from {lead.source || 'Public Search'}</span>
+                      <span>from {leadSourceLabel(lead)}</span>
                     </p>
                   </div>
                 </div>

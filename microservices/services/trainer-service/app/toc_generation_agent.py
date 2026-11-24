@@ -41,24 +41,102 @@ def _normalize_level(level: str) -> str:
     return aliases.get(value, value or "intermediate")
 
 
+# Level words inside a longer audience description, such as "Advanced developers"
+# or "college students, beginner level". Audience words alone (college, employees)
+# never set a level; only a named level does.
+_LEVEL_WORDS = {
+    "beginner": r"\b(beginners?|beginning|basics?|foundation(?:al)?|novices?|entry[- ]level)\b",
+    "intermediate": r"\b(intermediate|intermidate|mid[- ]level)\b",
+    # "advance" is a common spelling of the level ("Advance Java"), but not as a verb
+    # ("to advance their skills") or in "in advance".
+    "advanced": r"\b(advanced|experts?)\b|(?<!to )(?<!in )\badvance\b(?!\s+(?:their|his|her|your|our|my|the|of|notice|payment|booking|planning|copy)\b)",
+}
+
+
 def _content_band(value: str) -> str:
     """Return a curriculum band only when the text names one."""
     text = str(value or "").strip().lower()
     if not text:
         return ""
     normalized = _normalize_level(text)
-    return normalized if normalized in CONTENT_LEVELS else ""
+    if normalized in CONTENT_LEVELS:
+        return normalized
+    # "with basic Kubernetes knowledge" states a prerequisite, not the group's level.
+    text = re.sub(r"\b(?:with|having|has|have|needs?|requires?)\s+(?:a\s+|some\s+)?(?:basic|basics|foundational)\s+"
+                  r"(?:[\w/+.#-]+\s+){0,3}?(?:knowledge|understanding|skills?|exposure|familiarity|experience|concepts)\b",
+                  " ", text)
+    if re.search(r"\bmix(ed)?\b", text):
+        return "mixed"
+    named = [band for band, pattern in _LEVEL_WORDS.items() if re.search(pattern, text)]
+    if "beginner" in named and len(named) > 1 and not re.search(r"\b(beginners?|novices?|entry[- ]level|freshers?)\b", text):
+        # "Mid-level engineers with basic Python": "basic" describes a skill, not the group.
+        named.remove("beginner")
+    if len(named) == 3 or set(named) == {"beginner", "advanced"}:
+        # "Beginner to advanced": a mixed cohort.
+        return "mixed"
+    if len(named) == 2:
+        # Two neighbouring levels ("intermediate to advanced"): start at the lower one;
+        # longer programmes continue into the next level.
+        return min(named, key=["beginner", "intermediate", "advanced"].index)
+    return named[0] if named else ""
+
+
+# College and fresher batches start at beginner unless the request names a level.
+_COLLEGE_AUDIENCE = re.compile(
+    r"\b(colleges?|students?|campus|freshers?|graduates?|undergraduates?|universit(?:y|ies)|"
+    r"b\.?\s?tech|m\.?\s?tech|mca|bca|b\.?\s?sc|final[- ]year|interns?|internships?)\b"
+    # The B.E. degree only with its dots, so the word "be" does not match.
+    r"|\bb\.\s?e\.")
 
 
 def resolve_content_level(level: str, audience_level: str = "") -> str:
     """Let a named audience band replace a level that was left at the default."""
     chosen = _normalize_level(level) if str(level or "").strip() else ""
     audience_band = _content_band(audience_level)
+    if not audience_band and _COLLEGE_AUDIENCE.search(str(audience_level or "").lower()):
+        audience_band = "beginner"
     if audience_band and (not chosen or chosen == "intermediate"):
         return audience_band
     if chosen in CONTENT_LEVELS:
         return chosen
     return audience_band or "intermediate"
+
+
+# Introductory day titles. "Fundamentals" and "Foundations" count only next to the
+# course's own name ("Kotlin Fundamentals"), not for a subject inside an advanced
+# course ("Graph Fundamentals").
+_FOUNDATION_TITLE = re.compile(
+    r"\b(introduction|intro|basics|getting started|environment setup|course setup|orientation)\b")
+_FOUNDATION_WORDS = re.compile(r"\b(fundamentals|foundations?)\b")
+
+
+def _flag_for_review(toc: dict, warning: str) -> None:
+    quality = toc.setdefault("quality", {})
+    if quality.get("status") != "requires_regeneration":
+        quality["status"] = "requires_review"
+    warnings = quality.setdefault("review_warnings", [])
+    if warning not in warnings:
+        warnings.append(warning)
+
+
+def _check_level_depth(toc: dict, level: str) -> None:
+    """Flag an advanced TOC whose days are mostly introductory topics."""
+    if level != "advanced":
+        return
+    days = [day for day in toc.get("days") or [] if "capstone" not in str(day.get("focus_area") or "").lower()]
+    own_words = set(re.findall(r"[a-z0-9]+", str(toc.get("domain") or "").lower())) - {
+        "and", "the", "of", "for", "to", "mastery", "programming", "development", "comprehensive", "curriculum", "advanced"}
+
+    def introductory(title):
+        title = str(title or "").lower()
+        if _FOUNDATION_TITLE.search(title):
+            return True
+        return bool(_FOUNDATION_WORDS.search(title)) and bool(own_words & set(re.findall(r"[a-z0-9]+", title)))
+
+    basic = [day for day in days if introductory(day.get("focus_area"))]
+    if days and len(basic) * 3 > len(days):
+        _flag_for_review(toc, f"Advanced level, but {len(basic)} of {len(days)} teaching days are introductory topics; "
+                              "the source course has no advanced track for this technology. Review the day plan.")
 
 
 def _generic_domain(name: str) -> dict:
@@ -224,7 +302,22 @@ def _sample_cumulative(items: list, count: int, foundation_anchors: int = 2) -> 
     return selected[:count]
 
 
-def _project_day(index: int, domain_name: str) -> dict:
+def _project_day(index: int, domain_name: str, recent_topics=()) -> dict:
+    recent = [str(topic) for topic in recent_topics if str(topic or "").strip()][-2:]
+    if recent:
+        # A practice day that builds on what was just taught, not a generic sprint.
+        focus = " and ".join(recent)
+        return {
+            "topic": f"Project Sprint {index}: Applying {recent[-1]}",
+            "subtopics": [f"Apply {topic} to the programme project" for topic in recent] + [
+                "Integrate the new work with earlier sprints",
+                "Troubleshoot failures and record fixes",
+                "Sprint review and demonstration",
+            ],
+            "tools": ["Jira", "Git", domain_name],
+            "lab": f"Extend the programme project with {focus}: implement one working increment, test it and demonstrate it",
+            "content_origin": "generated_project_day",
+        }
     return {
         "topic": f"Real-Time Project Sprint {index}",
         "subtopics": [
@@ -236,6 +329,116 @@ def _project_day(index: int, domain_name: str) -> dict:
         "tools": ["Jira", "Git", domain_name],
         "lab": f"Build project sprint {index} deliverable and present progress",
     }
+
+
+def _plan_long_programme(items: list, extra_pool: list, duration: int, domain_name: str) -> list:
+    """Fill a programme longer than its course: other datasets for the same
+    technology first, then practice days spread through the programme.
+
+    ``items`` is the ordered course selection, ending with its capstone when it
+    has one. ``extra_pool`` holds ``(position, day, course)`` entries, where
+    position is the day's place in its own course (0 = first day, 1 = last).
+    The selected course stays one progression. Borrowed courses go in as ordered
+    blocks (prerequisites before the days that need them) just before the last
+    third of the selection, so the advanced end and the capstone stay last.
+    Opening days (the first third of a course) and introductory days ("Basics",
+    "Fundamentals") are skipped because the selection already teaches the
+    foundations, and days already taught (same or similar title, a title
+    contained in a taught title, or most of their multi-word subtopics) are skipped. Only when no authored content is
+    left are practice days added, spread through the programme. The capstone
+    stays last.
+    """
+    from app.level_curriculum import _similar_topics
+    from shared.toc_quality import normalize_topic
+    items = [deepcopy(item) for item in items]
+    capstone = items.pop() if items and "capstone" in str(items[-1].get("topic") or "").lower() else None
+    slots = duration - (1 if capstone else 0)
+    teaching = items[:slots]
+    placed = [(index / max(1, len(teaching)), 0, item) for index, item in enumerate(teaching)]
+    taught_text = " " + " ".join(normalize_topic(" ".join([str(day.get("topic") or ""), *map(str, day.get("subtopics") or [])]))
+                                 for day in teaching) + " "
+
+    def words(value):
+        return set(re.findall(r"[a-z0-9]+", str(value or "").lower())) - {"and", "the", "of", "with", "for", "to", "in", "a"}
+
+    def taught(candidate):
+        topic = candidate.get("topic")
+        name = str(topic or "").strip().lower()
+        mine = words(topic) - {"part", "1", "2", "3", "essentials", "basics", "fundamentals"}
+        for _, _, day in placed:
+            other = words(day.get("topic"))
+            # "Spring Security" is already taught by "Spring Security Essentials".
+            if name == str(day.get("topic") or "").strip().lower() or _similar_topics(topic, day.get("topic")) \
+                    or (len(mine) >= 2 and mine <= other):
+                return True
+        # One-word subtopics ("models", "views") appear in many courses and prove nothing.
+        subtopics = [value for value in (normalize_topic(v) for v in candidate.get("subtopics") or []) if len(value.split()) >= 2]
+        if len(subtopics) >= 3:
+            known = sum(f" {value} " in taught_text for value in subtopics)
+            return known * 5 >= len(subtopics) * 3
+        return False
+
+    courses = {}
+    for entry in extra_pool:
+        position, candidate = entry[0], entry[1]
+        course = entry[2] if len(entry) > 2 else "pool"
+        courses.setdefault(course, []).append((position, candidate))
+    added = 0
+    for block_number, days in enumerate(courses.values(), 1):
+        block = []
+        for position, candidate in days:
+            if len(teaching) + added + len(block) >= slots:
+                break
+            topic = candidate.get("topic")
+            if (not topic or "capstone" in str(topic).lower() or position < 1 / 3
+                    or _BORROWED_INTRO.search(str(topic)) or taught(candidate)):
+                continue
+            block.append((position, _standardize_compact_day_item(candidate, domain_name)))
+            taught_text += " " + normalize_topic(" ".join([str(topic), *map(str, candidate.get("subtopics") or [])])) + " "
+        if block:
+            # Before the last third of the selection; each block keeps its own order.
+            placed.extend((2 / 3, block_number * 1000 + order, day) for order, (_, day) in enumerate(block, 1))
+            added += len(block)
+        if len(teaching) + added >= slots:
+            break
+    teaching = [day for _, _, day in sorted(placed, key=lambda entry: (entry[0], entry[1]))]
+
+    missing = slots - len(teaching)
+    if missing <= 0:
+        return teaching[:slots] + ([capstone] if capstone else [])
+    taught_topics = [day.get("topic") for day in teaching]
+    planned, sprint = [], 1
+    for index, day in enumerate(teaching, 1):
+        planned.append(day)
+        # Spread the practice days evenly after the teaching days.
+        due = round(index * missing / len(teaching)) - (sprint - 1) if teaching else 0
+        for _ in range(max(0, due)):
+            recent = [item.get("topic") for item in planned if item.get("content_origin") != "generated_project_day"]
+            planned.append(_project_day(sprint, domain_name, recent))
+            sprint += 1
+    while len(planned) < slots:
+        # Rotate through the taught topics so each extra practice day applies a different one.
+        topic = taught_topics[-(sprint % len(taught_topics)) - 1] if taught_topics else None
+        planned.append(_project_day(sprint, domain_name, [topic] if topic else []))
+        sprint += 1
+    return planned[:slots] + ([capstone] if capstone else [])
+
+
+_BORROWED_INTRO = re.compile(r"\b(basics|fundamentals|foundations?|introduction|intro|getting started|overview|orientation)\b", re.I)
+
+
+def _same_technology_pool(*names) -> list:
+    """(position, day, course) for authored days in every compact dataset of the same technology."""
+    from app.toc_domain_dataset import same_technology_datasets
+    pool, seen = [], set()
+    for name in names:
+        for data in same_technology_datasets(name):
+            if id(data) in seen:
+                continue
+            seen.add(id(data))
+            days = data.get("days") or []
+            pool.extend((index / max(1, len(days)), day, id(data)) for index, day in enumerate(days))
+    return pool
 
 
 def _revision_day(index: int) -> dict:
@@ -265,7 +468,7 @@ def _is_foundation_topic(item: dict) -> bool:
     return any(marker in f" {text}" for marker in markers)
 
 
-def _select_topics(domain: dict, duration: int, level: str = "") -> list:
+def _select_topics(domain: dict, duration: int, level: str = "", client_knowledge: bool = False) -> list:
     duration = max(1, min(int(duration or 1), 100))
     compact_days = list(domain.get("days") or [])
     if compact_days:
@@ -318,6 +521,21 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
             compact_source = deepcopy(level_band[:min(slots, len(level_band))])
         elif normalized_level == "mixed":
             compact_source = _sample_across_bands(level_band, min(slots, len(level_band)))
+        elif slots <= 5 and normalized_level in {"intermediate", "advanced"} and not client_knowledge:
+            # A short programme cannot afford to re-teach the opening days to
+            # experienced participants. Intermediate keeps the orientation day
+            # and samples the middle of the course; advanced starts from the
+            # second half and assumes the basics are prerequisites.
+            count = min(slots, len(level_band))
+            if normalized_level == "intermediate":
+                anchors = deepcopy(level_band[:1]) if count > 1 else []
+                tail = level_band[max(1, total // 4):]
+            else:
+                anchors = []
+                tail = level_band[total // 2:]
+            if len(tail) < count - len(anchors):
+                tail = level_band[len(anchors):]
+            compact_source = anchors + _sample_progressive(tail, count - len(anchors))
         else:
             compact_source = _sample_cumulative(level_band, min(slots, len(level_band)))
         if capstones and duration >= 5:
@@ -325,11 +543,12 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
         selected = [_standardize_compact_day_item(day, domain.get("name", "Training")) for day in compact_source[:duration]]
         if len(selected) >= duration:
             return selected[:duration]
-        fallback_domain = deepcopy(domain)
-        fallback_domain.pop("days", None)
-        while len(selected) < duration:
-            selected.insert(max(0, len(selected) - 1), _project_day(len(selected) + 1, domain.get("name", "Training")))
-        return selected[:duration]
+        # Longer than this course: continue with the rest of this course and the
+        # technology's other datasets before adding practice days.
+        # Saved client knowledge is never padded with catalog days; only its own days and practice days.
+        pool = [] if client_knowledge else [(index / max(1, len(curriculum)), day, "this course") for index, day in enumerate(curriculum)
+                                            if day not in compact_source] + _same_technology_pool(domain.get("name"))
+        return _plan_long_programme(selected, pool, duration, domain.get("name", "Training"))
 
     level_map = domain.get("level_map") or {}
     capstone_source = level_map.get("capstone") or []
@@ -570,10 +789,10 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
             ],
         },
         **({key: deepcopy(item[key]) for key in (
-            "deliverable", "assessment", "scenario", "delivery_steps", "delivery_basis",
+            "deliverable", "assessment", "scenario", "scenarios", "modules", "roadmap", "delivery_steps", "delivery_basis",
             "proposed_fields", "preparation_requirements", "acceptance_checks", "prerequisites",
             "source_urls", "review_status", "content_quality_stage", "content_enrichment_version",
-            "minutes", "duration_basis", "unresolved_questions") if key in item}
+            "minutes", "duration_basis", "unresolved_questions", "outline") if key in item}
            if topic_name == item.get("topic") else {}),
         "learning_objectives": (deepcopy(item.get("learning_objectives"))
             if topic_name == item.get("topic") and item.get("learning_objectives")
@@ -603,7 +822,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
     ])
     if preserve_content:
         for key in (
-            "lab", "lab_task", "deliverable", "assessment", "scenario",
+            "lab", "lab_task", "deliverable", "assessment", "scenario", "scenarios", "modules", "roadmap", "outline",
             "learning_objectives", "acceptance_checks", "prerequisites",
             "preparation_requirements", "delivery_steps", "minutes",
             "duration_basis", "delivery_basis", "source_urls", "review_status",
@@ -838,6 +1057,10 @@ def _enrich_programme_pack(toc: dict, audience_level: str = "", training_dates: 
         else:
             day["date"] = str(day.get("date") or "")
         day["category"] = _meaningful_category(day, index == duration - 1)
+        if day.get("assessment"):
+            # Authored and catalog days carry a day-specific assessment; do not
+            # replace it with the generic weekly wording.
+            continue
         if (index + 1) % 5 == 0 and index + 1 < duration:
             day["assessment"] = "Weekly knowledge check and scenario role-play"
         elif index == duration - 1:
@@ -862,6 +1085,7 @@ def _enrich_programme_pack(toc: dict, audience_level: str = "", training_dates: 
         "assessment_rule": "Every five delivery days end with evidence-based assessment and feedback.",
         "day_design_rule": "Every day contains concept learning, guided demonstration, practical activity, and a measurable outcome.",
     }
+    _check_level_depth(toc, _normalize_level(toc.get("level")))
     return toc
 
 
@@ -970,18 +1194,29 @@ def _advanced_track_items(technology: str, days: int) -> list:
     ]
 
 
-def _combined_track_items(technology: str, days: int, level: str, domain_override: dict = None) -> list:
+# Topic titles that only belong in a beginner track.
+_BEGINNER_TOPIC = re.compile(
+    r"\b(?:setup|set up|syntax|basics?|fundamentals?|foundations?|introduction|intro|orientation|getting started|overview|first steps)\b",
+    re.IGNORECASE,
+)
+
+
+def _combined_track_items(technology: str, days: int, level: str, domain_override: dict = None,
+                          course: dict = None, used_shared: set = None, taught_topics: set = None) -> list:
     """Return the delivery-ready track for a technology in a combined programme.
 
     The compact domain datasets are useful for a single-domain course, but a
     combined programme needs a level-specific integrated path. This prevents
     short allocations from restarting at orientation while omitting advanced
     platform, governance, security and operational work.
+
+    When the technology has a level course, days come from the requested level
+    first, followed by the hand-written integrated modules.
     """
     requested_days = max(1, int(days or 1))
     normalized_level = _normalize_level(level)
     if domain_override:
-        return _select_topics(deepcopy(domain_override), requested_days, normalized_level)
+        return _select_topics(deepcopy(domain_override), requested_days, normalized_level, client_knowledge=True)
     if normalized_level == "advanced":
         explicit = _advanced_track_items(technology, requested_days)
     elif normalized_level == "intermediate":
@@ -990,11 +1225,28 @@ def _combined_track_items(technology: str, days: int, level: str, domain_overrid
         explicit = []
     if len(explicit) >= requested_days:
         return explicit[:requested_days]
+    taught = {_base_topic(topic) for topic in (taught_topics or ())}
+    if course:
+        from app.level_curriculum import combined_track
+        level_days = combined_track(course, normalized_level, requested_days - len(explicit), used_shared,
+                                    exclude_topics=[item.get("topic") for item in explicit], taught_topics=taught)
+        if level_days is not None:
+            return [_standardize_compact_day_item(day, course["domain"]) for day in level_days] + explicit
 
     domain = deepcopy(domain_override) if domain_override else (get_domain(technology, requested_days) or _generic_domain(technology))
     fallback = _select_topics(domain, requested_days, normalized_level)
+    if domain.get("days"):
+        pool = [_standardize_compact_day_item(day, domain.get("name", technology)) for day in domain["days"]
+                if "capstone" not in str(day.get("topic") or "").lower()]
+        if normalized_level in {"intermediate", "advanced"}:
+            # Fill an intermediate or advanced allocation with later topics, not the course's opening days.
+            later = [item for item in pool if not _BEGINNER_TOPIC.search(str(item.get("topic") or ""))]
+            fallback = later + [item for item in fallback if _BEGINNER_TOPIC.search(str(item.get("topic") or ""))]
+        else:
+            # When the first days were already taught by another technology, continue with the next ones.
+            fallback = fallback + pool
     selected = list(explicit)
-    known_topics = {str(item.get("topic") or "").strip().lower() for item in selected}
+    known_topics = {str(item.get("topic") or "").strip().lower() for item in selected} | taught
     for item in fallback:
         name = str(item.get("topic") or "").strip().lower()
         if name and name not in known_topics:
@@ -1002,17 +1254,74 @@ def _combined_track_items(technology: str, days: int, level: str, domain_overrid
             known_topics.add(name)
         if len(selected) >= requested_days:
             break
+    # Continue after the highest sprint number already used, and apply a different
+    # taught topic each time (never an earlier practice day).
+    numbers = [int(match.group(1)) for item in selected
+               for match in [re.search(r"Project Sprint (\d+)", str(item.get("topic") or ""))] if match]
+    sprint = max(numbers, default=0) + 1
+    taught_so_far = [item.get("topic") for item in selected if item.get("content_origin") != "generated_project_day"
+                     and not re.search(r"Project Sprint \d+", str(item.get("topic") or ""))]
+    turn = 0
     while len(selected) < requested_days:
-        selected.append(_project_day(len(selected) + 1, technology))
+        topic = taught_so_far[-(turn % len(taught_so_far)) - 1] if taught_so_far else None
+        selected.append(_project_day(sprint, technology, [topic] if topic else []))
+        sprint += 1
+        turn += 1
+    # Number the practice days 1, 2, 3 ... in the order they are taught.
+    count = 0
+    for item in selected:
+        if item.get("content_origin") == "generated_project_day" and re.search(r"Project Sprint \d+", str(item.get("topic") or "")):
+            count += 1
+            item["topic"] = re.sub(r"Project Sprint \d+", f"Project Sprint {count}", item["topic"], count=1)
     return selected[:requested_days]
 
 
-def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str = "intermediate", mode: str = "Online", notes: str = "", domain_override: dict = None, audience_level: str = "", training_dates: str = "") -> dict:
+def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str = "intermediate", mode: str = "Online", notes: str = "", domain_override: dict = None, audience_level: str = "", training_dates: str = "", requested_topics: str = "") -> dict:
     duration = max(1, min(int(duration_days or 1), 100))
     level = _normalize_level(level)
-    matched_domain = deepcopy(domain_override) if domain_override else get_domain(domain_name, duration)
-    domain = matched_domain or _generic_domain(domain_name)
-    topics = _select_topics(domain, duration, level)
+    # Saved client knowledge wins. Then topics the client named, designed from
+    # every dataset for the technology. Otherwise the authored Beginner/
+    # Intermediate/Advanced course, instead of cutting one mixed course.
+    level_plan = topic_plan = None
+    named_topics, covered_by_plan = [], False
+    if not domain_override:
+        from app.level_curriculum import level_programme
+        level_plan = level_programme(domain_name, duration, level)
+    if not domain_override and str(requested_topics or "").strip():
+        from app.topic_planner import plan_requested_topics, requested_topic_list, uncovered_topics
+        named_topics = requested_topic_list(requested_topics, domain_name)
+        if named_topics:
+            # Keep the normal plan (the level course, or a curated plan such as the
+            # 10-day DevOps order) when it already teaches every named topic.
+            if level_plan:
+                normal_days = level_plan["days"]
+            else:
+                normal_source = get_domain(domain_name, duration)
+                normal_days = _select_topics(normal_source, duration, level) if normal_source else []
+            covered_by_plan = bool(normal_days) and not uncovered_topics(named_topics, normal_days)
+            if not covered_by_plan:
+                topic_plan = plan_requested_topics(domain_name, requested_topics, duration, level)
+                if topic_plan and not topic_plan["days"]:
+                    topic_plan = None
+                if topic_plan:
+                    level_plan = None
+    if topic_plan:
+        matched_domain = {"name": topic_plan["name"], "icon": "book", "days": topic_plan["days"],
+                          "jira_practice": {}, "certifications": topic_plan["certifications"]}
+        domain = matched_domain
+        topics = [_standardize_compact_day_item(day, domain["name"]) for day in topic_plan["days"]]
+        if len(topics) < duration:
+            topics = _plan_long_programme(topics, _same_technology_pool(domain["name"], domain_name), duration, domain["name"])
+    elif level_plan:
+        matched_domain = level_plan["domain"]
+        domain = matched_domain
+        topics = [_standardize_compact_day_item(day, domain["name"]) for day in level_plan["days"]]
+        if len(topics) < duration:
+            topics = _plan_long_programme(topics, _same_technology_pool(domain["name"], domain_name), duration, domain["name"])
+    else:
+        matched_domain = deepcopy(domain_override) if domain_override else get_domain(domain_name, duration)
+        domain = matched_domain or _generic_domain(domain_name)
+        topics = _select_topics(domain, duration, level, client_knowledge=bool(domain_override))
     days = [_day_entry(domain, item, index + 1, duration, notes) for index, item in enumerate(topics)]
     for day in days:
         _complete_generated_day_subtopics(day, str(domain.get("name") or domain_name))
@@ -1083,6 +1392,10 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
             "Track delivery using Agile/Jira practices",
             "Complete final capstone and certification roadmap review",
         ]
+    if level_plan:
+        # The authored level course states what learners need and achieve at this level.
+        prerequisites = list(level_plan["prerequisites"]) or prerequisites
+        learning_outcomes = list(level_plan["outcomes"]) or learning_outcomes
     course_name = str(domain.get("name") or "Training").strip() or "Training"
     # Dataset names such as "Python Mastery" already include the suffix.
     course_title = course_name if re.search(r"\bmastery$", course_name, re.IGNORECASE) else f"{course_name} Mastery"
@@ -1120,28 +1433,125 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         "certification_guidance": f"Recommended certification path: {', '.join(certs)}.",
         "trainer_notes": "Generated by the Training TOC Agent from the curriculum knowledge base. Gemini may be used only for optional wording polish.",
         "agent": {
-            "source": "admin_knowledge_base" if domain_override else "domain_dataset",
-            "domain_found": bool(domain_override or get_domain(domain_name, duration)),
+            "source": ("admin_knowledge_base" if domain_override else "requested_topics" if topic_plan
+                       else "level_dataset" if level_plan else "domain_dataset"),
+            "domain_found": bool(domain_override or topic_plan or level_plan or get_domain(domain_name, duration)),
             "requested_days": duration,
             "mode": mode,
             "level": level,
+            **({"levels_used": level_plan["levels_used"], "category": level_plan["category"]} if level_plan else {}),
         },
     }
+    if level_plan:
+        toc["category"] = level_plan["category"]
+        toc["review_warnings"] = [level_plan["review_warning"]]
+    drafted = [day["focus_area"] for item, day in zip(topics, days)
+               if any(isinstance(module, dict) and module.get("content_origin") == "model_draft_pending_technical_review"
+                      for module in item.get("modules") or [])]
+    if drafted:
+        _flag_for_review(toc, f"Modules on {len(drafted)} day(s) are model drafts pending technical review: "
+                              + "; ".join(drafted[:5]) + ("; ..." if len(drafted) > 5 else ""))
+    if covered_by_plan:
+        toc["topic_plan"] = {"requested": named_topics, "covered": {topic: [] for topic in named_topics},
+                             "missing": [], "not_scheduled": [], "level_notes": [],
+                             "basis": "The standard plan for this level already teaches every requested topic"}
+    if topic_plan:
+        toc["agent"]["levels_used"] = topic_plan["levels_used"]
+        toc["topic_plan"] = {key: topic_plan[key] for key in ("requested", "covered", "missing", "not_scheduled", "level_notes")}
+        for note in topic_plan["level_notes"]:
+            toc.setdefault("review_warnings", []).append(note)
+        if topic_plan["missing"]:
+            _flag_for_review(toc, "No dataset teaches these requested topics; add content or confirm with the client: "
+                                  + ", ".join(topic_plan["missing"]))
+        if topic_plan["not_scheduled"]:
+            _flag_for_review(toc, f"These requested topics did not fit in {duration} days; add days or drop other topics: "
+                                  + ", ".join(topic_plan["not_scheduled"]))
     toc['unsupported_curriculum'] = not bool(matched_domain)
+    # A practice day that landed on the final day becomes the capstone, so count the days as built.
+    practice_days = sum(item.get("content_origin") == "generated_project_day" and day["focus_area"] == item.get("topic")
+                        for item, day in zip(topics, days))
+    toc["practice_days"] = practice_days
+    if matched_domain and practice_days * 5 > duration:
+        # Shown on the TOC and in the export; it does not change the approval status.
+        note = (f"The datasets hold {duration - practice_days} days of distinct {domain.get('name')} content; "
+                f"{practice_days} of {duration} days are project practice days built on the topics taught. "
+                "Confirm the plan or add course content for this length.")
+        toc.setdefault("review_warnings", []).append(note)
+        toc.setdefault("quality", {}).setdefault("review_warnings", []).append(note)
+        if duration > 30 and practice_days * 2 > duration:
+            # A long programme that is mostly practice days is not a designed course.
+            _flag_for_review(toc, f"More than half of this {duration}-day programme is practice days; "
+                                  "review the plan with the trainer before delivery.")
     toc = _enrich_programme_pack(toc, audience_level, training_dates)
     result = validate_toc(toc, duration)
     return result
 
 
+# Categories whose capstone is a deployed system to operate (deploy, observe, roll back).
+_OPERATIONAL_CATEGORIES = {
+    "Cloud", "DevOps and CI/CD", "Observability and SRE", "Networking", "Cybersecurity and Identity",
+    "Backend, APIs and Web Servers", "Generative AI and Agents",
+}
+# One concrete capstone task per category, used when no authored capstone covers the request.
+_CAPSTONE_WORK = {
+    "Programming Languages": "Implement and unit-test the code that ties the solution together",
+    "Web and Full Stack Development": "Build the user interface and its API end to end",
+    "Backend, APIs and Web Servers": "Expose and secure the solution's APIs",
+    "Mobile Development": "Build and test the mobile client against the solution's API",
+    "Databases": "Design the data model, key queries and backup approach",
+    "Data Engineering and Analytics": "Build the pipeline from source data to report with data-quality checks",
+    "Data Science and Machine Learning": "Train, evaluate and compare models with documented metrics",
+    "Generative AI and Agents": "Ground, evaluate and guard the AI workflow",
+    "Cloud": "Deploy the solution on the requested cloud services",
+    "DevOps and CI/CD": "Automate build, test and deployment with a pipeline",
+    "Observability and SRE": "Instrument the solution and define alerts and service level objectives",
+    "Networking": "Design and verify the network path, DNS and access rules",
+    "Cybersecurity and Identity": "Threat-model the solution and verify its security controls",
+    "Testing and QA": "Run the automated functional, API and performance test suites and report results",
+    "Enterprise Platforms (ERP, CRM, ITSM)": "Configure one end-to-end business process across the platforms",
+    "Project Management": "Plan and track the capstone with a sprint board and status report",
+}
+
+
+def _base_topic(name) -> str:
+    """A day title without its "Technology: " prefix, for comparing topics across technologies."""
+    return re.sub(r"^[^:]{1,40}:\s*", "", str(name or "")).strip().lower()
+
+
+def _combined_sequence_warnings(days: list, day_levels: list) -> list:
+    """Problems a per-day check misses: the same topic under two technologies, and
+    beginner topics placed inside an intermediate or advanced track."""
+    warnings, seen = [], {}
+    for day in days:
+        base = _base_topic(day.get("focus_area"))
+        if base in seen:
+            warnings.append(f"Day {day.get('day')} repeats the topic of Day {seen[base]}: {day.get('focus_area')}")
+        else:
+            seen[base] = day.get("day")
+    for day, day_level in zip(days, day_levels):
+        if day_level in {"intermediate", "advanced"} and _BEGINNER_TOPIC.search(str(day.get("focus_area") or "")):
+            warnings.append(f"Day {day.get('day')} is a beginner topic inside an {day_level} track: {day.get('focus_area')}")
+    return warnings
+
+
 def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "intermediate", mode: str = "Online", notes: str = "", audience_level: str = "", training_dates: str = "", domain_overrides: dict = None) -> dict:
-    """Create one delivery-ready TOC from explicit per-technology day allocations."""
+    """Create one delivery-ready TOC from explicit per-technology day allocations.
+
+    Each allocation may set its own ``level`` (for example Python intermediate with
+    AWS beginner). Technologies with a level course use it; shared topics are taught
+    once; integration days are added when both technologies of a pair are requested.
+    """
+    from app.level_curriculum import canonical_name, combined_capstone, get_level_course, integration_days
     level = _normalize_level(level)
     normalized = []
     for allocation in allocations or []:
         name = str(allocation.get("technology") or allocation.get("domain") or "").strip()
         days = int(allocation.get("days") or 0)
         if name and days > 0:
-            normalized.append({"technology": name, "days": days})
+            entry = {"technology": name, "days": days}
+            if allocation.get("level"):
+                entry["level"] = _normalize_level(allocation["level"])
+            normalized.append(entry)
     if not normalized:
         raise ValueError("At least one technology allocation is required")
 
@@ -1150,63 +1560,147 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
     combined_name = " + ".join(names)
     domains = []
     combined_days = []
+    day_levels = []
     allocation_reasoning = []
     combined_tools = []
     day_number = 1
     domain_overrides = domain_overrides or {}
-    for allocation in normalized:
-        override = domain_overrides.get(allocation["technology"].strip().lower())
-        domain = deepcopy(override) if override else (get_domain(allocation["technology"], allocation["days"]) or _generic_domain(allocation["technology"]))
+    with_capstone = duration >= 5
+
+    # Integration days go at the end of the later technology's block, keeping at
+    # least two of that technology's own days and the final capstone slot.
+    canonical = [canonical_name(name).lower() for name in names]
+    hosted = [[] for _ in normalized]
+    for pair, integration_day in integration_days(canonical):
+        host = max(canonical.index(name.lower()) for name in pair)
+        reserve = 1 if with_capstone and host == len(normalized) - 1 else 0
+        if normalized[host]["days"] - reserve - (len(hosted[host]) + 1) >= 2:
+            hosted[host].append(_standardize_compact_day_item(integration_day, " + ".join(pair)))
+
+    used_shared = set()
+    for index, allocation in enumerate(normalized):
+        technology = allocation["technology"]
+        track_level = allocation.get("level") or level
+        override = domain_overrides.get(technology.strip().lower())
+        course = None if override else get_level_course(technology)
+        if override:
+            domain = deepcopy(override)
+        elif course:
+            domain = {"name": course["domain"], "icon": course.get("icon") or "book", "days": [],
+                      "certifications": list(course.get("certifications") or []),
+                      "tools": list(course.get("tools") or [])}
+        else:
+            domain = get_domain(technology, allocation["days"]) or _generic_domain(technology)
         domains.append(domain)
-        selected_items = _combined_track_items(allocation["technology"], allocation["days"], level, override)
-        if allocation["technology"].lower() != str(domain.get("name") or "").lower():
+        integrations = hosted[index]
+        selected_items = _combined_track_items(technology, allocation["days"] - len(integrations), track_level,
+                                               override, course=course, used_shared=used_shared,
+                                               taught_topics={_base_topic(day.get("focus_area")) for day in combined_days})
+        if technology.lower() != str(domain.get("name") or "").lower():
             for item in selected_items:
-                item["topic"] = f"{allocation['technology']}: {item.get('topic') or 'Core Concepts'}"
-        selected_topics = [str(item.get("topic") or "Training topic") for item in selected_items]
+                item["topic"] = f"{technology}: {item.get('topic') or 'Core Concepts'}"
+        elif course:
+            for item in selected_items:
+                if technology.lower() not in str(item.get("topic") or "").lower():
+                    item["topic"] = f"{technology}: {item.get('topic')}"
+        else:
+            # Practice days of two catalog technologies can apply topics with the same
+            # name; a short technology label keeps every day title unique.
+            label = re.split(r"\s+(?:–|â€“|-)\s+", technology)[0].strip() or technology
+            for item in selected_items:
+                if item.get("content_origin") == "generated_project_day" and not str(item.get("topic") or "").startswith(label):
+                    item["topic"] = f"{label}: {item.get('topic')}"
+        if with_capstone and index == len(normalized) - 1 and selected_items:
+            # The last day is replaced by the programme capstone, so integration days go before it.
+            block = selected_items[:-1] + integrations + selected_items[-1:]
+        else:
+            block = selected_items + integrations
         allocation_reasoning.append({
-            "technology": allocation["technology"],
+            "technology": technology,
             "allocated_days": allocation["days"],
-            "selection_rule": f"Selected from the {str(level or 'beginner').lower()} depth band while preserving curriculum prerequisite order.",
-            "selected_topics": selected_topics,
+            "level": track_level,
+            "source": "admin_knowledge_base" if override else "level_dataset" if course else "domain_dataset",
+            "selection_rule": (f"Selected from the {track_level} level course, continuing into the next level only when more days are needed."
+                               if course else f"Selected from the {track_level} depth band while preserving curriculum prerequisite order."),
+            "selected_topics": [str(item.get("topic") or "Training topic") for item in block],
+            "integration_days": [str(item.get("topic")) for item in integrations],
             "day_range": f"Day {day_number}-Day {day_number + allocation['days'] - 1}",
         })
-        for item in selected_items:
+        for item in block:
             day_entry = _day_entry(domain, item, day_number, duration, notes)
-            _complete_generated_day_subtopics(day_entry, allocation["technology"])
+            _complete_generated_day_subtopics(day_entry, technology)
             combined_days.append(day_entry)
+            day_levels.append(None if any(item is extra for extra in integrations) else track_level)
             for tool in item.get("tools") or []:
                 if tool not in combined_tools:
                     combined_tools.append(tool)
             day_number += 1
 
-    if duration >= 5 and combined_days:
-        final_source = combined_days[-1].get("content_quality_stage") or combined_days[-1].get("content_enrichment_version")
+    authored_capstone = None
+    if with_capstone and combined_days and len(normalized) >= 2 and not domain_overrides.get(names[-1].strip().lower()):
+        authored_capstone = combined_capstone(canonical)
+    if authored_capstone:
+        combined_days[-1] = _day_entry(domains[-1], _standardize_compact_day_item(authored_capstone, combined_name),
+                                       duration, duration, notes)
+        day_levels[-1] = None
+    elif with_capstone and combined_days:
+        final_version = str(combined_days[-1].get("content_enrichment_version") or "")
+        # Only a manually authored final module (or saved client knowledge) keeps its
+        # content. Catalog days carry an enrichment version too, but they are regular
+        # modules, so the programme still ends with an integrated capstone.
+        final_source = (domain_overrides.get(names[-1].strip().lower())
+                        or (combined_days[-1].get("content_quality_stage") and not final_version.startswith("level-curriculum")))
         if not final_source:
+            # Rebuild a clean final day so the capstone does not keep the replaced
+            # module's deliverable, checks and delivery steps.
+            combined_days[-1] = _day_entry(domains[-1], {"topic": f"Integrated {combined_name} Capstone",
+                                                         "subtopics": [], "tools": names, "lab": "Integrated capstone"},
+                                           duration, duration, notes)
             # Authored final-day modules retain their source topic and content.
             # Generated tracks receive a synthesized integrated capstone.
             includes_agentic_ai = any(
                 re.search(r"\b(?:agentic\s*ai|llmops|ai\s+agents?)\b", name, re.I)
                 for name in names
             )
+            from app.level_curriculum import category_for
+            categories = list(dict.fromkeys(filter(None, (category_for(name) for name in names))))
+            operational = not categories or any(category in _OPERATIONAL_CATEGORIES for category in categories)
             final_day = combined_days[-1]
             final_day["title"] = f"Day {duration}: Integrated Capstone - {combined_name}"
             final_day["focus_area"] = f"Integrated {combined_name} Capstone"
-            final_day["subtopics"] = [
-                "Integrate the requested technologies into one delivery workflow",
-                "Validate logs, deployment status, alerts and remediation recommendations",
-                "Apply secure identity, secrets handling, policy checks and approval gates",
-                ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
-                 if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
-                "Demonstrate rollback, incident triage and recovery decisions",
-                "Present the solution architecture, evidence and operational trade-offs",
-            ]
-            final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
+            category_work = [_CAPSTONE_WORK[category] for category in categories if category in _CAPSTONE_WORK][:3]
+            if operational:
+                final_day["subtopics"] = [
+                    "Integrate the requested technologies into one delivery workflow",
+                    *category_work,
+                    "Validate logs, deployment status, alerts and remediation recommendations",
+                    "Apply secure identity, secrets handling, policy checks and approval gates",
+                    ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
+                     if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
+                    "Demonstrate rollback, incident triage and recovery decisions",
+                    "Present the solution architecture, evidence and operational trade-offs",
+                ]
+                final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
+            else:
+                # Data, ML, testing, enterprise-platform or language programmes are not
+                # deployments to operate; their capstone is an integrated build and review.
+                final_day["subtopics"] = [
+                    f"Integrate {combined_name} into one end-to-end solution",
+                    *category_work,
+                    "Verify acceptance criteria, automated checks and delivery evidence",
+                    "Present the solution design, evidence and trade-offs",
+                ]
+                final_day["lab"] = f"Build, test and demonstrate one integrated {combined_name} solution against a written client scenario"
             final_day["tools"] = " + ".join(combined_tools or names)
             final_day["learning_objectives"] = [
                 "Integrate the requested technologies into one production-oriented delivery workflow",
                 ("Validate deployment, observability, security controls, LLMOps evaluation gates and AI-agent guardrails using evidence"
                  if includes_agentic_ai else "Validate deployment, observability and security controls using test evidence"),
                 "Explain design, rollback and incident-response decisions to stakeholders",
+            ] if operational else [
+                f"Combine {combined_name} skills in one end-to-end solution",
+                "Verify the solution against written acceptance criteria",
+                "Explain design decisions and trade-offs to stakeholders",
             ]
             final_day["morning_session"]["title"] = "Integrated Capstone - Design and Demonstration"
             final_day["afternoon_session"]["title"] = "Integrated Capstone - Hands-on"
@@ -1242,7 +1736,8 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
             "allocation_rule": "Use the exact day allocation provided for each requested technology; never borrow days from another technology.",
             "sequence_rule": "Teach prerequisites and foundations before configuration, implementation, troubleshooting, and integrated practice.",
             "day_design_rule": "Each day includes explanation, demonstration, guided hands-on work, lab evidence, and a knowledge check.",
-            "integration_rule": "Keep technology modules distinct while connecting them through the final integrated learning outcome.",
+            "integration_rule": "Keep technology modules distinct, add integration days when both technologies of a pair are requested, and finish with one capstone that uses every technology.",
+            "shared_topic_rule": "A topic shared by several technologies, such as cloud computing concepts, is taught once by the first technology that covers it.",
             "technology_reasoning": allocation_reasoning,
         },
     })
@@ -1250,10 +1745,37 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
         toc.setdefault("agent", {})["source"] = "admin_knowledge_base"
     toc['unsupported_curriculum'] = any(
         not domain_overrides.get(item['technology'].strip().lower())
+        and not get_level_course(item['technology'])
         and not get_domain(item['technology'], item['days'])
         for item in normalized
     )
-    toc["quality"] = {"status": "approved", "checks": ["Explicit technology allocations", "Level-specific modules", "Integrated capstone"]}
+    sequence_warnings = _combined_sequence_warnings(combined_days, day_levels)
+    toc["quality"] = {
+        "status": "requires_review" if sequence_warnings else "approved",
+        "checks": ["Explicit technology allocations", "Level-specific modules", "Integrated capstone",
+                   "No topic repeated across technologies", "No beginner topics inside intermediate or advanced tracks"],
+        **({"review_warnings": sequence_warnings} if sequence_warnings else {}),
+    }
+    # The throwaway single-name TOC above has its own practice-day count and note; replace them
+    # with the combined programme's own.
+    toc.pop("topic_plan", None)
+    toc["review_warnings"] = [w for w in toc.get("review_warnings") or [] if "project practice days" not in w]
+    practice = sum(bool(re.search(r"\bProject Sprint \d+:", str(day.get("focus_area") or ""))) for day in combined_days)
+    toc["practice_days"] = practice
+    if practice * 5 > duration:
+        toc["review_warnings"].append(f"{practice} of {duration} days are project practice days because the datasets "
+                                      "for these technologies hold less distinct content than the allocation.")
+    drafted = [day.get("focus_area") for day in combined_days
+               if any(isinstance(module, dict) and module.get("content_origin") == "model_draft_pending_technical_review"
+                      for module in day.get("modules") or [])]
+    if drafted:
+        _flag_for_review(toc, f"Modules on {len(drafted)} day(s) are model drafts pending technical review: "
+                              + "; ".join(map(str, drafted[:5])) + ("; ..." if len(drafted) > 5 else ""))
+    if any(entry["source"] == "level_dataset" for entry in allocation_reasoning):
+        from app.level_curriculum import REVIEW_WARNING
+        toc["review_warnings"] = list(dict.fromkeys([REVIEW_WARNING, *toc["review_warnings"]]))
+    if not toc["review_warnings"]:
+        toc.pop("review_warnings")
     toc = _enrich_programme_pack(toc, audience_level, training_dates)
     toc = validate_toc(toc, duration)
     return toc

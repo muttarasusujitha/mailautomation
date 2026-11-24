@@ -1,0 +1,3371 @@
+{
+  "domain": "Java Full Stack",
+  "name": "Java Full Stack",
+  "icon": "code",
+  "program_title": "Java Full Stack Development Mastery",
+  "level": "Intermediate",
+  "mode": "Online",
+  "aliases": [
+    "Java Full Stack",
+    "Java Fullstack",
+    "Java Full Stack Development",
+    "Java Full Stack Developer",
+    "Spring Boot Full Stack",
+    "Java React Full Stack",
+    "Java Angular Full Stack",
+    "Java Microservices Full Stack"
+  ],
+  "tools": [
+    "Java",
+    "IntelliJ IDEA",
+    "Spring Boot",
+    "Maven",
+    "Git",
+    "MySQL",
+    "Postman",
+    "React",
+    "Node.js",
+    "Docker",
+    "Jira"
+  ],
+  "certifications": [
+    "Oracle Certified Professional Java SE",
+    "VMware Spring Professional",
+    "AWS Certified Developer - Associate",
+    "Docker Certified Associate"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Java Full Stack Architecture and Development Setup",
+      "subtopics": [
+        "Layers: React client, Spring Boot API, relational database",
+        "Request flow from browser to database and back",
+        "Monolith first, services later",
+        "Environments: local, test, production",
+        "JDK 21 and SDKMAN",
+        "IntelliJ IDEA or VS Code with Java extensions",
+        "Maven project structure: src/main, src/test, pom.xml",
+        "Node.js and npm for the frontend",
+        "Git branching and pull requests",
+        "Jira board for stories and tasks"
+      ],
+      "tools": [
+        "Java",
+        "IntelliJ IDEA",
+        "Maven",
+        "Git"
+      ],
+      "jira_focus": "Create epics and stories for a full stack product",
+      "lab_task": "Project Skeleton: Install the JDK, Maven and Node.js; Generate a Spring Boot project with Spring Initializr; Create a React app with Vite; Push both to one Git repository with a README; Set up a Jira board with the first stories.",
+      "deliverable": "Repository with backend and frontend folders; Running backend and frontend on a laptop; Jira board",
+      "assessment": "Participants explain how a request travels through the three layers of their skeleton.",
+      "learning_objectives": [
+        "Describe the layers of a Java full stack application.",
+        "Set up a working Java and React development environment.",
+        "Organise work with Git and Jira."
+      ],
+      "scenario": "The team starts a new employee-management application from an empty repository.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up a Java workspace, Maven project, Git repository, and Jira board",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Full Stack Architecture; Developer Workstation; Team Workflow",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Project Skeleton: The team starts a new employee-management application from an empty repository.",
+          "evidence": "Repository with backend and frontend folders; Running backend and frontend on a laptop; Jira board"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Run mvn test on a clean checkout – The build passes. Start both applications – The React page calls the API health endpoint. Open the Jira board – Each story has acceptance criteria.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "full stack architecture",
+          "JDK",
+          "IDE setup",
+          "Maven",
+          "Git workflow",
+          "Agile delivery"
+        ],
+        "lab_task": "Set up a Java workspace, Maven project, Git repository, and Jira board",
+        "scenario": "Demonstrate 'Java Full Stack Architecture and Development Setup' on a prepared training sample through this task: Set up a Java workspace, Maven project, Git repository, and Jira board.",
+        "deliverable": "Participant submission for 'Java Full Stack Architecture and Development Setup': Set up a Java workspace, Maven project, Git repository, and Jira board. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Set up a Java workspace, Maven project, Git repository, and Jira board.",
+          "Explain how the lab applies Java Full Stack Architecture and Development Setup and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Set up a Java workspace, Maven project, Git repository, and Jira board. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (full stack architecture; JDK; IDE setup; Maven; Git workflow; Agile delivery). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (full stack architecture; JDK; IDE setup; Maven; Git workflow; Agile delivery) and demonstrate the starting sample for: Set up a Java workspace, Maven project, Git repository, and Jira board",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Set up a Java workspace, Maven project, Git repository, and Jira board",
+            "evidence": "Participant submission for 'Java Full Stack Architecture and Development Setup': Set up a Java workspace, Maven project, Git repository, and Jira board. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Set up a Java workspace, Maven project, Git repository, and Jira board' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Set up a Java workspace, Maven project, Git repository, and Jira board. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (full stack architecture; JDK; IDE setup; Maven; Git workflow; Agile delivery). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Run mvn test on a clean checkout",
+          "expected_result": "The build passes.",
+          "evidence": "Maven output"
+        },
+        {
+          "input_or_condition": "Start both applications",
+          "expected_result": "The React page calls the API health endpoint.",
+          "evidence": "Browser network tab"
+        },
+        {
+          "input_or_condition": "Open the Jira board",
+          "expected_result": "Each story has acceptance criteria.",
+          "evidence": "Board view"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Full Stack Architecture",
+            "lead": "",
+            "items": [
+              {
+                "text": "Layers:",
+                "children": [
+                  "React client",
+                  "Spring Boot API",
+                  "relational database"
+                ]
+              },
+              {
+                "text": "Request flow from browser to database and back",
+                "children": []
+              },
+              {
+                "text": "Monolith first, services later",
+                "children": []
+              },
+              {
+                "text": "Environments:",
+                "children": [
+                  "local",
+                  "test",
+                  "production"
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Developer Workstation",
+            "lead": "",
+            "items": [
+              {
+                "text": "JDK 21 and SDKMAN",
+                "children": []
+              },
+              {
+                "text": "IntelliJ IDEA or VS Code with Java extensions",
+                "children": []
+              },
+              {
+                "text": "Maven project structure:",
+                "children": [
+                  "src/main",
+                  "src/test",
+                  "pom.xml"
+                ]
+              },
+              {
+                "text": "Node.js and npm for the frontend",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Team Workflow",
+            "lead": "",
+            "items": [
+              {
+                "text": "Git branching and pull requests",
+                "children": []
+              },
+              {
+                "text": "Jira board for stories and tasks",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Project Skeleton",
+          "scenario": "The team starts a new employee-management application from an empty repository.",
+          "lead": "Participants:",
+          "tasks": [
+            "Install the JDK, Maven and Node.js",
+            "Generate a Spring Boot project with Spring Initializr",
+            "Create a React app with Vite",
+            "Push both to one Git repository with a README",
+            "Set up a Jira board with the first stories"
+          ],
+          "verify": [
+            "Run mvn test on a clean checkout – The build passes.",
+            "Start both applications – The React page calls the API health endpoint.",
+            "Open the Jira board – Each story has acceptance criteria."
+          ],
+          "deliverables": [
+            "Repository with backend and frontend folders",
+            "Running backend and frontend on a laptop",
+            "Jira board"
+          ]
+        },
+        "assessment": "Participants explain how a request travels through the three layers of their skeleton.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 2,
+      "topic": "Core Java Fundamentals",
+      "subtopics": [
+        "Program structure: classes, main method, packages",
+        "Primitive types and String",
+        "Operators and type casting",
+        "var and type inference",
+        "if, switch expressions",
+        "for, enhanced for, while loops",
+        "break and continue",
+        "Methods, parameters and return values",
+        "Method overloading",
+        "Arrays and multi-dimensional arrays",
+        "Reading input with Scanner"
+      ],
+      "tools": [
+        "Java",
+        "IntelliJ IDEA"
+      ],
+      "jira_focus": "Track foundational coding tasks",
+      "lab_task": "Payroll Calculator: Reads employee hours and rates; Calculates overtime above 40 hours at 1.5 times the rate; Stores results in an array; Prints a formatted pay summary; Rejects negative or non-numeric input.",
+      "deliverable": "PayrollCalculator.java; Sample input and output",
+      "assessment": "Participants extend the calculator with a tax rule and explain each method they added.",
+      "learning_objectives": [
+        "Write Java programs with variables, operators and control flow.",
+        "Structure code into methods.",
+        "Process data with arrays and validate input."
+      ],
+      "scenario": "HR calculates monthly pay in a spreadsheet and makes mistakes on overtime.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build console applications using conditions, loops, arrays, and methods",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Language Basics; Control Flow; Methods and Arrays",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Payroll Calculator: HR calculates monthly pay in a spreadsheet and makes mistakes on overtime.",
+          "evidence": "PayrollCalculator.java; Sample input and output"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Enter 45 hours at 100 per hour – Pay is 4,750. Enter -5 hours – The program rejects the value and asks again. Enter 40 hours – No overtime is added.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "variables",
+          "data types",
+          "operators",
+          "control flow",
+          "methods",
+          "arrays"
+        ],
+        "lab_task": "Build console applications using conditions, loops, arrays, and methods",
+        "scenario": "Demonstrate 'Core Java Fundamentals' on a prepared training sample through this task: Build console applications using conditions, loops, arrays, and methods.",
+        "deliverable": "Participant submission for 'Core Java Fundamentals': Build console applications using conditions, loops, arrays, and methods. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Build console applications using conditions, loops, arrays, and methods.",
+          "Explain how the lab applies Core Java Fundamentals and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Build console applications using conditions, loops, arrays, and methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; data types; operators; control flow; methods; arrays). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (variables; data types; operators; control flow; methods; arrays) and demonstrate the starting sample for: Build console applications using conditions, loops, arrays, and methods",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Build console applications using conditions, loops, arrays, and methods",
+            "evidence": "Participant submission for 'Core Java Fundamentals': Build console applications using conditions, loops, arrays, and methods. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Build console applications using conditions, loops, arrays, and methods' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Build console applications using conditions, loops, arrays, and methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; data types; operators; control flow; methods; arrays). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Enter 45 hours at 100 per hour",
+          "expected_result": "Pay is 4,750.",
+          "evidence": "Program output"
+        },
+        {
+          "input_or_condition": "Enter -5 hours",
+          "expected_result": "The program rejects the value and asks again.",
+          "evidence": "Program output"
+        },
+        {
+          "input_or_condition": "Enter 40 hours",
+          "expected_result": "No overtime is added.",
+          "evidence": "Program output"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Language Basics",
+            "lead": "",
+            "items": [
+              {
+                "text": "Program structure:",
+                "children": [
+                  "classes",
+                  "main method",
+                  "packages"
+                ]
+              },
+              {
+                "text": "Primitive types and String",
+                "children": []
+              },
+              {
+                "text": "Operators and type casting",
+                "children": []
+              },
+              {
+                "text": "var and type inference",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Control Flow",
+            "lead": "",
+            "items": [
+              {
+                "text": "if, switch expressions",
+                "children": []
+              },
+              {
+                "text": "for, enhanced for, while loops",
+                "children": []
+              },
+              {
+                "text": "break and continue",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Methods and Arrays",
+            "lead": "",
+            "items": [
+              {
+                "text": "Methods, parameters and return values",
+                "children": []
+              },
+              {
+                "text": "Method overloading",
+                "children": []
+              },
+              {
+                "text": "Arrays and multi-dimensional arrays",
+                "children": []
+              },
+              {
+                "text": "Reading input with Scanner",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Payroll Calculator",
+          "scenario": "HR calculates monthly pay in a spreadsheet and makes mistakes on overtime.",
+          "lead": "Participants write a console program that:",
+          "tasks": [
+            "Reads employee hours and rates",
+            "Calculates overtime above 40 hours at 1.5 times the rate",
+            "Stores results in an array",
+            "Prints a formatted pay summary",
+            "Rejects negative or non-numeric input"
+          ],
+          "verify": [
+            "Enter 45 hours at 100 per hour – Pay is 4,750.",
+            "Enter -5 hours – The program rejects the value and asks again.",
+            "Enter 40 hours – No overtime is added."
+          ],
+          "deliverables": [
+            "PayrollCalculator.java",
+            "Sample input and output"
+          ]
+        },
+        "assessment": "Participants extend the calculator with a tax rule and explain each method they added.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 3,
+      "topic": "Object-Oriented Java",
+      "subtopics": [
+        "Fields, constructors and methods",
+        "Encapsulation with private fields and getters",
+        "static members",
+        "Records for simple data",
+        "extends and super",
+        "Method overriding and @Override",
+        "Abstract classes",
+        "Interfaces and default methods",
+        "Composition over inheritance",
+        "equals, hashCode and toString",
+        "SOLID principles: single responsibility, open/closed"
+      ],
+      "tools": [
+        "Java",
+        "JUnit"
+      ],
+      "jira_focus": "Review OOP design tasks and test evidence",
+      "lab_task": "Banking Domain Model: Model Account as an abstract class with SavingsAccount and CurrentAccount; Enforce a minimum balance on savings accounts; Allow an overdraft limit on current accounts; Add an InterestBearing interface; Process a list of accounts polymorphically.",
+      "deliverable": "Domain classes; Main program showing deposits, withdrawals and interest; Class diagram",
+      "assessment": "Participants add a fixed-deposit account without changing existing classes and explain how.",
+      "learning_objectives": [
+        "Design classes with encapsulation.",
+        "Use inheritance, abstract classes and interfaces correctly.",
+        "Apply polymorphism to process related objects."
+      ],
+      "scenario": "A bank needs savings and current accounts with different rules for withdrawals and interest.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model a banking or employee-management domain using OOP principles",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Classes and Objects; Inheritance and Polymorphism; Design",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Banking Domain Model: A bank needs savings and current accounts with different rules for withdrawals and interest.",
+          "evidence": "Domain classes; Main program showing deposits, withdrawals and interest; Class diagram"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Withdraw below the savings minimum balance – The withdrawal is refused. Withdraw within the current account overdraft – The withdrawal succeeds. Read the class fields – No field is public.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "classes",
+          "objects",
+          "inheritance",
+          "polymorphism",
+          "abstraction",
+          "encapsulation"
+        ],
+        "lab_task": "Model a banking or employee-management domain using OOP principles",
+        "scenario": "Demonstrate 'Object-Oriented Java' on a prepared training sample through this task: Model a banking or employee-management domain using OOP principles.",
+        "deliverable": "Participant submission for 'Object-Oriented Java': Model a banking or employee-management domain using OOP principles. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Model a banking or employee-management domain using OOP principles.",
+          "Explain how the lab applies Object-Oriented Java and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Model a banking or employee-management domain using OOP principles. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes; objects; inheritance; polymorphism; abstraction; encapsulation). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (classes; objects; inheritance; polymorphism; abstraction; encapsulation) and demonstrate the starting sample for: Model a banking or employee-management domain using OOP principles",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Model a banking or employee-management domain using OOP principles",
+            "evidence": "Participant submission for 'Object-Oriented Java': Model a banking or employee-management domain using OOP principles. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Model a banking or employee-management domain using OOP principles' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Model a banking or employee-management domain using OOP principles. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes; objects; inheritance; polymorphism; abstraction; encapsulation). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Withdraw below the savings minimum balance",
+          "expected_result": "The withdrawal is refused.",
+          "evidence": "Program output"
+        },
+        {
+          "input_or_condition": "Withdraw within the current account overdraft",
+          "expected_result": "The withdrawal succeeds.",
+          "evidence": "Program output"
+        },
+        {
+          "input_or_condition": "Read the class fields",
+          "expected_result": "No field is public.",
+          "evidence": "Source code"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Classes and Objects",
+            "lead": "",
+            "items": [
+              {
+                "text": "Fields, constructors and methods",
+                "children": []
+              },
+              {
+                "text": "Encapsulation with private fields and getters",
+                "children": []
+              },
+              {
+                "text": "static members",
+                "children": []
+              },
+              {
+                "text": "Records for simple data",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Inheritance and Polymorphism",
+            "lead": "",
+            "items": [
+              {
+                "text": "extends and super",
+                "children": []
+              },
+              {
+                "text": "Method overriding and @Override",
+                "children": []
+              },
+              {
+                "text": "Abstract classes",
+                "children": []
+              },
+              {
+                "text": "Interfaces and default methods",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Design",
+            "lead": "",
+            "items": [
+              {
+                "text": "Composition over inheritance",
+                "children": []
+              },
+              {
+                "text": "equals, hashCode and toString",
+                "children": []
+              },
+              {
+                "text": "SOLID principles: single responsibility, open/closed",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Banking Domain Model",
+          "scenario": "A bank needs savings and current accounts with different rules for withdrawals and interest.",
+          "lead": "Participants:",
+          "tasks": [
+            "Model Account as an abstract class with SavingsAccount and CurrentAccount",
+            "Enforce a minimum balance on savings accounts",
+            "Allow an overdraft limit on current accounts",
+            "Add an InterestBearing interface",
+            "Process a list of accounts polymorphically"
+          ],
+          "verify": [
+            "Withdraw below the savings minimum balance – The withdrawal is refused.",
+            "Withdraw within the current account overdraft – The withdrawal succeeds.",
+            "Read the class fields – No field is public."
+          ],
+          "deliverables": [
+            "Domain classes",
+            "Main program showing deposits, withdrawals and interest",
+            "Class diagram"
+          ]
+        },
+        "assessment": "Participants add a fixed-deposit account without changing existing classes and explain how.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 4,
+      "topic": "Collections, Exception Handling and Java 8 Features",
+      "subtopics": [
+        "List: ArrayList and LinkedList",
+        "Set: HashSet and TreeSet",
+        "Map: HashMap and TreeMap",
+        "Generics and type safety",
+        "Checked versus unchecked exceptions",
+        "try, catch, finally and try-with-resources",
+        "Custom exceptions",
+        "Lambda expressions and method references",
+        "Streams: filter, map, sorted, collect",
+        "Optional instead of null",
+        "Collectors.groupingBy"
+      ],
+      "tools": [
+        "Java",
+        "JUnit"
+      ],
+      "jira_focus": "Create quality tasks for error handling and test coverage",
+      "lab_task": "Product Catalogue Clean-up: Read the CSV with try-with-resources; Throw a custom InvalidProductException for bad rows; Remove duplicates by product code; Group valid products by category with streams; Report the top five products by price.",
+      "deliverable": "ProductProcessor.java; Error report of rejected rows; Category summary",
+      "assessment": "Participants rewrite one loop-based method with streams and compare readability.",
+      "learning_objectives": [
+        "Choose the right collection for a task.",
+        "Handle errors with checked, unchecked and custom exceptions.",
+        "Transform data with lambdas and streams."
+      ],
+      "scenario": "A product CSV file contains duplicates, missing prices and invalid categories.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Process and validate product data using collections, streams, and exception handling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Collections Framework; Exceptions; Functional Java",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Product Catalogue Clean-up: A product CSV file contains duplicates, missing prices and invalid categories.",
+          "evidence": "ProductProcessor.java; Error report of rejected rows; Category summary"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Process a row with no price – It is rejected with a clear reason. Process the file twice – The summary is identical. Include a duplicate product code – It appears only once in the summary.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "List",
+          "Set",
+          "Map",
+          "generics",
+          "exceptions",
+          "streams",
+          "lambda expressions"
+        ],
+        "lab_task": "Process and validate product data using collections, streams, and exception handling",
+        "scenario": "Demonstrate 'Collections, Exception Handling and Java 8 Features' on a prepared training sample through this task: Process and validate product data using collections, streams, and exception handling.",
+        "deliverable": "Participant submission for 'Collections, Exception Handling and Java 8 Features': Process and validate product data using collections, streams, and exception handling. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Process and validate product data using collections, streams, and exception handling.",
+          "Explain how the lab applies Collections, Exception Handling and Java 8 Features and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Process and validate product data using collections, streams, and exception handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (List; Set; Map; generics; exceptions; streams; lambda expressions). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (List; Set; Map; generics; exceptions; streams; lambda expressions) and demonstrate the starting sample for: Process and validate product data using collections, streams, and exception handling",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Process and validate product data using collections, streams, and exception handling",
+            "evidence": "Participant submission for 'Collections, Exception Handling and Java 8 Features': Process and validate product data using collections, streams, and exception handling. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Process and validate product data using collections, streams, and exception handling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Process and validate product data using collections, streams, and exception handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (List; Set; Map; generics; exceptions; streams; lambda expressions). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Process a row with no price",
+          "expected_result": "It is rejected with a clear reason.",
+          "evidence": "Error report"
+        },
+        {
+          "input_or_condition": "Process the file twice",
+          "expected_result": "The summary is identical.",
+          "evidence": "Output comparison"
+        },
+        {
+          "input_or_condition": "Include a duplicate product code",
+          "expected_result": "It appears only once in the summary.",
+          "evidence": "Category summary"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Collections Framework",
+            "lead": "",
+            "items": [
+              {
+                "text": "List: ArrayList and LinkedList",
+                "children": []
+              },
+              {
+                "text": "Set: HashSet and TreeSet",
+                "children": []
+              },
+              {
+                "text": "Map: HashMap and TreeMap",
+                "children": []
+              },
+              {
+                "text": "Generics and type safety",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Exceptions",
+            "lead": "",
+            "items": [
+              {
+                "text": "Checked versus unchecked exceptions",
+                "children": []
+              },
+              {
+                "text": "try, catch, finally and try-with-resources",
+                "children": []
+              },
+              {
+                "text": "Custom exceptions",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Functional Java",
+            "lead": "",
+            "items": [
+              {
+                "text": "Lambda expressions and method references",
+                "children": []
+              },
+              {
+                "text": "Streams:",
+                "children": [
+                  "filter",
+                  "map",
+                  "sorted",
+                  "collect"
+                ]
+              },
+              {
+                "text": "Optional instead of null",
+                "children": []
+              },
+              {
+                "text": "Collectors.groupingBy",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Product Catalogue Clean-up",
+          "scenario": "A product CSV file contains duplicates, missing prices and invalid categories.",
+          "lead": "Participants:",
+          "tasks": [
+            "Read the CSV with try-with-resources",
+            "Throw a custom InvalidProductException for bad rows",
+            "Remove duplicates by product code",
+            "Group valid products by category with streams",
+            "Report the top five products by price"
+          ],
+          "verify": [
+            "Process a row with no price – It is rejected with a clear reason.",
+            "Process the file twice – The summary is identical.",
+            "Include a duplicate product code – It appears only once in the summary."
+          ],
+          "deliverables": [
+            "ProductProcessor.java",
+            "Error report of rejected rows",
+            "Category summary"
+          ]
+        },
+        "assessment": "Participants rewrite one loop-based method with streams and compare readability.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 5,
+      "topic": "SQL and Relational Database Design",
+      "subtopics": [
+        "Entities, attributes and relationships",
+        "ER diagrams",
+        "Normalisation to third normal form",
+        "Primary and foreign keys",
+        "DDL: CREATE, ALTER, constraints",
+        "DML: INSERT, UPDATE, DELETE",
+        "Joins: inner, left, self",
+        "GROUP BY, HAVING and subqueries",
+        "Transactions and ACID",
+        "Indexes and execution plans"
+      ],
+      "tools": [
+        "MySQL",
+        "MySQL Workbench"
+      ],
+      "jira_focus": "Map database schema tasks to user stories",
+      "lab_task": "Employee Database: Draw the ER diagram; Create tables with keys and constraints in MySQL; Load sample data; Write join and aggregate queries for HR reports; Approve a leave request inside a transaction.",
+      "deliverable": "ER diagram; schema.sql and data.sql; Report queries with results",
+      "assessment": "Participants write a new report query from a business question and explain the joins.",
+      "learning_objectives": [
+        "Design a normalised relational schema.",
+        "Write SQL for CRUD, joins and reports.",
+        "Use transactions and indexes correctly."
+      ],
+      "scenario": "The employee-management application needs a database for departments, employees and leave requests.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a schema and write CRUD, join, and transaction queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Data Modelling; SQL; Integrity and Performance",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Employee Database: The employee-management application needs a database for departments, employees and leave requests.",
+          "evidence": "ER diagram; schema.sql and data.sql; Report queries with results"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Insert an employee with an unknown department – The foreign key rejects it. Fail the transaction halfway – No partial update remains. Run the report query with EXPLAIN – It uses the index.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "ER modeling",
+          "DDL",
+          "DML",
+          "joins",
+          "normalization",
+          "indexes",
+          "transactions"
+        ],
+        "lab_task": "Design a schema and write CRUD, join, and transaction queries",
+        "scenario": "Demonstrate 'SQL and Relational Database Design' on a prepared training sample through this task: Design a schema and write CRUD, join, and transaction queries.",
+        "deliverable": "Participant submission for 'SQL and Relational Database Design': Design a schema and write CRUD, join, and transaction queries. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Design a schema and write CRUD, join, and transaction queries.",
+          "Explain how the lab applies SQL and Relational Database Design and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Design a schema and write CRUD, join, and transaction queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ER modeling; DDL; DML; joins; normalization; indexes; transactions). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (ER modeling; DDL; DML; joins; normalization; indexes; transactions) and demonstrate the starting sample for: Design a schema and write CRUD, join, and transaction queries",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Design a schema and write CRUD, join, and transaction queries",
+            "evidence": "Participant submission for 'SQL and Relational Database Design': Design a schema and write CRUD, join, and transaction queries. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Design a schema and write CRUD, join, and transaction queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Design a schema and write CRUD, join, and transaction queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ER modeling; DDL; DML; joins; normalization; indexes; transactions). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Insert an employee with an unknown department",
+          "expected_result": "The foreign key rejects it.",
+          "evidence": "MySQL error"
+        },
+        {
+          "input_or_condition": "Fail the transaction halfway",
+          "expected_result": "No partial update remains.",
+          "evidence": "Query results"
+        },
+        {
+          "input_or_condition": "Run the report query with EXPLAIN",
+          "expected_result": "It uses the index.",
+          "evidence": "Execution plan"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Data Modelling",
+            "lead": "",
+            "items": [
+              {
+                "text": "Entities, attributes and relationships",
+                "children": []
+              },
+              {
+                "text": "ER diagrams",
+                "children": []
+              },
+              {
+                "text": "Normalisation to third normal form",
+                "children": []
+              },
+              {
+                "text": "Primary and foreign keys",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "SQL",
+            "lead": "",
+            "items": [
+              {
+                "text": "DDL:",
+                "children": [
+                  "CREATE",
+                  "ALTER",
+                  "constraints"
+                ]
+              },
+              {
+                "text": "DML:",
+                "children": [
+                  "INSERT",
+                  "UPDATE",
+                  "DELETE"
+                ]
+              },
+              {
+                "text": "Joins:",
+                "children": [
+                  "inner",
+                  "left",
+                  "self"
+                ]
+              },
+              {
+                "text": "GROUP BY, HAVING and subqueries",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Integrity and Performance",
+            "lead": "",
+            "items": [
+              {
+                "text": "Transactions and ACID",
+                "children": []
+              },
+              {
+                "text": "Indexes and execution plans",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Employee Database",
+          "scenario": "The employee-management application needs a database for departments, employees and leave requests.",
+          "lead": "Participants:",
+          "tasks": [
+            "Draw the ER diagram",
+            "Create tables with keys and constraints in MySQL",
+            "Load sample data",
+            "Write join and aggregate queries for HR reports",
+            "Approve a leave request inside a transaction"
+          ],
+          "verify": [
+            "Insert an employee with an unknown department – The foreign key rejects it.",
+            "Fail the transaction halfway – No partial update remains.",
+            "Run the report query with EXPLAIN – It uses the index."
+          ],
+          "deliverables": [
+            "ER diagram",
+            "schema.sql and data.sql",
+            "Report queries with results"
+          ]
+        },
+        "assessment": "Participants write a new report query from a business question and explain the joins.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 6,
+      "topic": "Spring Core and Spring Boot",
+      "subtopics": [
+        "Inversion of control and the application context",
+        "Dependency injection by constructor",
+        "Beans: @Component, @Service, @Repository, @Configuration",
+        "Bean scopes",
+        "Starters and auto-configuration",
+        "application.yml and @ConfigurationProperties",
+        "Profiles: dev, test, prod",
+        "Actuator health and info endpoints",
+        "Layered packages: controller, service, repository",
+        "Logging with SLF4J"
+      ],
+      "tools": [
+        "Spring Boot",
+        "Maven"
+      ],
+      "jira_focus": "Plan backend service implementation tasks",
+      "lab_task": "Configurable Service: Create service and repository beans with constructor injection; Move settings into application.yml; Add dev and prod profiles; Bind custom settings with @ConfigurationProperties; Expose Actuator health.",
+      "deliverable": "Spring Boot project; Profile configuration files; Startup logs for both profiles",
+      "assessment": "Participants explain which beans Spring created and how each dependency was injected.",
+      "learning_objectives": [
+        "Explain inversion of control and dependency injection.",
+        "Configure Spring Boot applications with profiles.",
+        "Structure an application in layers."
+      ],
+      "scenario": "The application needs different database and email settings for dev and prod.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create and configure a Spring Boot application with environment profiles",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Spring Core; Spring Boot; Project Practices",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Configurable Service: The application needs different database and email settings for dev and prod.",
+          "evidence": "Spring Boot project; Profile configuration files; Startup logs for both profiles"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Start with the prod profile – The prod settings are loaded. Call /actuator/health – Status is UP. Replace the repository in a unit test – The service is tested without a database.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "IoC",
+          "dependency injection",
+          "beans",
+          "Spring Boot starters",
+          "configuration",
+          "profiles"
+        ],
+        "lab_task": "Create and configure a Spring Boot application with environment profiles",
+        "scenario": "Demonstrate 'Spring Core and Spring Boot' on a prepared training sample through this task: Create and configure a Spring Boot application with environment profiles.",
+        "deliverable": "Participant submission for 'Spring Core and Spring Boot': Create and configure a Spring Boot application with environment profiles. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Create and configure a Spring Boot application with environment profiles.",
+          "Explain how the lab applies Spring Core and Spring Boot and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Create and configure a Spring Boot application with environment profiles. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IoC; dependency injection; beans; Spring Boot starters; configuration; profiles). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (IoC; dependency injection; beans; Spring Boot starters; configuration; profiles) and demonstrate the starting sample for: Create and configure a Spring Boot application with environment profiles",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Create and configure a Spring Boot application with environment profiles",
+            "evidence": "Participant submission for 'Spring Core and Spring Boot': Create and configure a Spring Boot application with environment profiles. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Create and configure a Spring Boot application with environment profiles' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Create and configure a Spring Boot application with environment profiles. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IoC; dependency injection; beans; Spring Boot starters; configuration; profiles). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Start with the prod profile",
+          "expected_result": "The prod settings are loaded.",
+          "evidence": "Startup log"
+        },
+        {
+          "input_or_condition": "Call /actuator/health",
+          "expected_result": "Status is UP.",
+          "evidence": "HTTP response"
+        },
+        {
+          "input_or_condition": "Replace the repository in a unit test",
+          "expected_result": "The service is tested without a database.",
+          "evidence": "Test report"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Spring Core",
+            "lead": "",
+            "items": [
+              {
+                "text": "Inversion of control and the application context",
+                "children": []
+              },
+              {
+                "text": "Dependency injection by constructor",
+                "children": []
+              },
+              {
+                "text": "Beans:",
+                "children": [
+                  "@Component",
+                  "@Service",
+                  "@Repository",
+                  "@Configuration"
+                ]
+              },
+              {
+                "text": "Bean scopes",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Spring Boot",
+            "lead": "",
+            "items": [
+              {
+                "text": "Starters and auto-configuration",
+                "children": []
+              },
+              {
+                "text": "application.yml and @ConfigurationProperties",
+                "children": []
+              },
+              {
+                "text": "Profiles:",
+                "children": [
+                  "dev",
+                  "test",
+                  "prod"
+                ]
+              },
+              {
+                "text": "Actuator health and info endpoints",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Project Practices",
+            "lead": "",
+            "items": [
+              {
+                "text": "Layered packages:",
+                "children": [
+                  "controller",
+                  "service",
+                  "repository"
+                ]
+              },
+              {
+                "text": "Logging with SLF4J",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Configurable Service",
+          "scenario": "The application needs different database and email settings for dev and prod.",
+          "lead": "Participants:",
+          "tasks": [
+            "Create service and repository beans with constructor injection",
+            "Move settings into application.yml",
+            "Add dev and prod profiles",
+            "Bind custom settings with @ConfigurationProperties",
+            "Expose Actuator health"
+          ],
+          "verify": [
+            "Start with the prod profile – The prod settings are loaded.",
+            "Call /actuator/health – Status is UP.",
+            "Replace the repository in a unit test – The service is tested without a database."
+          ],
+          "deliverables": [
+            "Spring Boot project",
+            "Profile configuration files",
+            "Startup logs for both profiles"
+          ]
+        },
+        "assessment": "Participants explain which beans Spring created and how each dependency was injected.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 7,
+      "topic": "REST APIs with Spring Boot",
+      "subtopics": [
+        "Resources, URIs and HTTP methods",
+        "Status codes: 200, 201, 204, 400, 404, 409",
+        "Pagination and filtering parameters",
+        "@RestController, @GetMapping, @PostMapping",
+        "Request bodies and DTOs",
+        "Bean Validation: @NotNull, @Size, @Email",
+        "Global errors with @ControllerAdvice",
+        "OpenAPI with springdoc",
+        "Testing endpoints with MockMvc and Postman"
+      ],
+      "tools": [
+        "Spring Boot",
+        "Postman",
+        "Swagger"
+      ],
+      "jira_focus": "Write API acceptance criteria and test cases",
+      "lab_task": "Employee API: Create, read, update and delete employees; Validate request bodies; Return correct status codes; Return consistent error responses; Publish the API in Swagger UI.",
+      "deliverable": "EmployeeController and DTOs; Postman collection; MockMvc tests",
+      "assessment": "Participants add a search endpoint and justify its URL and parameters.",
+      "learning_objectives": [
+        "Design REST resources with correct methods and status codes.",
+        "Build validated endpoints with DTOs.",
+        "Document and test APIs."
+      ],
+      "scenario": "The frontend team needs an API to manage employees.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and test CRUD REST APIs for a business module",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: REST Design; Spring MVC; Documentation and Testing",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Employee API: The frontend team needs an API to manage employees.",
+          "evidence": "EmployeeController and DTOs; Postman collection; MockMvc tests"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: POST an employee with an invalid email – The API returns 400 with the field error. GET an unknown employee – The API returns 404. Open Swagger UI – Every endpoint is documented.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "controllers",
+          "request mapping",
+          "DTOs",
+          "validation",
+          "exception handling",
+          "OpenAPI"
+        ],
+        "lab_task": "Build and test CRUD REST APIs for a business module",
+        "scenario": "Demonstrate 'REST APIs with Spring Boot' on a prepared training sample through this task: Build and test CRUD REST APIs for a business module.",
+        "deliverable": "Participant submission for 'REST APIs with Spring Boot': Build and test CRUD REST APIs for a business module. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Build and test CRUD REST APIs for a business module.",
+          "Explain how the lab applies REST APIs with Spring Boot and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Build and test CRUD REST APIs for a business module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (controllers; request mapping; DTOs; validation; exception handling; OpenAPI). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (controllers; request mapping; DTOs; validation; exception handling; OpenAPI) and demonstrate the starting sample for: Build and test CRUD REST APIs for a business module",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Build and test CRUD REST APIs for a business module",
+            "evidence": "Participant submission for 'REST APIs with Spring Boot': Build and test CRUD REST APIs for a business module. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Build and test CRUD REST APIs for a business module' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Build and test CRUD REST APIs for a business module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (controllers; request mapping; DTOs; validation; exception handling; OpenAPI). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "POST an employee with an invalid email",
+          "expected_result": "The API returns 400 with the field error.",
+          "evidence": "HTTP response"
+        },
+        {
+          "input_or_condition": "GET an unknown employee",
+          "expected_result": "The API returns 404.",
+          "evidence": "HTTP response"
+        },
+        {
+          "input_or_condition": "Open Swagger UI",
+          "expected_result": "Every endpoint is documented.",
+          "evidence": "Swagger page"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "REST Design",
+            "lead": "",
+            "items": [
+              {
+                "text": "Resources, URIs and HTTP methods",
+                "children": []
+              },
+              {
+                "text": "Status codes:",
+                "children": [
+                  "200",
+                  "201",
+                  "204",
+                  "400",
+                  "404",
+                  "409"
+                ]
+              },
+              {
+                "text": "Pagination and filtering parameters",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Spring MVC",
+            "lead": "",
+            "items": [
+              {
+                "text": "@RestController, @GetMapping, @PostMapping",
+                "children": []
+              },
+              {
+                "text": "Request bodies and DTOs",
+                "children": []
+              },
+              {
+                "text": "Bean Validation:",
+                "children": [
+                  "@NotNull",
+                  "@Size",
+                  "@Email"
+                ]
+              },
+              {
+                "text": "Global errors with @ControllerAdvice",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Documentation and Testing",
+            "lead": "",
+            "items": [
+              {
+                "text": "OpenAPI with springdoc",
+                "children": []
+              },
+              {
+                "text": "Testing endpoints with MockMvc and Postman",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Employee API",
+          "scenario": "The frontend team needs an API to manage employees.",
+          "lead": "Participants build endpoints to:",
+          "tasks": [
+            "Create, read, update and delete employees",
+            "Validate request bodies",
+            "Return correct status codes",
+            "Return consistent error responses",
+            "Publish the API in Swagger UI"
+          ],
+          "verify": [
+            "POST an employee with an invalid email – The API returns 400 with the field error.",
+            "GET an unknown employee – The API returns 404.",
+            "Open Swagger UI – Every endpoint is documented."
+          ],
+          "deliverables": [
+            "EmployeeController and DTOs",
+            "Postman collection",
+            "MockMvc tests"
+          ]
+        },
+        "assessment": "Participants add a search endpoint and justify its URL and parameters.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 8,
+      "topic": "Spring Data JPA and Hibernate",
+      "subtopics": [
+        "@Entity, @Id and generated keys",
+        "Relationships: @ManyToOne, @OneToMany, @ManyToMany",
+        "Fetch types: lazy and eager",
+        "Database migrations with Flyway",
+        "JpaRepository and derived queries",
+        "@Query with JPQL",
+        "Pagination and sorting",
+        "Projections",
+        "The N+1 query problem and fetch joins",
+        "@Transactional boundaries"
+      ],
+      "tools": [
+        "Spring Data JPA",
+        "Hibernate",
+        "MySQL"
+      ],
+      "jira_focus": "Review persistence-layer tasks and defects",
+      "lab_task": "Persist the Employee API: Map Employee and Department entities; Create the schema with a Flyway migration; Replace the in-memory store with JPA repositories; Add paginated search; Find and fix an N+1 query.",
+      "deliverable": "Entity and repository classes; Flyway migration scripts; SQL log before and after the fix",
+      "assessment": "Participants explain where the transaction starts and ends for an update request.",
+      "learning_objectives": [
+        "Map entities and relationships with JPA.",
+        "Query data with repositories, JPQL and pagination.",
+        "Find and fix common JPA performance problems."
+      ],
+      "scenario": "The API currently stores employees in memory and loses data on restart.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Connect REST APIs to MySQL with JPA entities and repository queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Mapping; Repositories; Performance",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Persist the Employee API: The API currently stores employees in memory and loses data on restart.",
+          "evidence": "Entity and repository classes; Flyway migration scripts; SQL log before and after the fix"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Restart the application – Employees are still there. Request page 2 with size 10 – The correct 10 employees are returned. List employees with departments – One query is run instead of one per employee.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "entities",
+          "repositories",
+          "relationships",
+          "JPQL",
+          "pagination",
+          "transactions"
+        ],
+        "lab_task": "Connect REST APIs to MySQL with JPA entities and repository queries",
+        "scenario": "Demonstrate 'Spring Data JPA and Hibernate' on a prepared training sample through this task: Connect REST APIs to MySQL with JPA entities and repository queries.",
+        "deliverable": "Participant submission for 'Spring Data JPA and Hibernate': Connect REST APIs to MySQL with JPA entities and repository queries. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Connect REST APIs to MySQL with JPA entities and repository queries.",
+          "Explain how the lab applies Spring Data JPA and Hibernate and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Connect REST APIs to MySQL with JPA entities and repository queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (entities; repositories; relationships; JPQL; pagination; transactions). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (entities; repositories; relationships; JPQL; pagination; transactions) and demonstrate the starting sample for: Connect REST APIs to MySQL with JPA entities and repository queries",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Connect REST APIs to MySQL with JPA entities and repository queries",
+            "evidence": "Participant submission for 'Spring Data JPA and Hibernate': Connect REST APIs to MySQL with JPA entities and repository queries. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Connect REST APIs to MySQL with JPA entities and repository queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Connect REST APIs to MySQL with JPA entities and repository queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (entities; repositories; relationships; JPQL; pagination; transactions). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Restart the application",
+          "expected_result": "Employees are still there.",
+          "evidence": "API response"
+        },
+        {
+          "input_or_condition": "Request page 2 with size 10",
+          "expected_result": "The correct 10 employees are returned.",
+          "evidence": "API response"
+        },
+        {
+          "input_or_condition": "List employees with departments",
+          "expected_result": "One query is run instead of one per employee.",
+          "evidence": "SQL log"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Mapping",
+            "lead": "",
+            "items": [
+              {
+                "text": "@Entity, @Id and generated keys",
+                "children": []
+              },
+              {
+                "text": "Relationships:",
+                "children": [
+                  "@ManyToOne",
+                  "@OneToMany",
+                  "@ManyToMany"
+                ]
+              },
+              {
+                "text": "Fetch types: lazy and eager",
+                "children": []
+              },
+              {
+                "text": "Database migrations with Flyway",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Repositories",
+            "lead": "",
+            "items": [
+              {
+                "text": "JpaRepository and derived queries",
+                "children": []
+              },
+              {
+                "text": "@Query with JPQL",
+                "children": []
+              },
+              {
+                "text": "Pagination and sorting",
+                "children": []
+              },
+              {
+                "text": "Projections",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Performance",
+            "lead": "",
+            "items": [
+              {
+                "text": "The N+1 query problem and fetch joins",
+                "children": []
+              },
+              {
+                "text": "@Transactional boundaries",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Persist the Employee API",
+          "scenario": "The API currently stores employees in memory and loses data on restart.",
+          "lead": "Participants:",
+          "tasks": [
+            "Map Employee and Department entities",
+            "Create the schema with a Flyway migration",
+            "Replace the in-memory store with JPA repositories",
+            "Add paginated search",
+            "Find and fix an N+1 query"
+          ],
+          "verify": [
+            "Restart the application – Employees are still there.",
+            "Request page 2 with size 10 – The correct 10 employees are returned.",
+            "List employees with departments – One query is run instead of one per employee."
+          ],
+          "deliverables": [
+            "Entity and repository classes",
+            "Flyway migration scripts",
+            "SQL log before and after the fix"
+          ]
+        },
+        "assessment": "Participants explain where the transaction starts and ends for an update request.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 9,
+      "topic": "Spring Security and Authentication",
+      "subtopics": [
+        "Authentication versus authorisation",
+        "Password hashing with BCrypt",
+        "The SecurityFilterChain",
+        "JWT structure: header, payload, signature",
+        "Issuing and validating tokens",
+        "Token expiry and refresh",
+        "Roles and @PreAuthorize",
+        "CORS configuration for the React app",
+        "Common risks: OWASP Top 10 for APIs"
+      ],
+      "tools": [
+        "Spring Security",
+        "Postman"
+      ],
+      "jira_focus": "Create security test scenarios and review risks",
+      "lab_task": "Secure the API: Add a login endpoint that issues a JWT; Store passwords with BCrypt; Require a valid token for all employee endpoints; Allow delete only for the ADMIN role; Configure CORS for the frontend origin.",
+      "deliverable": "Security configuration; Login and protected endpoint tests; Postman collection with tokens",
+      "assessment": "Participants review a seeded insecure endpoint and explain how they would fix it.",
+      "learning_objectives": [
+        "Authenticate users with JWT.",
+        "Authorise actions by role.",
+        "Configure CORS and avoid common API security risks."
+      ],
+      "scenario": "Anyone can currently delete employees through the API.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Secure REST endpoints using JWT authentication and role-based access",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Security Basics; Token Authentication; Access Control",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Secure the API: Anyone can currently delete employees through the API.",
+          "evidence": "Security configuration; Login and protected endpoint tests; Postman collection with tokens"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Call an endpoint without a token – The API returns 401. Delete as a USER – The API returns 403. Read the users table – Passwords are stored as BCrypt hashes.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "authentication",
+          "authorization",
+          "JWT",
+          "roles",
+          "password encoding",
+          "CORS"
+        ],
+        "lab_task": "Secure REST endpoints using JWT authentication and role-based access",
+        "scenario": "Demonstrate 'Spring Security and Authentication' on a prepared training sample through this task: Secure REST endpoints using JWT authentication and role-based access.",
+        "deliverable": "Participant submission for 'Spring Security and Authentication': Secure REST endpoints using JWT authentication and role-based access. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Secure REST endpoints using JWT authentication and role-based access.",
+          "Explain how the lab applies Spring Security and Authentication and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Secure REST endpoints using JWT authentication and role-based access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (authentication; authorization; JWT; roles; password encoding; CORS). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (authentication; authorization; JWT; roles; password encoding; CORS) and demonstrate the starting sample for: Secure REST endpoints using JWT authentication and role-based access",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Secure REST endpoints using JWT authentication and role-based access",
+            "evidence": "Participant submission for 'Spring Security and Authentication': Secure REST endpoints using JWT authentication and role-based access. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Secure REST endpoints using JWT authentication and role-based access' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Secure REST endpoints using JWT authentication and role-based access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (authentication; authorization; JWT; roles; password encoding; CORS). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Call an endpoint without a token",
+          "expected_result": "The API returns 401.",
+          "evidence": "HTTP response"
+        },
+        {
+          "input_or_condition": "Delete as a USER",
+          "expected_result": "The API returns 403.",
+          "evidence": "HTTP response"
+        },
+        {
+          "input_or_condition": "Read the users table",
+          "expected_result": "Passwords are stored as BCrypt hashes.",
+          "evidence": "Database query"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Security Basics",
+            "lead": "",
+            "items": [
+              {
+                "text": "Authentication versus authorisation",
+                "children": []
+              },
+              {
+                "text": "Password hashing with BCrypt",
+                "children": []
+              },
+              {
+                "text": "The SecurityFilterChain",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Token Authentication",
+            "lead": "",
+            "items": [
+              {
+                "text": "JWT structure:",
+                "children": [
+                  "header",
+                  "payload",
+                  "signature"
+                ]
+              },
+              {
+                "text": "Issuing and validating tokens",
+                "children": []
+              },
+              {
+                "text": "Token expiry and refresh",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Access Control",
+            "lead": "",
+            "items": [
+              {
+                "text": "Roles and @PreAuthorize",
+                "children": []
+              },
+              {
+                "text": "CORS configuration for the React app",
+                "children": []
+              },
+              {
+                "text": "Common risks: OWASP Top 10 for APIs",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Secure the API",
+          "scenario": "Anyone can currently delete employees through the API.",
+          "lead": "Participants:",
+          "tasks": [
+            "Add a login endpoint that issues a JWT",
+            "Store passwords with BCrypt",
+            "Require a valid token for all employee endpoints",
+            "Allow delete only for the ADMIN role",
+            "Configure CORS for the frontend origin"
+          ],
+          "verify": [
+            "Call an endpoint without a token – The API returns 401.",
+            "Delete as a USER – The API returns 403.",
+            "Read the users table – Passwords are stored as BCrypt hashes."
+          ],
+          "deliverables": [
+            "Security configuration",
+            "Login and protected endpoint tests",
+            "Postman collection with tokens"
+          ]
+        },
+        "assessment": "Participants review a seeded insecure endpoint and explain how they would fix it.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 10,
+      "topic": "HTML, CSS, JavaScript and React Foundations",
+      "subtopics": [
+        "Semantic HTML and accessible forms",
+        "CSS box model",
+        "Flexbox and Grid layouts",
+        "Responsive design with media queries",
+        "let, const and arrow functions",
+        "Arrays, objects and destructuring",
+        "DOM events",
+        "Promises, async and await with fetch",
+        "Components and JSX",
+        "Props",
+        "Rendering lists with keys"
+      ],
+      "tools": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "VS Code"
+      ],
+      "jira_focus": "Create frontend sprint tasks and UI acceptance criteria",
+      "lab_task": "Employee Directory Page: Build the page layout with semantic HTML and CSS Grid; Make it responsive; Add a JavaScript search filter; Rebuild the page as React components.",
+      "deliverable": "Static HTML/CSS/JS version; React component version; Screenshots on desktop and mobile",
+      "assessment": "Participants explain how their components split the page and what each one receives as props.",
+      "learning_objectives": [
+        "Build responsive pages with HTML and CSS.",
+        "Write modern JavaScript for interactivity.",
+        "Compose a user interface from React components."
+      ],
+      "scenario": "HR wants a simple page to browse employees on desktop and mobile.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: HTML and CSS; JavaScript; React Basics",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Employee Directory Page: HR wants a simple page to browse employees on desktop and mobile.",
+          "evidence": "Static HTML/CSS/JS version; React component version; Screenshots on desktop and mobile"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Resize to mobile width – The layout changes to one column. Type in the search box – The list filters as you type. Run an accessibility check – Form fields have labels.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "Morning half-day: semantic HTML, forms, accessibility",
+          "Morning half-day: CSS layout, responsive design, Flexbox, Grid",
+          "Afternoon half-day: JavaScript syntax, DOM, events, ES6",
+          "Afternoon half-day: React components, JSX, props, state, routing"
+        ],
+        "lab_task": "Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components",
+        "scenario": "Demonstrate 'HTML, CSS, JavaScript and React Foundations' on a prepared training sample through this task: Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components.",
+        "deliverable": "Participant submission for 'HTML, CSS, JavaScript and React Foundations': Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components.",
+          "Explain how the lab applies HTML, CSS, JavaScript and React Foundations and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Morning half-day: semantic HTML, forms, accessibility; Morning half-day: CSS layout, responsive design, Flexbox, Grid; Afternoon half-day: JavaScript syntax, DOM, events, ES6; Afternoon half-day: React components, JSX, props, state, routing). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Morning half-day: semantic HTML, forms, accessibility; Morning half-day: CSS layout, responsive design, Flexbox, Grid; Afternoon half-day: JavaScript syntax, DOM, events, ES6; Afternoon half-day: React components, JSX, props, state, routing) and demonstrate the starting sample for: Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components",
+            "evidence": "Participant submission for 'HTML, CSS, JavaScript and React Foundations': Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Build a responsive HTML/CSS page, add JavaScript interactions, then convert it into React components. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Morning half-day: semantic HTML, forms, accessibility; Morning half-day: CSS layout, responsive design, Flexbox, Grid; Afternoon half-day: JavaScript syntax, DOM, events, ES6; Afternoon half-day: React components, JSX, props, state, routing). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Resize to mobile width",
+          "expected_result": "The layout changes to one column.",
+          "evidence": "Screenshot"
+        },
+        {
+          "input_or_condition": "Type in the search box",
+          "expected_result": "The list filters as you type.",
+          "evidence": "Screen recording"
+        },
+        {
+          "input_or_condition": "Run an accessibility check",
+          "expected_result": "Form fields have labels.",
+          "evidence": "Lighthouse report"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "HTML and CSS",
+            "lead": "",
+            "items": [
+              {
+                "text": "Semantic HTML and accessible forms",
+                "children": []
+              },
+              {
+                "text": "CSS box model",
+                "children": []
+              },
+              {
+                "text": "Flexbox and Grid layouts",
+                "children": []
+              },
+              {
+                "text": "Responsive design with media queries",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "JavaScript",
+            "lead": "",
+            "items": [
+              {
+                "text": "let, const and arrow functions",
+                "children": []
+              },
+              {
+                "text": "Arrays, objects and destructuring",
+                "children": []
+              },
+              {
+                "text": "DOM events",
+                "children": []
+              },
+              {
+                "text": "Promises, async and await with fetch",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "React Basics",
+            "lead": "",
+            "items": [
+              {
+                "text": "Components and JSX",
+                "children": []
+              },
+              {
+                "text": "Props",
+                "children": []
+              },
+              {
+                "text": "Rendering lists with keys",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Employee Directory Page",
+          "scenario": "HR wants a simple page to browse employees on desktop and mobile.",
+          "lead": "Participants:",
+          "tasks": [
+            "Build the page layout with semantic HTML and CSS Grid",
+            "Make it responsive",
+            "Add a JavaScript search filter",
+            "Rebuild the page as React components"
+          ],
+          "verify": [
+            "Resize to mobile width – The layout changes to one column.",
+            "Type in the search box – The list filters as you type.",
+            "Run an accessibility check – Form fields have labels."
+          ],
+          "deliverables": [
+            "Static HTML/CSS/JS version",
+            "React component version",
+            "Screenshots on desktop and mobile"
+          ]
+        },
+        "assessment": "Participants explain how their components split the page and what each one receives as props.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 11,
+      "topic": "React State, Forms and API Integration",
+      "subtopics": [
+        "useState and lifting state up",
+        "useEffect and its dependency array",
+        "Custom hooks",
+        "Controlled inputs",
+        "Client-side validation",
+        "Showing server validation errors",
+        "Axios instances and base URLs",
+        "Sending the JWT with an interceptor",
+        "Loading, empty and error states",
+        "Routing with React Router"
+      ],
+      "tools": [
+        "React",
+        "Axios",
+        "Postman"
+      ],
+      "jira_focus": "Track API-integration testing tasks",
+      "lab_task": "Connect the Frontend: Log in and keep the token; Load employees from the API with paging; Add a create and edit form with validation; Show loading and error states; Protect routes that need login.",
+      "deliverable": "React application connected to the API; Screen recording of the main flows",
+      "assessment": "Participants trace one form submission from the input field to the database row.",
+      "learning_objectives": [
+        "Manage component state and side effects.",
+        "Build validated forms.",
+        "Integrate a React app with a secured REST API."
+      ],
+      "scenario": "The React directory still uses hard-coded data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Connect React forms and lists to the Spring Boot REST API",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: State and Effects; Forms; Talking to the API",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Connect the Frontend: The React directory still uses hard-coded data.",
+          "evidence": "React application connected to the API; Screen recording of the main flows"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Submit the form with an invalid email – The field error from the API is shown. Stop the backend and reload – A clear error message is shown. Open a protected route without logging in – The user is redirected to login.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "useState",
+          "useEffect",
+          "forms",
+          "validation",
+          "Axios",
+          "loading states"
+        ],
+        "lab_task": "Connect React forms and lists to the Spring Boot REST API",
+        "scenario": "Demonstrate 'React State, Forms and API Integration' on a prepared training sample through this task: Connect React forms and lists to the Spring Boot REST API.",
+        "deliverable": "Participant submission for 'React State, Forms and API Integration': Connect React forms and lists to the Spring Boot REST API. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Connect React forms and lists to the Spring Boot REST API.",
+          "Explain how the lab applies React State, Forms and API Integration and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Connect React forms and lists to the Spring Boot REST API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (useState; useEffect; forms; validation; Axios; loading states). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (useState; useEffect; forms; validation; Axios; loading states) and demonstrate the starting sample for: Connect React forms and lists to the Spring Boot REST API",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Connect React forms and lists to the Spring Boot REST API",
+            "evidence": "Participant submission for 'React State, Forms and API Integration': Connect React forms and lists to the Spring Boot REST API. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Connect React forms and lists to the Spring Boot REST API' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Connect React forms and lists to the Spring Boot REST API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (useState; useEffect; forms; validation; Axios; loading states). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Submit the form with an invalid email",
+          "expected_result": "The field error from the API is shown.",
+          "evidence": "Screenshot"
+        },
+        {
+          "input_or_condition": "Stop the backend and reload",
+          "expected_result": "A clear error message is shown.",
+          "evidence": "Screenshot"
+        },
+        {
+          "input_or_condition": "Open a protected route without logging in",
+          "expected_result": "The user is redirected to login.",
+          "evidence": "Screen recording"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "State and Effects",
+            "lead": "",
+            "items": [
+              {
+                "text": "useState and lifting state up",
+                "children": []
+              },
+              {
+                "text": "useEffect and its dependency array",
+                "children": []
+              },
+              {
+                "text": "Custom hooks",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Forms",
+            "lead": "",
+            "items": [
+              {
+                "text": "Controlled inputs",
+                "children": []
+              },
+              {
+                "text": "Client-side validation",
+                "children": []
+              },
+              {
+                "text": "Showing server validation errors",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Talking to the API",
+            "lead": "",
+            "items": [
+              {
+                "text": "Axios instances and base URLs",
+                "children": []
+              },
+              {
+                "text": "Sending the JWT with an interceptor",
+                "children": []
+              },
+              {
+                "text": "Loading, empty and error states",
+                "children": []
+              },
+              {
+                "text": "Routing with React Router",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Connect the Frontend",
+          "scenario": "The React directory still uses hard-coded data.",
+          "lead": "Participants:",
+          "tasks": [
+            "Log in and keep the token",
+            "Load employees from the API with paging",
+            "Add a create and edit form with validation",
+            "Show loading and error states",
+            "Protect routes that need login"
+          ],
+          "verify": [
+            "Submit the form with an invalid email – The field error from the API is shown.",
+            "Stop the backend and reload – A clear error message is shown.",
+            "Open a protected route without logging in – The user is redirected to login."
+          ],
+          "deliverables": [
+            "React application connected to the API",
+            "Screen recording of the main flows"
+          ]
+        },
+        "assessment": "Participants trace one form submission from the input field to the database row.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 12,
+      "topic": "Full Stack Integration and Testing",
+      "subtopics": [
+        "Unit tests with JUnit 5 and Mockito",
+        "Slice tests: @WebMvcTest and @DataJpaTest",
+        "Integration tests with Testcontainers",
+        "Component tests with React Testing Library",
+        "Mocking API calls",
+        "API contracts with OpenAPI",
+        "End-to-end tests with Playwright",
+        "Debugging across layers: browser tools, logs, SQL",
+        "Test coverage with JaCoCo"
+      ],
+      "tools": [
+        "JUnit",
+        "Mockito",
+        "React Testing Library"
+      ],
+      "jira_focus": "Run sprint QA and record defects",
+      "lab_task": "Test the Leave Workflow: Write a failing test that reproduces the bug; Fix it in the service layer; Add an integration test against a real MySQL container; Add a component test for the approval button; Add one Playwright end-to-end test.",
+      "deliverable": "Test suites for backend and frontend; Coverage report; Bug fix pull request",
+      "assessment": "Participants explain which test would have caught the bug earliest.",
+      "learning_objectives": [
+        "Test each layer with the right kind of test.",
+        "Reproduce a bug with a test before fixing it.",
+        "Debug problems across frontend, API and database."
+      ],
+      "scenario": "A bug lets employees approve their own leave requests.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Test and debug end-to-end user workflows across frontend, API, and database",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Backend Testing; Frontend Testing; End-to-End Quality",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Test the Leave Workflow: A bug lets employees approve their own leave requests.",
+          "evidence": "Test suites for backend and frontend; Coverage report; Bug fix pull request"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Run the new test before the fix – It fails. Run all tests after the fix – They pass. Run the end-to-end test – An employee cannot approve their own request.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "CORS",
+          "error handling",
+          "unit testing",
+          "integration testing",
+          "API contracts",
+          "debugging"
+        ],
+        "lab_task": "Test and debug end-to-end user workflows across frontend, API, and database",
+        "scenario": "Demonstrate 'Full Stack Integration and Testing' on a prepared training sample through this task: Test and debug end-to-end user workflows across frontend, API, and database.",
+        "deliverable": "Participant submission for 'Full Stack Integration and Testing': Test and debug end-to-end user workflows across frontend, API, and database. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Test and debug end-to-end user workflows across frontend, API, and database.",
+          "Explain how the lab applies Full Stack Integration and Testing and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Test and debug end-to-end user workflows across frontend, API, and database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CORS; error handling; unit testing; integration testing; API contracts; debugging). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (CORS; error handling; unit testing; integration testing; API contracts; debugging) and demonstrate the starting sample for: Test and debug end-to-end user workflows across frontend, API, and database",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Test and debug end-to-end user workflows across frontend, API, and database",
+            "evidence": "Participant submission for 'Full Stack Integration and Testing': Test and debug end-to-end user workflows across frontend, API, and database. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Test and debug end-to-end user workflows across frontend, API, and database' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Test and debug end-to-end user workflows across frontend, API, and database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CORS; error handling; unit testing; integration testing; API contracts; debugging). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Run the new test before the fix",
+          "expected_result": "It fails.",
+          "evidence": "Test report"
+        },
+        {
+          "input_or_condition": "Run all tests after the fix",
+          "expected_result": "They pass.",
+          "evidence": "Test report"
+        },
+        {
+          "input_or_condition": "Run the end-to-end test",
+          "expected_result": "An employee cannot approve their own request.",
+          "evidence": "Playwright report"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Backend Testing",
+            "lead": "",
+            "items": [
+              {
+                "text": "Unit tests with JUnit 5 and Mockito",
+                "children": []
+              },
+              {
+                "text": "Slice tests: @WebMvcTest and @DataJpaTest",
+                "children": []
+              },
+              {
+                "text": "Integration tests with Testcontainers",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Frontend Testing",
+            "lead": "",
+            "items": [
+              {
+                "text": "Component tests with React Testing Library",
+                "children": []
+              },
+              {
+                "text": "Mocking API calls",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "End-to-End Quality",
+            "lead": "",
+            "items": [
+              {
+                "text": "API contracts with OpenAPI",
+                "children": []
+              },
+              {
+                "text": "End-to-end tests with Playwright",
+                "children": []
+              },
+              {
+                "text": "Debugging across layers:",
+                "children": [
+                  "browser tools",
+                  "logs",
+                  "SQL"
+                ]
+              },
+              {
+                "text": "Test coverage with JaCoCo",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Test the Leave Workflow",
+          "scenario": "A bug lets employees approve their own leave requests.",
+          "lead": "Participants:",
+          "tasks": [
+            "Write a failing test that reproduces the bug",
+            "Fix it in the service layer",
+            "Add an integration test against a real MySQL container",
+            "Add a component test for the approval button",
+            "Add one Playwright end-to-end test"
+          ],
+          "verify": [
+            "Run the new test before the fix – It fails.",
+            "Run all tests after the fix – They pass.",
+            "Run the end-to-end test – An employee cannot approve their own request."
+          ],
+          "deliverables": [
+            "Test suites for backend and frontend",
+            "Coverage report",
+            "Bug fix pull request"
+          ]
+        },
+        "assessment": "Participants explain which test would have caught the bug earliest.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 13,
+      "topic": "Microservices and Messaging Overview",
+      "subtopics": [
+        "When to split a monolith",
+        "Bounded contexts and service boundaries",
+        "Database per service",
+        "Configuration per service with Spring Cloud Config",
+        "Synchronous REST and API gateways",
+        "Asynchronous events with Kafka: topics, producers, consumers",
+        "Idempotent consumers",
+        "Timeouts, retries and circuit breakers with Resilience4j",
+        "Service discovery",
+        "Distributed tracing with correlation IDs"
+      ],
+      "tools": [
+        "Spring Cloud",
+        "Kafka",
+        "Docker"
+      ],
+      "jira_focus": "Plan service dependencies and release milestones",
+      "lab_task": "Notification Service: Extract notifications into a separate Spring Boot service; Publish a LeaveRequested event to Kafka; Consume it and send a notification; Make the consumer ignore duplicate events; Add a circuit breaker around a slow downstream call.",
+      "deliverable": "Two services and a Docker Compose file with Kafka; Event flow diagram",
+      "assessment": "Participants explain what happens to a leave request when each part of the system is down.",
+      "learning_objectives": [
+        "Decide when and how to split a service.",
+        "Connect services with REST and Kafka events.",
+        "Make services resilient to failures."
+      ],
+      "scenario": "Managers want an email when leave is requested, without slowing down the main API.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Split a module into services and run a simple asynchronous event flow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Service Design; Communication; Resilience and Visibility",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Notification Service: Managers want an email when leave is requested, without slowing down the main API.",
+          "evidence": "Two services and a Docker Compose file with Kafka; Event flow diagram"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Stop the notification service and request leave – The request still succeeds and the event waits in Kafka. Send the same event twice – Only one notification is sent. Make the downstream call slow – The circuit breaker opens.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "service decomposition",
+          "API gateway",
+          "service discovery",
+          "resilience",
+          "Kafka basics",
+          "observability"
+        ],
+        "lab_task": "Split a module into services and run a simple asynchronous event flow",
+        "scenario": "Demonstrate 'Microservices and Messaging Overview' on a prepared training sample through this task: Split a module into services and run a simple asynchronous event flow.",
+        "deliverable": "Participant submission for 'Microservices and Messaging Overview': Split a module into services and run a simple asynchronous event flow. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Split a module into services and run a simple asynchronous event flow.",
+          "Explain how the lab applies Microservices and Messaging Overview and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Split a module into services and run a simple asynchronous event flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (service decomposition; API gateway; service discovery; resilience; Kafka basics; observability). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (service decomposition; API gateway; service discovery; resilience; Kafka basics; observability) and demonstrate the starting sample for: Split a module into services and run a simple asynchronous event flow",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Split a module into services and run a simple asynchronous event flow",
+            "evidence": "Participant submission for 'Microservices and Messaging Overview': Split a module into services and run a simple asynchronous event flow. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Split a module into services and run a simple asynchronous event flow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Split a module into services and run a simple asynchronous event flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (service decomposition; API gateway; service discovery; resilience; Kafka basics; observability). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Stop the notification service and request leave",
+          "expected_result": "The request still succeeds and the event waits in Kafka.",
+          "evidence": "API response and topic offsets"
+        },
+        {
+          "input_or_condition": "Send the same event twice",
+          "expected_result": "Only one notification is sent.",
+          "evidence": "Service log"
+        },
+        {
+          "input_or_condition": "Make the downstream call slow",
+          "expected_result": "The circuit breaker opens.",
+          "evidence": "Resilience4j metrics"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Service Design",
+            "lead": "",
+            "items": [
+              {
+                "text": "When to split a monolith",
+                "children": []
+              },
+              {
+                "text": "Bounded contexts and service boundaries",
+                "children": []
+              },
+              {
+                "text": "Database per service",
+                "children": []
+              },
+              {
+                "text": "Configuration per service with Spring Cloud Config",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Communication",
+            "lead": "",
+            "items": [
+              {
+                "text": "Synchronous REST and API gateways",
+                "children": []
+              },
+              {
+                "text": "Asynchronous events with Kafka:",
+                "children": [
+                  "topics",
+                  "producers",
+                  "consumers"
+                ]
+              },
+              {
+                "text": "Idempotent consumers",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Resilience and Visibility",
+            "lead": "",
+            "items": [
+              {
+                "text": "Timeouts, retries and circuit breakers with Resilience4j",
+                "children": []
+              },
+              {
+                "text": "Service discovery",
+                "children": []
+              },
+              {
+                "text": "Distributed tracing with correlation IDs",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Notification Service",
+          "scenario": "Managers want an email when leave is requested, without slowing down the main API.",
+          "lead": "Participants:",
+          "tasks": [
+            "Extract notifications into a separate Spring Boot service",
+            "Publish a LeaveRequested event to Kafka",
+            "Consume it and send a notification",
+            "Make the consumer ignore duplicate events",
+            "Add a circuit breaker around a slow downstream call"
+          ],
+          "verify": [
+            "Stop the notification service and request leave – The request still succeeds and the event waits in Kafka.",
+            "Send the same event twice – Only one notification is sent.",
+            "Make the downstream call slow – The circuit breaker opens."
+          ],
+          "deliverables": [
+            "Two services and a Docker Compose file with Kafka",
+            "Event flow diagram"
+          ]
+        },
+        "assessment": "Participants explain what happens to a leave request when each part of the system is down.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 14,
+      "topic": "Docker, CI/CD and Cloud Deployment",
+      "subtopics": [
+        "Dockerfiles for Spring Boot and React",
+        "Multi-stage builds",
+        "Docker Compose for the full stack",
+        "GitHub Actions: build, test, scan",
+        "Building and pushing images",
+        "Environment variables and secrets",
+        "Deploying to a cloud service such as AWS Elastic Beanstalk or Azure App Service",
+        "Managed MySQL",
+        "Health checks and logs"
+      ],
+      "tools": [
+        "Docker",
+        "GitHub Actions",
+        "AWS"
+      ],
+      "jira_focus": "Run deployment readiness review",
+      "lab_task": "Ship It: Containerise the backend and frontend; Run the full stack with Docker Compose; Create a GitHub Actions pipeline that tests and builds images; Deploy to a cloud test environment; Check health and logs after deployment.",
+      "deliverable": "Dockerfiles and docker-compose.yml; Pipeline definition and run; Test environment URL",
+      "assessment": "Participants explain how configuration differs between local and cloud environments.",
+      "learning_objectives": [
+        "Containerise a full stack application.",
+        "Build and test it automatically with CI.",
+        "Deploy it to a cloud environment."
+      ],
+      "scenario": "The application only runs on developer laptops.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Containerize the frontend and backend and deploy a test environment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Containers; Continuous Integration; Deployment",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Ship It: The application only runs on developer laptops.",
+          "evidence": "Dockerfiles and docker-compose.yml; Pipeline definition and run; Test environment URL"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Push a commit with a failing test – The pipeline stops before building images. Open the test environment URL – The application works end to end. Look for secrets in the repository – None are committed.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "Dockerfile",
+          "containers",
+          "environment variables",
+          "CI/CD",
+          "cloud deployment",
+          "logging"
+        ],
+        "lab_task": "Containerize the frontend and backend and deploy a test environment",
+        "scenario": "Demonstrate 'Docker, CI/CD and Cloud Deployment' on a prepared training sample through this task: Containerize the frontend and backend and deploy a test environment.",
+        "deliverable": "Participant submission for 'Docker, CI/CD and Cloud Deployment': Containerize the frontend and backend and deploy a test environment. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Containerize the frontend and backend and deploy a test environment.",
+          "Explain how the lab applies Docker, CI/CD and Cloud Deployment and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Containerize the frontend and backend and deploy a test environment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dockerfile; containers; environment variables; CI/CD; cloud deployment; logging). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Dockerfile; containers; environment variables; CI/CD; cloud deployment; logging) and demonstrate the starting sample for: Containerize the frontend and backend and deploy a test environment",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Containerize the frontend and backend and deploy a test environment",
+            "evidence": "Participant submission for 'Docker, CI/CD and Cloud Deployment': Containerize the frontend and backend and deploy a test environment. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Containerize the frontend and backend and deploy a test environment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Containerize the frontend and backend and deploy a test environment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dockerfile; containers; environment variables; CI/CD; cloud deployment; logging). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Push a commit with a failing test",
+          "expected_result": "The pipeline stops before building images.",
+          "evidence": "Pipeline run"
+        },
+        {
+          "input_or_condition": "Open the test environment URL",
+          "expected_result": "The application works end to end.",
+          "evidence": "Browser screenshot"
+        },
+        {
+          "input_or_condition": "Look for secrets in the repository",
+          "expected_result": "None are committed.",
+          "evidence": "Secret scan output"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Containers",
+            "lead": "",
+            "items": [
+              {
+                "text": "Dockerfiles for Spring Boot and React",
+                "children": []
+              },
+              {
+                "text": "Multi-stage builds",
+                "children": []
+              },
+              {
+                "text": "Docker Compose for the full stack",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Continuous Integration",
+            "lead": "",
+            "items": [
+              {
+                "text": "GitHub Actions:",
+                "children": [
+                  "build",
+                  "test",
+                  "scan"
+                ]
+              },
+              {
+                "text": "Building and pushing images",
+                "children": []
+              },
+              {
+                "text": "Environment variables and secrets",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Deployment",
+            "lead": "",
+            "items": [
+              {
+                "text": "Deploying to a cloud service such as AWS Elastic Beanstalk or Azure App Service",
+                "children": []
+              },
+              {
+                "text": "Managed MySQL",
+                "children": []
+              },
+              {
+                "text": "Health checks and logs",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Ship It",
+          "scenario": "The application only runs on developer laptops.",
+          "lead": "Participants:",
+          "tasks": [
+            "Containerise the backend and frontend",
+            "Run the full stack with Docker Compose",
+            "Create a GitHub Actions pipeline that tests and builds images",
+            "Deploy to a cloud test environment",
+            "Check health and logs after deployment"
+          ],
+          "verify": [
+            "Push a commit with a failing test – The pipeline stops before building images.",
+            "Open the test environment URL – The application works end to end.",
+            "Look for secrets in the repository – None are committed."
+          ],
+          "deliverables": [
+            "Dockerfiles and docker-compose.yml",
+            "Pipeline definition and run",
+            "Test environment URL"
+          ]
+        },
+        "assessment": "Participants explain how configuration differs between local and cloud environments.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    },
+    {
+      "day": 15,
+      "topic": "Java Full Stack Capstone and Interview Preparation",
+      "subtopics": [
+        "Requirements as user stories",
+        "A secured REST API with JPA persistence",
+        "A React frontend with role-based screens",
+        "Automated tests at every layer",
+        "A containerised deployment",
+        "Core Java and Spring interview questions",
+        "Explaining design decisions",
+        "Live coding practice"
+      ],
+      "tools": [
+        "Java",
+        "Spring Boot",
+        "React",
+        "MySQL",
+        "Docker"
+      ],
+      "jira_focus": "Conduct sprint review, retrospective, and final demo",
+      "lab_task": "Capstone Delivery: Plan the work as stories; Build and test the application; Deploy it to the test environment; Present a live demo; Answer technical questions from a panel.",
+      "deliverable": "Source code repository; Deployed application; Presentation and demo",
+      "assessment": "The panel scores each team on working features, code quality, testing and answers.",
+      "learning_objectives": [
+        "Deliver a complete Java full stack application as a team.",
+        "Present and defend technical decisions.",
+        "Prepare for Java full stack interviews."
+      ],
+      "scenario": "Each team receives a business brief, such as an asset-booking or expense-approval system.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a secured full stack business application with CRUD, roles, reporting, and deployment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": 120,
+          "activity": "Explain and demonstrate: Capstone Scope; Interview Preparation",
+          "evidence": "Demonstrated example and participant notes"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": 210,
+          "activity": "Capstone Delivery: Each team receives a business brief, such as an asset-booking or expense-approval system.",
+          "evidence": "Source code repository; Deployed application; Presentation and demo"
+        },
+        {
+          "method": "Verification and review",
+          "minutes": 90,
+          "activity": "Participants verify: Log in as each role – Each role sees only its permitted actions. Run the test suite – All tests pass. Ask a design question – The team justifies the choice with trade-offs.",
+          "evidence": "Recorded verification results and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "delivery_steps",
+        "minutes"
+      ],
+      "content_enrichment_version": "authored-outline-v1",
+      "review_status": "unreviewed",
+      "content_before_outline_authoring": {
+        "subtopics": [
+          "requirements",
+          "architecture",
+          "implementation",
+          "security",
+          "deployment",
+          "demo"
+        ],
+        "lab_task": "Deliver a secured full stack business application with CRUD, roles, reporting, and deployment",
+        "scenario": "Demonstrate 'Java Full Stack Capstone and Interview Preparation' on a prepared training sample through this task: Deliver a secured full stack business application with CRUD, roles, reporting, and deployment.",
+        "deliverable": "Participant submission for 'Java Full Stack Capstone and Interview Preparation': Deliver a secured full stack business application with CRUD, roles, reporting, and deployment. Include the resulting artefact, reproducible steps and observed results.",
+        "learning_objectives": [
+          "Complete and demonstrate: Deliver a secured full stack business application with CRUD, roles, reporting, and deployment.",
+          "Explain how the lab applies Java Full Stack Capstone and Interview Preparation and justify the observed result."
+        ],
+        "assessment": "Reproduce the source lab: Deliver a secured full stack business application with CRUD, roles, reporting, and deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; architecture; implementation; security; deployment; demo). Require one changed-input or exception case and an explanation of its result.",
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (requirements; architecture; implementation; security; deployment; demo) and demonstrate the starting sample for: Deliver a secured full stack business application with CRUD, roles, reporting, and deployment",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Deliver a secured full stack business application with CRUD, roles, reporting, and deployment",
+            "evidence": "Participant submission for 'Java Full Stack Capstone and Interview Preparation': Deliver a secured full stack business application with CRUD, roles, reporting, and deployment. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Deliver a secured full stack business application with CRUD, roles, reporting, and deployment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Deliver a secured full stack business application with CRUD, roles, reporting, and deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; architecture; implementation; security; deployment; demo). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        {
+          "input_or_condition": "Log in as each role",
+          "expected_result": "Each role sees only its permitted actions.",
+          "evidence": "Demo recording"
+        },
+        {
+          "input_or_condition": "Run the test suite",
+          "expected_result": "All tests pass.",
+          "evidence": "Pipeline run"
+        },
+        {
+          "input_or_condition": "Ask a design question",
+          "expected_result": "The team justifies the choice with trade-offs.",
+          "evidence": "Panel notes"
+        }
+      ],
+      "minutes": 420,
+      "duration_basis": "Proposed seven-hour day; the trainer confirms timings during review",
+      "content_quality_stage": "outline_authored_pending_review",
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Capstone Scope",
+            "lead": "Teams deliver a business application with:",
+            "items": [
+              {
+                "text": "Requirements as user stories",
+                "children": []
+              },
+              {
+                "text": "A secured REST API with JPA persistence",
+                "children": []
+              },
+              {
+                "text": "A React frontend with role-based screens",
+                "children": []
+              },
+              {
+                "text": "Automated tests at every layer",
+                "children": []
+              },
+              {
+                "text": "A containerised deployment",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Interview Preparation",
+            "lead": "",
+            "items": [
+              {
+                "text": "Core Java and Spring interview questions",
+                "children": []
+              },
+              {
+                "text": "Explaining design decisions",
+                "children": []
+              },
+              {
+                "text": "Live coding practice",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Capstone Delivery",
+          "scenario": "Each team receives a business brief, such as an asset-booking or expense-approval system.",
+          "lead": "Teams:",
+          "tasks": [
+            "Plan the work as stories",
+            "Build and test the application",
+            "Deploy it to the test environment",
+            "Present a live demo",
+            "Answer technical questions from a panel"
+          ],
+          "verify": [
+            "Log in as each role – Each role sees only its permitted actions.",
+            "Run the test suite – All tests pass.",
+            "Ask a design question – The team justifies the choice with trade-offs."
+          ],
+          "deliverables": [
+            "Source code repository",
+            "Deployed application",
+            "Presentation and demo"
+          ]
+        },
+        "assessment": "The panel scores each team on working features, code quality, testing and answers.",
+        "source": "authored",
+        "version": "course-outline-v1"
+      }
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
+}

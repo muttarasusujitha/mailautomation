@@ -1,0 +1,684 @@
+"""Interview reminder scheduling — create, list, cancel, reschedule."""
+import logging
+import re
+import uuid
+import zipfile
+from datetime import datetime, timedelta, timezone
+from io import BytesIO
+from typing import Any, Dict, List, Optional
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from pydantic import BaseModel
+
+from app.config import get_settings
+from shared.database.service import get_db
+
+schedules_router = APIRouter()
+router = APIRouter()
+logger = logging.getLogger(__name__)
+settings = get_settings()
+
+
+def _interview_utc(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone(timedelta(hours=5, minutes=30)))
+    return parsed.astimezone(timezone.utc).replace(tzinfo=None)
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
+
+
+class ScheduleReminderRequest(BaseModel):
+    email_id: str
+    trainer_id: Optional[str] = ""
+    trainer_name: Optional[str] = ""
+    trainer_phone: Optional[str] = ""
+    trainer_email: Optional[str] = ""
+    requirement_id: Optional[str] = ""
+    technology: Optional[str] = ""
+    interview_at: str  # ISO datetime string
+    platform: Optional[str] = "Online"
+    interview_link: Optional[str] = ""
+    reminder_hours_before: int = 1
+
+
+class RescheduleRequest(BaseModel):
+    new_interview_at: str
+    interview_link: Optional[str] = ""
+    duration_minutes: int = 60
+
+
+class InterviewNotesRequest(BaseModel):
+    schedule_key: str
+    transcript: str
+    trainer_name: Optional[str] = ""
+    trainer_email: Optional[str] = ""
+    client_name: Optional[str] = ""
+    client_email: Optional[str] = ""
+    domain: Optional[str] = ""
+    meeting_link: Optional[str] = ""
+    meeting_time: Optional[str] = ""
+
+
+class InterviewAssistantRequest(BaseModel):
+    schedule_key: Optional[str] = ""
+    transcript: Optional[str] = ""
+    trainer_name: Optional[str] = ""
+    trainer_email: Optional[str] = ""
+    trainer_profile: Optional[str] = ""
+    client_name: Optional[str] = ""
+    client_email: Optional[str] = ""
+    domain: Optional[str] = ""
+    requirement_id: Optional[str] = ""
+    meeting_time: Optional[str] = ""
+
+
+def _clean(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _parse_interview_date_text(value: Any) -> Dict[str, str]:
+    text = _clean(value)
+    if not text:
+        return {}
+    normalized = re.sub(r"\*\*", "", text)
+    normalized = re.sub(r"\bInterview Date\s*&\s*Time\b\s*:?", "", normalized, flags=re.I).strip()
+    match = re.search(
+        r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b[^0-9]*"
+        r"(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?"
+        r"(?:\s*[-–—]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?)?",
+        normalized,
+        flags=re.I,
+    )
+    if not match:
+        return {}
+
+    day = int(match.group(1))
+    month = int(match.group(2))
+    year = int(f"20{match.group(3)}") if len(match.group(3)) == 2 else int(match.group(3))
+
+    def build(hour_text: str, minute_text: Optional[str], meridiem_text: Optional[str], fallback_meridiem: str = "") -> datetime:
+        hour = int(hour_text)
+        minute = int(minute_text or 0)
+        meridiem = _clean(meridiem_text or fallback_meridiem).upper()
+        if meridiem == "PM" and hour < 12:
+            hour += 12
+        if meridiem == "AM" and hour == 12:
+            hour = 0
+        return datetime(year, month, day, hour, minute)
+
+    start_meridiem = match.group(6) or match.group(9) or ""
+    start = build(match.group(4), match.group(5), start_meridiem)
+    end = None
+    if match.group(7):
+        end = build(match.group(7), match.group(8), match.group(9), start_meridiem)
+        if end <= start:
+            end += timedelta(hours=12)
+    return {
+        "start_iso": start.isoformat(),
+        "end_iso": end.isoformat() if end else "",
+        "timezone": "Asia/Kolkata",
+        "date_time_text": normalized,
+    }
+
+
+def _with_meeting_start_fields(item: Dict[str, Any]) -> Dict[str, Any]:
+    normalized = dict(item)
+    raw_start = normalized.get("interview_at") or normalized.get("start_iso")
+    if isinstance(raw_start, datetime):
+        normalized["start_iso"] = raw_start.isoformat()
+    elif raw_start:
+        normalized["start_iso"] = _clean(raw_start)
+    else:
+        parsed = _parse_interview_date_text(normalized.get("date_time_text") or normalized.get("interview_date"))
+        normalized.update({k: v for k, v in parsed.items() if v})
+    normalized.setdefault("host_status", "scheduled")
+    return normalized
+
+
+def _sentences(text: str) -> List[str]:
+    return [
+        item.strip(" -\n\t")
+        for item in re.split(r"(?<=[.!?])\s+|\n+", text)
+        if item.strip(" -\n\t")
+    ]
+
+
+def _meeting_analysis(transcript: str) -> Dict[str, Any]:
+    text = _clean(transcript)
+    if not text:
+        raise HTTPException(400, "Transcript is required")
+    sentences = _sentences(text)
+    lower_pairs = [(sentence, sentence.lower()) for sentence in sentences]
+    action_words = ("will", "need", "todo", "to do", "action", "share", "send", "confirm", "schedule", "follow")
+    decision_words = ("agreed", "decided", "confirmed", "selected", "approved", "final")
+    risk_words = ("issue", "risk", "blocked", "concern", "problem", "delay", "not available", "unavailable")
+    actions = [s for s, low in lower_pairs if any(word in low for word in action_words)][:8]
+    decisions = [s for s, low in lower_pairs if any(word in low for word in decision_words)][:8]
+    risks = [s for s, low in lower_pairs if any(word in low for word in risk_words)][:6]
+    key_points = sentences[:8]
+    if not actions:
+        actions = ["Share interview feedback with the client and trainer.", "Confirm next step and expected timeline."]
+    if not decisions:
+        decisions = ["Decision not explicitly captured in transcript."]
+    return {
+        "summary": "Interview meeting notes captured and structured from the live transcript.",
+        "key_points": key_points,
+        "decisions": decisions,
+        "action_items": actions,
+        "risks": risks,
+    }
+
+
+def _domain_topics(domain: str, profile: str = "") -> List[str]:
+    text = f"{domain} {profile}".lower()
+    topics: List[str] = []
+    rules = [
+        (("python", "django", "flask", "fastapi"), ["Python fundamentals", "API design", "Testing and debugging", "Data handling"]),
+        (("java", "spring", "hibernate"), ["Core Java", "Spring Boot", "REST services", "Concurrency and performance"]),
+        (("react", "frontend", "javascript", "typescript"), ["Component design", "State management", "API integration", "Performance and accessibility"]),
+        (("devops", "aws", "azure", "cloud", "kubernetes", "docker"), ["CI/CD", "Cloud architecture", "Containers and orchestration", "Monitoring and incident handling"]),
+        (("data", "power bi", "tableau", "analytics", "sql"), ["Data modeling", "SQL and reporting", "Dashboard design", "Business insight communication"]),
+        (("ai", "ml", "machine learning", "genai", "prompt"), ["Model fundamentals", "Prompt design", "Evaluation", "Responsible AI practices"]),
+        (("cyber", "security", "soc"), ["Security fundamentals", "Threat modeling", "Incident response", "Tool-based investigation"]),
+        (("salesforce", "crm"), ["Salesforce platform", "Configuration vs customization", "Apex/LWC", "Deployment and governance"]),
+    ]
+    for keys, values in rules:
+        if any(key in text for key in keys):
+            topics.extend(values)
+    if not topics:
+        base = _clean(domain) or "required technology"
+        topics = [f"{base} fundamentals", "Hands-on delivery experience", "Troubleshooting approach", "Training delivery quality"]
+    return list(dict.fromkeys(topics))[:5]
+
+
+def _question_set(payload: InterviewAssistantRequest) -> Dict[str, Any]:
+    domain = _clean(payload.domain) or "the required technology"
+    trainer = _clean(payload.trainer_name) or "the trainer"
+    profile = _clean(payload.trainer_profile)
+    topics = _domain_topics(domain, profile)
+    technical = [
+        f"Walk us through one recent {domain} implementation or training program you delivered. What was your role and outcome?",
+        f"How would you explain the most important {topics[0]} concepts to mixed-experience learners?",
+        f"What common mistakes do learners make in {domain}, and how do you correct them during a session?",
+        f"Design a short hands-on lab for {domain}. What setup, task, and evaluation would you use?",
+        f"How do you troubleshoot when a participant cannot complete a {domain} lab during live training?",
+    ]
+    technical.extend([f"Please share a practical example where you used {topic} in a real client or classroom scenario." for topic in topics[1:4]])
+    profile_questions = [
+        f"{trainer}, which parts of your profile are strongest for this {domain} requirement?",
+        "Which client domains or learner audiences have you trained before?",
+        "What certifications, projects, or delivery artifacts can you share with the client?",
+        "Are there any topics in the client's requirement where you would need preparation time?",
+    ]
+    delivery = [
+        "How do you structure a session so learners stay engaged and complete hands-on work?",
+        "How do you measure learner understanding during the training?",
+        "How do you handle slow learners and advanced learners in the same batch?",
+        "What pre-training checklist do you need from the client?",
+    ]
+    client_fit = [
+        "Can you match the training duration, schedule, timezone, and delivery mode requested by the client?",
+        "What risks should we communicate to the client before confirming you?",
+        "What would be your recommended agenda for the first day?",
+    ]
+    scorecard = [
+        {"area": "Technical depth", "weight": 30, "signal": "Clear real examples, accurate explanations, confident troubleshooting."},
+        {"area": "Training delivery", "weight": 25, "signal": "Structured agenda, lab design, learner engagement methods."},
+        {"area": "Client fit", "weight": 20, "signal": "Relevant domain exposure, availability, commercial and timezone fit."},
+        {"area": "Communication", "weight": 15, "signal": "Concise answers, stakeholder-friendly language, clarity under follow-up."},
+        {"area": "Risk readiness", "weight": 10, "signal": "Honest gaps, mitigation plan, preparation needs."},
+    ]
+    return {
+        "summary": f"Interview kit prepared for {trainer} against the {domain} requirement.",
+        "focus_areas": topics,
+        "technical_questions": technical[:8],
+        "profile_questions": profile_questions,
+        "delivery_questions": delivery,
+        "client_fit_questions": client_fit,
+        "scorecard": scorecard,
+    }
+
+
+def _interview_summary(payload: InterviewAssistantRequest) -> Dict[str, Any]:
+    transcript = _clean(payload.transcript)
+    if not transcript:
+        return {
+            "summary": "",
+            "recommendation": "Add transcript or interview notes to generate a summary.",
+            "strengths": [],
+            "concerns": [],
+            "next_steps": [],
+        }
+    analysis = _meeting_analysis(transcript)
+    lower_points = [(item, item.lower()) for item in _sentences(transcript)]
+    strengths = [s for s, low in lower_points if any(word in low for word in ("strong", "good", "experienced", "delivered", "confident", "certified"))][:5]
+    concerns = analysis.get("risks") or [s for s, low in lower_points if any(word in low for word in ("gap", "concern", "weak", "not sure", "need preparation"))][:5]
+    next_steps = analysis.get("action_items") or ["Share interview feedback with the client.", "Confirm selection decision and next timeline."]
+    recommendation = "Proceed if commercial, availability, and client feedback are aligned."
+    if concerns and not strengths:
+        recommendation = "Hold for review before confirming; clarify concerns with trainer/client."
+    return {
+        "summary": analysis["summary"],
+        "key_points": analysis["key_points"],
+        "strengths": strengths or ["Relevant strengths were not explicitly captured in the notes."],
+        "concerns": concerns or ["No major concern captured in the notes."],
+        "next_steps": next_steps[:6],
+        "recommendation": recommendation,
+    }
+
+
+def _document(payload: InterviewNotesRequest, analysis: Dict[str, Any]) -> str:
+    lines = [
+        "Interview Meeting Notes",
+        "",
+        f"Domain: {_clean(payload.domain) or 'Not available'}",
+        f"Trainer: {_clean(payload.trainer_name) or 'Not available'}",
+        f"Trainer Email: {_clean(payload.trainer_email) or 'Not available'}",
+        f"Client: {_clean(payload.client_name) or 'Not available'}",
+        f"Client Email: {_clean(payload.client_email) or 'Not available'}",
+        f"Meeting Time: {_clean(payload.meeting_time) or 'Not available'}",
+        f"Meeting Link: {_clean(payload.meeting_link) or 'Not available'}",
+        "",
+        "Summary",
+        analysis["summary"],
+        "",
+        "Key Points",
+        *[f"- {item}" for item in analysis["key_points"]],
+        "",
+        "Decisions",
+        *[f"- {item}" for item in analysis["decisions"]],
+        "",
+        "Action Items",
+        *[f"- {item}" for item in analysis["action_items"]],
+    ]
+    if analysis.get("risks"):
+        lines.extend(["", "Risks / Concerns", *[f"- {item}" for item in analysis["risks"]]])
+    lines.extend(["", "Transcript", payload.transcript])
+    return "\n".join(lines)
+
+
+def _html_document(text: str) -> str:
+    import html
+    escaped = html.escape(text)
+    return f"""<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Interview Meeting Notes</title>
+  <style>
+    body {{ font-family: Arial, sans-serif; margin: 32px; color: #0f172a; background: #f8fafc; }}
+    main {{ max-width: 920px; margin: 0 auto; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; }}
+    pre {{ white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.65; font-size: 14px; }}
+  </style>
+</head>
+<body><main><pre>{escaped}</pre></main></body>
+</html>"""
+
+
+def _excel_cell(value: Any) -> str:
+    import html
+    return f'<c t="inlineStr"><is><t>{html.escape(_clean(value))}</t></is></c>'
+
+
+def _excel_row(values: List[Any]) -> str:
+    return f"<row>{''.join(_excel_cell(value) for value in values)}</row>"
+
+
+def _notes_rows(doc: Dict[str, Any]) -> List[List[Any]]:
+    analysis = doc.get("analysis") or {}
+    rows: List[List[Any]] = [
+        ["Field", "Value"],
+        ["Document ID", doc.get("document_id")],
+        ["Domain", doc.get("domain")],
+        ["Trainer", doc.get("trainer_name")],
+        ["Trainer Email", doc.get("trainer_email")],
+        ["Client", doc.get("client_name")],
+        ["Client Email", doc.get("client_email")],
+        ["Meeting Time", doc.get("meeting_time")],
+        ["Meeting Link", doc.get("meeting_link")],
+        ["Created At", doc.get("created_at")],
+        [],
+        ["Section", "Point"],
+        ["Summary", analysis.get("summary")],
+    ]
+    for key, label in (
+        ("key_points", "Key Point"),
+        ("decisions", "Decision"),
+        ("action_items", "Action Item"),
+        ("risks", "Risk / Concern"),
+    ):
+        for item in analysis.get(key) or []:
+            rows.append([label, item])
+    rows.extend([[], ["Transcript", doc.get("transcript")], ["Formatted Document", doc.get("document_text")]])
+    return rows
+
+
+def _xlsx_bytes(rows: List[List[Any]]) -> bytes:
+    sheet_rows = "\n".join(_excel_row(row) if row else "<row/>" for row in rows)
+    sheet_xml = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <sheetData>{sheet_rows}</sheetData>
+</worksheet>"""
+    workbook_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets><sheet name="Meeting Notes" sheetId="1" r:id="rId1"/></sheets>
+</workbook>"""
+    rels = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>"""
+    workbook_rels = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+</Relationships>"""
+    content_types = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+</Types>"""
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("[Content_Types].xml", content_types)
+        zf.writestr("_rels/.rels", rels)
+        zf.writestr("xl/workbook.xml", workbook_xml)
+        zf.writestr("xl/_rels/workbook.xml.rels", workbook_rels)
+        zf.writestr("xl/worksheets/sheet1.xml", sheet_xml)
+    return buffer.getvalue()
+
+
+async def _ensure_interview_indexes(db: AsyncIOMotorDatabase) -> None:
+    try:
+        await db["email_logs"].create_index([("interview_scheduled", 1), ("interview_at", 1)], background=True)
+        await db["email_logs"].create_index([("trainer_name", 1)], background=True)
+        await db["email_logs"].create_index([("client_email", 1)], background=True)
+        await db["email_logs"].create_index([("domain", 1)], background=True)
+        await db["interview_meeting_notes"].create_index([("schedule_key", 1), ("created_at", -1)], background=True)
+    except Exception:
+        logger.exception("Could not ensure interview indexes")
+
+
+@router.get("")
+async def list_reminders(
+    status: Optional[str] = None,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    query: Dict[str, Any] = {}
+    if status:
+        query["status"] = status
+    cursor = db["interview_reminders"].find(query, {"_id": 0}).sort("interview_at", 1).limit(200)
+    items = [d async for d in cursor]
+    return {"success": True, "count": len(items), "reminders": items}
+
+
+@router.get("/interview-schedules")
+async def list_interview_schedules(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Return email_logs where an interview is scheduled."""
+    await _ensure_interview_indexes(db)
+    cursor = (
+        db["email_logs"]
+        .find({"interview_scheduled": True}, {"_id": 0})
+        .sort("interview_at", 1)
+        .limit(200)
+    )
+    items = [_with_meeting_start_fields(d) async for d in cursor]
+    return {"success": True, "count": len(items), "schedules": items}
+
+
+@schedules_router.get("")
+async def list_interview_schedules_alias(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Frontend-compatible alias for /api/v1/interview-schedules."""
+    return await list_interview_schedules(db)
+
+
+@schedules_router.post("/notes/analyze")
+async def analyze_interview_notes(payload: InterviewNotesRequest):
+    analysis = _meeting_analysis(payload.transcript)
+    return {"success": True, "analysis": analysis, "document_text": _document(payload, analysis)}
+
+
+@schedules_router.post("/assistant")
+async def interview_assistant(payload: InterviewAssistantRequest):
+    return {
+        "success": True,
+        "questions": _question_set(payload),
+        "interview_summary": _interview_summary(payload),
+    }
+
+
+@schedules_router.post("/notes")
+async def save_interview_notes(payload: InterviewNotesRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    analysis = _meeting_analysis(payload.transcript)
+    document_id = f"IMN-{uuid.uuid4().hex[:10].upper()}"
+    doc = {
+        "document_id": document_id,
+        "schedule_key": payload.schedule_key,
+        "trainer_name": payload.trainer_name,
+        "trainer_email": payload.trainer_email,
+        "client_name": payload.client_name,
+        "client_email": payload.client_email,
+        "domain": payload.domain,
+        "meeting_link": payload.meeting_link,
+        "meeting_time": payload.meeting_time,
+        "transcript": payload.transcript,
+        "analysis": analysis,
+        "document_text": _document(payload, analysis),
+        "document_url": f"/api/interview-schedules/notes/{document_id}/document",
+        "download_url": f"/api/interview-schedules/notes/{document_id}/download",
+        "excel_url": f"/api/interview-schedules/notes/{document_id}/excel",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    await db["interview_meeting_notes"].insert_one(doc)
+    doc.pop("_id", None)
+    return {"success": True, "document": doc}
+
+
+@schedules_router.get("/notes/{document_id}/document")
+async def view_interview_notes_document(document_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    doc = await db["interview_meeting_notes"].find_one({"document_id": document_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Meeting document not found")
+    return Response(content=_html_document(doc.get("document_text", "")), media_type="text/html")
+
+
+@schedules_router.get("/notes/{document_id}/download")
+async def download_interview_notes_document(document_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    doc = await db["interview_meeting_notes"].find_one({"document_id": document_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Meeting document not found")
+    filename = f"{document_id}.txt"
+    return Response(
+        content=doc.get("document_text", ""),
+        media_type="text/plain",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@schedules_router.get("/notes/{document_id}/excel")
+async def download_interview_notes_excel(document_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    doc = await db["interview_meeting_notes"].find_one({"document_id": document_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Meeting document not found")
+    filename = f"{document_id}.xlsx"
+    return Response(
+        content=_xlsx_bytes(_notes_rows(doc)),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("")
+async def schedule_reminder(
+    payload: ScheduleReminderRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    now = datetime.utcnow()
+    try:
+        interview_at = _interview_utc(payload.interview_at)
+    except ValueError as exc:
+        raise HTTPException(400, f"Invalid interview_at: {exc}") from exc
+
+    remind_at = interview_at - timedelta(hours=max(0, payload.reminder_hours_before))
+
+    reminder_id = f"REM-{uuid.uuid4().hex[:10].upper()}"
+    doc = {
+        "reminder_id": reminder_id,
+        "email_id": payload.email_id,
+        "trainer_id": payload.trainer_id,
+        "trainer_name": payload.trainer_name,
+        "trainer_phone": payload.trainer_phone,
+        "trainer_email": payload.trainer_email,
+        "requirement_id": payload.requirement_id,
+        "technology": payload.technology,
+        "interview_at": interview_at,
+        "remind_at": remind_at,
+        "reminder_hours_before": payload.reminder_hours_before,
+        "platform": payload.platform,
+        "interview_link": payload.interview_link,
+        "status": "scheduled",
+        "whatsapp_reminder_status": "pending",
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["interview_reminders"].insert_one(doc)
+
+    # Also mark the email_log with interview details
+    await db["email_logs"].update_one(
+        {"email_id": payload.email_id},
+        {"$set": {
+            "interview_scheduled": True,
+            "interview_at": interview_at,
+            "interview_link": payload.interview_link,
+            "reminder_id": reminder_id,
+            "whatsapp_reminder_status": "pending",
+            "updated_at": now,
+        }},
+    )
+    doc.pop("_id", None)
+    doc["interview_at"] = interview_at.isoformat()
+    doc["remind_at"] = remind_at.isoformat()
+    return {"success": True, "reminder_id": reminder_id, "remind_at": remind_at.isoformat()}
+
+
+@router.post("/{reminder_id}/cancel")
+async def cancel_reminder(reminder_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    result = await db["interview_reminders"].update_one(
+        {"reminder_id": reminder_id},
+        {"$set": {"status": "cancelled", "cancelled_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(404, "Reminder not found")
+    await db["email_logs"].update_one(
+        {"reminder_id": reminder_id},
+        {"$set": {"whatsapp_reminder_status": "cancelled", "updated_at": datetime.utcnow()}},
+    )
+    return {"success": True, "reminder_id": reminder_id, "status": "cancelled"}
+
+
+@router.post("/{reminder_id}/reschedule")
+async def reschedule_reminder(
+    reminder_id: str,
+    payload: RescheduleRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    doc = await db["interview_reminders"].find_one({"reminder_id": reminder_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Reminder not found")
+
+    try:
+        new_at = _interview_utc(payload.new_interview_at)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+    hours_before = doc.get("reminder_hours_before", 1)
+    new_remind_at = new_at - timedelta(hours=hours_before)
+    now = datetime.utcnow()
+
+    update: Dict[str, Any] = {
+        "interview_at": new_at,
+        "remind_at": new_remind_at,
+        "status": "rescheduled",
+        "rescheduled_at": now,
+        "updated_at": now,
+    }
+    if payload.interview_link:
+        update["interview_link"] = payload.interview_link
+
+    requirement = await db["requirements"].find_one(
+        {"requirement_id": doc.get("requirement_id")}, {"_id": 0}
+    ) or {}
+    trainer_email = _clean(doc.get("trainer_email"))
+    client_email = _clean(requirement.get("client_email"))
+    meeting_link = _clean(payload.interview_link or doc.get("interview_link"))
+    if not trainer_email or not client_email or not meeting_link:
+        raise HTTPException(
+            400,
+            "A reschedule requires trainer email, client email, and a meeting link; no calendar email was sent.",
+        )
+
+    duration_minutes = max(15, min(int(payload.duration_minutes or 60), 480))
+    end_at = new_at + timedelta(minutes=duration_minutes)
+    technology = _clean(doc.get("technology") or requirement.get("technology_needed") or "training")
+    trainer_name = _clean(doc.get("trainer_name")) or "Trainer"
+    client_name = _clean(requirement.get("client_name") or requirement.get("client_company")) or "Client"
+    when = (new_at + timedelta(hours=5, minutes=30)).strftime("%d %B %Y, %I:%M %p IST")
+
+    async def send_revision(to_email: str, recipient_name: str, other_party: str) -> str:
+        payload_json = {
+            "to": to_email,
+            "subject": f"Revised Interview Schedule - {technology}",
+            "body": (
+                f"Dear {recipient_name},\n\n"
+                f"The interview for the {technology} requirement has been rescheduled to {when}.\n"
+                f"Meeting link: {meeting_link}\n\n"
+                f"This revised invitation has also been shared with {other_party}.\n\n"
+                "Regards,\nClahan Technologies"
+            ),
+            "mail_type": "interview_rescheduled",
+            "idempotency_key": f"reschedule:{reminder_id}:{new_at.isoformat()}:{meeting_link}:{to_email.strip().lower()}",
+            "trainer_id": doc.get("trainer_id") or "",
+            "trainer_name": trainer_name,
+            "requirement_id": doc.get("requirement_id") or "",
+            "calendar_invite": {
+                "summary": f"Rescheduled Interview - {technology}",
+                "start": new_at.isoformat() + "Z",
+                "end": end_at.isoformat() + "Z",
+                "timezone": "Asia/Kolkata",
+                "description": f"Rescheduled interview for {technology}. Meeting link: {meeting_link}",
+                "attendee_name": recipient_name,
+                "attendee_email": to_email,
+                "meeting_url": meeting_link,
+            },
+        }
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=payload_json)
+        if response.status_code >= 400:
+            raise HTTPException(502, f"Could not send revised invite to {to_email}: {response.text[:200]}")
+        if response.json().get("success") is not True:
+            raise HTTPException(502, "Revised invitation delivery is not confirmed; retry later")
+        return str((response.json() or {}).get("email_id") or "")
+
+    trainer_email_id = await send_revision(trainer_email, trainer_name, client_name)
+    client_email_id = await send_revision(client_email, client_name, trainer_name)
+    update.update({
+        "trainer_reschedule_email_id": trainer_email_id,
+        "client_reschedule_email_id": client_email_id,
+        "reschedule_invites_sent_at": now,
+    })
+    await db["interview_reminders"].update_one({"reminder_id": reminder_id}, {"$set": update})
+    await db["email_logs"].update_one(
+        {"reminder_id": reminder_id},
+        {"$set": {"interview_at": new_at, "interview_link": meeting_link,
+                  "whatsapp_reminder_status": "pending", "updated_at": now}},
+    )
+    return {
+        "success": True,
+        "reminder_id": reminder_id,
+        "new_interview_at": new_at.isoformat(),
+        "trainer_email_id": trainer_email_id,
+        "client_email_id": client_email_id,
+    }

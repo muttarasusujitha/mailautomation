@@ -1,0 +1,573 @@
+{
+  "domain": "Pinecone",
+  "name": "Pinecone",
+  "category": "Generative AI and Agents",
+  "icon": "database",
+  "aliases": ["Pinecone Vector Database", "Managed Vector DB", "Pinecone DB", "Pinecone Vector DB", "Pinecone Serverless", "Pinecone Cloud", "Pinecone.io", "Pinecone Assistant"],
+  "certifications": [],
+  "tools": ["Pinecone console", "Pinecone Python SDK", "Pinecone TypeScript SDK", "Pinecone REST API", "Pinecone Inference", "Pinecone Assistant", "Pinecone Local", "Pinecone Terraform provider", "Pinecone Admin API", "LangChain", "LlamaIndex", "Amazon Bedrock", "Prometheus", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python or JavaScript developers and data engineers who are new to Pinecone and want to store and search embeddings in a managed service. Covers the Pinecone console, projects and API keys, the pinecone Python SDK, serverless indexes on AWS, GCP and Azure, the index, namespace and record data model, upsert, query, fetch, list, update and delete, metadata filters, similarity metrics, Pinecone Inference for embedding and reranking, integrated embedding indexes with upsert_records and search, index stats and freshness, the REST API, the TypeScript SDK, error handling and retries, Pinecone Local for tests, and a semantic search capstone.",
+      "prerequisites": ["Writes working Python 3.9+ code with virtual environments and pip, and can read basic TypeScript", "Understands what a text embedding is and why cosine similarity measures closeness between vectors", "Has a laptop with Python, Node.js and Docker installed and an email address for a free Pinecone Starter account"],
+      "outcomes": ["Create and configure serverless Pinecone indexes from the console, the Python SDK and the REST API", "Load, read, change and remove records with upsert, query, fetch, list, update and delete in the correct namespace", "Combine vector similarity with metadata filters and Pinecone-hosted embedding and reranking models", "Build and test a small semantic search service that handles Pinecone errors and runs its tests against Pinecone Local"],
+      "days": [
+        {
+          "topic": "Pinecone Account, Projects and API Key Setup",
+          "subtopics": ["Signing up for the Starter plan and what its usage limits cover", "Organizations and projects in the Pinecone console", "Creating an API key and copying it once", "Storing the key in the PINECONE_API_KEY environment variable", "Installing the SDK with pip install pinecone (not the old pinecone-client package)", "Creating a client with Pinecone(api_key=...)", "pc.list_indexes() as a connectivity test", "Control plane (api.pinecone.io) versus data plane (index host)", "Console tour: Indexes, API keys, Usage and Members pages", "Pinecone documentation, status page and community forum"],
+          "tools": ["Pinecone console", "Pinecone Python SDK", "pip", "python-dotenv", "Visual Studio Code"],
+          "lab_task": "Create a Starter account and a project called training, generate an API key, export it as PINECONE_API_KEY, create a venv and run pip install pinecone. Write hello_pc.py that builds Pinecone() without passing the key in code and prints pc.list_indexes().names(). Run it once with the variable set and once unset, and record both outputs.",
+          "deliverable": "hello_pc.py, a pip show pinecone output and a screenshot of the project's API keys page",
+          "checks": [["Run python hello_pc.py with PINECONE_API_KEY set in a new project", "An empty list [] is printed with exit code 0", "Terminal output"], ["Run the script with PINECONE_API_KEY unset", "The SDK raises an error saying no API key was provided", "Stack trace"], ["Run pip show pinecone-client in the venv", "pip reports the package is not found because only pinecone is installed", "Terminal output"]],
+          "objectives": ["Set up a Pinecone project and API key", "Install and initialise the current Python SDK", "Distinguish the control plane from the data plane"]
+        },
+        {
+          "topic": "Pinecone Data Model: Indexes, Namespaces and Records",
+          "subtopics": ["An index as the top-level container with a fixed dimension and metric", "Namespaces as partitions inside an index", "Records: id, values, sparse_values and metadata", "Record ID rules: unique per namespace and a string up to 512 characters", "The default namespace and the empty-string name", "Dense vectors compared with sparse vectors", "Metadata as flat JSON key-value pairs and the per-record size limit", "How queries are scoped to a single namespace"],
+          "tools": ["Pinecone console", "Pinecone Python SDK", "Jupyter"],
+          "lab_task": "Sketch the data model for a help-centre corpus of 500 articles in English and German: pick an index name, dimension and metric, one namespace per language, an ID scheme such as article-42#chunk-3, and four metadata fields. In a notebook, build three example record dicts and validate them with a small function that checks ID length, vector length and metadata types.",
+          "deliverable": "Data model design note with three example records and the validation function",
+          "checks": [["Validate a record whose values list has 1023 floats for a 1024-dimension design", "The validator rejects it with a dimension mismatch message", "Notebook output"], ["Validate a record with nested metadata {'author': {'name': 'x'}}", "The validator rejects it because Pinecone metadata must be flat", "Notebook output"], ["Validate the three example records", "All three pass and the function returns True", "Notebook output"]],
+          "objectives": ["Describe how indexes, namespaces and records relate", "Design record IDs and metadata for a corpus", "Explain why every query targets one namespace"]
+        },
+        {
+          "topic": "Creating a Serverless Index with ServerlessSpec",
+          "subtopics": ["pc.create_index(name, dimension, metric, spec)", "ServerlessSpec(cloud='aws', region='us-east-1') and other cloud regions", "Index naming rules: lowercase letters, digits and hyphens", "pc.has_index() and idempotent creation", "pc.describe_index(): status.ready, host and spec", "Connecting a data-plane client with pc.Index(host=...)", "Why host-based targeting avoids an extra describe call", "Deleting an index with pc.delete_index()"],
+          "tools": ["Pinecone console", "Pinecone Python SDK", "ServerlessSpec"],
+          "lab_task": "Write create_index.py that creates a 1024-dimension cosine serverless index called faq-dev on aws us-east-1 only if pc.has_index('faq-dev') is False, polls describe_index until status.ready is True, prints the host, and opens pc.Index(host=host). Run the script twice, then try creating an index called FAQ_Dev and note the error.",
+          "deliverable": "create_index.py with the printed host and describe_index output saved as JSON",
+          "checks": [["Run create_index.py a second time", "The script skips creation and reuses the existing ready index without an ALREADY_EXISTS error", "Terminal output"], ["Call pc.create_index with name='FAQ_Dev'", "The API returns 400 with a message about invalid index name characters", "Exception text"], ["Read describe_index('faq-dev').spec", "It shows serverless with cloud aws and region us-east-1", "describe_index JSON"]],
+          "objectives": ["Create a serverless index from code", "Wait for readiness and target an index by host", "Apply Pinecone index naming rules"]
+        },
+        {
+          "topic": "Generating Embeddings with the Pinecone Inference API",
+          "subtopics": ["pc.inference.embed(model, inputs, parameters)", "Hosted models such as multilingual-e5-large and llama-text-embed-v2", "input_type 'passage' for documents and 'query' for questions", "truncate options and model token limits", "Output dimension and matching it to the index dimension", "Batch sizes per embed call", "Embedding usage counted in tokens", "When to use external embedding providers instead"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference", "multilingual-e5-large"],
+          "lab_task": "Embed 20 FAQ answers with pc.inference.embed(model='multilingual-e5-large', inputs=texts, parameters={'input_type': 'passage', 'truncate': 'END'}) and one question with input_type 'query'. Print the vector length and usage, compute cosine similarity in NumPy between the question and each answer, and list the top three answers by score.",
+          "deliverable": "embed_demo.py with the dimension, token usage and a ranked top-three table",
+          "checks": [["Print len(result[0]['values']) for multilingual-e5-large", "The length is 1024", "Script output"], ["Embed the same question with input_type 'passage' instead of 'query'", "The top-three scores change compared with the 'query' run", "Score comparison table"], ["Read the usage field of the embed response", "It reports a total_tokens count greater than zero", "Script output"]],
+          "objectives": ["Call Pinecone-hosted embedding models", "Use the correct input_type for passages and queries", "Match embedding dimension to index dimension"]
+        },
+        {
+          "topic": "Upserting Dense Vectors in Batches",
+          "subtopics": ["index.upsert(vectors=[...], namespace=...)", "Record dicts and (id, values, metadata) tuples", "Upsert semantics: insert or fully overwrite by ID", "Batch limits: 1,000 records or 2 MB per request", "Chunking a list into batches of 100 to 200", "upserted_count in the response", "Write units reported per request", "upsert_from_dataframe for pandas data"],
+          "tools": ["Pinecone Python SDK", "pandas", "Pinecone console"],
+          "lab_task": "Embed 500 FAQ chunks with Pinecone Inference and upsert them into faq-dev namespace en in batches of 100 with metadata {'category', 'lang', 'source_url'}. Sum upserted_count across calls, then upsert one ID again with different text and fetch it to confirm it was overwritten. Finally send a single batch of 1,500 records and record the error.",
+          "deliverable": "Ingestion script with a log of batch counts and the oversize-batch error",
+          "checks": [["Sum upserted_count over all batches", "The total equals 500", "Ingestion log"], ["Upsert an existing ID with new metadata and fetch it", "Only the new metadata is present on the record", "fetch output"], ["Upsert 1,500 records in one call", "The request fails with a 400 error about the batch size limit", "Exception text"]],
+          "objectives": ["Load vectors into a namespace in batches", "Explain upsert overwrite behaviour", "Stay inside request size limits"]
+        },
+        {
+          "topic": "Querying by Vector and by ID with top_k",
+          "subtopics": ["index.query(vector=..., top_k=..., namespace=...)", "include_values and include_metadata flags", "Reading matches: id, score and metadata", "Score meaning for cosine, dotproduct and euclidean", "Querying with id= to find neighbours of a stored record", "top_k limits and why large values cost more", "Empty results from the wrong namespace", "Read units reported in the usage field"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference", "Jupyter"],
+          "lab_task": "Embed five test questions with input_type 'query', run index.query(vector=v, top_k=5, namespace='en', include_metadata=True) and print id, score and category. Run a query with id='faq-17#0' and confirm the record itself ranks first. Repeat one query against namespace 'de' and against 'EN', and record usage.read_units for each call.",
+          "deliverable": "Query notebook with result tables, read-unit figures and the wrong-namespace results",
+          "checks": [["Query with id of a stored record and top_k=3", "The first match is that same record with a score close to 1.0", "Query output"], ["Run the same vector query against namespace 'EN'", "matches is an empty list because namespace names are case-sensitive", "Query output"], ["Query with include_metadata=False", "Matches contain id and score but no metadata field", "Query output"]],
+          "objectives": ["Run similarity queries by vector and by ID", "Interpret scores for the index metric", "Diagnose empty results caused by namespace mistakes"]
+        },
+        {
+          "topic": "Fetch, List and Record ID Prefix Conventions",
+          "subtopics": ["index.fetch(ids=[...], namespace=...)", "Missing IDs silently absent from the fetch response", "index.list(prefix=..., namespace=...) as a generator of ID pages", "list_paginated with limit and pagination_token", "Hierarchical IDs such as doc-42#chunk-3", "Using list plus delete to remove every chunk of a document", "list support on serverless indexes", "Fetch cost compared with query cost"],
+          "tools": ["Pinecone Python SDK", "Pinecone console"],
+          "lab_task": "Upsert 30 chunks for three documents using IDs doc-1#0 to doc-3#9. Use index.list(prefix='doc-2#', namespace='en') to collect the IDs for document 2, fetch them and print the metadata, then page through all IDs with list_paginated(limit=10). Fetch one existing and one non-existent ID together and inspect the response.",
+          "deliverable": "Script showing prefix listing, pagination tokens and the mixed fetch response",
+          "checks": [["List IDs with prefix 'doc-2#'", "Exactly 10 IDs are returned, all starting with doc-2#", "Script output"], ["Call list_paginated(limit=10) and follow tokens", "Three pages are returned and the last has no pagination token", "Pagination log"], ["Fetch ['doc-1#0', 'missing-id']", "The vectors map contains only doc-1#0 and no error is raised", "fetch output"]],
+          "objectives": ["Read records by ID with fetch", "Enumerate records with prefix listing", "Design IDs that support document-level operations"]
+        },
+        {
+          "topic": "Updating and Deleting Pinecone Records",
+          "subtopics": ["index.update(id=..., values=...) to replace a vector", "index.update(id=..., set_metadata={...}) for partial metadata changes", "update compared with a full upsert", "index.delete(ids=[...], namespace=...)", "index.delete(delete_all=True, namespace=...)", "Deleting by metadata filter and checking index support", "Deletes of missing IDs succeed without error", "Freshness: when changes appear in query results"],
+          "tools": ["Pinecone Python SDK", "Pinecone console"],
+          "lab_task": "Set metadata status='archived' on faq-5#0 with index.update(id='faq-5#0', set_metadata={'status': 'archived'}, namespace='en') and fetch it to confirm the other fields remain. Delete all chunks of doc-3 by listing the prefix and calling delete(ids=...). Create a scratch namespace with 10 records, delete it with delete_all=True and compare describe_index_stats before and after.",
+          "deliverable": "Change log with fetch output before and after update and the stats comparison",
+          "checks": [["Fetch faq-5#0 after set_metadata", "status is archived and category and lang keep their old values", "fetch output"], ["Fetch a doc-3 chunk after the prefix delete", "The vectors map is empty for that ID", "fetch output"], ["Call describe_index_stats after delete_all on namespace scratch", "The scratch namespace no longer appears in the namespaces map", "Stats JSON"]],
+          "objectives": ["Change metadata without rewriting vectors", "Delete records by ID, prefix and namespace", "Verify deletions with fetch and stats"]
+        },
+        {
+          "topic": "Metadata Design and Filter Operators in Pinecone",
+          "subtopics": ["Supported metadata types: string, number, boolean and list of strings", "$eq, $ne, $gt, $gte, $lt and $lte", "$in and $nin for sets of values", "$exists for optional fields", "$and and $or composition", "Shorthand {'lang': 'en'} as $eq", "Storing dates as Unix timestamps for range filters", "Keeping large text out of metadata to control record size"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference"],
+          "lab_task": "Add metadata fields category, product (list of strings), published_ts and is_public to 200 records. Run five filtered queries: category $eq billing, product $in ['mobile'], published_ts $gte a 2026 timestamp, $and of is_public True and category $ne legal, and $or of two categories. For each, count matches with top_k=50 and confirm every match satisfies the filter.",
+          "deliverable": "Filter cookbook with five filter JSON documents and their match counts",
+          "checks": [["Query with filter {'published_ts': {'$gte': 1767225600}}", "Every returned record has published_ts at or after that timestamp", "Validation script output"], ["Query with filter {'category': {'$eq': 'does-not-exist'}}", "matches is an empty list and no error is raised", "Query output"], ["Query with {'$and': [{'is_public': True}, {'category': {'$ne': 'legal'}}]}", "No returned match has category legal or is_public False", "Validation script output"]],
+          "objectives": ["Model metadata types for filtering", "Write filters with comparison, set and logical operators", "Verify that filtered results meet the filter"]
+        },
+        {
+          "topic": "Namespaces for Partitioning and Multitenancy Basics",
+          "subtopics": ["Creating a namespace implicitly by upserting into it", "One namespace per tenant as the default multitenant pattern", "Namespaces compared with a tenant_id metadata filter", "Query cost scales with the size of the namespace queried", "describe_index_stats namespaces map and vector_count", "index.list_namespaces() and describe_namespace", "Deleting a tenant with delete_namespace", "Namespace naming conventions for tenants", "Cross-namespace search is not supported in one query", "Per-index namespace limits by plan"],
+          "tools": ["Pinecone Python SDK", "Pinecone console"],
+          "lab_task": "Upsert the same 300 records into namespaces tenant-a, tenant-b and tenant-c with a tenant_id field too. Run one query per namespace and one query on a shared namespace with filter {'tenant_id': 'tenant-b'}, and compare usage.read_units. Then delete tenant-c with index.delete_namespace(namespace='tenant-c') and confirm with list_namespaces().",
+          "deliverable": "Tenant isolation report comparing namespace and filter approaches with read units",
+          "checks": [["Query namespace tenant-a with a vector from tenant-b's records", "No record carrying tenant_id tenant-b is returned", "Query output"], ["Call list_namespaces() after delete_namespace on tenant-c", "Only tenant-a, tenant-b and any shared namespace are listed", "Script output"], ["Compare read units for a tenant namespace query and a shared-namespace filtered query", "The tenant namespace query uses fewer or equal read units", "Read unit table"]],
+          "objectives": ["Isolate tenants with namespaces", "Compare namespace isolation with metadata filtering", "Manage namespaces through the SDK"]
+        },
+        {
+          "topic": "Choosing a Similarity Metric and Dimension for a Pinecone Index",
+          "subtopics": ["cosine, dotproduct and euclidean metrics", "Following the embedding model's documented metric", "Normalised vectors make cosine and dotproduct equivalent", "dotproduct requirement for sparse and hybrid data", "Dimension is fixed at creation and cannot be changed", "Variable-dimension models such as llama-text-embed-v2", "Storage and cost effect of dimension", "Re-creating an index when metric or dimension is wrong"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference", "NumPy"],
+          "lab_task": "Create two 1024-dimension indexes, metric-cos (cosine) and metric-euc (euclidean), and upsert the same 200 normalised vectors. Run 10 identical queries on both and compare the top-5 ID lists. Then upsert a 768-dimension vector into metric-cos and record the error message.",
+          "deliverable": "Metric comparison sheet with overlap counts and the dimension mismatch error",
+          "checks": [["Compare top-5 IDs from metric-cos and metric-euc for normalised vectors", "The ID order is identical for all 10 queries", "Comparison sheet"], ["Upsert a 768-dimension vector into a 1024-dimension index", "A 400 error states vector dimension 768 does not match the index dimension 1024", "Exception text"], ["Read scores from metric-euc", "Lower scores mean closer matches, the reverse of cosine", "Query output"]],
+          "objectives": ["Select a metric that suits the embedding model", "Explain why dimension is fixed per index", "Read scores correctly for each metric"]
+        },
+        {
+          "topic": "Integrated Embedding Indexes with create_index_for_model",
+          "subtopics": ["pc.create_index_for_model(name, cloud, region, embed=...)", "embed.model and embed.field_map such as {'text': 'chunk_text'}", "read_parameters and write_parameters for input_type", "Dimension and metric set automatically from the model", "Where vectors are generated and why the client never sees them", "Configuring embedding on an existing index with configure_index", "Supported hosted embedding models and their limits", "Integrated embedding compared with bring-your-own vectors"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "llama-text-embed-v2"],
+          "lab_task": "Create an index called faq-int with pc.create_index_for_model(name='faq-int', cloud='aws', region='us-east-1', embed={'model': 'llama-text-embed-v2', 'field_map': {'text': 'chunk_text'}}). Print describe_index and note the dimension, metric and embed block. Compare the code length of this setup with the bring-your-own-vector pipeline from day 5.",
+          "deliverable": "Integrated index configuration printout and a short comparison of the two approaches",
+          "checks": [["Read describe_index('faq-int').embed", "It shows model llama-text-embed-v2 and field_map text to chunk_text", "describe_index output"], ["Read describe_index('faq-int').dimension", "The dimension equals the model default of 1024", "describe_index output"], ["Try create_index_for_model with an unsupported model name", "The API returns a 400 error listing the model as not supported", "Exception text"]],
+          "objectives": ["Create an index with integrated embedding", "Map record fields to the embedding input", "Choose between integrated and external embedding"]
+        },
+        {
+          "topic": "upsert_records and search with Text Inputs",
+          "subtopics": ["index.upsert_records(namespace, records)", "Record shape: _id or id, the mapped text field and extra metadata fields", "Batch limits for text records", "index.search(namespace, query={'inputs': {'text': ...}, 'top_k': ...})", "fields parameter to choose returned fields", "Filters inside the query object", "Reading hits: _id, _score and fields", "Searching by stored record ID or by a vector on integrated indexes"],
+          "tools": ["Pinecone Python SDK", "llama-text-embed-v2"],
+          "lab_task": "Load 500 FAQ records into faq-int namespace en with upsert_records using fields _id, chunk_text, category and lang in batches of 90. Run index.search(namespace='en', query={'inputs': {'text': 'how do I reset my password'}, 'top_k': 5, 'filter': {'category': 'account'}}, fields=['chunk_text', 'category']) and print each hit.",
+          "deliverable": "Text search script with five printed hits and a count of loaded records",
+          "checks": [["Call describe_index_stats on faq-int after loading", "The en namespace reports 500 records", "Stats JSON"], ["Run the password reset search with the account filter", "All five hits have category account", "Search output"], ["Upsert a record without the chunk_text field", "The request fails with an error that the mapped field is missing", "Exception text"]],
+          "objectives": ["Load text records into an integrated index", "Search with text queries and filters", "Select returned fields"]
+        },
+        {
+          "topic": "Reranking Search Results with Pinecone Rerank Models",
+          "subtopics": ["Why a second-stage reranker improves top results", "pc.inference.rerank(model, query, documents, top_n, return_documents)", "Hosted rerankers such as bge-reranker-v2-m3, cohere-rerank-3.5 and pinecone-rerank-v0", "rank_fields when documents are dicts", "The rerank parameter of index.search with model, top_n and rank_fields", "Candidate depth: top_k 20 to 50 then top_n 3 to 5", "Rerank score range and meaning", "Latency and cost of reranking"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference", "bge-reranker-v2-m3"],
+          "lab_task": "Pick 10 questions with a known correct FAQ answer. For each, run index.search with top_k=5 and again with top_k=25 plus rerank={'model': 'bge-reranker-v2-m3', 'top_n': 5, 'rank_fields': ['chunk_text']}. Record the rank of the correct answer in both runs and the added latency in milliseconds.",
+          "deliverable": "Rerank comparison table with correct-answer ranks and latency per question",
+          "checks": [["Count questions where the correct answer is rank 1", "The reranked run has at least as many rank-1 hits as the plain run", "Comparison table"], ["Inspect hit scores in the reranked response", "_score values come from the reranker and are between 0 and 1", "Search output"], ["Set top_n larger than the candidate count", "No more hits than candidates are returned", "Search output"]],
+          "objectives": ["Add reranking to Pinecone search", "Choose candidate depth and top_n", "Measure ranking gain against latency"]
+        },
+        {
+          "topic": "Index Stats, Freshness and Eventual Consistency in Pinecone",
+          "subtopics": ["describe_index_stats: dimension, total_vector_count and namespaces", "index_fullness and why serverless reports 0", "Writes are acknowledged before they are searchable", "Typical freshness delay on serverless indexes", "Read-your-writes patterns: fetch by ID, wait and poll", "Stats lag compared with query visibility", "Designing tests that tolerate eventual consistency", "Stats with a metadata filter and plan support"],
+          "tools": ["Pinecone Python SDK", "pytest"],
+          "lab_task": "Write freshness.py that upserts 50 new records, then every 500 ms runs a query for one of them by its own vector and calls describe_index_stats, recording when the record first appears in results and when the count increases. Repeat five times and report the median and maximum delay for each.",
+          "deliverable": "Freshness measurement report with median and maximum delays",
+          "checks": [["Query for a record immediately after upsert returns", "The first attempt may not return the record and a later attempt does", "Timing log"], ["Compare total_vector_count before and after the upsert settles", "The count rises by exactly 50", "Stats JSON"], ["Read index_fullness on the serverless index", "The value is 0", "Stats JSON"]],
+          "objectives": ["Read index statistics", "Measure write-to-read freshness", "Write tests that handle eventual consistency"]
+        },
+        {
+          "topic": "Pinecone REST API with curl and API Version Headers",
+          "subtopics": ["Api-Key header authentication", "X-Pinecone-API-Version header and dated API versions", "Control plane: GET and POST https://api.pinecone.io/indexes", "Data plane: POST https://INDEX_HOST/vectors/upsert and /query", "POST /describe_index_stats", "GET /vectors/fetch?ids=...&namespace=...", "Embedding and reranking endpoints on api.pinecone.io", "Reading JSON errors with code and message"],
+          "tools": ["curl", "jq", "Pinecone REST API"],
+          "lab_task": "Using only curl and jq, list indexes with GET https://api.pinecone.io/indexes, extract the faq-dev host, upsert two vectors with POST /vectors/upsert, query them with POST /query and fetch one with GET /vectors/fetch. Send every request with the Api-Key and X-Pinecone-API-Version headers. Then repeat one call with a wrong key and record the status.",
+          "deliverable": "Shell script of curl commands with saved JSON responses",
+          "checks": [["Send GET /indexes with a wrong Api-Key", "HTTP status 401 is returned", "curl -i output"], ["POST /vectors/upsert with two vectors", "The response body is {\"upsertedCount\":2}", "Response JSON"], ["Pipe the list response through jq '.indexes[].name'", "faq-dev and faq-int are printed", "Terminal output"]],
+          "objectives": ["Call Pinecone control-plane and data-plane endpoints directly", "Pin the API version per request", "Read Pinecone error responses"]
+        },
+        {
+          "topic": "Pinecone TypeScript SDK Essentials",
+          "subtopics": ["npm install @pinecone-database/pinecone", "new Pinecone() reading PINECONE_API_KEY", "pc.index(name, host) and .namespace(name)", "upsert, query({ vector, topK, includeMetadata, filter })", "fetch, update and deleteMany", "Integrated indexes with upsertRecords and searchRecords", "Typing metadata with generics", "Using the SDK in Node.js server code, never in browsers"],
+          "tools": ["Node.js", "@pinecone-database/pinecone", "TypeScript", "npm"],
+          "lab_task": "Create a Node.js TypeScript project, install @pinecone-database/pinecone, and write search.ts that connects to faq-dev, queries namespace en with topK 3 and a category filter, and prints ids and scores. Define a FaqMetadata type and pass it as the index generic. Compile with tsc --noEmit and run with npx tsx search.ts.",
+          "deliverable": "search.ts with typed metadata and a run log matching the Python results for the same query",
+          "checks": [["Run tsc --noEmit after reading a field missing from FaqMetadata", "TypeScript reports a property does not exist error", "Compiler output"], ["Run the same vector query from Python and TypeScript", "Both return the same three IDs in the same order", "Side-by-side output"], ["Run search.ts without PINECONE_API_KEY", "The SDK throws a configuration error about the missing API key", "Terminal output"]],
+          "objectives": ["Use the Pinecone TypeScript SDK for core operations", "Type metadata in TypeScript", "Keep API keys on the server side"]
+        },
+        {
+          "topic": "Handling Pinecone Errors, Rate Limits and Retries",
+          "subtopics": ["Common HTTP codes: 400, 401, 403, 404, 409 and 429", "SDK exceptions such as PineconeApiException and NotFoundException", "Reading status and body from an exception", "429 Too Many Requests and per-index rate limits", "Exponential backoff with jitter", "Which operations are safe to retry: upsert by ID is idempotent", "Timeouts and connection pool settings", "Logging errors without logging the API key"],
+          "tools": ["Pinecone Python SDK", "tenacity", "logging"],
+          "lab_task": "Wrap upsert and query in a tenacity retry decorator that retries only on 429 and 5xx with exponential backoff and jitter, up to five attempts. Trigger 404 by querying a deleted index host, 400 with a wrong dimension and 409 by creating an existing index. Log status, error code and message for each without printing the key.",
+          "deliverable": "Error handling module with a log of four triggered errors and the retry policy",
+          "checks": [["Call describe_index on a name that does not exist", "NotFoundException with status 404 is raised and not retried", "Log output"], ["Create an index with a name already in use", "The API returns 409 ALREADY_EXISTS", "Log output"], ["Search the log file for the API key value", "The key string appears zero times", "grep output"]],
+          "objectives": ["Classify Pinecone errors by status", "Retry only transient failures", "Log failures safely"]
+        },
+        {
+          "topic": "Pinecone Local Emulator for Tests",
+          "subtopics": ["What Pinecone Local is and what it does not emulate", "Running the pinecone-local Docker image", "Ports for the control plane and per-index hosts", "Pointing the SDK at a local host with TLS disabled", "Data is in memory and lost on restart", "pytest fixtures that create and drop indexes", "Differences from the cloud service in limits and features", "Running Pinecone Local in GitHub Actions"],
+          "tools": ["Docker", "Pinecone Local", "pytest", "Pinecone Python SDK"],
+          "lab_task": "Start Pinecone Local with docker run -p 5080-5090:5080-5090 ghcr.io/pinecone-io/pinecone-local, create a client pointed at http://localhost:5080, and write three pytest tests for the FAQ code: upsert then fetch, filtered query, and delete. Run pytest -q, then restart the container and run the fetch test alone.",
+          "deliverable": "pytest suite and a run log against Pinecone Local",
+          "checks": [["Run pytest -q against the running emulator", "3 passed is reported", "pytest output"], ["Run the fetch test after docker restart without re-seeding", "The test fails because local data does not survive a restart", "pytest output"], ["Run the suite with PINECONE_API_KEY unset", "Tests still pass because the emulator does not check the key", "pytest output"]],
+          "objectives": ["Run Pinecone Local in Docker", "Write tests that do not touch the cloud project", "Know the emulator's limits"]
+        },
+        {
+          "topic": "Capstone: Pinecone Product Knowledge Search with Integrated Embedding",
+          "subtopics": ["Corpus preparation and ID scheme for 1,000 product articles", "Integrated embedding index with category and product filters", "FastAPI /search endpoint calling index.search with rerank", "Retry and error mapping to HTTP responses", "pytest suite against Pinecone Local plus a smoke test on the cloud index", "Read unit report and a demo to the group"],
+          "tools": ["FastAPI", "Pinecone Python SDK", "Pinecone Inference", "Pinecone Local", "pytest", "curl"],
+          "lab_task": "Build a FastAPI service that loads 1,000 product articles into an integrated embedding index with upsert_records, exposes GET /search?q=&category= that calls index.search with a filter and bge-reranker-v2-m3 reranking, and maps Pinecone 429 and 5xx errors to HTTP 503. Answer 15 test questions and report how many have the right article in the top three.",
+          "deliverable": "Git-ready service folder with README, tests, a 15-question results sheet and a read-unit summary",
+          "checks": [["Run the 15 test questions through /search", "At least 12 have the correct article in the top three", "Results sheet"], ["Call /search with a category that has no records", "The API returns 200 with an empty results list", "curl output"], ["Simulate a 429 from Pinecone in a test", "The endpoint returns HTTP 503 with a retry-after hint", "pytest output"]],
+          "objectives": ["Deliver a working Pinecone search service", "Combine filtering and reranking in one request", "Prove quality and error handling with tests"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and ML engineers who can already create Pinecone indexes and run upsert and query, and now need to build production retrieval features. Covers chunking and record design for RAG, high-throughput ingestion with the gRPC and asyncio clients, bulk import of Parquet files from Amazon S3, Google Cloud Storage and Azure Blob Storage, sparse indexes and hybrid search, selective metadata filtering, namespace-per-tenant design, read unit, write unit and storage cost, serverless backups and restore jobs, deletion protection and tags, LangChain and LlamaIndex integration, retrieval evaluation, embedding model migration, Pinecone Assistant with its chat, context and evaluation APIs, the Pinecone Terraform provider and CI testing, ending in a multi-tenant hybrid RAG capstone.",
+      "prerequisites": ["Has completed the beginner level or built an application that upserts, queries and filters records in a Pinecone serverless index", "Writes asynchronous Python and is comfortable with pandas, Parquet files and one cloud object store", "Has a Pinecone Standard plan project or trial, plus an AWS, GCP or Azure account for object storage and Terraform"],
+      "outcomes": ["Ingest millions of records into Pinecone with parallel upserts or bulk import and verify counts and cost", "Build hybrid dense and sparse retrieval with metadata filters, reranking and measurable quality gains", "Operate indexes safely with backups, deletion protection, tags, Terraform and namespace-per-tenant design", "Integrate Pinecone with LangChain, LlamaIndex and Pinecone Assistant and evaluate answers and retrieval with repeatable metrics"],
+      "days": [
+        {
+          "topic": "Chunking and Record Design for Pinecone RAG",
+          "subtopics": ["Chunk size and overlap against embedding model token limits", "Storing chunk text in metadata compared with an external store", "Record size and metadata limits per record", "Parent document ID, chunk index and ID prefix scheme", "Section titles and headings as filterable metadata", "Low-cardinality fields for filters versus high-cardinality payload", "Deduplicating chunks with content hashes", "Re-chunking a document and removing stale chunks by prefix"],
+          "tools": ["Pinecone Python SDK", "LangChain text splitters", "tiktoken", "pandas"],
+          "lab_task": "Split 200 policy PDFs into chunks at 256, 512 and 1024 tokens with 10% overlap, using IDs doc_id#chunk_n and metadata doc_id, section, page and chunk_text. Load each variant into its own namespace, run a fixed set of 20 questions, and record hit rate at 5 and the average record size in bytes for each chunk size.",
+          "deliverable": "Chunking experiment report with hit-rate and record-size table and the chosen setting",
+          "checks": [["Upsert a record whose metadata exceeds the per-record metadata limit", "The request is rejected with a 400 error naming the metadata size limit", "Exception text"], ["Compare hit rate at 5 across the three chunk sizes", "One chunk size has the highest hit rate and is chosen in the report", "Experiment table"], ["Re-chunk one document and delete old chunks by prefix", "list(prefix='doc_id#') returns only the new chunk IDs", "Script output"]],
+          "objectives": ["Choose chunk size from measurements", "Design record IDs and metadata for RAG", "Keep records inside Pinecone size limits"]
+        },
+        {
+          "topic": "Bulk Ingestion with gRPC, Async and Parallel Upserts",
+          "subtopics": ["pip install 'pinecone[grpc]' and PineconeGRPC", "upsert with async_req=True and pool_threads", "pip install 'pinecone[asyncio]', PineconeAsyncio and IndexAsyncio", "asyncio.gather with a semaphore to cap concurrency", "Batch size against request size and throughput", "Handling 429 under load with backoff", "Checkpointing progress for resumable loads", "Verifying counts with describe_index_stats"],
+          "tools": ["Pinecone Python SDK", "PineconeGRPC", "asyncio", "pyarrow"],
+          "lab_task": "Generate 1,000,000 random 768-dimension vectors in Parquet. Load 100,000 with plain sequential upserts, 100,000 with the gRPC client using async_req and pool_threads=30, and 100,000 with IndexAsyncio and a semaphore of 20. Record records per second, 429 count and total write units for each, and resume one load from a checkpoint after killing it.",
+          "deliverable": "Throughput benchmark table and a resumable loader script",
+          "checks": [["Compare records per second for sequential and gRPC parallel loads", "The gRPC parallel load is several times faster than sequential", "Benchmark table"], ["Kill the loader at 50% and restart from the checkpoint", "describe_index_stats shows exactly 100,000 records with no duplicates", "Stats JSON"], ["Raise concurrency until 429 errors appear", "The loader retries and the final count is still complete", "Loader log"]],
+          "objectives": ["Ingest at high throughput with gRPC and asyncio", "Tune concurrency against rate limits", "Build resumable ingestion"]
+        },
+        {
+          "topic": "Importing Parquet from Object Storage with start_import",
+          "subtopics": ["When bulk import is cheaper than upsert", "Parquet schema: id, values, sparse_values and metadata columns", "Directory layout with one folder per namespace", "Storage integrations for Amazon S3, Google Cloud Storage and Azure Blob Storage", "index.start_import(uri, integration_id, error_mode)", "describe_import, list_imports and cancel_import", "error_mode CONTINUE compared with ABORT", "Import into new namespaces only and plan requirements"],
+          "tools": ["Pinecone Python SDK", "Amazon S3", "pyarrow", "Pinecone console"],
+          "lab_task": "Write 500,000 records as Parquet files under s3://bucket/import/tenant-x/ with columns id, values and metadata as a JSON string. Create an S3 storage integration in the console with an IAM role, call index.start_import(uri='s3://bucket/import/', integration_id=..., error_mode='CONTINUE'), poll describe_import until it completes, and compare record count and cost with an upsert load.",
+          "deliverable": "Import runbook with Parquet schema, IAM policy, import status history and cost comparison",
+          "checks": [["Poll describe_import until finished", "status is Completed and percent_complete is 100", "Import status log"], ["Include one file with a wrong vector dimension under error_mode CONTINUE", "The import completes and records_imported is lower than the file total", "Import status JSON"], ["Start an import into a namespace that already has records", "The import is rejected or reports an error for that namespace", "Error output"]],
+          "objectives": ["Prepare Parquet data for Pinecone import", "Run and monitor bulk imports", "Decide between import and upsert"]
+        },
+        {
+          "topic": "Sparse Indexes and pinecone-sparse-english-v0",
+          "subtopics": ["Why keyword-style retrieval matters for codes, names and rare terms", "Sparse vectors as indices and values", "Creating a sparse index with vector_type='sparse' and metric='dotproduct'", "Generating sparse vectors with pinecone-sparse-english-v0", "Integrated sparse indexes with create_index_for_model", "Querying with sparse_vector", "BM25 encoders such as pinecone-text as an alternative", "Sparse result scores and their scale"],
+          "tools": ["Pinecone Python SDK", "pinecone-sparse-english-v0", "Pinecone Inference"],
+          "lab_task": "Create a sparse index with vector_type='sparse' and metric='dotproduct', embed 2,000 support tickets with pinecone-sparse-english-v0 and upsert them with sparse_values. Run 15 queries containing error codes such as ERR-4021 and product SKUs, and compare top-5 hits with the dense index from earlier days.",
+          "deliverable": "Sparse versus dense comparison for exact-term queries",
+          "checks": [["Query the sparse index for the exact code ERR-4021", "The ticket containing ERR-4021 is the top hit", "Query output"], ["Create a sparse index with metric='cosine'", "The API rejects it because sparse indexes require dotproduct", "Exception text"], ["Count exact-term queries answered in the top 5", "The sparse index answers more of them than the dense index", "Comparison table"]],
+          "objectives": ["Create and load sparse indexes", "Generate sparse vectors with a hosted model", "Show where sparse beats dense retrieval"]
+        },
+        {
+          "topic": "Hybrid Search with Separate Dense and Sparse Pinecone Indexes",
+          "subtopics": ["Pinecone's recommended pattern of one dense and one sparse index", "Keeping record IDs aligned across both indexes", "Querying both indexes in parallel", "Merging candidate lists and removing duplicates", "Reciprocal rank fusion in client code", "Reranking the merged list with a hosted reranker", "Filters applied the same way to both indexes", "Latency budget for two queries plus rerank"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference", "asyncio", "bge-reranker-v2-m3"],
+          "lab_task": "Query the dense FAQ index and the sparse ticket index in parallel with asyncio for 30 mixed questions, top_k=20 each, merge by ID with reciprocal rank fusion (k=60), then rerank the top 40 with bge-reranker-v2-m3 to top_n=5. Report recall at 5 for dense only, sparse only, fused and fused plus rerank, and the p95 latency.",
+          "deliverable": "Hybrid search module with a four-way recall table and latency figures",
+          "checks": [["Compare recall at 5 for dense-only and fused results", "Fused recall is higher than dense-only recall", "Recall table"], ["Check merged results for duplicate IDs", "Zero duplicate IDs appear in the final list", "Unit test output"], ["Measure p95 latency of the full hybrid path", "p95 is reported and stays under the 500 ms budget set for the lab", "Latency report"]],
+          "objectives": ["Run hybrid retrieval across two Pinecone indexes", "Fuse results with reciprocal rank fusion", "Measure quality and latency of hybrid search"]
+        },
+        {
+          "topic": "Single-Index Hybrid Search with sparse_values and Alpha Weighting",
+          "subtopics": ["Dense indexes with metric dotproduct accept sparse_values", "Upserting records with both values and sparse_values", "Querying with vector and sparse_vector together", "Convex combination: scaling dense by alpha and sparse by 1 - alpha", "Tuning alpha on a labelled query set", "Limits of the single-index approach", "Sparse value scale and normalisation", "Choosing between single-index and two-index hybrid"],
+          "tools": ["Pinecone Python SDK", "pinecone-sparse-english-v0", "NumPy"],
+          "lab_task": "Create a dotproduct dense index, upsert 2,000 records with both values and sparse_values, and write hybrid_scale(dense, sparse, alpha) that multiplies the vectors before querying. Run the same 30 labelled questions with alpha 0.0, 0.25, 0.5, 0.75 and 1.0 and plot recall at 5 against alpha, then compare the best value with yesterday's two-index result.",
+          "deliverable": "Alpha tuning chart and a recommendation on single-index versus two-index hybrid",
+          "checks": [["Upsert sparse_values into a cosine dense index", "The request fails because sparse values need a dotproduct index", "Exception text"], ["Query with alpha=1.0", "Results match the dense-only query exactly", "Comparison output"], ["Plot recall at 5 for five alpha values", "One alpha value between 0 and 1 gives the peak recall", "Chart"]],
+          "objectives": ["Store dense and sparse vectors in one record", "Weight hybrid queries with alpha", "Choose a hybrid design from evidence"]
+        },
+        {
+          "topic": "Advanced Metadata Filtering and Selectivity in Pinecone",
+          "subtopics": ["How serverless indexes apply filters during search", "High-selectivity filters that match very few records", "Filters on list fields with $in", "Combining $or branches and their cost", "Date ranges with numeric timestamps", "Missing results when top_k is larger than matching records", "Filter syntax errors and their messages", "Using namespaces instead of very selective filters"],
+          "tools": ["Pinecone Python SDK", "pandas"],
+          "lab_task": "In a 1,000,000-record namespace, add a tenant field where one tenant has 100 records and another has 500,000. Run 20 queries filtered to each tenant with top_k=10, measure latency and read units, and check that every result matches the filter. Then move the small tenant into its own namespace and repeat.",
+          "deliverable": "Selectivity report comparing filtered queries with namespace isolation",
+          "checks": [["Query the 100-record tenant with top_k=10", "Ten results are returned and all carry that tenant value", "Query output"], ["Send a filter with an unknown operator such as $contains", "The API returns 400 with an invalid filter operator message", "Exception text"], ["Compare read units for the small tenant before and after moving it to its own namespace", "The namespace query uses fewer read units", "Read unit table"]],
+          "objectives": ["Predict how filter selectivity affects results and cost", "Write complex filters correctly", "Decide when to replace a filter with a namespace"]
+        },
+        {
+          "topic": "Namespace-per-Tenant Design and the Namespaces API",
+          "subtopics": ["Tenant onboarding: creating a namespace on first write", "list_namespaces with pagination and prefix", "describe_namespace and record counts", "delete_namespace for tenant offboarding", "Tenant name to namespace mapping and validation", "Very large and very small tenants in one index", "When to split tenants across indexes or projects", "Per-tenant cost attribution from read units"],
+          "tools": ["Pinecone Python SDK", "FastAPI", "Pinecone console"],
+          "lab_task": "Build a tenant service with endpoints POST /tenants/{id}/documents, GET /tenants/{id}/search and DELETE /tenants/{id} that map each tenant to namespace t-{id}. Validate IDs against a regex, load 50 tenants with between 10 and 50,000 records each, list them with list_namespaces, and log read units per tenant for 500 searches.",
+          "deliverable": "Tenant service code and a per-tenant record count and read-unit report",
+          "checks": [["Call DELETE /tenants/17 then list_namespaces", "Namespace t-17 is no longer listed", "API and script output"], ["Send a tenant ID containing ../", "The service rejects it with HTTP 422 before calling Pinecone", "curl output"], ["Search tenant 5 with a query that matches tenant 6 text", "Only tenant 5 records are returned", "Search output"]],
+          "objectives": ["Implement namespace-per-tenant isolation", "Onboard and offboard tenants with the Namespaces API", "Attribute usage per tenant"]
+        },
+        {
+          "topic": "Read Units, Write Units and Storage Cost in Pinecone",
+          "subtopics": ["Serverless pricing dimensions: read units, write units and storage", "How query read units grow with namespace size", "Fetch and list read-unit cost", "Write units for upsert, update and delete by record size", "The usage field in responses", "Usage and billing pages in the console", "Plan minimums and monthly commitments", "Estimating monthly cost from traffic and data size"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "Google Sheets or Excel"],
+          "lab_task": "Log usage.read_units for 100 queries on namespaces of 10,000, 100,000 and 1,000,000 records, and write units for upserting 10,000 records with and without chunk_text in metadata. Build a cost sheet using your plan's published unit prices that predicts monthly cost for 2 million queries and 5 GB of storage, and compare it with the console usage page after a day.",
+          "deliverable": "Cost model spreadsheet with measured units and a monthly forecast",
+          "checks": [["Compare average read units per query across the three namespace sizes", "Read units rise with namespace size", "Usage log"], ["Compare write units with and without chunk_text in metadata", "Records with chunk_text cost more write units", "Usage log"], ["Compare forecast units with the console usage page for the test day", "The forecast is within 20% of the console figure", "Cost sheet"]],
+          "objectives": ["Explain the Pinecone serverless cost dimensions", "Measure units from API responses", "Forecast monthly spend"]
+        },
+        {
+          "topic": "Pinecone Backups and Restore Jobs for Serverless Indexes",
+          "subtopics": ["Backups for serverless indexes compared with collections for pod-based indexes", "pc.create_backup(index_name, backup_name, description)", "list_backups and describe_backup", "pc.create_index_from_backup(backup_id, name)", "describe_restore_job and list_restore_jobs", "What a backup includes: records, namespaces and index settings", "Backup storage cost and retention", "Scheduling backups from a job runner"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "GitHub Actions"],
+          "lab_task": "Create a backup of faq-int with pc.create_backup, then delete 100 records by mistake on purpose. Restore the backup into faq-int-restored with create_index_from_backup, poll describe_restore_job until it completes, compare record counts per namespace, and fetch the deleted IDs from the restored index. Write a scheduled GitHub Actions job that creates a nightly backup.",
+          "deliverable": "Backup and restore runbook with timings, counts and the scheduled workflow",
+          "checks": [["Poll describe_restore_job after create_index_from_backup", "The job reaches Completed and the new index is Ready", "Restore log"], ["Fetch the 100 deleted IDs from faq-int-restored", "All 100 records are returned", "fetch output"], ["Compare namespace counts of the source at backup time and the restored index", "Counts match for every namespace", "Stats comparison"]],
+          "objectives": ["Back up and restore serverless indexes", "Verify restores with counts and fetches", "Automate scheduled backups"]
+        },
+        {
+          "topic": "Index Configuration: Deletion Protection, Tags and configure_index",
+          "subtopics": ["deletion_protection='enabled' at creation", "pc.configure_index to change deletion protection", "Tags as key-value labels for owner, environment and cost centre", "Updating and removing tags", "Changing embedding settings on an integrated index", "What cannot change: dimension, metric and cloud region", "Listing indexes and filtering by tags in scripts", "Change control for index settings"],
+          "tools": ["Pinecone Python SDK", "Pinecone console"],
+          "lab_task": "Enable deletion protection on faq-int with pc.configure_index(name='faq-int', deletion_protection='enabled') and add tags env=prod, owner=search-team and cost_centre=cc-42. Try pc.delete_index('faq-int') and record the error. Write a script that lists all indexes and prints any without an owner tag, then disable protection on a scratch index and delete it.",
+          "deliverable": "Index governance script and the protected-delete error",
+          "checks": [["Call delete_index on an index with deletion protection enabled", "The call fails with 403 and a message that deletion protection is enabled", "Exception text"], ["Run the tag audit script across the project", "Every index missing an owner tag is printed by name", "Script output"], ["Call configure_index to change the dimension", "The SDK or API rejects it because dimension is immutable", "Exception text"]],
+          "objectives": ["Protect production indexes from deletion", "Label indexes with tags for ownership and cost", "Know which settings can change after creation"]
+        },
+        {
+          "topic": "LangChain Retrieval with langchain-pinecone",
+          "subtopics": ["pip install langchain-pinecone", "PineconeVectorStore with an embedding object", "PineconeEmbeddings for Pinecone-hosted models", "add_documents with explicit IDs", "similarity_search_with_score and filter", "as_retriever with search_type and search_kwargs", "PineconeRerank as a document compressor", "Namespaces with the namespace argument"],
+          "tools": ["LangChain", "langchain-pinecone", "Pinecone Python SDK"],
+          "lab_task": "Build a LangChain retriever on the policy index with PineconeVectorStore(index=index, embedding=PineconeEmbeddings(model='multilingual-e5-large'), namespace='policies'). Add 300 documents with IDs, run similarity_search_with_score with a filter, then wrap the retriever with PineconeRerank in a ContextualCompressionRetriever and compare the top three results for 10 questions.",
+          "deliverable": "LangChain retriever module and a before and after reranking table",
+          "checks": [["Call add_documents with 300 documents and explicit IDs", "describe_index_stats shows 300 records in namespace policies", "Stats JSON"], ["Call similarity_search_with_score with filter {'dept': 'hr'}", "Every returned document has dept hr in its metadata", "Script output"], ["Run the compression retriever for 10 questions", "Each question returns at most three reranked documents", "Comparison table"]],
+          "objectives": ["Use Pinecone as a LangChain vector store", "Add Pinecone reranking to a LangChain retriever", "Pass namespaces and filters through LangChain"]
+        },
+        {
+          "topic": "LlamaIndex PineconeVectorStore Pipelines",
+          "subtopics": ["pip install llama-index-vector-stores-pinecone", "PineconeVectorStore(pinecone_index=...) and StorageContext", "VectorStoreIndex.from_documents into Pinecone", "Node IDs and metadata written by LlamaIndex", "MetadataFilters translated to Pinecone filters", "Query engine with similarity_top_k", "Re-connecting to an existing Pinecone index without re-ingesting", "Ingestion pipeline with docstore deduplication"],
+          "tools": ["LlamaIndex", "llama-index-vector-stores-pinecone", "Pinecone Python SDK"],
+          "lab_task": "Load 200 Markdown files with SimpleDirectoryReader, index them into a new Pinecone index through PineconeVectorStore and StorageContext, and fetch one stored record to inspect the metadata LlamaIndex wrote. Reconnect with VectorStoreIndex.from_vector_store, run a query engine with similarity_top_k=5 and a MetadataFilters filter on file_name, and confirm no re-ingestion happened.",
+          "deliverable": "LlamaIndex pipeline notebook with a sample stored record and filtered query output",
+          "checks": [["Fetch one record written by LlamaIndex", "Metadata includes a node content field and the file_name", "fetch output"], ["Run from_vector_store and check stats before and after", "The record count does not change", "Stats JSON"], ["Query with a MetadataFilters filter on one file_name", "All source nodes come from that file", "Query output"]],
+          "objectives": ["Use Pinecone as a LlamaIndex vector store", "Understand what LlamaIndex stores in Pinecone metadata", "Reuse an existing index without reloading"]
+        },
+        {
+          "topic": "Retrieval Evaluation on Pinecone: Recall@k and Rerank Lift",
+          "subtopics": ["Building a labelled set of questions and relevant record IDs", "Recall at k, MRR and nDCG at 10", "Running the evaluation against a specific namespace and index", "Measuring rerank lift on the same candidates", "Comparing integrated embedding models side by side", "Tracking read units per evaluation run", "Storing results for regression comparison", "Statistical noise on small query sets"],
+          "tools": ["Pinecone Python SDK", "pandas", "ranx", "Pinecone Inference"],
+          "lab_task": "Create 100 labelled questions for the policy corpus. Evaluate four set-ups: multilingual-e5-large, llama-text-embed-v2, each with and without bge-reranker-v2-m3, computing recall at 5, MRR and nDCG at 10 with ranx. Save the results as a CSV, commit it as the baseline and write a script that fails if a later run drops recall at 5 by more than 3 points.",
+          "deliverable": "Evaluation harness, baseline CSV and regression gate script",
+          "checks": [["Run the four set-ups", "A table with recall at 5, MRR and nDCG at 10 is produced for each", "Results CSV"], ["Compare reranked and plain runs of the same model", "The reranked run has higher MRR", "Results CSV"], ["Run the gate with a deliberately broken embedding model name", "The script exits with code 1 and names the failed metric", "Terminal output"]],
+          "objectives": ["Measure Pinecone retrieval quality", "Quantify rerank lift", "Guard quality with a regression check"]
+        },
+        {
+          "topic": "Re-Embedding and Index Migration Between Embedding Models",
+          "subtopics": ["Why vectors from different models cannot share an index", "Creating a new index for the new model and dimension", "Dual writes during migration", "Backfilling with list, fetch and re-embed or with import", "Shadow queries comparing old and new results", "Cut-over through configuration, not code changes", "Rollback plan and keeping the old index for a fixed period", "Cost of running two indexes"],
+          "tools": ["Pinecone Python SDK", "Pinecone Inference", "Pinecone console"],
+          "lab_task": "Migrate the policy corpus from a 1024-dimension multilingual-e5-large index to a new llama-text-embed-v2 index at 2048 dimensions. Enable dual writes, backfill by listing IDs and re-embedding chunk_text in batches, run 100 shadow queries comparing top-5 overlap and recall, then switch the INDEX_HOST setting and keep the old index with deletion protection for rollback.",
+          "deliverable": "Migration plan, backfill log, shadow comparison and cut-over checklist",
+          "checks": [["Compare record counts of old and new indexes after backfill", "Counts are equal for every namespace", "Stats comparison"], ["Write one document during migration and fetch it from both indexes", "The record exists in both indexes", "fetch output"], ["Run the evaluation harness on the new index", "Recall at 5 is equal to or better than the old index", "Results CSV"]],
+          "objectives": ["Plan an embedding model migration", "Backfill and dual-write safely", "Cut over and roll back with configuration"]
+        },
+        {
+          "topic": "Pinecone Assistant: Files, Chat and Citations",
+          "subtopics": ["What Pinecone Assistant manages: chunking, embedding, retrieval and generation", "pc.assistant.create_assistant(assistant_name, instructions, region)", "upload_file with metadata and supported file types", "describe_file status until processing finishes", "chat with a list of Message objects and a chosen model", "Citations with file references and page numbers", "Metadata filters on chat", "OpenAI-compatible chat_completions endpoint"],
+          "tools": ["Pinecone Python SDK", "Pinecone Assistant", "Pinecone console"],
+          "lab_task": "Create an assistant called hr-helper with instructions to answer only from uploaded files. Upload 20 HR policy PDFs with metadata {'country': ...}, wait until every file status is Available, ask 10 questions with assistant.chat, and record each answer with its citations. Repeat two questions with a metadata filter for one country and compare the citations.",
+          "deliverable": "Assistant setup script and an answers sheet with citations",
+          "checks": [["Call describe_file for each uploaded PDF after processing", "Every file shows status Available", "Script output"], ["Ask a question covered by one policy file", "The response cites that file with a page reference", "Chat response JSON"], ["Ask a question with filter {'country': 'DE'}", "All citations point to files with country DE", "Chat response JSON"]],
+          "objectives": ["Create and load a Pinecone Assistant", "Chat with citations", "Scope answers with metadata filters"]
+        },
+        {
+          "topic": "Assistant Context API and Evaluation",
+          "subtopics": ["assistant.context(query) to retrieve snippets without generation", "Using context snippets in your own LLM prompt", "Snippet scores and references", "The evaluation API for answer correctness and completeness", "Ground-truth answers for evaluation", "Comparing answer models on the same assistant", "Token usage reported by chat", "Deleting files and assistants at the end of a project"],
+          "tools": ["Pinecone Python SDK", "Pinecone Assistant", "pandas"],
+          "lab_task": "Write 15 question and ground-truth answer pairs for hr-helper. For each, call assistant.chat to get an answer, then send question, answer and ground truth to the Assistant evaluation API and record correctness and completeness. Also call assistant.context for three questions and pass the snippets to your own prompt. Compare scores for two chat models.",
+          "deliverable": "Evaluation sheet with per-question scores for two models and context API samples",
+          "checks": [["Call assistant.context for a covered question", "Snippets are returned with references to the source file", "Response JSON"], ["Evaluate an answer that matches the ground truth exactly", "Correctness and completeness are both high, close to 1", "Evaluation response"], ["Average scores for the two chat models", "The sheet shows which model scores higher on correctness", "Evaluation sheet"]],
+          "objectives": ["Retrieve context from Pinecone Assistant", "Evaluate answers against ground truth", "Compare chat models with evidence"]
+        },
+        {
+          "topic": "Infrastructure as Code with the Pinecone Terraform Provider",
+          "subtopics": ["The pinecone-io/pinecone Terraform provider", "Provider authentication with PINECONE_API_KEY", "pinecone_index resource with serverless spec", "deletion_protection and tags in Terraform", "terraform plan diffs for immutable fields", "Importing an existing index into state", "Remote state and workspaces per environment", "Running Terraform from CI with a scoped API key"],
+          "tools": ["Terraform", "Pinecone Terraform provider", "GitHub Actions"],
+          "lab_task": "Write Terraform that declares a dev and a prod serverless index with the pinecone_index resource, dimension 1024, metric cosine, deletion protection on prod and tags. Run terraform init, plan and apply for dev, import an existing console-created index with terraform import, then change the dimension in code and run plan to see the replace action.",
+          "deliverable": "Terraform module, plan outputs and an import log",
+          "checks": [["Run terraform plan after changing dimension", "The plan shows the index must be replaced", "Plan output"], ["Run terraform plan right after importing an existing index", "No changes are reported once the config matches", "Plan output"], ["Run terraform apply for dev then list indexes", "The dev index appears with the declared tags", "Script output"]],
+          "objectives": ["Manage Pinecone indexes with Terraform", "Import existing indexes into state", "Spot destructive changes in plans"]
+        },
+        {
+          "topic": "CI Testing Against Pinecone Local and Ephemeral Indexes",
+          "subtopics": ["Unit tests with mocked Pinecone clients", "Integration tests against Pinecone Local in a service container", "Ephemeral cloud indexes named per CI run", "Cleaning up indexes in a finally block", "Handling eventual consistency in assertions", "Separate project and API key for CI", "Quality gate using the evaluation harness", "Keeping CI read and write unit cost low"],
+          "tools": ["GitHub Actions", "Pinecone Local", "pytest", "Pinecone Python SDK"],
+          "lab_task": "Create a GitHub Actions workflow with two jobs: one runs pytest against a Pinecone Local service container, the other creates an ephemeral serverless index named ci-${{ github.run_id }} in a CI project, loads 200 records, runs the recall gate and always deletes the index in a cleanup step. Break one test on purpose and confirm the cleanup still runs.",
+          "deliverable": "Workflow YAML and run logs for a passing and a failing run",
+          "checks": [["Run the workflow on a pull request", "Both jobs pass and the ephemeral index is deleted", "Actions run log"], ["Break a test and rerun", "The test job fails and the cleanup step still deletes the index", "Actions run log"], ["List indexes in the CI project after both runs", "No index with prefix ci- remains", "Script output"]],
+          "objectives": ["Test Pinecone code in CI", "Use ephemeral indexes safely", "Keep CI isolated from production"]
+        },
+        {
+          "topic": "Capstone: Multi-Tenant Hybrid RAG Service on Pinecone",
+          "subtopics": ["Namespace-per-tenant dense and sparse indexes created with Terraform", "Bulk import for the initial load and upsert for updates", "Hybrid retrieval with fusion and reranking behind a FastAPI endpoint", "Answer generation from retrieved chunks with citations", "Evaluation gate, backups and per-tenant cost report", "Demo, runbook and review"],
+          "tools": ["Terraform", "Pinecone Python SDK", "FastAPI", "Pinecone Inference", "GitHub Actions", "ranx"],
+          "lab_task": "Deliver a RAG service for 20 tenants: Terraform creates dense and sparse indexes, the initial 1,000,000 records arrive by import, and POST /tenants/{id}/ask runs hybrid search, reranks to top 5 and returns an answer with cited record IDs. CI runs the recall gate, a nightly job creates a backup, and a report shows read units per tenant for a 10,000-query load test.",
+          "deliverable": "Repository with Terraform, service code, CI workflow, evaluation results, backup log and cost report",
+          "checks": [["Run the evaluation set against /ask", "Recall at 5 meets the baseline set in the project brief", "Evaluation CSV"], ["Ask tenant 3 a question whose answer exists only in tenant 4", "The service answers that it has no information and cites nothing from tenant 4", "API response"], ["Run the 10,000-query load test", "A per-tenant read unit table is produced that sums to the console usage figure within 20%", "Cost report"]],
+          "objectives": ["Build a multi-tenant hybrid RAG service on Pinecone", "Operate it with Terraform, CI and backups", "Report quality and cost per tenant"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, architects and senior developers who run Pinecone in production and are responsible for its security, reliability and cost. Covers how serverless indexes store and serve data, organizations, projects and role-based access control, API key permissions, service accounts and the Admin API, private endpoints, customer-managed encryption keys and audit logs, Prometheus and Datadog monitoring, latency profiling and load testing, cost optimisation, collections and pod-based index operations, migration from pod-based to serverless indexes, blue-green index swaps, disaster recovery, data erasure, streaming ingestion from Kafka and Spark, Amazon Bedrock Knowledge Bases, Pinecone Assistant in production, a security review and structured troubleshooting, ending in an enterprise retrieval platform capstone.",
+      "prerequisites": ["Has completed the intermediate level or has operated a Pinecone-backed retrieval service with backups, filters and hybrid search", "Understands cloud networking (VPCs, PrivateLink or Private Service Connect, DNS), IAM and key management on AWS, GCP or Azure", "Has admin rights on a Pinecone organization on a Standard or Enterprise plan and a cloud account for networking, monitoring and streaming labs"],
+      "outcomes": ["Design Pinecone organizations, projects, roles, keys and private network access that meet least-privilege and compliance requirements", "Monitor, load test and tune Pinecone serverless indexes against latency, throughput and cost targets", "Migrate pod-based indexes to serverless and run zero-downtime index swaps, disaster recovery and data erasure procedures", "Run streaming ingestion and managed integrations such as Bedrock Knowledge Bases and Pinecone Assistant, and troubleshoot production incidents from evidence"],
+      "days": [
+        {
+          "topic": "Pinecone Serverless Architecture: Object Storage, Slabs and Freshness",
+          "subtopics": ["Separation of storage and compute in Pinecone serverless", "Blob storage as the source of truth for index data", "Write path: request log, freshness layer and index builders", "Immutable slabs and background compaction", "Read path: query routers and executors loading slabs", "Why namespace size drives query cost and latency", "Cold namespaces and first-query latency", "Pod-based architecture for comparison"],
+          "tools": ["Pinecone documentation", "Pinecone Python SDK", "Jupyter"],
+          "lab_task": "Using Pinecone's published serverless architecture material, draw the write and read paths for one upsert and one query. Then measure: first-query latency on a namespace idle for 24 hours against warm repeats, and freshness delay after a 10,000-record upsert. Explain both results with your diagram.",
+          "deliverable": "Architecture diagram annotated with measured cold, warm and freshness timings",
+          "checks": [["Run 20 queries on a namespace idle for 24 hours", "The first query is slower than the median of the next 19", "Latency log"], ["Upsert 10,000 records and poll a query for the last one", "The record becomes queryable after a measurable delay that is recorded", "Timing log"], ["Present the diagram to a peer reviewer", "Every measured effect maps to a named component on the diagram", "Review notes"]],
+          "objectives": ["Explain how Pinecone serverless stores and serves data", "Relate cost and latency to the architecture", "Back architecture claims with measurements"]
+        },
+        {
+          "topic": "Organizations, Projects and RBAC Roles in Pinecone",
+          "subtopics": ["Organization roles such as owner, billing admin and member", "Project roles and what each can do", "Inviting users and assigning roles", "Single sign-on with SAML and identity providers", "Project per environment and per business unit", "Separating billing visibility from data access", "Offboarding users and transferring ownership", "Recording access reviews"],
+          "tools": ["Pinecone console", "Okta or Microsoft Entra ID", "Google Sheets or Excel"],
+          "lab_task": "Design an org with projects search-dev, search-staging and search-prod. Invite three test users as project editor on dev, viewer on prod and billing admin at org level, then have each try to create an index, view usage and invite others. Record allowed and denied actions in an access matrix and run a quarterly review checklist against it.",
+          "deliverable": "Role design, tested access matrix and access review checklist",
+          "checks": [["Have the prod viewer try to create an index in search-prod", "The console blocks the action because the role lacks write permission", "Screenshot"], ["Have the billing admin open the usage page", "Usage and invoices are visible", "Screenshot"], ["Remove a user from the org and have them sign in again", "They no longer see any project in the organization", "Screenshot"]],
+          "objectives": ["Design Pinecone projects and roles", "Test role permissions in practice", "Run access reviews"]
+        },
+        {
+          "topic": "API Key Permissions, Service Accounts and the Admin API",
+          "subtopics": ["Project-scoped API keys and key roles", "Control-plane and data-plane permissions on keys", "Read-only keys for query services", "Service accounts with client ID and client secret", "OAuth client credentials token for the Admin API", "Creating projects and API keys through the Admin API", "Key rotation without downtime", "Storing keys in AWS Secrets Manager or HashiCorp Vault"],
+          "tools": ["Pinecone Admin API", "curl", "AWS Secrets Manager", "Pinecone Python SDK"],
+          "lab_task": "Create a service account, obtain an access token with the client credentials flow, and use the Admin API to create a project and two API keys: a data-plane read-only key for the query service and a read-write key for ingestion. Prove the read-only key can query but not upsert, store both in Secrets Manager, and rotate the query key with no failed requests.",
+          "deliverable": "Admin API scripts, permission test results and a rotation runbook",
+          "checks": [["Upsert with the read-only data-plane key", "The API returns 403 permission denied", "Response output"], ["Query with the read-only key", "Matches are returned with HTTP 200", "Response output"], ["Run 1,000 queries during key rotation", "Zero requests fail", "Load script log"]],
+          "objectives": ["Apply least privilege to Pinecone API keys", "Automate projects and keys with the Admin API", "Rotate keys safely"]
+        },
+        {
+          "topic": "Private Endpoints with AWS PrivateLink for Pinecone",
+          "subtopics": ["Why private connectivity: no traffic over the public internet", "Creating a VPC interface endpoint to Pinecone's service name", "Registering the endpoint in the Pinecone project", "Private index host names and private DNS", "Security groups on port 443", "Blocking public access to the project where supported", "Private Service Connect on GCP for comparison", "Testing from inside and outside the VPC"],
+          "tools": ["AWS PrivateLink", "Amazon VPC", "Pinecone console", "dig", "curl"],
+          "lab_task": "In a VPC in the same region as the index, create an interface endpoint for Pinecone's PrivateLink service, enable private DNS, and register the endpoint ID in the project's network settings. From an EC2 instance, resolve the private index host with dig and run a query. Run the same request from a laptop and record the result.",
+          "deliverable": "Network diagram, endpoint configuration and connectivity test results",
+          "checks": [["Resolve the private index host with dig from the EC2 instance", "It returns private IP addresses inside the VPC CIDR", "dig output"], ["Query the private host from the EC2 instance", "Matches are returned with HTTP 200", "curl output"], ["Query the private host from a laptop on the internet", "The name does not resolve or the connection fails", "curl output"]],
+          "objectives": ["Connect to Pinecone privately from a VPC", "Verify DNS and routing for private endpoints", "Prove public paths are not used"]
+        },
+        {
+          "topic": "Customer-Managed Encryption Keys and Audit Logs in Pinecone",
+          "subtopics": ["Default encryption at rest and in transit", "Customer-managed keys with AWS KMS and plan requirements", "Key policy granting Pinecone access", "Effect of disabling or revoking the key", "Audit logs for control-plane and user actions", "Delivering audit logs to an object storage bucket", "Querying audit logs with Amazon Athena", "Mapping controls to SOC 2, ISO 27001 and HIPAA requirements"],
+          "tools": ["AWS KMS", "Pinecone console", "Amazon S3", "Amazon Athena"],
+          "lab_task": "Create a KMS key with a key policy for Pinecone, configure a project to use it and create an index in that project. Enable audit log delivery to an S3 bucket, then create, configure and delete an index and rotate an API key. Query the audit logs with Athena to list every action with actor, timestamp and resource.",
+          "deliverable": "CMEK configuration record, audit log Athena query and a control mapping table",
+          "checks": [["Run the Athena query for the test hour", "Create, configure, delete and key rotation events all appear with an actor", "Athena result"], ["Read the project's encryption settings", "The project shows the customer-managed KMS key ARN", "Screenshot"], ["Review the KMS key's CloudTrail events after creating an index", "Pinecone's principal uses the key", "CloudTrail record"]],
+          "objectives": ["Configure customer-managed encryption for Pinecone", "Collect and query audit logs", "Map Pinecone controls to compliance needs"]
+        },
+        {
+          "topic": "Monitoring Pinecone with Prometheus Metrics and Datadog",
+          "subtopics": ["Console metrics: requests, latency, read and write units, record count", "Prometheus-compatible metrics endpoint and service discovery for serverless", "Metric names for record count, operation counts, durations and units", "Scraping with an API key and a scrape interval", "Datadog integration for Pinecone", "Client-side metrics: latency histograms and error counts", "Alerts on latency, 429 rate and unit burn", "Dashboards per index and namespace"],
+          "tools": ["Prometheus", "Grafana", "Datadog", "OpenTelemetry"],
+          "lab_task": "Configure Prometheus to scrape your project's Pinecone metrics using the documented service discovery URL and API key. Add client-side OpenTelemetry latency histograms to the query service, build a Grafana dashboard with p50 and p95 latency, request rate, 429 rate and read units per hour, and create an alert that fires when p95 exceeds 300 ms for 5 minutes.",
+          "deliverable": "Prometheus config, Grafana dashboard JSON and an alert test record",
+          "checks": [["Open the Prometheus targets page after setup", "The Pinecone target is UP", "Screenshot"], ["Run a load that pushes p95 above 300 ms", "The alert moves to firing within the configured window", "Alertmanager screenshot"], ["Compare record count from metrics with describe_index_stats", "Both report the same total", "Comparison output"]],
+          "objectives": ["Collect Pinecone server-side and client-side metrics", "Build actionable dashboards", "Alert on latency, errors and cost"]
+        },
+        {
+          "topic": "Query Latency Profiling and Tuning in Pinecone",
+          "subtopics": ["Breaking latency into network, embedding, query and rerank", "Client region relative to the index region", "HTTP connection reuse and gRPC", "Effect of top_k, include_values and include_metadata", "Payload size and fields selection", "Filter selectivity and namespace size", "Caching embeddings for repeated queries", "Parallel calls for hybrid paths"],
+          "tools": ["Pinecone Python SDK", "PineconeGRPC", "OpenTelemetry", "Locust"],
+          "lab_task": "Instrument the query path with spans for embedding, Pinecone query and rerank. Measure p50 and p95 from a client in a different region, then from the index's region, then with connection reuse and gRPC, then with include_values=False and top_k cut from 100 to 20. Record each change's effect in a waterfall table.",
+          "deliverable": "Latency waterfall table with before and after figures for each tuning step",
+          "checks": [["Move the client into the index's region", "p95 latency drops compared with the remote-region client", "Latency table"], ["Set include_values=False on queries returning 100 matches", "Response size and latency both fall", "Latency table"], ["Read a trace for one request", "Embedding, query and rerank spans appear with durations", "Trace screenshot"]],
+          "objectives": ["Profile where Pinecone query time goes", "Apply client-side latency tuning", "Report improvements with numbers"]
+        },
+        {
+          "topic": "Throughput Limits, Backpressure and Load Testing Pinecone",
+          "subtopics": ["Documented rate limits per index and per operation", "429 responses and Retry-After behaviour", "Token-bucket rate limiting in the client", "Bulkheads between ingestion and query traffic", "Load test design: ramp, steady state and spike", "Locust or k6 scripts for query traffic", "Interpreting error rate and latency under load", "Requesting limit increases or dedicated read capacity"],
+          "tools": ["Locust", "k6", "Pinecone Python SDK", "Grafana"],
+          "lab_task": "Write a Locust test that ramps query traffic from 10 to 500 requests per second against a staging index while an ingestion job upserts at full speed. Add a client-side token bucket for ingestion and rerun. Report the requests per second where 429s first appear, p95 latency at steady state and how the token bucket changed query errors.",
+          "deliverable": "Load test scripts and a report with throughput, latency and error charts",
+          "checks": [["Ramp query traffic to 500 requests per second", "The rate where 429 errors begin is recorded", "Locust report"], ["Rerun with the ingestion token bucket enabled", "Query error rate is lower than in the first run", "Locust report"], ["Read the Retry-After handling in the client log", "Retried requests wait before resending", "Client log"]],
+          "objectives": ["Load test Pinecone realistically", "Protect query traffic from ingestion bursts", "Find and document throughput limits"]
+        },
+        {
+          "topic": "Cost Optimisation: Namespace Sizing, top_k and Filter Strategy",
+          "subtopics": ["Finding the biggest cost drivers in usage data", "Smaller namespaces to cut query read units", "Lower top_k and dropping include_values", "Moving large text out of metadata to cut storage", "Lower embedding dimensions with variable-dimension models", "Deleting stale data and unused indexes", "Caching popular queries", "Showback reports by tag and namespace"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "pandas"],
+          "lab_task": "From a week of usage logs, rank cost by index, namespace and operation. Apply three changes on staging: split the largest shared namespace by tenant, cut top_k from 100 to 20 with rerank, and move chunk_text to an external store. Measure read units, write units and storage before and after each change and keep recall at 5 within 2 points of the baseline.",
+          "deliverable": "Cost optimisation report with unit savings per change and recall impact",
+          "checks": [["Split the largest namespace by tenant and replay the query log", "Average read units per query fall", "Usage comparison"], ["Move chunk_text out of metadata and check storage", "Storage in GB falls for the namespace", "Stats and usage output"], ["Run the evaluation after all changes", "Recall at 5 stays within 2 points of the baseline", "Results CSV"]],
+          "objectives": ["Find Pinecone cost drivers from data", "Reduce units and storage without losing quality", "Report savings by change"]
+        },
+        {
+          "topic": "Collections and Pod-Based Index Operations",
+          "subtopics": ["Pod types p1, s1 and p2 and pod sizes x1 to x8", "PodSpec with environment, pod_type, pods, replicas and shards", "index_fullness on pod-based indexes", "Scaling replicas and pod size with configure_index", "Collections as static snapshots of pod-based indexes", "pc.create_collection(name, source) and describe_collection", "Creating an index from a collection", "Metadata indexing configuration on pod-based indexes"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "PodSpec"],
+          "lab_task": "On a legacy pod-based index, read describe_index_stats and index_fullness, scale replicas from 1 to 2 with pc.configure_index(name, replicas=2) and note query throughput before and after. Create a collection with pc.create_collection(name='legacy-snap', source='legacy-idx'), wait until it is Ready and record its size and record count.",
+          "deliverable": "Pod-based operations log with fullness, scaling results and collection details",
+          "checks": [["Read index_fullness on the pod-based index", "A value between 0 and 1 is reported", "Stats JSON"], ["Call describe_collection after creation finishes", "status is Ready and the record count matches the source index", "Collection JSON"], ["Compare query throughput with 1 and 2 replicas", "Throughput rises with 2 replicas", "Load test output"]],
+          "objectives": ["Operate pod-based indexes", "Snapshot pod-based data with collections", "Explain pod sizing and replicas"]
+        },
+        {
+          "topic": "Migrating Pod-Based Indexes to Serverless",
+          "subtopics": ["Reasons to migrate: cost model, scaling and new features", "Console migration flow from a pod-based index to serverless", "Collection-based migration path", "Feature differences: metadata config, fullness and limits", "Client changes: host, spec and SDK version", "Write freeze or dual-write during migration", "Validating counts, sample fetches and query parity", "Cut-over and decommissioning the pod index"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "pandas"],
+          "lab_task": "Migrate legacy-idx to a serverless index called legacy-sl using the documented migration path. Freeze writes, run the migration, compare record counts per namespace, fetch 500 random IDs from both, run 200 queries and compute top-10 overlap. Switch the application host by config, then delete the pod index and note the monthly cost difference.",
+          "deliverable": "Migration runbook, parity report and cost comparison",
+          "checks": [["Compare per-namespace counts of legacy-idx and legacy-sl", "Counts match exactly", "Stats comparison"], ["Fetch 500 random IDs from both indexes", "Values and metadata are identical for all 500", "Diff script output"], ["Compute top-10 overlap for 200 queries", "Average overlap is at least 0.9", "Parity report"]],
+          "objectives": ["Plan and run a pod-to-serverless migration", "Prove data and query parity", "Cut over and decommission safely"]
+        },
+        {
+          "topic": "Zero-Downtime Index Swaps in Pinecone Applications",
+          "subtopics": ["Why Pinecone indexes are swapped rather than altered", "Logical index names in application config mapping to hosts", "Blue and green indexes with dual writes", "Feature flags for read traffic", "Gradual read shifting with shadow comparison", "Rollback by flipping the config", "Cleaning up the old index after a soak period", "Recording swaps in change management"],
+          "tools": ["Pinecone Python SDK", "LaunchDarkly or Unleash", "FastAPI"],
+          "lab_task": "Implement a resolver that maps the logical name products to a host from config, with a feature flag that sends a percentage of reads to the green index. Shift 10%, 50% and 100% of reads while dual writes continue, compare error rate and recall at each step, roll back once on purpose and record the time to switch.",
+          "deliverable": "Resolver code, swap runbook and a timeline of the traffic shift",
+          "checks": [["Flip the flag from blue to green during a load test", "Zero failed requests are recorded", "Load test log"], ["Roll back from 100% green to blue", "All reads use blue within one config refresh interval", "Service log"], ["Fetch a record written mid-swap from both indexes", "The record exists in both", "fetch output"]],
+          "objectives": ["Swap Pinecone indexes without downtime", "Shift reads gradually with flags", "Roll back quickly"]
+        },
+        {
+          "topic": "Disaster Recovery and Cross-Region Strategy for Pinecone",
+          "subtopics": ["Recovery point and recovery time objectives for retrieval", "Backups as the recovery point", "Rebuilding from source data and embedding cost", "Standby indexes in a second region or cloud", "Dual writes and reconciliation jobs", "Failover by config and DNS", "Testing recovery with game days", "Documenting dependencies: embeddings, rerankers and keys"],
+          "tools": ["Pinecone Python SDK", "Pinecone console", "Amazon S3"],
+          "lab_task": "Define RPO 24 hours and RTO 2 hours for the search service. Restore the latest backup into a new index, time it, and also time a full rebuild from source Parquet by import into a second region. Run a game day where the primary host is made unavailable, fail over by config and measure the time until searches succeed again.",
+          "deliverable": "DR plan with RPO and RTO, restore and rebuild timings and a game day report",
+          "checks": [["Time a restore from the latest backup", "The restore completes within the 2-hour RTO", "Restore log"], ["Fail over during the game day", "Searches succeed on the standby within the measured failover time", "Game day timeline"], ["Run the reconciliation job after failback", "Record counts match between regions", "Reconciliation log"]],
+          "objectives": ["Set recovery objectives for Pinecone data", "Test restore, rebuild and failover", "Document recovery dependencies"]
+        },
+        {
+          "topic": "Data Deletion, Retention and GDPR Erasure in Pinecone",
+          "subtopics": ["Locating a person's data across indexes and namespaces", "Delete by ID, by prefix listing and by metadata filter", "Namespace deletion for tenant offboarding", "Data in backups and collections after deletion", "Retention schedules for logs and backups", "Erasure evidence: before and after fetches", "Deleting Assistant files and assistants", "Tracking erasure requests and deadlines"],
+          "tools": ["Pinecone Python SDK", "Pinecone Assistant", "Jira"],
+          "lab_task": "Given an erasure request for user_id u-123, write erase_user.py that finds their records in three namespaces via metadata filter queries and ID prefixes, deletes them, deletes their Assistant files, and writes an evidence file with counts and timestamps. Then document how backups that still contain u-123 are handled within the retention policy.",
+          "deliverable": "erase_user.py, an evidence file and a retention and backups note",
+          "checks": [["Fetch every deleted ID after the script runs", "None of the IDs are returned", "fetch output"], ["Query with filter {'user_id': 'u-123'} in all namespaces", "Zero matches are returned", "Query output"], ["List Assistant files with metadata user_id u-123", "The list is empty", "Script output"]],
+          "objectives": ["Erase personal data across Pinecone resources", "Produce evidence of deletion", "Handle backups in retention policy"]
+        },
+        {
+          "topic": "Streaming Ingestion from Kafka and Spark into Pinecone",
+          "subtopics": ["Change data capture from source databases", "Kafka consumers that batch upserts", "At-least-once delivery and idempotent upserts by ID", "Handling deletes as tombstone events", "Pinecone Spark connector for batch backfills", "Embedding inside the stream or before it", "Dead-letter topics for failed records", "Lag monitoring and freshness targets"],
+          "tools": ["Apache Kafka", "Apache Spark", "Pinecone Spark connector", "Pinecone Python SDK"],
+          "lab_task": "Build a Kafka consumer that reads product change events, embeds new text, batches 100 records or 1 second and upserts to Pinecone, turning delete events into index.delete calls and sending failures to a dead-letter topic. Backfill 1,000,000 products with the Spark connector. Measure end-to-end lag at 200 events per second.",
+          "deliverable": "Consumer code, Spark job, dead-letter samples and a lag chart",
+          "checks": [["Replay the same 1,000 events twice", "The record count increases by 1,000, not 2,000", "Stats JSON"], ["Send a delete event for product p-9", "fetch for p-9 returns no record", "fetch output"], ["Run 200 events per second for 10 minutes", "p95 end-to-end lag is recorded and stays under the 10-second target", "Lag chart"]],
+          "objectives": ["Stream changes into Pinecone", "Keep ingestion idempotent and handle deletes", "Monitor freshness lag"]
+        },
+        {
+          "topic": "Amazon Bedrock Knowledge Bases with Pinecone",
+          "subtopics": ["Bedrock Knowledge Bases with Pinecone as the vector store", "Pinecone API key stored in AWS Secrets Manager", "Index dimension matching the Bedrock embedding model", "Field mapping for text and metadata", "Data source sync from Amazon S3", "Retrieve and RetrieveAndGenerate APIs", "Metadata filters in Bedrock retrieval", "Private connectivity and IAM roles"],
+          "tools": ["Amazon Bedrock", "AWS Secrets Manager", "Amazon S3", "Pinecone console"],
+          "lab_task": "Create a Pinecone index with the dimension of the chosen Bedrock embedding model, store the API key in Secrets Manager, and create a Bedrock knowledge base pointing at the index host with text and metadata field mappings. Sync 100 documents from S3, call RetrieveAndGenerate for 10 questions and inspect the records Bedrock wrote with index.fetch.",
+          "deliverable": "Knowledge base configuration, sync report and 10 answers with sources",
+          "checks": [["Run the data source sync", "The sync completes with 100 documents indexed and zero failures", "Bedrock console screenshot"], ["Call describe_index_stats after the sync", "The record count is above zero and matches the chunk count Bedrock reports", "Stats JSON"], ["Call RetrieveAndGenerate for a covered question", "The answer includes citations to S3 source documents", "API response"]],
+          "objectives": ["Use Pinecone as a Bedrock knowledge base store", "Map fields and secrets correctly", "Verify what Bedrock writes to Pinecone"]
+        },
+        {
+          "topic": "Pinecone Assistant in Production: MCP Server, Chat Completions and Multi-Assistant Design",
+          "subtopics": ["Assistant regions and data residency", "Assistant MCP server endpoint for agent tools", "OpenAI-compatible chat_completions for existing clients", "Streaming responses", "One assistant per tenant compared with shared assistants with metadata filters", "Uploading and replacing files from a pipeline", "Assistant usage, limits and cost", "Evaluation in CI for assistants"],
+          "tools": ["Pinecone Assistant", "MCP", "OpenAI Python SDK", "Pinecone Python SDK"],
+          "lab_task": "Expose hr-helper to an agent through the Assistant MCP server and call it from an MCP client, then point an existing OpenAI-SDK client at the assistant's chat completions endpoint with streaming on. Write a pipeline that replaces changed files nightly, and a CI step that runs the 15-question evaluation and fails below a correctness threshold.",
+          "deliverable": "MCP client config, streaming client code, file sync pipeline and CI evaluation step",
+          "checks": [["List tools from the Assistant MCP server in an MCP client", "A context retrieval tool for hr-helper is listed", "Client output"], ["Run the OpenAI-compatible client with stream=True", "Tokens arrive in chunks before the final message", "Terminal recording"], ["Run the CI evaluation after uploading a wrong policy file", "The CI step fails below the correctness threshold", "CI log"]],
+          "objectives": ["Integrate Pinecone Assistant with agents and existing clients", "Design multi-tenant assistants", "Gate assistant quality in CI"]
+        },
+        {
+          "topic": "Security Review of a Pinecone Deployment",
+          "subtopics": ["Threat model: key leaks, tenant crossover and prompt injection through documents", "Key scope, rotation age and storage location", "Network path: public versus private endpoints", "Tenant isolation tests for namespaces and filters", "Metadata hygiene: no secrets or unneeded personal data", "Least-privilege roles and dormant users", "Audit log coverage and alerting", "Dependency and SDK version checks"],
+          "tools": ["Pinecone console", "gitleaks", "pip-audit", "Pinecone Python SDK"],
+          "lab_task": "Review a sample Pinecone deployment: scan the repo with gitleaks for API keys, list keys and their roles, run a tenant crossover test of 100 queries across namespaces, scan 10,000 records' metadata for emails and tokens, check that audit logs reach storage, and run pip-audit on the service. Rate each finding by severity and list fixes.",
+          "deliverable": "Security review report with findings, severity and remediation owners",
+          "checks": [["Run gitleaks on the repository", "Any committed Pinecone key is reported with file and line", "gitleaks output"], ["Run the 100-query tenant crossover test", "Zero results come from another tenant's namespace", "Test log"], ["Scan metadata for email address patterns", "The count of records containing emails is reported", "Scan output"]],
+          "objectives": ["Assess a Pinecone deployment against a threat model", "Test tenant isolation and key hygiene", "Report findings with fixes"]
+        },
+        {
+          "topic": "Troubleshooting Pinecone: Missing Results, Dimension Errors and 429s",
+          "subtopics": ["Triage order: index, host, namespace, filter, then embedding", "Empty results from wrong namespace, filter or model", "Dimension mismatch errors after model changes", "Stale results from freshness lag", "429 bursts and retry storms", "401 and 403 from rotated or scoped keys", "SDK version and API version drift", "Opening a support case with request IDs and timestamps"],
+          "tools": ["Pinecone Python SDK", "curl", "Grafana", "Pinecone status page"],
+          "lab_task": "Work through five injected faults on a staging service: a namespace typo, a query embedded with a different model, a filter on a renamed field, a revoked API key and an ingestion burst causing 429s. For each, record the symptom, the commands used to find the cause, the fix and the time taken, and write the support ticket you would send for the 429 case.",
+          "deliverable": "Troubleshooting log for five faults and a sample support ticket",
+          "checks": [["Diagnose the namespace typo", "describe_index_stats shows the expected namespace name differs from the one queried", "Stats JSON"], ["Diagnose the model mismatch", "Scores drop sharply and the embedding model in config differs from the index model", "Investigation log"], ["Diagnose the revoked key", "Requests return 401 and the key is missing from the key list", "Response and console output"]],
+          "objectives": ["Troubleshoot Pinecone issues systematically", "Find the root cause from commands and metrics", "Escalate to support with evidence"]
+        },
+        {
+          "topic": "Capstone: Enterprise Retrieval Platform on Pinecone with Private Access and Observability",
+          "subtopics": ["Projects, roles, service accounts and scoped keys", "Private endpoint access, CMEK and audit logs", "Streaming ingestion with blue-green index swaps", "Hybrid retrieval with reranking and an evaluation gate", "Monitoring, alerts, load test and DR game day", "Architecture review and handover"],
+          "tools": ["Terraform", "Pinecone Admin API", "AWS PrivateLink", "Prometheus", "Apache Kafka", "Locust"],
+          "lab_task": "Design and run a retrieval platform for three business units: projects and keys created by the Admin API and Terraform, private endpoint access only, CMEK and audit logs on, Kafka ingestion, hybrid search with rerank, Prometheus alerts and a blue-green swap. Prove it with a 1-hour load test, a DR restore and a security review, then present cost per 1,000 queries.",
+          "deliverable": "Architecture document, infrastructure code, test reports, DR record and cost model",
+          "checks": [["Run the 1-hour load test at the target rate", "p95 latency stays under the agreed target and error rate under 0.1%", "Load test report"], ["Run the DR restore drill", "Service recovers within the stated RTO", "Game day timeline"], ["Attempt a query from outside the VPC", "The request fails because only private access is allowed", "curl output"]],
+          "objectives": ["Design an enterprise Pinecone platform", "Prove security, reliability and performance", "Present cost and operating model"]
+        }
+      ]
+    }
+  }
+}

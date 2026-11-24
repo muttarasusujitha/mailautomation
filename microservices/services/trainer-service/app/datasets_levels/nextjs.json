@@ -1,0 +1,573 @@
+{
+  "domain": "Next.js",
+  "name": "Next.js Full-Stack React Development",
+  "category": "Web and Full Stack Development",
+  "icon": "layout",
+  "aliases": ["NextJS", "Next JS", "Next.js Developer", "Next.js Development", "Next.js Training", "Next.js App Router", "Next.js with TypeScript", "Next.js 15", "Next.js 16", "Next.js Full Stack"],
+  "certifications": ["No vendor certification; assessed by capstone project", "Meta Front-End Developer Professional Certificate (React foundation)"],
+  "tools": ["Next.js", "React", "TypeScript", "Tailwind CSS", "Turbopack", "Prisma or Drizzle", "Auth.js", "Vercel", "Playwright"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For React developers and web developers moving to full-stack React. Covers Next.js projects and the App Router, pages and layouts, navigation, server and client components, styling, images and fonts, data fetching in server components, dynamic routes, loading UI and streaming, error files, forms with Server Actions, route handlers, databases with Prisma, caching and revalidation, metadata and SEO, authentication with Auth.js, request interception with proxy, testing and deployment.",
+      "prerequisites": ["Builds React components with props, state and hooks", "Writes modern JavaScript or TypeScript", "Has used npm and Git"],
+      "outcomes": ["Build full-stack applications with the Next.js App Router", "Fetch, mutate and cache data with server components and Server Actions", "Add authentication, SEO and a database", "Test and deploy Next.js applications"],
+      "days": [
+        {
+          "topic": "Next.js Overview and Project Setup",
+          "subtopics": ["What Next.js adds to React", "App Router and Pages Router", "Rendering on the server and the client", "Creating a project with create-next-app", "Project structure: app, public and configuration files", "TypeScript and ESLint in a new project", "The development server with Turbopack", "next.config.ts settings", "Environment files and public variables", "Building and running a production server"],
+          "tools": ["Node.js", "create-next-app", "Turbopack", "VS Code"],
+          "lab_task": "Create a Next.js project with TypeScript and Tailwind CSS, explore the app folder, edit the home page with fast refresh, add an environment setting and run a production build locally.",
+          "deliverable": "Starter project in a Git repository",
+          "checks": [["Start the dev server", "Page updates on save without losing state", "Screen recording"], ["Run a production build", "Build completes and lists routes with their rendering type", "Build output"], ["Read an environment setting", "Value appears on the page from the environment file", "Screenshot"]],
+          "objectives": ["Explain what Next.js provides", "Create and run a Next.js project", "Build for production"]
+        },
+        {
+          "topic": "Pages, Layouts and App Router File Conventions",
+          "subtopics": ["Folders as routes", "page and layout files", "The root layout", "Nested layouts", "Templates versus layouts", "Route groups for organisation", "Colocating components", "Private folders"],
+          "tools": ["Next.js", "TypeScript"],
+          "lab_task": "Build a site with home, about, blog and dashboard sections, a root layout with header and footer, a nested dashboard layout and route groups for marketing and app pages.",
+          "deliverable": "Multi-section site skeleton",
+          "checks": [["Navigate sections", "Shared header stays mounted across pages", "Screen recording"], ["Use a nested layout", "Dashboard pages share the sidebar", "Screenshot"], ["Group routes", "Route groups change folders without changing URLs", "Route list"]],
+          "objectives": ["Create routes with folders", "Share UI with layouts", "Organise routes with groups"]
+        },
+        {
+          "topic": "Linking and Navigating Between Pages",
+          "subtopics": ["The Link component", "Prefetching", "useRouter, usePathname and useSearchParams", "Programmatic navigation", "Active link styling", "Scroll behaviour", "redirect and permanentRedirect", "Back and forward navigation"],
+          "tools": ["Next.js", "next/link", "next/navigation"],
+          "lab_task": "Build navigation with active link styling, a search box that updates the URL, a redirect for an old URL and a button that navigates after an action.",
+          "deliverable": "Navigation components",
+          "checks": [["Click a link", "Page changes without a full reload", "Network log"], ["Search", "URL query updates and survives a refresh", "Screen recording"], ["Open an old URL", "Redirect to the new page with the right status", "Response headers"]],
+          "objectives": ["Navigate with Link and the router", "Read URL state", "Redirect correctly"]
+        },
+        {
+          "topic": "Server and Client Components in Next.js",
+          "subtopics": ["Server components by default", "When to add use client", "What can and cannot cross the boundary", "Passing server data to client components", "Interleaving server and client components", "Third-party libraries that need the client", "Keeping secrets on the server", "Bundle size effects"],
+          "tools": ["Next.js", "React DevTools", "Bundle analyser"],
+          "lab_task": "Build a product page where data loads in a server component and only the add-to-basket button is a client component, then measure the JavaScript sent to the browser.",
+          "deliverable": "Product page with boundary notes",
+          "checks": [["Check the bundle", "Server component code absent from the client bundle", "Bundle report"], ["Use state in a client component", "Basket button updates without a reload", "Screen recording"], ["Keep a secret on the server", "API key never appears in browser files", "Search of built assets"]],
+          "objectives": ["Choose server or client components", "Pass data across the boundary", "Keep client bundles small"]
+        },
+        {
+          "topic": "Styling with Tailwind CSS and CSS Modules",
+          "subtopics": ["Global styles", "CSS Modules", "Tailwind CSS setup and utility classes", "Responsive design", "Dark mode", "Conditional classes", "Component variants", "Styling third-party components"],
+          "tools": ["Tailwind CSS", "CSS Modules", "Next.js"],
+          "lab_task": "Style the site with Tailwind CSS, build a card with variants, make the layout responsive, add dark mode and style one legacy component with CSS Modules.",
+          "deliverable": "Styled, responsive site",
+          "checks": [["Resize the window", "Layout works at mobile and desktop widths", "Screenshots"], ["Toggle dark mode", "Colours switch across the site", "Screenshots"], ["Use CSS Modules", "Class names scoped to the component", "DOM inspection"]],
+          "objectives": ["Style Next.js apps", "Build responsive layouts", "Combine Tailwind and CSS Modules"]
+        },
+        {
+          "topic": "Images, Fonts and Static Assets",
+          "subtopics": ["The Image component", "Sizes, priority and responsive images", "Remote image configuration", "next/font for Google and local fonts", "Avoiding layout shift", "The public folder", "Favicons and app icons", "Image formats and quality"],
+          "tools": ["next/image", "next/font", "Lighthouse"],
+          "lab_task": "Replace img tags with the Image component, configure remote images, load fonts with next/font and compare Lighthouse scores and layout shift before and after.",
+          "deliverable": "Optimised pages with Lighthouse reports",
+          "checks": [["Load images", "Modern formats served at the right sizes", "Network log"], ["Measure layout shift", "Cumulative Layout Shift below 0.1", "Lighthouse report"], ["Load fonts", "No flash of invisible text", "Screen recording"]],
+          "objectives": ["Optimise images", "Load fonts efficiently", "Avoid layout shift"]
+        },
+        {
+          "topic": "Fetching Data in Server Components",
+          "subtopics": ["async server components", "fetch on the server", "Fetching from databases directly", "Parallel and sequential fetching", "Deduplicating requests", "Handling errors and empty data", "Static and dynamic rendering of data", "Passing data to child components"],
+          "tools": ["Next.js", "fetch", "A public REST API"],
+          "lab_task": "Build a blog list and post pages that fetch data in server components, load author and comments in parallel and show empty and error states.",
+          "deliverable": "Data-driven blog pages",
+          "checks": [["Load in parallel", "Page time close to the slowest request", "Server timing log"], ["Show an empty state", "Message shown when there are no posts", "Screenshot"], ["View page source", "Post content present in the HTML", "Page source"]],
+          "objectives": ["Fetch data on the server", "Avoid request waterfalls", "Handle data states"]
+        },
+        {
+          "topic": "Dynamic Routes and generateStaticParams",
+          "subtopics": ["Dynamic segments", "Catch-all and optional catch-all segments", "Reading params and searchParams", "generateStaticParams for static paths", "dynamicParams behaviour", "notFound for missing items", "Typed route parameters", "Nested dynamic routes"],
+          "tools": ["Next.js", "TypeScript"],
+          "lab_task": "Build post and category pages with dynamic segments, prebuild popular posts with generateStaticParams, return 404 for missing posts and add a docs section with a catch-all route.",
+          "deliverable": "Dynamic routes with static generation",
+          "checks": [["Build static paths", "Popular posts prerendered at build time", "Build output"], ["Request a missing post", "404 page returned", "Response status"], ["Use a catch-all route", "Nested docs paths render the right page", "Screenshots"]],
+          "objectives": ["Build dynamic routes", "Prerender known paths", "Handle missing content"]
+        },
+        {
+          "topic": "Loading UI, Streaming and Suspense",
+          "subtopics": ["loading files", "Streaming server rendering", "Suspense boundaries", "Skeleton screens", "Streaming slow parts separately", "Instant navigation feedback", "Ordering of streamed content", "Measuring perceived speed"],
+          "tools": ["Next.js", "React Suspense"],
+          "lab_task": "Add loading skeletons to the blog, stream a slow recommendations section behind a Suspense boundary and compare time to first content with and without streaming.",
+          "deliverable": "Streaming pages with timing comparison",
+          "checks": [["Load a slow page", "Main content shows before recommendations finish", "Screen recording"], ["Navigate", "Loading skeleton appears immediately", "Screen recording"], ["Compare timing", "First content time improves with streaming", "Timing table"]],
+          "objectives": ["Show loading states", "Stream slow content", "Improve perceived speed"]
+        },
+        {
+          "topic": "Error Handling with error and not-found Files",
+          "subtopics": ["error files and error boundaries", "global-error for the root layout", "not-found files", "Resetting after errors", "Errors in server and client components", "Logging errors", "User-friendly error messages", "Expected errors versus bugs"],
+          "tools": ["Next.js", "React error boundaries"],
+          "lab_task": "Add error boundaries per section, a custom not-found page, a global error page, retry buttons and server-side error logging, then trigger each case.",
+          "deliverable": "Error handling across the app",
+          "checks": [["Break one section", "Rest of the page keeps working", "Screenshot"], ["Retry", "Reset button recovers when the error clears", "Screen recording"], ["Visit a missing page", "Custom not-found page shown", "Screenshot"]],
+          "objectives": ["Handle errors gracefully", "Recover from errors", "Separate expected errors from bugs"]
+        },
+        {
+          "topic": "Forms and Mutations with Server Actions",
+          "subtopics": ["Server Actions and the use server directive", "Forms that work without JavaScript", "useActionState for results and errors", "Pending states with useFormStatus", "Validating input with Zod on the server", "Revalidating data after a mutation", "Redirecting after success", "Security rules for Server Actions"],
+          "tools": ["Next.js Server Actions", "Zod", "React hooks"],
+          "lab_task": "Build create and edit post forms with Server Actions, server-side Zod validation, pending states and field errors, revalidate the list after saving and confirm the form works with JavaScript off.",
+          "deliverable": "Working post editor",
+          "checks": [["Submit with JavaScript off", "Post saved and page redirected", "Screen recording"], ["Submit invalid data", "Field errors shown from the server", "Screenshot"], ["Save a post", "List shows the new post without a manual refresh", "Screen recording"]],
+          "objectives": ["Mutate data with Server Actions", "Validate on the server", "Revalidate after changes"]
+        },
+        {
+          "topic": "Route Handlers for Building APIs",
+          "subtopics": ["route files and HTTP methods", "Reading requests and returning responses", "Dynamic route handlers", "Headers, cookies and status codes", "CORS for external clients", "Streaming responses", "Webhooks", "Route handlers versus Server Actions"],
+          "tools": ["Next.js route handlers", "curl", "Postman"],
+          "lab_task": "Build a JSON API for posts with route handlers, add CORS for a mobile client, receive a webhook with signature checking and stream a CSV export.",
+          "deliverable": "API endpoints with an HTTP collection",
+          "checks": [["Call the API", "Correct JSON and status codes for each method", "Collection run"], ["Send a bad signature", "Webhook rejected with 401", "Response"], ["Export CSV", "File streams to the client", "Network timing"]],
+          "objectives": ["Build APIs with route handlers", "Handle webhooks safely", "Choose handlers or actions"]
+        },
+        {
+          "topic": "Connecting Next.js to a Database with Prisma",
+          "subtopics": ["Choosing a database for a Next.js app", "Prisma schema and migrations", "A single Prisma client in development", "Queries in server components", "Mutations in Server Actions", "Relations and includes", "Seeding data", "Serverless connection limits"],
+          "tools": ["PostgreSQL", "Prisma", "Docker"],
+          "lab_task": "Store posts, authors and comments in PostgreSQL with Prisma, read them in server components, write them in Server Actions and seed realistic data.",
+          "deliverable": "Database-backed blog",
+          "checks": [["Run migrations", "Schema created in PostgreSQL", "Migration output"], ["Add a comment", "Comment saved and shown on the post", "Screen recording"], ["Avoid client duplication", "Only one Prisma client in development", "Log output"]],
+          "objectives": ["Use a database from Next.js", "Read in server components", "Write in Server Actions"]
+        },
+        {
+          "topic": "Caching and Revalidation Essentials",
+          "subtopics": ["What Next.js caches", "Static and dynamic pages", "Time-based revalidation", "On-demand revalidation with revalidatePath and revalidateTag", "Opting out of caching", "Client-side router cache", "Seeing cache behaviour in build output and headers", "Common caching surprises"],
+          "tools": ["Next.js", "Build output", "Browser DevTools"],
+          "lab_task": "Make the blog list revalidate every minute, revalidate a post on edit, keep the dashboard dynamic and explain three caching surprises found while testing.",
+          "deliverable": "Caching plan and test notes",
+          "checks": [["Edit a post", "Post page shows the change straight after saving", "Screen recording"], ["Wait for revalidation", "List refreshes after the time limit", "Timestamps"], ["Keep the dashboard dynamic", "Dashboard always shows current data", "Screenshots"]],
+          "objectives": ["Understand Next.js caching", "Revalidate on time and on demand", "Avoid stale data"]
+        },
+        {
+          "topic": "Metadata, SEO and Social Sharing Images",
+          "subtopics": ["The Metadata API", "generateMetadata for dynamic pages", "Titles, descriptions and canonical URLs", "Open Graph and social images", "Generating images with ImageResponse", "Sitemaps and robots files", "Structured data", "Checking SEO with tools"],
+          "tools": ["Next.js Metadata API", "ImageResponse", "Lighthouse"],
+          "lab_task": "Add metadata to every page, generate dynamic social images for posts, create a sitemap and robots file and validate structured data for articles.",
+          "deliverable": "SEO-ready blog",
+          "checks": [["Share a post link", "Social preview shows the generated image", "Preview screenshot"], ["Open the sitemap", "All posts listed", "Sitemap file"], ["Run Lighthouse SEO", "SEO score of 95 or more", "Lighthouse report"]],
+          "objectives": ["Manage metadata", "Generate social images", "Improve search visibility"]
+        },
+        {
+          "topic": "Authentication with Auth.js",
+          "subtopics": ["Authentication options for Next.js", "Auth.js setup and providers", "Sessions in server components", "Protecting pages and route handlers", "Credentials and OAuth providers", "Storing users with an adapter", "Sign-in and sign-out flows", "Showing user information"],
+          "tools": ["Auth.js", "GitHub OAuth", "Prisma adapter"],
+          "lab_task": "Add GitHub sign-in with Auth.js, store users with the Prisma adapter, protect the dashboard and post editor and show the signed-in user in the header.",
+          "deliverable": "Authenticated blog",
+          "checks": [["Sign in with GitHub", "Session created and user shown", "Screen recording"], ["Visit the dashboard signed out", "Redirected to sign in", "Screen recording"], ["Call a protected handler", "401 without a session", "Response"]],
+          "objectives": ["Add authentication to Next.js", "Protect pages and APIs", "Read sessions on the server"]
+        },
+        {
+          "topic": "Request Interception with Proxy (formerly Middleware)",
+          "subtopics": ["What proxy runs and when", "Matching paths", "Redirects and rewrites", "Reading cookies and headers", "Simple access checks", "Locale and A/B routing", "Limits of code in proxy", "Debugging proxy behaviour"],
+          "tools": ["Next.js proxy", "Browser DevTools"],
+          "lab_task": "Add proxy logic that redirects signed-out users from app routes, rewrites a beta path for a test group and sets a security header, and check which paths it runs on.",
+          "deliverable": "Proxy configuration with tests",
+          "checks": [["Match paths", "Proxy runs only on the configured paths", "Log output"], ["Rewrite for a test group", "Test users see the beta page at the same URL", "Screenshots"], ["Add a header", "Header present on matched responses", "Response headers"]],
+          "objectives": ["Intercept requests with proxy", "Redirect and rewrite", "Keep proxy logic small"]
+        },
+        {
+          "topic": "Testing Next.js Apps with Vitest and Playwright",
+          "subtopics": ["What to test in a Next.js app", "Unit tests for utilities and components", "Testing client components", "Testing Server Actions and data functions", "End-to-end tests with Playwright", "Test databases and seeding", "Mocking external APIs", "Running tests in CI"],
+          "tools": ["Vitest", "Testing Library", "Playwright"],
+          "lab_task": "Write unit tests for validation and components, test a Server Action against a test database and write Playwright tests for sign-in, creating a post and commenting.",
+          "deliverable": "Test suite and CI job",
+          "checks": [["Run unit tests", "Validation and components covered", "Test output"], ["Test a Server Action", "Action saves to the test database", "Test output"], ["Run end-to-end tests", "Sign-in, post and comment flows pass", "Playwright report"]],
+          "objectives": ["Test Next.js apps", "Test server code", "Automate end-to-end tests"]
+        },
+        {
+          "topic": "Deploying Next.js to Vercel and with Docker",
+          "subtopics": ["Deploying to Vercel", "Environment settings per environment", "Preview deployments", "Standalone output for self-hosting", "Docker images for Next.js", "Running behind a reverse proxy", "Static exports and their limits", "Checking production behaviour"],
+          "tools": ["Vercel", "Docker", "NGINX"],
+          "lab_task": "Deploy the blog to Vercel with preview deployments, then build a standalone Docker image and run it behind NGINX with the same features.",
+          "deliverable": "Two working deployments and a deployment guide",
+          "checks": [["Deploy to Vercel", "Production and preview URLs work", "Deployment screenshots"], ["Run in Docker", "Self-hosted container serves all routes", "Browser screenshot"], ["Compare behaviour", "Caching and images work in both deployments", "Comparison notes"]],
+          "objectives": ["Deploy Next.js to Vercel", "Self-host with Docker", "Check production behaviour"]
+        },
+        {
+          "topic": "Beginner Capstone: Blog Platform with Comments",
+          "subtopics": ["Plan", "Build", "Test", "Deploy"],
+          "tools": ["Next.js", "Prisma", "Auth.js", "Tailwind CSS", "Playwright", "Vercel"],
+          "lab_task": "Build a blog platform with sign-in, a post editor using Server Actions, comments, categories, SEO metadata, caching, tests and a production deployment, then demo it.",
+          "deliverable": "Repository, live URL and demo recording",
+          "checks": [["Demo the platform", "Sign-in, posting and commenting work end to end", "Demo recording"], ["Run the tests", "Unit and end-to-end tests pass", "Test reports"], ["Check the live site", "Lighthouse scores of 90 or more for performance and SEO", "Lighthouse report"]],
+          "objectives": ["Combine the beginner topics in one product", "Build a full-stack Next.js app", "Ship it to production"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who build Next.js applications at work. Covers rendering strategies and partial prerendering, Cache Components and the use cache directive, advanced routing, optimistic mutations, server-only data access, authorisation and tenancy, internationalised routing, public APIs and webhooks, uploads, Stripe payments, URL state, real-time features, performance, instrumentation, security, UI component systems, testing, self-hosting and major version upgrades.",
+      "prerequisites": ["Has built a Next.js App Router application", "Comfortable with server components and Server Actions", "Writes TypeScript"],
+      "outcomes": ["Choose rendering and caching strategies with confidence", "Build secure multi-user features with payments, uploads and real-time updates", "Measure, test and harden Next.js applications", "Self-host and upgrade Next.js in production"],
+      "days": [
+        {
+          "topic": "Rendering Strategies: Static, Dynamic and Partial Prerendering",
+          "subtopics": ["Static rendering at build time", "Dynamic rendering per request", "What makes a route dynamic", "Partial prerendering with a static shell", "Streaming dynamic holes", "Choosing per route", "Reading build output", "Testing rendering behaviour"],
+          "tools": ["Next.js", "Build output", "Browser DevTools"],
+          "lab_task": "Classify every route of a shop by rendering strategy, convert the product page to a static shell with streamed price and stock, and verify the result from build output and response timing.",
+          "deliverable": "Rendering plan with evidence",
+          "checks": [["Classify routes", "Each route has a strategy and reason", "Rendering plan"], ["Use a static shell", "Shell served instantly with streamed dynamic parts", "Network timing"], ["Verify the build", "Build output matches the plan", "Build output"]],
+          "objectives": ["Choose rendering strategies", "Combine static and dynamic content", "Verify rendering behaviour"]
+        },
+        {
+          "topic": "Cache Components and the use cache Directive",
+          "subtopics": ["Enabling Cache Components", "use cache on components and functions", "Cache lifetimes with cacheLife", "Tagging with cacheTag", "Invalidating with revalidateTag and updateTag", "Cache keys and arguments", "What must stay uncached", "Debugging cached output"],
+          "tools": ["Next.js Cache Components", "Build output"],
+          "lab_task": "Cache product and category data with use cache, set lifetimes per data type, tag entries and invalidate them from admin edits, and prove personalised data is never cached.",
+          "deliverable": "Caching design and tests",
+          "checks": [["Cache data", "Repeated requests served from cache within the lifetime", "Server log"], ["Invalidate by tag", "Admin edit refreshes all pages that use the product", "Screen recording"], ["Protect personal data", "Basket never served from a shared cache", "Test output"]],
+          "objectives": ["Use Cache Components", "Set lifetimes and tags", "Keep personal data out of shared caches"]
+        },
+        {
+          "topic": "Advanced Routing: Route Groups, Parallel and Intercepting Routes",
+          "subtopics": ["Parallel routes with slots", "default files for slots", "Intercepting routes for modals", "Modal routes that survive refresh", "Conditional routes by role", "Route groups with multiple root layouts", "Typed routes", "Navigation edge cases"],
+          "tools": ["Next.js", "TypeScript"],
+          "lab_task": "Build a dashboard with parallel analytics and activity slots, a photo modal with intercepting routes that works on refresh, and separate root layouts for marketing and app areas.",
+          "deliverable": "Advanced routing examples",
+          "checks": [["Open a modal route", "Modal opens on click and full page on refresh", "Screen recording"], ["Load parallel slots", "Each slot loads and errors independently", "Screen recording"], ["Switch root layouts", "Marketing and app areas use their own layouts", "Screenshots"]],
+          "objectives": ["Use parallel routes", "Build modal routes", "Organise multiple root layouts"]
+        },
+        {
+          "topic": "Mutations at Scale: Optimistic UI, Revalidation and Error States",
+          "subtopics": ["useOptimistic", "Pending and disabled states", "Returning typed results from actions", "Revalidating related data", "Handling concurrent edits", "Undo patterns", "Progressive enhancement", "Action error reporting"],
+          "tools": ["Next.js Server Actions", "React useOptimistic", "Zod"],
+          "lab_task": "Add optimistic likes and comments, undo for deletes, conflict detection for concurrent edits and consistent typed error results from every action.",
+          "deliverable": "Mutation patterns library",
+          "checks": [["Like a post", "Count updates instantly and reconciles with the server", "Screen recording"], ["Fail a mutation", "Optimistic change rolls back with a message", "Screen recording"], ["Edit concurrently", "Second editor warned about the conflict", "Screenshot"]],
+          "objectives": ["Build optimistic UIs", "Handle mutation errors", "Manage concurrent edits"]
+        },
+        {
+          "topic": "Server-Only Data Access Layers with Drizzle or Prisma",
+          "subtopics": ["A data access layer for server code", "server-only imports", "Data transfer objects for the UI", "Authorisation inside the data layer", "Query performance", "Transactions in actions", "Connection pooling for serverless", "Testing the data layer"],
+          "tools": ["Drizzle ORM or Prisma", "server-only", "PostgreSQL"],
+          "lab_task": "Build a data access layer that checks permissions, returns safe DTOs, uses transactions for orders and fails the build if client code imports it.",
+          "deliverable": "Data access layer with tests",
+          "checks": [["Import from a client component", "Build fails on the server-only import", "Build output"], ["Return DTOs", "Sensitive fields never reach the client", "Network payload"], ["Run a transaction", "Order and stock updated together", "Test output"]],
+          "objectives": ["Separate data access from UI", "Enforce server-only code", "Return safe data"]
+        },
+        {
+          "topic": "Authorisation Patterns: Roles, Permissions and Multi-Tenant Access in Next.js",
+          "subtopics": ["Authentication versus authorisation", "Role and permission models", "Checks in layouts, pages, actions and handlers", "Why layout checks alone are not enough", "Organisation and team membership", "Tenant-scoped queries", "Admin impersonation with audit", "Testing permissions"],
+          "tools": ["Auth.js or Clerk", "Next.js", "PostgreSQL"],
+          "lab_task": "Add organisations, roles and permissions to a SaaS app, enforce them in actions and handlers as well as pages, add audited impersonation and write permission tests.",
+          "deliverable": "Authorisation model and test suite",
+          "checks": [["Call an action without permission", "Action rejected even when the page is bypassed", "Test output"], ["Switch organisations", "Data limited to the current organisation", "Screenshots"], ["Impersonate a user", "Impersonation recorded in the audit log", "Audit log entry"]],
+          "objectives": ["Design authorisation", "Enforce checks at every entry point", "Support multi-tenant access"]
+        },
+        {
+          "topic": "Internationalised Routing with next-intl",
+          "subtopics": ["Locale routing strategies", "next-intl setup", "Messages in server and client components", "Pluralisation and formatting", "Locale detection and switching", "Localised metadata and sitemaps", "Right-to-left support", "Translation workflow"],
+          "tools": ["next-intl", "Next.js", "Intl API"],
+          "lab_task": "Translate the shop into English, Hindi and Arabic with locale prefixes, localised metadata and sitemaps, right-to-left layout and a language switcher that keeps the current page.",
+          "deliverable": "Internationalised shop",
+          "checks": [["Switch language", "Same page shown in the new language", "Screen recording"], ["Check metadata", "Titles and descriptions localised per language", "Page source"], ["Use Arabic", "Layout switches to right-to-left", "Screenshot"]],
+          "objectives": ["Internationalise Next.js routes", "Localise content and metadata", "Support right-to-left"]
+        },
+        {
+          "topic": "Route Handlers as Public APIs: Versioning, Webhooks and Rate Limits",
+          "subtopics": ["Designing a public API on route handlers", "Versioning routes", "API keys and tokens for partners", "Rate limiting with Redis", "Webhook delivery and retries", "OpenAPI documentation", "Caching API responses", "Monitoring API use"],
+          "tools": ["Next.js route handlers", "Upstash Redis or Redis", "OpenAPI"],
+          "lab_task": "Publish a versioned partner API with API keys, rate limits, OpenAPI docs and outgoing webhooks with retries and signatures.",
+          "deliverable": "Partner API with documentation",
+          "checks": [["Exceed the rate limit", "429 returned with retry information", "Response"], ["Deliver a webhook", "Partner receives a signed event with retries on failure", "Delivery log"], ["Publish docs", "Every endpoint documented with examples", "Docs screenshot"]],
+          "objectives": ["Build public APIs in Next.js", "Protect APIs with keys and limits", "Deliver webhooks reliably"]
+        },
+        {
+          "topic": "File Uploads and Media Storage",
+          "subtopics": ["Upload options: actions, handlers and direct uploads", "Pre-signed URLs to object storage", "Validating type and size", "Image processing", "Serving media through a CDN", "Private files and signed downloads", "Progress indicators", "Cleaning up unused files"],
+          "tools": ["Amazon S3 or Cloudflare R2", "sharp", "Next.js"],
+          "lab_task": "Add direct-to-storage uploads with pre-signed URLs, validate files, create thumbnails, serve public images through a CDN and protect private files with signed links.",
+          "deliverable": "Upload and media feature",
+          "checks": [["Upload a large file", "Upload goes straight to storage with progress shown", "Network log"], ["Upload a bad file", "Wrong type or size rejected", "Screenshot"], ["Open a private file", "Signed link works and expires", "Response after expiry"]],
+          "objectives": ["Handle uploads safely", "Store and serve media", "Protect private files"]
+        },
+        {
+          "topic": "Payments and Subscriptions with Stripe",
+          "subtopics": ["Stripe Checkout and Payment Elements", "Products, prices and subscriptions", "Webhooks for payment events", "Customer portal", "Trials, upgrades and cancellations", "Entitlements in the app", "Testing with Stripe test mode and the CLI", "Handling failed payments"],
+          "tools": ["Stripe", "Stripe CLI", "Next.js"],
+          "lab_task": "Add subscriptions with Stripe Checkout, sync status through webhooks, gate features by plan, open the customer portal and handle a failed renewal.",
+          "deliverable": "Billing feature with webhook tests",
+          "checks": [["Subscribe", "Plan active in the app after checkout", "Screen recording"], ["Replay webhooks", "Duplicate events processed once", "Webhook log"], ["Fail a renewal", "Access changes according to the dunning rules", "Test output"]],
+          "objectives": ["Take payments with Stripe", "Sync billing through webhooks", "Gate features by plan"]
+        },
+        {
+          "topic": "Search, Filters and Pagination with URL State",
+          "subtopics": ["URL as the source of truth", "Reading searchParams on the server", "Updating the URL from client components", "Debouncing search input", "Cursor and offset pagination", "Full-text search in PostgreSQL", "Faceted filters", "Shareable and bookmarkable results"],
+          "tools": ["Next.js", "PostgreSQL full-text search", "nuqs"],
+          "lab_task": "Build product search with full-text matching, faceted filters and cursor pagination held in the URL, debounce typing and make every result page shareable.",
+          "deliverable": "Search page with URL state",
+          "checks": [["Share a result URL", "Same results shown in a new browser", "Screenshots"], ["Type quickly", "One server request after typing pauses", "Network log"], ["Paginate", "Next page continues without duplicates", "Screen recording"]],
+          "objectives": ["Keep state in the URL", "Build search and filters", "Paginate correctly"]
+        },
+        {
+          "topic": "Real-Time Features in Next.js",
+          "subtopics": ["Options: polling, server-sent events and WebSockets", "Hosted real-time services", "Streaming updates from route handlers", "Updating server-rendered pages", "Presence and notifications", "Scaling real-time features", "Fallbacks for unsupported environments", "Testing real-time behaviour"],
+          "tools": ["Server-sent events", "Pusher or Ably", "Next.js"],
+          "lab_task": "Add live order status with server-sent events, notifications through a hosted real-time service and a presence indicator, and test behaviour when the connection drops.",
+          "deliverable": "Real-time features with test notes",
+          "checks": [["Update an order", "Customer page updates without a refresh", "Screen recording"], ["Drop the connection", "Client reconnects and catches up", "Screen recording"], ["Show presence", "Online users listed in real time", "Screenshot"]],
+          "objectives": ["Choose real-time approaches", "Build live updates", "Handle reconnection"]
+        },
+        {
+          "topic": "Performance: Core Web Vitals, Bundles and Images in Next.js",
+          "subtopics": ["Core Web Vitals in Next.js apps", "Bundle analysis", "Dynamic imports for heavy components", "Third-party scripts with next/script", "Image tuning", "React Compiler", "Reducing client components", "Field data with useReportWebVitals"],
+          "tools": ["@next/bundle-analyzer", "Lighthouse", "next/script", "React Compiler"],
+          "lab_task": "Measure a slow page, cut client JavaScript by moving code to server components and dynamic imports, defer third-party scripts, enable the React Compiler and report field vitals.",
+          "deliverable": "Performance report with before and after data",
+          "checks": [["Cut client JavaScript", "First-load JavaScript reduced", "Bundle report"], ["Defer scripts", "Third-party scripts no longer block rendering", "Performance trace"], ["Report field vitals", "Web Vitals collected from real visits", "Analytics dashboard"]],
+          "objectives": ["Measure Next.js performance", "Reduce client code", "Track real user vitals"]
+        },
+        {
+          "topic": "Instrumentation, Logging and OpenTelemetry in Next.js",
+          "subtopics": ["The instrumentation file", "OpenTelemetry setup for Next.js", "Tracing server components, actions and handlers", "Structured logging on the server", "Error reporting with onRequestError", "Linking traces to back-end services", "Dashboards and alerts", "Privacy in logs"],
+          "tools": ["OpenTelemetry", "@vercel/otel", "Grafana or Honeycomb", "Sentry"],
+          "lab_task": "Instrument the app with OpenTelemetry, trace a page render through the database and an external API, report server errors and build a dashboard with an alert.",
+          "deliverable": "Instrumented app and dashboard",
+          "checks": [["Trace a page", "One trace shows rendering, database and API spans", "Trace screenshot"], ["Report a server error", "Error captured with request context", "Error tool screenshot"], ["Fire an alert", "Alert triggers on a raised error rate", "Alert notification"]],
+          "objectives": ["Instrument Next.js", "Trace server work", "Alert on problems"]
+        },
+        {
+          "topic": "Security for Next.js: CSP, Server Action Safety and Data Tainting",
+          "subtopics": ["Server Actions as public endpoints", "Input validation and authorisation in every action", "Content Security Policy with nonces", "Tainting sensitive objects", "Cross-site request forgery protections", "Secure headers", "Dependency and supply chain risks", "Security testing"],
+          "tools": ["Next.js", "React taint APIs", "OWASP ZAP", "npm audit"],
+          "lab_task": "Find and fix planted issues: an action without authorisation, a leaked user object, a missing CSP and an open redirect, then add a nonce-based CSP and security scans to CI.",
+          "deliverable": "Security fixes and checklist",
+          "checks": [["Call an unprotected action", "Action now rejects unauthorised calls", "Test output"], ["Taint user data", "Passing the user object to the client throws", "Error output"], ["Apply a nonce CSP", "Strict CSP active without breaking scripts", "Response headers"]],
+          "objectives": ["Secure Server Actions", "Apply CSP", "Prevent data leaks"]
+        },
+        {
+          "topic": "UI Components with shadcn/ui and Radix",
+          "subtopics": ["Copy-in component approach", "Radix primitives and accessibility", "Theming with CSS variables", "Forms with React Hook Form and Zod", "Data tables", "Command menus and dialogs", "Server and client boundaries for UI kits", "Keeping a component kit consistent"],
+          "tools": ["shadcn/ui", "Radix UI", "React Hook Form", "Tailwind CSS"],
+          "lab_task": "Build an admin area with shadcn/ui forms, a data table with sorting and filters, dialogs and a command menu, themed to the brand and checked for accessibility.",
+          "deliverable": "Admin area with themed components",
+          "checks": [["Theme components", "Brand colours applied through variables", "Screenshot"], ["Use the keyboard", "Dialogs and command menu usable by keyboard", "Screen recording"], ["Validate a form", "Field errors shown from the Zod schema", "Screenshot"]],
+          "objectives": ["Build UIs with shadcn/ui", "Theme component kits", "Keep components accessible"]
+        },
+        {
+          "topic": "End-to-End and Visual Regression Testing for Next.js",
+          "subtopics": ["Test strategy for Next.js apps", "Playwright projects and fixtures", "Authenticated test sessions", "Seeding data per test", "Mocking third parties", "Visual regression snapshots", "Testing against preview deployments", "Flaky test control"],
+          "tools": ["Playwright", "Next.js", "Preview deployments"],
+          "lab_task": "Build a Playwright suite with authenticated fixtures and seeded data, mock Stripe, add visual snapshots for key pages and run the suite against every preview deployment.",
+          "deliverable": "End-to-end suite and CI integration",
+          "checks": [["Run against previews", "Suite runs on each preview deployment", "CI log"], ["Catch a visual change", "Snapshot fails on a layout change", "Visual diff"], ["Check stability", "Ten repeated runs pass", "Run history"]],
+          "objectives": ["Test Next.js end to end", "Catch visual regressions", "Test preview deployments"]
+        },
+        {
+          "topic": "Self-Hosting Next.js: Standalone Output, Cache Handlers and CDNs",
+          "subtopics": ["Standalone output", "Running several instances", "Shared cache handlers with Redis", "Image optimisation when self-hosting", "CDN in front of Next.js", "Build IDs and skew between versions", "Health checks and graceful shutdown", "Kubernetes deployment"],
+          "tools": ["Docker", "Redis", "NGINX or CDN", "Kubernetes"],
+          "lab_task": "Run three Next.js instances behind a load balancer with a shared Redis cache handler, a CDN for static assets and zero-downtime deploys, and test revalidation across instances.",
+          "deliverable": "Self-hosting setup and runbook",
+          "checks": [["Revalidate across instances", "All instances serve fresh content after revalidation", "Test output"], ["Deploy without downtime", "No failed requests during a rollout", "Load test results"], ["Serve through a CDN", "Static assets come from the CDN cache", "Response headers"]],
+          "objectives": ["Self-host Next.js at scale", "Share caches across instances", "Deploy without downtime"]
+        },
+        {
+          "topic": "Upgrading Next.js Major Versions with Codemods",
+          "subtopics": ["Reading upgrade guides", "Next.js codemods", "Async request APIs and other breaking changes", "Upgrading React alongside Next.js", "Third-party library compatibility", "Testing the upgrade", "Staged rollouts", "Keeping up with releases"],
+          "tools": ["@next/codemod", "Next.js upgrade guide", "Renovate"],
+          "lab_task": "Upgrade a sample app across one major version with codemods, fix the remaining breaking changes by hand, test it fully and roll it out behind a staged deployment.",
+          "deliverable": "Upgraded app and upgrade notes",
+          "checks": [["Run codemods", "Codemods apply cleanly and changes reviewed", "Diff summary"], ["Fix breaking changes", "Build and tests pass on the new version", "CI run"], ["Roll out in stages", "Staged rollout completes without errors", "Deployment log"]],
+          "objectives": ["Upgrade Next.js safely", "Use codemods", "Roll out upgrades in stages"]
+        },
+        {
+          "topic": "Intermediate Capstone: SaaS Dashboard with Billing",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["Next.js", "Drizzle or Prisma", "Auth.js", "Stripe", "Playwright", "OpenTelemetry"],
+          "lab_task": "Build a multi-organisation SaaS dashboard with roles, billing, uploads, real-time notifications, search, two languages, caching, security controls, tests and monitoring, then present it.",
+          "deliverable": "Repository, live URL, test reports and presentation",
+          "checks": [["Demo the product", "Sign-up to paid plan to daily use works end to end", "Demo recording"], ["Show quality", "Performance, security and test reports meet targets", "Reports"], ["Defend choices", "Rendering, caching and data choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one product", "Ship a production Next.js SaaS", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers and leads running large Next.js products. Covers architecture for large apps, rendering and caching internals, multi-tenant SaaS with custom domains, monorepos, multi-zones, edge and Node.js runtimes, performance engineering, threat modelling, scaling data access, headless CMS and commerce, AI features, background work, accessibility and localisation at scale, testing strategy, observability and SLOs, migrations from the Pages Router and other frameworks, hosting cost, platform choices and production troubleshooting.",
+      "prerequisites": ["Several years building production React and Next.js apps", "Strong TypeScript and back-end knowledge", "Has owned a production deployment"],
+      "outcomes": ["Architect large multi-team Next.js platforms", "Engineer performance, caching and security at scale", "Choose hosting, runtimes and migration paths with evidence", "Lead troubleshooting and technical decisions"],
+      "days": [
+        {
+          "topic": "Next.js Architecture for Large Applications",
+          "subtopics": ["Feature-based structure in the app folder", "Server and client boundaries as architecture", "Data access and domain layers", "Shared UI packages", "Configuration and feature flags", "Enforcing boundaries with lint rules", "Architecture decision records", "Evolving architecture over time"],
+          "tools": ["Next.js", "TypeScript", "ESLint boundaries plugin", "Turborepo"],
+          "lab_task": "Restructure a large Next.js app into features with clear server and client boundaries, a domain layer and shared UI, enforce boundaries in lint and record the key decisions.",
+          "deliverable": "Architecture guide and enforced boundaries",
+          "checks": [["Enforce boundaries", "Lint fails on a forbidden import", "ESLint output"], ["Isolate domain logic", "Domain code tested without Next.js", "Test output"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Structure large Next.js apps", "Enforce boundaries", "Record architecture decisions"]
+        },
+        {
+          "topic": "Rendering and Caching Internals: RSC Payloads, Client Router Cache and Cache Lifetimes",
+          "subtopics": ["The React Server Components payload", "How the client router uses payloads", "Prefetching and the client cache", "Server cache layers and lifetimes", "Cache keys and invalidation flow", "Static shells and resumable rendering", "Inspecting payloads and cache hits", "Designing cache strategies for products"],
+          "tools": ["Next.js", "Browser DevTools", "Server logs"],
+          "lab_task": "Inspect RSC payloads during navigation, trace a request through every cache layer, find why a page serves stale data and design cache lifetimes for a news product.",
+          "deliverable": "Caching analysis and design for a news product",
+          "checks": [["Inspect payloads", "Payload contents explained for one navigation", "Analysis notes"], ["Find stale data", "Root cause of the stale page identified and fixed", "Fix description"], ["Design lifetimes", "Each content type has a lifetime and invalidation rule", "Cache design"]],
+          "objectives": ["Explain Next.js rendering internals", "Trace caching layers", "Design cache strategies"]
+        },
+        {
+          "topic": "Multi-Tenant SaaS on Next.js: Custom Domains and Tenant Isolation",
+          "subtopics": ["Subdomains and custom domains per tenant", "Resolving tenants in proxy", "Tenant-aware rendering and caching", "Data isolation strategies", "Tenant branding and configuration", "Provisioning domains and certificates", "Per-tenant limits", "Testing isolation"],
+          "tools": ["Next.js proxy", "PostgreSQL row-level security", "Vercel Domains API or Caddy"],
+          "lab_task": "Make a SaaS app serve tenants on subdomains and custom domains, resolve tenants in proxy, isolate data with row-level security, keep caches tenant-scoped and test isolation.",
+          "deliverable": "Multi-tenant platform with isolation tests",
+          "checks": [["Add a custom domain", "Tenant site served on its own domain with HTTPS", "Browser screenshot"], ["Test isolation", "No cross-tenant data in any page or API", "Test output"], ["Scope caches", "Cached pages never shown to another tenant", "Test output"]],
+          "objectives": ["Build multi-tenant Next.js apps", "Isolate tenant data and caches", "Support custom domains"]
+        },
+        {
+          "topic": "Monorepos with Turborepo for Next.js Teams",
+          "subtopics": ["Apps and packages layout", "Shared UI, configuration and data packages", "Turborepo pipelines and remote caching", "Transpiling internal packages", "Affected-only CI and deploys", "Versioning shared packages", "Ownership and code review rules", "Developer experience at scale"],
+          "tools": ["Turborepo", "pnpm", "Changesets", "Next.js"],
+          "lab_task": "Build a monorepo with two Next.js apps and shared UI, data and configuration packages, enable remote caching and deploy only affected apps.",
+          "deliverable": "Monorepo with CI and deployment rules",
+          "checks": [["Use remote caching", "Unchanged builds restored from cache", "Turborepo output"], ["Deploy affected apps", "Only the changed app deploys", "Deployment log"], ["Share packages", "Both apps use the shared UI package", "Dependency graph"]],
+          "objectives": ["Run Next.js monorepos", "Share code safely", "Speed up builds and deploys"]
+        },
+        {
+          "topic": "Multi-Zones and Micro-Frontends with Next.js",
+          "subtopics": ["Multi-zones for separate apps under one domain", "Routing between zones", "Sharing layout and navigation", "Independent deployment", "Module federation and its limits", "Shared authentication across zones", "Performance cost of splitting", "When to split an app"],
+          "tools": ["Next.js multi-zones", "Turborepo", "Reverse proxy"],
+          "lab_task": "Split marketing, shop and account into three zones under one domain with shared navigation and sign-in, deploy one zone independently and measure the cost.",
+          "deliverable": "Multi-zone setup and cost analysis",
+          "checks": [["Navigate across zones", "Users move between zones under one domain", "Screen recording"], ["Deploy one zone", "Shop updated without redeploying other zones", "Deployment log"], ["Measure the cost", "Extra page weight and latency recorded", "Analysis report"]],
+          "objectives": ["Use multi-zones", "Share sign-in across apps", "Decide when to split"]
+        },
+        {
+          "topic": "Edge and Node.js Runtimes: Choosing Where Code Runs",
+          "subtopics": ["Node.js and edge runtimes compared", "What runs at the edge in Next.js", "Data location and latency", "Edge limits on APIs and packages", "Regional functions", "Streaming from the edge", "Cost and cold starts", "Choosing per route"],
+          "tools": ["Next.js", "Vercel or Cloudflare", "k6"],
+          "lab_task": "Run the same route on the Node.js and edge runtimes with data in one region, measure latency from three regions, move data or compute and recommend a runtime per route.",
+          "deliverable": "Runtime decision record per route",
+          "checks": [["Measure latency", "Latency compared across runtimes and regions", "Results table"], ["Hit an edge limit", "Unsupported API identified and worked around", "Error and fix notes"], ["Recommend runtimes", "Each route has a runtime and reason", "Decision record"]],
+          "objectives": ["Compare runtimes", "Place compute near data", "Choose runtimes per route"]
+        },
+        {
+          "topic": "Advanced Performance Engineering for Next.js",
+          "subtopics": ["Performance budgets per route", "Server rendering cost and time to first byte", "Hydration and Interaction to Next Paint", "Partial hydration through smaller client components", "Long tasks and third-party scripts", "Server load testing", "Performance in CI", "Field data analysis"],
+          "tools": ["Lighthouse CI", "k6", "Chrome DevTools", "Real user monitoring"],
+          "lab_task": "Set budgets for a slow product, cut server render time and client hydration cost, load test the server, enforce budgets in CI and confirm gains in field data.",
+          "deliverable": "Performance programme report",
+          "checks": [["Cut server time", "Time to first byte lower under load", "k6 results"], ["Improve interactions", "Interaction to Next Paint improves in field data", "RUM dashboard"], ["Enforce budgets", "CI fails when a budget is exceeded", "Lighthouse CI report"]],
+          "objectives": ["Engineer Next.js performance", "Reduce server and client cost", "Prevent regressions"]
+        },
+        {
+          "topic": "Threat Modelling Next.js Applications",
+          "subtopics": ["Threat modelling method", "Trust boundaries in server and client code", "Server Actions and route handler attack surface", "Server-side request forgery from server components", "Cache poisoning and data leaks between users", "Authentication and session attacks", "Supply chain and build pipeline risks", "Security reviews and penetration tests"],
+          "tools": ["OWASP Threat Dragon", "OWASP ZAP", "Semgrep", "npm audit"],
+          "lab_task": "Threat model a SaaS app built on Next.js, test for SSRF, cache poisoning and action abuse, fix the findings and set up a recurring security review.",
+          "deliverable": "Threat model, findings and fixes",
+          "checks": [["Model threats", "Threats mapped to every trust boundary", "Threat model"], ["Test cache poisoning", "One user's data never served to another", "Test output"], ["Fix findings", "High findings closed on retest", "Retest report"]],
+          "objectives": ["Threat model Next.js apps", "Test for framework-specific risks", "Run security reviews"]
+        },
+        {
+          "topic": "Scaling Data Access: Pooling, Caching Layers and Read Replicas",
+          "subtopics": ["Database connections from serverless functions", "Connection poolers", "Read replicas and routing", "Caching layers above the database", "Avoiding N+1 queries in server components", "Batching with DataLoader", "Consistency after writes", "Load testing data access"],
+          "tools": ["PgBouncer or Neon pooling", "Redis", "Drizzle or Prisma", "k6"],
+          "lab_task": "Load test a data-heavy page, fix connection exhaustion with a pooler, route reads to a replica while keeping read-after-write consistency and batch nested queries.",
+          "deliverable": "Data access scaling report",
+          "checks": [["Fix connection exhaustion", "No connection errors at the target load", "Load test results"], ["Route reads", "Reads go to the replica except after the user's own writes", "Query log"], ["Batch queries", "Query count drops for the nested page", "Query log"]],
+          "objectives": ["Scale data access", "Use replicas safely", "Batch and cache queries"]
+        },
+        {
+          "topic": "Headless CMS and Commerce Architecture with Next.js",
+          "subtopics": ["Headless CMS options", "Content modelling", "Preview and draft mode", "Webhooks for revalidation", "Headless commerce platforms", "Search and merchandising", "Personalisation without breaking caching", "Editorial workflows"],
+          "tools": ["Sanity or Contentful", "Shopify Storefront API", "Next.js draft mode"],
+          "lab_task": "Build a content and commerce site with a headless CMS and Shopify, add draft preview for editors, revalidate pages from CMS webhooks and personalise a banner without disabling caching.",
+          "deliverable": "Headless site and editorial guide",
+          "checks": [["Preview a draft", "Editors see unpublished changes in draft mode", "Screen recording"], ["Publish content", "Page updates from the webhook within seconds", "Timestamps"], ["Personalise", "Banner personalised while the page stays cached", "Response headers"]],
+          "objectives": ["Build headless architectures", "Support editorial workflows", "Personalise with caching"]
+        },
+        {
+          "topic": "AI Features with the Vercel AI SDK",
+          "subtopics": ["The AI SDK core and UI packages", "Streaming chat interfaces", "Tool calling from the server", "Structured output generation", "Retrieval over app data", "Rate limits and cost control", "Safety and abuse prevention", "Evaluating AI features"],
+          "tools": ["Vercel AI SDK", "OpenAI or Anthropic", "pgvector"],
+          "lab_task": "Add a support assistant that streams answers, calls tools to look up orders, grounds answers in help articles with pgvector and enforces per-user limits.",
+          "deliverable": "AI assistant feature with evaluation results",
+          "checks": [["Stream answers", "Responses stream into the chat UI", "Screen recording"], ["Call a tool", "Assistant returns the user's real order status", "Conversation log"], ["Enforce limits", "Requests beyond the limit refused", "Response"]],
+          "objectives": ["Build AI features in Next.js", "Use tools and retrieval", "Control cost and abuse"]
+        },
+        {
+          "topic": "Background Work Outside the Request: after, Queues and Workflows",
+          "subtopics": ["Work that should not block responses", "The after function", "Queues for reliable background jobs", "Durable workflows", "Scheduled jobs", "Idempotency and retries", "Observability for background work", "Choosing a background job service"],
+          "tools": ["Next.js after", "Inngest or Trigger.dev", "QStash or SQS"],
+          "lab_task": "Move analytics logging into after, send order emails through a queue with retries and build a durable onboarding workflow with waits and steps.",
+          "deliverable": "Background job design and implementation",
+          "checks": [["Use after", "Response time unchanged with logging added", "Timing results"], ["Retry a job", "Failed email retried and sent once", "Job log"], ["Run a workflow", "Onboarding steps run across days with waits", "Workflow history"]],
+          "objectives": ["Move work out of requests", "Run reliable background jobs", "Build durable workflows"]
+        },
+        {
+          "topic": "Accessibility and Internationalisation at Scale",
+          "subtopics": ["Accessibility standards and audits", "Accessible routing and focus", "Design system accessibility", "Localisation pipelines and translation memory", "Locale-aware caching", "Content in many languages and regions", "Automated checks in CI", "Governance across teams"],
+          "tools": ["axe", "Playwright", "next-intl", "Translation management system"],
+          "lab_task": "Audit a multi-language Next.js product for accessibility, fix focus and announcement issues, connect a translation pipeline and add automated checks for both in CI.",
+          "deliverable": "Accessibility and localisation programme plan",
+          "checks": [["Fix accessibility issues", "No serious axe issues on key pages", "axe report"], ["Run the translation pipeline", "New strings reach translators and return automatically", "Pipeline log"], ["Add CI checks", "CI fails on missing translations or accessibility errors", "CI log"]],
+          "objectives": ["Run accessibility at scale", "Automate localisation", "Govern quality across teams"]
+        },
+        {
+          "topic": "Testing Strategy for Large Next.js Codebases",
+          "subtopics": ["Risk-based testing", "Testing server components and actions", "Contract tests with back-end services", "Test environments and data", "Flaky test control", "Test impact analysis", "Synthetic monitoring in production", "Quality dashboards"],
+          "tools": ["Vitest", "Playwright", "Pact", "Checkly"],
+          "lab_task": "Assess a large Next.js test suite, rebalance it by risk, add contract tests and synthetic checks in production, and cut CI time with test impact analysis.",
+          "deliverable": "Test strategy and improvement results",
+          "checks": [["Add contract tests", "API change breaks the contract test", "CI log"], ["Monitor production", "Synthetic check alerts on a broken flow", "Alert notification"], ["Cut CI time", "Test stage time reduced", "CI timings"]],
+          "objectives": ["Design test strategies", "Test across services", "Monitor flows in production"]
+        },
+        {
+          "topic": "Observability and SLOs for Next.js in Production",
+          "subtopics": ["What to measure for Next.js products", "SLIs for pages, actions and APIs", "Error budgets", "Tracing across front end, server and back ends", "Logs and metrics at scale", "Alerting on symptoms", "Dashboards for teams and leaders", "Reviewing SLOs"],
+          "tools": ["OpenTelemetry", "Grafana or Datadog", "Real user monitoring"],
+          "lab_task": "Define SLOs for checkout and search, build dashboards from traces and RUM data, alert on error budget burn and run a review after a simulated incident.",
+          "deliverable": "SLO definitions, dashboards and alert rules",
+          "checks": [["Define SLOs", "SLOs agreed for two user journeys", "SLO document"], ["Alert on burn rate", "Alert fires during the simulated incident", "Alert notification"], ["Review", "Review produces actions from SLO data", "Review notes"]],
+          "objectives": ["Define SLOs for Next.js", "Observe across tiers", "Alert on user impact"]
+        },
+        {
+          "topic": "Migrating from the Pages Router and Other Frameworks",
+          "subtopics": ["Pages Router to App Router step by step", "Running both routers side by side", "Data fetching changes", "Moving API routes to route handlers", "Migrating from Create React App or Vite SPAs", "Migrating from Gatsby or other frameworks", "SEO protection during migration", "Planning and tracking migration"],
+          "tools": ["Next.js", "@next/codemod", "Redirect maps"],
+          "lab_task": "Migrate three pages and two API routes of a Pages Router app to the App Router incrementally, protect SEO with redirects and plan the remaining migration.",
+          "deliverable": "Partially migrated app and migration plan",
+          "checks": [["Run both routers", "Old and new pages work together", "Screenshots"], ["Protect SEO", "Old URLs redirect with no ranking loss signals", "Redirect test output"], ["Plan the rest", "Plan lists pages, risks and order", "Migration plan"]],
+          "objectives": ["Migrate to the App Router", "Migrate from other frameworks", "Protect SEO during change"]
+        },
+        {
+          "topic": "Cost Engineering for Next.js Hosting",
+          "subtopics": ["Where hosting costs come from", "Function invocations and duration", "Image optimisation costs", "Bandwidth and caching", "ISR writes and storage", "Measuring cost per route", "Reducing cost without hurting users", "Budget alerts"],
+          "tools": ["Hosting usage dashboards", "Cost reports", "Next.js build output"],
+          "lab_task": "Analyse a month of hosting usage, find the most expensive routes and features, cut cost with caching and image changes and set budget alerts.",
+          "deliverable": "Cost analysis and savings report",
+          "checks": [["Find expensive routes", "Top five cost drivers identified", "Cost analysis"], ["Cut cost", "Estimated monthly cost reduced with no vitals regression", "Before and after report"], ["Set alerts", "Budget alert fires in a test", "Alert notification"]],
+          "objectives": ["Understand hosting costs", "Reduce cost per route", "Control spending"]
+        },
+        {
+          "topic": "Platform Choices: Vercel, AWS, Cloudflare and Kubernetes",
+          "subtopics": ["Managed platforms and self-hosting compared", "Feature support across platforms", "OpenNext and adapters", "Running on AWS", "Running on Cloudflare", "Running on Kubernetes", "Vendor lock-in and exit plans", "Making a platform decision"],
+          "tools": ["Vercel", "OpenNext", "AWS", "Cloudflare", "Kubernetes"],
+          "lab_task": "Deploy the same app to two platforms, compare features, performance, operations effort and cost, and write a platform recommendation with an exit plan.",
+          "deliverable": "Platform comparison and recommendation",
+          "checks": [["Deploy twice", "App works on both platforms", "Deployment URLs"], ["Compare platforms", "Features, latency, effort and cost compared", "Comparison table"], ["Plan an exit", "Exit steps and costs documented", "Exit plan"]],
+          "objectives": ["Compare hosting platforms", "Avoid unplanned lock-in", "Make platform decisions"]
+        },
+        {
+          "topic": "Troubleshooting Production Next.js Issues",
+          "subtopics": ["Triage from alerts and user reports", "Hydration errors", "Stale or wrong cached content", "Slow server rendering", "Memory growth in self-hosted servers", "Version skew after deploys", "Build failures and dependency conflicts", "Post-incident reviews"],
+          "tools": ["OpenTelemetry", "Sentry", "Server logs", "Git bisect"],
+          "lab_task": "Work through four production issues: stale cached content, a hydration error, slow rendering after a release and memory growth, fix each and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Fix stale content", "Fresh content served after the fix", "Screenshots"], ["Find the slow release", "Cause identified with traces or bisect", "Evidence notes"], ["Write the review", "Review lists causes and follow-ups", "Post-incident review"]],
+          "objectives": ["Troubleshoot Next.js in production", "Find root causes", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Tenant SaaS Platform on Next.js",
+          "subtopics": ["Architecture", "Build", "Operations", "Defence"],
+          "tools": ["Next.js", "Turborepo", "PostgreSQL", "Redis", "OpenTelemetry", "Stripe"],
+          "lab_task": "Design and build a multi-tenant SaaS platform with custom domains, tenant isolation, cache strategy, background workflows, AI assistant, SLOs, cost controls and a hosting decision, then defend it to a review panel.",
+          "deliverable": "Platform repository, architecture document and defence",
+          "checks": [["Prove isolation", "No cross-tenant data in tests or caches", "Test report"], ["Meet SLOs", "Load test meets the agreed SLOs", "Load test report"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one platform", "Architect large Next.js products", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}

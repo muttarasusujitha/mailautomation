@@ -172,6 +172,22 @@ def test_linkedin_profile_request_does_not_require_cv_profile_document():
     assert _trainer_missing_requested_details(reply, requirement, email_doc) == []
 
 
+def test_client_profile_and_linkedin_id_are_checked_as_trainer_details():
+    requirement = {
+        "technology_needed": "DevOps",
+        "requested_details": ["Client Profile", "LinkedIn ID"],
+    }
+    assert _trainer_missing_requested_details("I am interested.", requirement, {}) == [
+        "Updated CV / Trainer Profile",
+        "LinkedIn Profile",
+    ]
+    assert _trainer_missing_requested_details(
+        "Client profile attached. LinkedIn ID: https://www.linkedin.com/in/karthik-menon/",
+        requirement,
+        {},
+    ) == []
+
+
 def test_explicit_client_requested_detail_stays_missing_until_trainer_supplies_it():
     reply = "I am interested.\nLinkedIn: https://www.linkedin.com/in/karthik-menon/"
     requirement = {
@@ -186,9 +202,9 @@ def test_explicit_client_requested_detail_stays_missing_until_trainer_supplies_i
 
 def test_three_valid_slots_are_preserved_while_only_missing_linkedin_is_requested():
     reply = """I am interested.
-- 10 September 2026, 10:30 AM IST
-- 10 September 2026, 2:00 PM IST
-- 10 September 2026, 4:00 PM IST"""
+- 10 September 2027, 10:30 AM IST
+- 10 September 2027, 2:00 PM IST
+- 10 September 2027, 4:00 PM IST"""
     requirement = {
         "technology_needed": "Advanced DevOps with AWS & Azure",
         "requested_details": ["Updated CV / Trainer Profile", "LinkedIn Profile", "ToC"],
@@ -287,6 +303,7 @@ def test_requirement_fit_is_saved_on_the_exact_shortlisted_trainer():
     shortlist = SimpleNamespace(update_one=AsyncMock())
     db = {"shortlists": shortlist}
     email_doc = {"requirement_id": "REQ-1", "trainer_id": "TR-1", "body": "I am interested."}
+    email_doc["body"] += "\nLinkedIn: https://www.linkedin.com/in/karthik-menon/"
     requirement = {"requirement_id": "REQ-1", "technology_needed": "DevOps"}
 
     validation = asyncio.run(_persist_trainer_requirement_fit(db, email_doc, requirement, {}))
@@ -296,6 +313,7 @@ def test_requirement_fit_is_saved_on_the_exact_shortlisted_trainer():
     }
     stored = shortlist.update_one.await_args.args[1]["$set"]
     assert stored["top_trainers.$.requirement_fit"] == validation["requirement_fit"]
+    assert stored["top_trainers.$.linkedin_url"] == "https://www.linkedin.com/in/karthik-menon/"
 
 
 def test_previous_trainer_state_satisfies_requested_details_without_reasking():

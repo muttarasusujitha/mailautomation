@@ -4,6 +4,7 @@ import re
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -155,6 +156,7 @@ async def list_trainer_leads(
     status: Optional[str] = None,
     domain: Optional[str] = None,
     requirement_id: Optional[str] = None,
+    source: Optional[str] = None,
     q: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
@@ -166,6 +168,8 @@ async def list_trainer_leads(
         query["domain"] = {"$regex": domain, "$options": "i"}
     if requirement_id:
         query["requirement_id"] = requirement_id
+    if source:
+        query["source"] = source.strip().lower()
     if q:
         pattern = re.escape(q)
         query["$or"] = [
@@ -315,7 +319,7 @@ async def delete_trainer_leads_by_domain(domain: str = Query(...), db: AsyncIOMo
 
 @router.post("/search-public")
 async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Search for trainers via public web and store as leads."""
+    """Search the requested public source for matching profile links and store leads."""
     search_items: List[Dict[str, str]] = []
     for item in payload.queries or []:
         query_text = str(item.get("query") or item.get("text") or item.get("title") or "").strip()
@@ -348,25 +352,60 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
 
     profiles = []
     search_error = ""
+    requested_source = (payload.source or "linkedin").strip().lower()
+    source_domain = {"naukri": "naukri.com", "linkedin": "linkedin.com"}.get(requested_source)
+    if not source_domain:
+        raise HTTPException(400, "source must be linkedin or naukri")
+    result_limit = min(max(int(payload.max_results or 10), 10), 30) if requested_source == "naukri" else max(int(payload.max_results or 50), 50)
+    logger.info(
+        "Trainer lead search started: source=%s provider=%s queries=%s limit=%s",
+        requested_source,
+        "public_naukri_index" if requested_source == "naukri" else "public_search",
+        len(search_items),
+        result_limit,
+    )
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            for item in search_items:
-                r = await client.post(
-                    "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
-                    json={
-                        "query": item["query"],
-                        "domain": item["domain"],
-                        "location": payload.location or "",
-                        "max_results": max(payload.max_results, 50),
-                        "save_leads": False,
-                    },
-                )
-                if r.status_code < 400:
-                    for profile in r.json().get("profiles", []):
-                        profile["_searched_domain"] = item["domain"]
-                        profiles.append(profile)
-                else:
-                    search_error = r.text[:300]
+        if requested_source == "naukri":
+            from app.clients.naukri_public_search import search_public_naukri_profiles
+            remainder = result_limit
+            for index, item in enumerate(search_items):
+                if remainder <= 0:
+                    break
+                queries_left = len(search_items) - index
+                requested = min(max(1, (remainder + queries_left - 1) // queries_left), remainder)
+                found = await search_public_naukri_profiles(item["domain"], payload.location or "", requested)
+                for profile in found:
+                    profile["source"] = "naukri"
+                    profile["_searched_domain"] = item["domain"]
+                    profiles.append(profile)
+                remainder = result_limit - len(profiles)
+        else:
+            async with httpx.AsyncClient(timeout=30) as client:
+                for item in search_items:
+                    r = await client.post(
+                        "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                        json={
+                            "query": item["query"],
+                            "domain": item["domain"],
+                            "location": payload.location or "",
+                            "max_results": result_limit,
+                            "save_leads": False,
+                            "include_domains": [source_domain],
+                        },
+                    )
+                    if r.status_code < 400:
+                        search_result = r.json()
+                        if search_result.get("search_error"):
+                            search_error = str(search_result["search_error"])
+                        for profile in search_result.get("profiles", []):
+                            host = (urlsplit(str(profile.get("source_url") or "")).hostname or "").lower()
+                            if not (host == source_domain or host.endswith("." + source_domain)):
+                                continue
+                            profile["source"] = requested_source
+                            profile["_searched_domain"] = item["domain"]
+                            profiles.append(profile)
+                    else:
+                        search_error = r.text[:300]
     except Exception as exc:
         search_error = str(exc)
         logger.warning("Public search failed: %s", exc)
@@ -375,10 +414,22 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
     new_count = 0
     skipped: List[Dict[str, Any]] = []
     seen_urls: set = set()
+    if requested_source == "naukri":
+        # The requested range applies to the whole batch, not independently to
+        # each query/domain in the batch.
+        profiles = profiles[:result_limit]
+        if not profiles and not search_error:
+            search_error = (
+                "No publicly indexed Naukri job-seeker profiles were found for these skills and location. "
+                "Try broader terms. Private resumes require recruiter Resdex access."
+            )
     for p in profiles:
         slug = p.get("slug", "")
         source_url = p.get("source_url", "")
-        source = p.get("source", "linkedin")
+        source = p.get("source", requested_source)
+        if source != requested_source:
+            skipped.append({"reason": "wrong_source", "source_url": source_url, "source": source})
+            continue
         if not slug and not source_url:
             skipped.append({"reason": "missing_identifier", "title": p.get("title", ""), "source": source})
             continue
@@ -420,6 +471,14 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
             "created_at": now, "updated_at": now,
         })
         new_count += 1
+    logger.info(
+        "Trainer lead search finished: source=%s provider=%s found=%s saved=%s error=%s",
+        requested_source,
+        "public_naukri_index" if requested_source == "naukri" else "public_search",
+        len(profiles),
+        new_count,
+        bool(search_error),
+    )
     return {
         "success": True,
         "found": len(profiles),

@@ -1,0 +1,573 @@
+{
+  "domain": "DNS",
+  "name": "DNS",
+  "category": "Networking",
+  "icon": "network",
+  "aliases": ["Domain Name System", "DNS Administration", "DNS Engineering", "DNS Operations", "DNSSEC", "Authoritative DNS", "Recursive DNS Resolvers", "Managed DNS"],
+  "certifications": ["AWS Certified Advanced Networking – Specialty"],
+  "tools": ["dig", "kdig", "drill", "BIND 9", "Knot DNS", "PowerDNS Authoritative Server", "Unbound", "dnsdist", "CoreDNS", "Amazon Route 53", "Azure DNS", "Google Cloud DNS", "DNSViz", "OctoDNS"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, network engineers, developers and support staff who use DNS every day but have never run it. Covers how a stub, recursive resolver and authoritative server cooperate, reading dig output, the namespace tree, common record types, zones, delegation and glue, SOA timers and zone transfers, TTLs and negative caching, zone files, BIND 9 as primary and secondary, reverse zones, Unbound as a caching resolver, client resolver settings on Linux and Windows, registrars and RDAP, email records, the DNS message on the wire, failure diagnosis with dig, kdig and drill, a hosted zone in Amazon Route 53, and a capstone that builds and delegates a lab domain.",
+      "prerequisites": ["Understands IPv4 and IPv6 addressing, UDP and TCP ports and what a default gateway does", "Works confidently in a Linux shell: editing files with an editor such as vim or nano, using sudo and reading logs with journalctl", "Has a Linux virtual machine or container host (Ubuntu or Debian recommended) with rights to install packages and open UDP and TCP port 53 locally"],
+      "outcomes": ["Trace a name from the root to the authoritative answer with dig +trace and explain every referral, flag and section in the output", "Write valid zone files and serve them from a BIND 9 primary and secondary pair that stay in sync through NOTIFY and IXFR", "Run Unbound as a caching resolver and point Linux and Windows clients at it, then explain cache behaviour using TTLs and negative caching", "Diagnose NXDOMAIN, NODATA, SERVFAIL, REFUSED, truncation and lame delegation using dig, kdig and drill and state the root cause"],
+      "days": [
+        {
+          "topic": "How a Name Gets Resolved: Stub, Recursive and Authoritative Roles",
+          "subtopics": ["The stub resolver in the operating system and what it asks for", "Recursive resolvers: iterative queries on behalf of clients", "Authoritative servers: answering only for zones they hold", "The root zone, the 13 root server identities and anycast instances", "Top-level domain servers and referrals with NS records", "Recursion desired (RD) and recursion available (RA) flags", "Caching at every hop and why the second lookup is faster", "Public resolvers such as 1.1.1.1, 8.8.8.8 and 9.9.9.9 compared with an ISP or corporate resolver"],
+          "tools": ["dig", "Wireshark", "tcpdump"],
+          "lab_task": "Capture port 53 with sudo tcpdump -ni any port 53 -w day1.pcap while running dig www.wikipedia.org @1.1.1.1, then run dig +trace www.wikipedia.org. Open the capture in Wireshark, count the queries and responses, and write down which server answered at each step of the trace: root, org, wikipedia.org. Repeat the first dig and record the query time drop shown on the ;; Query time line.",
+          "deliverable": "Annotated trace showing each referral, the capture file and a before-and-after query time table",
+          "checks": [["Run dig +trace www.wikipedia.org", "The trace lists referrals from a root server, then an org server, then a wikipedia.org authoritative server before the final answer", "dig +trace output"], ["Run the same dig @1.1.1.1 query twice", "The second ;; Query time is lower and the TTL in the answer has decreased", "Two dig outputs side by side"], ["Filter the capture with dns.flags.response == 1", "Every response has a matching query ID and the RA flag is set on responses from 1.1.1.1", "Wireshark screenshot"]],
+          "objectives": ["Describe the roles of stub, recursive and authoritative servers", "Follow a referral chain from the root to an answer", "Explain why caching changes query latency"]
+        },
+        {
+          "topic": "Reading dig Output: Header, Flags, Sections and Options",
+          "subtopics": ["The ->>HEADER<<- line: opcode, status and query ID", "Flags qr, aa, rd, ra, ad, cd and tc and what each means", "QUESTION, ANSWER, AUTHORITY and ADDITIONAL sections", "The OPT pseudosection: EDNS version, UDP buffer size and cookies", "+short, +noall +answer and +multiline for readable output", "Querying a specific server with @ and a specific type and class", "+norecurse to ask an authoritative server directly", "Query time, SERVER line and MSG SIZE rcvd in the footer"],
+          "tools": ["dig", "BIND 9 utilities (bind9-dnsutils)"],
+          "lab_task": "Install bind9-dnsutils, then run dig example.com A, dig example.com MX +noall +answer, dig example.com NS +short and dig @a.iana-servers.net example.com A +norecurse. For each output, list the status, every flag set, the section counts (QUERY, ANSWER, AUTHORITY, ADDITIONAL) and the server that answered. Finally run dig nonexistent-zz9.example.com and record the status and which section carries the SOA.",
+          "deliverable": "One-page dig cheat sheet built from the four annotated outputs",
+          "checks": [["Query an authoritative server directly with +norecurse", "The aa flag is present and ra is absent from the flags line", "dig output with flags highlighted"], ["Query a name that does not exist under example.com", "status: NXDOMAIN with ANSWER: 0 and the example.com SOA in the AUTHORITY section", "dig output"], ["Run dig example.com NS +short", "Only the nameserver hostnames are printed, one per line, with no header or sections", "Terminal output"]],
+          "objectives": ["Read every part of a dig response", "Choose dig options for a given diagnostic question", "Tell an authoritative answer from a cached one by its flags"]
+        },
+        {
+          "topic": "Everyday Record Types: A, AAAA, CNAME, MX, TXT, NS and PTR",
+          "subtopics": ["A and AAAA records and multiple addresses for one name", "CNAME records, alias chains and the rule that a CNAME owner holds no other data", "Why a CNAME is not allowed at the zone apex", "MX records, preference values and fallback order", "TXT records, 255-byte character strings and multiple strings in one record", "NS records at the apex and at delegation points", "PTR records for reverse lookups", "Resource record set (RRset) rules: same name, class and type share one TTL"],
+          "tools": ["dig", "kdig", "BIND 9 utilities (bind9-dnsutils)"],
+          "lab_task": "Query a well-known domain such as gmail.com for A, AAAA, MX, TXT and NS records and www.github.com for its CNAME chain with dig +noall +answer. Record each RRset with its TTL. Then resolve the IPv4 address returned for gmail.com back to a name with dig -x and compare the PTR with the forward name. Write a table of eight records listing type, owner, value and TTL.",
+          "deliverable": "Record-type reference table with eight real examples and one CNAME chain diagram",
+          "checks": [["Run dig gmail.com MX +noall +answer", "Several MX records are listed, each with a numeric preference, and the lowest value is the preferred mail server", "dig output"], ["Run dig www.github.com A +noall +answer", "The answer shows a CNAME record followed by the A record for its target", "dig output"], ["Run dig -x on an address returned for a gmail.com A record", "A PTR answer under in-addr.arpa is returned pointing to a Google-owned hostname", "dig -x output"]],
+          "objectives": ["Identify the purpose of each common record type", "Explain CNAME restrictions including the apex rule", "Look up forward and reverse records for the same host"]
+        },
+        {
+          "topic": "The Namespace Tree: Labels, FQDNs and Name Rules",
+          "subtopics": ["Labels, the 63-octet label limit and the 255-octet name limit", "Fully qualified names and the trailing dot", "Case insensitivity and how resolvers compare names", "Hostname rules (letters, digits, hyphen) compared with what DNS allows", "Underscore labels such as _dmarc and _sip._tcp", "Internationalised domain names, Punycode and the xn-- prefix", "Wildcard records and the closest-encloser rule", "Reserved names: .test, .example, .invalid, .localhost and home.arpa"],
+          "tools": ["dig", "idn2", "Python (encodings.idna)"],
+          "lab_task": "Convert münchen.de and bücher.example to Punycode with idn2 and query the result with dig. Build a 64-character label and run dig on it to see the error. Query a name containing an underscore, _dmarc.google.com TXT, and a wildcard-backed name chosen by the trainer. Write five rules about valid names, each backed by one command and its output.",
+          "deliverable": "Name-rules sheet with five commands, outputs and the rule each proves",
+          "checks": [["Run idn2 münchen.de", "The output is xn--mnchen-3ya.de", "Terminal output"], ["Run dig with a single label of 64 characters", "dig refuses the name with a label too long error before sending a query", "Terminal output"], ["Run dig _dmarc.google.com TXT +short", "A TXT string beginning v=DMARC1 is returned", "dig output"]],
+          "objectives": ["Explain label and name length limits", "Convert internationalised names to their ASCII form", "Recognise reserved and underscore names"]
+        },
+        {
+          "topic": "Zones, Delegation and Glue Records",
+          "subtopics": ["A zone compared with a domain: where administrative cuts fall", "Delegation: NS records in the parent and matching NS in the child", "Glue A and AAAA records for in-bailiwick nameservers", "Referral responses: empty ANSWER and NS in AUTHORITY", "Parent-side and child-side NS sets and why they can differ", "Lame delegation: a listed server that does not answer authoritatively", "Delegating a subdomain to a different provider or team", "Checking delegation with dig +trace and dig +norecurse against the parent"],
+          "tools": ["dig", "drill", "DNSViz"],
+          "lab_task": "Pick a .com domain your trainer names. Query a .com TLD server with dig @a.gtld-servers.net <domain> NS +norecurse and record the NS records and any glue in the ADDITIONAL section. Then ask each listed nameserver for the same NS set with +norecurse and compare parent and child lists. Repeat for a domain whose nameservers sit inside the domain itself and show where glue is required.",
+          "deliverable": "Delegation report comparing parent and child NS sets, with glue identified",
+          "checks": [["Ask a .com TLD server for the domain's NS with +norecurse", "The ANSWER section is empty, NS records appear in AUTHORITY, and no aa flag is set", "dig output"], ["Ask each child nameserver for the NS set with +norecurse", "Every child server returns the aa flag and the same NS set as the parent", "Table of dig results"], ["Inspect a domain whose nameservers are named inside the domain", "The parent response includes A or AAAA glue for those nameservers in ADDITIONAL", "dig output with glue highlighted"]],
+          "objectives": ["Explain how delegation splits the namespace into zones", "Identify when glue records are needed", "Detect a mismatch between parent and child NS sets"]
+        },
+        {
+          "topic": "SOA Records, Serial Numbers and Zone Transfers",
+          "subtopics": ["SOA fields: MNAME, RNAME, serial, refresh, retry, expire and minimum", "Serial number formats such as YYYYMMDDnn and Unix time", "Serial number arithmetic (RFC 1982) and safe serial resets", "AXFR full transfers over TCP", "IXFR incremental transfers and journal files", "NOTIFY messages from primary to secondaries", "Restricting transfers with allow-transfer", "Why open zone transfers leak information"],
+          "tools": ["dig", "BIND 9", "named-checkzone"],
+          "lab_task": "Query the SOA of three domains with dig SOA +multiline and explain each timer. Try dig axfr zonetransfer.me @nsztm1.digi.ninja, a domain kept open for teaching, and count the records returned. Then try AXFR against a production domain's nameserver and record the refusal. Compute what happens to a secondary if the primary is unreachable for longer than the expire value.",
+          "deliverable": "SOA timer table for three domains plus the transfer results and refusal message",
+          "checks": [["Run dig SOA example.com +multiline", "All seven SOA fields are shown with comments naming refresh, retry, expire and minimum", "dig output"], ["Run dig axfr zonetransfer.me @nsztm1.digi.ninja", "The transfer begins and ends with the same SOA record and lists more than 20 records", "dig output with record count"], ["Attempt AXFR against a production nameserver", "dig prints ; Transfer failed. and no records are returned", "dig output"]],
+          "objectives": ["Explain each SOA timer and its effect on secondaries", "Describe AXFR, IXFR and NOTIFY", "Show why zone transfers must be restricted"]
+        },
+        {
+          "topic": "TTLs, Caching and Negative Caching",
+          "subtopics": ["What the TTL on a record tells a resolver", "Watching the TTL count down in cached answers", "Choosing TTLs: stability against agility and query cost", "Negative caching of NXDOMAIN and NODATA (RFC 2308)", "The SOA minimum field and the SOA TTL as the negative TTL", "Resolver maximum and minimum TTL caps", "Flushing caches on resolvers and clients", "Lowering TTLs before planned changes and the waiting period it needs"],
+          "tools": ["dig", "Unbound", "resolvectl"],
+          "lab_task": "Query www.example.com against 1.1.1.1 three times 20 seconds apart and record the TTL each time. Query a nonexistent name twice and read the negative TTL from the SOA in AUTHORITY. Compare it with min(SOA TTL, SOA minimum). Finally write a change plan for moving an A record with a 86400-second TTL: when to lower it, to what value and how long to wait before the switch.",
+          "deliverable": "TTL observation log, the negative TTL calculation and a written TTL change plan",
+          "checks": [["Query the same name three times 20 seconds apart against one resolver", "The TTL decreases by about 20 each time until the cache entry expires", "Three dig outputs with timestamps"], ["Query a nonexistent name and read the AUTHORITY SOA", "The SOA TTL shown equals the smaller of the SOA record TTL and its minimum field, then counts down on repeat", "dig output and calculation"], ["Review the change plan for an 86400-second record", "The plan lowers the TTL at least 24 hours before the change and restores it afterwards", "Change plan document"]],
+          "objectives": ["Explain how TTLs control caching", "Calculate the negative caching time for a zone", "Plan TTL changes ahead of a record move"]
+        },
+        {
+          "topic": "Writing Zone Files in Master File Format",
+          "subtopics": ["$ORIGIN, $TTL and relative compared with absolute names", "The @ symbol and blank owner names that repeat the previous owner", "Parentheses for multi-line SOA records and ; comments", "Quoting TXT strings and splitting long values", "Trailing dots and the classic missing-dot mistake", "Ordering records and grouping by owner", "$INCLUDE and keeping large zones manageable", "Validating with named-checkzone and kzonecheck"],
+          "tools": ["named-checkzone", "kzonecheck", "vim or nano"],
+          "lab_task": "Write db.lab.example for zone lab.example with $TTL 3600, an SOA, two NS records, A and AAAA for ns1 and www, a CNAME for blog, an MX for mail and a TXT record. Run named-checkzone lab.example db.lab.example. Then remove the trailing dot from one MX target, run the check again, and print the zone with named-compilezone -o - to show the broken name expanded to mail.example.com.lab.example.",
+          "deliverable": "Valid zone file and a before-and-after showing the missing-dot error",
+          "checks": [["Run named-checkzone lab.example db.lab.example on the finished file", "Output ends with zone lab.example/IN: loaded serial <serial> and OK", "Terminal output"], ["Remove the trailing dot from an absolute MX target and print the zone with named-compilezone -o -", "The MX target appears as mail.example.com.lab.example.", "Compiled zone output"], ["Add an A record to a name that already has a CNAME and recheck", "named-checkzone reports CNAME and other data and fails to load the zone", "Terminal output"]],
+          "objectives": ["Write a zone file using directives and relative names", "Validate zone files before loading them", "Recognise the most common zone file mistakes"]
+        },
+        {
+          "topic": "Running BIND 9 as an Authoritative Server",
+          "subtopics": ["Installing bind9 on Debian or Ubuntu and the named service", "named.conf, named.conf.options and named.conf.local layout", "zone statements with type primary and file", "Turning recursion off on an authoritative server", "listen-on, listen-on-v6 and allow-query", "named-checkconf before every reload", "rndc reload, rndc status and rndc zonestatus", "Reading named logs with journalctl -u named"],
+          "tools": ["BIND 9", "rndc", "named-checkconf", "dig"],
+          "lab_task": "Install bind9, set recursion no; in named.conf.options and add zone \"lab.example\" { type primary; file \"/etc/bind/db.lab.example\"; }; to named.conf.local. Run named-checkconf and named-checkzone, start named, then query dig @127.0.0.1 www.lab.example. Increase the serial, change the www address, run rndc reload lab.example and confirm the new answer and serial with dig SOA.",
+          "deliverable": "Working BIND configuration files and a log of the reload with the new serial",
+          "checks": [["Run dig @127.0.0.1 www.lab.example", "status: NOERROR with the aa flag and the A record from the zone file", "dig output"], ["Query dig @127.0.0.1 www.wikipedia.org on the authoritative server", "status: REFUSED and a warning that recursion was requested but not available", "dig output"], ["Change the serial and record, then run rndc reload lab.example", "rndc prints zone reload queued and dig SOA shows the new serial", "rndc and dig output"]],
+          "objectives": ["Configure BIND 9 to serve a primary zone", "Disable recursion on an authoritative server", "Reload zones safely with rndc after validation"]
+        },
+        {
+          "topic": "Primary and Secondary Servers with NOTIFY and IXFR",
+          "subtopics": ["Why every zone needs at least two nameservers on different networks", "type secondary zones and the primaries list", "also-notify and notify settings on the primary", "allow-transfer limited to secondary addresses", "Journal files and IXFR from the primary", "rndc retransfer and rndc refresh on the secondary", "Detecting serial drift between servers", "What happens when the expire timer runs out"],
+          "tools": ["BIND 9", "rndc", "dig", "journalctl"],
+          "lab_task": "Build a second BIND server as a secondary for lab.example with primaries { <primary-ip>; };. On the primary, restrict allow-transfer to the secondary and enable notify yes. Change a record and bump the serial, reload, and watch the secondary log for the NOTIFY and transfer. Compare dig SOA +short from both servers, then try dig axfr from a third host and record the refusal.",
+          "deliverable": "Primary and secondary configuration with logs showing NOTIFY and the completed transfer",
+          "checks": [["Bump the serial on the primary and reload", "The secondary log shows a notify received and transfer of 'lab.example/IN' completed within a few seconds", "journalctl -u named excerpt"], ["Run dig SOA lab.example +short against both servers", "Both return the same serial number", "dig output from both servers"], ["Run dig axfr lab.example from a host not in allow-transfer", "The transfer fails and the primary logs zone transfer 'lab.example/AXFR/IN' denied", "dig output and log line"]],
+          "objectives": ["Configure a secondary zone that follows its primary", "Use NOTIFY and IXFR to keep servers in sync", "Restrict zone transfers to known secondaries"]
+        },
+        {
+          "topic": "Reverse DNS: in-addr.arpa and ip6.arpa Zones",
+          "subtopics": ["How an IPv4 address maps to a name under in-addr.arpa", "Nibble format for IPv6 under ip6.arpa", "Who controls reverse zones: RIRs, ISPs and cloud providers", "Classless delegation for blocks smaller than /24 (RFC 2317)", "Forward-confirmed reverse DNS and why mail servers check it", "Writing PTR records in a reverse zone file", "Generating PTR records with $GENERATE", "Setting reverse records in cloud consoles such as Elastic IP reverse DNS"],
+          "tools": ["BIND 9", "dig", "ipv6calc"],
+          "lab_task": "Create zone 10.168.192.in-addr.arpa on your BIND primary with PTR records for .10 to .20 using $GENERATE 10-20 $ PTR host$.lab.example.. Add an ip6.arpa zone for 2001:db8:10::/48 with one PTR for 2001:db8:10::53. Query both with dig -x @127.0.0.1 and then confirm the forward A or AAAA record of each returned name matches the address.",
+          "deliverable": "Reverse zone files and a forward-confirmed reverse DNS check table",
+          "checks": [["Run dig -x 192.168.10.15 @127.0.0.1", "A PTR answer host15.lab.example. with the aa flag", "dig output"], ["Run dig -x 2001:db8:10::53 @127.0.0.1", "The query name is in nibble form ending ip6.arpa and the PTR answer is returned", "dig output"], ["Resolve each PTR target forward and compare addresses", "Every forward lookup returns the original address, so forward-confirmed reverse DNS passes", "Comparison table"]],
+          "objectives": ["Build IPv4 and IPv6 reverse zones", "Explain classless reverse delegation", "Verify forward-confirmed reverse DNS"]
+        },
+        {
+          "topic": "Unbound as a Caching Recursive Resolver",
+          "subtopics": ["Installing Unbound and the unbound.conf server clause", "interface, access-control and why open resolvers are dangerous", "Root hints and the built-in root list", "Cache settings: msg-cache-size, rrset-cache-size and cache-max-ttl", "prefetch and serve-expired at a glance", "Forward zones compared with full recursion", "unbound-checkconf and unbound-control setup", "Inspecting the cache with unbound-control dump_cache and lookup"],
+          "tools": ["Unbound", "unbound-control", "unbound-checkconf", "dig"],
+          "lab_task": "Install Unbound on a separate VM, set interface: 0.0.0.0, access-control: 192.168.0.0/16 allow and leave the default refuse for everything else. Run unbound-checkconf and start the service. Query dig @<resolver> www.wikipedia.org twice and record both query times. Run unbound-control lookup wikipedia.org to see which servers it would use, and unbound-control stats_noreset | grep total.num to count cache hits.",
+          "deliverable": "Unbound configuration and a stats extract showing cache hits after repeated queries",
+          "checks": [["Query the resolver for the same name twice", "The second query time is under 5 ms and the ra flag is set", "Two dig outputs"], ["Query from an address outside the access-control range", "status: REFUSED", "dig output from the outside host"], ["Run unbound-control stats_noreset | grep total.num.cachehits", "total.num.cachehits is greater than 0 after the repeat queries", "Command output"]],
+          "objectives": ["Run Unbound as a recursive resolver for one network", "Restrict who can use a resolver", "Read Unbound cache statistics"]
+        },
+        {
+          "topic": "Client Resolver Behaviour on Linux and Windows",
+          "subtopics": ["/etc/resolv.conf: nameserver, search, options ndots, timeout and attempts", "systemd-resolved, the 127.0.0.53 stub and resolvectl", "/etc/nsswitch.conf and /etc/hosts ordering", "getent hosts compared with dig: which path an application uses", "Windows DNS Client service, ipconfig /displaydns and /flushdns", "Resolve-DnsName and Get-DnsClientServerAddress in PowerShell", "Search suffixes and how short names are expanded", "Application caches in browsers and language runtimes such as the JVM"],
+          "tools": ["resolvectl", "getent", "Resolve-DnsName", "ipconfig", "dig"],
+          "lab_task": "Point a Linux client at your Unbound resolver with resolvectl dns eth0 <resolver-ip> and set a search domain lab.example. Add a conflicting entry for www.lab.example in /etc/hosts and compare getent hosts www.lab.example with dig www.lab.example. Remove it, run resolvectl flush-caches, then on Windows run Resolve-DnsName www.lab.example and ipconfig /displaydns to show the cached record.",
+          "deliverable": "Client resolver report comparing getent, dig and Windows results with the reason for each difference",
+          "checks": [["Add www.lab.example to /etc/hosts with a different address and compare getent hosts with dig", "getent returns the /etc/hosts address while dig returns the zone's address", "Both outputs side by side"], ["Run resolvectl status on the Linux client", "The interface lists the Unbound resolver as the current DNS server and lab.example as a search domain", "resolvectl output"], ["Run ipconfig /displaydns after Resolve-DnsName www.lab.example on Windows", "A cache entry for www.lab.example is listed with its remaining Time To Live", "Command output"]],
+          "objectives": ["Configure client resolvers on Linux and Windows", "Explain why dig and applications can return different answers", "Clear caches at the operating system level"]
+        },
+        {
+          "topic": "Registrars, Registries, RDAP and Nameserver Changes",
+          "subtopics": ["Registry, registrar and registrant roles", "ICANN, ccTLD operators and the public suffix list", "RDAP replacing WHOIS for registration data", "EPP status codes such as clientTransferProhibited and serverHold", "Changing nameservers at the registrar and parent NS TTLs", "Registering host objects (glue) at the registrar", "Auth codes, transfer locks and registry lock", "Expiry, renewal grace periods and the risk of lapsed domains"],
+          "tools": ["RDAP clients (rdap.org)", "whois", "dig"],
+          "lab_task": "Look up three domains with curl -s https://rdap.org/domain/<name> | jq '.status, .events, .nameservers[].ldhName' and with whois. Record the registrar, status codes, expiry date and nameservers. Compare RDAP nameservers with dig @<tld-server> <name> NS +norecurse. Note the TTL on the parent NS records and write how long a nameserver change could take to reach all resolvers.",
+          "deliverable": "Registration report for three domains with status codes explained and a propagation estimate",
+          "checks": [["Query RDAP for a domain with a transfer lock", "The status array contains client transfer prohibited", "RDAP JSON excerpt"], ["Compare RDAP nameservers with the TLD server's NS answer", "Both list the same nameserver hostnames", "Comparison table"], ["Read the TTL on the .com parent NS records", "The TTL is 172800 seconds, so old NS sets can be cached for up to two days", "dig output"]],
+          "objectives": ["Explain the registry, registrar and registrant model", "Read registration data with RDAP", "Estimate how long a nameserver change takes to propagate"]
+        },
+        {
+          "topic": "Email DNS Records: MX, SPF, DKIM and DMARC",
+          "subtopics": ["How a sending server finds the receiving server with MX and the A fallback", "SPF syntax: v=spf1, ip4, ip6, include, a, mx and the all qualifiers", "The SPF ten DNS-lookup limit and permerror", "DKIM selectors and the <selector>._domainkey TXT record", "DMARC at _dmarc with p=none, quarantine and reject", "Alignment: how DMARC ties SPF and DKIM to the From domain", "Null MX (RFC 7505) for domains that send no mail", "Reading Authentication-Results headers in a received message"],
+          "tools": ["dig", "opendkim-genkey", "Gmail Show original"],
+          "lab_task": "For your lab domain write an MX, an SPF record v=spf1 ip4:<server-ip> -all, a DKIM key generated with opendkim-genkey -s lab2026 -d lab.example published as lab2026._domainkey, and _dmarc with v=DMARC1; p=none; rua=mailto:dmarc@lab.example. Load and query each with dig TXT. Then query the SPF of a large provider, count its include and redirect lookups, and state whether it fits the ten-lookup limit.",
+          "deliverable": "Email records for the lab zone plus an SPF lookup-count worksheet",
+          "checks": [["Run dig TXT lab2026._domainkey.lab.example +short", "A string starting v=DKIM1; k=rsa; p= followed by the public key is returned", "dig output"], ["Run dig TXT _dmarc.lab.example +short", "Exactly one record starting v=DMARC1; p=none is returned", "dig output"], ["Count DNS-querying mechanisms in an SPF chain with 11 includes", "The evaluation result is permerror because the limit of 10 lookups is exceeded", "Lookup count worksheet"]],
+          "objectives": ["Publish MX, SPF, DKIM and DMARC records", "Explain DMARC alignment", "Check SPF records against the lookup limit"]
+        },
+        {
+          "topic": "The DNS Message on the Wire: UDP, TCP, EDNS(0) and Truncation",
+          "subtopics": ["The 12-byte header: ID, flags, opcode, RCODE and the four counts", "Question and resource record encoding and name compression", "UDP port 53 and the classic 512-byte limit", "EDNS(0), the OPT record and advertised buffer sizes", "The 1232-byte buffer default from DNS Flag Day 2020 and IP fragmentation", "The TC flag and the retry over TCP", "RCODE values: NOERROR, FORMERR, SERVFAIL, NXDOMAIN, NOTIMP and REFUSED", "Extended DNS Errors (RFC 8914) in the OPT record"],
+          "tools": ["Wireshark", "tcpdump", "dig"],
+          "lab_task": "Capture traffic while running dig +bufsize=512 +ignore dnskey com. and dig +bufsize=1232 dnskey com. @a.gtld-servers.net. Show that the first response has the TC flag, then run dig +bufsize=512 dnskey com. without +ignore and capture the automatic TCP retry. In Wireshark expand one response, label the header fields and the OPT record, and note the MSG SIZE rcvd for each query.",
+          "deliverable": "Annotated Wireshark capture with header fields, OPT record and the TCP fallback labelled",
+          "checks": [["Run dig +bufsize=512 +ignore dnskey com. @a.gtld-servers.net", "The flags line includes tc and the ANSWER section is empty or partial", "dig output"], ["Run the same query without +ignore while capturing", "The capture shows a UDP response with TC set followed by a TCP connection to port 53", "Wireshark screenshot"], ["Inspect the OPT record in a dig response", "The OPT PSEUDOSECTION shows EDNS: version: 0 and the server's udp buffer size", "dig output"]],
+          "objectives": ["Describe the DNS message layout", "Explain EDNS(0) buffer sizes and truncation", "Map RCODE values to their meaning"]
+        },
+        {
+          "topic": "Diagnosing Lookup Failures with dig, kdig and drill",
+          "subtopics": ["NXDOMAIN compared with NODATA (NOERROR and an empty answer)", "SERVFAIL causes: unreachable servers, lame delegation and DNSSEC failure", "REFUSED from access controls or a server that is not authoritative", "Timeouts and firewalls that block TCP 53 or large UDP", "dig +trace to find where the chain breaks", "kdig output differences and kdig +nocookie", "drill -T for a trace and drill -S to chase signatures", "A step-by-step method: client, resolver, parent, child"],
+          "tools": ["dig", "kdig", "drill", "Unbound"],
+          "lab_task": "Your trainer prepares four broken names: one NXDOMAIN, one NODATA, one lame delegation and one where TCP 53 is blocked on the authoritative server. For each, use dig against your resolver, dig +trace, kdig and drill -T to find where resolution fails. Record the RCODE, the step in the chain where it fails and the fix. Note one difference in how kdig and drill present the same answer.",
+          "deliverable": "Diagnosis worksheet with four failures, the evidence and the fix for each",
+          "checks": [["Query the NODATA test name for AAAA", "status: NOERROR with ANSWER: 0 and an SOA in AUTHORITY", "dig output"], ["Trace the lame delegation with dig +trace", "The trace stops at the referral and the listed nameserver gives a non-authoritative or REFUSED reply", "dig +trace output"], ["Query the TCP-blocked name with a response larger than 1232 bytes", "The UDP reply is truncated and the TCP retry times out with communications error or connection timed out", "dig output"]],
+          "objectives": ["Tell NXDOMAIN, NODATA, SERVFAIL and REFUSED apart", "Use dig, kdig and drill to locate a failure", "Apply a repeatable diagnosis order"]
+        },
+        {
+          "topic": "Hosting a Public Zone in Amazon Route 53",
+          "subtopics": ["Public hosted zones and the four assigned nameservers", "Creating a zone with aws route53 create-hosted-zone and --caller-reference", "change-resource-record-sets with CREATE, UPSERT and DELETE", "Change IDs and waiting for INSYNC with get-change", "Alias records to load balancers, CloudFront and S3 at the zone apex", "Route 53 query pricing and why alias queries to AWS resources are free", "Delegating a subdomain from another provider to Route 53", "test-dns-answer for checking responses without public resolution"],
+          "tools": ["Amazon Route 53", "AWS CLI", "dig", "jq"],
+          "lab_task": "Create a public hosted zone for a training subdomain such as <yourname>.training.example-corp.com with aws route53 create-hosted-zone --name <zone> --caller-reference $(date +%s). Write a change batch JSON that UPSERTs an A record and a TXT record, apply it with change-resource-record-sets, and poll get-change until Status is INSYNC. Ask the trainer to delegate the subdomain, then query both records through 1.1.1.1.",
+          "deliverable": "Change batch JSON, the get-change output and dig results from a public resolver",
+          "checks": [["Run aws route53 get-change --id <change-id>", "ChangeInfo.Status is INSYNC", "CLI output"], ["Query one of the four assigned Route 53 nameservers with dig +norecurse", "The aa flag is set and the new A record is returned", "dig output"], ["Query the A record through 1.1.1.1 after delegation", "status: NOERROR with the same address as in the change batch", "dig output"]],
+          "objectives": ["Create and populate a Route 53 hosted zone from the CLI", "Explain alias records and when to use them", "Delegate a subdomain to a cloud DNS provider"]
+        },
+        {
+          "topic": "Service and Policy Records: SRV, CAA, HTTPS and SVCB",
+          "subtopics": ["SRV records: _service._proto, priority, weight, port and target", "Clients that use SRV such as SIP, XMPP and LDAP", "CAA records with issue, issuewild and iodef tags", "How certificate authorities check CAA before issuing", "SVCB and HTTPS records (RFC 9460) and their key=value parameters", "alpn, ipv4hint and ipv6hint, and alias mode with priority 0", "Browser use of HTTPS records for HTTP/3 discovery", "Checking support for newer types in older tools and providers"],
+          "tools": ["dig", "kdig", "BIND 9"],
+          "lab_task": "Add to lab.example an SRV record _sip._tcp with priority 10 weight 60 port 5060, a CAA record 0 issue \"letsencrypt.org\" and an HTTPS record 1 . alpn=h3,h2. Validate with named-checkzone and reload. Query each with dig and kdig. Then query cloudflare.com HTTPS and google.com CAA on the public internet and explain each field of the answers.",
+          "deliverable": "Updated zone with SRV, CAA and HTTPS records plus annotated public examples",
+          "checks": [["Run dig _sip._tcp.lab.example SRV @127.0.0.1 +short", "The answer is 10 60 5060 followed by the target host name", "dig output"], ["Run dig cloudflare.com HTTPS +short", "An HTTPS record with priority 1 and alpn parameters including h3 is returned", "dig output"], ["Run dig google.com CAA +short", "One or more records of the form 0 issue \"pki.goog\" are returned", "dig output"]],
+          "objectives": ["Publish SRV, CAA and HTTPS records", "Explain how CAs use CAA", "Read SVCB and HTTPS parameters"]
+        },
+        {
+          "topic": "Capstone: Build and Delegate a Lab Domain End to End",
+          "subtopics": ["Designing the zone: records, TTLs and naming", "Primary and secondary BIND servers with restricted transfers", "Delegation from the trainer's parent zone with correct NS and glue", "An Unbound resolver and clients that use it", "Email records that pass syntax checks", "A troubleshooting runbook for the four most common failures"],
+          "tools": ["BIND 9", "Unbound", "dig", "kdig", "DNSViz"],
+          "lab_task": "Build a zone <team>.lab.example-training.net with at least 15 records including MX, SPF, DMARC, SRV and CAA. Serve it from a BIND primary and secondary, ask the trainer to add NS and glue in the parent, and point a client at your Unbound resolver. Prove the chain with dig +trace, show both servers return the same SOA serial, show an AXFR refusal from outside, and finish a one-page runbook.",
+          "deliverable": "Zone files, server configuration, dig +trace evidence and a one-page DNS runbook",
+          "checks": [["Run dig +trace www.<team>.lab.example-training.net from the client", "The trace ends at one of your two nameservers with an authoritative answer", "dig +trace output"], ["Run dig SOA +short against both nameservers after a change", "Both report the same new serial within one minute of the reload", "dig outputs with timestamps"], ["Run the trainer's checklist on the zone", "All parent and child NS records match, transfers are refused from outside and every email record parses", "Completed checklist"]],
+          "objectives": ["Build and delegate a working zone", "Prove a resolution chain with evidence", "Write a runbook for common DNS failures"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run zones and resolvers and now need to secure, automate and spread them across platforms. Covers DNSSEC records and the chain of trust, signing with BIND dnssec-policy and Knot DNS, validating with Unbound, PowerDNS Authoritative with its HTTP API, PowerDNS Recursor and dnsdist, split-horizon with BIND views and Unbound local zones, dynamic updates with TSIG, DNS over TLS, HTTPS and QUIC, Route 53 routing policies, health checks and Resolver endpoints, Azure DNS and Azure DNS Private Resolver, Google Cloud DNS, CoreDNS in Kubernetes, Active Directory DNS at awareness level, DMARC reporting and MTA-STS, DNS as code, and a capstone that serves one signed, split-horizon zone from cloud and on-premises servers.",
+      "prerequisites": ["Completed the beginner level or can already write zone files, run a BIND primary and secondary and diagnose failures with dig +trace", "Has an account in at least one of AWS, Azure or Google Cloud with rights to create DNS zones and virtual networks, and the matching CLI installed", "Can run containers with Docker and has access to a Kubernetes cluster such as kind, minikube or a managed cluster, with kubectl configured"],
+      "outcomes": ["Sign zones with BIND and Knot DNS, publish DS records at the parent and prove validation end to end with delv and DNSViz", "Serve different answers to internal and external clients with BIND views, Unbound local zones and cloud private zones without leaking internal names", "Configure weighted, latency, failover and geolocation routing in Route 53 and Cloud DNS, and private resolution in Azure DNS, with health checks that move traffic on failure", "Run encrypted DNS transports, CoreDNS in Kubernetes and DNS-as-code pipelines that preview and apply record changes from version control"],
+      "days": [
+        {
+          "topic": "DNSSEC Records and the Chain of Trust",
+          "subtopics": ["What DNSSEC protects (data origin and integrity) and what it does not (privacy)", "DNSKEY records, flags 256 and 257, and the KSK and ZSK roles", "RRSIG records: covered type, algorithm, labels, inception and expiration", "DS records in the parent and digest types 2 (SHA-256) and 4 (SHA-384)", "The root trust anchor and the 2018 root KSK rollover", "Authenticated denial: NSEC, NSEC3 and zone walking", "Algorithms 8 (RSASHA256), 13 (ECDSAP256SHA256) and 15 (Ed25519)", "The AD and CD flags and the DO bit in queries"],
+          "tools": ["dig", "delv", "DNSViz", "drill"],
+          "lab_task": "Run dig +dnssec ietf.org A, dig ietf.org DNSKEY +multiline and dig org DS +short against a validating resolver. Match the DS key tag at org to the KSK key tag at ietf.org. Use delv ietf.org A to see the validation result, then delv dnssec-failed.org A to see a failure. Draw the chain from the root trust anchor to the ietf.org A record and label every record used.",
+          "deliverable": "Chain-of-trust diagram with the key tags, algorithms and delv results",
+          "checks": [["Compare the key tag in dig ietf.org DS with the KSK in dig ietf.org DNSKEY +multiline", "The DS key tag equals the key id of the DNSKEY with flags 257", "Both dig outputs with the matching tag highlighted"], ["Run delv ietf.org A", "Output starts with ; fully validated", "delv output"], ["Run delv dnssec-failed.org A", "delv reports a resolution failure with a validation error instead of fully validated", "delv output"]],
+          "objectives": ["Explain each DNSSEC record type", "Trace the chain of trust from the root to a record", "Read the AD, CD and DO bits"]
+        },
+        {
+          "topic": "Signing Zones with BIND dnssec-policy",
+          "subtopics": ["dnssec-policy default and custom policy blocks", "Key directory, key-directory and file permissions for named", "Inline signing and the .signed zone file", "Signature validity, refresh and the resign schedule", "NSEC3 parameters: iterations 0 and no salt (RFC 9276)", "rndc dnssec -status and rndc signing -list", "Publishing CDS and CDNSKEY for parent automation", "dnssec-verify and named-checkzone on the signed output"],
+          "tools": ["BIND 9", "rndc", "dnssec-verify", "delv", "DNSViz"],
+          "lab_task": "Define dnssec-policy \"lab\" with one csk lifetime unlimited algorithm ecdsap256sha256 and nsec3param iterations 0 optout no salt-length 0. Apply it to lab.example with inline signing, reload and wait for signing. Run rndc dnssec -status lab.example, dig @127.0.0.1 lab.example DNSKEY +dnssec and dig CDS. Run dnssec-verify -o lab.example on the .signed file and give the DS to the trainer for the parent zone.",
+          "deliverable": "Policy configuration, rndc dnssec -status output and a delv result after the DS is published",
+          "checks": [["Run dig @127.0.0.1 www.lab.example A +dnssec", "The answer contains the A record and an RRSIG with algorithm 13", "dig output"], ["Run dig @127.0.0.1 lab.example NSEC3PARAM +short", "The answer is 1 0 0 - showing SHA-1, no opt-out, zero iterations and no salt", "dig output"], ["Run delv @<validating-resolver> www.lab.example after the DS is in the parent", "delv prints ; fully validated", "delv output"]],
+          "objectives": ["Sign a zone automatically with dnssec-policy", "Choose current NSEC3 and algorithm settings", "Hand a DS record to the parent and confirm validation"]
+        },
+        {
+          "topic": "Validating Resolvers: Trust Anchors and Bogus Answers in Unbound",
+          "subtopics": ["auto-trust-anchor-file and RFC 5011 automated updates", "unbound-anchor and the root.key file", "What a validator returns for secure, insecure, bogus and indeterminate data", "SERVFAIL on bogus data and Extended DNS Error codes", "val-log-level for validation failure logging", "domain-insecure and negative trust anchors for broken zones", "Clock skew and signature expiry failures", "The CD flag to bypass validation during diagnosis"],
+          "tools": ["Unbound", "unbound-anchor", "unbound-control", "dig"],
+          "lab_task": "Enable validation in Unbound with auto-trust-anchor-file: \"/var/lib/unbound/root.key\" and val-log-level: 2. Query dig @<resolver> dnssec-failed.org and dig @<resolver> dnssec-failed.org +cd, then read the log line explaining the failure. Add domain-insecure: \"dnssec-failed.org\" as a negative trust anchor, reload and repeat. Remove it afterwards and write when an NTA is acceptable.",
+          "deliverable": "Validator configuration, failure log lines and a short NTA policy",
+          "checks": [["Run dig @<resolver> ietf.org A", "status: NOERROR with the ad flag set", "dig output"], ["Run dig @<resolver> dnssec-failed.org A", "status: SERVFAIL, and with val-log-level 2 the log shows a validation failure line for dnssec-failed.org", "dig output and log line"], ["Repeat the query with +cd", "status: NOERROR with an A record and no ad flag", "dig output"]],
+          "objectives": ["Configure DNSSEC validation in Unbound", "Diagnose bogus answers from logs", "Apply and remove negative trust anchors safely"]
+        },
+        {
+          "topic": "Knot DNS: Authoritative Service with Automatic Signing",
+          "subtopics": ["knot.conf sections: server, key, remote, acl, policy, template and zone", "knotc conf-check, reload and zone-status", "dnssec-signing: on with a policy block", "keymgr list and key timing", "Automatic KSK submission checks with ds-push or cds-cdnskey-publish", "Zone file sync and journal settings: zonefile-sync and journal-content", "Acting as secondary to BIND with an acl and a remote", "kzonecheck and kdig +dnssec"],
+          "tools": ["Knot DNS", "knotc", "keymgr", "kdig", "kzonecheck"],
+          "lab_task": "Install Knot DNS and configure lab-knot.example with dnssec-signing: on and a policy using algorithm: ecdsap256sha256 and nsec3: on. Run knotc conf-check, start knotd and use knotc zone-status lab-knot.example to read the next resign time. List keys with keymgr lab-knot.example list. Add the zone as a secondary of your BIND primary for lab.example and confirm the serials match with kdig SOA.",
+          "deliverable": "knot.conf, keymgr output and serial comparison between BIND and Knot",
+          "checks": [["Run knotc conf-check", "Output is Configuration is valid", "Terminal output"], ["Run kdig @127.0.0.1 lab-knot.example DNSKEY +dnssec", "DNSKEY records and an RRSIG over the DNSKEY set are returned", "kdig output"], ["Run kdig SOA lab.example +short against BIND and Knot", "Both servers return the same serial", "kdig output from both"]],
+          "objectives": ["Configure Knot DNS as signer and secondary", "Manage keys with keymgr", "Run mixed BIND and Knot deployments"]
+        },
+        {
+          "topic": "PowerDNS Authoritative with a SQL Backend and the HTTP API",
+          "subtopics": ["The PowerDNS Authoritative Server and backend model", "launch=gsqlite3 or gpgsql and loading the schema", "pdnsutil create-zone, add-record, edit-zone and check-zone", "Native, primary and secondary zone kinds", "pdnsutil secure-zone and rectify-zone for DNSSEC", "Enabling api=yes, api-key and webserver settings", "Zones API: GET and PATCH /api/v1/servers/localhost/zones", "Restricting API access with webserver-allow-from"],
+          "tools": ["PowerDNS Authoritative Server", "pdnsutil", "curl", "jq", "PostgreSQL"],
+          "lab_task": "Install pdns-server with the gpgsql backend, load the schema and enable the API with an api-key from an environment file. Create zone api.example with pdnsutil create-zone api.example ns1.api.example. Add an A record through the API with curl -X PATCH -H \"X-API-Key: $KEY\" and an rrsets JSON body using changetype REPLACE. Secure it with pdnsutil secure-zone and query with dig +dnssec.",
+          "deliverable": "API call log, pdnsutil show-zone output and a signed answer",
+          "checks": [["Send PATCH /api/v1/servers/localhost/zones/api.example. with a REPLACE rrset", "The API returns HTTP 204 No Content and dig returns the new record", "curl -i output and dig"], ["Send the same request without the X-API-Key header", "The API returns HTTP 401 Unauthorized", "curl -i output"], ["Run pdnsutil check-zone api.example after secure-zone", "Output reports Checked <n> records of 'api.example', 0 errors, 0 warnings", "Terminal output"]],
+          "objectives": ["Run PowerDNS with a database backend", "Manage records through the HTTP API", "Sign PowerDNS zones"]
+        },
+        {
+          "topic": "PowerDNS Recursor and dnsdist Load Balancing",
+          "subtopics": ["PowerDNS Recursor configuration and allow-from", "forward-zones for internal domains", "Lua scripting hooks such as preresolve", "dnsdist as a front end: addLocal and newServer", "Load balancing policies: leastOutstanding, firstAvailable and wrandom", "Health checks on back ends and showServers()", "Rules and actions: MaxQPSIPRule and DropAction", "The dnsdist packet cache and console statistics"],
+          "tools": ["PowerDNS Recursor", "dnsdist", "dig", "dnsperf"],
+          "lab_task": "Run two PowerDNS Recursor instances and put dnsdist in front with newServer for each and setServerPolicy(leastOutstanding). Add addAction(MaxQPSIPRule(20), DropAction()) to limit each client to 20 queries per second. Stop one recursor and run showServers() in the dnsdist console. Send 1000 queries with dnsperf from one client and compare the answered count with the drop counter.",
+          "deliverable": "dnsdist configuration, showServers output during failure and rate-limit statistics",
+          "checks": [["Stop one back-end recursor and run showServers()", "That back end shows State down and queries keep succeeding through the other", "dnsdist console output"], ["Send 1000 queries in two seconds from one client", "dnsdist drops most queries above 20 per second and the rule match counter in showRules() rises", "dnsperf summary and showRules output"], ["Query an internal domain configured in forward-zones", "The answer comes from the internal authoritative server set in forward-zones", "dig output"]],
+          "objectives": ["Configure PowerDNS Recursor forwarding", "Balance and protect resolvers with dnsdist", "Read dnsdist health and rule statistics"]
+        },
+        {
+          "topic": "Split-Horizon DNS with BIND Views and Unbound Local Zones",
+          "subtopics": ["Why organisations publish different internal and external answers", "BIND view blocks and match-clients ordering", "Every zone inside views once views are used", "TSIG keys in match-clients to select views for secondaries", "Unbound local-zone types: static, transparent, redirect and typetransparent", "local-data and local-data-ptr overrides", "Leaks: internal names in public zones and public resolvers inside", "Testing from both sides with dig -b and different source addresses"],
+          "tools": ["BIND 9", "Unbound", "dig"],
+          "lab_task": "Configure BIND with view \"internal\" matching 192.168.0.0/16 and view \"external\" matching any, each loading a different file for corp.example, where app.corp.example is 192.168.10.50 inside and 203.0.113.50 outside. Query from both networks with dig -b. Then reproduce the internal override in Unbound with local-zone: \"app.corp.example.\" transparent and local-data. Confirm intranet.corp.example is NXDOMAIN externally.",
+          "deliverable": "Two view zone files, Unbound overrides and a matrix of answers by source",
+          "checks": [["Query app.corp.example from an internal source address", "The answer is 192.168.10.50", "dig -b output"], ["Query app.corp.example from an external source address", "The answer is 203.0.113.50", "dig -b output"], ["Query intranet.corp.example from outside", "status: NXDOMAIN", "dig output"]],
+          "objectives": ["Configure split-horizon DNS with views", "Override answers in a resolver with local zones", "Test for internal name leaks"]
+        },
+        {
+          "topic": "Dynamic Updates with nsupdate and TSIG",
+          "subtopics": ["Dynamic DNS (RFC 2136) prerequisite and update sections", "Generating keys with tsig-keygen and hmac-sha256", "allow-update compared with fine-grained update-policy", "update-policy grants: name, subdomain, wildcard and zonesub", "nsupdate -k and interactive and batch scripts", "Journal files, rndc freeze and rndc thaw before manual edits", "DHCP-driven updates and ACME DNS-01 challenges", "Signed zones and automatic re-signing after updates"],
+          "tools": ["nsupdate", "tsig-keygen", "BIND 9", "rndc"],
+          "lab_task": "Create a key with tsig-keygen -a hmac-sha256 acme-key and add update-policy { grant acme-key name _acme-challenge.www.lab.example. TXT; };. Use nsupdate -k acme.key to add a TXT record at _acme-challenge.www.lab.example, then try to add an A record for www with the same key. Run rndc freeze, edit the zone file by hand, run rndc thaw and confirm the serial increased.",
+          "deliverable": "update-policy configuration, nsupdate scripts and log entries for allowed and denied updates",
+          "checks": [["Add the _acme-challenge TXT record with nsupdate -k", "nsupdate exits 0 and dig returns the new TXT record", "Script output and dig"], ["Try to add an A record for www with the same key", "nsupdate reports update failed: REFUSED", "nsupdate output"], ["Send an update with a key that has the wrong secret", "The update fails with a TSIG error and the server logs request has invalid signature: TSIG acme-key: tsig verify failure (BADSIG)", "nsupdate output and log line"]],
+          "objectives": ["Allow scoped dynamic updates with TSIG", "Write nsupdate scripts", "Edit dynamic zones safely by hand"]
+        },
+        {
+          "topic": "DNS over TLS for Resolvers and Forwarders",
+          "subtopics": ["DoT on TCP port 853 (RFC 7858)", "Opportunistic and strict privacy profiles", "Unbound tls-service-key, tls-service-pem and tls-port", "Forwarding upstream over TLS with forward-tls-upstream and tls-cert-bundle", "Authenticating upstreams by name with the @853#name syntax", "Android Private DNS and systemd-resolved DNSOverTLS", "Connection reuse, padding (RFC 7830) and performance", "Firewall and visibility impact of port 853"],
+          "tools": ["Unbound", "kdig", "openssl", "resolvectl"],
+          "lab_task": "Issue a certificate for your resolver name, configure Unbound with tls-service-key, tls-service-pem and interface: 0.0.0.0@853. Add a forward-zone for . with forward-tls-upstream: yes and forward-addr: 1.1.1.1@853#cloudflare-dns.com. Test with kdig +tls @<resolver> example.com and kdig +tls-ca +tls-hostname=<name>. Enable DNSOverTLS=yes in systemd-resolved and capture traffic to show no port 53.",
+          "deliverable": "Unbound TLS configuration, kdig output and a capture with only port 853 traffic",
+          "checks": [["Run kdig +tls-ca +tls-hostname=<resolver-name> @<resolver> example.com", "The answer is returned and kdig prints a TLS session line with the protocol version", "kdig output"], ["Run the same kdig command with a wrong +tls-hostname", "kdig fails with a certificate verification error and no answer", "kdig output"], ["Capture traffic from a client using systemd-resolved with DNSOverTLS=yes", "The capture contains TCP 853 traffic and no UDP 53 queries", "tcpdump summary"]],
+          "objectives": ["Serve and use DNS over TLS", "Authenticate encrypted upstreams", "Configure clients for strict DoT"]
+        },
+        {
+          "topic": "DNS over HTTPS and DNS over QUIC",
+          "subtopics": ["DoH (RFC 8484): /dns-query, GET with dns= and POST with application/dns-message", "JSON DoH APIs compared with the RFC wire format", "Browser DoH settings and enterprise policy", "DoQ (RFC 9250) on UDP port 853", "Unbound https-port for DoH service", "dnsdist addDOHLocal and addDOQLocal", "Testing with kdig +https and +quic, and curl --doh-url", "Comparing latency for UDP, DoT, DoH and DoQ"],
+          "tools": ["kdig", "curl", "dnsdist", "Unbound"],
+          "lab_task": "Query example.com with kdig +https @1.1.1.1, kdig +quic @dns.adguard-dns.com and curl -s -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=example.com&type=A'. Configure dnsdist with addDOHLocal on 443 using your certificate. Run 50 queries per transport with a small loop, record the median time for UDP, DoT, DoH and DoQ, and explain the difference.",
+          "deliverable": "Transport comparison table and a working DoH listener",
+          "checks": [["Run kdig +https @1.1.1.1 example.com", "kdig shows the HTTP request to /dns-query and returns NOERROR with an A record", "kdig output"], ["Send a curl JSON DoH request to cloudflare-dns.com", "The JSON body contains \"Status\": 0 and an Answer array", "curl output"], ["Query your dnsdist DoH listener with curl --doh-url https://<name>/dns-query https://example.com -I", "curl completes the request using the dnsdist listener and dnsdist's DoH query counter increases", "curl output and dnsdist stats"]],
+          "objectives": ["Use DoH and DoQ clients", "Serve DoH from dnsdist", "Compare encrypted transport performance"]
+        },
+        {
+          "topic": "Route 53 Routing Policies: Weighted, Latency, Failover and Geolocation",
+          "subtopics": ["Simple routing and multivalue answer routing", "Weighted records and SetIdentifier", "Latency-based routing by AWS Region", "Failover primary and secondary records", "Geolocation by continent, country and default", "Geoproximity with bias and IP-based routing with CIDR collections", "Traffic flow policies and policy records", "Testing answers with aws route53 test-dns-answer and --resolver-ip"],
+          "tools": ["Amazon Route 53", "AWS CLI", "dig"],
+          "lab_task": "In your hosted zone create two weighted A records for api with weights 80 and 20 and SetIdentifiers blue and green. Run 200 queries against a Route 53 nameserver and count each answer. Then create geolocation records for EU and a default, and use aws route53 test-dns-answer --hosted-zone-id <id> --record-name api --record-type A --edns0-client-subnet-ip <eu-ip> to confirm the EU answer.",
+          "deliverable": "Change batches for each policy and a distribution count for the weighted test",
+          "checks": [["Run 200 queries for the weighted name directly against a Route 53 nameserver", "About 160 answers are the blue address and 40 the green, within 10 percent", "Count table"], ["Run test-dns-answer with an EU client subnet", "RecordData contains the EU record's address", "CLI output"], ["Run test-dns-answer with a client subnet from a country with no record", "RecordData contains the default record's address", "CLI output"]],
+          "objectives": ["Configure Route 53 routing policies", "Test policy answers without real clients", "Choose a policy for a traffic goal"]
+        },
+        {
+          "topic": "Route 53 Health Checks, Private Hosted Zones and Resolver Endpoints",
+          "subtopics": ["Endpoint, calculated and CloudWatch alarm health checks", "Health check intervals, failure thresholds and checker Regions", "Associating health checks with failover records", "Private hosted zones and VPC associations", "The VPC resolver at the VPC base address plus two and 169.254.169.253", "Route 53 Resolver inbound and outbound endpoints", "Forwarding rules and sharing them with AWS RAM", "Query logging for public zones and Resolver query logs"],
+          "tools": ["Amazon Route 53", "Route 53 Resolver", "AWS CLI", "Amazon CloudWatch"],
+          "lab_task": "Create an HTTP health check on a primary web server and attach it to a failover PRIMARY record with a SECONDARY pointing elsewhere. Stop the primary and time how long until dig returns the secondary. Then create a private hosted zone corp.internal associated with one VPC, an outbound endpoint and a forwarding rule for onprem.example to your BIND server, and test from an EC2 instance.",
+          "deliverable": "Failover timing log, health check status history and Resolver rule configuration",
+          "checks": [["Stop the primary web server and watch the health check", "Status changes to Unhealthy after the failure threshold and dig returns the SECONDARY address", "Health check console and dig output with timestamps"], ["Query corp.internal from an instance in an unassociated VPC", "status: NXDOMAIN", "dig output"], ["Query a name in onprem.example from an EC2 instance", "The answer comes from the on-premises BIND server and BIND logs the query from the outbound endpoint address", "dig output and BIND query log"]],
+          "objectives": ["Fail over DNS answers with health checks", "Use private hosted zones", "Connect AWS and on-premises DNS with Resolver endpoints"]
+        },
+        {
+          "topic": "Azure DNS: Public Zones, Private Zones and Azure DNS Private Resolver",
+          "subtopics": ["Public zones with az network dns zone create and record-set commands", "Alias record sets pointing to public IPs and Traffic Manager", "Private DNS zones and virtual network links", "Auto-registration of VM records", "The Azure-provided resolver at 168.63.129.16", "Private endpoint zones such as privatelink.blob.core.windows.net", "Azure DNS Private Resolver inbound and outbound endpoints and forwarding rulesets", "Role-based access with the DNS Zone Contributor role"],
+          "tools": ["Azure DNS", "Azure DNS Private Resolver", "Azure CLI", "dig", "Resolve-DnsName"],
+          "lab_task": "Create a private DNS zone corp.azure.internal, link it to a virtual network with --registration-enabled true, and boot a VM to see its A record appear. Create a storage account private endpoint and confirm the privatelink zone answers with a private address. Add a Private Resolver with an inbound endpoint and query it from on-premises for the storage account name. Record each answer.",
+          "deliverable": "Zone, link and resolver configuration with answers from inside Azure and from on-premises",
+          "checks": [["Run az network private-dns record-set a list -g <rg> -z corp.azure.internal after booting a VM", "An A record named after the VM with its private IP is listed", "CLI output"], ["Resolve the storage account blob name from a VM in the linked network", "The answer is a CNAME to privatelink.blob.core.windows.net and a private 10.x address", "dig output"], ["Resolve the same name from on-premises through the inbound endpoint", "The same private address is returned instead of the public address", "dig output from on-premises"]],
+          "objectives": ["Manage public and private zones in Azure DNS", "Resolve private endpoints correctly", "Use Azure DNS Private Resolver for hybrid lookups"]
+        },
+        {
+          "topic": "Google Cloud DNS: Managed Zones, Peering and Routing Policies",
+          "subtopics": ["Public and private managed zones", "gcloud dns record-sets create, update and transactions", "Forwarding zones and peering zones", "Inbound and outbound server policies", "Response policies for overriding answers", "Routing policies: WRR, geolocation and failover with health checks", "Cloud DNS DNSSEC with --dnssec-state on", "Cloud Logging for DNS queries"],
+          "tools": ["Google Cloud DNS", "gcloud CLI", "dig", "Cloud Logging"],
+          "lab_task": "Create a private managed zone gcp.internal for one VPC and a peering zone in a second VPC that targets the first. Add a record set with --routing-policy-type=WRR and two weighted addresses, then a public zone with --dnssec-state on. Query from VMs in both VPCs, run 100 queries to count WRR answers and get the DS with gcloud dns dns-keys list --zone <zone>.",
+          "deliverable": "gcloud commands, peering test results, WRR distribution and the DS record",
+          "checks": [["Resolve a gcp.internal name from a VM in the peered VPC", "The answer matches the record in the private zone of the first VPC", "dig output"], ["Run 100 queries against the WRR record set with weights 3 and 1", "About 75 answers return the first address and 25 the second, within 10 percent", "Count table"], ["Run gcloud dns dns-keys list --zone <public-zone>", "A keySigning key and a zoneSigning key are listed with algorithm and key tags", "CLI output"]],
+          "objectives": ["Create and peer Cloud DNS zones", "Apply routing policies in Cloud DNS", "Enable DNSSEC on a managed zone"]
+        },
+        {
+          "topic": "Kubernetes DNS with CoreDNS: Service and Pod Records",
+          "subtopics": ["The kube-dns Service and the CoreDNS Deployment in kube-system", "Service A and AAAA records: <svc>.<ns>.svc.cluster.local", "Headless Services and per-Pod records", "SRV records for named ports", "Pod /etc/resolv.conf: search list and options ndots:5", "dnsPolicy values: ClusterFirst, Default and None with dnsConfig", "ExternalName Services as CNAME records", "Debugging with a dnsutils Pod and kubectl exec"],
+          "tools": ["CoreDNS", "kubectl", "dig", "kind"],
+          "lab_task": "In a kind cluster create a Deployment and ClusterIP Service web in namespace shop, a headless Service web-hl, and an ExternalName Service pointing to example.com. Start a dnsutils Pod and run dig web.shop.svc.cluster.local, dig web-hl.shop.svc.cluster.local, dig SRV _http._tcp.web.shop.svc.cluster.local and cat /etc/resolv.conf. Record which answers return the ClusterIP and which return Pod IPs.",
+          "deliverable": "Manifests and a table of record types and answers for each Service",
+          "checks": [["Run dig web.shop.svc.cluster.local from the dnsutils Pod", "A single A record with the Service ClusterIP is returned", "dig output and kubectl get svc"], ["Run dig web-hl.shop.svc.cluster.local", "One A record per ready Pod is returned and they match kubectl get endpoints", "dig output and kubectl get endpoints"], ["Run cat /etc/resolv.conf in the Pod", "The file contains search shop.svc.cluster.local svc.cluster.local cluster.local and options ndots:5", "File contents"]],
+          "objectives": ["Explain Kubernetes DNS naming", "Choose between ClusterIP, headless and ExternalName Services", "Debug in-cluster name resolution"]
+        },
+        {
+          "topic": "Tuning CoreDNS: Corefile Plugins, ndots and NodeLocal DNSCache",
+          "subtopics": ["The coredns ConfigMap and the reload plugin", "Plugins in the default Corefile: errors, health, ready, kubernetes, prometheus, forward, cache, loop and loadbalance", "Stub domains with an extra server block and forward", "The rewrite and hosts plugins", "Search list amplification from ndots:5", "Lowering ndots or using trailing dots in application config", "NodeLocal DNSCache on 169.254.20.10", "Metrics: coredns_dns_requests_total and coredns_cache_hits_total"],
+          "tools": ["CoreDNS", "kubectl", "Prometheus", "tcpdump"],
+          "lab_task": "From a Pod with ndots:5 resolve api.example.com and capture CoreDNS traffic to count the queries generated by the search list. Change the Pod dnsConfig to ndots:1 and count again. Add a server block for onprem.example forwarding to your BIND server in the coredns ConfigMap and confirm reload in the logs. Read coredns_cache_hits_total from port 9153 before and after a burst.",
+          "deliverable": "Query count comparison, the edited Corefile and a metrics extract",
+          "checks": [["Resolve api.example.com from a Pod with ndots:5 while capturing", "The capture shows NXDOMAIN queries for the search domains before the final query, at least 4 queries for A alone", "tcpdump summary"], ["Repeat with dnsConfig options ndots:1", "Only the direct query for api.example.com is sent for each type", "tcpdump summary"], ["Query onprem.example after editing the ConfigMap", "CoreDNS logs a reload and returns the answer from the BIND server", "CoreDNS log and dig output"]],
+          "objectives": ["Edit the Corefile safely", "Reduce search list query amplification", "Measure CoreDNS with Prometheus metrics"]
+        },
+        {
+          "topic": "Active Directory DNS for Non-Windows DNS Teams",
+          "subtopics": ["Why domain controllers depend on DNS", "SRV locator records: _ldap._tcp.dc._msdcs and _kerberos._tcp", "AD-integrated zones and replication scopes", "Secure dynamic updates from domain members", "Conditional forwarders between AD and other DNS servers", "Delegating the AD domain from a BIND or cloud zone", "Scavenging of stale records at a high level", "Checking health with nltest /dsgetdc and dcdiag /test:dns"],
+          "tools": ["Resolve-DnsName", "nltest", "dcdiag", "dig", "BIND 9"],
+          "lab_task": "In a trainer-provided lab domain ad.lab.example, query _ldap._tcp.dc._msdcs.ad.lab.example SRV from Linux with dig and from Windows with Resolve-DnsName -Type SRV. Run nltest /dsgetdc:ad.lab.example and dcdiag /test:dns /v and note any warnings. Add a forward zone in your Unbound resolver for ad.lab.example pointing at the domain controllers, and confirm a Linux host can find the domain controllers.",
+          "deliverable": "SRV query results, nltest output and the Unbound forward configuration",
+          "checks": [["Run dig _ldap._tcp.dc._msdcs.ad.lab.example SRV +short", "One SRV record per domain controller with port 389 is returned", "dig output"], ["Run nltest /dsgetdc:ad.lab.example on a member server", "The output names a domain controller and ends with The command completed successfully", "nltest output"], ["Query the SRV name through Unbound after adding the forward zone", "The same SRV records are returned as from the domain controller directly", "dig output from both"]],
+          "objectives": ["Explain how Active Directory uses DNS", "Integrate non-Windows resolvers with AD DNS", "Run basic AD DNS health commands and read the results"]
+        },
+        {
+          "topic": "DMARC Reporting, DKIM Key Rotation and MTA-STS",
+          "subtopics": ["Aggregate (rua) report XML structure", "Moving from p=none to quarantine and reject with pct", "External report destinations and the _report._dmarc authorisation record", "DKIM key length (2048-bit RSA) and rotating selectors", "Bulk sender requirements from Gmail and Yahoo", "MTA-STS: _mta-sts TXT and the policy file at mta-sts.<domain>/.well-known/mta-sts.txt", "TLS-RPT with _smtp._tls", "BIMI records at a high level"],
+          "tools": ["dig", "opendkim-testkey", "curl", "parsedmarc"],
+          "lab_task": "Parse a sample aggregate report with parsedmarc and list sources that fail SPF and DKIM alignment. Publish a new DKIM selector lab2027 alongside lab2026, confirm both with opendkim-testkey -d lab.example -s lab2027 -vvv, and plan the retirement date. Publish _mta-sts and _smtp._tls TXT records and a policy file with mode: testing, then fetch it with curl.",
+          "deliverable": "DMARC findings table, dual-selector DKIM records and published MTA-STS and TLS-RPT records",
+          "checks": [["Run opendkim-testkey -d lab.example -s lab2027 -vvv", "Output ends with key OK", "Terminal output"], ["Fetch https://mta-sts.lab.example/.well-known/mta-sts.txt with curl", "The file contains version: STSv1, mode: testing, at least one mx: line and max_age", "curl output"], ["Parse the sample aggregate report", "Each source IP is listed with its SPF and DKIM alignment result and at least one failing source is identified", "parsedmarc output"]],
+          "objectives": ["Read DMARC aggregate reports", "Rotate DKIM keys without failures", "Publish MTA-STS and TLS-RPT"]
+        },
+        {
+          "topic": "DNS as Code with OctoDNS and DNSControl",
+          "subtopics": ["Why zones belong in version control", "OctoDNS YAML zone files, providers and the plan and sync commands", "DNSControl dnsconfig.js, preview and push", "Importing existing zones from a provider", "Managing several providers from one source", "Pull request review of DNS plans in CI", "Protecting records owned by other tools with ignore rules", "Secrets for provider credentials in the CI system"],
+          "tools": ["OctoDNS", "DNSControl", "Git", "GitHub Actions"],
+          "lab_task": "Export your Route 53 lab zone to YAML with octodns-dump, commit it, then change one TTL and add one record. Run octodns-sync --config-file config.yaml to see the plan without changes, then with --doit to apply. Repeat the same change in DNSControl with dnscontrol preview and dnscontrol push. Write a CI job that runs the plan on pull requests and posts the output.",
+          "deliverable": "Repository with zone YAML, DNSControl config, plan outputs and the CI job file",
+          "checks": [["Run octodns-sync --config-file config.yaml without --doit", "The plan lists exactly one update and one create and makes no changes", "Plan output"], ["Run octodns-sync again after --doit", "The plan reports no changes", "Plan output"], ["Run dnscontrol preview after the push", "Output shows 0 corrections for the zone", "Command output"]],
+          "objectives": ["Manage DNS records from version control", "Preview and apply changes safely", "Run DNS plans in CI"]
+        },
+        {
+          "topic": "Capstone: Signed Split-Horizon Zone Across Cloud and On-Premises",
+          "subtopics": ["Design: which names are public, private and cloud-only", "Signed public zone with DS at the parent", "Private answers from BIND views and a cloud private zone", "Hybrid forwarding in both directions", "Encrypted client transport to the resolver", "Records managed from Git with a reviewed plan"],
+          "tools": ["BIND 9", "Unbound", "Amazon Route 53", "OctoDNS", "DNSViz", "kdig"],
+          "lab_task": "Serve corp.<team>.example as a signed public zone from a cloud provider and BIND, with internal answers in a BIND view and a cloud private zone. Configure forwarding from the cloud to on-premises and back. Give clients DoT to Unbound. Manage public records with OctoDNS. Prove DNSViz shows no errors, internal names never appear externally, and failover of one record works within the TTL.",
+          "deliverable": "Design document, configuration repository, DNSViz report and test evidence",
+          "checks": [["Run DNSViz on the public zone", "The report shows a secure chain from the root with no errors or warnings", "DNSViz output"], ["Query every internal-only name from outside", "Each returns NXDOMAIN", "Script output"], ["Query a cloud private name from on-premises and an on-premises name from the cloud", "Both resolve to their private addresses", "dig outputs"]],
+          "objectives": ["Design a hybrid DNS service", "Combine DNSSEC, split-horizon and encrypted transport", "Prove the design with repeatable tests"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior DNS, network and platform engineers who own DNS for an organisation and answer for its availability and security. Covers DNSSEC key and algorithm rollovers, multi-signer DNSSEC and changing operators, zero-downtime provider migrations, anycast authoritative design, resolver capacity and serve-stale, load testing with dnsperf and resperf, cache poisoning defences, reflection and amplification with response rate limiting, tunnelling detection, hijacking and subdomain takeover, response policy zones, monitoring with metrics and dnstap, passive DNS hunting, global traffic steering with EDNS Client Subnet, hybrid multi-cloud resolution, CoreDNS at scale, enterprise encrypted DNS policy, outage response, and a capstone migration with DNSSEC, monitoring and a rollback plan.",
+      "prerequisites": ["Completed the intermediate level or has run signed zones, split-horizon resolvers and cloud DNS routing policies in production", "Can read packet captures and write scripts in Python or Bash that parse command output and logs", "Has lab access to at least two DNS providers or server types, a Kubernetes cluster and a Prometheus and Grafana stack"],
+      "outcomes": ["Plan and run ZSK, KSK and algorithm rollovers and DNSSEC-aware provider migrations with no validation failures", "Size, load test and monitor resolver and authoritative fleets using dnsperf, resperf, Prometheus exporters and dnstap", "Detect and mitigate cache poisoning, amplification, tunnelling, hijacking and subdomain takeover using RRL, RPZ, cookies and passive DNS", "Design global and hybrid DNS services with anycast, traffic steering and multi-cloud forwarding, and lead outage response with runbooks"],
+      "days": [
+        {
+          "topic": "DNSSEC Key Rollovers: ZSK Pre-Publish and KSK Double-DS",
+          "subtopics": ["Why keys are rolled and why many operators now use a long-lived CSK", "ZSK pre-publish: publish, wait for DNSKEY TTL, sign, wait for max zone TTL, remove", "KSK double-DS and double-KSK methods", "Timing variables: DNSKEY TTL, DS TTL, propagation delay and signature validity", "Key states in BIND: hidden, rumoured, omnipresent and unretentive", "CDS and CDNSKEY scanning by registries (RFC 8078) and parental-agents in BIND", "rndc dnssec -checkds and rndc dnssec -rollover", "Watching a rollover with DNSViz snapshots"],
+          "tools": ["BIND 9", "rndc", "DNSViz", "dig"],
+          "lab_task": "With a signed lab zone using separate KSK and ZSK, set zsk lifetime P30D in dnssec-policy and trigger rndc dnssec -rollover -key <zsk-id> lab.example. Record DNSKEY and RRSIG sets every hour until the old ZSK is removed. Then roll the KSK, publish the new DS at the parent, run rndc dnssec -checkds -key <id> published, and capture DNSViz before, during and after.",
+          "deliverable": "Rollover timeline with key states, DNSKEY sets per step and DNSViz snapshots",
+          "checks": [["Run rndc dnssec -status during the ZSK roll", "Two ZSKs are listed, the new one in rumoured or omnipresent DNSKEY state and the old one still present", "rndc output"], ["Run delv against a validating resolver at every step", "Every run prints ; fully validated with no gap", "delv log with timestamps"], ["Query the parent for DS after the KSK roll completes", "Only the DS matching the new KSK key tag remains", "dig output"]],
+          "objectives": ["Calculate safe rollover timing", "Run ZSK and KSK rollovers with automation", "Prove continuous validation during a rollover"]
+        },
+        {
+          "topic": "DNSSEC Algorithm Rollovers to ECDSA P-256 and Ed25519",
+          "subtopics": ["Why RSA/SHA-1 algorithms 5 and 7 are deprecated", "Algorithm 13 and 15 support among validators and registries", "Signing with both algorithms before changing the DS (RFC 6781 ordering)", "Validator rules on algorithm signalling and why order matters", "Response size reduction with ECDSA keys", "Changing algorithm in BIND dnssec-policy and in Knot policy", "Registry and registrar support for DS algorithm changes", "Rollback points during an algorithm roll"],
+          "tools": ["BIND 9", "Knot DNS", "DNSViz", "dig", "delv"],
+          "lab_task": "Sign a lab zone with algorithm 8 and a DS at the parent. Change the policy to algorithm 13 and let BIND add new keys and sign with both. Record DNSKEY response sizes with dig +dnssec at each stage. Replace the DS when BIND reports the new KSK is ready, wait for the DS TTL and confirm old algorithm signatures are removed. Compare final response sizes.",
+          "deliverable": "Algorithm rollover timeline and a response size table for RSA and ECDSA",
+          "checks": [["Run dig lab.example DNSKEY +dnssec during the overlap", "DNSKEY records for both algorithm 8 and 13 appear with RRSIGs from each", "dig output"], ["Compare MSG SIZE rcvd for the DNSKEY query before and after", "The final size is smaller than the RSA size", "Size table"], ["Run DNSViz after the old algorithm is removed", "Only algorithm 13 is shown in DNSKEY and DS, with no errors", "DNSViz output"]],
+          "objectives": ["Plan an algorithm rollover", "Run both algorithms during a safe overlap", "Measure the effect of ECDSA on response size"]
+        },
+        {
+          "topic": "Multi-Signer DNSSEC and Changing DNS Operators",
+          "subtopics": ["Why a signed zone cannot move providers by simply changing NS", "Option one: go insecure by removing DS, migrate, then re-sign", "Option two: multi-signer model 2 (RFC 8901) with shared ZSK sets", "Importing the other operator's ZSK into each DNSKEY set", "Combining NS sets and CDS records from both operators", "Provider APIs that support imported DNSKEYs", "NSEC compared with NSEC3 across signers", "Testing every operator individually with +norecurse and delv"],
+          "tools": ["BIND 9", "PowerDNS Authoritative Server", "DNSViz", "delv"],
+          "lab_task": "Sign the same zone independently on BIND and PowerDNS. Export each ZSK and import it into the other's DNSKEY set, with pdnsutil import-zone-key or adding the record to the BIND zone. Publish DS for both KSKs and an NS set with both operators. Validate the zone through each operator alone with delv +norecurse tests, then remove one operator and confirm validation continues.",
+          "deliverable": "Multi-signer runbook, DNSKEY sets from both operators and validation evidence",
+          "checks": [["Query each operator for DNSKEY with dig +norecurse", "Both return the same set containing both ZSKs and both KSKs", "dig output from both"], ["Force validation through each operator alone", "delv prints ; fully validated each time", "delv outputs"], ["Remove the old operator from NS and DS and wait for TTLs", "DNSViz shows a secure chain with only the remaining operator", "DNSViz output"]],
+          "objectives": ["Explain why signed zones are hard to move", "Run a multi-signer configuration", "Change DNS operators without going insecure"]
+        },
+        {
+          "topic": "Zero-Downtime Migration Between DNS Providers",
+          "subtopics": ["Inventory: exporting every record, including provider-only types such as alias", "Mapping proprietary records (ALIAS, Route 53 alias, traffic policies) to the target", "Lowering TTLs and the parent NS TTL ahead of the cutover", "Running old and new providers in parallel with identical data", "Diffing answers record by record with a script", "Changing NS at the registrar and monitoring old provider query volume", "Rollback criteria and keeping the old zone for one NS TTL plus margin", "Moving DNSSEC: the insecure window or multi-signer path"],
+          "tools": ["OctoDNS", "DNSControl", "dig", "Python (dnspython)"],
+          "lab_task": "Migrate a 200-record lab zone from Route 53 to another provider. Export with octodns-dump, convert alias records, and sync to the new provider. Write a dnspython script that queries every name and type on both providers with +norecurse and prints differences. Fix them until the diff is empty, change NS at the parent, and chart old-provider query volume from query logs for 48 hours.",
+          "deliverable": "Migration plan, diff script and its output, NS change record and traffic chart",
+          "checks": [["Run the diff script against both providers before cutover", "The script prints 0 differences for all 200 records", "Script output"], ["Query the parent for NS after the change", "Only the new provider's nameservers are returned", "dig output"], ["Read old-provider query logs 48 hours after cutover", "Query volume has dropped by more than 95 percent from its pre-cutover level", "Query log chart"]],
+          "objectives": ["Plan a provider migration with rollback points", "Prove record parity with automated diffs", "Monitor traffic drain after a delegation change"]
+        },
+        {
+          "topic": "Anycast Authoritative Design and Nameserver Diversity",
+          "subtopics": ["Unicast compared with anycast nameservers", "Announcing a service prefix with BGP from several sites", "Health-based route withdrawal with ExaBGP or BIRD", "Catchment, path changes and TCP stability under anycast", "Identifying the answering instance with NSID and id.server CH TXT", "Diversity: multiple providers, networks and software (BIND, Knot, NSD)", "Hidden primaries and distribution to anycast secondaries", "Measuring reach with RIPE Atlas"],
+          "tools": ["BIRD", "ExaBGP", "Knot DNS", "dig", "RIPE Atlas"],
+          "lab_task": "In a lab network with three Knot DNS sites, announce 192.0.2.53/32 from each with BIRD and set server identity to the site name. Query dig @192.0.2.53 +nsid example.lab from three clients and record which site answers. Add a health check that withdraws the route when kdig fails, stop knotd at one site and measure how long until its clients move.",
+          "deliverable": "Anycast lab design, BIRD configuration, NSID answers per client and failover timing",
+          "checks": [["Query with dig +nsid from three clients in different areas", "Each response includes an NSID with the expected site name", "dig output"], ["Run dig @192.0.2.53 id.server CH TXT", "The TXT answer is the site's identity string", "dig output"], ["Stop knotd at one site", "The route is withdrawn and affected clients get answers from another site within 30 seconds", "Timestamped dig loop and BIRD log"]],
+          "objectives": ["Design an anycast authoritative service", "Identify which instance answered", "Withdraw unhealthy sites automatically"]
+        },
+        {
+          "topic": "Resolver Capacity: Cache Sizing, Prefetch and Serve-Stale",
+          "subtopics": ["Working set size and cache hit ratio", "Unbound num-threads, so-reuseport, msg-cache-size and rrset-cache-size", "Outgoing query limits: outgoing-range and num-queries-per-thread", "prefetch and prefetch-key", "Serve-stale (RFC 8767): Unbound serve-expired and BIND stale-answer-enable", "Client timeouts and serve-expired-client-timeout", "Infrastructure cache and server selection by RTT", "Memory monitoring with unbound-control stats mem.cache.*"],
+          "tools": ["Unbound", "BIND 9", "unbound-control", "dnsperf"],
+          "lab_task": "Replay a query file of 100000 names through Unbound with default cache sizes and record the hit ratio from total.num.cachehits and cachemiss. Increase rrset-cache-size to 256m and msg-cache-size to 128m, enable prefetch, and replay twice. Then enable serve-expired: yes, block outbound UDP and TCP 53 with nftables, and query a cached name whose TTL has expired.",
+          "deliverable": "Hit ratio table per configuration and evidence of stale answers during the outage",
+          "checks": [["Replay the query file twice after enabling prefetch and larger caches", "The second-run cache hit ratio is above 80 percent", "Stats extract and calculation"], ["Block upstream traffic and query an expired cached name with serve-expired enabled", "An answer is returned with a TTL of 30 seconds", "dig output"], ["Repeat the blocked query with serve-expired disabled", "status: SERVFAIL after the client timeout", "dig output"]],
+          "objectives": ["Size resolver caches from measured data", "Keep answering during upstream failure with serve-stale", "Tune resolver threads and limits"]
+        },
+        {
+          "topic": "Load Testing DNS with dnsperf and resperf",
+          "subtopics": ["Building realistic query files from production logs", "dnsperf -s, -d, -l, -c and -Q options", "Reading queries per second, lost queries and latency percentiles", "resperf ramp testing to find the resolver's maximum", "Testing authoritative servers compared with resolvers", "Avoiding the client as the bottleneck", "Testing DoT and DoH with dnsperf -m tcp, dot or doh", "Writing a capacity statement with headroom"],
+          "tools": ["dnsperf", "resperf", "Unbound", "Knot DNS"],
+          "lab_task": "Build a query file of 50000 lines from a sample log. Run dnsperf -s <knot-ip> -d queries.txt -l 60 -c 20 against Knot DNS and record queries per second and lost queries. Run resperf -s <resolver-ip> -d queries.txt -m 50000 against Unbound and find where lost queries exceed 1 percent. Repeat with -m dot. Write a capacity statement for 50 percent headroom.",
+          "deliverable": "Test results for each target and transport plus a capacity statement",
+          "checks": [["Run dnsperf against Knot DNS for 60 seconds", "The summary reports Queries lost below 0.1 percent and a Queries per second figure", "dnsperf summary"], ["Run resperf against Unbound", "The report identifies the rate at which response loss rises above 1 percent", "resperf output and plot"], ["Repeat the dnsperf run with -m dot", "Queries per second is lower than UDP and the difference is recorded", "dnsperf summaries"]],
+          "objectives": ["Run repeatable DNS load tests", "Find resolver and authoritative limits", "Turn measurements into a capacity plan"]
+        },
+        {
+          "topic": "Cache Poisoning Defences: Randomisation, 0x20 and DNS Cookies",
+          "subtopics": ["Classic poisoning and the 2008 Kaminsky attack", "Query ID and source port randomisation", "Bailiwick checks and why out-of-zone additional data is discarded", "0x20 case randomisation with Unbound use-caps-for-id", "DNS cookies (RFC 7873) in BIND, Unbound and Knot", "Fragmentation attacks and why small EDNS buffers help", "Side-channel attacks such as SAD DNS at a high level", "DNSSEC validation as the final defence"],
+          "tools": ["Unbound", "BIND 9", "Wireshark", "dig"],
+          "lab_task": "Capture 500 outbound queries from Unbound and plot the source ports and query IDs to confirm randomisation. Enable use-caps-for-id: yes and show mixed-case query names in the capture. Run dig +cookie against BIND, Knot and Unbound and record the server cookie returned. Explain which of these measures would and would not stop an off-path attacker who can force fragmentation.",
+          "deliverable": "Randomisation plots, capture of 0x20 queries, cookie results and a written defence analysis",
+          "checks": [["Plot source ports of 500 captured outbound queries", "Ports are spread across the ephemeral range with no repeats in a short sequence", "Plot and capture file"], ["Inspect queries after enabling use-caps-for-id", "Query names appear with mixed case such as wWw.ExAmPle.CoM", "Wireshark screenshot"], ["Run dig +cookie against BIND", "The COOKIE line in the OPT pseudosection shows a client cookie and a server cookie, marked (good) on repeat", "dig output"]],
+          "objectives": ["Explain how cache poisoning works", "Enable and verify resolver hardening", "Judge which defences stop which attacks"]
+        },
+        {
+          "topic": "Reflection, Amplification and Response Rate Limiting",
+          "subtopics": ["How spoofed queries turn open resolvers and authoritative servers into reflectors", "Amplification factors for ANY, DNSKEY and large TXT responses", "Closing open resolvers and testing with an external scanner", "BIND rate-limit with responses-per-second, window and slip", "Knot DNS rrl module and Unbound ratelimit and ip-ratelimit", "Minimal responses and RFC 8482 replies to ANY", "Water torture (random subdomain) attacks on authoritative servers", "Upstream filtering and BCP 38 source address validation"],
+          "tools": ["BIND 9", "Knot DNS", "Unbound", "dnsperf", "tcpdump"],
+          "lab_task": "In an isolated lab, measure amplification by dividing response size by query size for ANY, DNSKEY and a 2000-byte TXT. Enable rate-limit { responses-per-second 10; window 5; slip 2; } on BIND, send 1000 identical queries per second from one source with dnsperf, and count full, truncated and dropped responses. Then flood random subdomains of a test zone and read Unbound ratelimit counters.",
+          "deliverable": "Amplification table, RRL counters and the random-subdomain test results",
+          "checks": [["Calculate response divided by query size for each type", "DNSKEY and large TXT show the largest factors, and with minimal-any yes the ANY reply holds a single RRset", "Calculation table"], ["Send 1000 identical queries per second with RRL enabled", "About 10 responses per second are answered fully and the rest are dropped or truncated, with slip 2 truncating every second one", "tcpdump counts and rndc stats"], ["Flood random subdomains through Unbound with ratelimit: 100", "Unbound logs ratelimit exceeded for the zone and the num.query.ratelimited counter rises", "Log and stats extract"]],
+          "objectives": ["Measure amplification risk", "Configure response rate limiting", "Recognise random-subdomain attacks"]
+        },
+        {
+          "topic": "Detecting DNS Tunnelling and Data Exfiltration",
+          "subtopics": ["How tunnels encode data in query names and TXT, NULL or CNAME answers", "Known tools such as iodine and dnscat2 and their traffic patterns", "Signals: label length, character entropy, unique subdomain count and record types", "Volume per client and per registered domain", "Newly registered domains and low-reputation zones", "Building detections from resolver logs", "Blocking with RPZ or DNS firewall rules", "False positives from CDNs, anti-virus lookups and telemetry"],
+          "tools": ["Zeek", "Unbound", "Python (pandas)", "Suricata"],
+          "lab_task": "Your trainer supplies resolver logs with normal traffic plus a tunnel to one domain. Load them with pandas, group by registered domain and compute unique subdomain count, mean label length and Shannon entropy per domain. Rank the top ten and pick a threshold. Run Zeek on the matching pcap and compare dns.log results. Write a detection rule and list two legitimate domains it would flag.",
+          "deliverable": "Detection notebook, ranked domain table and a rule with known false positives",
+          "checks": [["Rank domains by unique subdomains per hour", "The tunnel domain ranks first with far more unique names than any other domain", "Notebook table"], ["Compute entropy of the tunnel domain's labels", "Mean entropy is clearly higher than the median of all domains, above 4 bits per character", "Notebook output"], ["Apply the chosen threshold to the normal-only logs", "At most two legitimate domains are flagged and each is explained", "Notebook output"]],
+          "objectives": ["Describe how DNS tunnels move data", "Build detections from resolver logs", "Tune detections against false positives"]
+        },
+        {
+          "topic": "Domain Hijacking, Subdomain Takeover and Dangling Records",
+          "subtopics": ["Registrar account compromise and registry lock as the defence", "Unauthorised NS changes and DS removal", "Dangling CNAMEs to deleted cloud resources", "Takeover-prone targets such as storage buckets and app hosting names", "Dangling NS delegations to expired or unclaimed provider zones", "Inventory scans with dig and cloud APIs", "Monitoring NS and DS at the parent for unexpected changes", "Clean-up order: remove DNS before deleting the resource"],
+          "tools": ["dig", "Python (dnspython)", "AWS CLI", "RDAP clients (rdap.org)"],
+          "lab_task": "Using an exported lab zone, write a script that resolves every CNAME target and flags targets returning NXDOMAIN or provider error pages, and every delegated subdomain whose nameservers return REFUSED or SERVFAIL. Create one dangling CNAME by deleting a test S3 bucket and confirm the script flags it. Add a job that compares parent NS and DS with an approved list and alerts on change.",
+          "deliverable": "Dangling record scanner, its report on the lab zone and a parent-change monitor",
+          "checks": [["Delete the test S3 bucket and run the scanner", "The CNAME pointing to the bucket is flagged and the bucket endpoint returns NoSuchBucket", "Scanner report and curl output"], ["Run the scanner on a delegated subdomain with lame nameservers", "The delegation is flagged with the RCODE each nameserver returned", "Scanner report"], ["Change the NS set in the lab parent", "The monitor raises an alert naming the old and new NS sets", "Alert message"]],
+          "objectives": ["Explain hijacking and takeover paths", "Find dangling records automatically", "Monitor delegation for unauthorised changes"]
+        },
+        {
+          "topic": "Protective DNS with Response Policy Zones",
+          "subtopics": ["RPZ triggers: QNAME, client IP, response IP, NSDNAME and NSIP", "Actions: CNAME . for NXDOMAIN, CNAME *. for NODATA, rpz-passthru and rpz-drop", "Local walled-garden redirects", "BIND response-policy and policy ordering", "Unbound rpz: clause with rpz-action-override", "Feeding RPZ from threat intelligence by zone transfer", "Logging RPZ hits for incident response", "Cloud equivalents: Route 53 Resolver DNS Firewall and Cloud DNS response policies"],
+          "tools": ["BIND 9", "Unbound", "Route 53 Resolver DNS Firewall", "dig"],
+          "lab_task": "Create zone rpz.lab with bad.example CNAME ., *.malware.example CNAME *., an rpz-ip trigger for 198.51.100.66 and allowed.bad.example CNAME rpz-passthru.. Load it in BIND with response-policy { zone \"rpz.lab\"; }; and in Unbound with an rpz: clause. Query each test name, read the rpz log lines, and repeat the domain blocks with a Route 53 Resolver DNS Firewall rule group.",
+          "deliverable": "RPZ zone, resolver configuration, hit log and the cloud firewall rule group",
+          "checks": [["Query bad.example through BIND", "status: NXDOMAIN and the log shows an rpz QNAME NXDOMAIN rewrite line", "dig output and log line"], ["Query a name whose A record is 198.51.100.66", "The response-IP trigger rewrites the answer as configured", "dig output and log line"], ["Query allowed.bad.example", "The real answer is returned because of rpz-passthru", "dig output"]],
+          "objectives": ["Build and load a response policy zone", "Choose RPZ triggers and actions", "Apply the same policy in a cloud resolver"]
+        },
+        {
+          "topic": "DNS Monitoring: Metrics, Query Logs and dnstap",
+          "subtopics": ["Golden signals for DNS: rate, RCODE mix, latency and saturation", "BIND statistics-channels and bind_exporter", "Unbound extended-statistics and unbound_exporter", "CoreDNS and PowerDNS metrics endpoints", "dnstap: client and resolver messages over a frame stream", "dnstap in BIND, Unbound and Knot, and reading with dnstap-read", "External probes: synthetic queries from several networks", "Alert rules: SERVFAIL ratio, latency p99 and DNSSEC signature expiry"],
+          "tools": ["Prometheus", "Grafana", "bind_exporter", "unbound_exporter", "dnstap-read"],
+          "lab_task": "Expose BIND statistics-channels on 127.0.0.1:8053 and scrape it with bind_exporter, and scrape Unbound with unbound_exporter. Build a Grafana dashboard with queries per second, RCODE breakdown and latency. Enable dnstap { client; resolver; }; with dnstap-output unix, capture 60 seconds and read it with dnstap-read -y. Write alerts for SERVFAIL above 2 percent and RRSIG expiry within 7 days.",
+          "deliverable": "Grafana dashboard JSON, alert rules and a dnstap sample",
+          "checks": [["Generate SERVFAIL traffic with queries to dnssec-failed.org", "The SERVFAIL ratio alert fires in Prometheus within its evaluation window", "Alert screenshot"], ["Read the capture with dnstap-read -y", "Each message lists its type such as CLIENT_QUERY or RESOLVER_RESPONSE with addresses and the query name", "dnstap-read output"], ["Sign a test zone with signatures valid for 6 days", "The signature expiry alert fires naming the zone", "Alert screenshot"]],
+          "objectives": ["Choose the right DNS metrics", "Collect metrics and dnstap from servers", "Write alerts that catch real DNS failures"]
+        },
+        {
+          "topic": "Passive DNS, Certificate Transparency and Threat Hunting",
+          "subtopics": ["What passive DNS records and where its data comes from", "Pivoting on IP addresses, nameservers and historical answers", "Building a local passive DNS store from dnstap", "Certificate Transparency logs and crt.sh searches for your names", "Spotting lookalike domains and typosquats with dnstwist", "Fast-flux and short TTL patterns", "Correlating resolver logs with endpoint alerts", "Privacy and retention rules for DNS logs"],
+          "tools": ["dnstwist", "crt.sh", "Python (pandas)", "dnstap-read"],
+          "lab_task": "Run dnstwist --registered against your organisation's main domain and list registered lookalikes with MX records. Query crt.sh with https://crt.sh/?q=%25.<domain>&output=json and find certificates for names missing from your zone. Build a small passive DNS table from a dnstap capture with first seen, last seen, name and answer, and find any name whose answers changed more than five times in an hour.",
+          "deliverable": "Lookalike report, certificate findings and a passive DNS table with fast-changing names",
+          "checks": [["Run dnstwist --registered on the main domain", "A list of registered lookalike domains is produced with their A and MX results", "dnstwist output"], ["Compare crt.sh results with the zone export", "Every certificate name not present in the zone is listed for review", "Comparison table"], ["Query the passive DNS table for names with more than five distinct answers in an hour", "The query returns a list of names with answer counts, or zero rows with the query shown", "Query and result"]],
+          "objectives": ["Use passive DNS for investigation", "Find unknown names through certificate logs", "Detect lookalike domains"]
+        },
+        {
+          "topic": "Global Traffic Steering with GSLB and EDNS Client Subnet",
+          "subtopics": ["GSLB through DNS: health, geography, latency and load", "Why resolver location can differ from user location", "EDNS Client Subnet (RFC 7871), scope prefix and cache impact", "Privacy trade-offs and public resolvers that do not send ECS", "PowerDNS Lua records with ifportup and pickclosest", "Cloud equivalents: Route 53 latency and geoproximity, Cloud DNS geolocation and Azure Traffic Manager", "Short TTLs and their cost in query volume", "Testing steering decisions with dig +subnet"],
+          "tools": ["PowerDNS Authoritative Server", "Amazon Route 53", "Azure Traffic Manager", "dig"],
+          "lab_task": "Enable enable-lua-records in PowerDNS and create app.steer.example as a LUA A record using ifportup(443, {'192.0.2.10','198.51.100.10'}). Stop the web service on one address and confirm it leaves the answer. Then enable edns-subnet-processing, add a pickclosest record, and query with dig +subnet=<eu-prefix>/24 and +subnet=<us-prefix>/24 to show different answers and the returned scope prefix.",
+          "deliverable": "LUA record configuration, failover test and ECS answers by subnet",
+          "checks": [["Stop the service on 192.0.2.10 port 443", "Within the check interval only 198.51.100.10 is returned", "dig loop output"], ["Query with dig +subnet=<eu-prefix>/24", "The EU address is returned and the CLIENT-SUBNET option shows a non-zero scope prefix", "dig output"], ["Query the same name through 1.1.1.1", "The answer does not depend on the client subnet because the resolver does not send ECS", "dig output and note"]],
+          "objectives": ["Explain DNS-based traffic steering", "Use ECS and understand its trade-offs", "Build health-aware DNS answers"]
+        },
+        {
+          "topic": "Hybrid Multi-Cloud Name Resolution Design",
+          "subtopics": ["One namespace across on-premises, AWS, Azure and Google Cloud", "Conditional forwarding paths and avoiding forwarding loops", "Route 53 Resolver endpoints, Azure DNS Private Resolver and Cloud DNS server policies together", "Private endpoint zones such as privatelink and their overlap", "Central DNS hub networks compared with per-account resolution", "Resolver redundancy, latency and quotas per endpoint", "Ownership and change control across cloud teams", "Testing every path from every environment"],
+          "tools": ["Route 53 Resolver", "Azure DNS Private Resolver", "Google Cloud DNS", "Unbound", "dig"],
+          "lab_task": "Draw and build a lab where on-premises Unbound forwards aws.corp, azure.corp and gcp.corp to each cloud's inbound endpoint, and each cloud forwards onprem.corp back. Write a test matrix script that queries every zone from a VM in every environment and records the answer and time. Add a deliberate loop with two forwarders pointing at each other and show how it appears.",
+          "deliverable": "Architecture diagram, forwarding configuration and a completed test matrix",
+          "checks": [["Run the test matrix script", "All 16 environment and zone combinations return NOERROR with the expected private address", "Matrix output"], ["Measure time per path", "Every path answers in under 50 ms on a cached repeat query", "Matrix timings"], ["Create a forwarding loop between two resolvers", "Queries for the looped zone return SERVFAIL after the resolvers exhaust retries", "dig output and resolver logs"]],
+          "objectives": ["Design hybrid DNS across several clouds", "Avoid and detect forwarding loops", "Test every resolution path"]
+        },
+        {
+          "topic": "CoreDNS at Scale: Autoscaling, conntrack Races and Stub Zones",
+          "subtopics": ["CoreDNS replica sizing and cluster-proportional-autoscaler", "The Linux conntrack race on parallel A and AAAA UDP queries and 5-second timeouts", "Mitigations: NodeLocal DNSCache, single-request-reopen and TCP", "autopath to reduce search list queries", "Cache tuning: cache with success, denial and prefetch", "Forwarding to resolvers with max_concurrent and health checks", "SLOs for in-cluster DNS latency and errors", "Debugging with CoreDNS log and errors plugins and metrics"],
+          "tools": ["CoreDNS", "kubectl", "Prometheus", "dnsperf"],
+          "lab_task": "Run dnsperf from 20 Pods against kube-dns for five minutes and record p99 latency and timeouts from the client output and coredns_dns_request_duration_seconds. Deploy NodeLocal DNSCache and repeat. Add autopath @kubernetes with pods verified and measure the drop in coredns_dns_requests_total for the same workload. Scale replicas with the autoscaler and record queries per replica.",
+          "deliverable": "Before-and-after latency and query volume tables and the final Corefile",
+          "checks": [["Compare p99 latency before and after NodeLocal DNSCache", "p99 latency is lower and 5-second timeouts drop to zero", "dnsperf summaries and Grafana panel"], ["Compare coredns_dns_requests_total rate with autopath enabled", "Request rate for the same workload falls by more than half", "Prometheus query results"], ["Scale the cluster nodes and watch the autoscaler", "CoreDNS replicas increase according to the autoscaler's nodes-per-replica setting", "kubectl get deploy output"]],
+          "objectives": ["Find and fix Kubernetes DNS latency", "Reduce in-cluster query volume", "Scale CoreDNS with the cluster"]
+        },
+        {
+          "topic": "Encrypted DNS Policy in Enterprises: DDR, Canary Domains and Control",
+          "subtopics": ["Why encrypted DNS bypasses network controls", "Discovery of Designated Resolvers (RFC 9462) with _dns.resolver.arpa SVCB", "The Firefox canary domain use-application-dns.net", "Browser and operating system policies for DoH", "Blocking known public DoH endpoints at the firewall", "Offering an internal DoH and DoT resolver", "Windows DNS client DoH settings and the netsh dns commands", "Keeping RPZ and logging when transport is encrypted"],
+          "tools": ["Unbound", "dnsdist", "kdig", "Firefox", "Group Policy"],
+          "lab_task": "Publish a DDR SVCB record for _dns.resolver.arpa on your internal resolver pointing to its DoT and DoH endpoints, and query it with dig _dns.resolver.arpa SVCB. Make use-application-dns.net return NXDOMAIN with a local-zone. In Firefox, confirm automatic DoH stays off. Configure a Windows client to use your internal DoH resolver and check an RPZ-blocked name still fails over DoH.",
+          "deliverable": "DDR and canary configuration, browser evidence and a DoH policy test",
+          "checks": [["Run dig @<resolver> _dns.resolver.arpa SVCB", "The answer lists the resolver name with alpn=dot and alpn=h2 entries", "dig output"], ["Query use-application-dns.net through the internal resolver", "status: NXDOMAIN", "dig output"], ["Resolve an RPZ-blocked name from the Windows client over DoH", "The name fails to resolve and the resolver logs the RPZ hit", "Resolve-DnsName output and log line"]],
+          "objectives": ["Explain enterprise risks and controls for encrypted DNS", "Advertise internal encrypted resolvers", "Keep security policy when transport is encrypted"]
+        },
+        {
+          "topic": "Leading DNS Outage Response: Runbooks and Postmortems",
+          "subtopics": ["Patterns from public outages: expired signatures, bad pushes, registrar errors and BGP withdrawal", "Triage questions: which names, which resolvers, which networks", "Fast evidence: dig from several vantage points, RIPE Atlas and DNSViz", "Rolling back zone changes from version control", "Emergency DS removal and its timing", "Communicating TTL-bound recovery times", "Out-of-band status pages that do not depend on the broken zone", "Blameless postmortems with a timeline and actions"],
+          "tools": ["dig", "DNSViz", "RIPE Atlas", "OctoDNS", "Grafana"],
+          "lab_task": "Your trainer injects three faults into a lab: an expired RRSIG, a bad record pushed through the CI pipeline and a nameserver whose route is withdrawn. For each, use the runbook to find the cause within 15 minutes, restore service and state when all resolvers will see the fix based on TTLs. Write a postmortem for one fault with a timeline and three actions.",
+          "deliverable": "Updated runbook, an incident log for each fault and one postmortem",
+          "checks": [["Diagnose the expired RRSIG fault", "The cause is identified from DNSViz or delv showing signature expired and the zone is re-signed", "Incident log entry and delv output"], ["Roll back the bad CI push", "The previous commit is re-applied and the plan reports the faulty record removed", "Plan output"], ["Review the postmortem", "It includes a timeline with timestamps, the TTL-based recovery estimate and three owned actions", "Postmortem document"]],
+          "objectives": ["Run DNS incident triage", "Restore service and predict cache-bound recovery", "Write a useful postmortem"]
+        },
+        {
+          "topic": "Capstone: DNS Platform Migration with DNSSEC, Monitoring and Rollback",
+          "subtopics": ["Current-state inventory and target design", "Signed zone move using multi-signer or a planned insecure window", "Resolver fleet with serve-stale, RPZ and encrypted transport", "Metrics, dnstap and alerts in place before cutover", "Load test evidence and capacity headroom", "Rollback plan with triggers and timing"],
+          "tools": ["BIND 9", "Knot DNS", "PowerDNS Authoritative Server", "Unbound", "dnsperf", "Prometheus"],
+          "lab_task": "Migrate a signed lab domain with 300 records and a resolver fleet from a legacy BIND setup to a new platform of your design. Deliver the plan, record-parity diff, DNSSEC transition, load test results, dashboards and alerts. Execute the cutover while the trainer runs synthetic queries, keep validation unbroken, then trigger one rollback criterion and show the rollback works within the stated time.",
+          "deliverable": "Migration plan, test evidence, dashboards, cutover log and rollback demonstration",
+          "checks": [["Run the record-parity diff before cutover", "0 differences across all 300 records", "Diff output"], ["Run synthetic validating queries during cutover", "No SERVFAIL responses are recorded for the zone", "Synthetic probe log"], ["Trigger the rollback criterion", "Service returns to the legacy platform within the time stated in the plan", "Timestamped cutover log"]],
+          "objectives": ["Plan and run a DNSSEC-aware migration", "Prove readiness with tests and monitoring", "Execute a rollback on demand"]
+        }
+      ]
+    }
+  }
+}

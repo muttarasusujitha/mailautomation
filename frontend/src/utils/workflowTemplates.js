@@ -10,6 +10,7 @@ const compose = (trainer, subject, sections) => ({ subject, body: [greeting(trai
 const rows = entries => entries.filter(([, value]) => text(value)).map(([label, value]) => `- ${label}: ${value}`).join('\n')
 export function proposal(req = {}) {
   const page = req.pipeline_target || req.pipeline_page
+  // Page assignment is authoritative: Shortlist is proposal, Shortlist1 is confirmed.
   if (page === 'shortlist' || page === 'shortlist1') return page === 'shortlist'
   return /proposal/i.test(req.batch_flow || req.batch_type || req.requirement_type || '')
 }
