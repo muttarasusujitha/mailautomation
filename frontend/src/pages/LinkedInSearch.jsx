@@ -7,7 +7,8 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, searchResultLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, mergeSearchLeads, newSearchRef, searchResultLeads } from '../utils/leadSearchFeedback'
+import { leadListParams, listPage, pageToReload } from '../utils/leadPaging'
 import LeadBot from '../components/LeadBot'
 import Pager from '../components/Pager'
 import SearchSourceReport from '../components/SearchSourceReport'
