@@ -84,35 +84,31 @@ async def discover(domain, mode, target, location='', db=None):
                 if len(results) >= target:
                     break
 
-    try:
-        # People search paginates inside this budget. Keep every profile
-        # appended before a timeout, including when the browser is cancelled.
-        accept(await asyncio.wait_for(
-            search_linkedin_account(domain, mode, target, location, collected, **({"excluded_urls": excluded} if excluded else {})), timeout=260), 'linkedin_account')
-    except Exception as exc:
-        accept(getattr(exc, 'results', None) or collected, 'linkedin_account')
-        warnings.insert(0, search_warning('linkedin_account', exc))
-    outcome = {'domain': domain, 'target': target, 'matched': min(len(results), target),
-               'target_met': len(results) >= target, 'attempts': attempts,
-               'warnings': warnings, 'primary_error': warnings[0]['error'] if warnings else None,
-               'status': 'target_met' if len(results) >= target else 'partial' if results else 'blocked' if warnings else 'no_results'}
-    # Shown when the web engine finder does not run after the account search.
-    outcome['sources'] = [_account_source(results[:target], outcome)]
-    return results[:target], outcome
-
-
-def _account_source(rows, outcome):
-    error = outcome.get('primary_error') or ''
-    low = error.lower()
-    if 'linkedin bot is not enabled' in low:
-        # Switched off on purpose: not configured, rather than blocked by LinkedIn.
-        status = 'not_configured'
-    elif 'paused until' in low or 'linkedin limited this session' in low:
-        status = 'paused'
-    elif rows:
-        status = 'ok'
-    elif error:
-        status = 'blocked'
+    # Public indexes remain usable when the account needs manual verification.
+    queries = public_queries(domain, mode, location)
+    if mode == 'trainer':
+        from app.clients.public_search import search_public_many
+        attempts += 1
+        found_public = []
+        public_timed_out = False
+        try:
+            # Leave most of the request budget for the connected people search.
+            rows, used = await asyncio.wait_for(
+                search_public_many(queries, max(50, target), found_public), timeout=30)
+            attempts += max(used - 1, 0)
+        except TimeoutError:
+            rows, used = list(found_public), 1
+            public_timed_out = True
+        except Exception as exc:
+            warning = search_warning('public', exc)
+            if warning not in warnings:
+                warnings.append(warning)
+            rows = []
+        accept(rows, 'public')
+        if public_timed_out and len(results) < target:
+            warning = search_warning('public', TimeoutError())
+            if warning not in warnings:
+                warnings.append(warning)
     else:
         status = 'no_results'
     return {'source': 'linkedin_account', 'label': 'LinkedIn account', 'status': status,
@@ -177,7 +173,7 @@ async def discover_with_trainer_finder(domain, target, location, db, account_row
             # People search paginates inside this budget. Keep every profile
             # appended before a timeout, including when the browser is cancelled.
             accept(await asyncio.wait_for(
-                search_linkedin_account(domain, mode, target, location, collected), timeout=210), 'linkedin_account')
+                search_linkedin_account(domain, mode, target, location, collected), timeout=175), 'linkedin_account')
         except Exception as exc:
             rows, report = [], {'sources': [], 'status': 'blocked',
                                 'limit_reason': f'The web engine search failed: {str(exc)[:200] or type(exc).__name__}'}

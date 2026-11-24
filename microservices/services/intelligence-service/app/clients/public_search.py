@@ -343,39 +343,20 @@ async def _search_bing(query, limit, allowed_domains=None, report=None):
 async def search_public(query, limit=10):
     """Read a public results page, then the next page only while new profile links appear."""
     limit = min(max(int(limit or 1), 1), 60)
-    found, challenged = await _search_ddg(query, limit)
-    if found or challenged:
+    found, _challenged = await _search_ddg(query, limit)
+    if found:
         return found[:limit]
+    # A challenge page is not solved. The other public results page can still be read.
     return (await _search_bing(query, limit))[:limit]
 
 
-class SearchBatch(tuple):
-    """Matched rows and attempt count.
-
-    timed_out is set when nothing was kept. blocked is set when nothing was kept
-    and DuckDuckGo or Bing refused a request (challenge page or error status).
-    """
-
-    def __new__(cls, found, attempts, timed_out=False, blocked=False):
-        batch = super().__new__(cls, (list(found), attempts))
-        batch.timed_out = bool(timed_out)
-        batch.blocked = bool(blocked)
-        return batch
-
-
-def _engine_tally():
-    return {'attempts': 0, 'found': 0, 'challenged': 0, 'refused': 0, 'timeouts': 0, 'urls': [], 'skipped': ''}
-
-
-async def search_public_many(queries, limit=50, allowed_domains=None, supplement_with_bing=False, report=None):
-    """Keep reading result pages until the route minimum is filled or the connection stops answering.
-
-    When report is a dict it receives one tally per engine ('duckduckgo', 'bing').
-    engine_sources() turns the tallies into the per-source status shown to users.
-    """
-    limit = min(max(int(limit or 1), 1), 120)
-    domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
-    found, seen = [], set()
+async def search_public_many(queries, limit=50, found=None, seen=None):
+    """Keep reading result pages until the route minimum is filled or the connection stops answering."""
+    limit = min(max(int(limit or 1), 1), 60)
+    if found is None:
+        found = []
+    if seen is None:
+        seen = set()
     challenges = 0
     refused = 0
     timeouts = 0
@@ -421,7 +402,6 @@ async def search_public_many(queries, limit=50, allowed_domains=None, supplement
             timeouts = 0
         else:
             timeouts = 0
-    if not found and queries:
-        # DuckDuckGo often answers with a challenge or a timeout. Read Bing before giving up.
-        found.extend(await _search_bing(f'{queries[0]} site:linkedin.com/in', limit))
+    if not found and timeouts < 2 and queries:
+        found.extend(await _search_bing(queries[0], limit))
     return found[:limit], attempts

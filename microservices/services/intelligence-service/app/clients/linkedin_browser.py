@@ -78,6 +78,10 @@ def search_cursor_key(domain, location=''):
 
 
 def canonical_url(value):
+    value = (value or '').strip()
+    # People-search cards sometimes expose a relative profile path.
+    if value.startswith('/') and not value.startswith('//'):
+        value = 'https://www.linkedin.com' + value
     parts = urlsplit(value)
     host = (parts.hostname or '').lower()
     if parts.scheme != 'https' or not (host == 'linkedin.com' or host.endswith('.linkedin.com')):
@@ -178,11 +182,45 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
                 results.append({'url': canonical_url(author['url']), 'title': author_name, 'content': headline, 'keyword_qualified': True})
             processed.add(fingerprint)
             continue
-        url = next((canonical_url(link['url']) for link in data['links']
-                    if urlsplit(canonical_url(link['url'])).path.startswith(('/posts/', '/feed/update/'))), '')
-        if not url:
-            # One card without a menu used to abort the whole client search.
-            url = await _copy_post_link(page, context, card)
+        menu = card.locator('button[aria-label^="Open control menu for post"]')
+        if not await menu.count():
+            # One card without a permalink menu must not abandon the rest of the page.
+            processed.add(fingerprint)
+            continue
+        await menu.click()
+        copy = page.get_by_text('Copy link to post', exact=True)
+        try:
+            await copy.wait_for(timeout=3000)
+        except Exception:
+            await page.keyboard.press('Escape')
+            processed.add(fingerprint)
+            continue
+        # Capture only the URL written by this explicit Copy link action. Reading
+        # the OS clipboard is unreliable when a headless tab loses focus.
+        await page.evaluate('''() => {
+            window.__botCopiedLink = '';
+            window.__botOriginalWrite = navigator.clipboard.writeText;
+            navigator.clipboard.writeText = async text => { window.__botCopiedLink = text; };
+        }''')
+        try:
+            await copy.click()
+            await page.wait_for_function('() => window.__botCopiedLink.startsWith("https://")', timeout=5000)
+            copied = await page.evaluate('window.__botCopiedLink')
+        finally:
+            await page.evaluate('''() => {
+                navigator.clipboard.writeText = window.__botOriginalWrite;
+                delete window.__botOriginalWrite;
+                delete window.__botCopiedLink;
+            }''')
+        url = canonical_url(copied)
+        if urlsplit(copied).hostname == 'lnkd.in' and copied.startswith('https://lnkd.in/p/'):
+            resolver = await context.new_page()
+            try:
+                await resolver.goto(copied, wait_until='domcontentloaded', timeout=15000)
+                await resolver.wait_for_url('https://www.linkedin.com/**', timeout=10000)
+                url = canonical_url(resolver.url)
+            finally:
+                await resolver.close()
         if url and urlsplit(url).path.startswith(('/posts/', '/feed/update/')):
             results.append({'url': url, 'title': title,
                             'content': data['content'], 'contact_name': author_name,
@@ -191,6 +229,7 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
             if len(results) >= limit:
                 break
         else:
+            # A short link that does not resolve is skipped; later cards can still match.
             processed.add(fingerprint)
     return results
 
@@ -242,24 +281,17 @@ async def _copy_post_link(page, context, card):
 # LinkedIn often renders the headline a few levels above the name link, including
 # inside a shadow root where closest() cannot see the old result-card selectors.
 PEOPLE_CARDS = """els => els.flatMap(a => {
-  const href = a.href || '';
-  if (!/linkedin\\.com\\/in\\//i.test(href)) return [];
-  if (a.closest('header, nav, footer, [role="navigation"], [role="banner"]')) return [];
-  let node = a;
-  let text = '';
-  for (let i = 0; i < 8 && node; i++) {
-    const next = (node.innerText || '').trim();
-    if (next.length >= 24 && next.length <= 1200) {
-      text = next;
-      break;
-    }
-    if (next.length > 1200) break;
-    text = next || text;
-    node = node.parentElement;
+  const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
+    || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
+  if (!card) return [];
+  let text = (card.innerText || a.innerText || '').trim();
+  const lines = text.split('\\n').filter(line => line.trim());
+  if (lines.length < 2 && card.parentElement) {
+    const wider = (card.parentElement.innerText || '').trim();
+    if (wider.length > text.length) text = wider;
   }
-  if (!text) text = (a.getAttribute('aria-label') || a.innerText || '').trim();
   if (!text) return [];
-  return [{url: href, text: text.slice(0, 2000)}];
+  return [{url: a.href || a.getAttribute('href') || '', text: text.slice(0, 4000)}];
 })"""
 
 
@@ -283,10 +315,32 @@ def account_fetch_limit(limit, mode):
 
 
 def _people_search_url(keywords, page_number):
-    return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
+    # origin makes LinkedIn render the people-result list instead of an empty shell.
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({
+        'keywords': keywords, 'origin': 'GLOBAL_SEARCH_HEADER', 'page': page_number,
+    })
 
 
 from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_SCAN_LIMIT
+
+
+def trainer_collection_budget(limit):
+    """Page count and seconds for one domain.
+
+    A 50-profile cap used to select the 65-second budget, so the scan stopped
+    with "Trainer search reached its time limit" after the first slow page.
+    """
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
+    full_target = limit >= TRAINER_RESULT_TARGET
+    scan_limit = TRAINER_SCAN_LIMIT if full_target else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    page_cap = max(1, (scan_limit + 9) // 10) if full_target else min(20, max(limit, 2))
+    if full_target:
+        seconds = 160
+    elif limit >= 20:
+        seconds = 130
+    else:
+        seconds = 70
+    return limit, scan_limit, page_cap, seconds
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
@@ -295,12 +349,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
-    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
-    batch = limit >= 20
-    scan_limit = TRAINER_SCAN_LIMIT if batch else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
-    # LinkedIn shows about ten people per page. A full fetch can read 24 pages, then stops.
-    page_cap = max(1, (scan_limit + 9) // 10) if batch else min(20, max(limit, 2))
-    people_deadline = asyncio.get_running_loop().time() + trainer_people_budget(limit)
+    limit, scan_limit, page_cap, seconds = trainer_collection_budget(limit)
+    # LinkedIn shows about ten people per page. A 60-profile fetch can read 24 pages, then stops.
+    deadline = asyncio.get_running_loop().time() + seconds
 
     def people_time_up():
         return asyncio.get_running_loop().time() >= people_deadline
@@ -518,25 +569,23 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 if response and response.status in (403, 429):
                     raise ValueError('LinkedIn limited this session. Fetching stopped.')
                 try:
-                    await page.locator(RESULT_PROFILE_LINKS).first.wait_for(timeout=10000)
+                    await page.locator(
+                        'a[href*="/in/"], [data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container'
+                    ).first.wait_for(timeout=6000)
                 except Exception:
                     pass
                 await require_session(page)
-                markup_added = await absorb_markup()
-                if len(results) >= limit:
-                    return results
-                new_urls, raw_count = await read_people()
-                new_urls += markup_added
-                if new_urls == 0 and raw_count == 0:
+                new_urls, _raw_count = await read_people()
+                paints = 0
+                while new_urls == 0 and paints < 3 and not timed_out():
                     # The result list often paints after the first lookup.
+                    paints += 1
                     try:
                         await page.mouse.wheel(0, 1600)
-                        await page.wait_for_timeout(1200)
+                        await page.wait_for_timeout(600)
                     except Exception:
-                        pass
-                    markup_added = await absorb_markup()
-                    new_urls, raw_count = await read_people()
-                    new_urls += markup_added
+                        break
+                    new_urls, _raw_count = await read_people()
                 if new_urls == 0:
                     break
                 if len(results) >= limit or len(visited) >= scan_limit:
@@ -739,7 +788,10 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                     await context.add_cookies(saved)
                 page = await context.new_page()
                 if mode == 'trainer':
-                    return await collect_trainer_profiles(page, domain, location, account_fetch_limit(limit, mode), collected)
+                    # Keep the caller's target. Capping at 50 selected the short
+                    # timer and stopped a 60-profile search before page two.
+                    return await collect_trainer_profiles(
+                        page, domain, location, min(max(limit, 1), TRAINER_RESULT_CEILING), collected)
                 if mode == 'client':
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:
