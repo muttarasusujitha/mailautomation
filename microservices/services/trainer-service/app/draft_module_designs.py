@@ -362,8 +362,15 @@ async def _probe(client, settings, model):
     if response.status_code in (401, 403):
         raise FatalProviderError(f"Gemini rejected the API key ({response.status_code}): "
                                  + _provider_message(response, settings["key"]))
-    if response.status_code == 429 and _quota_details(response)[0]:
-        return _DailyQuota(_quota_hit(response))
+    if response.status_code == 429:
+        daily, wait = _quota_details(response)
+        if daily:
+            return _DailyQuota(_quota_hit(response))
+        if not settings.get("_probe_retry"):
+            # A per-minute limit passes; wait as Gemini asks and probe once more instead of skipping the model.
+            await asyncio.sleep(min(60.0, wait or 10.0))
+            return await _probe(client, {**settings, "_probe_retry": True}, model)
+        return f"per-minute limit still reached after waiting: {_quota_hit(response)}"
     return True if not response.is_error else _provider_message(response, settings["key"])
 
 
@@ -415,6 +422,8 @@ async def resolve_model(client, settings, exclude=frozenset()):
         tried.append(model)
         result = await _probe(client, settings, model)
         if result is True:
+            if out_of_quota or notes:
+                print(json.dumps({"chosen_model": model, "skipped": out_of_quota + notes}), flush=True)
             return model
         if isinstance(result, _DailyQuota):
             out_of_quota.append(f"{model}: {result}")
@@ -423,9 +432,12 @@ async def resolve_model(client, settings, exclude=frozenset()):
         notes.append(f"{model}: {result[:80]}")
         suggested = re.findall(r"models/([A-Za-z0-9.\-]+)", result)
         queue[:0] = [name for name in suggested if name not in tried and name != model]
+    # Name every model tried and why it was not used, so a stopped run explains itself.
+    other = (" | Not usable: " + " | ".join(notes)) if notes else ""
     if out_of_quota:
-        raise FatalProviderError("Daily Gemini quota reached for every model tried: " + " | ".join(out_of_quota)[:700])
-    raise FatalProviderError("No usable Gemini model for this key. " + " | ".join(notes)[:300])
+        raise FatalProviderError("Daily Gemini quota reached for every model tried: "
+                                 + (" | ".join(out_of_quota) + other)[:1500])
+    raise FatalProviderError("No usable Gemini model for this key. " + " | ".join(notes)[:600])
 
 
 async def _post(client, settings, system, user):

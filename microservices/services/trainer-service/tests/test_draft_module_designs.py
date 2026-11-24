@@ -260,6 +260,40 @@ def test_a_model_out_of_daily_quota_hands_over_to_the_next_flash_model(tmp_path,
     assert sorted(design["model"] for design in stored) == ["gemini-3.6-flash"] * 2 + ["gemini-3.8-flash"] * 2
 
 
+def test_a_per_minute_limit_while_probing_waits_and_tries_the_model_again(monkeypatch):
+    class Response:
+        def __init__(self, status, body):
+            self.status_code, self._body, self.headers = status, body, {}
+            self.is_error = status >= 400
+
+        def json(self):
+            return self._body
+
+    per_minute = Response(429, {"error": {"message": "Rate limited", "details": [
+        {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+         "violations": [{"quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"}]},
+        {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "7s"}]}})
+
+    class Client:
+        def __init__(self, responses):
+            self.responses = list(responses)
+
+        async def post(self, url, headers=None, json=None):
+            return self.responses.pop(0)
+
+    waits = []
+
+    async def no_sleep(seconds):
+        waits.append(seconds)
+    monkeypatch.setattr(drafts.asyncio, "sleep", no_sleep)
+    settings = {"provider": "gemini", "key": "k", "model": "gemini-3.6-flash"}
+    ok = Response(200, {"candidates": []})
+    assert asyncio.run(drafts._probe(Client([per_minute, ok]), settings, "gemini-3.6-flash")) is True
+    assert waits == [7.0]
+    still = asyncio.run(drafts._probe(Client([per_minute, per_minute]), settings, "gemini-3.6-flash"))
+    assert isinstance(still, str) and "per-minute limit still reached" in still  # skipped, not a daily stop
+
+
 def test_course_selection_covers_every_course_once():
     every = drafts.select_courses("all")
     assert set(drafts.DEFAULT_COURSES) <= set(every)
