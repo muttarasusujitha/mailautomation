@@ -293,6 +293,12 @@ def test_a_per_minute_limit_while_probing_waits_and_tries_the_model_again(monkey
     still = asyncio.run(drafts._probe(Client([per_minute, per_minute]), settings, "gemini-3.6-flash"))
     assert isinstance(still, str) and "per-minute limit still reached" in still  # skipped, not a daily stop
 
+    busy = Response(503, {"error": {"message": "This model is currently experiencing high demand."}})
+    waits.clear()
+    assert asyncio.run(drafts._probe(Client([busy, ok]), settings, "gemini-3.6-flash")) is True
+    assert waits == [20.0]
+    assert "high demand" in asyncio.run(drafts._probe(Client([busy, busy]), settings, "gemini-3.6-flash"))
+
 
 def test_course_selection_covers_every_course_once():
     every = drafts.select_courses("all")

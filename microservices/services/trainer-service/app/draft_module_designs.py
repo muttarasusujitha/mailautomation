@@ -371,6 +371,10 @@ async def _probe(client, settings, model):
             await asyncio.sleep(min(60.0, wait or 10.0))
             return await _probe(client, {**settings, "_probe_retry": True}, model)
         return f"per-minute limit still reached after waiting: {_quota_hit(response)}"
+    if response.status_code in (500, 502, 503, 504) and not settings.get("_probe_retry"):
+        # "This model is currently experiencing high demand" passes too; try once more before skipping.
+        await asyncio.sleep(min(60.0, float(response.headers.get("retry-after") or 20)))
+        return await _probe(client, {**settings, "_probe_retry": True}, model)
     return True if not response.is_error else _provider_message(response, settings["key"])
 
 
