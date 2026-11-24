@@ -300,6 +300,34 @@ def test_a_per_minute_limit_while_probing_waits_and_tries_the_model_again(monkey
     assert "high demand" in asyncio.run(drafts._probe(Client([busy, busy]), settings, "gemini-3.6-flash"))
 
 
+def test_new_drafts_need_answers_mapped_to_outcomes_and_two_to_three_faults():
+    source = {"minutes": 420, "topic": "Docker Fundamentals", "capstone": False}
+    good = drafts.normalise(_good_design(), 420)
+    assert drafts.problems(good, source) == []
+    assert len(good["seeded_faults"]) == 3 and good["seeded_failure"] == good["seeded_faults"][0]
+    assert all(item["answer"] and isinstance(item["outcome"], int) for item in good["quiz"])
+
+    raw = _good_design()
+    raw["quiz"] = [{"question": "1. " + item["question"], "answer": item["answer"], "outcome": f"Outcome {item['outcome']}"}
+                   for item in raw["quiz"]]
+    cleaned = drafts.normalise(raw, 420)
+    assert [item["outcome"] for item in cleaned["quiz"]] == [item["outcome"] for item in good["quiz"]]
+    assert not cleaned["quiz"][0]["question"].startswith("1.")
+
+    questions_only = _good_design()
+    questions_only["quiz"] = [item["question"] for item in questions_only["quiz"]]
+    issues = " | ".join(drafts.problems(drafts.normalise(questions_only, 420), source))
+    assert "needs an answer" in issues and "number of the outcome" in issues
+
+    one_fault = _good_design()
+    one_fault["seeded_faults"] = one_fault["seeded_faults"][:1]
+    assert "2 to 3 seeded faults" in " | ".join(drafts.problems(drafts.normalise(one_fault, 420), source))
+
+    untested = _good_design()
+    untested["quiz"] = [{**item, "outcome": 1} for item in untested["quiz"]]  # outcome 5 is a knowledge-check outcome
+    assert any("need a question: 5" in issue for issue in drafts.problems(drafts.normalise(untested, 420), source))
+
+
 def test_drafting_order_follows_the_files_tocs_use():
     every = drafts.all_courses()
     levels = {path.stem for path in drafts.LEVEL_DIR.glob("*.json")}

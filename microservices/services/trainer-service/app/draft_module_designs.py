@@ -38,7 +38,7 @@ from app.apply_authored_outlines import design_problems
 ROOT = Path(__file__).parent
 LEVEL_DIR = ROOT / "datasets_levels"
 COMPACT_DIR = ROOT / "datasets_compact"
-REVISION = "module-design-v1"
+REVISION = "module-design-v2"  # v2: 2-3 seeded faults, quiz answers mapped to outcomes, to_verify
 ORIGIN = "model_draft_pending_technical_review"
 LEVELS = ("beginner", "intermediate", "advanced")
 MODULE_MINUTES = 420
@@ -69,14 +69,19 @@ A design has these fields:
   A normal module has {_STANDARD}. A capstone module has {_CAPSTONE}.
   failure_scenario is one sentence with a realistic symptom and its cause that practitioners meet with that topic;
   use "" for recap, quiz and review topics. best_practice is one concrete practice, or "".
-- "seeded_failure": {{"symptom", "cause", "fix"}} for a fault the trainer plants in the lab. The symptom says only what
-  participants observe; the cause and fix are for the trainer.
-- "quiz": 5 to 8 knowledge-check questions answerable from this module. Questions only, each ending with "?".
+- "seeded_faults": 2 to 3 faults the trainer plants in the lab, each {{"symptom", "cause", "fix"}}, with different causes.
+  The symptom says only what participants observe and can detect with the module's tools; the cause and fix are for
+  the trainer.
+- "quiz": 5 to 8 knowledge-check items answerable from this module, each {{"question", "answer", "outcome"}}. The
+  question ends with "?". The answer is one to three sentences a trainer can mark against. outcome is the number
+  (1 for the first) of the outcome the question tests. Every outcome assessed by "Knowledge check" needs a question.
 - "lab_rubric": exactly 4 criteria, each {{"criterion", "exceeds", "meets", "partly", "not_met"}}.
 - "lab_environment": 2 to 6 rows for the tools the lab needs, each {{"tool", "version", "access", "setup_owner", "cost"}}.
   version is a minimum version you are certain of, or "Current stable release". setup_owner is Trainer, Client IT,
   Participant or a combination. cost never contains a price: use "No licence cost", "Free tier",
   "Licence required; confirm with the vendor" or "Priced in the Lab Cost Estimate".
+- "to_verify": a list of statements in your design you are not certain are accurate (a version, default, limit or
+  command option), so a reviewer checks them before delivery. Use [] when there are none.
 
 Never invent client facts, prices, statistics, or version numbers you are not sure of.
 Follow the style and depth of the example design, but do not copy its content."""
@@ -196,6 +201,7 @@ def example_design():
         for day in course["days"]:
             if day.get("design"):
                 design = deepcopy(day["design"])
+                design.pop("seeded_failure", None)  # the example shows only the current seeded_faults shape
                 design["lab_rubric"] = [dict(zip(("criterion", "exceeds", "meets", "partly", "not_met"), row))
                                         for row in design.get("lab_rubric") or []]
                 return {"input": {"topic": day["topic"], "lab": day["lab"]["title"], "minutes": MODULE_MINUTES,
@@ -239,7 +245,21 @@ def normalise(design, minutes):
             row = [row.get(key) for key in ("criterion", "exceeds", "meets", "partly", "not_met")]
         if isinstance(row, list):
             rubric.append([_text(cell) for cell in row[:5]])
-    seeded = design.get("seeded_failure") if isinstance(design.get("seeded_failure"), dict) else {}
+    faults = design.get("seeded_faults")
+    if not isinstance(faults, list) or not faults:
+        faults = [design["seeded_failure"]] if isinstance(design.get("seeded_failure"), dict) else []
+    faults = [{key: _text(fault.get(key)) for key in ("symptom", "cause", "fix")}
+              for fault in faults if isinstance(fault, dict)][:3]
+    quiz = []
+    for item in design.get("quiz") or []:
+        item = item if isinstance(item, dict) else {"question": item}
+        number = item.get("outcome")
+        try:
+            number = int(str(number).strip().split()[-1]) if number not in (None, "") else None
+        except (TypeError, ValueError):
+            number = None
+        quiz.append({"question": re.sub(r"^(q?\d+[.):]\s*)", "", _text(item.get("question")), flags=re.I),
+                     "answer": _text(item.get("answer")), "outcome": number})
     environment = []
     for row in design.get("lab_environment") or []:
         if not isinstance(row, dict) or not _text(row.get("tool")):
@@ -252,8 +272,10 @@ def normalise(design, minutes):
         "outcomes": [{"outcome": _text(o.get("outcome")), "assessed_by": _text(o.get("assessed_by")) or "Lab checks"}
                      for o in design.get("outcomes") or [] if isinstance(o, dict) and _text(o.get("outcome"))][:5],
         "topics": topics,
-        "seeded_failure": {key: _text(seeded.get(key)) for key in ("symptom", "cause", "fix")},
-        "quiz": [re.sub(r"^(q?\d+[.):]\s*)", "", q, flags=re.I) for q in _strings(design.get("quiz"))][:8],
+        "seeded_faults": faults,
+        "seeded_failure": faults[0] if faults else {"symptom": "", "cause": "", "fix": ""},  # earlier single-fault readers
+        "quiz": quiz[:8],
+        "to_verify": _strings(design.get("to_verify"))[:10],
         "lab_rubric": rubric[:4],
         "lab_environment": environment[:6],
     }
@@ -269,8 +291,14 @@ def problems(design, source):
         found.append("topic names must be unique")
     if any(len(t["subtopics"]) < 2 for t in design["topics"]):
         found.append("every topic needs at least 2 subtopics")
-    if any(len(q) < 15 for q in design["quiz"]):
-        found.append("every quiz item must be a full question")
+    if any(len(item["question"]) < 15 or not item["question"].endswith("?") for item in design["quiz"]):
+        found.append("every quiz item must be a full question ending with '?'")
+    if any(len(item["answer"]) < 15 for item in design["quiz"]):
+        found.append("every quiz question needs an answer a trainer can mark against")
+    if any(item["outcome"] is None for item in design["quiz"]):
+        found.append("every quiz question needs the number of the outcome it tests")
+    if not 2 <= len(design["seeded_faults"]) <= 3:
+        found.append("the lab needs 2 to 3 seeded faults")
     if len(design["lab_rubric"]) != 4:
         found.append("lab rubric needs exactly 4 criteria")
     if not 2 <= len(design["lab_environment"]) <= 6:

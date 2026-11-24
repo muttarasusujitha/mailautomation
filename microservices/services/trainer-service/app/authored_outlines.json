@@ -898,13 +898,41 @@
               "fix": "Bind the application to 0.0.0.0, rebuild the image and confirm with curl and docker logs."
             },
             "quiz": [
-              "What is the difference between CMD and ENTRYPOINT, and what happens to each when you pass arguments to docker run?",
-              "Why does changing one source file reinstall every dependency when COPY . . comes before RUN pip install, and how do you reorder the Dockerfile to fix it?",
-              "A container exits with code 137. What are two likely causes, and which command confirms the cause?",
-              "When would you use a named volume instead of a bind mount?",
-              "Why should a container run as a non-root user, and how do you set this in a Dockerfile?",
-              "Two containers on the default bridge network cannot reach each other by name. Why, and what is the fix?",
-              "What is the difference between an image tag and a digest, and which should a production deployment reference?"
+              {
+                "question": "What is the difference between CMD and ENTRYPOINT, and what happens to each when you pass arguments to docker run?",
+                "answer": "ENTRYPOINT sets the program that always runs; CMD gives its default arguments, or the default command when there is no ENTRYPOINT. Arguments after the image name in docker run replace CMD, while ENTRYPOINT stays unless --entrypoint is used.",
+                "outcome": 1
+              },
+              {
+                "question": "Why does changing one source file reinstall every dependency when COPY . . comes before RUN pip install, and how do you reorder the Dockerfile to fix it?",
+                "answer": "Each instruction is a cached layer, and changing a file copied by COPY . . invalidates that layer and every layer after it, including the install step. Copy only the dependency file, run the install, then copy the rest of the source.",
+                "outcome": 5
+              },
+              {
+                "question": "A container exits with code 137. What are two likely causes, and which command confirms the cause?",
+                "answer": "The process was killed with SIGKILL: most often the container exceeded its memory limit (OOMKilled), or it did not stop within the stop timeout and was killed. docker inspect shows State.OOMKilled and the exit code.",
+                "outcome": 4
+              },
+              {
+                "question": "When would you use a named volume instead of a bind mount?",
+                "answer": "Use a named volume for data the application owns, such as uploads or a database, because Docker manages it and it survives removing the container. Use a bind mount when the container must see host files, such as source code during development.",
+                "outcome": 2
+              },
+              {
+                "question": "Why should a container run as a non-root user, and how do you set this in a Dockerfile?",
+                "answer": "A non-root user limits what an attacker can do if the application is compromised. Create a user in the Dockerfile, give it ownership of the files it needs, and add a USER instruction before the command.",
+                "outcome": 3
+              },
+              {
+                "question": "Two containers on the default bridge network cannot reach each other by name. Why, and what is the fix?",
+                "answer": "The default bridge network has no name resolution between containers. Create a user-defined bridge network and attach both containers to it, so each can reach the other by container name.",
+                "outcome": 2
+              },
+              {
+                "question": "What is the difference between an image tag and a digest, and which should a production deployment reference?",
+                "answer": "A tag is a name that can be moved to a different image; a digest (sha256) identifies one exact image. A production deployment should reference the digest, or a tag the team never reuses, so the same image always runs.",
+                "outcome": 1
+              }
             ],
             "lab_rubric": [
               [
@@ -965,6 +993,26 @@
                 "setup_owner": "Trainer",
                 "cost": "None"
               }
+            ],
+            "seeded_faults": [
+              {
+                "symptom": "The container shows as running, but requests to the published port fail.",
+                "cause": "The application listens on 127.0.0.1 inside the container, so traffic arriving on the container's network interface is refused.",
+                "fix": "Bind the application to 0.0.0.0, rebuild the image and confirm with curl and docker logs."
+              },
+              {
+                "symptom": "The container keeps restarting and docker logs shows 'permission denied' when the application writes to /app/data.",
+                "cause": "The named volume is mounted at /app/data, which belongs to root, while the image runs as a non-root user.",
+                "fix": "Create /app/data and give the application user ownership in the Dockerfile before the USER instruction, rebuild, then recreate the container and confirm the write succeeds."
+              },
+              {
+                "symptom": "docker ps reports the container as unhealthy even though the application answers requests.",
+                "cause": "The HEALTHCHECK runs curl, which is not installed in the slim runtime image, so every check fails.",
+                "fix": "Install curl in the runtime stage or change the health check to a command the image already has, rebuild, and confirm the status becomes healthy."
+              }
+            ],
+            "to_verify": [
+              "Whether the client's organisation needs a paid Docker Desktop subscription under Docker's current terms"
             ]
           }
         },
