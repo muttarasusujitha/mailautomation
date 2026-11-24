@@ -280,7 +280,11 @@ def people_rows_from_snapshot(payload):
 
 
 def _people_search_url(keywords, page_number):
-    return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({
+        'keywords': keywords,
+        'origin': 'GLOBAL_SEARCH_HEADER',
+        'page': page_number,
+    })
 
 
 from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_SCAN_LIMIT
@@ -486,6 +490,64 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                     'title': (profile.get('title') or profile_title(text))[:200],
                     'content': text[:5000],
                 }
+                if _normalize_result(candidate, domain, 'trainer'):
+                    seen.add(url)
+                    results.append(candidate)
+                if len(results) >= limit:
+                    return added
+        return added
+
+    payloads, tasks = [], []
+
+    async def capture_response(response):
+        try:
+            content_type = (response.headers.get('content-type') or '')
+            if response.status != 200 or 'json' not in content_type:
+                return
+            body = await response.text()
+        except Exception:
+            return
+        if not isinstance(body, str):
+            return
+        flattened = body.replace('\\/', '/')
+        markers = flattened.lower()
+        if 'linkedin.com/in/' in markers and ('navigationurl' in markers or 'actiontarget' in markers):
+            payloads.append(body[:2_000_000])
+
+    def on_response(response):
+        tasks.append(asyncio.create_task(capture_response(response)))
+
+    try:
+        page.on('response', on_response)
+    except Exception:
+        pass
+
+    async def absorb_markup():
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+            tasks.clear()
+        blobs = list(payloads)
+        payloads.clear()
+        try:
+            html = await page.content()
+        except Exception:
+            html = ''
+        if isinstance(html, str) and html:
+            blobs.append(html)
+        added = 0
+        for blob in blobs:
+            if not isinstance(blob, str):
+                continue
+            for profile in profiles_from_text(blob):
+                url = canonical_url(profile.get('url', ''))
+                text = profile.get('content') or ''
+                if not url or not text.strip() or url in visited or len(visited) >= scan_limit:
+                    continue
+                visited.add(url)
+                added += 1
+                if url in seen:
+                    continue
+                candidate = {'url': url, 'title': (profile.get('title') or profile_title(text))[:200], 'content': text[:5000]}
                 if _normalize_result(candidate, domain, 'trainer'):
                     seen.add(url)
                     results.append(candidate)
