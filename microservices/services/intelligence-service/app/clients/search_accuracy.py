@@ -81,22 +81,27 @@ def matches_requested_skill(profile, search_text) -> bool:
 
 
 def is_current_year_result(profile) -> bool:
-    """Reject a result that explicitly advertises an older year."""
+    """Keep a live profile. A bare older year is an expired result, not a career date."""
     current_year = datetime.utcnow().year
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
     ])
+    if re.search(r"\b(present|current|currently|since|ongoing|till date|to date)\b", haystack, re.IGNORECASE):
+        return True
     years = [int(year) for year in re.findall(r"\b20\d{2}\b", haystack)]
-    return not years or max(years) >= current_year
+    # Last year's profiles are still current while this year's pages are being indexed.
+    return not years or max(years) >= current_year - 1
 
 
 def has_trainer_language(profile) -> bool:
+    url = str(profile.get("source_url") or profile.get("url") or "")
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
+        url.replace("-", " "),
     ])
     return bool(_TRAINER_LANGUAGE.search(haystack))
 

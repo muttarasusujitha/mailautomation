@@ -258,7 +258,7 @@ async def _auto_send_client_mail(lead: Dict[str, Any], db: AsyncIOMotorDatabase,
     return success
 
 
-def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[Dict[str, Any]]:
+def _normalize_result(item: Dict[str, Any], domain: str, mode: str, require_domain: bool = True) -> Optional[Dict[str, Any]]:
     url = item.get("url") or item.get("source_url") or item.get("link") or ""
     from urllib.parse import urlsplit
     host = (urlsplit(url).hostname or '').lower()
@@ -281,24 +281,24 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    if terms and not _text_has_domain(combined_text, terms):
+    # Profile URLs such as /in/soft-skills-trainer count toward the skill check.
+    domain_text = f"{combined_text}\n{url.replace('-', ' ')}" if mode == "trainer" else combined_text
+    if require_domain and terms and not _text_has_domain(domain_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         return None
     email = _best_email(raw_text)
     phone = (_extract_phones(raw_text) or [""])[0]
     if mode == "trainer":
-        if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", combined_text):
+        searchable = f"{combined_text}\n{url.replace('-', ' ')}"
+        if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", searchable):
             return None
         is_profile = bool(re.search(r"linkedin\.com/in/", url, re.IGNORECASE))
         is_post = bool(re.search(r"linkedin\.com/(posts|feed/update|pulse)/", url, re.IGNORECASE))
-        is_resume_post = is_post and _looks_like_resume_trainer_post(combined_text)
+        is_resume_post = is_post and _looks_like_resume_trainer_post(searchable)
         if source == "linkedin" and not (is_profile or is_resume_post):
             return None
-        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
-            return None
-        terms = _domain_terms(domain)
-        if terms and not any(term in combined_text for term in terms):
+        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", searchable):
             return None
     slug = _slug_from_url(url)
     if mode == "client":
