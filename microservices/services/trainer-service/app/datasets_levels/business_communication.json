@@ -12,6 +12,23 @@
       "summary": "For graduates, new joiners and staff who write and speak at work in English every day. Covers plain business English, emails, chat messages, short reports, meeting notes, calls with colleagues and clients, short presentations and slides, customer replies, instructions and handovers, communicating across cultures and editing your own writing, practised with real workplace tasks and feedback.",
       "prerequisites": ["Reads and writes everyday English", "Uses email and a chat tool such as Teams or Slack", "Willing to share writing samples and be recorded for feedback"],
       "outcomes": ["Write clear emails, chat messages, updates and short reports", "Run calls and meetings with clear notes and actions", "Give a short, well-structured presentation with simple slides", "Reply to customers and colleagues across cultures in a professional tone"],
+      "course_outcomes": [
+        {"outcome": "Assess your writing baseline and write in plain English", "topics": ["Business Communication Overview and Writing Baseline", "Plain English for Business: Short Sentences and Everyday Words"]},
+        {"outcome": "Write clear business emails with subject lines, structure and calls to action", "topics": ["Writing Clear Business Emails: Subject Lines, Structure and Calls to Action"]},
+        {"outcome": "Set the right tone and reply to difficult emails", "topics": ["Email Tone, Etiquette and Replying to Difficult Messages"]},
+        {"outcome": "Follow chat etiquette in Teams and Slack", "topics": ["Chat and Instant Messaging at Work: Teams and Slack Etiquette"]},
+        {"outcome": "Fix the grammar and punctuation readers notice", "topics": ["Grammar and Punctuation That Readers Notice"]},
+        {"outcome": "Write short reports and status updates", "topics": ["Writing Short Reports and Status Updates"]},
+        {"outcome": "Run meetings with agendas, minutes and action items", "topics": ["Meeting Communication: Agendas, Minutes and Action Items"]},
+        {"outcome": "Speak clearly on calls and paraphrase what you hear", "topics": ["Speaking Clearly on Calls: Phone, Teams and Zoom", "Listening and Paraphrasing in Business Conversations"]},
+        {"outcome": "Present a short team update with simple slides", "topics": ["Presenting a Short Update to Your Team", "Designing Simple Slides"]},
+        {"outcome": "Open, clarify and close client calls", "topics": ["Client Calls: Opening, Clarifying and Closing"]},
+        {"outcome": "Respond to customers, including apologies and complaints", "topics": ["Writing for Customers: Responses, Apologies and Complaints"]},
+        {"outcome": "Ask questions and request information politely", "topics": ["Asking Questions and Requesting Information Politely"]},
+        {"outcome": "Use common business vocabulary and communicate across cultures and time zones", "topics": ["Business Vocabulary and Common Phrases for Global Teams", "Communicating Across Cultures and Time Zones"]},
+        {"outcome": "Give clear instructions and handovers and proofread your own writing", "topics": ["Giving Clear Instructions and Handovers", "Proofreading and Editing Your Own Writing"]},
+        {"outcome": "Assemble a business communication portfolio", "topics": ["Beginner Capstone: Business Communication Portfolio"]}
+      ],
       "days": [
         {
           "topic": "Business Communication Overview and Writing Baseline",
@@ -199,6 +216,23 @@
       "summary": "For professionals, team leads and client-facing staff who write for decision makers and present to groups. Covers structuring messages with the pyramid principle, executive summaries, proposals and business cases, persuasive presentations, data storytelling, handling questions, decision meetings, writing for senior stakeholders, negotiation language, bad news and escalations, client status reporting, process documents, explaining technical topics and writing feedback.",
       "prerequisites": ["Writes emails and updates confidently", "Has presented to a team or client at least a few times", "Works with stakeholders in other teams or at clients"],
       "outcomes": ["Structure documents and talks so decision makers act on them", "Write proposals, business cases and executive summaries", "Present data and recommendations persuasively and handle tough questions", "Communicate bad news, escalations and change requests professionally"],
+      "course_outcomes": [
+        {"outcome": "Structure messages with the Pyramid Principle and write executive summaries for senior stakeholders", "topics": ["Structuring Messages with the Pyramid Principle", "Writing Executive Summaries", "Writing for Senior Stakeholders: Brevity and Decisions"]},
+        {"outcome": "Write proposals, recommendations and business cases", "topics": ["Business Proposals and Recommendations", "Writing Business Cases for Approval"]},
+        {"outcome": "Build persuasive presentations with evidence and charts", "topics": ["Persuasive Presentations: Structure and Evidence", "Data Storytelling: Charts That Make the Point"]},
+        {"outcome": "Handle questions and objections after a presentation", "topics": ["Handling Questions and Objections After a Presentation"]},
+        {"outcome": "Run decision meetings with pre-reads, options and decision records", "topics": ["Decision Meetings: Pre-Reads, Options and Decision Records"]},
+        {"outcome": "Negotiate in email and meetings", "topics": ["Negotiation Language in Email and Meetings"]},
+        {"outcome": "Deliver bad news and escalate in writing", "topics": ["Delivering Bad News and Escalations in Writing"]},
+        {"outcome": "Write client status reports, steering updates and change requests", "topics": ["Client Communication: Status Reports, Steering Updates and Change Requests"]},
+        {"outcome": "Communicate in virtual and hybrid teams and run webinars", "topics": ["Communicating in Virtual and Hybrid Teams", "Webinars and Online Presentations"]},
+        {"outcome": "Write policies, procedures and process documents", "topics": ["Writing Policies, Procedures and Process Documents"]},
+        {"outcome": "Explain technical topics to non-technical audiences", "topics": ["Communicating Technical Topics to Non-Technical Audiences"]},
+        {"outcome": "Give written feedback in reviews, comments and appraisal notes", "topics": ["Feedback in Writing: Reviews, Comments and Appraisal Notes"]},
+        {"outcome": "Draft and check with AI writing tools and disclose their use", "topics": ["AI Writing Tools: Drafting, Checking and Disclosing"]},
+        {"outcome": "Hold networking conversations and keep professional profiles current", "topics": ["Networking Conversations and Professional Profiles"]},
+        {"outcome": "Deliver a proposal, presentation and Q&A for a business decision", "topics": ["Intermediate Capstone: Proposal, Presentation and Q&A for a Business Decision"]}
+      ],
       "days": [
         {
           "topic": "Structuring Messages with the Pyramid Principle",
@@ -386,6 +420,23 @@
       "summary": "For managers, senior leaders and communication leads who speak for a function or the organisation. Covers board papers and decision memos, strategic narratives, organisational change communication, crisis statements, media and spokesperson skills, announcements, internal communications, keynote speaking, complex negotiations, communicating risk, regulator and auditor communication, difficult all-hands messages, communication strategy and measurement, coaching others, style guides, inclusive global communication and ethical persuasion.",
       "prerequisites": ["Leads a team, function or major client relationship", "Writes for and presents to senior leaders regularly", "Has completed intermediate business communication or has equivalent experience"],
       "outcomes": ["Write board-level papers and strategy narratives that drive decisions", "Plan and run communication for change, crises and difficult announcements", "Represent the organisation to media, regulators, investors and large audiences", "Build communication strategies, style guides and capability in others"],
+      "course_outcomes": [
+        {"outcome": "Write board papers and decision memos", "topics": ["Executive Communication: Board Papers and Decision Memos"]},
+        {"outcome": "Communicate strategy through a strategic narrative", "topics": ["Strategic Narrative: Communicating Strategy and Direction"]},
+        {"outcome": "Plan change communication for an organisation", "topics": ["Change Communication Plans for Organisations"]},
+        {"outcome": "Communicate in a crisis with statements, holding lines and updates", "topics": ["Crisis Communication: Statements, Holding Lines and Updates"]},
+        {"outcome": "Speak to the media and write announcements and press releases", "topics": ["Media and Spokesperson Skills", "Writing Announcements and Press Releases"]},
+        {"outcome": "Run internal communications through town halls, newsletters and the intranet", "topics": ["Internal Communications: Town Halls, Newsletters and Intranet"]},
+        {"outcome": "Give keynote and conference talks", "topics": ["Keynote and Conference Speaking"]},
+        {"outcome": "Negotiate complex deals with ethical persuasion that builds trust", "topics": ["Communication in Complex Negotiations", "Ethical Persuasion and Building Trust"]},
+        {"outcome": "Communicate risk and uncertainty, including to regulators and auditors", "topics": ["Communicating Risk and Uncertainty", "Communicating with Regulators and Auditors"]},
+        {"outcome": "Lead difficult all-hands conversations about layoffs, reorganisations and cost cuts", "topics": ["Leading Difficult All-Hands Conversations: Layoffs, Reorganisations and Cost Cuts"]},
+        {"outcome": "Build and measure a communication strategy for a function", "topics": ["Building a Communication Strategy for a Function", "Measuring Communication: Surveys, Analytics and Feedback Loops"]},
+        {"outcome": "Coach others to write and present better", "topics": ["Coaching Others to Write and Present Better"]},
+        {"outcome": "Set a brand voice and style guide and use inclusive language and localisation", "topics": ["Brand Voice and Style Guides", "Inclusive Language, Translation and Localisation"]},
+        {"outcome": "Lead communication through mergers and acquisitions", "topics": ["Leading Communication Through Mergers and Acquisitions"]},
+        {"outcome": "Deliver a communication plan for a major organisational change", "topics": ["Advanced Capstone: Communication Plan for a Major Organisational Change"]}
+      ],
       "days": [
         {
           "topic": "Executive Communication: Board Papers and Decision Memos",

@@ -42,6 +42,20 @@
         "Use the Language, Vision and Document Intelligence services",
         "Apply Content Safety, monitoring and cost control"
       ],
+      "course_outcomes": [
+        {"outcome": "Map Azure AI services and apply responsible AI principles", "topics": ["The Azure AI Landscape and Responsible AI"]},
+        {"outcome": "Deploy models in Azure OpenAI Service", "topics": ["Azure OpenAI Service and Model Deployments"]},
+        {"outcome": "Write prompts for Azure OpenAI models", "topics": ["Prompt Engineering in Azure OpenAI"]},
+        {"outcome": "Return structured outputs and call functions", "topics": ["Structured Outputs and Function Calling"]},
+        {"outcome": "Index and retrieve content with Azure AI Search", "topics": ["Azure AI Search and Retrieval"]},
+        {"outcome": "Build retrieval-augmented generation on Azure", "topics": ["Retrieval-Augmented Generation on Azure"]},
+        {"outcome": "Analyse text with Azure AI Language", "topics": ["Azure AI Language Service"]},
+        {"outcome": "Extract content from images and documents with Azure AI Vision and Document Intelligence", "topics": ["Azure AI Vision and Document Intelligence"]},
+        {"outcome": "Filter harmful content with Content Safety", "topics": ["Content Safety and Guardrails"]},
+        {"outcome": "Monitor usage, cost and quotas", "topics": ["Monitoring, Cost and Quotas"]},
+        {"outcome": "Build flows with Prompt Flow in Azure AI Foundry", "topics": ["Prompt Flow in Azure AI Foundry"]},
+        {"outcome": "Deliver a grounded Azure AI assistant", "topics": ["Capstone: A Grounded Azure AI Assistant"]}
+      ],
       "days": [
         {
           "topic": "The Azure AI Landscape and Responsible AI",
@@ -570,6 +584,21 @@
         "Evaluate groundedness and fine-tune models",
         "Operate Azure ML pipelines and MLOps",
         "Secure and govern Azure AI workloads"
+      ],
+      "course_outcomes": [
+        {"outcome": "Plan Azure OpenAI deployments, quotas and throughput", "topics": ["Azure OpenAI Deployments, Quotas and Throughput"]},
+        {"outcome": "Apply advanced prompting and function calling", "topics": ["Advanced Prompting and Function Calling"]},
+        {"outcome": "Run vector and hybrid search in Azure AI Search", "topics": ["Azure AI Search: Vector and Hybrid at Depth"]},
+        {"outcome": "Build production RAG pipelines", "topics": ["Production RAG Pipelines"]},
+        {"outcome": "Evaluate answers for groundedness", "topics": ["Evaluation and Groundedness"]},
+        {"outcome": "Fine-tune Azure OpenAI models", "topics": ["Fine-Tuning Azure OpenAI Models"]},
+        {"outcome": "Build Azure Machine Learning pipelines", "topics": ["Azure Machine Learning Pipelines"]},
+        {"outcome": "Apply MLOps practices on Azure", "topics": ["MLOps on Azure"]},
+        {"outcome": "Govern AI content with Content Safety", "topics": ["Content Safety and Governance at Depth"]},
+        {"outcome": "Secure AI services with private networking", "topics": ["Security and Private Networking"]},
+        {"outcome": "Build agents that use tools", "topics": ["Agents and Tool Use"]},
+        {"outcome": "Add multimodal and speech features", "topics": ["Multimodal and Speech"]},
+        {"outcome": "Deliver a governed Azure AI application", "topics": ["Capstone: A Governed Azure AI Application"]}
       ],
       "days": [
         {
@@ -1139,6 +1168,20 @@
         "Run evaluation, red-teaming and responsible-AI governance",
         "Engineer cost, throughput and LLMOps",
         "Lead AI security and platform reviews"
+      ],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise RAG architecture", "topics": ["Enterprise RAG Architecture"]},
+        {"outcome": "Orchestrate multiple agents", "topics": ["Multi-Agent Orchestration"]},
+        {"outcome": "Evaluate and red-team AI systems", "topics": ["Advanced Evaluation and Red-Teaming"]},
+        {"outcome": "Fine-tune, distil and optimise models", "topics": ["Fine-Tuning, Distillation and Optimization"]},
+        {"outcome": "Run Azure Machine Learning at scale", "topics": ["Azure ML at Scale"]},
+        {"outcome": "Run a responsible AI and governance programme", "topics": ["Responsible AI and Governance Programme"]},
+        {"outcome": "Optimise AI cost and engineer throughput", "topics": ["Cost Optimization and Throughput Engineering"]},
+        {"outcome": "Deliver AI changes continuously with LLMOps", "topics": ["LLMOps and Continuous Delivery"]},
+        {"outcome": "Monitor drift and act on user feedback", "topics": ["Observability, Drift and Feedback"]},
+        {"outcome": "Plan migration and AI platform strategy", "topics": ["Migration and Platform Strategy"]},
+        {"outcome": "Design security architecture for AI systems", "topics": ["Security Architecture for AI Systems"]},
+        {"outcome": "Review an Azure AI platform", "topics": ["Capstone: Azure AI Platform Review"]}
       ],
       "days": [
         {

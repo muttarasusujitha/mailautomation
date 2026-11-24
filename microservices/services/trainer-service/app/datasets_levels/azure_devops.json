@@ -12,6 +12,23 @@
       "summary": "For developers, testers, team leads and operations engineers who are new to Azure DevOps Services. Covers organisations, projects, access levels and permissions, Azure Boards work items, backlogs, sprints and queries, Azure Repos with pull requests and branch policies, a first YAML pipeline with triggers, variables, tests and artifacts, Microsoft-hosted agents, Azure Artifacts feeds, a first workload identity federation service connection, an App Service deployment, Azure Test Plans, wikis and dashboards, and a capstone that takes one team project from backlog to a running web app.",
       "prerequisites": ["Uses Git from the command line: clone, branch, commit, push and pull", "Has built and tested a small application in a language such as C#, Java, Python or JavaScript", "Has a Microsoft Entra ID or Microsoft account, an Azure subscription with Contributor rights on a resource group, and the Azure CLI installed"],
       "outcomes": ["Create an Azure DevOps organisation and project and give each team member the right access level and security group", "Plan work in Azure Boards with work items, backlogs, sprints, boards and WIQL queries", "Protect a main branch in Azure Repos with pull requests, reviewers and build validation", "Write a YAML pipeline that builds, tests, publishes artifacts and deploys to Azure App Service through a workload identity federation service connection"],
+      "course_outcomes": [
+        {"outcome": "Set up an Azure DevOps organisation and project with access levels, groups and permissions", "topics": ["Azure DevOps Organisation and Project Setup", "Access Levels, Security Groups and Permissions in Azure DevOps"]},
+        {"outcome": "Track work with work items and process templates", "topics": ["Azure Boards Work Items and Process Templates"]},
+        {"outcome": "Plan sprints with backlogs and capacity", "topics": ["Backlogs, Sprints and Capacity Planning in Azure Boards"]},
+        {"outcome": "Manage flow with Kanban boards, queries and WIQL", "topics": ["Kanban Boards, Queries and WIQL in Azure Boards"]},
+        {"outcome": "Create and clone Git repositories in Azure Repos", "topics": ["Azure Repos Git Repositories and Cloning"]},
+        {"outcome": "Review code with pull requests and protect branches with policies and permissions", "topics": ["Pull Requests and Code Review in Azure Repos", "Branch Policies and Branch Permissions in Azure Repos"]},
+        {"outcome": "Write a first YAML pipeline with triggers, path filters and schedules", "topics": ["First YAML Pipeline in Azure Pipelines", "Pipeline Triggers, Path Filters and Scheduled Runs"]},
+        {"outcome": "Use pipeline variables, predefined variables and expressions", "topics": ["Pipeline Variables, Predefined Variables and Expressions"]},
+        {"outcome": "Run tests and publish test results and build artifacts", "topics": ["Running Tests and Publishing Results in Azure Pipelines", "Pipeline Artifacts and Build Outputs in Azure Pipelines"]},
+        {"outcome": "Run jobs on Microsoft-hosted agents in parallel", "topics": ["Microsoft-Hosted Agents and Parallel Jobs"]},
+        {"outcome": "Publish packages to Azure Artifacts feeds", "topics": ["Azure Artifacts Feeds and Package Publishing"]},
+        {"outcome": "Connect to Azure with service connections and deploy a web app to App Service", "topics": ["Service Connections and Workload Identity Federation Basics", "Deploying a Web App to Azure App Service from Azure Pipelines"]},
+        {"outcome": "Run manual and exploratory tests with Azure Test Plans", "topics": ["Azure Test Plans for Manual and Exploratory Testing"]},
+        {"outcome": "Share information with wikis, dashboards and notifications", "topics": ["Wikis, Dashboards and Notifications in Azure DevOps"]},
+        {"outcome": "Deliver a team project from backlog to App Service release", "topics": ["Capstone: Team Project from Backlog to App Service Release"]}
+      ],
       "days": [
         {
           "topic": "Azure DevOps Organisation and Project Setup",
@@ -199,6 +216,23 @@
       "summary": "For engineers who already run single-stage YAML pipelines in Azure DevOps and now own delivery for a team. Covers multi-stage pipelines, dependencies, conditions and output variables, matrix and container jobs, step, job and stage templates with typed parameters, variable groups linked to Azure Key Vault, environments with approvals and checks, deployment job strategies, self-hosted agents and pool administration, caching, workload identity federation in depth, Bicep and Terraform pipelines, container builds to Azure Container Registry, Azure Artifacts upstream sources and views, automated tests linked to Test Plans, Delivery Plans and Analytics views, the REST API and service hooks, and a capstone multi-stage release with infrastructure and a slot swap.",
       "prerequisites": ["Has written and run a YAML pipeline in Azure Pipelines with triggers, variables, tests and artifacts", "Has deployed to Azure through an Azure Resource Manager service connection", "Can read Bicep or Terraform files and run the Azure CLI against a subscription where they can create resource groups and role assignments"],
       "outcomes": ["Design multi-stage YAML pipelines from reusable templates with typed parameters, conditions and output variables", "Gate releases with environments, approvals, checks and deployment job strategies", "Run self-hosted agents and deploy Bicep and Terraform through workload identity federation without stored secrets", "Manage packages, automated test results, delivery plans and automation through Azure Artifacts, Test Plans, Analytics and the REST API"],
+      "course_outcomes": [
+        {"outcome": "Build multi-stage YAML pipelines with dependencies, conditions and output variables", "topics": ["Multi-Stage YAML Pipelines with Stages and Jobs", "Job Dependencies, Conditions and Output Variables"]},
+        {"outcome": "Run matrix, parallel and container jobs", "topics": ["Matrix Strategies, Parallelism and Container Jobs"]},
+        {"outcome": "Reuse pipeline logic with templates, parameters and each loops", "topics": ["Step, Job and Stage Templates in Azure Pipelines", "Template Parameters, Expressions and Each Loops"]},
+        {"outcome": "Manage secrets with variable groups and Azure Key Vault", "topics": ["Variable Groups, Library and Azure Key Vault Secrets"]},
+        {"outcome": "Gate deployments with environments, approvals and checks", "topics": ["Environments, Approvals and Checks"]},
+        {"outcome": "Deploy with runOnce, rolling and canary strategies", "topics": ["Deployment Jobs and Strategies: runOnce, Rolling and Canary"]},
+        {"outcome": "Run and administer self-hosted agent pools", "topics": ["Self-Hosted Agents on Linux and Windows", "Agent Capabilities, Demands and Pool Administration"]},
+        {"outcome": "Speed up builds with pipeline caching", "topics": ["Pipeline Caching and Build Performance in Azure Pipelines"]},
+        {"outcome": "Connect to Azure Resource Manager with workload identity federation", "topics": ["Workload Identity Federation for Azure Resource Manager Connections"]},
+        {"outcome": "Deploy Bicep with what-if and run Terraform plan and apply from pipelines", "topics": ["Bicep Deployments from Azure Pipelines with What-If", "Terraform Plan and Apply Pipelines with Azure Pipelines"]},
+        {"outcome": "Build containers and push them to Azure Container Registry", "topics": ["Container Builds and Azure Container Registry Pushes from Azure Pipelines"]},
+        {"outcome": "Manage Azure Artifacts upstream sources, views and retention", "topics": ["Azure Artifacts Upstream Sources, Views and Retention"]},
+        {"outcome": "Integrate automated tests with Test Plans and manage flaky tests", "topics": ["Automated Test Plans Integration and Flaky Test Management"]},
+        {"outcome": "Plan delivery with Delivery Plans and Analytics views and automate with the REST API and service hooks", "topics": ["Azure Boards Delivery Plans and Analytics Views", "Azure DevOps REST API and Service Hooks Automation"]},
+        {"outcome": "Deliver a multi-stage pipeline with Bicep, approvals and slot swap", "topics": ["Capstone: Multi-Stage Pipeline with Bicep, Approvals and Slot Swap"]}
+      ],
       "days": [
         {
           "topic": "Multi-Stage YAML Pipelines with Stages and Jobs",
@@ -386,6 +420,23 @@
       "summary": "For platform engineers, DevOps leads and Azure DevOps administrators who run Azure DevOps for many teams. Covers pipeline security hardening and protected resources, required templates with extends, Managed DevOps Pools and KEDA-scaled agents, AKS canary releases with KubernetesManifest, App Service blue-green releases, Bicep deployment stacks, GitHub Advanced Security for Azure DevOps (secret scanning, push protection, CodeQL and dependency scanning), supply chain integrity, organisation governance with Entra ID and audit streaming, inherited process customisation, monorepo and multi-repository design, pipeline troubleshooting, OData and DORA reporting, Azure DevOps Server administration and migration to Azure DevOps Services, migration of repositories and pipelines to GitHub, and a capstone secured platform pipeline.",
       "prerequisites": ["Has built multi-stage YAML pipelines with templates, environments, approvals and deployment jobs", "Administers or co-administers an Azure DevOps organisation or Azure DevOps Server collection", "Has Owner or User Access Administrator rights on an Azure subscription, can run kubectl against an AKS cluster and read Bicep"],
       "outcomes": ["Harden an organisation so pipelines can only use approved templates, resources, agents and identities", "Run elastic agent capacity with Managed DevOps Pools or KEDA and release to AKS and App Service with progressive strategies", "Find and block leaked secrets, vulnerable code and vulnerable dependencies with GitHub Advanced Security for Azure DevOps", "Plan and run migrations from Azure DevOps Server to Azure DevOps Services and from Azure Repos and Pipelines to GitHub"],
+      "course_outcomes": [
+        {"outcome": "Harden pipeline security with protected resources and job scopes", "topics": ["Pipeline Security Hardening: Protected Resources and Job Scopes"]},
+        {"outcome": "Govern pipelines with required templates and extends", "topics": ["Required Templates and Extends-Based Governance"]},
+        {"outcome": "Provision Managed DevOps Pools and scale elastic agents on Kubernetes with KEDA", "topics": ["Managed DevOps Pools Provisioning and Scaling", "Elastic Self-Hosted Agents on Kubernetes with KEDA"]},
+        {"outcome": "Release to AKS with canary promotion and to App Service with blue-green slots", "topics": ["AKS Deployments with KubernetesManifest and Canary Promotion", "App Service Blue-Green Releases with Slots and Health Gates"]},
+        {"outcome": "Promote Bicep across environments with deployment stacks", "topics": ["Deployment Stacks and Multi-Environment Bicep Promotion"]},
+        {"outcome": "Scan code with GitHub Advanced Security, CodeQL and dependency scanning", "topics": ["GitHub Advanced Security for Azure DevOps: Secret Scanning and Push Protection", "CodeQL and Dependency Scanning in Azure Pipelines"]},
+        {"outcome": "Secure the supply chain with pinned tasks, SBOMs and artifact provenance", "topics": ["Supply Chain Integrity: Pinned Tasks, SBOMs and Artifact Provenance"]},
+        {"outcome": "Govern the organisation with Entra ID, Conditional Access and audit streaming", "topics": ["Organisation Governance: Entra ID, Conditional Access and Audit Streaming"]},
+        {"outcome": "Customise inherited processes and work item rules at scale", "topics": ["Inherited Process Customisation and Work Item Rules at Scale"]},
+        {"outcome": "Design monorepo and multi-repository pipelines", "topics": ["Monorepo and Multi-Repository Pipeline Design in Azure Pipelines"]},
+        {"outcome": "Troubleshoot pipelines with diagnostic logs and agent traces", "topics": ["Pipeline Troubleshooting with Diagnostic Logs and Agent Traces"]},
+        {"outcome": "Report DORA metrics with pipeline analytics and OData", "topics": ["Pipeline Analytics, OData Reporting and DORA Metrics"]},
+        {"outcome": "Administer and upgrade Azure DevOps Server and migrate collections to Azure DevOps Services", "topics": ["Azure DevOps Server Administration and Upgrades", "Migrating Azure DevOps Server Collections to Azure DevOps Services"]},
+        {"outcome": "Migrate Azure Repos, Pipelines and Boards work to GitHub", "topics": ["Migrating Azure Repos to GitHub with GitHub Enterprise Importer", "Rewiring Azure Pipelines and Boards During a GitHub Migration"]},
+        {"outcome": "Deliver a secured platform pipeline with managed pools, AKS canary and GHAS", "topics": ["Capstone: Secured Platform Pipeline with Managed Pools, AKS Canary and GHAS"]}
+      ],
       "days": [
         {
           "topic": "Pipeline Security Hardening: Protected Resources and Job Scopes",

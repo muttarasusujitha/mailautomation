@@ -12,6 +12,23 @@
       "summary": "For analysts, developers and engineers who know basic SQL and are new to BigQuery. Covers projects, datasets and locations, GoogleSQL queries, data types, aggregation and window functions, joins, nested and repeated data, dates and JSON, DDL and DML, load jobs from Cloud Storage, schemas, partitioning and clustering, on-demand pricing and cost controls, IAM, scheduled queries, Looker Studio, and a retail analytics capstone.",
       "prerequisites": ["Writes basic SQL: SELECT, WHERE, GROUP BY and JOIN", "Has a Google account and a Google Cloud project with billing or access to a project owner", "Uses a terminal to run commands and read output"],
       "outcomes": ["Query, load and model data in BigQuery with GoogleSQL and the bq CLI", "Reduce scanned bytes with partitioning, clustering and dry runs", "Grant least-privilege access with IAM roles on datasets", "Deliver a partitioned, scheduled and governed analytics dataset with evidence of cost"],
+      "course_outcomes": [
+        {"outcome": "Use BigQuery Studio and the bq CLI and organise projects, datasets and tables", "topics": ["Getting Started with BigQuery Studio, Projects and the bq CLI", "Resource Model: Projects, Datasets, Tables and Locations"]},
+        {"outcome": "Write GoogleSQL queries with filters and functions", "topics": ["GoogleSQL Queries: SELECT, WHERE and Functions"]},
+        {"outcome": "Handle data types, NULLs and safe casting", "topics": ["Data Types, NULLs and Safe Casting"]},
+        {"outcome": "Aggregate with GROUP BY and window functions", "topics": ["Aggregation, GROUP BY and Window Functions"]},
+        {"outcome": "Combine data with joins, set operators and subqueries", "topics": ["Joins, Set Operators and Subqueries"]},
+        {"outcome": "Query nested data with ARRAY and STRUCT", "topics": ["ARRAY, STRUCT and Nested Repeated Data"]},
+        {"outcome": "Work with dates, timestamps and time zones", "topics": ["Working with Dates, Timestamps and Time Zones"]},
+        {"outcome": "Process strings, regular expressions and JSON", "topics": ["Strings, Regular Expressions and JSON Functions"]},
+        {"outcome": "Create tables and views and change data with DML", "topics": ["Creating Tables, Views and DML Statements"]},
+        {"outcome": "Load data from Cloud Storage and manage schema changes", "topics": ["Loading Data from Cloud Storage with Load Jobs", "Schemas, Autodetect and Schema Changes"]},
+        {"outcome": "Cut query cost and time with partitioned and clustered tables", "topics": ["Partitioned Tables for Cost and Speed", "Clustered Tables and Block Pruning"]},
+        {"outcome": "Control query cost with dry runs and reuse results from the cache and job history", "topics": ["On-Demand Pricing, Dry Runs and Query Cost Controls", "Query Results, Cache and Job History"]},
+        {"outcome": "Grant analysts dataset access with IAM roles", "topics": ["IAM Roles and Dataset Access for Analysts"]},
+        {"outcome": "Schedule queries and transfers and visualise results in Looker Studio and Connected Sheets", "topics": ["Scheduled Queries and the BigQuery Data Transfer Service", "Visualising with Looker Studio and Connected Sheets"]},
+        {"outcome": "Deliver a retail analytics dataset in BigQuery", "topics": ["Beginner Capstone: Retail Analytics Dataset in BigQuery"]}
+      ],
       "days": [
         {
           "topic": "Getting Started with BigQuery Studio, Projects and the bq CLI",
@@ -199,6 +216,23 @@
       "summary": "For data engineers and analytics engineers who run BigQuery in production. Covers scripting and UDFs, execution plans, INFORMATION_SCHEMA, time travel and snapshots, storage billing, Storage Write API streaming and CDC, Pub/Sub and Datastream ingestion, MERGE patterns, materialized views, search indexes, external tables, Dataform, row and column security, authorized views, editions pricing and BigQuery ML.",
       "prerequisites": ["Completes the beginner level or equivalent BigQuery experience", "Writes window functions, MERGE and partition-filtered queries", "Uses git and a scripting language such as Python"],
       "outcomes": ["Build streaming and batch pipelines with the Write API, Pub/Sub and Dataform", "Diagnose slow or costly queries from plans and INFORMATION_SCHEMA", "Secure data with row policies, policy tags and authorized views", "Train and evaluate BigQuery ML models and size capacity with editions"],
+      "course_outcomes": [
+        {"outcome": "Write scripts, stored procedures and UDFs", "topics": ["BigQuery Scripting, Stored Procedures and UDFs"]},
+        {"outcome": "Read execution plans and INFORMATION_SCHEMA job and storage views", "topics": ["Query Execution Plans and Stage Analysis", "INFORMATION_SCHEMA Jobs and Storage Views"]},
+        {"outcome": "Recover data with time travel, snapshots and clones", "topics": ["Table Storage: Time Travel, Snapshots and Clones"]},
+        {"outcome": "Choose between logical and physical storage billing", "topics": ["Logical and Physical Storage Billing and Long-Term Storage"]},
+        {"outcome": "Stream data and apply CDC upserts with the Storage Write API", "topics": ["Streaming Ingestion with the Storage Write API", "Change Data Capture and Upserts with the Write API"]},
+        {"outcome": "Ingest data with Pub/Sub subscriptions, Dataflow templates and Datastream", "topics": ["Pub/Sub BigQuery Subscriptions and Dataflow Templates", "Datastream and Database Replication into BigQuery"]},
+        {"outcome": "Load incrementally with MERGE and deduplication", "topics": ["MERGE, Deduplication and Incremental Loading Patterns"]},
+        {"outcome": "Speed up queries with materialized views and search indexes", "topics": ["Materialized Views and Search Indexes"]},
+        {"outcome": "Query external, federated and object tables", "topics": ["External Tables, Federated Queries and Object Tables"]},
+        {"outcome": "Build Dataform workflows with SQLX, assertions and incremental tables", "topics": ["Dataform Workflows: SQLX, ref() and Dependencies", "Dataform Assertions, Incremental Tables and Release Configurations"]},
+        {"outcome": "Secure rows and columns with policy tags, authorized views and data masking", "topics": ["Row-Level Security and Column-Level Security with Policy Tags", "Authorized Views, Authorized Datasets and Data Masking"]},
+        {"outcome": "Choose between on-demand and Editions pricing", "topics": ["Choosing Between On-Demand and Editions Pricing"]},
+        {"outcome": "Train and evaluate models with BigQuery ML", "topics": ["BigQuery ML: Training and Evaluating Models"]},
+        {"outcome": "Automate BigQuery with the Python client, Terraform and CI", "topics": ["Python Client Library, Terraform and CI for BigQuery"]},
+        {"outcome": "Deliver a streaming and batch pipeline with Dataform", "topics": ["Intermediate Capstone: Streaming and Batch Pipeline with Dataform"]}
+      ],
       "days": [
         {
           "topic": "BigQuery Scripting, Stored Procedures and UDFs",
@@ -386,6 +420,23 @@
       "summary": "For senior data engineers, platform owners and architects. Covers reservation design and workload management, query tuning for skew, BI Engine, BigLake and Iceberg, the BigLake metastore, BigQuery Omni, Gemini and generative AI functions, vector search, forecasting, Dataplex governance, CMEK and VPC Service Controls, audit and monitoring, Analytics Hub, FinOps, disaster recovery, migration, and a governed lakehouse capstone.",
       "prerequisites": ["Completes the intermediate level or equivalent production BigQuery experience", "Reads execution plans and INFORMATION_SCHEMA job data", "Knows Google Cloud IAM, networking and Terraform at working level"],
       "outcomes": ["Design reservations and workload isolation from measured slot demand", "Build an open lakehouse using BigLake, Iceberg and shared catalogs", "Apply governance, encryption, audit and cross-region resilience", "Add Gemini, vector search and forecasting features with cost and quality controls"],
+      "course_outcomes": [
+        {"outcome": "Design slot reservations, commitments and autoscaling and manage workloads", "topics": ["Slot Autoscaling, Commitments and Reservation Design", "Workload Management: Concurrency, Priorities and Fair Scheduling"]},
+        {"outcome": "Optimise queries for skew, shuffle and join strategy", "topics": ["Query Optimisation for Skew, Shuffle and Join Strategies"]},
+        {"outcome": "Speed up dashboards with BI Engine", "topics": ["BI Engine Acceleration and Dashboard Latency"]},
+        {"outcome": "Secure Cloud Storage data with BigLake tables", "topics": ["BigLake Tables and Fine-Grained Security on Cloud Storage"]},
+        {"outcome": "Run Apache Iceberg tables and share a BigLake metastore with Spark", "topics": ["Apache Iceberg Tables in BigQuery: Managed and External", "BigLake Metastore and Open Catalog Interoperability with Spark"]},
+        {"outcome": "Analyse data across clouds with BigQuery Omni", "topics": ["BigQuery Omni and Cross-Cloud Analytics"]},
+        {"outcome": "Call Gemini and remote models from SQL and search embeddings with VECTOR_SEARCH", "topics": ["Remote Models, Gemini and Generative AI Functions in SQL", "Embeddings, Vector Indexes and VECTOR_SEARCH"]},
+        {"outcome": "Forecast and detect anomalies with BigQuery ML and use Gemini in BigQuery", "topics": ["BigQuery ML Forecasting, Anomaly Detection and Imported Models", "Gemini in BigQuery: Data Canvas, Code Assist and Data Insights"]},
+        {"outcome": "Govern data with Dataplex lineage, quality and profiling", "topics": ["Data Governance with Dataplex: Lineage, Quality and Profiling"]},
+        {"outcome": "Protect data with CMEK and VPC Service Controls and monitor usage with audit logs", "topics": ["Encryption: CMEK, Key Rotation and VPC Service Controls", "Audit Logging, Monitoring and Alerting for BigQuery"]},
+        {"outcome": "Share data with Analytics Hub and data clean rooms", "topics": ["Data Sharing with Analytics Hub and Data Clean Rooms"]},
+        {"outcome": "Govern costs with quotas, budgets and FinOps reporting", "topics": ["Cost Governance: Quotas, Budgets and FinOps Reporting"]},
+        {"outcome": "Plan disaster recovery with cross-region replication", "topics": ["Disaster Recovery: Cross-Region Replication and Managed DR"]},
+        {"outcome": "Migrate legacy warehouse workloads with the BigQuery Migration Service", "topics": ["Migrating Legacy Warehouse Workloads with the BigQuery Migration Service"]},
+        {"outcome": "Deliver a governed lakehouse platform on BigQuery", "topics": ["Advanced Capstone: Governed Lakehouse Platform on BigQuery"]}
+      ],
       "days": [
         {
           "topic": "Slot Autoscaling, Commitments and Reservation Design",
