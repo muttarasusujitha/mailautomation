@@ -105,6 +105,54 @@ def test_client_domain_and_trainer_intent_are_required():
     assert lead['contact_linkedin_url'] == 'https://www.linkedin.com/in/alice'
 
 
+def test_people_pages_collect_multiword_trainer_profiles():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    pages = [
+        [
+            {'url': 'https://www.linkedin.com/in/recruiter', 'text': 'Recruiter\nHR manager\nHyderabad'},
+            {'url': 'https://www.linkedin.com/in/ada', 'text': '   '},
+            {'url': 'https://www.linkedin.com/in/ada?miniProfileUrn=urn', 'text': 'Ada\nSoft Skills Trainer\nHyderabad'},
+        ],
+        [{'url': 'https://www.linkedin.com/in/ben', 'text': 'Ben\nCorporate facilitator for soft skills'}],
+    ]
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=pages)
+
+    def locate(selector):
+        if 'listitem' in selector:
+            raise AssertionError('content fallback started before people pages filled the target')
+        return people
+
+    page.locator.side_effect = locate
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 2))
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada',
+        'https://www.linkedin.com/in/ben',
+    ]
+    assert page.goto.await_count == 2
+    assert all('/search/results/people/' in call.args[0] and 'soft+skills+trainer' in call.args[0]
+               for call in page.goto.await_args_list)
+
+
+def test_joined_domain_words_and_dev_ops_still_match_trainer_profiles():
+    soft = _normalize_result(
+        {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'SoftSkills corporate trainer'},
+        'soft skills', 'trainer')
+    devops = _normalize_result(
+        {'url': 'https://www.linkedin.com/in/dev', 'title': 'Dev', 'content': 'Dev Ops corporate trainer'},
+        'Devops trainer', 'trainer')
+    assert soft['source_url'] == 'https://www.linkedin.com/in/ada'
+    assert devops['source_url'] == 'https://www.linkedin.com/in/dev'
+    assert _normalize_result(
+        {'url': 'https://www.linkedin.com/in/js', 'content': 'JavaScript trainer'}, 'Java', 'trainer') is None
+
+
 def test_signin_checkpoint_stops_fetch():
     page = AsyncMock()
     page.url = 'https://www.linkedin.com/checkpoint/challenge'
