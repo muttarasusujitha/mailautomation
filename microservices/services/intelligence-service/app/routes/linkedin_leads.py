@@ -42,7 +42,8 @@ class LinkedInLeadSearchRequest(BaseModel):
     save: bool = True
     mode: Literal['trainer', 'client'] = "trainer"
     source: Optional[str] = "linkedin"
-    queue_retry_on_blocked: bool = True
+    # An ID from the page, saved with the run report (GET /search-runs?search_ref=...).
+    search_ref: Optional[str] = ""
 
 
 class BackfillClientContactsRequest(BaseModel):
@@ -576,6 +577,7 @@ async def search_linkedin_leads(
         return {"success": False, "error": "query, domain, or domains is required", "saved_count": 0, "results": []}
 
     now = datetime.utcnow()
+    search_started_at = now
     search_started = time.monotonic()
     saved_count = 0
     auto_sent_count = 0
@@ -748,7 +750,8 @@ async def search_linkedin_leads(
             lead['discovered_at'] = now
             source_url = lead.get("source_url", "")
             from app.clients.client_post_identity import post_identity, save_client_post
-            identity = post_identity(source_url) if mode == 'client' else source_url
+            from app.clients.lead_identity import save_trainer_lead, trainer_lead_key
+            identity = post_identity(source_url) if mode == 'client' else (trainer_lead_key(source_url) or source_url)
             if identity in seen_urls:
                 skipped_count += 1
                 skipped.append({"reason": "duplicate_in_search", "source_url": source_url, "source": lead.get("source", "")})
@@ -759,36 +762,23 @@ async def search_linkedin_leads(
                 continue
             if mode == "client":
                 if not await save_client_post(lead, db, now):
+                    # Show the saved post's ID and status, so Reviewed and Delete act on the saved lead.
+                    saved = await db["client_leads"].find_one({"post_key": identity}, {"_id": 0, "lead_id": 1, "status": 1})
+                    if saved:
+                        lead["lead_id"] = saved.get("lead_id") or lead["lead_id"]
+                        lead["status"] = saved.get("status") or lead["status"]
                     skipped_count += 1
                     skipped.append({"reason": "already_saved_updated", "source_url": lead["source_url"], "source": lead.get("source", "")})
                     continue
             else:
-                dedupe_terms: List[Dict[str, str]] = []
-                if lead.get("source_url"):
-                    dedupe_terms.append({"source_url": lead["source_url"]})
-                    if lead.get("source") == "linkedin":
-                        dedupe_terms.append({"linkedin_url": lead["source_url"]})
-                if lead.get("external_slug"):
-                    dedupe_terms.append({"external_slug": lead["external_slug"]})
-                if lead.get("linkedin_slug"):
-                    dedupe_terms.append({"linkedin_slug": lead["linkedin_slug"]})
-
-                exists = await db["trainer_profile_leads"].find_one(
-                    {"$or": dedupe_terms},
-                    {"_id": 1},
-                )
-                if exists:
-                    updates = _contact_update_fields(lead)
-                    if updates:
-                        updates["updated_at"] = now
-                        await db["trainer_profile_leads"].update_one(
-                            {"$or": dedupe_terms},
-                            {"$set": updates},
-                        )
+                saved = await save_trainer_lead(db, lead, now)
+                # The response carries the saved lead's ID and status, which differ for a profile saved before.
+                lead["lead_id"] = saved["lead_id"]
+                lead["status"] = saved["status"] or lead["status"]
+                if not saved["created"]:
                     skipped_count += 1
                     skipped.append({"reason": "already_saved_updated", "source_url": lead["source_url"], "source": lead.get("source", "")})
                     continue
-                await db["trainer_profile_leads"].insert_one({**lead, "created_at": now, "updated_at": now})
             saved_count += 1
 
         if search_errors and payload.search_provider == 'linkedin_account':
@@ -800,9 +790,15 @@ async def search_linkedin_leads(
             if 'time limit' not in str(item.get('error') or '').lower()
         ]
 
-    retries = await _queue_blocked_trainer_domains(db, payload, domain_outcomes)
-    return {
-        "success": not search_errors,
+    from app.clients.search_runs import merge_sources, record_search_run, search_succeeded
+    sources = merge_sources(outcome.get('sources') for outcome in domain_outcomes)
+    if any(outcome.get('sources') for outcome in domain_outcomes):
+        # Failure only when nothing was found and every source that ran failed.
+        success = search_succeeded(len(all_results), sources)
+    else:
+        success = bool(all_results) or not search_errors
+    result = {
+        "success": success,
         "domain_outcomes": domain_outcomes,
         "search_error": search_errors[0]['error'] if search_errors else None,
         "search_errors": search_errors,
@@ -812,8 +808,37 @@ async def search_linkedin_leads(
         "skipped": skipped[:20],
         "found": len(all_results),
         "results": all_results,
-        "queued_retries": retries,
+        "sources": sources,
     }
+    result["run_id"] = await record_search_run(db, "linkedin_search", {
+        "mode": mode,
+        "provider": payload.search_provider,
+        "domains": domains,
+        "location": payload.location or "",
+        "max_results": payload.max_results,
+        "saved": payload.save,
+    }, result, search_started_at, payload.search_ref)
+    return result
+
+
+@router.get("/search-runs")
+async def list_search_runs(
+    kind: Optional[str] = None,
+    search_ref: Optional[str] = None,
+    limit: int = 20,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Recent lead searches, newest first, with each source's outcome.
+
+    kind: linkedin_search, trainer_search_public, naukri_search or client_search_public.
+    search_ref: the ID a page sent with its search, to find that search's report.
+    """
+    query = {"kind": kind.strip()} if kind and kind.strip() else {}
+    if search_ref and search_ref.strip():
+        query["search_ref"] = search_ref.strip()[:64]
+    limit = max(1, min(int(limit or 20), 100))
+    cursor = db["lead_search_runs"].find(query, {"_id": 0}).sort([("started_at", -1)]).limit(limit)
+    return {"success": True, "runs": [run async for run in cursor]}
 
 
 @router.post("/backfill-client-contacts")
