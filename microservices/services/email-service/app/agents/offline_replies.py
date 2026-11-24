@@ -1,0 +1,767 @@
+"""Replies from stored records when AI generation is off.
+
+No model is called. A client requirement uses the professional acknowledgement.
+A trainer question uses that trainer's record and the requirement they are on.
+Money and lab defaults that belong to the other side, or only to the lab
+workbook, are left out of both replies.
+"""
+
+import re
+from email.utils import parseaddr
+from typing import Any, Dict, List, Optional
+
+from app.agents.natural_voice import ANNAPURNA, apply_voice, greeting_line, signature_for
+
+
+_GENERIC_CHECKING = "Thanks for your question. We are checking the relevant training details"
+_MONEY_KEYS = (
+    "budget",
+    "budget_total",
+    "budget_per_day",
+    "budget_min",
+    "budget_max",
+    "budget_range",
+    "budget_currency",
+    "client_budget_per_day",
+    "client_budget",
+)
+_TRAINER_VISIBLE_KEYS = (
+    "trainer_visible_budget_per_session",
+    "trainer_requested_budget_per_session",
+)
+_TRAINER_OWN_KEYS = (
+    "offered_commercial",
+    "commercial",
+    "rate",
+    "trainer_rate",
+    "expected_commercial",
+    "commercial_per_day",
+)
+_SAFE_REQUIREMENT_KEYS = (
+    "technology_needed",
+    "technology",
+    "domain",
+    "topics",
+    "custom_topics",
+    "duration_days",
+    "duration_text",
+    "mode",
+    "training_mode",
+    "training_dates",
+    "preferred_dates",
+    "timing",
+    "audience_level",
+    "lab_hours_per_day",
+    "hours_per_day",
+    "requested_details",
+    "clahan_managed_details",
+    "needs_clarification",
+    "toc_requested",
+    "toc_action",
+    "client_name",
+    "client_email",
+)
+_SECRET_PHRASES = (
+    re.compile(r"(?i)\b70\s*%"),
+    re.compile(r"(?i)\b70\s*percent\b"),
+    re.compile(r"(?i)\b0\.70\b"),
+    re.compile(r"(?i)\btrainer share\b"),
+    re.compile(r"(?i)training duration is not the participant count"),
+    re.compile(r"(?i)not treated as the participant count"),
+    re.compile(r"(?i)\bAWS Mumbai\b"),
+    re.compile(r"(?i)\bfx[\s_]*rate\b"),
+    re.compile(r"(?i)\bexchange rate\b"),
+    re.compile(r"(?i)\b1 participant(?:s)?\b"),
+    re.compile(r"(?i)\b(?:api[_ ]?key|openai[_ ]?key|sk-[A-Za-z0-9]{8,})\b"),
+    re.compile(r"(?i)\b(?:mailbox|smtp|imap)\s+password\b"),
+    re.compile(r"(?i)\binternal (?:default|assumption|calculation|rate|margin|allocation)s?\b"),
+)
+
+
+def _text(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _amount(value: Any) -> int:
+    if value in (None, "", [], {}):
+        return 0
+    match = re.search(r"\d[\d,]*(?:\.\d+)?", str(value))
+    if not match:
+        return 0
+    try:
+        amount = float(match.group(0).replace(",", ""))
+    except ValueError:
+        return 0
+    if amount < 1000:
+        return 0
+    return int(round(amount))
+
+
+def _money_tokens(amount: int) -> List[str]:
+    if amount < 1000:
+        return []
+    plain = str(amount)
+    grouped = f"{amount:,}"
+    tokens = [plain, grouped]
+    if plain.endswith("000") and len(plain) > 3:
+        tokens.append(plain[:-3])
+    return tokens
+
+
+def _first_text(source: Dict[str, Any], keys: tuple) -> str:
+    for key in keys:
+        value = _text(source.get(key) if isinstance(source, dict) else "")
+        if value:
+            return value
+    return ""
+
+
+def _join_request_items(items: List[str]) -> str:
+    if len(items) < 2:
+        return items[0] if items else ""
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
+
+
+def trainer_secret_kinds(question: str) -> List[str]:
+    """Categories a trainer asked for that we do not put in the reply."""
+    text = _text(question).lower()
+    kinds: List[str] = []
+    if re.search(r"\b(?:client(?:'s|s)?\s+budget|client budget|their budget|customer(?:'s|s)?\s+budget)\b", text):
+        kinds.append("the client's budget")
+    if re.search(r"\b(?:other|another|second)\s+trainer\b", text):
+        kinds.append("another trainer's rate")
+    internal = bool(re.search(
+        r"\b(?:70\s*%|70\s*percent|0\.70|trainer share)\b",
+        text,
+    )) or bool(re.search(
+        r"\b(?:fx[\s_]*rate|exchange rate|aws mumbai|internal (?:lab )?default|"
+        r"mailbox password|api[_ ]?key|openai key|"
+        r"not the participant count|not treated as the participant count)\b",
+        text,
+    ))
+    if re.search(r"\b(?:default|assume|assumption|internal)\b", text) and re.search(
+        r"\b(?:participant|aws mumbai|fx[\s_]*rate|exchange rate)\b", text
+    ):
+        internal = True
+    if internal:
+        kinds.append("internal defaults")
+    return kinds
+
+
+def client_secret_kinds(question: str) -> List[str]:
+    """Categories a client asked for that we do not put in the reply."""
+    text = _text(question).lower()
+    kinds: List[str] = []
+    if re.search(r"\b(?:trainer(?:'s|s)?\s+(?:rate|commercial|charge|fee)|other trainer|another trainer)\b", text):
+        kinds.append("the trainer's rate")
+    if re.search(r"\b(?:other|another)\s+client(?:'s|s)?\s+budget\b", text):
+        kinds.append("another client's budget")
+    kinds.extend(kind for kind in trainer_secret_kinds(question) if kind not in kinds and kind != "the client's budget")
+    return kinds
+
+
+def _refusal_sentence(kinds: List[str]) -> str:
+    # The recipient needs a clear boundary, never the name of an internal
+    # rule or data source that they asked us to reveal.
+    outward_names = {"internal defaults": "private information"}
+    items = list(dict.fromkeys(outward_names.get(kind, kind) for kind in kinds))
+    if not items:
+        return ""
+    if len(items) == 1:
+        return f"We cannot share {items[0]}."
+    if len(items) == 2:
+        return f"We cannot share {items[0]} or {items[1]}."
+    return "We cannot share " + ", ".join(items[:-1]) + f", or {items[-1]}."
+
+
+def _is_generic_checking_reply(reply: Optional[Dict[str, Any]]) -> bool:
+    body = _text((reply or {}).get("body"))
+    return _GENERIC_CHECKING in body or "will share a confirmed response shortly" in body
+
+
+def _client_budget_amounts(requirement: Dict[str, Any]) -> List[int]:
+    amounts = []
+    for key in _MONEY_KEYS:
+        amount = _amount(requirement.get(key) if isinstance(requirement, dict) else None)
+        if amount and amount not in amounts:
+            amounts.append(amount)
+    return amounts
+
+
+def _other_trainer_amounts(shortlist: Dict[str, Any], trainer_id: str) -> List[int]:
+    amounts = []
+    for other in (shortlist or {}).get("top_trainers") or []:
+        if not isinstance(other, dict):
+            continue
+        if _text(other.get("trainer_id")) == _text(trainer_id):
+            continue
+        for key in _TRAINER_VISIBLE_KEYS + _TRAINER_OWN_KEYS + _MONEY_KEYS:
+            amount = _amount(other.get(key))
+            if amount and amount not in amounts:
+                amounts.append(amount)
+    return amounts
+
+
+def trainer_offered_amount(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> int:
+    """The commercial already shown to this trainer, not a figure derived here."""
+    for source, keys in (
+        (requirement, _TRAINER_VISIBLE_KEYS),
+        (trainer, _TRAINER_OWN_KEYS),
+    ):
+        if not isinstance(source, dict):
+            continue
+        for key in keys:
+            amount = _amount(source.get(key))
+            if amount:
+                return amount
+    return 0
+
+
+def _is_signature_paragraph(paragraph: str) -> bool:
+    first = paragraph.strip().splitlines()[0].strip() if paragraph.strip() else ""
+    return bool(re.match(r"(?i)thanks(?: and regards)?,?$", first))
+
+
+def _sentence_leaks_secret(sentence: str, forbidden_tokens: List[str]) -> bool:
+    if sentence.lower().startswith("we cannot share"):
+        return False
+    if re.fullmatch(
+        r"AWS Mumbai pricing will be used if no cloud provider is specified\.",
+        sentence.strip(),
+        flags=re.IGNORECASE,
+    ):
+        return False
+    if any(pattern.search(sentence) for pattern in _SECRET_PHRASES):
+        return True
+    if re.search(r"(?i)\bclient(?:'s|s)?\s+budget\b", sentence) and not sentence.lower().startswith("we cannot share"):
+        return True
+    return bool(forbidden_tokens and any(
+        re.search(rf"(?<!\d){re.escape(token)}(?!\d)", sentence) for token in forbidden_tokens
+    ))
+
+
+def _drop_secret_sentences(body: str, forbidden_amounts: List[int], allowed_amounts: List[int]) -> str:
+    allowed = {amount for amount in allowed_amounts if amount >= 1000}
+    forbidden_tokens: List[str] = []
+    for amount in forbidden_amounts:
+        if amount in allowed:
+            continue
+        forbidden_tokens.extend(_money_tokens(amount))
+    kept: List[str] = []
+    for paragraph in str(body or "").split("\n\n"):
+        if not paragraph.strip():
+            continue
+        if _is_signature_paragraph(paragraph):
+            kept.append(paragraph.strip())
+            continue
+        sentences = re.split(r"(?<=[.!?])\s+", paragraph.strip())
+        safe_sentences = [sentence for sentence in sentences if sentence and not _sentence_leaks_secret(sentence, forbidden_tokens)]
+        if safe_sentences:
+            kept.append(" ".join(safe_sentences))
+    return "\n\n".join(kept).strip()
+
+
+def guard_trainer_body(
+    body: str,
+    question: str,
+    trainer: Dict[str, Any],
+    requirement: Dict[str, Any],
+    shortlist: Optional[Dict[str, Any]] = None,
+) -> str:
+    trainer_id = _text((trainer or {}).get("trainer_id"))
+    allowed = [trainer_offered_amount(trainer or {}, requirement or {})]
+    forbidden = _client_budget_amounts(requirement or {}) + _other_trainer_amounts(shortlist or {}, trainer_id)
+    fx = _amount((requirement or {}).get("fx_rate"))
+    if fx:
+        forbidden.append(fx)
+    cleaned = _drop_secret_sentences(body, forbidden, allowed)
+    kinds = trainer_secret_kinds(question)
+    refusal = _refusal_sentence(kinds)
+    if refusal and refusal not in cleaned:
+        signature = signature_for(ANNAPURNA)
+        if signature in cleaned:
+            cleaned = cleaned.replace(signature, refusal + "\n\n" + signature, 1)
+        elif cleaned:
+            cleaned = cleaned + "\n\n" + refusal
+        else:
+            cleaned = refusal
+    return apply_voice(cleaned, ANNAPURNA) if cleaned else ""
+
+
+def guard_client_body(body: str, question: str, extracted: Optional[Dict[str, Any]] = None) -> str:
+    """Remove secrets from a client reply without rewriting a clean acknowledgement."""
+    forbidden = []
+    source = extracted or {}
+    for key in _TRAINER_VISIBLE_KEYS + _TRAINER_OWN_KEYS:
+        amount = _amount(source.get(key))
+        if amount:
+            forbidden.append(amount)
+    if client_secret_kinds(question) or trainer_secret_kinds(question):
+        forbidden.extend(_client_budget_amounts(source))
+        fx = _amount(source.get("fx_rate"))
+        if fx:
+            forbidden.append(fx)
+    cleaned = _drop_secret_sentences(body, forbidden, [])
+    if cleaned:
+        return apply_voice(cleaned, ANNAPURNA)
+    if any(pattern.search(body or "") for pattern in _SECRET_PHRASES):
+        return ""
+    return _text(body)
+
+
+def _requirement_technology(requirement: Dict[str, Any]) -> str:
+    return _first_text(requirement or {}, ("technology_needed", "technology", "domain")) or "training"
+
+
+def _requirement_dates(requirement: Dict[str, Any]) -> str:
+    return _first_text(requirement or {}, ("training_dates", "preferred_dates", "timeline_start"))
+
+
+def offline_trainer_question_reply(
+    question: str,
+    trainer: Optional[Dict[str, Any]],
+    requirement: Optional[Dict[str, Any]],
+    shortlist: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Short Annapurna note from the trainer record and their requirement."""
+    trainer = trainer or {}
+    requirement = requirement or {}
+    shortlist = shortlist or {}
+    name = _first_text(trainer, ("name", "trainer_name")) or "there"
+    if name.lower() in {"trainer", "team", "sender"}:
+        name = "there"
+    technology = _requirement_technology(requirement)
+    dates = _requirement_dates(requirement)
+    mode = _first_text(requirement, ("mode", "training_mode", "delivery_mode"))
+    offered = trainer_offered_amount(trainer, requirement)
+    sentences = [f"The {technology} requirement is the one on your record."]
+    if dates:
+        sentences.append(f"The training dates are {dates}.")
+    if mode:
+        sentences.append(f"Delivery is {mode}.")
+    if offered:
+        sentences.append(f"Your offered commercial is INR {offered:,} per day.")
+    kinds = trainer_secret_kinds(question)
+    if not dates and not mode and not offered and not kinds:
+        sentences.append("That point is not on the requirement record.")
+    paragraphs = [f"Hi {name},", " ".join(sentences)]
+    refusal = _refusal_sentence(kinds)
+    if refusal:
+        paragraphs.append(refusal)
+    paragraphs.append(signature_for(ANNAPURNA))
+    body = guard_trainer_body("\n\n".join(paragraphs), question, trainer, requirement, shortlist)
+    subject_technology = technology if technology.lower() != "training" else "Training"
+    return {
+        "subject": f"Re: {subject_technology} Clarification",
+        "body": body,
+        "from_records": True,
+        "template_key": "trainer_record_reply",
+    }
+
+
+def _client_stated_real_participant_count(message: str) -> bool:
+    text = _text(message)
+    if re.search(r"\b(?:default|assume|assumption|internal)\b", text, flags=re.IGNORECASE):
+        return False
+    return bool(re.search(r"\b\d+\s+participants?\b", text, flags=re.IGNORECASE))
+
+
+def merge_client_facts(
+    extracted: Optional[Dict[str, Any]],
+    requirement: Optional[Dict[str, Any]] = None,
+    message: str = "",
+) -> Dict[str, Any]:
+    """What the client just said, filled from the requirement when a fact is missing."""
+    merged = dict(extracted or {})
+    for key in _SAFE_REQUIREMENT_KEYS:
+        if merged.get(key) in (None, "", [], {}) and (requirement or {}).get(key) not in (None, "", [], {}):
+            merged[key] = requirement[key]
+    for key in _MONEY_KEYS + _TRAINER_VISIBLE_KEYS + ("fx_rate", "cloud_region", "api_key", "password"):
+        merged.pop(key, None)
+    participants = merged.get("participant_count")
+    try:
+        participant_number = int(float(participants))
+    except (TypeError, ValueError):
+        participant_number = 0
+    if participant_number == 1 and not _client_stated_real_participant_count(message):
+        merged.pop("participant_count", None)
+    region = _text(merged.get("cloud_region")).lower()
+    if "mumbai" in region:
+        merged.pop("cloud_region", None)
+    return merged
+
+
+def offline_client_requirement_reply(extracted: Optional[Dict[str, Any]], message: str = "") -> Dict[str, str]:
+    """Write a concise client reply from the actual request and verified fields."""
+    safe = merge_client_facts(extracted, message=message)
+    domain = _first_text(safe, ("technology_needed", "technology", "domain"))
+    if not domain or domain.lower() in {"training", "unknown", "tbd", "to be confirmed"}:
+        domain = "training"
+
+    # Only use a display name, never an email address, mailbox label, or
+    # placeholder as the greeting. A first name keeps the greeting natural.
+    raw_name = _first_text(safe, ("client_name",))
+    display_name = parseaddr(raw_name)[0] or raw_name
+    display_name = re.sub(r"\([^)]*\)|<[^>]*>|\bvia\b.*$", "", display_name, flags=re.I).strip(" ,.-")
+    display_name = re.sub(r"\s+", " ", display_name)
+    if (not display_name or "@" in display_name or len(display_name) > 70
+            or display_name.lower() in {"client", "team", "trainer", "sender", "unknown", "none"}
+            or re.search(r"(?i)\b(?:noreply|no-reply|support|info|admin)\b", display_name)):
+        display_name = ""
+    else:
+        display_name = display_name.split()[0]
+
+    from app.routes.inbox import _strip_quoted_email_history
+
+    latest = _strip_quoted_email_history(message)
+    lower = latest.lower()
+    requested = " ".join(str(item or "").lower() for item in (safe.get("requested_details") or []))
+    asks_toc = bool(safe.get("toc_requested") or re.search(r"\b(?:toc|syllabus|course outline|agenda)\b", requested))
+    asks_lab = bool(safe.get("lab_cost_requested") or re.search(r"\blab\b", requested))
+    asks_profile = bool(re.search(r"\b(?:profile|profiles|cv|resume|trainer)\b", requested))
+
+    # A simple acknowledgement in an active thread deserves a simple reply;
+    # don't restart the full requirement pitch when the sender only confirms.
+    simple_ack = re.match(r"^(?:thanks|thank you|received|noted|okay|ok|confirmed|sure|got it)\b", lower)
+    if simple_ack and "?" not in latest and not re.search(
+        r"\b(?:please|could you|can you|need|require|send|share|change|update|reschedule)\b", lower,
+    ):
+        if re.match(r"^thanks\s+for\s+confirming\b", lower):
+            response = f"Thanks for confirming. We’ve noted the {domain} requirement details."
+        elif re.match(r"^(?:thanks|thank you)\b", lower):
+            response = f"You’re welcome. We’ve noted your update for the {domain} requirement."
+        elif re.match(r"^confirmed\b", lower):
+            response = f"Thanks for confirming. We’ve noted the {domain} requirement details."
+        else:
+            response = f"Thanks for the update. We’ve noted it for the {domain} requirement."
+        body = "\n\n".join((greeting_line(display_name, ANNAPURNA), response, signature_for(ANNAPURNA)))
+        return {
+            "subject": f"Re: {domain.title()} Trainer Requirement",
+            "body": guard_client_body(body, message, extracted or {}),
+        }
+
+    empathetic = bool(re.search(
+        r"\b(?:delay|delayed|urgent|issue|problem|concern|inconvenien|not received|still waiting|blocked)\b",
+        lower,
+    ))
+    opening = (
+        "I'm sorry for the delay; I understand you need a clear next step."
+        if empathetic else f"Thanks for sharing the {domain} requirement."
+    )
+
+    # Reflect a few high-value, verified details in natural wording.
+    noted = []
+    if _first_text(safe, ("topics", "custom_topics")):
+        noted.append("the topics you shared")
+    participants = _text(safe.get("participant_count"))
+    if participants and participants not in {"0", "0.0"}:
+        noted.append(f"{participants} participants")
+    duration = _first_text(safe, ("duration_text",))
+    if safe.get("duration_days") not in (None, "", 0, "0"):
+        try:
+            days = float(safe["duration_days"])
+            days_text = str(int(days)) if days.is_integer() else str(days)
+            duration = f"a {days_text}-day duration"
+        except (TypeError, ValueError):
+            pass
+    elif safe.get("duration_hours") not in (None, "", 0, "0"):
+        duration = f"a {_text(safe['duration_hours'])}-hour session"
+    else:
+        day_match = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*(?:training\s*)?days?\s*", duration, flags=re.I)
+        hour_match = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*hours?\s*", duration, flags=re.I)
+        if day_match:
+            duration = f"a {day_match.group(1)}-day duration"
+        elif hour_match:
+            duration = f"a {hour_match.group(1)}-hour session"
+    if duration and duration.lower() not in {"tbd", "to be confirmed", "unknown"}:
+        noted.append(duration if duration.lower().startswith(("a ", "the ")) else f"a duration of {duration}")
+    hours = _text(safe.get("lab_hours_per_day") or safe.get("hours_per_day"))
+    if hours and hours not in {"0", "0.0"}:
+        noted.append(f"{hours} lab hours per day")
+    dates = _first_text(safe, ("training_dates", "preferred_dates", "timeline_start", "timing"))
+    if dates and dates.lower() not in {"tbd", "to be confirmed", "unknown"}:
+        noted.append(f"preferred dates of {dates}")
+    mode = _first_text(safe, ("mode", "training_mode", "delivery_mode"))
+    if mode and mode.lower() not in {"tbd", "to be confirmed", "unknown"}:
+        noted.append(f"{mode.lower()} delivery")
+    if noted:
+        details = f"I've noted {_join_request_items(noted[:4])}."
+    else:
+        details = ""
+
+    prepare_items = []
+    if asks_toc:
+        prepare_items.append("a day-wise ToC")
+    if asks_lab:
+        prepare_items.append("a lab-cost estimate")
+    share_items = []
+    if asks_profile:
+        asks_cv = bool(re.search(r"\b(?:cv|resume)\b", requested))
+        asks_linkedin = bool(re.search(r"\blinked\s*in\b", requested))
+        if asks_cv:
+            share_items.append("a relevant trainer CV")
+        if asks_linkedin:
+            share_items.append("the trainer's LinkedIn profile")
+        if not asks_cv and not asks_linkedin:
+            share_items.append("suitable trainer profiles")
+    if prepare_items and share_items:
+        offer = f"we can share {_join_request_items(share_items)} and prepare {_join_request_items(prepare_items)} for your review"
+    elif prepare_items:
+        offer = f"we can prepare {_join_request_items(prepare_items)} for your review"
+    elif share_items:
+        offer = f"we can share {_join_request_items(share_items)} for your review"
+    elif safe.get("is_training_request"):
+        offer = f"we can identify suitable trainers and share profiles matched to the {domain} scope for your review"
+    else:
+        offer = f"we'll review your {domain} request and confirm the relevant next step"
+
+    missing_labels = {
+        "training duration": "the training duration",
+        "preferred dates or timings": "your preferred dates or timings",
+        "training mode/location": "delivery mode or location",
+        "participant count": "the number of participants",
+    }
+    missing = list(dict.fromkeys(
+        missing_labels.get(str(item).strip().lower(), str(item).strip().rstrip("."))
+        for item in (safe.get("needs_clarification") or [])
+        if str(item).strip()
+        and "budget" not in str(item).lower()
+        and "commercial" not in str(item).lower()
+    ))
+    # Ask only for the concrete facts that remain missing.
+    next_step = ""
+    if missing:
+        next_step = f"Could you confirm {_join_request_items(missing)}?"
+        if asks_toc and not asks_profile:
+            next_step = f"To tailor the outline, could you confirm {_join_request_items(missing)}?"
+        elif asks_lab and not asks_profile:
+            next_step = f"To estimate the lab cost accurately, could you confirm {_join_request_items(missing)}?"
+
+    protected = _refusal_sentence(client_secret_kinds(latest))
+    if protected:
+        if offer.startswith("we can "):
+            protected_offer = f"{protected.rstrip('.')}, but we can still {offer.removeprefix('we can ')}."
+        else:
+            protected_offer = f"{protected.rstrip('.')}; {offer}."
+        offer = protected_offer
+    elif missing and (asks_profile or safe.get("is_training_request")):
+        offer = f"Once you confirm the remaining details, {offer}."
+    else:
+        offer = offer[:1].upper() + offer[1:] + "."
+    if protected:
+        offer = offer[:1].upper() + offer[1:]
+
+    # Keep the main reply to three sentences: acknowledgment, relevant facts
+    # plus offer, and a question only when the sender can provide what's missing.
+    context_and_offer = (
+        f"{details[:-1]}; {offer[:1].lower() + offer[1:]}"
+        if details and not protected else offer
+    )
+    body = "\n\n".join((
+        greeting_line(display_name, ANNAPURNA),
+        " ".join(part for part in (opening, context_and_offer, next_step) if part),
+        signature_for(ANNAPURNA),
+    ))
+    reply = {
+        "subject": f"Re: {domain.title()} Trainer Requirement",
+        "body": body,
+    }
+    body = guard_client_body(reply["body"], message, extracted or {})
+    if not body:
+        # A safety filter can remove every sentence from a draft. Never persist
+        # an empty template; fall back to a neutral, non-sensitive next step.
+        fallback = "\n\n".join((
+            greeting_line(display_name, ANNAPURNA),
+            "Thanks for sharing the details. We’ll review your request and confirm the next step.",
+            signature_for(ANNAPURNA),
+        ))
+        body = guard_client_body(fallback, "", {}) or fallback
+    return {"subject": reply["subject"], "body": body}
+
+
+def _should_replace_trainer_reply(question: str, generated_reply: Optional[Dict[str, Any]], ai_on: bool) -> bool:
+    if ai_on:
+        return False
+    if not _text((generated_reply or {}).get("body")):
+        return True
+    if (generated_reply or {}).get("from_records"):
+        return False
+    if "on your record" in _text((generated_reply or {}).get("body")):
+        return False
+    if _is_generic_checking_reply(generated_reply):
+        return True
+    return bool(trainer_secret_kinds(question))
+
+
+def prepare_trainer_reply(
+    question: str,
+    generated_reply: Optional[Dict[str, Any]],
+    trainer: Optional[Dict[str, Any]],
+    requirement: Optional[Dict[str, Any]],
+    shortlist: Optional[Dict[str, Any]] = None,
+    *,
+    ai_on: bool = False,
+) -> Dict[str, Any]:
+    """Use the record reply when AI is off and the draft is empty, generic, or unsafe."""
+    reply = dict(generated_reply or {})
+    if _should_replace_trainer_reply(question, reply, ai_on):
+        record = offline_trainer_question_reply(question, trainer, requirement, shortlist)
+        if record.get("body"):
+            reply = record
+    body = guard_trainer_body(reply.get("body") or "", question, trainer or {}, requirement or {}, shortlist)
+    if not body:
+        record = offline_trainer_question_reply(question, trainer, requirement, shortlist)
+        reply = record
+        body = record.get("body") or ""
+    reply["body"] = body
+    return reply
+
+
+async def _optional_find(db: Any, collection: str, query: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        store = db[collection]
+    except (KeyError, TypeError):
+        return {}
+    if store is None:
+        return {}
+    found = await store.find_one(query, {"_id": 0})
+    return found or {}
+
+
+async def trainer_reply_for_email(db: Any, email_doc: Dict[str, Any], question: str) -> Dict[str, Any]:
+    from app.routes.inbox import _find_shortlist_trainer
+
+    requirement_id = _text(email_doc.get("requirement_id"))
+    trainer_id = _text(email_doc.get("trainer_id"))
+    requirement = await _optional_find(db, "requirements", {"requirement_id": requirement_id}) if requirement_id else {}
+    shortlist = await _optional_find(db, "shortlists", {"requirement_id": requirement_id}) if requirement_id else {}
+    trainer = _find_shortlist_trainer(shortlist, trainer_id) if trainer_id else {}
+    if not trainer and trainer_id:
+        trainer = await _optional_find(db, "trainers", {"trainer_id": trainer_id})
+    if not trainer:
+        trainer = {
+            "trainer_id": trainer_id,
+            "name": email_doc.get("from_name") or email_doc.get("trainer_name") or "",
+            "email": email_doc.get("from_email") or "",
+        }
+    return offline_trainer_question_reply(question, trainer, requirement, shortlist)
+
+
+async def reply_for_stored_message(db: Any, email_doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Pipeline reply for one stored inbound message. Does not call a model."""
+    subject = email_doc.get("subject") or ""
+    message = email_doc.get("classification_body") or email_doc.get("clean_body") or email_doc.get("body") or email_doc.get("raw_body") or ""
+    classification = email_doc.get("email_classification") if isinstance(email_doc.get("email_classification"), dict) else {}
+    previous_extracted = (
+        dict(email_doc.get("extracted") or {})
+        if isinstance(email_doc.get("extracted"), dict) else {}
+    )
+    # Re-parse the current message every time a template is regenerated. The
+    # stored extraction may have been produced for an earlier email in the
+    # thread, so using it as-is can miss a changed date, mode, duration, or
+    # question and lead the template to ask for stale information.
+    from app.routes.inbox import (
+        _extract_requirement_from_email,
+        _merge_existing_requirement_context,
+    )
+
+    sender_email = email_doc.get("from_email") or email_doc.get("sender") or ""
+    sender_name = email_doc.get("from_name") or ""
+    thread_extracted: Dict[str, Any] = {}
+    try:
+        # The history loader returns one oldest-to-newest timeline with role
+        # labels. Only the current correspondent's inbound messages can update
+        # this reply's facts; a trainer's answer must not become a client fact.
+        from app.routes.inbox import _verified_question_history
+
+        history = await _verified_question_history(db, email_doc, limit=30)
+        normalized_sender = (parseaddr(str(sender_email))[1] or str(sender_email)).strip().lower()
+        for item in history:
+            if _text(item.get("direction")).lower() != "inbound":
+                continue
+            historical_sender = (parseaddr(str(item.get("from") or ""))[1] or str(item.get("from") or "")).strip().lower()
+            if normalized_sender and historical_sender != normalized_sender:
+                continue
+            historical = _extract_requirement_from_email(
+                item.get("subject") or subject,
+                item.get("text") or "",
+                item.get("from") or sender_email,
+                "",
+            )
+            if thread_extracted:
+                historical = _merge_existing_requirement_context(
+                    historical, {"extracted": thread_extracted, **email_doc},
+                )
+            thread_extracted = historical
+    except Exception:
+        # Thread history is an enhancement; keep template drafting available
+        # from the current message and stored record if history lookup fails.
+        thread_extracted = {}
+
+    current_extracted = _extract_requirement_from_email(
+        subject, message, sender_email, sender_name,
+    )
+    # The current message is the newest source. Fill fields it omits from the
+    # reconstructed thread, then from the stored extraction as a final fallback.
+    fallback_facts = thread_extracted or previous_extracted
+    extracted = _merge_existing_requirement_context(
+        current_extracted, {"extracted": fallback_facts, **email_doc},
+    )
+    extracted.setdefault("client_email", email_doc.get("from_email") or email_doc.get("sender") or "")
+    extracted.setdefault("client_name", email_doc.get("from_name") or "")
+    person = _text(classification.get("person_type")).lower()
+    if person == "trainer" or email_doc.get("trainer_id"):
+        return await trainer_reply_for_email(db, email_doc, message)
+
+    requirement: Dict[str, Any] = {}
+    requirement_id = _text(email_doc.get("requirement_id"))
+    if requirement_id:
+        requirement = await _optional_find(db, "requirements", {"requirement_id": requirement_id})
+    elif extracted.get("client_email"):
+        requirement = await _optional_find(db, "requirements", {"client_email": extracted.get("client_email")})
+    engine_reply = _first_requirement_engine_reply(email_doc, subject, message, current_extracted, requirement)
+    if engine_reply:
+        return engine_reply
+    merged = merge_client_facts(extracted, requirement, message)
+    return offline_client_requirement_reply(merged, message)
+
+
+def _first_requirement_engine_reply(
+    email_doc: Dict[str, Any],
+    subject: str,
+    message: str,
+    extracted: Dict[str, Any],
+    requirement: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Regenerate a first requirement reply with the same templates as the automatic reply.
+
+    Later messages in a thread keep the thread-aware template above. Facts come
+    from the current email only and are checked against its text.
+    """
+    from app.agents.reply_precheck import build_reply_plan, check_reply, is_vendor_pitch, render_plan_reply
+    from app.routes.inbox import _is_reply_thread, _requirement_flow_from_email
+
+    if not extracted.get("is_training_request") or extracted.get("is_non_client_email"):
+        return {}
+    if _is_reply_thread(subject, email_doc) or is_vendor_pitch(message):
+        return {}
+    stored_flow = _text(requirement.get("batch_flow") or requirement.get("batch_type")).lower()
+    if stored_flow in {"confirmed", "proposal"}:
+        batch = stored_flow
+    else:
+        batch = _requirement_flow_from_email(extracted, message)
+    plan = build_reply_plan(
+        message, extracted, batch, email_doc.get("from_name") or "",
+        subject=subject, seed=_text(email_doc.get("email_id")),
+    )
+    body = render_plan_reply(plan)
+    if check_reply(body, plan):
+        return {}
+    clean_subject = re.sub(r"^\s*(?:re|fw|fwd)\s*:\s*", "", subject, flags=re.IGNORECASE)
+    return {
+        "subject": f"Re: {clean_subject}" if clean_subject else "Re: Training Requirement",
+        "body": body,
+        "template_key": "personalization_engine",
+    }

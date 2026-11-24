@@ -69,7 +69,7 @@ def test_multi_cloud_lab_request_requires_each_provider_region():
     assert context["missing_quote_inputs"] == ["azure_region"]
 
 
-def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participants():
+def test_lab_context_prices_one_participant_when_headcount_is_pending():
     context = _lab_request_context(LAB_ONLY_EMAIL, {"technology_needed": "DevOps & AWS"})
 
     assert context["request_type"] == "lab_access_only"
@@ -78,7 +78,9 @@ def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participant
     assert context["known_inputs"]["duration_days"] == 10
     assert context["known_inputs"]["hours_per_day"] == 3
     assert context["known_inputs"]["total_hours"] == 30
-    assert context["missing_quote_inputs"] == ["participant_count"]
+    assert context["missing_quote_inputs"] == []
+    assert context["known_inputs"]["participant_count"] == 1
+    assert context["known_inputs"]["participant_count_source"] == "default"
 
     reply = _build_lab_reference_reply(
         context,
@@ -86,7 +88,7 @@ def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participant
         "Sneha",
         "DevOps and AWS lab access",
     )
-    assert "number of participants/users requiring access" in reply["body"]
+    assert "number of participants/users requiring access" not in reply["body"]
     assert "which lab tool" not in reply["body"].lower()
     assert "preferred training dates" not in reply["body"].lower()
     assert "shortlist" not in reply["body"].lower()
@@ -252,3 +254,34 @@ def test_workflow_context_loads_toc_profile_po_invoice_and_document_state():
     assert features["purchase_order"]["status"] == "sent"
     assert features["invoice"]["invoice_number"] == "INV-001"
     assert features["documents_and_pdfs"]["generation_available"] is True
+
+
+def test_workflow_context_exposes_company_scope_and_goals_for_personalized_replies():
+    import asyncio
+
+    db = FakeDb({
+        "requirements": FakeCollection({
+            "requirement_id": "REQ-1",
+            "client_company": "Northstar Health",
+            "client_industry": "Healthcare",
+            "client_business_context": "Modernize secure cloud deployment for clinical analytics.",
+            "client_goals": "Improve repeatable deployment workflows.",
+            "required_skills": ["DevOps", "AWS"],
+            "client_requirement_text": "Training for the clinical analytics team using DevOps and AWS.",
+        }),
+        "shortlists": FakeCollection({}),
+        "toc_generations": FakeCollection({}),
+        "purchase_orders": FakeCollection({}),
+        "invoices": FakeCollection({}),
+    })
+    context = asyncio.run(_load_reply_workflow_context(
+        db,
+        {"requirement_id": "REQ-1", "from_name": "Mira"},
+        {"person_type": "corporate_client", "scenario": "new_training_requirement"},
+        {"technology_needed": "DevOps"},
+        "Please share the ToC and lab estimate.",
+    ))
+    assert context["client_personalization"]["company"] == "Northstar Health"
+    assert context["client_personalization"]["industry"] == "Healthcare"
+    assert "clinical analytics" in context["client_personalization"]["scope_evidence"]
+    assert "AWS" in context["requirement"]["required_skills"]

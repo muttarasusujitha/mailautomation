@@ -1,0 +1,573 @@
+{
+  "domain": "Gemini APIs",
+  "name": "Gemini APIs",
+  "category": "Generative AI and Agents",
+  "icon": "bot",
+  "aliases": ["Google Gemini API", "Gemini Developer API", "Gemini API", "Google Gen AI SDK", "Gemini on Vertex AI", "Vertex AI Gemini", "Gemini API Development", "Google AI Studio"],
+  "certifications": ["Google Cloud Generative AI Leader", "Google Cloud Professional Machine Learning Engineer"],
+  "tools": ["Google AI Studio", "Google Gen AI SDK for Python (google-genai)", "Google Gen AI SDK for JavaScript (@google/genai)", "Gemini API REST", "curl", "Vertex AI and Vertex AI Studio", "Files API", "Agent Development Kit", "gcloud CLI", "Cloud Logging and Monitoring", "BigQuery", "Cloud Run", "Pydantic", "pytest"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who can write basic Python or JavaScript and are new to the Gemini API. Covers the difference between the Gemini Developer API in Google AI Studio and Gemini on Vertex AI, API keys, the Google Gen AI SDK, the Pro, Flash and Flash-Lite model tiers, the generateContent request and response, system instructions, generation parameters, chat, streaming, token counting, image, PDF, audio and video input, the Files API, JSON structured output, safety settings, error handling, free-tier rate limits, and a document question-answering capstone.",
+      "prerequisites": ["Writes and runs small Python 3 or Node.js scripts and installs packages with pip or npm", "Understands HTTP requests, JSON bodies and status codes at the level of calling a REST API with curl", "Has a Google account, a laptop with a terminal, and permission to create an API key in Google AI Studio"],
+      "outcomes": ["Call the Gemini API from Python or JavaScript with the Google Gen AI SDK and from curl, and read every field of the response", "Choose a model tier, set system instructions and generation parameters, and hold multi-turn and streaming conversations", "Send images, PDFs, audio and video, and return validated JSON that matches a schema", "Handle safety blocks, 4xx and 5xx errors and rate limits, and estimate token usage and cost before shipping"],
+      "days": [
+        {
+          "topic": "Gemini API Orientation: AI Studio, Developer API and Vertex AI",
+          "subtopics": ["What the Gemini API provides: text, multimodal and tool-using generation", "Google AI Studio as the prompt workbench and key manager", "Gemini Developer API compared with Gemini on Vertex AI", "Where each path authenticates: API key versus Google Cloud IAM", "The Google Gen AI SDK and why it replaces older client libraries", "Model tiers at a glance: Pro, Flash and Flash-Lite", "Core vocabulary: prompt, content, part, candidate, token, context window", "Data handling differences between the free tier, the paid tier and Vertex AI", "Preview, stable and deprecated model status and where to read it", "Reading the official API reference and the models page"],
+          "tools": ["Google AI Studio", "Gemini API reference", "Google Gen AI SDK", "Vertex AI Studio", "Google Cloud console"],
+          "lab_task": "Open Google AI Studio, create a new chat prompt, and run the same question against a Pro model and a Flash model, noting latency and answer length. Then open the models page and Vertex AI Model Garden, and fill a table of 6 rows comparing key type, billing, data-use terms and SDK client settings for the Developer API and Vertex AI.",
+          "deliverable": "Two-page comparison table of Developer API and Vertex AI plus screenshots of the two AI Studio runs",
+          "checks": [["Run one question on a Pro and a Flash model in AI Studio", "Both answer, and the run settings panel shows two different model names", "Screenshots of both runs"], ["Fill the comparison table row for authentication", "Developer API row says API key and Vertex AI row says Google Cloud IAM or Application Default Credentials", "Completed table"], ["Look up the status of the model you used on the models page", "Status is recorded as stable, preview or deprecated with the page date", "Table note with date"]],
+          "objectives": ["Distinguish the Developer API from Vertex AI", "Navigate Google AI Studio and the model list", "Name the main Gemini API building blocks"]
+        },
+        {
+          "topic": "API Keys, Environment Setup and First generateContent Call",
+          "subtopics": ["Creating an API key in Google AI Studio and linking it to a Cloud project", "Storing the key in the GEMINI_API_KEY environment variable", "Why a key must never be committed or placed in client-side code", "Installing the SDK with pip install google-genai or npm install @google/genai", "Creating genai.Client() and how it reads the key from the environment", "Calling client.models.generate_content with a model and contents", "Reading response.text and the candidates list", "The same call as REST with curl and the x-goog-api-key header", "Listing models with client.models.list()", "Rotating and restricting a key after a leak"],
+          "tools": ["Google Gen AI SDK for Python", "Google Gen AI SDK for JavaScript", "curl", "Google AI Studio", "python-dotenv", "git secrets scanning"],
+          "lab_task": "Create an API key, export GEMINI_API_KEY, run pip install google-genai, and write hello.py that calls client.models.generate_content with a Flash model and the prompt 'Explain DNS in two sentences'. Repeat with curl against https://generativelanguage.googleapis.com/v1beta/models/MODEL:generateContent using the x-goog-api-key header, then list models with client.models.list().",
+          "deliverable": "hello.py, the curl command, and a model list printout with the key redacted",
+          "checks": [["Run hello.py with GEMINI_API_KEY set", "Script prints a two-sentence answer and exits with code 0", "Terminal output"], ["Run hello.py with GEMINI_API_KEY unset", "SDK raises an error that an API key must be provided before any request is sent", "Error text"], ["Run the curl command with a wrong key", "HTTP 400 with status INVALID_ARGUMENT and message API key not valid", "curl output"]],
+          "objectives": ["Install the SDK and authenticate with an API key", "Make a first call from Python and curl", "Keep secrets out of source control"]
+        },
+        {
+          "topic": "Gemini Model Tiers: Pro, Flash and Flash-Lite",
+          "subtopics": ["Pro tier: strongest reasoning, higher latency and price", "Flash tier: balanced speed, quality and cost for most workloads", "Flash-Lite tier: lowest latency and cost for high-volume simple tasks", "Specialised models: embeddings, image generation, text-to-speech and Live", "Model naming: stable IDs, preview IDs and latest aliases", "Input and output token limits returned by client.models.get", "Supported methods and capabilities per model", "Picking a tier with a small benchmark on your own prompts"],
+          "tools": ["Google AI Studio", "client.models.get", "Gemini API pricing page", "Python timeit", "Google Sheets"],
+          "lab_task": "Choose 10 representative prompts from your own domain, run each on a Pro, a Flash and a Flash-Lite model through generate_content, and record latency in milliseconds, output tokens from usage_metadata and a 1 to 5 quality score. Read each model's input_token_limit and output_token_limit with client.models.get and summarise the trade-offs in a table.",
+          "deliverable": "Benchmark sheet with 30 rows and a one-paragraph tier recommendation",
+          "checks": [["Call client.models.get for each of the 3 models", "Each returns input_token_limit and output_token_limit values that are recorded", "Printed limits"], ["Run all 10 prompts on all 3 tiers", "30 latency and token rows exist with no empty cells", "Benchmark sheet"], ["Rank the tiers by average latency", "Flash-Lite is not slower than Pro on average, or the exception is explained", "Sheet summary"]],
+          "objectives": ["Compare Pro, Flash and Flash-Lite on quality, latency and cost", "Read model metadata through the API", "Justify a tier choice with measurements"]
+        },
+        {
+          "topic": "Anatomy of a generateContent Request and Response",
+          "subtopics": ["Request body: contents, role, parts, systemInstruction, generationConfig", "Roles user and model, and when role can be omitted", "Part types: text, inlineData, fileData, functionCall, functionResponse", "Response body: candidates, content, finishReason, index", "usageMetadata: promptTokenCount, candidatesTokenCount, totalTokenCount", "promptFeedback and blockReason for blocked prompts", "finishReason values: STOP, MAX_TOKENS, SAFETY, RECITATION", "Python SDK types: types.Content, types.Part and types.GenerateContentConfig"],
+          "tools": ["curl", "jq", "Google Gen AI SDK for Python", "Postman", "Gemini API reference"],
+          "lab_task": "Send one generateContent request with curl, pipe the JSON through jq, and print candidates[0].content.parts[0].text, candidates[0].finishReason and usageMetadata. Then repeat in Python with types.GenerateContentConfig(max_output_tokens=20) on a long-answer prompt and show that finish_reason changes to MAX_TOKENS. Map every JSON field to the SDK attribute in a table.",
+          "deliverable": "Annotated request and response JSON plus a field-to-attribute mapping table",
+          "checks": [["Call generateContent for a short question", "finishReason is STOP and totalTokenCount equals prompt plus candidates plus any thoughts tokens", "jq output"], ["Set max_output_tokens to 20 on a request for a 500-word essay", "finish_reason is MAX_TOKENS and the text ends mid-sentence", "Python output"], ["Send a request whose contents is an empty list", "HTTP 400 INVALID_ARGUMENT is returned", "curl output"]],
+          "objectives": ["Read and write the generateContent JSON by hand", "Interpret finishReason and usageMetadata", "Map REST fields to SDK objects"]
+        },
+        {
+          "topic": "Prompting in Google AI Studio and Exporting Code",
+          "subtopics": ["Freeform, chat and structured prompt modes in AI Studio", "Choosing a model and run settings in the right-hand panel", "Writing a clear task, context, constraints and output format", "Using examples in the prompt to fix the style of answers", "Comparing runs and saving prompts to Drive", "Get code to export the exact request as Python, JavaScript or curl", "Differences between AI Studio defaults and SDK defaults", "Moving a working prompt into a version-controlled file"],
+          "tools": ["Google AI Studio", "Get code panel", "Visual Studio Code", "Git", "Google Gen AI SDK"],
+          "lab_task": "In AI Studio, build a prompt that turns a messy support email into a three-line summary with a priority label. Test it on 5 sample emails, adjust the wording until all 5 follow the format, then use Get code to export it as Python, save it as summarise.py in a git repository with the prompt in a separate prompts/summarise.txt file, and run it.",
+          "deliverable": "Git repository with summarise.py, prompts/summarise.txt and a table of the 5 test runs",
+          "checks": [["Run the final prompt on 5 sample emails", "All 5 outputs contain exactly three lines and a priority label", "Test run table"], ["Run the exported summarise.py", "It prints a summary without editing the exported code except for the key and file path", "Terminal output"], ["Compare AI Studio settings and the exported config", "Model name and temperature in the code equal the panel values", "Side-by-side screenshot"]],
+          "objectives": ["Iterate on prompts in AI Studio", "Export a prompt as runnable code", "Separate prompt text from application code"]
+        },
+        {
+          "topic": "System Instructions and Role Framing",
+          "subtopics": ["What a system instruction is and where it sits in the request", "system_instruction in types.GenerateContentConfig", "Persona, tone, scope and refusal rules in one instruction", "Output format rules such as always answer in a numbered list", "Separating stable rules from per-request user content", "Instruction conflicts between system text and user text", "Testing that the instruction survives long chats", "Keeping untrusted text out of the system instruction"],
+          "tools": ["Google Gen AI SDK for Python", "Google AI Studio", "pytest", "curl"],
+          "lab_task": "Write a system instruction for a travel-policy assistant that answers only about company travel, replies in at most 3 bullet points and refuses other topics with one fixed sentence. Pass it with GenerateContentConfig(system_instruction=...), run 10 on-topic and 5 off-topic prompts, and count how many follow the rules in a pytest file.",
+          "deliverable": "Assistant script, system instruction file and a pytest report over 15 prompts",
+          "checks": [["Ask 10 on-topic travel questions", "At least 9 of 10 replies have 3 or fewer bullets", "pytest report"], ["Ask 5 off-topic questions such as a poem request", "At least 4 of 5 replies equal the fixed refusal sentence", "pytest report"], ["Send the same request with the system instruction removed", "Replies no longer follow the bullet limit, showing the instruction was effective", "Before-and-after outputs"]],
+          "objectives": ["Write effective system instructions", "Apply them through the SDK", "Measure instruction adherence with tests"]
+        },
+        {
+          "topic": "Generation Parameters: Temperature, topP, topK and Output Limits",
+          "subtopics": ["temperature and how it changes randomness", "topP and topK sampling", "max_output_tokens and truncation", "stop_sequences to end output early", "candidate_count and when more than one candidate is useful", "seed for more repeatable output", "Why identical settings still do not guarantee identical text", "Recommended starting values for extraction, chat and creative writing"],
+          "tools": ["Google Gen AI SDK for Python", "Google AI Studio", "Python statistics module", "Jupyter"],
+          "lab_task": "Run the prompt 'Name a pet shop' 20 times at temperature 0 and 20 times at temperature 1.5 using GenerateContentConfig, count the distinct answers in each set, then repeat with a fixed seed and with stop_sequences=['\\n\\n']. Record the number of unique outputs and mean output tokens for each configuration.",
+          "deliverable": "Notebook with a table of unique outputs and token averages for four configurations",
+          "checks": [["Run 20 calls at temperature 0", "The number of distinct answers is small, at most 3, and is recorded", "Notebook table"], ["Run 20 calls at temperature 1.5", "Distinct answers are higher than at temperature 0", "Notebook table"], ["Set stop_sequences to a blank line", "finish_reason is STOP and the text has no blank line", "Printed output"]],
+          "objectives": ["Tune sampling parameters for a task", "Limit and stop output deliberately", "Explain why output is not fully deterministic"]
+        },
+        {
+          "topic": "Multi-Turn Chat Sessions and History",
+          "subtopics": ["Stateless API: the client must resend the history", "client.chats.create and chat.send_message", "Reading and editing chat.get_history()", "Role alternation between user and model turns", "Passing a system instruction and config to a chat", "Token growth as history accumulates", "Trimming or summarising old turns", "Persisting a conversation as JSON and resuming it"],
+          "tools": ["Google Gen AI SDK for Python", "JSON", "Google AI Studio", "Python json module"],
+          "lab_task": "Build a command-line chat with client.chats.create and a system instruction, hold a 10-turn conversation, print prompt_token_count after every turn, and save get_history() to chat.json. Then reload chat.json with the history argument, ask a question that depends on turn 2, and add a rule that drops the oldest turns once the history exceeds 2,000 tokens.",
+          "deliverable": "chat.py, chat.json and a graph or table of prompt tokens per turn",
+          "checks": [["Ask your name in turn 1 and ask 'What is my name?' in turn 5", "The model answers with the name given in turn 1", "Transcript"], ["Print prompt_token_count each turn", "The value increases on every turn until the trimming rule triggers", "Token table"], ["Reload chat.json and ask a follow-up", "The answer uses context from before the reload", "Transcript"]],
+          "objectives": ["Maintain conversation state with the SDK", "Explain why history costs tokens", "Persist and trim chat history"]
+        },
+        {
+          "topic": "Streaming Responses with generateContentStream",
+          "subtopics": ["Why streaming improves perceived latency", "client.models.generate_content_stream in Python", "streamGenerateContent with alt=sse in REST", "Chunk structure and joining text deltas", "Time to first token versus total time", "usage_metadata arrives on the last chunk", "Handling errors and blocks that occur mid-stream", "Streaming to a browser with server-sent events"],
+          "tools": ["Google Gen AI SDK for Python", "Google Gen AI SDK for JavaScript", "curl", "Flask or Express", "Browser DevTools"],
+          "lab_task": "Write stream.py using generate_content_stream to print chunks as they arrive for a 400-word story, record time to first chunk and total time, and compare with the non-streaming call. Then call streamGenerateContent?alt=sse with curl -N, and expose the stream through a small Flask or Express endpoint that a browser page reads with EventSource.",
+          "deliverable": "stream.py, the SSE endpoint and a latency comparison table",
+          "checks": [["Stream a 400-word answer", "First chunk arrives well before total completion and the gap is recorded in milliseconds", "Timing log"], ["Join all chunk texts", "The joined text is non-empty and equals the full answer shown on screen", "Printed output"], ["Read usage_metadata after the final chunk", "total_token_count is present and greater than zero", "Printed output"]],
+          "objectives": ["Stream tokens in Python, JavaScript and REST", "Measure time to first token", "Serve a streamed answer to a browser"]
+        },
+        {
+          "topic": "Token Counting and Context Windows",
+          "subtopics": ["What a token is and how text, images and audio are tokenised", "client.models.count_tokens before sending a request", "total_tokens versus usage_metadata after sending", "Approximate token counts for images, PDF pages, audio and video seconds", "Input and output token limits and the context window", "Cost implications of long prompts", "Strategies when a prompt is too long: chunk, summarise, cache", "Counting tokens for chats and system instructions"],
+          "tools": ["Google Gen AI SDK for Python", "client.models.count_tokens", "Gemini API pricing page"],
+          "lab_task": "Call count_tokens on 5 inputs: a 100-word paragraph, a 2,000-word article, a PNG image, a 3-page PDF and a 60-second audio clip. Then send each to generate_content and compare total_tokens with usage_metadata.prompt_token_count. Compute the input cost of each from the current price per million tokens on the pricing page.",
+          "deliverable": "Token and cost table for 5 inputs with the pricing page date",
+          "checks": [["Call count_tokens then generate_content on the same paragraph", "total_tokens equals prompt_token_count", "Printed numbers"], ["Count tokens for the image", "A fixed, small token number is returned that does not depend on file size in bytes", "Printed number"], ["Send a prompt larger than the model input limit", "HTTP 400 INVALID_ARGUMENT mentions the token limit being exceeded", "Error output"]],
+          "objectives": ["Count tokens before sending", "Estimate multimodal token usage", "Plan around the context window"]
+        },
+        {
+          "topic": "Image Understanding with Inline Data",
+          "subtopics": ["Supported image MIME types such as image/png, image/jpeg and image/webp", "types.Part.from_bytes for inline image data", "Base64 inlineData in REST", "Image plus text prompts: captioning, OCR and visual question answering", "Several images in one request and their order", "Object detection and bounding box output in normalised coordinates", "Request size limits for inline data", "Image limitations: small text, rotation, spatial reasoning"],
+          "tools": ["Google Gen AI SDK for Python", "Pillow", "curl", "Google AI Studio", "base64"],
+          "lab_task": "Send three images, a receipt, a street photo and a chart, to a Flash model with types.Part.from_bytes, ask for a caption, extract the receipt total and read the chart's highest value, then request bounding boxes for the cars in the street photo as JSON and draw them with Pillow. Record token usage per image and one case where the model is wrong.",
+          "deliverable": "Script, annotated image output and a table of answers versus ground truth",
+          "checks": [["Ask for the total on a receipt whose total you know", "The extracted total equals the printed total, or the error is logged", "Result table"], ["Pass an image with the wrong mime_type", "HTTP 400 INVALID_ARGUMENT or an unsupported-type error is returned", "Error output"], ["Draw the returned boxes on the street photo", "Boxes visibly surround at least some cars and the mismatches are noted", "Saved PNG"]],
+          "objectives": ["Send images inline in Python and REST", "Extract text and answers from images", "Recognise accuracy limits of vision input"]
+        },
+        {
+          "topic": "Files API Uploads for Documents, Audio and Video",
+          "subtopics": ["When to use the Files API instead of inline data", "client.files.upload and the returned file name and URI", "File state PROCESSING and ACTIVE and polling with client.files.get", "Referencing an uploaded file in contents", "Retention: files are stored for 48 hours and then deleted", "Per-file and per-project storage limits", "client.files.list and client.files.delete", "Reusing one upload across many requests"],
+          "tools": ["Google Gen AI SDK for Python", "client.files", "curl", "ffmpeg", "Google AI Studio"],
+          "lab_task": "Upload a 10-minute MP4 and a 20-page PDF with client.files.upload, poll client.files.get until state is ACTIVE, ask one question about each, list files with client.files.list, then delete both with client.files.delete. Record upload time, processing time and the prompt tokens each file adds.",
+          "deliverable": "upload.py and a table of upload time, processing time and tokens per file",
+          "checks": [["Upload the MP4 and read state immediately", "State is PROCESSING at first, then ACTIVE after polling", "Polling log"], ["Run client.files.list after upload", "Both file names appear in the list", "Printed list"], ["Delete a file and request it again", "Request fails with 403 or 404 for the deleted file name", "Error output"]],
+          "objectives": ["Upload and manage files through the API", "Handle asynchronous file processing", "Describe the file retention window"]
+        },
+        {
+          "topic": "Reading PDFs and Long Documents",
+          "subtopics": ["PDF support as native vision rather than text extraction only", "Passing PDFs inline with application/pdf or through the Files API", "Page and size limits and tokens per page", "Tables, charts and scanned pages", "Asking page-specific questions and requesting page citations", "Several PDFs in one prompt for comparison", "Summarising a long document without losing structure", "Failure cases: password-protected files and low-quality scans"],
+          "tools": ["Google Gen AI SDK for Python", "client.files", "PyPDF or pdfplumber for comparison", "Google AI Studio"],
+          "lab_task": "Upload a 30-page annual report PDF and ask 10 factual questions whose answers appear on known pages, including two about tables, requiring each answer to name its page. Compare answers with the source, then compare token usage and accuracy for inline PDF bytes versus the Files API on a 5-page excerpt.",
+          "deliverable": "Question sheet with expected page, model answer, correctness and tokens",
+          "checks": [["Ask for the revenue figure from a table on page 12", "Answer matches the table value and cites page 12", "Question sheet"], ["Ask about information that is not in the report", "Model says the document does not contain it instead of inventing a figure, or the failure is logged", "Question sheet"], ["Send a password-protected PDF", "Request fails or reports it cannot read the file, and the behaviour is recorded", "Error output"]],
+          "objectives": ["Query PDFs with page-level evidence", "Choose between inline and Files API uploads", "Test accuracy against a source document"]
+        },
+        {
+          "topic": "Audio and Video Understanding",
+          "subtopics": ["Supported audio formats such as audio/wav, audio/mp3 and audio/flac", "Transcription, summarisation and speaker-turn requests", "Timestamps in MM:SS format in prompts", "Video input through the Files API and through YouTube URLs", "Frame sampling and tokens per second of video", "video_metadata with start_offset and end_offset to clip a segment", "Describing visual and spoken content together", "Limits of long media and when to pre-split with ffmpeg"],
+          "tools": ["Google Gen AI SDK for Python", "client.files", "ffmpeg", "Google AI Studio"],
+          "lab_task": "Upload a 3-minute audio meeting and ask for a transcript with MM:SS timestamps and 3 action items, then upload a 5-minute video and ask for a scene list with timestamps. Use VideoMetadata(start_offset='60s', end_offset='120s') on the video and verify the answer covers only that minute. Record tokens used for audio and video.",
+          "deliverable": "Transcript, scene list and a table of tokens per media second",
+          "checks": [["Ask for action items from the audio", "Three items are returned and each can be matched to a moment in the recording", "Transcript check"], ["Clip the video from 60s to 120s", "Described scenes fall between 01:00 and 02:00 of the source", "Scene list"], ["Compare token counts for audio and video", "Video tokens per second are higher than audio tokens per second", "Token table"]],
+          "objectives": ["Transcribe and summarise audio", "Analyse video with time offsets", "Estimate media token cost"]
+        },
+        {
+          "topic": "Structured Output with JSON Mode and Pydantic Schemas",
+          "subtopics": ["response_mime_type set to application/json", "response_schema with a Pydantic model or a JSON schema", "Supported schema features: enum, nested objects, arrays, required and nullable fields", "response.parsed returning a Pydantic object", "Property ordering and field descriptions that guide the model", "Enum output with text/x.enum", "Why a schema does not guarantee that the content is correct", "Validating again with Pydantic after parsing"],
+          "tools": ["Google Gen AI SDK for Python", "Pydantic", "jq", "pytest", "Google AI Studio"],
+          "lab_task": "Define a Pydantic model Invoice with vendor, date, currency enum, line_items list and total, call generate_content with response_mime_type='application/json' and response_schema=Invoice on 10 invoice texts, and read response.parsed. Write pytest checks that line items sum to the total, and record failures where the schema was valid but the data was wrong.",
+          "deliverable": "extract.py, the Invoice model and a pytest report over 10 invoices",
+          "checks": [["Run 10 invoices through the schema", "All 10 responses parse into Invoice objects without JSONDecodeError", "pytest report"], ["Check that line items sum to total", "At least 8 of 10 sums match, and mismatches are listed", "pytest report"], ["Add an enum currency of USD, EUR or GBP and send a text in INR", "Output stays within the enum or the case is logged as a limitation", "Result log"]],
+          "objectives": ["Return JSON that follows a schema", "Parse output into typed objects", "Separate schema validity from data correctness"]
+        },
+        {
+          "topic": "Safety Settings and Blocked Responses",
+          "subtopics": ["Harm categories: harassment, hate speech, sexually explicit and dangerous content", "Block thresholds: BLOCK_NONE, BLOCK_ONLY_HIGH, BLOCK_MEDIUM_AND_ABOVE, BLOCK_LOW_AND_ABOVE", "types.SafetySetting in GenerateContentConfig", "promptFeedback.blockReason and finishReason SAFETY", "safetyRatings with probability levels", "Built-in protections that settings cannot turn off", "Handling a blocked response in application code", "Why blocks must be logged and reviewed rather than hidden"],
+          "tools": ["Google Gen AI SDK for Python", "Google AI Studio safety settings", "pytest", "Python logging"],
+          "lab_task": "Send 6 borderline but legitimate prompts, such as a medical dosage question and a crime-novel scene, at the default settings and at stricter thresholds using SafetySetting for each category. Record promptFeedback, finishReason and safetyRatings, and write a helper that returns a friendly fallback message and logs the category when a response is blocked.",
+          "deliverable": "Safety experiment table and a safe_generate helper with tests",
+          "checks": [["Send a prompt that triggers a block at BLOCK_LOW_AND_ABOVE", "prompt_feedback.block_reason or finish_reason SAFETY is present and response.text is empty or missing", "Printed fields"], ["Run the helper on a blocked response", "It returns the fallback message and writes the category to the log", "Log line"], ["Read safetyRatings for an allowed response", "Each of the 4 categories has a probability value such as NEGLIGIBLE or LOW", "Printed ratings"]],
+          "objectives": ["Configure safety thresholds per category", "Detect and handle blocked responses", "Log safety events responsibly"]
+        },
+        {
+          "topic": "Error Codes, Timeouts and Retries",
+          "subtopics": ["HTTP status map: 400 INVALID_ARGUMENT, 403 PERMISSION_DENIED, 404 NOT_FOUND, 429 RESOURCE_EXHAUSTED", "500 INTERNAL, 503 UNAVAILABLE and 504 DEADLINE_EXCEEDED", "errors.APIError and its code and message in the Python SDK", "Which errors are retryable and which are not", "Exponential backoff with jitter", "HttpOptions timeout and retry options in the SDK", "Idempotency and duplicate work on retry", "Logging the request context without the API key"],
+          "tools": ["Google Gen AI SDK for Python", "curl", "tenacity", "pytest", "Python logging"],
+          "lab_task": "Trigger and catch 3 errors on purpose: an invalid model name for 404, a malformed request for 400 and a key without access for 403. Wrap generate_content in a retry function using tenacity with exponential backoff and jitter that retries only 429, 500, 503 and 504 and sets a client timeout through HttpOptions. Unit-test it with a mocked 503 followed by success.",
+          "deliverable": "resilient_call.py with unit tests and a table of codes and decisions",
+          "checks": [["Call a model name that does not exist", "HTTP 404 NOT_FOUND is raised and the function does not retry", "Test output"], ["Mock two 503 responses then success", "Function retries twice and returns the text on the third attempt", "pytest report"], ["Set an extremely short timeout", "Call fails with a timeout error within the configured time", "Log line"]],
+          "objectives": ["Recognise Gemini API error codes", "Retry only retryable failures with backoff", "Configure client timeouts"]
+        },
+        {
+          "topic": "Free Tier, Rate Limits and Cost Control",
+          "subtopics": ["Free tier and paid tier differences in limits and data use", "Rate limit dimensions: requests per minute, tokens per minute, requests per day", "Limits apply per project and per model, not per key", "Usage tiers and how billing upgrades raise limits", "Viewing quota and usage in AI Studio and Google Cloud", "Reading the pricing page: input, output, cached and thinking tokens", "Estimating a monthly bill from traffic and token counts", "Cost levers: model tier, output length, caching, batch"],
+          "tools": ["Google AI Studio", "Google Cloud console", "Gemini API pricing page", "Google Sheets", "Python"],
+          "lab_task": "Find your project's rate limits for a Flash model in AI Studio, then write a loop that sends requests until a 429 RESOURCE_EXHAUSTED occurs and record the request count per minute reached. Build a spreadsheet that estimates the monthly cost of a chatbot with 5,000 conversations a day, 6 turns each, at stated average input and output tokens, using current pricing.",
+          "deliverable": "Limit findings, a 429 log and a cost model spreadsheet",
+          "checks": [["Send requests faster than the per-minute limit", "HTTP 429 RESOURCE_EXHAUSTED is returned and the request count at failure is recorded", "Loop log"], ["Read the limit in AI Studio", "The RPM and TPM numbers recorded match the dashboard on the test date", "Screenshot"], ["Change the model from Pro to Flash-Lite in the spreadsheet", "Estimated monthly cost drops and the percentage change is shown", "Spreadsheet"]],
+          "objectives": ["Read quota and pricing pages", "Recognise and reproduce a 429", "Estimate cost from traffic"]
+        },
+        {
+          "topic": "Prompt Testing and Output Quality Checks",
+          "subtopics": ["Test cases: inputs, expected properties and pass rules", "Exact-match checks versus property checks versus rubric scoring", "Building a 20-case golden set from real examples", "Running tests in pytest against a fixed model and config", "Regression when the model or prompt changes", "Using a second Gemini call as a judge and its limits", "Tracking pass rate and token use per prompt version", "Documenting prompt versions in git"],
+          "tools": ["pytest", "Google Gen AI SDK for Python", "Git", "Google Sheets", "Google AI Studio"],
+          "lab_task": "Create golden_set.json with 20 inputs for the summarise prompt from earlier, write pytest tests that check format rules (3 lines, a priority label) and keyword coverage, run them against a Flash and a Flash-Lite model, and report pass rate and tokens per version. Change the prompt once and show whether the pass rate moved.",
+          "deliverable": "Golden set, pytest suite and a pass-rate comparison of two models and two prompt versions",
+          "checks": [["Run the 20-case suite on a Flash model", "A pass count out of 20 is reported and failing cases are listed", "pytest report"], ["Run the suite on Flash-Lite", "A second pass count is reported and compared with the first", "Comparison table"], ["Change the prompt and rerun", "The new pass rate differs from or equals the old one and the git diff is attached", "Git commit and report"]],
+          "objectives": ["Write repeatable tests for prompts", "Compare models and prompt versions with data", "Version prompts in git"]
+        },
+        {
+          "topic": "Beginner Capstone: Document Q&A Assistant",
+          "subtopics": ["Requirements and scope for a PDF question-answering tool", "Upload, caching of file names and error handling", "System instruction with answer-only-from-document rule", "Structured JSON answer with answer, page and confidence fields", "Safety and blocked-response handling", "Token counting and a per-request cost log", "A 15-question evaluation with a report", "Short demo script and README"],
+          "tools": ["Google Gen AI SDK for Python", "client.files", "Pydantic", "pytest", "Google AI Studio", "Git"],
+          "lab_task": "Build a command-line assistant that uploads a PDF with client.files.upload, answers questions with a system instruction that forbids outside knowledge, returns JSON with answer, page and found fields through response_schema, handles 429 and safety blocks, and appends token counts to cost.csv. Evaluate it on 15 questions, 3 of which are not answered in the document.",
+          "deliverable": "Repository with assistant.py, tests, cost.csv, evaluation report and README",
+          "checks": [["Ask 12 questions answered in the document", "At least 10 answers are correct and cite the right page", "Evaluation report"], ["Ask 3 questions not in the document", "Each returns found false and no invented answer, or each miss is documented", "Evaluation report"], ["Inspect cost.csv after the run", "It has one row per request with prompt and output tokens and a total cost column", "CSV file"]],
+          "objectives": ["Combine files, system instructions, JSON schema and error handling", "Evaluate an assistant against a known set", "Report cost and quality to a stakeholder"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who already call generateContent and want production features. Covers function calling declarations, tool loops, automatic function calling, calling modes and parallel calls, response schemas, thinking budgets, grounding with Google Search and URL context, code execution, embeddings with task types, retrieval-augmented generation, implicit and explicit context caching, media resolution, the Batch API, async concurrency and backoff, Vertex AI authentication and the move from AI Studio to Vertex AI, multimodal output, prompt patterns, usage metadata and cost tracking, and a grounded research assistant capstone.",
+      "prerequisites": ["Has completed the Gemini API beginner level or can already call generate_content, stream responses and read usage_metadata", "Writes Python with type hints, virtual environments, pytest and async/await, or equivalent JavaScript", "Can use the gcloud CLI and the Google Cloud console to select a project and enable an API"],
+      "outcomes": ["Build tool-using applications with function calling, grounding, URL context and code execution, and control when each tool runs", "Build semantic search and retrieval-augmented generation with Gemini embeddings and measure its retrieval quality", "Reduce cost and latency with context caching, thinking settings, media resolution, async concurrency and the Batch API", "Run the same application against the Developer API and Vertex AI, and track tokens and cost per request"],
+      "days": [
+        {
+          "topic": "Function Calling Declarations and the Tool Loop",
+          "subtopics": ["Why models call functions: structured intent instead of free text", "types.FunctionDeclaration with name, description and a parameters schema", "Wrapping declarations in types.Tool(function_declarations=[...])", "Detecting a functionCall part in the response", "Running the function in your code and returning a functionResponse part", "Sending the result back so the model writes the final answer", "Writing descriptions and parameter names that improve call accuracy", "Validating arguments before executing anything"],
+          "tools": ["Google Gen AI SDK for Python", "Pydantic", "pytest", "curl", "Google AI Studio"],
+          "lab_task": "Declare get_order_status(order_id: string) and cancel_order(order_id: string, reason: string), send 'Where is order A-1042?', detect the functionCall part, execute a stub against a dictionary, return a functionResponse part and print the final answer. Run 12 test prompts and count correct function choices and correct argument values.",
+          "deliverable": "Tool-loop script, function declarations and a 12-prompt accuracy table",
+          "checks": [["Ask 'Where is order A-1042?'", "Response contains a functionCall named get_order_status with order_id A-1042", "Printed part"], ["Return a functionResponse with status shipped", "Final text mentions that the order has shipped", "Final answer"], ["Run the 12-prompt set", "At least 10 of 12 choose the right function and arguments", "Accuracy table"]],
+          "objectives": ["Declare tools for the model", "Implement the manual call-execute-return loop", "Measure function selection accuracy"]
+        },
+        {
+          "topic": "Automatic Function Calling and Python Callables",
+          "subtopics": ["Passing Python functions directly in config tools", "Schema generation from type hints and docstrings", "The SDK executing the call and sending the response back", "automatic_function_calling with maximum_remote_calls", "Disabling automatic calling with AutomaticFunctionCallingConfig(disable=True)", "Reading automatic_function_calling_history", "Exceptions inside tools and how they surface", "When manual control is the better choice"],
+          "tools": ["Google Gen AI SDK for Python", "pytest", "Python typing", "Python logging"],
+          "lab_task": "Replace the manual loop from the previous day with plain Python functions get_order_status and cancel_order passed in GenerateContentConfig(tools=[...]). Print automatic_function_calling_history, set maximum_remote_calls to 1, and make cancel_order raise an exception to see what the model receives. Compare the code length and control with the manual version.",
+          "deliverable": "Automatic tool script, history printout and a manual versus automatic comparison note",
+          "checks": [["Run a prompt that needs one tool", "Final text is returned and automatic_function_calling_history lists one call", "Printed history"], ["Set maximum_remote_calls to 1 on a prompt that needs two calls", "The loop stops after one call and the limit effect is recorded", "Printed history"], ["Raise an exception in cancel_order", "The error is logged and the behaviour the model sees is recorded", "Log output"]],
+          "objectives": ["Use automatic function calling", "Bound the number of tool calls", "Choose between automatic and manual loops"]
+        },
+        {
+          "topic": "Function Calling Modes, Parallel and Compositional Calls",
+          "subtopics": ["tool_config with function_calling_config modes AUTO, ANY and NONE", "allowed_function_names to restrict choices", "Forcing a call with ANY and when that is risky", "Parallel function calls: several functionCall parts in one turn", "Compositional calls: output of one function feeds the next", "Returning several functionResponse parts in the right order", "Confirmation steps before side-effecting tools", "Tool descriptions as part of the prompt budget"],
+          "tools": ["Google Gen AI SDK for Python", "pytest", "jq", "Python asyncio"],
+          "lab_task": "Add search_flights, get_weather and book_flight tools, ask 'Compare weather in Paris and Rome and find flights to the warmer one', and show parallel get_weather calls followed by a dependent call. Test AUTO, ANY with allowed_function_names=['get_weather'] and NONE, and require explicit user confirmation inside your code before book_flight runs.",
+          "deliverable": "Travel-assistant script with mode results and a confirmation gate",
+          "checks": [["Ask for weather in two cities", "Response contains two functionCall parts in a single model turn", "Printed parts"], ["Set mode NONE with the same prompt", "No functionCall is returned and a text answer appears instead", "Printed response"], ["Set mode ANY with allowed_function_names=['get_weather'] on a flight request", "Only get_weather can be called, showing the restriction", "Printed response"]],
+          "objectives": ["Control tool use with calling modes", "Handle parallel and dependent calls", "Gate side effects behind confirmation"]
+        },
+        {
+          "topic": "Response Schemas, Enums and Constrained Decoding",
+          "subtopics": ["response_json_schema and response_schema and when to choose each", "Nested objects, arrays, anyOf and optional fields", "Enum-only responses for classification", "Field descriptions as instructions", "Schema complexity limits and the InvalidArgument errors they cause", "Streaming structured output and partial JSON", "Combining structured output with other tools where supported", "Versioning schemas and migrating stored data"],
+          "tools": ["Google Gen AI SDK for Python", "Pydantic", "jsonschema", "pytest"],
+          "lab_task": "Build a ticket classifier that returns category (enum of 5 values), urgency 1 to 5, entities (array of objects) and a nullable follow_up string. Run 40 labelled tickets, compute accuracy and the schema-valid rate, then make the schema deeper until the API returns an error, recording the first error message and the change that caused it.",
+          "deliverable": "Classifier, a labelled test set of 40 and a confusion table with schema error notes",
+          "checks": [["Run 40 tickets through the classifier", "100% of outputs validate against the JSON schema and accuracy is reported", "Metrics file"], ["Send a ticket with no clear category", "Output still picks an allowed enum value or the null follow-up is used, and the case is noted", "Printed result"], ["Increase schema nesting until failure", "An HTTP 400 error naming the schema complexity problem is recorded", "Error output"]],
+          "objectives": ["Design schemas that suit constrained output", "Classify with enums and measure accuracy", "Diagnose schema errors"]
+        },
+        {
+          "topic": "Thinking Budgets and Thought Summaries",
+          "subtopics": ["What thinking models do before answering", "thinking_budget in types.ThinkingConfig and the value -1 for dynamic thinking", "Disabling thinking with a budget of 0 on tiers that allow it", "include_thoughts=True and thought summary parts", "thoughts_token_count in usage_metadata and billing as output tokens", "Newer generations expose a thinking level instead of a token budget, so check the model page", "Choosing budgets for maths, coding, extraction and chat", "Why quality gains flatten and cost rises"],
+          "tools": ["Google Gen AI SDK for Python", "Google AI Studio", "Python matplotlib", "pytest"],
+          "lab_task": "Run 15 maths and logic questions on a Flash model with thinking_budget values 0, 1024 and dynamic, record accuracy, latency and thoughts_token_count, and enable include_thoughts to print one thought summary. Plot accuracy against cost and decide the cheapest setting that keeps accuracy within 5 points of the best.",
+          "deliverable": "Thinking experiment sheet, one plot and a recommended budget per task type",
+          "checks": [["Run with a budget of 0", "thoughts_token_count is 0 or absent and latency is recorded", "Printed usage"], ["Run with dynamic thinking", "thoughts_token_count is above 0 for the hard questions", "Printed usage"], ["Set include_thoughts=True", "Response has parts marked thought with a summary, kept separate from the answer text", "Printed parts"]],
+          "objectives": ["Control thinking per request", "Read thought tokens and summaries", "Pick thinking settings by cost and accuracy"]
+        },
+        {
+          "topic": "Grounding with Google Search and Citations",
+          "subtopics": ["types.Tool(google_search=types.GoogleSearch()) in config", "When the model decides to search and the webSearchQueries it issues", "groundingMetadata: groundingChunks, groundingSupports and searchEntryPoint", "Turning supports into inline citations with text segment indexes", "Display requirements for Search suggestions in a user interface", "Differences between grounded and ungrounded answers on recent facts", "Billing for grounded requests and limits on daily volume", "Grounding quality checks and failure cases"],
+          "tools": ["Google Gen AI SDK for Python", "Google AI Studio", "jq", "pytest"],
+          "lab_task": "Ask 10 questions about events from the last month, once without tools and once with the Google Search tool, and compare accuracy against a source you verify. Print webSearchQueries and groundingChunks URIs, write a function that inserts [1], [2] citation markers using groundingSupports segment end_index, and render the search suggestion widget in a small HTML page.",
+          "deliverable": "Grounding script, citation formatter, HTML page and a grounded-versus-ungrounded accuracy table",
+          "checks": [["Ask a question about a recent event with Google Search enabled", "grounding_metadata has at least one web_search_queries entry and one grounding chunk", "Printed metadata"], ["Format the answer with citations", "Each marker number maps to a URI from grounding_chunks", "Formatted output"], ["Ask the same question without the tool", "The answer is less accurate or less current, and the difference is recorded", "Comparison table"]],
+          "objectives": ["Enable Google Search grounding", "Create citations from grounding metadata", "Meet display requirements for suggestions"]
+        },
+        {
+          "topic": "URL Context Tool and Web Page Analysis",
+          "subtopics": ["types.Tool(url_context=types.UrlContext()) and how URLs in the prompt are fetched", "Combining URL context with Google Search", "url_context_metadata and retrieval status per URL", "Supported content types and pages that cannot be retrieved", "Token cost of retrieved pages", "Comparing two or more pages in one request", "Prompt injection risk from fetched page content", "When to fetch pages yourself instead"],
+          "tools": ["Google Gen AI SDK for Python", "curl", "BeautifulSoup", "pytest"],
+          "lab_task": "Pass two documentation URLs in a prompt with the url_context tool and ask for a comparison table of their rate-limit policies. Read url_context_metadata for each URL, test one URL behind a login, and put a hidden instruction in a test page you host to see whether the model follows it. Record retrieval status and prompt tokens added per URL.",
+          "deliverable": "URL analysis script, a test page with the injected text and a results table",
+          "checks": [["Fetch two public URLs", "url_context_metadata lists both URLs with a success retrieval status", "Printed metadata"], ["Fetch a login-protected URL", "Retrieval status shows failure or the page content is not used, and this is recorded", "Printed metadata"], ["Host a page containing 'ignore previous instructions'", "Output either ignores it or shows it was followed, and your mitigation is written down", "Test log"]],
+          "objectives": ["Use URL context for page analysis", "Inspect retrieval status", "Reason about injection in fetched content"]
+        },
+        {
+          "topic": "Code Execution Tool for Calculation and Data Tasks",
+          "subtopics": ["types.Tool(code_execution=types.ToolCodeExecution())", "Response parts executable_code and code_execution_result", "Outcome values such as OUTCOME_OK and failure outcomes", "Sandbox limits: execution time, available libraries and no network access", "Uploading a CSV and asking for statistics and a chart", "Why executed numbers are more reliable than free-text arithmetic", "Iterative code retries by the model", "Cost of code and output tokens"],
+          "tools": ["Google Gen AI SDK for Python", "pandas", "Google AI Studio", "pytest"],
+          "lab_task": "Give the model a 500-row sales CSV and the code execution tool, ask for total revenue by region, the month with the largest growth and a bar chart, and print executable_code and code_execution_result parts. Verify every number against pandas, and test a request that needs a library or network access the sandbox does not provide.",
+          "deliverable": "Script, extracted code and a verification table of model figures versus pandas",
+          "checks": [["Ask for revenue by region", "code_execution_result outcome is OUTCOME_OK and each regional total equals your pandas total", "Verification table"], ["Ask the same sum without the code execution tool", "The answer is less reliable or equal, and the comparison is noted", "Comparison note"], ["Ask for an HTTP download inside the sandbox", "The attempt fails or the model explains it has no network access", "Printed result"]],
+          "objectives": ["Run model-written code in the sandbox", "Verify results independently", "Know the tool limits"]
+        },
+        {
+          "topic": "Embeddings and Task Types for Semantic Search",
+          "subtopics": ["client.models.embed_content and the embedding vector response", "Task types: RETRIEVAL_QUERY, RETRIEVAL_DOCUMENT, SEMANTIC_SIMILARITY, CLASSIFICATION, CLUSTERING", "output_dimensionality and truncating vectors", "Normalising vectors when the dimension is reduced", "Cosine similarity and dot product", "Batching many inputs and input size limits", "Choosing document and query task types correctly", "Embedding model versions and the need to re-embed after a change"],
+          "tools": ["Google Gen AI SDK for Python", "NumPy", "scikit-learn", "matplotlib"],
+          "lab_task": "Embed 200 FAQ entries with RETRIEVAL_DOCUMENT and 30 user questions with RETRIEVAL_QUERY at two output_dimensionality values, normalise the vectors, rank by cosine similarity and compute recall@3 against your labelled answers. Then swap in the wrong task type for the queries and show the change in recall.",
+          "deliverable": "Embedding script, similarity search and a recall@3 table for 2 sizes and 2 task-type setups",
+          "checks": [["Embed with the chosen dimensionality", "Each vector length equals the requested output_dimensionality", "Printed shape"], ["Compute recall@3 for 30 questions", "A numeric recall is reported for each setup", "Results table"], ["Use the wrong task type for queries", "Recall differs from the correct setup and the delta is recorded", "Results table"]],
+          "objectives": ["Create embeddings through the API", "Pick task types and dimensions", "Evaluate retrieval with recall@k"]
+        },
+        {
+          "topic": "Retrieval-Augmented Generation with Gemini and Embeddings",
+          "subtopics": ["Chunking documents by structure and size with overlap", "Storing vectors in pgvector, Chroma or Vertex AI Vector Search", "Retrieving top-k chunks for a query", "Prompting Gemini to answer only from the passages and cite chunk IDs", "Hybrid retrieval with keywords and vectors", "Reranking and choosing k", "Evaluating retrieval and answer faithfulness separately", "When long context or caching beats retrieval"],
+          "tools": ["Google Gen AI SDK for Python", "Chroma", "pgvector", "NumPy", "pytest"],
+          "lab_task": "Chunk 40 policy documents into about 400-token passages, embed and store them, then answer 25 questions by retrieving top-4 chunks and prompting Flash to answer with chunk IDs. Score retrieval hit rate and answer faithfulness, then rerun with k=2 and k=8, and compare against sending all 40 documents in one long-context prompt.",
+          "deliverable": "RAG pipeline, 25-question evaluation and a k comparison with cost and accuracy",
+          "checks": [["Answer 25 questions with k=4", "At least 20 answers cite a chunk that contains the evidence", "Evaluation table"], ["Ask a question not covered by the documents", "The answer says there is not enough information and cites no chunk", "Printed answer"], ["Run k=2, k=4 and k=8", "Hit rate and tokens per request are listed for each k", "Comparison table"]],
+          "objectives": ["Build a retrieval-augmented pipeline", "Cite sources in answers", "Compare RAG with long-context prompting"]
+        },
+        {
+          "topic": "Context Caching: Implicit and Explicit Caches",
+          "subtopics": ["Implicit caching and how to structure prompts to get hits", "cachedContentTokenCount in usage metadata", "Explicit caches with client.caches.create, ttl and display_name", "Caching system instructions, documents and tool definitions", "Referencing a cache with cached_content in config", "Updating ttl, listing and deleting caches", "Minimum token sizes for caching and storage charges per hour", "Break-even analysis between caching and resending"],
+          "tools": ["Google Gen AI SDK for Python", "client.caches", "Gemini API pricing page", "Google Sheets"],
+          "lab_task": "Create an explicit cache with client.caches.create holding a 60,000-token manual and a ttl of 3600s, ask 20 questions with cached_content, and compare prompt, cached and output tokens and cost with sending the manual each time. Then place the manual first in a normal prompt and look for cached_content_token_count from implicit caching. Compute the break-even number of questions.",
+          "deliverable": "Cache script, cost comparison sheet and a break-even calculation",
+          "checks": [["Create a cache and ask a question", "usage_metadata.cached_content_token_count is greater than 0", "Printed usage"], ["Run 20 questions with and without the cache", "Cached runs show lower billed input cost per question", "Cost sheet"], ["Delete the cache and reuse its name", "The call fails with a not-found error", "Error output"]],
+          "objectives": ["Use implicit and explicit caching", "Calculate caching break-even", "Manage cache lifetime"]
+        },
+        {
+          "topic": "Media Resolution and Video Segment Prompting",
+          "subtopics": ["media_resolution settings and token usage per image or frame", "Choosing low resolution for scenes and high resolution for text", "Video frame rate with video_metadata fps and offsets", "Several videos in one prompt", "Long audio and video token budgets in the context window", "Timestamped questions and answers about media", "Pre-processing with ffmpeg to crop, trim or lower the frame rate", "Accuracy and cost trade-offs"],
+          "tools": ["Google Gen AI SDK for Python", "ffmpeg", "client.files", "Google Sheets"],
+          "lab_task": "Analyse a 20-minute lecture video at default settings, then at low media resolution and a reduced fps with video_metadata, asking 10 timestamped questions. Compare accuracy, prompt tokens and cost. Trim the video to the relevant 5 minutes with ffmpeg -ss and -t and confirm the answers hold.",
+          "deliverable": "Video experiment table with accuracy, tokens and cost for 3 settings",
+          "checks": [["Run 10 questions at default and low settings", "Prompt tokens are lower at the low setting and the delta is shown", "Experiment table"], ["Ask for on-screen text at low resolution", "Accuracy is lower or the same, and the result is recorded", "Experiment table"], ["Trim with ffmpeg and rerun", "Prompt token count falls in proportion to the trimmed length", "Token log"]],
+          "objectives": ["Tune media resolution and frame rate", "Trim media to cut cost", "Test accuracy against token savings"]
+        },
+        {
+          "topic": "Batch API for Large Offline Jobs",
+          "subtopics": ["When batch is right: no latency need and large volume", "client.batches.create with inline requests or an uploaded JSONL file", "Request keys and matching responses to inputs", "Job states: JOB_STATE_PENDING, RUNNING, SUCCEEDED, FAILED, CANCELLED, EXPIRED", "Polling with client.batches.get and downloading results", "Discounted pricing and the target completion window", "Handling partial failures and re-submitting only failed rows", "File size and request count limits"],
+          "tools": ["Google Gen AI SDK for Python", "client.batches", "JSONL", "jq", "Google Cloud console"],
+          "lab_task": "Build a JSONL file of 1,000 classification requests with unique keys, upload it with client.files.upload, create a batch job with client.batches.create and poll client.batches.get until it ends. Parse results by key, find failed rows, resubmit only those, and compare cost and wall-clock time against 1,000 live calls on a 50-row sample extrapolated.",
+          "deliverable": "Batch scripts, result parser and a cost and time comparison",
+          "checks": [["Create the batch job", "Job state starts as JOB_STATE_PENDING or RUNNING and the job name is saved", "Printed job"], ["Download results when SUCCEEDED", "The number of result lines equals the number of requests, matched by key", "Count output"], ["Resubmit failed rows only", "Resubmitted request count equals the failed count and no row is processed twice", "Run log"]],
+          "objectives": ["Submit and monitor batch jobs", "Match results to requests", "Quantify batch savings"]
+        },
+        {
+          "topic": "Async Clients, Concurrency and Rate-Limit Backoff",
+          "subtopics": ["client.aio for async calls in Python", "asyncio.gather and semaphores to limit concurrency", "Matching concurrency to RPM and TPM limits", "Token-bucket rate limiting in the client", "Retry with jittered exponential backoff on 429 and 503", "Honouring retry hints in the error details", "Back-pressure and queues for bursty workloads", "Measuring throughput and error rate"],
+          "tools": ["Google Gen AI SDK for Python", "asyncio", "aiolimiter or a token bucket", "pytest", "Python logging"],
+          "lab_task": "Process 500 short documents with client.aio.models.generate_content at concurrency 1, 5, 20 and 50 using an asyncio.Semaphore, with retry on 429 and 503. Record documents per minute, 429 count and p95 latency for each level, choose the best level and add a token-bucket limiter that keeps 429s under 1% of requests.",
+          "deliverable": "Async pipeline and a throughput table for 4 concurrency levels",
+          "checks": [["Run at concurrency 1 and 20", "Throughput at 20 is higher than at 1 and both numbers are recorded", "Throughput table"], ["Run at concurrency 50", "429 responses appear or throughput stops improving, and the cause is noted", "Error count"], ["Enable the limiter", "429 responses are below 1% of 500 requests", "Run log"]],
+          "objectives": ["Run concurrent Gemini calls safely", "Tune concurrency against quotas", "Apply a rate limiter and backoff"]
+        },
+        {
+          "topic": "Vertex AI Gemini: Authentication with ADC and Service Accounts",
+          "subtopics": ["genai.Client(vertexai=True, project=..., location=...) and the environment variables GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_LOCATION", "Enabling aiplatform.googleapis.com", "Application Default Credentials with gcloud auth application-default login", "Service accounts and the role roles/aiplatform.user", "Workload identity on Cloud Run and GKE instead of key files", "Regional and global endpoints", "Vertex AI Studio as the prompt workbench", "Common errors: 403 PERMISSION_DENIED and wrong location"],
+          "tools": ["Google Gen AI SDK for Python", "gcloud CLI", "Vertex AI Studio", "Google Cloud console", "IAM"],
+          "lab_task": "Enable the Vertex AI API in a project, run gcloud auth application-default login, and call generate_content through genai.Client(vertexai=True). Create a service account with only roles/aiplatform.user, impersonate it, and show that removing the role causes 403 PERMISSION_DENIED. Run the same prompt in Vertex AI Studio.",
+          "deliverable": "Vertex client script, IAM binding list and a 403 reproduction",
+          "checks": [["Call Gemini on Vertex AI with ADC", "Response text is returned with no API key present in the environment", "Terminal output"], ["Remove roles/aiplatform.user from the service account", "Request fails with 403 PERMISSION_DENIED", "Error output"], ["Restore the role and rerun", "Request succeeds again", "Terminal output"]],
+          "objectives": ["Authenticate to Vertex AI without API keys", "Grant least-privilege IAM roles", "Diagnose permission errors"]
+        },
+        {
+          "topic": "Moving Code Between AI Studio and Vertex AI",
+          "subtopics": ["One SDK with two backends: the vertexai flag", "Which features differ in availability and in model IDs", "Files API versus Cloud Storage URIs for file_data", "Quotas and billing differences", "Safety and data-use terms to review before moving", "Configuration-driven client factory", "Contract tests that run on both backends", "Migration checklist and rollback plan"],
+          "tools": ["Google Gen AI SDK for Python", "Cloud Storage", "gcloud CLI", "pytest"],
+          "lab_task": "Refactor an application into a make_client() factory driven by an environment variable that returns either a Developer API client or a Vertex AI client. Replace Files API uploads with gs:// URIs on Vertex AI, run the same 15-prompt contract test suite on both backends, and list every difference found in a migration checklist.",
+          "deliverable": "Client factory, contract tests and a migration checklist with measured differences",
+          "checks": [["Run 15 contract tests on the Developer API", "All 15 pass or each failure is explained", "pytest report"], ["Run the same tests on Vertex AI", "The pass count is reported and any difference in behaviour is listed", "pytest report"], ["Send a gs:// file to the Developer API client", "The call is rejected or handled differently, and the difference is documented", "Error output"]],
+          "objectives": ["Make code portable across backends", "Test both backends with one suite", "Document migration risks"]
+        },
+        {
+          "topic": "Multimodal Output: Image and Speech Generation",
+          "subtopics": ["Response modalities and models that produce images or audio", "Generating and editing images from text and image prompts", "Conversational image editing across turns", "Text-to-speech with prebuilt voices and PCM audio output", "Single and multi-speaker speech configuration", "Watermarks and content provenance information", "Safety filters on generated media", "Cost per image and per audio second"],
+          "tools": ["Google Gen AI SDK for Python", "Pillow", "wave module", "ffmpeg", "Google AI Studio"],
+          "lab_task": "Generate a product image from a text prompt, edit it in a second turn to change the background, and save both as PNG. Generate a 30-second speech clip with a prebuilt voice, write the PCM bytes to a WAV file with the wave module, and record the sample rate, duration and cost for each output. Test one prompt that triggers the safety filter.",
+          "deliverable": "Image and audio generation script, saved files and a cost table",
+          "checks": [["Generate an image and an edit", "Two PNG files are saved and the second differs visibly in background", "Saved files"], ["Write the speech output as WAV", "The file plays and its duration is about 30 seconds", "ffprobe output"], ["Send a prompt that violates policy", "The response is blocked or has no media part and the reason is logged", "Printed response"]],
+          "objectives": ["Generate images and speech through the API", "Save binary media correctly", "Account for cost and safety of generated media"]
+        },
+        {
+          "topic": "Prompt Design Patterns for Gemini: Few-Shot, Chain Structure and Templates",
+          "subtopics": ["Zero-shot, one-shot and few-shot prompts", "Choosing and ordering examples", "Putting the question after long context", "Prompt chaining: extract, decide, write", "Templates with named slots and escaping of user input", "Delimiters and tags to separate instructions and data", "Negative instructions versus positive formats", "Measuring the effect of each change on a golden set"],
+          "tools": ["Google AI Studio", "Google Gen AI SDK for Python", "Jinja2", "pytest"],
+          "lab_task": "Take a sentiment and topic extraction task with a 30-case golden set and compare zero-shot, 3-shot and 8-shot prompts, then a two-step chain of extract then classify. Use a Jinja2 template for the prompts, escape user input inside delimiters, and report accuracy, tokens and latency for each variant.",
+          "deliverable": "Prompt variants, template files and a comparison table on 30 cases",
+          "checks": [["Run zero-shot and 3-shot", "Accuracy for both is reported and few-shot is equal or better, or the exception is explained", "Comparison table"], ["Run the two-step chain", "Tokens and latency are both higher than the single call and the numbers are listed", "Comparison table"], ["Insert text with the delimiter characters in user input", "The template escapes or rejects it and the prompt structure stays intact", "Test output"]],
+          "objectives": ["Apply few-shot and chaining patterns", "Template prompts safely", "Evaluate every change with data"]
+        },
+        {
+          "topic": "Usage Metadata, Logging and Cost Tracking",
+          "subtopics": ["usage_metadata fields: prompt, candidates, thoughts, cached and tool-use tokens", "Modality-level token details for images, audio and video", "A wrapper that logs one structured record per call", "Tagging requests with feature, user tier and prompt version", "Computing cost from a price table kept in config", "Dashboards in BigQuery or Looker Studio", "Budget alerts in Google Cloud Billing", "Detecting runaway loops and unusually large prompts"],
+          "tools": ["Google Gen AI SDK for Python", "Python logging", "BigQuery", "Looker Studio", "Cloud Billing"],
+          "lab_task": "Write a tracked_generate wrapper that logs JSON lines with model, feature tag, prompt version, latency and every usage_metadata token field, plus a computed cost from a price table. Run 200 mixed requests, load the logs into BigQuery, query cost per feature and p95 latency, and set a Cloud Billing budget alert at a threshold you choose.",
+          "deliverable": "Wrapper module, a BigQuery table and a cost-per-feature query result",
+          "checks": [["Run 200 requests through the wrapper", "200 log lines exist and each has all token fields", "Line count"], ["Query cost per feature in BigQuery", "Totals per feature add up to the total across all 200 requests", "Query result"], ["Set a budget alert", "The alert appears in Cloud Billing with the chosen threshold", "Console screenshot"]],
+          "objectives": ["Log token usage per request", "Attribute cost to features", "Alert on spend"]
+        },
+        {
+          "topic": "Intermediate Capstone: Grounded Research Assistant with Tools",
+          "subtopics": ["Requirements: research questions with sources and calculations", "Tool set: Google Search grounding, URL context and code execution", "One custom function for an internal data lookup", "Structured JSON report with claims and citations", "Caching, thinking budget and token limits per request", "Evaluation on 20 questions and cost report"],
+          "tools": ["Google Gen AI SDK for Python", "Pydantic", "pytest", "BigQuery", "Google AI Studio", "Git"],
+          "lab_task": "Build a research assistant that answers 20 questions using Google Search grounding, URL context, code execution and a custom lookup_internal_metric function. Return JSON with claims, source URIs and computed values, log usage with the tracking wrapper, and set a thinking budget. Score citation validity and numeric correctness on all 20 questions.",
+          "deliverable": "Repository with assistant, tests, 20-question evaluation and a cost report",
+          "checks": [["Run the 20 questions", "At least 16 answers contain valid source URIs that open and support the claim", "Evaluation sheet"], ["Check computed numbers", "Every code-execution number matches an independent calculation", "Evaluation sheet"], ["Review cost log", "Cost per question and total are reported with the thinking setting used", "Cost report"]],
+          "objectives": ["Combine several Gemini tools in one application", "Validate citations and numeric results", "Report cost and quality for the system"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers and architects who run Gemini workloads in production. Covers the Live API over WebSockets with audio, voice activity detection, tool use, session resumption and ephemeral tokens, agent loops with the Agent Development Kit and MCP tools, evaluation harnesses, prompt-injection defence and Model Armor, Vertex AI IAM, VPC Service Controls, CMEK, data residency and logging controls, quotas, Dynamic Shared Quota and Provisioned Throughput, cost and latency engineering, supervised tuning, BigQuery batch pipelines, Cloud Run deployment, observability, reliability and incident troubleshooting, and an enterprise platform capstone.",
+      "prerequisites": ["Has completed the intermediate Gemini API level or has shipped an application using function calling, grounding, caching or the Batch API", "Operates services on Google Cloud: IAM roles and service accounts, Cloud Run or GKE, Cloud Logging and Cloud Storage", "Reads and writes async Python or TypeScript, and knows WebSocket and HTTP/2 basics"],
+      "outcomes": ["Build low-latency voice and video applications with the Live API, including session resumption and short-lived credentials", "Secure Gemini workloads with IAM, VPC Service Controls, CMEK, data residency choices, input and output screening, and audit logs", "Plan quota, Provisioned Throughput, routing, caching and batch capacity so that cost and latency targets are met and measured", "Operate Gemini services with evaluation gates, observability, fallbacks, migration plans and an incident runbook"],
+      "days": [
+        {
+          "topic": "Live API Sessions over WebSockets",
+          "subtopics": ["What the Live API is: stateful bidirectional streaming for text, audio and video", "client.aio.live.connect and the session context manager", "LiveConnectConfig with response_modalities TEXT or AUDIO", "Sending turns with send_client_content and realtime media with send_realtime_input", "Receiving server messages: server_content, turn_complete and interrupted", "Session limits on duration and concurrent sessions", "Raw WebSocket protocol and the setup message", "Billing by tokens of input and output media"],
+          "tools": ["Google Gen AI SDK for Python", "websockets", "Google AI Studio", "Python asyncio"],
+          "lab_task": "Open a Live API session with response_modalities=['TEXT'], send three turns with send_client_content, print each server_content message until turn_complete, and measure time to first token per turn. Then connect with a raw websockets client by sending the setup message yourself, and compare the messages you receive with those exposed by the SDK.",
+          "deliverable": "Live session script, a raw WebSocket client and a message trace",
+          "checks": [["Send a text turn and read messages", "Messages arrive until server_content.turn_complete is true and the turn text is joined", "Printed trace"], ["Measure 3 turns", "Time to first token is recorded for each turn and is lower than a non-live call, or the reason is explained", "Timing table"], ["Send a message before the setup message on the raw socket", "The server closes the connection with an error and the close code is recorded", "Client log"]],
+          "objectives": ["Open and manage a Live API session", "Read server message types", "Describe the raw WebSocket flow"]
+        },
+        {
+          "topic": "Live API Audio, Voice Activity Detection and Tool Use",
+          "subtopics": ["Audio input as 16-bit PCM at 16 kHz and output at 24 kHz", "Capturing microphone audio in chunks and streaming it", "Playing back audio output without gaps", "Automatic voice activity detection and its sensitivity settings", "Interruptions: client stops playback when interrupted arrives", "Input and output audio transcription", "Function calling inside a live session with tool_call and tool_response", "Proactive and affective audio options where a model supports them"],
+          "tools": ["Google Gen AI SDK for Python", "PyAudio or sounddevice", "ffmpeg", "Google AI Studio"],
+          "lab_task": "Build a voice assistant that streams 16 kHz PCM from the microphone with send_realtime_input, plays 24 kHz PCM replies, enables input and output transcription, and handles interrupted by clearing the playback buffer. Add a get_time tool answered through tool_response and record round-trip latency from the end of speech to the first audio byte for 10 utterances.",
+          "deliverable": "Voice assistant code and a latency table over 10 utterances",
+          "checks": [["Speak a question and wait", "Audio reply plays and the output transcription text matches the speech", "Transcript log"], ["Speak over the reply", "An interrupted message arrives and playback stops within the time you measure", "Event log"], ["Ask 'What time is it?'", "A tool_call for get_time arrives and your tool_response leads to a spoken answer", "Event log"]],
+          "objectives": ["Stream audio in both directions", "Handle interruptions and transcription", "Use tools in live sessions"]
+        },
+        {
+          "topic": "Live API Session Management, Resumption and Ephemeral Tokens",
+          "subtopics": ["Session duration limits and the GoAway message", "Context window compression for long sessions", "Session resumption handles and reconnecting", "Ephemeral tokens with client.auth_tokens.create for browser clients", "Token uses, expire_time and new_session_expire_time", "Locking a token to a model and config", "Server-side proxy as an alternative", "Monitoring dropped sessions"],
+          "tools": ["Google Gen AI SDK for Python", "Google Gen AI SDK for JavaScript", "FastAPI", "Browser DevTools"],
+          "lab_task": "Add session resumption to the voice assistant: store the latest resumption handle, handle GoAway by reconnecting with it, and enable context window compression. Build a FastAPI endpoint that mints an ephemeral token limited to one session and a 30-minute lifetime, and use it from a browser client without exposing the API key.",
+          "deliverable": "Resumable session code, token-minting endpoint and a browser demo",
+          "checks": [["Force a reconnect with the saved handle", "The assistant continues the conversation and remembers earlier turns", "Transcript"], ["Use an ephemeral token", "Browser session starts and the API key is not present in page source or network calls", "DevTools screenshot"], ["Reuse the token after its limit or expiry", "Connection is rejected and the error is recorded", "Error log"]],
+          "objectives": ["Resume Live API sessions", "Issue ephemeral tokens for browsers", "Keep long-lived keys on the server"]
+        },
+        {
+          "topic": "Agent Loops with Gemini and Agent Development Kit",
+          "subtopics": ["Agent loop: plan, call tool, observe, decide", "Agent Development Kit concepts: agents, tools, sessions, runners", "Defining an LlmAgent with instruction and tools", "Multi-agent composition with sub-agents", "Session state and memory services", "Stopping rules: step limits, token budgets, timeouts", "Human approval for risky actions", "Tracing every step for debugging"],
+          "tools": ["Agent Development Kit", "Google Gen AI SDK for Python", "pytest", "Cloud Trace", "Python logging"],
+          "lab_task": "Build an IT-helpdesk agent with Agent Development Kit that has tools lookup_user, reset_password and open_ticket, an instruction file, a step limit of 6 and a human approval gate before reset_password. Run 15 scripted scenarios, log each tool call, and measure task success rate and average steps. Include one scenario that tries to loop forever.",
+          "deliverable": "Agent project, 15 scenarios and a success and step report",
+          "checks": [["Run 15 scenarios", "At least 12 finish with the expected tool calls in the expected order", "Scenario report"], ["Request a password reset", "The agent pauses for approval and does not call reset_password before approval", "Event log"], ["Run the looping scenario", "The run stops at the step limit of 6 with a clear termination reason", "Event log"]],
+          "objectives": ["Design a bounded agent loop", "Require approval for side effects", "Evaluate agents on scripted scenarios"]
+        },
+        {
+          "topic": "Model Context Protocol Tools with the Gen AI SDK",
+          "subtopics": ["What MCP standardises: tools, resources and prompts over a transport", "Running an MCP server over stdio or streamable HTTP", "Passing an MCP ClientSession as a tool to the SDK where supported", "Converting MCP tool schemas to Gemini function declarations", "Authentication and scopes for remote servers", "Tool poisoning and untrusted tool descriptions", "Timeouts, retries and logging of MCP calls", "Choosing between MCP and direct function declarations"],
+          "tools": ["Google Gen AI SDK for Python", "MCP Python SDK", "MCP Inspector", "pytest"],
+          "lab_task": "Write a small MCP server with two tools, query_inventory and create_restock_request, inspect it with MCP Inspector, then connect a client session to Gemini so the model can use both. Run 10 prompts, log every tool call with duration, and add an allow-list that blocks any tool not on it. Compare the result with declaring the same tools directly.",
+          "deliverable": "MCP server, Gemini client, allow-list and a 10-prompt comparison",
+          "checks": [["List tools in MCP Inspector", "Both tools appear with their JSON schemas", "Inspector screenshot"], ["Ask to restock an item", "A create_restock_request call is made and its arguments match the request", "Call log"], ["Add an unlisted tool to the server", "The allow-list blocks it and the block is logged", "Log line"]],
+          "objectives": ["Connect MCP servers to Gemini", "Apply an allow-list to tools", "Compare MCP with direct declarations"]
+        },
+        {
+          "topic": "Long-Context Engineering for Large Document Sets",
+          "subtopics": ["Context window size versus effective recall on your own data", "Needle-in-a-haystack tests and multi-fact retrieval tests", "Ordering: instructions, documents, then the question", "Document tagging with IDs so answers can cite sources", "Combining caching with long context for repeated questions", "Splitting by section and merging answers when quality drops", "Long-context versus retrieval on accuracy, latency and cost", "Monitoring prompt growth over time"],
+          "tools": ["Google Gen AI SDK for Python", "client.caches", "client.models.count_tokens", "pytest", "Google Sheets"],
+          "lab_task": "Build a 300,000-token corpus of tagged documents, insert 20 known facts at different depths, and ask for all of them in one request. Measure recall by depth, then repeat with a cached prefix, and with retrieval of 10 chunks. Compare recall, latency and cost for the three designs and state the break-even question volume.",
+          "deliverable": "Test corpus, recall-by-depth table and a three-design comparison",
+          "checks": [["Insert 20 facts and ask for all of them", "A recall count out of 20 is reported by depth band", "Recall table"], ["Run with an explicit cache", "Cached tokens are billed at the cached rate and latency is lower on repeat questions", "Usage log"], ["Run with retrieval of 10 chunks", "Recall, latency and cost are listed beside the long-context run", "Comparison table"]],
+          "objectives": ["Measure long-context recall on your own data", "Combine caching and long context", "Choose between long context and retrieval"]
+        },
+        {
+          "topic": "Evaluation Harnesses and Regression Gates for Gemini Applications",
+          "subtopics": ["Golden sets, held-out sets and how they drift", "Deterministic checks, rubric graders and model judges", "Calibrating a Gemini judge against human labels", "Pairwise comparisons and position bias", "Metrics: pass rate, faithfulness, groundedness, tool-call accuracy", "Gen AI evaluation service on Vertex AI", "CI gates that fail a build on regression", "Cost and variance of repeated runs"],
+          "tools": ["pytest", "Google Gen AI SDK for Python", "Vertex AI Gen AI evaluation", "GitHub Actions", "BigQuery"],
+          "lab_task": "Create a 100-case evaluation set for the research assistant, build a judge prompt with a 1 to 5 rubric, calibrate it against 30 human-labelled answers by computing agreement, and run it as a GitHub Actions job that fails when the pass rate falls more than 3 points below the saved baseline. Test with a deliberately degraded prompt.",
+          "deliverable": "Evaluation set, judge, CI workflow and a calibration report",
+          "checks": [["Compare the judge with 30 human labels", "Agreement is reported as a percentage and a threshold is chosen", "Calibration report"], ["Run the CI job on the baseline", "Job passes and stores the pass rate artefact", "Actions run"], ["Run it with a degraded prompt", "Job fails because the pass rate drops more than 3 points", "Actions run"]],
+          "objectives": ["Build evaluation sets and judges", "Calibrate model judges", "Gate releases on evaluation results"]
+        },
+        {
+          "topic": "Safety Architecture: Prompt Injection, Output Filtering and Model Armor",
+          "subtopics": ["Threats: direct and indirect prompt injection, data exfiltration, jailbreaks", "Separating instructions from untrusted data", "Least-privilege tools and confirmation for side effects", "Input and output screening with Model Armor or an equivalent", "Safety settings and system instructions as one layer, not the whole defence", "PII detection and redaction before and after model calls", "Red-team test sets and attack success rate", "Incident logging and user-facing refusals"],
+          "tools": ["Model Armor", "Sensitive Data Protection", "Google Gen AI SDK for Python", "pytest", "Cloud Logging"],
+          "lab_task": "Create a red-team set of 30 prompts covering direct injection, a poisoned document and an exfiltration request, and measure the attack success rate against your assistant. Add screening with Model Armor or a Sensitive Data Protection redaction step before and after the call, retest, and report the rate before and after together with false positives on 30 benign prompts.",
+          "deliverable": "Red-team set, defences and a before and after attack success table",
+          "checks": [["Run 30 attack prompts without defences", "An attack success count is recorded as a baseline", "Results table"], ["Run them with screening enabled", "Success count falls and the remaining failures are analysed", "Results table"], ["Run 30 benign prompts", "False blocks are counted and are no more than 2 of 30, or the threshold is tuned", "Results table"]],
+          "objectives": ["Threat-model a Gemini application", "Layer screening and least privilege", "Measure attack success and false positives"]
+        },
+        {
+          "topic": "Vertex AI Enterprise Security: IAM, VPC Service Controls and CMEK",
+          "subtopics": ["Predefined and custom IAM roles for Vertex AI and separation of duties", "Service account design per workload", "Private Service Connect and private access to Google APIs", "VPC Service Controls perimeters and egress rules", "Customer-managed encryption keys in Cloud KMS and which resources support them", "Organisation policies that restrict locations and key use", "Secrets and credentials management", "Access reviews and audit evidence"],
+          "tools": ["gcloud CLI", "IAM", "VPC Service Controls", "Cloud KMS", "Terraform", "Cloud Audit Logs"],
+          "lab_task": "Using Terraform, create a perimeter that includes aiplatform.googleapis.com, a service account limited to roles/aiplatform.user, and a CMEK key in Cloud KMS for supported resources. Call Gemini from inside the perimeter, then from a project outside it, and confirm the second call is denied. Export the policy as evidence.",
+          "deliverable": "Terraform module, test results and a security evidence document",
+          "checks": [["Call Gemini from a workload inside the perimeter", "Request succeeds with a 200 response", "Terminal output"], ["Call from outside the perimeter", "Request is denied with a VPC Service Controls violation error and a violation unique ID", "Error output"], ["Check the audit log", "A denied entry with the caller identity and the service name is present", "Log entry"]],
+          "objectives": ["Design least-privilege access to Vertex AI", "Apply perimeters and customer-managed keys", "Collect audit evidence"]
+        },
+        {
+          "topic": "Data Governance, Residency and Logging Controls",
+          "subtopics": ["Data-use terms: free tier, paid Developer API and Vertex AI differences", "Zero data retention and abuse-monitoring retention terms to verify with Google", "Regional endpoints versus global endpoint and data residency", "Request and response logging to BigQuery and its privacy risk", "Redacting PII before logging", "Retention policies and deletion workflows", "Data processing agreements and compliance documentation", "Records of what model saw which data"],
+          "tools": ["Cloud Logging", "BigQuery", "Sensitive Data Protection", "Cloud Storage", "Terraform"],
+          "lab_task": "Write a data-flow diagram for an assistant that processes customer emails, mark every place where data is stored, logged or sent to a model, and choose region and logging settings. Enable request-response logging to a BigQuery table with a 30-day partition expiry, add a redaction step for email addresses, and prove that no raw address appears in the table.",
+          "deliverable": "Data-flow diagram, logging configuration and a redaction proof query",
+          "checks": [["Query the logging table for email addresses", "The query for an email pattern returns 0 rows", "Query result"], ["Check the partition expiration", "The table shows a 30-day expiration", "BigQuery table details"], ["Call the regional endpoint", "Request metadata shows the chosen location and not the global endpoint", "Client config and log"]],
+          "objectives": ["Map data flows through a Gemini application", "Configure region and retention controls", "Prove redaction before logging"]
+        },
+        {
+          "topic": "Quotas, Dynamic Shared Quota and Provisioned Throughput",
+          "subtopics": ["Quota types: requests, tokens and concurrent Live sessions", "Dynamic Shared Quota on Vertex AI and its behaviour under load", "Quota increase requests and lead times", "Provisioned Throughput: generative AI scale units, commitments and burn-down rates", "Throttling between provisioned and pay-as-you-go traffic", "Sizing from peak tokens per second and output multipliers", "Multi-region and multi-project spreading", "Capacity planning reviews"],
+          "tools": ["Google Cloud console", "Cloud Monitoring", "Python", "Google Sheets"],
+          "lab_task": "Measure your workload's peak input and output tokens per second from logs, convert them to the burn-down units for the chosen model from the current documentation, and size a Provisioned Throughput order against pay-as-you-go. Load-test with a script that raises request rate until the first 429, and write a recommendation with the break-even utilisation.",
+          "deliverable": "Capacity model, load-test results and a purchase recommendation",
+          "checks": [["Compute peak tokens per second from logs", "The number is reproducible by a script that reads the log file", "Script output"], ["Load test to the first 429", "The request rate at which 429 appears is recorded", "Load-test log"], ["Compare provisioned and on-demand cost", "A break-even utilisation percentage is shown with assumptions", "Capacity model"]],
+          "objectives": ["Size quotas and Provisioned Throughput", "Load-test to find limits", "Justify a capacity purchase"]
+        },
+        {
+          "topic": "Cost Optimisation Architecture: Routing, Caching and Batch",
+          "subtopics": ["Cost model per feature: input, output, thinking, cached and tool tokens", "Model routing: Flash-Lite for easy requests, Flash and Pro for hard ones", "Classifier-based and confidence-based routing", "Caching for repeated context and semantic result caches", "Batch for non-urgent work", "Output length control and thinking limits", "Prompt compression and removing redundant context", "Measuring savings against quality loss"],
+          "tools": ["Google Gen AI SDK for Python", "BigQuery", "Looker Studio", "pytest"],
+          "lab_task": "Take 1,000 logged requests, label difficulty, and build a router that sends easy ones to Flash-Lite, medium to Flash and hard to Pro. Add a semantic cache with an embedding similarity threshold and move the nightly reports to the Batch API. Compare total cost and golden-set pass rate before and after, and report savings with the quality loss.",
+          "deliverable": "Router and cache code and a before and after cost and quality report",
+          "checks": [["Replay 1,000 logged requests through the router", "Total cost is lower than the all-Pro baseline and the percentage is shown", "Cost report"], ["Run the golden set through the router", "Pass rate is within 3 points of the all-Pro baseline or the loss is explained", "Evaluation table"], ["Send a repeated query", "It is served from the semantic cache with 0 model tokens billed", "Log line"]],
+          "objectives": ["Route requests across tiers", "Combine caching and batch for savings", "Quantify cost versus quality"]
+        },
+        {
+          "topic": "Latency Engineering: Streaming, Time to First Token and Thinking Trade-offs",
+          "subtopics": ["Latency components: network, queue, prefill, thinking, decoding", "Time to first token versus time to last token", "Streaming and early rendering", "Smaller prompts, caching and tier choice to cut prefill time", "Thinking budget and its effect on latency", "Parallelising independent calls", "Regional placement and connection reuse", "Latency service-level objectives and percentiles"],
+          "tools": ["Google Gen AI SDK for Python", "Locust or k6", "Cloud Monitoring", "matplotlib"],
+          "lab_task": "Instrument your assistant to record time to first token and total time. Load-test it at 5 concurrent users with Locust or k6, then optimise in four steps: shorter prompt, cached context, lower thinking budget and a Flash-Lite call for the first sentence. Plot p50 and p95 for each step and set an SLO with justification.",
+          "deliverable": "Latency report with four optimisation steps and a plot of p50 and p95",
+          "checks": [["Measure baseline p50 and p95", "Both percentiles are recorded over at least 200 requests", "Load-test report"], ["Apply the optimisations in turn", "p95 is lower after at least two of the four steps and each delta is shown", "Plot"], ["Check answer quality after optimising", "Golden-set pass rate stays within 3 points of the baseline", "Evaluation table"]],
+          "objectives": ["Break latency into measurable parts", "Apply targeted optimisations", "Set latency objectives"]
+        },
+        {
+          "topic": "Supervised Fine-Tuning and Model Adaptation on Vertex AI",
+          "subtopics": ["When to tune: consistent format or style that prompting cannot reach", "Prompting, few-shot, RAG and tuning compared", "Preparing JSONL tuning data in the required conversation format", "Training and validation splits and dataset quality checks", "Creating a supervised tuning job with client.tunings.tune", "Hyperparameters: epochs, learning rate multiplier and adapter size", "Evaluating the tuned model against the base model", "Deployment, cost and re-tuning after base model changes"],
+          "tools": ["Vertex AI", "Google Gen AI SDK for Python", "Cloud Storage", "BigQuery", "pytest"],
+          "lab_task": "Prepare 500 training and 100 validation examples in JSONL for a support-reply style task, validate them with a script, upload to Cloud Storage and start a supervised tuning job through client.tunings.tune on a model that supports tuning. When finished, compare the tuned model with the base model plus a few-shot prompt on 100 held-out cases for pass rate and cost.",
+          "deliverable": "Dataset validator, tuning job record and a three-way comparison table",
+          "checks": [["Run the dataset validator", "It reports 0 malformed rows out of 600 or lists each row to fix", "Validator output"], ["Poll the tuning job", "Job reaches the succeeded state and a tuned model endpoint is shown", "Job details"], ["Evaluate on 100 held-out cases", "Pass rate of tuned, base and few-shot are all listed with cost per request", "Comparison table"]],
+          "objectives": ["Decide when tuning is justified", "Prepare and validate tuning data", "Evaluate a tuned model against baselines"]
+        },
+        {
+          "topic": "Large-Scale Batch Pipelines with BigQuery and Cloud Storage",
+          "subtopics": ["Vertex AI batch prediction with Cloud Storage and BigQuery sources", "Calling Gemini from BigQuery with remote models and generative AI functions", "Row-level prompts built in SQL", "Output parsing into typed columns", "Partitioned processing, checkpoints and idempotent reruns", "Cost estimation from table size", "Quality sampling and human review queues", "Scheduling with Cloud Composer or Workflows"],
+          "tools": ["BigQuery", "Vertex AI batch prediction", "Cloud Storage", "Cloud Composer", "Cloud Workflows"],
+          "lab_task": "Classify 100,000 product reviews stored in BigQuery. First estimate tokens and cost from a 500-row sample, then run a batch prediction job that reads from BigQuery and writes results to an output table. Parse the output with SQL, sample 200 rows for human review, and rerun only the failed partitions to prove the pipeline is idempotent.",
+          "deliverable": "Pipeline definition, output table and a cost and quality report",
+          "checks": [["Process the sample of 500 rows", "Token and cost estimates for 100,000 rows are computed from the sample", "Estimate sheet"], ["Run the full job and count rows", "Output row count equals 100,000 or each missing row is listed", "SQL result"], ["Rerun failed partitions", "Row counts are unchanged and no duplicate IDs appear in the output", "SQL result"]],
+          "objectives": ["Design large offline Gemini pipelines", "Estimate cost from samples", "Make reruns idempotent"]
+        },
+        {
+          "topic": "Production Deployment on Cloud Run with Secret Manager",
+          "subtopics": ["Container image for a Gemini service and a minimal base image", "Cloud Run service account with roles/aiplatform.user", "Secret Manager for API keys when using the Developer API", "Concurrency, CPU allocation and min instances for streaming", "Request timeouts and long streams", "Authenticated invocation and API Gateway or IAP in front", "Blue-green and canary revisions with traffic splitting", "Cloud Build and Artifact Registry pipeline"],
+          "tools": ["Cloud Run", "Secret Manager", "Cloud Build", "Artifact Registry", "gcloud CLI", "Docker"],
+          "lab_task": "Containerise the research assistant, deploy it to Cloud Run with gcloud run deploy using a dedicated service account, mount a secret from Secret Manager, set a request timeout suited to streaming and require authenticated invocation. Release a second revision to 10% of traffic, compare error rate and latency to the first, then roll back.",
+          "deliverable": "Dockerfile, deployment script and a canary comparison",
+          "checks": [["Call the service without credentials", "Response is 401 or 403 and the call does not reach the model", "curl output"], ["Call it with an identity token", "Streamed answer is returned with HTTP 200", "curl output"], ["Send 10% of traffic to a new revision", "gcloud run services describe shows a 90 and 10 traffic split", "Command output"]],
+          "objectives": ["Deploy a Gemini service on Cloud Run", "Handle secrets and identity correctly", "Roll out and roll back safely"]
+        },
+        {
+          "topic": "Observability: Cloud Logging, Monitoring and Tracing for Gemini Calls",
+          "subtopics": ["Structured logs with request ID, model, feature and token counts", "OpenTelemetry traces across your service and the Gemini call", "Custom metrics: tokens per minute, error rate by code, p95 latency, cost per hour", "Log-based metrics for 429 and safety blocks", "Alert policies and notification channels", "Dashboards for product and cost owners", "Sampling prompts and responses for quality review while respecting privacy", "Linking evaluation scores to production traffic"],
+          "tools": ["Cloud Logging", "Cloud Monitoring", "Cloud Trace", "OpenTelemetry", "Looker Studio"],
+          "lab_task": "Instrument the service with OpenTelemetry spans around each Gemini call and structured logs that include token counts. Create log-based metrics for 429 and safety blocks, a dashboard of tokens per minute and p95 latency, and alert policies for error rate above 2% and cost per hour above a limit. Trigger both alerts with a load script.",
+          "deliverable": "Instrumented service, dashboard JSON and two alert policies with test evidence",
+          "checks": [["View a trace for one request", "The trace shows a span for the Gemini call with duration and model attribute", "Trace screenshot"], ["Generate 429 responses on purpose", "The log-based metric increases and the error-rate alert fires", "Alert incident"], ["Raise cost per hour above the limit", "The cost alert fires and notifies the chosen channel", "Notification"]],
+          "objectives": ["Instrument Gemini calls end to end", "Build metrics and alerts for errors and cost", "Trace slow requests"]
+        },
+        {
+          "topic": "Reliability Engineering: Fallbacks, Circuit Breakers and Model Migration",
+          "subtopics": ["Failure modes: 429, 503, slow responses, safety blocks, invalid JSON", "Timeouts, retries and budgets of total attempts", "Fallback to another tier, region or backend", "Circuit breakers and bulkheads per feature", "Graceful degradation: cached answers or a clear message", "Model deprecation notices and migration windows", "Shadow traffic and A/B comparison before switching models", "Rollback criteria and runbooks"],
+          "tools": ["Google Gen AI SDK for Python", "pybreaker or a custom breaker", "pytest", "Cloud Monitoring"],
+          "lab_task": "Wrap your Gemini calls in a policy with a 20-second deadline, 2 retries, a circuit breaker that opens after 5 failures in 60 seconds and a fallback to a Flash-Lite model. Inject 503 and slow responses with a fault proxy, verify the behaviour, then shadow a new model version on 5% of traffic and compare quality and latency before a cutover decision.",
+          "deliverable": "Resilience policy, fault-injection tests and a shadow comparison report",
+          "checks": [["Inject 503 errors for 70 seconds", "Circuit opens after 5 failures and fallback responses are served", "Test log"], ["Stop the faults", "Circuit closes after the cool-down and primary calls resume", "Test log"], ["Shadow the new model on 5% of traffic", "Quality and latency differences are listed with a go or no-go decision", "Comparison report"]],
+          "objectives": ["Build resilient call policies", "Test failure handling with injected faults", "Migrate models with shadow traffic"]
+        },
+        {
+          "topic": "Troubleshooting Gemini Production Incidents",
+          "subtopics": ["Triage method: scope, timeline, recent changes, error classes", "Reading error codes with request IDs and details", "429 incidents: quota, burst, noisy neighbour project", "Latency incidents: prompt growth, thinking tokens, regional issues", "Quality incidents: prompt change, model alias change, data drift", "Safety block spikes and false positives", "Cost incidents: runaway agent loops and cache misses", "Blameless post-incident reviews"],
+          "tools": ["Cloud Logging", "Cloud Monitoring", "BigQuery", "Google Cloud Status Dashboard", "gcloud CLI"],
+          "lab_task": "Work through four injected incidents in a lab environment: a 429 spike caused by a retry storm, a latency rise caused by a larger system prompt, a cost jump caused by an agent loop and a quality drop after a model alias moved. For each, write the query or metric that finds the cause, the fix and a short post-incident review.",
+          "deliverable": "Four incident write-ups with queries, fixes and review notes",
+          "checks": [["Diagnose the 429 spike", "Logs show request volume and retry counts that prove a retry storm, with a count", "Log query"], ["Diagnose the cost jump", "Per-request token logs show the looping feature and its call count", "BigQuery result"], ["Diagnose the quality drop", "Evaluation score before and after the alias change differ by a recorded amount", "Evaluation report"]],
+          "objectives": ["Triage Gemini incidents systematically", "Find causes with logs and metrics", "Write blameless reviews"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Gemini Platform Design",
+          "subtopics": ["Requirements: three business use cases and their risk levels", "Reference architecture: gateway, routing, tools, data and logging", "Security, residency and compliance controls", "Capacity, cost and latency plan with numbers", "Evaluation, observability and release process", "Rollout plan, risks and decision record"],
+          "tools": ["Vertex AI", "Google Gen AI SDK for Python", "Terraform", "Cloud Run", "Cloud Monitoring", "BigQuery"],
+          "lab_task": "Design and prototype an internal Gemini gateway on Cloud Run that offers routing across tiers, screening, request logging to BigQuery, per-team quotas and cost reports. Document the architecture, IAM and perimeter design, capacity and cost model for 3 use cases, and the evaluation gates. Demonstrate 2 use cases end to end and present the decision record.",
+          "deliverable": "Architecture document, working gateway prototype, evaluation results and a decision record",
+          "checks": [["Call the gateway as two different teams", "Logs and cost reports attribute usage to each team and exceed no assigned quota", "BigQuery report"], ["Run the evaluation gate on both use cases", "Both meet agreed pass-rate thresholds or the gap is documented", "Evaluation report"], ["Review the architecture document", "It includes IAM, perimeter, residency, capacity and rollback sections with numbers", "Document"]],
+          "objectives": ["Design an enterprise Gemini platform", "Prototype key controls and measure them", "Defend trade-offs in a decision record"]
+        }
+      ]
+    }
+  }
+}

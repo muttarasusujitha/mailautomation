@@ -45,7 +45,7 @@ def test_public_fetch_saves_separately_without_paid_search_or_email(mode, collec
         table.find_one.return_value = None
     row = [{'url': url, 'title': content, 'content': content}]
     with patch('app.clients.public_discovery.search_public', AsyncMock(return_value=row)), patch('app.clients.public_search.search_public_many', AsyncMock(return_value=(row, 1))), patch('app.routes.linkedin_leads._plain_tavily_search', AsyncMock()) as paid, patch('app.routes.linkedin_leads._auto_send_client_mail', AsyncMock()) as mail:
-        result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(domain='Python', mode=mode), db))
+        result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(domain='Python', mode=mode, search_provider='public'), db))
     assert result['saved_count'] == 1
     if mode == 'client':
         db[collection].update_one.assert_awaited_once()
@@ -81,6 +81,28 @@ def test_a_timeout_on_the_next_page_keeps_profiles_already_read():
     assert [row['url'] for row in found] == ['https://www.linkedin.com/in/ravi']
 
 
+def test_a_challenge_page_still_reads_the_other_public_results():
+    bing = (
+        '<li class="b_algo"><h2><a href="https://www.linkedin.com/in/ada">Ada</a></h2>'
+        '<p>Soft skills corporate trainer</p></li>'
+    ).encode()
+    sequence = [
+        _Page(200, b'home'),
+        _Page(202, b'anomaly-modal'),
+        _Page(200, bing),
+        _Page(200, b'<html><body>none</body></html>'),
+    ]
+
+    async def fetch(method, url, **kwargs):
+        page = sequence.pop(0)
+        return page, False
+
+    from app.clients.public_search import search_public
+    with patch('app.clients.public_search._fetch', side_effect=fetch):
+        found = asyncio.run(search_public('soft skills corporate trainer', 5))
+    assert [row['url'] for row in found] == ['https://www.linkedin.com/in/ada']
+
+
 def test_repeated_timeouts_stop_without_raising():
     calls = {'n': 0}
 
@@ -92,4 +114,4 @@ def test_repeated_timeouts_stop_without_raising():
         found, attempts = asyncio.run(search_public_many(['q1', 'q2', 'q3', 'q4'], 50))
     assert found == []
     assert attempts == 2
-    assert calls['n'] == 3
+    assert calls['n'] == 4

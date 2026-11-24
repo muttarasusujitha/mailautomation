@@ -56,7 +56,9 @@ export default function LinkedInCallback({ onLogin }) {
         })
 
         acceptSession(response.data)
-        if (onLogin) await onLogin()
+        const account = onLogin ? await onLogin() : response.data.user
+        const role = (account || response.data.user)?.role
+        const destination = role === 'trainer' ? '/trainer-portal' : role === 'client' ? '/client-portal' : '/dashboard'
 
         setStatus({
           type: 'success',
@@ -64,7 +66,7 @@ export default function LinkedInCallback({ onLogin }) {
           message: 'You have been signed in successfully. Redirecting...',
         })
 
-        setTimeout(() => navigate('/dashboard', { replace: true }), 1200)
+        setTimeout(() => navigate(destination, { replace: true }), 1200)
       } catch (e) {
         setStatus({
           type: 'error',

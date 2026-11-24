@@ -1,0 +1,573 @@
+{
+  "domain": "Full Stack",
+  "name": "Full Stack Web Development (JavaScript)",
+  "category": "Web and Full Stack Development",
+  "icon": "layers",
+  "aliases": ["Full Stack Development", "Full Stack Developer", "Full Stack Web Development", "JavaScript Full Stack", "Full Stack JavaScript", "MERN Full Stack", "Web Development Bootcamp"],
+  "certifications": ["No vendor certification; assessed by capstone project", "OpenJS Node.js Application Developer (JSNAD)", "Meta Front-End Developer Professional Certificate", "MongoDB Associate Developer"],
+  "tools": ["HTML and CSS", "JavaScript and TypeScript", "React", "Node.js 22 LTS", "Express", "MongoDB", "PostgreSQL", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new developers and career changers. Covers how the web works, HTML, CSS and JavaScript, Git, building REST APIs with Node.js and Express, storing data in MongoDB and PostgreSQL, React front ends, authentication, connecting front end to back end and deploying a full application.",
+      "prerequisites": ["Comfortable using a computer and the internet", "Basic logical thinking; no programming experience required", "Can install software on their machine"],
+      "outcomes": ["Build responsive web pages with HTML, CSS and JavaScript", "Build REST APIs with Node.js, Express and a database", "Build React front ends that call those APIs", "Add authentication and deploy a complete web application"],
+      "days": [
+        {
+          "topic": "How the Web Works and Developer Setup",
+          "subtopics": ["Clients, servers and browsers", "HTTP requests and responses", "URLs, DNS and hosting", "Front end, back end and databases", "Installing VS Code, Node.js and Git", "Browser developer tools", "Using the terminal", "Folder structure for web projects", "Reading documentation", "Course project overview"],
+          "tools": ["VS Code", "Node.js 22 LTS", "Git", "Chrome DevTools"],
+          "lab_task": "Set up the development environment, inspect the requests a real website makes in DevTools, and draw how a login request travels from browser to database and back.",
+          "deliverable": "Working environment and request flow diagram",
+          "checks": [["Run node --version and git --version", "Both print versions", "Terminal output"], ["Find a request in DevTools", "Method, status and response shown", "Screenshot"], ["Review the diagram", "Browser, server and database steps labelled", "Diagram"]],
+          "objectives": ["Explain how the web works", "Set up development tools", "Read network requests"]
+        },
+        {
+          "topic": "HTML Structure and Semantic Markup",
+          "subtopics": ["HTML documents", "Headings, paragraphs and lists", "Links and images", "Semantic elements: header, nav, main, footer", "Tables", "Forms and inputs", "Accessibility basics: alt text and labels", "Validating HTML"],
+          "tools": ["VS Code", "W3C validator"],
+          "lab_task": "Build a multi-page site for a local business with semantic HTML, a contact form with labels and a product table, and validate every page.",
+          "deliverable": "HTML pages and validator results",
+          "checks": [["Validate the pages", "No errors", "Validator output"], ["Check images", "Every image has alt text", "Code review"], ["Use the form with the keyboard", "Every field reachable and labelled", "Screen recording"]],
+          "objectives": ["Write semantic HTML", "Build forms", "Make pages accessible"]
+        },
+        {
+          "topic": "CSS Styling and Layout with Flexbox and Grid",
+          "subtopics": ["Selectors and specificity", "Box model", "Colours, fonts and units", "Flexbox", "CSS Grid", "Responsive design and media queries", "CSS variables", "Mobile-first design"],
+          "tools": ["VS Code", "Chrome DevTools"],
+          "lab_task": "Style the business site with a responsive navigation bar, a Flexbox product grid that becomes one column on phones and a Grid page layout.",
+          "deliverable": "Styled responsive site",
+          "checks": [["View at 375 pixels wide", "Layout fits with no horizontal scroll", "Screenshot"], ["View at 1440 pixels wide", "Multi-column layout", "Screenshot"], ["Change a CSS variable", "Theme colour changes everywhere", "Screenshot"]],
+          "objectives": ["Style pages with CSS", "Lay out pages with Flexbox and Grid", "Build responsive designs"]
+        },
+        {
+          "topic": "JavaScript Fundamentals",
+          "subtopics": ["Variables and types", "Operators", "Conditions", "Loops", "Functions", "Arrays and objects", "Strings and template literals", "Debugging with the console", "Common errors", "Strict equality"],
+          "tools": ["Chrome DevTools", "Node.js 22 LTS"],
+          "lab_task": "Write JavaScript functions to calculate cart totals with discounts and tax, validate an email, and filter a list of products by price, testing each in the console.",
+          "deliverable": "JavaScript file with tested functions",
+          "checks": [["Calculate a total with a 10 percent discount", "Correct value", "Console output"], ["Validate five emails", "Valid and invalid sorted correctly", "Console output"], ["Filter products under 500", "Correct products returned", "Console output"]],
+          "objectives": ["Write JavaScript", "Use functions, arrays and objects", "Debug in the console"]
+        },
+        {
+          "topic": "The DOM and Browser Events",
+          "subtopics": ["Selecting elements", "Changing text, attributes and classes", "Creating and removing elements", "Event listeners", "Form handling in JavaScript", "Event delegation", "localStorage", "Building small interactive features"],
+          "tools": ["Chrome DevTools", "VS Code"],
+          "lab_task": "Build an interactive to-do list with add, complete and delete, filtering by status and saving to localStorage, using plain JavaScript and the DOM.",
+          "deliverable": "To-do app",
+          "checks": [["Reload the page", "Tasks restored from localStorage", "Screenshot"], ["Filter by completed", "Only completed tasks shown", "Screenshot"], ["Delete through event delegation", "One listener handles all delete buttons", "Code review"]],
+          "objectives": ["Change pages with the DOM", "Handle events", "Store data in the browser"]
+        },
+        {
+          "topic": "Asynchronous JavaScript and Calling APIs",
+          "subtopics": ["The event loop in simple terms", "Callbacks", "Promises", "async and await", "fetch", "JSON", "Handling errors", "Loading states"],
+          "tools": ["Chrome DevTools", "Public test API"],
+          "lab_task": "Build a weather page that calls a public API with fetch and async/await, shows loading and error states and displays a five-day forecast.",
+          "deliverable": "Weather page",
+          "checks": [["Search a city", "Forecast displayed", "Screenshot"], ["Search a city that does not exist", "Error message shown", "Screenshot"], ["Throttle the network", "Loading indicator shown", "Screen recording"]],
+          "objectives": ["Write asynchronous JavaScript", "Call APIs with fetch", "Handle loading and errors"]
+        },
+        {
+          "topic": "Git and GitHub for Developers",
+          "subtopics": ["Repositories and commits", "Branches", "Merging", "GitHub remotes", "Pull requests", "Resolving conflicts", ".gitignore", "Good commit messages"],
+          "tools": ["Git", "GitHub"],
+          "lab_task": "Put the projects on GitHub, build a feature on a branch, open a pull request, resolve a merge conflict and merge it.",
+          "deliverable": "GitHub repositories and merged pull request",
+          "checks": [["View the history", "Clear commits on main and the feature branch", "GitHub screenshot"], ["Resolve the conflict", "Merge completed with both changes kept", "Pull request"], ["Check .gitignore", "node_modules not committed", "Repository"]],
+          "objectives": ["Use Git", "Collaborate on GitHub", "Resolve conflicts"]
+        },
+        {
+          "topic": "Node.js on the Server",
+          "subtopics": ["What Node.js is", "Running JavaScript outside the browser", "Modules with import and export", "npm and package.json", "Reading and writing files", "Environment variables", "A basic HTTP server", "Debugging Node.js"],
+          "tools": ["Node.js 22 LTS", "npm", "VS Code debugger"],
+          "lab_task": "Write a Node.js script that reads a CSV of products and writes JSON, then a basic HTTP server that returns the products, with settings from environment variables.",
+          "deliverable": "Script, server and run output",
+          "checks": [["Run the script", "JSON file created with all products", "Terminal output and file"], ["Call the server with curl", "Products returned as JSON", "curl output"], ["Change the port with an environment variable", "Server listens on the new port", "Terminal output"]],
+          "objectives": ["Run JavaScript on the server", "Use npm packages", "Build a basic server"]
+        },
+        {
+          "topic": "REST APIs with Express",
+          "subtopics": ["REST concepts", "Express routes", "Route parameters and query strings", "Request bodies and JSON", "Status codes", "Middleware", "Error handling middleware", "Testing APIs with Postman"],
+          "tools": ["Express", "Postman", "Node.js 22 LTS"],
+          "lab_task": "Build a products REST API with Express supporting list, get, create, update and delete, with validation, correct status codes and central error handling.",
+          "deliverable": "Express API and Postman collection",
+          "checks": [["Create a product without a name", "400 with an error message", "Postman result"], ["Get a product that does not exist", "404", "Postman result"], ["Run the Postman collection", "All requests pass", "Postman runner"]],
+          "objectives": ["Build REST APIs", "Use Express middleware", "Return correct status codes"]
+        },
+        {
+          "topic": "MongoDB and Mongoose",
+          "subtopics": ["Document databases", "MongoDB Atlas or local MongoDB", "Collections and documents", "CRUD operations", "Mongoose schemas and models", "Validation", "Relationships with references", "Indexes in brief"],
+          "tools": ["MongoDB", "Mongoose", "MongoDB Compass"],
+          "lab_task": "Store the products API data in MongoDB with Mongoose schemas, validation and a reference from orders to products, and query them in Compass.",
+          "deliverable": "API with MongoDB and Compass screenshots",
+          "checks": [["Create a product with a negative price", "Rejected by schema validation", "Postman result"], ["Create an order and populate products", "Order returned with product details", "Postman result"], ["Query in Compass", "Documents visible", "Compass screenshot"]],
+          "objectives": ["Use MongoDB", "Model data with Mongoose", "Validate data"]
+        },
+        {
+          "topic": "SQL Databases with PostgreSQL",
+          "subtopics": ["Relational databases", "Tables, keys and relationships", "SELECT, INSERT, UPDATE and DELETE", "Joins", "Using PostgreSQL from Node.js", "An ORM: Prisma", "Migrations", "MongoDB or PostgreSQL: choosing"],
+          "tools": ["PostgreSQL", "Prisma", "Node.js 22 LTS"],
+          "lab_task": "Build the same orders API on PostgreSQL with Prisma, create migrations, join orders with customers and compare the design with the MongoDB version.",
+          "deliverable": "Prisma schema, migrations, API and comparison",
+          "checks": [["Run migrations", "Tables created", "Migration output"], ["List orders with customer names", "Correct joined data", "API response"], ["Compare with MongoDB", "Trade-offs written", "Comparison"]],
+          "objectives": ["Use SQL databases", "Use Prisma", "Choose a database"]
+        },
+        {
+          "topic": "React for Full Stack Developers",
+          "subtopics": ["Components and JSX", "Props", "State", "Events", "Lists and keys", "Effects and fetching data", "Forms", "Project set-up with Vite"],
+          "tools": ["React", "Vite"],
+          "lab_task": "Build a React front end for the shop that lists products from the API, shows details and lets users add items to a cart.",
+          "deliverable": "React front end",
+          "checks": [["Load the product list", "Products come from the API", "Screenshot"], ["Add items to the cart", "Cart count and total update", "Screenshot"], ["Stop the API", "Error message shown", "Screenshot"]],
+          "objectives": ["Build React front ends", "Manage state", "Fetch data from your API"]
+        },
+        {
+          "topic": "Routing and Forms in React",
+          "subtopics": ["React Router", "Route parameters", "Layouts", "Controlled forms", "Validation", "Submitting to the API", "Showing server errors", "Protected pages in brief"],
+          "tools": ["React Router", "React"],
+          "lab_task": "Add routes for products, product detail, cart and checkout, and a checkout form that posts an order to the API and shows validation errors.",
+          "deliverable": "Routed React app with checkout",
+          "checks": [["Open a product URL directly", "Correct product shown", "Screenshot"], ["Submit checkout with missing fields", "Errors shown next to fields", "Screenshot"], ["Place an order", "Order saved in the database", "Database query"]],
+          "objectives": ["Add routing", "Build forms that call APIs", "Show server errors"]
+        },
+        {
+          "topic": "Connecting Front End and Back End",
+          "subtopics": ["CORS", "Environment variables for API URLs", "Proxying in development", "Handling loading and errors everywhere", "Sharing validation rules", "API clients", "Pagination", "File structure for full stack projects"],
+          "tools": ["React", "Express", "Vite"],
+          "lab_task": "Connect the React app and the Express API with proper CORS, a typed API client, pagination for products and consistent error handling.",
+          "deliverable": "Connected full stack app",
+          "checks": [["Call the API from another origin not allowed", "Blocked by CORS", "Browser console"], ["Page through products", "Correct pages returned", "Screenshot"], ["Return a server error", "Same error display on every page", "Screenshot"]],
+          "objectives": ["Connect front end and back end", "Configure CORS", "Handle errors consistently"]
+        },
+        {
+          "topic": "Authentication with Sessions and JWT",
+          "subtopics": ["Authentication versus authorisation", "Password hashing with bcrypt", "Sign-up and login", "JWT access tokens", "HTTP-only cookies", "Protecting API routes", "Protecting React routes", "Logout"],
+          "tools": ["bcrypt", "jsonwebtoken", "Express", "React"],
+          "lab_task": "Add sign-up, login and logout with hashed passwords and HTTP-only cookie tokens, protect order routes in the API and the account page in React.",
+          "deliverable": "Auth feature and tests",
+          "checks": [["Look at the users collection", "Passwords stored as hashes", "Database screenshot"], ["Call the orders API without logging in", "401 Unauthorized", "Postman result"], ["Inspect cookies", "Token is HTTP-only", "DevTools screenshot"]],
+          "objectives": ["Add authentication", "Protect APIs and pages", "Store tokens safely"]
+        },
+        {
+          "topic": "Testing Full Stack Applications",
+          "subtopics": ["Why test", "Unit tests with Vitest or Jest", "API tests with Supertest", "React component tests", "Test databases", "Mocking", "End-to-end tests with Playwright in brief", "Running tests before commits"],
+          "tools": ["Vitest", "Supertest", "React Testing Library", "Playwright"],
+          "lab_task": "Write unit tests for cart logic, API tests for products and orders, component tests for checkout and one Playwright test for the purchase flow.",
+          "deliverable": "Test suites and results",
+          "checks": [["Run API tests", "All pass against a test database", "Test output"], ["Break the cart logic", "Unit test fails", "Test output"], ["Run the Playwright test", "Purchase flow passes", "Playwright report"]],
+          "objectives": ["Test front end and back end", "Use test databases", "Write end-to-end tests"]
+        },
+        {
+          "topic": "File Uploads, Email and Third-Party Services",
+          "subtopics": ["File uploads with Multer", "Storing files in cloud storage", "Image resizing", "Sending emails", "Payment gateway basics with test mode", "Webhooks", "API keys and secrets", "Rate limits of services"],
+          "tools": ["Multer", "Cloudinary or S3", "Nodemailer", "Razorpay or Stripe test mode"],
+          "lab_task": "Add product image uploads to cloud storage, an order confirmation email and a test-mode payment with a webhook that marks orders paid.",
+          "deliverable": "Upload, email and payment features",
+          "checks": [["Upload an image", "Image stored and shown on the product", "Screenshot"], ["Place an order", "Confirmation email received", "Email"], ["Complete a test payment", "Webhook marks the order paid", "Database row"]],
+          "objectives": ["Use third-party services", "Handle uploads and email", "Process payments safely"]
+        },
+        {
+          "topic": "Security Basics for Web Applications",
+          "subtopics": ["OWASP Top 10 for web developers", "Input validation", "SQL and NoSQL injection", "Cross-site scripting", "CSRF", "Security headers with Helmet", "Rate limiting", "Secrets management"],
+          "tools": ["Helmet", "express-rate-limit", "npm audit"],
+          "lab_task": "Find and fix five planted vulnerabilities in the shop, add security headers and rate limiting to login and run a dependency audit.",
+          "deliverable": "Fixes, configuration and audit report",
+          "checks": [["Try a NoSQL injection login", "Rejected after the fix", "Postman result"], ["Try 20 logins in a minute", "Rate limited", "Postman result"], ["Run npm audit", "No high vulnerabilities", "Audit output"]],
+          "objectives": ["Secure web apps", "Prevent injection and XSS", "Protect logins"]
+        },
+        {
+          "topic": "Deploying a Full Stack Application",
+          "subtopics": ["Build and production settings", "Environment variables in production", "Hosting the front end", "Hosting the API: Render, Railway or a VM", "Managed databases", "Domain names and HTTPS", "Logs in production", "Deploying from GitHub"],
+          "tools": ["Vercel or Netlify", "Render or Railway", "MongoDB Atlas or a managed PostgreSQL"],
+          "lab_task": "Deploy the React front end and Express API with a managed database and HTTPS, configure production environment variables and set up automatic deploys from GitHub.",
+          "deliverable": "Live URLs and deployment configuration",
+          "checks": [["Open the live site", "Products load from the live API", "Screenshot"], ["Push a change to main", "Site redeploys automatically", "Deployment log"], ["Check HTTPS", "Valid certificate on both front end and API", "Browser screenshot"]],
+          "objectives": ["Deploy full stack apps", "Configure production settings", "Automate deployments"]
+        },
+        {
+          "topic": "Beginner Capstone: Full Stack Online Store",
+          "subtopics": ["Requirements and data model", "Express API with database", "React front end", "Authentication and payments", "Tests and security checks", "Deployment and demo"],
+          "tools": ["React", "Node.js 22 LTS", "Express", "MongoDB or PostgreSQL", "Playwright", "Vercel and Render"],
+          "lab_task": "Build and deploy an online store with product browsing, search, cart, sign-up and login, checkout with test payments, order history, tests and security checks, then demo it.",
+          "deliverable": "Repository, live URLs, test report and a 10-minute demo",
+          "checks": [["Complete a purchase on the live site", "Order and payment recorded", "Demo and database"], ["Run the tests", "All pass", "Test output"], ["Call an order API as another user", "Access denied", "Postman result"]],
+          "objectives": ["Combine the beginner topics in one application", "Build and deploy a full stack app", "Demo it end to end"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic full stack app. Covers TypeScript across the stack, Next.js full stack apps, API design, advanced data modelling, background jobs, caching, real-time features, containers, CI/CD, cloud deployment, observability, testing strategy and performance.",
+      "prerequisites": ["Has built a React front end and a Node.js API with a database", "Uses Git and npm", "Knows basic authentication and deployment"],
+      "outcomes": ["Build typed full stack apps with Next.js or React and Node.js", "Design APIs and data models for real products", "Add jobs, caching and real-time features", "Ship with containers, CI/CD, monitoring and tests"],
+      "days": [
+        {
+          "topic": "TypeScript Across the Stack",
+          "subtopics": ["Why TypeScript for full stack", "Typing Express handlers", "Typing React components", "Shared types between front end and back end", "Zod for runtime validation", "Strict mode", "Monorepo with shared packages", "Migrating JavaScript to TypeScript"],
+          "tools": ["TypeScript", "Zod", "pnpm workspaces"],
+          "lab_task": "Convert the store to TypeScript in a monorepo with a shared types package and Zod schemas used by both API and front end.",
+          "deliverable": "Typed monorepo",
+          "checks": [["Compile with strict mode", "Zero errors", "Compiler output"], ["Change a shared type", "Both apps show compile errors until updated", "Compiler output"], ["Send invalid data to the API", "Rejected by the shared Zod schema", "API response"]],
+          "objectives": ["Use TypeScript across the stack", "Share types", "Validate at runtime"]
+        },
+        {
+          "topic": "API Design: REST, Versioning and Documentation",
+          "subtopics": ["Resource design", "Filtering, sorting and pagination", "Error formats", "Versioning", "Idempotency", "OpenAPI documentation", "API clients from OpenAPI", "GraphQL as an alternative"],
+          "tools": ["OpenAPI", "Swagger UI", "Express or Fastify"],
+          "lab_task": "Redesign the store API with consistent resources, cursor pagination, a standard error format, idempotent order creation and OpenAPI documentation.",
+          "deliverable": "API, OpenAPI document and client",
+          "checks": [["Create an order twice with one idempotency key", "One order created", "Database rows"], ["Page with a cursor", "Correct next page", "API response"], ["Open Swagger UI", "All endpoints documented", "Screenshot"]],
+          "objectives": ["Design clean APIs", "Document APIs", "Make writes idempotent"]
+        },
+        {
+          "topic": "Full Stack Apps with Next.js",
+          "subtopics": ["Next.js App Router", "Server components and client components", "Route handlers as APIs", "Server actions", "Database access from the server", "Authentication with Auth.js", "Caching and revalidation", "Deploying Next.js"],
+          "tools": ["Next.js", "Prisma", "Auth.js", "Vercel"],
+          "lab_task": "Rebuild the store's catalogue and account area in Next.js with server components, server actions and Auth.js, using Prisma for data.",
+          "deliverable": "Next.js app and live URL",
+          "checks": [["Add to cart with a server action", "Cart updated on the server", "Database row"], ["Open account pages signed out", "Redirected to sign-in", "Screen recording"], ["Update a product", "Page shows the change after revalidation", "Screenshot"]],
+          "objectives": ["Build full stack apps with Next.js", "Use server components and actions", "Add authentication"]
+        },
+        {
+          "topic": "Data Modelling for Real Products",
+          "subtopics": ["Modelling users, products, orders and payments", "Relationships and constraints", "Transactions", "Soft deletes and audit fields", "Indexing for queries", "MongoDB schema design patterns", "Migrations in teams", "Seeding data"],
+          "tools": ["PostgreSQL", "Prisma", "MongoDB"],
+          "lab_task": "Design the data model for a multi-vendor marketplace, add constraints and indexes, place an order in a transaction that updates stock and seed realistic data.",
+          "deliverable": "Schema, migrations, seed script and query timings",
+          "checks": [["Order the last item from two sessions", "Only one succeeds", "Test output"], ["Run the main queries", "Use indexes and run in under 50 ms", "Query plans"], ["Delete a vendor", "Soft-deleted with audit fields kept", "Database rows"]],
+          "objectives": ["Model product data", "Use transactions", "Index for real queries"]
+        },
+        {
+          "topic": "Background Jobs and Queues",
+          "subtopics": ["Why background jobs", "BullMQ with Redis", "Scheduled jobs", "Retries and failures", "Email and report jobs", "Idempotent jobs", "Monitoring queues", "Scaling workers"],
+          "tools": ["BullMQ", "Redis", "Node.js 22 LTS"],
+          "lab_task": "Move order emails and invoice PDFs to background jobs with retries, schedule a nightly sales report and monitor the queue.",
+          "deliverable": "Job workers and queue dashboard",
+          "checks": [["Make the email service fail twice", "Job retried and succeeds", "Queue dashboard"], ["Run the nightly report", "Report generated on schedule", "Job log"], ["Process the same job twice", "No duplicate emails", "Email log"]],
+          "objectives": ["Run background jobs", "Retry safely", "Monitor queues"]
+        },
+        {
+          "topic": "Caching and Performance",
+          "subtopics": ["Where to cache", "Redis caching", "HTTP caching headers", "CDN caching", "Cache invalidation", "Database query optimisation", "Front-end performance basics", "Measuring performance"],
+          "tools": ["Redis", "Lighthouse", "k6"],
+          "lab_task": "Add Redis caching for product lists, HTTP caching for images and CDN caching for static assets, invalidate on updates and load-test before and after.",
+          "deliverable": "Caching set-up and load test results",
+          "checks": [["Load-test product lists", "Throughput improved with caching", "k6 output"], ["Update a product", "Cached data refreshed", "API response"], ["Check image headers", "Cache-Control set", "Response headers"]],
+          "objectives": ["Cache across the stack", "Invalidate correctly", "Measure performance"]
+        },
+        {
+          "topic": "Real-Time Features with WebSockets",
+          "subtopics": ["WebSockets and Socket.IO", "Rooms and namespaces", "Authentication for sockets", "Real-time notifications", "Chat features", "Scaling with Redis adapter", "Reconnection", "Testing real-time features"],
+          "tools": ["Socket.IO", "Redis", "React"],
+          "lab_task": "Add live order status updates and a buyer-seller chat with authenticated sockets, scaled across two server instances with the Redis adapter.",
+          "deliverable": "Real-time features and test notes",
+          "checks": [["Update an order status", "Buyer sees it instantly", "Screen recording"], ["Connect to a different server instance", "Messages still delivered", "Screen recording"], ["Connect without a token", "Socket rejected", "Server log"]],
+          "objectives": ["Build real-time features", "Secure socket connections", "Scale WebSockets"]
+        },
+        {
+          "topic": "OAuth, Social Login and Role-Based Access",
+          "subtopics": ["OAuth 2.0 and OpenID Connect in practice", "Social login with Google and GitHub", "Refresh tokens and session renewal", "Role-based and permission-based access", "Enforcing permissions in the API", "Showing permitted actions in the UI", "Admin areas", "Audit logs for admin actions"],
+          "tools": ["Auth.js or Passport", "Express", "React"],
+          "lab_task": "Add Google and GitHub login, refresh-token renewal and roles for buyer, vendor and admin, enforce permissions in the API and log every admin action.",
+          "deliverable": "Auth set-up, permission tests and audit log",
+          "checks": [["Sign in with Google", "Account created or linked", "Screen recording"], ["Call a vendor-only endpoint as a buyer", "403 Forbidden", "Test output"], ["Change a product as admin", "Action recorded in the audit log", "Audit log"]],
+          "objectives": ["Add OAuth login", "Enforce roles and permissions", "Audit admin actions"]
+        },
+        {
+          "topic": "GraphQL APIs for Full Stack Apps",
+          "subtopics": ["When GraphQL helps", "Schemas and types", "Queries, mutations and subscriptions", "Resolvers and data loaders", "Apollo Server and Apollo Client", "Authorisation in GraphQL", "Query limits", "Generated types for the front end"],
+          "tools": ["Apollo Server", "Apollo Client", "GraphQL Code Generator"],
+          "lab_task": "Add a GraphQL API for the catalogue with data loaders, authorisation on vendor fields, query depth limits and generated types used in the React front end.",
+          "deliverable": "GraphQL server, client changes and tests",
+          "checks": [["Query 50 products with vendors", "One vendor query thanks to the data loader", "Database log"], ["Query vendor revenue as a buyer", "Field rejected", "API response"], ["Send a deeply nested query", "Rejected by the depth limit", "API response"]],
+          "objectives": ["Build GraphQL APIs", "Avoid N+1 queries", "Secure GraphQL"]
+        },
+        {
+          "topic": "Search and Filtering",
+          "subtopics": ["Database search limits", "Full-text search in PostgreSQL or MongoDB", "Search engines: Elasticsearch or Meilisearch", "Facets and filters", "Typo tolerance", "Indexing pipelines", "Search relevance", "Search UI patterns"],
+          "tools": ["Meilisearch or Elasticsearch", "React"],
+          "lab_task": "Add product search with typo tolerance, facets for category and price and an indexing pipeline that updates search when products change.",
+          "deliverable": "Search feature and indexing pipeline",
+          "checks": [["Search \"wireles hedphones\"", "Wireless headphones found", "Screenshot"], ["Filter by category and price", "Facet counts correct", "Screenshot"], ["Update a product", "Search reflects the change within seconds", "Screen recording"]],
+          "objectives": ["Build search features", "Use a search engine", "Keep search in sync"]
+        },
+        {
+          "topic": "Containers with Docker and Docker Compose",
+          "subtopics": ["Dockerfiles for Node.js and React", "Multi-stage builds", "Environment variables in containers", "Docker Compose for the full stack", "Volumes for databases", "Health checks", "Image size", "Running locally like production"],
+          "tools": ["Docker", "Docker Compose"],
+          "lab_task": "Containerise the front end, API, worker, database and Redis, run the whole stack with Docker Compose and cut image sizes with multi-stage builds.",
+          "deliverable": "Dockerfiles, Compose file and image sizes",
+          "checks": [["Run docker compose up", "Whole store works locally", "Screenshot"], ["Compare image sizes", "Multi-stage images much smaller", "docker images output"], ["Stop the database", "Health checks report it unhealthy", "docker ps output"]],
+          "objectives": ["Containerise full stack apps", "Run stacks with Compose", "Build small images"]
+        },
+        {
+          "topic": "CI/CD for Full Stack Projects",
+          "subtopics": ["Pipeline stages", "Running tests with service containers", "Building and pushing images", "Deploying to staging and production", "Database migrations in pipelines", "Preview environments", "Rollbacks", "Secrets in CI"],
+          "tools": ["GitHub Actions", "Docker", "Container registry"],
+          "lab_task": "Build a pipeline that lints, type-checks, tests with a database container, builds images, runs migrations and deploys to staging then production with approval.",
+          "deliverable": "Workflow files and deployment history",
+          "checks": [["Push a failing test", "Pipeline stops before deployment", "CI log"], ["Deploy to staging", "Migrations run and the app works", "Deployment log"], ["Roll back production", "Previous version restored", "Deployment log"]],
+          "objectives": ["Automate builds and deployments", "Run migrations safely", "Roll back releases"]
+        },
+        {
+          "topic": "Deploying to the Cloud",
+          "subtopics": ["Cloud options for full stack apps", "AWS: ECS or App Runner, RDS and S3", "Azure: App Service or Container Apps and Azure Database", "Managed Redis", "Networking and HTTPS", "Secrets managers", "Scaling settings", "Cost estimates"],
+          "tools": ["AWS or Azure", "Terraform or the cloud console"],
+          "lab_task": "Deploy the containerised store to AWS or Azure with a managed database and Redis, HTTPS, secrets from a secret manager and autoscaling, and estimate monthly cost.",
+          "deliverable": "Deployment, configuration and cost estimate",
+          "checks": [["Open the live store", "Works on HTTPS", "Screenshot"], ["Load-test", "Instances scale out", "Cloud metrics"], ["Check secrets", "No secrets in images or code", "Configuration review"]],
+          "objectives": ["Deploy to the cloud", "Use managed services", "Estimate cloud cost"]
+        },
+        {
+          "topic": "Observability: Logging, Metrics and Error Tracking",
+          "subtopics": ["Structured logging with pino", "Request IDs", "Metrics with Prometheus", "Dashboards with Grafana", "Error tracking with Sentry", "Uptime monitoring", "Alerts", "Reading production issues"],
+          "tools": ["pino", "Prometheus", "Grafana", "Sentry"],
+          "lab_task": "Add structured logs with request IDs, API metrics, a Grafana dashboard, Sentry for front end and back end, and an alert on error rate.",
+          "deliverable": "Observability set-up and dashboard",
+          "checks": [["Follow one request", "All logs share the request ID", "Log search"], ["Throw an error", "Appears in Sentry with source lines", "Sentry screenshot"], ["Raise the error rate", "Alert fires", "Alert"]],
+          "objectives": ["Monitor full stack apps", "Track errors", "Alert on problems"]
+        },
+        {
+          "topic": "Testing Strategy for Full Stack Teams",
+          "subtopics": ["Unit, integration and end-to-end balance", "Testing APIs with real databases", "Mock Service Worker for the front end", "Playwright end-to-end tests", "Test data factories", "Contract tests between front end and API", "Flaky test prevention", "Coverage targets"],
+          "tools": ["Vitest", "Supertest", "MSW", "Playwright", "Testcontainers"],
+          "lab_task": "Build a test suite with factories, API tests on a container database, front-end tests with MSW and end-to-end tests for three journeys, all running in CI.",
+          "deliverable": "Test suites and CI results",
+          "checks": [["Run all tests in CI", "Pass and report coverage", "CI log"], ["Change an API response shape", "Contract or integration test fails", "Test output"], ["Run end-to-end tests five times", "No flaky failures", "CI log"]],
+          "objectives": ["Plan testing for full stack apps", "Use real dependencies in tests", "Keep tests reliable"]
+        },
+        {
+          "topic": "Payments, Orders and Business Logic",
+          "subtopics": ["Order state machines", "Payment flows and webhooks", "Refunds", "Inventory reservation", "Taxes and GST invoices", "Idempotent webhook handling", "Reconciliation with the payment provider", "Testing payment flows"],
+          "tools": ["Razorpay or Stripe test mode", "Node.js 22 LTS"],
+          "lab_task": "Implement an order state machine with stock reservation, payment webhooks, refunds and GST invoices, and reconcile orders with the payment provider.",
+          "deliverable": "Order logic, webhook handler and reconciliation report",
+          "checks": [["Deliver the same webhook twice", "Order updated once", "Database rows"], ["Refund an order", "Status, stock and payment updated", "Database rows"], ["Run reconciliation", "Every paid order matches a provider payment", "Reconciliation report"]],
+          "objectives": ["Implement order business logic", "Handle payments reliably", "Reconcile payments"]
+        },
+        {
+          "topic": "Accessibility and SEO for Full Stack Apps",
+          "subtopics": ["Accessible components", "Keyboard and screen reader testing", "Server rendering for SEO", "Metadata and Open Graph", "Sitemaps and robots.txt", "Structured data", "Core Web Vitals and search", "Auditing with Lighthouse"],
+          "tools": ["Lighthouse", "axe", "Next.js"],
+          "lab_task": "Make product pages accessible and SEO-ready with server rendering, metadata, structured data and a sitemap, and reach high Lighthouse scores.",
+          "deliverable": "Updated pages and Lighthouse reports",
+          "checks": [["Run Lighthouse", "SEO and accessibility at least 90", "Lighthouse report"], ["Validate structured data", "Product data recognised", "Rich results test"], ["Use a screen reader on checkout", "Each step announced", "Notes"]],
+          "objectives": ["Build accessible apps", "Optimise for search", "Measure with Lighthouse"]
+        },
+        {
+          "topic": "Security for Full Stack Applications",
+          "subtopics": ["Authentication hardening", "Authorisation checks on every request", "OWASP API Security Top 10", "Secure file uploads", "Secrets and environment management", "Dependency and container scanning", "Logging security events", "Security testing in CI"],
+          "tools": ["OWASP ZAP", "Trivy", "Snyk or npm audit"],
+          "lab_task": "Test the store for broken object-level authorisation and other API risks, fix the findings, add security scans to CI and log security events.",
+          "deliverable": "Findings, fixes and CI scans",
+          "checks": [["Read another user's order by ID", "Denied after the fix", "Postman result"], ["Upload a script disguised as an image", "Rejected", "Postman result"], ["Run CI scans", "No high findings", "CI log"]],
+          "objectives": ["Secure full stack apps", "Test API security", "Automate security checks"]
+        },
+        {
+          "topic": "Working in a Full Stack Team",
+          "subtopics": ["Agile delivery for developers", "Writing tickets and estimates", "Code reviews", "Pair programming", "Documentation", "Feature flags", "Working with designers and testers", "Handling production support"],
+          "tools": ["Jira", "GitHub", "Figma"],
+          "lab_task": "Work as a team on three tickets for the store with branches, code reviews, a feature flag and a design hand-off, and handle one simulated production bug.",
+          "deliverable": "Merged pull requests, review comments and bug fix record",
+          "checks": [["Review a teammate's pull request", "Specific, useful comments", "Pull request"], ["Release behind a feature flag", "Feature hidden until switched on", "Screenshot"], ["Fix the production bug", "Root cause found and a test added", "Bug record"]],
+          "objectives": ["Work in a development team", "Review code", "Support production"]
+        },
+        {
+          "topic": "Intermediate Capstone: Typed Marketplace on the Cloud",
+          "subtopics": ["Requirements and architecture", "Typed API and Next.js front end", "Data model, jobs and caching", "Real-time features and search", "Containers, CI/CD and cloud", "Observability, security and demo"],
+          "tools": ["TypeScript", "Next.js", "Node.js", "PostgreSQL", "Redis", "BullMQ", "Docker", "GitHub Actions", "AWS or Azure"],
+          "lab_task": "Deliver a typed multi-vendor marketplace with search, payments, real-time order updates, background jobs, caching, tests, CI/CD to the cloud and monitoring, then present it.",
+          "deliverable": "Repository, live URL, dashboards, test reports and a 15-minute demo",
+          "checks": [["Run the pipeline", "Tests pass and the app deploys", "CI log"], ["Load-test the catalogue", "Meets the latency target", "k6 output"], ["Read another vendor's orders", "Denied", "Postman result"]],
+          "objectives": ["Combine the intermediate topics in one product", "Prove quality and reliability", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior full stack engineers and technical leads. Covers system design, monolith and microservice architecture, event-driven design, data at scale, multi-tenancy, performance and scalability, resilience, security architecture, platform and developer experience, observability at scale, cost, AI features and technical leadership.",
+      "prerequisites": ["Has shipped and run full stack applications in production", "Knows TypeScript, Next.js or React, Node.js, SQL and containers", "Has done code reviews and production support"],
+      "outcomes": ["Design and scale full stack systems", "Choose and evolve architecture from monolith to services", "Engineer reliability, security and performance in production", "Lead teams and technical decisions"],
+      "days": [
+        {
+          "topic": "System Design for Web Applications",
+          "subtopics": ["Requirements and estimates", "Load balancing", "Stateless services", "Database scaling: replicas and sharding", "Caching layers", "Queues", "CDNs", "Design reviews"],
+          "tools": ["Diagramming tool", "Architecture decision record template"],
+          "lab_task": "Design a ticket booking system for one million daily users with estimates, components, data flow and failure handling, and defend it in a design review.",
+          "deliverable": "Design document, estimates and decision records",
+          "checks": [["Review the estimates", "Traffic, storage and bandwidth calculated", "Design document"], ["Review failure handling", "Each component has a failure plan", "Design document"], ["Defend the design", "Questions answered with evidence", "Review notes"]],
+          "objectives": ["Design web systems", "Estimate capacity", "Defend design choices"]
+        },
+        {
+          "topic": "Modular Monoliths and Microservices",
+          "subtopics": ["Monolith, modular monolith and microservices", "Bounded contexts", "Module boundaries in code", "Extracting a service", "Service communication", "Data ownership", "Distributed transactions and sagas", "When not to split"],
+          "tools": ["Node.js", "NestJS", "Docker"],
+          "lab_task": "Restructure the marketplace into a modular monolith with enforced boundaries, extract payments into a service and coordinate orders with a saga.",
+          "deliverable": "Restructured code, extracted service and saga",
+          "checks": [["Import across a module boundary", "Lint or build fails", "Tool output"], ["Fail a payment", "Saga cancels the order and releases stock", "Database rows and logs"], ["Review the extraction decision", "Reasons recorded", "Decision record"]],
+          "objectives": ["Choose architecture styles", "Enforce module boundaries", "Coordinate services"]
+        },
+        {
+          "topic": "Event-Driven Architecture",
+          "subtopics": ["Events versus commands", "Kafka or RabbitMQ", "Outbox pattern", "Event schemas and versioning", "Consumers and idempotency", "Event sourcing in brief", "CQRS", "Debugging event flows"],
+          "tools": ["Kafka or RabbitMQ", "PostgreSQL", "Node.js"],
+          "lab_task": "Publish order events with an outbox, consume them in inventory and email services idempotently, version a schema and trace one order through the events.",
+          "deliverable": "Event flow, schemas and trace",
+          "checks": [["Crash between commit and publish", "Event published after restart", "Logs"], ["Deliver an event twice", "Handled once", "Database rows"], ["Add a schema version", "Old and new consumers both work", "Test output"]],
+          "objectives": ["Build event-driven systems", "Publish reliably", "Evolve event schemas"]
+        },
+        {
+          "topic": "Data at Scale: Replication, Partitioning and Search",
+          "subtopics": ["Read replicas", "Partitioning large tables", "Sharding strategies", "Caching patterns at scale", "Search at scale", "Analytics data separation", "Data migrations with no downtime", "Backups and recovery"],
+          "tools": ["PostgreSQL", "Redis", "Elasticsearch or Meilisearch"],
+          "lab_task": "Add read replicas, partition the orders table by month, run a zero-downtime column migration and restore the database to a point in time.",
+          "deliverable": "Configuration, migration log and restore evidence",
+          "checks": [["Route reads to the replica", "Writes on primary, reads on replica", "Query logs"], ["Run the migration under load", "No failed requests", "Load test output"], ["Restore to a point in time", "Data restored", "Query result"]],
+          "objectives": ["Scale data", "Migrate without downtime", "Recover data"]
+        },
+        {
+          "topic": "Multi-Tenant SaaS Architecture",
+          "subtopics": ["Tenancy models", "Tenant isolation in the database", "Row-level security", "Tenant-aware caching and queues", "Per-tenant configuration", "Billing and metering", "Tenant onboarding", "Noisy neighbours"],
+          "tools": ["PostgreSQL row-level security", "Stripe Billing or Razorpay Subscriptions", "Next.js"],
+          "lab_task": "Turn the marketplace into a multi-tenant SaaS with row-level security, tenant-aware caching, subscription billing and automated onboarding.",
+          "deliverable": "Multi-tenant app, billing set-up and isolation tests",
+          "checks": [["Query as tenant A", "Tenant B data never returned", "Test output"], ["Onboard a tenant", "Workspace ready automatically", "Demo"], ["Change a subscription", "Usage limits updated", "Database rows"]],
+          "objectives": ["Build multi-tenant SaaS", "Isolate tenants", "Bill by plan and usage"]
+        },
+        {
+          "topic": "API Gateways, Backends for Frontends and Edge Architecture",
+          "subtopics": ["API gateway roles", "Backend for frontend pattern", "Aggregating services for the UI", "Edge functions and middleware", "Rate limiting and authentication at the edge", "Caching at the gateway", "Versioning through the gateway", "Avoiding a gateway bottleneck"],
+          "tools": ["Kong or an API gateway", "Next.js middleware", "Cloudflare Workers or edge functions"],
+          "lab_task": "Put the services behind a gateway with authentication and rate limits, add a backend for frontend that aggregates three services for the product page and move geo-routing to the edge.",
+          "deliverable": "Gateway configuration, BFF and latency measurements",
+          "checks": [["Load the product page", "One BFF call replaces three browser calls", "Network trace"], ["Exceed the rate limit", "Gateway returns 429", "API response"], ["Measure latency from two regions", "Edge routing reduces latency", "Measurements"]],
+          "objectives": ["Use API gateways", "Build backends for frontends", "Use edge computing"]
+        },
+        {
+          "topic": "Performance and Scalability Engineering",
+          "subtopics": ["Finding bottlenecks", "Profiling Node.js", "Database tuning", "Connection pooling", "Horizontal scaling", "Load testing at scale", "Front-end performance at scale", "Capacity planning"],
+          "tools": ["k6", "clinic.js", "PgBouncer", "Lighthouse"],
+          "lab_task": "Load-test the system to its limit, find and fix three bottlenecks across front end, API and database, and write a capacity plan for ten times the traffic.",
+          "deliverable": "Load test reports, fixes and capacity plan",
+          "checks": [["Find the saturation point", "Recorded before changes", "Load test report"], ["Rerun after fixes", "Saturation point at least twice as high", "Load test report"], ["Review the capacity plan", "Instance counts and limits justified", "Capacity plan"]],
+          "objectives": ["Engineer performance", "Remove bottlenecks", "Plan capacity"]
+        },
+        {
+          "topic": "Resilience and Reliability",
+          "subtopics": ["Timeouts, retries and circuit breakers", "Graceful degradation", "Health checks and readiness", "Rate limiting and back-pressure", "Disaster recovery", "Chaos testing", "Service level objectives", "Incident response"],
+          "tools": ["Node.js", "Toxiproxy", "Grafana"],
+          "lab_task": "Add timeouts, retries and a circuit breaker around payments, degrade gracefully when search is down, define SLOs and run a chaos test.",
+          "deliverable": "Resilience code, SLOs and chaos test report",
+          "checks": [["Add latency to payments", "Requests fail fast and the UI explains", "Test output"], ["Stop search", "Catalogue still works with a basic list", "Screenshot"], ["Run the chaos test", "SLO kept or the gap recorded", "Report"]],
+          "objectives": ["Build resilient systems", "Degrade gracefully", "Use SLOs"]
+        },
+        {
+          "topic": "Security Architecture for Web Platforms",
+          "subtopics": ["Threat modelling", "Zero trust for services", "OAuth 2.0 and OpenID Connect at scale", "Secrets management", "Data encryption and privacy", "Supply chain security", "Security monitoring", "Security reviews and pen tests"],
+          "tools": ["Keycloak or Auth0", "Vault", "Trivy", "OWASP ZAP"],
+          "lab_task": "Threat-model the platform, move identity to an OIDC provider with service-to-service tokens, manage secrets in Vault and fix findings from a penetration test.",
+          "deliverable": "Threat model, identity set-up and remediation record",
+          "checks": [["Call a service without a service token", "Rejected", "Service log"], ["Rotate a secret", "Services keep working", "Logs"], ["Retest pen test findings", "Fixed findings no longer reproducible", "Retest report"]],
+          "objectives": ["Design secure platforms", "Use OIDC and service identity", "Act on security testing"]
+        },
+        {
+          "topic": "Infrastructure as Code and Kubernetes for Full Stack Apps",
+          "subtopics": ["Terraform for application infrastructure", "Kubernetes basics for developers", "Deployments, services and ingress", "Config and secrets", "Autoscaling", "Helm charts", "GitOps", "Choosing Kubernetes or managed platforms"],
+          "tools": ["Terraform", "Kubernetes", "Helm", "Argo CD"],
+          "lab_task": "Define the infrastructure in Terraform, deploy the services to Kubernetes with Helm and Argo CD, autoscale the API and compare with the managed platform used earlier.",
+          "deliverable": "Terraform, Helm charts, GitOps set-up and comparison",
+          "checks": [["Change the Helm values in Git", "Argo CD applies the change", "Argo CD screenshot"], ["Load-test", "API pods scale out", "kubectl output"], ["Compare platforms", "Effort and cost compared", "Comparison"]],
+          "objectives": ["Define infrastructure as code", "Deploy to Kubernetes", "Choose a platform"]
+        },
+        {
+          "topic": "Observability at Scale",
+          "subtopics": ["Distributed tracing with OpenTelemetry", "Logs, metrics and traces together", "Service dashboards", "SLO-based alerting", "Front-end to back-end traces", "Sampling", "Cost of observability", "On-call practices"],
+          "tools": ["OpenTelemetry", "Grafana", "Tempo or Jaeger", "Prometheus"],
+          "lab_task": "Trace a request from the browser through the API, queue and database, build SLO dashboards with burn-rate alerts and tune sampling to control cost.",
+          "deliverable": "Tracing, dashboards, alerts and cost note",
+          "checks": [["Follow one checkout", "One trace across every component", "Trace screenshot"], ["Burn the error budget", "Burn-rate alert fires", "Alert"], ["Change sampling", "Data volume reduced with errors still kept", "Cost note"]],
+          "objectives": ["Observe distributed systems", "Alert on SLOs", "Control observability cost"]
+        },
+        {
+          "topic": "Developer Experience and Internal Platforms",
+          "subtopics": ["What developer experience means", "Golden paths and templates", "Local development environments", "Monorepo tooling", "Preview environments", "Documentation sites", "Measuring developer experience", "Platform roadmap"],
+          "tools": ["Backstage", "Turborepo or Nx", "Dev containers"],
+          "lab_task": "Build a golden path template that creates a new service with tests, CI, observability and deployment in minutes, and measure time to first deploy for a new developer.",
+          "deliverable": "Template, documentation and measurement",
+          "checks": [["Create a service from the template", "Deployed with tests and monitoring", "Demo"], ["Measure time to first deploy", "Recorded for a new developer", "Measurement"], ["Open the dev container", "Project runs with no local set-up", "Screenshot"]],
+          "objectives": ["Improve developer experience", "Build golden paths", "Measure productivity"]
+        },
+        {
+          "topic": "Cost Engineering for Web Platforms",
+          "subtopics": ["Where the money goes", "Right-sizing", "Autoscaling policies", "Storage and data transfer costs", "CDN and caching savings", "Database costs", "Cost per customer", "FinOps reporting"],
+          "tools": ["Cloud cost tools", "Spreadsheet"],
+          "lab_task": "Analyse a month of platform costs, cut the top three costs, calculate cost per tenant and set budgets and alerts.",
+          "deliverable": "Cost analysis, changes and cost per tenant report",
+          "checks": [["Rank costs", "Top three identified with amounts", "Analysis"], ["Apply changes", "Monthly estimate reduced", "Cost comparison"], ["Calculate cost per tenant", "Calculated from usage", "Report"]],
+          "objectives": ["Engineer for cost", "Measure cost per customer", "Control cloud spend"]
+        },
+        {
+          "topic": "AI Features in Full Stack Products",
+          "subtopics": ["Choosing AI features", "LLM APIs from the server", "Retrieval over product data", "Streaming responses", "Tool calling for actions", "Cost and rate limits", "Safety and moderation", "Evaluating AI features"],
+          "tools": ["Vercel AI SDK", "LLM API", "pgvector"],
+          "lab_task": "Add a shopping assistant that searches products with embeddings in pgvector, streams answers, adds items to the cart through tool calls with confirmation and is evaluated on 25 questions.",
+          "deliverable": "AI feature, evaluation and cost note",
+          "checks": [["Ask for a product", "Relevant products returned from the vector search", "Screenshot"], ["Ask to add to cart", "Confirmation asked before the tool call", "Screen recording"], ["Run the 25 questions", "Accuracy and cost recorded", "Evaluation sheet"]],
+          "objectives": ["Build AI features", "Use retrieval and tools", "Evaluate AI features"]
+        },
+        {
+          "topic": "Migrating and Modernising Legacy Web Applications",
+          "subtopics": ["Assessing legacy systems", "Strangler fig pattern", "Moving from jQuery or AngularJS", "Moving from PHP or old Node.js versions", "Data migration", "Running old and new together", "Measuring migration progress", "Avoiding big-bang rewrites"],
+          "tools": ["Nginx or an API gateway", "React", "Node.js"],
+          "lab_task": "Route traffic for two pages of a provided legacy app to new React and Node.js implementations with the strangler pattern, migrate their data and measure progress.",
+          "deliverable": "Routing set-up, migrated pages and progress report",
+          "checks": [["Open a migrated page", "Served by the new app with the same behaviour", "Test output"], ["Open a legacy page", "Still served by the old app", "Test output"], ["Report progress", "Share of traffic on new code measured", "Report"]],
+          "objectives": ["Modernise legacy apps", "Use the strangler pattern", "Migrate step by step"]
+        },
+        {
+          "topic": "Compliance and Privacy Engineering",
+          "subtopics": ["Data protection laws: DPDP Act and GDPR", "Consent management", "Data retention and deletion", "Audit logs", "PCI DSS for payments", "Accessibility law", "Privacy by design", "Compliance evidence"],
+          "tools": ["PostgreSQL", "Consent management tool", "Audit log library"],
+          "lab_task": "Add consent tracking, data export and deletion requests, retention jobs and audit logs to the platform, and prepare compliance evidence.",
+          "deliverable": "Privacy features and evidence pack",
+          "checks": [["Request account deletion", "Personal data removed from all stores", "Search outputs"], ["Export a user's data", "Complete export file", "Export file"], ["Review audit logs", "Admin actions recorded", "Audit log"]],
+          "objectives": ["Build for privacy laws", "Handle data subject requests", "Keep audit evidence"]
+        },
+        {
+          "topic": "Technical Leadership for Full Stack Teams",
+          "subtopics": ["The tech lead role", "Technical vision", "Architecture decision records", "Code review culture", "Technical debt management", "Estimation and planning", "Mentoring", "Working with product and design"],
+          "tools": ["Architecture decision record template", "Jira"],
+          "lab_task": "Write a technical vision for the platform, run a technical debt review that ranks items by impact, and mentor a junior developer through a code review.",
+          "deliverable": "Vision, debt register and mentoring notes",
+          "checks": [["Review the vision", "Linked to product goals", "Vision document"], ["Rank technical debt", "Ranked by impact and effort", "Debt register"], ["Mentor through a review", "Junior improves the pull request", "Pull request history"]],
+          "objectives": ["Lead technically", "Manage technical debt", "Mentor developers"]
+        },
+        {
+          "topic": "Hiring, Team Structure and Engineering Process",
+          "subtopics": ["Team topologies for product teams", "Hiring full stack engineers", "Interview design", "Onboarding", "Engineering metrics: DORA", "Release processes", "On-call rotations", "Healthy engineering culture"],
+          "tools": ["Interview templates", "DORA metrics"],
+          "lab_task": "Design a team structure and hiring loop for five product teams, write an onboarding plan and measure DORA metrics for a team from provided data.",
+          "deliverable": "Team design, interview loop, onboarding plan and metrics",
+          "checks": [["Review the interview loop", "Each stage tests a defined skill", "Interview plan"], ["Calculate DORA metrics", "All four from the data", "Metrics sheet"], ["Review onboarding", "First week tasks and goals clear", "Onboarding plan"]],
+          "objectives": ["Structure engineering teams", "Hire well", "Measure engineering performance"]
+        },
+        {
+          "topic": "Production Troubleshooting for Full Stack Systems",
+          "subtopics": ["Outages across the stack", "Database incidents", "Memory leaks and CPU spikes in Node.js", "Front-end failures", "Third-party outages", "Incident command", "Post-incident reviews", "Runbooks"],
+          "tools": ["Grafana", "Sentry", "Node.js diagnostics"],
+          "lab_task": "Resolve four injected incidents (a database lock storm, a Node.js memory leak, a broken front-end release and a payment provider outage), lead the response and write runbooks.",
+          "deliverable": "Incident timelines, fixes and runbooks",
+          "checks": [["Resolve the lock storm", "Database recovers and the cause is found", "Incident record"], ["Fix the memory leak", "Memory stable over 30 minutes", "Memory graph"], ["Write a runbook for provider outages", "Another engineer can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot full stack systems", "Lead incident response", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Scalable Multi-Tenant SaaS Platform",
+          "subtopics": ["System design and architecture", "Event-driven services and data at scale", "Multi-tenancy, billing and security", "Kubernetes, observability and cost", "AI feature and compliance", "Leadership presentation and defence"],
+          "tools": ["TypeScript", "Next.js", "Node.js", "PostgreSQL", "Kafka", "Redis", "Kubernetes", "OpenTelemetry"],
+          "lab_task": "Deliver a multi-tenant SaaS platform with event-driven services, partitioned data, tenant isolation, billing, Kubernetes deployment, SLO monitoring, an AI assistant and privacy features, then load-test and present it.",
+          "deliverable": "Repositories, deployment, dashboards, load test report and a 20-minute presentation",
+          "checks": [["Load-test to the target", "Meets latency SLOs", "Load test report"], ["Query across tenants", "No cross-tenant data", "Test output"], ["Answer leadership questions", "Architecture and cost defended with data", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove scale, isolation and reliability", "Lead full stack architecture"]
+        }
+      ]
+    }
+  }
+}

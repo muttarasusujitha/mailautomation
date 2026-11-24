@@ -1,0 +1,573 @@
+{
+  "domain": "Amazon Redshift",
+  "name": "Amazon Redshift",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["AWS Redshift", "Redshift Data Warehouse", "Redshift", "Redshift Serverless", "Redshift Spectrum", "Amazon Redshift Developer", "Amazon Redshift Administration"],
+  "certifications": ["AWS Certified Data Engineer – Associate"],
+  "tools": ["Amazon Redshift", "Redshift Serverless", "Redshift Query Editor v2", "Redshift Data API", "Redshift Spectrum", "Amazon S3", "AWS Glue Data Catalog", "AWS Lake Formation", "AWS CLI", "Amazon CloudWatch", "AWS DMS", "AWS Schema Conversion Tool", "Amazon SageMaker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, developers and data engineers who know SQL and are new to Amazon Redshift. Covers the leader node, compute nodes and slices, provisioned RA3 clusters and Redshift Serverless, connecting with Query Editor v2, drivers and the Data API, data types, compression encodings, distribution and sort keys, COPY and UNLOAD with S3, analytic SQL, MERGE upserts, views and materialized views, roles and grants, query monitoring, VACUUM and ANALYZE, snapshots, cost controls, and a retail warehouse capstone.",
+      "prerequisites": ["Writes SQL joins, aggregates and subqueries against a relational database", "Has an AWS account or sandbox with rights to create IAM roles, S3 buckets and Redshift resources", "Uses the AWS CLI v2 or CloudShell and a text editor to run commands and edit SQL files"],
+      "outcomes": ["Create provisioned RA3 and Serverless Redshift warehouses and connect with several clients", "Design tables with appropriate data types, encodings, distribution styles and sort keys and prove the effect with EXPLAIN and system views", "Load and export data with COPY and UNLOAD, diagnose load errors and keep tables healthy with VACUUM and ANALYZE", "Secure access with roles and grants, recover data from snapshots and control cost with pause, resume and usage limits"],
+      "days": [
+        {
+          "topic": "Redshift Service Tour: Leader Node, Compute Nodes and Slices",
+          "subtopics": ["Data warehouse versus OLTP workloads: columnar storage and massively parallel processing", "Leader node role: parsing, planning, compiling and result aggregation", "Compute nodes and slices: slice counts for ra3.xlplus, ra3.4xlarge and ra3.16xlarge", "Redshift Managed Storage on RA3: SSD cache backed by Amazon S3", "Provisioned clusters compared with Redshift Serverless", "Redshift as a PostgreSQL-derived engine: what works and what is missing", "Zone maps and 1 MB blocks: why scans skip data", "Where Redshift sits next to S3, Glue, Athena and QuickSight"],
+          "tools": ["Amazon Redshift", "Redshift Serverless", "Query Editor v2", "AWS Management Console"],
+          "lab_task": "In a new AWS account sandbox, open Query Editor v2 against a Redshift Serverless workgroup and run SELECT version(); then query stv_slices or SVV_NODE_STORAGE_CAPACITY if available, and SELECT current_database(), current_user. Draw the leader/compute/slice diagram for your endpoint and record the version string and the number of slices returned.",
+          "deliverable": "One-page architecture sketch with the version() output and slice count from the live endpoint",
+          "checks": [["Run SELECT version() on the workgroup", "Output contains PostgreSQL 8.0.2 and a Redshift 1.0.x build string", "Query Editor v2 result grid"], ["Run SELECT count(*) FROM stv_slices on a provisioned cluster", "Count equals nodes multiplied by slices per node for the node type", "Query result plus node type from describe-clusters"], ["Try CREATE EXTENSION pgcrypto", "Statement fails because PostgreSQL extensions are not supported", "Error text in the editor"]],
+          "objectives": ["Describe the leader node, compute nodes and slices and what each does", "Explain how RA3 managed storage separates compute from storage", "Choose between provisioned and Serverless for a stated workload"]
+        },
+        {
+          "topic": "Provisioned Clusters: RA3 Node Types, Subnet Groups and IAM Roles",
+          "subtopics": ["RA3 node types: ra3.large, ra3.xlplus, ra3.4xlarge and ra3.16xlarge and when each fits", "Legacy DC2 and DS2 nodes and why new work starts on RA3", "Cluster subnet groups, VPC security groups and port 5439", "aws redshift create-cluster flags: --node-type, --number-of-nodes, --master-username, --manage-master-password", "Attaching IAM roles and setting the default IAM role", "Parameter groups and the settings that need a reboot", "Maintenance windows and maintenance tracks", "Describing and deleting clusters with --skip-final-cluster-snapshot"],
+          "tools": ["AWS CLI", "Amazon Redshift", "AWS IAM", "Amazon VPC", "AWS Secrets Manager"],
+          "lab_task": "Run aws redshift create-cluster --cluster-identifier lab-rs --node-type ra3.xlplus --number-of-nodes 2 --master-username awsuser --manage-master-password in a private subnet group, attach an S3 read role with modify-cluster-iam-roles --default-iam-role-arn, wait with aws redshift wait cluster-available, then record Endpoint.Address and ClusterStatus.",
+          "deliverable": "Working two-node cluster with the create command saved in a runbook and describe-clusters output",
+          "checks": [["aws redshift describe-clusters --cluster-identifier lab-rs", "ClusterStatus is available and NumberOfNodes is 2", "CLI JSON output"], ["Connect from a host outside the security group on 5439", "Connection times out until an inbound rule for 5439 is added", "psql timeout then successful connection"], ["Run SELECT * FROM stv_slices after creation", "Four slices are returned for two ra3.xlplus nodes", "Query result"]],
+          "objectives": ["Create a provisioned RA3 cluster from the CLI with a managed admin secret", "Attach IAM roles and set a default role for COPY and Spectrum", "Explain subnet groups, security groups and maintenance windows"]
+        },
+        {
+          "topic": "Redshift Serverless: Namespaces, Workgroups and RPUs",
+          "subtopics": ["Namespace as the data container and workgroup as the compute endpoint", "Redshift Processing Units: base capacity and maximum capacity", "aws redshift-serverless create-namespace and create-workgroup", "Admin credentials with --manage-admin-password", "Associating IAM roles and the default role on a namespace", "Public access, subnets, security groups and the endpoint format", "Serverless idle behaviour: no charge when no queries run", "Choosing Serverless or provisioned: spiky versus steady workloads"],
+          "tools": ["Redshift Serverless", "AWS CLI", "AWS IAM", "Query Editor v2", "Amazon CloudWatch"],
+          "lab_task": "Create a namespace with aws redshift-serverless create-namespace --namespace-name lab-ns --manage-admin-password, then a workgroup with create-workgroup --workgroup-name lab-wg --namespace-name lab-ns --base-capacity 8 --max-capacity 32 and three subnet ids. Run a 1 GB scan query and read compute_seconds from SYS_SERVERLESS_USAGE.",
+          "deliverable": "Namespace and workgroup definitions plus a short note comparing Serverless and provisioned for your workload",
+          "checks": [["aws redshift-serverless get-workgroup --workgroup-name lab-wg", "status is AVAILABLE and baseCapacity is 8", "CLI JSON output"], ["SELECT compute_seconds, compute_capacity FROM sys_serverless_usage ORDER BY start_time DESC LIMIT 5", "At least one row with compute_capacity of 8 or higher after the test query", "Query result"], ["Leave the workgroup idle for 30 minutes then re-read sys_serverless_usage", "No new rows with compute_seconds above 0 for the idle period", "Query result"]],
+          "objectives": ["Create a Serverless namespace and workgroup and explain how they relate", "Set base and maximum RPU capacity for a workload", "Read Serverless usage from system views"]
+        },
+        {
+          "topic": "Connecting with Query Editor v2, JDBC, ODBC, psql and the Data API",
+          "subtopics": ["Query Editor v2 connection types: federated user, temporary credentials and Secrets Manager", "Saved queries, notebooks, charts and sharing in Query Editor v2", "JDBC URL jdbc:redshift://host:5439/dev and the Amazon Redshift JDBC driver", "ODBC DSN and the SQL_ATTR settings used by BI tools", "psql with sslmode=require", "The redshift_connector Python driver", "aws redshift get-cluster-credentials and temporary database users", "Data API: aws redshift-data execute-statement, describe-statement and get-statement-result"],
+          "tools": ["Query Editor v2", "psql", "redshift_connector", "AWS CLI", "JDBC driver", "Redshift Data API"],
+          "lab_task": "Connect three ways to the same endpoint: Query Editor v2, psql with sslmode=require, and aws redshift-data execute-statement --workgroup-name lab-wg --database dev --sql 'select 1'. Poll with describe-statement until Status is FINISHED, then fetch rows with get-statement-result and compare the Id and duration of each approach.",
+          "deliverable": "Connection cheat sheet with working strings for each client and Data API output",
+          "checks": [["aws redshift-data execute-statement then describe-statement --id <Id>", "Status moves from SUBMITTED to FINISHED and HasResultSet is true", "describe-statement JSON"], ["Connect psql with sslmode=disable", "Connection is rejected when require_ssl is true", "psql error message"], ["Run select current_user from psql and from the Data API", "The two users differ (admin user versus IAM-mapped user)", "Both outputs"]],
+          "objectives": ["Connect to Redshift with the console editor, drivers and the Data API", "Use temporary IAM credentials instead of long-lived passwords", "Run an asynchronous Data API statement and fetch its result"]
+        },
+        {
+          "topic": "Databases, Schemas, Cross-Database Queries and Data Types",
+          "subtopics": ["Databases, schemas and the search_path", "CREATE SCHEMA with AUTHORIZATION and QUOTA", "Cross-database queries with three-part names database.schema.table", "Numeric types: SMALLINT, INTEGER, BIGINT, DECIMAL(38) and DOUBLE PRECISION", "CHAR and VARCHAR: lengths measured in bytes up to 65535", "DATE, TIMESTAMP, TIMESTAMPTZ and TIME", "BOOLEAN, VARBYTE, GEOMETRY, HLLSKETCH and SUPER", "Choosing the narrowest type and what an oversized VARCHAR costs"],
+          "tools": ["Query Editor v2", "Amazon Redshift", "psql", "SVV_REDSHIFT_COLUMNS"],
+          "lab_task": "Create database sales_db and schemas stage, core and mart. Build core.orders with narrow integer, DECIMAL(12,2), TIMESTAMPTZ and VARCHAR(40) columns, then query it from another database with SELECT * FROM sales_db.core.orders LIMIT 5. Insert a 41-byte string and record the error, then list columns from SVV_REDSHIFT_COLUMNS.",
+          "deliverable": "DDL script with schemas and tables plus the type-choice rationale for each column",
+          "checks": [["INSERT a 41-byte value into VARCHAR(40)", "ERROR: value too long for type character varying(40)", "Error message"], ["SELECT from sales_db.core.orders while connected to dev", "Rows are returned using the three-part name", "Query result"], ["SELECT data_type FROM svv_redshift_columns WHERE column_name = 'amount'", "numeric is returned with precision 12 and scale 2", "Query result"]],
+          "objectives": ["Organise objects with databases and schemas and query across databases", "Choose correct data types and sizes for columns", "Explain why oversized VARCHAR columns slow queries"]
+        },
+        {
+          "topic": "Columnar Storage, Compression Encodings and ANALYZE COMPRESSION",
+          "subtopics": ["Column-oriented blocks and why SELECT * is expensive", "Automatic compression with ENCODE AUTO", "Encodings: AZ64, ZSTD, LZO, BYTEDICT, RUNLENGTH and RAW", "ANALYZE COMPRESSION table output and reading the est_reduction_pct column", "Compression during COPY: COMPUPDATE ON, PRESET and OFF", "SVV_TABLE_INFO size and pct_used columns", "Uncompressed sort key columns and zone map effectiveness", "Rebuilding a table with CTAS to change encodings"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "SVV_TABLE_INFO", "ANALYZE COMPRESSION"],
+          "lab_task": "Load 10 million rows of synthetic orders into a table created with ENCODE RAW on every column, record size_in_mb from SVV_TABLE_INFO, run ANALYZE COMPRESSION orders_raw, then CTAS to orders_enc with the recommended encodings (or ENCODE AUTO) and compare size and a SELECT sum(amount) scan time.",
+          "deliverable": "Size and timing table for raw versus encoded copies with the ANALYZE COMPRESSION output",
+          "checks": [["SELECT size FROM svv_table_info WHERE \"table\" IN ('orders_raw','orders_enc')", "The encoded table is at least 30 percent smaller than the raw table", "Query result with both sizes"], ["ANALYZE COMPRESSION orders_raw", "A row per column showing the suggested encoding and est_reduction_pct above 0 for most columns", "Command output"], ["SELECT \"column\", encoding FROM pg_table_def WHERE tablename = 'orders_enc'", "No column on the encoded table shows none unless intentionally RAW", "Query result"]],
+          "objectives": ["Explain how column storage and compression reduce I/O", "Apply and compare compression encodings on a real table", "Interpret ANALYZE COMPRESSION recommendations"]
+        },
+        {
+          "topic": "Distribution Styles: AUTO, KEY, ALL and EVEN",
+          "subtopics": ["Why distribution decides data movement during joins", "DISTSTYLE AUTO and how Redshift switches between ALL and EVEN", "DISTSTYLE EVEN and round-robin placement", "DISTSTYLE KEY and DISTKEY choice: high cardinality, join column, even spread", "DISTSTYLE ALL for small dimension tables", "ALTER TABLE ... ALTER DISTSTYLE and ALTER DISTKEY", "Reading diststyle and skew_rows in SVV_TABLE_INFO", "EXPLAIN labels DS_DIST_NONE, DS_BCAST_INNER and DS_DIST_BOTH"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "EXPLAIN", "SVV_TABLE_INFO"],
+          "lab_task": "Create orders and customers three ways: both EVEN, orders KEY on customer_id with customers KEY on customer_id, and customers ALL. Run the same join with EXPLAIN each time and record the DS_ label on the Hash Join, then compare runtimes from SYS_QUERY_HISTORY.elapsed_time.",
+          "deliverable": "Table of three layouts with the EXPLAIN join label and runtime for each",
+          "checks": [["EXPLAIN a join between two tables KEY-distributed on the join column", "Hash Join shows DS_DIST_NONE", "EXPLAIN output"], ["EXPLAIN the same join with both tables EVEN", "Plan shows DS_DIST_BOTH or DS_BCAST_INNER", "EXPLAIN output"], ["SELECT skew_rows FROM svv_table_info for a table keyed on a column with 80 percent NULLs", "skew_rows is far above 1.5, showing uneven slice load", "Query result"]],
+          "objectives": ["Choose a distribution style for fact and dimension tables", "Read EXPLAIN output to spot redistribution and broadcast steps", "Change distribution on an existing table without reloading"]
+        },
+        {
+          "topic": "Sort Keys: Compound, Interleaved and AUTO",
+          "subtopics": ["Sorted blocks, zone maps and block skipping", "Compound sort keys and column order", "Interleaved sort keys and their maintenance cost", "SORTKEY AUTO and Automatic Table Optimization", "Choosing a sort key for time-range filters", "Checking the unsorted percentage in SVV_TABLE_INFO", "Reading rows_pre_filter versus rows in SVL_QUERY_SUMMARY", "Redefining a sort key with ALTER TABLE ... ALTER SORTKEY"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "SVV_TABLE_INFO", "SVL_QUERY_SUMMARY"],
+          "lab_task": "Create events_unsorted and events_sorted (COMPOUND SORTKEY (event_date, user_id)) holding the same 50 million rows. Run SELECT count(*) WHERE event_date BETWEEN '2026-03-01' AND '2026-03-07' on each, with result cache off via SET enable_result_cache_for_session TO off, and compare the blocks scanned and elapsed time.",
+          "deliverable": "Before and after timing table and a note on which sort key you would keep",
+          "checks": [["Run the date-range query on both tables", "The sorted table is faster and scans fewer rows according to SVL_QUERY_SUMMARY", "Elapsed times and rows_pre_filter"], ["SELECT unsorted FROM svv_table_info WHERE \"table\" = 'events_sorted' after a large unsorted append", "unsorted is greater than 0 until VACUUM SORT ONLY runs", "Query result"], ["ALTER TABLE events_sorted ALTER SORTKEY (user_id)", "Statement succeeds and SVV_TABLE_INFO.sortkey1 shows user_id", "Query result"]],
+          "objectives": ["Pick compound or interleaved sort keys for a query pattern", "Measure block skipping with system views", "Alter sort keys on a live table"]
+        },
+        {
+          "topic": "Loading Data with COPY from Amazon S3",
+          "subtopics": ["COPY syntax: FROM, IAM_ROLE, FORMAT AS and REGION", "CSV options: IGNOREHEADER, DELIMITER, QUOTE and NULL AS", "Loading Parquet and ORC with FORMAT AS PARQUET", "GZIP, BZIP2 and ZSTD compressed input", "Splitting files into a multiple of slice count for parallel load", "MAXERROR, COMPUPDATE and STATUPDATE", "Manifest files and loading from an explicit file list", "Verifying loads with SYS_LOAD_HISTORY"],
+          "tools": ["Amazon Redshift", "Amazon S3", "AWS CLI", "Query Editor v2", "SYS_LOAD_HISTORY"],
+          "lab_task": "Split a 2 GB CSV into 8 gzip files with split and gzip, upload with aws s3 cp --recursive, then run COPY orders FROM 's3://<bucket>/orders/' IAM_ROLE default FORMAT AS CSV GZIP IGNOREHEADER 1 REGION '<region>'. Time it, then repeat with one single 2 GB file and compare. Check rows loaded in SYS_LOAD_HISTORY.",
+          "deliverable": "COPY script with timing for eight-file and single-file loads and the SYS_LOAD_HISTORY rows",
+          "checks": [["SELECT count(*) FROM orders after COPY", "Count equals the line count of the source files minus the single header line", "Query result and wc -l output"], ["Compare the load time of 8 files versus 1 file", "Eight files load measurably faster on a multi-slice target", "Both timings"], ["SELECT table_name, loaded_rows FROM sys_load_history ORDER BY start_time DESC LIMIT 1", "loaded_rows matches the row count of the table", "Query result"]],
+          "objectives": ["Load CSV and Parquet files from S3 with COPY using an IAM role", "Parallelise loads by splitting input files", "Verify loads with system views"]
+        },
+        {
+          "topic": "Diagnosing COPY Failures with SYS_LOAD_ERROR_DETAIL and Manifests",
+          "subtopics": ["SYS_LOAD_ERROR_DETAIL and STL_LOAD_ERRORS columns: line_number, colname, err_code and err_reason", "Common err_code values: 1204 string length, 1214 delimiter not found, 1216 invalid input", "Date and number format errors: DATEFORMAT and TIMEFORMAT", "Truncating long strings with TRUNCATECOLUMNS", "Handling embedded delimiters with CSV QUOTE and ESCAPE", "Using MAXERROR and reviewing rejected rows", "Manifest files with mandatory true to fail on missing files", "Re-running idempotently with staging tables and TRUNCATE"],
+          "tools": ["Amazon Redshift", "Amazon S3", "SYS_LOAD_ERROR_DETAIL", "Query Editor v2"],
+          "lab_task": "Prepare a CSV with three seeded faults: a 60-character value for a VARCHAR(40) column, a bad date 2026-13-45 and a row missing a delimiter. Run COPY with MAXERROR 5, then query sys_load_error_detail for line_number, column_name, error_code and error_message. Fix each fault using TRUNCATECOLUMNS, DATEFORMAT and cleaned input.",
+          "deliverable": "Error triage table with each seeded fault, its error code and the fix applied",
+          "checks": [["COPY the faulty file with MAXERROR 0", "COPY aborts with Load into table failed and error code 1204 or 1214 reported", "psql or editor error text"], ["Query sys_load_error_detail after MAXERROR 5", "Three rows with distinct error_code values and line numbers matching the seeded faults", "Query result"], ["Re-run COPY with the fixes", "All rows load and sys_load_error_detail has no new rows for the query", "Row count and empty error query"]],
+          "objectives": ["Locate failing rows and columns from load error views", "Apply COPY options to tolerate or repair bad data", "Design a rerunnable load using a staging table"]
+        },
+        {
+          "topic": "Redshift SQL for Analytics: Window Functions, QUALIFY and LISTAGG",
+          "subtopics": ["Window functions: ROW_NUMBER, RANK, LAG, LEAD and running SUM OVER", "QUALIFY to filter on window results", "LISTAGG with WITHIN GROUP and its 65535-byte limit", "PIVOT and UNPIVOT clauses", "APPROXIMATE COUNT(DISTINCT) and HyperLogLog sketches", "Date functions: DATE_TRUNC, DATEADD, DATEDIFF and CONVERT_TIMEZONE", "PERCENTILE_CONT and MEDIAN", "Common table expressions and recursive CTEs"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "SQL"],
+          "lab_task": "On the orders table write four queries: top 3 customers per region with ROW_NUMBER and QUALIFY, 7-day moving average revenue with ROWS BETWEEN 6 PRECEDING AND CURRENT ROW, product list per order with LISTAGG, and a monthly pivot with PIVOT. Compare COUNT(DISTINCT customer_id) with APPROXIMATE COUNT(DISTINCT customer_id) and report the error percentage.",
+          "deliverable": "SQL file with four analytic queries and the exact versus approximate distinct count comparison",
+          "checks": [["Run the QUALIFY query for top 3 per region", "At most 3 rows per region are returned", "Query result grouped by region"], ["Compare exact and APPROXIMATE COUNT(DISTINCT)", "Approximate value is within about 2 percent of the exact value", "Both counts and computed error"], ["LISTAGG over a group whose concatenation exceeds 65535 bytes", "Error: Result size exceeds LISTAGG limit", "Error message"]],
+          "objectives": ["Write analytic queries with window functions and QUALIFY", "Use approximate aggregates where exactness is not needed", "Handle LISTAGG size limits and pivots"]
+        },
+        {
+          "topic": "UNLOAD to Amazon S3: Parquet, CSV and Partitioned Exports",
+          "subtopics": ["UNLOAD syntax: query in quotes, TO prefix and IAM_ROLE", "FORMAT AS PARQUET versus CSV with HEADER", "PARTITION BY and Hive-style folder layout", "MAXFILESIZE and PARALLEL ON versus OFF", "MANIFEST output and file naming with slice suffixes", "ALLOWOVERWRITE and CLEANPATH", "Server-side encryption with KMSKEY and ENCRYPTED", "Unload as a data lake handoff: query the files with Athena"],
+          "tools": ["Amazon Redshift", "Amazon S3", "AWS CLI", "Amazon Athena"],
+          "lab_task": "Run UNLOAD ('select * from orders where order_date >= ''2026-01-01''') TO 's3://<bucket>/export/orders_' IAM_ROLE default FORMAT AS PARQUET PARTITION BY (order_month) MAXFILESIZE 128 MB CLEANPATH. List files with aws s3 ls --recursive --summarize and count rows by querying the output from Athena.",
+          "deliverable": "UNLOAD statement plus the S3 listing and an Athena row-count reconciliation",
+          "checks": [["aws s3 ls s3://<bucket>/export/ --recursive --summarize", "Folders named order_month=YYYY-MM exist and no object exceeds about 128 MB", "CLI listing"], ["Count rows in Athena over the exported prefix", "Athena count equals SELECT count(*) in Redshift for the same filter", "Both counts"], ["Re-run UNLOAD without ALLOWOVERWRITE or CLEANPATH", "Error: Specified unload destination on S3 is not empty", "Error message"]],
+          "objectives": ["Export query results to S3 in Parquet with partitioning", "Control output file size and layout", "Reconcile exported data against the source table"]
+        },
+        {
+          "topic": "Constraints, MERGE and Upserts on Redshift",
+          "subtopics": ["NOT NULL enforced and PRIMARY KEY, UNIQUE, FOREIGN KEY informational only", "How the planner uses informational constraints", "IDENTITY columns and GENERATED BY DEFAULT AS IDENTITY", "INSERT, UPDATE and DELETE cost in a columnar store", "MERGE INTO ... USING ... WHEN MATCHED and WHEN NOT MATCHED", "Staging-table upsert with DELETE ... USING and INSERT", "ALTER TABLE APPEND for fast moves between tables", "Serializable isolation violation, error 1023, and retry logic"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "psql", "SQL"],
+          "lab_task": "Create dim_customer with PRIMARY KEY (customer_id) and insert a duplicate to confirm it is not enforced. Then build stage.customer_delta and apply it with MERGE INTO core.dim_customer USING stage.customer_delta ON customer_id WHEN MATCHED THEN UPDATE SET ... WHEN NOT MATCHED THEN INSERT. Provoke error 1023 with two concurrent sessions updating the same table.",
+          "deliverable": "Upsert script, duplicate-key demonstration and a note on retrying after error 1023",
+          "checks": [["INSERT the same primary key twice", "Both rows are accepted because the key is informational", "SELECT count(*) = 2 for that key"], ["Run MERGE with 100 changed and 50 new rows", "Row count rises by exactly 50 and 100 rows show updated values", "Counts before and after"], ["Run two overlapping transactions updating one table", "One session fails with ERROR 1023 Serializable isolation violation", "psql error output"]],
+          "objectives": ["Explain which constraints Redshift enforces", "Implement upserts with MERGE and staging tables", "Handle serializable isolation conflicts with retries"]
+        },
+        {
+          "topic": "Views, Late-Binding Views and Materialized Views",
+          "subtopics": ["Standard views and dependency handling when tables change", "Late-binding views with WITH NO SCHEMA BINDING", "Late-binding views over Spectrum external tables", "CREATE MATERIALIZED VIEW and what is stored", "REFRESH MATERIALIZED VIEW and AUTO REFRESH YES", "Checking freshness in STV_MV_INFO and SVL_MV_REFRESH_STATUS", "Automatic query rewrite to a materialized view", "Limits: unsupported constructs and when a view beats a materialized view"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "STV_MV_INFO", "SVL_MV_REFRESH_STATUS"],
+          "lab_task": "Create mart.daily_revenue as a materialized view over orders with AUTO REFRESH YES, query it, insert 1,000 new orders, run REFRESH MATERIALIZED VIEW and read the refresh type from SVL_MV_REFRESH_STATUS. Then create a late-binding view over a table you drop and recreate, confirming it keeps working.",
+          "deliverable": "View definitions with refresh evidence from SVL_MV_REFRESH_STATUS",
+          "checks": [["REFRESH MATERIALIZED VIEW mart.daily_revenue after inserting rows", "SVL_MV_REFRESH_STATUS shows status Refresh successfully updated MV incrementally", "Query result"], ["DROP the base table behind a normal view", "DROP fails with a dependent objects error", "Error message"], ["Drop and recreate the table behind a WITH NO SCHEMA BINDING view", "The view returns rows again without being recreated", "Query result"]],
+          "objectives": ["Create and refresh materialized views", "Use late-binding views to decouple dependencies", "Verify refresh method and freshness from system views"]
+        },
+        {
+          "topic": "Users, Groups, Roles and GRANT Privileges",
+          "subtopics": ["Superuser, admin user and the default roles sys:dba, sys:operator and sys:secadmin", "CREATE USER, ALTER USER and password rules", "Groups versus roles and CREATE ROLE", "GRANT and REVOKE on schemas, tables and functions", "ALTER DEFAULT PRIVILEGES for future tables", "Column-level GRANT SELECT (col)", "Checking access with HAS_TABLE_PRIVILEGE and SVV_ROLE_GRANTS", "IAM database authentication versus database passwords"],
+          "tools": ["Amazon Redshift", "Query Editor v2", "AWS IAM", "SVV_ROLE_GRANTS"],
+          "lab_task": "Create roles analyst_ro and etl_rw, GRANT USAGE ON SCHEMA mart and SELECT on all tables to analyst_ro, grant analyst_ro to user ana, then ALTER DEFAULT PRIVILEGES IN SCHEMA mart GRANT SELECT ON TABLES TO ROLE analyst_ro. Log in as ana, run a SELECT and an INSERT, and run SELECT has_table_privilege('ana','mart.daily_revenue','select').",
+          "deliverable": "Role design with GRANT script and permission test results",
+          "checks": [["As ana run SELECT on mart.daily_revenue", "Rows are returned", "Query result as ana"], ["As ana run INSERT into mart.daily_revenue", "ERROR: permission denied for relation daily_revenue", "Error message"], ["SELECT * FROM svv_role_grants WHERE role_name = 'analyst_ro'", "One row showing ana as a member", "Query result"]],
+          "objectives": ["Create roles and grant least-privilege access", "Use default privileges so new tables stay governed", "Test and audit permissions from system views"]
+        },
+        {
+          "topic": "Monitoring Queries with SYS Views and the Console",
+          "subtopics": ["SYS_QUERY_HISTORY: query_id, status, elapsed_time, queue_time and execution_time", "SYS_QUERY_DETAIL per-step metrics", "SYS_SESSION_HISTORY and SYS_CONNECTION_LOG", "Finding running queries and terminating with CANCEL and PG_TERMINATE_BACKEND", "Legacy STL, STV and SVL views on provisioned clusters", "Console Query monitoring and Performance tabs", "Query labels with SET query_group", "Retention of system view history"],
+          "tools": ["Amazon Redshift", "SYS_QUERY_HISTORY", "Query Editor v2", "AWS Management Console"],
+          "lab_task": "Run three queries with SET query_group TO 'lab', one fast, one a cross join of two 1-million-row tables, and one failing. Query sys_query_history for query_id, status, elapsed_time, queue_time and left(query_text,60), then CANCEL the long query from a second session and confirm status.",
+          "deliverable": "Query log extract showing completed, cancelled and failed statements with timings",
+          "checks": [["SELECT status, count(*) FROM sys_query_history WHERE query_label = 'lab' GROUP BY status", "Rows for success, canceled and failed each with count 1", "Query result"], ["CANCEL <pid> on the cross join", "Session reports ERROR: Query cancelled on user's request", "Session output"], ["Compare elapsed_time and execution_time for the slow query", "elapsed_time is at least execution_time plus queue_time", "Query result"]],
+          "objectives": ["Find and inspect queries from SYS views", "Cancel runaway statements safely", "Tag workloads with query labels for later analysis"]
+        },
+        {
+          "topic": "Table Maintenance: VACUUM, ANALYZE and Automatic Table Optimization",
+          "subtopics": ["Why deletes and updates leave ghost rows", "VACUUM FULL, SORT ONLY, DELETE ONLY and REINDEX", "VACUUM ... TO 99 PERCENT and BOOST", "Automatic vacuum delete and sort in the background", "ANALYZE, ANALYZE PREDICATE COLUMNS and stats_off in SVV_TABLE_INFO", "Automatic Table Optimization recommendations in SVV_ALTER_TABLE_RECOMMENDATIONS", "Reading tbl_rows versus estimated_visible_rows", "Scheduling maintenance outside business hours"],
+          "tools": ["Amazon Redshift", "SVV_TABLE_INFO", "SVV_ALTER_TABLE_RECOMMENDATIONS", "Query Editor v2"],
+          "lab_task": "Delete 30 percent of a 20 million row table, record tbl_rows, estimated_visible_rows and size from SVV_TABLE_INFO, run VACUUM DELETE ONLY then ANALYZE, and record them again. Query svv_alter_table_recommendations and list any suggested key changes.",
+          "deliverable": "Before and after maintenance table plus the recommendations list",
+          "checks": [["SELECT tbl_rows, estimated_visible_rows FROM svv_table_info after the delete", "tbl_rows exceeds estimated_visible_rows by about 30 percent", "Query result"], ["Run VACUUM DELETE ONLY then re-check svv_table_info", "tbl_rows now equals estimated_visible_rows", "Query result"], ["SELECT stats_off FROM svv_table_info after bulk insert and then ANALYZE", "stats_off drops to 0 after ANALYZE", "Before and after values"]],
+          "objectives": ["Explain what VACUUM and ANALYZE repair", "Run and verify maintenance with system views", "Use Automatic Table Optimization recommendations"]
+        },
+        {
+          "topic": "Snapshots, Backups and Restore",
+          "subtopics": ["Automated snapshots: every 8 hours or 5 GB per node and retention of 1 to 35 days", "Manual snapshots and retention", "aws redshift create-cluster-snapshot and restore-from-cluster-snapshot", "Table-level restore with restore-table-from-cluster-snapshot", "Serverless recovery points and snapshots: aws redshift-serverless create-snapshot", "Restoring to a new namespace with restore-from-snapshot", "Snapshot schedules and excluding tables with BACKUP NO", "Cross-account snapshot sharing with authorize-snapshot-access"],
+          "tools": ["AWS CLI", "Amazon Redshift", "Redshift Serverless", "Amazon S3"],
+          "lab_task": "Create a manual snapshot with aws redshift create-cluster-snapshot, DROP a table, then restore only that table into a new name using aws redshift restore-table-from-cluster-snapshot --source-database-name dev --source-table-name orders --new-table-name orders_restored. For Serverless, create a snapshot and list recovery points with list-recovery-points.",
+          "deliverable": "Backup and restore runbook with commands and verified row counts",
+          "checks": [["restore-table-from-cluster-snapshot then SELECT count(*) FROM orders_restored", "Count equals the count captured at snapshot time", "Command output and query result"], ["aws redshift describe-cluster-snapshots --snapshot-type manual", "Snapshot status is available", "CLI JSON"], ["aws redshift-serverless list-recovery-points", "Recovery points exist from the last 24 hours at about 30-minute spacing", "CLI output"]],
+          "objectives": ["Take and restore cluster and Serverless snapshots", "Restore a single table without a full restore", "Set retention and sharing for backups"]
+        },
+        {
+          "topic": "Cost Control: On-Demand, Reserved Nodes, Pause and Resume, RPU Limits",
+          "subtopics": ["Provisioned pricing: on-demand hourly node cost versus 1 and 3 year reserved nodes", "Serverless pricing: RPU-hours billed per second with a 60-second minimum", "Managed storage billing for RA3 and Serverless", "aws redshift pause-cluster and resume-cluster, and scheduled actions", "Usage limits: aws redshift-serverless create-usage-limit with --breach-action", "Concurrency Scaling free credits and usage limits", "Cost allocation tags and Cost Explorer filters", "Spectrum scan cost per terabyte"],
+          "tools": ["AWS CLI", "AWS Cost Explorer", "Amazon Redshift", "Redshift Serverless", "Amazon CloudWatch"],
+          "lab_task": "Pause the lab cluster with aws redshift pause-cluster and create a scheduled action pair with aws redshift create-scheduled-action to pause at 20:00 and resume at 07:00. On Serverless run aws redshift-serverless create-usage-limit --usage-type serverless-compute --amount 100 --period daily --breach-action log, then read the daily RPU-hours from SYS_SERVERLESS_USAGE.",
+          "deliverable": "Cost control plan with commands, limits set and a monthly estimate for the lab workload",
+          "checks": [["aws redshift describe-clusters after pause-cluster", "ClusterStatus is paused", "CLI JSON"], ["aws redshift-serverless list-usage-limits", "One limit with amount 100, period daily and breachAction log", "CLI JSON"], ["Sum compute_seconds from sys_serverless_usage for today and multiply by capacity", "RPU-hours figure matches Cost Explorer within rounding", "Calculation and Cost Explorer value"]],
+          "objectives": ["Compare provisioned, reserved and Serverless cost models", "Pause, resume and schedule clusters to cut idle spend", "Set usage limits and cost tags"]
+        },
+        {
+          "topic": "Capstone: Retail Analytics Warehouse on Redshift",
+          "subtopics": ["Requirements and a star schema for retail sales", "Table design: distribution keys, sort keys and encodings with evidence", "Parallel COPY pipeline from S3 with error handling and verification", "Materialized views and role-based access for analysts", "Maintenance, snapshots and cost controls", "Demo with runtime comparison and a design review"],
+          "tools": ["Amazon Redshift", "Redshift Serverless", "Amazon S3", "Query Editor v2", "AWS CLI", "Amazon CloudWatch"],
+          "lab_task": "Build a retail star schema (fact_sales 50 million rows, dim_customer, dim_product, dim_date) on Serverless: choose keys with EXPLAIN evidence, COPY from 16 gzip files, create two materialized views, grant analyst_ro read access, take a snapshot, set a daily RPU usage limit. Present five queries each under 5 seconds.",
+          "deliverable": "Working warehouse, DDL and COPY scripts, design rationale and a five-query benchmark table",
+          "checks": [["Run the five benchmark queries with result cache off", "Each completes in under 5 seconds per SYS_QUERY_HISTORY", "Query history extract"], ["As analyst_ro attempt DELETE on fact_sales", "Permission denied", "Error text"], ["Count rows across the fact table versus source files", "Both counts are equal after COPY", "Both counts"]],
+          "objectives": ["Design and load a dimensional model on Redshift", "Apply keys, encodings, views and permissions together", "Demonstrate measured performance and cost control"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers and analytics developers who already run Redshift tables and loads. Covers Spectrum and Iceberg on the Glue Data Catalog, SUPER and PartiQL, stored procedures, SQL and Lambda UDFs and the Python UDF retirement, EXPLAIN-driven tuning, automatic and manual workload management, concurrency scaling, materialized view maintenance, Automatic Table Optimization, streaming ingestion and auto-copy, zero-ETL integrations, data sharing, federated queries, the Data API with Step Functions, monitoring, and row and column security with a lakehouse capstone.",
+      "prerequisites": ["Has built Redshift tables, loaded them with COPY and chosen distribution and sort keys", "Reads EXPLAIN output and queries SYS monitoring views", "Has used S3, IAM roles and the AWS CLI to configure services"],
+      "outcomes": ["Query data lake and semi-structured data from Redshift with Spectrum, Iceberg tables and SUPER", "Tune concurrency and performance with workload management, concurrency scaling, materialized views and workload-based keys", "Ingest continuously with streaming, auto-copy and zero-ETL and share data across warehouses with datashares and federated queries", "Orchestrate, monitor and secure a warehouse with the Data API, CloudWatch, audit logs, row-level security and data masking"],
+      "days": [
+        {
+          "topic": "Redshift Spectrum: External Schemas on the Glue Data Catalog",
+          "subtopics": ["Spectrum layer: separate fleet scanning S3 and returning partial aggregates", "CREATE EXTERNAL SCHEMA ... FROM DATA CATALOG DATABASE ... IAM_ROLE default", "CREATE EXTERNAL TABLE with STORED AS PARQUET and LOCATION", "Partitioned external tables and ALTER TABLE ADD PARTITION", "Glue crawlers versus manual DDL", "Pseudocolumns $path and $size", "Reading SVL_S3QUERY_SUMMARY: s3_scanned_rows and s3query_returned_rows", "Spectrum pricing per TB scanned and the same-Region S3 requirement"],
+          "tools": ["Redshift Spectrum", "AWS Glue Data Catalog", "Amazon S3", "Amazon Athena", "Query Editor v2"],
+          "lab_task": "Upload 3 months of Parquet click logs to S3 partitioned by dt=, then run CREATE EXTERNAL SCHEMA spectrum FROM DATA CATALOG DATABASE 'clicks' IAM_ROLE default CREATE EXTERNAL DATABASE IF NOT EXISTS, create the external table, ADD PARTITIONs and run a query filtered on dt. Read s3_scanned_rows and files from svl_s3query_summary.",
+          "deliverable": "External schema DDL with partition pruning proof from SVL_S3QUERY_SUMMARY",
+          "checks": [["Query with WHERE dt = '2026-03-01' versus no filter", "Filtered query scans about one ninety-first of the files", "files and s3_scanned_rows from svl_s3query_summary"], ["SELECT \"$path\" FROM spectrum.clicks LIMIT 3", "S3 object paths are returned", "Query result"], ["Query an external table whose bucket is in another Region", "Spectrum error: bucket must be in the same Region as the cluster", "Error message"]],
+          "objectives": ["Create external schemas and tables over S3 data", "Prove partition pruning and measure bytes scanned", "Explain Spectrum cost and Region constraints"]
+        },
+        {
+          "topic": "Querying Open Table Formats: Apache Iceberg and Hudi from Redshift",
+          "subtopics": ["Iceberg tables registered in the Glue Data Catalog and queried through external schemas", "Snapshots, manifests and metadata files from a reader perspective", "Time travel and what Redshift can and cannot do with it", "Reading Delta Lake and Hudi tables through Spectrum manifests", "Writing to Iceberg tables from Redshift and what the current release supports", "Compaction and small-file impact on scan performance", "Partition evolution seen from a Redshift query", "Choosing between a Redshift native table and an Iceberg table"],
+          "tools": ["Redshift Spectrum", "Apache Iceberg", "AWS Glue Data Catalog", "Amazon Athena", "Amazon S3"],
+          "lab_task": "Create an Iceberg table in Athena (CREATE TABLE ... TBLPROPERTIES ('table_type'='ICEBERG')), insert 100,000 rows, then query it from Redshift through an external schema. Insert 1,000 more rows in Athena and re-query from Redshift to confirm the new snapshot is visible. Record Redshift and Athena elapsed times.",
+          "deliverable": "Iceberg table walk-through with matching counts from both engines and a native-versus-Iceberg decision note",
+          "checks": [["SELECT count(*) from Redshift after the first Athena insert", "Returns 100000", "Query result"], ["Insert 1,000 rows in Athena then re-run the count in Redshift", "Returns 101000 without recreating the external table", "Both results"], ["SELECT count(*) from the Iceberg external table filtered on one partition value", "Only that partition's files are scanned and the files column in svl_s3query_summary is smaller than the table total", "Query result and svl_s3query_summary row"]],
+          "objectives": ["Query Iceberg tables from Redshift through the Glue catalog", "Explain snapshot visibility across engines", "Decide between native and open-format tables"]
+        },
+        {
+          "topic": "Semi-Structured Data with SUPER, PartiQL and JSON Functions",
+          "subtopics": ["The SUPER type and the 16 MB value limit", "JSON_PARSE and loading JSON with COPY ... FORMAT JSON 'noshred'", "PartiQL navigation: col.a.b[0] and case-sensitive attribute names", "SET enable_case_sensitive_identifier TO true", "Unnesting arrays with FROM t, t.items AS i AT idx", "Type functions: IS_ARRAY, IS_OBJECT, TYPEOF and OBJECT_TRANSFORM", "Dynamic typing and lax mode on type mismatch", "Materialized views over SUPER columns for speed"],
+          "tools": ["Amazon Redshift", "SUPER", "PartiQL", "Query Editor v2", "Amazon S3"],
+          "lab_task": "COPY 200,000 nested order JSON documents into a SUPER column with FORMAT JSON 'noshred'. Query o.customer.id, unnest o.items AS i, sum i.qty * i.price by SKU, and compare with a shredded relational version. Create a materialized view that extracts the hot fields and compare runtimes.",
+          "deliverable": "Nested JSON queries, unnest example and a speed comparison against the materialized view",
+          "checks": [["SELECT count(*) FROM orders_json, orders_json.o.items AS i", "Equals the total number of item objects in the source files", "Query result and jq count"], ["SELECT typeof(o.customer.id) FROM orders_json LIMIT 1", "Returns a numeric or string type consistent with the source", "Query result"], ["Query the hot-field materialized view versus the SUPER column", "View is faster and returns identical totals", "Both timings and totals"]],
+          "objectives": ["Load and query nested JSON with SUPER and PartiQL", "Unnest arrays into relational rows", "Speed up semi-structured queries with materialized views"]
+        },
+        {
+          "topic": "Stored Procedures in PL/pgSQL with Transactions and Error Handling",
+          "subtopics": ["CREATE PROCEDURE ... LANGUAGE plpgsql and CALL", "IN, OUT and INOUT parameters and result sets with refcursor", "Control flow: IF, LOOP, FOR over query results and dynamic SQL with EXECUTE", "EXCEPTION WHEN OTHERS THEN and RAISE INFO, WARNING and EXCEPTION", "Transaction control: COMMIT, ROLLBACK and NONATOMIC mode", "SECURITY DEFINER and SECURITY INVOKER", "Logging into an audit table and reading SVL_STORED_PROC_CALL", "Procedure versus external orchestration trade-offs"],
+          "tools": ["Amazon Redshift", "PL/pgSQL", "Query Editor v2", "SVL_STORED_PROC_CALL"],
+          "lab_task": "Write sp_load_daily(p_date date) that deletes the day's rows in core.fact_sales, inserts from stage.sales_raw, checks rows_inserted = rows_staged and RAISE EXCEPTION on mismatch, writing a result row to audit.load_log in an EXCEPTION block. CALL it twice for the same date and prove idempotence.",
+          "deliverable": "Stored procedure with audit logging and idempotence evidence",
+          "checks": [["CALL sp_load_daily('2026-03-01') twice", "Row count for the day is identical after both calls", "Counts after each call"], ["Stage a file with a missing row and CALL", "Procedure raises the custom exception and the fact table is unchanged", "Error message and count"], ["SELECT * FROM audit.load_log ORDER BY ts DESC LIMIT 3", "Rows with status SUCCESS and FAILED are present", "Query result"]],
+          "objectives": ["Write transactional stored procedures with exception handling", "Make loads idempotent", "Log procedure outcomes for audit"]
+        },
+        {
+          "topic": "User-Defined Functions: SQL and Lambda UDFs and the Python UDF Retirement",
+          "subtopics": ["Scalar SQL UDFs with CREATE FUNCTION ... IMMUTABLE AS $$ SELECT ... $$ LANGUAGE sql", "Volatility keywords IMMUTABLE, STABLE and VOLATILE", "Lambda UDFs: CREATE EXTERNAL FUNCTION ... LAMBDA and IAM_ROLE", "Batching and payload size in Lambda UDFs", "Python UDF retirement timeline and migration to Lambda UDFs or SQL", "Tokenization and masking examples through Lambda", "Testing UDF results and permissions with GRANT EXECUTE", "Cost and latency of calling Lambda per row batch"],
+          "tools": ["Amazon Redshift", "AWS Lambda", "Query Editor v2", "AWS IAM", "Amazon CloudWatch"],
+          "lab_task": "Create a SQL UDF f_margin(price, cost) and use it in a query. Deploy a Python Lambda that upper-cases and hashes an email, create it in Redshift with CREATE EXTERNAL FUNCTION f_hash(varchar) RETURNS varchar LAMBDA 'hash-fn' IAM_ROLE default, call it on 100,000 rows and read invocation count and duration in CloudWatch.",
+          "deliverable": "UDF scripts and a table of invocations, duration and total runtime",
+          "checks": [["SELECT f_margin(10,7)", "Returns 3", "Query result"], ["SELECT f_hash(email) FROM customers LIMIT 5 run twice", "Identical hashes for identical inputs", "Both outputs"], ["Compare Lambda invocations to row count", "Invocations are far fewer than 100000 because rows are batched", "CloudWatch invocation count"]],
+          "objectives": ["Write SQL scalar UDFs and choose volatility correctly", "Call AWS Lambda from Redshift SQL", "Plan the move off Python UDFs"]
+        },
+        {
+          "topic": "Query Planning with EXPLAIN: Join Strategies and Statistics",
+          "subtopics": ["Reading EXPLAIN: XN Seq Scan, XN Hash Join, XN Merge Join, XN Aggregate and XN Sort", "Cost numbers and row estimates", "Join distribution labels DS_DIST_NONE, DS_DIST_ALL_NONE, DS_DIST_INNER, DS_BCAST_INNER and DS_DIST_BOTH", "Stale statistics: stats_off and effect on estimates", "Predicate pushdown and filtering before join", "Subquery rewrite and correlated subquery plans", "EXPLAIN versus actual runtime in SYS_QUERY_DETAIL", "Query rewrite with CTAS temporary tables"],
+          "tools": ["Amazon Redshift", "EXPLAIN", "SYS_QUERY_DETAIL", "Query Editor v2"],
+          "lab_task": "Take a 4-table join over the retail schema, record EXPLAIN output, then load 10 million new rows without ANALYZE (STATUPDATE OFF) and re-run. Compare estimated rows with actual rows from sys_query_detail, run ANALYZE and compare the plan, and record join labels at each step.",
+          "deliverable": "Annotated plans before and after ANALYZE with estimate versus actual rows",
+          "checks": [["EXPLAIN after loading with STATUPDATE OFF", "Row estimate for the fact table is much lower than the real count", "EXPLAIN rows value and count(*)"], ["Run ANALYZE and EXPLAIN again", "Row estimate is within 10 percent of actual and the join order or label changes", "New EXPLAIN output"], ["Find DS_BCAST_INNER in a plan", "Inner table is broadcast to every node and its size is shown as the cause of the slow step", "Plan excerpt"]],
+          "objectives": ["Read EXPLAIN plans and join strategy labels", "Link stale statistics to bad plans", "Compare estimated and actual row counts"]
+        },
+        {
+          "topic": "Workload Management: Automatic WLM, Query Priority and Query Groups",
+          "subtopics": ["Automatic WLM versus manual WLM and auto_wlm in wlm_json_configuration", "Query priority levels: LOWEST to HIGHEST, and CRITICAL for superusers", "Assigning queues by user group and query group", "SET query_group TO and WLM query assignment rules", "The superuser queue and the default queue", "Short query acceleration interaction", "Observing queue time in SYS_QUERY_HISTORY.queue_time and STV_WLM_QUERY_STATE", "Serverless: no WLM queues, and workgroup scaling instead"],
+          "tools": ["Amazon Redshift", "WLM", "Parameter Groups", "AWS CLI", "Query Editor v2"],
+          "lab_task": "On a provisioned cluster, create a parameter group with automatic WLM and two queues, etl (priority LOW) and dashboards (priority HIGH), assigned by user group. Apply with aws redshift modify-cluster-parameter-group, reboot, run a 30-query ETL batch and 10 dashboard queries together, then compare queue_time per group.",
+          "deliverable": "WLM JSON configuration and a queue_time comparison by queue",
+          "checks": [["SELECT query_label, avg(queue_time) FROM sys_query_history GROUP BY 1", "Dashboard queries show lower average queue_time than ETL queries under load", "Query result"], ["SELECT * FROM stv_wlm_service_class_config", "Two user queues with the configured priorities appear", "Query result"], ["Run the workload with both queues at the same priority", "Average queue times converge", "Second query result"]],
+          "objectives": ["Configure automatic WLM queues and priorities", "Route workloads by user group and query group", "Measure queueing from system views"]
+        },
+        {
+          "topic": "Manual WLM, Query Monitoring Rules and Short Query Acceleration",
+          "subtopics": ["Manual WLM queues: memory percent, concurrency and timeout", "Query monitoring rules: predicates query_execution_time, scan_row_count, return_row_count, spectrum_scan_size_mb and query_temp_blocks_to_disk", "QMR actions: log, hop, abort and change_query_priority", "Hopping queries and the wlm_query_slot_count parameter", "Short query acceleration and its max runtime", "Reading STL_WLM_RULE_ACTION", "Rules that protect against Spectrum cost runaways", "When to leave manual WLM"],
+          "tools": ["Amazon Redshift", "WLM", "QMR", "STL_WLM_RULE_ACTION", "AWS CLI"],
+          "lab_task": "Add a query monitoring rule 'abort_big_scan' (scan_row_count > 1000000000, action abort) and 'log_slow' (query_execution_time > 60, action log) to a queue through wlm_json_configuration. Run a full-table cross join and a normal query, then read stl_wlm_rule_action for the action taken.",
+          "deliverable": "WLM JSON rules with the action log proving each rule fired",
+          "checks": [["Run the cross join that exceeds the scan rule", "Query aborts with a query monitoring rule error", "Error message"], ["SELECT rule, action FROM stl_wlm_rule_action ORDER BY recordtime DESC LIMIT 5", "abort_big_scan with action abort is listed", "Query result"], ["Run a 5-second query", "It completes and no rule row is written", "Absence of new rows"]],
+          "objectives": ["Define query monitoring rules and actions", "Verify rule firing from system tables", "Decide when manual WLM is still justified"]
+        },
+        {
+          "topic": "Concurrency Scaling and Serverless Elasticity",
+          "subtopics": ["Concurrency scaling for read and write queries on provisioned RA3", "max_concurrency_scaling_clusters parameter and queue-level concurrency_scaling = auto", "Which queries are eligible and which are not", "Free credit: 1 hour per day per cluster for typical use", "Usage limits for concurrency scaling", "Identifying scaled queries with compute_type in SYS_QUERY_HISTORY", "Serverless auto-scaling behaviour with max capacity and no queueing", "Load test design with 50 concurrent sessions"],
+          "tools": ["Amazon Redshift", "Concurrency Scaling", "Redshift Serverless", "AWS CLI", "Amazon CloudWatch"],
+          "lab_task": "Set max_concurrency_scaling_clusters to 2, mark the dashboards queue concurrency_scaling = auto and run 50 parallel dashboard queries with a loop of aws redshift-data execute-statement calls. Query sys_query_history for compute_type and compare with an unscaled run, then add create-usage-limit --feature-type concurrency-scaling.",
+          "deliverable": "Load test script with elapsed percentiles and the share of scaled queries",
+          "checks": [["SELECT compute_type, count(*) FROM sys_query_history WHERE query_label='dash' GROUP BY 1", "Some queries show concurrency-scaling and the rest primary", "Query result"], ["Compare p95 elapsed_time with and without scaling", "p95 drops with scaling enabled", "Both percentile figures"], ["aws redshift describe-usage-limits", "A concurrency-scaling limit with the chosen period appears", "CLI JSON"]],
+          "objectives": ["Enable concurrency scaling and read which queries used it", "Compare provisioned scaling with Serverless elasticity", "Cap scaling spend with usage limits"]
+        },
+        {
+          "topic": "Materialized View Maintenance: Auto Refresh, Incremental Refresh and Rewrite",
+          "subtopics": ["Incremental versus full refresh and what forces a full refresh", "AUTO REFRESH YES and refresh priority behind user queries", "Materialized views over Spectrum external tables and over other materialized views", "Stacked views and refresh ordering", "Automatic query rewrite and verifying with EXPLAIN", "Monitoring SVL_MV_REFRESH_STATUS and STV_MV_INFO is_stale", "Cost of materialized views in storage and compute", "Autonomics: Automated Materialized Views (AutoMV)"],
+          "tools": ["Amazon Redshift", "Materialized Views", "SVL_MV_REFRESH_STATUS", "EXPLAIN", "Query Editor v2"],
+          "lab_task": "Build mv_sales_by_day (AUTO REFRESH YES) and mv_sales_by_month on top of it. Insert 50,000 rows, wait for auto refresh and query svl_mv_refresh_status. Then run a base-table aggregate and check EXPLAIN for XN Seq Scan on mv_sales_by_day. Then trigger a full refresh by using a non-incremental construct and record the difference.",
+          "deliverable": "Materialized view chain with refresh logs and a rewrite plan",
+          "checks": [["SELECT mv_name, status FROM svl_mv_refresh_status ORDER BY starttime DESC LIMIT 5", "Incremental refresh message for the simple view and a recomputation message for the non-incremental view", "Query result"], ["EXPLAIN SELECT date, sum(amount) FROM fact_sales GROUP BY 1", "Plan scans the materialized view instead of fact_sales", "EXPLAIN output"], ["SELECT is_stale FROM stv_mv_info WHERE name='mv_sales_by_day' right after the insert", "is_stale shows t until refresh completes", "Query result"]],
+          "objectives": ["Operate auto-refreshing materialized views", "Tell incremental refresh from full recomputation", "Verify automatic query rewrite in plans"]
+        },
+        {
+          "topic": "Automatic Table Optimization and Key Selection from Workload Evidence",
+          "subtopics": ["Auto distribution and auto sort keys on new tables", "SVV_ALTER_TABLE_RECOMMENDATIONS fields: type, database, table_id and ddl", "Applying recommendations with the generated DDL", "Disabling automation for chosen tables", "Join and filter analysis from SYS_QUERY_DETAIL and SYS_QUERY_HISTORY", "Skew detection from SVV_TABLE_INFO.skew_rows and per-slice counts", "Testing key changes on a CTAS copy before ALTER", "Change tracking and rollback plan"],
+          "tools": ["Amazon Redshift", "SVV_ALTER_TABLE_RECOMMENDATIONS", "SYS_QUERY_DETAIL", "EXPLAIN", "Query Editor v2"],
+          "lab_task": "Create fact_clicks with DISTSTYLE AUTO and SORTKEY AUTO, run a 200-query repeat workload that filters on event_ts and joins on user_id, then read svv_alter_table_recommendations. Apply the recommended DDL on a CTAS copy and compare elapsed_time for the workload before and after.",
+          "deliverable": "Workload script, recommendation output and before/after metrics",
+          "checks": [["SELECT type, ddl FROM svv_alter_table_recommendations WHERE \"table\"='fact_clicks'", "At least one recommendation row with ALTER TABLE statement", "Query result"], ["Re-run the workload on the CTAS copy", "Median query time improves versus baseline", "Both medians"], ["SELECT diststyle, sortkey1 FROM svv_table_info for the new table", "Match the applied recommendation", "Query result"]],
+          "objectives": ["Use automation recommendations with evidence", "Test key changes safely on copies", "Measure the effect on a repeat workload"]
+        },
+        {
+          "topic": "Streaming Ingestion and Auto-Copy from Amazon S3",
+          "subtopics": ["Streaming ingestion from Kinesis Data Streams: CREATE EXTERNAL SCHEMA ... FROM KINESIS", "Streaming ingestion from Amazon MSK with authentication iam", "Streaming materialized view: JSON_PARSE(kinesis_data) and approximate_arrival_timestamp", "AUTO REFRESH YES latency and refresh cost", "Auto-copy: COPY ... JOB CREATE ... AUTO ON with S3 event integration", "Duplicate handling and idempotent design", "Monitoring lag with SYS_STREAM_SCAN_ERRORS and SYS_LOAD_HISTORY", "Choosing streaming versus micro-batch COPY"],
+          "tools": ["Amazon Kinesis Data Streams", "Amazon MSK", "Amazon Redshift", "Amazon S3", "AWS CLI"],
+          "lab_task": "Create a Kinesis stream, then in Redshift CREATE EXTERNAL SCHEMA kds FROM KINESIS IAM_ROLE default and a materialized view with AUTO REFRESH YES selecting JSON_PARSE(kinesis_data). Put 1,000 records with aws kinesis put-records and measure the delay until the view reports them. Then create an auto-copy job for an S3 prefix and drop 5 files.",
+          "deliverable": "Streaming view and auto-copy job with measured latencies",
+          "checks": [["SELECT count(*) FROM mv_clicks after put-records of 1000 records", "Returns 1000 within the refresh interval", "Query result and elapsed time"], ["Drop 5 CSV files in the auto-copy S3 prefix", "All 5 files appear in the table without a manual COPY", "Row count and SYS_LOAD_HISTORY"], ["Put malformed JSON in the stream", "The view still refreshes and the error is visible in the error system view", "Query result"]],
+          "objectives": ["Ingest from Kinesis or MSK into Redshift with a materialized view", "Configure auto-copy for continuous S3 loads", "Measure and monitor ingestion latency"]
+        },
+        {
+          "topic": "Zero-ETL Integrations from Aurora, RDS and DynamoDB",
+          "subtopics": ["Zero-ETL sources: Aurora MySQL, Aurora PostgreSQL, RDS MySQL and DynamoDB", "Prerequisites: enhanced binlog or logical replication settings and the case-sensitive identifier parameter", "aws rds create-integration with --source-arn and --target-arn", "CREATE DATABASE ... FROM INTEGRATION and read-only target semantics", "Monitoring: SVV_INTEGRATION and SYS_INTEGRATION_ACTIVITY", "Table states and resync in SVV_INTEGRATION_TABLE_STATE", "Data type mapping and unsupported tables", "History mode and lag expectations"],
+          "tools": ["Zero-ETL", "Amazon Aurora", "Amazon RDS", "Amazon Redshift", "AWS CLI"],
+          "lab_task": "Create a zero-ETL integration with aws rds create-integration --integration-name orders-zetl --source-arn <aurora-cluster-arn> --target-arn <namespace-arn>, then CREATE DATABASE orders_zetl FROM INTEGRATION '<id>' DATABASE 'shop'. Insert 1,000 rows in Aurora and measure how long until they show in Redshift. Read svv_integration.",
+          "deliverable": "Working integration with measured replication lag and monitoring queries",
+          "checks": [["SELECT integration_id, state FROM svv_integration", "State is Active", "Query result"], ["Insert 1,000 rows in Aurora and count in Redshift", "Count equals the source after replication, measured lag recorded", "Both counts and lag in seconds"], ["INSERT into orders_zetl.shop.orders from Redshift", "Statement fails because the zero-ETL database is read-only", "Error message"]],
+          "objectives": ["Create and monitor a zero-ETL integration", "Query replicated data as read-only Redshift tables", "Measure replication lag and handle table resyncs"]
+        },
+        {
+          "topic": "Data Sharing: Datashares Across Clusters, Workgroups and Accounts",
+          "subtopics": ["Producer and consumer namespaces", "CREATE DATASHARE, ALTER DATASHARE ADD SCHEMA and ADD TABLE", "INCLUDENEW for schema objects", "GRANT USAGE ON DATASHARE TO NAMESPACE and TO ACCOUNT", "Cross-account authorization with aws redshift authorize-data-share", "CREATE DATABASE ... FROM DATASHARE ... OF NAMESPACE", "Querying shared data with live, transactionally consistent reads", "SVV_DATASHARES, SVV_DATASHARE_OBJECTS and SHOW DATASHARES"],
+          "tools": ["Amazon Redshift", "Data Sharing", "AWS CLI", "Query Editor v2", "AWS IAM"],
+          "lab_task": "On a producer workgroup run CREATE DATASHARE sales_ds; ALTER DATASHARE sales_ds ADD SCHEMA core; ADD TABLE core.fact_sales; GRANT USAGE ON DATASHARE sales_ds TO NAMESPACE '<consumer-guid>'. On the consumer run CREATE DATABASE sales_shared FROM DATASHARE sales_ds OF NAMESPACE '<producer-guid>' and query it. Insert on the producer and re-query.",
+          "deliverable": "Producer and consumer scripts with a freshness test",
+          "checks": [["SELECT count(*) FROM sales_shared.core.fact_sales on the consumer", "Count equals the producer table count", "Both counts"], ["Insert 100 rows on the producer and re-query without copying", "Consumer count rises by 100 immediately after commit", "Counts before and after"], ["INSERT from the consumer into the shared table with a read-only share", "Permission or read-only error", "Error message"]],
+          "objectives": ["Share live data between namespaces without copying", "Authorize cross-account datashares", "Check shared objects with system views"]
+        },
+        {
+          "topic": "Federated Queries to Aurora and RDS PostgreSQL and MySQL",
+          "subtopics": ["CREATE EXTERNAL SCHEMA ... FROM POSTGRES and FROM MYSQL", "URI, PORT, DATABASE and SCHEMA options", "SECRET_ARN with Secrets Manager credentials", "Network paths: same VPC, peering and security groups", "Predicate pushdown and viewing pushed filters in EXPLAIN", "SYS_EXTERNAL_QUERY_DETAIL", "Join between a Redshift fact table and a remote dimension table", "When to use federation versus zero-ETL"],
+          "tools": ["Amazon Redshift", "Federated Query", "AWS Secrets Manager", "Amazon Aurora", "SYS_EXTERNAL_QUERY_DETAIL"],
+          "lab_task": "Store Aurora PostgreSQL credentials in Secrets Manager, create CREATE EXTERNAL SCHEMA pg FROM POSTGRES DATABASE 'shop' SCHEMA 'public' URI '<endpoint>' PORT 5432 IAM_ROLE default SECRET_ARN '<arn>', query pg.customers, then join it with fact_sales. Check pushed predicates in EXPLAIN and rows returned in sys_external_query_detail.",
+          "deliverable": "Federated schema DDL, a join example and pushdown evidence",
+          "checks": [["SELECT count(*) FROM pg.customers", "Count equals the Aurora table count", "Both counts"], ["EXPLAIN a query filtered on pg.customers.id = 5", "Remote Query Scan shows the filter in the pushed-down query", "EXPLAIN output"], ["Remove the Secrets Manager permission from the role and retry", "Query fails with a permission error from Secrets Manager", "Error message"]],
+          "objectives": ["Query operational PostgreSQL and MySQL from Redshift", "Verify predicate pushdown", "Choose federation versus replication"]
+        },
+        {
+          "topic": "Redshift Data API with AWS Lambda and Step Functions",
+          "subtopics": ["execute-statement, batch-execute-statement, describe-statement and get-statement-result", "Statuses SUBMITTED, PICKED, STARTED, FINISHED, FAILED and ABORTED", "Authentication: Secrets Manager ARN or temporary IAM credentials", "--with-event and EventBridge events when a statement finishes", "Parameterised statements with --parameters", "Pagination with NextToken and result size limits", "Step Functions optimized integration for the Redshift Data API", "Idempotent client tokens and error handling"],
+          "tools": ["Redshift Data API", "AWS Lambda", "AWS Step Functions", "Amazon EventBridge", "AWS CLI"],
+          "lab_task": "Create a Step Functions state machine that runs three Redshift Data API statements (stage, merge, analyze) using the redshiftdata:executeStatement.sync integration with the workgroup and secret, plus a Catch that publishes to SNS on failure. Start it, then force a failure with a syntax error and verify the notification.",
+          "deliverable": "State machine JSON with a successful run and a handled failure",
+          "checks": [["Start the execution with valid SQL", "Execution Status is SUCCEEDED with three completed states", "Step Functions execution history"], ["Inject a syntax error into the merge statement", "Execution reaches the Catch state and an SNS message is published", "Execution history and SNS message"], ["describe-statement for the failed Id", "Status FAILED with an Error message showing the syntax error", "CLI JSON"]],
+          "objectives": ["Orchestrate SQL through the Data API without drivers or connections", "Handle statement failure and retries", "React to statement completion with EventBridge"]
+        },
+        {
+          "topic": "Scheduling Queries and Python Pipelines with redshift_connector",
+          "subtopics": ["Scheduled queries in Query Editor v2 with EventBridge", "IAM role and schedule expression for scheduled queries", "redshift_connector connections with IAM authentication", "Fetching with fetch_dataframe and executing batches", "Transactions and autocommit in Python", "Loading pandas data via COPY rather than INSERT", "Retry with backoff on serialization and connection errors", "Logging query ids for traceability"],
+          "tools": ["Query Editor v2", "Amazon EventBridge", "redshift_connector", "Python", "AWS Lambda"],
+          "lab_task": "Schedule a nightly Query Editor v2 query that refreshes a summary table through EventBridge (cron(0 2 * * ? *)). In Python with redshift_connector and iam=True, write a script that stages a pandas DataFrame to S3 as Parquet, runs COPY, and retries up to 3 times with backoff on error 1023.",
+          "deliverable": "Schedule definition and Python loader with a retry test",
+          "checks": [["Check the EventBridge rule target after scheduling", "Rule shows the cron expression and a Redshift Data API target", "Console or aws events describe-rule output"], ["Run the Python loader with 10,000 rows", "Table row count increases by exactly 10000", "Counts before and after"], ["Run two loaders simultaneously on one table", "One retries after serialization error and both end successfully", "Script log"]],
+          "objectives": ["Schedule SQL inside Redshift tooling", "Write Python loaders with IAM authentication", "Add retries for transient and serialization errors"]
+        },
+        {
+          "topic": "Monitoring with CloudWatch Metrics, Alarms and Audit Logging",
+          "subtopics": ["AWS/Redshift metrics: CPUUtilization, PercentageDiskSpaceUsed, DatabaseConnections and HealthStatus", "WLM metrics: WLMQueueLength and WLMQueriesCompletedPerSecond", "Serverless metrics: ComputeCapacity, ComputeSeconds and DataStorage", "Alarms and SNS notifications", "Audit logs: connection log, user log and user activity log with enable_user_activity_logging", "Exporting audit logs to S3 or CloudWatch Logs", "CloudTrail for management API calls", "Dashboard design for a warehouse"],
+          "tools": ["Amazon CloudWatch", "Amazon Redshift", "Amazon SNS", "AWS CloudTrail", "Amazon S3"],
+          "lab_task": "Create a CloudWatch alarm on CPUUtilization above 85 percent for 5 minutes with aws cloudwatch put-metric-alarm and an SNS action. Enable audit logging to CloudWatch Logs via aws redshift enable-logging and set enable_user_activity_logging true. Generate load and read the alarm history and one user activity log line.",
+          "deliverable": "Alarm definitions, logging settings and a captured alarm transition",
+          "checks": [["aws cloudwatch describe-alarm-history --alarm-name rs-cpu", "State change from OK to ALARM appears during the load test", "CLI output"], ["Search the user activity log group for a test query", "Log entry containing the SQL text and user name is found", "CloudWatch Logs Insights result"], ["aws redshift describe-logging-status", "LoggingEnabled is true", "CLI JSON"]],
+          "objectives": ["Build CloudWatch alarms for warehouse health", "Enable and query audit logs", "Distinguish performance metrics from audit evidence"]
+        },
+        {
+          "topic": "Fine-Grained Access: Column Grants, Row-Level Security and Dynamic Data Masking",
+          "subtopics": ["Column-level GRANT and REVOKE", "CREATE RLS POLICY, ATTACH RLS POLICY and ALTER TABLE ... ROW LEVEL SECURITY ON", "Policies bound to roles and the use of session context", "CREATE MASKING POLICY with USING expression and PRIORITY", "ATTACH MASKING POLICY TO ROLE", "Masking functions and consistent hashing", "Policy monitoring in SVV_RLS_POLICY and SVV_MASKING_POLICY", "Testing policies as each role and avoiding policy bypass through views"],
+          "tools": ["Amazon Redshift", "Row-Level Security", "Dynamic Data Masking", "Query Editor v2", "SVV_RLS_POLICY"],
+          "lab_task": "On customers create RLS policy region_policy WITH (region varchar) USING (region = current_setting('app.region', true)) attached to role regional_analyst, and a masking policy mask_email using sha2(email,256) attached to role support. Query as each role and confirm rows and masked values.",
+          "deliverable": "Policy DDL and a three-role test matrix with outputs",
+          "checks": [["As regional_analyst SELECT count(*) FROM customers with app.region set to 'EU'", "Returns only EU rows", "Query result and EU-only count"], ["As support SELECT email FROM customers LIMIT 3", "Returns SHA-256 hash strings not raw addresses", "Query result"], ["As a role with SELECT but no RLS policy attached after ALTER TABLE customers ROW LEVEL SECURITY ON", "Zero rows are returned", "Query result with count 0"]],
+          "objectives": ["Apply column, row and masking controls together", "Test policy outcomes per role", "Review policies with system views"]
+        },
+        {
+          "topic": "Capstone: Lakehouse with Spectrum, Zero-ETL and Data Sharing",
+          "subtopics": ["Design: S3 lake, operational replica via zero-ETL and a curated Redshift mart", "Spectrum external tables for history and native tables for hot data", "Producer and consumer workgroups sharing the mart", "Orchestration with the Data API, auto-refresh views and alarms", "Governance with roles, RLS and masking", "Review: latency, cost and failure modes"],
+          "tools": ["Amazon Redshift", "Redshift Spectrum", "Zero-ETL", "Data Sharing", "Step Functions", "Amazon CloudWatch"],
+          "lab_task": "Build a lakehouse: zero-ETL from Aurora orders, Spectrum over 12 months of Parquet history, a curated mart as materialized views, a consumer workgroup reading it through a datashare, a Step Functions refresh and a CloudWatch alarm. Document end-to-end latency from an Aurora insert to a consumer query result.",
+          "deliverable": "Running lakehouse with architecture diagram, scripts and a measured latency and cost note",
+          "checks": [["Insert an order in Aurora then query the consumer mart", "Row appears within the measured SLA after zero-ETL and view refresh", "Timestamps in seconds"], ["Query history through Spectrum with a date filter", "Scanned files are limited to the requested partitions", "svl_s3query_summary"], ["As a masked role query the shared mart", "Sensitive columns return masked values", "Query result"]],
+          "objectives": ["Combine zero-ETL, Spectrum and data sharing into one design", "Operate the platform with orchestration and alarms", "Defend design trade-offs with measurements"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers, warehouse administrators and architects who own production Redshift platforms. Covers key engineering for billion-row tables, system-view troubleshooting of slow queries, skew and spill, caching and cold starts, Serverless capacity engineering, multi-warehouse data sharing architecture, Redshift ML and Bedrock, Iceberg and SageMaker Lakehouse, encryption, network isolation, identity federation, audit evidence, migration from Teradata, Oracle and SQL Server, high availability and disaster recovery, infrastructure as code, schema change pipelines, FinOps, and a multi-account platform capstone.",
+      "prerequisites": ["Operates Redshift workloads with WLM or Serverless capacity settings in a real environment", "Reads system views such as SYS_QUERY_DETAIL and SVV_TABLE_INFO to explain performance", "Has working knowledge of VPC networking, KMS and IAM policy design"],
+      "outcomes": ["Diagnose and fix slow, skewed and spilling queries from system-level evidence", "Design multi-warehouse, multi-account Redshift platforms with data sharing, zero-ETL and open table formats", "Secure and audit a warehouse with KMS, private networking, identity federation and log evidence", "Migrate, automate and run warehouses with DMS, infrastructure as code, CI for schema changes, disaster recovery and FinOps"],
+      "days": [
+        {
+          "topic": "Advanced Key Engineering for Multi-Billion Row Fact Tables",
+          "subtopics": ["Modelling join graphs: choosing one co-located join per fact table", "Distribution key candidates scored on cardinality, skew and join frequency", "Co-locating fact and large dimension tables on the same DISTKEY", "Composite workloads: compound sort key ordering by filter selectivity", "Zone map effectiveness with ordered ingestion and VACUUM SORT", "Time-series layouts: monthly tables with a UNION ALL late-binding view versus one large table", "Measuring bytes scanned with SYS_QUERY_DETAIL", "Rollout of key changes with ALTER and CTAS swaps"],
+          "tools": ["Amazon Redshift", "SYS_QUERY_DETAIL", "SVV_TABLE_INFO", "EXPLAIN", "Query Editor v2"],
+          "lab_task": "Take a 1 billion row fact table and two layouts: DISTKEY(customer_id) SORTKEY(order_ts) and DISTKEY(product_id) SORTKEY(store_id, order_ts). Run a 10-query benchmark on each, with result cache off, and record elapsed_time and bytes scanned per query from sys_query_detail. Choose a layout and justify it.",
+          "deliverable": "Benchmark workbook and a layout decision memo backed by measured metrics",
+          "checks": [["Run the 10-query benchmark with enable_result_cache_for_session off", "Each layout produces 10 timings in sys_query_history", "Timing table"], ["SELECT skew_rows FROM svv_table_info for both layouts", "Chosen layout has skew_rows below 1.5", "Query result"], ["Re-run the top 3 queries on the winning layout after VACUUM SORT ONLY", "Median time improves or stays within 5 percent", "Timing comparison"]],
+          "objectives": ["Evaluate competing key layouts with controlled benchmarks", "Co-locate joins without creating skew", "Roll out key changes safely"]
+        },
+        {
+          "topic": "Troubleshooting Slow Queries with SYS_QUERY_DETAIL and SVL_QUERY_REPORT",
+          "subtopics": ["Locating the bottleneck step: scan, join, aggregate, sort, return or queue", "SYS_QUERY_DETAIL fields: step_name, duration, input_bytes, output_bytes and is_active", "SVL_QUERY_REPORT per-slice rows and bytes", "SVL_QUERY_SUMMARY is_diskbased and maxtime", "STL_ALERT_EVENT_LOG alerts: missing statistics, nested loop and very selective filter", "Nested loop joins and cartesian products", "Compile time versus execution time", "A repeatable triage checklist and runbook"],
+          "tools": ["Amazon Redshift", "SYS_QUERY_DETAIL", "SVL_QUERY_REPORT", "STL_ALERT_EVENT_LOG", "EXPLAIN", "Query Editor v2"],
+          "lab_task": "Run three deliberately slow queries: one with a missing join predicate, one on a table with stats_off above 50, and one sorting 500 million rows. For each use sys_query_detail, svl_query_report and stl_alert_event_log to name the bottleneck step and the fix, apply it and record elapsed_time before and after.",
+          "deliverable": "Triage runbook with three solved cases and before and after timings",
+          "checks": [["Query stl_alert_event_log for the missing predicate query", "Nested Loop Join in the query plan alert is present", "Query result"], ["Fix with a join condition and re-run", "Elapsed time drops by at least 90 percent", "Before and after elapsed_time"], ["ANALYZE the stale table and re-run", "Alert for missing statistics no longer appears", "Empty alert query"]],
+          "objectives": ["Locate the slow step with system views", "Match alerts to root causes", "Create a repeatable triage checklist"]
+        },
+        {
+          "topic": "Skew, Spill and Disk-Based Queries: Diagnosis and Fixes",
+          "subtopics": ["Data skew versus processing skew", "Per-slice row counts from SVV_DISKUSAGE and SVL_QUERY_REPORT", "Disk-based steps: SVL_QUERY_SUMMARY.is_diskbased = 't'", "spilled_block_local_disk and spilled_block_remote_disk in SYS_QUERY_DETAIL", "Memory per slot and wlm_query_slot_count", "Reducing memory pressure: narrower columns, earlier filters and better DISTKEY", "NULL-heavy distribution keys and hot values", "Serverless handling of spill through capacity"],
+          "tools": ["Amazon Redshift", "SVL_QUERY_REPORT", "SYS_QUERY_DETAIL", "SVV_DISKUSAGE", "WLM"],
+          "lab_task": "Create a table with DISTKEY(country) where 70 percent of rows are 'US', then run a wide GROUP BY with a large COUNT(DISTINCT). Show per-slice rows with SVL_QUERY_REPORT, confirm spill with is_diskbased and spilled_block_local_disk, then fix with a new DISTKEY and an earlier filter, and compare.",
+          "deliverable": "Skew and spill case study with measurements before and after",
+          "checks": [["SELECT slice, sum(rows) FROM svl_query_report WHERE query = <id> GROUP BY slice", "One slice holds well over twice the average rows", "Query result"], ["SELECT is_diskbased FROM svl_query_summary WHERE query = <id>", "At least one step shows t before the fix and none after", "Both results"], ["Compare elapsed_time", "After-fix time is lower and spilled_block_local_disk is 0", "Before and after metrics"]],
+          "objectives": ["Separate data skew from processing skew", "Prove spill from system views", "Fix skew and spill with design and memory changes"]
+        },
+        {
+          "topic": "Result Cache, Compilation Cache and Cold-Start Behaviour",
+          "subtopics": ["Result cache rules: same SQL text, unchanged data, no volatile functions", "enable_result_cache_for_session and result_cache_hit in SYS_QUERY_HISTORY", "Compilation: first run compile cost and the compile cache", "SVL_COMPILE and compile_time values", "Serverless warm-up after idle and its effect on first-query latency", "Benchmark hygiene: cold, warm and cached runs", "Dashboard design that benefits from caching", "Leader node versus compute node queries"],
+          "tools": ["Amazon Redshift", "SYS_QUERY_HISTORY", "SVL_COMPILE", "Query Editor v2", "Redshift Serverless"],
+          "lab_task": "Run one new dashboard query three times: first cold (new text), second with enable_result_cache_for_session on, third with it off. Record elapsed_time, compile_time and result_cache_hit from sys_query_history. Then change one literal and re-run to see compile reuse. On Serverless, repeat after 30 minutes idle.",
+          "deliverable": "Cold, warm and cached latency table with explanation",
+          "checks": [["Run the same query twice with caching on", "Second run has result_cache_hit = true and elapsed under 100 ms", "sys_query_history rows"], ["Run with enable_result_cache_for_session off", "result_cache_hit = false and elapsed matches the warm run, not the cached run", "sys_query_history row"], ["Run INSERT into a source table then repeat the query", "Cache miss because the data changed", "result_cache_hit = false"]],
+          "objectives": ["Explain the result and compilation caches", "Benchmark with cold, warm and cached runs", "Design dashboards that cache effectively"]
+        },
+        {
+          "topic": "Serverless Capacity Engineering: Base and Maximum RPU and Price-Performance Targets",
+          "subtopics": ["Base capacity and maximum capacity trade-offs", "Price-performance target (AI-driven scaling and optimization) and its levels", "Query-level scaling versus scaling up the whole workgroup", "Right-sizing from SYS_SERVERLESS_USAGE and ComputeCapacity metrics", "Long-running ETL versus bursty dashboards", "Usage limits and breach actions: log, emit-metric, deactivate", "Cost per query estimates from RPU seconds", "Separate workgroups per workload on one namespace"],
+          "tools": ["Redshift Serverless", "AWS CLI", "SYS_SERVERLESS_USAGE", "Amazon CloudWatch", "AWS Cost Explorer"],
+          "lab_task": "Run a fixed 40-query ETL and dashboard mix against workgroups of 8, 32 and 128 base RPU (update-workgroup --base-capacity), record wall time and compute_seconds multiplied by compute_capacity from sys_serverless_usage, compute RPU-hours and cost per run, and compare with the price-performance target enabled.",
+          "deliverable": "Capacity test table with wall time, RPU-hours and cost per run",
+          "checks": [["Run the mix at 8, 32 and 128 RPU", "Wall time falls as capacity grows while RPU-hours stay within about 2x between runs", "Table of wall time and RPU-hours"], ["aws redshift-serverless get-workgroup after updating", "baseCapacity matches the tested value", "CLI JSON"], ["Create a usage limit with --breach-action deactivate in the test workgroup", "Workgroup state flags the breach when exceeded in a controlled test", "CLI output and event"]],
+          "objectives": ["Choose Serverless capacity from measured cost and runtime", "Use usage limits and price-performance controls", "Split workloads across workgroups"]
+        },
+        {
+          "topic": "Multi-Warehouse Architecture with Data Sharing and Serverless Consumers",
+          "subtopics": ["Hub-and-spoke versus mesh sharing topologies", "Workload isolation: ETL producer and BI consumers", "Producer write path and consumer read-only default", "Writes through datashares (multi-warehouse writes) and where they apply", "Lake Formation-governed datashares and cross-account governance", "AWS Data Exchange datashares", "Consumer cost and chargeback by workgroup", "Failure modes: producer pause, revoke and namespace deletion"],
+          "tools": ["Amazon Redshift", "Data Sharing", "Redshift Serverless", "AWS Lake Formation", "AWS CLI"],
+          "lab_task": "Build one provisioned ETL producer and two Serverless consumer workgroups (bi, ds) sharing core and mart via datashares. Run a heavy ETL job on the producer while querying from bi and record bi latency versus a single shared cluster. Then pause the producer and test the consumer, and REVOKE USAGE to confirm access removal.",
+          "deliverable": "Topology diagram, isolation test results and a chargeback note",
+          "checks": [["Run bi dashboard queries during ETL", "Median dashboard latency stays within 10 percent of the idle baseline", "Latency table"], ["Commit 500 new rows on the producer and count on the bi consumer", "Consumer count rises by exactly 500 with no copy job", "Counts before and after"], ["REVOKE USAGE ON DATASHARE from the consumer namespace", "Consumer queries fail with a permission error", "Error message"]],
+          "objectives": ["Design multi-warehouse topologies with data sharing", "Isolate workloads without duplicating data", "Govern and charge back shared consumption"]
+        },
+        {
+          "topic": "Redshift ML: CREATE MODEL, SageMaker Autopilot and Bring-Your-Own Model",
+          "subtopics": ["CREATE MODEL FROM table or query with TARGET and FUNCTION", "IAM_ROLE and the S3_BUCKET setting", "AUTO ON and AUTO OFF with MODEL_TYPE XGBOOST, PROBLEM_TYPE and OBJECTIVE", "MAX_RUNTIME and MAX_CELLS", "SHOW MODEL and model state in STV_ML_MODEL_INFO", "Prediction function use inside SELECT and cost of inference", "BYOM and remote SageMaker endpoints", "Evaluating models: AUC, F1 and holdout split"],
+          "tools": ["Amazon Redshift", "Redshift ML", "Amazon SageMaker", "Amazon S3", "Query Editor v2"],
+          "lab_task": "Run CREATE MODEL customer_churn FROM (SELECT age, plan, tenure, churned FROM customers) TARGET churned FUNCTION predict_churn IAM_ROLE default SETTINGS (S3_BUCKET '<bucket>', MAX_RUNTIME 1800), poll SHOW MODEL until Model State is READY, and call predict_churn on a holdout set. Compare predictions with actual labels.",
+          "deliverable": "Model training script, SHOW MODEL output and a holdout accuracy table",
+          "checks": [["SHOW MODEL customer_churn", "Model State READY and a validation metric reported", "Command output"], ["SELECT predict_churn(age, plan, tenure) FROM customers_holdout LIMIT 5", "Five predictions returned in the target type", "Query result"], ["Compute accuracy across the holdout set", "Accuracy is above the majority-class baseline", "Computed accuracy and baseline"]],
+          "objectives": ["Train a model from SQL with Redshift ML", "Run predictions in queries", "Evaluate the model against a baseline"]
+        },
+        {
+          "topic": "Generative AI from SQL: Amazon Bedrock Models and SageMaker Remote Functions",
+          "subtopics": ["Remote inference patterns: SageMaker endpoint functions and Bedrock models", "CREATE EXTERNAL MODEL for a Bedrock foundation model (check syntax in your release)", "Prompt design for classification and summarisation in SQL", "Batching, rate limits and cost per call", "Data privacy and role scoping for model access", "Grounding with retrieved rows and limits on payload size", "Caching results in tables rather than re-calling per query", "Lambda UDF alternative for custom models"],
+          "tools": ["Amazon Redshift", "Amazon Bedrock", "Amazon SageMaker", "AWS IAM", "Query Editor v2"],
+          "lab_task": "Create an external model in Redshift pointing at a Bedrock text model, then classify 1,000 support tickets as billing, bug or other, storing the label in a table. Measure tokens, cost and runtime, check 50 labels by hand for accuracy, and note rate-limit errors.",
+          "deliverable": "Classification pipeline, accuracy sample and cost per 1,000 rows",
+          "checks": [["SELECT label, count(*) FROM ticket_labels GROUP BY label", "Three label values with counts adding up to 1000", "Query result"], ["Hand-check 50 random tickets", "At least 90 percent agree with a human label", "Sample sheet and accuracy"], ["Run with an IAM role lacking bedrock:InvokeModel", "AccessDenied error", "Error message"]],
+          "objectives": ["Call hosted models from Redshift SQL", "Control cost, privacy and rate limits", "Evaluate model output quality"]
+        },
+        {
+          "topic": "Writing Iceberg Tables and SageMaker Lakehouse Catalog Access",
+          "subtopics": ["SageMaker Lakehouse and the unified catalog view of Redshift managed storage and S3", "Registering Redshift namespaces as catalogs", "Reading and writing Iceberg tables from Redshift (verify support in your release)", "Lake Formation permissions on shared catalogs", "Cross-engine access from Athena, EMR and Redshift", "Compaction and metadata maintenance", "When managed Redshift storage beats Iceberg and vice versa", "Cost and performance comparison"],
+          "tools": ["SageMaker Lakehouse", "Apache Iceberg", "AWS Lake Formation", "Amazon Redshift", "Amazon Athena"],
+          "lab_task": "Make a Redshift namespace visible in the lakehouse catalog, write an Iceberg table with a CTAS from Redshift into S3, query it from Athena, then run the same query against a native Redshift copy. Compare elapsed time and cost, and grant a second principal access with Lake Formation.",
+          "deliverable": "Cross-engine test results and a storage selection guideline",
+          "checks": [["Count rows in the Iceberg table from Athena", "Equals the source Redshift count", "Both counts"], ["Run the benchmark query on the native and Iceberg tables", "Both run to completion with timing recorded and the native copy is faster or the gap is explained", "Timing table"], ["Query as a principal without Lake Formation grants", "AccessDenied for the table", "Error message"]],
+          "objectives": ["Share Redshift data with other engines through Iceberg", "Govern shared catalogs with Lake Formation", "Choose storage format by workload"]
+        },
+        {
+          "topic": "Encryption and Key Management: KMS, Snapshots and Data in Transit",
+          "subtopics": ["Encryption at rest with AWS KMS keys and the default for new warehouses", "Changing the key: aws redshift modify-cluster --encrypted --kms-key-id", "Snapshot encryption and cross-Region copy grants with create-snapshot-copy-grant", "Serverless namespace KMS key and snapshot sharing", "require_ssl parameter and sslmode=verify-full", "Encrypting UNLOAD and COPY with KMS", "CloudTrail evidence for key usage", "Key rotation and revoking a key"],
+          "tools": ["AWS KMS", "Amazon Redshift", "AWS CLI", "AWS CloudTrail", "Amazon S3"],
+          "lab_task": "Create a customer managed KMS key, encrypt a cluster with it, enable cross-Region snapshot copy with aws redshift create-snapshot-copy-grant and enable-snapshot-copy, then set require_ssl to true in the parameter group. Test psql with sslmode=disable and verify-full, and find the Decrypt events in CloudTrail.",
+          "deliverable": "Encryption configuration, SSL tests and CloudTrail evidence",
+          "checks": [["aws redshift describe-clusters", "Encrypted is true and KmsKeyId matches the customer managed key", "CLI JSON"], ["psql with sslmode=disable after require_ssl is true", "Connection refused with an error that SSL is required", "psql output"], ["Search CloudTrail for kms:Decrypt on the key", "Events from the Redshift service principal are present", "CloudTrail event list"]],
+          "objectives": ["Encrypt warehouses and snapshots with customer managed keys", "Require TLS for every connection", "Use CloudTrail to evidence key usage"]
+        },
+        {
+          "topic": "Network Isolation: VPC Endpoints, Enhanced VPC Routing and Private Access",
+          "subtopics": ["Private subnets and publicly accessible = false", "Enhanced VPC Routing for COPY, UNLOAD and Spectrum traffic", "S3 gateway endpoints and endpoint policies", "Redshift-managed VPC endpoints: aws redshift create-endpoint-access", "Cross-account endpoint authorisation: authorize-endpoint-access", "Serverless workgroup endpoints and security groups", "Interface endpoints for Secrets Manager, STS and the Data API", "Verifying no traffic leaves the VPC"],
+          "tools": ["Amazon VPC", "Amazon Redshift", "AWS CLI", "VPC Flow Logs", "Amazon S3"],
+          "lab_task": "Enable --enhanced-vpc-routing on the cluster, remove the NAT route, and run COPY from S3: confirm it fails. Add an S3 gateway endpoint with an endpoint policy limited to the lab bucket and COPY again. Create a managed endpoint with aws redshift create-endpoint-access for a second VPC and connect through it.",
+          "deliverable": "Network design with route tables, endpoint policies and connection tests",
+          "checks": [["COPY from S3 with enhanced VPC routing and no S3 endpoint or NAT", "COPY fails with an S3ServiceException or timeout error", "Error text"], ["Add the S3 gateway endpoint and re-run", "COPY succeeds", "Row count"], ["Query VPC Flow Logs for the cluster ENI", "Traffic to S3 uses the endpoint prefix list rather than a public address", "Flow log record"]],
+          "objectives": ["Isolate warehouse traffic inside the VPC", "Use gateway and managed endpoints", "Prove network paths from logs"]
+        },
+        {
+          "topic": "Identity: IAM Identity Center, Federated Roles and Trusted Identity Propagation",
+          "subtopics": ["IAM roles and temporary credentials: GetClusterCredentials and GetClusterCredentialsWithIAM", "IAM Identity Center integration and roles prefixed AWSIDC:", "Trusted identity propagation from QuickSight, Query Editor v2 and EMR", "Native identity provider integration for Microsoft Entra ID and Okta", "Mapping IdP groups to Redshift roles", "Lake Formation permissions on Redshift tables", "Rotating and removing database passwords", "Audit of who ran what"],
+          "tools": ["IAM Identity Center", "Amazon Redshift", "AWS IAM", "Query Editor v2", "Amazon QuickSight"],
+          "lab_task": "Connect Redshift to IAM Identity Center with aws redshift create-redshift-idc-application, map an IdC group to a role AWSIDC:analysts, GRANT SELECT on mart to that role, then sign in through Query Editor v2 as a group member and as a non-member. Check current_user and sys_query_history.user_id.",
+          "deliverable": "Identity integration steps with test logins and mapped roles",
+          "checks": [["SELECT current_user as a group member", "Returns a user prefixed AWSIDC:", "Query result"], ["SELECT from mart as a non-member", "permission denied for schema mart", "Error message"], ["SELECT user_id, query_text FROM sys_query_history", "Queries are attributed to the individual identity, not a shared admin", "Query result"]],
+          "objectives": ["Connect users through IAM Identity Center", "Map identity groups to database roles", "Audit actions by person rather than shared accounts"]
+        },
+        {
+          "topic": "Auditing and Compliance Evidence",
+          "subtopics": ["Connection log, user log and user activity log fields", "CloudTrail events for Redshift and Redshift Serverless API calls", "SYS_ system view retention versus S3 audit archives", "Detecting privilege changes with SVL_USER_INFO and role grants history", "Evidence mapping for SOC 2, PCI DSS and HIPAA controls", "AWS Config rules for Redshift", "Alerting on suspicious access with EventBridge", "Retention, immutability and S3 Object Lock for logs"],
+          "tools": ["AWS CloudTrail", "AWS Config", "Amazon Redshift", "Amazon S3", "Amazon EventBridge", "Amazon Athena"],
+          "lab_task": "Enable audit logging to S3 with Object Lock, run a privilege change (GRANT) and a failed login, then use Athena over the S3 logs to find both events and CloudTrail Lake to find the API call. Add an AWS Config rule redshift-cluster-configuration-check and read its compliance result.",
+          "deliverable": "Evidence pack with queries that find the GRANT and failed login and a Config report",
+          "checks": [["Athena query for the failed login in the connection log", "One event with event = authentication failure for the test user", "Athena result"], ["Find the GRANT in the user activity log", "Log line shows the statement, user and timestamp", "Log line"], ["Config rule evaluation", "Rule reports COMPLIANT or lists the non-compliant setting", "Config console or CLI result"]],
+          "objectives": ["Capture audit evidence from logs and CloudTrail", "Query logs to answer who did what", "Map controls to evidence"]
+        },
+        {
+          "topic": "Migration Assessment and Schema Conversion from Teradata, Oracle and SQL Server",
+          "subtopics": ["Inventory and sizing: table counts, data volume, query patterns and peak concurrency", "AWS Schema Conversion Tool assessment report and action items", "DMS Schema Conversion in the console", "Converting data types, identity columns, stored procedures and BTEQ or PL/SQL code", "Distribution and sort key mapping from source indexes and partitions", "Unsupported features: triggers, sequences and cursors patterns", "Migration waves and risk register", "Validation queries for row counts and checksums"],
+          "tools": ["AWS Schema Conversion Tool", "AWS DMS", "Amazon Redshift", "Amazon S3", "SQL"],
+          "lab_task": "Run AWS SCT against a sample Oracle or SQL Server schema with 50 tables and 20 procedures, export the assessment report, and sort the action items by effort. Apply the converted DDL to a Redshift test schema, map two source indexes to sort keys, and list objects needing manual conversion.",
+          "deliverable": "Assessment report, converted DDL and a migration wave plan",
+          "checks": [["Open the SCT assessment report summary", "Report shows counts of auto-converted objects and manual action items", "Report PDF or CSV"], ["Apply the converted DDL to Redshift", "All tables are created and failures are listed", "Script log"], ["Count source versus converted object types", "Counts reconcile except documented manual items", "Reconciliation table"]],
+          "objectives": ["Assess source warehouses for Redshift migration", "Convert schema and code with AWS tools", "Plan migration waves around manual work"]
+        },
+        {
+          "topic": "Data Migration with AWS DMS, Snowball and Parallel COPY Cutover",
+          "subtopics": ["Initial load options: DMS, Snowball Edge, S3 uploads and parallel COPY", "DMS Redshift target endpoint and its S3 staging bucket", "aws dms create-replication-task with --migration-type full-load-and-cdc", "CDC lag metrics: CDCLatencySource and CDCLatencyTarget", "Validation tasks and table statistics", "Data quality checks: row counts, sums and hash comparisons", "Cutover runbook, freeze window and rollback", "Performance tuning for large tables"],
+          "tools": ["AWS DMS", "Amazon Redshift", "Amazon S3", "AWS Snowball", "Amazon CloudWatch"],
+          "lab_task": "Create a DMS replication task with --migration-type full-load-and-cdc to a Redshift target from a source database with 20 tables, enable validation, apply 5,000 changes at the source and record CDCLatencyTarget. Run a count and sum reconciliation per table and draw up the cutover steps.",
+          "deliverable": "DMS task definition, reconciliation output and a cutover runbook",
+          "checks": [["describe-table-statistics for each table", "Full load rows equal source rows and validation state is Validated", "CLI output"], ["Apply 5000 changes at the source", "Target reflects all changes and CDCLatencyTarget returns to under 60 seconds", "CloudWatch metric and counts"], ["Compare sum of an amount column", "Source and target sums are identical", "Both sums"]],
+          "objectives": ["Move data with DMS full load and CDC", "Reconcile source and target systematically", "Run a controlled cutover"]
+        },
+        {
+          "topic": "High Availability: Multi-AZ RA3, Cluster Relocation and Cross-Region Recovery",
+          "subtopics": ["Multi-AZ RA3 clusters and automatic failover", "Availability Zone relocation and its limits", "Cross-Region snapshot copy and restore", "Serverless recovery points, snapshot sharing and restore to a new namespace", "Defining RPO and RTO for a warehouse", "Failover testing and application reconnection with retries", "Data sharing and pipeline considerations after DR", "Runbooks and game days"],
+          "tools": ["Amazon Redshift", "AWS CLI", "AWS KMS", "Amazon Route 53", "Amazon CloudWatch"],
+          "lab_task": "Create a cluster with --multi-az (or document a Single-AZ plus Cross-Region approach), enable cross-Region snapshot copy, restore into a second Region using restore-from-cluster-snapshot, time the restore, and run a failover test. Write down measured RPO and RTO and the connection retry settings.",
+          "deliverable": "DR runbook with timed restore, failover test and RPO and RTO numbers",
+          "checks": [["Time restore-from-cluster-snapshot in the second Region", "Cluster reaches available and elapsed time is recorded", "Start and end timestamps"], ["Run a failover test while a client loops select 1", "Client reconnects within the measured RTO", "Client log"], ["Compare row count at the source and restored cluster", "Counts match the latest snapshot time", "Both counts and snapshot timestamp"]],
+          "objectives": ["Design RPO and RTO for Redshift workloads", "Restore across Regions", "Test failover and reconnect behaviour"]
+        },
+        {
+          "topic": "Infrastructure as Code: Terraform, CloudFormation and AWS CDK for Redshift",
+          "subtopics": ["Terraform: aws_redshift_cluster, aws_redshiftserverless_namespace and aws_redshiftserverless_workgroup", "CloudFormation types AWS::Redshift::Cluster and AWS::RedshiftServerless::Workgroup", "AWS CDK constructs for Serverless namespaces and workgroups", "Managing database objects with Terraform providers versus SQL migrations", "Secrets: manage_admin_password and Secrets Manager", "Drift detection and ignore_changes for capacity", "Policy checks with cdk-nag, tfsec or Checkov", "Environments and promotion"],
+          "tools": ["Terraform", "AWS CloudFormation", "AWS CDK", "Amazon Redshift", "Redshift Serverless", "Checkov"],
+          "lab_task": "Write Terraform for a namespace, workgroup, subnet group, security group and usage limit, run terraform plan and apply, then change base_capacity and observe the plan. Run Checkov and fix findings (encryption, public access, logging). Delete a setting through the console and use terraform plan to detect drift.",
+          "deliverable": "Terraform module with plan output, scan results and drift evidence",
+          "checks": [["terraform plan after changing base_capacity from 8 to 16", "Plan shows 1 to change with only base_capacity in the diff", "Plan output"], ["checkov -d . after hardening", "Zero failed checks for the Redshift resources", "Checkov summary"], ["Change the workgroup in the console then terraform plan", "Drift shows as a planned change to reset it", "Plan output"]],
+          "objectives": ["Provision provisioned and Serverless Redshift as code", "Scan IaC for security findings", "Detect and correct drift"]
+        },
+        {
+          "topic": "Schema Change Pipelines: Versioned DDL and Zero-Downtime Table Rewrites",
+          "subtopics": ["Versioned migrations with Flyway, Liquibase or sqitch against Redshift", "Idempotent DDL patterns: IF NOT EXISTS and CREATE OR REPLACE VIEW", "Online column changes: ALTER TABLE ADD COLUMN, ALTER COLUMN TYPE for VARCHAR widening", "Zero-downtime rewrite by CTAS, ALTER TABLE ... RENAME and swap in one transaction", "Using ALTER TABLE APPEND for bulk moves", "Testing migrations in a restored snapshot or zero-copy clone workgroup", "CI with GitHub Actions and the Data API", "Rollback plan and approvals"],
+          "tools": ["Flyway", "Amazon Redshift", "GitHub Actions", "Redshift Data API", "AWS CLI"],
+          "lab_task": "Create a CI pipeline that runs three versioned SQL migrations against a snapshot-restored Serverless workgroup: widen a VARCHAR, add a column, and rewrite a table with new keys through CTAS and a RENAME swap inside one transaction. Run SELECT queries during the swap and record failures.",
+          "deliverable": "Pipeline file and migration set with a zero-failure swap test",
+          "checks": [["Run the migrations against the restored workgroup", "Three versions recorded in the schema history table", "History table query"], ["Run a read loop while swapping tables", "No query fails during the transaction swap", "Loop log with 0 errors"], ["Re-run the pipeline", "No changes are applied the second time", "Pipeline log"]],
+          "objectives": ["Version and test schema changes", "Rewrite tables without downtime", "Automate migrations in CI"]
+        },
+        {
+          "topic": "Cost Governance and FinOps for Redshift Fleets",
+          "subtopics": ["Tagging namespaces, workgroups and clusters for cost allocation", "Cost Explorer and CUR filters for Redshift usage types", "Serverless RPU-hours from SYS_SERVERLESS_USAGE and chargeback by workgroup", "Concurrency scaling and Spectrum scan costs", "Usage limits and budgets with AWS Budgets actions", "Right-sizing: RA3 node counts versus managed storage", "Reserved nodes and Savings Plans evaluation", "A monthly FinOps review with top queries by cost"],
+          "tools": ["AWS Cost Explorer", "AWS Budgets", "Amazon Redshift", "SYS_SERVERLESS_USAGE", "AWS CLI"],
+          "lab_task": "Tag three workgroups with team and env, create an AWS Budget of 500 USD with 80 percent alert, and build a Cost Explorer report by tag. Using sys_query_history and sys_serverless_usage, compute RPU-hours per team and show the top 10 queries by elapsed_time multiplied by capacity.",
+          "deliverable": "FinOps report with cost by team, top 10 queries and savings recommendations",
+          "checks": [["Cost Explorer grouped by tag team", "Each team has a non-zero cost line that sums to the workgroup total", "Report export"], ["Compare computed RPU-hours with billing", "Within about 5 percent of billed usage", "Comparison table"], ["Budget alert test at 80 percent", "Notification is delivered to the configured SNS topic or email", "Alert message"]],
+          "objectives": ["Allocate Redshift spend to teams", "Reconcile usage views with billing", "Set budgets and guardrails"]
+        },
+        {
+          "topic": "Capstone: Multi-Account Redshift Platform with Governance, Zero-ETL and ML",
+          "subtopics": ["Architecture: producer, consumer and governance accounts with network and identity design", "Ingestion: zero-ETL, streaming and S3 auto-copy", "Data products: shared marts, Iceberg handoffs and Redshift ML scoring", "Controls: encryption, RLS, masking, audit and cost limits", "Operations: IaC, CI for schema, monitoring and DR", "Review: SLOs, game day results and a cost model"],
+          "tools": ["Amazon Redshift", "Redshift Serverless", "Terraform", "Zero-ETL", "Data Sharing", "Amazon CloudWatch"],
+          "lab_task": "Deploy with Terraform a producer namespace, two consumer workgroups in another account, zero-ETL from Aurora, a streaming view, RLS and masking, a Redshift ML churn model, CloudWatch alarms and a Cross-Region snapshot copy. Run a game day: failover, a bad schema change and a usage limit breach, and record time to recover.",
+          "deliverable": "Deployed platform, runbooks, game day report and cost model",
+          "checks": [["Run the Terraform plan on a fresh account", "Platform deploys with zero errors and the plan is clean on second run", "Plan outputs"], ["Query consumer data as masked and unmasked roles", "Only the privileged role sees raw values", "Query results"], ["Game day: restore from snapshot in the second Region", "Restore time falls within the documented RTO", "Timings"]],
+          "objectives": ["Deliver a governed multi-account warehouse platform", "Operate it with automation and tested recovery", "Present measured SLOs and cost"]
+        }
+      ]
+    }
+  }
+}

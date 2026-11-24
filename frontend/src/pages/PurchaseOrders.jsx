@@ -47,13 +47,13 @@ function initialForm(item = {}) {
     training_dates: po.training_dates || requirement.training_dates || '',
     duration: po.duration || String(duration),
     mode: po.mode || requirement.mode || '',
-    day_rate: po.day_rate || (total && duration ? Math.round(total / duration) : ''),
+    day_rate: po.day_rate || (total && duration ? Number((total / duration).toFixed(2)) : ''),
     payment_terms: po.payment_terms || '',
     notes: po.notes || '',
     items: po.items?.length ? po.items.map(row => ({ ...row })) : [{
       description: `${item.domain || requirement.technology_needed || requirement.technology || 'Training'} Training`,
-      quantity: duration,
-      rate: total && duration ? Math.round(total / duration) : '',
+      quantity: total ? 1 : duration,
+      rate: total ? total : '',
     }],
   }
 }

@@ -1,0 +1,573 @@
+{
+  "domain": "Generative AI for Business",
+  "name": "Generative AI for Business Professionals and Leaders",
+  "category": "Generative AI and Agents",
+  "icon": "sparkles",
+  "aliases": ["GenAI for Business", "Gen AI for Business", "Generative AI for Business Users", "Generative AI for Managers", "Generative AI for Leaders", "Generative AI for Executives", "Generative AI for Non-Technical Professionals", "GenAI for Non-Technical Teams", "AI for Business", "AI for Business Users", "AI for Business Leaders", "AI for Managers", "AI for Leaders", "AI for Executives", "AI Literacy", "AI Literacy Training", "AI Awareness", "Generative AI Awareness", "GenAI Awareness", "ChatGPT for Business", "ChatGPT for Professionals", "AI for Productivity", "AI Productivity Tools", "AI Transformation", "AI Strategy for Leaders"],
+  "certifications": ["No single required certification; assessed by workflow portfolios, a pilot plan and a strategy presentation", "Optional: vendor learning paths for Microsoft 365 Copilot, Google Gemini or ChatGPT", "Supports the AI literacy duty in Article 4 of the EU AI Act"],
+  "tools": ["ChatGPT business plans", "Microsoft 365 Copilot", "Gemini in Google Workspace", "Claude", "NotebookLM", "Microsoft Copilot Studio", "Power Automate or Zapier"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For non-technical professionals in any function who want to use generative AI safely and productively at work. Covers what generative AI is, how language models work in plain terms, choosing assistants, prompting for business tasks, writing, summarising, research with source checking, spreadsheet analysis, presentations and images, customer communication, custom assistants, hallucinations, privacy and confidentiality, copyright, bias, company AI policy, uses in each business function, measuring time saved and building daily habits.",
+      "prerequisites": ["Uses email, documents and spreadsheets at work", "No programming or data science needed", "Has access to at least one approved AI assistant or a practice account"],
+      "outcomes": ["Use AI assistants to draft, summarise, research and analyse work tasks with clear prompts", "Check AI output for errors and protect confidential data", "Follow company AI policy and handle copyright and bias risks", "Measure the time and quality gained in your own work"],
+      "days": [
+        {
+          "topic": "Generative AI for Business Overview: What It Is and What It Is Not",
+          "subtopics": ["What generative AI means for everyday work", "Text, image, audio and video generation", "Assistants, copilots and agents explained", "What AI does well: drafting, summarising and reformatting", "What AI does badly: facts without sources, arithmetic, judgement", "Examples from HR, finance, sales, marketing and operations", "Myths about AI replacing whole jobs", "How the course works: real tasks from your role", "Approved tools and practice accounts", "Personal goals for the course"],
+          "tools": ["Approved AI assistant", "Task log template"],
+          "lab_task": "List ten recurring tasks from your week, mark which suit AI help and which do not, try one simple task with an approved assistant and record the time it took.",
+          "deliverable": "Task list with AI suitability and a first timed attempt",
+          "checks": [["Classify tasks", "Each task is marked suitable or unsuitable with a reason", "Task list"], ["Try a task", "One task is completed with AI help and reviewed by you", "Output and notes"], ["Set goals", "Three goals for the course are written", "Goals sheet"]],
+          "objectives": ["Explain generative AI in plain words", "Spot tasks that suit AI", "Set personal learning goals"]
+        },
+        {
+          "topic": "How Large Language Models Work in Plain Terms",
+          "subtopics": ["Predicting the next word from patterns", "Training data and its limits", "Why answers sound confident when wrong", "Context windows and why long chats drift", "Knowledge cut-off dates and web search", "Randomness and why answers change", "Reasoning models in simple terms", "Why the same question gets different answers"],
+          "tools": ["Approved AI assistant", "Comparison worksheet"],
+          "lab_task": "Ask the same three questions twice in different chats, compare the answers, test one question with and without web search and explain the differences in plain words.",
+          "deliverable": "Answer comparison with explanations",
+          "checks": [["Compare", "Differences between repeated answers are recorded", "Worksheet"], ["Test search", "The effect of web search on a factual question is shown", "Worksheet"], ["Explain", "Each difference is explained in plain words", "Notes"]],
+          "objectives": ["Explain how language models produce answers", "Understand context and knowledge limits", "Expect variation in answers"]
+        },
+        {
+          "topic": "Choosing AI Assistants at Work: ChatGPT, Microsoft Copilot, Gemini and Claude",
+          "subtopics": ["The main assistants and their strengths", "Assistants built into Microsoft 365 and Google Workspace", "Consumer accounts compared with business accounts", "Data protection in business plans", "File uploads, web search and connectors", "Voice and mobile use", "Choosing the right tool for a task", "Using only approved tools"],
+          "tools": ["Approved AI assistants", "Tool comparison sheet"],
+          "lab_task": "Run the same three work tasks in two approved assistants, compare quality, speed and data handling, and write which tool you will use for each kind of task.",
+          "deliverable": "Tool comparison and personal tool choices",
+          "checks": [["Compare", "Both tools are rated on quality and speed for three tasks", "Comparison sheet"], ["Check data rules", "Data handling of each tool is noted from company guidance", "Comparison sheet"], ["Choose", "Each task type has a chosen tool with a reason", "Notes"]],
+          "objectives": ["Compare AI assistants", "Understand business account protections", "Pick tools for tasks"]
+        },
+        {
+          "topic": "Prompting for Everyday Business Tasks",
+          "subtopics": ["What a clear prompt contains", "Role, task, context and format", "Giving examples of the output you want", "Asking for options and trade-offs", "Iterating instead of starting again", "Asking the assistant to ask you questions", "Reusable prompt templates", "Prompts that save the most time"],
+          "tools": ["Approved AI assistant", "Prompt template library"],
+          "lab_task": "Rewrite five weak prompts from your own work into clear prompts with role, context and format, compare the outputs and save the best three as reusable templates.",
+          "deliverable": "Five improved prompts and three templates",
+          "checks": [["Improve prompts", "Each rewritten prompt has context and an output format", "Prompt set"], ["Compare outputs", "Better outputs are shown side by side with the originals", "Comparison"], ["Reuse", "Three templates are saved for future use", "Template library"]],
+          "objectives": ["Write effective prompts", "Iterate on answers", "Build reusable templates"]
+        },
+        {
+          "topic": "Writing and Editing with AI: Emails, Reports and Proposals",
+          "subtopics": ["Drafting from bullet points", "Changing tone and length", "Editing for clarity and grammar", "Turning notes into reports", "Proposals and business cases", "Keeping your own voice", "Fact-checking drafts", "When to write without AI"],
+          "tools": ["Approved AI assistant", "Microsoft Word or Google Docs"],
+          "lab_task": "Draft a customer email, a status report and a short proposal with AI from your own notes, edit each into your voice and record every fact you had to correct.",
+          "deliverable": "Three edited documents with a correction log",
+          "checks": [["Draft", "All three documents are drafted from your notes", "Draft files"], ["Edit", "Final versions sound like you and suit the reader", "Peer review"], ["Fact-check", "Every corrected fact is recorded", "Correction log"]],
+          "objectives": ["Write faster with AI", "Keep your own voice", "Check facts in drafts"]
+        },
+        {
+          "topic": "Summarising Documents, Meetings and Long Threads",
+          "subtopics": ["Summaries for different readers", "Action items and decisions from meetings", "Summarising long email threads", "Comparing documents", "Extracting key figures and dates", "Checking summaries against the source", "Meeting recording rules and consent", "Sharing summaries responsibly"],
+          "tools": ["Approved AI assistant", "Meeting transcript or recording tool", "NotebookLM (optional)"],
+          "lab_task": "Summarise a long document, a meeting transcript and an email thread for two different readers, check every summary against its source and list what the AI got wrong or left out.",
+          "deliverable": "Summaries with a source check",
+          "checks": [["Summarise", "Each summary suits its reader", "Summaries"], ["Check sources", "Errors and omissions are listed for each summary", "Check log"], ["Respect consent", "Meeting summary follows recording and consent rules", "Notes"]],
+          "objectives": ["Summarise with AI", "Check summaries against sources", "Follow recording rules"]
+        },
+        {
+          "topic": "Research with AI and Checking Sources",
+          "subtopics": ["Research assistants and web search modes", "Deep research features", "Asking for sources and citations", "Checking that sources exist and say what is claimed", "Recognising made-up references", "Comparing several sources", "Recording what you checked", "Research you should not delegate to AI"],
+          "tools": ["Approved AI assistant with web search", "Source check template"],
+          "lab_task": "Research a market or policy question with an AI assistant, open and check every cited source, mark which claims were supported and write a short brief with only verified facts.",
+          "deliverable": "Verified research brief and source check log",
+          "checks": [["Check citations", "Every cited source is opened and checked", "Source log"], ["Find problems", "Unsupported or invented claims are marked", "Source log"], ["Write", "The brief contains only verified facts with links", "Brief"]],
+          "objectives": ["Research with AI", "Verify sources", "Avoid made-up references"]
+        },
+        {
+          "topic": "Spreadsheet and Data Analysis with AI Assistants",
+          "subtopics": ["Asking questions of a spreadsheet", "Formulas explained and written by AI", "Cleaning and reshaping data", "Charts and pivot tables with AI help", "Data analysis features in assistants", "Checking numbers by hand", "Sensitive data in spreadsheets", "When to ask an analyst instead"],
+          "tools": ["Microsoft Excel with Copilot or Google Sheets with Gemini", "Approved AI assistant"],
+          "lab_task": "Use an AI assistant to clean a sales sheet, write three formulas, build a pivot and a chart, then check two of the numbers by hand and note any mistakes.",
+          "deliverable": "Analysed spreadsheet with a manual check",
+          "checks": [["Analyse", "The pivot and chart answer the business question", "Spreadsheet"], ["Check numbers", "Two figures are checked by hand", "Check notes"], ["Protect data", "No restricted data is uploaded to unapproved tools", "Policy checklist"]],
+          "objectives": ["Analyse spreadsheets with AI", "Use AI for formulas", "Check numbers before sharing"]
+        },
+        {
+          "topic": "Presentations, Visuals and Image Generation",
+          "subtopics": ["Outlines and slide drafts with AI", "Turning documents into presentations", "Speaker notes", "Image generation for internal use", "Brand guidelines and AI images", "Rights and disclosure for generated images", "Accessibility of AI-made slides", "Reviewing visuals for errors"],
+          "tools": ["PowerPoint with Copilot or Google Slides with Gemini", "Approved image generator"],
+          "lab_task": "Turn a report into a ten-slide draft with AI, rewrite headlines to make the point, generate one image that follows brand rules and review the deck for errors.",
+          "deliverable": "Reviewed slide deck",
+          "checks": [["Draft", "The deck is created from the report", "Slide deck"], ["Improve", "Headlines state the point on every slide", "Slide deck"], ["Follow rules", "The generated image follows brand and disclosure rules", "Review notes"]],
+          "objectives": ["Create presentations with AI", "Generate images responsibly", "Review AI visuals"]
+        },
+        {
+          "topic": "Customer Communication with AI: Replies, FAQs and Tone",
+          "subtopics": ["Drafting replies to customer messages", "Adapting tone for complaints", "Building FAQ answers from policies", "Translating messages", "Personal data in customer messages", "Checking promises and policy accuracy", "Human review before sending", "Escalating sensitive cases"],
+          "tools": ["Approved AI assistant", "Help desk tool", "Policy documents"],
+          "lab_task": "Draft replies to five customer messages including a complaint, build three FAQ answers from a policy document and check every reply for accuracy and personal data.",
+          "deliverable": "Reviewed replies and FAQ answers",
+          "checks": [["Reply", "Replies are polite, accurate and complete", "Review notes"], ["Follow policy", "FAQ answers match the policy document", "Comparison"], ["Protect data", "Personal data is handled as the policy requires", "Checklist"]],
+          "objectives": ["Draft customer communication with AI", "Keep answers accurate", "Protect customer data"]
+        },
+        {
+          "topic": "Custom Assistants: GPTs, Gems, Projects and Copilot Agents",
+          "subtopics": ["What custom assistants are", "Instructions, knowledge files and starters", "Projects for ongoing work", "Copilot agents in Microsoft 365", "Sharing assistants with a team", "Keeping knowledge files current", "Testing an assistant before sharing", "Rules for data in custom assistants"],
+          "tools": ["ChatGPT custom GPTs or Claude Projects", "Gemini Gems", "Microsoft 365 Copilot agents"],
+          "lab_task": "Build a custom assistant for one repeated team task with instructions and approved knowledge files, test it with ten realistic requests and fix the weak answers.",
+          "deliverable": "Tested custom assistant",
+          "checks": [["Build", "Instructions and knowledge files are set", "Assistant configuration"], ["Test", "Ten test requests are rated", "Test log"], ["Improve", "Weak answers improve after changes", "Retest log"]],
+          "objectives": ["Build custom assistants", "Test before sharing", "Manage assistant knowledge"]
+        },
+        {
+          "topic": "Hallucinations and How to Check AI Output",
+          "subtopics": ["What hallucinations are", "Tasks with high hallucination risk", "Asking for sources and quotes", "Cross-checking with trusted systems", "Spotting wrong numbers and dates", "Asking the AI to critique itself", "A personal checking routine", "When an error is serious"],
+          "tools": ["Approved AI assistant", "Checking checklist"],
+          "lab_task": "Find the errors in five AI answers prepared by the trainer, then use your checking routine on three of your own AI outputs and record what you found.",
+          "deliverable": "Error log and personal checking routine",
+          "checks": [["Find errors", "Most planted errors are found", "Error log"], ["Check your work", "Three of your outputs are checked with the routine", "Check log"], ["Judge severity", "Each error is rated by its business impact", "Error log"]],
+          "objectives": ["Recognise hallucinations", "Check AI output", "Judge error severity"]
+        },
+        {
+          "topic": "Privacy, Confidentiality and Company Data",
+          "subtopics": ["Personal data and confidential data", "What happens to data in AI tools", "Business and consumer account differences", "Data classification at your company", "Anonymising before you paste", "Uploading files safely", "Data protection laws such as GDPR and India's DPDP Act in brief", "Reporting a data mistake"],
+          "tools": ["Company data classification guide", "Approved AI assistant"],
+          "lab_task": "Classify ten sample pieces of information under your company's rules, anonymise two documents before using AI with them and write what you would do after pasting something by mistake.",
+          "deliverable": "Classification exercise, anonymised documents and incident steps",
+          "checks": [["Classify", "Each item is classified correctly", "Exercise sheet"], ["Anonymise", "Names and identifiers are removed before use", "Anonymised documents"], ["Respond", "Incident steps match company procedure", "Notes"]],
+          "objectives": ["Protect confidential data", "Anonymise before using AI", "Respond to data mistakes"]
+        },
+        {
+          "topic": "Copyright, Intellectual Property and AI-Generated Content",
+          "subtopics": ["Who owns AI-generated content", "Copyright risks in outputs", "Using copyrighted material as input", "Company and client confidentiality", "Brand and trademark concerns", "Disclosure of AI use to clients", "Contract terms about AI", "When to ask the legal team"],
+          "tools": ["Company AI policy", "Case examples"],
+          "lab_task": "Work through six content scenarios covering marketing copy, images, client deliverables and code, decide whether each is acceptable and what disclosure or checks are needed.",
+          "deliverable": "Scenario decisions with reasons",
+          "checks": [["Decide", "Each scenario has a decision with reasons", "Scenario sheet"], ["Disclose", "Required disclosures are identified", "Scenario sheet"], ["Escalate", "Cases needing legal review are flagged", "Scenario sheet"]],
+          "objectives": ["Understand IP risks of AI", "Decide on acceptable use", "Know when to involve legal teams"]
+        },
+        {
+          "topic": "Bias and Fairness in Everyday AI Use",
+          "subtopics": ["Where bias in AI comes from", "Bias in text and images", "Stereotypes in job descriptions and marketing", "Decisions about people and AI", "Checking outputs for bias", "Inclusive prompts", "Reporting biased outputs", "Human judgement in people decisions"],
+          "tools": ["Approved AI assistant", "Inclusive language checklist"],
+          "lab_task": "Generate a job advert and two marketing images, check them for biased language and stereotypes with a checklist, fix the problems and note which decisions must stay with people.",
+          "deliverable": "Reviewed content with bias fixes",
+          "checks": [["Check", "Biased wording and images are identified", "Checklist"], ["Fix", "Revised content passes the checklist", "Revised content"], ["Keep judgement", "People decisions that must not be automated are listed", "Notes"]],
+          "objectives": ["Recognise bias in AI output", "Fix biased content", "Keep people decisions human"]
+        },
+        {
+          "topic": "Your Company's AI Policy and Approved Tools",
+          "subtopics": ["Why companies need AI policies", "Approved and banned tools", "Data rules in the policy", "Disclosure and labelling rules", "Roles and approvals for new uses", "Shadow AI and its risks", "Where to get help", "Keeping up with policy changes"],
+          "tools": ["Company AI policy", "Tool register"],
+          "lab_task": "Read your company's AI policy or a sample policy, answer ten scenario questions from it and suggest two improvements that would make it easier to follow.",
+          "deliverable": "Policy scenario answers and suggestions",
+          "checks": [["Apply", "Scenario answers match the policy", "Answer sheet"], ["Find gaps", "Unclear parts of the policy are listed", "Notes"], ["Improve", "Two practical improvements are proposed", "Suggestions"]],
+          "objectives": ["Follow company AI policy", "Avoid shadow AI", "Suggest policy improvements"]
+        },
+        {
+          "topic": "AI in Your Function: HR, Finance, Sales, Marketing and Operations",
+          "subtopics": ["Common uses in HR", "Common uses in finance", "Common uses in sales", "Common uses in marketing", "Common uses in operations and supply chain", "Uses in customer service", "Limits and risks in each function", "Sharing good practice with colleagues"],
+          "tools": ["Approved AI assistant", "Function use case cards"],
+          "lab_task": "Choose your function, test three common uses on realistic tasks, record time saved and risks, and present the best use to the group.",
+          "deliverable": "Function use case test results",
+          "checks": [["Test", "Three uses are tested on realistic tasks", "Test log"], ["Measure", "Time saved and risks are recorded", "Test log"], ["Share", "The best use is presented with evidence", "Presentation notes"]],
+          "objectives": ["Apply AI in your function", "Record benefits and risks", "Share good practice"]
+        },
+        {
+          "topic": "Measuring Time Saved and Quality Gained",
+          "subtopics": ["Why measure personal AI use", "Baseline time for tasks", "Measuring time with and without AI", "Judging quality with simple rubrics", "Counting rework and corrections", "Reporting results to your manager", "Spotting tasks where AI slows you down", "Using results to decide what to keep"],
+          "tools": ["Task log template", "Quality rubric", "Spreadsheet"],
+          "lab_task": "Time five tasks with and without AI help, rate quality with a rubric, count corrections and report net time saved for each task.",
+          "deliverable": "Measured comparison report",
+          "checks": [["Measure", "Time with and without AI is recorded for five tasks", "Task log"], ["Rate quality", "Each output is scored on the rubric", "Rubric scores"], ["Decide", "Tasks where AI does not help are identified", "Report"]],
+          "objectives": ["Measure AI benefits", "Account for rework", "Decide where AI helps"]
+        },
+        {
+          "topic": "Building Personal AI Habits and Workflows",
+          "subtopics": ["Daily and weekly uses that stick", "Prompt libraries", "Combining tools in a workflow", "Keeping a checking step", "Learning new features safely", "Avoiding over-reliance", "Sharing workflows with the team", "A personal AI plan"],
+          "tools": ["Approved AI assistant", "Prompt library", "Workflow template"],
+          "lab_task": "Design two personal workflows that combine AI steps with your own checks, use them for a week of simulated tasks and write a personal AI plan.",
+          "deliverable": "Two workflows and a personal AI plan",
+          "checks": [["Design", "Each workflow includes a human checking step", "Workflow documents"], ["Use", "Workflows are used on several tasks", "Task log"], ["Plan", "The plan lists habits, limits and learning goals", "Personal AI plan"]],
+          "objectives": ["Build AI habits", "Keep human checks in workflows", "Plan continued learning"]
+        },
+        {
+          "topic": "Beginner Capstone: AI-Assisted Workflow for a Real Task",
+          "subtopics": ["Choosing a real recurring task", "Designing the workflow", "Checking and policy steps", "Measured results", "Short presentation"],
+          "tools": ["Approved AI assistant", "Task log template", "Presentation template"],
+          "lab_task": "Choose a real recurring task, design an AI-assisted workflow with checking and policy steps, run it three times, measure time and quality and present the results to the group.",
+          "deliverable": "Workflow, measurements and presentation",
+          "checks": [["Design", "The workflow includes data, checking and policy steps", "Workflow document"], ["Measure", "Time and quality are measured over three runs", "Task log"], ["Present", "Results and limits are presented clearly", "Presentation notes"]],
+          "objectives": ["Combine beginner skills", "Apply AI to a real task safely", "Show measured results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For managers, team leads, process owners and business analysts who lead generative AI adoption in a team or function. Covers finding and prioritising use cases, business cases, process redesign, knowledge assistants on company documents, no-code automation and agents, evaluating output quality, running pilots, change management, training teams, risk assessment and governance, choosing vendors, data readiness, regulation for AI users, and uses in customer service, sales and marketing, HR, finance and legal, ending with measuring adoption and return on investment.",
+      "prerequisites": ["Uses AI assistants confidently for their own work", "Manages a team, process or budget, or supports someone who does", "Knows the company AI policy"],
+      "outcomes": ["Find, prioritise and justify generative AI use cases with a business case", "Run a measured pilot with clear quality checks and decisions", "Lead adoption, training and change for a team", "Manage risk, vendors, data and regulation for AI in a function"],
+      "days": [
+        {
+          "topic": "Finding Generative AI Use Cases in a Team or Function",
+          "subtopics": ["Mapping the team's work into tasks", "Tasks that suit generative AI", "Interviewing staff about pain points", "Looking for volume, repetition and text-heavy work", "Use cases in customer-facing and internal work", "Ideas from other companies and vendors", "Avoiding solutions looking for problems", "A use case register"],
+          "tools": ["Use case register template", "Process maps", "Interview guide"],
+          "lab_task": "Interview three role-played colleagues, map their work into tasks and build a use case register with at least ten candidate uses for your team.",
+          "deliverable": "Use case register with task evidence",
+          "checks": [["Gather evidence", "Each use case links to tasks from interviews", "Interview notes"], ["Describe", "Each entry states the problem, users and expected benefit", "Use case register"], ["Filter", "Uses that do not suit generative AI are removed with reasons", "Register notes"]],
+          "objectives": ["Find use cases from real work", "Build a use case register", "Avoid weak use cases"]
+        },
+        {
+          "topic": "Prioritising Use Cases: Value, Feasibility and Risk",
+          "subtopics": ["Value: time, quality, revenue and customer impact", "Feasibility: data, tools and skills", "Risk: errors, privacy and reputation", "Scoring matrices", "Quick wins and strategic bets", "Dependencies on IT and data teams", "Agreeing priorities with stakeholders", "Revisiting priorities over time"],
+          "tools": ["Prioritisation matrix", "Spreadsheet", "Stakeholder map"],
+          "lab_task": "Score the use case register on value, feasibility and risk, choose three priorities and agree them with a role-played department head.",
+          "deliverable": "Scored register and agreed priorities",
+          "checks": [["Score", "Every use case has value, feasibility and risk scores", "Prioritisation matrix"], ["Choose", "Three priorities are chosen with reasons", "Priority note"], ["Agree", "The department head accepts or adjusts the priorities", "Meeting notes"]],
+          "objectives": ["Prioritise AI use cases", "Balance value and risk", "Agree priorities with stakeholders"]
+        },
+        {
+          "topic": "Writing a Business Case for an AI Initiative",
+          "subtopics": ["Problem and current cost", "Expected benefits and how to measure them", "Licence, build and running costs", "Change and training costs", "Risks and mitigations", "Payback and scenarios", "What success looks like at three and twelve months", "A one-page summary for approvers"],
+          "tools": ["Business case template", "Spreadsheet", "Cost estimates"],
+          "lab_task": "Write a business case for one priority use case with baseline costs, measurable benefits, full costs, risks and scenarios, and present the one-page summary to a role-played approver.",
+          "deliverable": "Business case and one-page summary",
+          "checks": [["Quantify", "Costs and benefits are calculated with stated assumptions", "Spreadsheet"], ["Include all costs", "Training and change costs are included", "Business case"], ["Present", "The approver's questions are answered from the case", "Q&A notes"]],
+          "objectives": ["Build AI business cases", "Include hidden costs", "Present to approvers"]
+        },
+        {
+          "topic": "Redesigning Processes Around AI",
+          "subtopics": ["Adding AI to a process compared with redesigning it", "Mapping the current process", "Where AI drafts, checks or decides", "Human review points", "Handoffs and exceptions", "New roles in the process", "Measuring the new process", "Documenting the new process"],
+          "tools": ["Process mapping tool", "Swimlane template", "Approved AI assistant"],
+          "lab_task": "Map a current process such as invoice queries or job applications, redesign it with AI steps and human review points, and estimate the effect on time and errors.",
+          "deliverable": "Current and redesigned process maps with estimates",
+          "checks": [["Map", "The current process is mapped with times", "Process map"], ["Redesign", "AI steps and human checks are placed with reasons", "Redesigned map"], ["Estimate", "Time and error effects are estimated", "Estimate sheet"]],
+          "objectives": ["Redesign processes for AI", "Place human review points", "Estimate process impact"]
+        },
+        {
+          "topic": "Knowledge Assistants on Company Documents: Retrieval in Plain Terms",
+          "subtopics": ["Why assistants need company knowledge", "Retrieval-augmented generation explained without code", "Choosing documents for an assistant", "Keeping documents current and owned", "Permissions and who can see what", "Testing answers with real questions", "Citations and trust", "Off-the-shelf tools for knowledge assistants"],
+          "tools": ["Microsoft 365 Copilot or NotebookLM", "SharePoint or Google Drive", "Test question set"],
+          "lab_task": "Set up a knowledge assistant on a policy library, test it with twenty real employee questions, record wrong and missing answers and fix the document problems behind them.",
+          "deliverable": "Tested knowledge assistant and document fixes",
+          "checks": [["Set up", "The assistant answers from the chosen documents", "Configuration"], ["Test", "Twenty questions are rated for accuracy and citations", "Test log"], ["Fix", "Document gaps behind wrong answers are fixed", "Change log"]],
+          "objectives": ["Explain retrieval in plain terms", "Set up knowledge assistants", "Fix knowledge gaps"]
+        },
+        {
+          "topic": "No-Code AI Automation and Agents: Copilot Studio, Power Automate and Zapier",
+          "subtopics": ["Automation compared with assistants", "Triggers, actions and AI steps", "Agents that take actions in business tools", "Copilot Studio agents", "Power Automate and Zapier AI steps", "Approvals and human checkpoints", "Error handling and monitoring", "Who may build automations"],
+          "tools": ["Microsoft Copilot Studio", "Power Automate or Zapier", "Approved AI service"],
+          "lab_task": "Build a no-code automation that classifies incoming requests with AI, drafts a reply for human approval and logs the result, and test it with fifteen requests.",
+          "deliverable": "Working automation with test results",
+          "checks": [["Build", "The automation runs from trigger to log", "Run history"], ["Keep humans in charge", "Replies are sent only after approval", "Flow design"], ["Test", "Fifteen requests are processed and errors reviewed", "Test log"]],
+          "objectives": ["Build no-code AI automations", "Add approvals", "Monitor automations"]
+        },
+        {
+          "topic": "Evaluating AI Output Quality for Business Tasks",
+          "subtopics": ["Defining good output for a task", "Rubrics for quality", "Test sets of real examples", "Comparing tools and prompts fairly", "Checking accuracy, tone and completeness", "Involving subject experts", "Tracking quality over time", "Acceptable error rates by task"],
+          "tools": ["Quality rubric", "Test set template", "Spreadsheet"],
+          "lab_task": "Build a rubric and a test set of twenty real examples for one use case, score two prompts or tools with subject experts and set an acceptable quality threshold.",
+          "deliverable": "Rubric, test set and scored comparison",
+          "checks": [["Define quality", "The rubric covers accuracy, tone and completeness", "Rubric"], ["Score fairly", "Both options are scored on the same examples", "Score sheet"], ["Set thresholds", "The acceptable error rate is agreed with experts", "Decision note"]],
+          "objectives": ["Evaluate AI output", "Build test sets", "Set quality thresholds"]
+        },
+        {
+          "topic": "Running an AI Pilot: Scope, Measures and Decisions",
+          "subtopics": ["Pilot goals and scope", "Choosing pilot users", "Baseline measures before the pilot", "Running the pilot", "Collecting feedback", "Measuring results", "Go, change or stop decisions", "Writing the pilot report"],
+          "tools": ["Pilot plan template", "Survey tool", "Measurement sheet"],
+          "lab_task": "Plan a four-week pilot with baseline measures and decision criteria, analyse simulated pilot results and recommend go, change or stop.",
+          "deliverable": "Pilot plan, analysis and recommendation",
+          "checks": [["Plan", "Baseline measures and decision criteria are set before the pilot", "Pilot plan"], ["Analyse", "Results are compared with the baseline", "Analysis"], ["Decide", "The recommendation follows the criteria", "Pilot report"]],
+          "objectives": ["Plan AI pilots", "Measure against baselines", "Make evidence-based decisions"]
+        },
+        {
+          "topic": "Change Management and Adoption for AI Tools",
+          "subtopics": ["Why AI tools go unused", "Fears about jobs and skills", "Champions and early adopters", "Communicating purpose and limits", "Making AI part of daily routines", "Handling resistance", "Recognising good use", "Tracking adoption"],
+          "tools": ["Change plan template", "Communication templates", "Adoption dashboard"],
+          "lab_task": "Write a change plan for rolling out an AI assistant to a team of fifty, with messages, champions, routines and adoption measures, and role-play a conversation with a worried employee.",
+          "deliverable": "Change plan and conversation notes",
+          "checks": [["Plan", "The plan covers messages, champions and measures", "Change plan"], ["Address fears", "The conversation addresses job concerns honestly", "Role play notes"], ["Measure", "Adoption measures have targets", "Change plan"]],
+          "objectives": ["Lead AI adoption", "Address employee concerns", "Track adoption"]
+        },
+        {
+          "topic": "Training a Team to Use AI Well",
+          "subtopics": ["Skills gaps in a team", "Role-based training", "Hands-on practice with real tasks", "Prompt libraries and examples", "Peer learning and show-and-tell sessions", "AI literacy duties under the EU AI Act", "Measuring skill growth", "Keeping training current"],
+          "tools": ["Skills survey", "Training plan template", "Prompt library"],
+          "lab_task": "Survey a team's AI skills, design a role-based training plan with practice tasks and a shared prompt library, and define how skill growth will be measured.",
+          "deliverable": "Skills survey results and training plan",
+          "checks": [["Assess", "Skills gaps are identified by role", "Survey results"], ["Plan", "Training uses real tasks for each role", "Training plan"], ["Measure", "Skill growth measures have targets", "Training plan"]],
+          "objectives": ["Train teams in AI", "Build shared resources", "Meet AI literacy duties"]
+        },
+        {
+          "topic": "AI Risk Assessment and Governance for Managers",
+          "subtopics": ["Risks by use case", "Impact on customers and employees", "Likelihood and severity", "Controls: review, limits and monitoring", "Approval routes for new uses", "Records of AI use", "Incident handling", "Reviewing risks over time"],
+          "tools": ["Risk assessment template", "AI use register", "Company AI policy"],
+          "lab_task": "Complete a risk assessment for two use cases, choose controls, route one through the approval process and record both in the AI use register.",
+          "deliverable": "Two risk assessments and register entries",
+          "checks": [["Assess", "Risks are rated for likelihood and severity", "Risk assessments"], ["Control", "Each high risk has a control", "Risk assessments"], ["Record", "Both uses are recorded in the register", "Register entries"]],
+          "objectives": ["Assess AI risks", "Choose controls", "Follow governance processes"]
+        },
+        {
+          "topic": "Choosing AI Vendors and Tools: Procurement Questions",
+          "subtopics": ["Build compared with buy for a team", "Comparing vendors", "Data handling and training on customer data", "Security certifications", "Pricing models: seats, usage and add-ons", "Integration with existing tools", "Trials and proof of value", "Contract terms to check"],
+          "tools": ["Vendor comparison template", "Security questionnaire", "Contract checklist"],
+          "lab_task": "Compare three vendors for a use case on capability, data handling, security, cost and integration, run a short proof of value with one and write a recommendation.",
+          "deliverable": "Vendor comparison, proof of value and recommendation",
+          "checks": [["Compare", "Vendors are scored on the same criteria", "Comparison sheet"], ["Check data terms", "Data use and training terms are recorded", "Questionnaire"], ["Recommend", "The recommendation is justified", "Recommendation"]],
+          "objectives": ["Evaluate AI vendors", "Check data and security terms", "Recommend tools"]
+        },
+        {
+          "topic": "Data Readiness for Generative AI",
+          "subtopics": ["What data generative AI needs", "Document quality and ownership", "Outdated and duplicate content", "Permissions and oversharing", "Structured data for AI analysis", "Data cleanup before AI rollout", "Data owners and stewards", "Measuring data readiness"],
+          "tools": ["Data readiness checklist", "SharePoint or Google Drive reports", "Permissions review"],
+          "lab_task": "Audit a team's document library for outdated, duplicate and overshared content, fix the top problems and score data readiness before and after.",
+          "deliverable": "Data readiness audit and fixes",
+          "checks": [["Audit", "Outdated, duplicate and overshared items are found", "Audit report"], ["Fix", "The top problems are fixed", "Change log"], ["Score", "Readiness scores improve", "Before-and-after scores"]],
+          "objectives": ["Prepare data for AI", "Fix permissions and content", "Measure readiness"]
+        },
+        {
+          "topic": "Regulation for AI Users: EU AI Act, DPDP Act and Sector Rules",
+          "subtopics": ["Why regulation matters to business users", "Risk categories in the EU AI Act", "Transparency duties", "Data protection rules for AI", "India's DPDP Act and consent", "Sector rules in finance, health and HR", "Records and evidence for regulators", "Working with legal and compliance teams"],
+          "tools": ["Regulation summaries", "Use case register", "Compliance checklist"],
+          "lab_task": "Classify five use cases against EU AI Act risk categories and data protection rules, list the duties for each and agree actions with a role-played compliance officer.",
+          "deliverable": "Regulatory classification and action list",
+          "checks": [["Classify", "Each use case has a risk category with reasons", "Classification sheet"], ["List duties", "Transparency and data duties are listed", "Action list"], ["Agree", "The compliance officer agrees the actions", "Meeting notes"]],
+          "objectives": ["Understand AI regulation", "Classify use cases", "Work with compliance teams"]
+        },
+        {
+          "topic": "Generative AI in Customer Service",
+          "subtopics": ["Agent assist and suggested replies", "Self-service chatbots", "Knowledge base quality", "Summarising cases", "Quality monitoring with AI", "Escalation and human handover", "Customer trust and disclosure", "Measuring service outcomes"],
+          "tools": ["Help desk platform with AI features", "Knowledge base", "Service metrics"],
+          "lab_task": "Design an AI-assisted service model with agent assist, a chatbot with handover rules and quality monitoring, and define the service measures to track.",
+          "deliverable": "Service design with measures",
+          "checks": [["Design", "Agent assist, chatbot and handover rules are defined", "Service design"], ["Protect customers", "Disclosure and escalation rules are included", "Service design"], ["Measure", "Service measures have baselines and targets", "Measures sheet"]],
+          "objectives": ["Apply AI in customer service", "Design human handover", "Measure service outcomes"]
+        },
+        {
+          "topic": "Generative AI in Sales and Marketing",
+          "subtopics": ["Prospect research and account plans", "Personalised outreach at scale", "Content creation and brand voice", "Campaign ideas and testing", "Sales call preparation and summaries", "CRM data and AI", "Spam, consent and brand risks", "Measuring pipeline and campaign impact"],
+          "tools": ["CRM with AI features", "Approved AI assistant", "Brand guidelines"],
+          "lab_task": "Build an AI-assisted campaign with researched personas, personalised messages within consent rules and on-brand content, and define how its impact will be measured.",
+          "deliverable": "Campaign assets and measurement plan",
+          "checks": [["Personalise", "Messages are personalised from approved data", "Campaign assets"], ["Stay compliant", "Consent and brand rules are followed", "Review checklist"], ["Measure", "Impact measures are defined", "Measurement plan"]],
+          "objectives": ["Apply AI in sales and marketing", "Respect consent and brand", "Measure impact"]
+        },
+        {
+          "topic": "Generative AI in HR and Recruitment: Uses and Risks",
+          "subtopics": ["Job descriptions and adverts", "Screening support and its risks", "Interview question design", "Onboarding content", "Employee questions and policy assistants", "Performance review drafting cautions", "Bias, fairness and legal duties", "Human decisions in people processes"],
+          "tools": ["Approved AI assistant", "HR policy library", "Bias checklist"],
+          "lab_task": "Use AI to draft a job advert, interview questions and onboarding content, check each for bias, and write the rules that keep hiring and performance decisions with people.",
+          "deliverable": "HR content and people decision rules",
+          "checks": [["Draft", "Advert, questions and onboarding content are produced", "Draft files"], ["Check bias", "Content passes the bias checklist", "Checklist"], ["Set rules", "Decisions that must stay human are written", "Rules document"]],
+          "objectives": ["Apply AI in HR", "Manage bias risks", "Keep people decisions human"]
+        },
+        {
+          "topic": "Generative AI in Finance, Legal and Procurement",
+          "subtopics": ["Analysing financial documents", "Variance commentary and reporting", "Contract review assistance", "Policy and compliance checks", "Supplier research and comparisons", "Accuracy and audit trails", "Confidentiality of financial and legal data", "Professional responsibility limits"],
+          "tools": ["Approved AI assistant", "Sample contracts and reports", "Audit checklist"],
+          "lab_task": "Use AI to draft variance commentary, review a sample contract against a checklist and compare suppliers, then check each output against source documents and record an audit trail.",
+          "deliverable": "Finance, legal and procurement outputs with audit trail",
+          "checks": [["Produce", "Commentary, review and comparison are completed", "Output files"], ["Verify", "Each output is checked against the sources", "Check log"], ["Record", "The audit trail shows prompts, sources and reviewer", "Audit trail"]],
+          "objectives": ["Apply AI in finance, legal and procurement", "Keep audit trails", "Respect professional limits"]
+        },
+        {
+          "topic": "Measuring Adoption, Value and Return on Investment",
+          "subtopics": ["Adoption measures: active users and frequency", "Value measures: time, quality, revenue and cost", "Surveys and usage data", "Attributing results to AI", "Comparing with the business case", "Reporting to leadership", "Stopping uses that do not pay back", "Updating the roadmap"],
+          "tools": ["Usage reports", "Survey tool", "Value dashboard"],
+          "lab_task": "Build a value dashboard for an AI rollout from sample usage, survey and business data, compare results with the business case and recommend what to expand and stop.",
+          "deliverable": "Value dashboard and recommendation",
+          "checks": [["Measure", "Adoption and value measures are shown", "Dashboard"], ["Compare", "Results are compared with the business case", "Analysis"], ["Recommend", "Expansions and stops are justified", "Recommendation"]],
+          "objectives": ["Measure AI value", "Compare with business cases", "Decide what to scale or stop"]
+        },
+        {
+          "topic": "Intermediate Capstone: Pilot Plan for a Team Use Case",
+          "subtopics": ["Use case and business case", "Process redesign", "Risk assessment", "Quality evaluation", "Change and training plan", "Pilot measures and decision criteria"],
+          "tools": ["Business case template", "Risk assessment template", "Pilot plan template"],
+          "lab_task": "Build a complete pilot pack for a real team use case: business case, redesigned process, risk assessment, quality test set, change plan and decision criteria, and present it to a role-played steering group.",
+          "deliverable": "Pilot pack and steering group presentation",
+          "checks": [["Justify", "The business case and risks support the pilot", "Pilot pack"], ["Measure", "Quality tests and decision criteria are defined", "Pilot pack"], ["Win approval", "The steering group approves or sets conditions", "Meeting notes"]],
+          "objectives": ["Combine intermediate skills", "Prepare a real AI pilot", "Win approval with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For executives, directors and transformation leads responsible for generative AI across an organisation. Covers AI strategy, operating models, use case portfolios, build or buy decisions, technology choices for leaders, cost management, board-level governance, compliance programmes, enterprise AI risk, security threats, workforce planning and reskilling, agentic AI in operations, scaling from pilots, customer trust, intellectual property, value measurement, vendor negotiation, sustainability and communicating AI strategy.",
+      "prerequisites": ["Leads a function, business unit or transformation programme", "Has sponsored or run AI pilots, or completed intermediate training", "Takes part in investment and risk decisions"],
+      "outcomes": ["Set a generative AI strategy and operating model linked to business goals", "Govern AI risk, regulation, security and ethics at enterprise level", "Plan the workforce, cost and technology choices that make AI scale", "Measure enterprise AI value and communicate strategy to boards and employees"],
+      "days": [
+        {
+          "topic": "Generative AI Strategy Linked to Business Strategy",
+          "subtopics": ["Where AI changes the business model", "Efficiency, growth and new products", "Competitive threats from AI", "Strategic ambitions and guardrails", "Choosing focus areas", "Linking AI goals to company goals", "Funding and timelines", "Strategy on one page"],
+          "tools": ["Strategy canvas", "Industry case studies", "Strategy template"],
+          "lab_task": "Write a one-page generative AI strategy for a case company with focus areas, ambitions, guardrails and links to company goals, and test it against two competitor moves.",
+          "deliverable": "One-page AI strategy",
+          "checks": [["Link", "Each focus area supports a company goal", "Strategy page"], ["Choose", "The strategy states what the company will not do", "Strategy page"], ["Test", "The strategy holds up against two competitor scenarios", "Scenario notes"]],
+          "objectives": ["Set AI strategy", "Choose focus areas", "Link AI to business goals"]
+        },
+        {
+          "topic": "AI Operating Models: Centres of Excellence and Federated Teams",
+          "subtopics": ["Centralised, federated and hybrid models", "Responsibilities of an AI centre of excellence", "Business unit AI leads", "Shared platforms and services", "Funding models", "Decision rights", "Talent and community", "Evolving the model over time"],
+          "tools": ["Operating model canvas", "RACI template", "Organisation chart"],
+          "lab_task": "Design an AI operating model for a case company with a centre of excellence, business unit leads, shared services and decision rights, and compare it with an alternative.",
+          "deliverable": "Operating model design and comparison",
+          "checks": [["Design", "Roles, services and decision rights are defined", "Operating model"], ["Fund", "The funding model is stated", "Operating model"], ["Compare", "The alternative model is compared with reasons", "Comparison"]],
+          "objectives": ["Design AI operating models", "Set decision rights", "Plan funding"]
+        },
+        {
+          "topic": "Managing an AI Use Case Portfolio",
+          "subtopics": ["Portfolio views of AI initiatives", "Balancing quick wins and transformational bets", "Stage gates from idea to scale", "Kill criteria", "Dependencies on data and platforms", "Portfolio reviews", "Reallocating investment", "Reporting portfolio health"],
+          "tools": ["Portfolio dashboard", "Stage gate template", "Spreadsheet"],
+          "lab_task": "Review a portfolio of fifteen AI initiatives, apply stage gate and kill criteria, reallocate the budget and present the revised portfolio.",
+          "deliverable": "Revised portfolio and rationale",
+          "checks": [["Apply gates", "Each initiative is assessed against stage gate criteria", "Portfolio sheet"], ["Stop", "At least one initiative is stopped with reasons", "Decision record"], ["Reallocate", "Budget changes are justified", "Portfolio summary"]],
+          "objectives": ["Manage AI portfolios", "Use stage gates", "Reallocate investment"]
+        },
+        {
+          "topic": "Build, Buy or Partner for AI Capabilities",
+          "subtopics": ["Off-the-shelf AI features", "Configured platforms", "Custom solutions", "Partners and consultancies", "Total cost over three years", "Speed, control and differentiation", "Lock-in and exit plans", "Decision records"],
+          "tools": ["Decision matrix", "Cost model", "Vendor information"],
+          "lab_task": "Decide build, buy or partner for three AI capabilities in a case company with total cost, speed, control and lock-in, and record each decision.",
+          "deliverable": "Three build, buy or partner decisions",
+          "checks": [["Compare", "Options are compared on cost, speed and control", "Decision matrix"], ["Plan exit", "Lock-in risks have exit plans", "Decision records"], ["Decide", "Each decision is justified", "Decision records"]],
+          "objectives": ["Make build or buy decisions", "Weigh lock-in", "Record decisions"]
+        },
+        {
+          "topic": "Technology Choices for Leaders: Models, Platforms and Data",
+          "subtopics": ["Model choices without technical depth", "Closed and open-weight models", "Enterprise AI platforms", "Data platforms and AI readiness", "Integration with core systems", "Questions to ask technology teams", "Avoiding hype-driven choices", "Technology roadmaps"],
+          "tools": ["Technology options summary", "Architecture overview", "Question checklist"],
+          "lab_task": "Review a proposed AI technology plan from a role-played CTO, ask the key questions, identify two risks and agree changes to the technology roadmap.",
+          "deliverable": "Review notes and agreed roadmap changes",
+          "checks": [["Question", "The key questions are asked and answered", "Review notes"], ["Find risks", "Two technology risks are identified", "Review notes"], ["Agree", "Roadmap changes are agreed", "Roadmap"]],
+          "objectives": ["Make informed technology decisions", "Challenge technology plans", "Align roadmaps with strategy"]
+        },
+        {
+          "topic": "AI Cost Management: Licences, Tokens and Infrastructure",
+          "subtopics": ["Cost types: seats, usage and infrastructure", "Forecasting usage costs", "Licence utilisation", "Cost per task and per outcome", "Controls on spending", "Chargeback to business units", "Negotiating volume discounts", "Reporting AI costs"],
+          "tools": ["Cost model", "Usage reports", "Spreadsheet"],
+          "lab_task": "Build a twelve-month cost forecast for an AI rollout with seat and usage costs, find unused licences in sample data and propose controls that cut cost without hurting value.",
+          "deliverable": "Cost forecast and savings proposal",
+          "checks": [["Forecast", "Seat and usage costs are forecast with assumptions", "Cost model"], ["Find waste", "Unused licences are identified", "Usage analysis"], ["Control", "Controls keep value while cutting cost", "Proposal"]],
+          "objectives": ["Manage AI costs", "Forecast usage", "Control spending"]
+        },
+        {
+          "topic": "Responsible AI Governance at Board Level",
+          "subtopics": ["The board's role in AI oversight", "Principles and policies", "Governance committees", "Reporting to the board", "Risk appetite for AI", "Ethics review processes", "Independent assurance", "Board education"],
+          "tools": ["Governance framework template", "Board paper template", "Risk appetite statement"],
+          "lab_task": "Draft an AI governance framework with principles, a committee charter and a risk appetite statement, and present a board paper on AI oversight to a mock board.",
+          "deliverable": "Governance framework and board paper",
+          "checks": [["Frame", "Principles, committees and policies are defined", "Governance framework"], ["Set appetite", "The risk appetite statement is specific", "Risk appetite statement"], ["Present", "The mock board approves or asks for changes", "Board notes"]],
+          "objectives": ["Govern AI at board level", "Set risk appetite", "Report AI to boards"]
+        },
+        {
+          "topic": "AI Regulation Compliance Programmes",
+          "subtopics": ["Regulatory landscape across regions", "EU AI Act obligations by role", "General-purpose AI and deployer duties", "Data protection and AI", "Sector regulators' expectations", "Inventory of AI systems", "Compliance roadmap", "Evidence and audits"],
+          "tools": ["AI system inventory", "Compliance roadmap template", "Regulation summaries"],
+          "lab_task": "Build an AI system inventory for a case company, classify systems by regulatory obligations and write a twelve-month compliance roadmap with owners.",
+          "deliverable": "AI inventory and compliance roadmap",
+          "checks": [["Inventory", "All AI systems are listed with owners", "Inventory"], ["Classify", "Obligations are identified for each system", "Classification"], ["Plan", "The roadmap has milestones and owners", "Compliance roadmap"]],
+          "objectives": ["Run AI compliance programmes", "Inventory AI systems", "Plan compliance"]
+        },
+        {
+          "topic": "Enterprise AI Risk: Model, Third-Party and Operational Risk",
+          "subtopics": ["AI in the enterprise risk framework", "Model risk management", "Third-party and vendor AI risk", "Operational resilience and AI", "Key risk indicators", "Incident management", "Insurance and liability", "Risk reporting"],
+          "tools": ["Risk register", "Key risk indicator template", "Incident playbook"],
+          "lab_task": "Add AI risks to an enterprise risk register with key risk indicators, assess one vendor's AI risk and run a tabletop exercise for an AI incident.",
+          "deliverable": "Updated risk register, vendor assessment and exercise notes",
+          "checks": [["Register", "AI risks have owners and indicators", "Risk register"], ["Assess vendors", "The vendor assessment identifies key risks", "Assessment"], ["Exercise", "The tabletop exercise produces lessons and actions", "Exercise notes"]],
+          "objectives": ["Manage enterprise AI risk", "Assess vendor AI risk", "Prepare for AI incidents"]
+        },
+        {
+          "topic": "AI Security Threats: Prompt Injection, Data Leakage and Shadow AI",
+          "subtopics": ["The AI threat landscape for leaders", "Prompt injection and manipulated content", "Data leakage through AI tools", "Shadow AI and unapproved tools", "AI-enabled fraud and deepfakes", "Security controls and monitoring", "Employee awareness", "Working with the security team"],
+          "tools": ["Threat summary", "Security control checklist", "Awareness materials"],
+          "lab_task": "Review AI security threats for a case company with a role-played CISO, choose controls for the top five threats and plan an employee awareness campaign including deepfake fraud.",
+          "deliverable": "Threat review, controls and awareness plan",
+          "checks": [["Prioritise", "The top five threats are chosen with reasons", "Threat review"], ["Control", "Each threat has controls and owners", "Control plan"], ["Raise awareness", "The campaign covers deepfake fraud and shadow AI", "Awareness plan"]],
+          "objectives": ["Understand AI security threats", "Choose controls", "Raise employee awareness"]
+        },
+        {
+          "topic": "Workforce Planning, Reskilling and Job Redesign for AI",
+          "subtopics": ["How AI changes tasks and roles", "Task-level workforce analysis", "New roles and skills", "Reskilling programmes", "Redeployment and fair transitions", "Working with unions and works councils", "Hiring for AI skills", "Measuring workforce outcomes"],
+          "tools": ["Task analysis template", "Skills inventory", "Reskilling plan template"],
+          "lab_task": "Analyse how AI changes three job families in a case company, plan reskilling and redeployment, and present a fair transition plan to role-played HR and employee representatives.",
+          "deliverable": "Workforce analysis and transition plan",
+          "checks": [["Analyse", "Task changes are analysed for each job family", "Analysis"], ["Plan", "Reskilling and redeployment are planned", "Transition plan"], ["Consult", "Representatives' concerns are addressed", "Meeting notes"]],
+          "objectives": ["Plan the workforce for AI", "Reskill employees", "Manage fair transitions"]
+        },
+        {
+          "topic": "Agentic AI in Enterprise Operations",
+          "subtopics": ["What AI agents can do in operations", "Levels of autonomy", "Agents in finance, IT, HR and customer operations", "Human oversight and approvals", "Controls on agent actions", "Monitoring agents", "Accountability for agent decisions", "Starting with low-risk agents"],
+          "tools": ["Agent use case template", "Autonomy levels framework", "Control checklist"],
+          "lab_task": "Assess three agent use cases for autonomy level, controls and accountability, choose one to pilot and write its oversight plan.",
+          "deliverable": "Agent assessments and oversight plan",
+          "checks": [["Assess", "Autonomy level and risks are rated for each use case", "Assessments"], ["Control", "Approvals and action limits are defined", "Oversight plan"], ["Assign", "Accountability for agent decisions is clear", "Oversight plan"]],
+          "objectives": ["Evaluate AI agents for operations", "Set autonomy levels", "Plan oversight"]
+        },
+        {
+          "topic": "Scaling from Pilots to Production",
+          "subtopics": ["Why pilots fail to scale", "Production readiness criteria", "Platform and support needs", "Process and policy changes", "Training at scale", "Rollout waves", "Measuring at scale", "Retiring old processes"],
+          "tools": ["Readiness checklist", "Rollout plan template", "Support model"],
+          "lab_task": "Assess a successful pilot against production readiness criteria, plan a three-wave rollout with support and training and identify the process changes needed.",
+          "deliverable": "Readiness assessment and rollout plan",
+          "checks": [["Assess", "Readiness gaps are identified", "Readiness assessment"], ["Plan", "Waves, support and training are scheduled", "Rollout plan"], ["Change", "Process and policy changes are listed with owners", "Change list"]],
+          "objectives": ["Scale AI from pilots", "Check production readiness", "Plan rollouts"]
+        },
+        {
+          "topic": "Customer Trust, Transparency and AI Disclosure",
+          "subtopics": ["What customers expect about AI", "Disclosure of AI use", "Explaining AI decisions", "Human contact options", "Complaints and redress", "Trust metrics", "Industry codes of practice", "Communicating AI use publicly"],
+          "tools": ["Disclosure templates", "Customer research", "Trust metrics"],
+          "lab_task": "Write AI disclosure and explanation standards for customer-facing uses, test them with role-played customers and define trust measures to track.",
+          "deliverable": "Disclosure standards and trust measures",
+          "checks": [["Disclose", "Standards cover disclosure, explanation and human contact", "Standards"], ["Test", "Customer feedback leads to revisions", "Feedback notes"], ["Measure", "Trust measures have baselines", "Measures"]],
+          "objectives": ["Build customer trust in AI", "Set disclosure standards", "Measure trust"]
+        },
+        {
+          "topic": "Intellectual Property, Content Provenance and Brand Risk",
+          "subtopics": ["Ownership of AI outputs", "Training data and copyright disputes", "Protecting company IP in AI tools", "Content provenance and watermarking", "Deepfakes of executives and brands", "Brand guidelines for AI content", "Contract clauses on IP", "Responding to IP incidents"],
+          "tools": ["IP policy template", "Content provenance tools", "Brand guidelines"],
+          "lab_task": "Write an AI content and IP policy for a case company covering ownership, provenance and brand use, and plan the response to a deepfake of the CEO.",
+          "deliverable": "AI content and IP policy and incident plan",
+          "checks": [["Cover", "The policy covers ownership, inputs, outputs and provenance", "Policy"], ["Protect brand", "Brand rules for AI content are included", "Policy"], ["Respond", "The deepfake response plan has steps and owners", "Incident plan"]],
+          "objectives": ["Manage AI IP risks", "Use content provenance", "Protect the brand"]
+        },
+        {
+          "topic": "Measuring AI Value at Enterprise Scale",
+          "subtopics": ["Value frameworks for AI", "Productivity, quality, growth and risk reduction", "Attribution and control groups", "Leading and lagging indicators", "Portfolio-level value reporting", "Linking value to financial results", "Avoiding inflated claims", "Reporting to investors and boards"],
+          "tools": ["Value framework", "Enterprise dashboard", "Finance data"],
+          "lab_task": "Build an enterprise AI value framework and dashboard from sample data, test one value claim with a control comparison and correct two inflated claims in a sample report.",
+          "deliverable": "Value framework, dashboard and corrected report",
+          "checks": [["Frame", "The framework covers productivity, quality, growth and risk", "Framework"], ["Test claims", "One claim is tested with a comparison group", "Analysis"], ["Correct", "Inflated claims are corrected with evidence", "Corrected report"]],
+          "objectives": ["Measure enterprise AI value", "Test value claims", "Report honestly"]
+        },
+        {
+          "topic": "AI Vendor Ecosystem and Contract Negotiation",
+          "subtopics": ["The AI vendor landscape", "Platform vendors, model providers and specialists", "Pricing structures and hidden costs", "Data, IP and indemnity terms", "Service levels and model changes", "Exit and portability", "Multi-vendor strategies", "Negotiation preparation"],
+          "tools": ["Vendor map", "Contract checklist", "Negotiation planner"],
+          "lab_task": "Prepare and run a role-played negotiation for an enterprise AI contract covering price, data terms, indemnity, service levels and exit, and record the outcome.",
+          "deliverable": "Negotiation plan and outcome record",
+          "checks": [["Prepare", "Goals, limits and alternatives are planned", "Negotiation planner"], ["Protect", "Data, IP and exit terms are addressed", "Outcome record"], ["Agree", "The outcome stays within the planned limits", "Outcome record"]],
+          "objectives": ["Understand the AI vendor market", "Negotiate AI contracts", "Protect data and exit options"]
+        },
+        {
+          "topic": "Sustainability and Energy Use of AI",
+          "subtopics": ["Energy and water use of AI", "Emissions reporting duties", "Choosing efficient models and tools", "Usage policies that reduce waste", "Vendor sustainability commitments", "Balancing value and footprint", "Reporting AI sustainability", "AI for sustainability goals"],
+          "tools": ["Emissions estimates", "Vendor sustainability reports", "Reporting template"],
+          "lab_task": "Estimate the footprint of a company's AI use from sample data, propose three reductions that keep value and write the sustainability section of the AI report.",
+          "deliverable": "Footprint estimate, reductions and report section",
+          "checks": [["Estimate", "The footprint estimate states its assumptions", "Estimate"], ["Reduce", "Three reductions are justified", "Proposal"], ["Report", "The report section is clear and honest", "Report section"]],
+          "objectives": ["Account for AI sustainability", "Reduce AI footprint", "Report sustainability"]
+        },
+        {
+          "topic": "Communicating AI Strategy to Employees, Boards and Investors",
+          "subtopics": ["Different audiences and concerns", "The AI narrative", "Honest messages about jobs", "Board and investor updates", "Town halls and Q&A", "Managers as messengers", "Avoiding hype", "Measuring understanding"],
+          "tools": ["Narrative template", "Presentation template", "Pulse survey"],
+          "lab_task": "Write an AI narrative, deliver a town hall message with hard questions from employees, and brief a mock board and investors on progress and risks.",
+          "deliverable": "Narrative, town hall recording and board briefing",
+          "checks": [["Tell the story", "The narrative links AI to strategy and people", "Narrative"], ["Answer honestly", "Hard questions about jobs are answered honestly", "Recording"], ["Brief", "The board briefing covers progress, value and risk", "Briefing"]],
+          "objectives": ["Communicate AI strategy", "Address employee concerns", "Brief boards and investors"]
+        },
+        {
+          "topic": "Advanced Capstone: Generative AI Transformation Roadmap",
+          "subtopics": ["Strategy and operating model", "Portfolio and value plan", "Governance, risk and compliance", "Workforce and change plan", "Cost and technology plan", "Executive committee presentation"],
+          "tools": ["Strategy template", "Portfolio dashboard", "Governance framework", "Presentation template"],
+          "lab_task": "Build a three-year generative AI transformation roadmap for a case company covering strategy, operating model, portfolio, governance, workforce, costs and value, and present it to a mock executive committee.",
+          "deliverable": "Transformation roadmap and executive presentation",
+          "checks": [["Plan", "The roadmap links strategy, portfolio and value", "Roadmap"], ["Govern", "Governance, risk and workforce plans are included", "Roadmap"], ["Win approval", "The committee approves or sets specific conditions", "Committee notes"]],
+          "objectives": ["Combine advanced skills", "Lead generative AI transformation", "Present to executives"]
+        }
+      ]
+    }
+  }
+}

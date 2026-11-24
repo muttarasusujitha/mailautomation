@@ -1,0 +1,573 @@
+{
+  "domain": "Data Analytics",
+  "name": "Data Analytics",
+  "category": "Data Engineering and Analytics",
+  "icon": "bar-chart",
+  "aliases": ["Data Analyst", "Data Analyst Training", "Data Analytics Training", "Data Analytics Bootcamp", "Business Data Analytics", "Data Analytics Course", "Business Analytics"],
+  "certifications": ["Google Data Analytics Professional Certificate", "Microsoft Certified: Power BI Data Analyst Associate (PL-300)", "Tableau Certified Data Analyst"],
+  "tools": ["Microsoft Excel", "SQL (PostgreSQL)", "Python with pandas", "Jupyter", "Power BI", "Tableau"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new analysts and business staff moving into analysis. Covers the analysis process, data types and quality, spreadsheet analysis, pivot tables, charts, SQL queries and joins, data cleaning, descriptive statistics, pandas, visualisation in Python, a first Power BI report, business questions, KPIs, storytelling and data ethics.",
+      "prerequisites": ["Comfortable with Excel at a basic level: entering data, simple formulas and charts", "Basic school mathematics: percentages and averages", "No programming experience required"],
+      "outcomes": ["Clean, summarise and chart data in Excel, SQL and Python", "Answer business questions with clear metrics", "Build a simple Power BI report", "Present findings as a short, accurate story"],
+      "days": [
+        {
+          "topic": "Data Analytics Overview and Tool Setup",
+          "subtopics": ["What data analysts do day to day", "Descriptive, diagnostic, predictive and prescriptive analytics", "The analysis process: ask, prepare, process, analyse, share, act", "Roles: analyst, data engineer, data scientist and BI developer", "Installing PostgreSQL and a SQL client", "Installing Python, Jupyter and pandas", "Power BI Desktop and Tableau Public", "Course datasets: sales, customers and web events", "Organising project folders and files", "Keeping an analysis log"],
+          "tools": ["PostgreSQL", "DBeaver", "Anaconda", "Jupyter", "Power BI Desktop"],
+          "lab_task": "Install the course tools, load the sales dataset into PostgreSQL, open it in Excel and in a Jupyter notebook, and write one business question you will answer by the end of the course.",
+          "deliverable": "Working tool set-up screenshots, project folder and a written business question",
+          "checks": [["Run SELECT COUNT(*) on the sales table", "Row count matches the source file", "Query result"], ["Load the file in Jupyter", "First five rows shown with pandas", "Notebook"], ["Review the business question", "Specific and answerable with the data", "Analysis log"]],
+          "objectives": ["Describe the analyst role", "Set up the tools", "Write an answerable business question"]
+        },
+        {
+          "topic": "Types of Data and Data Quality",
+          "subtopics": ["Structured, semi-structured and unstructured data", "Numeric, categorical, date and text fields", "Primary and secondary data", "Data quality dimensions: accuracy, completeness, consistency, timeliness", "Common data quality problems", "Data dictionaries", "Granularity: what one row means", "Sampling and bias"],
+          "tools": ["Microsoft Excel", "Data dictionary template"],
+          "lab_task": "Profile the customer dataset: classify each column, state what one row represents, record quality problems by dimension and write a data dictionary.",
+          "deliverable": "Profile sheet and data dictionary",
+          "checks": [["State the grain", "One row described correctly", "Profile sheet"], ["List quality problems", "At least five problems each tied to a dimension", "Profile sheet"], ["Review the dictionary", "Every column defined with type and meaning", "Data dictionary"]],
+          "objectives": ["Classify data", "Assess data quality", "Document a dataset"]
+        },
+        {
+          "topic": "Spreadsheet Analysis: Sorting, Filtering and Formulas",
+          "subtopics": ["Tables in Excel", "Sorting and multi-level sorting", "Filters and slicers on tables", "Relative and absolute references", "SUMIFS, COUNTIFS and AVERAGEIFS", "IF, AND and OR", "Text and date functions", "Conditional formatting"],
+          "tools": ["Microsoft Excel"],
+          "lab_task": "Convert the sales data to an Excel table, calculate revenue by region and month with SUMIFS, flag orders above target with IF, and highlight the top 10 percent of orders.",
+          "deliverable": "Workbook with formulas and a findings note",
+          "checks": [["Recalculate a regional total by hand", "Matches the SUMIFS result", "Workbook"], ["Copy the formula across months", "Absolute references keep the right cells", "Workbook"], ["Review highlighted orders", "Exactly the top 10 percent highlighted", "Workbook"]],
+          "objectives": ["Use Excel tables", "Write conditional formulas", "Highlight patterns"]
+        },
+        {
+          "topic": "Lookups and Combining Data in Excel",
+          "subtopics": ["Why data is split across tables", "XLOOKUP", "INDEX and MATCH", "Handling missing matches", "Combining sheets with Power Query", "Appending and merging queries", "Refreshing combined data", "Checking row counts after a merge"],
+          "tools": ["Microsoft Excel", "Power Query"],
+          "lab_task": "Add customer segment and product category to the sales table using XLOOKUP and then rebuild it as a Power Query merge, and explain any rows that fail to match.",
+          "deliverable": "Workbook with both approaches and a match report",
+          "checks": [["Count unmatched rows", "Unmatched rows listed with reasons", "Match report"], ["Compare row counts", "Merged table has the same rows as sales", "Workbook"], ["Refresh after adding new data", "New rows appear without manual work", "Workbook"]],
+          "objectives": ["Look up values", "Merge tables", "Check combined data"]
+        },
+        {
+          "topic": "Pivot Tables for Summaries",
+          "subtopics": ["Creating pivot tables", "Rows, columns, values and filters", "Summarising by sum, count and average", "Grouping dates and numbers", "Percent of total and running totals", "Calculated fields", "Slicers and timelines", "Pivot charts"],
+          "tools": ["Microsoft Excel"],
+          "lab_task": "Build pivot tables for revenue by category and month, share of revenue by region and average order value by segment, with slicers for year and channel.",
+          "deliverable": "Pivot workbook and three written findings",
+          "checks": [["Check share of revenue", "Percentages add to 100", "Pivot table"], ["Cross-check one value", "Matches a SUMIFS result", "Workbook"], ["Write findings", "Each finding supported by a pivot value", "Findings note"]],
+          "objectives": ["Summarise data with pivots", "Group dates", "Filter with slicers"]
+        },
+        {
+          "topic": "Charts That Communicate",
+          "subtopics": ["Choosing the chart for the question", "Bar, line, scatter and histogram", "When not to use pie charts", "Titles that state the finding", "Axis scales and starting at zero", "Colour for emphasis", "Removing clutter", "Common misleading charts"],
+          "tools": ["Microsoft Excel", "Chart checklist"],
+          "lab_task": "Create four charts answering four questions about sales, rewrite each title as a finding, then fix three misleading example charts.",
+          "deliverable": "Charts, findings and fixed examples",
+          "checks": [["Review chart choice", "Each chart type matches its question", "Chart review"], ["Read the titles", "Each title states a finding", "Charts"], ["Fix the misleading charts", "Problem named and corrected for each", "Fixed charts"]],
+          "objectives": ["Choose charts", "Write finding titles", "Avoid misleading charts"]
+        },
+        {
+          "topic": "SQL Queries for Analysts: Selecting and Filtering",
+          "subtopics": ["Tables, rows and columns", "SELECT and column aliases", "WHERE with comparisons and AND or OR", "IN, BETWEEN and LIKE", "NULL and IS NULL", "ORDER BY and LIMIT", "DISTINCT", "Reading query results critically"],
+          "tools": ["PostgreSQL", "DBeaver"],
+          "lab_task": "Write ten queries against the sales database answering questions such as \"orders over 500 in March from the North region\", including one that handles missing values correctly.",
+          "deliverable": "SQL file with ten queries and results",
+          "checks": [["Compare a query with the Excel filter", "Same row count", "Query result and workbook"], ["Filter a column with NULLs", "NULL rows handled as intended", "Query result"], ["Review the SQL", "Each query answers its stated question", "SQL file"]],
+          "objectives": ["Select and filter rows", "Handle NULLs", "Sort results"]
+        },
+        {
+          "topic": "Aggregation and GROUP BY in SQL",
+          "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "GROUP BY one or more columns", "HAVING versus WHERE", "Counting distinct values", "Grouping by dates", "CASE expressions for buckets", "Rounding and formatting results", "Checking totals"],
+          "tools": ["PostgreSQL", "DBeaver"],
+          "lab_task": "Calculate monthly revenue, orders and average order value by region, bucket customers by spend with CASE and list categories with revenue over a threshold using HAVING.",
+          "deliverable": "SQL file and results",
+          "checks": [["Sum the monthly totals", "Matches total revenue", "Query result"], ["Use HAVING correctly", "Only categories over the threshold returned", "Query result"], ["Compare with the pivot table", "Same values", "Workbook and result"]],
+          "objectives": ["Aggregate data", "Filter groups", "Bucket values"]
+        },
+        {
+          "topic": "Joining Tables in SQL",
+          "subtopics": ["Keys and relationships", "INNER JOIN", "LEFT JOIN and finding missing matches", "Joining more than two tables", "Duplicate rows from joins", "Table aliases", "Joining on dates and ranges", "Checking row counts after joins"],
+          "tools": ["PostgreSQL", "DBeaver"],
+          "lab_task": "Join orders, customers and products to report revenue by segment and category, find customers with no orders using a LEFT JOIN and fix a join that doubles revenue.",
+          "deliverable": "SQL file, results and a note on the doubling bug",
+          "checks": [["Find customers with no orders", "Correct list returned", "Query result"], ["Fix the doubling join", "Revenue matches the orders table total", "Query result"], ["Explain the cause", "Duplicate keys identified", "Written note"]],
+          "objectives": ["Join tables", "Find missing matches", "Avoid duplicated totals"]
+        },
+        {
+          "topic": "Cleaning Data: Missing Values, Duplicates and Formats",
+          "subtopics": ["Finding missing values", "Deciding to fill, flag or drop", "Removing duplicates safely", "Standardising text and categories", "Fixing dates and number formats", "Outliers: errors or real values", "Documenting cleaning steps", "Keeping raw data unchanged"],
+          "tools": ["Power Query", "PostgreSQL", "Microsoft Excel"],
+          "lab_task": "Clean the messy customer file: fix dates in three formats, standardise country names, remove duplicate customers, decide on each missing value and document every step.",
+          "deliverable": "Cleaned data, cleaning log and before and after counts",
+          "checks": [["Count duplicates before and after", "Duplicates removed and count recorded", "Cleaning log"], ["Review country values", "One spelling per country", "Distinct value list"], ["Check the raw file", "Unchanged", "File comparison"]],
+          "objectives": ["Clean data", "Document cleaning", "Protect raw data"]
+        },
+        {
+          "topic": "Descriptive Statistics for Analysts",
+          "subtopics": ["Mean, median and mode", "Range, variance and standard deviation", "Percentiles and quartiles", "Distributions and skew", "Histograms and box plots", "Outliers with the IQR rule", "Comparing groups", "Averages that mislead"],
+          "tools": ["Microsoft Excel", "Jupyter"],
+          "lab_task": "Describe order values by region with mean, median, quartiles and standard deviation, plot histograms and box plots, and explain why mean and median differ.",
+          "deliverable": "Statistics table, charts and explanation",
+          "checks": [["Compare mean and median", "Difference explained by skew", "Explanation"], ["Identify outliers", "Outliers found with the IQR rule", "Statistics table"], ["Compare two regions", "Comparison uses spread as well as averages", "Explanation"]],
+          "objectives": ["Describe data with statistics", "Read distributions", "Compare groups fairly"]
+        },
+        {
+          "topic": "Python for Analysts with pandas",
+          "subtopics": ["Jupyter notebooks", "Python values, lists and dictionaries in brief", "Reading CSV and Excel files", "DataFrames and Series", "Selecting columns and filtering rows", "Creating new columns", "Sorting and ranking", "Saving results"],
+          "tools": ["Python", "pandas", "Jupyter"],
+          "lab_task": "Load the sales and customer files into pandas, filter, add a margin column, rank products by revenue and save the top 20 to Excel.",
+          "deliverable": "Notebook and output file",
+          "checks": [["Compare with SQL", "Same top 20 products", "Notebook and query result"], ["Check the margin column", "Correct for three sample rows", "Notebook"], ["Run all cells from the top", "Runs without errors", "Notebook"]],
+          "objectives": ["Use notebooks", "Load and filter data", "Create and save results"]
+        },
+        {
+          "topic": "Exploring Data with pandas",
+          "subtopics": ["groupby and aggregation", "Merging DataFrames", "Pivot tables in pandas", "Handling missing values in pandas", "Working with dates", "value_counts and crosstab", "Method chaining", "Exploratory analysis checklist"],
+          "tools": ["pandas", "Jupyter"],
+          "lab_task": "Run an exploratory analysis of web events and sales: merge them, compute monthly conversion by channel, find missing data patterns and list five questions for further analysis.",
+          "deliverable": "Exploration notebook and five questions",
+          "checks": [["Compute conversion", "Values between 0 and 1 for every channel and month", "Notebook"], ["Check the merge", "Row count explained", "Notebook"], ["Review questions", "Each follows from a finding", "Notebook"]],
+          "objectives": ["Group and merge in pandas", "Explore data systematically", "Generate questions"]
+        },
+        {
+          "topic": "Visualising Data with Matplotlib and Seaborn",
+          "subtopics": ["Matplotlib figures and axes", "Line and bar charts", "Distributions with seaborn", "Relationships with scatter plots", "Small multiples", "Labels, titles and annotations", "Saving charts for reports", "Consistent styles"],
+          "tools": ["Matplotlib", "seaborn", "Jupyter"],
+          "lab_task": "Create a monthly trend chart with annotations, a distribution comparison, a scatter of discount against margin and small multiples by region, using one consistent style.",
+          "deliverable": "Notebook and exported charts",
+          "checks": [["Review the trend chart", "Key events annotated", "Chart"], ["Review the scatter plot", "Relationship described correctly", "Notebook note"], ["Export charts", "Readable at slide size", "Exported images"]],
+          "objectives": ["Plot with Python", "Show distributions and relationships", "Produce report-ready charts"]
+        },
+        {
+          "topic": "Building a First Power BI Report",
+          "subtopics": ["Power BI Desktop overview", "Importing and shaping data", "Relationships between tables", "Simple measures", "Visuals and filters", "Slicers and drill-down", "Report layout", "Publishing and sharing"],
+          "tools": ["Power BI Desktop", "Power BI Service"],
+          "lab_task": "Build a one-page sales report with a revenue trend, top products, a region map and slicers for year and channel, then publish it.",
+          "deliverable": "Report file and published link",
+          "checks": [["Filter by year", "All visuals update", "Report screenshot"], ["Check total revenue", "Matches the SQL total", "Report and query result"], ["Review the layout", "Most important number at the top left", "Report screenshot"]],
+          "objectives": ["Build a Power BI report", "Use relationships and measures", "Publish a report"]
+        },
+        {
+          "topic": "Asking the Right Business Questions",
+          "subtopics": ["From vague requests to clear questions", "SMART questions", "Stakeholder interviews", "Hypotheses before analysis", "Deciding what data is needed", "Scoping and timeboxing", "Agreeing success criteria", "Avoiding analysis that nobody uses"],
+          "tools": ["Question framing template", "Role play scripts"],
+          "lab_task": "Interview a role-play stakeholder with a vague request (\"sales are down, find out why\"), turn it into three specific questions with hypotheses and data needs, and agree the scope.",
+          "deliverable": "Interview notes and an analysis brief",
+          "checks": [["Review the questions", "Each is specific and measurable", "Analysis brief"], ["Review the hypotheses", "Each can be confirmed or rejected with data", "Analysis brief"], ["Confirm with the stakeholder", "Scope and deadline agreed", "Interview notes"]],
+          "objectives": ["Clarify requests", "Write hypotheses", "Scope analysis"]
+        },
+        {
+          "topic": "Defining KPIs and Business Metrics",
+          "subtopics": ["What a KPI is", "Leading and lagging indicators", "Defining metrics precisely", "Ratios and rates", "Targets and benchmarks", "Vanity metrics", "Metric trees", "Documenting metric definitions"],
+          "tools": ["Metric definition template", "Microsoft Excel"],
+          "lab_task": "Build a metric tree for revenue, define five KPIs precisely (formula, filters, grain, owner) and calculate them for the last two quarters.",
+          "deliverable": "Metric tree, definitions and calculated values",
+          "checks": [["Review definitions", "Formula, filters and grain stated for each", "Definitions sheet"], ["Recalculate one KPI in SQL", "Same value as Excel", "Query result"], ["Classify KPIs", "Leading and lagging labelled correctly", "Definitions sheet"]],
+          "objectives": ["Define KPIs", "Build metric trees", "Avoid vanity metrics"]
+        },
+        {
+          "topic": "Data Storytelling and Presenting Findings",
+          "subtopics": ["Knowing the audience", "The main message first", "Structuring a data story", "Choosing three key charts", "Explaining uncertainty", "Recommendations and next steps", "Slides versus dashboards", "Handling questions about the numbers"],
+          "tools": ["PowerPoint", "Power BI"],
+          "lab_task": "Turn the sales analysis into a five-slide story with one main message, three charts and two recommendations, present it in five minutes and answer questions.",
+          "deliverable": "Slides and presentation recording",
+          "checks": [["Review slide one", "Main message stated in one sentence", "Slides"], ["Review recommendations", "Each linked to evidence", "Slides"], ["Answer questions", "Numbers explained accurately", "Recording"]],
+          "objectives": ["Tell stories with data", "Make recommendations", "Present findings"]
+        },
+        {
+          "topic": "Data Privacy and Ethics for Analysts",
+          "subtopics": ["Personal and sensitive data", "GDPR and India's DPDP Act in brief", "Purpose limitation and minimisation", "Anonymisation and pseudonymisation", "Access controls for analysts", "Bias in data and analysis", "Honest reporting", "What to do when asked to mislead"],
+          "tools": ["Privacy checklist", "Case studies"],
+          "lab_task": "Review a customer dataset for personal data, pseudonymise it for analysis, identify a bias risk in a proposed analysis and respond to a case where a manager asks you to hide a bad result.",
+          "deliverable": "Privacy review, pseudonymised dataset and case response",
+          "checks": [["Find personal data", "All personal fields identified", "Privacy review"], ["Pseudonymise the dataset", "No direct identifiers left", "Dataset sample"], ["Respond to the case", "Honest response with a clear escalation path", "Case response"]],
+          "objectives": ["Protect personal data", "Spot bias", "Report honestly"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Performance Analysis",
+          "subtopics": ["Business question and brief", "Cleaning and analysis in SQL and Python", "Power BI report", "Presentation of findings"],
+          "tools": ["PostgreSQL", "pandas", "Power BI", "PowerPoint"],
+          "lab_task": "Answer the business question from day one: write a brief, clean the data, analyse it in SQL and pandas, build a Power BI report and present a five-minute data story with recommendations.",
+          "deliverable": "Brief, SQL and notebook, report and presentation",
+          "checks": [["Reconcile totals", "SQL, pandas and Power BI totals match", "Reconciliation table"], ["Present the story", "Main message, evidence and recommendations clear", "Rubric scores"], ["Review the cleaning log", "Every change documented", "Cleaning log"]],
+          "objectives": ["Combine the beginner topics in one analysis", "Answer a business question end to end", "Present findings"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For working analysts. Covers advanced SQL, dimensional models, larger data wrangling, time series, cohort, funnel and A/B test analysis, hypothesis testing, regression, segmentation, Tableau dashboards, DAX measures, dashboard design, report automation, APIs, data quality checks, forecasting, cloud warehouses and communicating insights.",
+      "prerequisites": ["Writes SQL with joins and GROUP BY", "Uses pandas or Power BI for analysis", "Has delivered at least one analysis to a stakeholder"],
+      "outcomes": ["Answer product, customer and marketing questions with cohort, funnel and experiment analysis", "Use statistics correctly to support decisions", "Build dashboards in Tableau and Power BI that people use", "Automate recurring analysis and check data quality"],
+      "days": [
+        {
+          "topic": "Advanced SQL: Window Functions and CTEs",
+          "subtopics": ["Common table expressions", "ROW_NUMBER, RANK and DENSE_RANK", "Running totals and moving averages", "LAG and LEAD", "Partitioning windows", "Top N per group", "Gaps and islands problems", "Readable SQL style"],
+          "tools": ["PostgreSQL", "DBeaver"],
+          "lab_task": "Use CTEs and window functions to find the top three products per region, month-over-month revenue change, a seven-day moving average and each customer's longest streak of weekly orders.",
+          "deliverable": "SQL file and results",
+          "checks": [["Verify top three per region", "Correct for two sampled regions", "Query result"], ["Check month-over-month change", "Matches a manual calculation", "Query result"], ["Review style", "CTEs named clearly and each does one thing", "SQL file"]],
+          "objectives": ["Use window functions", "Write CTEs", "Solve ranking and streak problems"]
+        },
+        {
+          "topic": "Data Modelling for Analysis: Star Schemas",
+          "subtopics": ["Facts and dimensions", "Grain of a fact table", "Star versus snowflake", "Slowly changing dimensions", "Date dimensions", "Surrogate keys", "Modelling in Power BI and Tableau", "Common modelling mistakes"],
+          "tools": ["PostgreSQL", "Power BI", "dbdiagram.io"],
+          "lab_task": "Design a star schema for sales with a date dimension and a type 2 customer dimension, build it in PostgreSQL and point a Power BI model at it.",
+          "deliverable": "Model diagram, SQL scripts and Power BI model",
+          "checks": [["State the fact grain", "One sentence that matches the table", "Model diagram"], ["Change a customer's segment", "History kept with dates", "Query result"], ["Filter Power BI by date", "Relationships work in one direction", "Report screenshot"]],
+          "objectives": ["Design star schemas", "Handle changing dimensions", "Model for BI tools"]
+        },
+        {
+          "topic": "Data Wrangling at Scale with pandas",
+          "subtopics": ["Reading large files in chunks", "Data types and memory", "Categorical columns", "Reshaping with melt and pivot", "Vectorised operations instead of loops", "Parquet files", "Profiling with ydata-profiling", "Polars as a faster alternative"],
+          "tools": ["pandas", "Polars", "Parquet", "Jupyter"],
+          "lab_task": "Process a 5-million-row event file: reduce memory with correct types, reshape it, convert it to Parquet and compare run time in pandas and Polars.",
+          "deliverable": "Notebook and timing comparison",
+          "checks": [["Compare memory use", "At least 50 percent lower after type changes", "Notebook"], ["Compare read times", "Parquet faster than CSV", "Timing table"], ["Compare pandas and Polars", "Same results with timings recorded", "Notebook"]],
+          "objectives": ["Handle larger data", "Reduce memory", "Use faster formats and tools"]
+        },
+        {
+          "topic": "Time Series Analysis and Trends",
+          "subtopics": ["Time series components: trend, seasonality and noise", "Resampling and date grouping", "Moving averages", "Year-over-year comparisons", "Seasonal decomposition", "Calendar effects and holidays", "Anomaly detection with simple rules", "Plotting time series clearly"],
+          "tools": ["pandas", "statsmodels", "Matplotlib"],
+          "lab_task": "Analyse two years of daily orders: decompose trend and seasonality, compare year over year adjusting for festivals and flag anomalies with a rolling rule.",
+          "deliverable": "Notebook with decomposition, comparisons and anomaly list",
+          "checks": [["Review the decomposition", "Weekly pattern identified", "Chart"], ["Compare year over year", "Festival dates aligned", "Notebook"], ["Review anomalies", "Each anomaly explained or flagged for review", "Anomaly list"]],
+          "objectives": ["Analyse trends and seasonality", "Compare periods fairly", "Spot anomalies"]
+        },
+        {
+          "topic": "Cohort and Retention Analysis",
+          "subtopics": ["What a cohort is", "Acquisition cohorts", "Retention curves", "Cohort tables in SQL", "Revenue retention", "Churn definitions", "Comparing cohorts", "Visualising cohorts as heatmaps"],
+          "tools": ["PostgreSQL", "pandas", "seaborn"],
+          "lab_task": "Build monthly acquisition cohorts in SQL, calculate retention for 12 months, plot a heatmap and explain which cohorts retain best and why.",
+          "deliverable": "SQL, heatmap and findings",
+          "checks": [["Check month zero", "Retention is 100 percent for every cohort", "Cohort table"], ["Recalculate one cell by hand", "Matches the table", "Notebook"], ["Explain the best cohort", "Explanation supported by data", "Findings note"]],
+          "objectives": ["Build cohorts", "Measure retention", "Compare cohorts"]
+        },
+        {
+          "topic": "Funnel and Conversion Analysis",
+          "subtopics": ["Defining funnel steps", "Event data structure", "Step conversion and overall conversion", "Time between steps", "Segmenting funnels", "Drop-off analysis", "Sessionisation", "Pitfalls: double counting and ordering"],
+          "tools": ["PostgreSQL", "pandas", "Power BI"],
+          "lab_task": "Build a sign-up to purchase funnel from raw web events in SQL, segment it by device and channel, find the biggest drop-off and suggest a test to improve it.",
+          "deliverable": "Funnel query, chart and recommendation",
+          "checks": [["Check step counts", "Each step is at most the step before", "Funnel table"], ["Segment by device", "Largest gap identified", "Funnel chart"], ["Write the test idea", "Hypothesis and success metric stated", "Recommendation"]],
+          "objectives": ["Build funnels", "Find drop-offs", "Suggest improvements"]
+        },
+        {
+          "topic": "A/B Testing and Experiment Analysis",
+          "subtopics": ["Experiment design", "Randomisation and sample ratio mismatch", "Primary and guardrail metrics", "Sample size and duration", "Analysing conversion experiments", "Confidence intervals for the difference", "Peeking and early stopping", "Writing up results"],
+          "tools": ["Python", "SciPy", "statsmodels"],
+          "lab_task": "Analyse an A/B test on a checkout change: check for sample ratio mismatch, calculate lift with a confidence interval, check guardrail metrics and write a decision memo.",
+          "deliverable": "Analysis notebook and decision memo",
+          "checks": [["Check sample ratio", "Mismatch tested with a chi-square test", "Notebook"], ["Report lift", "Lift with a 95 percent confidence interval", "Notebook"], ["Write the memo", "Decision follows from the result and guardrails", "Decision memo"]],
+          "objectives": ["Design experiments", "Analyse A/B tests", "Make decisions from results"]
+        },
+        {
+          "topic": "Hypothesis Testing and Confidence Intervals",
+          "subtopics": ["Null and alternative hypotheses", "p-values in plain terms", "t-tests and chi-square tests", "Confidence intervals", "Statistical versus practical significance", "Multiple comparisons", "Non-parametric tests", "Choosing the right test"],
+          "tools": ["Python", "SciPy", "Microsoft Excel"],
+          "lab_task": "Test three business claims (a region has higher order values, a promotion changed conversion, delivery time differs by courier) with the right test for each and explain results in plain language.",
+          "deliverable": "Notebook and plain-language explanations",
+          "checks": [["Choose tests", "Correct test for each data type", "Notebook"], ["Explain a p-value", "Plain explanation without errors", "Written explanation"], ["Report practical significance", "Effect size stated for each test", "Notebook"]],
+          "objectives": ["Test hypotheses", "Use confidence intervals", "Explain statistics plainly"]
+        },
+        {
+          "topic": "Correlation and Regression for Analysts",
+          "subtopics": ["Correlation and its limits", "Simple linear regression", "Multiple regression", "Reading coefficients", "R-squared and residuals", "Categorical variables", "Correlation is not causation", "Explaining a model to stakeholders"],
+          "tools": ["statsmodels", "pandas", "Microsoft Excel"],
+          "lab_task": "Model weekly sales from price, promotion and season with multiple regression, check residuals, explain the price coefficient and list what the model cannot tell you.",
+          "deliverable": "Notebook and explanation for stakeholders",
+          "checks": [["Interpret the price coefficient", "Correct units and direction", "Explanation"], ["Check residuals", "Residual plot reviewed with conclusion", "Notebook"], ["List limits", "At least two causal limits stated", "Explanation"]],
+          "objectives": ["Measure relationships", "Build regression models", "Explain limits"]
+        },
+        {
+          "topic": "Customer Segmentation with Clustering",
+          "subtopics": ["Why segment customers", "RFM analysis", "Preparing features", "Scaling data", "k-means clustering", "Choosing the number of clusters", "Profiling and naming segments", "Turning segments into actions"],
+          "tools": ["scikit-learn", "pandas", "Power BI"],
+          "lab_task": "Build RFM scores, cluster customers with k-means, choose the number of clusters, profile and name each segment and suggest an action for each.",
+          "deliverable": "Notebook, segment profiles and action list",
+          "checks": [["Justify cluster count", "Elbow or silhouette result shown", "Notebook"], ["Profile segments", "Each named with its key numbers", "Segment profiles"], ["Suggest actions", "One measurable action per segment", "Action list"]],
+          "objectives": ["Segment customers", "Use clustering", "Act on segments"]
+        },
+        {
+          "topic": "Interactive Dashboards in Tableau",
+          "subtopics": ["Connecting to data", "Dimensions and measures", "Calculated fields", "Level of detail expressions", "Filters, parameters and actions", "Dashboards and layouts", "Tableau Public and Tableau Cloud", "Performance tips"],
+          "tools": ["Tableau Desktop", "Tableau Public"],
+          "lab_task": "Build a Tableau dashboard of customer retention with a parameter for cohort size, an LOD expression for first purchase date, filter actions between views and publish it.",
+          "deliverable": "Workbook and published dashboard",
+          "checks": [["Check first purchase date", "LOD result matches SQL for three customers", "Comparison"], ["Change the parameter", "Views update correctly", "Screenshot"], ["Click a view", "Filter action updates the others", "Screenshot"]],
+          "objectives": ["Build Tableau dashboards", "Use LOD expressions", "Add interactivity"]
+        },
+        {
+          "topic": "Dashboard Measures with DAX",
+          "subtopics": ["Calculated columns versus measures", "CALCULATE and filter context", "Time intelligence", "Ratios and percentages", "Variables in DAX", "Ranking measures", "What-if parameters", "Checking measure results"],
+          "tools": ["Power BI Desktop", "DAX Studio"],
+          "lab_task": "Add DAX measures for revenue, margin percentage, year-to-date, year-over-year growth and product rank, plus a what-if discount parameter, and check each against SQL.",
+          "deliverable": "Power BI file and a measure check table",
+          "checks": [["Check year-to-date", "Matches SQL for two months", "Check table"], ["Check margin percentage at total", "Ratio calculated correctly, not summed", "Check table"], ["Change the discount parameter", "Revenue impact updates", "Screenshot"]],
+          "objectives": ["Write DAX measures", "Use filter context", "Check results"]
+        },
+        {
+          "topic": "Dashboard Design and Usability",
+          "subtopics": ["Who uses the dashboard and why", "Layout and visual hierarchy", "Choosing KPIs for the top", "Colour and accessibility", "Mobile layouts", "Tooltips and drill-through", "Testing with users", "Measuring dashboard use"],
+          "tools": ["Power BI", "Tableau", "Figma"],
+          "lab_task": "Redesign a cluttered operational dashboard after interviewing two users, test the new version with them on three tasks and compare task times.",
+          "deliverable": "Before and after dashboards and user test results",
+          "checks": [["Run user tasks", "Tasks faster on the new version", "Test results"], ["Check colour contrast", "Meets accessibility contrast ratio", "Contrast check"], ["Review the top row", "Most important KPIs shown first", "Dashboard screenshot"]],
+          "objectives": ["Design usable dashboards", "Test with users", "Improve accessibility"]
+        },
+        {
+          "topic": "Automating Reports with Python",
+          "subtopics": ["Recurring report problems", "Parameterised notebooks with Papermill", "Generating Excel reports with openpyxl", "Emailing reports safely", "Scheduling jobs", "Logging and failure alerts", "Configuration and credentials", "Version control for analysis code"],
+          "tools": ["Python", "Papermill", "openpyxl", "Git", "cron or Task Scheduler"],
+          "lab_task": "Turn a weekly Excel report built by hand into a scheduled Python job that queries the database, writes a formatted workbook, emails it and alerts on failure.",
+          "deliverable": "Script, schedule configuration and sample output",
+          "checks": [["Run the job for a past week", "Output matches the manual report", "Comparison"], ["Break the database connection", "Failure alert sent", "Alert email"], ["Search the code for passwords", "Credentials read from the environment", "Code review"]],
+          "objectives": ["Automate reports", "Schedule jobs", "Handle failures"]
+        },
+        {
+          "topic": "Working with APIs and Web Data",
+          "subtopics": ["REST APIs for analysts", "Requests and authentication", "JSON to DataFrames", "Pagination and rate limits", "Public data sources", "Google Sheets and SaaS exports", "Storing API data", "Terms of use and ethics"],
+          "tools": ["Python", "requests", "pandas"],
+          "lab_task": "Pull exchange rates and weather data from public APIs, handle pagination and rate limits, join them to sales and check whether weather explains daily sales changes.",
+          "deliverable": "Notebook, stored data and findings",
+          "checks": [["Load all pages", "Record count matches the API total", "Notebook"], ["Hit the rate limit", "Script waits and continues", "Log output"], ["Report the finding", "Relationship stated with its strength", "Findings note"]],
+          "objectives": ["Collect data from APIs", "Flatten JSON", "Combine external data"]
+        },
+        {
+          "topic": "Data Quality Checks and Validation",
+          "subtopics": ["Why reports break", "Freshness, volume and schema checks", "Range and uniqueness rules", "Reconciliation with source systems", "Great Expectations or Soda", "Alerting on failures", "Data quality reports", "Agreeing ownership"],
+          "tools": ["Great Expectations", "PostgreSQL", "Python"],
+          "lab_task": "Add data quality checks to the sales tables for freshness, row counts, unique IDs, valid ranges and reconciliation with finance totals, and alert on failure.",
+          "deliverable": "Check suite, results report and an alert",
+          "checks": [["Load a file with duplicate IDs", "Uniqueness check fails", "Check report"], ["Delay the load", "Freshness check fails", "Alert"], ["Reconcile with finance", "Difference within the agreed tolerance", "Reconciliation report"]],
+          "objectives": ["Validate data", "Reconcile with sources", "Alert on problems"]
+        },
+        {
+          "topic": "Forecasting with Simple Models",
+          "subtopics": ["When forecasts are needed", "Naive and seasonal naive baselines", "Moving average and exponential smoothing", "Train and test splits for time series", "Error measures: MAE and MAPE", "Forecast intervals", "Adjusting for events", "Communicating forecasts"],
+          "tools": ["statsmodels", "pandas", "Microsoft Excel"],
+          "lab_task": "Forecast the next 12 weeks of orders with a seasonal naive baseline and exponential smoothing, compare errors on a holdout, add intervals and explain the forecast to a planner.",
+          "deliverable": "Notebook, forecast chart and explanation",
+          "checks": [["Compare models", "Error on holdout reported for both", "Notebook"], ["Show intervals", "Forecast shown with a range", "Forecast chart"], ["Explain the forecast", "Assumptions and uncertainty stated", "Explanation"]],
+          "objectives": ["Build simple forecasts", "Measure forecast error", "Communicate uncertainty"]
+        },
+        {
+          "topic": "Analytics in Cloud Warehouses: BigQuery and Snowflake",
+          "subtopics": ["Cloud warehouse concepts", "Loading data", "Cost model and query costs", "Partitioning and clustering", "Querying semi-structured data", "Sharing data securely", "Connecting BI tools", "Choosing a warehouse"],
+          "tools": ["BigQuery", "Snowflake", "Power BI"],
+          "lab_task": "Load the sales data into BigQuery and Snowflake trial accounts, run the cohort query on both, reduce scanned data with partitioning or clustering and connect Power BI.",
+          "deliverable": "Load scripts, query costs before and after and a connected report",
+          "checks": [["Compare scanned bytes", "Lower after partitioning", "Query history"], ["Query JSON events", "Fields extracted correctly", "Query result"], ["Connect Power BI", "Report refreshes from the warehouse", "Screenshot"]],
+          "objectives": ["Analyse data in cloud warehouses", "Control query cost", "Connect BI tools"]
+        },
+        {
+          "topic": "Communicating Insights to Stakeholders",
+          "subtopics": ["Insight versus observation", "So what and now what", "Writing an analysis memo", "Executive summaries", "Handling pushback on findings", "Showing uncertainty honestly", "Follow-up and measuring impact", "Building trust as an analyst"],
+          "tools": ["Memo template", "PowerPoint"],
+          "lab_task": "Write a one-page memo from the funnel analysis with a recommendation, present it to a role-play sceptical product manager and agree how to measure the result.",
+          "deliverable": "Memo, presentation notes and agreed measure",
+          "checks": [["Review the memo", "Recommendation and evidence in the first paragraph", "Memo"], ["Handle pushback", "Answer uses evidence and acknowledges limits", "Observer notes"], ["Agree a measure", "Metric and date agreed", "Meeting notes"]],
+          "objectives": ["Write insight memos", "Handle pushback", "Measure impact"]
+        },
+        {
+          "topic": "Intermediate Capstone: Customer Retention Analytics",
+          "subtopics": ["Question and plan", "Cohort, funnel and test analysis", "Dashboards and automation", "Recommendations"],
+          "tools": ["PostgreSQL", "pandas", "Tableau", "Power BI", "Great Expectations"],
+          "lab_task": "Investigate why retention fell: build cohorts and funnels, analyse a past experiment, segment customers, publish a dashboard with data quality checks and automated refresh, and present recommendations.",
+          "deliverable": "Analysis notebooks, dashboard, quality checks and presentation",
+          "checks": [["Present the cause", "Supported by cohort and funnel evidence", "Presentation"], ["Run quality checks", "All checks pass on refresh", "Check report"], ["Review the recommendations", "Each has a measure and owner", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one investigation", "Explain a business change with evidence", "Deliver lasting dashboards"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior analysts and analytics leads. Covers analytics engineering with dbt, semantic layers, causal inference, advanced experimentation, marketing attribution, product, pricing, operations and financial analytics, predictive models, advanced forecasting, geospatial and text analytics, Spark SQL, governed self-service, privacy, AI assistants and building an analytics function.",
+      "prerequisites": ["Several years of analysis experience with SQL and Python", "Has analysed experiments and built dashboards used by others", "Understands regression and hypothesis testing"],
+      "outcomes": ["Build trusted, governed analytics with dbt and semantic models", "Estimate causal effects and run advanced experiments", "Lead domain analytics for marketing, product, pricing, operations and finance", "Set up and lead an analytics function"],
+      "days": [
+        {
+          "topic": "Analytics Engineering with dbt",
+          "subtopics": ["The analytics engineer role", "dbt models, sources and refs", "Staging, intermediate and mart layers", "Tests and documentation in dbt", "Incremental models", "Snapshots for history", "Macros and packages", "CI for dbt projects"],
+          "tools": ["dbt Core", "PostgreSQL or Snowflake", "GitHub Actions"],
+          "lab_task": "Rebuild the sales marts as a dbt project with layered models, tests, documentation, an incremental events model and a snapshot, and run it in CI on every pull request.",
+          "deliverable": "dbt project, docs site and CI run",
+          "checks": [["Run dbt build", "All models and tests pass", "dbt output"], ["Break a uniqueness rule", "Test fails in CI", "CI log"], ["Open the docs site", "Lineage shown from sources to marts", "Screenshot"]],
+          "objectives": ["Build dbt projects", "Test and document models", "Run analytics CI"]
+        },
+        {
+          "topic": "Metrics Layers and Semantic Models",
+          "subtopics": ["Why metric definitions drift", "Semantic layers", "dbt Semantic Layer and MetricFlow", "Power BI semantic models as a shared source", "Dimensions, measures and entities", "Governance of metric changes", "Serving metrics to many tools", "Testing metric consistency"],
+          "tools": ["dbt Semantic Layer", "Power BI", "Tableau"],
+          "lab_task": "Define revenue, active customers and retention once in a semantic layer, query them from two tools and prove both show the same numbers.",
+          "deliverable": "Metric definitions and consistency test results",
+          "checks": [["Compare tools", "Same values in both tools", "Comparison table"], ["Change a metric definition", "Change goes through review", "Pull request"], ["Query by a new dimension", "Works without redefining the metric", "Query result"]],
+          "objectives": ["Centralise metric definitions", "Serve metrics to many tools", "Govern metric changes"]
+        },
+        {
+          "topic": "Causal Inference for Business Questions",
+          "subtopics": ["Correlation, confounding and causation", "Causal diagrams", "Difference in differences", "Regression discontinuity", "Propensity score matching", "Synthetic control", "Checking assumptions", "Explaining causal results"],
+          "tools": ["Python", "statsmodels", "DoWhy"],
+          "lab_task": "Estimate the effect of a loyalty programme launched in some cities with difference in differences, check parallel trends, repeat with propensity matching and compare the two estimates.",
+          "deliverable": "Causal diagram, two estimates and assumption checks",
+          "checks": [["Check parallel trends", "Pre-period trends plotted and assessed", "Chart"], ["Compare estimates", "Both reported with intervals and the difference explained", "Notebook"], ["Draw the causal diagram", "Main confounders shown", "Diagram"]],
+          "objectives": ["Estimate causal effects", "Check assumptions", "Explain causal results"]
+        },
+        {
+          "topic": "Advanced Experimentation: Power, Sequential Testing and Variance Reduction",
+          "subtopics": ["Power analysis", "Minimum detectable effect", "CUPED variance reduction", "Sequential testing", "Multiple metrics and false discoveries", "Network effects and interference", "Long-term effects and holdouts", "Experimentation platforms"],
+          "tools": ["Python", "statsmodels", "GrowthBook"],
+          "lab_task": "Plan an experiment with a power analysis, apply CUPED to past data to show the reduced sample size, analyse with a sequential method and set up a long-term holdout.",
+          "deliverable": "Experiment plan, CUPED analysis and holdout design",
+          "checks": [["Run the power analysis", "Sample size for the target effect stated", "Plan"], ["Apply CUPED", "Variance reduction measured", "Notebook"], ["Design the holdout", "Size and duration justified", "Holdout design"]],
+          "objectives": ["Plan powerful experiments", "Reduce variance", "Test sequentially"]
+        },
+        {
+          "topic": "Marketing Analytics and Attribution",
+          "subtopics": ["Marketing funnels and channels", "Last-click and multi-touch attribution", "Data-driven attribution", "Marketing mix modelling", "Incrementality tests", "Customer acquisition cost and lifetime value", "Budget allocation", "Privacy changes and tracking limits"],
+          "tools": ["Python", "PyMC-Marketing or Robyn", "Power BI"],
+          "lab_task": "Compare last-click and multi-touch attribution on journey data, build a simple marketing mix model and recommend a budget shift with its expected effect.",
+          "deliverable": "Attribution comparison, model and budget recommendation",
+          "checks": [["Compare attribution", "Channel shares compared across methods", "Comparison table"], ["Review the model fit", "Fit checked on held-out weeks", "Notebook"], ["Recommend budget", "Shift and expected effect stated with uncertainty", "Recommendation"]],
+          "objectives": ["Attribute marketing results", "Model marketing mix", "Recommend budgets"]
+        },
+        {
+          "topic": "Product Analytics and Event Data",
+          "subtopics": ["Event tracking plans", "North star metrics", "Engagement and stickiness", "Feature adoption", "Retention drivers", "Product analytics tools", "Qualitative and quantitative together", "Working with product teams"],
+          "tools": ["Mixpanel or Amplitude", "PostgreSQL", "Python"],
+          "lab_task": "Write a tracking plan for a new feature, measure its adoption and its effect on retention from event data and present findings to a role-play product team.",
+          "deliverable": "Tracking plan, analysis and presentation",
+          "checks": [["Review the tracking plan", "Events, properties and owners defined", "Tracking plan"], ["Measure adoption", "Adoption rate by segment", "Analysis"], ["Present findings", "Retention effect stated with its limits", "Presentation"]],
+          "objectives": ["Design event tracking", "Measure feature impact", "Work with product teams"]
+        },
+        {
+          "topic": "Pricing and Revenue Analytics",
+          "subtopics": ["Price elasticity", "Discount analysis", "Price tests", "Revenue and margin bridges", "Customer willingness to pay", "Subscription revenue metrics", "Promotion effectiveness", "Risks of price changes"],
+          "tools": ["Python", "statsmodels", "Microsoft Excel"],
+          "lab_task": "Estimate price elasticity for three product groups, build a revenue bridge for last quarter and evaluate whether a promotion paid for itself.",
+          "deliverable": "Elasticity estimates, revenue bridge and promotion review",
+          "checks": [["Estimate elasticity", "Value with an interval for each group", "Notebook"], ["Build the bridge", "Price, volume and mix effects add up to the total change", "Bridge chart"], ["Review the promotion", "Incremental margin calculated", "Promotion review"]],
+          "objectives": ["Measure price effects", "Explain revenue changes", "Evaluate promotions"]
+        },
+        {
+          "topic": "Supply Chain and Operations Analytics",
+          "subtopics": ["Operations KPIs", "Demand and inventory analysis", "ABC and XYZ classification", "Service levels and safety stock", "Lead time analysis", "Process mining basics", "Capacity and queue analysis", "Operations dashboards"],
+          "tools": ["Python", "pandas", "Power BI"],
+          "lab_task": "Classify products with ABC and XYZ, calculate safety stock for a target service level, analyse supplier lead times and build an operations dashboard.",
+          "deliverable": "Classification, safety stock table, lead time analysis and dashboard",
+          "checks": [["Review the classification", "Rules stated and applied correctly", "Classification sheet"], ["Calculate safety stock", "Formula and inputs shown", "Safety stock table"], ["Analyse lead times", "Worst suppliers identified with variability", "Analysis"]],
+          "objectives": ["Analyse operations", "Plan inventory", "Build operations dashboards"]
+        },
+        {
+          "topic": "Financial Analytics and Variance Analysis",
+          "subtopics": ["Financial statements for analysts", "Budget versus actual", "Variance analysis", "Profitability by customer and product", "Cost allocation", "Rolling forecasts", "Working with finance teams", "Reconciling to the ledger"],
+          "tools": ["Microsoft Excel", "Power BI", "SQL"],
+          "lab_task": "Build a budget versus actual report with price, volume and cost variances, calculate customer profitability with an allocation method and reconcile totals to the ledger.",
+          "deliverable": "Variance report, profitability analysis and reconciliation",
+          "checks": [["Reconcile to the ledger", "Totals match within tolerance", "Reconciliation"], ["Explain the largest variance", "Cause identified", "Variance report"], ["Review allocations", "Method stated and applied consistently", "Profitability analysis"]],
+          "objectives": ["Analyse financial performance", "Explain variances", "Measure profitability"]
+        },
+        {
+          "topic": "Predictive Analytics: Churn and Propensity Models",
+          "subtopics": ["Framing prediction problems", "Labels and prediction windows", "Feature engineering from behaviour", "Logistic regression and gradient boosting", "Avoiding leakage", "Evaluation: AUC, precision and recall", "Calibration and thresholds", "Using predictions in campaigns"],
+          "tools": ["scikit-learn", "XGBoost", "pandas"],
+          "lab_task": "Build a churn model with a correct prediction window, check for leakage, compare logistic regression and gradient boosting, choose a threshold based on campaign cost and design a test of the campaign.",
+          "deliverable": "Notebook, model comparison and campaign design",
+          "checks": [["Check for leakage", "No features from after the prediction date", "Feature review"], ["Compare models", "AUC and precision at the threshold reported", "Notebook"], ["Choose the threshold", "Based on cost and benefit", "Threshold analysis"]],
+          "objectives": ["Build predictive models", "Avoid leakage", "Use predictions in decisions"]
+        },
+        {
+          "topic": "Advanced Forecasting with Prophet and Hierarchies",
+          "subtopics": ["Forecasting many series", "Prophet and its components", "Holiday and event effects", "Hierarchical forecasts and reconciliation", "Backtesting", "Forecast value added", "Judgemental adjustments", "Monitoring forecast accuracy"],
+          "tools": ["Prophet", "statsforecast", "pandas"],
+          "lab_task": "Forecast demand for 200 products across regions with Prophet and statsforecast, reconcile to regional totals, backtest against a baseline and report forecast value added.",
+          "deliverable": "Forecasting notebook, backtest report and accuracy dashboard",
+          "checks": [["Reconcile forecasts", "Product forecasts add up to regional totals", "Notebook"], ["Backtest", "Error compared with the baseline", "Backtest report"], ["Report value added", "Value added calculated for each model", "Report"]],
+          "objectives": ["Forecast many series", "Reconcile hierarchies", "Measure forecast value"]
+        },
+        {
+          "topic": "Geospatial Analytics",
+          "subtopics": ["Coordinates and projections", "Geocoding addresses", "Spatial joins", "Distance and catchment areas", "Choropleth and point maps", "Location analytics for stores and delivery", "GeoPandas and PostGIS", "Privacy with location data"],
+          "tools": ["GeoPandas", "PostGIS", "Kepler.gl or Power BI maps"],
+          "lab_task": "Geocode customer addresses, calculate drive-distance catchments for stores with PostGIS, map penetration by area and recommend a location for a new store.",
+          "deliverable": "Notebook, maps and recommendation",
+          "checks": [["Run a spatial join", "Each customer assigned to an area", "Query result"], ["Map penetration", "Rates by area shown correctly", "Map"], ["Recommend a location", "Supported by catchment and demand", "Recommendation"]],
+          "objectives": ["Analyse location data", "Use spatial joins", "Make location decisions"]
+        },
+        {
+          "topic": "Text Analytics for Customer Feedback",
+          "subtopics": ["Text as data", "Cleaning and tokenising", "Keyword and phrase analysis", "Sentiment analysis", "Topic modelling", "Using LLMs to classify feedback", "Checking accuracy against human labels", "Reporting themes"],
+          "tools": ["Python", "spaCy", "BERTopic", "OpenAI or Azure OpenAI"],
+          "lab_task": "Analyse 10,000 support tickets: classify themes with topic modelling and with an LLM, check both against 200 human labels and report the top themes by trend.",
+          "deliverable": "Notebook, accuracy comparison and theme report",
+          "checks": [["Compare with human labels", "Accuracy reported for both methods", "Comparison table"], ["Report trends", "Top themes with weekly counts", "Theme report"], ["Check privacy", "Personal data removed before sending to the LLM", "Code review"]],
+          "objectives": ["Analyse text", "Classify feedback", "Check accuracy"]
+        },
+        {
+          "topic": "Large-Scale Analysis with Spark SQL",
+          "subtopics": ["When data outgrows a single machine", "Spark concepts for analysts", "DataFrames and Spark SQL", "Reading Parquet and Delta tables", "Partitioning and file sizes", "Joins at scale", "Notebooks in Databricks or Fabric", "Cost awareness"],
+          "tools": ["Apache Spark", "Databricks or Microsoft Fabric", "Delta Lake"],
+          "lab_task": "Run the cohort and funnel analyses on 500 million events with Spark SQL, optimise a slow join, and compare cost and run time with the warehouse version.",
+          "deliverable": "Notebook, optimisation notes and cost comparison",
+          "checks": [["Compare results", "Same numbers as the smaller-sample warehouse run", "Comparison"], ["Optimise the join", "Run time reduced", "Spark UI screenshot"], ["Compare cost", "Cost of both runs estimated", "Cost comparison"]],
+          "objectives": ["Analyse big data", "Use Spark SQL", "Control cost"]
+        },
+        {
+          "topic": "Self-Service Analytics and Governance",
+          "subtopics": ["Self-service goals and risks", "Certified datasets", "Workspace and access design", "Row-level security", "Data catalogues and lineage", "Training and support for business users", "Monitoring usage", "Retiring unused content"],
+          "tools": ["Power BI Service", "Microsoft Purview", "Tableau Cloud"],
+          "lab_task": "Design a self-service model for three departments: certified datasets, workspaces, row-level security and a catalogue, then audit usage and plan retirement of unused reports.",
+          "deliverable": "Governance design, security rules and usage audit",
+          "checks": [["Test row-level security", "Each department sees only its data", "Test results"], ["Review certification", "Criteria written and applied", "Governance design"], ["Audit usage", "Unused reports identified", "Usage report"]],
+          "objectives": ["Enable self-service", "Govern analytics content", "Secure data access"]
+        },
+        {
+          "topic": "Privacy, Anonymisation and Responsible Analytics",
+          "subtopics": ["Re-identification risks", "k-anonymity and aggregation thresholds", "Differential privacy concepts", "Consent and purpose", "Fairness in analysis and models", "Data retention", "Privacy impact assessments", "Responsible reporting"],
+          "tools": ["Python", "Privacy impact assessment template"],
+          "lab_task": "Assess a customer dataset for re-identification risk, apply aggregation thresholds and k-anonymity to a published report, check a model for unfair outcomes and complete a privacy impact assessment.",
+          "deliverable": "Risk assessment, anonymised report, fairness check and assessment",
+          "checks": [["Measure re-identification risk", "Risky combinations identified", "Risk assessment"], ["Apply k-anonymity", "Each group has at least k records", "Anonymised report"], ["Check fairness", "Outcomes compared across groups", "Fairness check"]],
+          "objectives": ["Reduce privacy risk", "Check fairness", "Report responsibly"]
+        },
+        {
+          "topic": "AI Assistants and LLMs in Analytics Work",
+          "subtopics": ["Where AI helps analysts", "Generating and checking SQL", "Copilot in Power BI and Excel", "Natural-language questions over data", "Accuracy and hallucination risks", "Data security with AI tools", "Evaluating AI answers", "Changing analyst workflows"],
+          "tools": ["Microsoft Copilot", "ChatGPT or Claude", "Power BI"],
+          "lab_task": "Use an AI assistant to write SQL for ten business questions, check each against your own query, test a natural-language question feature on a semantic model and write team guidelines.",
+          "deliverable": "Accuracy log, evaluation notes and guidelines",
+          "checks": [["Check AI-written SQL", "Accuracy recorded for all ten", "Accuracy log"], ["Test natural-language questions", "Wrong answers identified with causes", "Evaluation notes"], ["Write guidelines", "Rules for data security and checking", "Guidelines"]],
+          "objectives": ["Use AI in analysis", "Check AI output", "Set team guidelines"]
+        },
+        {
+          "topic": "Building an Analytics Function: Strategy and Prioritisation",
+          "subtopics": ["Analytics operating models", "Centralised, embedded and hub-and-spoke teams", "Intake and prioritisation", "Measuring the value of analytics", "Hiring and skills", "Tools and platform choices", "Data literacy programmes", "Roadmaps"],
+          "tools": ["Prioritisation matrix", "Roadmap template"],
+          "lab_task": "Design an analytics function for a 2,000-person company: choose the operating model, set up intake and prioritisation, plan a data literacy programme and present a 12-month roadmap.",
+          "deliverable": "Operating model, intake process and roadmap",
+          "checks": [["Prioritise requests", "Ten requests ranked with criteria", "Prioritisation matrix"], ["Review the roadmap", "Milestones and measures defined", "Roadmap"], ["Present to leadership", "Value and cost explained", "Presentation feedback"]],
+          "objectives": ["Design an analytics function", "Prioritise work", "Measure analytics value"]
+        },
+        {
+          "topic": "Executive Decision Support and Scenario Modelling",
+          "subtopics": ["What executives need from analysts", "Driver-based models", "Scenario and sensitivity analysis", "Monte Carlo simulation", "Presenting ranges instead of points", "Decision trees", "Board-ready summaries", "Following up on decisions"],
+          "tools": ["Microsoft Excel", "Python", "PowerPoint"],
+          "lab_task": "Build a driver-based model for a market expansion decision with three scenarios, a sensitivity analysis and a Monte Carlo simulation, and present a board-ready recommendation.",
+          "deliverable": "Model, simulation results and board summary",
+          "checks": [["Run sensitivity", "Top three drivers identified", "Tornado chart"], ["Run Monte Carlo", "Probability of loss reported", "Simulation output"], ["Present the recommendation", "Range and key risks stated", "Board summary"]],
+          "objectives": ["Model decisions", "Quantify uncertainty", "Support executives"]
+        },
+        {
+          "topic": "Advanced Capstone: End-to-End Analytics Programme",
+          "subtopics": ["Governed data and metrics", "Causal and predictive analysis", "Decision support", "Leadership presentation"],
+          "tools": ["dbt", "Power BI or Tableau", "Python", "Spark SQL"],
+          "lab_task": "For a case company, build governed dbt marts and a semantic layer, estimate the causal effect of a past initiative, build a churn model and scenario model for the next initiative, and present an analytics roadmap and recommendation to a leadership panel.",
+          "deliverable": "dbt project, analyses, models, dashboard and leadership presentation",
+          "checks": [["Run dbt build and metric tests", "All pass and metrics match across tools", "Test output"], ["Present the causal estimate", "Estimate with assumptions and checks", "Presentation"], ["Defend the recommendation", "Panel questions answered with evidence", "Panel feedback"]],
+          "objectives": ["Combine the advanced topics in one programme", "Deliver trusted analysis", "Lead decisions with data"]
+        }
+      ]
+    }
+  }
+}

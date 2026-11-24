@@ -1,0 +1,573 @@
+{
+  "domain": "Statistics for Data Science",
+  "name": "Statistics for Data Science",
+  "category": "Data Science and Machine Learning",
+  "icon": "bar-chart-2",
+  "aliases": ["Statistics", "Applied Statistics", "Applied Statistics for Data Science", "Statistics for Machine Learning", "Statistics for Data Analysis", "Statistics for Analytics", "Probability and Statistics", "Business Statistics", "Inferential Statistics", "Statistical Analysis", "Statistics with R", "Hypothesis Testing", "A/B Testing", "Experimental Design and A/B Testing", "Causal Inference"],
+  "certifications": ["No single required certification; assessed by analysis notebooks and a written report", "Optional: SAS Certified Statistical Business Analyst", "Optional: Royal Statistical Society qualifications"],
+  "tools": ["Python with pandas, SciPy and statsmodels", "Jupyter notebooks", "R and RStudio (optional)", "Excel or Google Sheets", "scikit-learn", "PyMC (advanced)"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, aspiring data scientists and engineers who need statistics they can use on real data. Covers types of data, descriptive statistics, visualising distributions, probability, conditional probability and Bayes' theorem, random variables, common distributions, sampling and the central limit theorem, confidence intervals, hypothesis tests, t-tests, chi-square tests, ANOVA, correlation, simple and multiple regression and communicating results, with every topic practised in Python notebooks on business data.",
+      "prerequisites": ["Comfortable with school-level algebra", "Basic spreadsheet or Python skills", "Works with or wants to work with data"],
+      "outcomes": ["Describe and visualise data and choose the right summary for its type", "Use probability, distributions and sampling to reason about uncertainty", "Run and interpret confidence intervals, t-tests, chi-square tests, ANOVA and regression in Python", "Explain statistical results and their limits to non-statisticians"],
+      "days": [
+        {
+          "topic": "Statistics for Data Science Overview and Tool Setup",
+          "subtopics": ["What statistics adds to data science and analytics", "Descriptive, inferential and predictive questions", "Populations, samples and parameters", "Uncertainty and why single numbers mislead", "Installing Python, Jupyter and the course libraries", "pandas for loading and inspecting data", "SciPy and statsmodels for statistical methods", "R as an alternative and when teams use it", "The course datasets: sales, customers, web traffic and operations", "Notebook habits for reproducible analysis"],
+          "tools": ["Python", "Jupyter", "pandas", "SciPy", "statsmodels"],
+          "lab_task": "Set up a Python environment with Jupyter and the course libraries, load the sales dataset, list three business questions it could answer and classify each as descriptive, inferential or predictive.",
+          "deliverable": "Working notebook environment and a classified question list",
+          "checks": [["Set up", "The notebook imports pandas, SciPy and statsmodels without errors", "Notebook output"], ["Inspect data", "Rows, columns and data types of the sales dataset are reported", "Notebook output"], ["Classify questions", "Each question is labelled descriptive, inferential or predictive with a reason", "Question list"]],
+          "objectives": ["Explain the role of statistics in data science", "Set up the analysis environment", "Frame questions statistically"]
+        },
+        {
+          "topic": "Types of Data and Variables",
+          "subtopics": ["Observations and variables", "Categorical variables: nominal and ordinal", "Numerical variables: discrete and continuous", "Interval and ratio scales", "Independent and dependent variables", "Identifiers that look like numbers", "Dates and times as variables", "Derived variables and binning", "Choosing summaries by variable type", "Checking types in pandas"],
+          "tools": ["pandas", "Jupyter", "Data dictionary template"],
+          "lab_task": "Build a data dictionary for the customer dataset that classifies every column by type and scale, fixes wrongly typed columns in pandas and names the right summary for each variable.",
+          "deliverable": "Data dictionary and a type-corrected dataset",
+          "checks": [["Classify", "Every column has a type and a measurement scale", "Data dictionary"], ["Fix types", "Identifier and date columns are stored with the right types", "Notebook output"], ["Choose summaries", "Each variable has a suitable summary statistic", "Data dictionary"]],
+          "objectives": ["Classify variables", "Fix data types", "Match summaries to variable types"]
+        },
+        {
+          "topic": "Descriptive Statistics: Centre and Spread",
+          "subtopics": ["Mean, median and mode", "When the median is better than the mean", "Range and interquartile range", "Variance and standard deviation", "Percentiles and quartiles", "Coefficient of variation", "Summaries by group with groupby", "Weighted averages"],
+          "tools": ["pandas", "NumPy", "Jupyter"],
+          "lab_task": "Summarise order values overall and by region with centre and spread measures, explain where the mean and median differ and why, and compute a weighted average price.",
+          "deliverable": "Grouped summary table with explanations",
+          "checks": [["Summarise", "Centre and spread are reported overall and by region", "Summary table"], ["Explain skew", "Mean and median differences are explained with the data", "Notes"], ["Weight", "The weighted average matches a manual calculation", "Notebook output"]],
+          "objectives": ["Summarise data with centre and spread", "Compare groups", "Choose robust summaries"]
+        },
+        {
+          "topic": "Visualising Distributions: Histograms, Box Plots and Density Plots",
+          "subtopics": ["Why the shape of data matters", "Histograms and bin choices", "Box plots and outliers", "Density plots", "Skewness and kurtosis in plain terms", "Comparing groups visually", "Log scales for skewed data", "Common chart mistakes"],
+          "tools": ["Matplotlib", "seaborn", "pandas"],
+          "lab_task": "Plot order values with histograms at three bin widths, box plots by region and a log-scale density plot, and describe the shape, skew and outliers in plain words.",
+          "deliverable": "Distribution charts with written descriptions",
+          "checks": [["Plot", "All three chart types are produced", "Notebook output"], ["Describe shape", "Skew and outliers are described correctly", "Notes"], ["Compare groups", "Regional differences are visible and explained", "Notes"]],
+          "objectives": ["Visualise distributions", "Describe shape and outliers", "Avoid misleading charts"]
+        },
+        {
+          "topic": "Probability Rules and Counting",
+          "subtopics": ["Experiments, outcomes and events", "Probability as long-run frequency", "Complement, union and intersection", "Addition and multiplication rules", "Independent and mutually exclusive events", "Counting with permutations and combinations", "Simulation to check answers", "Probability in business questions"],
+          "tools": ["Python", "NumPy", "Jupyter"],
+          "lab_task": "Answer eight probability questions about customer orders and defects by formula, then check each answer with a simulation of one hundred thousand trials.",
+          "deliverable": "Worked answers with simulation checks",
+          "checks": [["Calculate", "Formula answers are correct", "Worked answers"], ["Simulate", "Simulated probabilities agree with the formulas", "Notebook output"], ["Explain", "Independent and mutually exclusive cases are told apart correctly", "Notes"]],
+          "objectives": ["Apply probability rules", "Count outcomes", "Check answers by simulation"]
+        },
+        {
+          "topic": "Conditional Probability and Bayes' Theorem",
+          "subtopics": ["Conditional probability", "Contingency tables", "The multiplication rule for dependent events", "Bayes' theorem", "Base rates and false positives", "Medical test and fraud alert examples", "Updating beliefs with evidence", "Common reasoning errors"],
+          "tools": ["pandas crosstab", "Python", "Jupyter"],
+          "lab_task": "Build a contingency table of fraud alerts and confirmed fraud, calculate the chance that an alert is real with Bayes' theorem and show how the answer changes with the base rate.",
+          "deliverable": "Contingency table and Bayes analysis",
+          "checks": [["Tabulate", "The contingency table totals match the data", "Notebook output"], ["Apply Bayes", "The probability that an alert is real is calculated correctly", "Calculation"], ["Show base rates", "The effect of three base rates is explained", "Notes"]],
+          "objectives": ["Calculate conditional probabilities", "Apply Bayes' theorem", "Avoid base rate errors"]
+        },
+        {
+          "topic": "Random Variables, Expectation and Variance",
+          "subtopics": ["Random variables as numbers from chance events", "Discrete and continuous random variables", "Probability mass and density functions", "Cumulative distribution functions", "Expected value", "Variance and standard deviation of a random variable", "Rules for sums and scaling", "Expected value in business decisions", "Simulation of random variables", "Interpreting expected values with care"],
+          "tools": ["Python", "NumPy", "SciPy"],
+          "lab_task": "Model daily returns of a product as a discrete random variable, compute its expected value and variance by hand and by simulation, and use expected value to compare two promotion options.",
+          "deliverable": "Random variable model and promotion comparison",
+          "checks": [["Compute", "Expected value and variance match by hand and by simulation", "Notebook output"], ["Use rules", "The sum of two days is computed with the rules for sums", "Calculation"], ["Decide", "The promotion choice uses expected value and its spread", "Notes"]],
+          "objectives": ["Work with random variables", "Calculate expectation and variance", "Use expected value in decisions"]
+        },
+        {
+          "topic": "Discrete Distributions: Binomial and Poisson",
+          "subtopics": ["Bernoulli trials", "The binomial distribution", "The Poisson distribution for counts", "Checking assumptions for each", "Probabilities with SciPy", "Means and variances of each distribution", "Poisson as an approximation to the binomial", "Fitting counts to a Poisson model"],
+          "tools": ["SciPy stats", "Python", "Jupyter"],
+          "lab_task": "Model conversions per hundred visitors with a binomial distribution and support tickets per hour with a Poisson distribution, calculate tail probabilities and check the fit against observed counts.",
+          "deliverable": "Two distribution models with fit checks",
+          "checks": [["Model", "Each process is matched to the right distribution with reasons", "Notes"], ["Calculate", "Tail probabilities are computed with SciPy", "Notebook output"], ["Check fit", "Observed and expected counts are compared", "Chart"]],
+          "objectives": ["Use binomial and Poisson models", "Calculate probabilities", "Check model fit"]
+        },
+        {
+          "topic": "The Normal Distribution and Z-Scores",
+          "subtopics": ["Properties of the normal distribution", "The empirical rule", "Standardising with z-scores", "Normal probabilities and quantiles", "Checking normality with plots", "Q-Q plots", "When data are not normal", "Transformations"],
+          "tools": ["SciPy stats", "statsmodels", "Matplotlib"],
+          "lab_task": "Standardise delivery times, find the share of late deliveries with the normal model, check normality with a Q-Q plot and test whether a log transform improves the fit.",
+          "deliverable": "Normal model analysis with fit checks",
+          "checks": [["Standardise", "z-scores are computed correctly", "Notebook output"], ["Use the model", "Late delivery shares are calculated from the normal model", "Calculation"], ["Check fit", "The Q-Q plot shows whether the transform helps", "Chart"]],
+          "objectives": ["Apply the normal distribution", "Use z-scores", "Check normality"]
+        },
+        {
+          "topic": "Sampling Distributions, Standard Error and the Central Limit Theorem",
+          "subtopics": ["Why we sample", "Random, stratified and cluster sampling", "Sampling bias", "Sampling distributions", "The central limit theorem", "Standard error", "Sample size and precision", "Simulating sampling distributions"],
+          "tools": ["Python", "NumPy", "Matplotlib"],
+          "lab_task": "Draw repeated samples of different sizes from a skewed population, plot the sampling distribution of the mean and show how the standard error shrinks with sample size.",
+          "deliverable": "Sampling simulation and explanation",
+          "checks": [["Simulate", "Sampling distributions are plotted for three sample sizes", "Chart"], ["Show the theorem", "The sample mean distribution becomes nearly normal as size grows", "Chart"], ["Explain", "Standard error changes are explained with numbers", "Notes"]],
+          "objectives": ["Explain sampling and bias", "Apply the central limit theorem", "Calculate standard errors"]
+        },
+        {
+          "topic": "Confidence Intervals for Means and Proportions",
+          "subtopics": ["What a confidence interval means", "Intervals for a mean with the t distribution", "Intervals for a proportion", "Confidence level and width", "Sample size for a target width", "Intervals for differences between groups", "Common misinterpretations", "Reporting intervals"],
+          "tools": ["SciPy stats", "statsmodels", "Jupyter"],
+          "lab_task": "Calculate 95 percent confidence intervals for average basket size and conversion rate, compare two regions with an interval for the difference and write the result in plain words.",
+          "deliverable": "Confidence interval analysis and plain-language summary",
+          "checks": [["Calculate", "Intervals match a manual calculation", "Notebook output"], ["Compare", "The interval for the regional difference is reported", "Notebook output"], ["Explain", "The summary avoids the common misinterpretation", "Summary text"]],
+          "objectives": ["Calculate confidence intervals", "Compare groups with intervals", "Report intervals correctly"]
+        },
+        {
+          "topic": "Hypothesis Testing: Null, Alternative, p-Values and Errors",
+          "subtopics": ["Questions that suit hypothesis tests", "Null and alternative hypotheses", "Test statistics", "p-values and what they are not", "Significance levels", "Type I and type II errors", "One-sided and two-sided tests", "Statistical and practical significance"],
+          "tools": ["SciPy stats", "Python", "Jupyter"],
+          "lab_task": "Write null and alternative hypotheses for four business questions, run a test for each, interpret the p-values and judge whether each result matters in practice.",
+          "deliverable": "Four tested hypotheses with interpretations",
+          "checks": [["State hypotheses", "Each question has correct null and alternative hypotheses", "Notes"], ["Interpret", "p-values are interpreted without common errors", "Notes"], ["Judge importance", "Practical significance is assessed with effect sizes", "Notes"]],
+          "objectives": ["Set up hypothesis tests", "Interpret p-values", "Separate statistical and practical significance"]
+        },
+        {
+          "topic": "t-Tests for One and Two Samples",
+          "subtopics": ["One-sample t-test", "Independent two-sample t-test", "Welch's t-test for unequal variances", "Paired t-test", "Assumptions and checks", "Effect size with Cohen's d", "Reporting t-test results", "Choosing the right t-test"],
+          "tools": ["SciPy stats", "pingouin or statsmodels", "Jupyter"],
+          "lab_task": "Test whether a new checkout page changed average order value with Welch's t-test, test before-and-after times for the same stores with a paired test and report effect sizes.",
+          "deliverable": "Two t-test analyses with effect sizes",
+          "checks": [["Choose", "The right t-test is chosen for each design", "Notes"], ["Run", "Test statistics and p-values are correct", "Notebook output"], ["Report", "Results include effect sizes and intervals", "Report text"]],
+          "objectives": ["Run one- and two-sample t-tests", "Check assumptions", "Report effect sizes"]
+        },
+        {
+          "topic": "Chi-Square Tests for Categorical Data",
+          "subtopics": ["Goodness-of-fit test", "Test of independence", "Expected counts", "Assumptions and small counts", "Fisher's exact test", "Effect size with Cramér's V", "Reading residuals", "Reporting categorical results"],
+          "tools": ["SciPy stats", "pandas crosstab", "Jupyter"],
+          "lab_task": "Test whether payment method depends on customer segment with a chi-square test, check expected counts, measure the effect size and find which cells drive the result.",
+          "deliverable": "Chi-square analysis with residuals",
+          "checks": [["Test", "The test statistic and p-value are correct", "Notebook output"], ["Check assumptions", "Expected counts are checked and Fisher's test is used where needed", "Notebook output"], ["Explain", "The cells driving the result are named", "Notes"]],
+          "objectives": ["Test categorical relationships", "Check assumptions", "Measure and explain effects"]
+        },
+        {
+          "topic": "One-Way ANOVA",
+          "subtopics": ["Comparing more than two groups", "Between-group and within-group variation", "The F statistic", "Assumptions and checks", "Post-hoc comparisons with Tukey's test", "Effect size with eta squared", "Welch's ANOVA for unequal variances", "Reporting ANOVA results"],
+          "tools": ["statsmodels", "SciPy stats", "Jupyter"],
+          "lab_task": "Compare average delivery times across four warehouses with ANOVA, check assumptions, run Tukey's test to find which pairs differ and report the effect size.",
+          "deliverable": "ANOVA analysis with post-hoc results",
+          "checks": [["Test", "The ANOVA table is correct", "Notebook output"], ["Compare pairs", "Tukey's test identifies differing warehouses", "Notebook output"], ["Report", "The report includes effect size and assumption checks", "Report text"]],
+          "objectives": ["Compare several groups", "Run post-hoc tests", "Report ANOVA results"]
+        },
+        {
+          "topic": "Correlation and Covariance",
+          "subtopics": ["Covariance", "Pearson correlation", "Spearman rank correlation", "Correlation matrices and heatmaps", "Outliers and correlation", "Correlation and causation", "Testing a correlation", "Spurious correlations"],
+          "tools": ["pandas", "SciPy stats", "seaborn"],
+          "lab_task": "Build a correlation matrix for marketing spend and sales variables, compare Pearson and Spearman results, show how one outlier changes a correlation and list two spurious correlations.",
+          "deliverable": "Correlation analysis with cautions",
+          "checks": [["Calculate", "Pearson and Spearman correlations are reported", "Notebook output"], ["Test outliers", "The outlier's effect is shown", "Chart"], ["Caution", "Causal claims are avoided with reasons", "Notes"]],
+          "objectives": ["Measure association", "Choose correlation types", "Avoid causal mistakes"]
+        },
+        {
+          "topic": "Simple Linear Regression",
+          "subtopics": ["The regression line", "Least squares", "Slope and intercept interpretation", "R squared", "Residuals", "Confidence and prediction intervals", "Assumptions in practice", "Regression with statsmodels"],
+          "tools": ["statsmodels", "pandas", "Matplotlib"],
+          "lab_task": "Fit a regression of sales on advertising spend, interpret the slope in money terms, plot residuals and give a prediction interval for next month's planned spend.",
+          "deliverable": "Fitted model with interpretation and prediction",
+          "checks": [["Fit", "The coefficients match the statsmodels output", "Notebook output"], ["Interpret", "The slope is explained in business units", "Notes"], ["Predict", "A prediction interval is given for planned spend", "Notebook output"]],
+          "objectives": ["Fit simple regression", "Interpret coefficients", "Predict with intervals"]
+        },
+        {
+          "topic": "Multiple Linear Regression in Practice",
+          "subtopics": ["Several predictors in one model", "Interpreting coefficients holding others fixed", "Categorical predictors and dummy variables", "Interactions", "Adjusted R squared", "Multicollinearity warning signs", "Comparing models", "Reporting regression results"],
+          "tools": ["statsmodels formula API", "pandas", "Jupyter"],
+          "lab_task": "Model house prices with size, location and age, include a categorical location variable and one interaction, compare two models and report the preferred one.",
+          "deliverable": "Two regression models with a comparison",
+          "checks": [["Fit", "Both models are fitted with the formula API", "Notebook output"], ["Interpret", "Coefficients are interpreted holding other variables fixed", "Notes"], ["Compare", "The preferred model is chosen with stated reasons", "Notes"]],
+          "objectives": ["Fit multiple regression", "Use categorical predictors", "Compare models"]
+        },
+        {
+          "topic": "Communicating Statistical Results to Non-Statisticians",
+          "subtopics": ["Who reads statistical results", "Leading with the answer", "Explaining uncertainty in plain words", "Charts with intervals and error bars", "Effect sizes in business units", "Avoiding jargon", "Limits and assumptions", "A one-page results summary"],
+          "tools": ["Jupyter", "Matplotlib", "Presentation template"],
+          "lab_task": "Turn one of the course analyses into a one-page summary for a manager with the answer first, an interval chart, the effect in money terms and the main limits.",
+          "deliverable": "One-page results summary",
+          "checks": [["Lead with the answer", "The first sentence states the finding", "Summary"], ["Show uncertainty", "The chart shows intervals and is labelled clearly", "Chart"], ["State limits", "Assumptions and limits are written in plain words", "Summary"]],
+          "objectives": ["Communicate statistical findings", "Explain uncertainty", "Report limits honestly"]
+        },
+        {
+          "topic": "Beginner Capstone: Statistical Analysis of a Business Dataset",
+          "subtopics": ["Business questions", "Descriptive analysis", "Tests and intervals", "Regression model", "One-page report"],
+          "tools": ["Python", "pandas", "SciPy", "statsmodels", "Jupyter"],
+          "lab_task": "Analyse a retail dataset from questions to answers: describe and visualise it, test two hypotheses, estimate intervals, fit a regression and present a one-page report with recommendations.",
+          "deliverable": "Analysis notebook and one-page report",
+          "checks": [["Analyse", "Descriptive, inferential and regression parts are complete", "Notebook"], ["Interpret", "Each result is interpreted with effect sizes", "Report"], ["Recommend", "Recommendations follow from the results", "Report"]],
+          "objectives": ["Combine beginner statistics skills", "Answer business questions with data", "Report findings clearly"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For analysts and data scientists who know the core tests and need the methods used in real projects. Covers designing experiments and A/B tests, power and sample size, multiple comparisons, nonparametric tests, regression diagnostics, logistic regression, generalised linear models, regularised regression, model selection and cross-validation, bootstrap and permutation methods, Bayesian inference, time series and forecasting, survival analysis, dimensionality reduction, missing data, causal thinking with observational data and statistics for evaluating machine learning models.",
+      "prerequisites": ["Runs t-tests, chi-square tests and regression in Python or R", "Understands sampling, confidence intervals and p-values", "Works on analysis or modelling projects"],
+      "outcomes": ["Design and analyse experiments with correct power and error control", "Fit and check regression, logistic and count models and choose between them", "Use resampling, Bayesian methods, time series and survival analysis where they fit", "Evaluate machine learning models with sound statistics and handle missing data and confounding"],
+      "days": [
+        {
+          "topic": "Designing Experiments and A/B Tests",
+          "subtopics": ["Questions that need experiments", "Randomisation and control groups", "Units of randomisation: users, sessions and stores", "Primary and guardrail metrics", "Sample ratio mismatch checks", "Pre-registration of the analysis plan", "Running time and novelty effects", "Analysing a two-variant test"],
+          "tools": ["Python", "SciPy", "statsmodels", "Experiment plan template"],
+          "lab_task": "Write an experiment plan for a new pricing page with randomisation unit, metrics and analysis plan, then analyse a simulated result including a sample ratio mismatch check.",
+          "deliverable": "Experiment plan and analysis",
+          "checks": [["Plan", "The plan states unit, metrics, duration and analysis before results", "Plan document"], ["Check integrity", "The sample ratio mismatch check is run and reported", "Notebook output"], ["Analyse", "The primary metric result is reported with an interval", "Analysis"]],
+          "objectives": ["Design experiments", "Check experiment integrity", "Analyse A/B tests"]
+        },
+        {
+          "topic": "Statistical Power and Sample Size",
+          "subtopics": ["Power and why it matters", "Minimum detectable effect", "Sample size for means and proportions", "Power for paired and clustered designs", "Power analysis with statsmodels", "Simulation-based power analysis", "Underpowered studies and their results", "Trade-offs between duration and sensitivity"],
+          "tools": ["statsmodels power module", "Python", "Simulation notebook"],
+          "lab_task": "Calculate sample sizes for detecting a two percent conversion lift and a five percent change in order value, confirm one with simulation and show what an underpowered test would report.",
+          "deliverable": "Sample size calculations and simulation",
+          "checks": [["Calculate", "Sample sizes match statsmodels results", "Notebook output"], ["Simulate", "Simulated power agrees with the formula", "Chart"], ["Explain", "The risks of an underpowered test are shown with numbers", "Notes"]],
+          "objectives": ["Calculate sample sizes", "Use simulation for power", "Explain underpowered results"]
+        },
+        {
+          "topic": "Multiple Comparisons and False Discovery Rate",
+          "subtopics": ["Why many tests create false positives", "Family-wise error rate", "Bonferroni and Holm corrections", "False discovery rate", "Benjamini-Hochberg procedure", "Many metrics and many segments", "Planned compared with exploratory analysis", "Reporting corrected results"],
+          "tools": ["statsmodels multipletests", "Python", "Jupyter"],
+          "lab_task": "Test twenty customer segments for a treatment effect, show how many false positives appear without correction and compare Holm and Benjamini-Hochberg results.",
+          "deliverable": "Multiple testing comparison",
+          "checks": [["Show the problem", "Uncorrected false positives are counted in simulated null data", "Notebook output"], ["Correct", "Holm and Benjamini-Hochberg results are reported", "Notebook output"], ["Report", "The summary separates planned and exploratory findings", "Summary"]],
+          "objectives": ["Control error rates", "Apply FDR correction", "Report many tests honestly"]
+        },
+        {
+          "topic": "Nonparametric Tests: Mann-Whitney, Wilcoxon and Kruskal-Wallis",
+          "subtopics": ["When parametric assumptions fail", "Rank-based tests", "Mann-Whitney U test", "Wilcoxon signed-rank test", "Kruskal-Wallis test", "Effect sizes for rank tests", "Permutation tests as an alternative", "Comparing results with t-tests"],
+          "tools": ["SciPy stats", "Python", "Jupyter"],
+          "lab_task": "Compare heavily skewed session durations between two app versions with a Mann-Whitney test, test before-and-after data with Wilcoxon and compare the results with t-tests.",
+          "deliverable": "Nonparametric analysis with comparison",
+          "checks": [["Choose", "Nonparametric tests are chosen with reasons", "Notes"], ["Run", "Test results and effect sizes are reported", "Notebook output"], ["Compare", "Differences from t-test results are explained", "Notes"]],
+          "objectives": ["Use nonparametric tests", "Report rank-based effects", "Choose between test families"]
+        },
+        {
+          "topic": "Regression Diagnostics: Residuals, Leverage and Multicollinearity",
+          "subtopics": ["Residual plots", "Non-linearity and transformations", "Heteroscedasticity and robust standard errors", "Normality of residuals", "Leverage, outliers and Cook's distance", "Variance inflation factors", "Autocorrelated residuals", "Fixing and reporting problems"],
+          "tools": ["statsmodels", "Matplotlib", "Jupyter"],
+          "lab_task": "Diagnose a pricing regression with residual plots, Cook's distance and variance inflation factors, fix two problems and show how the conclusions change.",
+          "deliverable": "Diagnosed and improved regression",
+          "checks": [["Diagnose", "Each diagnostic is run and interpreted", "Notebook output"], ["Fix", "Two problems are fixed with transformations or robust errors", "Notebook output"], ["Compare", "Changes in conclusions are explained", "Notes"]],
+          "objectives": ["Diagnose regression models", "Fix common problems", "Report robust results"]
+        },
+        {
+          "topic": "Logistic Regression and Odds Ratios",
+          "subtopics": ["Binary outcomes", "The logistic model", "Odds and odds ratios", "Fitting with statsmodels", "Interpreting coefficients", "Predicted probabilities", "Model fit and pseudo R squared", "Classification thresholds"],
+          "tools": ["statsmodels", "scikit-learn", "Jupyter"],
+          "lab_task": "Model customer churn with logistic regression, interpret three odds ratios in plain words, plot predicted probabilities and choose a threshold for a retention campaign.",
+          "deliverable": "Churn model with interpretation",
+          "checks": [["Fit", "The model is fitted and summarised", "Notebook output"], ["Interpret", "Odds ratios are explained in plain words", "Notes"], ["Decide", "The threshold is chosen from campaign costs and benefits", "Notes"]],
+          "objectives": ["Fit logistic regression", "Interpret odds ratios", "Choose thresholds with costs"]
+        },
+        {
+          "topic": "Generalised Linear Models: Poisson and Count Data",
+          "subtopics": ["The GLM framework", "Link functions", "Poisson regression for counts", "Overdispersion", "Negative binomial regression", "Exposure and offsets", "Zero-inflated counts in brief", "Interpreting rate ratios"],
+          "tools": ["statsmodels GLM", "Python", "Jupyter"],
+          "lab_task": "Model weekly support tickets per customer with Poisson regression, test for overdispersion, refit with negative binomial and an exposure offset, and interpret rate ratios.",
+          "deliverable": "Count models with comparison",
+          "checks": [["Fit", "Poisson and negative binomial models are fitted", "Notebook output"], ["Check dispersion", "Overdispersion is tested and handled", "Notebook output"], ["Interpret", "Rate ratios are explained", "Notes"]],
+          "objectives": ["Use GLMs", "Model count data", "Handle overdispersion"]
+        },
+        {
+          "topic": "Penalised Regression for Many Predictors: Shrinkage, Selection and Tuning",
+          "subtopics": ["Overfitting with many predictors", "Ridge penalties", "Lasso and variable selection", "Elastic net", "Choosing the penalty with cross-validation", "Standardising predictors", "Interpreting penalised coefficients", "Inference after selection cautions"],
+          "tools": ["scikit-learn", "statsmodels", "Jupyter"],
+          "lab_task": "Fit ridge, lasso and elastic net models to predict customer value with fifty predictors, choose penalties by cross-validation and compare accuracy and selected variables.",
+          "deliverable": "Regularised model comparison",
+          "checks": [["Fit", "All three models are tuned by cross-validation", "Notebook output"], ["Compare", "Accuracy and selected variables are compared", "Comparison table"], ["Caution", "Limits of p-values after selection are stated", "Notes"]],
+          "objectives": ["Apply regularised regression", "Tune penalties", "Interpret penalised models"]
+        },
+        {
+          "topic": "Model Selection, Cross-Validation and Information Criteria",
+          "subtopics": ["Bias and variance", "Train, validation and test splits", "k-fold and repeated cross-validation", "Time-based splits", "AIC and BIC", "Nested models and likelihood ratio tests", "Data leakage", "Choosing a final model"],
+          "tools": ["scikit-learn", "statsmodels", "Jupyter"],
+          "lab_task": "Compare four candidate models with cross-validation and information criteria, find a leakage problem planted in the pipeline and choose and justify a final model.",
+          "deliverable": "Model selection report",
+          "checks": [["Validate", "Models are compared with proper cross-validation", "Notebook output"], ["Find leakage", "The planted leakage is found and fixed", "Notes"], ["Choose", "The final model is justified", "Report"]],
+          "objectives": ["Select models", "Use cross-validation and information criteria", "Avoid leakage"]
+        },
+        {
+          "topic": "Bootstrap and Permutation Methods",
+          "subtopics": ["Resampling ideas", "The bootstrap for standard errors", "Bootstrap confidence intervals", "When the bootstrap fails", "Permutation tests", "Resampling for medians and ratios", "Computational cost", "Reporting resampling results"],
+          "tools": ["NumPy", "SciPy bootstrap", "Jupyter"],
+          "lab_task": "Bootstrap a confidence interval for the median order value and for a ratio metric, run a permutation test for a difference in medians and compare with formula-based results.",
+          "deliverable": "Resampling analysis",
+          "checks": [["Bootstrap", "Intervals for the median and ratio are reported", "Notebook output"], ["Permute", "The permutation test result is reported", "Notebook output"], ["Compare", "Differences from formula methods are explained", "Notes"]],
+          "objectives": ["Use the bootstrap", "Run permutation tests", "Know when resampling fails"]
+        },
+        {
+          "topic": "Bayesian Inference with Priors and Posteriors",
+          "subtopics": ["Bayesian and frequentist thinking", "Priors, likelihoods and posteriors", "Conjugate models: beta-binomial", "Credible intervals", "Posterior probability of improvement", "Prior sensitivity", "Bayesian A/B testing", "Communicating Bayesian results"],
+          "tools": ["SciPy stats", "PyMC (optional)", "Jupyter"],
+          "lab_task": "Analyse an A/B test with a beta-binomial model, report the probability that the new version is better and the expected loss, and show how three priors change the result.",
+          "deliverable": "Bayesian A/B analysis",
+          "checks": [["Model", "Posteriors are computed for both variants", "Notebook output"], ["Decide", "Probability of improvement and expected loss are reported", "Notes"], ["Check priors", "Prior sensitivity is shown", "Chart"]],
+          "objectives": ["Apply Bayesian inference", "Report credible intervals", "Check prior sensitivity"]
+        },
+        {
+          "topic": "Time Series Analysis: Trend, Seasonality and Autocorrelation",
+          "subtopics": ["Time series data and its structure", "Trend and seasonality", "Decomposition", "Stationarity and differencing", "Autocorrelation and partial autocorrelation", "Unit root tests", "Outliers and structural breaks", "Resampling and aggregating time series"],
+          "tools": ["pandas", "statsmodels tsa", "Matplotlib"],
+          "lab_task": "Decompose two years of daily sales into trend and seasonality, test stationarity, read the autocorrelation plots and identify one structural break.",
+          "deliverable": "Time series diagnostic report",
+          "checks": [["Decompose", "Trend and seasonal parts are shown", "Charts"], ["Test", "Stationarity tests are run and interpreted", "Notebook output"], ["Find breaks", "A structural break is identified with evidence", "Notes"]],
+          "objectives": ["Analyse time series structure", "Test stationarity", "Read autocorrelation"]
+        },
+        {
+          "topic": "Forecasting with ARIMA and Exponential Smoothing",
+          "subtopics": ["Forecasting goals and horizons", "Exponential smoothing and Holt-Winters", "ARIMA and seasonal ARIMA", "Choosing orders", "Forecast intervals", "Backtesting forecasts", "Error measures: MAE, RMSE and MAPE", "Comparing with a naive baseline"],
+          "tools": ["statsmodels tsa", "pandas", "Jupyter"],
+          "lab_task": "Forecast the next twelve weeks of sales with Holt-Winters and seasonal ARIMA, backtest both against a naive baseline and report forecasts with intervals.",
+          "deliverable": "Forecasts with backtest results",
+          "checks": [["Fit", "Both models are fitted and forecast", "Notebook output"], ["Backtest", "Backtest errors are compared with the naive baseline", "Comparison table"], ["Report", "Forecasts include intervals", "Chart"]],
+          "objectives": ["Forecast with classical models", "Backtest forecasts", "Report forecast uncertainty"]
+        },
+        {
+          "topic": "Survival Analysis: Kaplan-Meier and Cox Models",
+          "subtopics": ["Time-to-event questions", "Censoring", "Kaplan-Meier curves", "Log-rank tests", "Cox proportional hazards models", "Checking proportional hazards", "Hazard ratios", "Business uses: churn, failure and time to purchase"],
+          "tools": ["lifelines", "pandas", "Jupyter"],
+          "lab_task": "Analyse time to customer churn with Kaplan-Meier curves by plan, compare plans with a log-rank test, fit a Cox model and interpret hazard ratios.",
+          "deliverable": "Survival analysis",
+          "checks": [["Estimate", "Kaplan-Meier curves handle censoring", "Chart"], ["Compare", "The log-rank test result is reported", "Notebook output"], ["Model", "Hazard ratios are interpreted and assumptions checked", "Notes"]],
+          "objectives": ["Analyse time-to-event data", "Handle censoring", "Interpret hazard ratios"]
+        },
+        {
+          "topic": "Dimensionality Reduction: PCA and Factor Analysis",
+          "subtopics": ["Many correlated variables", "Principal component analysis", "Scaling before PCA", "Explained variance", "Loadings and interpretation", "Factor analysis and latent variables", "Using components in models", "Limits of interpretation"],
+          "tools": ["scikit-learn", "factor_analyzer", "Jupyter"],
+          "lab_task": "Reduce thirty survey questions with PCA and factor analysis, choose the number of components, name the main factors and use them in a satisfaction model.",
+          "deliverable": "Dimensionality reduction analysis",
+          "checks": [["Reduce", "The number of components is chosen with explained variance", "Chart"], ["Interpret", "Factors are named from loadings", "Notes"], ["Use", "Components are used in a model with results", "Notebook output"]],
+          "objectives": ["Apply PCA", "Interpret factors", "Use components in models"]
+        },
+        {
+          "topic": "Handling Missing Data: Mechanisms and Imputation",
+          "subtopics": ["Missing completely at random, at random and not at random", "Exploring missingness patterns", "Complete case analysis and its bias", "Simple imputation", "Multiple imputation", "Indicators for missingness", "Missing data in machine learning pipelines", "Reporting how missing data were handled"],
+          "tools": ["pandas", "scikit-learn IterativeImputer", "statsmodels MICE"],
+          "lab_task": "Explore missingness in a customer dataset, compare complete-case, mean imputation and multiple imputation for a regression and report how the estimates change.",
+          "deliverable": "Missing data comparison",
+          "checks": [["Explore", "Missingness patterns are shown", "Chart"], ["Compare", "Three approaches are compared on the same model", "Comparison table"], ["Report", "The chosen approach is justified", "Notes"]],
+          "objectives": ["Diagnose missing data", "Use multiple imputation", "Report missing data handling"]
+        },
+        {
+          "topic": "Causal Thinking: Confounding, Simpson's Paradox and Observational Data",
+          "subtopics": ["Correlation and causation", "Confounders, mediators and colliders", "Simpson's paradox", "Adjusting for confounders in regression", "Selection bias", "Natural experiments", "When an experiment is needed", "Writing causal claims carefully"],
+          "tools": ["pandas", "statsmodels", "Jupyter"],
+          "lab_task": "Analyse an observational dataset where a promotion appears to reduce sales, uncover the confounder behind Simpson's paradox and estimate an adjusted effect.",
+          "deliverable": "Observational analysis with adjusted estimate",
+          "checks": [["Find the paradox", "The reversal is shown by group", "Table"], ["Adjust", "The adjusted effect is estimated", "Notebook output"], ["Caution", "Remaining limits of the causal claim are stated", "Notes"]],
+          "objectives": ["Recognise confounding", "Adjust for confounders", "Write careful causal claims"]
+        },
+        {
+          "topic": "Statistics for Evaluating Machine Learning Models",
+          "subtopics": ["Metrics and their uncertainty", "Confidence intervals for accuracy and AUC", "Comparing two models statistically", "McNemar's test", "Cross-validation variance", "Class imbalance and metrics", "Calibration checks", "Reporting model comparisons honestly"],
+          "tools": ["scikit-learn", "SciPy", "statsmodels"],
+          "lab_task": "Compare two churn classifiers with bootstrap intervals for AUC and a McNemar test on the same test set, check calibration and report whether the difference is real.",
+          "deliverable": "Statistical model comparison",
+          "checks": [["Quantify", "Metric intervals are reported for both models", "Notebook output"], ["Compare", "McNemar's test result is reported", "Notebook output"], ["Conclude", "The conclusion reflects the uncertainty", "Report"]],
+          "objectives": ["Evaluate models statistically", "Compare classifiers", "Report uncertainty in metrics"]
+        },
+        {
+          "topic": "Reproducible Statistical Analysis: Notebooks, Scripts and Reports",
+          "subtopics": ["Reproducibility problems in analysis", "Project structure for analysis", "Environment files and pinned versions", "Random seeds", "Moving from notebooks to scripts", "Parameterised reports", "Version control for analysis", "Peer review of analysis"],
+          "tools": ["Git", "Jupyter", "Quarto or papermill", "conda or venv"],
+          "lab_task": "Turn an exploratory notebook into a reproducible project with pinned environment, seeds, a parameterised report and Git history, and have a peer reproduce the results.",
+          "deliverable": "Reproducible analysis project",
+          "checks": [["Pin", "The environment is pinned and installs cleanly", "Environment file"], ["Reproduce", "A peer reproduces the same numbers", "Peer note"], ["Report", "The parameterised report renders for two inputs", "Report files"]],
+          "objectives": ["Make analysis reproducible", "Structure analysis projects", "Support peer review"]
+        },
+        {
+          "topic": "Intermediate Capstone: Experiment Analysis and Recommendation",
+          "subtopics": ["Experiment plan and power", "Integrity checks", "Primary and guardrail analysis", "Segments with error control", "Recommendation report"],
+          "tools": ["Python", "statsmodels", "SciPy", "Jupyter"],
+          "lab_task": "Plan an experiment with a power analysis, analyse its results with integrity checks, guardrails and corrected segment results, and present a recommendation to a role-played product team.",
+          "deliverable": "Experiment plan, analysis and recommendation",
+          "checks": [["Plan", "Power and analysis plan are fixed before results", "Plan"], ["Analyse", "Integrity, primary and guardrail results are reported", "Analysis"], ["Recommend", "The recommendation follows from corrected results", "Report"]],
+          "objectives": ["Combine intermediate statistics skills", "Run an experiment analysis end to end", "Recommend decisions from evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data scientists and analysts who own causal questions, experimentation and uncertainty for a business. Covers causal graphs, propensity scores, difference-in-differences and synthetic control, instrumental variables and regression discontinuity, hierarchical models, Bayesian modelling with PyMC and Stan, MCMC diagnostics, sequential testing, variance reduction, heterogeneous treatment effects, state space forecasting, probabilistic forecast evaluation, survey weighting, extreme values, conformal prediction, calibration, reproducibility, fairness measurement and running an experimentation platform.",
+      "prerequisites": ["Designs experiments and fits GLMs, survival and time series models", "Comfortable with Python or R and probability", "Advises stakeholders on data-driven decisions"],
+      "outcomes": ["Estimate causal effects from experiments and observational data with modern methods", "Build and check Bayesian and hierarchical models", "Run trustworthy experimentation with sequential testing, variance reduction and governance", "Quantify uncertainty for forecasts and machine learning predictions and communicate it to leaders"],
+      "days": [
+        {
+          "topic": "Causal Inference with Directed Acyclic Graphs",
+          "subtopics": ["Causal questions and estimands", "Drawing causal graphs", "Back-door paths and adjustment sets", "Colliders and why not to adjust for them", "Mediation", "Testing graph implications", "DoWhy for causal workflows", "Agreeing graphs with domain experts"],
+          "tools": ["DoWhy", "NetworkX or DAGitty", "Python"],
+          "lab_task": "Draw a causal graph for the effect of a loyalty programme on spend with domain experts, find a valid adjustment set, estimate the effect with DoWhy and run refutation tests.",
+          "deliverable": "Causal graph, estimate and refutations",
+          "checks": [["Draw", "The graph is agreed with a domain expert", "Graph"], ["Adjust", "The adjustment set blocks all back-door paths", "Analysis"], ["Refute", "Refutation tests are run and reported", "Notebook output"]],
+          "objectives": ["Use causal graphs", "Choose adjustment sets", "Test causal estimates"]
+        },
+        {
+          "topic": "Propensity Scores, Matching and Weighting",
+          "subtopics": ["The propensity score", "Estimating propensities", "Matching methods", "Inverse probability weighting", "Balance checks", "Overlap and positivity", "Doubly robust estimators", "Sensitivity to unmeasured confounding"],
+          "tools": ["scikit-learn", "statsmodels", "causal inference library such as DoWhy or EconML"],
+          "lab_task": "Estimate the effect of a training programme on employee retention with matching and weighting, check balance and overlap, and run a sensitivity analysis for hidden confounding.",
+          "deliverable": "Propensity score analysis with sensitivity results",
+          "checks": [["Balance", "Covariate balance improves after matching or weighting", "Balance table"], ["Estimate", "Effects from two methods are compared", "Notebook output"], ["Test sensitivity", "The sensitivity analysis is reported", "Notes"]],
+          "objectives": ["Apply propensity score methods", "Check balance and overlap", "Assess hidden confounding"]
+        },
+        {
+          "topic": "Difference-in-Differences and Synthetic Control",
+          "subtopics": ["Before-and-after comparisons with a control group", "Parallel trends", "Event study plots", "Staggered adoption problems", "Modern difference-in-differences estimators", "Synthetic control", "Placebo tests", "Reporting policy and launch effects"],
+          "tools": ["statsmodels", "linearmodels", "Synthetic control library"],
+          "lab_task": "Estimate the effect of a regional price change with difference-in-differences and an event study, then with synthetic control, and run placebo tests.",
+          "deliverable": "Two policy effect estimates with placebo tests",
+          "checks": [["Check trends", "Pre-period trends are shown", "Event study chart"], ["Estimate", "Both methods give effect estimates with uncertainty", "Notebook output"], ["Test", "Placebo tests are reported", "Notes"]],
+          "objectives": ["Use difference-in-differences", "Build synthetic controls", "Validate with placebos"]
+        },
+        {
+          "topic": "Instrumental Variables and Regression Discontinuity",
+          "subtopics": ["When controls are not enough", "Instruments and their conditions", "Two-stage least squares", "Weak instruments", "Sharp regression discontinuity", "Bandwidth choice", "Fuzzy designs", "Manipulation tests at the cut-off", "Exclusion restriction arguments", "Finding natural experiments in business data"],
+          "tools": ["linearmodels", "rdrobust", "Python"],
+          "lab_task": "Estimate the effect of a free-shipping threshold on basket size with a regression discontinuity, and the effect of delivery speed on satisfaction with an instrument.",
+          "deliverable": "RDD and IV analyses",
+          "checks": [["Discontinuity", "The RDD estimate is reported with bandwidth checks", "Notebook output"], ["Instrument", "First-stage strength is checked", "Notebook output"], ["Interpret", "Local effects are explained correctly", "Notes"]],
+          "objectives": ["Use instrumental variables", "Apply regression discontinuity", "Interpret local effects"]
+        },
+        {
+          "topic": "Mixed-Effects and Hierarchical Models",
+          "subtopics": ["Grouped data: stores, schools and users", "Fixed and random effects", "Random intercepts and slopes", "Partial pooling", "Fitting mixed models", "Intraclass correlation", "Hierarchical models for many small groups", "Reporting group-level results"],
+          "tools": ["statsmodels MixedLM", "lme4 in R (optional)", "PyMC"],
+          "lab_task": "Model store sales with random intercepts and slopes by region, compare with separate and pooled models and show how partial pooling helps small stores.",
+          "deliverable": "Mixed model comparison",
+          "checks": [["Fit", "The mixed model converges and is summarised", "Notebook output"], ["Compare", "Pooled, separate and mixed results are compared", "Comparison"], ["Explain", "Partial pooling for small stores is shown", "Chart"]],
+          "objectives": ["Fit mixed-effects models", "Use partial pooling", "Report group results"]
+        },
+        {
+          "topic": "Bayesian Modelling with PyMC and Stan",
+          "subtopics": ["Probabilistic programming", "Writing models in PyMC", "Weakly informative priors", "Prior predictive checks", "Posterior predictive checks", "Hierarchical Bayesian models", "Comparing models with LOO", "Stan and CmdStanPy as an alternative"],
+          "tools": ["PyMC", "ArviZ", "CmdStanPy (optional)"],
+          "lab_task": "Build a hierarchical Bayesian model of conversion rates across fifty campaigns, run prior and posterior predictive checks and compare two models with LOO.",
+          "deliverable": "Bayesian model with checks and comparison",
+          "checks": [["Specify", "Priors are justified and checked with prior predictive draws", "Notebook output"], ["Check fit", "Posterior predictive checks are shown", "Charts"], ["Compare", "LOO comparison is reported", "Notebook output"]],
+          "objectives": ["Build Bayesian models", "Check models with predictive checks", "Compare models"]
+        },
+        {
+          "topic": "MCMC Diagnostics and Model Checking",
+          "subtopics": ["How MCMC samplers work in brief", "Trace plots", "R-hat and effective sample size", "Divergences in Hamiltonian Monte Carlo", "Reparameterisation", "Sampler settings", "Simulation-based calibration in brief", "Reporting diagnostics"],
+          "tools": ["ArviZ", "PyMC", "Jupyter"],
+          "lab_task": "Diagnose a poorly sampling hierarchical model, fix divergences with a non-centred parameterisation and report the diagnostics before and after.",
+          "deliverable": "Diagnostic report with fixes",
+          "checks": [["Diagnose", "R-hat, effective sample size and divergences are reported", "Notebook output"], ["Fix", "Divergences drop after reparameterisation", "Notebook output"], ["Report", "The diagnostic summary is clear", "Report"]],
+          "objectives": ["Diagnose MCMC", "Fix sampling problems", "Report diagnostics"]
+        },
+        {
+          "topic": "Sequential Testing and Always-Valid Inference for Experiments",
+          "subtopics": ["The peeking problem", "Group sequential designs", "Alpha spending", "Always-valid p-values and confidence sequences", "Early stopping for harm", "Bayesian sequential monitoring", "Choosing a method for a platform", "Communicating early results"],
+          "tools": ["Python", "Simulation notebook", "Experimentation platform documentation"],
+          "lab_task": "Simulate the false positive rate from daily peeking, implement a group sequential design and a confidence sequence, and recommend a monitoring policy.",
+          "deliverable": "Peeking simulation and monitoring policy",
+          "checks": [["Show the problem", "Peeking inflates false positives in simulation", "Chart"], ["Implement", "Both methods control error in simulation", "Notebook output"], ["Recommend", "The policy covers stopping for benefit and harm", "Policy document"]],
+          "objectives": ["Run sequential tests", "Control peeking errors", "Set monitoring policy"]
+        },
+        {
+          "topic": "Variance Reduction in Experiments with CUPED",
+          "subtopics": ["Why variance limits experiments", "Covariate adjustment", "CUPED with pre-experiment data", "Regression adjustment", "Stratification", "Ratio metrics and the delta method", "Gains in sensitivity", "Pitfalls and checks"],
+          "tools": ["Python", "statsmodels", "Experiment data"],
+          "lab_task": "Apply CUPED and regression adjustment to an experiment using pre-period spend, use the delta method for a ratio metric and report the reduction in required sample size.",
+          "deliverable": "Variance reduction analysis",
+          "checks": [["Apply", "CUPED and regression adjustment estimates are reported", "Notebook output"], ["Handle ratios", "The delta method interval is reported", "Notebook output"], ["Quantify", "Variance and sample size reductions are stated", "Summary"]],
+          "objectives": ["Reduce experiment variance", "Use the delta method", "Quantify sensitivity gains"]
+        },
+        {
+          "topic": "Heterogeneous Treatment Effects and Uplift Modelling",
+          "subtopics": ["Average and conditional effects", "Subgroup analysis risks", "Meta-learners: S, T and X learners", "Causal forests", "Uplift curves and Qini", "Targeting decisions", "Validating uplift models", "Ethics of targeting"],
+          "tools": ["EconML or CausalML", "scikit-learn", "Python"],
+          "lab_task": "Estimate who responds most to a discount with meta-learners and a causal forest, evaluate with Qini curves and design a targeting rule with its expected gain.",
+          "deliverable": "Uplift models and targeting rule",
+          "checks": [["Estimate", "Conditional effects are estimated with two methods", "Notebook output"], ["Evaluate", "Qini curves compare the models", "Chart"], ["Decide", "The targeting rule states expected gain and risks", "Notes"]],
+          "objectives": ["Estimate heterogeneous effects", "Build uplift models", "Make targeting decisions"]
+        },
+        {
+          "topic": "State Space Models and Dynamic Forecasting",
+          "subtopics": ["State space representation", "Local level and trend models", "Kalman filtering and smoothing", "Regression with time-varying coefficients", "Unobserved components models", "Missing data in time series", "Structural time series for causal impact", "Comparing with ARIMA"],
+          "tools": ["statsmodels state space", "Python", "Jupyter"],
+          "lab_task": "Fit an unobserved components model to weekly demand with a promotion regressor, handle missing weeks and estimate the causal impact of a campaign.",
+          "deliverable": "State space model and impact estimate",
+          "checks": [["Fit", "The state space model is fitted and smoothed", "Notebook output"], ["Handle gaps", "Missing weeks are handled by the filter", "Chart"], ["Estimate impact", "The campaign impact is reported with intervals", "Notebook output"]],
+          "objectives": ["Use state space models", "Handle missing time series data", "Estimate time series impacts"]
+        },
+        {
+          "topic": "Forecast Evaluation and Probabilistic Forecasts",
+          "subtopics": ["Point and probabilistic forecasts", "Prediction intervals and coverage", "Quantile loss and pinball loss", "Continuous ranked probability score", "Rolling origin evaluation", "Hierarchical forecasts and reconciliation", "Forecast value added", "Reporting forecast accuracy"],
+          "tools": ["Python", "statsforecast or sktime", "Jupyter"],
+          "lab_task": "Evaluate three forecasting methods with rolling-origin backtests on coverage, pinball loss and CRPS, reconcile store and region forecasts and report forecast value added.",
+          "deliverable": "Forecast evaluation report",
+          "checks": [["Evaluate", "All three methods are scored on the same backtests", "Comparison table"], ["Check coverage", "Interval coverage is compared with nominal levels", "Chart"], ["Reconcile", "Reconciled forecasts are consistent across levels", "Notebook output"]],
+          "objectives": ["Evaluate probabilistic forecasts", "Check interval coverage", "Reconcile hierarchical forecasts"]
+        },
+        {
+          "topic": "Survey Sampling, Weighting and Non-Response",
+          "subtopics": ["Survey design", "Stratified and cluster samples", "Design weights", "Non-response bias", "Raking and post-stratification", "Effective sample size", "Variance estimation for complex designs", "Reporting survey results"],
+          "tools": ["Python samplics or R survey package", "pandas", "Jupyter"],
+          "lab_task": "Weight a customer satisfaction survey to match population margins with raking, estimate satisfaction with correct standard errors and report the effective sample size.",
+          "deliverable": "Weighted survey estimates",
+          "checks": [["Weight", "Weighted margins match the population", "Table"], ["Estimate", "Estimates use design-based standard errors", "Notebook output"], ["Report", "Effective sample size and non-response limits are stated", "Report"]],
+          "objectives": ["Analyse survey data", "Weight for non-response", "Report design-based estimates"]
+        },
+        {
+          "topic": "Extreme Value Statistics and Anomaly Detection",
+          "subtopics": ["Tails and rare events", "Block maxima and peaks over threshold", "Generalised Pareto distribution", "Return levels", "Statistical anomaly detection", "Control charts", "Seasonal baselines for anomalies", "Alert thresholds and false alarms"],
+          "tools": ["SciPy stats", "Python", "Jupyter"],
+          "lab_task": "Model extreme daily transaction values with peaks over threshold, estimate a one-in-a-hundred-days level, and build a seasonal control chart for anomalies with a target false alarm rate.",
+          "deliverable": "Extreme value model and anomaly detector",
+          "checks": [["Model tails", "The tail model fit is checked", "Chart"], ["Estimate", "The return level is reported with uncertainty", "Notebook output"], ["Detect", "The anomaly detector meets the false alarm target", "Evaluation"]],
+          "objectives": ["Model extreme values", "Detect anomalies statistically", "Set alert thresholds"]
+        },
+        {
+          "topic": "Conformal Prediction and Uncertainty for Machine Learning",
+          "subtopics": ["Why models need prediction intervals", "Split conformal prediction", "Conformal regression intervals", "Conformal prediction sets for classification", "Coverage guarantees and their conditions", "Conditional coverage and its limits", "Conformal methods for time series in brief", "Using intervals in decisions"],
+          "tools": ["MAPIE", "scikit-learn", "Python"],
+          "lab_task": "Add conformal prediction intervals to a house price model and prediction sets to a classifier, check coverage on held-out data and use the intervals in a pricing decision.",
+          "deliverable": "Conformal intervals with coverage checks",
+          "checks": [["Build", "Intervals and sets are produced for both models", "Notebook output"], ["Check coverage", "Held-out coverage matches the target", "Coverage table"], ["Decide", "The decision uses interval width", "Notes"]],
+          "objectives": ["Apply conformal prediction", "Check coverage", "Use uncertainty in decisions"]
+        },
+        {
+          "topic": "Model Calibration and Probability Scoring",
+          "subtopics": ["What calibration means", "Reliability diagrams", "Brier score and log loss", "Platt scaling and isotonic regression", "Calibration by segment", "Calibration drift", "Decisions that depend on probabilities", "Reporting calibration"],
+          "tools": ["scikit-learn calibration", "Python", "Jupyter"],
+          "lab_task": "Check calibration of a credit risk model overall and by segment, recalibrate with isotonic regression and show the effect on expected loss decisions.",
+          "deliverable": "Calibration analysis and recalibrated model",
+          "checks": [["Measure", "Reliability diagrams and scores are reported", "Charts"], ["Recalibrate", "Calibration improves after recalibration", "Comparison"], ["Show impact", "Expected loss decisions change as explained", "Notes"]],
+          "objectives": ["Measure calibration", "Recalibrate models", "Link calibration to decisions"]
+        },
+        {
+          "topic": "Reproducibility, p-Hacking and Pre-Registration",
+          "subtopics": ["The replication problem", "Researcher degrees of freedom", "p-hacking and HARKing", "Pre-registration and analysis plans", "Multiverse analysis", "Reporting all analyses", "Review processes for analysis", "Building a culture of rigour"],
+          "tools": ["Analysis plan template", "Python", "Git"],
+          "lab_task": "Run a multiverse analysis of one question with twenty reasonable analysis choices, show how often the conclusion changes and write a pre-registration template for the team.",
+          "deliverable": "Multiverse results and pre-registration template",
+          "checks": [["Explore choices", "Twenty analysis paths are run", "Notebook output"], ["Show fragility", "The share of paths with each conclusion is reported", "Chart"], ["Prevent", "The template fixes key choices before data", "Template"]],
+          "objectives": ["Recognise p-hacking", "Use pre-registration", "Build rigorous analysis habits"]
+        },
+        {
+          "topic": "Statistics for Fairness and Bias Measurement",
+          "subtopics": ["Fairness questions in models and decisions", "Group fairness metrics", "Error rate differences", "Calibration across groups", "Trade-offs between fairness definitions", "Uncertainty in fairness metrics for small groups", "Intersectional groups", "Reporting fairness analyses"],
+          "tools": ["Fairlearn", "Python", "Jupyter"],
+          "lab_task": "Measure selection rates, error rates and calibration by group for a hiring screen model, add confidence intervals for small groups and write a fairness assessment.",
+          "deliverable": "Fairness assessment",
+          "checks": [["Measure", "Group metrics are computed with intervals", "Table"], ["Compare definitions", "Trade-offs between metrics are explained", "Notes"], ["Report", "The assessment states findings and limits", "Report"]],
+          "objectives": ["Measure fairness statistically", "Handle small groups", "Report fairness trade-offs"]
+        },
+        {
+          "topic": "Running an Experimentation Platform: Metrics, Guardrails and Governance",
+          "subtopics": ["Metric definitions and ownership", "Guardrail metrics across experiments", "Automated checks: sample ratio, novelty and carry-over", "Interaction between concurrent experiments", "Holdouts for long-term effects", "Review boards and decision records", "Experiment velocity and quality", "Teaching teams to read results"],
+          "tools": ["Experimentation platform", "Metric catalogue", "Dashboard tool"],
+          "lab_task": "Design the metric catalogue, automated checks, holdout policy and decision process for a company experimentation platform and present it to role-played product leaders.",
+          "deliverable": "Experimentation platform design",
+          "checks": [["Define metrics", "Each metric has a definition and owner", "Metric catalogue"], ["Automate checks", "Integrity checks run for every experiment", "Design document"], ["Govern", "Decision records and review rules are defined", "Process document"]],
+          "objectives": ["Run experimentation at scale", "Govern metrics and decisions", "Protect long-term outcomes"]
+        },
+        {
+          "topic": "Advanced Capstone: Causal Impact Study for a Business Decision",
+          "subtopics": ["Causal question and graph", "Design choice", "Estimation with two methods", "Sensitivity and robustness", "Executive recommendation"],
+          "tools": ["Python", "DoWhy", "statsmodels", "PyMC"],
+          "lab_task": "Answer a real causal question for a business, such as the effect of a pricing change, with a causal graph, two estimation methods, sensitivity analysis and an executive recommendation.",
+          "deliverable": "Causal study, notebook and executive briefing",
+          "checks": [["Design", "The design and graph are justified", "Study document"], ["Estimate", "Two methods give consistent estimates or differences are explained", "Notebook output"], ["Recommend", "The recommendation states uncertainty and limits", "Executive briefing"]],
+          "objectives": ["Combine advanced statistics skills", "Answer causal business questions", "Advise leaders with uncertainty"]
+        }
+      ]
+    }
+  }
+}

@@ -2,10 +2,11 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  BadgeIndianRupee, BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
-  ChevronRight, FileSearch, Globe2, Home,
-  LayoutDashboard, LogOut, Mail, Menu,
-  MapPin, ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
+  BarChart3, Bell, BookOpen, BriefcaseBusiness, CalendarCheck,
+  ChevronDown, ChevronRight, ClipboardCheck, FileSearch, FlaskConical, Home,
+  Kanban, LayoutDashboard, Linkedin, ListChecks, LogOut, Mail, MapPin, Menu,
+  Mic, Newspaper, PieChart, ReceiptText, ScrollText, Search, Settings, Upload,
+  UserCircle, Users, Workflow, X, Zap,
 } from 'lucide-react'
 import BrandMark from './BrandMark'
 import api from '../utils/api'
@@ -13,63 +14,68 @@ import PageLoader from './PageLoader'
 import ErrorBoundary from './ErrorBoundary'
 import FloatingIntegrations from './FloatingIntegrations'
 import ChatAssistant from './ChatAssistant'
+import { resolveNavigationRoute } from '../utils/navigation'
 
 const NAV_GROUPS = [
   {
     label: 'Trainer Pipeline',
     items: [
-      { to: '/dashboard',         label: 'Dashboard',          icon: LayoutDashboard, keywords: ['dashboard','stats','overview'] },
-      { to: '/resume-upload',     label: 'Upload Resumes',     icon: Upload,          keywords: ['upload','resume','import'] },
-      { to: '/requirements',      label: 'Find Trainers',      icon: FileSearch,      keywords: ['find','requirement','match'] },
-      { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
-      { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
-      { to: '/profile-reviews',   label: 'Profile Reviews',    icon: FileSearch,      keywords: ['profile review','trainer rating','document review','skill fit'] },
-      { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Bot,             keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
-      { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
-      { to: '/linkedin-pipeline', label: 'LinkedIn Pipeline',  icon: Zap,             keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
-      { to: '/naukri-search',     label: 'Naukri Search',      icon: BriefcaseBusiness, keywords: ['naukri','naukri search','naukri public','naukri trainer'] },
-      { to: '/trainers',          label: 'Trainer Database',   icon: Users,           keywords: ['trainers','database'] },
-      { to: '/trainer-locations', label: 'Trainer Locations',  icon: MapPin,          keywords: ['trainer location','locations','city','trainer city'] },
+      { to: '/dashboard',       label: 'Dashboard',        icon: LayoutDashboard, keywords: ['dashboard','stats','overview'] },
+      { to: '/resume-upload',   label: 'Upload Resumes',   icon: Upload,          keywords: ['upload','resume','import'] },
+      { to: '/requirements',    label: 'Find Trainers',    icon: FileSearch,      keywords: ['find','requirement','match'] },
+      { to: '/shortlist1',      label: 'Confirmed Batch Pipeline', icon: Zap, keywords: ['advanced','shortlist1','confirmed batch','pipeline'] },
+      { to: '/shortlist',       label: 'Shortlist',        icon: ListChecks,      keywords: ['shortlist','trainer shortlist','compare trainers','select trainers'] },
+      { to: '/profile-reviews', label: 'Profile Reviews',  icon: ClipboardCheck,  keywords: ['profile review','trainer rating','document review','skill fit'] },
+      { to: '/trainers',        label: 'Trainer Database', icon: Users,           keywords: ['trainers','database'] },
+      { to: '/trainer-applications', label: 'Trainer Applications', icon: Linkedin, keywords: ['trainer applications','linkedin profiles','trainer resumes'] },
+      { to: '/partner-opportunities', label: 'Trainer Opportunities', icon: BriefcaseBusiness, keywords: ['partner companies','trainer opportunities','openings'] },
+    ],
+    more: [
+      { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Mic,        keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
+      { to: '/linkedin-search',    label: 'LinkedIn Search',    icon: Linkedin,   keywords: ['linkedin','public search','client post search','trainer profile search'] },
+      { to: '/linkedin-pipeline',  label: 'LinkedIn Pipeline',  icon: Workflow,   keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
+      { to: '/naukri-search',      label: 'Naukri Search',      icon: Newspaper,  keywords: ['naukri','naukri search','naukri public','naukri trainer'] },
+      { to: '/trainer-locations',  label: 'Trainer Locations',  icon: MapPin,     keywords: ['trainer location','locations','city','trainer city'] },
     ],
   },
   {
     label: 'Client Work',
     items: [
-      { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
-      { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
-      { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
-      { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
-      { to: '/invoices',                 label: 'Invoices',                icon: ReceiptText, keywords: ['invoice','manual invoice','generate invoice','billing'] },
-      { to: '/purchase-orders',           label: 'Purchase Orders',         icon: ReceiptText, keywords: ['purchase order','purchase orders','generate po','po generator'] },
+      { to: '/client-requests',      label: 'Client Requests',  icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
+      { to: '/interview-scheduled',  label: 'Interviews',       icon: CalendarCheck,     keywords: ['interview','schedule','meeting','meet link'] },
+      { to: '/client-mail-pipeline', label: 'Client Pipeline',  icon: Kanban,            keywords: ['client pipeline','client mail pipeline','client mails'] },
+      { to: '/invoices',             label: 'Invoices',         icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
+      { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['po','client po','client purchase order','purchase order','purchase orders','generate po','po generator'] },
+      { to: '/finance-approvals',    label: 'PO PDF Approvals', icon: ClipboardCheck,    keywords: ['po pdf','finance approvals','purchase order approval','client po review'] },
+      { to: '/travel-bookings',      label: 'Travel Bookings',  icon: MapPin,            keywords: ['travel','flight','bus','car','hotel','ticket','booking','trainer travel'] },
+    ],
+    more: [
     ],
   },
   {
     label: 'Operations',
     items: [
-      { to: '/admin-dashboard', label: 'Analytics',     icon: BarChart3,  keywords: ['admin dashboard','analytics'] },
-      { to: '/emails',          label: 'Email Logs',    icon: Mail,       keywords: ['email','logs','mail'] },
-      { to: '/toc-knowledge',   label: 'ToC Knowledge', icon: BookOpen,   keywords: ['toc','curriculum','knowledge','course agenda'] },
-      { to: '/lab-cost',        label: 'Lab Cost',      icon: BadgeIndianRupee, keywords: ['lab cost','lab support','lab setup','cloud lab'] },
-      { to: '/commercial',      label: 'Commercial',    icon: BadgeIndianRupee, keywords: ['commercial','margin','profit','pricing'] },
-      { to: '/admin',           label: 'Settings',      icon: Settings,   keywords: ['admin','settings','gmail','whatsapp'] },
+      { to: '/admin-dashboard', label: 'Analytics',  icon: BarChart3, keywords: ['admin dashboard','analytics'] },
+      { to: '/emails',          label: 'Email Logs', icon: Mail,      keywords: ['email','logs','mail'] },
+      { to: '/admin',           label: 'Settings',   icon: Settings,  keywords: ['admin','settings','gmail','whatsapp'] },
+    ],
+    more: [
+      { to: '/toc-knowledge', label: 'ToC Knowledge', icon: BookOpen,      keywords: ['toc','curriculum','knowledge','course agenda'] },
+      { to: '/lab-cost',      label: 'Lab Cost',      icon: FlaskConical,  keywords: ['lab cost','lab support','lab setup','cloud lab'] },
+      { to: '/commercial',    label: 'Commercial',    icon: PieChart,      keywords: ['commercial','margin','profit','pricing'] },
     ],
   },
 ]
 
-const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(g => g.items)
+const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(g => [...g.items, ...(g.more || [])])
 
-function norm(v) {
-  return String(v || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
-}
 function routeForQuery(q) {
-  const n = norm(q)
-  if (!n) return null
-  return ALL_NAV_ITEMS.find(item =>
-    item.keywords.some(k => n === norm(k) || n.includes(norm(k)))
-  )?.to || null
+  return resolveNavigationRoute(q, NAV_GROUPS)
 }
 function pageTitle(pathname) {
   if (pathname === '/dashboard') return 'Dashboard'
+  if (pathname === '/trainer-portal') return 'Trainer Portal'
+  if (pathname === '/client-portal') return 'Client Portal'
   const item = ALL_NAV_ITEMS.find(e => pathname === e.to || pathname.startsWith(`${e.to}/`))
   return item?.label || 'TrainerSync'
 }
@@ -98,7 +104,32 @@ function NavItem({ item, pendingInbox, onClick }) {
   )
 }
 
-function Sidebar({ pendingInbox, onLogout, onNavigate }) {
+function routeIsActive(pathname, to) {
+  return pathname === to || pathname.startsWith(`${to}/`)
+}
+
+function moreGroupsForPath(pathname) {
+  return Object.fromEntries(
+    NAV_GROUPS
+      .filter(group => (group.more || []).some(item => routeIsActive(pathname, item.to)))
+      .map(group => [group.label, true])
+  )
+}
+
+function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAdmin }) {
+  const navGroups = NAV_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item => item.to !== '/admin' || isAdmin),
+  }))
+  const [openMore, setOpenMore] = useState(() => moreGroupsForPath(pathname))
+  useEffect(() => {
+    setOpenMore(prev => {
+      const active = moreGroupsForPath(pathname)
+      const next = { ...prev, ...active }
+      return Object.keys(active).every(key => prev[key]) ? prev : next
+    })
+  }, [pathname])
+
   return (
     <aside className="sidebar animate-slide-in">
       {/* Brand header */}
@@ -107,16 +138,20 @@ function Sidebar({ pendingInbox, onLogout, onNavigate }) {
           <BrandMark size="md" />
         </NavLink>
 
-        {/* Status pill */}
-        <div className="mt-4 flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
-          <span className="status-dot green animate-pulse-soft" />
-          <span className="text-[12px] font-semibold text-blue-700">Operations Hub - Live</span>
+        <div className={clsx(
+          'mt-4 flex items-center gap-2 rounded-lg border px-3 py-2',
+          connected ? 'border-blue-100 bg-blue-50' : 'border-amber-100 bg-amber-50'
+        )}>
+          <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
+          <span className={clsx('text-[12px] font-semibold', connected ? 'text-blue-700' : 'text-amber-700')}>
+            {connected ? 'Gmail connected' : 'Gmail not connected'}
+          </span>
         </div>
       </div>
 
       {/* Navigation */}
       <div className="sidebar-body">
-        {/* Home */}
+        {/* The brand home page remains available from the workspace navigation. */}
         <NavLink
           to="/home"
           onClick={onNavigate}
@@ -127,13 +162,31 @@ function Sidebar({ pendingInbox, onLogout, onNavigate }) {
         </NavLink>
 
         <div className="space-y-5">
-          {NAV_GROUPS.map(group => (
+          {navGroups.map(group => (
             <div key={group.label}>
               <p className="sidebar-group-label">{group.label}</p>
               <div className="space-y-0.5">
                 {group.items.map(item => (
                   <NavItem key={item.to} item={item} pendingInbox={pendingInbox} onClick={onNavigate} />
                 ))}
+                {group.more?.length > 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setOpenMore(prev => ({ ...prev, [group.label]: !prev[group.label] }))}
+                      className="nav-item w-full text-slate-400"
+                      aria-expanded={!!openMore[group.label]}
+                    >
+                      <span className="nav-icon">
+                        <ChevronDown className={clsx('h-[15px] w-[15px] transition-transform', openMore[group.label] && 'rotate-180')} />
+                      </span>
+                      <span className="text-[13px]">{openMore[group.label] ? 'Show less' : `More (${group.more.length})`}</span>
+                    </button>
+                    {openMore[group.label] && group.more.map(item => (
+                      <NavItem key={item.to} item={item} pendingInbox={pendingInbox} onClick={onNavigate} />
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -148,7 +201,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate }) {
           className="nav-item"
         >
           <UserCircle className="h-4 w-4 flex-shrink-0 text-slate-400" />
-          <span className="text-[13.5px]">Recruiter Profile</span>
+          <span className="text-[13.5px]">Admin Profile</span>
         </NavLink>
         {onLogout && (
           <button
@@ -166,7 +219,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate }) {
 }
 
 
-export default function Layout({ onLogout }) {
+export default function Layout({ onLogout, isAdmin = false }) {
   const [query, setQuery]         = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pendingInbox, setPendingInbox] = useState(0)
@@ -216,9 +269,11 @@ export default function Layout({ onLogout }) {
       pending = true
       try {
         const config = { signal: controller.signal, timeout: 10000, retry: false }
+        let accountRole = ''
+        try { accountRole = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role || '' } catch { /* use safe status fallback */ }
         const [inboxRes, gmailRes] = await Promise.allSettled([
           api.get('/inbox', { ...config, params: { status: 'pending_approval', limit: 1 } }),
-          api.get('/gmail/auth-status', config),
+          api.get(accountRole === 'admin' ? '/gmail/auth-status' : '/gmail/me/auth-status', config),
         ])
         if (cancelled) return
         if (inboxRes.status === 'fulfilled') {
@@ -251,7 +306,7 @@ export default function Layout({ onLogout }) {
     <div className="app-shell">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
-        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} />
+        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} connected={connected} pathname={location.pathname} isAdmin={isAdmin} />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -263,7 +318,7 @@ export default function Layout({ onLogout }) {
             aria-label="Close navigation"
           />
           <div className="mobile-drawer absolute inset-y-0 left-0 shadow-2xl">
-            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} />
+            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} connected={connected} pathname={location.pathname} isAdmin={isAdmin} />
           </div>
           <button
             type="button"
@@ -294,15 +349,10 @@ export default function Layout({ onLogout }) {
           </button>
 
           {/* Breadcrumb + title */}
-          <div className="min-w-0 flex-1">
-            <div className="hidden items-center gap-1 text-[11px] font-semibold text-slate-400 sm:flex">
-              <span>TrainerSync</span>
-              <ChevronRight className="h-3 w-3" />
-              <span className="text-slate-600">{title}</span>
-            </div>
-            <h1 className="truncate text-[17px] font-bold tracking-tight text-slate-900 sm:text-lg">
-              {title}
-            </h1>
+          <div className="flex min-w-0 flex-1 items-center gap-1 text-[13px] font-semibold text-slate-400">
+            <span className="hidden sm:inline">TrainerSync</span>
+            <ChevronRight className="hidden h-3 w-3 sm:block" />
+            <span className="truncate text-slate-800">{title}</span>
           </div>
 
           {/* Search */}
@@ -325,15 +375,18 @@ export default function Layout({ onLogout }) {
               <ChatAssistant headerTrigger />
             </ErrorBoundary>
             {/* Gmail status */}
-            <div className={clsx(
-              'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
-              connected
-                ? 'border-green-200 bg-green-50 text-green-700'
-                : 'border-amber-200 bg-amber-50 text-amber-700'
-            )}>
-              <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
-              {connected ? 'Gmail Ready' : 'Connect Gmail'}
-            </div>
+            <NavLink
+              to="/admin"
+              className={clsx(
+                'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
+                connected
+                  ? 'border-blue-200 bg-blue-50 text-blue-700'
+                  : 'border-amber-200 bg-amber-50 text-amber-700'
+              )}
+            >
+              <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
+              {connected ? 'Gmail ready' : 'Connect Gmail'}
+            </NavLink>
 
             {/* Notifications */}
             <button

@@ -26,7 +26,10 @@ def topic_is_covered(topic, curriculum):
 def toc_delivery_error(toc):
     quality = toc.get("quality") or {}
     status = quality.get("status")
-    if status in {"requires_review", "requires_regeneration"}:
+    automatic_review = quality.get("automatic_review") is True
+    if status == "requires_regeneration":
+        return "TOC requires review before export or delivery; resolve its quality warnings first"
+    if status == "requires_review" and not automatic_review:
         return "TOC requires review before export or delivery; resolve its quality warnings first"
     evaluation = quality.get("content_evaluation") or {}
     if (evaluation.get("status") == "fail"

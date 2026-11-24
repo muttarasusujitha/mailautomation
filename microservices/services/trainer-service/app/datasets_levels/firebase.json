@@ -1,0 +1,573 @@
+{
+  "domain": "Firebase",
+  "name": "Firebase",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "cloud",
+  "aliases": ["Google Firebase", "Firebase Platform", "Firebase Development", "Firebase Backend", "Firebase BaaS", "Firebase Cloud Platform", "Firebase Full Stack"],
+  "certifications": ["Google Cloud Associate Cloud Engineer", "Google Cloud Professional Cloud Developer"],
+  "tools": ["Firebase CLI", "Firebase Console", "Firebase Emulator Suite", "Cloud Firestore", "Firebase Authentication", "Cloud Functions for Firebase", "Firebase Hosting", "App Hosting", "Cloud Storage for Firebase", "Firebase App Check", "Genkit", "Data Connect", "Google Cloud Console", "BigQuery"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web and full-stack developers who know JavaScript or TypeScript and have never shipped a Firebase backend. Covers the Firebase project model, the Firebase CLI and Local Emulator Suite, the modular Web SDK, Cloud Firestore documents, queries and real-time listeners, Firebase Authentication, Firestore and Cloud Storage Security Rules with unit tests, Hosting preview channels, Realtime Database basics, first Cloud Functions, the Spark and Blaze plans, and a real-time task board capstone.",
+      "prerequisites": ["Writes JavaScript or TypeScript with ES modules, async/await and npm, and can read JSON", "Uses git and a terminal, and has Node.js (current LTS) and a code editor installed", "Has a Google account and can create a Firebase project in the console (a payment card is only needed in the Blaze-plan day)"],
+      "outcomes": ["Create, configure and deploy a Firebase project from the Firebase CLI and develop against the Local Emulator Suite without touching production data", "Read, write, query and listen to Cloud Firestore data and authenticate users with email and Google sign-in from the modular Web SDK", "Write and unit-test Security Rules for Firestore and Cloud Storage so that the default posture is deny", "Ship a real-time web application with Hosting, a first Cloud Function and cost guardrails"],
+      "days": [
+        {
+          "topic": "Firebase Platform Tour and Project Anatomy",
+          "subtopics": ["Firebase as a set of managed backend products on Google Cloud", "Build products: Firestore, Realtime Database, Authentication, Storage, Functions, Data Connect", "Release and run products: Hosting, App Hosting, App Check, Crashlytics, Remote Config", "Every Firebase project is a Google Cloud project with a project ID, number and default bucket", "Apps inside a project: web, Android and Apple apps and their app IDs", "Firebase config object values and why they are identifiers, not secrets", "Spark no-cost plan and Blaze pay-as-you-go plan at a glance", "Console map: Build, Run and Analytics sections"],
+          "tools": ["Firebase Console", "Google Cloud Console", "Browser DevTools"],
+          "lab_task": "In the Firebase Console create project trainer-lab-<initials>, register a web app named web, copy the firebaseConfig object into notes, then open the Google Cloud Console and confirm the same project ID under IAM & Admin > Settings. List which Build products are enabled by default and which need a click to activate.",
+          "deliverable": "One-page platform map: project ID and number, web app ID, enabled products and the product each lab day will use",
+          "checks": [["Open Project settings in the Firebase Console", "Project ID, project number and a web app ID starting with 1: are visible", "Screenshot of Project settings"], ["Open the same project ID in the Google Cloud Console", "The project resolves under IAM & Admin with your account as Owner", "Screenshot of IAM page"], ["Open Build > Firestore Database without creating a database", "A Create database button is shown, proving products are opt-in", "Screenshot of Firestore landing page"]],
+          "objectives": ["Describe the main Firebase products and what each replaces in a classic backend", "Explain the relationship between a Firebase project and a Google Cloud project", "Locate project identifiers and the web config object"]
+        },
+        {
+          "topic": "Firebase CLI, Projects and firebase.json",
+          "subtopics": ["Installing firebase-tools with npm and checking firebase --version", "firebase login, login:ci replacement and firebase logout", "firebase projects:list and firebase use --add with aliases in .firebaserc", "firebase init and the products it scaffolds", "firebase.json keys: hosting, firestore, functions, storage, emulators", "firestore.rules and firestore.indexes.json as source-controlled files", "firebase deploy --only <target> and --dry-run style checks with --debug", "Files to commit and files to ignore: .firebase cache, service account keys"],
+          "tools": ["Firebase CLI", "Node.js", "npm", "git", "Visual Studio Code"],
+          "lab_task": "Install firebase-tools with npm install -g firebase-tools, run firebase login, then firebase init in an empty folder choosing Firestore, Functions, Hosting and Emulators. Add alias dev with firebase use --add. Commit the result to git and run firebase deploy --only firestore:rules, noting the printed rules release name.",
+          "deliverable": "Git repository with firebase.json, .firebaserc, firestore.rules and a README listing the CLI commands used",
+          "checks": [["Run firebase projects:list", "Your project ID appears with the (current) marker after firebase use dev", "Terminal output"], ["Open .firebaserc", "A projects object maps the alias dev to your project ID", ".firebaserc file"], ["Run firebase deploy --only firestore:rules", "Output ends with Deploy complete! and a released rules file for cloud.firestore", "Terminal output"]],
+          "objectives": ["Install and authenticate the Firebase CLI", "Initialise a multi-product Firebase directory", "Deploy a single target with --only"]
+        },
+        {
+          "topic": "Web SDK Modular API and App Initialisation",
+          "subtopics": ["npm install firebase and the modular (tree-shakable) import style", "initializeApp, getApp and the single default app", "Service getters: getFirestore, getAuth, getStorage", "Bundling with Vite and checking bundle size", "Config through import.meta.env and what not to put there", "Connecting to emulators with connectFirestoreEmulator and connectAuthEmulator", "Compat (namespaced) API versus modular API and why to avoid compat", "Logging with setLogLevel('debug') and reading SDK errors"],
+          "tools": ["Firebase Web SDK", "Vite", "npm", "Browser DevTools", "Node.js"],
+          "lab_task": "Create a Vite vanilla-JS app with npm create vite@latest, install firebase, add src/firebase.js that calls initializeApp(firebaseConfig) and exports getFirestore() and getAuth(). Build with npm run build and record the gzipped bundle size from Vite's report. Then import only getFirestore and compare the size with importing the whole firebase/compat bundle.",
+          "deliverable": "Vite app with firebase.js, a bundle-size comparison table and a note on the config object",
+          "checks": [["Run npm run build with modular imports", "Vite reports a gzipped JS bundle that is smaller than the compat build you measured", "Build output"], ["Call getApp() before initializeApp()", "The SDK throws app/no-app", "Browser console"], ["Open DevTools Network tab on page load", "No request is made to Firebase until a service call executes", "Network tab screenshot"]],
+          "objectives": ["Initialise Firebase with the modular Web SDK", "Explain why modular imports reduce bundle size", "Handle the default app and common init errors"]
+        },
+        {
+          "topic": "Local Emulator Suite First Run",
+          "subtopics": ["Why develop against emulators: no billing, no production data, fast resets", "firebase init emulators and the emulators block in firebase.json", "Default ports: Auth 9099, Functions 5001, Firestore 8080, Database 9000, Hosting 5000, Storage 9199, UI 4000", "firebase emulators:start --only and the Emulator UI", "Seeding with --import and persisting with --export-on-exit", "Clearing data with the REST endpoint DELETE /emulator/v1/projects/<id>/databases/(default)/documents", "Emulator limitations: no App Check enforcement, rules run locally, no real IAM", "Detecting port clashes and changing ports"],
+          "tools": ["Firebase Emulator Suite", "Firebase CLI", "Emulator UI", "curl", "Node.js"],
+          "lab_task": "Run firebase emulators:start --import=./seed --export-on-exit with Auth, Firestore and Hosting enabled. In the Emulator UI at localhost:4000 add a document to Firestore, stop with Ctrl+C and confirm ./seed contains firestore_export. Restart and verify the document returns. Then run curl -X DELETE against the Firestore emulator clear endpoint and confirm the collection is empty.",
+          "deliverable": "Emulator configuration committed to git, a seed folder and a short runbook for start, reset and export",
+          "checks": [["Start emulators and open localhost:4000", "Emulator UI lists Authentication, Firestore and Hosting as running with their ports", "Screenshot of Emulator UI"], ["Stop the emulators then restart with --import", "The previously added document is present again", "Firestore tab screenshot"], ["Start a second instance on the same ports", "The CLI reports port 8080 is not open or taken and exits with an error", "Terminal output"]],
+          "objectives": ["Run and configure the Emulator Suite", "Persist and reset emulator data reliably", "Explain what emulators do and do not simulate"]
+        },
+        {
+          "topic": "Firestore Data Model: Documents, Collections and Types",
+          "subtopics": ["Documents as JSON-like maps inside collections and the path rule users/alice/tasks/t1", "Alternating collection and document segments in paths", "Data types: string, number, boolean, map, array, timestamp, geopoint, reference, null", "Server timestamps and the difference from client Date", "Document size ceiling of 1 MiB and why large arrays are a smell", "Auto-generated IDs versus meaningful IDs", "Subcollections versus nested maps and when each fits", "Native mode and database locations that cannot be changed later"],
+          "tools": ["Cloud Firestore", "Firebase Console", "Emulator UI", "Firebase Web SDK"],
+          "lab_task": "Create a Firestore database in Native mode in the emulator and console. Model a task board: boards/{boardId} with title and ownerUid, boards/{boardId}/tasks/{taskId} with title, done (boolean), dueAt (timestamp), tags (array) and assignee (map). Add three boards and nine tasks by hand and screenshot the resulting tree. Explain in two sentences why tasks are a subcollection and not an array on the board.",
+          "deliverable": "Data model diagram and the nine sample documents exported as JSON",
+          "checks": [["Inspect a task document in the Emulator UI", "dueAt shows type timestamp and done shows type boolean", "Screenshot of document fields"], ["Try to create a document at path boards/b1/tasks", "The console or SDK rejects it because a document path needs an even number of segments", "Error message"], ["Count documents under boards/b1/tasks", "Exactly 3 task documents exist per board", "Collection view screenshot"]],
+          "objectives": ["Describe Firestore's collection and document hierarchy", "Choose correct data types for a model", "Decide between subcollections, maps and arrays"]
+        },
+        {
+          "topic": "Firestore CRUD with the Modular Web SDK",
+          "subtopics": ["collection, doc and addDoc versus setDoc with an explicit ID", "getDoc and the exists() method on DocumentSnapshot", "updateDoc, dot-notation field paths and setDoc with merge: true", "deleteDoc and deleting fields with deleteField()", "serverTimestamp(), arrayUnion, arrayRemove and increment", "Converters with withConverter for typed documents", "Error codes: not-found, permission-denied, invalid-argument", "Offline writes and the promise that resolves only after the server acknowledges"],
+          "tools": ["Firebase Web SDK", "Cloud Firestore", "Emulator UI", "Vite", "Browser DevTools"],
+          "lab_task": "In the Vite app connect to the Firestore emulator and write functions createTask, getTask, completeTask (updateDoc with done: true and completedAt: serverTimestamp()) and removeTask. Call each from a button, log results, and verify in the Emulator UI. Trigger updateDoc on a missing document and record the exact error code.",
+          "deliverable": "A tasks.js module with four CRUD functions and a table of observed error codes",
+          "checks": [["Call updateDoc on a document that does not exist", "The promise rejects with code not-found", "Console log"], ["Call completeTask twice on the same task", "completedAt changes to the second server time while done stays true", "Emulator UI screenshot"], ["Call setDoc with merge: true on a partial object", "Existing fields not in the object are kept", "Document before and after"]],
+          "objectives": ["Perform create, read, update and delete with the modular SDK", "Use field transforms such as serverTimestamp and increment", "Map SDK errors to causes"]
+        },
+        {
+          "topic": "Firestore Queries, Ordering and Pagination",
+          "subtopics": ["query with where operators ==, !=, <, in, not-in, array-contains, array-contains-any", "orderBy, limit and limitToLast", "Range filters and the rule that the first orderBy must match the range field", "Cursors: startAt, startAfter and endBefore with a document snapshot", "Why offset pagination is not offered and what it would cost", "Composite indexes and the FAILED_PRECONDITION link to create them", "Single-field index exemptions in firestore.indexes.json", "Reading the number of billed document reads for a query"],
+          "tools": ["Cloud Firestore", "Firebase Web SDK", "Emulator UI", "Firebase CLI", "firestore.indexes.json"],
+          "lab_task": "Seed 200 tasks in the emulator with a script using the Admin SDK. Query done == false ordered by dueAt with limit(20), then page with startAfter(lastSnapshot). Add where('tags','array-contains','urgent') plus orderBy('dueAt') and note the missing-index error and its console link. Add the index to firestore.indexes.json and deploy it with firebase deploy --only firestore:indexes.",
+          "deliverable": "queries.js with first page and next page, plus the index definition in firestore.indexes.json",
+          "checks": [["Run the first page query", "Exactly 20 documents return, ordered by dueAt ascending", "Console log of ids"], ["Request the next page with startAfter", "The 21st to 40th documents return with no overlap in ids", "Console log of ids"], ["Run the array-contains plus orderBy query without the index in production", "Error code failed-precondition says the query requires an index", "Console error"]],
+          "objectives": ["Compose filtered and ordered queries", "Paginate with cursors", "Create and deploy a composite index"]
+        },
+        {
+          "topic": "Real-Time Listeners with onSnapshot",
+          "subtopics": ["onSnapshot on a document and on a query", "docChanges() with added, modified and removed types", "snapshot.metadata.fromCache and hasPendingWrites", "includeMetadataChanges and latency compensation", "Unsubscribing in cleanup to avoid leaked listeners and extra reads", "Listener error callback and permission-denied behaviour", "Billing: initial result reads each document, later changes read only changed documents", "Persistent cache with persistentLocalCache and multi-tab support"],
+          "tools": ["Cloud Firestore", "Firebase Web SDK", "Emulator UI", "Browser DevTools", "Vite"],
+          "lab_task": "Attach onSnapshot to the open tasks query and render a list. Open two browser tabs, add a task in one and confirm it appears in the other within one second. Log fromCache and hasPendingWrites for each snapshot, then set the browser to Offline in DevTools, add a task and record the flags before and after reconnecting. Call the returned unsubscribe function on page hide.",
+          "deliverable": "Live task list with a log table of metadata flags for online, offline and reconnect states",
+          "checks": [["Add a task in tab A while tab B is open", "Tab B shows the new task via an added change without reload", "Screen recording or screenshot"], ["Add a task while DevTools Network is Offline", "The snapshot fires with hasPendingWrites true and later false after reconnecting", "Console log"], ["Call unsubscribe and add another task", "The listener callback is not invoked again", "Console log"]],
+          "objectives": ["Subscribe to real-time document and query changes", "Interpret snapshot metadata for offline behaviour", "Release listeners correctly to control reads"]
+        },
+        {
+          "topic": "Firebase Authentication with Email and Password",
+          "subtopics": ["Enabling the Email/Password provider in the console", "createUserWithEmailAndPassword and signInWithEmailAndPassword", "Error codes: auth/email-already-in-use, auth/weak-password, auth/invalid-credential", "Email enumeration protection and why wrong-password is no longer returned", "sendEmailVerification and sendPasswordResetEmail templates", "The user object: uid, email, emailVerified, metadata", "Password policy settings in the console", "Auth emulator at 9099 and connectAuthEmulator"],
+          "tools": ["Firebase Authentication", "Firebase Web SDK", "Auth Emulator", "Emulator UI", "Vite"],
+          "lab_task": "Enable Email/Password, connect the app to the Auth emulator and build sign-up, sign-in and sign-out forms. Register alice@example.com, try registering her again and record the error code. Sign in with a wrong password and record the code. Send a verification email and open the link from the emulator's oobCodes log in the Emulator UI to flip emailVerified to true.",
+          "deliverable": "Working auth forms and a table of three observed error codes with their causes",
+          "checks": [["Register the same email twice", "The second call rejects with auth/email-already-in-use", "Console log"], ["Sign in with the wrong password", "The call rejects with auth/invalid-credential", "Console log"], ["Open the verification link from the emulator and reload the user", "user.emailVerified becomes true", "Console log"]],
+          "objectives": ["Implement email and password sign-up and sign-in", "Handle Auth error codes in the UI", "Verify email addresses and reset passwords"]
+        },
+        {
+          "topic": "Google Sign-In and Auth State Handling",
+          "subtopics": ["Enabling the Google provider and the project support email", "signInWithPopup versus signInWithRedirect and browser third-party storage changes", "onAuthStateChanged as the single source of truth", "Authorized domains list and auth/unauthorized-domain", "Persistence modes: local, session, none", "Linking providers with linkWithPopup and auth/account-exists-with-different-credential", "ID token lifetime of one hour and silent refresh with getIdToken", "Guarding routes before the first auth state arrives"],
+          "tools": ["Firebase Authentication", "Firebase Web SDK", "Firebase Console", "Auth Emulator", "Browser DevTools"],
+          "lab_task": "Add Google as a provider, build a Sign in with Google button using GoogleAuthProvider and signInWithPopup, and gate the task board behind onAuthStateChanged with a loading state. Decode the ID token from user.getIdToken() on jwt.io-style tooling offline (atob of the payload) and record iss, aud, exp minus iat. Remove localhost from authorized domains in a test project to reproduce the error.",
+          "deliverable": "Authenticated app shell with route guard and a decoded-token note",
+          "checks": [["Decode the ID token payload", "exp minus iat equals 3600 seconds and aud equals the project ID", "Decoded JSON"], ["Reload the page while signed in", "onAuthStateChanged delivers the same uid without a new popup", "Console log"], ["Sign in from a domain not in Authorized domains", "The SDK rejects with auth/unauthorized-domain", "Console error"]],
+          "objectives": ["Add federated sign-in to a web app", "Drive UI state from onAuthStateChanged", "Read the claims of an ID token"]
+        },
+        {
+          "topic": "Writing Firestore Security Rules",
+          "subtopics": ["Rules language: match, allow, request and resource", "rules_version = '2' and recursive wildcards {document=**}", "Default deny and why test mode rules expire after 30 days", "request.auth.uid and ownership checks against resource.data.ownerUid", "Methods: get, list, create, update, delete and the read/write shorthands", "Validating incoming data with request.resource.data", "Rules are not filters: queries must match the rule constraints", "Deploying with firebase deploy --only firestore:rules and reading the Rules playground"],
+          "tools": ["Firestore Security Rules", "Firebase CLI", "Emulator UI", "Rules Playground", "Visual Studio Code"],
+          "lab_task": "Replace test-mode rules with rules in firestore.rules: boards readable and writable only when request.auth.uid == resource.data.ownerUid, creation allowed only when request.resource.data.ownerUid == request.auth.uid and title is a string of 1 to 80 characters. Run the app as two users and confirm that a query for all boards without a where on ownerUid fails with permission-denied.",
+          "deliverable": "firestore.rules with comments and a screenshot of an allowed and a denied request in the Rules Playground",
+          "checks": [["User B reads a board owned by user A", "The read is denied with permission-denied", "Console error"], ["User A creates a board with a 200-character title", "The write is denied by the title size validation", "Console error"], ["User A queries boards with where ownerUid == own uid", "The query succeeds and returns only own boards", "Console log"]],
+          "objectives": ["Write ownership-based Firestore rules", "Validate incoming data in rules", "Explain why rules are not filters"]
+        },
+        {
+          "topic": "Testing Rules with the Emulator and rules-unit-testing",
+          "subtopics": ["@firebase/rules-unit-testing and initializeTestEnvironment", "testEnv.authenticatedContext(uid) and unauthenticatedContext()", "assertSucceeds and assertFails", "withSecurityRulesDisabled to seed data", "Running tests with firebase emulators:exec \"npm test\"", "Test naming by rule intent and a matrix of actor by operation", "Coverage report at /emulator/v1/projects/<id>:ruleCoverage.html", "Failing the CI job when a rule test fails"],
+          "tools": ["@firebase/rules-unit-testing", "Emulator Suite", "Jest", "Vitest", "Firebase CLI"],
+          "lab_task": "Write rules.test.js with Vitest or Jest covering at least 10 cases: unauthenticated read, owner read, non-owner read, owner create with valid title, create with empty title, create with another ownerUid, update by owner, update by non-owner, delete by owner and delete by non-owner. Run it with firebase emulators:exec --only firestore \"npm test\" and open the rule coverage report.",
+          "deliverable": "rules.test.js with 10 or more cases, a passing run log and the coverage report",
+          "checks": [["Run firebase emulators:exec --only firestore \"npm test\"", "All 10 tests pass and the emulator shuts down with exit code 0", "Terminal output"], ["Loosen the rule to allow read: if true and rerun", "The non-owner read test fails with an assertFails error", "Test failure output"], ["Open the rule coverage HTML report", "Every allow statement is shown as evaluated at least once", "Report screenshot"]],
+          "objectives": ["Unit-test Security Rules with the emulator", "Cover allowed and denied paths", "Run rule tests from the command line"]
+        },
+        {
+          "topic": "Cloud Storage for Firebase Uploads and Downloads",
+          "subtopics": ["Default bucket naming and Blaze plan requirement for new buckets", "ref, uploadBytes and uploadBytesResumable with progress events", "Pause, resume and cancel with the UploadTask", "getDownloadURL and tokens inside download URLs", "Metadata: contentType, customMetadata and cacheControl", "Folder conventions such as users/{uid}/avatars/", "deleteObject and listAll versus list with pagination", "Storage emulator at 9199 and the browser CORS rule for direct downloads"],
+          "tools": ["Cloud Storage for Firebase", "Firebase Web SDK", "Storage Emulator", "gsutil", "Browser DevTools"],
+          "lab_task": "Build an avatar upload using uploadBytesResumable to users/{uid}/avatar.jpg with contentType image/jpeg, show a progress bar from state_changed, then call getDownloadURL and render the image. Upload a 5 MB file, pause at about 40 percent and resume, and record the bytesTransferred values. List the folder with list(ref, {maxResults: 10}).",
+          "deliverable": "Avatar upload component with progress, pause/resume and a log of bytesTransferred values",
+          "checks": [["Upload a 5 MB image and watch state_changed", "Progress rises from 0 to 100 and the task state ends as success", "Console log"], ["Call getDownloadURL after upload", "The URL contains alt=media and a token query parameter", "Logged URL"], ["Pause the task then resume", "bytesTransferred continues from the paused value without restarting at 0", "Console log"]],
+          "objectives": ["Upload files with progress and resume support", "Retrieve download URLs and metadata", "Organise Storage paths per user"]
+        },
+        {
+          "topic": "Storage Rules and File Validation",
+          "subtopics": ["Storage rules syntax: service firebase.storage, match /b/{bucket}/o", "request.resource.size and request.resource.contentType checks", "Matching content types with regular expressions such as image/.*", "Per-user folders with request.auth.uid == userId", "firestore.get() and firestore.exists() cross-service lookups", "Public read versus signed-in read and download URL tokens", "Rules do not scan file content so malware needs a separate check", "Testing with the Storage emulator and assertFails"],
+          "tools": ["Storage Security Rules", "Storage Emulator", "rules-unit-testing", "Firebase CLI", "Emulator UI"],
+          "lab_task": "Write storage.rules so that users/{userId}/{file} is readable by any signed-in user, writable only by userId, limited to request.resource.size < 2 * 1024 * 1024 and request.resource.contentType.matches('image/.*'). Add rules tests for a 1 MB PNG by the owner, a 3 MB PNG, a PDF and an upload by another user, then deploy with firebase deploy --only storage.",
+          "deliverable": "storage.rules plus four passing rule tests and a note on what rules cannot validate",
+          "checks": [["Owner uploads a 1 MB PNG", "assertSucceeds passes", "Test output"], ["Owner uploads a 3 MB PNG", "The upload is denied for exceeding the 2 MiB limit", "Test output"], ["Owner uploads a PDF", "The upload is denied by the content type check", "Test output"]],
+          "objectives": ["Restrict uploads by owner, size and type", "Test Storage rules in the emulator", "State the limits of rule-based validation"]
+        },
+        {
+          "topic": "Firebase Hosting Deploys and Preview Channels",
+          "subtopics": ["firebase init hosting and the public directory or framework detection", "Single-page app rewrite to /index.html", "firebase deploy --only hosting and the release history with rollback", "Preview channels: firebase hosting:channel:deploy pr-12 --expires 7d", "Custom domains, DNS records and automatic TLS certificates", "Cache-Control headers and the CDN behaviour of static files", "ignore, cleanUrls and trailingSlash options", "GitHub pull request previews via firebase init hosting:github"],
+          "tools": ["Firebase Hosting", "Firebase CLI", "GitHub Actions", "Browser DevTools", "curl"],
+          "lab_task": "Build the Vite app, set public to dist and add a rewrite from ** to /index.html. Deploy with firebase deploy --only hosting and note the web.app URL. Create a preview channel with firebase hosting:channel:deploy review-1 --expires 1d and compare the URLs. Check response headers with curl -I for a hashed asset and index.html and roll back one release from the console.",
+          "deliverable": "Live site URL, preview channel URL and a header comparison for assets and index.html",
+          "checks": [["Open a deep link such as /boards/b1 on the deployed site", "The SPA loads with status 200 through the rewrite", "curl -I output"], ["Run firebase hosting:channel:deploy review-1 --expires 1d", "A separate URL with the channel name is printed and the live site is unchanged", "Terminal output"], ["Roll back to the previous release in the console", "The live site serves the earlier build and the release history shows the rollback", "Console screenshot"]],
+          "objectives": ["Deploy a static or single-page app to Hosting", "Use preview channels for review", "Roll back a release safely"]
+        },
+        {
+          "topic": "Realtime Database: JSON Tree, Listeners and Rules",
+          "subtopics": ["One large JSON tree versus Firestore documents and when RTDB still wins", "ref, set, update, push and remove", "Push IDs and their chronological ordering", "onValue, onChildAdded and get() with off/unsubscribe", "Queries: orderByChild, equalTo, limitToFirst and the need for .indexOn", "Rules: .read, .write, .validate and auth.uid", "Presence with .info/connected and onDisconnect()", "Emulator at port 9000 and firebase database:get /path"],
+          "tools": ["Realtime Database", "Firebase Web SDK", "Database Emulator", "Firebase CLI", "Emulator UI"],
+          "lab_task": "Build a presence indicator: on sign-in write true to /presence/{uid}/online, call onDisconnect().set(false) and listen to .info/connected. Open two tabs, close one and observe the other update. Add .indexOn for lastSeen in database.rules.json, run firebase database:get /presence --pretty and record the output.",
+          "deliverable": "Presence feature with database.rules.json and a note comparing RTDB with Firestore for presence",
+          "checks": [["Close one of two signed-in tabs", "The other tab sees the first user's online flag become false within a few seconds", "Screen recording or log"], ["Run firebase database:get /presence --pretty against the emulator", "JSON shows one object per uid with online and lastSeen keys", "Terminal output"], ["Query orderByChild('lastSeen') without .indexOn", "The SDK logs a warning that the index is not defined", "Console warning"]],
+          "objectives": ["Read and write the Realtime Database tree", "Implement presence with onDisconnect", "Add rules and indexes"]
+        },
+        {
+          "topic": "HTTP Cloud Functions with Node.js",
+          "subtopics": ["Cloud Functions for Firebase 2nd generation running on Cloud Run", "firebase-functions/v2/https onRequest and the Express req and res objects", "TypeScript setup, npm run build and the functions/lib output", "Region and global options with setGlobalOptions", "Running locally with the Functions emulator at port 5001", "firebase deploy --only functions:hello and reading firebase functions:log", "Cold start and the 60 second default timeout", "Calling a function from Hosting with a rewrite"],
+          "tools": ["Cloud Functions", "Firebase CLI", "TypeScript", "Functions Emulator", "curl", "Node.js"],
+          "lab_task": "In functions/src/index.ts write export const health = onRequest((req, res) => res.json({ok: true, time: Date.now()})). Run it in the emulator and call it with curl http://127.0.0.1:5001/<project>/us-central1/health. Deploy with firebase deploy --only functions:health, then read the log with firebase functions:log --only health and note the first-call latency against a repeat call.",
+          "deliverable": "Deployed health function, its URL and a cold versus warm latency table",
+          "checks": [["curl the function in the emulator", "Response is JSON with ok true and HTTP status 200", "curl output"], ["Deploy and call the function twice in a row", "The first call is slower than the second, showing a cold start", "Two timed curl outputs"], ["Run firebase functions:log --only health", "Log lines show each request with the function name health", "Terminal output"]],
+          "objectives": ["Write, run and deploy an HTTP function", "Read function logs from the CLI", "Describe cold starts and regions"]
+        },
+        {
+          "topic": "Firestore-Triggered Functions",
+          "subtopics": ["onDocumentCreated, onDocumentUpdated, onDocumentWritten and onDocumentDeleted", "Path patterns with wildcards such as boards/{boardId}/tasks/{taskId}", "event.data.before and event.data.after for updates", "At-least-once delivery and why handlers must be idempotent", "Updating a counter on the parent document safely", "Avoiding infinite loops when a trigger writes to the document that fired it", "Triggers in the emulator versus deployed behaviour", "Reading logs with logger.info and structured fields"],
+          "tools": ["Cloud Functions", "Cloud Firestore", "Functions Emulator", "Firebase CLI", "firebase-functions logger"],
+          "lab_task": "Write onDocumentCreated('boards/{boardId}/tasks/{taskId}') that increments openTaskCount on the parent board with FieldValue.increment(1), and onDocumentUpdated that adjusts it when done changes. Run both in the emulator, create 5 tasks, complete 2 and confirm openTaskCount is 3. Add a guard that skips the write when before.done equals after.done.",
+          "deliverable": "Two trigger functions and a trace showing openTaskCount after each action",
+          "checks": [["Create 5 tasks on one board", "openTaskCount on the board equals 5", "Emulator UI screenshot"], ["Mark 2 tasks done", "openTaskCount equals 3", "Emulator UI screenshot"], ["Edit only a task title", "The update handler logs a skip and openTaskCount does not change", "Functions emulator log"]],
+          "objectives": ["Trigger code from Firestore document events", "Keep derived counters correct", "Prevent trigger loops and duplicate effects"]
+        },
+        {
+          "topic": "Spark and Blaze Plans, Quotas and Budget Alerts",
+          "subtopics": ["Spark no-cost quotas versus Blaze pay-as-you-go billing", "Which products require Blaze: Cloud Functions deploys, new Storage buckets and others", "Free tier allowances for Firestore reads, writes and deletes", "The usage and billing page and the Cloud Billing reports", "Budgets and alerts in Cloud Billing at 50, 90 and 100 percent", "Budgets alert but do not stop spending by themselves", "Common cost surprises: unbounded listeners, large collection reads, egress", "Estimating the monthly cost of the task board"],
+          "tools": ["Firebase Console", "Cloud Billing", "Google Cloud Console", "Pricing calculator", "Cloud Monitoring"],
+          "lab_task": "Open Usage and billing in the Firebase Console and note the plan. Use the Google Cloud pricing calculator to estimate monthly cost for 2,000 daily users each doing 40 document reads and 10 writes per day. In Cloud Billing create a budget of 10 USD with alerts at 50, 90 and 100 percent sent to your email, and write a list of five code patterns that raise Firestore read counts.",
+          "deliverable": "Cost estimate worksheet, screenshot of the budget and a five-item read-cost checklist",
+          "checks": [["Compute reads per month for 2,000 users at 40 reads per day over 30 days", "The estimate is 2,400,000 reads", "Worksheet"], ["Create the 10 USD budget", "Three alert thresholds at 50, 90 and 100 percent are listed", "Budget screenshot"], ["Check whether the budget stops usage when exceeded", "It only notifies; no automatic cap is applied", "Written answer citing the budget page"]],
+          "objectives": ["Compare Spark and Blaze plans", "Estimate Firebase costs from usage", "Configure budget alerts"]
+        },
+        {
+          "topic": "Beginner Capstone: Real-Time Team Task Board",
+          "subtopics": ["Requirements, data model and security rules written before code", "Sign-in, board and task CRUD with live updates", "Rule unit tests and emulator-based development", "Hosting deployment with a preview channel review", "A parent-count trigger function and a cost estimate", "Demo script and README with setup and test commands"],
+          "tools": ["Firebase CLI", "Cloud Firestore", "Firebase Authentication", "Firebase Hosting", "Cloud Functions", "Emulator Suite"],
+          "lab_task": "Deliver a team task board: Google and email sign-in, boards owned by a user, tasks with live updates in two browsers, rules tests with at least 12 cases passing under firebase emulators:exec, a trigger maintaining openTaskCount, deployment to Hosting with a preview channel and a cost estimate for 1,000 daily users.",
+          "deliverable": "Git repository, live Hosting URL, passing test log, cost estimate and a five-minute recorded demo",
+          "checks": [["Run firebase emulators:exec \"npm test\"", "12 or more rule tests pass with exit code 0", "Terminal output"], ["Use the app in two browsers as two users", "A task added by one appears in the other in under 2 seconds", "Screen recording"], ["Request another user's board through the SDK", "The call fails with permission-denied", "Console error"]],
+          "objectives": ["Combine Auth, Firestore, rules, Functions and Hosting in one app", "Prove access control with automated tests", "Present a deployed and costed application"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a first Firebase app and now need production-grade data models, access control and server logic. Covers Firestore modelling and indexing, transactions and counters, aggregation queries, role-based rules with custom claims, Admin SDK tokens and sessions, multi-factor authentication, callable, background, scheduled and task-queue functions, secrets and function configuration, App Check, Remote Config and A/B testing, FCM HTTP v1, backups and TTL, Hosting rewrites, App Hosting, emulator-based CI and a multi-tenant SaaS capstone.",
+      "prerequisites": ["Has completed a beginner Firebase course or built an app using Firestore, Authentication, Rules and Hosting", "Writes TypeScript with async/await and can run Node.js tests with Vitest or Jest", "Has a Firebase project on the Blaze plan with a budget alert, or access to a trainer-provided project"],
+      "outcomes": ["Model Firestore data for the queries an application runs and keep it consistent with transactions, batches and sharded counters", "Enforce role-based and tenant-based access with custom claims, Admin SDK token checks, App Check and tested Security Rules", "Build reliable server logic with callable, event-driven, scheduled and task-queue functions that are idempotent, configured and secret-safe", "Run a repeatable pipeline with emulator tests, preview deploys, backups and cost-aware releases"],
+      "days": [
+        {
+          "topic": "Firestore Data Modelling: Denormalisation and Subcollections",
+          "subtopics": ["Design from queries and access patterns, not from entities", "Embedding versus subcollections versus top-level collections", "Denormalising display fields such as authorName and the update fan-out cost", "Reference fields versus storing IDs", "Collection group queries and the collection-group index scope", "Many-to-many with join documents such as memberships/{uid_boardId}", "Document ID design: natural keys, hashed keys and avoiding monotonic IDs", "Schema versioning with a schemaVersion field and lazy migration"],
+          "tools": ["Cloud Firestore", "Firebase Console", "Emulator UI", "Admin SDK", "firestore.indexes.json"],
+          "lab_task": "Model a project-management app with workspaces, members, projects, tasks and comments. Write down the five main screens and the exact query each runs, choose where comments live, denormalise assigneeName onto tasks, and add a collectionGroup('comments') query by authorUid with its index. Seed the emulator with 1,000 tasks using the Admin SDK and run all five queries.",
+          "deliverable": "Data model document with query-to-collection mapping, seed script and index file",
+          "checks": [["Run the five screen queries on 1,000 seeded tasks", "Each returns results with no missing-index errors", "Terminal log"], ["Run collectionGroup('comments') where authorUid == 'u1'", "Comments from every project are returned in one query", "Query result count"], ["Rename a user and count documents needing an update", "The count of denormalised assigneeName copies is reported and matches the seed", "Script output"]],
+          "objectives": ["Derive a Firestore model from access patterns", "Apply denormalisation and quantify update cost", "Use collection group queries"]
+        },
+        {
+          "topic": "Composite Indexes and Query Planning",
+          "subtopics": ["Automatic single-field indexes and exemptions", "Composite index field order and ASC/DESC", "Index scope: collection versus collection group", "Multiple range or inequality filters on different fields", "OR queries and the disjunction limit", "Query explain with { analyze: true } in the Admin SDK", "Reading executionStats: readOperations, resultsReturned, executionDuration", "Index storage cost and removing unused indexes"],
+          "tools": ["Cloud Firestore", "Firebase CLI", "Admin SDK", "Google Cloud Console", "firestore.indexes.json"],
+          "lab_task": "Against a production-like database of 100,000 tasks, run query.explain({analyze: true}) for a status == 'open' and priority >= 3 ordered by dueAt query, record readOperations and executionDuration before and after adding the composite index in firestore.indexes.json. Deploy it with firebase deploy --only firestore:indexes and wait for the index to show Serving in the console.",
+          "deliverable": "Before and after explain reports plus the index file",
+          "checks": [["Run explain with analyze before the index", "The query fails with FAILED_PRECONDITION naming the missing index", "Terminal output"], ["Deploy the index and rerun explain", "executionStats reports readOperations equal to resultsReturned", "Explain JSON"], ["Check the index list in the console", "The composite index status shows Serving", "Console screenshot"]],
+          "objectives": ["Design composite indexes for given queries", "Read query explain statistics", "Track index build state and clean unused indexes"]
+        },
+        {
+          "topic": "Transactions, Batched Writes and Atomic Counters",
+          "subtopics": ["runTransaction reads before writes and automatic retry on contention", "Transactions in server SDKs lock documents and in client SDKs use optimistic checks", "writeBatch and bulk writes with BulkWriter in the Admin SDK", "Atomic transforms: increment, arrayUnion, serverTimestamp", "Transactions cannot run offline in client SDKs", "Idempotent writes with deterministic document IDs", "Detecting contention errors: aborted and deadline-exceeded", "Stock reservation example with a read-check-write transaction"],
+          "tools": ["Cloud Firestore", "Admin SDK", "Firebase Web SDK", "Emulator UI", "Vitest"],
+          "lab_task": "Implement reserveSeat(eventId, uid) in a transaction that reads events/{id}.seatsLeft, throws if 0, decrements it and creates reservations/{id}_{uid}. Start with seatsLeft 50 and fire 200 concurrent calls from a Node script using Promise.all against the emulator. Verify exactly 50 reservations and seatsLeft 0, then repeat with plain read-then-update and record the over-booking.",
+          "deliverable": "reserveSeat function, a concurrency test script and a comparison of transaction and naive results",
+          "checks": [["Run 200 concurrent reserveSeat calls with the transaction", "Exactly 50 reservations exist and seatsLeft is 0", "Script output"], ["Run the same load with plain get then update", "More than 50 reservations or a wrong seatsLeft value shows the race", "Script output"], ["Call reserveSeat twice for the same uid", "The second call finds the existing reservation ID and creates no duplicate", "Document count"]],
+          "objectives": ["Use transactions to enforce invariants", "Choose between transactions, batches and atomic transforms", "Make writes idempotent"]
+        },
+        {
+          "topic": "Aggregation Queries and Distributed Counters",
+          "subtopics": ["count(), sum() and average() server-side aggregations", "getCountFromServer and getAggregateFromServer in the web SDK", "Billing: one read per up to 1,000 index entries scanned", "Limits: aggregations are not real-time and need indexes for filters", "Sustained write rate to one document is about once per second", "Distributed counter with N shard documents and summing on read", "Counter via trigger versus count() on demand", "Choosing between exact and approximate figures"],
+          "tools": ["Cloud Firestore", "Firebase Web SDK", "Admin SDK", "Cloud Functions", "Emulator UI"],
+          "lab_task": "Seed 20,000 task documents. Use getAggregateFromServer with count(), sum('points') and average('points') filtered by status == 'done'. Implement a likes counter with 10 shards, increment a random shard 500 times in parallel and sum the shards. Compare latency and the number of billed read units of count() and of the shard-sum approach.",
+          "deliverable": "Aggregation script, sharded counter module and a comparison table of latency and cost",
+          "checks": [["Run count() on 20,000 documents with status == 'done'", "The returned count equals the seeded number of done tasks", "Script output"], ["Run 500 parallel increments on 10 shards", "The sum of shard values equals 500", "Script output"], ["Write 500 increments to a single document", "Some writes are slower or fail with contention compared to the sharded run", "Timing log"]],
+          "objectives": ["Use server-side aggregation queries", "Implement a sharded counter", "Choose a counting strategy by scale and cost"]
+        },
+        {
+          "topic": "Role-Based Access: Custom Claims and Rule Functions",
+          "subtopics": ["Custom claims through the Admin SDK setCustomUserClaims", "Claim size limit of 1,000 bytes and what to store", "Token refresh: claims appear after getIdToken(true)", "Reading claims in rules with request.auth.token.role", "Reusable rule functions such as isSignedIn() and hasRole(r)", "Membership lookups with get() and exists() and the access-call limits", "Workspace role model: owner, editor, viewer", "Testing role matrices with authenticatedContext(uid, {role})"],
+          "tools": ["Firestore Security Rules", "Admin SDK", "rules-unit-testing", "Firebase Authentication", "Emulator Suite"],
+          "lab_task": "Write a callable function setRole that only an admin can call and that sets {role: 'editor'} with setCustomUserClaims. In firestore.rules add hasRole('editor') checks on projects writes and viewer-only reads. Write a rules test matrix of 3 roles by 4 operations (12 cases). Show that a user keeps the old role until getIdToken(true) is called.",
+          "deliverable": "setRole function, rules with helper functions and a 12-case test matrix",
+          "checks": [["Run the 12-case role matrix", "All 12 assertions pass under emulators:exec", "Test output"], ["Change a role and read the token without forcing refresh", "The old role claim is still present in the token", "Decoded token"], ["Call getIdToken(true) after the role change", "The token now carries the new role", "Decoded token"]],
+          "objectives": ["Assign and use custom claims for authorisation", "Write reusable rule functions", "Test role matrices"]
+        },
+        {
+          "topic": "Admin SDK: ID Tokens, Session Cookies and Revocation",
+          "subtopics": ["Initialising firebase-admin with Application Default Credentials", "verifyIdToken and the checkRevoked flag", "Error codes: auth/id-token-expired, auth/id-token-revoked, auth/argument-error", "revokeRefreshTokens and the tokensValidAfterTime field", "createSessionCookie with 5 minutes to 2 weeks expiry", "Cookie flags: HttpOnly, Secure, SameSite and CSRF protection", "User management: createUser, updateUser, listUsers, deleteUser", "Importing users with importUsers and password hash parameters"],
+          "tools": ["Admin SDK", "Firebase Authentication", "Node.js", "Express", "curl"],
+          "lab_task": "Build an Express endpoint POST /sessionLogin that verifies an ID token with verifyIdToken, sets a 5-day __session cookie from createSessionCookie with httpOnly, secure and sameSite: 'strict', and a protected GET /me using verifySessionCookie(cookie, true). Call revokeRefreshTokens(uid) and prove /me then returns 401.",
+          "deliverable": "Express service with login, protected route and revoke script, plus a curl transcript",
+          "checks": [["Call /me with a valid session cookie", "HTTP 200 with the user's uid", "curl output"], ["Revoke the user's refresh tokens then call /me again", "HTTP 401 because verifySessionCookie with checkRevoked fails", "curl output"], ["Inspect the Set-Cookie header", "HttpOnly, Secure and SameSite=Strict attributes are all present", "Response headers"]],
+          "objectives": ["Verify ID tokens and issue session cookies on a server", "Revoke sessions on demand", "Manage users with the Admin SDK"]
+        },
+        {
+          "topic": "Multi-Factor Authentication and Identity Platform Upgrade",
+          "subtopics": ["Upgrading Firebase Authentication to Identity Platform", "Second factors: SMS and TOTP", "Enrolling with multiFactor(user).enrollment and RecaptchaVerifier", "Sign-in flow resolving auth/multi-factor-auth-required", "Email verification requirement before MFA enrolment", "Multi-tenancy with tenantId and per-tenant providers", "Blocking SMS regions and fraud controls", "Pricing differences: SMS costs and monthly active user tiers"],
+          "tools": ["Identity Platform", "Firebase Authentication", "Firebase Web SDK", "Google Cloud Console", "Authenticator app"],
+          "lab_task": "Upgrade the project to Identity Platform, enable TOTP MFA, enrol a test account with an authenticator app by generating a TotpSecret and verifying with generateQrCodeUrl, then sign out and sign in again. Catch auth/multi-factor-auth-required, resolve with getMultiFactorResolver and complete the challenge. Create a tenant acme and sign a user into it.",
+          "deliverable": "MFA enrolment and sign-in code with a screen recording and a tenant configuration note",
+          "checks": [["Sign in with a password only for an enrolled user", "The SDK throws auth/multi-factor-auth-required", "Console error"], ["Complete the TOTP challenge using the resolver", "Sign-in succeeds and the user object has one enrolled factor", "Console log"], ["Sign in with auth.tenantId set to acme", "The user's token contains firebase.tenant equal to the tenant ID", "Decoded token"]],
+          "objectives": ["Enable and enforce multi-factor authentication", "Handle the MFA resolver flow", "Explain tenants and Identity Platform features"]
+        },
+        {
+          "topic": "Callable Functions and Typed Contracts",
+          "subtopics": ["onCall versus onRequest and the automatic ID token handling", "httpsCallable and the data and auth fields", "HttpsError codes: invalid-argument, unauthenticated, permission-denied, failed-precondition", "Validating input with Zod or a schema before use", "Shared request and response types in a monorepo package", "enforceAppCheck and consumeAppCheckToken options", "Streaming responses with request.acceptsStreaming and response.sendChunk", "Testing callables with firebase-functions-test and the emulator"],
+          "tools": ["Cloud Functions", "Firebase Web SDK", "Zod", "TypeScript", "Functions Emulator", "firebase-functions-test"],
+          "lab_task": "Write a callable createInvoice that requires request.auth, validates {customerId, lines[]} with Zod, rejects a negative quantity with HttpsError('invalid-argument') and returns the new invoice ID. Call it with httpsCallable from the client and from a Vitest test. Record the error code and message for an unauthenticated call and for an invalid payload.",
+          "deliverable": "Typed callable, shared types package and tests for three outcomes",
+          "checks": [["Call createInvoice while signed out", "The call fails with functions/unauthenticated", "Client error"], ["Send a line with quantity -1", "The call fails with functions/invalid-argument and a message naming the field", "Client error"], ["Send a valid payload", "The response contains an invoiceId and the invoice document exists", "Emulator UI screenshot"]],
+          "objectives": ["Build callable functions with validation", "Return meaningful typed errors", "Test callable functions locally"]
+        },
+        {
+          "topic": "Background Functions: Retries, Idempotency and Event Ordering",
+          "subtopics": ["Event delivery is at least once and may be out of order", "Enabling retries with retry: true and the 7 day retry window", "Idempotency keys from event.id and a processed-events document", "Poison messages and dead-letter handling", "Distinguishing retryable from permanent errors", "Triggers on onDocumentWritten for create, update and delete in one handler", "Timeouts: event handlers up to 9 minutes by default", "Metrics for executions, errors and retries in Cloud Monitoring"],
+          "tools": ["Cloud Functions", "Cloud Firestore", "Cloud Logging", "Cloud Monitoring", "Functions Emulator", "Admin SDK"],
+          "lab_task": "Write an onDocumentCreated handler sendWelcomeEmail with retry: true that records event.id in processedEvents/{eventId} inside a transaction before calling a fake mail API. Make the mail API fail the first two times and succeed on the third, trigger the function, then replay the same event manually and confirm only one email is recorded.",
+          "deliverable": "Idempotent handler, test with injected failures and a log excerpt of three attempts",
+          "checks": [["Trigger the function with the mail API failing twice", "Logs show 3 attempts and the third succeeds", "Cloud Logging excerpt"], ["Replay the same event ID", "The handler logs duplicate and sends no second email", "Log excerpt"], ["Make the API return a permanent 400 error", "The handler logs the error and does not retry endlessly", "Log excerpt"]],
+          "objectives": ["Design idempotent event handlers", "Configure retries correctly", "Separate transient from permanent failures"]
+        },
+        {
+          "topic": "Scheduled Functions and Task Queue Functions",
+          "subtopics": ["onSchedule with cron syntax and timeZone", "Cloud Scheduler job created automatically and its cost", "onTaskDispatched with retryConfig and rateLimits", "Enqueuing with getFunctions().taskQueue(name).enqueue", "Delay and scheduleTime for deferred work", "Deduplication with task IDs", "Rate limiting third-party API calls with maxConcurrentDispatches", "Monitoring queue depth and failed tasks"],
+          "tools": ["Cloud Functions", "Cloud Scheduler", "Cloud Tasks", "Admin SDK", "Cloud Logging"],
+          "lab_task": "Create onSchedule('every day 02:00') with timeZone 'Asia/Kolkata' that enqueues one task per account to a queue named exportReport. Configure the queue function with retryConfig {maxAttempts: 5, minBackoffSeconds: 30} and rateLimits {maxConcurrentDispatches: 6}. Enqueue 100 tasks, inject failures in 10 and watch the retry counts in Cloud Tasks.",
+          "deliverable": "Scheduler and queue functions, queue configuration and a retry observation table",
+          "checks": [["Open Cloud Scheduler after deploy", "A job for the scheduled function exists with the cron expression you set", "Console screenshot"], ["Enqueue 100 tasks with 6 concurrent dispatches", "No more than 6 executions run at once", "Cloud Monitoring chart"], ["Fail 10 tasks permanently", "Each is attempted up to maxAttempts 5 times then dropped", "Cloud Tasks log"]],
+          "objectives": ["Schedule recurring functions", "Throttle and retry background work with task queues", "Observe queue health"]
+        },
+        {
+          "topic": "Secrets, Parameters and Function Configuration",
+          "subtopics": ["defineString, defineInt and defineSecret parameterised configuration", "firebase functions:secrets:set and Secret Manager versions", ".env, .env.<alias> and .env.local files", "Binding a secret to a function via the secrets option", "Memory, cpu, timeoutSeconds and concurrency options", "maxInstances and minInstances trade-offs", "Rotating a secret and redeploying", "Why functions.config() is retired and how to migrate"],
+          "tools": ["Cloud Functions", "Secret Manager", "Firebase CLI", "Cloud Logging", "Google Cloud Console"],
+          "lab_task": "Define const STRIPE_KEY = defineSecret('STRIPE_KEY') and bind it to a function with secrets: [STRIPE_KEY] and memory 512MiB, maxInstances 10. Store it with firebase functions:secrets:set STRIPE_KEY, deploy, read the first four characters in logs only, then rotate by setting a new version and redeploying. Add region and minInstances through setGlobalOptions.",
+          "deliverable": "Function with a bound secret, configuration table and a rotation runbook",
+          "checks": [["Run firebase functions:secrets:set STRIPE_KEY twice", "Secret Manager shows versions 1 and 2", "Console screenshot"], ["Call the function after redeploy", "It reads the new secret value version", "Masked log line"], ["Search the repository with git grep for the key value", "No match is found in tracked files", "git grep output"]],
+          "objectives": ["Manage secrets and parameters for functions", "Tune memory, concurrency and instances", "Rotate secrets without leaking them"]
+        },
+        {
+          "topic": "App Check and Abuse Prevention",
+          "subtopics": ["What App Check proves: requests come from your genuine app", "Providers: reCAPTCHA Enterprise for web, Play Integrity, App Attest and DeviceCheck", "Token lifetime and getToken with auto refresh", "Debug tokens for local development and CI", "Monitoring unverified requests before enforcing", "Enforcement per product: Firestore, Storage, Realtime Database, callable functions", "Replay protection with limited-use tokens", "What App Check does not replace: Authentication and rules"],
+          "tools": ["App Check", "reCAPTCHA Enterprise", "Firebase Web SDK", "Firebase Console", "Cloud Functions"],
+          "lab_task": "Register the web app with reCAPTCHA Enterprise in App Check, call initializeAppCheck with ReCaptchaEnterpriseProvider and isTokenAutoRefreshEnabled true, observe the unverified request metrics for Firestore for a day, then enforce on Firestore and a callable function with enforceAppCheck: true. Use a debug token for the emulator and a curl call that is rejected.",
+          "deliverable": "App Check setup notes, enforcement screenshots and rejected-request evidence",
+          "checks": [["Call the callable with curl and no App Check header", "The request is rejected with unauthenticated or failed-precondition for App Check", "curl output"], ["Open the App Check metrics before enforcing", "Verified and unverified request counts are shown per product", "Metrics screenshot"], ["Use the registered debug token in a local run", "Requests are counted as verified", "Console log"]],
+          "objectives": ["Configure App Check providers", "Roll out enforcement using metrics", "State App Check's limits relative to Auth and rules"]
+        },
+        {
+          "topic": "Remote Config and A/B Testing",
+          "subtopics": ["Parameters, default values and conditions", "Client fetch: fetchAndActivate, minimumFetchIntervalMillis and throttling", "Server-side Remote Config with the Admin SDK getServerTemplate", "Template versions, rollback and the update API", "Percentage rollouts and audience targeting", "Real-time Remote Config updates with onConfigUpdate", "A/B Testing experiments: goals, variants and sample size", "Reading results and the 95 percent confidence statements"],
+          "tools": ["Remote Config", "A/B Testing", "Firebase Web SDK", "Admin SDK", "Firebase Console"],
+          "lab_task": "Create parameters checkout_button_text and new_pricing_enabled with a 20 percent rollout condition, fetch them with fetchAndActivate and apply them in the UI. Publish three template versions and roll back one. Use the Admin SDK to read the template from a Cloud Function and return the value for a given user. Set up an A/B experiment with two variants and a goal metric.",
+          "deliverable": "Remote Config template JSON, client and server reads and a documented experiment plan",
+          "checks": [["Fetch twice within the minimum fetch interval", "The second call uses the cached values and no network fetch occurs", "Network tab"], ["Roll back to the previous template version", "The version history shows a new version marked as a rollback and the values revert", "Console screenshot"], ["Check the 20 percent rollout across 100 test instance IDs", "Roughly 20 instances receive the new value", "Count from the script"]],
+          "objectives": ["Manage runtime configuration without redeploying", "Run staged rollouts and rollbacks", "Plan an experiment with a clear metric"]
+        },
+        {
+          "topic": "Cloud Messaging with the HTTP v1 API",
+          "subtopics": ["FCM architecture: app server, FCM backend, platform transport", "Registration tokens, refresh and staleness", "Topics, condition expressions and device groups replacement", "Web push setup: VAPID key, firebase-messaging-sw.js and getToken", "Admin SDK messaging().send and sendEach", "Error codes: UNREGISTERED, INVALID_ARGUMENT, QUOTA_EXCEEDED", "Notification versus data messages and priority", "Pruning invalid tokens and storing tokens per device"],
+          "tools": ["Firebase Cloud Messaging", "Admin SDK", "Service Worker", "Firebase Console", "curl"],
+          "lab_task": "Add web push: generate a VAPID key, create firebase-messaging-sw.js, request Notification permission and store the token at users/{uid}/devices/{tokenHash}. In a Cloud Function call getMessaging().sendEach for 3 tokens, one of which is deliberately invalid. Remove tokens whose response error code is messaging/registration-token-not-registered.",
+          "deliverable": "Web push client, sending function with token pruning and a delivery report",
+          "checks": [["Send to 3 tokens where one is invalid", "Response shows successCount 2 and failureCount 1", "Function log"], ["Inspect the failed response error code", "It is messaging/registration-token-not-registered", "Function log"], ["Read the devices subcollection after the send", "The invalid token document is deleted and 2 remain", "Firestore screenshot"]],
+          "objectives": ["Send push notifications with the Admin SDK on HTTP v1", "Handle token lifecycle and errors", "Implement web push with a service worker"]
+        },
+        {
+          "topic": "Firestore TTL, Backups and Point-in-Time Recovery",
+          "subtopics": ["TTL policies on a timestamp field and deletion within about 24 hours of expiry", "Scheduled backups with retention and daily or weekly frequency", "On-demand export with gcloud firestore export to a Cloud Storage bucket", "Point-in-time recovery window of 7 days", "Restoring a backup to a new database with gcloud firestore databases restore", "Cloning from a PITR timestamp", "Export and import versus backup and restore characteristics", "Costs of backups, PITR storage and TTL deletes"],
+          "tools": ["Cloud Firestore", "gcloud CLI", "Cloud Storage", "Google Cloud Console", "Firebase CLI"],
+          "lab_task": "Enable a TTL policy on sessions.expireAt with gcloud firestore fields ttls update expireAt --collection-group=sessions --enable-ttl. Create a daily backup schedule with 7-day retention, enable PITR, delete a test collection, and restore the earlier state into a new database named restore-test with gcloud firestore databases restore. Compare document counts.",
+          "deliverable": "Backup runbook with commands, restore evidence and a recovery time measurement",
+          "checks": [["List backup schedules with gcloud firestore backups schedules list", "A daily schedule with 7 days retention is shown", "Terminal output"], ["Restore into restore-test", "The restored database contains the same document count as the original before deletion", "Count comparison"], ["Check the TTL policy state", "The field shows state ACTIVE after activation", "gcloud output"]],
+          "objectives": ["Configure TTL, backups and PITR", "Perform and time a restore", "Compare recovery options by RPO, RTO and cost"]
+        },
+        {
+          "topic": "Hosting Rewrites to Functions and Cloud Run",
+          "subtopics": ["Rewrite order and the first-match rule", "Rewrites to functions with function and region", "Rewrites to Cloud Run services with serviceId", "Redirects with type 301 or 302 and regex sources", "Headers per source pattern including Cache-Control and security headers", "Multiple sites and deploy targets with firebase target:apply hosting", "i18n rewrites by country or language", "Request timeout of 60 seconds for dynamic content and CDN caching of responses"],
+          "tools": ["Firebase Hosting", "Cloud Run", "Cloud Functions", "Firebase CLI", "curl"],
+          "lab_task": "Add a second site admin to the project with firebase hosting:sites:create, map it with firebase target:apply hosting admin <site>, and in firebase.json route /api/** to the function api, /render/** to a Cloud Run service and everything else to /index.html. Add a header Cache-Control public, max-age=31536000, immutable for /assets/**. Verify each route with curl -I.",
+          "deliverable": "firebase.json with rewrites, redirects and headers plus a route verification table",
+          "checks": [["curl -I /api/health", "HTTP 200 served by the Cloud Function", "curl output"], ["curl -I /assets/app.js", "Cache-Control header shows max-age=31536000 and immutable", "curl output"], ["curl -I a legacy URL covered by a 301 redirect", "Status 301 with the new Location header", "curl output"]],
+          "objectives": ["Route traffic from Hosting to backend services", "Set caching and redirect rules", "Operate multiple Hosting sites"]
+        },
+        {
+          "topic": "Firebase App Hosting for Next.js and Angular",
+          "subtopics": ["What App Hosting adds: server-rendered frameworks on Cloud Run with a managed build", "Backends, repository connection and live branch", "apphosting.yaml: runConfig, env and secret references", "Rollouts, rollbacks and the build logs in Cloud Build", "Environment variables at build time and runtime", "CDN caching of SSR responses and Cache-Control", "Local development with the emulator and firebase apphosting commands", "App Hosting versus Hosting with Functions: when to choose each"],
+          "tools": ["App Hosting", "Cloud Run", "Cloud Build", "GitHub", "Next.js", "Firebase CLI"],
+          "lab_task": "Create a Next.js app with server components, connect a GitHub repository to a new App Hosting backend with firebase apphosting:backends:create, set runConfig {cpu: 1, memoryMiB: 512, maxInstances: 5} in apphosting.yaml and reference a secret. Push a change, watch the rollout, then roll back from the console. Compare response headers for a cached and an uncached route.",
+          "deliverable": "apphosting.yaml, rollout and rollback evidence and a decision note on App Hosting versus classic Hosting",
+          "checks": [["Push a commit to the live branch", "A new rollout starts and finishes with status Success", "Rollout screenshot"], ["Roll back to the previous rollout", "The live URL serves the earlier version", "Browser screenshot"], ["Inspect response headers on a cached route", "Cache-Control and a CDN cache hit indicator are present", "curl output"]],
+          "objectives": ["Deploy a server-rendered app with App Hosting", "Configure runtime resources and secrets", "Choose between hosting options"]
+        },
+        {
+          "topic": "Emulator Suite in CI with GitHub Actions",
+          "subtopics": ["firebase emulators:exec in non-interactive mode", "Installing firebase-tools with a pinned version in CI", "Caching ~/.cache/firebase/emulators for faster jobs", "Seeding with --import and fixtures committed to git", "Parallel jobs and unique ports with --config files", "Running rules tests, function tests and Playwright end-to-end tests", "Publishing coverage and failing the build on rules coverage drop", "Preview deploys per pull request with firebase hosting:channel:deploy"],
+          "tools": ["GitHub Actions", "Firebase Emulator Suite", "Playwright", "Vitest", "Firebase CLI"],
+          "lab_task": "Write .github/workflows/ci.yml that installs Node, caches the emulator binaries, pins firebase-tools, runs firebase emulators:exec --import=./seed \"npm test\" and a Playwright test of sign-in and task creation, and uploads the rule coverage report as an artifact. Compare run time with and without the cache.",
+          "deliverable": "Working workflow file, two run logs and a timing comparison",
+          "checks": [["Open a pull request with a failing rule test", "The CI job fails and blocks the merge", "Actions run screenshot"], ["Rerun after cache is populated", "The emulator download step is skipped as a cache hit", "Actions log"], ["Download the artifact", "The rule coverage HTML report is present", "Artifact screenshot"]],
+          "objectives": ["Automate emulator-based tests in CI", "Speed up pipelines with caching", "Gate merges on rule and integration tests"]
+        },
+        {
+          "topic": "Firebase Extensions and BigQuery Export",
+          "subtopics": ["Extensions Hub and what an installed extension creates in your project", "Installing with firebase ext:install and ext:configure", "Stream Firestore to BigQuery: raw changelog table and latest view", "Backfill with the import script and its cost", "Trigger Email, Resize Images and Delete User Data examples", "Updating, pausing and uninstalling an extension safely", "Reviewing extension IAM roles before install", "Querying exported data with SQL, partition and cost control"],
+          "tools": ["Firebase Extensions", "BigQuery", "Cloud Firestore", "Firebase CLI", "Google Cloud Console"],
+          "lab_task": "Install the Stream Firestore to BigQuery extension on the orders collection with firebase ext:install firebase/firestore-bigquery-export. Write 100 order documents, then query the _raw_changelog table and the _latest view with SQL for total revenue by day. Review the service account roles the extension created and uninstall it with firebase ext:uninstall, noting what remains.",
+          "deliverable": "Extension configuration, BigQuery query results and an IAM review note",
+          "checks": [["Count rows in the latest view", "100 rows exist, one per order document", "BigQuery result"], ["Update one order and query the raw changelog", "The changelog has an additional row with operation UPDATE", "BigQuery result"], ["List the service account roles of the extension", "Only the required Firestore and BigQuery roles are present", "IAM screenshot"]],
+          "objectives": ["Install and configure Firebase Extensions", "Export Firestore changes to BigQuery", "Review extension permissions"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Tenant SaaS Backend",
+          "subtopics": ["Tenant model, roles and data layout with an index plan", "Authentication with custom claims and tenant-aware rules", "Callable, background and scheduled functions with idempotency", "Secrets, App Check and abuse controls", "CI with emulator tests, preview deploys and a backup plan", "Cost estimate and an operations runbook"],
+          "tools": ["Cloud Firestore", "Firebase Authentication", "Cloud Functions", "App Check", "GitHub Actions", "Emulator Suite"],
+          "lab_task": "Build a multi-tenant project tracker: every document carries tenantId, rules compare it with request.auth.token.tenantId, an admin callable invites users with a role claim, a trigger writes an audit log, a nightly scheduled function exports usage counts, App Check is enforced and CI runs 30 or more rule and function tests. Deploy to a staging project.",
+          "deliverable": "Repository, passing CI run, staging URL, runbook with backup and restore steps and a cost model",
+          "checks": [["Run the CI pipeline", "30 or more tests pass and the preview deploy completes", "Actions run"], ["User from tenant A requests a document of tenant B", "The read is denied with permission-denied", "Test output"], ["Replay the same invite event twice", "Only one invitation record and one audit entry exist", "Firestore screenshot"]],
+          "objectives": ["Combine tenancy, roles, functions and CI in one system", "Demonstrate tenant isolation with tests", "Document operations and recovery"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers and tech leads who run Firebase workloads in production and must scale, secure, observe and govern them. Covers Firebase and Google Cloud service boundaries, Firestore hotspots, query cost analysis, vector search, editions and multiple databases, Data Connect with Cloud SQL for PostgreSQL, Genkit and Firebase AI Logic, advanced rules patterns, Auth blocking functions, function performance, Eventarc and Pub/Sub, Realtime Database at scale, observability, multi-environment pipelines, IAM hardening, cost governance, disaster recovery, load testing and a production platform capstone.",
+      "prerequisites": ["Has built and deployed a Firebase app that uses Firestore, Authentication, Cloud Functions and Security Rules with automated emulator tests", "Can use the gcloud CLI, read Cloud Logging output and understand IAM roles and service accounts", "Has a Blaze-plan sandbox project with a budget alert, plus a second project for staging"],
+      "outcomes": ["Design Firebase architectures that stay within Firestore, Functions and Auth limits at high load and choose the correct Google Cloud service at each boundary", "Add vector search, Data Connect and Genkit-based AI features with guarded cost and access control", "Operate production systems with structured logging, alerts, multi-environment pipelines, least-privilege IAM, recovery drills and cost governance", "Validate reliability with load tests, error budgets and documented runbooks"],
+      "days": [
+        {
+          "topic": "Architecture Patterns: Firebase and Google Cloud Service Boundaries",
+          "subtopics": ["Where Firebase stops and Google Cloud starts: same project, same IAM", "Choosing Firestore, Cloud SQL via Data Connect, Bigtable or BigQuery by access pattern", "Client-direct access versus backend-for-frontend with Cloud Run", "Functions versus Cloud Run services versus Cloud Run jobs", "Eventing choices: Firestore triggers, Eventarc, Pub/Sub, Cloud Tasks", "Region and multi-region decisions and data residency", "Service limits as design inputs", "Architecture decision records and fitness checks"],
+          "tools": ["Google Cloud Console", "Cloud Firestore", "Cloud Run", "Cloud Functions", "Eventarc", "Mermaid"],
+          "lab_task": "For a ride-booking product with 500,000 monthly users, draw a component diagram that places each of ten capabilities (profiles, bookings, live location, payments, search, notifications, reporting, admin, media, audit) on a specific service with a written reason. Write three architecture decision records that cite specific quotas or limits and propose one fitness test per record.",
+          "deliverable": "Architecture diagram, three decision records and a limits table",
+          "checks": [["Review the ten-capability mapping", "Each capability has exactly one primary data store with a stated access pattern", "Mapping table"], ["Check each ADR for a limit or quota", "Each record cites a named quota or documented limit", "ADR text"], ["Run the fitness test for one decision", "The test passes or fails with a measurable value such as p95 latency", "Test output"]],
+          "objectives": ["Place workloads on the right Firebase and Google Cloud service", "Record architecture decisions with evidence", "Define automated fitness checks"]
+        },
+        {
+          "topic": "Firestore Scaling: Hotspots, Fan-Out and Write Limits",
+          "subtopics": ["Traffic ramp guidance of 500 writes per second increasing 50 percent every 5 minutes", "Hotspots from monotonically increasing document IDs and indexed timestamps", "Index fan-out: every indexed field adds write cost and latency", "Single-document write ceiling and contention", "Queue-based write smoothing with Cloud Tasks", "Reading hot documents: bundles and CDN-cached bundles", "Fan-out on write versus fan-out on read for feeds", "Using Key Visualizer-style insights and Firestore usage metrics"],
+          "tools": ["Cloud Firestore", "Cloud Monitoring", "Cloud Tasks", "Admin SDK", "Node.js"],
+          "lab_task": "Write a load script with BulkWriter that creates 200,000 documents with ID prefixes of a sequential timestamp, then repeat with random 20-character IDs. Ramp from 500 writes per second by 50 percent every 5 minutes against a staging database, recording p95 write latency and any errors. Add exemptions for two unneeded indexed fields and measure the effect.",
+          "deliverable": "Load-test script, latency and error charts for sequential and random IDs and an index exemption report",
+          "checks": [["Run the sequential ID test at the target rate", "p95 latency or error count is higher than the random ID run", "Cloud Monitoring chart"], ["Exempt two unused indexed fields and rerun", "Write latency drops and index entry count per write falls", "Chart and index count"], ["Check errors during the ramp", "Contention or deadline-exceeded errors are listed with their count and rate", "Log query result"]],
+          "objectives": ["Identify and remove Firestore hotspots", "Apply the traffic ramp guidance", "Control index fan-out cost"]
+        },
+        {
+          "topic": "Query Explain, Cost Analysis and Read Optimisation",
+          "subtopics": ["Cost model: reads, writes, deletes, storage, network", "explain with analyze on the Admin SDK and Query Explain in the console", "Reading planSummary, executionStats and billed read operations", "Reducing reads: select() projections on the server, limit, bundles, caching", "Client persistent cache and listener reuse", "Detecting accidental full collection reads", "Aggregation versus materialised summaries", "Cost per active user as a product metric"],
+          "tools": ["Cloud Firestore", "Query Explain", "Cloud Monitoring", "BigQuery", "Admin SDK"],
+          "lab_task": "Export Firestore usage with the Cloud Billing export to BigQuery, query cost by SKU for the last 7 days and identify the three most expensive read paths using Cloud Monitoring metrics firestore.googleapis.com/document/read_count. Fix one by adding a limit and a cached bundle, then show the read count falling by at least 50 percent.",
+          "deliverable": "Cost analysis report with before and after read counts and the code change",
+          "checks": [["Query billing export grouped by SKU", "Firestore read cost is ranked with exact amounts", "BigQuery result"], ["Apply the limit and bundle fix and rerun the workload", "document/read_count falls by 50 percent or more", "Monitoring chart"], ["Run explain with analyze on the fixed query", "readOperations equals resultsReturned within the limit", "Explain JSON"]],
+          "objectives": ["Attribute Firestore cost to specific queries", "Reduce reads with limits, bundles and caches", "Track unit cost per user"]
+        },
+        {
+          "topic": "Firestore Vector Search and Embeddings",
+          "subtopics": ["Embeddings and the vector field type with FieldValue.vector", "Vector indexes with gcloud firestore indexes composite create --field-config=vector-config", "Distance measures: EUCLIDEAN, COSINE, DOT_PRODUCT", "findNearest with limit, distanceResultField and distanceThreshold", "Pre-filtering with where before findNearest and the matching composite index", "Dimension limits and storage cost", "Generating embeddings at write time with a trigger and an embedding model", "Evaluating recall with a labelled query set"],
+          "tools": ["Cloud Firestore", "Vertex AI", "Firebase AI Logic", "Admin SDK", "gcloud CLI"],
+          "lab_task": "Embed 5,000 help articles with an embedding model, store each vector in embedding using FieldValue.vector, create a COSINE vector index with gcloud and query findNearest with limit 5 and a where on language == 'en'. Prepare 30 labelled questions and compute recall@5, then compare COSINE with DOT_PRODUCT on the same data.",
+          "deliverable": "Embedding pipeline, index command, evaluation script and a recall@5 comparison table",
+          "checks": [["Run findNearest with limit 5", "Exactly 5 documents return with a distance value in the result field", "Script output"], ["Query without the required vector index", "The query fails with a message that a vector index is required", "Error text"], ["Compute recall@5 on 30 labelled questions", "A numeric recall value is reported for COSINE and for DOT_PRODUCT", "Evaluation table"]],
+          "objectives": ["Store and index embeddings in Firestore", "Run filtered nearest-neighbour queries", "Measure retrieval quality"]
+        },
+        {
+          "topic": "Firestore Editions, Multiple Databases and Data Residency",
+          "subtopics": ["Standard edition and Enterprise edition: what differs in query and index capabilities", "Multiple named databases in one project via firebase firestore:databases:create", "Per-database rules, indexes and backups in firebase.json as an array", "Location choice: regional versus multi-region and availability targets", "Data residency and organisation policy constraints on locations", "Database-level isolation for tenants or environments", "Migrating between databases with export and import", "Limits to check: databases per project and naming"],
+          "tools": ["Cloud Firestore", "Firebase CLI", "gcloud CLI", "Google Cloud Console", "Organisation Policy"],
+          "lab_task": "Create two databases, (default) and analytics-eu, in different locations using firebase firestore:databases:create analytics-eu --location=eur3. Configure firebase.json with a firestore array of two entries each with its own rules and indexes files, deploy both, and point the Admin SDK at each with getFirestore(app, 'analytics-eu'). Write a short comparison of editions from the current documentation.",
+          "deliverable": "Two-database configuration, deploy log and an editions comparison with documentation links",
+          "checks": [["Run firebase firestore:databases:list", "Both (default) and analytics-eu are listed with their locations", "Terminal output"], ["Deploy firebase deploy --only firestore", "Rules and indexes are released for each database separately", "Terminal output"], ["Write the same document to each database", "The document is visible only in the database it was written to", "Console screenshots"]],
+          "objectives": ["Operate several Firestore databases per project", "Choose locations for latency and residency", "Compare Firestore editions from current documentation"]
+        },
+        {
+          "topic": "Data Connect with Cloud SQL for PostgreSQL",
+          "subtopics": ["When relational data and joins fit better than Firestore", "Data Connect schema files in dataconnect/schema/*.gql", "Queries and mutations in connector files and generated SDKs", "firebase dataconnect:sdk:generate and the Data Connect emulator", "@auth directives and access levels such as PUBLIC, USER and NO_ACCESS", "Inserting with generated UUID keys and relationships with references", "Deploying schema with firebase deploy --only dataconnect and migration modes", "Cloud SQL sizing, connection and cost considerations"],
+          "tools": ["Data Connect", "Cloud SQL for PostgreSQL", "Firebase CLI", "GraphQL", "Data Connect Emulator", "TypeScript"],
+          "lab_task": "Initialise Data Connect with firebase init dataconnect, define Project, Member and Task types with relationships, write queries ListTasksByProject and a mutation CreateTask with @auth(level: USER), generate the TypeScript SDK and call both from a web client against the emulator. Deploy to a staging Cloud SQL instance and compare the plan with a Firestore model of the same data.",
+          "deliverable": "Data Connect schema and connector, generated SDK usage and a Firestore versus Data Connect comparison",
+          "checks": [["Run the generated ListTasksByProject query in the emulator", "Tasks join with their project name in one response", "Console output"], ["Call CreateTask as an unauthenticated user", "The call is rejected by the @auth level with an unauthorized error", "Client error"], ["Deploy schema to staging", "The CLI reports the schema was applied and tables exist in Cloud SQL", "Terminal output and SQL listing"]],
+          "objectives": ["Model relational data with Data Connect", "Secure operations with auth directives", "Decide between Firestore and Data Connect"]
+        },
+        {
+          "topic": "Genkit Flows and Firebase AI Logic",
+          "subtopics": ["Genkit core: ai.defineFlow, prompts, structured output with Zod schemas", "Running locally with genkit start and the Developer UI", "Deploying flows with onCallGenkit and secrets for model keys", "Tool calling and retrieval over Firestore vector search", "Tracing and evaluation of flows in the Developer UI", "Firebase AI Logic client SDK for calling Gemini models from web or mobile", "App Check with limited-use tokens on AI calls", "Cost and abuse control: quotas, per-user rate limits, prompt length limits"],
+          "tools": ["Genkit", "Firebase AI Logic", "Cloud Functions", "Firestore Vector Search", "App Check", "Developer UI"],
+          "lab_task": "Build a Genkit flow answerSupportQuestion that retrieves 4 articles from Firestore vector search, calls a Gemini model with a structured output schema {answer, sources[]}, and is exposed with onCallGenkit with enforceAppCheck true. Add a per-user limit of 20 calls per day stored in Firestore and trace one run in the Developer UI. Record tokens used and p95 latency over 50 calls.",
+          "deliverable": "Deployed flow, rate limit logic, trace screenshot and a token and latency table",
+          "checks": [["Call the flow 21 times as one user", "The 21st call returns resource-exhausted from the rate limit", "Client error"], ["Open the trace of one call in the Developer UI", "Retrieval, model call and output validation steps are listed with durations", "Trace screenshot"], ["Send a response that violates the output schema in a test", "The flow raises a schema validation error and returns no partial answer", "Test output"]],
+          "objectives": ["Build and deploy AI flows on Firebase", "Control cost and abuse for AI endpoints", "Trace and evaluate AI flows"]
+        },
+        {
+          "topic": "Advanced Security Rules Patterns and Performance",
+          "subtopics": ["Rules evaluation limits: 10 access calls per single-document request and 20 for multi-document operations", "Caching of get() results within a request", "Field-level validation with request.resource.data.diff(resource.data).affectedKeys()", "Immutable fields and state machines such as draft to submitted", "Preventing privilege escalation: users must not write their own role field", "Rate limiting writes with timestamps in rules and its limits", "Rules for list queries: request.query.limit and resource-based constraints", "Rule versioning, release history and canary rules in a second database"],
+          "tools": ["Firestore Security Rules", "rules-unit-testing", "Emulator Suite", "Firebase CLI", "Cloud Logging"],
+          "lab_task": "Write rules for orders with a status state machine (draft to submitted to paid, no backward moves), immutable createdBy, a rule that users may change only title and notes via hasOnly on affectedKeys(), and a query limit of 50 enforced with request.query.limit <= 50. Test 25 cases including privilege escalation attempts such as setting role: 'admin' on the user's own profile.",
+          "deliverable": "Rules file, 25-case test suite and a threat table listing each attack and the rule that stops it",
+          "checks": [["Update an order and change createdBy", "The write is denied", "Test output"], ["Move an order from paid back to draft", "The write is denied by the status transition rule", "Test output"], ["Query orders with limit(100)", "The query is denied for exceeding the 50 limit", "Test output"]],
+          "objectives": ["Write rules that enforce state machines and field-level change control", "Stay inside rule evaluation limits", "Test for privilege escalation"]
+        },
+        {
+          "topic": "Auth Blocking Functions and Custom Identity Providers",
+          "subtopics": ["beforeUserCreated and beforeUserSignedIn blocking triggers", "Rejecting with HttpsError('permission-denied') and setting custom claims in the response", "Timeouts of 7 seconds for blocking functions", "Custom token sign-in with createCustomToken for existing identity systems", "OIDC and SAML providers through Identity Platform", "Account linking policy and the same-email conflict", "Tenant-aware blocking and per-tenant configuration", "Audit logging of sign-in decisions"],
+          "tools": ["Identity Platform", "Cloud Functions", "Admin SDK", "Firebase Authentication", "Cloud Logging"],
+          "lab_task": "Write beforeUserCreated that rejects emails outside @example.com with HttpsError('permission-denied') and sets {role: 'member'} through the returned customClaims. Add beforeUserSignedIn that blocks accounts marked disabled in Firestore. Mint a custom token from a fake legacy login service with createCustomToken(uid, {plan: 'pro'}) and sign in with signInWithCustomToken.",
+          "deliverable": "Two blocking functions, a custom-token endpoint and a test transcript of allowed and blocked sign-ins",
+          "checks": [["Create an account with a gmail.com address", "Registration is rejected with a permission-denied error from the blocking function", "Client error"], ["Create an account with an example.com address", "The ID token contains the claim role equal to member", "Decoded token"], ["Sign in with a custom token", "The ID token contains the plan claim equal to pro", "Decoded token"]],
+          "objectives": ["Intercept sign-up and sign-in with blocking functions", "Integrate an external identity system with custom tokens", "Audit authentication decisions"]
+        },
+        {
+          "topic": "Cloud Functions Performance: Cold Starts, Concurrency and Minimum Instances",
+          "subtopics": ["Cold start sources: container start, runtime init, global scope imports", "Lazy imports and lazy initialisation of Admin SDK clients", "Concurrency per instance and when it is safe to raise it", "minInstances cost versus latency benefit", "CPU allocation, cpu: 'gcf_gen1' versus always-allocated CPU", "Connection reuse for HTTP and database clients", "Measuring with Cloud Monitoring run.googleapis.com request_latencies and instance count", "Right-sizing memory using the container memory utilisation metric"],
+          "tools": ["Cloud Functions", "Cloud Run", "Cloud Monitoring", "k6", "Node.js"],
+          "lab_task": "Deploy a callable that imports a heavy PDF library at module level. Run k6 for 5 minutes at 20 requests per second and record p50, p95 and the share of cold starts. Move the import inside the handler with a cached dynamic import, set concurrency 40 and minInstances 1, rerun and compare p95 and the monthly cost of the idle instance.",
+          "deliverable": "Before and after k6 results and a cost versus latency recommendation",
+          "checks": [["Run k6 against the original deployment", "A p95 latency and a cold start percentage are recorded", "k6 summary"], ["Apply lazy import, concurrency 40 and minInstances 1 and rerun", "p95 latency is lower than in the first run", "k6 summary"], ["Read instance count in Cloud Monitoring during the second run", "Fewer instances are used than in the first run for the same request rate", "Monitoring chart"]],
+          "objectives": ["Diagnose and reduce cold starts", "Tune concurrency and instance settings", "Weigh latency against idle cost"]
+        },
+        {
+          "topic": "Event-Driven Design with Eventarc and Pub/Sub",
+          "subtopics": ["onMessagePublished and Pub/Sub topics and subscriptions", "Custom events with onCustomEventPublished and Eventarc channels", "Cloud Storage and Firestore events through Eventarc and filtering", "Ordering keys, dead-letter topics and message retention", "Exactly-once semantics are not guaranteed: deduplicate by message ID", "Fan-out to multiple consumers and consumer lag metrics", "Schema validation with Pub/Sub schemas", "Replaying with seek to timestamp"],
+          "tools": ["Pub/Sub", "Eventarc", "Cloud Functions", "Cloud Monitoring", "gcloud CLI"],
+          "lab_task": "Create the topic order-events and a dead-letter topic order-events-dlq. Publish 1,000 messages with gcloud pubsub topics publish, process them with onMessagePublished, fail 20 on purpose and configure maxDeliveryAttempts 5 on the subscription. Verify 20 messages land in the DLQ, then replay with gcloud pubsub subscriptions seek to a timestamp.",
+          "deliverable": "Topic and subscription configuration, handler, DLQ evidence and a replay procedure",
+          "checks": [["Publish 1,000 messages and process them", "Subscription backlog (num_undelivered_messages) returns to 0", "Monitoring chart"], ["Fail 20 messages on purpose", "20 messages arrive in the dead-letter topic after 5 delivery attempts", "DLQ pull output"], ["Seek the subscription back by 10 minutes", "Messages are redelivered and the dedupe check prevents duplicate effects", "Handler log"]],
+          "objectives": ["Build Pub/Sub and Eventarc driven flows", "Handle failures with dead-letter topics", "Deduplicate and replay events"]
+        },
+        {
+          "topic": "Realtime Database at Scale: Sharding, Indexing and Rules",
+          "subtopics": ["Single database limits and the case for multiple database instances", "Creating extra instances with firebase database:instances:create", "Sharding by tenant or hash across instances", "Fan-out writes with multi-path update()", "Query depth and flat data structures to avoid deep downloads", "Using database:profile to find slow and unindexed queries", "Rule performance and the .indexOn requirement", "Moving ephemeral state to RTDB and durable data to Firestore"],
+          "tools": ["Realtime Database", "Firebase CLI", "Admin SDK", "Cloud Monitoring", "Emulator UI"],
+          "lab_task": "Create two database instances, route users to an instance by hash(uid) % 2 and build a chat with a multi-path update() that writes to messages, userChats and unread counters atomically. Run firebase database:profile for 60 seconds under a load script of 100 clients, find an unindexed query and fix it with .indexOn.",
+          "deliverable": "Sharding router, atomic fan-out write and a profile report before and after indexing",
+          "checks": [["Run database:profile during the load script", "The report lists the unindexed query path with its call count", "Profile output"], ["Add .indexOn for the field and rerun", "The unindexed warning disappears and bytes downloaded per call fall", "Profile output"], ["Introduce a rule violation in one path of a multi-path update", "The whole update is rejected and none of the paths change", "Database snapshot"]],
+          "objectives": ["Scale Realtime Database across instances", "Write atomic multi-path updates", "Profile and index queries"]
+        },
+        {
+          "topic": "Observability: Structured Logging, Monitoring and Alerts",
+          "subtopics": ["firebase-functions logger with severity and structured payload fields", "Log Explorer queries with resource.type=\"cloud_run_revision\"", "Log-based metrics and distribution metrics", "Alerting policies on error rate, latency and function instance count", "Error Reporting grouping and notification channels", "Trace IDs and correlation across callable, Firestore trigger and Pub/Sub", "Dashboards for Firestore, Authentication and Functions metrics", "Log retention, sinks to BigQuery and sensitive data hygiene"],
+          "tools": ["Cloud Logging", "Cloud Monitoring", "Error Reporting", "Cloud Trace", "BigQuery", "gcloud CLI"],
+          "lab_task": "Instrument the order flow with logger.info and a correlation ID field in every log entry. Create a log-based counter metric for severity=ERROR on the function, an alerting policy that fires when the error rate exceeds 5 percent over 5 minutes and a dashboard with four charts. Cause 10 failures and confirm the alert email arrives within the policy window.",
+          "deliverable": "Instrumented code, alert policy JSON, dashboard definition and a notification screenshot",
+          "checks": [["Query Log Explorer by correlation ID", "All entries across the three functions for the order are returned in time order", "Log Explorer screenshot"], ["Cause 10 failures in 5 minutes", "The alerting policy opens an incident", "Incident screenshot"], ["Check an error entry for personal data", "Email and tokens are masked or absent in the log payload", "Log entry"]],
+          "objectives": ["Add structured, correlated logging", "Define alert policies tied to user impact", "Keep sensitive data out of logs"]
+        },
+        {
+          "topic": "Analytics, Crashlytics and BigQuery Data Pipelines",
+          "subtopics": ["Google Analytics for Firebase event model and the 500 distinct event name limit", "Daily and streaming export of events_* tables to BigQuery", "Crashlytics export to BigQuery and unresolved issue queries", "Querying nested event_params with UNNEST", "Retention and funnel queries in SQL", "Linking Remote Config and A/B experiment data", "Partitioned tables, cost controls and scheduled queries", "Privacy: user_pseudo_id, consent mode and data deletion requests"],
+          "tools": ["BigQuery", "Google Analytics for Firebase", "Crashlytics", "Looker Studio", "Cloud Scheduler", "SQL"],
+          "lab_task": "Enable BigQuery export from Analytics and Crashlytics, wait for the first events_ table, and write SQL with UNNEST(event_params) that counts sign_up to first_purchase conversion by day, the top 5 crash issues by affected users, and a seven-day retention cohort. Schedule one query daily into a summary table and build a Looker Studio chart on it.",
+          "deliverable": "Three SQL queries, a scheduled query and a dashboard link",
+          "checks": [["Run the conversion query", "A row per day with sign_up users, purchasers and a conversion rate between 0 and 1", "Query results"], ["Run the crash issue query", "Five issues are ranked by distinct users affected", "Query results"], ["Check bytes billed of the query with a partition filter", "It is lower than the same query without the filter", "Job statistics"]],
+          "objectives": ["Analyse Firebase events and crash data in BigQuery", "Control BigQuery query cost", "Respect privacy constraints in analytics pipelines"]
+        },
+        {
+          "topic": "Multi-Environment Deployment and Release Pipelines",
+          "subtopics": ["Separate projects for dev, staging and production with aliases in .firebaserc", "firebase deploy --only with targeted functions and --force considerations", "Keyless GitHub Actions authentication with Workload Identity Federation", "Least-privilege deploy service account roles", "Pinning firebase-tools and Node versions", "Rules and index deploy order and index build time before query release", "Canary and staged releases with Hosting channels and function traffic percentages", "Rollback runbook for functions, rules and hosting"],
+          "tools": ["GitHub Actions", "Firebase CLI", "Workload Identity Federation", "Cloud Run", "Cloud Build", "gcloud CLI"],
+          "lab_task": "Write two workflows: pull requests deploy a preview channel to staging; a tagged release deploys rules, indexes, functions and hosting to production in that order. Authenticate with google-github-actions/auth using Workload Identity Federation and no JSON key, and grant a dedicated service account only the roles needed. Practise a rollback of one function revision and one rules release.",
+          "deliverable": "Workflow files, IAM role list and a tested rollback runbook",
+          "checks": [["Search the repository and secrets for service account JSON keys", "None exist; authentication uses the workload identity provider", "Repository search and Actions settings"], ["Run the release workflow on a tag", "Deploy steps run in the order rules, indexes, functions, hosting and finish green", "Actions run"], ["Roll back the function revision", "Traffic is routed to the previous revision and a health call shows the earlier version string", "curl output"]],
+          "objectives": ["Build safe multi-environment release pipelines", "Use keyless authentication with least privilege", "Roll back each Firebase component"]
+        },
+        {
+          "topic": "Security Hardening: IAM, Organisation Policy and Audit Logs",
+          "subtopics": ["Firebase predefined roles: firebase.admin, firebase.viewer and product-specific roles", "Custom roles and removing Editor or Owner from humans and CI", "Service accounts used by functions and how to give each function its own", "Enabling Data Access audit logs for Firestore and Secret Manager", "Organisation policies: restrict locations, disable service account key creation", "VPC Service Controls and their effect on Firebase APIs", "API key restrictions for the browser key", "Break-glass access and periodic access reviews"],
+          "tools": ["IAM", "Cloud Audit Logs", "Organisation Policy", "Secret Manager", "gcloud CLI", "Security Command Center"],
+          "lab_task": "Audit a project with gcloud projects get-iam-policy and list every principal with roles/editor or roles/owner. Replace them with specific roles, create a dedicated service account for the billing function with only roles/datastore.user, restrict the browser API key by HTTP referrer and API, enable Data Access audit logs for Firestore and query one admin read in Logs Explorer.",
+          "deliverable": "IAM audit report with before and after policy, restricted API key settings and an audit log query",
+          "checks": [["Run gcloud projects get-iam-policy after cleanup", "No human or CI principal holds roles/editor or roles/owner except the documented break-glass account", "Policy output"], ["Call the Maps or Firestore API with the browser key from a disallowed referrer", "The request is rejected with HTTP 403", "curl output"], ["Read a Firestore document as admin and search audit logs", "A DataAccess entry with the principal and method name appears", "Log entry"]],
+          "objectives": ["Reduce IAM privilege for people and pipelines", "Restrict API keys and enable audit logs", "Apply organisation-level guardrails"]
+        },
+        {
+          "topic": "Cost Governance and Quota Management",
+          "subtopics": ["Cost drivers by product: Firestore operations and storage, Functions invocation and compute, egress, Authentication phone SMS", "Billing export to BigQuery and labels on resources", "Budgets with Pub/Sub notifications and a function that disables billing as a hard stop", "Quota dashboards and increase requests", "Per-user rate limits and App Check to cap abuse cost", "Unit economics: cost per daily active user", "Cleaning orphaned storage, old function revisions and unused indexes", "Showback reports per team"],
+          "tools": ["Cloud Billing", "BigQuery", "Cloud Monitoring", "Cloud Functions", "Pub/Sub", "Looker Studio"],
+          "lab_task": "Export billing to BigQuery, label resources by team, and write SQL that reports monthly cost per product and per label. Create a budget that publishes to Pub/Sub at 100 percent and a function that, in the sandbox project only, detaches billing when the budget message arrives. Simulate the message and confirm that billing is disabled, then re-enable it.",
+          "deliverable": "Cost report SQL, budget automation and a cost-per-DAU calculation",
+          "checks": [["Run the per-product SQL on the last 30 days", "Rows list cost by service with a total that matches the billing report within 1 percent", "Query results"], ["Publish a simulated 100 percent budget message", "The function detaches the billing account from the sandbox project", "Billing page and log"], ["Divide monthly cost by average daily active users", "A cost per DAU figure is reported with the inputs shown", "Worksheet"]],
+          "objectives": ["Attribute Firebase spend to products and teams", "Automate budget responses safely", "Track unit economics"]
+        },
+        {
+          "topic": "Disaster Recovery and Data Migration",
+          "subtopics": ["Recovery objectives: RPO and RTO per data class", "Firestore backups, PITR and exports as recovery tools", "Region failure behaviour of regional and multi-region databases", "Rules, indexes and functions restored from git as source of truth", "Migrating Realtime Database to Firestore with a dual-write period", "Bulk migration with BulkWriter, rate control and resumable checkpoints", "Validation with counts and checksums", "Game days and runbook rehearsal"],
+          "tools": ["Cloud Firestore", "Realtime Database", "BulkWriter", "gcloud CLI", "Cloud Storage", "Admin SDK"],
+          "lab_task": "Migrate 500,000 records from a Realtime Database export JSON to Firestore with a Node script using BulkWriter, a checkpoint file of the last processed key and a rate cap of 500 writes per second. Validate with document counts and an MD5 hash over sorted IDs, then rehearse a restore from a PITR timestamp and record the actual RTO against a target of 60 minutes.",
+          "deliverable": "Migration script, validation report and a rehearsed recovery runbook with measured RTO",
+          "checks": [["Compare record counts between source JSON and Firestore", "Both equal 500,000", "Validation output"], ["Kill the script halfway and restart", "It resumes from the checkpoint and finishes without duplicate documents", "Run log and count"], ["Restore from a PITR timestamp into a new database", "Measured recovery time is recorded and compared with the 60 minute target", "Runbook timing"]],
+          "objectives": ["Plan recovery by RPO and RTO", "Migrate data with checkpoints and validation", "Rehearse restore procedures"]
+        },
+        {
+          "topic": "Load Testing and Reliability Engineering",
+          "subtopics": ["Service level indicators and objectives for availability and latency", "Error budget policy and release gating", "Load profiles: ramp, soak, spike with k6", "Using the Firestore emulator versus a staging project and why only staging gives valid numbers", "Retries with exponential backoff and jitter; RESOURCE_EXHAUSTED and UNAVAILABLE handling", "Circuit breakers and graceful degradation of non-critical features", "Chaos tests: revoked permission, quota exhaustion, region latency", "Post-incident review template"],
+          "tools": ["k6", "Cloud Monitoring", "Cloud Firestore", "Cloud Functions", "Locust", "Cloud Logging"],
+          "lab_task": "Define SLOs of 99.5 percent successful callable requests and p95 under 800 ms. Write a k6 script with a 5 minute ramp to 100 requests per second, a 15 minute soak and a 2 minute spike to 300, run it against staging, and read the error budget burn in Cloud Monitoring. Add jittered exponential backoff to the client and rerun the spike.",
+          "deliverable": "k6 script, SLO definitions, before and after spike results and a short post-test review",
+          "checks": [["Run the spike without client backoff", "Errors such as RESOURCE_EXHAUSTED or HTTP 429 are recorded with their rate", "k6 summary"], ["Rerun with jittered exponential backoff", "Failed requests fall and the SLO success rate is higher than in the first run", "k6 summary"], ["Read the SLO burn rate chart", "Budget consumed during the test is reported as a percentage", "Monitoring screenshot"]],
+          "objectives": ["Define and measure SLOs for Firebase services", "Run ramp, soak and spike tests", "Improve resilience with backoff and degradation"]
+        },
+        {
+          "topic": "Advanced Capstone: Production-Ready Collaborative Platform with AI Search",
+          "subtopics": ["Architecture decision records, SLOs and cost model", "Data layer with Firestore, vector search and tenant isolation", "Security through rules tests, App Check, blocking functions and least-privilege IAM", "Reliability with load tests, alerts, backups and a restore drill", "Release pipeline with keyless CI and rollbacks", "Final design review and handover pack"],
+          "tools": ["Cloud Firestore", "Cloud Functions", "Genkit", "GitHub Actions", "Cloud Monitoring", "App Check"],
+          "lab_task": "Deliver a collaborative document platform: tenant-isolated Firestore data, vector search for question answering through a Genkit flow with per-user limits, 40 or more rules tests, App Check enforced, a blocking function for domain control, SLO alerts, a restore drill from PITR and a keyless release pipeline. Present measured p95 latency, cost per DAU and the restore time.",
+          "deliverable": "Repository, staging environment, SLO dashboard, restore drill report and a review presentation with measurements",
+          "checks": [["Run the full CI pipeline", "40 or more rules and function tests pass and staging deploys without errors", "Actions run"], ["Run a 10 minute load test at the target rate", "p95 latency stays below the SLO and the error rate is within budget", "k6 summary and chart"], ["Perform the restore drill", "A database restored from the PITR timestamp matches the source document count and the measured time is reported", "Drill report"]],
+          "objectives": ["Integrate scale, security, AI and operations in one design", "Prove reliability with measurements", "Defend design decisions in a review"]
+        }
+      ]
+    }
+  }
+}

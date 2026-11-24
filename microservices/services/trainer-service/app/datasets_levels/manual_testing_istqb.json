@@ -1,0 +1,573 @@
+{
+  "domain": "Manual Testing and ISTQB",
+  "name": "Manual Testing and ISTQB Certification",
+  "category": "Testing and QA",
+  "icon": "clipboard-list",
+  "aliases": ["Manual Testing", "Manual Testing Training", "Manual QA", "Manual Software Testing", "Manual Tester", "ISTQB", "ISTQB Foundation", "ISTQB Foundation Level", "ISTQB CTFL", "CTFL", "ISTQB Certification", "ISTQB Exam Preparation", "ISTQB Advanced Test Analyst", "ISTQB Test Manager"],
+  "certifications": ["ISTQB Certified Tester Foundation Level (CTFL) v4.0", "ISTQB Advanced Level Test Analyst (CTAL-TA)", "ISTQB Advanced Level Test Management (CTAL-TM)"],
+  "tools": ["Jira with Xray or Zephyr", "TestRail", "Excel or Google Sheets", "Browser developer tools", "Postman", "ISTQB syllabi and sample exams"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new testers, graduates and people moving into QA, aligned with the ISTQB Certified Tester Foundation Level v4.0 syllabus. Covers why testing is needed, the seven principles, test activities and testware, testing in sequential and agile lifecycles, test levels and types, static testing and reviews, black-box, white-box and experience-based techniques, collaboration-based approaches, test cases, defect reports, planning, estimation, risk-based testing, monitoring, configuration management and tools, with a CTFL mock exam.",
+      "prerequisites": ["Comfortable using web and mobile applications", "Good written English for test cases and defect reports", "No programming needed"],
+      "outcomes": ["Design test cases with black-box, white-box and experience-based techniques", "Write clear test cases and defect reports and run a test cycle by hand", "Plan, estimate and prioritise testing with risk in mind", "Pass the ISTQB CTFL v4.0 exam (40 questions in 60 minutes, 26 to pass)"],
+      "days": [
+        {
+          "topic": "Manual Testing and ISTQB Overview: Roles, Certification Path and Course Setup",
+          "subtopics": ["What testers do in software teams", "Manual testing compared with test automation", "Careers in testing: tester, test analyst, test lead and SDET", "The ISTQB scheme: Foundation, Advanced and Specialist", "The CTFL v4.0 syllabus and its six chapters", "Exam format: 40 questions, 60 minutes, 26 marks to pass", "Learning objectives and K-levels", "The course application under test", "Tools used in the course", "Personal baseline quiz"],
+          "tools": ["ISTQB CTFL v4.0 syllabus", "Sample exam questions", "Course application"],
+          "lab_task": "Explore the course application for thirty minutes, list ten things that look wrong, take a baseline quiz of twenty CTFL questions and plan your study weeks.",
+          "deliverable": "Exploration notes, baseline quiz result and study plan",
+          "checks": [["Explore", "Ten observations are recorded with steps", "Exploration notes"], ["Baseline", "The quiz score is recorded by chapter", "Quiz result"], ["Plan", "The study plan covers all six chapters before the mock exam", "Study plan"]],
+          "objectives": ["Explain the tester's role", "Describe the ISTQB scheme and exam", "Set a study plan"]
+        },
+        {
+          "topic": "Why Testing Is Necessary: Errors, Defects, Failures and Root Causes",
+          "subtopics": ["Objectives of testing", "Testing compared with debugging", "Errors, defects and failures", "Root causes and effects", "Testing and quality assurance", "Testing's contribution to success", "Real failures and what they cost", "Exam questions on chapter 1 terms"],
+          "tools": ["Case studies", "CTFL glossary", "Sample questions"],
+          "lab_task": "Analyse three real software failures, separate error, defect, failure and root cause for each, and answer fifteen chapter 1 questions.",
+          "deliverable": "Failure analyses and practice results",
+          "checks": [["Separate terms", "Each case names error, defect, failure and root cause correctly", "Analyses"], ["Explain value", "Each analysis states how testing could have helped", "Analyses"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Explain why testing is needed", "Use core testing terms", "Separate testing from debugging"]
+        },
+        {
+          "topic": "The Seven Testing Principles",
+          "subtopics": ["Testing shows the presence, not the absence, of defects", "Exhaustive testing is impossible", "Early testing saves time and money", "Defects cluster together", "Tests wear out", "Testing is context dependent", "Absence-of-defects fallacy", "Applying the principles to real decisions"],
+          "tools": ["Principle cards", "Case studies", "Sample questions"],
+          "lab_task": "Match each principle to a situation from a project case, explain one decision each principle should change and answer fifteen principle questions.",
+          "deliverable": "Principle mapping and practice results",
+          "checks": [["Map principles", "Each principle is matched to a case situation", "Mapping"], ["Apply", "Each principle changes one testing decision", "Decision notes"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Explain the seven principles", "Apply them to projects", "Answer principle questions"]
+        },
+        {
+          "topic": "Test Activities, Testware and Traceability",
+          "subtopics": ["Test planning, monitoring and control", "Test analysis and test design", "Test implementation and execution", "Test completion", "Testware produced by each activity", "Traceability between test basis and tests", "Roles: test management and testing", "Essential skills and the whole-team approach"],
+          "tools": ["Traceability matrix template", "Test management tool", "Sample requirements"],
+          "lab_task": "For a small feature, produce the testware of each activity from test conditions to a completion report, and build a traceability matrix from requirements to tests and defects.",
+          "deliverable": "Testware set and traceability matrix",
+          "checks": [["Cover activities", "Each activity has its testware", "Testware folder"], ["Trace", "Every requirement links to at least one test", "Traceability matrix"], ["Report completion", "The completion report summarises results and lessons", "Completion report"]],
+          "objectives": ["Describe test activities", "Produce testware", "Maintain traceability"]
+        },
+        {
+          "topic": "Testing in the Software Development Lifecycle: Sequential, Iterative and Agile Models",
+          "subtopics": ["Sequential models such as waterfall and V-model", "Iterative and incremental models", "Agile and Scrum practices", "Good testing practice in any lifecycle", "Test-first approaches: TDD, ATDD and BDD", "DevOps and testing", "Shift-left", "Retrospectives and process improvement"],
+          "tools": ["Lifecycle diagrams", "Case studies", "Sample questions"],
+          "lab_task": "Compare testing activities in a V-model project and a Scrum project, describe how shift-left changes each, and answer fifteen chapter 2 lifecycle questions.",
+          "deliverable": "Lifecycle comparison and practice results",
+          "checks": [["Compare", "Testing activities are mapped for both lifecycles", "Comparison"], ["Shift left", "Shift-left changes are described with examples", "Comparison"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Explain testing in different lifecycles", "Describe test-first approaches", "Apply shift-left"]
+        },
+        {
+          "topic": "Test Levels: Component, Integration, System and Acceptance",
+          "subtopics": ["Component testing", "Component integration testing", "System testing", "System integration testing", "Acceptance testing: user, operational, contractual and regulatory", "Objectives, test basis and defects at each level", "Who tests at each level", "Test levels in agile teams"],
+          "tools": ["Test level template", "Course application", "Sample questions"],
+          "lab_task": "Define the objectives, test basis, typical defects and owners for each test level of the course application, and design two acceptance tests with a business user.",
+          "deliverable": "Test level table and two acceptance tests",
+          "checks": [["Define levels", "Each level has objectives, basis, defects and owner", "Test level table"], ["Design acceptance", "Acceptance tests are written with a business user", "Acceptance tests"], ["Practise", "At least eleven of fifteen level questions are correct", "Practice results"]],
+          "objectives": ["Explain test levels", "Plan testing per level", "Design acceptance tests"]
+        },
+        {
+          "topic": "Test Types, Confirmation Testing and Regression Testing",
+          "subtopics": ["Functional testing", "Non-functional testing and quality characteristics", "Black-box and white-box testing", "Confirmation testing after fixes", "Regression testing after changes", "Selecting regression tests", "Maintenance testing", "Impact analysis"],
+          "tools": ["Test management tool", "Course application", "Sample questions"],
+          "lab_task": "After a set of fixes and a change to the course application, run confirmation tests, choose a regression set using impact analysis and record the results.",
+          "deliverable": "Confirmation results, regression selection and impact analysis",
+          "checks": [["Confirm fixes", "Each fixed defect has a confirmation test result", "Test results"], ["Select regression", "The regression set is justified by impact analysis", "Impact analysis"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Distinguish test types", "Run confirmation and regression testing", "Use impact analysis"]
+        },
+        {
+          "topic": "Static Testing: Reviews, Walkthroughs and Inspections",
+          "subtopics": ["Static testing compared with dynamic testing", "Work products that can be reviewed", "Value of early feedback", "The review process", "Review types: informal, walkthrough, technical review and inspection", "Roles in reviews", "Success factors for reviews", "Static analysis tools in brief"],
+          "tools": ["Review checklist", "Sample requirements and user stories", "Sample questions"],
+          "lab_task": "Review a requirements document and five user stories with a checklist in a role-played technical review, log the findings and answer fifteen static testing questions.",
+          "deliverable": "Review log and practice results",
+          "checks": [["Review", "At least ten findings are logged with locations", "Review log"], ["Use roles", "Review roles are assigned and followed", "Review notes"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Run reviews", "Find defects before execution", "Explain review types"]
+        },
+        {
+          "topic": "Equivalence Partitioning and Boundary Value Analysis in Practice",
+          "subtopics": ["Black-box techniques and when to use them", "Valid and invalid partitions", "Equivalence partition coverage", "Two-value and three-value boundary analysis", "Boundary coverage", "Combining partitions and boundaries", "Common exam calculation traps", "Writing tests from the techniques"],
+          "tools": ["Test design worksheet", "Course application", "Sample questions"],
+          "lab_task": "Design tests for an age field, a discount rule and a password policy using partitions and boundaries, run them on the course application and solve ten technique questions.",
+          "deliverable": "Designed tests, results and practice answers",
+          "checks": [["Find partitions", "Valid and invalid partitions are complete for each rule", "Worksheet"], ["Find boundaries", "Boundary values match two-value or three-value analysis", "Worksheet"], ["Practise", "At least eight of ten technique questions are correct", "Practice results"]],
+          "objectives": ["Apply equivalence partitioning", "Apply boundary value analysis", "Measure coverage"]
+        },
+        {
+          "topic": "Decision Table Testing and State Transition Testing",
+          "subtopics": ["Decision tables: conditions, actions and rules", "Collapsing decision tables", "Decision table coverage", "State transition diagrams and tables", "Valid and invalid transitions", "All states, valid transitions and all transitions coverage", "Choosing between the two techniques", "Technique questions on the exam"],
+          "tools": ["Test design worksheet", "Diagram tool", "Sample questions"],
+          "lab_task": "Build a decision table for a loan approval rule and a state model for an order, derive tests for each coverage level and solve ten technique questions.",
+          "deliverable": "Decision table, state model, tests and practice answers",
+          "checks": [["Build the table", "All rules are covered with expected actions", "Decision table"], ["Model states", "The state model includes invalid transitions", "State model"], ["Practise", "At least eight of ten questions are correct", "Practice results"]],
+          "objectives": ["Apply decision table testing", "Apply state transition testing", "Choose suitable techniques"]
+        },
+        {
+          "topic": "White-Box Testing: Statement and Branch Coverage",
+          "subtopics": ["What white-box testing is for", "Statements and branches", "Statement coverage", "Branch coverage", "Why branch coverage includes statement coverage", "Reading simple code or pseudocode", "Value of white-box testing for testers", "Coverage questions on the exam"],
+          "tools": ["Pseudocode examples", "Coverage worksheet", "Sample questions"],
+          "lab_task": "Calculate statement and branch coverage for five pseudocode examples, design the minimum tests for full branch coverage and solve ten coverage questions.",
+          "deliverable": "Coverage calculations and minimum test sets",
+          "checks": [["Calculate", "Coverage percentages are correct for all five examples", "Worksheet"], ["Minimise", "Minimum test sets achieve full branch coverage", "Test sets"], ["Practise", "At least eight of ten questions are correct", "Practice results"]],
+          "objectives": ["Explain white-box testing", "Calculate statement and branch coverage", "Design tests for coverage"]
+        },
+        {
+          "topic": "Experience-Based Techniques: Error Guessing, Exploratory and Checklist-Based Testing",
+          "subtopics": ["When experience-based techniques help", "Error guessing and fault attacks", "Exploratory testing", "Session-based exploratory testing", "Checklist-based testing", "Combining with formal techniques", "Recording what you explored", "Exam questions on experience-based techniques"],
+          "tools": ["Exploratory charter template", "Checklists", "Course application"],
+          "lab_task": "Run two time-boxed exploratory sessions on the course application with charters, use a checklist on one feature, log the defects found and compare them with scripted test results.",
+          "deliverable": "Session notes, checklist results and defect comparison",
+          "checks": [["Explore", "Each session has a charter, notes and findings", "Session notes"], ["Use checklists", "The checklist run records pass and fail items", "Checklist results"], ["Compare", "New defects found by exploration are listed", "Comparison"]],
+          "objectives": ["Use experience-based techniques", "Run exploratory sessions", "Combine techniques"]
+        },
+        {
+          "topic": "Collaboration-Based Test Approaches: User Stories, Acceptance Criteria and ATDD",
+          "subtopics": ["Collaborative user story writing", "Card, conversation and confirmation", "INVEST criteria", "Writing acceptance criteria", "Scenario-oriented and rule-oriented criteria", "Acceptance test-driven development", "Given, When and Then examples", "Exam questions on collaboration-based approaches"],
+          "tools": ["User story template", "Gherkin examples", "Sample questions"],
+          "lab_task": "Refine three user stories with a role-played product owner and developer, write acceptance criteria in both formats and turn them into ATDD examples.",
+          "deliverable": "Refined stories, criteria and ATDD examples",
+          "checks": [["Refine", "Each story meets the INVEST criteria", "Story review"], ["Write criteria", "Each story has testable acceptance criteria", "Story set"], ["Write examples", "ATDD examples cover main and edge cases", "Examples"]],
+          "objectives": ["Collaborate on user stories", "Write acceptance criteria", "Apply ATDD"]
+        },
+        {
+          "topic": "Writing Manual Test Cases and Test Scenarios",
+          "subtopics": ["Test scenarios and test cases", "Preconditions, steps and expected results", "Test data in test cases", "High-level and low-level test cases", "Naming and organising test cases", "Reviewing test cases", "Maintaining test cases as features change", "Test cases in a test management tool"],
+          "tools": ["Jira with Xray or Zephyr", "TestRail", "Course application"],
+          "lab_task": "Write scenarios and twenty detailed test cases for checkout in a test management tool, have a peer review them and run them against the course application.",
+          "deliverable": "Reviewed test cases with execution results",
+          "checks": [["Write clearly", "Each case has preconditions, steps, data and expected results", "Test case set"], ["Review", "Peer review findings are fixed", "Review notes"], ["Execute", "All twenty cases are run with results recorded", "Execution report"]],
+          "objectives": ["Write good test cases", "Organise them in a tool", "Execute and record results"]
+        },
+        {
+          "topic": "Defect Reports: Writing, Severity, Priority and Life Cycle",
+          "subtopics": ["Purpose of defect reports", "Contents of a good defect report", "Steps to reproduce and evidence", "Severity compared with priority", "The defect life cycle and states", "Duplicates and rejected defects", "Communicating defects without blame", "Exam questions on defect management"],
+          "tools": ["Jira", "Screenshot and screen recording tools", "Browser developer tools"],
+          "lab_task": "Report five defects found in the course application with steps, evidence, severity and priority, take them through the life cycle with a role-played developer and answer ten defect questions.",
+          "deliverable": "Five defect reports and practice results",
+          "checks": [["Report well", "Each report reproduces the defect on first try", "Developer feedback"], ["Rate correctly", "Severity and priority are justified separately", "Defect reports"], ["Practise", "At least eight of ten questions are correct", "Practice results"]],
+          "objectives": ["Write defect reports", "Rate severity and priority", "Manage the defect life cycle"]
+        },
+        {
+          "topic": "Test Planning, Estimation and Test Prioritisation",
+          "subtopics": ["Purpose and contents of a test plan", "Release and iteration planning", "Entry and exit criteria and definitions of ready and done", "Estimation techniques: ratios, extrapolation, Wideband Delphi and three-point", "Test case prioritisation: risk, coverage and requirements based", "The test pyramid", "Testing quadrants", "Planning questions on the exam"],
+          "tools": ["Test plan template", "Estimation worksheet", "Sample questions"],
+          "lab_task": "Write a one-page test plan for a release with entry and exit criteria, estimate testing effort with two techniques, prioritise the test cases and answer fifteen planning questions.",
+          "deliverable": "Test plan, estimates, priority order and practice results",
+          "checks": [["Plan", "Scope, approach, criteria and schedule are covered", "Test plan"], ["Estimate", "Two techniques give estimates with stated assumptions", "Estimation worksheet"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Plan testing", "Estimate effort", "Prioritise tests"]
+        },
+        {
+          "topic": "Risk-Based Testing and Test Monitoring",
+          "subtopics": ["Risk, likelihood and impact", "Product risks and project risks", "Product risk analysis", "Risk control: mitigation and monitoring", "Test monitoring and test control", "Metrics used in testing", "Test progress and completion reports", "Communicating test status"],
+          "tools": ["Risk register", "Test management tool", "Dashboard"],
+          "lab_task": "Run a product risk analysis for the course application, focus testing on the highest risks, report progress halfway through with metrics and propose one control action.",
+          "deliverable": "Risk analysis, progress report and control action",
+          "checks": [["Analyse risk", "Each risk has likelihood, impact and test response", "Risk register"], ["Report progress", "The report shows progress, defects and residual risk", "Progress report"], ["Control", "The control action follows from the metrics", "Control note"]],
+          "objectives": ["Apply risk-based testing", "Monitor and control testing", "Report test status"]
+        },
+        {
+          "topic": "Configuration Management and Test Tools",
+          "subtopics": ["Configuration management for testware", "Versions of test objects and environments", "Tool types: management, static, design, execution, non-functional and DevOps", "Collaboration tools", "Benefits and risks of test automation", "Selecting a tool with a pilot", "Tools that use AI", "Exam questions on chapters 5 and 6"],
+          "tools": ["Test management tool", "Version control", "Sample questions"],
+          "lab_task": "Set up version tracking for test cases and environments in a test management tool, compare three test tool types for a project, and answer fifteen questions on configuration management and tools.",
+          "deliverable": "Configuration record, tool comparison and practice results",
+          "checks": [["Track versions", "Test cases record the build and environment they ran on", "Tool screenshots"], ["Compare tools", "Benefits and risks are listed for three tool types", "Comparison"], ["Practise", "At least eleven of fifteen questions are correct", "Practice results"]],
+          "objectives": ["Manage testware configuration", "Classify test tools", "Weigh automation benefits and risks"]
+        },
+        {
+          "topic": "CTFL Mock Exam and Review",
+          "subtopics": ["Exam conditions: 40 questions in 60 minutes", "K1, K2 and K3 question styles", "Reading questions carefully", "Eliminating wrong options", "Time per question", "Reviewing answers by chapter", "Error log and weak chapters", "Booking the exam"],
+          "tools": ["ISTQB sample exams", "Timer", "Error log"],
+          "lab_task": "Sit a full CTFL sample exam under exam conditions, review every wrong answer by chapter and K-level, and revise the two weakest chapters.",
+          "deliverable": "Mock exam result, error log and revision notes",
+          "checks": [["Sit the mock", "The exam is completed in sixty minutes", "Mock exam result"], ["Review", "Wrong answers are grouped by chapter and K-level", "Error log"], ["Revise", "Weak chapters have revision notes", "Revision notes"]],
+          "objectives": ["Practise under exam conditions", "Find weak chapters", "Prepare to book the exam"]
+        },
+        {
+          "topic": "Beginner Capstone: Manual Test Cycle and CTFL Readiness Check",
+          "subtopics": ["Test plan and risks", "Test design with techniques", "Execution and defect reports", "Progress and completion reports", "Second mock exam", "Readiness decision"],
+          "tools": ["Test management tool", "Jira", "ISTQB sample exams"],
+          "lab_task": "Run a full manual test cycle on a new feature of the course application from plan to completion report, then sit a second mock exam and decide whether you are ready to book CTFL.",
+          "deliverable": "Test cycle artefacts, second mock result and readiness decision",
+          "checks": [["Run the cycle", "Plan, tests, defects and completion report are complete", "Artefacts"], ["Use techniques", "Tests show at least three design techniques", "Test cases"], ["Decide readiness", "The decision is based on both mock scores", "Readiness note"]],
+          "objectives": ["Combine beginner testing skills", "Run a full test cycle", "Judge exam readiness"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers with CTFL or one to three years of experience who want to be strong test analysts. Covers test analysis and coverage, combinatorial techniques, use case and scenario testing, exploratory testing with session-based management, usability and accessibility testing by hand, web and mobile manual testing, API checks with Postman, SQL for testers, testing in agile teams, regression selection, test management tools, defect triage and root cause analysis, non-functional awareness, ERP testing, user acceptance testing, metrics and ISTQB Advanced Test Analyst preparation.",
+      "prerequisites": ["Holds CTFL or has equivalent knowledge", "Has tested real applications by hand", "Writes test cases and defect reports confidently"],
+      "outcomes": ["Analyse requirements and design tests with advanced techniques and clear coverage", "Test web, mobile, API and data behaviour by hand with the right tools", "Work as a test analyst in agile teams and support user acceptance testing", "Prepare for the ISTQB Advanced Test Analyst exam"],
+      "days": [
+        {
+          "topic": "Test Analysis in Depth: Test Basis, Conditions and Coverage",
+          "subtopics": ["Evaluating the test basis", "Finding defects in the test basis", "Identifying test conditions", "Prioritising test conditions", "Coverage items and coverage criteria", "Levels of detail in test conditions", "Traceability for analysts", "Reporting coverage"],
+          "tools": ["Requirements documents", "Traceability matrix", "Test management tool"],
+          "lab_task": "Analyse a requirements set for a loan application, log defects in the requirements, derive and prioritise test conditions and report planned coverage.",
+          "deliverable": "Requirements defects, test conditions and coverage report",
+          "checks": [["Find basis defects", "At least five requirement defects are logged", "Defect log"], ["Derive conditions", "Conditions cover every requirement", "Traceability matrix"], ["Prioritise", "Conditions are ordered by risk with reasons", "Condition list"]],
+          "objectives": ["Analyse the test basis", "Derive test conditions", "Plan and report coverage"]
+        },
+        {
+          "topic": "Domain Testing and Combinatorial Techniques: Pairwise and Classification Trees",
+          "subtopics": ["Domain analysis with several variables", "Classification tree method", "Pairwise testing", "Each choice and base choice coverage", "Tools for generating combinations", "Constraints between parameters", "Choosing combinatorial strength", "Comparing test counts"],
+          "tools": ["Classification tree tool", "Pairwise generator such as PICT", "Spreadsheet"],
+          "lab_task": "Build a classification tree for an insurance quote form, generate pairwise combinations with constraints and compare the number of tests with full combinations.",
+          "deliverable": "Classification tree, pairwise set and comparison",
+          "checks": [["Model", "The tree covers all relevant classes", "Classification tree"], ["Generate", "Pairwise tests respect the constraints", "Test set"], ["Compare", "Test counts for pairwise and full combinations are reported", "Comparison"]],
+          "objectives": ["Apply combinatorial techniques", "Use classification trees", "Reduce test counts safely"]
+        },
+        {
+          "topic": "Use Case and Scenario-Based Testing in Depth",
+          "subtopics": ["Use cases, main flows and alternative flows", "Exception flows", "Scenario testing for end-to-end journeys", "Business process testing", "Coverage of flows", "Combining scenarios with data", "Writing scenarios with business users", "Prioritising scenarios"],
+          "tools": ["Use case documents", "Process diagrams", "Test management tool"],
+          "lab_task": "Derive tests from use cases for a booking system covering main, alternative and exception flows, and write three end-to-end business scenarios with a business user.",
+          "deliverable": "Use case tests and business scenarios",
+          "checks": [["Cover flows", "Every flow has at least one test", "Traceability table"], ["Write scenarios", "Scenarios are reviewed by a business user", "Review notes"], ["Execute", "Scenarios are run with results recorded", "Execution report"]],
+          "objectives": ["Test use cases", "Write business scenarios", "Cover flows systematically"]
+        },
+        {
+          "topic": "Exploratory Testing with Charters and Session-Based Test Management",
+          "subtopics": ["Exploratory testing as a skilled activity", "Writing charters", "Time-boxed sessions", "Session notes and debriefs", "Heuristics and tours", "Measuring exploratory testing", "Pair and mob exploratory testing", "Reporting exploratory results"],
+          "tools": ["Charter template", "Session sheet", "Heuristic cheat sheet"],
+          "lab_task": "Plan and run four exploratory sessions with charters and heuristics, debrief each with a lead, and report coverage, findings and time spent.",
+          "deliverable": "Session sheets, debrief notes and a summary report",
+          "checks": [["Charter", "Each session has a focused charter", "Session sheets"], ["Debrief", "Debriefs record findings and follow-ups", "Debrief notes"], ["Report", "The summary shows coverage, defects and time", "Summary report"]],
+          "objectives": ["Run exploratory testing professionally", "Use heuristics", "Report exploratory results"]
+        },
+        {
+          "topic": "Usability Testing for Manual Testers",
+          "subtopics": ["Usability and user experience", "Usability heuristics", "Heuristic evaluation", "Planning a small usability test", "Tasks, observation and think-aloud", "Severity of usability problems", "Reporting usability findings", "Working with designers"],
+          "tools": ["Usability heuristics checklist", "Screen recording", "Course application"],
+          "lab_task": "Run a heuristic evaluation of the course application, then a small usability test with three users and report the top problems with severity and evidence.",
+          "deliverable": "Heuristic evaluation and usability test report",
+          "checks": [["Evaluate", "Findings are mapped to heuristics", "Evaluation sheet"], ["Observe users", "Three users complete tasks with observations recorded", "Session notes"], ["Report", "Problems are rated by severity with evidence", "Usability report"]],
+          "objectives": ["Evaluate usability", "Run small usability tests", "Report usability findings"]
+        },
+        {
+          "topic": "Manual Accessibility Testing Against WCAG 2.2",
+          "subtopics": ["Accessibility and why it matters", "WCAG 2.2 principles and levels", "Keyboard-only testing", "Screen reader testing with NVDA or VoiceOver", "Colour contrast and zoom", "Forms, errors and labels", "Automated checkers and their limits", "Reporting accessibility defects"],
+          "tools": ["NVDA or VoiceOver", "Colour contrast checker", "axe DevTools browser extension"],
+          "lab_task": "Test five pages of the course application with the keyboard, a screen reader and a contrast checker, compare with an automated scan and report defects with WCAG references.",
+          "deliverable": "Accessibility test results and defect reports",
+          "checks": [["Test by hand", "Keyboard and screen reader results are recorded for five pages", "Test notes"], ["Compare tools", "Issues missed by the automated scan are listed", "Comparison"], ["Report", "Defects reference WCAG success criteria", "Defect reports"]],
+          "objectives": ["Test accessibility by hand", "Use assistive technology", "Report against WCAG"]
+        },
+        {
+          "topic": "Testing Web Applications by Hand: Browsers, Devices and Responsive Layouts",
+          "subtopics": ["Browser and device coverage choices", "Responsive layouts and breakpoints", "Browser developer tools for testers", "Cookies, cache and sessions", "Network throttling", "Console errors and failed requests", "Cross-browser defects", "A web testing checklist"],
+          "tools": ["Browser developer tools", "Responsive design mode", "Cloud device service"],
+          "lab_task": "Test the course application across three browsers and four screen sizes, use developer tools to find console errors and failed requests, and report cross-browser defects.",
+          "deliverable": "Coverage matrix, defect reports and web checklist",
+          "checks": [["Cover browsers", "The matrix shows results for each browser and size", "Coverage matrix"], ["Use developer tools", "Console errors and failed requests are reported", "Defect reports"], ["Write a checklist", "The checklist covers layout, network and session checks", "Checklist"]],
+          "objectives": ["Test web applications thoroughly", "Use developer tools", "Cover browsers and devices"]
+        },
+        {
+          "topic": "Mobile Manual Testing: Gestures, Interrupts and Device Variety",
+          "subtopics": ["Native, hybrid and mobile web apps", "Device and OS coverage", "Gestures and orientation", "Interrupts: calls, notifications and low battery", "Network changes and offline use", "Installation, updates and permissions", "App store guidelines", "Mobile defect evidence"],
+          "tools": ["Android and iOS test devices or emulators", "Device cloud", "Screen recording"],
+          "lab_task": "Test a mobile app on two Android and one iOS device for gestures, interrupts, offline behaviour and permissions, and report defects with screen recordings.",
+          "deliverable": "Mobile test results and defect reports",
+          "checks": [["Cover devices", "Results are recorded for three devices", "Test notes"], ["Test interrupts", "Calls, notifications and network loss are tested", "Test notes"], ["Report", "Defects include device, OS version and recordings", "Defect reports"]],
+          "objectives": ["Test mobile apps by hand", "Test interrupts and network changes", "Report mobile defects"]
+        },
+        {
+          "topic": "API Checks for Manual Testers with Postman",
+          "subtopics": ["Why manual testers need API skills", "Sending requests in Postman", "Reading JSON responses", "Comparing API and UI results", "Testing validation at the API", "Finding defects hidden by the UI", "Simple Postman tests", "Reporting API defects"],
+          "tools": ["Postman", "Browser developer tools", "Course API"],
+          "lab_task": "Capture the API calls behind three UI features, repeat them in Postman with valid and invalid data and report any defect the UI hides.",
+          "deliverable": "Postman requests and API defect reports",
+          "checks": [["Capture calls", "The API calls behind three features are identified", "Network captures"], ["Test the API", "Valid and invalid requests are tested", "Postman results"], ["Report", "Hidden defects are reported with request and response", "Defect reports"]],
+          "objectives": ["Check APIs as a manual tester", "Compare API and UI behaviour", "Report API defects"]
+        },
+        {
+          "topic": "Database and Data Validation with SQL for Testers",
+          "subtopics": ["Why testers check data", "SELECT, WHERE and ORDER BY", "Joins for checking related data", "Aggregates for totals and counts", "Checking data after UI actions", "Data integrity and constraints", "Test data preparation with SQL", "Safe use of SQL in test environments"],
+          "tools": ["SQL client", "Sample database", "Course application"],
+          "lab_task": "Perform UI actions in the course application and verify the stored data with SQL queries, including joins and totals, and report one data defect.",
+          "deliverable": "SQL verification queries and a data defect report",
+          "checks": [["Query", "Queries return the records created through the UI", "Query results"], ["Use joins", "Related data is checked with joins", "Query code"], ["Report", "The data defect report includes the query and results", "Defect report"]],
+          "objectives": ["Write SQL for testing", "Verify stored data", "Report data defects"]
+        },
+        {
+          "topic": "Testing in Agile Teams: Three Amigos, Refinement and Sprint Testing",
+          "subtopics": ["The tester's role in a Scrum team", "Three amigos sessions", "Testing during refinement", "Testing within the sprint", "Definition of done and testing", "Test documentation in agile teams", "Pairing with developers", "Sprint test reporting"],
+          "tools": ["Jira", "Scrum board", "Test management tool"],
+          "lab_task": "Take part in a simulated sprint: run a three amigos session, test stories during the sprint, pair with a developer on one story and report testing in the sprint review.",
+          "deliverable": "Three amigos notes, sprint test notes and review summary",
+          "checks": [["Shape stories", "The three amigos session adds acceptance examples", "Session notes"], ["Test in sprint", "Each story is tested before the sprint ends", "Board snapshots"], ["Report", "The review summary states what was tested and residual risk", "Review summary"]],
+          "objectives": ["Work as a tester in agile teams", "Test within the sprint", "Collaborate with developers"]
+        },
+        {
+          "topic": "Regression Test Selection and Maintenance",
+          "subtopics": ["Why regression suites grow", "Risk-based selection", "Change-based selection with impact analysis", "Core, extended and full regression sets", "Removing obsolete tests", "Keeping test cases current", "Candidates for automation", "Measuring regression effectiveness"],
+          "tools": ["Test management tool", "Impact analysis notes", "Defect history"],
+          "lab_task": "Review a regression suite of one hundred cases, remove obsolete ones, create core and extended sets and select tests for a change using impact analysis.",
+          "deliverable": "Cleaned regression suite and change-based selection",
+          "checks": [["Clean up", "Obsolete cases are removed with reasons", "Review log"], ["Organise", "Core and extended sets are defined", "Test sets"], ["Select", "The change-based selection is justified", "Impact analysis"]],
+          "objectives": ["Maintain regression suites", "Select regression tests", "Identify automation candidates"]
+        },
+        {
+          "topic": "Test Management Tools: Jira, Xray and TestRail",
+          "subtopics": ["What test management tools do", "Test cases, test sets and test plans", "Test executions and cycles", "Linking tests to stories and defects", "Reports and dashboards", "Importing and exporting tests", "Tool administration for leads", "Choosing a tool"],
+          "tools": ["Jira with Xray or Zephyr", "TestRail", "Course project"],
+          "lab_task": "Set up a test project in Jira with Xray or in TestRail, import test cases, run a test cycle linked to stories and defects and build a status dashboard.",
+          "deliverable": "Configured test project with a cycle and dashboard",
+          "checks": [["Organise", "Tests are grouped into sets and plans", "Tool screenshots"], ["Link", "Tests link to stories and defects", "Traceability report"], ["Report", "The dashboard shows progress and defects", "Dashboard"]],
+          "objectives": ["Use test management tools", "Link tests to work items", "Report from tools"]
+        },
+        {
+          "topic": "Defect Triage and Root Cause Analysis",
+          "subtopics": ["Purpose of triage meetings", "Triage roles and decisions", "Defect clustering and trends", "Root cause analysis methods: five whys and fishbone", "Defect classification", "Preventing defect recurrence", "Escaped defects", "Reporting defect insights"],
+          "tools": ["Jira", "Fishbone template", "Defect data"],
+          "lab_task": "Run a role-played triage of fifteen defects, analyse the root causes of three escaped defects with five whys and fishbone diagrams and propose prevention actions.",
+          "deliverable": "Triage decisions, root cause analyses and prevention actions",
+          "checks": [["Triage", "Each defect has a decision and owner", "Triage log"], ["Find root causes", "Three analyses reach process or requirement causes", "Analyses"], ["Prevent", "Each cause has a prevention action", "Action list"]],
+          "objectives": ["Run defect triage", "Analyse root causes", "Prevent repeat defects"]
+        },
+        {
+          "topic": "Non-Functional Testing for Test Analysts: Performance, Security and Reliability Awareness",
+          "subtopics": ["Quality characteristics in ISO 25010", "Performance testing concepts for analysts", "Security testing awareness for testers", "Reliability and recovery", "Compatibility and portability", "Writing non-functional requirements that can be tested"],
+          "tools": ["ISO 25010 model", "Browser developer tools", "Sample requirements"],
+          "lab_task": "Rewrite five vague non-functional requirements so they can be tested, design simple checks for each and identify which need specialist performance or security testing.",
+          "deliverable": "Testable requirements, checks and specialist test list",
+          "checks": [["Rewrite", "Each requirement is measurable", "Requirements"], ["Design checks", "Each requirement has a test approach", "Test approach"], ["Escalate", "Specialist testing needs are listed with reasons", "Specialist list"]],
+          "objectives": ["Understand non-functional testing", "Write testable requirements", "Know when to involve specialists"]
+        },
+        {
+          "topic": "Testing ERP and Business Process Applications",
+          "subtopics": ["Business processes in ERP systems", "End-to-end process testing such as order to cash", "Master data and configuration", "Roles and authorisations", "Integration with other systems", "Data migration testing", "Regression after upgrades and patches", "Working with functional consultants"],
+          "tools": ["Process maps", "Test management tool", "Sample ERP or business application"],
+          "lab_task": "Test an order-to-cash process across modules in a sample business application with three roles, including master data checks and one integration point.",
+          "deliverable": "Process test cases, results and defects",
+          "checks": [["Cover the process", "Each process step is tested in order", "Test results"], ["Test roles", "Each role can only do its allowed steps", "Test results"], ["Test integration", "The integration point passes data correctly", "Test results"]],
+          "objectives": ["Test business processes", "Test roles and master data", "Work with functional consultants"]
+        },
+        {
+          "topic": "User Acceptance Testing: Planning and Supporting Business Users",
+          "subtopics": ["Purpose of user acceptance testing", "Entry and exit criteria for UAT", "Preparing business users", "UAT scenarios and data", "Running UAT sessions", "Handling defects and change requests", "Sign-off", "Lessons learned"],
+          "tools": ["UAT plan template", "Test management tool", "Sign-off template"],
+          "lab_task": "Plan a UAT phase for a release, prepare scenarios and data with business users, run a role-played UAT session and handle a disputed defect through to sign-off.",
+          "deliverable": "UAT plan, scenarios, session notes and sign-off",
+          "checks": [["Plan", "Entry and exit criteria and schedule are agreed", "UAT plan"], ["Support users", "Users complete scenarios with the prepared data", "Session notes"], ["Sign off", "Sign-off records accepted risks", "Sign-off record"]],
+          "objectives": ["Plan UAT", "Support business users", "Manage UAT sign-off"]
+        },
+        {
+          "topic": "Test Metrics and Reporting for Test Analysts",
+          "subtopics": ["Useful and harmful test metrics", "Coverage metrics", "Defect metrics", "Progress metrics", "Quality risk reporting", "Visualising test status", "Tailoring reports to audiences", "Avoiding misleading numbers"],
+          "tools": ["Test management tool", "Excel or Power BI", "Dashboard templates"],
+          "lab_task": "Build a test status report for a release with coverage, defect and progress metrics, tailor versions for a developer and a sponsor and identify one misleading metric.",
+          "deliverable": "Two tailored reports and a metric critique",
+          "checks": [["Measure", "Coverage, defects and progress are reported", "Report"], ["Tailor", "Each version suits its reader", "Both versions"], ["Critique", "The misleading metric is explained", "Critique note"]],
+          "objectives": ["Choose test metrics", "Report status clearly", "Avoid misleading metrics"]
+        },
+        {
+          "topic": "CTAL Test Analyst Exam Preparation and Practice Questions",
+          "subtopics": ["The ISTQB Advanced Test Analyst syllabus", "Exam structure and question styles", "Technique questions at K3 and K4", "Scenario-based questions", "Time management", "Weak-area practice", "Error log review", "Exam booking and readiness"],
+          "tools": ["ISTQB CTAL-TA syllabus", "Sample exams", "Error log"],
+          "lab_task": "Answer a set of CTAL Test Analyst practice questions under time limits, review errors by syllabus chapter and plan revision for the weakest areas.",
+          "deliverable": "Practice results, error log and revision plan",
+          "checks": [["Practise", "The practice set is completed within time", "Practice results"], ["Review", "Errors are grouped by chapter", "Error log"], ["Plan", "Revision targets the weakest chapters", "Revision plan"]],
+          "objectives": ["Prepare for CTAL Test Analyst", "Practise advanced questions", "Plan revision"]
+        },
+        {
+          "topic": "Intermediate Capstone: Risk-Based Test Campaign for a Release",
+          "subtopics": ["Risk analysis", "Test analysis and design", "Exploratory and scripted execution", "Accessibility and API checks", "Triage and reporting", "UAT support"],
+          "tools": ["Test management tool", "Jira", "Postman", "Accessibility tools"],
+          "lab_task": "Lead the testing of a release in a simulation: analyse risks, design tests with advanced techniques, run scripted and exploratory testing including API and accessibility checks, triage defects, report status and support UAT to sign-off.",
+          "deliverable": "Complete release test campaign artefacts",
+          "checks": [["Focus on risk", "Test effort follows the risk analysis", "Risk register and coverage"], ["Find defects", "Important defects are found and triaged", "Defect log"], ["Reach sign-off", "UAT sign-off records accepted risks", "Sign-off record"]],
+          "objectives": ["Combine intermediate test analyst skills", "Run a risk-based campaign", "Support release decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For test leads, test managers and QA managers, aligned with ISTQB Advanced Test Management. Covers test strategy and policy, test management at programme level, risk-based testing at scale, estimation, managing test teams, process improvement with TMMi and TPI NEXT, defect management at scale, review programmes, distributed and outsourced testing, environments and releases, regulated testing, shift-left and shift-right, automation business cases, quality reporting, AI in testing, crowd testing, a testing centre of excellence and CTAL Test Management preparation.",
+      "prerequisites": ["Leads testing for a team or project", "Holds CTFL and has several years of testing experience", "Has planned and reported testing for releases"],
+      "outcomes": ["Write test strategies, policies and master test plans for programmes", "Lead test teams, estimate and manage testing with risk and metrics", "Improve test processes and decide what to automate", "Prepare for the ISTQB Advanced Test Management exam"],
+      "days": [
+        {
+          "topic": "Test Strategy and Test Policy for an Organisation",
+          "subtopics": ["Test policy, strategy and plans", "Strategy types: analytical, model-based, methodical, reactive and others", "Aligning testing with business goals", "Strategy for different product types", "Roles and responsibilities", "Standards and compliance", "Communicating the strategy", "Reviewing the strategy"],
+          "tools": ["Test policy template", "Strategy template", "Stakeholder map"],
+          "lab_task": "Write a test policy and a test strategy for a case organisation with three product types, and present it to role-played business and engineering leaders.",
+          "deliverable": "Test policy, strategy and presentation notes",
+          "checks": [["Align", "The strategy links testing to business goals", "Strategy"], ["Tailor", "Each product type has a suitable approach", "Strategy"], ["Present", "Leaders approve or set conditions", "Presentation notes"]],
+          "objectives": ["Write test policy and strategy", "Tailor strategy to products", "Align testing with business goals"]
+        },
+        {
+          "topic": "Test Management in Depth: Planning, Monitoring and Control at Programme Level",
+          "subtopics": ["Master test plans and level plans", "Dependencies across projects", "Test schedules and milestones", "Monitoring across teams", "Control actions and escalation", "Reporting to programme boards", "Managing change during testing", "Test completion for programmes"],
+          "tools": ["Master test plan template", "Programme dashboard", "Risk register"],
+          "lab_task": "Write a master test plan for a three-project programme, run a simulated monitoring cycle with a slipped milestone and decide control actions for the programme board.",
+          "deliverable": "Master test plan, monitoring report and control decisions",
+          "checks": [["Plan", "The plan covers levels, dependencies and milestones", "Master test plan"], ["Monitor", "The report shows status across all projects", "Monitoring report"], ["Control", "Control actions address the slipped milestone", "Decision record"]],
+          "objectives": ["Manage testing across a programme", "Monitor many teams", "Take control actions"]
+        },
+        {
+          "topic": "Risk-Based Testing at Scale: Product Risk Workshops and Mitigation",
+          "subtopics": ["Risk identification with stakeholders", "Running product risk workshops", "Risk assessment scales", "Mapping risks to test effort", "Residual risk reporting", "Updating risks during the project", "Risk in agile programmes", "Avoiding risk theatre"],
+          "tools": ["Risk workshop template", "Risk register", "Dashboard"],
+          "lab_task": "Facilitate a role-played product risk workshop, build the risk register, map test effort to risk levels and produce a residual risk report at release time.",
+          "deliverable": "Workshop notes, risk register and residual risk report",
+          "checks": [["Identify", "Risks come from several stakeholder groups", "Workshop notes"], ["Map effort", "Test effort is proportional to risk level", "Effort map"], ["Report residual risk", "The release report states remaining risks", "Residual risk report"]],
+          "objectives": ["Facilitate risk workshops", "Map testing to risk", "Report residual risk"]
+        },
+        {
+          "topic": "Test Estimation Techniques: Wideband Delphi, Metrics-Based and Three-Point",
+          "subtopics": ["Why test estimates fail", "Estimation inputs and assumptions", "Wideband Delphi", "Metrics-based estimation from history", "Three-point estimation", "Estimating in agile teams", "Presenting estimates with ranges", "Re-estimating as facts change"],
+          "tools": ["Estimation worksheet", "Historical project data", "Spreadsheet"],
+          "lab_task": "Estimate testing for a release with Wideband Delphi in a group, metrics-based estimation from historical data and three-point estimation, and present a range with assumptions.",
+          "deliverable": "Three estimates and a presented range",
+          "checks": [["Estimate", "All three techniques are applied", "Estimation worksheet"], ["State assumptions", "Assumptions and risks are listed", "Estimate summary"], ["Present a range", "The final estimate is a range with confidence", "Presentation notes"]],
+          "objectives": ["Estimate testing effort", "Use several techniques", "Present estimates honestly"]
+        },
+        {
+          "topic": "Managing Test Teams: Skills, Hiring and Motivation",
+          "subtopics": ["Skills a test team needs", "Skills assessment and gaps", "Hiring testers and interview exercises", "Onboarding testers", "Motivation and recognition in testing", "Career paths for testers", "Working with distributed testers", "Handling conflict in test teams"],
+          "tools": ["Skills matrix", "Interview kit", "Development plan template"],
+          "lab_task": "Assess a case test team's skills, design an interview exercise for a test analyst role, write development plans for two testers and handle a role-played conflict.",
+          "deliverable": "Skills assessment, interview kit and development plans",
+          "checks": [["Assess", "Skills gaps are identified for the team", "Skills matrix"], ["Hire well", "The interview exercise tests analysis and communication", "Interview kit"], ["Develop", "Each plan has goals and activities", "Development plans"]],
+          "objectives": ["Lead test teams", "Hire testers", "Develop tester careers"]
+        },
+        {
+          "topic": "Test Process Improvement: TMMi and TPI NEXT",
+          "subtopics": ["Why improve test processes", "The IDEAL improvement model", "TMMi maturity levels", "TPI NEXT key areas", "Assessments and their findings", "Prioritising improvements", "Running improvement projects", "Measuring improvement"],
+          "tools": ["TMMi model", "TPI NEXT model", "Assessment template"],
+          "lab_task": "Assess a case organisation's testing against TMMi or TPI NEXT, prioritise three improvements and write an improvement plan with measures.",
+          "deliverable": "Assessment results and improvement plan",
+          "checks": [["Assess", "Findings map to model areas", "Assessment"], ["Prioritise", "Three improvements are chosen with reasons", "Improvement plan"], ["Measure", "Each improvement has a measure and target", "Improvement plan"]],
+          "objectives": ["Assess test processes", "Use improvement models", "Plan measurable improvements"]
+        },
+        {
+          "topic": "Defect Management at Scale: Metrics, Trends and Prevention",
+          "subtopics": ["Defect workflows across teams", "Defect classification schemes", "Defect metrics and trends", "Defect density and detection percentage", "Escaped defect analysis", "Prevention programmes", "Defect governance", "Reporting defect insights to leaders"],
+          "tools": ["Jira", "Defect data", "Dashboard tool"],
+          "lab_task": "Analyse a year of defect data for a programme, calculate detection percentage and trends, find two systemic causes and present a prevention programme.",
+          "deliverable": "Defect analysis and prevention programme",
+          "checks": [["Analyse", "Metrics and trends are calculated correctly", "Analysis"], ["Find causes", "Two systemic causes are supported by data", "Findings"], ["Prevent", "The programme has actions, owners and measures", "Prevention programme"]],
+          "objectives": ["Manage defects at scale", "Use defect metrics", "Prevent systemic defects"]
+        },
+        {
+          "topic": "Reviews at Scale: Formal Inspections and Review Programmes",
+          "subtopics": ["Choosing review types for work products", "Formal inspection process", "Review metrics", "Review checklists by artefact type", "Introducing reviews to an organisation", "Reviews in agile teams", "Tool support for reviews", "Measuring review effectiveness"],
+          "tools": ["Inspection template", "Review checklists", "Review metrics sheet"],
+          "lab_task": "Run a formal inspection of a design document with roles and metrics, then design a review programme for an organisation that does few reviews.",
+          "deliverable": "Inspection record and review programme design",
+          "checks": [["Inspect", "The inspection follows the process with roles", "Inspection record"], ["Measure", "Review metrics are recorded", "Metrics sheet"], ["Design", "The programme states which artefacts get which review", "Programme design"]],
+          "objectives": ["Run formal inspections", "Measure reviews", "Introduce review programmes"]
+        },
+        {
+          "topic": "Testing Outsourced and Distributed Projects",
+          "subtopics": ["Outsourced, offshore and distributed models", "Contracts and service levels for testing", "Communication across companies and time zones", "Quality of outsourced testing", "Knowledge transfer", "Tools and access for partners", "Governance of vendors", "Exit and transition plans"],
+          "tools": ["Service level agreement template", "Vendor scorecard", "Communication plan"],
+          "lab_task": "Set up testing with an external vendor for a case project: define service levels, a communication plan and a vendor scorecard, and review a month of simulated vendor results.",
+          "deliverable": "Service levels, communication plan and vendor review",
+          "checks": [["Define service levels", "Service levels are measurable", "SLA document"], ["Communicate", "The plan covers meetings, reports and escalation", "Communication plan"], ["Review vendors", "The review uses the scorecard and sets actions", "Vendor review"]],
+          "objectives": ["Manage outsourced testing", "Govern vendors", "Coordinate distributed teams"]
+        },
+        {
+          "topic": "Test Environment and Release Management for Testing",
+          "subtopics": ["Test environment needs by level", "Environment booking and conflicts", "Test data in environments", "Builds, releases and deployment schedules", "Environment readiness checks", "Environment defects and downtime", "Release readiness criteria", "Working with operations teams"],
+          "tools": ["Environment calendar", "Readiness checklist", "Release plan"],
+          "lab_task": "Plan test environments for a programme, resolve two booking conflicts, run a readiness check before a test cycle and define release readiness criteria.",
+          "deliverable": "Environment plan, readiness check and release criteria",
+          "checks": [["Plan", "Each test level has the environment it needs", "Environment plan"], ["Resolve conflicts", "Both conflicts are resolved with stakeholders", "Decision notes"], ["Define readiness", "Release criteria are measurable", "Release criteria"]],
+          "objectives": ["Manage test environments", "Check readiness", "Define release criteria"]
+        },
+        {
+          "topic": "Compliance and Regulated Testing: Audit Trails and Validation",
+          "subtopics": ["Testing in regulated industries: banking, pharma, medical and automotive", "Computer system validation", "Audit trails and evidence", "Traceability for auditors", "Electronic records and signatures", "Risk-based validation", "Preparing for audits", "Handling audit findings"],
+          "tools": ["Validation plan template", "Traceability matrix", "Evidence repository"],
+          "lab_task": "Prepare validation evidence for a regulated feature with a validation plan, traceability and signed test results, then face a role-played audit and respond to findings.",
+          "deliverable": "Validation pack and audit response",
+          "checks": [["Prepare evidence", "Every requirement traces to signed results", "Validation pack"], ["Pass audit questions", "Auditor questions are answered from the evidence", "Audit notes"], ["Respond", "Findings have corrective actions and dates", "Audit response"]],
+          "objectives": ["Test in regulated environments", "Prepare audit evidence", "Respond to audit findings"]
+        },
+        {
+          "topic": "Shift-Left and Shift-Right Testing Practices",
+          "subtopics": ["Shift-left: earlier testing activities", "Reviews and examples before code", "Shift-right: testing in production", "Monitoring, canaries and feature flags", "Gathering user feedback", "Risks of testing in production", "Balancing left and right", "Changing team habits"],
+          "tools": ["Review checklists", "Monitoring dashboard", "Feature flag service"],
+          "lab_task": "Design shift-left practices for requirements and design, and shift-right practices for a release with canaries and monitoring, for a case team, and present the change plan.",
+          "deliverable": "Shift-left and shift-right practice plan",
+          "checks": [["Shift left", "At least three practices move testing earlier", "Practice plan"], ["Shift right", "Production checks are safe and monitored", "Practice plan"], ["Change habits", "The plan includes adoption steps and measures", "Change plan"]],
+          "objectives": ["Apply shift-left practices", "Apply shift-right practices", "Change team habits"]
+        },
+        {
+          "topic": "Deciding What to Automate: Business Cases for Test Automation",
+          "subtopics": ["Goals of test automation", "Candidates for automation", "Costs: tools, people and maintenance", "Benefits and return on investment", "Risks and common failures", "Automation in the test strategy", "Piloting automation", "Tracking automation value"],
+          "tools": ["Business case template", "Regression suite data", "Spreadsheet"],
+          "lab_task": "Analyse a manual regression suite, choose automation candidates, build a business case with costs, benefits and payback, and plan a pilot.",
+          "deliverable": "Candidate list, business case and pilot plan",
+          "checks": [["Choose candidates", "Candidates are chosen by frequency, stability and value", "Candidate list"], ["Justify", "The business case shows payback with assumptions", "Business case"], ["Pilot", "The pilot has scope and success criteria", "Pilot plan"]],
+          "objectives": ["Decide what to automate", "Build automation business cases", "Plan automation pilots"]
+        },
+        {
+          "topic": "Quality Reporting to Stakeholders and Release Readiness",
+          "subtopics": ["What stakeholders need from quality reports", "Quality dashboards", "Release readiness reviews", "Go and no-go recommendations", "Communicating residual risk", "Reporting bad news", "Executive summaries for quality", "After-release reviews"],
+          "tools": ["Dashboard tool", "Release readiness template", "Presentation template"],
+          "lab_task": "Prepare a release readiness review with a quality dashboard and a go or no-go recommendation for a release with open defects, and present it to role-played stakeholders.",
+          "deliverable": "Readiness review pack and recommendation",
+          "checks": [["Summarise", "The dashboard shows coverage, defects and risk", "Dashboard"], ["Recommend", "The recommendation is justified by evidence", "Recommendation"], ["Communicate", "Residual risks are accepted or actions agreed", "Meeting notes"]],
+          "objectives": ["Report quality to stakeholders", "Run readiness reviews", "Recommend release decisions"]
+        },
+        {
+          "topic": "AI for Test Managers: Test Generation, Risk and Testing AI Systems",
+          "subtopics": ["AI tools for test design and test case generation", "Reviewing AI-generated tests", "AI for defect analysis and prioritisation", "Testing AI and machine learning systems", "Bias, robustness and explainability", "Data quality for AI systems", "Governance for AI use in testing", "Skills testers need for AI"],
+          "tools": ["AI assistant", "Test management tool", "AI system test checklist"],
+          "lab_task": "Use an AI assistant to generate test cases for a feature and review their quality, then plan testing for an AI-based recommendation feature including bias and robustness checks.",
+          "deliverable": "Reviewed AI-generated tests and an AI system test plan",
+          "checks": [["Review generated tests", "Quality issues in generated tests are recorded", "Review notes"], ["Plan AI testing", "The plan covers bias, robustness and data quality", "Test plan"], ["Govern", "Rules for AI use in testing are written", "Governance note"]],
+          "objectives": ["Use AI in test management", "Test AI systems", "Govern AI use"]
+        },
+        {
+          "topic": "Crowd Testing and Beta Programmes",
+          "subtopics": ["When crowd testing helps", "Crowd testing providers and models", "Briefing crowd testers", "Managing results and duplicates", "Beta programmes with real users", "Collecting and triaging feedback", "Confidentiality and legal points", "Measuring value"],
+          "tools": ["Crowd testing platform", "Beta feedback tool", "Triage board"],
+          "lab_task": "Plan a crowd test for a mobile app release with a brief and device coverage, triage a set of simulated crowd results and design a small beta programme.",
+          "deliverable": "Crowd test brief, triage results and beta plan",
+          "checks": [["Brief", "The brief defines scope, devices and reporting rules", "Brief"], ["Triage", "Duplicates and invalid reports are filtered", "Triage results"], ["Plan the beta", "The beta plan covers recruitment, feedback and exit", "Beta plan"]],
+          "objectives": ["Use crowd testing", "Run beta programmes", "Triage external feedback"]
+        },
+        {
+          "topic": "Building a Testing Centre of Excellence",
+          "subtopics": ["Purpose and services of a testing centre of excellence", "Standards, templates and tools", "Training and certification paths", "Communities of practice", "Supporting teams without becoming a bottleneck", "Measuring adoption and value", "Funding and staffing", "Communicating success"],
+          "tools": ["Centre of excellence plan template", "Training plan", "Dashboard"],
+          "lab_task": "Design a testing centre of excellence for a case organisation with services, standards, a training and certification path and measures, and present it to leadership.",
+          "deliverable": "Centre of excellence plan and presentation",
+          "checks": [["Define services", "Services and engagement model are described", "Plan"], ["Plan training", "The training path covers roles and ISTQB levels", "Training plan"], ["Measure", "Value measures have targets", "Plan"]],
+          "objectives": ["Build a testing centre of excellence", "Standardise testing", "Grow testing skills"]
+        },
+        {
+          "topic": "CTAL Test Management Exam Preparation",
+          "subtopics": ["The ISTQB Advanced Test Management syllabus", "Exam structure and question types", "Scenario questions on planning and risk", "Calculation questions on estimation and metrics", "Time management", "Weak-area practice", "Error log review", "Readiness and booking"],
+          "tools": ["ISTQB CTAL-TM syllabus", "Sample exams", "Error log"],
+          "lab_task": "Answer a timed set of CTAL Test Management practice questions, review errors by chapter and plan revision for the weakest areas before booking the exam.",
+          "deliverable": "Practice results, error log and revision plan",
+          "checks": [["Practise", "The set is completed within time", "Practice results"], ["Review", "Errors are grouped by chapter", "Error log"], ["Plan", "Revision targets the weakest chapters", "Revision plan"]],
+          "objectives": ["Prepare for CTAL Test Management", "Practise scenario questions", "Plan revision"]
+        },
+        {
+          "topic": "Troubleshooting Failing Test Projects",
+          "subtopics": ["Signs a test project is failing", "Common causes: scope, environments, skills and late code", "Diagnosing with metrics and interviews", "Recovery options", "Negotiating scope and time", "Stabilising environments and builds"],
+          "tools": ["Project metrics", "Interview guide", "Recovery plan template"],
+          "lab_task": "Diagnose a failing test project from metrics and role-played interviews, choose recovery options and present a recovery plan to the sponsor.",
+          "deliverable": "Diagnosis and recovery plan",
+          "checks": [["Diagnose", "Causes are supported by metrics and interviews", "Diagnosis"], ["Choose options", "Options are compared with trade-offs", "Recovery plan"], ["Agree", "The sponsor accepts the plan or sets conditions", "Meeting notes"]],
+          "objectives": ["Troubleshoot test projects", "Recover failing testing", "Negotiate recovery"]
+        },
+        {
+          "topic": "Advanced Capstone: Test Strategy and Master Test Plan for a Programme",
+          "subtopics": ["Test policy and strategy", "Risk workshop and register", "Master test plan", "Team and vendor model", "Metrics and reporting", "Presentation to the programme board"],
+          "tools": ["Strategy template", "Master test plan template", "Risk register", "Presentation template"],
+          "lab_task": "For a detailed programme case, write the test strategy and master test plan, run a risk workshop, design the team and vendor model, define metrics and present everything to a mock programme board.",
+          "deliverable": "Strategy, master test plan, risk register and board presentation",
+          "checks": [["Plan", "Strategy and master plan are consistent with risks", "Documents"], ["Organise", "The team and vendor model covers all test levels", "Organisation design"], ["Win approval", "The board approves or sets specific conditions", "Board notes"]],
+          "objectives": ["Combine advanced test management skills", "Plan testing for a programme", "Present to a programme board"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "SOC Analyst",
+  "name": "Security Operations Centre Analyst",
+  "category": "Cybersecurity and Identity",
+  "icon": "activity",
+  "aliases": ["SOC Analyst Training", "Security Operations Center Analyst", "SOC Tier 1", "SOC Tier 2", "Blue Team", "Blue Team Analyst", "Cyber Defence Analyst", "CySA+", "CS0-004", "SC-200", "Security Analyst", "SIEM Analyst"],
+  "certifications": ["CompTIA CySA+ (CS0-004)", "Microsoft Certified: Security Operations Analyst Associate (SC-200)", "Blue Team Level 1 and Level 2", "GIAC Certified Incident Handler (GCIH)"],
+  "tools": ["A SIEM such as Microsoft Sentinel, Splunk or Elastic Security", "An endpoint detection and response tool", "A SOAR or automation tool", "Threat intelligence feeds", "MITRE ATT&CK", "A ticketing system"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For aspiring and new security operations centre analysts. Covers the role and tiers of a SOC, a monitoring lab, logs and telemetry, the SIEM, the MITRE ATT&CK framework, the alert queue and triage, investigating alerts, common attack detection, endpoint detection and response, network detection, email and phishing analysis, identity and authentication monitoring, threat intelligence basics, the incident response lifecycle, escalation and handover, documentation and metrics, automation basics and analyst wellbeing. Prepares for CySA+ and SC-200.",
+      "prerequisites": ["Understands networking, operating systems and the command line", "Knows basic security concepts such as the CIA triad", "Comfortable reading logs"],
+      "outcomes": ["Explain the SOC role, tiers and workflow", "Triage and investigate alerts in a SIEM using ATT&CK", "Detect common attacks across endpoint, network, email and identity", "Follow the incident response lifecycle, escalate well and record work clearly"],
+      "days": [
+        {
+          "topic": "The Security Operations Centre: Role, Tiers and Workflow",
+          "subtopics": ["What a security operations centre does", "Tier 1, tier 2 and tier 3 roles", "The monitor, triage, investigate and respond cycle", "Shift work and coverage models", "Internal and managed security operations centres", "Service levels and queues", "Tools in a SOC", "Metrics that matter", "Career paths from analyst upward", "Course project overview: defending a lab company"],
+          "tools": ["SOC workflow diagram", "MITRE ATT&CK", "Study notes"],
+          "lab_task": "Map the SOC workflow for the lab company from alert to resolution and describe what each tier does at each step.",
+          "deliverable": "SOC workflow map",
+          "checks": [["Map", "Each workflow step is described", "Workflow map"], ["Assign", "Each tier's responsibilities are clear", "Notes"], ["Explain", "Service levels and queues are explained", "Notes"]],
+          "objectives": ["Describe the SOC role", "Explain the tiers", "Map the SOC workflow"]
+        },
+        {
+          "topic": "Monitoring Lab Setup and the Analyst Toolkit",
+          "subtopics": ["Building a monitoring lab", "A SIEM for the lab", "Log sources to collect", "An endpoint detection tool", "Generating benign and malicious test events", "The analyst's note-taking", "A ticketing system", "Lab safety", "Lab topology", "Checking the lab is ready"],
+          "tools": ["A lab SIEM", "An endpoint tool", "Log generators"],
+          "lab_task": "Build a monitoring lab with a SIEM, connect three log sources and generate a test alert to confirm the pipeline works end to end.",
+          "deliverable": "Working monitoring lab",
+          "checks": [["Collect", "Logs from three sources reach the SIEM", "SIEM search"], ["Alert", "A test alert appears in the queue", "Alert"], ["Document", "The lab and sources are documented", "Notes"]],
+          "objectives": ["Build a monitoring lab", "Connect log sources", "Produce a test alert"]
+        },
+        {
+          "topic": "Logs, Events and Telemetry",
+          "subtopics": ["Log types and sources", "Operating system logs", "Network and firewall logs", "Application and cloud logs", "Authentication logs", "Timestamps and time zones", "Log formats and parsing", "Normalisation", "What good telemetry looks like", "Gaps in logging"],
+          "tools": ["Lab log sources", "SIEM", "Study notes"],
+          "lab_task": "Collect and read logs from Windows, Linux and a firewall in the lab, line up their timestamps and find a gap in coverage.",
+          "deliverable": "Log review with a coverage gap",
+          "checks": [["Read", "Key fields are identified in each log type", "Notes"], ["Align", "Timestamps are aligned across sources", "Analysis"], ["Find", "A logging gap is identified", "Gap note"]],
+          "objectives": ["Read logs and telemetry", "Align timestamps", "Find logging gaps"]
+        },
+        {
+          "topic": "Working in the SIEM: Searching and Dashboards",
+          "subtopics": ["The SIEM's job", "Search syntax basics", "Filtering and time ranges", "Fields and parsing", "Saved searches", "Dashboards", "Correlation rules in brief", "Watchlists", "SIEM performance", "SIEM limitations"],
+          "tools": ["A lab SIEM", "Query language", "Study notes"],
+          "lab_task": "Write searches in the lab SIEM to answer three questions about activity, save them and build a simple monitoring dashboard.",
+          "deliverable": "Saved searches and a dashboard",
+          "checks": [["Search", "Each question is answered with a query", "Query results"], ["Save", "Searches are saved and reusable", "Saved searches"], ["Dashboard", "A dashboard shows key activity", "Dashboard"]],
+          "objectives": ["Search a SIEM", "Build dashboards", "Save useful queries"]
+        },
+        {
+          "topic": "The MITRE ATT&CK Framework for Analysts",
+          "subtopics": ["What ATT&CK is", "Tactics, techniques and procedures", "Reading a technique page", "Data sources and detections", "Mapping alerts to ATT&CK", "The ATT&CK Navigator", "Coverage and gaps", "ATT&CK for triage and reporting", "Limits of ATT&CK", "ATT&CK on the exams"],
+          "tools": ["MITRE ATT&CK", "ATT&CK Navigator", "Study notes"],
+          "lab_task": "Map five lab alerts to ATT&CK tactics and techniques and build a small coverage layer in the Navigator.",
+          "deliverable": "ATT&CK mapping and coverage layer",
+          "checks": [["Map", "Alerts map to correct techniques", "Mapping"], ["Cover", "A coverage layer is built", "Navigator layer"], ["Explain", "How ATT&CK helps triage is explained", "Notes"]],
+          "objectives": ["Use ATT&CK", "Map alerts to techniques", "Show coverage"]
+        },
+        {
+          "topic": "The Alert Queue and Triage",
+          "subtopics": ["The alert queue", "Alert severity and priority", "First questions for any alert", "True and false positives", "Benign true positives", "Enrichment during triage", "Deciding to escalate or close", "Documenting triage", "Avoiding alert fatigue", "Triage speed and quality"],
+          "tools": ["A lab SIEM", "Ticketing system", "Study notes"],
+          "lab_task": "Triage ten lab alerts, decide close or escalate for each with a reason, and record the triage in tickets.",
+          "deliverable": "Triaged alert queue",
+          "checks": [["Triage", "Each alert has a decision and reason", "Tickets"], ["Classify", "True and false positives are identified", "Notes"], ["Record", "Triage notes are clear", "Tickets"]],
+          "objectives": ["Work the alert queue", "Triage alerts", "Record triage decisions"]
+        },
+        {
+          "topic": "Investigating Alerts",
+          "subtopics": ["The investigation mindset", "Building a timeline", "Pivoting across data sources", "Enrichment with context", "Host investigation", "User investigation", "Network investigation", "Confirming or ruling out an incident", "Scope of an investigation", "Documenting an investigation"],
+          "tools": ["A lab SIEM", "Endpoint data", "Study notes"],
+          "lab_task": "Investigate a suspicious lab alert by building a timeline and pivoting across host, user and network data, then decide whether it is an incident.",
+          "deliverable": "Investigation write-up",
+          "checks": [["Timeline", "A timeline of events is built", "Timeline"], ["Pivot", "The investigation pivots across sources", "Notes"], ["Decide", "The incident decision is justified", "Write-up"]],
+          "objectives": ["Investigate alerts", "Build timelines", "Decide on incidents"]
+        },
+        {
+          "topic": "Detecting Common Attacks",
+          "subtopics": ["Brute force and password spraying", "Malware execution", "Suspicious PowerShell and scripts", "Lateral movement signs", "Privilege escalation signs", "Data exfiltration signs", "Persistence signs", "Command-and-control signs", "Mapping detections to ATT&CK", "Confidence and evidence"],
+          "tools": ["A lab SIEM", "Seeded attack data", "ATT&CK"],
+          "lab_task": "Detect four seeded attacks in the lab, map each to ATT&CK and record the evidence that confirms it.",
+          "deliverable": "Detection records for four attacks",
+          "checks": [["Detect", "All four attacks are found", "Detection notes"], ["Map", "Each maps to ATT&CK", "Mapping"], ["Evidence", "Evidence supports each detection", "Notes"]],
+          "objectives": ["Detect common attacks", "Map detections to ATT&CK", "Support detections with evidence"]
+        },
+        {
+          "topic": "Endpoint Detection and Response in the SOC",
+          "subtopics": ["What endpoint detection and response does", "Endpoint telemetry", "Process trees", "Detections and alerts on endpoints", "Isolating a host", "Collecting artefacts", "Response actions", "Endpoint investigation", "Tuning endpoint rules", "Endpoint tools on the exams"],
+          "tools": ["A lab endpoint detection tool", "Lab endpoints", "Study notes"],
+          "lab_task": "Investigate an endpoint alert using the process tree, isolate the host and collect artefacts, then explain the response actions.",
+          "deliverable": "Endpoint investigation and response",
+          "checks": [["Investigate", "The process tree explains the alert", "Analysis"], ["Isolate", "The host is isolated", "Action record"], ["Collect", "Artefacts are collected", "Evidence"]],
+          "objectives": ["Use endpoint detection and response", "Read process trees", "Respond on endpoints"]
+        },
+        {
+          "topic": "Network Detection and Traffic Analysis",
+          "subtopics": ["Network detection sources", "Flow and packet data", "Intrusion detection signatures", "Beaconing and command and control", "Suspicious DNS", "Data transfer anomalies", "Reading a packet capture", "Network detection tools", "Network and endpoint together", "Network detection on the exams"],
+          "tools": ["Wireshark", "A lab intrusion detection tool", "Lab traffic"],
+          "lab_task": "Analyse lab traffic to find beaconing and a suspicious DNS pattern, confirm with a packet capture and record the findings.",
+          "deliverable": "Network detection findings",
+          "checks": [["Detect", "Beaconing is identified", "Findings"], ["Confirm", "A packet capture confirms the pattern", "Capture"], ["Record", "Findings are recorded with evidence", "Notes"]],
+          "objectives": ["Analyse network traffic", "Detect beaconing and bad DNS", "Confirm with captures"]
+        },
+        {
+          "topic": "Email and Phishing Analysis",
+          "subtopics": ["Why email is a top vector", "Email headers", "Sender authentication with SPF, DKIM and DMARC", "Analysing links and attachments safely", "Detonating attachments in a sandbox", "Recognising phishing and business email compromise", "Reporting and takedown", "User-reported phishing", "Bulk phishing response", "Phishing analysis on the exams"],
+          "tools": ["A lab mail analysis tool", "A sandbox", "Study notes"],
+          "lab_task": "Analyse a reported phishing email by reading headers, checking authentication and safely examining the link and attachment, then recommend actions.",
+          "deliverable": "Phishing analysis report",
+          "checks": [["Headers", "The header analysis is correct", "Analysis"], ["Authenticate", "SPF, DKIM and DMARC results are read", "Notes"], ["Act", "Actions for the email are recommended", "Recommendations"]],
+          "objectives": ["Analyse phishing email", "Read authentication results", "Respond to phishing"]
+        },
+        {
+          "topic": "Identity and Authentication Monitoring",
+          "subtopics": ["Why identity is a key signal", "Sign-in logs", "Impossible travel and anomalies", "Failed and successful logon patterns", "Multi-factor fatigue attacks", "Privileged account monitoring", "Token and session anomalies", "Cloud identity signals", "Responding to account compromise", "Identity monitoring on the exams"],
+          "tools": ["Lab identity logs", "SIEM", "Study notes"],
+          "lab_task": "Investigate a seeded account compromise using sign-in logs, confirm the compromise and recommend containment actions.",
+          "deliverable": "Identity investigation with actions",
+          "checks": [["Detect", "The suspicious sign-ins are found", "Analysis"], ["Confirm", "The compromise is confirmed", "Evidence"], ["Contain", "Containment actions are recommended", "Recommendations"]],
+          "objectives": ["Monitor identity", "Detect account compromise", "Recommend containment"]
+        },
+        {
+          "topic": "Threat Intelligence Basics",
+          "subtopics": ["What threat intelligence is", "Strategic, operational and tactical intelligence", "Indicators of compromise", "Reputation and feeds", "Enriching alerts with intelligence", "Reliability and confidence", "The traffic light protocol", "Information sharing", "Using intelligence in triage", "Intelligence on the exams"],
+          "tools": ["Threat intelligence feeds", "SIEM", "Study notes"],
+          "lab_task": "Enrich three lab alerts with threat intelligence, record the confidence of each source and decide how it changes the triage.",
+          "deliverable": "Intelligence-enriched alerts",
+          "checks": [["Enrich", "Alerts gain intelligence context", "Enriched alerts"], ["Rate", "Source confidence is recorded", "Notes"], ["Decide", "Triage decisions use the intelligence", "Decisions"]],
+          "objectives": ["Use threat intelligence", "Enrich alerts", "Judge source confidence"]
+        },
+        {
+          "topic": "The Incident Response Lifecycle",
+          "subtopics": ["The incident response phases", "Preparation", "Detection and analysis", "Containment", "Eradication and recovery", "Lessons learned", "The analyst's part in each phase", "Playbooks", "Communication", "The lifecycle on the exams"],
+          "tools": ["Incident response plan", "Playbooks", "Study notes"],
+          "lab_task": "Take a confirmed lab incident through the lifecycle from detection to recovery using a playbook and record each phase.",
+          "deliverable": "Incident lifecycle record",
+          "checks": [["Follow", "Each phase is addressed", "Record"], ["Contain", "Containment steps are correct", "Record"], ["Learn", "Lessons learned are written", "Notes"]],
+          "objectives": ["Apply the incident response lifecycle", "Use playbooks", "Record each phase"]
+        },
+        {
+          "topic": "Escalation, Handover and Communication",
+          "subtopics": ["When to escalate", "What a good escalation contains", "Handover between shifts", "Communicating with stakeholders", "Working with incident responders", "Avoiding over- and under-escalation", "Status updates", "Clear writing under pressure", "Templates for escalation and handover", "Communication on the exams"],
+          "tools": ["Escalation template", "Handover template", "Study notes"],
+          "lab_task": "Write an escalation for a confirmed incident and a shift handover note that lets the next analyst continue without loss of context.",
+          "deliverable": "Escalation and handover notes",
+          "checks": [["Escalate", "The escalation has the needed detail", "Escalation"], ["Hand over", "The handover preserves context", "Handover note"], ["Communicate", "A stakeholder update is clear", "Update"]],
+          "objectives": ["Escalate well", "Hand over cleanly", "Communicate clearly"]
+        },
+        {
+          "topic": "Documentation, Ticketing and Metrics",
+          "subtopics": ["Why documentation matters", "Ticket quality", "Recording evidence", "Timelines in tickets", "Common SOC metrics", "Mean time to detect and respond", "False positive rates", "Metrics pitfalls", "Reporting work", "Documentation on the exams"],
+          "tools": ["Ticketing system", "Metrics sheet", "Study notes"],
+          "lab_task": "Document a full investigation in a ticket with evidence and a timeline, and calculate the mean time to detect and respond for a set of tickets.",
+          "deliverable": "Documented ticket and metrics",
+          "checks": [["Document", "The ticket has evidence and a timeline", "Ticket"], ["Measure", "Detection and response times are calculated", "Metrics"], ["Report", "Metrics are explained", "Notes"]],
+          "objectives": ["Document investigations", "Write quality tickets", "Calculate SOC metrics"]
+        },
+        {
+          "topic": "Security Automation Basics for Analysts",
+          "subtopics": ["Why automate in a SOC", "Repetitive tasks to automate", "Enrichment automation", "Simple playbook automation", "Approvals and guardrails", "Automation safety", "Measuring time saved", "When not to automate", "Working with engineers", "Automation on the exams"],
+          "tools": ["A lab SOAR or scripting", "SIEM", "Study notes"],
+          "lab_task": "Automate alert enrichment in the lab so new alerts gain context automatically, with a guardrail, and measure the time saved.",
+          "deliverable": "Automated enrichment with a guardrail",
+          "checks": [["Automate", "Alerts are enriched automatically", "Run record"], ["Guard", "A guardrail limits the automation", "Configuration"], ["Measure", "Time saved is recorded", "Notes"]],
+          "objectives": ["Automate SOC tasks", "Add guardrails", "Measure time saved"]
+        },
+        {
+          "topic": "Detection Tuning and False Positive Management",
+          "subtopics": ["Why tuning matters", "Sources of false positives", "Tuning a noisy rule", "Suppression and exceptions", "Allow lists", "Measuring noise", "Balancing noise and coverage", "Documenting tuning", "Reviewing tuning over time", "Tuning on the exams"],
+          "tools": ["A lab SIEM", "Alert data", "Study notes"],
+          "lab_task": "Find the noisiest lab rule, tune it to cut false positives without losing the real detection and record the change.",
+          "deliverable": "Tuned rule with before-and-after results",
+          "checks": [["Find", "The noisy rule is identified", "Analysis"], ["Tune", "False positives fall", "Before-and-after counts"], ["Keep", "The real detection still fires", "Test"]],
+          "objectives": ["Tune detections", "Manage false positives", "Keep real detections working"]
+        },
+        {
+          "topic": "Analyst Wellbeing and Working in a SOC",
+          "subtopics": ["Shift work and fatigue", "Alert fatigue", "Burnout signs", "Sustainable pace", "Learning and growth", "Team support", "Handling pressure during incidents", "Breaks and rotation", "Building good habits", "A healthy SOC culture"],
+          "tools": ["Wellbeing resources", "Team practices", "Study notes"],
+          "lab_task": "Review a week of simulated shift data for fatigue signs and propose practical changes to workload, rotation and support.",
+          "deliverable": "Wellbeing improvement proposal",
+          "checks": [["Review", "Fatigue signs are identified", "Analysis"], ["Propose", "Practical changes are proposed", "Proposal"], ["Justify", "Changes support sustainable work", "Notes"]],
+          "objectives": ["Recognise analyst fatigue", "Work sustainably", "Support a healthy SOC"]
+        },
+        {
+          "topic": "Beginner Capstone: A Shift in the Security Operations Centre",
+          "subtopics": ["Triage and investigation", "Detection across sources", "Incident handling and escalation", "Documentation and metrics"],
+          "tools": ["A lab SIEM", "Endpoint and network data", "Ticketing system"],
+          "lab_task": "Work a simulated SOC shift for the lab company: triage the queue, investigate and confirm an incident, escalate it, document everything and report shift metrics.",
+          "deliverable": "Completed shift with tickets and metrics",
+          "checks": [["Triage", "The queue is triaged with reasons", "Tickets"], ["Handle", "An incident is investigated and escalated", "Investigation and escalation"], ["Report", "Shift metrics are reported", "Metrics"]],
+          "objectives": ["Combine beginner skills", "Work a SOC shift", "Report shift results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For working SOC analysts moving to tier 2, aligned with CySA+ and SC-200. Covers detection engineering, writing detections in the SIEM, Sigma rules, advanced SIEM use, user and entity behaviour analytics, threat hunting, cloud and identity detection, endpoint forensics, memory and malware triage, network forensics, SOAR playbook building, threat intelligence programmes, incident response in depth, purple teaming, detection coverage, specific platforms such as Microsoft Sentinel and Splunk, reporting and certification practice.",
+      "prerequisites": ["Has worked the SOC alert queue and investigated incidents", "Comfortable with a SIEM query language", "Understands ATT&CK and the incident lifecycle"],
+      "outcomes": ["Engineer and tune detections, including Sigma rules", "Hunt threats and build behavioural detections", "Investigate endpoints, memory, malware and network forensics", "Build SOAR playbooks, run incidents and prepare for CySA+ and SC-200"],
+      "days": [
+        {
+          "topic": "Detection Engineering Principles",
+          "subtopics": ["The detection engineering role", "The detection lifecycle", "Detection as code", "Data source requirements", "Writing a detection from a technique", "Testing detections", "Reducing false positives by design", "Versioning detections", "Metrics for detections", "Detection backlog management"],
+          "tools": ["A lab SIEM", "Version control", "ATT&CK"],
+          "lab_task": "Take an ATT&CK technique, write a detection for it in the lab SIEM, test it with true and false events and store it in version control.",
+          "deliverable": "A tested detection in version control",
+          "checks": [["Write", "The detection fires on the technique", "Test"], ["Test", "False events do not trigger it", "Test"], ["Store", "The detection is versioned", "Repository"]],
+          "objectives": ["Engineer detections", "Test detections", "Manage detections as code"]
+        },
+        {
+          "topic": "Writing Detections in the SIEM",
+          "subtopics": ["Query language in depth", "Joins and lookups", "Aggregations and thresholds", "Time windows", "Statistical detections", "Allow lists in detections", "Performance of detections", "Scheduling and alerting", "Documenting detection logic", "Reviewing detections"],
+          "tools": ["A lab SIEM", "Query language", "Study notes"],
+          "lab_task": "Write three detections in the lab SIEM using joins, thresholds and a time window, and tune them for performance and accuracy.",
+          "deliverable": "Three SIEM detections",
+          "checks": [["Write", "Each detection fires correctly", "Tests"], ["Join", "A detection correlates two sources", "Query"], ["Tune", "Detections perform within limits", "Performance notes"]],
+          "objectives": ["Write SIEM detections", "Correlate sources", "Tune detection performance"]
+        },
+        {
+          "topic": "Sigma Rules and Portable Detections",
+          "subtopics": ["What Sigma is", "Sigma rule structure", "Logsources and fields", "Converting Sigma to SIEM queries", "Sharing detections across tools", "Sigma rule repositories", "Testing Sigma rules", "Limits of portable detections", "Contributing rules", "Sigma on the job"],
+          "tools": ["Sigma", "Sigma conversion tools", "A lab SIEM"],
+          "lab_task": "Write a Sigma rule for a technique, convert it to the lab SIEM's query language and confirm it fires on seeded data.",
+          "deliverable": "A Sigma rule converted and tested",
+          "checks": [["Write", "The Sigma rule is valid", "Rule file"], ["Convert", "It converts to the SIEM query", "Converted query"], ["Fire", "It detects the seeded activity", "Test"]],
+          "objectives": ["Write Sigma rules", "Convert detections", "Share portable detections"]
+        },
+        {
+          "topic": "Advanced SIEM Use and Content Management",
+          "subtopics": ["Content packs and use cases", "Managing a detection library", "Watchlists and enrichment lookups", "Correlation across data sources", "Notable events and incidents", "Role-based access in the SIEM", "Data onboarding", "Parsing and normalisation at scale", "SIEM health", "Content review cadence"],
+          "tools": ["A lab SIEM", "Content packs", "Study notes"],
+          "lab_task": "Onboard a new log source to the lab SIEM, normalise its fields, add an enrichment lookup and build a use case on it.",
+          "deliverable": "Onboarded source with a use case",
+          "checks": [["Onboard", "The new source is parsed and normalised", "SIEM search"], ["Enrich", "A lookup adds context", "Enriched events"], ["Detect", "A use case fires on the new source", "Alert"]],
+          "objectives": ["Manage SIEM content", "Onboard sources", "Normalise and enrich data"]
+        },
+        {
+          "topic": "User and Entity Behaviour Analytics",
+          "subtopics": ["What behaviour analytics adds", "Baselines for users and entities", "Anomaly scoring", "Peer group analysis", "Insider threat signals", "Reducing noise with analytics", "Investigating analytics alerts", "Tuning analytics", "Limits of analytics", "Analytics on the exams"],
+          "tools": ["Behaviour analytics in a lab SIEM", "Seeded data", "Study notes"],
+          "lab_task": "Use behaviour analytics on seeded data to find an insider anomaly, investigate the risk score and confirm or clear it.",
+          "deliverable": "Behaviour analytics investigation",
+          "checks": [["Detect", "The anomaly is surfaced", "Alert"], ["Investigate", "The risk score is explained", "Analysis"], ["Decide", "The anomaly is confirmed or cleared", "Decision"]],
+          "objectives": ["Use behaviour analytics", "Investigate anomalies", "Tune analytics"]
+        },
+        {
+          "topic": "Threat Hunting in the SOC",
+          "subtopics": ["Hunting compared with monitoring", "Hypothesis-driven hunting", "Hunting with ATT&CK", "Data sources for hunting", "Hunt techniques and queries", "Turning hunts into detections", "Documenting hunts", "Measuring hunt value", "Hunt cadence", "Hunting on the exams"],
+          "tools": ["A lab SIEM", "ATT&CK", "Study notes"],
+          "lab_task": "Run a hypothesis-driven hunt in the lab against seeded activity, document the hunt and convert a finding into a detection.",
+          "deliverable": "Threat hunt record with a detection",
+          "checks": [["Hypothesise", "A clear hypothesis guides the hunt", "Hunt plan"], ["Hunt", "The hunt tests the hypothesis", "Hunt notes"], ["Detect", "A finding becomes a detection", "Detection"]],
+          "objectives": ["Run threat hunts", "Use hypotheses", "Turn hunts into detections"]
+        },
+        {
+          "topic": "Cloud Detection and Response",
+          "subtopics": ["Cloud logging sources", "Cloud control plane monitoring", "Identity and access signals in the cloud", "Storage and data exposure detection", "Workload and container detection", "Cloud attack techniques", "Responding in the cloud", "Multi-cloud monitoring", "Cloud detection tuning", "Cloud detection on the exams"],
+          "tools": ["Lab cloud logs", "A lab SIEM", "Study notes"],
+          "lab_task": "Detect a seeded cloud attack such as a risky role change or public storage from cloud logs, investigate it and recommend response actions.",
+          "deliverable": "Cloud detection and response record",
+          "checks": [["Detect", "The cloud attack is detected", "Alert"], ["Investigate", "The activity is investigated", "Analysis"], ["Respond", "Response actions are recommended", "Recommendations"]],
+          "objectives": ["Detect cloud attacks", "Investigate cloud activity", "Respond in the cloud"]
+        },
+        {
+          "topic": "Identity Threat Detection in the SOC",
+          "subtopics": ["Identity as a primary target", "Detecting credential attacks", "Token theft and session hijacking", "Privilege escalation in identity", "Federation and single sign-on attacks", "Conditional access signals", "Responding to identity incidents", "Revoking sessions and credentials", "Hardening after an incident", "Identity detection on the exams"],
+          "tools": ["Lab identity logs", "A lab SIEM", "Study notes"],
+          "lab_task": "Detect a seeded token theft in the lab, confirm the hijacked session and run the containment steps of revoking sessions and resetting credentials.",
+          "deliverable": "Identity detection and containment record",
+          "checks": [["Detect", "The token theft is detected", "Alert"], ["Confirm", "The hijacked session is confirmed", "Evidence"], ["Contain", "Sessions and credentials are revoked", "Action record"]],
+          "objectives": ["Detect identity threats", "Confirm session hijacking", "Contain identity incidents"]
+        },
+        {
+          "topic": "Endpoint Forensics and Artefact Analysis",
+          "subtopics": ["Endpoint forensic artefacts", "Process and execution evidence", "Persistence locations", "File system and registry artefacts", "Browser and user artefacts", "Collecting artefacts safely", "Building an endpoint timeline", "Linking artefacts to the attack", "Preserving evidence", "Endpoint forensics on the exams"],
+          "tools": ["Endpoint forensic tools", "A lab endpoint", "Study notes"],
+          "lab_task": "Collect artefacts from a compromised lab endpoint, build a timeline of the attacker's actions and link the artefacts to ATT&CK techniques.",
+          "deliverable": "Endpoint forensic timeline",
+          "checks": [["Collect", "Key artefacts are collected safely", "Evidence"], ["Timeline", "A timeline reconstructs the attack", "Timeline"], ["Link", "Artefacts map to techniques", "Mapping"]],
+          "objectives": ["Analyse endpoint artefacts", "Build endpoint timelines", "Preserve evidence"]
+        },
+        {
+          "topic": "Memory and Malware Triage",
+          "subtopics": ["Why memory matters", "Capturing memory", "Memory analysis basics", "Finding injected code and processes", "Extracting indicators", "Static malware triage", "Dynamic malware triage in a sandbox", "Safe handling of samples", "Reporting malware findings", "Malware triage on the exams"],
+          "tools": ["A memory analysis tool", "A malware sandbox", "Lab samples"],
+          "lab_task": "Analyse a lab memory image to find a suspicious process, triage the related sample statically and dynamically and extract indicators.",
+          "deliverable": "Memory and malware triage report",
+          "checks": [["Analyse", "The suspicious process is found in memory", "Analysis"], ["Triage", "The sample is triaged safely", "Report"], ["Extract", "Indicators are extracted", "Indicator list"]],
+          "objectives": ["Triage memory", "Triage malware safely", "Extract indicators"]
+        },
+        {
+          "topic": "Network Forensics",
+          "subtopics": ["Network forensic sources", "Full packet capture and flow", "Reconstructing sessions", "Extracting files from traffic", "Detecting tunnelling and exfiltration", "Decrypting lab traffic where possible", "Linking network and endpoint evidence", "Preserving network evidence", "Reporting network findings", "Network forensics on the exams"],
+          "tools": ["Wireshark and flow tools", "Lab captures", "Study notes"],
+          "lab_task": "Reconstruct an attacker session from a lab packet capture, extract a transferred file and link the activity to the endpoint evidence.",
+          "deliverable": "Network forensic analysis",
+          "checks": [["Reconstruct", "The session is reconstructed", "Analysis"], ["Extract", "The transferred file is extracted", "File"], ["Link", "Network and endpoint evidence line up", "Mapping"]],
+          "objectives": ["Analyse network forensics", "Reconstruct sessions", "Link evidence"]
+        },
+        {
+          "topic": "Building SOAR Playbooks",
+          "subtopics": ["What SOAR adds", "Playbook design", "Triggers and inputs", "Enrichment steps", "Decision logic", "Response actions", "Human approval steps", "Testing playbooks", "Measuring playbook value", "Playbook maintenance"],
+          "tools": ["A lab SOAR", "SIEM and tools", "Study notes"],
+          "lab_task": "Build a SOAR playbook that enriches a phishing alert, checks reputation, and either closes it or escalates with an approval step, then test it.",
+          "deliverable": "A tested SOAR playbook",
+          "checks": [["Build", "The playbook runs end to end", "Run log"], ["Decide", "The decision logic works", "Test cases"], ["Approve", "A risky action needs approval", "Approval record"]],
+          "objectives": ["Build SOAR playbooks", "Add decision logic", "Keep humans in control"]
+        },
+        {
+          "topic": "Threat Intelligence Programmes",
+          "subtopics": ["Building a threat intelligence capability", "Collection and sources", "Processing and analysis", "Indicator management", "Threat intelligence platforms", "Feeding detections and hunts", "Strategic reporting", "Measuring intelligence value", "Sharing with partners", "Intelligence programmes on the exams"],
+          "tools": ["A threat intelligence platform", "Feeds", "Study notes"],
+          "lab_task": "Ingest a threat report into a lab intelligence platform, turn its indicators into detections and write a short strategic summary for the SOC.",
+          "deliverable": "Intelligence turned into detections",
+          "checks": [["Ingest", "Indicators are ingested and managed", "Platform record"], ["Detect", "Indicators become detections", "Detections"], ["Summarise", "A strategic summary is written", "Summary"]],
+          "objectives": ["Run threat intelligence", "Manage indicators", "Feed detections and hunts"]
+        },
+        {
+          "topic": "Incident Response in Depth",
+          "subtopics": ["Incident classification", "Evidence collection standards", "Containment strategies", "Eradication and recovery", "Coordinating responders", "Communication during incidents", "Legal and regulatory duties", "Post-incident review", "Improving from incidents", "Incident response on the exams"],
+          "tools": ["Incident response plan", "Lab incident", "Study notes"],
+          "lab_task": "Lead a seeded multi-host incident in the lab through classification, containment, eradication and recovery, and run a post-incident review.",
+          "deliverable": "Incident response record and review",
+          "checks": [["Classify", "The incident is classified correctly", "Record"], ["Contain", "Containment and recovery are effective", "Record"], ["Review", "The review produces improvement actions", "Review"]],
+          "objectives": ["Run incidents in depth", "Coordinate responders", "Improve from incidents"]
+        },
+        {
+          "topic": "Validating Detections with Purple Teaming",
+          "subtopics": ["Purple teaming goals", "Running attacker techniques safely", "Measuring detection", "Closing detection gaps", "Working with offensive testers", "Atomic tests", "Breach and attack simulation", "Documenting coverage", "Repeating to show improvement", "Purple teaming on the exams"],
+          "tools": ["Atomic test tools", "A lab SIEM", "ATT&CK"],
+          "lab_task": "Run a set of atomic tests in the lab, measure which were detected, close two gaps with new detections and retest.",
+          "deliverable": "Purple team validation record",
+          "checks": [["Run", "Atomic tests are run safely", "Run log"], ["Measure", "Detection of each test is recorded", "Results"], ["Close", "Two gaps are closed and retested", "Before-and-after"]],
+          "objectives": ["Run purple team tests", "Measure detection", "Close detection gaps"]
+        },
+        {
+          "topic": "Detection Coverage and Gap Analysis",
+          "subtopics": ["Measuring coverage with ATT&CK", "Data source coverage", "The Navigator for coverage", "Finding blind spots", "Prioritising gaps by threat", "Building a coverage roadmap", "Reporting coverage", "Coverage over time", "Balancing coverage and noise", "Coverage on the exams"],
+          "tools": ["ATT&CK Navigator", "Detection inventory", "Study notes"],
+          "lab_task": "Build an ATT&CK coverage map of the lab's detections, find the highest-priority blind spots and plan how to close them.",
+          "deliverable": "Coverage map and gap plan",
+          "checks": [["Map", "Current coverage is mapped", "Navigator layer"], ["Find", "Priority blind spots are identified", "Gap list"], ["Plan", "A roadmap closes the gaps", "Plan"]],
+          "objectives": ["Measure detection coverage", "Find blind spots", "Plan coverage improvements"]
+        },
+        {
+          "topic": "Working with Microsoft Sentinel",
+          "subtopics": ["Sentinel architecture", "Data connectors", "Kusto Query Language basics", "Analytics rules", "Workbooks", "Incidents and investigation", "Automation with playbooks", "User and entity behaviour analytics in Sentinel", "Content hub", "Sentinel on SC-200"],
+          "tools": ["Microsoft Sentinel", "Kusto Query Language", "Study notes"],
+          "lab_task": "In a Sentinel lab, connect a data source, write a Kusto detection, create an analytics rule and investigate the resulting incident.",
+          "deliverable": "Sentinel detection and incident",
+          "checks": [["Connect", "Data flows into Sentinel", "Logs"], ["Detect", "A Kusto analytics rule fires", "Incident"], ["Investigate", "The incident is investigated", "Investigation"]],
+          "objectives": ["Use Microsoft Sentinel", "Write Kusto detections", "Investigate Sentinel incidents"]
+        },
+        {
+          "topic": "Working with Splunk and Elastic Security",
+          "subtopics": ["Splunk architecture and search", "Splunk Enterprise Security basics", "Elastic Security basics", "Elastic query and detections", "Comparing the platforms", "Portability of skills", "Dashboards in each", "Choosing a platform", "Learning resources", "Platforms on the job"],
+          "tools": ["Splunk or Elastic Security", "Lab data", "Study notes"],
+          "lab_task": "Build the same detection in Splunk or Elastic Security as you built in Sentinel and compare the query, workflow and results.",
+          "deliverable": "Cross-platform detection comparison",
+          "checks": [["Build", "The detection fires on the second platform", "Test"], ["Compare", "Query and workflow differences are noted", "Comparison"], ["Choose", "A platform choice is justified for a scenario", "Notes"]],
+          "objectives": ["Use Splunk or Elastic Security", "Compare platforms", "Transfer skills across tools"]
+        },
+        {
+          "topic": "Reporting, Metrics and Continuous Improvement",
+          "subtopics": ["Analyst and team metrics", "Detection and response metrics", "Quality metrics", "Dashboards for the SOC", "Reporting to management", "Shift and handover reporting", "Continuous improvement cycles", "Lessons learned feeding detections", "Benchmarking", "Reporting on the exams"],
+          "tools": ["Metrics tools", "Dashboard", "Study notes"],
+          "lab_task": "Build a SOC metrics dashboard from lab data, write a weekly report for management and propose two improvements from the data.",
+          "deliverable": "Metrics dashboard and weekly report",
+          "checks": [["Measure", "Key metrics are shown", "Dashboard"], ["Report", "The weekly report is clear", "Report"], ["Improve", "Two improvements come from the data", "Proposals"]],
+          "objectives": ["Report SOC work", "Build metrics dashboards", "Drive continuous improvement"]
+        },
+        {
+          "topic": "Intermediate Capstone: Detection Engineering and Incident Response Project",
+          "subtopics": ["Detection engineering and coverage", "Hunting and purple teaming", "Incident response and forensics", "Reporting and improvement"],
+          "tools": ["A lab SIEM", "SOAR", "ATT&CK", "Forensic tools"],
+          "lab_task": "Engineer new detections for the lab, validate them with purple teaming, run a resulting incident through response and forensics and report coverage and metrics.",
+          "deliverable": "Project record with detections and an incident",
+          "checks": [["Engineer", "New detections close priority gaps", "Detections and coverage"], ["Respond", "An incident is handled with forensics", "Incident record"], ["Report", "Coverage and metrics are reported", "Report"]],
+          "objectives": ["Combine intermediate skills", "Engineer and validate detections", "Handle incidents end to end"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior analysts, detection engineers and SOC leads. Covers SOC strategy and operating models, detection engineering programmes, advanced threat hunting, threat intelligence-led operations, adversary emulation and purple team programmes, cloud and identity detection at scale, detection as code pipelines, data and telemetry strategy, SOAR and automation programmes, incident command, forensic programmes, managed and hybrid SOC models, measuring and maturing a SOC, analyst development, artificial intelligence in the SOC, insider threat programmes, regulatory and legal duties and designing a resilient detection and response capability.",
+      "prerequisites": ["Has worked as a tier 2 analyst or detection engineer", "Strong SIEM, hunting and incident response skills", "Takes part in SOC design or leadership"],
+      "outcomes": ["Design SOC strategy, operating models and telemetry strategy", "Run detection engineering, hunting and adversary emulation programmes", "Build automation, incident command and forensic capabilities", "Measure and mature a SOC and apply AI responsibly"],
+      "days": [
+        {
+          "topic": "SOC Strategy and Operating Models",
+          "subtopics": ["SOC models: internal, managed and hybrid", "Follow-the-sun and virtual SOCs", "Functions beyond monitoring", "Staffing and skills", "Tooling strategy", "Service catalogue and service levels", "Build versus buy", "Funding the SOC", "Governance and independence", "SOC strategy roadmaps"],
+          "tools": ["Operating model templates", "Service catalogue", "Study notes"],
+          "lab_task": "Design a SOC operating model for a growing company with functions, staffing, tooling and service levels, and present it to a leadership persona.",
+          "deliverable": "SOC operating model",
+          "checks": [["Design", "Functions and staffing are defined", "Operating model"], ["Serve", "Service levels are set", "Service catalogue"], ["Present", "Leadership accepts the model", "Approval record"]],
+          "objectives": ["Design SOC operating models", "Set service levels", "Plan SOC strategy"]
+        },
+        {
+          "topic": "Detection Engineering Programmes",
+          "subtopics": ["Detection engineering at scale", "The detection backlog and intake", "Prioritising detections by threat", "Detection standards and quality", "Testing and validation pipelines", "Detection metrics", "Managing the detection library", "Collaboration with hunters and responders", "Detection debt", "Programme maturity"],
+          "tools": ["Detection repository", "CI pipeline", "ATT&CK"],
+          "lab_task": "Design a detection engineering programme with intake, prioritisation, standards and a testing pipeline, and run one detection through it end to end.",
+          "deliverable": "Detection engineering programme",
+          "checks": [["Prioritise", "Detections are prioritised by threat", "Backlog"], ["Standardise", "Standards and testing are defined", "Standards"], ["Run", "A detection goes through the pipeline", "Pipeline run"]],
+          "objectives": ["Run detection engineering", "Prioritise detections", "Standardise detection quality"]
+        },
+        {
+          "topic": "Advanced Threat Hunting Programmes",
+          "subtopics": ["Building a hunting programme", "Hunt planning and cadence", "Threat-informed hunting", "Data and tooling for hunts", "Analytics and machine learning in hunts", "Hunt teams and skills", "Turning hunts into detections and intelligence", "Measuring hunt outcomes", "Documenting and sharing hunts", "Hunt programme maturity"],
+          "tools": ["Hunting tools", "ATT&CK", "Analytics tools"],
+          "lab_task": "Design a hunting programme with cadence and threat-informed hunts, run one advanced hunt and feed its results into detections and intelligence.",
+          "deliverable": "Hunting programme and one advanced hunt",
+          "checks": [["Plan", "The programme has cadence and themes", "Programme plan"], ["Hunt", "The advanced hunt produces findings", "Hunt record"], ["Feed", "Findings feed detections and intelligence", "Outputs"]],
+          "objectives": ["Run a hunting programme", "Plan threat-informed hunts", "Turn hunts into value"]
+        },
+        {
+          "topic": "Threat Intelligence-Led Operations",
+          "subtopics": ["Intelligence-led security operations", "Priority intelligence requirements", "Collection management", "Intelligence analysis tradecraft", "Threat modelling the organisation", "Driving detection and hunting from intelligence", "Strategic intelligence for leaders", "Intelligence sharing communities", "Measuring intelligence impact", "Intelligence programme maturity"],
+          "tools": ["Threat intelligence platform", "Analysis frameworks", "Study notes"],
+          "lab_task": "Define priority intelligence requirements for the company, run a collection and analysis cycle and drive one detection and one hunt from the result.",
+          "deliverable": "Intelligence-led operations cycle",
+          "checks": [["Define", "Priority intelligence requirements are set", "Requirements"], ["Analyse", "A collection and analysis cycle is run", "Analysis"], ["Drive", "A detection and a hunt come from intelligence", "Outputs"]],
+          "objectives": ["Run intelligence-led operations", "Set intelligence requirements", "Drive detection from intelligence"]
+        },
+        {
+          "topic": "Adversary Emulation and Purple Team Programmes",
+          "subtopics": ["Adversary emulation at the programme level", "Choosing adversaries from intelligence", "Emulation plans", "Purple team cadence", "Measuring detection and response improvement", "Collaboration between red and blue", "Tracking coverage over time", "Reporting to leadership", "Automation of emulation", "Programme maturity"],
+          "tools": ["Emulation plans", "Atomic and simulation tools", "ATT&CK"],
+          "lab_task": "Build a purple team programme with an emulation plan for a chosen adversary, run it with the blue team and show detection improvement over two rounds.",
+          "deliverable": "Purple team programme and results",
+          "checks": [["Plan", "The emulation plan matches the adversary", "Plan"], ["Run", "Two rounds are run with the blue team", "Records"], ["Improve", "Detection improves between rounds", "Comparison"]],
+          "objectives": ["Run adversary emulation", "Build a purple team programme", "Show measurable improvement"]
+        },
+        {
+          "topic": "Cloud and Multi-Cloud Detection at Scale",
+          "subtopics": ["Cloud detection strategy", "Control plane and data plane telemetry", "Multi-cloud log collection", "Cloud-native detection services", "Container and Kubernetes detection", "Serverless detection", "Cloud incident response", "Cost of cloud telemetry", "Cloud detection coverage", "Cloud detection maturity"],
+          "tools": ["Cloud logs", "Cloud-native detection", "A lab SIEM"],
+          "lab_task": "Design cloud detection coverage across two clouds, build detections for key cloud attack techniques and plan cloud incident response.",
+          "deliverable": "Cloud detection design",
+          "checks": [["Cover", "Key cloud techniques are covered", "Coverage map"], ["Detect", "Detections fire on seeded cloud attacks", "Alerts"], ["Respond", "Cloud incident response is planned", "Plan"]],
+          "objectives": ["Design cloud detection", "Cover cloud techniques", "Plan cloud response"]
+        },
+        {
+          "topic": "Identity Detection and Response at Scale",
+          "subtopics": ["Identity as the primary battleground", "Hybrid identity telemetry", "Detecting advanced identity attacks", "Token and session protection", "Privileged identity monitoring", "Non-human identity monitoring", "Automated identity response", "Hardening after identity incidents", "Identity coverage", "Identity detection maturity"],
+          "tools": ["Identity logs", "A lab SIEM", "SOAR"],
+          "lab_task": "Design identity detection and automated response for hybrid identity, detect a seeded advanced identity attack and run automated containment.",
+          "deliverable": "Identity detection and response design",
+          "checks": [["Detect", "The advanced attack is detected", "Alert"], ["Automate", "Automated containment runs", "Run record"], ["Harden", "Hardening steps are recommended", "Recommendations"]],
+          "objectives": ["Design identity detection", "Automate identity response", "Harden identity"]
+        },
+        {
+          "topic": "Detection as Code and SOC Engineering Pipelines",
+          "subtopics": ["Detection as code principles", "Version control for detections", "Testing detections automatically", "Continuous integration for content", "Deployment to the SIEM", "Rollback and change control", "Content lifecycle management", "Collaboration across the team", "Measuring pipeline value", "Pipeline maturity"],
+          "tools": ["Version control", "CI pipeline", "A lab SIEM"],
+          "lab_task": "Build a detection-as-code pipeline that tests and deploys detections to the lab SIEM with change control and rollback.",
+          "deliverable": "Detection-as-code pipeline",
+          "checks": [["Test", "Detections are tested in the pipeline", "Pipeline run"], ["Deploy", "Detections deploy to the SIEM", "Deployment"], ["Roll back", "A bad detection is rolled back", "Rollback record"]],
+          "objectives": ["Manage detection as code", "Build content pipelines", "Control detection changes"]
+        },
+        {
+          "topic": "Telemetry and Data Strategy for the SOC",
+          "subtopics": ["Telemetry strategy goals", "Choosing what to collect", "Log pipelines and routing", "Data tiering and retention", "Cost management for telemetry", "Data quality and coverage", "Data lakes and SIEM together", "Privacy in telemetry", "Measuring telemetry value", "Data strategy maturity"],
+          "tools": ["Log pipeline tools", "A lab SIEM", "Cost model"],
+          "lab_task": "Design a telemetry strategy for the SOC that improves coverage while controlling cost, with tiering, retention and a pipeline design.",
+          "deliverable": "Telemetry and data strategy",
+          "checks": [["Collect", "The strategy improves coverage", "Coverage map"], ["Tier", "Tiering and retention control cost", "Design"], ["Measure", "Telemetry value is measured", "Metrics"]],
+          "objectives": ["Set telemetry strategy", "Control telemetry cost", "Improve data coverage"]
+        },
+        {
+          "topic": "SOAR and Automation Programmes",
+          "subtopics": ["Automation strategy for the SOC", "Playbook portfolio management", "Automation standards", "Integration architecture", "Guardrails and approvals at scale", "Measuring automation value", "Avoiding brittle automation", "Human and machine balance", "Automation metrics", "Automation programme maturity"],
+          "tools": ["A SOAR platform", "Integrations", "Study notes"],
+          "lab_task": "Design a SOAR programme with a playbook portfolio, standards and guardrails, and build one end-to-end automated response with approvals.",
+          "deliverable": "SOAR programme and one automation",
+          "checks": [["Portfolio", "The playbook portfolio is organised", "Portfolio"], ["Standardise", "Standards and guardrails are defined", "Standards"], ["Automate", "One response is automated safely", "Run record"]],
+          "objectives": ["Run a SOAR programme", "Standardise automation", "Balance humans and machines"]
+        },
+        {
+          "topic": "Incident Command and Major Incident Management",
+          "subtopics": ["Incident command for major incidents", "Severity and declaration", "Roles and coordination", "Communication with executives and the public", "Legal and regulatory duties", "Working with external responders", "Evidence and chain of custody", "Post-incident reviews", "Lessons into improvement", "Incident command maturity"],
+          "tools": ["Incident command plan", "Communication templates", "Study notes"],
+          "lab_task": "Lead a simulated major incident with incident command, executive communication and breach notification, then run the post-incident review.",
+          "deliverable": "Major incident exercise record",
+          "checks": [["Command", "Roles and coordination work", "Incident log"], ["Communicate", "Executive and notification duties are met", "Records"], ["Review", "Improvement actions are produced", "Review"]],
+          "objectives": ["Lead incident command", "Manage major incidents", "Improve from incidents"]
+        },
+        {
+          "topic": "Forensic Readiness and Investigation Programmes",
+          "subtopics": ["Forensic readiness at the programme level", "Logging and retention for forensics", "Evidence handling standards", "Cloud and endpoint forensic capability", "Forensic tooling", "Working with legal and external experts", "Investigation quality", "Reporting standards", "Measuring forensic readiness", "Forensic programme maturity"],
+          "tools": ["Forensic tools", "Evidence standards", "Study notes"],
+          "lab_task": "Assess and improve the SOC's forensic readiness, set evidence handling standards and run a programme-level investigation of a seeded incident.",
+          "deliverable": "Forensic readiness programme and investigation",
+          "checks": [["Assess", "Readiness gaps are found and improved", "Assessment"], ["Standardise", "Evidence handling standards are set", "Standards"], ["Investigate", "The investigation meets the standards", "Report"]],
+          "objectives": ["Build forensic readiness", "Set evidence standards", "Run quality investigations"]
+        },
+        {
+          "topic": "Managed, Hybrid and Co-Managed SOC Models",
+          "subtopics": ["Managed security service providers", "Co-managed and hybrid models", "What to keep in-house", "Service level agreements", "Visibility and reporting from providers", "Integration with the provider", "Transition and exit planning", "Measuring provider quality", "Vendor management", "Choosing a model"],
+          "tools": ["Service contracts", "Provider scorecards", "Study notes"],
+          "lab_task": "Compare in-house, managed and co-managed models for the company, draft key service levels and plan how to keep critical functions in-house.",
+          "deliverable": "SOC model comparison and plan",
+          "checks": [["Compare", "Models are compared on control, cost and risk", "Comparison"], ["Draft", "Service levels are drafted", "Draft"], ["Plan", "Critical functions stay in-house", "Plan"]],
+          "objectives": ["Compare SOC models", "Set provider service levels", "Manage SOC providers"]
+        },
+        {
+          "topic": "Measuring and Maturing a SOC",
+          "subtopics": ["SOC maturity models", "Assessing current maturity", "Metrics that drive maturity", "Benchmarking against peers", "Improvement roadmaps", "Linking maturity to risk", "Reporting maturity to leadership", "Avoiding metric gaming", "Continuous assessment", "Maturity programme ownership"],
+          "tools": ["Maturity model", "Metrics", "Study notes"],
+          "lab_task": "Assess the SOC against a maturity model, set target levels and build an improvement roadmap linked to risk.",
+          "deliverable": "Maturity assessment and roadmap",
+          "checks": [["Assess", "Current maturity is scored with evidence", "Assessment"], ["Target", "Target levels are set", "Targets"], ["Plan", "The roadmap links to risk", "Roadmap"]],
+          "objectives": ["Assess SOC maturity", "Set targets", "Plan improvement"]
+        },
+        {
+          "topic": "Analyst Development and Team Building",
+          "subtopics": ["Skills frameworks for analysts", "Career paths in the SOC", "Training and labs", "Mentoring and shadowing", "Knowledge management", "Reducing burnout and turnover", "Hiring analysts", "Building a learning culture", "Measuring team capability", "Succession planning"],
+          "tools": ["Skills framework", "Training plans", "Study notes"],
+          "lab_task": "Build a skills framework and development path for SOC analysts, and plan a training and mentoring programme that reduces burnout.",
+          "deliverable": "Analyst development programme",
+          "checks": [["Frame", "A skills framework is defined", "Framework"], ["Develop", "A development path is written", "Path"], ["Support", "The plan reduces burnout", "Plan"]],
+          "objectives": ["Develop analysts", "Build career paths", "Reduce burnout"]
+        },
+        {
+          "topic": "Artificial Intelligence in the Security Operations Centre",
+          "subtopics": ["Where AI helps in the SOC", "AI for triage and summarisation", "AI assistants for analysts", "AI for detection and anomaly finding", "Agentic automation with guardrails", "Risks: hallucination and over-trust", "Evaluating AI tools", "Keeping analyst skills sharp", "Governance for AI in the SOC", "Measuring AI impact"],
+          "tools": ["AI SOC tools", "A lab SIEM", "Study notes"],
+          "lab_task": "Evaluate an AI assistant on replayed alerts, compare its triage with analyst triage and define where it may act with guardrails.",
+          "deliverable": "AI evaluation and guardrail policy",
+          "checks": [["Evaluate", "AI triage is compared with analysts", "Comparison"], ["Guard", "Guardrails for AI action are defined", "Policy"], ["Measure", "AI impact is measured", "Metrics"]],
+          "objectives": ["Use AI in the SOC", "Evaluate AI tools", "Govern AI use"]
+        },
+        {
+          "topic": "Insider Threat Programmes",
+          "subtopics": ["What insider threat covers", "Types of insider threat", "Behavioural and technical signals", "Privacy and legal limits", "Working with human resources and legal", "Detection for insider threat", "Investigation handling", "Prevention and deterrence", "Measuring the programme", "Insider threat maturity"],
+          "tools": ["Behaviour analytics", "A lab SIEM", "Study notes"],
+          "lab_task": "Design an insider threat detection approach with privacy limits, detect a seeded insider case and handle the investigation appropriately.",
+          "deliverable": "Insider threat approach and case",
+          "checks": [["Design", "Signals and privacy limits are defined", "Design"], ["Detect", "The insider case is detected", "Alert"], ["Handle", "The investigation respects privacy and process", "Record"]],
+          "objectives": ["Run insider threat detection", "Respect privacy", "Handle insider cases"]
+        },
+        {
+          "topic": "Regulatory, Legal and Compliance Duties for the SOC",
+          "subtopics": ["Regulations that affect the SOC", "Breach notification duties", "Evidence and legal admissibility", "Data protection in monitoring", "Retention requirements", "Working with legal counsel", "Audits of the SOC", "Compliance reporting", "Cross-border considerations", "Keeping up with regulation"],
+          "tools": ["Regulatory guidance", "Legal checklist", "Study notes"],
+          "lab_task": "Map the SOC's regulatory and notification duties for a breach scenario, and build an evidence and notification checklist.",
+          "deliverable": "Regulatory duty map and checklist",
+          "checks": [["Map", "Duties for the scenario are mapped", "Map"], ["Notify", "Notification timelines are correct", "Checklist"], ["Prove", "Evidence handling meets legal needs", "Checklist"]],
+          "objectives": ["Understand SOC regulation", "Meet notification duties", "Handle evidence legally"]
+        },
+        {
+          "topic": "Security Data Lakes and Next-Generation SIEM",
+          "subtopics": ["Limits of the traditional SIEM", "Security data lakes", "Bring-your-own-storage models", "Decoupling storage and detection", "Federated search", "Cost and scale trade-offs", "Migrating detections to a data lake", "Analytics on a data lake", "Choosing an architecture", "Data lake maturity"],
+          "tools": ["A data lake or next-generation SIEM", "Query tools", "Study notes"],
+          "lab_task": "Compare a traditional SIEM with a data lake approach for the SOC, run the same detection on both and weigh cost, scale and workflow.",
+          "deliverable": "SIEM and data lake comparison",
+          "checks": [["Run", "The detection works on both approaches", "Results"], ["Compare", "Cost, scale and workflow are compared", "Comparison"], ["Recommend", "An architecture is recommended", "Recommendation"]],
+          "objectives": ["Compare SIEM and data lake models", "Run federated detections", "Choose a detection architecture"]
+        },
+        {
+          "topic": "Advanced Capstone: Designing a Resilient Detection and Response Capability",
+          "subtopics": ["Strategy and operating model", "Detection engineering and hunting", "Automation and incident command", "Maturity, metrics and roadmap"],
+          "tools": ["Operating model", "Detection pipeline", "Metrics", "Study notes"],
+          "lab_task": "Design a resilient detection and response capability for the company covering operating model, detection engineering, hunting, automation, incident command and a maturity roadmap, and present it to leadership.",
+          "deliverable": "Detection and response capability design",
+          "checks": [["Design", "The operating model and engineering are defined", "Design"], ["Operate", "Automation and incident command are covered", "Plan"], ["Mature", "A maturity roadmap with metrics is presented", "Roadmap"]],
+          "objectives": ["Combine advanced skills", "Design a detection and response capability", "Present a SOC roadmap"]
+        }
+      ]
+    }
+  }
+}

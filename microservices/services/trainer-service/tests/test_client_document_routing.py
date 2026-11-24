@@ -1,5 +1,6 @@
 from app.routes.shortlists import (
     _client_training_summary,
+    _explicit_lab_workbook_required,
     _requested_client_attachments,
     _requested_toc_output_format,
     _trainer_scope_attachments,
@@ -33,6 +34,20 @@ def test_lab_cost_is_detected_separately_from_toc_and_profile():
         "requested_details": ["Trainer Profile", "ToC", "Lab Cost"],
     }
     assert _requested_client_attachments(requirement) == (True, True, True)
+
+
+def test_client_profile_linkedin_id_toc_and_lab_workbook_request_is_detected():
+    requirement = {
+        "client_requirement_text": "Please share the client profile and LinkedIn ID, ToC, and lab workbook.",
+    }
+    assert _requested_client_attachments(requirement) == (True, True, True)
+    assert _explicit_lab_workbook_required(requirement) is True
+
+
+def test_lab_setup_is_not_misclassified_as_explicit_lab_workbook_request():
+    requirement = {"client_requirement_text": "Please arrange local lab setup and access."}
+    assert _requested_client_attachments(requirement) == (False, False, True)
+    assert _explicit_lab_workbook_required(requirement) is False
 
 
 def test_safe_client_excel_scope_is_forwarded_to_trainer_mail1():

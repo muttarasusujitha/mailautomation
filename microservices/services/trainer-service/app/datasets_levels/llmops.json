@@ -1,0 +1,573 @@
+{
+  "domain": "LLMOps",
+  "name": "LLMOps",
+  "category": "Generative AI and Agents",
+  "icon": "workflow",
+  "aliases": ["LLM Operations", "GenAI Operations", "LLM Ops", "LLMOps Engineering", "LLM Platform Engineering", "LLM Gateway and Serving", "Production LLM Operations", "LLMOps Engineer"],
+  "certifications": [],
+  "tools": ["LiteLLM", "Langfuse", "LangSmith", "OpenTelemetry", "vLLM", "SGLang", "MLflow", "Prometheus", "Grafana", "Kubernetes", "GitHub Actions", "promptfoo", "Redis", "Argo Rollouts"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and DevOps engineers who have called an LLM API and now need to run an LLM application reliably. Covers a local lab, provider SDK usage and errors, configuration and key hygiene, prompts as versioned Git artifacts, model pinning, a LiteLLM gateway with virtual keys, budgets, retries and fallbacks, rate limits, token cost calculation, structured logging, first Langfuse traces, latency metrics, exact and prompt caching, local models with Ollama, golden-set tests in CI, PII handling, and a support-bot capstone.",
+      "prerequisites": ["Writes and runs Python 3.10 or later scripts and uses pip or uv", "Uses Git, a terminal and Docker Compose at a basic level", "Has an API key for at least one LLM provider with a small spend limit"],
+      "outcomes": ["Run an LLM gateway with scoped keys, budgets, retries and fallbacks in front of provider models", "Version prompts and models and test changes with a golden set in CI", "Trace, log and cost every LLM call without storing sensitive text", "Deliver a small LLM service with a runbook an on-call engineer can follow"],
+      "days": [
+        {
+          "topic": "LLM Application Lifecycle and Lab Environment Setup",
+          "subtopics": ["What LLMOps adds to DevOps and MLOps: prompts, models, context and cost as release artifacts", "The LLM application lifecycle: prototype, evaluate, release, observe, improve", "Non-determinism and why unit tests alone cannot gate a release", "The moving parts: application, gateway, model provider, retrieval, telemetry", "Roles and ownership: developers, platform team, prompt authors, reviewers", "Python 3.12 virtual environment with uv and a pinned requirements file", "Docker Compose for local Postgres, Redis and a gateway", "The lab repository layout used for all 60 days", "Checking provider API access with a minimal curl call", "Git hygiene: .gitignore, .env.example and pre-commit hooks"],
+          "tools": ["Python", "uv", "Docker Compose", "Git", "curl", "pre-commit"],
+          "lab_task": "Create the lab repo with uv init, add the openai and python-dotenv packages, write .env.example and a .gitignore that excludes .env, start Postgres and Redis with docker compose up -d, then call a chat completion with curl and a Python script. Record the model name, input and output token counts and wall time in a RUNLOG.md.",
+          "deliverable": "Lab repository with README, compose file, .env.example and RUNLOG.md showing one measured model call",
+          "checks": [["Run docker compose ps after docker compose up -d", "postgres and redis show State running with healthy status", "Terminal output"], ["Run git status after creating a real .env file", "The .env file is not listed as untracked because .gitignore excludes it", "git status output"], ["Run the first script with a valid key", "A completion is printed and RUNLOG.md records non-zero prompt and completion token counts", "RUNLOG.md entry"]],
+          "objectives": ["Describe the lifecycle of an LLM application and where operations fit", "Build a reproducible local environment with pinned dependencies", "Make and record a first measured model call"]
+        },
+        {
+          "topic": "Calling Models Through Provider SDKs: Tokens, Usage and Errors",
+          "subtopics": ["Chat completion and responses-style request shapes", "System, user and assistant messages and where operators set policy", "Parameters that change behaviour: temperature, top_p, max_tokens, seed", "The usage object: prompt, completion and cached token counts", "Finish reasons: stop, length, content_filter, tool_calls", "HTTP status codes seen in practice: 400, 401, 404, 408, 429, 500, 503", "Streaming with server-sent events and reading the final usage chunk", "Wrapping the SDK in one thin client module for the whole application"],
+          "tools": ["OpenAI Python SDK", "Anthropic Python SDK", "httpx", "pytest", "python-dotenv"],
+          "lab_task": "Write llm_client.py with one function complete(messages, model) that returns text, usage and finish_reason. Call it with max_tokens=5 to force finish_reason length, with a wrong model name to trigger a 404, and with a bad key to trigger a 401. Add three pytest cases that assert each outcome using the SDK exception classes.",
+          "deliverable": "llm_client.py plus a pytest file covering success, truncation, 401 and 404 handling",
+          "checks": [["Call complete() with max_tokens=5 on a long question", "finish_reason is length and completion tokens equal 5", "Pytest assertion output"], ["Call complete() with model name that does not exist", "A NotFoundError with HTTP status 404 is raised and caught by the wrapper", "Test log"], ["Call complete() with an invalid API key", "An AuthenticationError with HTTP status 401 is raised with no retry", "Test log"]],
+          "objectives": ["Read request and usage fields from a provider response", "Map HTTP errors to wrapper behaviour", "Isolate provider SDK calls behind one module"]
+        },
+        {
+          "topic": "Environment Configuration and API Key Hygiene for LLM Apps",
+          "subtopics": ["Twelve-factor configuration for model names, endpoints and limits", "Settings objects with pydantic-settings and typed validation", "Separating dev, staging and production keys and projects", "Per-environment provider projects with spend caps", "Secrets managers versus .env files: Vault, AWS Secrets Manager, GitHub Actions secrets", "Key rotation procedure and zero-downtime overlap", "Detecting leaked keys with gitleaks and GitHub secret scanning", "Least-privilege keys and restricted scopes"],
+          "tools": ["pydantic-settings", "gitleaks", "GitHub Actions secrets", "HashiCorp Vault", "pre-commit"],
+          "lab_task": "Move every model name, base URL, timeout and key into a pydantic-settings Settings class loaded from the environment. Add a gitleaks pre-commit hook, commit a file containing a fake sk-test key to a scratch branch to confirm the hook blocks it, then rotate the real key by loading a second key and removing the first.",
+          "deliverable": "Settings module, gitleaks hook configuration and a written key-rotation runbook",
+          "checks": [["Start the app with MODEL_NAME unset", "Startup fails with a pydantic ValidationError naming the missing field", "Application log"], ["Run git commit with a file containing sk-test-1234567890abcdef", "gitleaks reports a leak finding and the commit is rejected", "Hook output"], ["Follow the rotation runbook using a second key", "Requests succeed with the new key while the old key is revoked afterwards", "Runbook checklist with timestamps"]],
+          "objectives": ["Load configuration safely from the environment", "Block secret leaks before commit", "Rotate a key without downtime"]
+        },
+        {
+          "topic": "Prompts as Versioned Artifacts in Git",
+          "subtopics": ["Why prompts are code: reviews, history, rollbacks", "File layouts: prompts/<name>/<version>.md or YAML with metadata", "Metadata fields: owner, model target, parameters, schema, changelog", "Semantic versioning rules for prompts: what counts as major, minor, patch", "Code review checklist for prompt pull requests", "Diffing prompts and spotting behavioural risk in a diff", "Loading prompts by name and version in application code", "Git tags and release notes that bundle prompt, model and parameters"],
+          "tools": ["Git", "YAML", "Jinja2", "pytest", "GitHub pull requests"],
+          "lab_task": "Create prompts/support_answer/1.0.0.yaml with fields system, model, temperature, max_tokens and owner, load it in code through a PromptStore class, then open a pull request that changes the system text and bumps to 1.1.0. Add a test that fails when the file version and the changelog entry disagree.",
+          "deliverable": "Prompt directory, PromptStore loader, version consistency test and a pull request with review comments",
+          "checks": [["Edit the prompt text without bumping the version field", "The consistency test fails naming the prompt and expected version", "Pytest failure message"], ["Call PromptStore.get('support_answer', '1.0.0') after 1.1.0 exists", "The 1.0.0 text is returned unchanged", "Unit test output"], ["Create tag support_answer-1.1.0", "git show lists the tag pointing at the commit that changed the prompt", "git show output"]],
+          "objectives": ["Store prompts in Git with structured metadata", "Apply versioning rules to prompt changes", "Load an exact prompt version in code"]
+        },
+        {
+          "topic": "Prompt Templates and Parameters in Code",
+          "subtopics": ["Template engines: Jinja2, f-strings and why format strings are risky", "Escaping and delimiting user input inside a template", "Rendering messages lists rather than one long string", "Required and optional template inputs with validation", "Few-shot examples stored as data, not inline text", "Token budgeting for rendered prompts with tiktoken", "Rendering tests with snapshot files", "Template rendering errors that reach production: missing keys and stray braces"],
+          "tools": ["Jinja2", "pydantic", "tiktoken", "pytest", "syrupy"],
+          "lab_task": "Build a render(name, inputs) function using Jinja2 StrictUndefined and a pydantic model per template. Add snapshot tests for three inputs, a test where a missing key raises UndefinedError, and a token check using tiktoken that fails when a rendered prompt exceeds 3000 tokens. Print the token count for each snapshot.",
+          "deliverable": "Template renderer, pydantic input models and a snapshot test suite",
+          "checks": [["Render a template with a required key missing", "jinja2.exceptions.UndefinedError is raised before any model call", "Pytest output"], ["Render with user text containing {{ 7*7 }}", "The literal text appears in the output and is not evaluated", "Snapshot file"], ["Render with a 20000-character document", "The token budget test fails and reports the measured token count", "Test failure message"]],
+          "objectives": ["Render prompts safely from templates", "Validate template inputs before a model call", "Test rendered prompts with snapshots and token budgets"]
+        },
+        {
+          "topic": "Model Aliases, Pinning and Snapshot Names",
+          "subtopics": ["Provider model naming: floating aliases versus dated snapshots", "Why a floating alias can change behaviour without a code change", "Deprecation notices and published retirement dates", "Application-level aliases such as chat-default and extract-fast", "A model catalogue file: provider, snapshot, context window, price, owner", "Recording the resolved model name returned in each response", "Checking provider model list endpoints in CI", "Open-weight model revisions pinned by commit hash"],
+          "tools": ["OpenAI Python SDK", "Hugging Face Hub", "PyYAML", "pytest", "GitHub Actions"],
+          "lab_task": "Create models.yaml mapping three internal aliases to pinned provider snapshots, with context window and price per million tokens. Write a script that calls the provider's list-models endpoint and fails when any pinned snapshot is missing. For one open-weight model record the Hugging Face revision hash and pin it in config.",
+          "deliverable": "models.yaml catalogue, availability check script and a README section on pinning policy",
+          "checks": [["Run the availability script with a snapshot name changed to a fake one", "The script exits with code 1 and prints the missing snapshot", "Script output"], ["Send a request using the alias chat-default", "The response model field is logged and matches the pinned snapshot in models.yaml", "Request log line"], ["Inspect the open-weight entry in models.yaml", "The revision is a 40-character commit hash, not a branch name", "models.yaml diff"]],
+          "objectives": ["Distinguish floating aliases from pinned snapshots", "Maintain a model catalogue", "Detect missing or retired models in CI"]
+        },
+        {
+          "topic": "Running a LiteLLM Proxy Gateway Locally",
+          "subtopics": ["Why a gateway: one API, central keys, logging, budgets and routing", "LiteLLM proxy versus the LiteLLM Python SDK", "config.yaml: model_list, model_name, litellm_params", "general_settings: master_key and database_url", "Starting the proxy: litellm --config config.yaml --port 4000", "Pointing the OpenAI SDK at base_url http://localhost:4000", "Health endpoints and the model list endpoint", "Other gateway options to compare: Portkey, Kong AI Gateway, Cloudflare AI Gateway, OpenRouter"],
+          "tools": ["LiteLLM", "Docker Compose", "Postgres", "curl", "OpenAI Python SDK"],
+          "lab_task": "Write config.yaml exposing two aliases, chat-default and chat-cheap, backed by two different provider models. Start LiteLLM with Postgres through Docker Compose, set a master_key, then call both aliases through the OpenAI SDK with base_url set to the proxy. Confirm each call with GET /v1/models and read the spend record in the UI.",
+          "deliverable": "Gateway config.yaml, compose file and a script calling both aliases through the proxy",
+          "checks": [["curl http://localhost:4000/v1/models with the master key", "Both chat-default and chat-cheap are listed", "curl output"], ["Call the proxy without an Authorization header", "HTTP 401 is returned", "curl output with status"], ["Call chat-cheap through the OpenAI SDK", "A completion is returned and a spend log row exists for that alias", "Gateway UI screenshot"]],
+          "objectives": ["Run a local LLM gateway with two model aliases", "Route SDK calls through the gateway", "Verify requests in gateway logs"]
+        },
+        {
+          "topic": "Virtual Keys, Budgets and Teams in the Gateway",
+          "subtopics": ["Master key versus virtual keys", "POST /key/generate with models, max_budget, rpm_limit, tpm_limit", "Teams, users and per-team model access", "Budget duration and reset schedules", "What happens when a budget is exceeded", "Key metadata for cost attribution: team, feature, environment", "Revoking and regenerating keys", "Audit of who created which key"],
+          "tools": ["LiteLLM", "curl", "Postgres", "jq", "Python"],
+          "lab_task": "Using the master key, create a team called support and a virtual key limited to chat-cheap with max_budget 0.05 and rpm_limit 5 through POST /key/generate. Loop 10 requests in one minute and a second loop that spends past the budget. Record the error status and message for each limit and delete the key with /key/delete.",
+          "deliverable": "Key and team creation script plus a log of the rate-limit and budget responses",
+          "checks": [["Send 10 requests in under a minute with a key set to rpm_limit 5", "Requests 6 to 10 receive HTTP 429", "Request log"], ["Call chat-default with a key restricted to chat-cheap", "The request is rejected with an error naming the model access restriction", "Response body"], ["Spend past max_budget 0.05", "Further calls fail with a budget exceeded error until the budget resets", "Gateway response and spend table"]],
+          "objectives": ["Issue scoped virtual keys with limits", "Observe budget and rate-limit enforcement", "Tag keys for later attribution"]
+        },
+        {
+          "topic": "Retries, Timeouts and Fallbacks in the Gateway",
+          "subtopics": ["Failure types: timeouts, 429, 5xx, content policy errors, context window errors", "router_settings: num_retries, timeout, retry_after, allowed_fails, cooldown_time", "Per-model timeout versus per-request timeout", "fallbacks and context_window_fallbacks", "Idempotency and duplicate cost when retrying", "Streaming and partial output on failure", "Testing failover with a mock provider returning 500", "Measuring retry rates"],
+          "tools": ["LiteLLM", "Python", "FastAPI mock server", "curl", "Docker Compose"],
+          "lab_task": "Run a small FastAPI mock that returns HTTP 500 for 100 percent of requests, register it in LiteLLM as chat-primary with num_retries 2, and set a fallback to chat-cheap in router_settings. Send 20 requests, count how many return 200 from the fallback, and record the added latency compared with direct calls to chat-cheap.",
+          "deliverable": "Mock failing provider, fallback config and a measured failover report",
+          "checks": [["Send 20 requests while chat-primary always returns 500", "All 20 succeed through the fallback model", "Client script output"], ["Read the response headers or log for the served model", "The served model is chat-cheap and the attempted model is chat-primary", "Gateway log"], ["Set allowed_fails 3 and cooldown_time 30 then continue requests", "The failing deployment is skipped during cooldown and added latency falls", "Timing table"]],
+          "objectives": ["Configure retries and fallbacks", "Test failover with a controlled failing provider", "Measure the cost and latency of failures"]
+        },
+        {
+          "topic": "Rate Limits, 429 Errors and Backoff",
+          "subtopics": ["Provider limits: requests per minute, tokens per minute, tokens per day", "Reading rate-limit headers and retry-after", "Exponential backoff with jitter", "Client-side concurrency limits with asyncio.Semaphore", "Request queues and priority between interactive and batch traffic", "Batch APIs for non-urgent work and their discounts", "Why retry storms happen and how to prevent them", "Gateway limits versus provider limits"],
+          "tools": ["Python asyncio", "tenacity", "httpx", "LiteLLM", "k6"],
+          "lab_task": "Write an async client that sends 200 requests with a Semaphore of 20 against a rate-limited gateway key set to rpm_limit 60. First run without backoff and count 429s, then add tenacity wait_random_exponential and honour Retry-After. Report success rate, 429 count and p95 latency for both runs in a table.",
+          "deliverable": "Load script, backoff implementation and before and after comparison table",
+          "checks": [["Run 200 requests with no backoff against rpm_limit 60", "More than half of the requests fail with 429", "Run summary"], ["Run again with exponential backoff and jitter", "All 200 requests eventually succeed", "Run summary"], ["Compare timestamps of retries", "Retry times are spread out and not synchronised at the same second", "Retry timestamp histogram"]],
+          "objectives": ["Explain rate limit types and headers", "Implement backoff with jitter and bounded concurrency", "Compare behaviour with and without backoff"]
+        },
+        {
+          "topic": "Token Counting and Cost Calculation",
+          "subtopics": ["Input, output, cached and reasoning tokens and how each is billed", "Price tables per million tokens and who maintains them", "tiktoken and provider token-count endpoints", "Estimating cost before a call and computing it after", "Per-request cost fields in gateways such as the x-litellm-response-cost header", "Context growth in multi-turn chat and cost per turn", "Cost of tool outputs and retrieved context", "Unit economics: cost per conversation and cost per resolved ticket"],
+          "tools": ["tiktoken", "LiteLLM", "Python", "pandas", "Postgres"],
+          "lab_task": "Write cost.py that reads usage from responses and a prices.yaml file, then returns cost in USD with six decimals. Replay 50 logged requests, compare your computed cost with the gateway's recorded spend, and report the largest difference. Add a chart of cost per turn for a 10-turn conversation to show context growth.",
+          "deliverable": "cost.py, prices.yaml and a reconciliation report against gateway spend",
+          "checks": [["Compute cost for 1000 input and 500 output tokens at known prices", "The result equals 1000/1e6 times input price plus 500/1e6 times output price", "Unit test"], ["Reconcile 50 replayed requests with gateway spend", "Total difference is within 1 percent", "Reconciliation table"], ["Plot cost per turn over a 10-turn chat", "Cost per turn rises with each turn as history is resent", "Chart image"]],
+          "objectives": ["Compute request cost from usage and prices", "Reconcile calculated cost with gateway records", "Explain how context growth raises cost"]
+        },
+        {
+          "topic": "Request Logging and Structured Logs for LLM Calls",
+          "subtopics": ["What to log: request id, user id hash, alias, resolved model, tokens, latency, status", "What not to log by default: raw prompts, personal data, keys", "JSON logging with structlog and correlation ids", "Propagating a request id through app, gateway and provider", "Sampling policies for full prompt capture", "Log levels and volume estimates per million requests", "Shipping logs to Loki or Elasticsearch", "Querying logs to answer an incident question"],
+          "tools": ["structlog", "Loki", "Grafana", "Docker Compose", "jq"],
+          "lab_task": "Add structlog JSON logging to the app that records request_id, alias, resolved_model, prompt_tokens, completion_tokens, latency_ms and status for every call, with prompt text off by default. Pass request_id in an X-Request-ID header through the gateway, ship logs to Loki, and write a LogQL query that returns the p95 latency per alias.",
+          "deliverable": "Structured logging module, Loki and Grafana compose stack and a saved LogQL query",
+          "checks": [["Make 20 calls and read one log line", "It is valid JSON with request_id, resolved_model, token counts and latency_ms", "Log sample"], ["Search Loki for one request_id", "The app log and the gateway log for that request are both returned", "Grafana Explore screenshot"], ["Search all logs for a known test prompt string", "No matches are found because prompt text logging is off", "Query result"]],
+          "objectives": ["Emit structured logs for each LLM call", "Correlate logs across app and gateway", "Keep sensitive text out of logs by default"]
+        },
+        {
+          "topic": "First Traces with Langfuse",
+          "subtopics": ["Traces, observations, spans and generations", "Self-hosted Langfuse via Docker Compose versus Langfuse Cloud", "Project keys: LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_HOST", "The @observe decorator and the OpenAI drop-in integration", "Adding user_id, session_id, tags and metadata", "Viewing token usage and cost per generation", "Scores attached to traces", "Flush behaviour in short-lived scripts and serverless handlers"],
+          "tools": ["Langfuse", "Docker Compose", "Python", "OpenAI Python SDK", "LiteLLM"],
+          "lab_task": "Start Langfuse locally with Docker Compose, create a project and keys, and instrument the support bot with the @observe decorator so that one trace contains a retrieval span and a generation. Add session_id and tags, send 20 conversations, and use the UI to find the slowest trace and its token cost.",
+          "deliverable": "Instrumented app, running Langfuse stack and a note on the slowest trace",
+          "checks": [["Send one request through the instrumented function", "A trace appears with one generation and the correct model name and token counts", "Langfuse UI screenshot"], ["Filter traces by tag support-bot", "Only the 20 tagged traces are listed", "Filtered list screenshot"], ["Run a script that exits right after the call without flush", "The trace is lost, and calling langfuse.flush() before exit fixes it", "Before and after trace counts"]],
+          "objectives": ["Instrument an LLM function with traces", "Attach sessions, tags and metadata", "Locate slow and costly traces in the UI"]
+        },
+        {
+          "topic": "Latency Metrics: TTFT, Inter-Token Latency and Total Time",
+          "subtopics": ["Time to first token, inter-token latency, tokens per second and end-to-end time", "Why streaming changes perceived latency", "Queue time versus model time versus network time", "Measuring from the client and from the gateway", "Percentiles: p50, p95, p99 and why averages mislead", "Effect of prompt length and max_tokens on latency", "Latency targets by use case: chat, autocomplete, batch", "Benchmarking with a fixed prompt set"],
+          "tools": ["Python", "httpx", "pandas", "matplotlib", "LiteLLM", "k6"],
+          "lab_task": "Write bench.py that streams 100 requests at concurrency 5 and records time to first token, mean inter-token latency and total time per request. Run it with 200-token and 2000-token prompts, output a CSV, and compute p50, p95 and p99 for each metric with pandas. State which prompt length misses a 2-second TTFT target.",
+          "deliverable": "bench.py, CSV results and a percentile summary table",
+          "checks": [["Run 100 streamed requests", "The CSV has 100 rows with ttft_ms, itl_ms and total_ms columns", "CSV file"], ["Compare 200-token and 2000-token prompts", "TTFT p95 is higher for the 2000-token prompt", "Summary table"], ["Compare mean and p99 total time", "p99 is larger than the mean, showing tail latency", "pandas output"]],
+          "objectives": ["Measure TTFT, inter-token latency and total time", "Report percentiles instead of averages", "Relate prompt length to latency"]
+        },
+        {
+          "topic": "Exact-Match and Semantic Caching: First Principles",
+          "subtopics": ["Where caching helps: repeated questions, retries, evaluation reruns", "Exact-match cache keys: model, messages, parameters", "Redis cache in the gateway via litellm_settings cache and cache_params", "Time to live and cache invalidation on prompt change", "Semantic caching with embeddings and a similarity threshold", "Risks: stale answers, personal data and cross-tenant leaks", "Cache namespaces and per-request cache controls", "Measuring hit rate and savings"],
+          "tools": ["LiteLLM", "Redis", "redis-cli", "Python", "GPTCache"],
+          "lab_task": "Enable the Redis cache in LiteLLM with a 300-second ttl. Send the same 30 questions twice and record hit rate and mean latency for each pass. Then change the system prompt version, resend, and confirm the cache is not reused. Check Redis with redis-cli keys and DBSIZE after each run.",
+          "deliverable": "Cache configuration, run results and a note on invalidation behaviour",
+          "checks": [["Send 30 identical requests a second time", "All 30 are cache hits with latency under 100 ms", "Gateway log and timing"], ["Change the system prompt and resend", "Requests are cache misses and reach the model", "Gateway log"], ["Run DBSIZE in redis-cli", "The key count matches the number of distinct requests sent", "redis-cli output"]],
+          "objectives": ["Enable exact-match caching", "Explain invalidation on prompt change", "Measure hit rate and latency savings"]
+        },
+        {
+          "topic": "Prompt Caching on Provider APIs",
+          "subtopics": ["How provider prefix caching differs from response caching", "Stable prefix first: system prompt, tools and documents before the variable part", "OpenAI automatic caching for long prompts and the cached_tokens usage field", "Anthropic cache_control breakpoints and cache read and write counters", "Minimum cacheable lengths and cache lifetimes", "Pricing of cache writes and reads", "Prompt layout changes that break caching", "Tracking cache read ratio per feature"],
+          "tools": ["OpenAI Python SDK", "Anthropic Python SDK", "Python", "pandas", "Langfuse"],
+          "lab_task": "Build a 4000-token system prompt and send 10 requests that vary only the final user message. Read cached tokens from the usage object on each call and compute cache read ratio. Then move a changing timestamp to the top of the prompt, rerun, and show the ratio drop. Calculate the cost difference using your price table.",
+          "deliverable": "Cache ratio report comparing stable and unstable prompt layouts",
+          "checks": [["Send 10 requests with a 4000-token stable prefix", "Requests after the first report cached tokens greater than 0", "Usage fields in the log"], ["Put a timestamp at the start of the prompt", "Cached tokens fall to 0 on every request", "Usage fields in the log"], ["Price both runs with prices.yaml", "The stable layout costs less in total than the unstable layout", "Cost table"]],
+          "objectives": ["Structure prompts to benefit from prefix caching", "Read cache counters from usage", "Quantify savings in dollars"]
+        },
+        {
+          "topic": "Running a Local Model with Ollama and OpenAI-Compatible Endpoints",
+          "subtopics": ["Why self-host a small model for development and tests", "Installing Ollama and pulling a small model", "ollama serve on port 11434 and the /v1/chat/completions endpoint", "Quantised model files and what the tag suffix means", "Registering the local model in the LiteLLM gateway", "Differences from hosted models: quality, tool support, context length", "Hardware limits: RAM, VRAM and CPU fallback", "Using local models for offline CI smoke tests"],
+          "tools": ["Ollama", "LiteLLM", "curl", "Python", "Docker"],
+          "lab_task": "Install Ollama, pull a small instruct model, and call it with curl at http://localhost:11434/v1/chat/completions. Add it to LiteLLM as local-small with api_base set, send the same 20 prompts to local-small and chat-cheap, and compare latency, output length and one quality judgement per answer in a short table.",
+          "deliverable": "Gateway config with a local model and a comparison table of 20 prompts",
+          "checks": [["curl the local /v1/chat/completions endpoint", "A JSON completion is returned with a choices array", "curl output"], ["Call local-small through the gateway", "The response comes from the local model and spend is recorded as 0", "Gateway log"], ["Compare 20 prompts across both aliases", "The table lists latency and output tokens for each alias", "Comparison table"]],
+          "objectives": ["Run a local model behind an OpenAI-compatible endpoint", "Register it in a gateway", "Compare local and hosted behaviour"]
+        },
+        {
+          "topic": "Smoke Tests and Golden Sets for Prompt Changes in CI",
+          "subtopics": ["What a smoke test can and cannot prove", "Golden sets: 20 to 50 representative inputs with expected properties", "Assertions that survive non-determinism: JSON validity, required fields, banned phrases, length", "Fixed seeds and temperature 0 and their limits", "Recording and replaying responses for cheap CI", "GitHub Actions workflow triggered on prompts/** changes", "Cost cap per CI run", "Failing builds with clear messages"],
+          "tools": ["pytest", "GitHub Actions", "promptfoo", "Python", "VCR.py"],
+          "lab_task": "Create a golden set of 25 support questions in golden.jsonl with assertions for valid JSON, a required answer field, no banned phrase and fewer than 150 words. Write a pytest suite that runs them against the gateway and a GitHub Actions workflow that runs on changes under prompts/. Deliberately break the prompt to see the build fail.",
+          "deliverable": "golden.jsonl, pytest suite and a GitHub Actions workflow that fails on a bad prompt",
+          "checks": [["Run the suite on the current prompt", "25 of 25 cases pass", "pytest summary"], ["Edit the prompt to remove the JSON instruction and push", "The workflow fails and lists the failing case ids", "GitHub Actions log"], ["Count the model calls in one CI run", "Calls equal 25 and the cost cap of 0.10 USD is not exceeded", "CI log and cost line"]],
+          "objectives": ["Build a golden set with property assertions", "Run it automatically on prompt changes", "Cap the cost of CI evaluation"]
+        },
+        {
+          "topic": "Secrets, PII and Data Handling in LLM Logs",
+          "subtopics": ["Where personal data enters prompts, responses and traces", "Redaction before logging with Microsoft Presidio", "Hashing user identifiers", "Retention periods for traces and why shorter is safer", "Provider data-use terms: zero data retention and training opt-outs", "Access control on the trace store", "Deleting a user's data on request", "Test data policy: synthetic only in lower environments"],
+          "tools": ["Microsoft Presidio", "Langfuse", "Python", "Postgres", "pytest"],
+          "lab_task": "Add a redaction step that runs Presidio on prompts and responses before they are sent to Langfuse, masking email addresses, phone numbers and card numbers. Test with 10 synthetic records, hash user ids with SHA-256 and a salt, and write a SQL script that deletes all traces for one hashed user id and prove the count drops to 0.",
+          "deliverable": "Redaction wrapper, tests with synthetic PII and a user-deletion script",
+          "checks": [["Send a prompt containing a fake email and phone number", "The stored trace shows masked placeholders such as <EMAIL_ADDRESS>", "Langfuse trace screenshot"], ["Search the trace store for the fake email", "No rows match", "Query result"], ["Run the deletion script for one user hash", "Trace count for that hash goes from greater than 0 to 0", "SQL output"]],
+          "objectives": ["Redact personal data before it reaches telemetry", "Hash identifiers", "Delete a user's traces on request"]
+        },
+        {
+          "topic": "Beginner Capstone: Operable Support-Bot Service with Gateway, Traces and CI",
+          "subtopics": ["Service design: FastAPI endpoint, gateway, prompt store, trace backend", "Required operational features: pinned models, fallback, budgets, logs, traces, golden-set CI", "Acceptance tests and an operations checklist", "Demo and handover: runbook for the on-call engineer"],
+          "tools": ["FastAPI", "LiteLLM", "Langfuse", "GitHub Actions", "Docker Compose", "pytest"],
+          "lab_task": "Deliver a FastAPI support bot that calls models only through LiteLLM, loads a versioned prompt, uses a virtual key with a 1.00 USD daily budget, falls back to a second model, traces to Langfuse with PII redaction, and has a CI workflow running the golden set. Load test with 100 requests and report error rate, p95 latency and total cost.",
+          "deliverable": "Running service with compose file, CI workflow, load test report and a one-page runbook",
+          "checks": [["Run docker compose up and send 100 load-test requests", "Error rate is under 1 percent and p95 latency and total cost are reported", "Load test report"], ["Disable the primary model in config and resend 20 requests", "All 20 are served by the fallback and logged as such", "Gateway log"], ["Open a pull request that breaks the prompt", "The CI golden set fails and blocks the merge", "Pull request checks"]],
+          "objectives": ["Assemble gateway, prompts, tracing and CI into one service", "Prove resilience with a failure test", "Hand over a runbook an on-call engineer can follow"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who operate one or more LLM services in production. Covers prompt registries and release labels, CI/CD with evaluation gates, gateway routing and failover testing, multi-cloud provider access on Bedrock, Azure OpenAI and Vertex AI, self-hosting with vLLM and SGLang, quantisation and GPU sizing, Kubernetes inference with queue-based autoscaling, OpenTelemetry GenAI tracing, LangSmith, Prometheus dashboards, cost attribution, semantic cache tuning, RAG index pipelines, canary and shadow rollouts, feedback loops, and a release-pipeline capstone.",
+      "prerequisites": ["Completed the beginner level or runs an LLM application behind a gateway", "Works with Kubernetes, Prometheus and CI pipelines at a working level", "Can read Python and YAML configuration and use the command line on a Linux host"],
+      "outcomes": ["Release prompts, models and indexes through gated pipelines with evidence", "Serve open-weight models with vLLM or SGLang and size GPUs from measurements", "Build traces, metrics and cost dashboards that answer incident and finance questions", "Roll out changes with canary, shadow and A/B methods and verified rollback"],
+      "days": [
+        {
+          "topic": "Prompt Registries and Release Labels in Langfuse and MLflow",
+          "subtopics": ["Registry versus Git: runtime fetch, labels and instant rollback", "Langfuse prompt management: create_prompt, get_prompt, labels production and staging", "MLflow prompt registry: register_prompt, versions and aliases", "Client-side caching and fallback prompts when the registry is down", "Linking generations to the prompt version that produced them", "Promotion flow: draft, staging label, production label", "Access control and audit of who changed a label", "Syncing the registry from Git as the source of truth"],
+          "tools": ["Langfuse", "MLflow", "Python", "GitHub Actions", "Docker Compose"],
+          "lab_task": "Register support_answer in Langfuse with versions 1 and 2, label version 1 as production and version 2 as staging, and fetch by label with get_prompt(name, label='production'). Switch the production label to version 2, verify the app uses it without redeploy, then move it back and confirm traces show the matching prompt version. Stop Langfuse and verify the fallback prompt is used.",
+          "deliverable": "Registry-backed prompt loader with label promotion script and fallback test",
+          "checks": [["Call get_prompt with label production after moving the label to version 2", "Version 2 text is returned with no application redeploy", "Script output"], ["Open a trace made after the label change", "The generation links to prompt version 2", "Langfuse trace screenshot"], ["Stop the registry and call the loader", "The bundled fallback prompt is returned and a warning is logged", "Application log"]],
+          "objectives": ["Manage prompt versions and labels in a registry", "Roll a prompt forward and back without a deploy", "Keep the app working when the registry is unavailable"]
+        },
+        {
+          "topic": "CI/CD Pipelines for Prompt Changes with GitHub Actions",
+          "subtopics": ["Pipeline stages: lint, render tests, offline eval, staging deploy, approval, promote", "Path filters so only prompt changes trigger evaluation", "Matrix runs across candidate models", "Posting eval results as a pull request comment", "Environments and required reviewers in GitHub Actions", "Secrets scoping and fork pull request rules", "Caching eval results to cut cost", "Artifacts: eval report, prompt bundle and release notes"],
+          "tools": ["GitHub Actions", "promptfoo", "Python", "Langfuse", "pytest"],
+          "lab_task": "Write a workflow with jobs lint, render-tests, eval and promote. Trigger on changes to prompts/**, run promptfoo against 40 cases for two candidate models in a matrix, upload the report as an artifact and comment the pass rates on the pull request. Use a protected production environment with one required reviewer for promote.",
+          "deliverable": "Workflow file, promptfoo config and a pull request showing the comment and the approval gate",
+          "checks": [["Open a pull request that changes only README.md", "The prompt workflow is skipped by the path filter", "Actions run list"], ["Open a pull request that changes a prompt", "The eval job runs for both models and a PR comment lists pass rates", "Pull request comment"], ["Merge the pull request", "The promote job waits for reviewer approval before it runs", "Actions environment approval screen"]],
+          "objectives": ["Build a staged CI/CD pipeline for prompts", "Report evaluation results on the pull request", "Require approval before promotion"]
+        },
+        {
+          "topic": "Eval Gates: Thresholds That Block a Release",
+          "subtopics": ["Gate design: absolute thresholds, no-regression rules, and per-slice minimums", "Choosing metrics: pass rate, format validity, groundedness, refusal rate, cost, latency", "Statistical noise: confidence intervals for a pass rate on 100 cases", "Flaky evaluations and rerun policy", "Baseline storage: last released version results", "Hard gates versus advisory warnings", "Gate overrides with named approvers and a reason field", "Gate failure triage"],
+          "tools": ["promptfoo", "Python", "scipy", "GitHub Actions", "MLflow"],
+          "lab_task": "Create gate.py that reads current and baseline eval results as JSON, computes a Wilson 95 percent interval for the pass rate, and fails when the lower bound drops below baseline minus 3 points or any slice has fewer than 80 percent passes. Run it on three synthetic result files: improved, equal and regressed, and print the decision for each.",
+          "deliverable": "gate.py, three result fixtures and a gate policy document",
+          "checks": [["Run gate.py on the improved results", "Exit code 0 and a PASS decision", "Terminal output"], ["Run gate.py on the regressed results", "Exit code 1 and a message naming the failing metric", "Terminal output"], ["Run gate.py on results where one slice has 70 percent passes", "Exit code 1 naming that slice even though the overall pass rate is above threshold", "Terminal output"]],
+          "objectives": ["Define gate rules with statistical tolerance", "Gate on slices, not only the average", "Record overrides with an approver and reason"]
+        },
+        {
+          "topic": "Gateway Routing Strategies: Latency, Cost and Load Balancing in LiteLLM",
+          "subtopics": ["Multiple deployments behind one model_name", "router_settings routing_strategy: simple-shuffle, least-busy, latency-based-routing, usage-based-routing-v2, cost-based-routing", "Weights, rpm and tpm per deployment", "Redis-backed router state across multiple gateway replicas", "Tag-based and team-based routing", "Pre-call checks for context window and region", "Health checks and removing unhealthy deployments", "Verifying distribution from logs"],
+          "tools": ["LiteLLM", "Redis", "Docker Compose", "k6", "jq"],
+          "lab_task": "Define one alias with three deployments with weights 6, 3 and 1 and rpm limits, run two gateway replicas sharing Redis, and send 1000 requests with k6. Count served deployments from the logs and compare to the weights. Then switch to latency-based-routing, add 300 ms artificial delay to one deployment, and show traffic shifting away from it.",
+          "deliverable": "Routing config, k6 script and a distribution table for each strategy",
+          "checks": [["Send 1000 requests with weights 6, 3 and 1", "Served counts are close to 600, 300 and 100", "Log count table"], ["Switch to latency-based-routing and delay one deployment by 300 ms", "The slow deployment's share of traffic drops below 10 percent", "Log count table"], ["Stop one gateway replica mid-test", "The remaining replica continues serving with no client errors above 1 percent", "k6 summary"]],
+          "objectives": ["Configure weighted and latency-based routing", "Share router state across replicas", "Verify traffic distribution from logs"]
+        },
+        {
+          "topic": "Model Fallback Chains and Provider Failover Testing",
+          "subtopics": ["Designing chains: same-quality equivalents first, cheaper degrade last", "Quality parity between fallback models and the eval needed to prove it", "Cross-provider differences: tool call formats, JSON modes, max output tokens", "Context window fallbacks for oversized prompts", "Content-policy fallbacks and their risk", "Chaos tests: blackholing a provider endpoint", "Alerting when fallback rate exceeds a threshold", "Failover runbook and game day schedule"],
+          "tools": ["LiteLLM", "toxiproxy", "k6", "Python", "Grafana"],
+          "lab_task": "Place Toxiproxy in front of the primary provider endpoint, run steady traffic at 5 requests per second with k6, then add a timeout toxic for 5 minutes. Record error rate, fallback share and p95 latency before, during and after. Run your golden set against the fallback model alone and report the pass rate difference.",
+          "deliverable": "Chaos test results table and a fallback quality comparison on the golden set",
+          "checks": [["Apply a timeout toxic for 5 minutes under steady traffic", "Client error rate stays under 2 percent and fallback share rises above 90 percent", "k6 summary and gateway metrics"], ["Remove the toxic", "Traffic returns to the primary within the cooldown period", "Gateway metric graph"], ["Run the golden set on the fallback model only", "A pass rate is reported and compared with the primary's pass rate", "Eval report"]],
+          "objectives": ["Test provider failover with fault injection", "Quantify quality loss on the fallback path", "Alert on abnormal fallback rates"]
+        },
+        {
+          "topic": "Multi-Provider Deployments on Bedrock, Azure OpenAI and Vertex AI",
+          "subtopics": ["Why enterprises use cloud-hosted model access: identity, networking, billing, data terms", "Authentication: IAM roles, Microsoft Entra ID, service accounts", "Deployment names versus model names on Azure", "Regional endpoints, inference profiles and quota per region", "Private networking: PrivateLink and private endpoints", "Per-provider quotas and quota increase requests", "Feature differences: batch, caching, tool use, structured outputs", "LiteLLM provider prefixes bedrock/, azure/ and vertex_ai/"],
+          "tools": ["LiteLLM", "AWS Bedrock", "Azure OpenAI", "Google Vertex AI", "Terraform"],
+          "lab_task": "Register one model on each of Bedrock, Azure OpenAI and Vertex AI in LiteLLM using cloud identity instead of static keys where possible. Send the same 20 prompts to each, record latency, output tokens and error codes, and list each provider's quota unit and default limit from its console. Produce a table of auth method, region and quota.",
+          "deliverable": "Three-provider gateway config and a comparison table of auth, region, quota and latency",
+          "checks": [["Call each provider alias with the same 20 prompts", "All three return completions and the table records latency for each", "Result table"], ["Inspect gateway config in Git", "No static cloud keys appear in config and credentials come from roles or environment", "Config file review"], ["Read each console for quota", "The table lists the quota unit and default limit for each provider", "Console screenshots"]],
+          "objectives": ["Operate models from three cloud providers behind one gateway", "Use cloud identity instead of shared keys", "Compare quotas and regional constraints"]
+        },
+        {
+          "topic": "Serving Open-Weight Models with vLLM",
+          "subtopics": ["Why vLLM: continuous batching and paged KV cache", "vllm serve <model> --host --port --api-key", "OpenAI-compatible endpoints: /v1/chat/completions, /v1/models, /health, /metrics", "GPU requirements and --dtype choices", "--max-model-len and the KV cache memory trade-off", "Model download, cache directory and offline start-up", "Registering the vLLM endpoint in the gateway", "Reading the start-up log: memory profiling and KV cache size"],
+          "tools": ["vLLM", "Docker", "NVIDIA Container Toolkit", "curl", "LiteLLM"],
+          "lab_task": "Start vllm serve with a small instruct model and --max-model-len 8192 --gpu-memory-utilization 0.90 in Docker on a GPU host or a small-model CPU-compatible build. Call /v1/chat/completions with curl, scrape /metrics for vllm:num_requests_running, and read the start-up log for the GPU KV cache size in tokens. Register it in LiteLLM as self-hosted-chat.",
+          "deliverable": "Running vLLM container, curl and gateway tests and notes on KV cache size from the start-up log",
+          "checks": [["curl /v1/models on the vLLM server", "The served model id is listed", "curl output"], ["Read the start-up log", "A line reports the GPU KV cache size in tokens", "Log excerpt"], ["Send a request through LiteLLM alias self-hosted-chat", "A completion is returned and vllm metrics show request count increased", "Metrics before and after"]],
+          "objectives": ["Start a vLLM server and call its OpenAI-compatible API", "Interpret memory and KV cache start-up output", "Expose it through the gateway"]
+        },
+        {
+          "topic": "vLLM Tuning: Batching, KV Cache and Memory Flags",
+          "subtopics": ["Throughput versus latency under concurrency", "--max-num-seqs and --max-num-batched-tokens", "--gpu-memory-utilization and out-of-memory errors", "Prefix caching with --enable-prefix-caching", "Chunked prefill and its effect on TTFT", "vllm bench serve and its output metrics", "Reading vllm: Prometheus metrics for waiting requests and cache usage", "Tuning loop: change one flag, benchmark, record"],
+          "tools": ["vLLM", "vllm bench serve", "Prometheus", "Grafana", "Python"],
+          "lab_task": "Run vllm bench serve at request rates 2, 8 and 32 with the default settings, then with --enable-prefix-caching on a shared 2000-token prefix dataset, and then with a larger --max-num-seqs. Record request throughput, output tokens per second, p95 TTFT and peak vllm:gpu_cache_usage_perc in a table and name the best setting for a 1 second TTFT target.",
+          "deliverable": "Benchmark table with three configurations and a tuning recommendation",
+          "checks": [["Run the benchmark at three request rates", "Throughput and p95 TTFT are recorded for each rate", "Benchmark output"], ["Enable prefix caching on a shared-prefix dataset", "TTFT p95 is lower than without prefix caching", "Comparison table"], ["Raise request rate until the queue builds", "vllm:num_requests_waiting becomes greater than 0 and TTFT rises sharply", "Grafana panel"]],
+          "objectives": ["Benchmark a serving engine reproducibly", "Tune batch and cache flags one at a time", "Select settings against a latency target"]
+        },
+        {
+          "topic": "SGLang and Other Engines: Choosing a Serving Stack",
+          "subtopics": ["Serving engines compared: vLLM, SGLang, TensorRT-LLM, Hugging Face TGI, llama.cpp, Ollama", "SGLang launch: python -m sglang.launch_server --model-path --port", "RadixAttention prefix reuse and structured generation", "Engine selection criteria: model support, hardware, features, community and licence", "Running the same benchmark against two engines", "Compatibility of OpenAI API features across engines", "Operational maturity: metrics, health checks, upgrades", "Recording the decision in an architecture decision record"],
+          "tools": ["SGLang", "vLLM", "Docker", "Python", "vllm bench serve"],
+          "lab_task": "Launch SGLang and vLLM with the same model on the same GPU, one at a time, and run the same 200-request benchmark with a shared prefix and JSON-constrained outputs. Record tokens per second, p95 TTFT, memory used from nvidia-smi and failures. Write a one-page architecture decision record that picks one engine for your workload and states the retest trigger.",
+          "deliverable": "Side-by-side benchmark table and an architecture decision record",
+          "checks": [["Run the same 200-request benchmark on both engines", "The table has tokens per second, p95 TTFT and peak memory for each engine", "Benchmark table"], ["Send a request with a JSON schema constraint to each engine", "Both return valid JSON or the table records which engine failed", "Response samples"], ["Read the decision record", "It states the chosen engine, rejected options and a trigger for re-evaluation", "ADR document"]],
+          "objectives": ["Compare serving engines using one benchmark", "Check feature compatibility across engines", "Document the decision with a retest trigger"]
+        },
+        {
+          "topic": "Quantised Models and GPU Sizing for Serving",
+          "subtopics": ["Weight memory: parameters times bytes per parameter", "KV cache memory per token and per concurrent sequence", "Precision options: BF16, FP8, INT8, INT4, AWQ and GPTQ", "Quality loss measured with your own eval, not a leaderboard", "Tensor parallelism with --tensor-parallel-size across GPUs", "GPU families and memory sizes at a high level", "Cost per million tokens for a self-hosted setup", "Sizing worksheet and validation against nvidia-smi"],
+          "tools": ["vLLM", "nvidia-smi", "Python", "lm-evaluation-harness", "Hugging Face Hub"],
+          "lab_task": "Build a sizing worksheet in Python that estimates weights plus KV cache memory for a 8B model at BF16 and 4-bit with 8192 context and 16 concurrent sequences. Serve both variants in vLLM, compare predicted and measured memory from nvidia-smi, and run your 50-case golden set on each to report the quality difference.",
+          "deliverable": "Sizing script, measured memory table and a quality comparison on the golden set",
+          "checks": [["Run the sizing script for BF16 and 4-bit", "Predicted weight memory for 4-bit is about a quarter of BF16", "Script output"], ["Compare predicted and measured memory with nvidia-smi", "Difference is stated and explained, for example by CUDA context and fragmentation", "Comparison table"], ["Run the golden set on both variants", "Pass rates for both variants are reported side by side", "Eval report"]],
+          "objectives": ["Estimate GPU memory for weights and KV cache", "Compare quantised and full-precision quality on your tasks", "Cost a self-hosted configuration per million tokens"]
+        },
+        {
+          "topic": "Kubernetes Deployments for LLM Inference with Autoscaling",
+          "subtopics": ["Running GPU workloads: NVIDIA device plugin and nvidia.com/gpu resource requests", "Node pools, taints, tolerations and nodeSelectors for GPU nodes", "Model weights: init containers, PVCs and image-baked models", "Readiness probes that wait for model load", "Autoscaling signals: queue depth and concurrency instead of CPU", "KEDA or HPA with Prometheus metrics", "Cold start time and keeping a warm minimum replica count", "Rolling updates and PodDisruptionBudgets"],
+          "tools": ["Kubernetes", "KEDA", "Prometheus", "vLLM", "Helm", "kubectl"],
+          "lab_task": "Deploy vLLM on a Kubernetes cluster with one GPU requested via nvidia.com/gpu: 1, a readiness probe on /health with an initialDelaySeconds that covers model load, and a KEDA ScaledObject using vllm:num_requests_waiting from Prometheus. Generate load with k6, watch replicas scale from 1 to 2 with kubectl get hpa -w, and record the cold start time of the new pod.",
+          "deliverable": "Helm values or manifests, ScaledObject and a scaling test report with cold start time",
+          "checks": [["kubectl describe pod for the inference pod", "Limits show nvidia.com/gpu: 1 and the pod is scheduled on a GPU node", "kubectl output"], ["Apply load until waiting requests exceed the threshold", "Replica count increases from 1 to 2", "kubectl get hpa watch output"], ["Measure time from pod creation to Ready", "Cold start duration in seconds is recorded and exceeds the readiness delay", "Pod events and timing note"]],
+          "objectives": ["Deploy GPU inference workloads on Kubernetes", "Autoscale on queue-based metrics", "Measure and plan for cold start"]
+        },
+        {
+          "topic": "Distributed Tracing with OpenTelemetry GenAI Semantic Conventions",
+          "subtopics": ["OpenTelemetry traces, spans, attributes and the collector", "GenAI semantic conventions: gen_ai.operation.name, gen_ai.request.model, gen_ai.usage.input_tokens, gen_ai.usage.output_tokens", "Convention maturity: check the current stability status and opt-in variable", "Auto-instrumentation libraries versus manual spans", "Prompt and completion content as opt-in events and its privacy impact", "Context propagation across app, gateway and retrieval service", "Collector pipelines: receivers, processors, exporters", "Exporting the same spans to Langfuse, Tempo or Jaeger"],
+          "tools": ["OpenTelemetry", "OpenTelemetry Collector", "Jaeger", "Grafana Tempo", "Python"],
+          "lab_task": "Instrument the support bot with OpenTelemetry so each model call is a span carrying gen_ai.request.model and gen_ai.usage token attributes, with prompt content disabled. Route spans through an OpenTelemetry Collector to Jaeger, call the gateway with a traceparent header, and show one trace that links the app span, the gateway span and the retrieval span.",
+          "deliverable": "Instrumented app, collector config and a screenshot of one linked trace",
+          "checks": [["Send one request and open the trace in Jaeger", "A single trace contains app, retrieval and model call spans", "Jaeger screenshot"], ["Inspect the model call span attributes", "gen_ai.request.model and both token usage attributes are present", "Span attribute list"], ["Search span attributes for the prompt text", "No prompt content is stored because content capture is off", "Jaeger search result"]],
+          "objectives": ["Emit GenAI spans that follow semantic conventions", "Propagate trace context through the gateway", "Control prompt content capture"]
+        },
+        {
+          "topic": "LangSmith Tracing, Datasets and Experiments",
+          "subtopics": ["LangSmith projects, runs and traces", "Enabling tracing: LANGSMITH_TRACING, LANGSMITH_API_KEY, LANGSMITH_PROJECT", "The @traceable decorator for non-LangChain code", "Datasets and examples created from production traces", "evaluate() with custom evaluators and experiment comparison", "Annotation queues for human review", "Comparing LangSmith, Langfuse, Phoenix and OpenTelemetry back ends", "Data residency and self-hosting options"],
+          "tools": ["LangSmith", "Python", "Langfuse", "Arize Phoenix", "OpenAI Python SDK"],
+          "lab_task": "Enable LangSmith tracing with environment variables, wrap the support bot with @traceable, run 30 conversations, then save 20 traces as a dataset. Use evaluate() with a custom exact-field evaluator to compare two prompt versions as two experiments and read the comparison view. Write a short table that compares LangSmith and Langfuse on your needs.",
+          "deliverable": "Traced app, a 20-example dataset, two experiments and a tooling comparison table",
+          "checks": [["Run 30 conversations with tracing enabled", "30 root runs appear in the project", "LangSmith project view"], ["Create a dataset from 20 traces", "The dataset contains 20 examples with inputs and outputs", "Dataset page"], ["Run evaluate() on two prompt versions", "Two experiments appear with per-example scores and a comparison view", "Experiment comparison screenshot"]],
+          "objectives": ["Trace non-LangChain code in LangSmith", "Turn production traces into evaluation datasets", "Compare experiments across prompt versions"]
+        },
+        {
+          "topic": "Metrics and Dashboards: Prometheus and Grafana for LLM Services",
+          "subtopics": ["Metric types: counters, gauges and histograms", "LLM service metrics: requests, errors, tokens, cost, TTFT, queue depth, cache hit rate", "Label design and cardinality: no user ids or prompts as labels", "Gateway Prometheus callback and the vLLM /metrics endpoint", "GPU metrics with DCGM exporter", "PromQL: rate(), histogram_quantile(), sum by", "Dashboard layout: golden signals first, then LLM-specific panels", "Alert rules on error rate, p95 latency and budget burn"],
+          "tools": ["Prometheus", "Grafana", "prometheus_client", "DCGM Exporter", "LiteLLM"],
+          "lab_task": "Add prometheus_client counters and histograms to the app for tokens, cost and latency by alias and outcome. Scrape the app, gateway and vLLM. Build a Grafana dashboard with request rate, error ratio, p95 latency via histogram_quantile, tokens per minute and cost per hour, and write an alert rule that fires when error ratio exceeds 5 percent for 5 minutes.",
+          "deliverable": "Instrumented app, Prometheus scrape config, dashboard JSON and alert rule",
+          "checks": [["Open the Prometheus targets page", "App, gateway and vLLM targets are all UP", "Targets page screenshot"], ["Run a PromQL query for p95 latency by alias", "histogram_quantile returns one series per alias", "Query result"], ["Force failures above 5 percent for 5 minutes", "The alert moves to Firing", "Alertmanager or Grafana alert screen"]],
+          "objectives": ["Expose and scrape LLM service metrics", "Build a dashboard around golden signals plus LLM metrics", "Alert on error ratio and latency"]
+        },
+        {
+          "topic": "Cost Attribution and Showback by Team, Feature and Tenant",
+          "subtopics": ["Attribution dimensions: team, product feature, environment, customer tenant", "Tagging at the gateway with virtual key metadata and request tags", "Shared costs: embeddings, evaluation, idle GPU time", "Allocating self-hosted GPU cost by token share", "Spend reports from gateway APIs and the database", "Showback versus chargeback", "Budget alerts at 50, 80 and 100 percent", "Anomaly detection on daily spend"],
+          "tools": ["LiteLLM", "Postgres", "SQL", "Grafana", "Python"],
+          "lab_task": "Tag requests with team and feature metadata via virtual keys and a request tag, generate 500 requests across 3 teams, then write SQL against the spend logs for cost by team and feature per day. Add a Grafana panel, an 80 percent budget alert for one team, and a script that allocates a fixed 300 USD GPU bill by each team's token share.",
+          "deliverable": "Spend queries, dashboard panel, budget alert and an allocation script with output",
+          "checks": [["Run the cost by team and feature query", "Rows for all 3 teams and each feature are returned and the total equals gateway total spend", "Query output"], ["Run the GPU allocation script for a 300 USD bill", "Allocations sum exactly to 300.00", "Script output"], ["Push one team past 80 percent of budget", "An alert is triggered naming that team", "Alert notification"]],
+          "objectives": ["Attribute LLM spend to teams and features", "Allocate shared GPU cost by usage", "Alert on budget thresholds"]
+        },
+        {
+          "topic": "Semantic Cache Operations: Thresholds, Invalidation and Hit-Rate Tuning",
+          "subtopics": ["Embedding model choice for cache keys", "Similarity threshold and false hit risk", "Measuring false hits with a labelled paraphrase set", "Cache scope: per tenant, per prompt version, per language", "Invalidation: TTL, version in key, event-driven purge", "Storing user-specific or time-sensitive answers: what must never be cached", "Redis vector search or dedicated cache services", "Cache metrics: hit rate, false hit rate, saved cost, added latency"],
+          "tools": ["Redis", "LiteLLM", "sentence-transformers", "Python", "pandas"],
+          "lab_task": "Build a semantic cache with sentence-transformers and Redis vector search. Create 100 question pairs, 50 true paraphrases and 50 near-miss different questions, then sweep similarity thresholds 0.80 to 0.95. Plot hit rate against false hit rate and choose a threshold with false hit rate under 2 percent. Include prompt version and tenant in the cache key.",
+          "deliverable": "Semantic cache module, threshold sweep chart and chosen threshold with evidence",
+          "checks": [["Run the sweep on the 100 labelled pairs", "A table shows hit rate and false hit rate at each threshold", "Sweep table"], ["Select the operating threshold", "False hit rate at that threshold is under 2 percent", "Chart with marked threshold"], ["Ask the same question as tenant A and tenant B", "Tenant B does not receive tenant A's cached answer", "Test output"]],
+          "objectives": ["Tune a semantic cache using labelled pairs", "Prevent cross-tenant cache leaks", "Invalidate cached answers on prompt version change"]
+        },
+        {
+          "topic": "RAG Index Pipelines: Build, Version and Promote",
+          "subtopics": ["RAG as two deployables: the application and the index", "Index build pipeline: ingest, chunk, embed, write, validate", "Index versions and aliases in a vector store such as Qdrant or pgvector", "Embedding model version stored with each index", "Blue-green indexes: build new, evaluate, switch alias", "Retrieval eval gate: recall at k on a labelled query set", "Incremental updates and deletes", "Rollback to the previous index alias"],
+          "tools": ["Qdrant", "pgvector", "Python", "GitHub Actions", "sentence-transformers"],
+          "lab_task": "Write a pipeline that builds a Qdrant collection named kb_2026_06_v2 from a document folder, validates with 40 labelled queries by computing recall at 5, and only then moves the alias kb_live from kb_2026_05_v1 to the new collection. Include a rollback command and a test that blocks promotion when recall at 5 is below 0.85.",
+          "deliverable": "Index build script, validation gate, alias switch and rollback script",
+          "checks": [["Run the pipeline on a good document set", "recall at 5 is at least 0.85 and the kb_live alias points to the new collection", "Pipeline log"], ["Run the pipeline with half of the documents removed", "Recall falls below 0.85 and the alias stays on the old collection", "Pipeline log"], ["Run the rollback command", "kb_live points to the previous collection and queries return the old results", "Qdrant alias listing"]],
+          "objectives": ["Version and validate a vector index", "Promote an index with an alias switch", "Roll back an index quickly"]
+        },
+        {
+          "topic": "Canary, Shadow and A/B Rollouts for Prompts and Models",
+          "subtopics": ["Rollout patterns: shadow, canary, A/B and blue-green", "Sticky assignment by user id hash", "Percent-based routing in the gateway or application", "Shadow mode: duplicate traffic, discard responses, compare offline", "Primary metrics and guardrail metrics for an LLM experiment", "Sample size and test duration", "Sample ratio mismatch checks", "Decision record: ship, extend or roll back"],
+          "tools": ["LiteLLM", "Python", "Langfuse", "scipy", "Grafana"],
+          "lab_task": "Implement a router that sends 10 percent of users to prompt v2 by hashing user_id, tags traces with variant, and also sends shadow copies of 5 percent of v1 traffic to a new model. Run 2000 simulated requests, compare thumbs-up rate, latency and cost per variant, check the split with a chi-square test and write the decision.",
+          "deliverable": "Rollout router, variant dashboards, SRM check and a decision memo",
+          "checks": [["Hash 1000 user ids with a 10 percent rule", "Between 8 and 12 percent are assigned to v2 and each user keeps the same variant on repeat calls", "Script output"], ["Run a chi-square test on observed assignment counts", "p-value above 0.01 shows no sample ratio mismatch", "Test output"], ["Review the shadow traffic results", "Users receive only v1 responses while shadow responses are logged with variant shadow", "Trace samples"]],
+          "objectives": ["Run canary, shadow and A/B rollouts", "Check experiment health with SRM", "Write a ship or roll back decision"]
+        },
+        {
+          "topic": "Online Feedback Capture and Trace Sampling for Evaluation",
+          "subtopics": ["Explicit feedback: thumbs, ratings and comments", "Implicit signals: edits, retries, abandonment, copy events", "Attaching feedback as scores to traces by trace id", "Sampling policies: random, error-biased, low-score-biased, cost-capped", "Online evaluators and LLM judges run on sampled traces", "Annotation queues and reviewer instructions", "Turning reviewed traces into regression test cases", "Privacy review before reusing production data"],
+          "tools": ["Langfuse", "Python", "FastAPI", "Postgres", "LLM-as-judge"],
+          "lab_task": "Add a /feedback endpoint that writes a score to the Langfuse trace id, sample 20 percent of traces plus 100 percent of those with negative feedback into a review queue, and run an LLM judge on the sample for groundedness. Turn 10 reviewed failing traces into new golden cases with redacted inputs and add them to the CI set.",
+          "deliverable": "Feedback endpoint, sampling logic, judge job and 10 new regression cases",
+          "checks": [["POST feedback value 0 for a trace id", "The score appears attached to that trace in the UI", "Langfuse trace screenshot"], ["Send 500 simulated requests with 20 percent sampling", "Between 80 and 120 traces are queued plus all negative-feedback traces", "Queue count"], ["Run the golden set after adding 10 cases", "The suite reports 10 more cases and PII checks pass on them", "pytest summary"]],
+          "objectives": ["Collect and attach user feedback to traces", "Sample traces for online evaluation", "Convert failures into regression tests"]
+        },
+        {
+          "topic": "Intermediate Capstone: Gateway-Fronted, Gated and Observable RAG Release Pipeline",
+          "subtopics": ["System design: gateway, vLLM or provider models, versioned prompts, versioned index", "Pipeline: build index, run eval gates, canary, promote", "Observability: traces, metrics, cost dashboards and alerts", "Release evidence pack and rollback rehearsal"],
+          "tools": ["LiteLLM", "vLLM", "Langfuse", "GitHub Actions", "Prometheus", "Qdrant"],
+          "lab_task": "Deliver a RAG assistant fronted by LiteLLM with one hosted and one vLLM model, a versioned prompt and Qdrant index alias, CI that builds the index and runs recall and groundedness gates, a 10 percent canary, Prometheus and Grafana dashboards and cost attribution by team. Rehearse a rollback of both prompt and index within 5 minutes and time it.",
+          "deliverable": "Repository with pipeline, dashboards, gate reports and a timed rollback rehearsal log",
+          "checks": [["Open a pull request that changes the prompt and index", "The pipeline runs index validation and eval gates and posts results on the pull request", "Pull request checks"], ["Run the canary at 10 percent for 1000 requests", "Variant dashboards show error rate, p95 latency and cost per request for each variant", "Grafana screenshot"], ["Roll back prompt and index together", "Both labels return to previous versions in under 5 minutes and traces confirm it", "Timed rehearsal log"]],
+          "objectives": ["Combine gateway, registries, gates and observability in one release pipeline", "Release progressively with measured canary results", "Prove rollback within a time target"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform leads and senior engineers who own LLM operations across many teams. Covers platform architecture and multi-tenant gateways, capacity and throughput economics, prefix-aware routing and disaggregated serving, multi-LoRA operations, inference optimisation, self-hosted versus API break-even, model migration, drift detection, automated rollback, agent run controls, SLOs and load shedding, incident response, security operations, governance, data residency, FinOps, disaster recovery, platform product management, and a production readiness review.",
+      "prerequisites": ["Completed the intermediate level or operates LLM workloads in production", "Has run on-call for a service with SLOs and written a post-incident review", "Understands GPU serving basics: KV cache, batching and quantisation"],
+      "outcomes": ["Design a multi-tenant LLM platform with isolation, policy and measured capacity", "Decide between self-hosted and API serving with a defensible cost model", "Run incident response, drills and disaster recovery with measured targets", "Govern models and prompts with inventory, approvals, residency and audit evidence"],
+      "days": [
+        {
+          "topic": "LLM Platform Architecture: Gateway, Registry, Evaluation and Telemetry Planes",
+          "subtopics": ["Reference architecture with four planes: serving, control, evaluation, telemetry", "Gateway as the policy enforcement point", "Registries: models, prompts, indexes, tools and evaluators", "Data flow of a request and of a release", "Build, buy and open-source choices per plane", "Failure domains and blast radius", "Interfaces and contracts between planes", "Architecture decision records and fitness functions"],
+          "tools": ["LiteLLM", "Langfuse", "OpenTelemetry", "Kubernetes", "Terraform", "Backstage"],
+          "lab_task": "Draw the four-plane architecture for a company with 6 product teams, then write ADRs for the gateway, the trace store and the serving engine, each listing 3 options and the chosen one. Add two automated fitness checks in CI: one that fails when an app calls a provider SDK directly, and one that fails when a prompt has no owner.",
+          "deliverable": "Architecture diagram, three ADRs and two working CI fitness checks",
+          "checks": [["Run the direct-provider-call check on a file importing the provider SDK outside the client module", "The check fails and names the file and line", "CI log"], ["Run the prompt owner check on a prompt with no owner field", "The check fails and names the prompt", "CI log"], ["Review each ADR", "Each lists 3 options, decision, consequences and a review date", "ADR documents"]],
+          "objectives": ["Design a layered LLM platform", "Record decisions with ADRs", "Enforce architecture rules automatically"]
+        },
+        {
+          "topic": "Multi-Tenant Gateway Design: Isolation, Quotas and Policy",
+          "subtopics": ["Tenant model: organisation, team, application, key", "Per-tenant model allow-lists, budgets and rate limits", "Noisy-neighbour control: priority classes and reserved capacity", "Tenant-scoped caches, logs and traces", "Policy as code with OPA or gateway guardrail hooks", "Admin API and self-service key issuance", "Gateway high availability: replicas, database and Redis dependencies", "Gateway upgrade strategy and config validation in CI"],
+          "tools": ["LiteLLM", "OPA", "Redis", "Postgres", "Kubernetes", "k6"],
+          "lab_task": "Configure three tenants with different budgets, model lists and rate limits, run a noisy-neighbour test where tenant A sends 10 times its quota while tenants B and C send steady traffic, and prove B and C keep p95 latency within 20 percent of their baseline. Add an OPA policy that rejects a request for a model not on the tenant's allow-list.",
+          "deliverable": "Tenant configuration, noisy-neighbour test report and an OPA policy with tests",
+          "checks": [["Run tenant A at 10 times its rate limit", "Tenant A receives HTTP 429 and tenants B and C see no 429", "k6 summary by tenant"], ["Compare B and C p95 latency to baseline", "Increase is under 20 percent", "Latency table"], ["Request a model not on the tenant allow-list", "The policy denies the request with a clear reason", "opa test output and API response"]],
+          "objectives": ["Isolate tenants by quota and policy", "Test noisy-neighbour behaviour", "Make the gateway highly available and safely upgradable"]
+        },
+        {
+          "topic": "Capacity Planning and Throughput Economics: Tokens per Second per Dollar",
+          "subtopics": ["Demand model: requests per second, input and output length distributions, peak to average ratio", "Supply model: tokens per second per GPU at a latency target", "Little's law applied to concurrency", "Headroom, N+1 redundancy and failure of one replica", "Reserved, on-demand and spot capacity", "Cost per million output tokens as a metric", "Load test design from production traffic shapes", "Capacity review cadence and forecast accuracy"],
+          "tools": ["vllm bench serve", "k6", "Python", "pandas", "Grafana"],
+          "lab_task": "Take a production-like traffic profile of 15 requests per second peak with mean 1200 input and 300 output tokens. Measure sustainable output tokens per second per GPU at a p95 TTFT target of 1.5 seconds with vllm bench serve, then compute the number of GPUs needed with N+1 redundancy and the cost per million output tokens at an hourly GPU price you choose.",
+          "deliverable": "Capacity model spreadsheet or script, benchmark evidence and GPU count with cost per million tokens",
+          "checks": [["Run the benchmark at increasing rates", "Sustainable throughput is the highest rate where p95 TTFT stays at or under 1.5 seconds", "Benchmark table"], ["Compute GPU count for 15 requests per second", "Result includes N+1 and the formula is shown", "Capacity worksheet"], ["Compute cost per million output tokens", "Value equals hourly cost divided by millions of output tokens per hour at the sustainable rate", "Worksheet cell or script output"]],
+          "objectives": ["Build a demand and supply capacity model", "Size GPU fleets with redundancy", "Express cost as dollars per million tokens"]
+        },
+        {
+          "topic": "Disaggregated Prefill and Decode and KV-Cache-Aware Routing",
+          "subtopics": ["Prefill is compute-bound and decode is memory-bandwidth-bound", "Disaggregated serving: separate prefill and decode pools", "KV cache transfer between workers and its network cost", "Cache-aware routing to the replica holding the prefix", "Open projects to evaluate, for example llm-d, NVIDIA Dynamo and vLLM production-stack", "When disaggregation helps: long prompts, strict TTFT and inter-token targets", "When it does not: small models, low load", "Measuring goodput against SLO"],
+          "tools": ["vLLM", "llm-d", "Kubernetes", "Prometheus", "vllm bench serve", "Python"],
+          "lab_task": "Benchmark a two-replica vLLM deployment with plain round-robin routing and then with prefix-aware routing on a workload where 70 percent of requests share one of 5 long prefixes. Record prefix cache hit rate, p95 TTFT and goodput at a 1.5 second TTFT and 60 ms inter-token latency SLO. Write a note on whether disaggregation would pay off for your numbers.",
+          "deliverable": "Routing comparison table and a written assessment of disaggregation for the workload",
+          "checks": [["Run the benchmark with round-robin routing", "Prefix cache hit rate and p95 TTFT are recorded", "Benchmark output"], ["Run with prefix-aware routing", "Prefix cache hit rate is higher and p95 TTFT is lower than round-robin", "Comparison table"], ["Compute goodput at the stated SLO", "Goodput counts only requests meeting both TTFT and inter-token latency targets", "Script output"]],
+          "objectives": ["Explain prefill and decode resource profiles", "Route by KV cache locality", "Judge disaggregation with goodput numbers"]
+        },
+        {
+          "topic": "Multi-LoRA and Adapter Serving Operations",
+          "subtopics": ["Why adapters: many tenant or task variants over one base model", "vLLM flags --enable-lora, --lora-modules, --max-loras, --max-lora-rank", "Dynamic adapter loading and unloading at runtime", "Adapter registry, versioning and base model compatibility", "Per-adapter evaluation and rollout", "Memory and throughput cost of many adapters", "Routing requests by adapter name in the gateway", "Security: adapter provenance and scanning"],
+          "tools": ["vLLM", "Hugging Face PEFT", "LiteLLM", "Python", "pytest"],
+          "lab_task": "Serve one base model with two LoRA adapters in vLLM using --enable-lora and --lora-modules, call each adapter by name through /v1/chat/completions, then expose both as separate aliases in the gateway. Run your 50-case set against base and each adapter, and benchmark throughput with 1 and with 2 active adapters to measure the overhead.",
+          "deliverable": "Multi-adapter serving config, per-adapter eval report and overhead measurement",
+          "checks": [["curl /v1/models on the vLLM server", "The base model and both adapter names are listed", "curl output"], ["Run the 50-case set per adapter", "Each adapter has its own pass rate and the base model pass rate is reported for comparison", "Eval table"], ["Benchmark with 1 and with 2 active adapters", "Throughput for each case is recorded and the overhead percentage is computed", "Benchmark table"]],
+          "objectives": ["Operate several adapters over one base model", "Evaluate and version adapters independently", "Measure serving overhead"]
+        },
+        {
+          "topic": "Speculative Decoding and Inference Optimisation in Production",
+          "subtopics": ["Latency levers: speculative decoding, prefix caching, chunked prefill, quantisation, batching", "Draft model versus n-gram and other speculative methods", "Acceptance rate and when speculation stops helping", "Lossless versus lossy optimisations: what to re-evaluate", "Optimisation in the benchmark loop: baseline, change, measure, evaluate quality", "Regression testing of outputs after engine upgrades", "Engine version upgrades and canary for serving changes", "Documenting the speedup with confidence intervals"],
+          "tools": ["vLLM", "vllm bench serve", "Python", "scipy", "lm-evaluation-harness"],
+          "lab_task": "Benchmark a vLLM server with and without speculative decoding using the engine's documented configuration for your version, on short-answer and long-generation prompt sets. Record output tokens per second, acceptance rate if reported, and p95 inter-token latency. Run the golden set before and after and compare pass rates with a bootstrap 95 percent interval.",
+          "deliverable": "Optimisation benchmark report with quality check and interval estimates",
+          "checks": [["Run both configurations on the same prompts", "Output tokens per second and p95 inter-token latency are tabulated for each", "Benchmark table"], ["Compare outputs at temperature 0 for 50 prompts", "The number of identical outputs is reported with an explanation of any differences", "Diff summary"], ["Compute a bootstrap interval of pass rate difference", "Interval is reported and states whether zero is inside it", "Script output"]],
+          "objectives": ["Benchmark inference optimisations fairly", "Check that speedups do not reduce quality", "Report effects with confidence intervals"]
+        },
+        {
+          "topic": "Self-Hosted versus API Break-Even Analysis",
+          "subtopics": ["Cost components of self-hosting: GPUs, idle time, engineering, on-call, storage, networking", "API cost components: input, output, cached tokens, batch discounts", "Utilisation as the deciding variable", "Break-even tokens per month under different utilisation", "Non-cost factors: data control, latency, model choice, compliance, capability", "Hybrid: self-host the high-volume simple task, API for hard tasks", "Sensitivity analysis and price change scenarios", "Decision review triggers"],
+          "tools": ["Python", "pandas", "Jupyter", "matplotlib", "vLLM"],
+          "lab_task": "Build a break-even model in Python with inputs for API price per million input and output tokens, GPU hourly price, replicas, sustainable tokens per second and utilisation. Plot monthly cost for both options across 10 million to 10 billion tokens per month, find the crossover at 30 and at 70 percent utilisation, and add a tornado chart for the three most sensitive inputs.",
+          "deliverable": "Break-even notebook with crossover chart, sensitivity analysis and a recommendation",
+          "checks": [["Run the model at 30 percent utilisation", "A crossover token volume is reported", "Chart and printed value"], ["Run the model at 70 percent utilisation", "The crossover volume is lower than at 30 percent", "Chart and printed value"], ["Review the tornado chart", "The three most sensitive inputs are ranked with their impact in dollars", "Tornado chart"]],
+          "objectives": ["Model self-hosted and API costs", "Find break-even volumes at different utilisation", "Present sensitivity and a hybrid recommendation"]
+        },
+        {
+          "topic": "Model Migration Playbook: Provider Deprecations and Version Upgrades",
+          "subtopics": ["Sources of forced change: deprecation notices, retirement dates, price changes", "Inventory: which apps use which model snapshot", "Migration steps: shortlist, prompt adaptation, evaluation, shadow, canary, cutover, cleanup", "Prompt portability and what usually breaks: formatting, refusals, tool calls, verbosity", "Parameter differences across model families", "Regression review of per-slice changes", "Contract and cost impact review", "Communication plan and decommission checklist"],
+          "tools": ["LiteLLM", "promptfoo", "Python", "Langfuse", "GitHub Actions"],
+          "lab_task": "Run a migration from model A to candidate model B on a 100-case set with per-slice reporting by intent. Use promptfoo to compare outputs, record changes in format validity, refusal rate, length and cost, adapt the prompt for B, rerun, then run a 5 percent shadow for 500 requests and produce a go or no-go memo with a cutover and rollback plan.",
+          "deliverable": "Migration report with per-slice results, adapted prompt and go or no-go memo",
+          "checks": [["Run the 100 cases on model B with the old prompt", "Per-slice pass rates are reported and at least one slice is flagged below baseline", "promptfoo report"], ["Run again with the adapted prompt", "The flagged slice improves and no other slice drops by more than 3 points", "promptfoo report"], ["Run 500 shadow requests at 5 percent", "Shadow results are logged with no user-visible responses from B", "Trace filter showing variant shadow"]],
+          "objectives": ["Plan and execute a model migration", "Adapt prompts and verify slice-level quality", "Decide with shadow evidence and a rollback plan"]
+        },
+        {
+          "topic": "Drift Detection for Prompts, Models and Embeddings in Production",
+          "subtopics": ["Sources of drift: provider silent updates, input distribution, retrieval corpus, embedding model changes", "Canary prompts: fixed inputs replayed on a schedule", "Tracking output properties: length, refusal rate, format validity, language, judge scores", "Statistical tests: KS test, PSI and chi-square on output metrics", "Embedding drift: distribution of query embeddings and retrieval similarity scores", "Alert thresholds and alert fatigue", "Linking drift alerts to a diagnosis runbook", "Retention of baselines"],
+          "tools": ["Evidently", "Python", "Prometheus", "Grafana", "scipy", "Langfuse"],
+          "lab_task": "Create a canary job that replays 30 fixed prompts every hour at temperature 0, stores length, refusal flag, JSON validity and judge score, and computes a KS test against a 7-day baseline. Simulate drift by switching the model alias to a different model, show the alert firing in Grafana, and write the diagnosis steps in a runbook.",
+          "deliverable": "Canary job, drift metrics and alert, simulated drift test and runbook",
+          "checks": [["Run the canary hourly for 24 hours of simulated data", "24 sets of metrics are stored with timestamps", "Metric table"], ["Swap the alias to a different model", "The KS test p-value falls below 0.01 on at least one output metric and the alert fires", "Grafana alert"], ["Follow the runbook", "It identifies the changed resolved_model value as the cause within 10 minutes", "Runbook walkthrough notes"]],
+          "objectives": ["Detect silent changes with canary prompts", "Apply statistical tests to output metrics", "Connect drift alerts to diagnosis steps"]
+        },
+        {
+          "topic": "Progressive Delivery with Automated Rollback on Quality Signals",
+          "subtopics": ["Release stages and traffic percentages", "Guardrail metrics: error rate, latency, cost, refusal rate, negative feedback, judge score", "Automated analysis with Argo Rollouts or Flagger and custom Prometheus queries", "Quality signals that arrive late and how to wait for them", "Rollback triggers and cooldowns", "Rolling back prompts, models and indexes together as a release bundle", "Release manifests tying versions together", "Rehearsing and timing rollback"],
+          "tools": ["Argo Rollouts", "Prometheus", "Kubernetes", "LiteLLM", "Langfuse"],
+          "lab_task": "Define a release manifest that pins prompt version, model alias, index alias and gateway config. Use an Argo Rollouts canary with steps at 5, 25 and 50 percent and an AnalysisTemplate querying Prometheus for error ratio and a rolling negative-feedback rate. Inject a bad prompt that raises negative feedback and show the automatic abort and rollback.",
+          "deliverable": "Release manifest, rollout and analysis templates and a recorded automatic rollback",
+          "checks": [["Deploy a good release through all steps", "The rollout reaches 100 percent with every analysis run successful", "kubectl argo rollouts get output"], ["Deploy a release with the bad prompt", "Analysis fails at the 5 percent step and the rollout aborts to the stable version", "Rollout status and analysis run"], ["Compare the manifest before and after rollback", "All four versions return to the previous values together", "Manifest diff"]],
+          "objectives": ["Automate canary analysis on LLM quality signals", "Version prompt, model, index and config as one bundle", "Abort and roll back without manual steps"]
+        },
+        {
+          "topic": "Agent and Multi-Step Workflow Operations: Tracing, Budgets and Loop Limits",
+          "subtopics": ["Why agents change operations: variable cost, unbounded loops, side effects", "Tracing agent runs as trees: model calls, tool calls, retries", "Run-level budgets: max steps, max tokens, max cost, max wall time", "Loop detection and circuit breakers", "Tool timeouts, idempotency keys and safe retries", "Human approval steps for risky actions", "Replay of a failed run from a saved trace", "Per-run cost and success metrics"],
+          "tools": ["OpenTelemetry", "Langfuse", "Python", "LangGraph", "Redis", "pytest"],
+          "lab_task": "Wrap an agent in a run controller that enforces max_steps 12, max_cost 0.10 USD and max_seconds 60, writes each step as a child span, and detects 3 identical tool calls in a row. Test with a task designed to loop and prove it stops with the correct reason. Report cost per successful run and per failed run on 50 tasks.",
+          "deliverable": "Run controller, loop-trap test and a 50-task cost and success report",
+          "checks": [["Run the loop-trap task", "The run stops after the repeated call limit with stop_reason repeated_tool_call", "Trace and test output"], ["Run a task with max_cost 0.01", "The run stops with stop_reason budget_exceeded before exceeding 0.012 USD", "Trace and cost field"], ["Run 50 tasks", "The report shows success rate and cost per successful and per failed run", "Report table"]],
+          "objectives": ["Trace agent runs as span trees", "Enforce run-level limits", "Measure cost and success per run"]
+        },
+        {
+          "topic": "Reliability Engineering: SLOs, Error Budgets and Load Shedding for LLM Services",
+          "subtopics": ["SLIs for LLM services: availability, TTFT, completion latency, valid-output rate, quality proxy", "Choosing SLO targets and windows", "Error budgets and burn-rate alerts: multi-window multi-burn-rate", "Dependency math: provider availability caps your availability", "Load shedding, priority queues and graceful degradation: smaller model, shorter context, cached answers", "Circuit breakers and timeouts", "Capacity of retry budgets", "Reliability review and error budget policy"],
+          "tools": ["Prometheus", "Grafana", "Sloth", "k6", "LiteLLM", "Python"],
+          "lab_task": "Define three SLOs for the assistant: 99.5 percent availability, 95 percent of requests with TTFT under 1.5 seconds, and 98 percent valid structured outputs. Generate Prometheus recording and burn-rate alert rules with Sloth, build an error budget panel, then run a k6 overload test that triggers load shedding to a smaller model and show the SLO impact.",
+          "deliverable": "SLO definitions, generated alert rules, error budget dashboard and overload test results",
+          "checks": [["Load the generated rules into Prometheus", "Recording and multi-window burn-rate alert rules load without errors", "promtool check rules output"], ["Run the overload test", "Shedding switches traffic to the smaller model and the availability SLI stays above 99.5 percent", "k6 summary and dashboard"], ["Inject 10 minutes of errors at 20 percent", "The fast burn-rate alert fires and the error budget remaining panel decreases", "Alert screenshot"]],
+          "objectives": ["Define SLIs and SLOs for an LLM service", "Alert on error budget burn rate", "Degrade gracefully under overload"]
+        },
+        {
+          "topic": "Incident Response for LLM Outages and Quality Regressions",
+          "subtopics": ["Incident types: provider outage, rate-limit exhaustion, cost spike, quality regression, prompt leak, harmful output", "Severity levels and on-call roles", "Triage questions: what changed in the last 24 hours", "Change timeline: prompt, model, index, gateway config, provider status", "Mitigations: rollback, fallback switch, kill switch, traffic reduction", "Communication templates and status updates", "Blameless post-incident review", "Action items tracked to closure"],
+          "tools": ["PagerDuty", "Grafana", "Langfuse", "Git", "Python", "Markdown"],
+          "lab_task": "Run a 60-minute game day with three injected incidents: a provider returning 529 errors, a prompt change that doubles output length and cost, and a stale index alias. For each, use dashboards, traces and release history to find the cause, apply a mitigation, and record time to detect and time to mitigate. Write one blameless post-incident review with 5 action items.",
+          "deliverable": "Game day log with timings for three incidents and one post-incident review",
+          "checks": [["Inject provider errors", "Alert fires and mitigation by fallback is applied with time to detect and mitigate recorded", "Game day log"], ["Inject the output-length regression", "Cost per request panel shows the rise and rollback of the prompt version restores it", "Dashboard before and after"], ["Review the post-incident document", "It contains timeline, root cause, impact and 5 action items with owners and dates", "Review document"]],
+          "objectives": ["Respond to LLM-specific incidents with a change timeline", "Mitigate using rollback and kill switches", "Write a blameless review with owned actions"]
+        },
+        {
+          "topic": "Security Operations: Key Management, Egress Control and Audit Logging",
+          "subtopics": ["Threats to the LLM platform: stolen keys, prompt exfiltration, SSRF through tools, supply-chain compromise of model files", "Key lifecycle: issue, scope, rotate, revoke, alert on anomalous use", "Egress control: allow-list provider domains from the gateway only", "Safe model loading: safetensors, hash pinning, scanning of downloaded artifacts", "Audit logs: who changed prompts, labels, keys and budgets", "Access control to traces containing user data", "Dependency and container scanning for gateway and serving images", "Security review checklist"],
+          "tools": ["Kubernetes NetworkPolicy", "Trivy", "Vault", "LiteLLM", "Falco", "Python"],
+          "lab_task": "Apply a Kubernetes NetworkPolicy so only the gateway pods can reach provider domains through an egress proxy and application pods cannot. Scan the gateway and vLLM images with Trivy, fail the build on critical findings, verify model files use safetensors and a recorded sha256, and write an alert for a virtual key used from a new IP range.",
+          "deliverable": "NetworkPolicy, image scan CI step, model hash verification script and key anomaly alert",
+          "checks": [["From an application pod, curl a provider API host", "The connection is blocked", "kubectl exec output"], ["Run Trivy on the gateway image with a known vulnerable base", "The build fails and lists critical findings", "CI log"], ["Change a byte in a downloaded model file and run the hash check", "The check fails with a sha256 mismatch", "Script output"]],
+          "objectives": ["Restrict egress so only the gateway reaches providers", "Verify model artifacts and images", "Audit and alert on key and prompt changes"]
+        },
+        {
+          "topic": "Governance: Model Inventory, Approvals and Change Control",
+          "subtopics": ["Inventory of models, prompts, indexes, tools and applications with owners", "Risk tiering of use cases", "Approval workflow for new models and high-risk prompt changes", "Model cards and system documentation requirements", "Linking eval evidence to approvals", "Change management: standard, normal and emergency changes", "Exceptions and expiry dates", "Periodic review and retirement"],
+          "tools": ["Backstage", "GitHub", "Python", "YAML", "MLflow", "Markdown"],
+          "lab_task": "Create a YAML inventory schema for models and applications with owner, risk tier, data classes, evaluation report link, approver and review date. Write a CI check that fails when a production application references a model with no approval or an expired review date, and generate a Markdown register from the inventory. Record one emergency change with after-the-fact approval.",
+          "deliverable": "Inventory schema, CI governance check, generated register and an emergency change record",
+          "checks": [["Add an app that references an unapproved model", "The CI check fails naming the app and model", "CI log"], ["Set a review date in the past", "The check fails with an expired review message", "CI log"], ["Generate the register", "A Markdown table lists every model and app with tier, owner and review date", "Generated file"]],
+          "objectives": ["Maintain a machine-checkable inventory", "Gate production references on approval", "Handle emergency changes with later review"]
+        },
+        {
+          "topic": "Data Residency, Retention and Regulatory Operations",
+          "subtopics": ["Mapping where prompts, outputs, traces and indexes are stored and processed", "Regional routing and blocking cross-region fallback", "Retention schedules by data class and automated deletion", "Subject requests: access and deletion across logs, traces, caches and indexes", "Awareness of the EU AI Act obligations for general-purpose models and high-risk systems: check the current timetable and guidance", "Sector rules: finance, health, public sector", "Vendor due diligence: data processing terms and subprocessors", "Evidence collection for audits"],
+          "tools": ["Terraform", "LiteLLM", "Postgres", "Python", "Langfuse", "OPA"],
+          "lab_task": "Configure regional routing so EU tenant requests only use EU deployments and a cross-region fallback is blocked by policy. Implement a retention job that deletes traces older than 30 days and an erasure script for one user across traces, cache and vector index. Produce a data flow table with storage region and retention per data type.",
+          "deliverable": "Regional routing config, retention and erasure jobs and a data flow and retention table",
+          "checks": [["Send an EU tenant request while the EU deployment is down", "The request fails closed and is not routed to a non-EU deployment", "Gateway log"], ["Run the retention job", "Traces older than 30 days are deleted and newer ones remain", "Row counts before and after"], ["Run the erasure script for one user", "Traces, cache entries and index entries for that user all return zero matches", "Script output"]],
+          "objectives": ["Enforce regional routing and fail-closed fallback", "Automate retention and erasure", "Document data flows for audit"]
+        },
+        {
+          "topic": "FinOps for LLMs: Budgets, Forecasting and Commitments",
+          "subtopics": ["Spend drivers: volume, prompt length, output length, model mix, cache rate, retries", "Forecasting by feature growth and unit cost", "Unit cost targets: cost per conversation, per document, per resolved ticket", "Levers ranked by savings: model right-sizing, prompt trimming, caching, batch, routing to cheaper models", "Provisioned throughput and committed use versus on-demand", "Budget guardrails and anomaly alerts", "Savings verification with before and after measurement", "FinOps reporting to finance and product"],
+          "tools": ["Python", "pandas", "LiteLLM", "Grafana", "Langfuse", "BigQuery or Postgres"],
+          "lab_task": "Take 30 days of spend logs and decompose cost into volume, prompt tokens, output tokens, model mix and retries. Apply three levers in a simulation: route 40 percent of simple requests to a cheaper model, trim average prompts by 15 percent and raise cache hit rate from 10 to 25 percent. Report projected monthly savings, quality risk of each lever and a 3-month forecast.",
+          "deliverable": "Cost decomposition notebook, lever simulation with quality risks and a 3-month forecast",
+          "checks": [["Decompose 30 days of spend", "Components sum to total spend within 1 percent", "Notebook output"], ["Run the three-lever simulation", "Savings per lever and combined are reported in dollars per month", "Result table"], ["Review the quality risk column", "Each lever lists the eval needed before rollout", "Result table"]],
+          "objectives": ["Decompose LLM spend into drivers", "Rank and simulate savings levers", "Forecast costs and tie savings to quality checks"]
+        },
+        {
+          "topic": "Multi-Region and Disaster Recovery for LLM Platforms",
+          "subtopics": ["Recovery objectives: RTO and RPO for gateway, registries, trace store and indexes", "Active-active gateway across regions with health-based DNS or global load balancing", "Replicating prompt registry and configuration", "Rebuilding vector indexes versus replicating them", "Provider regional failover and quota in the second region", "Stateful dependencies: Postgres, Redis, object storage", "DR drills and measured recovery time", "Cost of standby capacity"],
+          "tools": ["Terraform", "Kubernetes", "Postgres", "Route 53 or Cloud DNS", "k6", "Qdrant"],
+          "lab_task": "Stand up the gateway in two regions with a shared configuration repository, a Postgres replica and a Qdrant snapshot restore. Run a drill that disables region A, shift traffic to region B by health check, and measure time to recovery and error rate. Document RTO and RPO against targets of 15 minutes and 5 minutes and the gaps found.",
+          "deliverable": "Two-region deployment, drill report with measured RTO and RPO and a gap list",
+          "checks": [["Disable region A health endpoint", "DNS or load balancer shifts traffic to region B", "Routing status and k6 output"], ["Measure client-visible downtime", "Duration is recorded and compared with the 15 minute RTO", "Drill timeline"], ["Compare last replicated prompt version with region A", "Data loss window is measured and compared with the 5 minute RPO", "Registry comparison output"]],
+          "objectives": ["Set recovery objectives for LLM platform components", "Run a measured regional failover drill", "Report gaps against RTO and RPO"]
+        },
+        {
+          "topic": "Platform Product Management: Self-Service, Golden Paths and Adoption Metrics",
+          "subtopics": ["The LLM platform as a product with internal customers", "Golden path: template repo, gateway key, prompt registry, evals, dashboards in one scaffold", "Backstage templates or a CLI to create a new LLM app", "Documentation and onboarding time as metrics", "Adoption metrics: apps on the gateway, percentage of traffic traced, percentage of prompts in the registry", "Deprecation of unmanaged direct provider usage", "Support model and office hours", "Roadmap and feedback loops"],
+          "tools": ["Backstage", "Cookiecutter", "GitHub Actions", "Python", "Grafana"],
+          "lab_task": "Create a Cookiecutter or Backstage template that generates an LLM app with gateway client, prompt directory, golden set, CI workflow and tracing preconfigured. Time a new engineer scaffolding and deploying a working app, then build an adoption dashboard from gateway and registry data showing percent of traffic through the gateway and percent of prompts with an owner.",
+          "deliverable": "Golden path template, onboarding timing record and an adoption dashboard",
+          "checks": [["Generate a new app from the template", "The new repo passes its first CI run with the golden set and tracing enabled", "CI run link"], ["Time scaffold to first deployed request", "Time is recorded and is under the 60 minute target", "Onboarding log"], ["Open the adoption dashboard", "It shows percent of traffic through the gateway and percent of prompts with an owner", "Dashboard screenshot"]],
+          "objectives": ["Build a self-service golden path for LLM apps", "Measure onboarding time and adoption", "Plan a roadmap from user feedback"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise LLM Platform Production Readiness Review",
+          "subtopics": ["Scenario: platform serving 6 teams, hosted and self-hosted models, RAG and agent workloads", "Evidence required across reliability, cost, security, governance, release and observability", "Live game day and rollback demonstration", "Findings report with risk ratings and a 90-day roadmap"],
+          "tools": ["LiteLLM", "vLLM", "Langfuse", "Prometheus", "Argo Rollouts", "Terraform"],
+          "lab_task": "Run a production readiness review of your capstone platform with a checklist of at least 40 items across SLOs, capacity, security, governance, cost and release safety. Collect evidence for each item, run a live game day with provider failure, cost spike and prompt regression, demonstrate a bundled rollback, and present a findings report with risk ratings and a 90-day roadmap.",
+          "deliverable": "Readiness checklist with evidence links, game day recording or log, findings report and 90-day roadmap",
+          "checks": [["Review the checklist", "At least 40 items each have a pass, fail or waived status with an evidence link", "Checklist document"], ["Run the live game day", "All three incidents are detected and mitigated with times recorded against targets", "Game day timeline"], ["Present the findings report", "Each finding has a risk rating, owner and date in the 90-day roadmap", "Report and roadmap"]],
+          "objectives": ["Audit an LLM platform against operational criteria", "Demonstrate incident handling and rollback live", "Prioritise a risk-rated improvement roadmap"]
+        }
+      ]
+    }
+  }
+}

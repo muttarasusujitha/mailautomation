@@ -1,0 +1,573 @@
+{
+  "domain": "Puppet",
+  "name": "Puppet",
+  "category": "DevOps and CI/CD",
+  "icon": "settings",
+  "aliases": ["Puppet Enterprise", "Puppet Configuration Management", "Puppet Core", "OpenVox", "Puppet DSL", "Puppet Language", "Puppet Automation", "Puppet Administration"],
+  "certifications": [],
+  "tools": ["Puppet agent", "Puppet Server", "OpenVox", "Puppet Enterprise", "Facter", "Hiera", "PDK", "r10k", "PuppetDB", "Bolt", "rspec-puppet", "Litmus", "Onceover", "Puppet Forge"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators and DevOps engineers who manage Linux or Windows servers by hand or with scripts and are new to Puppet. Covers installing a Puppet 8 agent and Puppet Server (Puppet Core, Puppet Enterprise or the OpenVox community build), the resource model, manifests and puppet apply, core resource types, ordering and notification, data types and facts, conditionals, classes, modules from the Puppet Forge, EPP templates, the agent-server catalog cycle and certificate signing, Hiera 5 data, defined types, iteration, environments, reading run reports and exit codes, first steps with Bolt, and a capstone web server module.",
+      "prerequisites": ["Administers Linux servers from the shell: packages, services, users, file permissions and systemd units", "Edits YAML and text configuration files and can read short Ruby or shell snippets", "Has two or three lab VMs or containers (one for Puppet Server with at least 4 GB RAM) with root access and DNS or /etc/hosts name resolution between them"],
+      "outcomes": ["Install and connect a Puppet agent to a Puppet Server, sign its certificate and apply catalogs with puppet agent -t", "Write idempotent manifests using core resource types, typed class parameters, relationships, conditionals and iteration", "Package configuration as a module with classes, defined types, EPP templates and Hiera 5 data", "Read agent output, noop results and detailed exit codes to confirm what changed and why"],
+      "days": [
+        {
+          "topic": "Puppet Platform Setup: Agent, Server and OpenVox Packages",
+          "subtopics": ["What Puppet does: declarative desired state, catalogs and convergence", "Puppet Core, Puppet Enterprise and the OpenVox community fork, and how their packages differ", "Agent/server architecture: puppet agent, Puppet Server, Facter and the CA", "Installing the release package and puppet-agent on RHEL-family and Debian-family systems", "Installing puppetserver and setting JVM heap in /etc/sysconfig or /etc/default/puppetserver", "The /opt/puppetlabs and /etc/puppetlabs directory layout", "puppet.conf sections [main], [agent] and [server] and puppet config print", "Ports: 8140 for Puppet Server and firewall rules", "puppet --version, puppetserver --version and facter --version", "Running puppet as root versus a non-root user and the confdir each uses"],
+          "tools": ["Puppet agent", "Puppet Server", "OpenVox", "Facter", "systemd", "firewalld"],
+          "lab_task": "On one VM install puppetserver from the vendor or Vox Pupuli repository, set the heap to -Xms2g -Xmx2g, open port 8140 and start the service. On a second VM install the agent package, set server = puppet.lab.local in the [agent] section of puppet.conf and confirm with puppet config print server --section agent. Record versions from puppet --version and puppetserver --version.",
+          "deliverable": "Install log with package names, versions, puppet.conf and the systemctl status output for puppetserver",
+          "checks": [["Run systemctl is-active puppetserver on the server VM", "Prints active and ss -tlnp shows a Java process listening on 8140", "Terminal output"], ["Run puppet config print server --section agent on the agent VM", "Prints puppet.lab.local", "Terminal output"], ["Run puppet --version on both VMs", "Both report the same 8.x major version", "Version table"]],
+          "objectives": ["Explain the parts of a Puppet deployment and how they communicate", "Install and start Puppet Server and the Puppet agent", "Locate configuration with puppet config print"]
+        },
+        {
+          "topic": "Resources and the Resource Abstraction Layer",
+          "subtopics": ["A resource: type, title, attributes and the namevar", "puppet resource to inspect live system state as Puppet code", "Types versus providers and provider selection per platform", "puppet describe --list and puppet describe package", "Idempotence: converging only when state differs", "The ensure attribute and its values per type", "Resource uniqueness and the duplicate declaration rule", "Metaparameters available on every resource", "Reading Notice: /Stage[main]/... change messages", "Why Puppet avoids imperative steps where a resource type exists"],
+          "tools": ["puppet resource", "puppet describe", "Puppet agent", "Facter"],
+          "lab_task": "Run puppet resource user root and puppet resource service sshd to print current state as Puppet code. Then run puppet resource package tree ensure=present, rerun the same command and compare output. Use puppet describe package to list the providers available on your OS and identify which one Puppet selected. Record the three outputs and explain why the second run made no change.",
+          "deliverable": "Notes with the three command outputs and a short explanation of type, provider and idempotence",
+          "checks": [["Run puppet resource package tree ensure=present the first time", "Output shows ensure changed 'purged' to 'present' or similar created message", "Terminal output"], ["Run the same command a second time", "No Notice line is printed and the resource shows the installed version", "Terminal output"], ["Run puppet describe package and look for the provider in use", "dnf, yum or apt is listed as a provider with its features", "describe output excerpt"]],
+          "objectives": ["Describe a resource in terms of type, title and attributes", "Inspect system state with puppet resource", "Explain how providers make one type work across platforms"]
+        },
+        {
+          "topic": "Writing Manifests and Running puppet apply",
+          "subtopics": ["Manifest files (.pp) and the resource declaration syntax", "puppet parser validate for syntax checks", "puppet apply with --noop, --verbose and --debug", "puppet apply -e for one-line experiments", "Attribute arrows, trailing commas and string quoting rules", "Comments and the puppet-lint style guide", "Running puppet apply with --detailed-exitcodes", "Where puppet apply stores reports and state locally", "Common parser errors: missing comma, unknown resource type", "When puppet apply alone is enough and when a server is needed"],
+          "tools": ["puppet apply", "puppet parser", "puppet-lint", "Visual Studio Code", "Puppet VS Code extension"],
+          "lab_task": "Write motd.pp that manages /etc/motd with owner root, mode '0644' and content naming the host. Validate with puppet parser validate motd.pp, preview with puppet apply --noop motd.pp, then apply with puppet apply --detailed-exitcodes motd.pp; echo $?. Apply again and record the exit code. Break the file by removing a comma and record the parser error and line number.",
+          "deliverable": "motd.pp, the three exit codes and the parser error message",
+          "checks": [["Run puppet apply --detailed-exitcodes motd.pp on a fresh host", "Exit code is 2, meaning changes were applied", "echo $? output"], ["Run the same command again", "Exit code is 0 and no Notice lines appear", "echo $? output"], ["Remove a comma between attributes and run puppet parser validate motd.pp", "Error: Could not parse for environment production: Syntax error with a line and column", "Terminal output"]],
+          "objectives": ["Write and validate a Puppet manifest", "Preview changes safely with noop", "Interpret puppet apply exit codes"]
+        },
+        {
+          "topic": "Core Resource Types: package, file, service, user and exec",
+          "subtopics": ["package: ensure present, latest and a pinned version", "file: ensure file, directory and link, owner, group and mode", "file content versus source with puppet:/// URLs", "service: ensure running, enable true and hasrestart", "user and group: uid, gid, managehome and password hashes", "exec: command, path, creates, unless and onlyif for idempotence", "cron and the host resource from core modules", "Recursive directory management and purge", "Why ensure => latest causes unplanned upgrades", "Choosing a native type or Forge module over exec"],
+          "tools": ["puppet apply", "Puppet agent", "systemctl", "getent"],
+          "lab_task": "Write a manifest that creates group deploy (gid 3001), user deploy with managehome, directory /opt/app owned by deploy with mode '0750', installs chrony, and keeps chronyd running and enabled. Add an exec that runs tar -xzf /tmp/app.tgz -C /opt/app guarded by creates => '/opt/app/VERSION'. Apply twice and confirm the second run reports zero changed resources.",
+          "deliverable": "Manifest and the summary lines from both runs",
+          "checks": [["Run getent passwd deploy after applying", "deploy has uid assigned and home /home/deploy exists", "getent output"], ["Run systemctl is-enabled chronyd", "Prints enabled", "Terminal output"], ["Apply the manifest a second time with --verbose", "No exec command is run because /opt/app/VERSION exists and no Notice lines appear", "Agent output"]],
+          "objectives": ["Manage packages, files, services and users with core types", "Make exec idempotent with guards", "Choose native types over shell commands"]
+        },
+        {
+          "topic": "Resource Ordering, Notify and Subscribe Relationships",
+          "subtopics": ["Manifest ordering as the default and why not to rely on it", "before and require metaparameters", "notify and subscribe for refresh events", "Chaining arrows -> and ~>", "Package, file, service ordering pattern", "refreshonly exec resources", "Dependency cycles and the Found 1 dependency cycle error", "Generating a relationship graph with --graph", "Relationships to classes and between classes", "Failed dependencies and skipped resources"],
+          "tools": ["puppet apply", "Graphviz", "Puppet agent", "systemctl"],
+          "lab_task": "Manage nginx as package -> file /etc/nginx/conf.d/status.conf ~> service nginx. Change the file content and apply; confirm the service restarts with a Triggered 'refresh' message. Then add require => Service['nginx'] on the package to create a cycle, apply, and capture the error. Fix it and run puppet apply --graph, then render the graph with dot -Tpng from the graphs directory.",
+          "deliverable": "Manifest, refresh output, cycle error and a rendered relationship graph",
+          "checks": [["Change status.conf content and apply", "Output includes Service[nginx]: Triggered 'refresh' from 1 event", "Agent output"], ["Add a reverse require to create a loop and apply", "Error: Found 1 dependency cycle is printed and no resources are changed", "Agent output"], ["Apply with an unchanged file", "nginx is not restarted and the run reports 0 changes", "Agent output and systemctl status timestamp"]],
+          "objectives": ["Declare explicit ordering between resources", "Trigger service restarts from configuration changes", "Diagnose and fix dependency cycles"]
+        },
+        {
+          "topic": "Puppet Language Variables, Data Types and Facts in Manifests",
+          "subtopics": ["Variable assignment, immutability and scope", "Strings, interpolation and heredocs", "Core data types: String, Integer, Boolean, Array, Hash and Undef", "Parameterised types such as Integer[1, 65535] and Enum", "Optional, Variant and Pattern types", "Type mismatches and the expects a value of type error", "The $facts hash and structured access such as $facts['os']['family']", "Strict variables and the Unknown variable error in Puppet 8", "Legacy top-scope facts removed by default in Puppet 8", "Built-in variables: $trusted, $server_facts and $environment"],
+          "tools": ["puppet apply", "Facter", "puppet parser", "Puppet VS Code extension"],
+          "lab_task": "Write vars.pp that sets Integer[1, 65535] $port = 8080 and an Enum['dev','prod'] $tier, and writes /etc/app.conf with a heredoc using both values plus $facts['os']['family'] and $facts['networking']['fqdn']. Apply it. Then set $port to 70000 inside a typed function call or class parameter and record the type error. Reference an undefined $foo and record the strict-variables error.",
+          "deliverable": "vars.pp, the generated app.conf and both error messages",
+          "checks": [["Apply vars.pp on a RHEL-family VM", "/etc/app.conf contains port 8080 and the os family RedHat", "cat output"], ["Pass 70000 to the Integer[1, 65535] parameter", "Error states the parameter expects an Integer[1, 65535] value, got Integer[70000, 70000]", "Agent output"], ["Reference an undefined variable $foo", "Evaluation Error: Unknown variable: '$foo'", "Agent output"]],
+          "objectives": ["Use typed variables and interpolation", "Read structured facts in manifests", "Explain Puppet 8 strict-mode errors"]
+        },
+        {
+          "topic": "Conditionals, Selectors and Case Statements in Puppet",
+          "subtopics": ["if, elsif, else and unless", "case statements with default and regex matches", "Selectors for value choice in attributes", "Comparison and in operators", "Regex captures and $1 scope", "Truthiness and the empty string", "Branching on os.family and os.release.major", "fail() for unsupported platforms", "Keeping platform data out of code with Hiera later", "Readability rules from the style guide"],
+          "tools": ["puppet apply", "Facter", "puppet-lint", "Docker"],
+          "lab_task": "Write a manifest that installs the NTP-style time service with a case on $facts['os']['family']: RedHat uses chrony with service chronyd, Debian uses chrony with service chrony, default calls fail(\"Unsupported: ${facts['os']['family']}\"). Use a selector to set the config path. Apply on a RHEL VM and a Debian container, then fake an unsupported family with FACTER_os override or a test node and record the failure.",
+          "deliverable": "Manifest, run output from two platforms and the fail() message",
+          "checks": [["Apply on a RHEL-family host", "chronyd is running and enabled", "systemctl output"], ["Apply on a Debian-family host", "The chrony service is managed with no errors", "Agent output"], ["Evaluate with an unsupported os family", "Run fails with Error: Evaluation Error: Error while evaluating a Function Call, Unsupported: followed by the family", "Agent output"]],
+          "objectives": ["Branch manifests on facts", "Choose between if, case and selectors", "Fail fast on unsupported platforms"]
+        },
+        {
+          "topic": "Facter: Core Facts, Structured Facts and puppet facts",
+          "subtopics": ["How Facter gathers facts and when agents send them", "facter os, facter networking.ip and dotted fact paths", "puppet facts show and the --value-only flag", "Structured facts versus flat legacy facts", "facter --json and --yaml output for tooling", "Fact caching with facter.conf ttls", "Blocking fact groups with blocklist", "Facts commonly used: os, processors, memory, mountpoints, identity", "Performance: timing facts with facter --timing", "Facts are untrusted agent data and why that matters"],
+          "tools": ["Facter", "puppet facts", "jq", "Puppet agent"],
+          "lab_task": "Run facter os.release.major, facter --json networking | jq '.networking.interfaces | keys' and puppet facts show memory.system.total --value-only. Run facter --timing and list the three slowest fact groups. Create /etc/puppetlabs/facter/facter.conf that caches the packages group for 1 day, rerun facter --timing and compare. Record the before and after times.",
+          "deliverable": "Fact output, facter.conf and a timing comparison table",
+          "checks": [["Run facter os.family on a RHEL-family VM", "Prints RedHat", "Terminal output"], ["Run facter --json networking | jq '.networking.interfaces | keys'", "A JSON array of interface names including lo is printed", "Terminal output"], ["Run facter --timing before and after adding a fact cache", "The cached group shows a lower time on the second run", "Timing table"]],
+          "objectives": ["Query structured facts from the command line", "Tune fact collection with facter.conf", "Explain the trust model for agent facts"]
+        },
+        {
+          "topic": "Classes, Parameters and include versus Resource-Like Declarations",
+          "subtopics": ["Defining a class and declaring it", "include, contain and require functions", "Resource-like class declarations and their duplicate risk", "Typed class parameters with defaults", "Class scope and fully qualified variable names", "Automatic parameter lookup preview", "Containment and the anchor problem solved by contain", "Class inheritance and why to avoid it", "Naming rules for classes", "The node definition in site.pp"],
+          "tools": ["puppet apply", "Puppet Server", "puppet parser", "puppet-lint"],
+          "lab_task": "Write class motd (String $message = 'Managed by Puppet') and class baseline that includes motd and chrony. Declare baseline with include in site.pp for the agent node and run puppet agent -t. Then declare class { 'motd': message => 'x' } in two places and record the duplicate declaration error. Replace with include plus a parameter default and rerun cleanly.",
+          "deliverable": "site.pp, both classes, run output and the duplicate class error",
+          "checks": [["Run puppet agent -t after including baseline", "Run completes and /etc/motd contains Managed by Puppet", "Agent output and cat /etc/motd"], ["Declare the motd class resource-like twice", "Error: Duplicate declaration: Class[Motd] is already declared", "Agent output"], ["Include motd twice with include", "No error, the class is evaluated once", "Agent output"]],
+          "objectives": ["Write parameterised classes", "Choose include, contain or resource-like declarations", "Assign classes to nodes"]
+        },
+        {
+          "topic": "Module Structure and the Puppet Forge",
+          "subtopics": ["Module layout: manifests, files, templates, lib, data, spec", "init.pp and the autoloader naming rules", "metadata.json: name, version, dependencies and operatingsystem_support", "modulepath and puppet config print modulepath", "puppet module install, list and upgrade", "Reading Forge quality scores and supported modules", "Pinning versions and dependency conflicts", "puppetlabs-stdlib functions and types such as Stdlib::Port", "Serving files with puppet:///modules/<module>/<file>", "Why not to edit Forge modules in place"],
+          "tools": ["Puppet Forge", "puppet module", "puppetlabs-stdlib", "Puppet Server"],
+          "lab_task": "Run puppet module install puppetlabs-stdlib and puppet module list --tree in the production environment. Create module lab_motd with manifests/init.pp and files/banner, serve the banner via source => 'puppet:///modules/lab_motd/banner', classify the agent with it and run puppet agent -t. Rename init.pp's class to the wrong name and record the autoloader error.",
+          "deliverable": "Module tree listing, metadata.json and run output",
+          "checks": [["Run puppet module list --tree on the server", "puppetlabs-stdlib appears in the production modulepath", "Terminal output"], ["Run puppet agent -t with lab_motd classified", "The banner file is created from the module files directory", "Agent output"], ["Name the class in init.pp something other than lab_motd", "Error: Could not find class ::lab_motd", "Agent output"]],
+          "objectives": ["Lay out a module following autoloader rules", "Install and pin Forge modules", "Serve static files from a module"]
+        },
+        {
+          "topic": "EPP and ERB Templates for Configuration Files",
+          "subtopics": ["Why EPP is preferred for new code", "EPP parameter tags <%- | String $x | -%>", "Calling epp() with a parameter hash", "Expression, statement and comment tags", "Whitespace control with <%- and -%>", "Iterating arrays and hashes inside EPP", "inline_epp for small strings", "ERB templates with template() and @variables", "Validating templates with puppet epp validate", "Rendering locally with puppet epp render"],
+          "tools": ["EPP", "ERB", "puppet epp", "Puppet agent"],
+          "lab_task": "Create templates/vhost.conf.epp in a module with typed parameters String $server_name, Integer $port and Array[String] $aliases, looping aliases into ServerAlias lines. Validate with puppet epp validate and preview with puppet epp render --values '{server_name => \"a\", port => 8080, aliases => [\"b\",\"c\"]}'. Use epp() in a file resource and apply. Call epp() without $port and record the error.",
+          "deliverable": "Template, rendered preview, managed config file and the missing-parameter error",
+          "checks": [["Run puppet epp render with three values", "Output contains one ServerName and two ServerAlias lines", "Terminal output"], ["Run puppet epp validate on a template with an unclosed tag", "A syntax error with the line number is printed", "Terminal output"], ["Call epp() without the required $port", "Error says the template expects a value for parameter 'port'", "Agent output"]],
+          "objectives": ["Write typed EPP templates", "Preview and validate templates before applying", "Compare EPP and ERB"]
+        },
+        {
+          "topic": "Agent and Server Communication and the Catalog Compile Cycle",
+          "subtopics": ["Agent run phases: pluginsync, facts upload, catalog request, apply, report", "Node, environment and catalog endpoints on port 8140", "Catalog compilation on Puppet Server", "runinterval, splay and the puppet service", "puppet agent -t and what -t enables", "Cached catalogs and usecacheonfailure", "Pluginsync of custom facts, types and functions", "Reading puppetserver.log Compiled catalog lines", "Agent lock files and agent_disabled_lockfile", "puppet agent --disable with a reason"],
+          "tools": ["Puppet agent", "Puppet Server", "journalctl", "puppetserver.log"],
+          "lab_task": "Run puppet agent -t --verbose and annotate each phase in the output. In /var/log/puppetlabs/puppetserver/puppetserver.log find the Compiled catalog for <certname> in environment production in N seconds line. Run puppet agent --disable 'maintenance CHG-123', try puppet agent -t, record the message, then re-enable. Change runinterval to 15m and confirm with puppet config print runinterval.",
+          "deliverable": "Annotated run output, compile time from the server log and the disable message",
+          "checks": [["Search puppetserver.log after an agent run", "A Compiled catalog for the agent certname line with a duration in seconds exists", "Log excerpt"], ["Run puppet agent -t while the agent is disabled", "Notice: Skipping run of Puppet configuration client; administratively disabled (Reason: 'maintenance CHG-123')", "Agent output"], ["Run puppet config print runinterval --section agent", "Prints 900 or 15m", "Terminal output"]],
+          "objectives": ["Describe each phase of an agent run", "Find catalog compile times on the server", "Control agent runs during maintenance"]
+        },
+        {
+          "topic": "Signing Agent Certificates with puppetserver ca",
+          "subtopics": ["Puppet's built-in CA and why every agent needs a signed certificate", "certname and dns_alt_names settings", "puppet ssl bootstrap and waitforcert", "puppetserver ca list and list --all", "puppetserver ca sign --certname", "Basic autosigning with autosign.conf and its risks", "Fingerprint verification with puppet ssl show or --digest", "puppet ssl clean on the agent and puppetserver ca clean on the server", "Common errors: certificate verify failed and certname mismatch", "Where certificates live: puppet config print ssldir"],
+          "tools": ["puppetserver ca", "puppet ssl", "Puppet Server", "openssl"],
+          "lab_task": "On a new agent run puppet ssl bootstrap --waitforcert 0 and record the request. On the server run puppetserver ca list and compare the fingerprint with the agent's. Sign it with puppetserver ca sign --certname, then complete a puppet agent -t. Finally run puppetserver ca clean --certname for a second agent, run puppet ssl clean there, and re-request to observe the full reissue cycle.",
+          "deliverable": "Command log with list output before and after signing and the reissue cycle",
+          "checks": [["Run puppetserver ca list before signing", "The new agent certname appears under Requested Certificates with a SHA256 fingerprint", "Terminal output"], ["Run puppet agent -t after signing", "The run completes and applies a catalog", "Agent output"], ["Clean a cert on the server but not the agent, then run the agent", "The agent fails with a certificate verify error or revoked certificate message", "Agent output"]],
+          "objectives": ["Request and sign agent certificates", "Verify certificate fingerprints", "Reissue a certificate safely"]
+        },
+        {
+          "topic": "Hiera 5 Data Lookup with hiera.yaml",
+          "subtopics": ["Why separate data from code", "The three layers: global, environment and module", "hiera.yaml version 5, defaults and hierarchy", "Hierarchy levels using trusted.certname and os.family", "YAML data files and key naming class::param", "Automatic class parameter lookup", "The lookup() function with default values", "puppet lookup from the command line with --node", "Module data with data/common.yaml", "Common mistakes: tabs in YAML and wrong datadir"],
+          "tools": ["Hiera", "puppet lookup", "Puppet Server", "yamllint"],
+          "lab_task": "In the production environment create hiera.yaml with levels nodes/%{trusted.certname}.yaml, os/%{facts.os.family}.yaml and common.yaml. Set motd::message in common.yaml and override it for one node. Run puppet lookup motd::message --node <certname> for both nodes and then puppet agent -t on each. Record which level supplied each value using --explain.",
+          "deliverable": "hiera.yaml, data files and puppet lookup --explain output for two nodes",
+          "checks": [["Run puppet lookup motd::message --node for the overridden node", "Returns the node-specific value", "Terminal output"], ["Run puppet lookup motd::message --node for another node", "Returns the common.yaml value", "Terminal output"], ["Run puppet lookup with --explain", "Output shows Path to the node file with Found key and earlier levels as not found", "Explain output"]],
+          "objectives": ["Write a Hiera 5 hierarchy", "Feed class parameters from data", "Trace lookups with puppet lookup"]
+        },
+        {
+          "topic": "Defined Types for Repeatable Resource Groups",
+          "subtopics": ["Defined types versus classes", "The define keyword and $title and $name", "Typed parameters and defaults", "Ensuring unique inner resource titles", "Declaring many instances from a hash", "ensure => absent support in your own type", "Using defined types from Hiera data", "Relationship to the whole defined type", "File layout: manifests/vhost.pp for mymod::vhost", "When a Forge type already exists"],
+          "tools": ["puppet apply", "Hiera", "EPP", "Puppet agent"],
+          "lab_task": "Create defined type lab_web::vhost with parameters Integer $port and Enum['present','absent'] $ensure that writes /etc/nginx/conf.d/${title}.conf from an EPP template and notifies the nginx service. Declare three vhosts from a Hiera hash with each, apply, then set one to absent and apply again. Declare two vhosts with the same title and record the error.",
+          "deliverable": "Defined type, template, Hiera data and run output",
+          "checks": [["Apply three vhosts from Hiera", "Three files exist in /etc/nginx/conf.d and nginx restarts once", "ls output and agent output"], ["Set one vhost to ensure absent", "That file is removed and the other two remain", "ls output"], ["Declare two vhosts with the same title", "Error: Duplicate declaration: Lab_web::Vhost[...] is already declared", "Agent output"]],
+          "objectives": ["Write defined types with unique inner titles", "Drive many instances from data", "Support removal through ensure"]
+        },
+        {
+          "topic": "Iteration with each, map, filter and reduce",
+          "subtopics": ["Lambdas and parameter syntax |$k, $v|", "each over arrays and hashes", "map to transform values", "filter to select entries", "reduce for totals and merges", "Combining iteration with resource declarations", "Hash and array functions from stdlib such as keys and merge", "Avoiding create_resources in new code", "Iteration scope and variables", "Readability and when to use a defined type instead"],
+          "tools": ["puppet apply", "puppetlabs-stdlib", "Hiera", "Puppet VS Code extension"],
+          "lab_task": "Store a hash of users in Hiera with uid and shell. Use each to create user resources, filter to select users whose shell is /bin/bash, map to build a sorted list of names, and reduce to sum the uids. Print the results with notice() and write the filtered names to /etc/bash_users. Apply and check that 5 users exist and the file lists only bash users.",
+          "deliverable": "Manifest, Hiera data, notice output and the generated file",
+          "checks": [["Apply with five users in Hiera", "getent passwd shows all five users", "getent output"], ["Read /etc/bash_users", "Only the users with /bin/bash are listed, sorted", "cat output"], ["Read the notice() output for the reduce result", "The printed sum equals the sum of the five uids", "Agent output"]],
+          "objectives": ["Iterate over data to declare resources", "Transform data with map, filter and reduce", "Choose iteration or defined types"]
+        },
+        {
+          "topic": "Environments and environment.conf on Puppet Server",
+          "subtopics": ["Directory environments under /etc/puppetlabs/code/environments", "The production default and the environment setting", "environment.conf: modulepath, manifest and environment_timeout", "Server-assigned versus agent-requested environments", "Testing a branch environment with puppet agent -t --environment", "environment_timeout and when code changes take effect", "Per-environment Hiera data", "Module version differences between environments", "Agent error when an environment does not exist", "Preparing for control repo workflows"],
+          "tools": ["Puppet Server", "Puppet agent", "Hiera", "puppet config"],
+          "lab_task": "Copy production to a new environment named testing and change motd::message in its Hiera data. Run puppet agent -t --environment testing and confirm the new message, then run puppet agent -t to return to production. Set environment_timeout = 0 in testing's environment.conf, edit a manifest and confirm the change applies without a restart. Request a missing environment and record the error.",
+          "deliverable": "Environment tree, environment.conf and run outputs for both environments",
+          "checks": [["Run puppet agent -t --environment testing", "/etc/motd contains the testing message", "Agent output and cat /etc/motd"], ["Run puppet agent -t again with no flag", "/etc/motd returns to the production message", "Agent output"], ["Run puppet agent -t --environment nosuchenv", "The run fails with a Could not find environment 'nosuchenv' error", "Agent output"]],
+          "objectives": ["Create and use directory environments", "Test changes outside production", "Control environment caching"]
+        },
+        {
+          "topic": "Reading Agent Run Output, Noop Mode and Exit Codes",
+          "subtopics": ["Run output levels: Info, Notice, Warning and Error", "Resource change lines: current_value and should", "--detailed-exitcodes: 0, 2, 4 and 6", "noop on the command line and the noop metaparameter", "Would have triggered refresh messages", "last_run_summary.yaml and puppet config print lastrunfile", "Changed, failed, skipped and out_of_sync counts", "Corrective versus intentional changes", "Skipping because of failed dependencies", "Using exit codes in scripts and monitoring"],
+          "tools": ["Puppet agent", "puppet config", "jq", "yq"],
+          "lab_task": "Make one manual change on a managed file, then run puppet agent -t --noop and record the would-change lines and exit code. Run puppet agent -t and record exit 2. Break a package name, run again and record exit 4 or 6. Read the file at puppet config print lastrunfile and extract resources: changed and failed counts. Tabulate the four runs.",
+          "deliverable": "Table of four runs with exit codes, summary counts and output excerpts",
+          "checks": [["Run puppet agent -t --noop after a manual drift", "Output shows current_value and (noop) and Would have triggered refresh where relevant", "Agent output"], ["Run puppet agent -t with a package that does not exist", "Exit code is 4 or 6 and an Error line names the package", "echo $? output"], ["Read last_run_summary.yaml after the failed run", "resources: failed is 1 or more", "File excerpt"]],
+          "objectives": ["Interpret agent output lines", "Use noop to preview changes", "Use exit codes and summaries in automation"]
+        },
+        {
+          "topic": "Ad Hoc Commands and Tasks with Puppet Bolt",
+          "subtopics": ["What Bolt is: agentless runs over SSH and WinRM", "bolt command run and --targets", "bolt file upload and download", "Inventory basics in inventory.yaml", "bolt task show and bolt task run", "Running the package and service tasks from Forge modules", "bolt project init and project layout", "Output formats: human, json and rainbow", "Authentication: SSH keys, run-as and sudo", "When to use Bolt versus agent runs"],
+          "tools": ["Bolt", "OpenSSH", "puppetlabs-package", "puppetlabs-service"],
+          "lab_task": "Run bolt project init labproject, add an inventory.yaml group web with two targets and SSH config, then run bolt command run 'uptime' --targets web. Install the package module with bolt module add puppetlabs-package and run bolt task run package action=status name=openssh-server --targets web --format json. Count successful targets in the JSON.",
+          "deliverable": "bolt-project.yaml, inventory.yaml and JSON output of the task run",
+          "checks": [["Run bolt command run 'uptime' --targets web", "Output reports Successful on 2 targets", "Terminal output"], ["Run the package status task with --format json", "Each item has status success and a version value", "JSON output"], ["Run against a host with a wrong SSH key", "Bolt reports Failed on 1 target with an authentication error", "Terminal output"]],
+          "objectives": ["Run ad hoc commands with Bolt", "Run Forge tasks against inventory groups", "Compare Bolt and agent-based management"]
+        },
+        {
+          "topic": "Beginner Capstone: Web Server Module Managed by Puppet",
+          "subtopics": ["Requirements for a lab_nginx module with classes and a defined type", "Hiera data for ports, vhosts and per-node overrides", "EPP templates with typed parameters", "Package, file and service ordering with refresh", "Applying through Puppet Server to two agents", "Proving idempotence, drift correction and noop preview"],
+          "tools": ["Puppet Server", "Puppet agent", "Hiera", "EPP", "Bolt", "puppet-lint"],
+          "lab_task": "Build module lab_nginx with classes lab_nginx, ::install, ::config and ::service, a lab_nginx::vhost defined type and EPP templates. Drive two vhosts per node from Hiera with one per-node override. Apply via puppet agent -t to two agents, show the second run has 0 changes, delete a vhost file manually and show Puppet restores it. Check responses with bolt command run 'curl -s localhost:8080'.",
+          "deliverable": "lab_nginx module, Hiera data, run logs and a short demonstration",
+          "checks": [["Run puppet agent -t twice on each agent", "The second run exits 0 with no changes", "Agent output with exit codes"], ["Delete a vhost file and run the agent", "The file is recreated and nginx refreshes", "Agent output"], ["Run bolt command run 'curl -s localhost:8080' --targets web", "Both targets return the expected page text", "Bolt output"]],
+          "objectives": ["Combine classes, defined types, templates and Hiera in one module", "Prove idempotence and drift correction", "Present a working configuration module"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can write Puppet classes, modules and Hiera data and now run Puppet for a team. Covers the roles and profiles pattern, control repositories with a Puppetfile, r10k and Code Manager deployments, PDK scaffolding and validation, rspec-puppet unit tests, Hiera merge behaviours and encrypted data with hiera-eyaml, custom and external facts, trusted facts and policy-based autosigning, PuppetDB with PQL and exported resources, virtual resources, Bolt projects, tasks and plans, report processing, module documentation with Puppet Strings, and a capstone control repo tested in CI.",
+      "prerequisites": ["Completed the beginner level or writes Puppet classes, defined types, EPP templates and Hiera 5 data in daily work", "Uses Git branches, merge requests and a CI service such as GitHub Actions or GitLab CI", "Has a lab with a Puppet Server, three or more agents, a Git server and Docker for test containers"],
+      "outcomes": ["Structure Puppet code as a control repo with roles and profiles and deploy branches as environments with r10k or Code Manager", "Scaffold, validate and unit test modules with PDK and rspec-puppet across supported operating systems", "Manage data with Hiera merge behaviours, encrypted values, custom facts and trusted facts", "Use PuppetDB, exported resources, reports and Bolt tasks and plans to coordinate configuration across nodes"],
+      "days": [
+        {
+          "topic": "Roles and Profiles Pattern Design",
+          "subtopics": ["Component modules, profiles and roles and what each may contain", "One role per node rule and role naming", "Profiles as the place for Hiera lookups and business logic", "Avoiding parameters on roles", "Classifying by role with a trusted fact or site.pp", "Profile composition and ordering between profiles", "Refactoring a monolithic node definition into roles and profiles", "Anti-patterns: profiles that include profiles everywhere, logic in roles", "Documenting what each role delivers", "Mapping roles to teams and ownership"],
+          "tools": ["Puppet Server", "Hiera", "Puppet agent", "Visual Studio Code"],
+          "lab_task": "Take a node definition that declares nginx, chrony, firewall rules and users directly. Refactor it into profile::base, profile::web and role::webserver, where only profiles use lookup() or class parameters and the role only includes profiles. Classify with node default { include $trusted['extensions']['pp_role'] } or site.pp, apply, and diff the before and after catalogs to show identical resources.",
+          "deliverable": "Refactored role and profile classes and evidence that the managed resources are unchanged",
+          "checks": [["Compare resource counts before and after the refactor", "The number and titles of managed resources are identical", "Resource list diff"], ["Grep role classes for lookup( or class parameters", "No matches are found in the roles directory", "grep output"], ["Run puppet agent -t after the refactor", "The run reports 0 changes on an already converged node", "Agent output"]],
+          "objectives": ["Separate component modules, profiles and roles", "Refactor node code into the pattern", "Classify nodes by role"]
+        },
+        {
+          "topic": "Control Repository Layout and Puppetfile",
+          "subtopics": ["Purpose of a control repo: environments as branches", "Typical layout: manifests/site.pp, site-modules, data, hiera.yaml, Puppetfile", "environment.conf modulepath with site-modules", "Puppetfile syntax: mod with Forge versions", "Git modules with :git, :ref, :tag and :branch", "Pinning every module and why :latest is risky", "Resolving transitive dependencies by hand", "Keeping roles and profiles in site-modules", ".gitignore for modules and caches", "Branch protection for production"],
+          "tools": ["Git", "Puppetfile", "Puppet Forge", "r10k"],
+          "lab_task": "Create a control repo with branches production and feature_ntp, site-modules/role and profile, data/common.yaml and hiera.yaml. Write a Puppetfile pinning puppetlabs-stdlib, puppetlabs-concat and puppetlabs-firewall to exact versions and one Git module with :tag. Run r10k puppetfile check, then r10k puppetfile install --verbose locally and list the resulting modules directory.",
+          "deliverable": "Control repo on the Git server with Puppetfile and a listing of installed modules",
+          "checks": [["Run r10k puppetfile check in the repo", "Prints Syntax OK", "Terminal output"], ["Run r10k puppetfile install --verbose", "modules/ contains stdlib, concat, firewall and the Git module", "ls modules output"], ["Introduce a typo in a mod line and run r10k puppetfile check", "A syntax or evaluation error names the Puppetfile line", "Terminal output"]],
+          "objectives": ["Lay out a control repo", "Pin Forge and Git modules in a Puppetfile", "Validate a Puppetfile before deployment"]
+        },
+        {
+          "topic": "Deploying Environments with r10k",
+          "subtopics": ["r10k.yaml: cachedir, sources, remote and basedir", "r10k deploy environment and --modules", "Deploying a single environment versus all", "r10k deploy display for state", "Branch names, invalid_branches and environment naming rules", "Purging stale environments and unmanaged content", "Running r10k as the puppet user and file ownership", "Webhook or CI-triggered deployments", "Generating types after deploy", "g10k and other alternatives"],
+          "tools": ["r10k", "Git", "Puppet Server", "systemd timers"],
+          "lab_task": "Configure /etc/puppetlabs/r10k/r10k.yaml with the control repo as source control and basedir /etc/puppetlabs/code/environments. Run r10k deploy environment --modules --verbose and confirm both branches appear as environments. Delete feature_ntp in Git, redeploy and confirm the environment is purged. Push a branch named feature/web and record how it is named or rejected.",
+          "deliverable": "r10k.yaml, deploy logs and environment directory listings before and after",
+          "checks": [["Run r10k deploy environment --modules --verbose", "Directories production and feature_ntp exist under the environments path", "ls output"], ["Delete the feature_ntp branch and redeploy", "The feature_ntp directory is removed", "ls output and r10k log"], ["Push a branch named feature/web and deploy", "r10k reports the branch name as invalid or corrects it to feature_web according to invalid_branches", "r10k output"]],
+          "objectives": ["Configure r10k sources", "Deploy and purge environments", "Handle branch naming rules"]
+        },
+        {
+          "topic": "Code Manager and File Sync in Puppet Enterprise",
+          "subtopics": ["Code Manager as PE's r10k wrapper", "Code staging and live directories and File Sync", "Enabling Code Manager through console parameters", "RBAC deploy permission and puppet access login", "puppet code deploy --all --wait and single environments", "Webhooks on port 8170 from Git hosting", "Status and errors in puppet code status", "Why manual edits under /etc/puppetlabs/code get overwritten", "Environment cache flush after deployment", "Equivalents for Puppet Core and OpenVox users"],
+          "tools": ["Puppet Enterprise", "Code Manager", "puppet access", "puppet code", "Git"],
+          "lab_task": "On a PE lab, enable Code Manager with the control repo URL and an SSH deploy key, create an RBAC user with Code Manager deploy rights, run puppet access login --lifetime 1h and puppet code deploy production --wait. Edit a file directly in /etc/puppetlabs/code, redeploy and confirm it is reverted. Configure a Git webhook to port 8170 and record a push-triggered deploy. On Core or OpenVox, do the same flow with r10k.",
+          "deliverable": "Deploy output, webhook delivery log and evidence that manual edits are overwritten",
+          "checks": [["Run puppet code deploy production --wait", "JSON output shows status complete and a deploy-signature commit hash", "Terminal output"], ["Run puppet code deploy without a valid token", "The command fails with an authentication or token error", "Terminal output"], ["Push a commit to production with the webhook enabled", "The webhook delivery returns HTTP 200 and the new commit is live", "Git host delivery log"]],
+          "objectives": ["Deploy code with Code Manager", "Secure deployments with RBAC tokens", "Explain File Sync and the staging directory"]
+        },
+        {
+          "topic": "PDK Module Scaffolding, Validation and puppet-lint",
+          "subtopics": ["Installing PDK and its bundled Ruby", "pdk new module with metadata answers", "pdk new class, defined_type, task and function", "pdk validate and its validators: metadata, puppet, ruby, yaml", "puppet-lint checks and .puppet-lint.rc", "pdk validate --auto-correct", ".sync.yml and pdk update for template changes", "pdk convert for existing modules", "pdk build to produce a release tarball", "Running PDK commands in CI"],
+          "tools": ["PDK", "puppet-lint", "RuboCop", "Puppet Forge"],
+          "lab_task": "Run pdk new module acme-chrony, then pdk new class chrony::config and pdk new defined_type chrony::server. Add code with two style errors (double-quoted string with no variables and a missing documentation comment), run pdk validate, record the warnings, then fix them with pdk validate --auto-correct and manual edits until it passes. Run pdk build and record the tarball name.",
+          "deliverable": "acme-chrony module, validate output before and after fixes and the built tarball name",
+          "checks": [["Run pdk validate with a double-quoted plain string", "puppet-lint reports double quoted string containing no variables", "Terminal output"], ["Run pdk validate after fixes", "All validators complete with no errors", "Terminal output"], ["Run pdk build", "pkg/acme-chrony-0.1.0.tar.gz is created", "ls pkg output"]],
+          "objectives": ["Scaffold modules with PDK", "Validate style and syntax automatically", "Package a module for release"]
+        },
+        {
+          "topic": "Unit Testing Modules with rspec-puppet and rspec-puppet-facts",
+          "subtopics": ["What unit tests prove: catalogs, not running systems", "spec_helper and the generated test layout", "it { is_expected.to compile.with_all_deps }", "contain_package, contain_file with with_content and that_notifies", "Parameter tests with let(:params)", "on_supported_os from rspec-puppet-facts and metadata.json", "Testing failures with raise_error", "Hiera data in tests and let(:hiera_config)", "pdk test unit, --parallel and focused runs", "Coverage reports with RSpec::Puppet::Coverage"],
+          "tools": ["rspec-puppet", "rspec-puppet-facts", "PDK", "RSpec"],
+          "lab_task": "For acme-chrony write spec/classes/chrony_spec.rb using on_supported_os to check compile.with_all_deps, contain_package('chrony'), the config file content for two servers, and that the file notifies the service. Add a test that an empty servers array raises an error. Run pdk test unit --parallel and record the example count for the four operating systems in metadata.json.",
+          "deliverable": "Spec files and pdk test unit output with example and failure counts",
+          "checks": [["Run pdk test unit --parallel", "All examples pass, with tests multiplied across the four operating systems", "Test output summary"], ["Change the template so the second server is missing", "The with_content example fails and shows the expected text", "Test output"], ["Pass servers => [] to the class", "The raise_error example passes because compilation fails", "Test output"]],
+          "objectives": ["Write rspec-puppet tests for classes", "Test across operating systems with rspec-puppet-facts", "Test failure paths"]
+        },
+        {
+          "topic": "Hiera Merge Behaviours, lookup_options and puppet lookup --explain",
+          "subtopics": ["first, unique, hash and deep merge strategies", "lookup_options in data files", "Merging arrays of packages across hierarchy levels", "Deep merging nested hashes and knockout prefixes", "Per-call merge with lookup(key, Hash, 'deep', {})", "Interpolation functions: hiera, lookup, alias and literal", "Hierarchy design with role, datacenter and os levels", "Environment and module layers in merges", "puppet lookup --explain and --merge", "Performance of large hierarchies"],
+          "tools": ["Hiera", "puppet lookup", "Puppet Server", "yamllint"],
+          "lab_task": "Add a role level to hiera.yaml using %{trusted.extensions.pp_role}. Define profile::base::packages in common.yaml and in the role file, and set lookup_options to unique. Define a nested profile::web::settings hash in two levels with deep merge. Run puppet lookup profile::base::packages --node <web node> --explain and record the merged result. Use alias() to reuse a value as an Integer.",
+          "deliverable": "hiera.yaml, data files with lookup_options and explain output for both keys",
+          "checks": [["Look up the packages key with unique merge", "The result is a single array containing items from both levels without duplicates", "puppet lookup output"], ["Look up the settings hash with deep merge", "Nested keys from both levels appear, with the higher level winning on conflicts", "puppet lookup output"], ["Remove lookup_options and repeat the packages lookup", "Only the highest level's array is returned (first merge)", "puppet lookup output"]],
+          "objectives": ["Choose merge strategies for arrays and hashes", "Configure merges in data with lookup_options", "Trace merged results with --explain"]
+        },
+        {
+          "topic": "Protecting Secrets with hiera-eyaml and the Sensitive Type",
+          "subtopics": ["Why plain secrets in Git are a breach", "Installing hiera-eyaml on Puppet Server with puppetserver gem install", "eyaml createkeys and key file permissions", "eyaml encrypt -s and eyaml edit", "The eyaml_lookup_key backend in hiera.yaml", "Sensitive data type, unwrap and redaction in logs and reports", "convert_to: Sensitive in lookup_options", "Secret exposure through templates, notify and exec commands", "Key rotation and access control for keys", "Agent-side lookups as an alternative"],
+          "tools": ["hiera-eyaml", "Hiera", "Puppet Server", "Sensitive"],
+          "lab_task": "Install hiera-eyaml for Puppet Server, generate keys with eyaml createkeys in /etc/puppetlabs/puppet/eyaml owned by puppet with mode 0400. Encrypt a database password with eyaml encrypt -s, add it to a data file and configure an eyaml level in hiera.yaml with convert_to: Sensitive. Use it in a file resource, run puppet agent -t --show_diff and confirm the value is redacted in output and in the stored report.",
+          "deliverable": "hiera.yaml, encrypted data file (no plaintext) and run output showing redaction",
+          "checks": [["grep the control repo for the plain password", "No matches are found; only an ENC[PKCS7,...] block exists", "grep output"], ["Run puppet agent -t --show_diff after changing the secret", "The diff shows Sensitive [value redacted] instead of the password", "Agent output"], ["Run puppet lookup with the key files unreadable by the puppet user", "Lookup fails with a key file read error", "Terminal output"]],
+          "objectives": ["Encrypt Hiera values with eyaml", "Keep secrets redacted with Sensitive", "Find accidental secret exposure paths"]
+        },
+        {
+          "topic": "Custom and External Facts for Puppet Agents",
+          "subtopics": ["When a custom fact is better than an exec or a lookup", "External facts in facts.d: YAML, JSON and executables", "Ruby custom facts in lib/facter with Facter.add", "confine and has_weight", "Structured custom facts returning hashes", "Pluginsync delivery to agents", "Timeouts and keeping facts fast", "Testing facts with facter -p and puppet facts show", "Unit testing facts with rspec", "Not putting secrets or volatile values in facts"],
+          "tools": ["Facter", "Ruby", "PDK", "puppet facts"],
+          "lab_task": "Add an external fact /etc/puppetlabs/facter/facts.d/datacenter.yaml with datacenter: lon1. In a module, write lib/facter/app_version.rb that reads /opt/app/VERSION, is confined to kernel Linux and returns nil if the file is missing. Run puppet agent -t to pluginsync, then puppet facts show app_version datacenter. Use $facts['datacenter'] in a Hiera level.",
+          "deliverable": "External fact file, custom fact code, facts output and the Hiera level using it",
+          "checks": [["Run puppet facts show datacenter", "Prints lon1", "Terminal output"], ["Run puppet facts show app_version with /opt/app/VERSION present", "Prints the file contents", "Terminal output"], ["Remove /opt/app/VERSION and run puppet facts show app_version", "The fact is absent and no Ruby error is printed", "Terminal output"]],
+          "objectives": ["Write external and Ruby custom facts", "Distribute facts with pluginsync", "Keep facts safe and fast"]
+        },
+        {
+          "topic": "Trusted Facts, CSR Attributes and Policy-Based Autosigning",
+          "subtopics": ["Why $trusted is safe and $facts is not", "csr_attributes.yaml: custom_attributes and extension_requests", "Puppet registered OIDs such as pp_role, pp_environment and pp_datacenter", "Reading $trusted['extensions'] in manifests and Hiera", "autosign as an executable policy script", "challengePassword shared secrets in custom_attributes", "puppetserver ca list showing extensions", "Extensions cannot change without reissuing the certificate", "Classifying by pp_role safely", "Logging and rejecting bad requests"],
+          "tools": ["puppetserver ca", "Puppet agent", "openssl", "Python"],
+          "lab_task": "Write an autosign policy script on the server that reads the CSR from stdin, extracts the challengePassword with openssl req -noout -text, and exits 0 only if it matches a token file. Set autosign = /etc/puppetlabs/puppet/autosign.sh. On an agent create csr_attributes.yaml with the password and pp_role: webserver, bootstrap it, and confirm $trusted['extensions']['pp_role'] in a notice. Try a wrong password.",
+          "deliverable": "Autosign script, csr_attributes.yaml and evidence of accepted and rejected requests",
+          "checks": [["Bootstrap an agent with the correct challengePassword", "The certificate is signed automatically and the first run succeeds", "Agent output"], ["Bootstrap an agent with a wrong password", "The request stays in puppetserver ca list as pending and is not signed", "ca list output"], ["Print $trusted['extensions']['pp_role'] with notice()", "Prints webserver", "Agent output"]],
+          "objectives": ["Embed trusted data in certificates", "Autosign with a policy script", "Classify nodes from trusted extensions"]
+        },
+        {
+          "topic": "PuppetDB Setup, Storage and Connection to Puppet Server",
+          "subtopics": ["What PuppetDB stores: facts, catalogs, reports and resources", "Architecture: PuppetDB service, PostgreSQL and the command queue", "Installing with the puppetlabs-puppetdb module", "database.ini and PostgreSQL connection settings", "jetty.ini ports 8080 and 8081", "puppetdb.conf server_urls on Puppet Server", "storeconfigs, storeconfigs_backend and reports = puppetdb", "routes.yaml and the facts terminus", "Certificate trust between Puppet Server and PuppetDB", "Checking status at /status/v1/services/puppetdb-status"],
+          "tools": ["PuppetDB", "PostgreSQL", "puppetlabs-puppetdb", "Puppet Server", "curl"],
+          "lab_task": "Use the puppetlabs-puppetdb module to install PuppetDB and PostgreSQL on a separate VM and puppetdb::master::config on the server. Run puppet agent -t on all nodes. Query curl --cacert, --cert and --key against https://puppetdb.lab.local:8081/status/v1/services/puppetdb-status and record state and queue_depth. Then curl https://puppetdb.lab.local:8081/pdb/query/v4/nodes and count nodes.",
+          "deliverable": "Manifests used, puppetdb.conf, status JSON and node query result",
+          "checks": [["Query /status/v1/services/puppetdb-status", "state is running and queue_depth is a small number", "JSON response"], ["Query /pdb/query/v4/nodes after all agents run", "The node count equals the number of agents", "JSON response with count"], ["Stop PostgreSQL and run puppet agent -t", "The agent run reports errors submitting facts or the catalog to PuppetDB", "Agent output"]],
+          "objectives": ["Install PuppetDB and connect Puppet Server", "Check PuppetDB health", "Explain what data PuppetDB holds"]
+        },
+        {
+          "topic": "Querying PuppetDB with PQL and the v4 API",
+          "subtopics": ["PQL syntax: entity[projection] { filter }", "Entities: nodes, facts, inventory, resources, reports and events", "Filtering inventory by facts.os.family", "Querying resources by type and title", "latest_report? and report status filters", "Aggregates with count() and group by", "The puppet query command and the puppetdb CLI", "AST queries in the v4 API", "Paging with limit and offset", "Permissions for query endpoints"],
+          "tools": ["PuppetDB", "puppet query", "curl", "jq"],
+          "lab_task": "Write and run PQL queries with puppet query or curl --data-urlencode 'query=...': list certnames of nodes where facts.os.family = 'RedHat'; count nodes by facts.os.release.major; find nodes with resources[certname] { type = 'Package' and title = 'nginx' }; and list nodes whose latest report has status = 'failed'. Save each query and its result count.",
+          "deliverable": "PQL query file with four queries and their result counts",
+          "checks": [["Run the inventory query for RedHat nodes", "The returned certnames match the RHEL-family lab nodes", "Query output"], ["Run the count by os.release.major query", "Each group shows a count, and the counts add up to the total node count", "Query output"], ["Break one agent and query reports with latest_report? = true and status = 'failed'", "Exactly that node is returned", "Query output"]],
+          "objectives": ["Write PQL queries over facts, resources and reports", "Aggregate results", "Use PuppetDB as an inventory source"]
+        },
+        {
+          "topic": "Exported Resources and Collectors with PuppetDB",
+          "subtopics": ["Exporting with @@ and collecting with <<| |>>", "Exported sshkey, host and concat fragments", "Tags and search expressions on collection", "Run order: export first, then collect on the next run", "Stale exports from decommissioned nodes", "puppet node deactivate to remove exports", "Collector overrides with { attribute => value }", "Duplicate exported resource conflicts", "Alternatives: PuppetDB query functions in manifests", "Load balancer membership as an example"],
+          "tools": ["PuppetDB", "puppetlabs-concat", "Puppet agent", "HAProxy"],
+          "lab_task": "On each web node export a concat::fragment containing server ${facts['networking']['fqdn']} ${facts['networking']['ip']}:80 check, tagged with the environment. On the load balancer collect Concat::Fragment <<| tag == 'lb_web' |>> into haproxy.cfg. Run all web nodes then the LB, and count backend lines. Deactivate one web node with puppet node deactivate and confirm its line is removed.",
+          "deliverable": "Export and collect code, haproxy.cfg before and after deactivation",
+          "checks": [["Run agents on three web nodes then the load balancer", "haproxy.cfg contains three server lines", "grep -c server output"], ["Run puppet node deactivate for one web node, then run the load balancer", "haproxy.cfg contains two server lines", "grep -c output"], ["Run the LB before any web node has exported", "The backend has no server lines and the run succeeds", "File excerpt"]],
+          "objectives": ["Export and collect resources through PuppetDB", "Filter collection with tags", "Clean up exports from retired nodes"]
+        },
+        {
+          "topic": "Virtual Resources, realize and Resource Collectors",
+          "subtopics": ["Declaring virtual resources with @", "realize() and the spaceship collector <| |>", "Managing a central user list and realising per role", "Collectors that override attributes", "Collector side effects: realising virtual resources unintentionally", "Collector search by tag and attribute", "Virtual versus exported resources", "Ordering with collectors in chains", "Testing virtual resources with rspec-puppet", "When Hiera-driven declarations are simpler"],
+          "tools": ["Puppet agent", "Hiera", "rspec-puppet", "PDK"],
+          "lab_task": "In profile::users declare 10 virtual users with @user, each tagged with team names. In role classes realise only matching teams with User <| tag == 'dba' |>. Apply on a db node and a web node and count users. Add a collector with an override that sets shell => '/sbin/nologin' for contractors. Write an rspec-puppet test that the web role does not contain the DBA users.",
+          "deliverable": "Profile and role code, user counts per node and the passing test",
+          "checks": [["Apply on the db node", "Only users tagged dba are created", "getent passwd output"], ["Apply on the web node", "No dba users exist", "getent passwd output"], ["Run pdk test unit for the web role", "The example checking that User[dba1] is not in the catalog passes", "Test output"]],
+          "objectives": ["Declare and realise virtual resources", "Use collectors with overrides", "Test what a catalog does not contain"]
+        },
+        {
+          "topic": "Bolt Projects, Inventory Files and Transports",
+          "subtopics": ["bolt-project.yaml: name, modules and modulepath", "inventory.yaml groups, targets, vars and facts", "Transports: ssh, winrm, docker, local and pcp", "Config precedence: target, group and project", "Inventory plugins: puppetdb, terraform and env_var", "bolt inventory show --detail", "Secrets with the pkcs7 plugin", "run-as, sudo-password and tty settings", "Using PuppetDB queries to target nodes", "Project-level logging and bolt-debug.log"],
+          "tools": ["Bolt", "PuppetDB", "WinRM", "OpenSSH", "Docker"],
+          "lab_task": "Create a Bolt project with groups linux (SSH, run-as root) and windows (WinRM over HTTPS). Add a dynamic group using the puppetdb plugin with query 'inventory[certname] { facts.os.family = \"RedHat\" }'. Encrypt the WinRM password with bolt secret encrypt. Run bolt inventory show --targets all --detail and bolt command run 'hostname' --targets linux,windows and count successes.",
+          "deliverable": "bolt-project.yaml, inventory.yaml with encrypted secret and run output",
+          "checks": [["Run bolt inventory show --targets redhat", "The list matches RedHat nodes in PuppetDB", "Terminal output"], ["Run bolt command run 'hostname' --targets linux,windows", "Every target reports success with its hostname", "Terminal output"], ["Grep inventory.yaml for the plaintext WinRM password", "No match; only an ENC[PKCS7,...] value is present", "grep output"]],
+          "objectives": ["Build Bolt projects and inventories", "Target nodes dynamically from PuppetDB", "Store Bolt credentials encrypted"]
+        },
+        {
+          "topic": "Writing Bolt Tasks with Metadata in Shell, Python and PowerShell",
+          "subtopics": ["Task files under tasks/ and naming rules", "Task metadata JSON: description, parameters and types", "input_method: environment, stdin and both", "PT_ environment variables and JSON on stdin", "Returning structured JSON results and _error objects", "Cross-platform tasks with implementations", "supports_noop and _noop", "Private and sensitive parameters", "Testing tasks locally and with bolt task run", "Running tasks from PE with puppet task run"],
+          "tools": ["Bolt", "Python", "PowerShell", "jq"],
+          "lab_task": "Write task acme::disk_check with metadata defining Integer[1,99] threshold, a Python implementation for Linux and a PowerShell one for Windows, returning JSON {\"mount\": ..., \"used_pct\": ..., \"ok\": bool}. On breach return an _error object with kind acme/disk-full. Run bolt task run acme::disk_check threshold=90 --targets linux,windows --format json and count ok results.",
+          "deliverable": "Task files, metadata and JSON output from Linux and Windows targets",
+          "checks": [["Run bolt task show acme::disk_check", "Shows the threshold parameter with type Integer[1, 99]", "Terminal output"], ["Run the task with threshold=1", "Targets fail with error kind acme/disk-full", "JSON output"], ["Run the task with threshold=100", "Bolt rejects it before running because the value does not match Integer[1, 99]", "Terminal output"]],
+          "objectives": ["Write tasks with typed metadata", "Return structured results and errors", "Support Linux and Windows from one task"]
+        },
+        {
+          "topic": "Bolt Plans in Puppet Language and apply Blocks",
+          "subtopics": ["plan keyword, TargetSpec and typed parameters", "run_command, run_task, run_script and upload_file", "ResultSet: ok, ok_set, error_set and to_data", "_catch_errors and catch_errors()", "apply_prep and apply() blocks using profiles", "out::message and logging", "YAML plans and when to use them", "Plan parameters from the command line", "bolt plan show and documentation comments", "Unit testing plans with BoltSpec"],
+          "tools": ["Bolt", "BoltSpec", "Puppet language", "Hiera"],
+          "lab_task": "Write plan acme::deploy(TargetSpec $targets, String $version) that runs acme::disk_check with _catch_errors, continues only on the ok_set, uploads app-${version}.tgz, runs apply_prep, then apply() with include profile::app and a version parameter, and prints a summary with out::message. Run it on 3 targets with one full disk and confirm only 2 are deployed.",
+          "deliverable": "Plan code and run output showing the failed target excluded",
+          "checks": [["Run bolt plan run acme::deploy targets=web version=1.2.0", "Two targets deploy and the summary reports one skipped target", "Plan output"], ["Run the plan without the version parameter", "Bolt reports the plan expects a value for parameter 'version'", "Terminal output"], ["Rerun the plan on the healthy targets", "The apply step reports no changed resources", "Plan output"]],
+          "objectives": ["Write plans combining tasks and apply blocks", "Handle partial failures in a ResultSet", "Reuse profiles from plans"]
+        },
+        {
+          "topic": "Agent Reports, Report Processors and last_run_summary",
+          "subtopics": ["Report contents: logs, metrics, resource_statuses and status", "reports setting: store, http and puppetdb", "reportdir and report retention on disk", "Writing a custom report processor in lib/puppet/reports", "Sending reports to an HTTP endpoint with reporturl", "Querying reports and events in PuppetDB", "corrective_change and noop_pending fields", "PE console run reports and node status", "Alerting on failed runs", "Report size and log level"],
+          "tools": ["Puppet Server", "PuppetDB", "Ruby", "curl"],
+          "lab_task": "Write report processor acme_slack in a module's lib/puppet/reports that posts only when report.status == 'failed' to a local test HTTP listener. Set reports = puppetdb,acme_slack in the server section and restart puppetserver. Break one node, run it, and confirm one POST arrives. Query PuppetDB events for that report and count failed events with PQL.",
+          "deliverable": "Report processor code, puppet.conf change, listener log and PQL query output",
+          "checks": [["Run a healthy agent", "No POST arrives at the test listener", "Listener log"], ["Run an agent with a failing resource", "Exactly one POST arrives containing the certname", "Listener log"], ["Query events[count()] { status = 'failure' and latest_report? = true }", "Returns the number of failing resources on that node", "Query output"]],
+          "objectives": ["Configure report processors", "Write a custom report handler", "Query run results in PuppetDB"]
+        },
+        {
+          "topic": "Module Documentation with Puppet Strings and REFERENCE.md",
+          "subtopics": ["Why REFERENCE.md matters for Forge and internal modules", "puppet-strings tags: @summary, @param, @example and @see", "Documenting defined types, functions, tasks and plans", "puppet strings generate --format markdown", "Warnings for undocumented parameters", "README sections expected by the Forge", "CHANGELOG and semantic versioning", "metadata.json operatingsystem_support and requirements", "Publishing internal docs with puppet strings server", "Checking docs in CI"],
+          "tools": ["Puppet Strings", "PDK", "Puppet Forge", "Markdown"],
+          "lab_task": "Add @summary, @param for every parameter and an @example block to acme-chrony's classes and defined type. Run puppet strings generate --format markdown --out REFERENCE.md and confirm every parameter appears. Remove one @param, rerun and record the warning. Bump the version to 0.2.0 in metadata.json with a CHANGELOG entry and run pdk build.",
+          "deliverable": "REFERENCE.md, CHANGELOG entry and built 0.2.0 tarball",
+          "checks": [["Run puppet strings generate --format markdown", "REFERENCE.md lists every class, defined type and parameter", "File excerpt"], ["Remove one @param tag and regenerate", "A warning names the missing parameter documentation", "Terminal output"], ["Run pdk build after the version bump", "pkg/acme-chrony-0.2.0.tar.gz is created", "ls output"]],
+          "objectives": ["Document modules with Puppet Strings", "Version and change-log module releases", "Detect missing documentation"]
+        },
+        {
+          "topic": "Intermediate Capstone: Control Repo with Roles, Profiles and CI Tests",
+          "subtopics": ["Control repo with pinned Puppetfile, roles, profiles and Hiera layers", "Encrypted secrets and trusted-fact classification", "rspec-puppet and pdk validate in a CI pipeline", "r10k or Code Manager deployment on merge", "Exported resources for load balancer membership", "Bolt plan for an application release"],
+          "tools": ["r10k", "PDK", "rspec-puppet", "PuppetDB", "Bolt", "hiera-eyaml"],
+          "lab_task": "Build a control repo for a web tier and a database: roles webserver, loadbalancer and database, profiles with eyaml secrets, LB members from exported resources, and classification by pp_role. Add a CI job that runs pdk validate and pdk test unit on site-modules and blocks merges on failure. Deploy with r10k on merge, run all agents, then release version 2 with a Bolt plan.",
+          "deliverable": "Control repo, CI pipeline definition, deployment logs and plan output",
+          "checks": [["Open a merge request that breaks a profile test", "The CI job fails and the merge is blocked", "CI run log"], ["Merge a passing change to production", "The new commit is deployed and agents converge with exit code 2 then 0", "Deploy log and agent output"], ["Query PuppetDB for exported load balancer fragments", "The count equals the number of web nodes", "PQL output"]],
+          "objectives": ["Assemble a tested control repo", "Automate code deployment from Git", "Coordinate nodes with PuppetDB and Bolt"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For Puppet platform owners and senior engineers who run Puppet for hundreds or thousands of nodes. Covers acceptance testing with Litmus, control repo testing with Onceover, custom functions, types and providers with the Resource API, Deferred functions for agent-side secrets, Puppet Server JRuby tuning and metrics, scaling with compilers behind a load balancer, CA revocation, renewal and external CA chains, PuppetDB retention and performance, PE orchestrator jobs, rolling Bolt plans, code promotion pipelines, environment isolation, server-side hardening, compliance baselines with drift reporting, Windows nodes, Puppet 8 upgrades and OpenVox migration, catalog troubleshooting, and a multi-compiler platform capstone.",
+      "prerequisites": ["Completed the intermediate level or runs a control repo with roles, profiles, r10k or Code Manager, PuppetDB and rspec-puppet tests", "Administers Linux services, JVM applications, PostgreSQL and TLS certificates and reads Ruby code", "Has a lab able to run a primary server, two compilers, a load balancer, PuppetDB, a Windows VM and Docker-based test containers"],
+      "outcomes": ["Test modules and control repos at unit, catalog and acceptance levels and promote code through a gated pipeline", "Extend Puppet with custom functions, Resource API types and providers, and Deferred agent-side lookups", "Size, tune and scale Puppet Server, compilers and PuppetDB using metrics, and operate the CA through revocation and renewal", "Upgrade estates to Puppet 8 or migrate to OpenVox, harden the platform and diagnose catalog and run failures"],
+      "days": [
+        {
+          "topic": "Acceptance Testing Modules with Litmus",
+          "subtopics": ["Unit versus acceptance tests and what Litmus adds", "provision.yaml lists and Docker or VM provisioners", "litmus:provision_list, install_agent and install_module rake tasks", "spec_helper_acceptance and the inventory file Litmus writes", "idempotent_apply and apply_manifest helpers", "Serverspec-style matchers: package, service, port and file", "Running in parallel with litmus:acceptance:parallel", "litmus:tear_down and cleaning containers", "Running Litmus in GitHub Actions or GitLab CI", "Debugging failing acceptance runs"],
+          "tools": ["Litmus", "PDK", "Docker", "Serverspec", "Bolt"],
+          "lab_task": "For acme-chrony define a provision.yaml list with two Docker images (one RHEL-family, one Debian-family). Run pdk bundle exec rake 'litmus:provision_list[default]', litmus:install_agent, litmus:install_module, then litmus:acceptance:parallel with a spec that uses idempotent_apply and checks the service is running and UDP port 123 is listening. Record run time, then run litmus:tear_down.",
+          "deliverable": "provision.yaml, acceptance spec and Litmus output for both platforms",
+          "checks": [["Run litmus:acceptance:parallel", "Both platforms report 0 failures", "Rake output"], ["Make the manifest non-idempotent with an unguarded exec", "idempotent_apply fails on the second apply", "Rake output"], ["Run litmus:tear_down", "docker ps shows none of the Litmus containers", "docker ps output"]],
+          "objectives": ["Provision test targets with Litmus", "Prove idempotence on real systems", "Run acceptance tests in CI"]
+        },
+        {
+          "topic": "Control Repo Testing with Onceover and Catalog Diffs",
+          "subtopics": ["What Onceover tests: every role compiles with real Hiera data", "onceover init and spec/onceover.yaml", "Factsets and generating them from real nodes with puppet facts show", "classes, nodes and test_matrix entries", "Mocking functions and excluded resources", "onceover run spec and run acceptance", "Catalog diffs between branches with puppet-catalog-diff or the PE equivalent", "Detecting unintended changes before merge", "Speeding up runs with parallel execution and caching", "Wiring into CI as a required check"],
+          "tools": ["Onceover", "r10k", "rspec-puppet", "Git", "GitLab CI"],
+          "lab_task": "In the control repo run onceover init, export factsets from a RHEL and a Windows node with puppet facts show --render-as json, and define a test_matrix compiling every role class against both factsets. Run onceover run spec and record the count. Introduce a Hiera typo used by role::database, rerun, and record the failure message. Add the job to CI as a required check.",
+          "deliverable": "onceover.yaml, factsets, run output and CI job",
+          "checks": [["Run onceover run spec on a clean branch", "Every role compiles against each factset and the run reports 0 failures", "Onceover output"], ["Introduce a wrong type in role::database Hiera data", "The database role fails with a parameter type error for that factset", "Onceover output"], ["Open a merge request with the error", "The required CI check fails", "CI log"]],
+          "objectives": ["Compile every role against real facts", "Catch data errors before deployment", "Gate merges on catalog tests"]
+        },
+        {
+          "topic": "Custom Functions in the Puppet Language and Ruby API",
+          "subtopics": ["Puppet language functions in functions/*.pp", "Return types with >>", "Ruby functions in lib/puppet/functions with create_function", "dispatch, param, optional_param and return_type", "Multiple dispatches for overloading", "Raising errors with descriptive messages", "Functions run on the server during compile", "Testing functions with rspec-puppet is_expected.to run.with_params", "Avoiding the legacy 3.x function API", "Performance and pure-function design"],
+          "tools": ["Puppet language", "Ruby", "rspec-puppet", "PDK"],
+          "lab_task": "Write acme::cidr_hosts(Stdlib::IP::Address::V4::CIDR $cidr) >> Array[String] in Ruby using IPAddr, and acme::port_map(Hash $services) >> Hash[String, Integer] in the Puppet language. Use both in a profile. Write rspec-puppet function tests including run.with_params('10.0.0.0/30').and_return(['10.0.0.1','10.0.0.2']) and an invalid input that raises an error. Run pdk test unit.",
+          "deliverable": "Two functions, a profile using them and passing tests",
+          "checks": [["Run the test with params '10.0.0.0/30'", "Returns ['10.0.0.1', '10.0.0.2']", "Test output"], ["Call the Ruby function with 'not-a-cidr'", "Raises an error that the parameter expects a CIDR string", "Test output"], ["Call acme::port_map with a non-integer port value", "The return type check fails and compilation stops", "Test output"]],
+          "objectives": ["Write Puppet language and Ruby functions", "Type function inputs and outputs", "Unit test functions"]
+        },
+        {
+          "topic": "Custom Types and Providers with the Resource API",
+          "subtopics": ["When a custom type is needed instead of exec or file_line", "Puppet::ResourceApi.register_type and attribute definitions", "Behaviours: namevar, read_only, parameter and init_only", "SimpleProvider get, create, update and delete", "canonicalize and simple_get_filter features", "Noop support and change reporting", "Ensuring puppet resource works with your type", "Unit testing types and providers", "Shipping with pluginsync and puppet generate types", "Device and remote targets in brief"],
+          "tools": ["Resource API", "Ruby", "PDK", "rspec-puppet", "puppet resource"],
+          "lab_task": "Use pdk new provider acme_kv to scaffold a Resource API type managing key=value lines in /etc/acme.conf with attributes name (namevar), value and ensure. Implement get, create, update and delete in a SimpleProvider. Run puppet resource acme_kv to list existing keys, then apply a manifest declaring three keys. Run it again for zero changes and then with --noop after a manual edit.",
+          "deliverable": "Type and provider code, unit tests and puppet resource output",
+          "checks": [["Run puppet resource acme_kv on a file with two lines", "Two acme_kv resources are printed with their values", "Terminal output"], ["Apply the manifest a second time", "No resources change", "Agent output"], ["Edit a value by hand and run with --noop", "The change is reported as (noop) with the current and desired values", "Agent output"]],
+          "objectives": ["Write a type with the Resource API", "Implement an idempotent provider", "Support inspection with puppet resource"]
+        },
+        {
+          "topic": "Deferred Functions and Agent-Side Secret Lookup",
+          "subtopics": ["Server-side versus agent-side evaluation", "Deferred('function', [args]) objects in catalogs", "preprocess_deferred and when values resolve", "Vault lookups with a Forge vault_lookup module", "Agent certificates as Vault auth", "Combining Deferred with Sensitive", "Using Deferred values in templates with inline_epp", "Catalog caching and stale secret risks", "Failure behaviour when the secret store is down", "Writing your own deferred function"],
+          "tools": ["Puppet agent", "HashiCorp Vault", "vault_lookup", "Sensitive"],
+          "lab_task": "Run a dev Vault with the cert auth method trusting the Puppet CA. Store secret/data/db password. In a profile use Deferred('vault_lookup::lookup', ['secret/data/db', ...]) wrapped in a Sensitive value to write a config file with Deferred('inline_epp', ...). Run puppet agent -t, then inspect the cached catalog JSON and confirm the password is not stored. Stop Vault and record the run behaviour.",
+          "deliverable": "Profile code, Vault policy and evidence the secret is absent from the catalog",
+          "checks": [["grep the cached catalog file for the password", "No match; the catalog holds a Deferred object", "grep output"], ["Run puppet agent -t with Vault running", "The config file contains the secret and the diff shows the value redacted", "Agent output and file check"], ["Stop Vault and run the agent", "The run fails with a lookup error before applying the affected resource", "Agent output"]],
+          "objectives": ["Resolve values on the agent with Deferred", "Keep secrets out of compiled catalogs", "Plan for secret store outages"]
+        },
+        {
+          "topic": "Puppet Server JRuby Tuning and Metrics",
+          "subtopics": ["Request flow: Jetty threads, JRuby pool and the compile", "max-active-instances and its link to CPU cores", "JVM heap sizing per JRuby instance", "max-requests-per-instance and memory leaks", "borrow-timeout and 503 responses", "Metrics at /status/v1/services?level=debug", "jruby-metrics: average-borrow-time, average-wait-time and requested-count", "Graphite or Prometheus exporters for metrics", "Environment caching and its effect on compile time", "Profiling slow catalogs with the server profiler"],
+          "tools": ["Puppet Server", "curl", "jq", "Grafana", "Prometheus"],
+          "lab_task": "Measure a baseline: run 40 agents concurrently with puppet agent -t --splay off and record average-wait-time and average-borrow-time from /status/v1/services/jruby-metrics?level=debug. Raise max-active-instances from 2 to 4 with heap from 2 GB to 4 GB, restart and repeat. Then set environment_timeout = unlimited and repeat again. Tabulate wait time and mean compile time for all three runs.",
+          "deliverable": "Tuning table with three runs and the puppetserver.conf and JVM settings used",
+          "checks": [["Query jruby-metrics under load with 2 instances", "average-wait-time is above zero, showing requests queued for a JRuby", "JSON excerpt"], ["Repeat with 4 instances and more heap", "average-wait-time is lower than the baseline", "Tuning table"], ["Set max-active-instances higher than the heap supports", "The server logs OutOfMemoryError or GC pressure warnings", "puppetserver.log excerpt"]],
+          "objectives": ["Size JRuby pools and heap", "Read Puppet Server metrics", "Measure tuning changes against a baseline"]
+        },
+        {
+          "topic": "Scaling Puppet with Compilers Behind a Load Balancer",
+          "subtopics": ["Primary server, compilers and the CA role", "Capacity estimate: JRubies times run interval divided by mean request time", "Compiler certificates with dns_alt_names for the load balancer name", "Routing CA traffic to the primary with ca_server", "HAProxy or another TCP load balancer on 8140", "Health checks on /status/v1/simple", "server_list for agent failover", "PuppetDB connections from each compiler", "Code sync to compilers with File Sync or r10k", "Adding compilers in PE with puppet infrastructure commands"],
+          "tools": ["Puppet Server", "HAProxy", "PuppetDB", "r10k", "Puppet Enterprise"],
+          "lab_task": "Build two compilers with certificates issued with dns_alt_names=puppet.lab.local, compiler1.lab.local. Route agents through HAProxy on 8140 with health checks against /status/v1/simple, set ca_server to the primary, and deploy identical code to both compilers. Run 60 agents, count requests per compiler from the access logs, stop one compiler mid-run and confirm agents still get catalogs.",
+          "deliverable": "Compiler configs, HAProxy config, request distribution and failover evidence",
+          "checks": [["Count catalog requests per compiler in the access logs", "Each compiler handles roughly half of the 60 requests", "Log counts"], ["Stop one compiler and run agents", "Runs succeed through the other compiler and HAProxy marks the stopped one DOWN", "HAProxy stats and agent output"], ["Connect to a compiler without the load balancer name in its certificate", "The agent fails with a hostname mismatch certificate error", "Agent output"]],
+          "objectives": ["Estimate compile capacity", "Add compilers behind a load balancer", "Fail over agents between compilers"]
+        },
+        {
+          "topic": "Certificate Authority Operations: Revocation, CRL and Renewal",
+          "subtopics": ["CA directory layout in /etc/puppetlabs/puppetserver/ca", "puppetserver ca revoke and the CRL", "certificate_revocation setting: chain, leaf and false", "CRL distribution to agents and compilers", "Agent certificate renewal with hostcert_renewal_interval", "CA certificate expiry and the puppetlabs-ca_extend module", "Regenerating compiler certificates with new alt names", "puppetserver ca generate for infrastructure certs", "Backing up the CA directory and keys", "Decommissioning nodes: revoke, clean and purge from PuppetDB"],
+          "tools": ["puppetserver ca", "openssl", "Puppet Server", "PuppetDB"],
+          "lab_task": "Revoke a lab agent with puppetserver ca revoke --certname and confirm with openssl crl -in ca_crl.pem -noout -text that its serial is listed. Run puppet agent -t on that node and record the failure. Check the CA certificate expiry with openssl x509 -enddate and the agent cert expiry, then regenerate a compiler cert with an extra alt name using puppetserver ca generate and confirm it in the SAN list.",
+          "deliverable": "CRL output, failed run from the revoked node, expiry report and new compiler cert SANs",
+          "checks": [["Inspect the CRL after revocation", "The revoked certificate serial number is listed", "openssl crl output"], ["Run puppet agent -t on the revoked node", "The connection fails with certificate revoked", "Agent output"], ["Inspect the regenerated compiler cert with openssl x509 -text", "Subject Alternative Name contains the new DNS name", "openssl output"]],
+          "objectives": ["Revoke and clean certificates", "Plan CA and agent certificate renewal", "Reissue infrastructure certificates"]
+        },
+        {
+          "topic": "External and Intermediate CA Integration for Puppet",
+          "subtopics": ["Why organisations require an enterprise PKI", "Puppet as an intermediate CA signed by an external root", "puppetserver ca import with --cert-bundle, --private-key and --crl-chain", "Chain validation and certificate_revocation = chain", "Distributing the root to agents with localcacert", "Fully external CA mode and disabling the built-in CA", "CRL refresh and expiry across the chain", "Effects on autosigning and trusted extensions", "Migration risks for existing agents", "Testing chains with openssl verify"],
+          "tools": ["puppetserver ca", "openssl", "Puppet Server", "Puppet agent"],
+          "lab_task": "Create a lab root CA with openssl and issue an intermediate for Puppet. On a fresh primary run puppetserver ca import --cert-bundle bundle.pem --crl-chain crls.pem --private-key int.key. Bootstrap an agent and run openssl verify -CAfile bundle.pem on its certificate. Let the root CRL expire or remove it from the chain and record how agents behave with certificate_revocation = chain.",
+          "deliverable": "Import log, chain verification output and the CRL failure observation",
+          "checks": [["Run openssl verify -CAfile bundle.pem on a newly signed agent cert", "Prints OK", "Terminal output"], ["Run puppet agent -t on the new agent", "The run succeeds with the imported chain", "Agent output"], ["Remove the root CRL from the chain and restart the server", "Agents fail with a CRL-related verification error", "Agent output"]],
+          "objectives": ["Run Puppet as an intermediate CA", "Validate certificate chains", "Understand CRL requirements across a chain"]
+        },
+        {
+          "topic": "PuppetDB Performance, Retention TTLs and Garbage Collection",
+          "subtopics": ["Command queue and command processing threads", "queue_depth in the status endpoint and alert thresholds", "node-ttl, node-purge-ttl and report-ttl", "gc-interval and database maintenance", "PostgreSQL tuning: shared_buffers, work_mem and autovacuum", "Disk growth from reports and resource events", "Read-only replicas and query routing", "Slow PQL queries and indexes", "puppet node purge and deactivate in PE", "Backup and restore with pg_dump"],
+          "tools": ["PuppetDB", "PostgreSQL", "curl", "jq", "pg_stat_statements"],
+          "lab_task": "Record the PostgreSQL database size with SELECT pg_size_pretty(pg_database_size('puppetdb')) and the report count. Set report-ttl = 7d, node-ttl = 7d and node-purge-ttl = 14d in the [database] section, restart and wait for garbage collection. Record size and report count again. Then run 100 agents at once and sample queue_depth every 5 s until it returns to 0, noting peak and drain time.",
+          "deliverable": "Config changes, before and after size table, and queue depth graph or table",
+          "checks": [["Query the report count after GC with report-ttl = 7d", "No reports older than 7 days remain", "PQL or SQL output"], ["Sample queue_depth during a 100-agent burst", "The value rises and returns to 0, with peak and drain time recorded", "Sample table"], ["Deactivate a node and wait beyond node-purge-ttl", "The node no longer appears in /pdb/query/v4/nodes even with deactivated filters", "Query output"]],
+          "objectives": ["Control PuppetDB growth with TTLs", "Monitor command processing", "Tune the PostgreSQL backend"]
+        },
+        {
+          "topic": "PE Orchestrator Jobs and Run Concurrency with puppet job",
+          "subtopics": ["Orchestrator, PXP agents and the broker", "puppet job run with --nodes, --query and --node-group", "--noop and --no-enforce-environment", "--concurrency and the global concurrent compile limit", "puppet job show and job reports", "puppet task run and puppet plan run in PE", "RBAC permissions for jobs and tasks", "Orchestrator APIs for external tools", "Running Bolt over the PCP transport", "Choosing orchestrator runs over agent intervals"],
+          "tools": ["Puppet Enterprise", "puppet job", "puppet task", "Bolt", "PuppetDB"],
+          "lab_task": "On PE, run puppet job run --query 'inventory[certname] { trusted.extensions.pp_role = \"webserver\" }' --noop --concurrency 5 and record the job ID and noop changes. Then run it in enforcement mode. Use puppet job show <id> for per-node results. Run puppet task run package action=status name=nginx --nodes web01,web02. Repeat the job as a user without run permissions and record the RBAC error.",
+          "deliverable": "Job IDs, job show output, task results and the RBAC failure",
+          "checks": [["Run the noop job against webserver nodes", "The job finishes and lists nodes with noop pending changes", "puppet job show output"], ["Run the job in enforcement mode", "Each node reports changed or unchanged with no failures", "puppet job show output"], ["Run puppet job run as a user without permission", "The command fails with a permission or RBAC denied error", "Terminal output"]],
+          "objectives": ["Run targeted Puppet jobs from the orchestrator", "Control run concurrency", "Restrict job permissions with RBAC"]
+        },
+        {
+          "topic": "Rolling Service Restarts with Bolt Plans and Error Handling",
+          "subtopics": ["Batching targets with slice", "Draining from a load balancer before restart", "Health checks with run_command and wait_until_available", "Stopping the rollout with fail_plan on threshold breach", "catch_errors blocks and returning ResultSet data", "Idempotent plan steps and safe reruns", "Plan logging and audit records", "Running the plan from PE or Bolt", "Testing plans with BoltSpec stubs", "Rollback steps"],
+          "tools": ["Bolt", "BoltSpec", "HAProxy", "curl", "Puppet Enterprise"],
+          "lab_task": "Write plan acme::rolling_restart(TargetSpec $targets, Integer $batch = 2, Integer $max_failures = 1) that slices targets into batches, disables each node in HAProxy via run_command on the LB, restarts the service, checks curl -fsS localhost/health, re-enables the node, and calls fail_plan when failures exceed $max_failures. Test with 6 nodes, break one health check and record where the rollout stops.",
+          "deliverable": "Plan code, BoltSpec tests and run output with the stopped rollout",
+          "checks": [["Run the plan on 6 healthy nodes", "Three batches complete and all nodes are re-enabled", "Plan output and HAProxy stats"], ["Break health on two nodes in the second batch", "The plan stops with fail_plan before the third batch", "Plan output"], ["Run BoltSpec tests with stubbed commands", "The tests pass, including one for the failure threshold", "rspec output"]],
+          "objectives": ["Write safe rolling change plans", "Stop rollouts on failure thresholds", "Test plans without real targets"]
+        },
+        {
+          "topic": "Code Promotion Pipelines from Feature Branch to Production",
+          "subtopics": ["Branching model: feature branches to production with optional staging", "Pipeline stages: lint, unit, Onceover, deploy to a test environment, noop impact, merge", "Deploying a feature environment with r10k or Code Manager", "Noop impact runs with puppet job run --noop --environment", "Counting impacted nodes from noop reports in PuppetDB", "Approval gates and protected branches", "Puppetfile updates through automated pull requests", "Deploying after merge and verifying convergence", "Rollback by reverting and redeploying", "PE Continuous Delivery tools as an option"],
+          "tools": ["GitLab CI", "r10k", "Onceover", "PuppetDB", "Puppet agent"],
+          "lab_task": "Build a pipeline that on merge request runs pdk validate, unit tests and Onceover, deploys the branch with r10k deploy environment <branch> --modules, runs puppet agent -t --noop --environment <branch> on a canary group, and posts the count of nodes with noop changes from PQL. On merge it deploys production. Make a change that touches 3 of 10 nodes and confirm the count is 3.",
+          "deliverable": "Pipeline definition and a run log with the impact count",
+          "checks": [["Open a merge request that changes one profile", "The pipeline reports 3 impacted nodes of 10", "Pipeline log"], ["Revert the merge commit and redeploy", "Agents converge back to the previous state", "Deploy log and agent output"], ["Push a change that fails Onceover", "The pipeline stops before the deploy stage", "Pipeline log"]],
+          "objectives": ["Automate promotion of Puppet code", "Measure change impact before merging", "Roll back with Git"]
+        },
+        {
+          "topic": "Environment Isolation, generate types and Environment Caching",
+          "subtopics": ["Type leakage between environments and why it happens", "puppet generate types --environment and .resource_types", "Running generate types after every deploy", "environment_timeout = unlimited in production", "Flushing with DELETE /puppet-admin-api/v1/environment-cache", "auth for the admin API with an allowed certificate", "Module version skew between environments", "Per-environment Ruby gem conflicts", "Code ID and static catalogs", "Measuring cache hit effects on compile time"],
+          "tools": ["Puppet Server", "puppet generate", "r10k", "curl"],
+          "lab_task": "Deploy two environments with different versions of a module whose custom type adds an attribute in the newer version. Compile for nodes in both and record the type error in the older environment. Run puppet generate types --environment for each and recompile. Then set environment_timeout = unlimited, deploy a change, confirm it is not used, and flush with curl -X DELETE to the environment-cache endpoint.",
+          "deliverable": "Error before and after generate types, cache flush command and compile results",
+          "checks": [["Compile the old environment before generate types", "The run fails with an invalid parameter error from the leaked type", "Agent output"], ["Compile after puppet generate types for both environments", "Both environments compile with their own type versions", "Agent output"], ["Call the environment-cache DELETE endpoint", "Returns HTTP 204 and the next compile uses the new code", "curl output and agent output"]],
+          "objectives": ["Isolate custom types between environments", "Cache environments safely", "Flush caches after deploys"]
+        },
+        {
+          "topic": "Puppet Server Security Hardening: RBAC, Tokens and auth.conf",
+          "subtopics": ["auth.conf HOCON rules in /etc/puppetlabs/puppetserver/conf.d", "Restricting catalog requests to the matching certname", "Protecting the CA API and the pp_cli_auth extension", "Disabling naive autosigning", "Admin API allow-lists", "PE RBAC roles, token lifetime and puppet access", "TLS protocol and cipher settings", "Least-privilege accounts for r10k and Code Manager deploy keys", "Protecting eyaml and Vault credentials on servers", "Audit logs for console and API actions"],
+          "tools": ["Puppet Server", "Puppet Enterprise", "puppet access", "openssl", "curl"],
+          "lab_task": "Review auth.conf and confirm the catalog rule allows only $1 matching the requesting certname. Use agent A's certificate with curl to request /puppet/v3/catalog/agentB and record the response. Try the CA certificate_status endpoint with an agent cert and record the denial. Set TLS to 1.2 and 1.3 only in webserver.conf and test with openssl s_client -tls1_1. Shorten PE token lifetime to 1 h.",
+          "deliverable": "auth.conf review notes, curl and openssl results and RBAC settings",
+          "checks": [["Request agent B's catalog with agent A's certificate", "HTTP 403 Forbidden is returned", "curl output"], ["Call /puppet-ca/v1/certificate_statuses with an ordinary agent cert", "HTTP 403 is returned", "curl output"], ["Connect with openssl s_client -tls1_1 to port 8140", "The handshake fails with a protocol version alert", "openssl output"]],
+          "objectives": ["Restrict Puppet Server APIs with auth.conf", "Protect CA operations", "Harden TLS and access tokens"]
+        },
+        {
+          "topic": "Compliance Baselines and Drift Reporting with Puppet",
+          "subtopics": ["Turning a CIS-style benchmark into profile code", "Managing sshd_config, sysctl and auditd settings", "Using noop metaparameter on a class for report-only controls", "Corrective versus intentional changes in reports", "Querying events with corrective_change = true", "Exceptions through Hiera with documented reasons", "Evidence for auditors from PuppetDB and reports", "Windows baselines with registry and security policy resources", "PE compliance products as an option", "Avoiding breaking changes with staged enforcement"],
+          "tools": ["Puppet agent", "PuppetDB", "Hiera", "puppetlabs-augeas_core", "puppetlabs-registry"],
+          "lab_task": "Write profile::baseline with 10 controls (sshd PermitRootLogin no, sysctl net.ipv4.ip_forward 0, auditd running and more). Apply three controls in noop mode via Hiera. On 5 nodes make manual drift on two controls and run agents. Query PuppetDB for events where corrective_change = true, and for noop pending events, and produce a per-control compliance table.",
+          "deliverable": "Baseline profile, Hiera exceptions and a compliance table from PuppetDB",
+          "checks": [["Query events with corrective_change = true after drift", "Two controls per drifted node are listed", "PQL output"], ["Query noop events for the report-only controls", "Three controls appear with status noop", "PQL output"], ["Run agents again after correction", "No corrective changes are reported", "PQL output"]],
+          "objectives": ["Encode a security baseline as code", "Separate enforced and report-only controls", "Report drift from PuppetDB"]
+        },
+        {
+          "topic": "Managing Windows Nodes with Puppet: Registry, DSC and Chocolatey",
+          "subtopics": ["Windows agent install and service account", "File paths, ACLs and line endings", "registry_key and registry_value from puppetlabs-registry", "Chocolatey as a package provider", "DSC resources through dsc_lite or generated DSC modules", "Windows services, features and reboots", "The reboot resource from puppetlabs-reboot", "Facts for Windows: os.windows and identity", "Testing Windows code with rspec-puppet-facts", "Running Puppet from an elevated prompt"],
+          "tools": ["Puppet agent", "puppetlabs-registry", "puppetlabs-chocolatey", "puppetlabs-dsc_lite", "PowerShell"],
+          "lab_task": "On a Windows Server VM, write profile::windows_base that sets a registry value under HKLM\\SOFTWARE\\Acme, installs 7zip with provider => 'chocolatey', ensures the Web-Server feature with a DSC WindowsFeature resource, and schedules a reboot when the feature needs one. Run puppet agent -t twice and record that the second run makes no changes.",
+          "deliverable": "Profile code, run outputs and registry and feature evidence",
+          "checks": [["Run Get-ItemProperty on HKLM:\\SOFTWARE\\Acme", "The managed value is present", "PowerShell output"], ["Run Get-WindowsFeature Web-Server", "Install State is Installed", "PowerShell output"], ["Run puppet agent -t a second time", "No resources change and exit code is 0", "Agent output"]],
+          "objectives": ["Manage Windows registry, packages and features", "Use DSC resources from Puppet", "Handle reboots safely"]
+        },
+        {
+          "topic": "Upgrading to Puppet 8 and Migrating to OpenVox",
+          "subtopics": ["Puppet 8 changes: strict mode, strict_variables and legacy facts", "Ruby version changes and gem compatibility", "Finding legacy fact use with puppet-lint plugins", "Updating Forge modules for Puppet 8 support", "Upgrade order: PuppetDB, servers, compilers, agents", "Agent upgrades with the puppet_agent module", "OpenVox packages and repositories from Vox Pupuli", "Compatibility between OpenVox and Puppet agents and servers", "Licensing and package source changes for Puppet Core", "Rollback plans and canary groups"],
+          "tools": ["Puppet agent", "OpenVox", "puppet-lint", "puppetlabs-puppet_agent", "Onceover"],
+          "lab_task": "Run puppet-lint with a legacy facts check across site-modules and count findings. Fix them, run Onceover against Puppet 8, then upgrade a canary group of 5 agents with the puppet_agent module. On a separate lab primary, replace Puppet Server packages with OpenVox server packages, keep the CA directory, and confirm existing agents run without re-signing. Record versions and failures.",
+          "deliverable": "Findings count before and after, upgrade log and OpenVox migration notes",
+          "checks": [["Run puppet-lint with the legacy facts check", "Findings drop to 0 after the fixes", "Lint output"], ["Run puppet --version on a canary agent", "Reports an 8.x version", "Terminal output"], ["Run an existing agent against the OpenVox primary", "The run succeeds with the original certificate", "Agent output"]],
+          "objectives": ["Prepare code for Puppet 8", "Upgrade servers and agents in order", "Migrate a primary to OpenVox packages"]
+        },
+        {
+          "topic": "Troubleshooting Catalog Compilation Failures and Slow Runs",
+          "subtopics": ["Reading Evaluation Error messages with file and line", "Could not find class, duplicate declaration and type mismatch errors", "Server errors: Error 500 and JRuby borrow timeouts", "puppet agent -t --debug --trace and --evaltrace", "Slow resources found with evaltrace timings", "Slow compiles from large Hiera hierarchies or PuppetDB queries", "Facts that take seconds and facter --timing", "Certificate and clock skew errors", "Stale lock files and agent_catalog_run.lock", "A repeatable triage checklist"],
+          "tools": ["Puppet agent", "Puppet Server", "Facter", "puppetserver.log", "PuppetDB"],
+          "lab_task": "Diagnose four prepared faults: a missing class, a duplicate file resource from two profiles, an agent with 10 minutes of clock skew, and a slow exec. For each capture the error from puppet agent -t --trace or --evaltrace, the matching puppetserver.log line, and the fix. Record the run time of the slow node before and after the fix.",
+          "deliverable": "Triage report for four faults with evidence and before and after run times",
+          "checks": [["Run the agent with two profiles declaring File['/etc/app.conf']", "Error: Duplicate declaration naming both file and line locations", "Agent output"], ["Run the agent with 10 minutes of clock skew", "The run fails with a certificate not yet valid or similar TLS error", "Agent output"], ["Run with --evaltrace on the slow node after the fix", "Total run time is lower than before the fix", "Timing table"]],
+          "objectives": ["Diagnose compile and run errors", "Find slow resources and facts", "Apply a repeatable triage checklist"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Compiler Puppet Platform with Tested Code Pipeline",
+          "subtopics": ["Primary, two compilers, load balancer and PuppetDB design", "Capacity estimate and JRuby sizing from measured metrics", "Gated pipeline with lint, unit, Onceover, Litmus and noop impact", "Deferred secrets and hardened auth.conf", "Compliance reporting and a rolling restart plan", "Failure drills: compiler loss, PuppetDB outage and certificate revocation"],
+          "tools": ["Puppet Server", "PuppetDB", "HAProxy", "Onceover", "Litmus", "Bolt"],
+          "lab_task": "Build a platform with a primary CA, two compilers behind HAProxy and PuppetDB for 50 agents. Size JRubies from a load test, deploy code through the gated pipeline, use Deferred Vault secrets, and publish a PuppetDB compliance report. Run three drills: stop a compiler, stop PuppetDB for 5 minutes and revoke a node. Show every agent converges with exit code 0 at the end.",
+          "deliverable": "Architecture document, configs, pipeline, load test and drill report",
+          "checks": [["Stop one compiler during a 50-agent run", "All agents still receive catalogs", "Agent outputs and HAProxy stats"], ["Stop PuppetDB for 5 minutes and restart it", "Queued commands drain and queue_depth returns to 0", "Status endpoint samples"], ["Run all agents after the drills", "Every agent except the revoked node exits 0", "Run summary table"]],
+          "objectives": ["Design and size a scaled Puppet platform", "Operate it through failure drills", "Deliver tested code through a gated pipeline"]
+        }
+      ]
+    }
+  }
+}

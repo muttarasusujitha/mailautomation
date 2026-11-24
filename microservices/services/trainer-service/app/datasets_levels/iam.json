@@ -1,0 +1,573 @@
+{
+  "domain": "IAM",
+  "name": "Identity and Access Management",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["IAM Training", "Identity Management", "Access Management", "Identity Governance", "Identity Governance and Administration", "IGA", "Privileged Access Management", "Single Sign-On", "SSO", "Multi-Factor Authentication", "Okta", "Microsoft Entra ID", "Microsoft Entra", "Entra ID", "Ping Identity", "SailPoint", "CyberArk", "Identity Security", "Passkeys", "SC-300"],
+  "certifications": ["Microsoft Certified: Identity and Access Administrator Associate (SC-300)", "Okta Certified Professional and Administrator", "IDPro Certified Identity Professional (CIDPRO)", "SailPoint and CyberArk product certifications"],
+  "tools": ["Microsoft Entra ID", "Okta", "Active Directory", "SAML and OIDC test apps", "SCIM", "SailPoint", "CyberArk", "Keycloak"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For IT administrators, security analysts and developers who are starting with identity and access management. Covers identities, authentication and authorisation, lab tenants in Entra ID and Okta, MFA and passkeys, directories, SAML single sign-on, OAuth 2.0 and OpenID Connect, access control models, joiner-mover-leaver processes, SCIM provisioning, Conditional Access, Entra ID and Okta administration, privileged access, identity governance, customer identity, cloud IAM roles, machine identities, identity monitoring and sign-in troubleshooting.",
+      "prerequisites": ["Comfortable with Windows or Linux administration basics", "Knows what users, groups and permissions are", "Has used a web browser's developer tools or is willing to learn"],
+      "outcomes": ["Explain authentication, authorisation and the identity lifecycle", "Set up SSO with SAML and OIDC, MFA, passkeys and SCIM provisioning in Entra ID and Okta", "Apply least privilege with RBAC, Conditional Access, privileged access and access reviews", "Monitor identity activity and troubleshoot sign-in problems"],
+      "days": [
+        {
+          "topic": "IAM Overview: Identities, Authentication, Authorisation and Lifecycle",
+          "subtopics": ["What an identity is: people, devices, services and agents", "Authentication and authorisation", "Identity providers and service providers", "Directories and sources of truth", "The identity lifecycle", "Access management, governance and privileged access", "Identity as the new security perimeter", "Common identity attacks", "Certifications such as SC-300 and CIDPRO", "Course project overview: identity for a 2,000-person company"],
+          "tools": ["Course company profile", "Identity reference architecture", "Microsoft Entra ID"],
+          "lab_task": "Map the identities, applications and access needs of the course company, mark the sources of truth and list its top five identity risks.",
+          "deliverable": "Identity map with risks",
+          "checks": [["Map", "Identities and applications are listed with owners", "Identity map"], ["Source", "Each identity type has a source of truth", "Source list"], ["Rank", "Five identity risks are ranked with reasons", "Risk list"]],
+          "objectives": ["Explain IAM concepts", "Map identities and access", "Identify identity risks"]
+        },
+        {
+          "topic": "Lab Setup: Entra ID and Okta Developer Tenants, Test Users and Apps",
+          "subtopics": ["Creating a Microsoft Entra ID test tenant", "Creating an Okta Integrator or developer org", "Test users and groups", "Admin accounts and break-glass accounts", "Sample SAML and OIDC applications", "Browser tools for tracing sign-ins", "Lab safety: no production data", "Naming conventions for the lab", "Licences needed for features", "Checking the lab is ready"],
+          "tools": ["Microsoft Entra ID", "Okta", "Sample applications", "Browser developer tools"],
+          "lab_task": "Create an Entra ID tenant and an Okta org, add test users and groups, create break-glass admin accounts and register two sample applications.",
+          "deliverable": "Ready lab tenants with users and apps",
+          "checks": [["Create", "Both tenants have test users and groups", "User lists"], ["Protect", "Break-glass accounts exist and are excluded from risky policies", "Account settings"], ["Register", "Sample applications are registered", "App lists"]],
+          "objectives": ["Prepare identity lab tenants", "Create test identities", "Protect admin access"]
+        },
+        {
+          "topic": "Authentication Methods: Passwords, MFA, Passkeys and FIDO2",
+          "subtopics": ["Password policies and their limits", "Multi-factor authentication methods", "Phishing-resistant MFA", "Passkeys and FIDO2 security keys", "Authenticator apps and push fatigue", "Number matching", "Self-service password reset", "Choosing methods by user group"],
+          "tools": ["Microsoft Entra ID", "Okta Verify", "FIDO2 security key or passkey"],
+          "lab_task": "Turn on phishing-resistant MFA for admins and passkeys for staff, enable self-service password reset and test sign-in with each method.",
+          "deliverable": "Authentication method policy with tests",
+          "checks": [["Enforce", "Admins must use phishing-resistant methods", "Sign-in logs"], ["Register", "Users register passkeys", "Registration report"], ["Reset", "Self-service reset works", "Reset log"]],
+          "objectives": ["Configure strong authentication", "Roll out passkeys", "Enable self-service reset"]
+        },
+        {
+          "topic": "Directories: Active Directory, Entra ID, LDAP and Cloud Directories",
+          "subtopics": ["Active Directory domains, forests and organisational units", "Groups in Active Directory", "LDAP basics", "Microsoft Entra ID as a cloud directory", "Hybrid identity with sync", "Okta Universal Directory", "Directory attributes and schemas", "Choosing a source of truth"],
+          "tools": ["Active Directory", "Microsoft Entra ID", "Okta Universal Directory"],
+          "lab_task": "Build a small Active Directory with organisational units and groups, sync it to Entra ID, and map attributes into Okta Universal Directory.",
+          "deliverable": "Synced directories with attribute mapping",
+          "checks": [["Build", "Users and groups exist in Active Directory", "Directory view"], ["Sync", "Users appear in Entra ID with correct attributes", "Sync report"], ["Map", "Okta attributes match the mapping", "Profile view"]],
+          "objectives": ["Explain directory services", "Sync identities", "Map attributes"]
+        },
+        {
+          "topic": "Single Sign-On with SAML 2.0",
+          "subtopics": ["How SAML works", "Identity provider and service provider roles", "Assertions, attributes and signatures", "SP-initiated and IdP-initiated flows", "Certificates and rollover", "Attribute mapping", "Tracing SAML in the browser", "Common SAML errors"],
+          "tools": ["Microsoft Entra ID", "Okta", "SAML tracer"],
+          "lab_task": "Connect a sample application to Entra ID and to Okta with SAML, map attributes, trace an assertion and fix a seeded certificate error.",
+          "deliverable": "Working SAML SSO with a trace",
+          "checks": [["Connect", "Users sign in through each identity provider", "Sign-in test"], ["Map", "The application receives the right attributes", "Assertion trace"], ["Fix", "The certificate error is fixed", "Sign-in test after fix"]],
+          "objectives": ["Configure SAML SSO", "Read SAML assertions", "Fix SAML problems"]
+        },
+        {
+          "topic": "OAuth 2.0 and OpenID Connect for Applications",
+          "subtopics": ["OAuth 2.0 roles", "Authorisation code flow with PKCE", "Client credentials flow", "ID tokens, access tokens and refresh tokens", "Scopes and consent", "OpenID Connect discovery", "Token validation", "OAuth 2.1 changes"],
+          "tools": ["Microsoft Entra ID", "Okta", "jwt.io or a token viewer", "Sample OIDC app"],
+          "lab_task": "Register an OIDC web app with authorisation code and PKCE, a service with client credentials, inspect the tokens and validate them in code.",
+          "deliverable": "OIDC and OAuth integrations with token checks",
+          "checks": [["Sign in", "Users sign in to the web app with OIDC", "Sign-in test"], ["Call", "The service gets a token with client credentials", "Token response"], ["Validate", "Tokens are validated for issuer, audience and expiry", "Validation output"]],
+          "objectives": ["Use OAuth 2.0 and OIDC", "Pick the right flow", "Validate tokens"]
+        },
+        {
+          "topic": "Access Control Models: RBAC, ABAC and Least Privilege",
+          "subtopics": ["Role-based access control", "Attribute-based access control", "Least privilege", "Groups compared with roles", "Entitlements and permissions", "Role explosion", "Access requests", "Designing roles for the course company"],
+          "tools": ["Microsoft Entra ID", "Okta", "Role design worksheet"],
+          "lab_task": "Design roles for three departments, assign app access through groups, add one attribute-based rule and check that nobody has more access than needed.",
+          "deliverable": "Role design with assignments",
+          "checks": [["Design", "Roles match department needs", "Role design"], ["Assign", "Access flows through groups and roles", "Assignment report"], ["Check", "No user has access beyond their role", "Access review"]],
+          "objectives": ["Apply RBAC and ABAC", "Design roles", "Enforce least privilege"]
+        },
+        {
+          "topic": "Identity Lifecycle: Joiner, Mover and Leaver Processes",
+          "subtopics": ["HR as the source of truth", "Joiner process", "Mover process and access changes", "Leaver process and access removal", "Contractors and guests", "Lifecycle workflows", "Orphaned accounts", "Measuring lifecycle speed"],
+          "tools": ["Microsoft Entra ID lifecycle workflows", "Okta Workflows", "HR test data"],
+          "lab_task": "Build joiner, mover and leaver workflows from HR test data, run each case and find orphaned accounts left from earlier leavers.",
+          "deliverable": "Lifecycle workflows with test runs",
+          "checks": [["Join", "A joiner gets access on day one", "Workflow run"], ["Move", "A mover loses old access and gains new", "Access before and after"], ["Leave", "A leaver loses all access the same day", "Workflow run"]],
+          "objectives": ["Automate the identity lifecycle", "Handle movers safely", "Remove leaver access fast"]
+        },
+        {
+          "topic": "User Provisioning with SCIM and HR-Driven Provisioning",
+          "subtopics": ["What SCIM is", "SCIM users and groups endpoints", "Provisioning from Entra ID and Okta to apps", "HR-driven provisioning", "Attribute mapping and transformations", "Deprovisioning behaviour", "Provisioning logs", "Common provisioning errors"],
+          "tools": ["SCIM", "Microsoft Entra ID provisioning", "Okta provisioning"],
+          "lab_task": "Provision users and groups to a SCIM test app from Entra ID and from Okta, change attributes, deprovision a user and read the logs.",
+          "deliverable": "Provisioning setup with logs",
+          "checks": [["Provision", "Users and groups appear in the app", "App user list"], ["Update", "Attribute changes flow to the app", "Provisioning log"], ["Remove", "The deprovisioned user is disabled in the app", "App user status"]],
+          "objectives": ["Provision with SCIM", "Map attributes", "Deprovision safely"]
+        },
+        {
+          "topic": "Conditional Access and Risk-Based Authentication",
+          "subtopics": ["Conditional Access policies", "Signals: user, device, location, app and risk", "Grant and session controls", "Report-only mode", "Okta authentication policies", "Risk-based sign-in", "Policy exclusions and break-glass accounts", "Testing policies with what-if tools"],
+          "tools": ["Microsoft Entra Conditional Access", "Okta authentication policies", "What If tool"],
+          "lab_task": "Create policies that require MFA off the corporate network, block legacy authentication and require compliant devices for admin portals, test them in report-only mode and enforce them.",
+          "deliverable": "Conditional Access policies with test results",
+          "checks": [["Test", "Report-only results show the expected impact", "Policy report"], ["Enforce", "Legacy authentication is blocked", "Sign-in logs"], ["Protect", "Break-glass accounts still work", "Sign-in test"]],
+          "objectives": ["Write Conditional Access policies", "Test policies safely", "Protect against lockouts"]
+        },
+        {
+          "topic": "Microsoft Entra ID Administration",
+          "subtopics": ["Users, groups and dynamic groups", "Enterprise applications and app registrations", "Administrative roles and units", "External identities and guest users", "Entitlement management basics", "Sign-in and audit logs", "Entra ID licences", "Microsoft Graph for administration"],
+          "tools": ["Microsoft Entra admin center", "Microsoft Graph PowerShell", "Audit logs"],
+          "lab_task": "Create dynamic groups, scope an admin to an administrative unit, invite a guest with an access package and run a Graph PowerShell report of app sign-ins.",
+          "deliverable": "Entra ID configuration with a Graph report",
+          "checks": [["Group", "Dynamic groups have the expected members", "Group members"], ["Scope", "The scoped admin manages only their unit", "Access test"], ["Report", "The Graph report lists app sign-ins", "Script output"]],
+          "objectives": ["Administer Entra ID", "Delegate administration", "Report with Microsoft Graph"]
+        },
+        {
+          "topic": "Okta Workforce Identity Administration",
+          "subtopics": ["Okta orgs and admin roles", "Universal Directory and profiles", "Application integrations", "Groups and group rules", "Authentication policies", "Okta Workflows", "System Log", "Okta Identity Governance basics"],
+          "tools": ["Okta Admin Console", "Okta Workflows", "System Log"],
+          "lab_task": "Configure group rules, an app integration with SSO and provisioning, an authentication policy and a workflow that notifies a manager when access is granted.",
+          "deliverable": "Okta configuration with a workflow",
+          "checks": [["Rule", "Group rules assign users correctly", "Group members"], ["Integrate", "The app uses SSO and provisioning", "App test"], ["Notify", "The workflow sends the manager notice", "Workflow history"]],
+          "objectives": ["Administer Okta", "Automate with Okta Workflows", "Read the System Log"]
+        },
+        {
+          "topic": "Privileged Access Management: Vaults, Sessions and Just-in-Time Access",
+          "subtopics": ["Privileged accounts and their risks", "Password vaulting and rotation", "Session isolation and recording", "Just-in-time access", "Privileged Identity Management in Entra ID", "Standing privilege and how to remove it", "Break-glass procedures", "Privileged access reviews"],
+          "tools": ["Microsoft Entra Privileged Identity Management", "CyberArk or another PAM tool", "Session recording"],
+          "lab_task": "Make an admin role eligible with approval in Privileged Identity Management, vault a server password with rotation and record a privileged session.",
+          "deliverable": "Privileged access controls with evidence",
+          "checks": [["Elevate", "Admin rights need activation and approval", "Activation log"], ["Rotate", "The vaulted password rotates after use", "Vault history"], ["Record", "The privileged session is recorded", "Session recording"]],
+          "objectives": ["Control privileged access", "Use just-in-time elevation", "Vault and rotate credentials"]
+        },
+        {
+          "topic": "Identity Governance: Access Reviews, Certifications and Separation of Duties",
+          "subtopics": ["Why governance matters", "Access reviews and certifications", "Reviewer choice", "Separation of duties", "Access request and approval workflows", "Entitlement catalogues", "Governance reports for auditors", "Automating remediation of removed access"],
+          "tools": ["Microsoft Entra ID Governance", "Okta Identity Governance", "Access review reports"],
+          "lab_task": "Run an access review of a finance app with managers as reviewers, remove denied access automatically and add a separation of duties rule for access requests.",
+          "deliverable": "Completed access review and SoD rule",
+          "checks": [["Review", "Managers complete the review", "Review results"], ["Remove", "Denied access is removed automatically", "Access before and after"], ["Prevent", "Conflicting access requests are blocked", "Request test"]],
+          "objectives": ["Run access reviews", "Enforce separation of duties", "Report for auditors"]
+        },
+        {
+          "topic": "Customer Identity (CIAM): Registration, Social Login and Consent",
+          "subtopics": ["Workforce and customer identity", "Self-registration and verification", "Social and passwordless login", "Consent and privacy", "Progressive profiling", "Branding and user experience", "Bot and fraud protection", "CIAM platforms"],
+          "tools": ["Microsoft Entra External ID or Okta Customer Identity", "Sample customer app"],
+          "lab_task": "Set up customer sign-up with email verification, social login and passkeys for a sample app, record consent and brand the login page.",
+          "deliverable": "Customer sign-in with consent records",
+          "checks": [["Register", "Customers sign up and verify email", "Sign-up test"], ["Log in", "Social login and passkeys work", "Login tests"], ["Consent", "Consent is recorded per customer", "Consent records"]],
+          "objectives": ["Build customer identity flows", "Collect consent", "Offer passwordless login"]
+        },
+        {
+          "topic": "Cloud IAM: Roles and Policies in AWS, Azure and Google Cloud",
+          "subtopics": ["Cloud IAM principals", "AWS IAM users, roles and policies", "Azure role-based access control", "Google Cloud IAM roles and bindings", "Federation from the workforce identity provider", "Least privilege in the cloud", "Policy analysis tools", "Common cloud IAM mistakes"],
+          "tools": ["AWS IAM Identity Center", "Azure RBAC", "Google Cloud IAM"],
+          "lab_task": "Federate one cloud account from Entra ID or Okta, assign least-privilege roles to two groups and use a policy analysis tool to find excessive permissions.",
+          "deliverable": "Federated cloud access with a permission review",
+          "checks": [["Federate", "Users sign in to the cloud with the corporate identity", "Sign-in test"], ["Assign", "Groups get least-privilege roles", "Role assignments"], ["Analyse", "Excessive permissions are found and removed", "Analysis report"]],
+          "objectives": ["Manage cloud IAM", "Federate cloud access", "Remove excessive permissions"]
+        },
+        {
+          "topic": "Service Accounts, API Keys and Machine Identities",
+          "subtopics": ["Human and machine identities", "Service accounts and their risks", "API keys and secrets", "Managed identities and workload identity", "Certificates as identities", "Inventory of machine identities", "Rotation and expiry", "Monitoring machine identity use"],
+          "tools": ["Microsoft Entra managed identities", "Secrets vault", "Certificate inventory"],
+          "lab_task": "Inventory machine identities in the lab, replace a hard-coded API key with a managed identity, rotate a secret and alert on expiring certificates.",
+          "deliverable": "Machine identity inventory and fixes",
+          "checks": [["Inventory", "Service accounts, keys and certificates are listed", "Inventory"], ["Replace", "The application uses a managed identity", "Configuration and test"], ["Alert", "Expiring certificates raise alerts", "Alert record"]],
+          "objectives": ["Manage machine identities", "Remove hard-coded secrets", "Rotate credentials"]
+        },
+        {
+          "topic": "Identity Logs, Monitoring and Identity Threats",
+          "subtopics": ["Sign-in and audit logs", "Risky sign-ins and users", "Password spray and MFA fatigue", "Token theft signs", "Sending identity logs to a SIEM", "Alerting on admin changes", "Investigation basics", "Retention of identity logs"],
+          "tools": ["Microsoft Entra ID Protection", "Okta System Log", "SIEM"],
+          "lab_task": "Send identity logs to a SIEM, detect a seeded password spray and MFA fatigue attack, and alert on a new global admin assignment.",
+          "deliverable": "Identity monitoring with detections",
+          "checks": [["Collect", "Identity logs arrive in the SIEM", "SIEM search"], ["Detect", "Both seeded attacks are detected", "Alerts"], ["Alert", "The admin assignment raises an alert", "Alert record"]],
+          "objectives": ["Monitor identity activity", "Detect identity attacks", "Alert on risky changes"]
+        },
+        {
+          "topic": "Troubleshooting Sign-In: SAML Traces, Token Errors and Conditional Access",
+          "subtopics": ["A method for sign-in problems", "Reading sign-in logs", "SAML trace analysis", "Token errors such as audience and signature mismatches", "Conditional Access blocks", "Clock skew", "Provisioning-related sign-in failures", "Writing a support runbook"],
+          "tools": ["Sign-in logs", "SAML tracer", "Token viewer"],
+          "lab_task": "Diagnose four seeded sign-in failures, a wrong audience, an expired certificate, a Conditional Access block and a deprovisioned user, fix them and write a runbook.",
+          "deliverable": "Fixes and a sign-in runbook",
+          "checks": [["Diagnose", "Each failure's cause is confirmed", "Notes"], ["Fix", "Users sign in after each fix", "Sign-in tests"], ["Document", "The runbook covers all four cases", "Runbook"]],
+          "objectives": ["Troubleshoot sign-in", "Read logs and traces", "Write support runbooks"]
+        },
+        {
+          "topic": "Beginner Capstone: Workforce Identity for a Mid-Size Company",
+          "subtopics": ["Directory, SSO and MFA", "Lifecycle and provisioning", "Conditional Access and privileged access", "Reviews and monitoring"],
+          "tools": ["Microsoft Entra ID", "Okta", "SCIM", "SIEM"],
+          "lab_task": "Deliver workforce identity for the course company with synced directories, SSO for three apps, passkeys, lifecycle workflows, SCIM, Conditional Access, just-in-time admin access, an access review and identity monitoring.",
+          "deliverable": "Working identity setup with a demo",
+          "checks": [["Sign in", "Users reach all three apps with SSO and strong MFA", "Demo recording"], ["Govern", "Joiners, movers and leavers are handled automatically", "Workflow runs"], ["Protect", "Admin access is just in time and monitored", "Activation and alert records"]],
+          "objectives": ["Combine beginner IAM skills", "Deliver workforce identity", "Protect privileged access"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For identity engineers and security engineers who design and run identity services. Covers hybrid identity architecture, federation design, OAuth in depth, API authorisation, policy-based access with OPA and Cedar, identity governance with SailPoint, role mining, privileged access with CyberArk, secrets and workload identity, passwordless at scale, identity threat detection and response, Zero Trust access, CIAM at scale, identity for Kubernetes and pipelines, non-human and AI agent identities, identity automation, compliance evidence, Keycloak and SC-300 and Okta exam preparation.",
+      "prerequisites": ["Has configured SSO, MFA and provisioning in Entra ID or Okta", "Understands SAML, OAuth and OIDC flows", "Comfortable with scripting and REST APIs"],
+      "outcomes": ["Design hybrid identity, federation and API authorisation", "Run governance, role engineering and privileged access programmes with SailPoint and CyberArk", "Secure workloads, pipelines and AI agents with workload identity and least privilege", "Detect identity threats, automate identity operations and prepare for SC-300 and Okta exams"],
+      "days": [
+        {
+          "topic": "Hybrid Identity Architecture: Active Directory with Entra Connect and Cloud Sync",
+          "subtopics": ["Hybrid identity options", "Microsoft Entra Connect Sync", "Microsoft Entra Cloud Sync", "Password hash sync, pass-through authentication and federation", "Seamless single sign-on", "Sync rules and filtering", "High availability for sync", "Moving away from AD FS"],
+          "tools": ["Microsoft Entra Connect Sync", "Microsoft Entra Cloud Sync", "Active Directory"],
+          "lab_task": "Design hybrid identity for the course company, configure Cloud Sync with filtering, choose an authentication method and plan the retirement of AD FS.",
+          "deliverable": "Hybrid identity design with sync configuration",
+          "checks": [["Sync", "Filtered users sync to Entra ID", "Sync status"], ["Choose", "The authentication method is justified", "Design document"], ["Plan", "The AD FS retirement plan has steps and rollback", "Retirement plan"]],
+          "objectives": ["Design hybrid identity", "Configure sync", "Retire legacy federation"]
+        },
+        {
+          "topic": "Federation Design: Multiple Identity Providers, B2B and Partner Access",
+          "subtopics": ["Federation between organisations", "B2B collaboration and cross-tenant access", "Partner identity providers", "Home realm discovery", "Trust settings and MFA trust", "Guest lifecycle", "Federation with legacy systems", "Federation risks"],
+          "tools": ["Microsoft Entra External ID", "Okta", "Cross-tenant access settings"],
+          "lab_task": "Federate with a partner tenant, trust its MFA for one app, route users with home realm discovery and expire inactive guests automatically.",
+          "deliverable": "Partner federation with guest lifecycle",
+          "checks": [["Federate", "Partner users sign in with their own identity", "Sign-in test"], ["Trust", "Partner MFA is accepted only for the chosen app", "Policy test"], ["Expire", "Inactive guests are removed", "Lifecycle report"]],
+          "objectives": ["Design federation", "Manage partner access", "Control guest lifecycle"]
+        },
+        {
+          "topic": "OAuth in Depth: Flows, PKCE, Token Exchange and DPoP",
+          "subtopics": ["Choosing flows for each client type", "PKCE for every client", "Refresh token rotation", "Token exchange for delegation", "Demonstrating proof of possession", "Pushed authorisation requests", "Token lifetimes", "OAuth security best practices"],
+          "tools": ["OAuth authorisation server", "Sample clients", "Token viewer"],
+          "lab_task": "Implement refresh token rotation, token exchange between two services and DPoP-bound tokens, and show a stolen token failing.",
+          "deliverable": "Hardened OAuth setup with tests",
+          "checks": [["Rotate", "Reused refresh tokens are rejected", "Test output"], ["Exchange", "The downstream service gets a delegated token", "Token claims"], ["Bind", "A stolen DPoP-bound token fails", "Test output"]],
+          "objectives": ["Use advanced OAuth features", "Bind tokens", "Delegate safely"]
+        },
+        {
+          "topic": "API Authorisation: Scopes, Claims and Fine-Grained Authorisation",
+          "subtopics": ["Coarse and fine-grained authorisation", "Scopes and their design", "Claims in access tokens", "Authorisation in API gateways", "Resource-level checks in code", "Multi-tenant APIs", "Testing authorisation", "Common API authorisation flaws"],
+          "tools": ["API gateway", "OAuth authorisation server", "API test tools"],
+          "lab_task": "Design scopes for an orders API, enforce them in the gateway, add resource-level checks in code and test for broken object-level authorisation.",
+          "deliverable": "Secured API with authorisation tests",
+          "checks": [["Scope", "Calls without the right scope are rejected", "Gateway logs"], ["Check", "Users cannot read other users' orders", "Test results"], ["Test", "The test suite covers each permission", "Test report"]],
+          "objectives": ["Design API authorisation", "Enforce scopes and resource checks", "Test for authorisation flaws"]
+        },
+        {
+          "topic": "Policy-Based Access with OPA, Cedar and Authorisation Services",
+          "subtopics": ["Policy as code for authorisation", "Open Policy Agent and Rego", "Cedar and Amazon Verified Permissions", "Policy decision and enforcement points", "Testing policies", "Performance and caching", "Policy versioning", "Choosing an authorisation service"],
+          "tools": ["Open Policy Agent", "Cedar", "Policy test tools"],
+          "lab_task": "Write the same document-sharing policy in Rego and Cedar, test both with unit tests and call one from an application as a decision point.",
+          "deliverable": "Two policy implementations with tests",
+          "checks": [["Write", "Both policies allow and deny the same cases", "Test results"], ["Call", "The application asks the decision point before access", "Application logs"], ["Compare", "The choice between OPA and Cedar is justified", "Comparison notes"]],
+          "objectives": ["Write authorisation policies as code", "Test policies", "Integrate decision points"]
+        },
+        {
+          "topic": "Identity Governance with SailPoint: Sources, Roles and Certifications",
+          "subtopics": ["SailPoint Identity Security Cloud concepts", "Sources and connectors", "Identity profiles and attributes", "Access profiles and roles", "Certification campaigns", "Access requests", "Separation of duties policies", "Governance reporting"],
+          "tools": ["SailPoint Identity Security Cloud", "Connectors", "Certification campaigns"],
+          "lab_task": "Connect two sources, build identity profiles, create access profiles and a role, run a certification campaign and add a separation of duties policy.",
+          "deliverable": "Governance setup with a completed campaign",
+          "checks": [["Connect", "Accounts aggregate from both sources", "Source status"], ["Certify", "The campaign completes with revocations", "Campaign report"], ["Prevent", "The SoD policy flags conflicting access", "Policy violations"]],
+          "objectives": ["Run governance with SailPoint", "Build access profiles and roles", "Run certifications"]
+        },
+        {
+          "topic": "Role Mining and Role Engineering",
+          "subtopics": ["Top-down and bottom-up role design", "Role mining from entitlement data", "Business roles and technical roles", "Role owners", "Role lifecycle", "Measuring role coverage", "Avoiding role explosion", "Roles in access requests"],
+          "tools": ["Entitlement exports", "Role mining tool", "Spreadsheet"],
+          "lab_task": "Mine roles from seeded entitlement data for two departments, define business roles with owners and measure how much access the roles cover.",
+          "deliverable": "Role model with coverage measures",
+          "checks": [["Mine", "Candidate roles come from entitlement patterns", "Mining output"], ["Define", "Business roles have owners and members", "Role catalogue"], ["Measure", "Role coverage is reported", "Coverage report"]],
+          "objectives": ["Engineer roles", "Mine entitlements", "Measure role coverage"]
+        },
+        {
+          "topic": "Privileged Access with CyberArk: Vaulting, Session Isolation and Rotation",
+          "subtopics": ["The CyberArk Identity Security Platform", "Vaulting privileged accounts", "Credential rotation policies", "Session isolation and monitoring", "Just-in-time and zero standing privilege", "Privileged access for cloud consoles", "Endpoint privilege management", "Integrations with ITSM"],
+          "tools": ["CyberArk Privileged Access Manager", "Session monitoring", "Endpoint privilege management"],
+          "lab_task": "Onboard server and cloud admin accounts into the vault, set rotation, connect through isolated sessions and require a ticket number for access.",
+          "deliverable": "Privileged access setup with evidence",
+          "checks": [["Vault", "Admin accounts are vaulted and rotated", "Vault report"], ["Isolate", "Sessions run through isolation and are recorded", "Session records"], ["Ticket", "Access needs a valid ticket number", "Access test"]],
+          "objectives": ["Run privileged access with CyberArk", "Rotate credentials", "Isolate privileged sessions"]
+        },
+        {
+          "topic": "Secrets and Workload Identity: Vault, SPIFFE and Cloud Workload Identity",
+          "subtopics": ["Secrets management patterns", "HashiCorp Vault or OpenBao basics for identity teams", "Dynamic secrets", "SPIFFE IDs and SPIRE", "Cloud workload identity federation", "Workload identity for CI/CD", "Rotating and revoking secrets", "Secret sprawl detection"],
+          "tools": ["Vault or OpenBao", "SPIRE", "Cloud workload identity"],
+          "lab_task": "Give a service dynamic database credentials from Vault, issue SPIFFE IDs to two workloads and replace a pipeline's stored cloud key with workload identity federation.",
+          "deliverable": "Secretless workloads and pipeline",
+          "checks": [["Issue", "The service uses short-lived database credentials", "Vault lease list"], ["Identify", "Workloads authenticate with SPIFFE IDs", "SPIRE entries"], ["Remove", "The pipeline has no stored cloud key", "Pipeline settings"]],
+          "objectives": ["Manage workload identity", "Use dynamic secrets", "Remove stored keys"]
+        },
+        {
+          "topic": "Passwordless at Scale: Passkey Rollout and Account Recovery",
+          "subtopics": ["Planning a passkey rollout", "Device-bound and synced passkeys", "Registration campaigns", "Recovery without weakening security", "Help desk identity verification", "Shared and kiosk devices", "Measuring adoption", "Retiring passwords"],
+          "tools": ["Microsoft Entra ID", "Okta", "Passkey providers"],
+          "lab_task": "Plan a passkey rollout for 2,000 users, run a registration campaign for a pilot group, design secure recovery and measure adoption.",
+          "deliverable": "Passkey rollout plan with pilot results",
+          "checks": [["Plan", "Phases, devices and recovery are planned", "Rollout plan"], ["Pilot", "Pilot users register passkeys", "Registration report"], ["Recover", "Recovery verifies identity without a weak fallback", "Recovery test"]],
+          "objectives": ["Roll out passkeys", "Design secure recovery", "Measure adoption"]
+        },
+        {
+          "topic": "Identity Threat Detection and Response",
+          "subtopics": ["Identity attack techniques", "Identity threat detection tools", "Detecting token theft and session hijacking", "Detecting privilege escalation", "Automated response: revoke sessions and reset credentials", "Investigation with identity logs", "Identity in incident response plans", "Measuring detection coverage"],
+          "tools": ["Microsoft Entra ID Protection", "Okta Identity Threat Protection", "SIEM"],
+          "lab_task": "Detect a seeded session hijack and privilege escalation, revoke sessions automatically and investigate the attack path with logs.",
+          "deliverable": "Detections, automated response and investigation",
+          "checks": [["Detect", "Both attacks raise alerts", "Alerts"], ["Respond", "Sessions are revoked automatically", "Response log"], ["Investigate", "The attack path is reconstructed", "Investigation notes"]],
+          "objectives": ["Detect identity threats", "Automate identity response", "Investigate identity attacks"]
+        },
+        {
+          "topic": "Zero Trust Access: Device Trust, Continuous Evaluation and ZTNA",
+          "subtopics": ["Zero Trust principles for identity", "Device trust and compliance signals", "Continuous access evaluation", "Zero Trust network access", "Replacing VPN access", "Session controls", "Policy design for Zero Trust", "Measuring progress"],
+          "tools": ["Microsoft Entra Conditional Access", "Microsoft Entra Private Access or another ZTNA tool", "Device management"],
+          "lab_task": "Require compliant devices for sensitive apps, turn on continuous access evaluation, publish an internal app through ZTNA instead of VPN and test revocation.",
+          "deliverable": "Zero Trust access for sensitive apps",
+          "checks": [["Require", "Non-compliant devices are blocked", "Sign-in logs"], ["Revoke", "Access ends quickly after user risk changes", "Revocation test"], ["Publish", "The internal app works without VPN", "Access test"]],
+          "objectives": ["Apply Zero Trust to access", "Use device and risk signals", "Replace VPN access"]
+        },
+        {
+          "topic": "CIAM at Scale: Fraud, Bots and Progressive Profiling",
+          "subtopics": ["CIAM architecture for millions of users", "Bot detection", "Account takeover protection", "Fraud signals", "Progressive profiling", "Account linking", "Performance and availability", "Privacy regulations for customers"],
+          "tools": ["CIAM platform", "Bot protection", "Analytics"],
+          "lab_task": "Add bot protection and account takeover detection to customer sign-in, link a social account to an existing account and collect profile data progressively.",
+          "deliverable": "Hardened customer identity flows",
+          "checks": [["Block", "Seeded bot sign-ups are blocked", "Sign-up logs"], ["Protect", "Account takeover attempts are challenged", "Sign-in logs"], ["Link", "Social and email accounts link to one profile", "Profile view"]],
+          "objectives": ["Run CIAM at scale", "Stop bots and takeovers", "Link customer accounts"]
+        },
+        {
+          "topic": "Identity for Kubernetes and DevOps Pipelines",
+          "subtopics": ["Kubernetes authentication with OIDC", "Kubernetes RBAC", "Service account tokens", "Workload identity for pods", "Pipeline identities and OIDC federation", "Least privilege for deployments", "Auditing cluster access", "Break-glass for clusters"],
+          "tools": ["Kubernetes", "OIDC identity provider", "Cloud workload identity", "CI/CD platform"],
+          "lab_task": "Sign in to a cluster with OIDC groups, scope RBAC by team, give pods cloud access through workload identity and deploy from a pipeline with federated identity.",
+          "deliverable": "Identity setup for a cluster and pipeline",
+          "checks": [["Sign in", "Engineers use corporate identity for kubectl", "Cluster access test"], ["Scope", "Teams can manage only their namespaces", "RBAC test"], ["Deploy", "The pipeline deploys without stored credentials", "Pipeline run"]],
+          "objectives": ["Secure Kubernetes access", "Use workload identity", "Secure pipeline identities"]
+        },
+        {
+          "topic": "Non-Human Identities and AI Agent Identities",
+          "subtopics": ["Growth of non-human identities", "Inventory and ownership", "AI agents as identities", "Delegated access for agents", "Agent permissions and scopes", "Monitoring agent actions", "Credential hygiene for agents", "Governance for non-human identities"],
+          "tools": ["Identity inventory", "Microsoft Entra Agent ID or another agent identity feature", "Audit logs"],
+          "lab_task": "Inventory non-human identities in the lab, register an AI agent identity with scoped delegated access, monitor its actions and assign owners to all machine identities.",
+          "deliverable": "Non-human identity inventory and agent setup",
+          "checks": [["Inventory", "Every machine identity has an owner", "Inventory"], ["Scope", "The agent can act only within its delegated scopes", "Access test"], ["Monitor", "Agent actions appear in the logs", "Log entries"]],
+          "objectives": ["Govern non-human identities", "Register AI agent identities", "Monitor agent access"]
+        },
+        {
+          "topic": "Identity Automation: Microsoft Graph, Okta Workflows and APIs",
+          "subtopics": ["Automating identity tasks", "Microsoft Graph API and PowerShell", "Okta APIs and Okta Workflows", "Automation identities and their permissions", "Error handling", "Scheduling and triggers", "Testing automation", "Documenting automation"],
+          "tools": ["Microsoft Graph", "Okta Workflows", "Okta API"],
+          "lab_task": "Automate a stale account clean-up with Microsoft Graph and a group membership report with Okta Workflows, with least-privilege automation identities.",
+          "deliverable": "Two automations with documentation",
+          "checks": [["Clean", "Stale accounts are disabled with a report", "Script output"], ["Report", "The membership report arrives on schedule", "Workflow history"], ["Limit", "Automation identities have only needed permissions", "Permission review"]],
+          "objectives": ["Automate identity tasks", "Use Graph and Okta APIs", "Secure automation identities"]
+        },
+        {
+          "topic": "Identity Compliance: SOX, ISO 27001 and Access Evidence",
+          "subtopics": ["Identity controls in SOX", "Identity controls in ISO 27001", "Access review evidence", "Privileged access evidence", "Joiner and leaver timeliness", "Automating evidence collection", "Working with auditors", "Remediating findings"],
+          "tools": ["Governance reports", "Audit logs", "Evidence store"],
+          "lab_task": "Map identity controls for SOX and ISO 27001, collect evidence automatically for one quarter and remediate two seeded audit findings.",
+          "deliverable": "Control map, evidence pack and remediation",
+          "checks": [["Map", "Controls map to identity processes", "Control map"], ["Collect", "Evidence is gathered automatically", "Evidence store"], ["Remediate", "Both findings are closed", "Remediation record"]],
+          "objectives": ["Map identity controls", "Collect evidence automatically", "Close audit findings"]
+        },
+        {
+          "topic": "Keycloak as an Open-Source Identity Provider",
+          "subtopics": ["Keycloak realms and clients", "Users and identity brokering", "OIDC and SAML clients", "Authentication flows", "User federation with LDAP", "Themes and branding", "Running Keycloak in production", "Upgrades and backups"],
+          "tools": ["Keycloak", "LDAP", "Sample applications"],
+          "lab_task": "Run Keycloak, create a realm with an OIDC and a SAML client, broker logins from Entra ID, federate LDAP users and customise an authentication flow.",
+          "deliverable": "Keycloak realm with brokering and federation",
+          "checks": [["Sign in", "Both clients sign users in", "Sign-in tests"], ["Broker", "Users log in through Entra ID", "Broker login test"], ["Federate", "LDAP users can sign in", "Federation test"]],
+          "objectives": ["Run Keycloak", "Broker identity providers", "Federate directories"]
+        },
+        {
+          "topic": "SC-300 and Okta Certification Preparation",
+          "subtopics": ["SC-300 skills measured", "Okta certification paths", "Hands-on practice in lab tenants", "Mapping course days to exam objectives", "Practice questions", "Weak area review", "Exam logistics", "Keeping skills current"],
+          "tools": ["Microsoft Learn", "Okta Learning", "Lab tenants"],
+          "lab_task": "Take a timed SC-300 practice set, complete five Okta practice tasks, map misses to course days and write a review plan.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "The practice set and tasks are completed", "Score sheet"], ["Map", "Each miss is mapped to a course day", "Error log"], ["Plan", "The review plan covers the weakest objectives", "Review plan"]],
+          "objectives": ["Prepare for SC-300", "Prepare for Okta certification", "Plan focused review"]
+        },
+        {
+          "topic": "Intermediate Capstone: Governed Identity Platform with SSO, IGA and PAM",
+          "subtopics": ["Hybrid identity and federation", "Governance and roles", "Privileged access and workload identity", "Threat detection and automation"],
+          "tools": ["Microsoft Entra ID", "Okta", "SailPoint", "CyberArk"],
+          "lab_task": "Deliver an identity platform for the course company with hybrid identity, partner federation, API authorisation, SailPoint governance, CyberArk privileged access, workload identity, identity threat detection and automated evidence.",
+          "deliverable": "Identity platform demo with evidence",
+          "checks": [["Federate", "Internal and partner users sign in correctly", "Sign-in tests"], ["Govern", "Certifications and SoD controls run", "Governance reports"], ["Protect", "Privileged and workload access have no standing secrets", "Access evidence"]],
+          "objectives": ["Combine intermediate IAM skills", "Deliver a governed identity platform", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For identity architects, IAM programme leads and security architects. Covers identity strategy, identity fabric architecture, mergers and divestitures, directory migrations and consolidation, token security, product authorisation with ReBAC, IGA and PAM programme design, securing AI agents, identity resilience, identity attack paths, identity security posture management, digital identity wallets and verifiable credentials, identity metrics, the operating model, vendor strategy, customer identity strategy, third-party and OT access and identity incident response.",
+      "prerequisites": ["Has designed or run identity services for a large organisation", "Understands federation, governance and privileged access in depth", "Responsible for identity strategy, architecture or risk"],
+      "outcomes": ["Set identity strategy and architecture across hybrid and multi-cloud estates", "Design governance, privileged access, authorisation and AI agent security programmes", "Defend against identity attacks and recover from identity incidents", "Lead the identity operating model, vendors and metrics"],
+      "days": [
+        {
+          "topic": "Identity Strategy and Roadmaps for the Enterprise",
+          "subtopics": ["Identity as a business enabler", "Current-state assessment", "Target state and principles", "Roadmap and funding", "Risk reduction measures", "Stakeholders and sponsorship", "Quick wins and long-term work", "Reporting progress"],
+          "tools": ["Maturity assessment", "Roadmap template", "Risk register"],
+          "lab_task": "Assess the course company's identity maturity, write a target state with principles and a funded two-year roadmap, and present it to the CISO persona.",
+          "deliverable": "Identity strategy and roadmap",
+          "checks": [["Assess", "Maturity is scored with evidence", "Assessment"], ["Plan", "The roadmap links work to risk reduction", "Roadmap"], ["Present", "The CISO persona approves priorities", "Approval record"]],
+          "objectives": ["Set identity strategy", "Plan a roadmap", "Link identity work to risk"]
+        },
+        {
+          "topic": "Identity Fabric Architecture for Hybrid and Multi-Cloud Estates",
+          "subtopics": ["Identity fabric concepts", "Multiple identity providers working together", "Identity orchestration", "Directory and attribute services", "Authorisation services", "Identity data flows", "Resilience and latency", "Architecture decision records"],
+          "tools": ["Architecture diagram tool", "Identity orchestration tool", "Decision records"],
+          "lab_task": "Design an identity fabric for an estate with two identity providers, three clouds and legacy apps, and record the key decisions.",
+          "deliverable": "Identity fabric architecture and decisions",
+          "checks": [["Design", "Providers, orchestration and data flows are shown", "Architecture diagram"], ["Decide", "Decisions are recorded with options", "Decision records"], ["Review", "The design review accepts the architecture with actions", "Review record"]],
+          "objectives": ["Design identity fabrics", "Orchestrate identity providers", "Record architecture decisions"]
+        },
+        {
+          "topic": "Mergers and Divestitures: Identity Integration and Separation",
+          "subtopics": ["Day-one access for acquired staff", "Cross-tenant synchronisation", "Directory and tenant consolidation", "Application access during transition", "Divestiture separation", "Data and licence separation", "Risks during transition", "Integration playbooks"],
+          "tools": ["Cross-tenant synchronisation", "Migration tools", "Playbook template"],
+          "lab_task": "Plan day-one access for an acquisition with cross-tenant sync, design the tenant consolidation and plan the separation of a divested unit.",
+          "deliverable": "Merger and divestiture identity plans",
+          "checks": [["Connect", "Acquired staff reach shared apps on day one", "Access test"], ["Consolidate", "The consolidation plan has phases and rollback", "Consolidation plan"], ["Separate", "The divested unit's identities are separated cleanly", "Separation plan"]],
+          "objectives": ["Integrate identities after mergers", "Consolidate tenants", "Separate divested units"]
+        },
+        {
+          "topic": "Directory Migrations and Identity Provider Consolidation",
+          "subtopics": ["Reasons to consolidate identity providers", "Moving apps between identity providers", "Migrating users and credentials", "Passwordless during migration", "Coexistence periods", "Testing app migrations", "Communication with users", "Decommissioning old providers"],
+          "tools": ["Migration tools", "App inventory", "Test plans"],
+          "lab_task": "Plan the move of forty apps from an old identity provider to Entra ID or Okta in waves, migrate three apps with tests and plan decommissioning.",
+          "deliverable": "Consolidation plan with migrated apps",
+          "checks": [["Plan", "Apps are grouped into waves by risk", "Wave plan"], ["Migrate", "Three apps move with tested sign-in", "Test results"], ["Retire", "Decommissioning has dates and owners", "Decommissioning plan"]],
+          "objectives": ["Consolidate identity providers", "Migrate apps safely", "Decommission old providers"]
+        },
+        {
+          "topic": "Token Security: Token Theft, Binding and Continuous Access Evaluation",
+          "subtopics": ["How attackers steal tokens", "Token protection and binding", "Continuous access evaluation", "Session lifetime design", "Refresh token risks", "Detecting token replay", "Device-bound sessions", "Response to token theft"],
+          "tools": ["Microsoft Entra token protection", "Continuous access evaluation", "SIEM"],
+          "lab_task": "Replay a stolen token in the lab, turn on token protection and continuous access evaluation, and show that replay fails and sessions end on risk.",
+          "deliverable": "Token security controls with tests",
+          "checks": [["Replay", "The stolen token works before the controls", "Test output"], ["Bind", "Replay fails after token protection", "Test output"], ["End", "Sessions end when risk changes", "Revocation test"]],
+          "objectives": ["Defend against token theft", "Bind tokens to devices", "Use continuous evaluation"]
+        },
+        {
+          "topic": "Authorisation Architecture for Products: ReBAC and Zanzibar-Style Systems",
+          "subtopics": ["Authorisation needs of modern products", "Relationship-based access control", "Zanzibar-style systems such as OpenFGA and SpiceDB", "Modelling relationships", "Consistency and caching", "Performance at scale", "Auditing authorisation decisions", "Migrating from roles to relationships"],
+          "tools": ["OpenFGA or SpiceDB", "Sample application", "Load test tool"],
+          "lab_task": "Model document sharing with ReBAC, run checks from an application, load-test decision latency and audit decisions.",
+          "deliverable": "ReBAC model with performance and audit results",
+          "checks": [["Model", "Sharing rules are expressed as relationships", "Model file"], ["Check", "The application gets correct decisions", "Test results"], ["Measure", "Decision latency meets the target under load", "Load test report"]],
+          "objectives": ["Design product authorisation", "Use ReBAC", "Measure authorisation performance"]
+        },
+        {
+          "topic": "IGA Programme Design: Policies, Risk Scoring and Automation",
+          "subtopics": ["IGA programme scope", "Policies for access and reviews", "Risk-based certifications", "Automation of low-risk access", "Application onboarding at scale", "Data quality in governance", "Measuring programme value", "Sustaining the programme"],
+          "tools": ["IGA platform", "Risk scoring", "Application onboarding tracker"],
+          "lab_task": "Design an IGA programme with policies, risk-scored reviews and auto-approval for low-risk access, and plan onboarding of 200 applications.",
+          "deliverable": "IGA programme design",
+          "checks": [["Policy", "Policies cover requests, reviews and SoD", "Policy set"], ["Score", "Reviews focus on high-risk access", "Review design"], ["Plan", "Application onboarding is planned in waves", "Onboarding plan"]],
+          "objectives": ["Design IGA programmes", "Use risk scoring", "Scale application onboarding"]
+        },
+        {
+          "topic": "PAM Programme Design: Tiering, Break-Glass and Zero Standing Privilege",
+          "subtopics": ["PAM programme scope", "Administrative tiering", "Zero standing privilege", "Break-glass design", "Privileged access workstations", "Cloud and SaaS admin access", "DevOps and machine privileges", "Measuring PAM coverage"],
+          "tools": ["PAM platform", "Privileged Identity Management", "Coverage reports"],
+          "lab_task": "Design a tiered admin model with zero standing privilege, break-glass accounts and privileged workstations, and measure current coverage.",
+          "deliverable": "PAM programme design with coverage baseline",
+          "checks": [["Tier", "Admin tiers separate critical systems", "Tier model"], ["Remove", "Standing privilege is removed from the design", "Privilege plan"], ["Measure", "PAM coverage is baselined", "Coverage report"]],
+          "objectives": ["Design PAM programmes", "Remove standing privilege", "Plan break-glass access"]
+        },
+        {
+          "topic": "Securing AI Agents: Delegation, Consent and Agent Credentials",
+          "subtopics": ["Agents acting for users", "Delegation and on-behalf-of flows", "Consent for agent actions", "Agent credentials and their lifetimes", "Scopes for tool use", "MCP authorisation and identity", "Monitoring and stopping agents", "Governance for agent identities"],
+          "tools": ["OAuth authorisation server", "Agent identity features", "MCP server"],
+          "lab_task": "Give an AI agent delegated access to a user's documents with consent, limit it to read scopes through an MCP server and stop it when it behaves oddly.",
+          "deliverable": "Secured agent access with monitoring",
+          "checks": [["Delegate", "The agent acts only on behalf of the consenting user", "Token claims"], ["Limit", "Write actions are refused", "Test output"], ["Stop", "Agent access is revoked on an alert", "Revocation log"]],
+          "objectives": ["Secure AI agent access", "Use delegation and consent", "Monitor and stop agents"]
+        },
+        {
+          "topic": "Identity Resilience: Identity Provider Outages, Recovery and Break-Glass",
+          "subtopics": ["Dependence on identity providers", "Outage scenarios", "Break-glass accounts and their protection", "Backup and recovery of identity configuration", "Recovery from tenant compromise", "Offline access options", "Testing resilience", "Communication during identity outages"],
+          "tools": ["Configuration backup tool", "Break-glass accounts", "Runbooks"],
+          "lab_task": "Back up identity configuration, run an outage drill using break-glass accounts and restore a deleted Conditional Access policy and app.",
+          "deliverable": "Resilience plan and drill record",
+          "checks": [["Back up", "Configuration backups are complete", "Backup report"], ["Drill", "Break-glass access works during the drill", "Drill record"], ["Restore", "The deleted policy and app are restored", "Restore log"]],
+          "objectives": ["Plan identity resilience", "Protect break-glass access", "Recover identity configuration"]
+        },
+        {
+          "topic": "Identity Attack Paths: Kerberoasting, Golden Tickets and Cloud Escalation",
+          "subtopics": ["Active Directory attack paths", "Kerberoasting and AS-REP roasting", "Golden and silver tickets", "Hybrid attack paths into the cloud", "Cloud privilege escalation", "Attack path analysis tools", "Hardening against each path", "Purple team exercises"],
+          "tools": ["Attack path analysis tool", "Active Directory lab", "Cloud lab"],
+          "lab_task": "Find attack paths in an authorised lab with an analysis tool, demonstrate Kerberoasting on a weak service account, harden it and confirm the path is closed.",
+          "deliverable": "Attack path analysis and hardening record",
+          "checks": [["Find", "Attack paths to admin are listed", "Analysis output"], ["Demonstrate", "The weak service account is cracked in the lab", "Lab record"], ["Harden", "The path is closed after hardening", "Analysis after hardening"]],
+          "objectives": ["Analyse identity attack paths", "Harden Active Directory", "Close cloud escalation paths"]
+        },
+        {
+          "topic": "Identity Security Posture Management",
+          "subtopics": ["What posture management covers", "Misconfigurations in identity providers", "Stale and over-privileged accounts", "MFA gaps", "Risky app permissions and consent", "Posture scores and baselines", "Remediation workflows", "Continuous monitoring"],
+          "tools": ["Identity posture management tool", "Secure Score", "Remediation tracker"],
+          "lab_task": "Run an identity posture assessment, fix the top ten findings with workflows and set a baseline for continuous monitoring.",
+          "deliverable": "Posture assessment and remediation",
+          "checks": [["Assess", "Findings are ranked by risk", "Assessment report"], ["Fix", "Ten findings are fixed", "Remediation tracker"], ["Monitor", "Drift from the baseline raises alerts", "Alert test"]],
+          "objectives": ["Manage identity posture", "Remediate misconfigurations", "Monitor continuously"]
+        },
+        {
+          "topic": "Digital Identity Wallets and Verifiable Credentials: eIDAS 2.0 and Beyond",
+          "subtopics": ["Verifiable credentials", "Decentralised identifiers", "The EU Digital Identity Wallet under eIDAS 2.0", "Issuing and verifying credentials", "Selective disclosure", "Use cases for employees and customers", "Trust frameworks", "Readiness planning"],
+          "tools": ["Verifiable credentials service", "Sample wallet", "Trust framework documents"],
+          "lab_task": "Issue an employee credential, verify it with selective disclosure in a sample app and plan how the company will accept EU digital identity wallets.",
+          "deliverable": "Credential demo and readiness plan",
+          "checks": [["Issue", "The credential is issued to the wallet", "Issuance log"], ["Verify", "The app verifies only the needed claims", "Verification result"], ["Plan", "Wallet acceptance has steps and owners", "Readiness plan"]],
+          "objectives": ["Use verifiable credentials", "Prepare for digital identity wallets", "Apply selective disclosure"]
+        },
+        {
+          "topic": "Identity Metrics and Reporting for Leadership",
+          "subtopics": ["Choosing identity metrics", "Coverage metrics: SSO, MFA, PAM and governance", "Risk metrics", "Efficiency metrics: lifecycle speed and help desk calls", "Dashboards for leadership", "Targets and trends", "Linking metrics to risk", "Avoiding vanity metrics"],
+          "tools": ["Identity reports", "Dashboard tool", "Risk register"],
+          "lab_task": "Define twelve identity metrics with targets, build a leadership dashboard from lab data and present trends and risks.",
+          "deliverable": "Identity metrics dashboard",
+          "checks": [["Define", "Metrics have owners and targets", "Metric register"], ["Build", "The dashboard shows trends", "Dashboard"], ["Present", "Leadership questions are answered with data", "Presentation notes"]],
+          "objectives": ["Measure identity programmes", "Report to leadership", "Link metrics to risk"]
+        },
+        {
+          "topic": "Identity Operating Model: Teams, Services and Service Levels",
+          "subtopics": ["Identity team structure", "Identity services catalogue", "Service levels", "Engineering and operations split", "Help desk and identity verification", "Change management for identity", "Skills and training", "Measuring service quality"],
+          "tools": ["Service catalogue", "Operating model template", "Service reports"],
+          "lab_task": "Design the identity operating model with teams, a service catalogue, service levels and help desk verification, and report a seeded month of service data.",
+          "deliverable": "Operating model and service report",
+          "checks": [["Design", "Teams and services are defined", "Operating model"], ["Serve", "Service levels are met or explained", "Service report"], ["Verify", "Help desk verification resists social engineering", "Process test"]],
+          "objectives": ["Run identity as a service", "Set service levels", "Secure the help desk"]
+        },
+        {
+          "topic": "Identity Vendor Strategy: Build, Buy and Consolidate",
+          "subtopics": ["Identity vendor landscape", "Platform consolidation trends", "Requirements and scoring", "Proof of concept design", "Total cost of ownership", "Contracts and exit plans", "Integration effort", "Vendor risk"],
+          "tools": ["Vendor scoring sheet", "Cost model", "Proof of concept plan"],
+          "lab_task": "Compare three identity platform options against requirements and cost, design a proof of concept and write a recommendation with an exit plan.",
+          "deliverable": "Vendor evaluation and recommendation",
+          "checks": [["Score", "Options are scored on requirements", "Scoring sheet"], ["Cost", "Total cost of ownership is compared", "Cost model"], ["Recommend", "The recommendation includes an exit plan", "Recommendation"]],
+          "objectives": ["Evaluate identity vendors", "Compare total cost", "Plan an exit"]
+        },
+        {
+          "topic": "Customer Identity Strategy: Privacy, Consent and Global Regulations",
+          "subtopics": ["CIAM as a business capability", "Privacy laws across regions", "Consent and preference management", "Data residency for customer identity", "Account security and friction", "Identity for partners and B2B customers", "CIAM metrics", "CIAM roadmap"],
+          "tools": ["CIAM platform", "Consent management", "Privacy requirements matrix"],
+          "lab_task": "Write a customer identity strategy for three regions with consent, residency and security choices, and set CIAM metrics.",
+          "deliverable": "CIAM strategy with metrics",
+          "checks": [["Comply", "Privacy requirements are met per region", "Requirements matrix"], ["Balance", "Security and friction choices are justified", "Strategy document"], ["Measure", "CIAM metrics have targets", "Metrics list"]],
+          "objectives": ["Set customer identity strategy", "Meet privacy rules", "Balance security and friction"]
+        },
+        {
+          "topic": "Third-Party and Operational Technology Access",
+          "subtopics": ["Vendor and contractor access", "Remote access for third parties", "Access for operational technology sites", "Shared and legacy accounts", "Session monitoring for vendors", "Time-limited access", "Third-party risk reviews", "Audit evidence for third-party access"],
+          "tools": ["Third-party access tool", "PAM platform", "Access reviews"],
+          "lab_task": "Give a vendor time-limited, monitored access to an OT system without a shared account, review it after the job and record evidence.",
+          "deliverable": "Third-party access setup with evidence",
+          "checks": [["Grant", "Access is time-limited and named", "Access record"], ["Monitor", "The vendor session is recorded", "Session record"], ["Review", "Access is reviewed and removed after the job", "Review record"]],
+          "objectives": ["Control third-party access", "Secure OT access", "Prove third-party controls"]
+        },
+        {
+          "topic": "Incident Response for Identity Compromise",
+          "subtopics": ["Signs of identity compromise", "Containment: sessions, tokens and credentials", "Scoping the compromise", "Tenant and directory recovery", "Rebuilding trust in admin accounts", "Communication and legal duties", "Post-incident hardening", "Exercises"],
+          "tools": ["Incident response playbook", "Identity logs", "SIEM"],
+          "lab_task": "Run an exercise where an admin account is compromised, contain it, scope the damage, recover trust and write the post-incident review.",
+          "deliverable": "Exercise record and post-incident review",
+          "checks": [["Contain", "Sessions and credentials are revoked quickly", "Containment log"], ["Scope", "Changes made by the attacker are found", "Scope analysis"], ["Harden", "The review lists hardening actions", "Review document"]],
+          "objectives": ["Respond to identity compromise", "Recover trust", "Harden after incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Identity Programme Design",
+          "subtopics": ["Strategy and architecture", "Governance, PAM and authorisation", "AI agent security and resilience", "Metrics, operating model and vendors"],
+          "tools": ["Strategy documents", "Architecture diagrams", "Evidence packs"],
+          "lab_task": "Present an enterprise identity programme to a steering committee with the strategy, identity fabric, governance and PAM designs, product authorisation, AI agent security, resilience tests, metrics, operating model and vendor plan.",
+          "deliverable": "Identity programme with evidence and a steering decision",
+          "checks": [["Design", "Strategy and architecture pass review", "Review record"], ["Prove", "Resilience and security claims have test evidence", "Evidence pack"], ["Govern", "Metrics, operating model and vendor plan have owners", "Plan documents"]],
+          "objectives": ["Combine advanced IAM skills", "Design an enterprise identity programme", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

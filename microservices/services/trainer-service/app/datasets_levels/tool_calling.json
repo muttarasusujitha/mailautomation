@@ -1,0 +1,573 @@
+{
+  "domain": "Tool Calling",
+  "name": "Tool Calling",
+  "category": "Generative AI and Agents",
+  "icon": "settings",
+  "aliases": ["LLM Tool Use", "Agent Tool Invocation", "Agent Tool Use", "Tool Use for AI Agents", "Agent Tooling", "Building Tools for AI Agents", "Agent Tool Engineering", "Agent Tool Security"],
+  "certifications": [],
+  "tools": ["MCP Python SDK (FastMCP)", "MCP TypeScript SDK", "MCP Inspector", "Anthropic Messages API", "OpenAI Responses API", "OpenAI Agents SDK", "LangGraph", "Docker", "gVisor", "E2B", "Playwright", "Open Policy Agent", "OpenTelemetry", "pytest"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers who have made basic LLM API calls and now need to build the tools that agents use. Covers what an agent tool is from the operator's side, writing tool specifications, descriptions and result formats that models use correctly, choosing tool granularity, actionable errors, a tool registry and dispatcher with limits, serving tools with FastMCP and annotating them, debugging with MCP Inspector, provider-hosted tools, running untrusted code in locked-down containers, Playwright browser tools, side-effect classification, human confirmation, scoped credentials, first prompt-injection experiments, audit logs and tool tests, ending with a safe helpdesk toolset capstone.",
+      "prerequisites": ["Writes Python 3 code with functions, type hints, virtual environments and pip or uv", "Has sent at least one request to an LLM API such as the Anthropic Messages API or the OpenAI Responses API and read the JSON response", "Has a laptop with rights to install Docker Engine or Docker Desktop, Node.js LTS and Python 3.12, plus API keys for Anthropic or OpenAI"],
+      "outcomes": ["Write tool specifications, descriptions and result formats that a model selects and uses correctly, and measure the effect of changes on labelled requests", "Serve annotated tools with FastMCP over stdio and debug them with MCP Inspector and host logs", "Run model-written code and browser actions inside isolated environments with network, memory, process and time limits", "Classify tools by side effect, gate write actions behind human confirmation, scope credentials and record every call in redacted audit logs"],
+      "days": [
+        {
+          "topic": "Tools for Agents: Orientation and Lab Setup",
+          "subtopics": ["What an agent tool is: a capability the model requests and your runtime executes", "Tool categories: knowledge retrieval, actions with side effects, code execution and environment control", "Client-executed tools, provider-hosted tools and tools served over the Model Context Protocol", "Trust boundaries: model output, tool runtime and downstream systems", "A Python 3.12 project with uv init, uv add and uv run", "Installing the MCP Python SDK with the cli extra: uv add \"mcp[cli]\"", "Node.js LTS and npx for running MCP Inspector", "API keys in a .env file that .gitignore excludes", "Docker Engine for the sandbox labs", "Course repository layout: tools/, servers/, tests/ and traces/"],
+          "tools": ["uv", "MCP Python SDK", "MCP Inspector", "Docker", "Anthropic Messages API", "OpenAI Responses API"],
+          "lab_task": "Create a project with uv init agent-tools, then uv add \"mcp[cli]\" anthropic openai. Put ANTHROPIC_API_KEY and OPENAI_API_KEY in .env and confirm .env is ignored by version control. Run docker run --rm hello-world, start npx @modelcontextprotocol/inspector and record the local URL it prints. Finally classify 10 everyday agent actions as read, write or execute in a table.",
+          "deliverable": "Environment report with uv.lock, runtime versions, the Inspector URL and the 10-action classification table",
+          "checks": [["Run uv run python -c \"import mcp, anthropic, openai; print('ok')\"", "Prints ok with no ImportError", "Terminal output"], ["Run git check-ignore -v .env", "Output shows the .gitignore rule that matches .env", "Terminal output"], ["Run docker run --rm hello-world", "Output contains Hello from Docker!", "Terminal output"]],
+          "objectives": ["Explain how an agent tool differs from the model that requests it", "Set up a reproducible Python, Node.js and Docker lab environment", "Classify agent actions as read, write or execute"]
+        },
+        {
+          "topic": "Anatomy of a Good Tool: Name, Description, Parameters and Result",
+          "subtopics": ["Tool names as verb plus object: search_orders, refund_payment", "Prefixes that group related tools: crm_, billing_", "MCP tool name guidance: 1 to 128 characters from letters, digits, underscore, hyphen and dot", "Descriptions that state purpose, when to use and when not to use", "Parameter names in the user's vocabulary rather than internal column names", "Required versus optional parameters and sensible defaults", "Returning stable identifiers that the next tool call can use", "A tool specification template reviewed before any code is written"],
+          "tools": ["Markdown", "JSON Schema", "MCP Python SDK"],
+          "lab_task": "Take 6 raw CRM API endpoints and write a specification for each tool you would expose: name, a three-part description (purpose, when to use, when not to use), typed parameters with defaults and an example result. Validate names with a regex script, then review another learner's specifications against a 10-point checklist and record every failed item.",
+          "deliverable": "Tool specification document for the CRM toolset with the peer-review checklist results",
+          "checks": [["Validate every tool name against ^[A-Za-z0-9_.-]{1,128}$", "All names match and none contain spaces", "Validation script output"], ["Give a peer who has not seen the API 5 sample requests and the specifications", "The peer picks the intended tool for 5 of 5 requests", "Peer review notes"], ["Inspect the example results", "Every result that creates or finds a record includes its identifier", "Specification document"]],
+          "objectives": ["Write a tool specification before writing tool code", "Name tools and parameters so that their purpose is clear without the source code", "Design results that support the next step of a task"]
+        },
+        {
+          "topic": "Writing Tool Descriptions Models Actually Follow",
+          "subtopics": ["Describing a tool as you would to a new colleague who lacks your context", "Stating units, formats and identifier shapes: ISO 8601 dates, amounts in cents, IDs like ORD-12345", "Separating overlapping tools with explicit 'use X instead when' sentences", "Parameter-level descriptions and examples inside JSON Schema", "Input examples attached to tool definitions where the provider supports them", "Keeping behaviour policy in the system prompt and tool facts in the description", "Description length versus token cost", "Measuring the effect of a description change on tool selection"],
+          "tools": ["Anthropic Messages API", "OpenAI Responses API", "Python", "pytest"],
+          "lab_task": "Define two overlapping tools, search_customers and get_customer, with one-line descriptions. Run 20 labelled requests through Claude or GPT at temperature 0 and count correct tool choices. Rewrite both descriptions with when-to-use guidance, ID formats and an example, rerun the same 20 requests and report before-and-after accuracy with the failing requests listed.",
+          "deliverable": "Before-and-after description comparison with the 20-request results CSV",
+          "checks": [["Run the 20 requests with one-line descriptions", "Baseline accuracy is recorded as a count out of 20", "Results CSV"], ["Run the 20 requests with the rewritten descriptions", "Correct selections rise, or each remaining failure is explained request by request", "Results CSV and notes"], ["Ask for a customer by email address", "search_customers is chosen because get_customer requires a customer ID", "Model response log"]],
+          "objectives": ["Write tool descriptions that remove ambiguity between similar tools", "Document formats and units in descriptions and schemas", "Measure description quality with labelled requests"]
+        },
+        {
+          "topic": "Tool Granularity: Workflow Tools Versus Endpoint Wrappers",
+          "subtopics": ["Why one tool per API endpoint confuses models and wastes context", "Consolidating list_users, list_events and create_event into schedule_meeting", "Shaping tools around how a person completes the task", "Splitting tools that do too much: the single-responsibility check", "Hiding pagination, joins and lookups inside the tool", "Search tools versus list-everything tools", "Keeping each agent's catalog small", "Recording consolidation decisions"],
+          "tools": ["Python", "Anthropic Messages API", "OpenAI Responses API", "pandas"],
+          "lab_task": "Start with a calendar API exposed as 7 thin tools. Run 10 scheduling requests and record task success, tool calls per task and input tokens. Replace the thin tools with 2 workflow tools, find_free_slots and schedule_meeting, rerun the same 10 requests and compare success, average calls and total input tokens in one table.",
+          "deliverable": "Granularity comparison table with traces from both runs and a short design rationale",
+          "checks": [["Run the 10 tasks with 7 thin tools", "Success count, average calls per task and total tokens are recorded", "Run log"], ["Run the 10 tasks with 2 workflow tools", "Average tool calls per task is lower than in the thin-tool run", "Comparison table"], ["Ask to meet someone who has no free slot this week", "find_free_slots returns an empty list with a message suggesting the next week", "Tool result"]],
+          "objectives": ["Choose tool boundaries that match user tasks", "Reduce calls and tokens by consolidating thin wrappers", "Recognise tools that should be split"]
+        },
+        {
+          "topic": "Tool Results Written for the Model: Relevance, Size and Pagination",
+          "subtopics": ["Returning names and meaning instead of UUIDs and internal codes", "A response_format parameter with concise and detailed options", "Truncation with an explicit note telling the model how to get more", "Cursor pagination for agents: limit, cursor and next_cursor", "Filtering fields in the tool before results reach the context", "Plain text, JSON or Markdown results and what models read reliably", "Counting result tokens with Anthropic's count_tokens endpoint or tiktoken", "Stable ordering so repeated calls can be compared"],
+          "tools": ["Python", "Anthropic token counting API", "tiktoken", "MCP Python SDK"],
+          "lab_task": "Write search_tickets that returns raw API JSON, about 40 fields for each of 50 tickets, and measure its size with POST /v1/messages/count_tokens or tiktoken. Add response_format (concise or detailed), a default limit of 10, next_cursor and a truncation note. Measure tokens again and confirm the model fetches page 2 on its own when asked for 15 tickets.",
+          "deliverable": "search_tickets implementation with token measurements for raw, concise and detailed results",
+          "checks": [["Count tokens for the raw 50-ticket result", "A baseline token count is recorded", "count_tokens output"], ["Call search_tickets with response_format=concise and the default limit", "10 tickets are returned using under 20% of the baseline tokens", "count_tokens output"], ["Ask the agent for the 15 most recent tickets", "The agent makes a second call that passes next_cursor", "Tool call trace"]],
+          "objectives": ["Design results that give the model only what it needs", "Add pagination and truncation the model can act on", "Measure result size in tokens"]
+        },
+        {
+          "topic": "Actionable Tool Errors and Recovery Hints",
+          "subtopics": ["Errors as tool results the model can read rather than exceptions that end the run", "isError: true in an MCP CallToolResult versus a JSON-RPC protocol error", "is_error on Anthropic tool_result content blocks", "Messages that say what failed and what to try next", "Validation errors that name the field and list allowed values", "Separating retryable errors from permanent ones", "Keeping stack traces, SQL and secrets out of error text", "Detecting repeated identical failures and stopping the loop"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "Anthropic Messages API", "Python"],
+          "lab_task": "Add error handling to create_ticket for 4 cases: invalid priority, unknown customer ID, upstream timeout and permission denied. Return each as a tool result with isError true and a message naming the cause and the next step, with no internal details. Run an agent against 4 prompts that trigger these errors and count how many it recovers from without human help.",
+          "deliverable": "create_ticket error-handling code with the 4 error results and the agent recovery count",
+          "checks": [["Call create_ticket with priority=urgent when only low, medium and high are allowed", "Result has isError true and lists low, medium and high", "MCP Inspector screenshot"], ["Call a tool name the server does not define", "The server answers with a JSON-RPC error object, not a CallToolResult", "Inspector history pane"], ["Force an upstream exception and read the result text", "No stack trace, file path or connection string appears", "Tool result"]],
+          "objectives": ["Return errors as results the model can act on", "Distinguish tool execution errors from protocol errors", "Keep internal details out of model-visible text"]
+        },
+        {
+          "topic": "Tool Registry and Dispatcher with Timeouts and Limits",
+          "subtopics": ["A registry that maps tool names to handlers, schemas and metadata", "Generating input schemas from Pydantic models", "Dispatching by name and rejecting unknown tools", "Per-tool timeouts with asyncio.wait_for", "Maximum calls per run and per tool", "Output size caps applied centrally", "Running independent read-only calls concurrently with asyncio.gather", "Recording a call ID for every invocation"],
+          "tools": ["Python asyncio", "Pydantic", "Anthropic Messages API", "OpenAI Responses API"],
+          "lab_task": "Build a registry with a @tool decorator that records name, description, a Pydantic input model and timeout_s. Write a dispatcher that validates input, enforces the timeout, caps output at 8,000 characters and stops after 15 calls per run. Register 4 tools, one of which sleeps 30 seconds, and drive them from a Claude or GPT loop.",
+          "deliverable": "Registry and dispatcher module with a run log showing timeout, truncation and call-limit behaviour",
+          "checks": [["Call the sleeping tool with timeout_s=5", "A timeout error result is returned after about 5 seconds", "Log with timestamps"], ["Return 50,000 characters from a tool", "The model receives at most 8,000 characters plus a truncation notice", "Captured tool result"], ["Prompt the agent into repeated calls", "The run stops at call 15 with a limit-reached message", "Run log"]],
+          "objectives": ["Centralise validation and limits in a dispatcher", "Enforce timeouts and output caps on every tool", "Stop runaway tool loops"]
+        },
+        {
+          "topic": "Serving Tools with FastMCP over stdio",
+          "subtopics": ["FastMCP from mcp.server.fastmcp and the @mcp.tool() decorator", "Docstrings and type hints becoming description and inputSchema", "Pydantic Field for constraints and parameter descriptions", "Returning text, structured data and images", "mcp.run(transport=\"stdio\") and why stdout must carry only protocol messages", "Logging to stderr and sending log and progress messages through the Context object", "Registering the server in an MCP host configuration file", "Starting the server with uv run mcp dev for Inspector testing"],
+          "tools": ["MCP Python SDK", "uv", "MCP Inspector", "Claude Desktop", "Visual Studio Code"],
+          "lab_task": "Port 3 tools from the day 7 registry to a FastMCP server, keeping their descriptions and constraints, and log to stderr only. Start it with uv run mcp dev server.py and call each tool once in Inspector. Then add the server to an MCP host such as Claude Desktop or VS Code and complete one task in the host that uses 2 of the tools.",
+          "deliverable": "FastMCP server source, host configuration snippet and a host screenshot of the 2-tool task",
+          "checks": [["Call tools/list in Inspector", "Exactly 3 tools appear, each with a description and inputSchema", "Inspector screenshot"], ["Add print() to stdout inside a tool and call it over stdio", "The host reports a parse or connection error until the output moves to stderr", "Host log"], ["Complete the host task", "The host shows 2 distinct tool calls with results", "Host conversation screenshot"]],
+          "objectives": ["Expose tools through an MCP server", "Keep the stdio channel clean", "Connect a server to an MCP host"]
+        },
+        {
+          "topic": "Tool Annotations: readOnlyHint, destructiveHint, idempotentHint and openWorldHint",
+          "subtopics": ["The ToolAnnotations object and its title field", "readOnlyHint for tools that never modify state", "destructiveHint and its default of true for tools that are not read-only", "idempotentHint for tools that are safe to repeat with the same arguments", "openWorldHint for tools that reach external systems", "Annotations are hints: hosts must not trust them from untrusted servers", "How hosts use annotations to decide when to ask for confirmation", "Reviewing annotations in code review"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "Claude Desktop", "Visual Studio Code"],
+          "lab_task": "Annotate the 3 FastMCP tools and add delete_ticket, setting title, readOnlyHint, destructiveHint, idempotentHint and openWorldHint with ToolAnnotations from mcp.types. Read the tools/list output, write a table of each tool's effective values including specification defaults, and record whether your MCP host prompts differently for read-only and destructive tools.",
+          "deliverable": "Annotated server source with an effective-annotation table and host prompt observations",
+          "checks": [["Read the tools/list JSON for search_tickets", "annotations.readOnlyHint is true", "Inspector JSON"], ["Read delete_ticket with destructiveHint left unset", "The table shows an effective destructiveHint of true from the specification default", "Annotation table"], ["Set readOnlyHint true on delete_ticket in a copy of the server", "The learner's note explains why a host should not lower its guard based on this hint from an unvetted server", "Written note"]],
+          "objectives": ["Annotate tools with accurate behaviour hints", "Explain the default values of each annotation", "Treat annotations from untrusted servers as untrusted"]
+        },
+        {
+          "topic": "Debugging Tool Servers with MCP Inspector and Host Logs",
+          "subtopics": ["Inspector UI panes: Tools, Resources, Prompts and History", "Inspector CLI mode with --cli and --method tools/list", "Passing environment variables and arguments to the server under test", "Reading the raw JSON-RPC request and response", "Where Claude Desktop and VS Code write MCP server logs", "Common failures: wrong command path, missing environment variables and stdout pollution", "Schema problems that make a host drop a tool", "Writing a reproducible bug report for a tool server"],
+          "tools": ["MCP Inspector", "uv", "Claude Desktop", "Visual Studio Code"],
+          "lab_task": "Break the server on purpose in 4 ways: wrong command path in the host config, missing API_TOKEN, an invalid inputSchema and printing to stdout. For each fault, reproduce it with npx @modelcontextprotocol/inspector --cli uv run server.py --method tools/list or the host log, capture the error, fix it and record the time to diagnosis.",
+          "deliverable": "Fault log with 4 entries: symptom, captured error, root cause, fix and time to diagnosis",
+          "checks": [["Run Inspector CLI with --method tools/list against the fixed server", "JSON output lists all 4 tools", "Terminal output"], ["Start the server without API_TOKEN", "The server exits or returns an error that names API_TOKEN", "stderr log"], ["Open the host log after the wrong-path fault", "The log shows a spawn failure such as ENOENT for the command", "Host log excerpt"]],
+          "objectives": ["Use MCP Inspector in UI and CLI modes", "Find tool server faults from host logs", "Write reproducible bug reports for servers"]
+        },
+        {
+          "topic": "Provider-Hosted Tools: Web Search, Code Execution and File Search",
+          "subtopics": ["Client-executed tools versus tools the provider runs on its servers", "Anthropic web search and code execution server tools", "OpenAI Responses API web_search, file_search and code_interpreter tools", "Where hosted calls appear in responses: server_tool_use blocks and web_search_call items", "Limiting hosted tools with max_uses, allowed domains and user location", "Data retention and residency questions before enabling hosted tools", "Per-call pricing of hosted tools on top of tokens", "Mixing hosted tools and your own tools in one request"],
+          "tools": ["Anthropic Messages API", "OpenAI Responses API", "Python"],
+          "lab_task": "Send the same research question through Anthropic's web search tool with max_uses set to 3 and allowed_domains set to 2 sites, and through the OpenAI Responses API web_search tool. Then ask both to compute a statistic with their hosted code execution tools. Record citations, hosted call counts, latency and billed tool usage for each response.",
+          "deliverable": "Hosted-tool comparison table with both raw responses and a recommendation on when to use each",
+          "checks": [["Read the usage block of the Anthropic response", "server_tool_use reports at most 3 web search requests", "Response JSON"], ["Check the citations in the Anthropic answer", "Every cited URL is on one of the 2 allowed domains", "Citation list"], ["Read the output array of the OpenAI response", "A web_search_call item appears before the message item", "Response JSON"]],
+          "objectives": ["Configure and limit provider-hosted tools", "Find hosted tool activity in API responses", "Decide when a hosted tool is preferable to your own"]
+        },
+        {
+          "topic": "Running Untrusted Code in Locked-Down Containers",
+          "subtopics": ["Why model-written code must be treated as untrusted", "docker run --rm --network none to remove network access", "--read-only root filesystem with a small --tmpfs /tmp", "--memory, --cpus and --pids-limit resource caps", "--cap-drop ALL, --security-opt no-new-privileges and a non-root --user", "Wall-clock timeouts enforced from outside the container", "Passing code in on stdin and results out without host bind mounts", "What a shared-kernel container does not protect against"],
+          "tools": ["Docker", "Python", "docker stats", "MCP Python SDK"],
+          "lab_task": "Build a run_python tool that runs model-written code in python:3.12-slim with --network none, --read-only, --tmpfs /tmp:size=64m, --memory 256m, --cpus 0.5, --pids-limit 64, --cap-drop ALL and --user 65534, killed after 10 seconds. Run 5 hostile snippets (fork bomb, memory hog, network call, write to /, infinite loop) and record each outcome.",
+          "deliverable": "run_python tool source with a results table for the 5 hostile snippets",
+          "checks": [["Run urllib.request.urlopen('https://example.com') in the sandbox", "It fails with a name resolution or network unreachable error", "Tool result"], ["Allocate 1 GB in a Python list", "The container is OOM-killed and exits with code 137", "docker inspect State output"], ["Run an infinite loop", "The tool kills the container after 10 seconds and returns a timeout result", "Tool result with timing"]],
+          "objectives": ["Run untrusted code with no network and capped resources", "Enforce time limits from outside the sandbox", "Explain the limits of container isolation"]
+        },
+        {
+          "topic": "Browser Tools with Playwright: Navigation, Snapshots and Forms",
+          "subtopics": ["Exposing a browser as tools: open_url, page_snapshot, click and fill_field", "Accessibility-tree snapshots versus screenshots as model input", "Playwright locators: get_by_role, get_by_label and get_by_text", "Waiting for navigation and load states", "The Playwright MCP server started with npx @playwright/mcp@latest", "Headless and headed runs and when to watch the browser", "Isolated browser contexts with no saved cookies", "Forms the agent may fill but not submit"],
+          "tools": ["Playwright for Python", "Playwright MCP", "Chromium", "Anthropic Messages API"],
+          "lab_task": "Wrap Playwright as open_url, page_snapshot (returning the accessibility tree) and fill_field, and let an agent fill a contact form on a local test site without submitting it. Repeat the task with @playwright/mcp in an MCP host. Compare steps taken, tokens per snapshot and whether the Submit button was ever clicked in either run.",
+          "deliverable": "Browser tool source, both run traces and a comparison of steps and snapshot tokens",
+          "checks": [["Call page_snapshot on the form page", "The result lists textbox roles with their accessible names", "Tool result"], ["Review the trace of the agent run", "No click on the button named Submit appears", "Playwright trace or tool log"], ["Create a fresh browser context and call context.cookies()", "An empty list is returned before navigation", "Script output"]],
+          "objectives": ["Expose browser actions as agent tools", "Give models compact page representations", "Limit what a browser agent is allowed to complete"]
+        },
+        {
+          "topic": "Read Versus Write Tools: Classifying Side Effects",
+          "subtopics": ["Side-effect classes: none, reversible write, irreversible write, external communication and spending money", "Separate read and write tools instead of a mode flag", "Blast radius: one record, many records or a whole tenant", "Dangerous parameters: bulk filters, wildcards and force flags", "Sending email or chat messages as an irreversible effect", "Mapping classes to annotations and approval rules", "Default deny for unclassified tools", "A side-effect register for the course toolset"],
+          "tools": ["Spreadsheet or YAML", "MCP Python SDK", "Python"],
+          "lab_task": "Classify every tool built so far plus 6 new ones (send_email, bulk_close_tickets, refund_payment, export_csv, update_ticket, delete_attachment) into the 5 side-effect classes. Record blast radius and reversibility for each, add a max_items cap to bulk tools, and split any tool that switches between read and write through a mode parameter into two tools.",
+          "deliverable": "Side-effect register for all tools and a diff of the tools you split or capped",
+          "checks": [["Review the side-effect register", "Every tool has exactly one class, a blast radius and a reversibility value", "Register file"], ["Search tool schemas for mode or action parameters", "No remaining tool switches between read and write behaviour", "Tool list diff"], ["Inspect bulk_close_tickets", "It is classed as a write with tenant-wide blast radius and has a max_items limit", "Tool specification"]],
+          "objectives": ["Classify tools by side effect and blast radius", "Separate read and write capabilities", "Cap dangerous bulk parameters"]
+        },
+        {
+          "topic": "Human Confirmation Before Write Actions",
+          "subtopics": ["Which side-effect classes need confirmation and which do not", "Showing the exact action: tool name, arguments and affected records", "Approve, edit and reject outcomes and how each returns to the model", "A confirmation gate inside the dispatcher", "Confirmation prompts in MCP hosts", "require_approval for remote MCP tools in the OpenAI Responses API", "Timeouts for unanswered confirmations", "Recording who approved what and when"],
+          "tools": ["Python", "MCP Python SDK", "OpenAI Responses API", "Claude Desktop"],
+          "lab_task": "Add a confirmation gate to the dispatcher for every tool classed as a write or external communication. Show the tool name, arguments and a plain-English summary, accept approve, edit or reject on the console, and return a rejection to the model as a tool result. Run 5 tasks and log every decision with user, timestamp and final arguments.",
+          "deliverable": "Confirmation gate code and a decision log covering 5 tasks",
+          "checks": [["Ask the agent to send an email", "Execution pauses and shows recipient, subject and body before anything is sent", "Console capture"], ["Reject the action", "The model receives a rejection result and replies without sending", "Run log"], ["Call search_tickets", "It runs with no confirmation prompt", "Run log"]],
+          "objectives": ["Gate write actions behind human confirmation", "Return approval decisions to the model cleanly", "Record confirmation decisions for audit"]
+        },
+        {
+          "topic": "Credentials for Tools: Scoped Keys, Environment Injection and Redaction",
+          "subtopics": ["Keeping secrets out of tool descriptions, prompts and results", "Injecting credentials into the tool process rather than the model context", "Read-only versus read-write keys and separate keys per tool group", "Fine-grained GitHub personal access tokens limited to one repository and permission", "Loading secrets from the environment or a secrets manager at startup", "Masking tokens in logs with pattern filters", "Rotating a leaked key and measuring time to revoke", "Finding committed secrets with gitleaks"],
+          "tools": ["Python logging", "GitHub fine-grained tokens", "gitleaks", "1Password CLI or AWS Secrets Manager"],
+          "lab_task": "Give the ticket read tools a read-only API key and the write tools a separate read-write key, both loaded from environment variables. Create a fine-grained GitHub token for one repository with only Issues read and write. Add a logging filter that masks token values, run gitleaks detect --source . on the project and fix any finding.",
+          "deliverable": "Credential map per tool, logging filter code and a clean gitleaks report",
+          "checks": [["Call the update endpoint directly with the read-only key", "The API returns 403 Forbidden", "HTTP response"], ["Search logs and traces for the raw token value", "Zero matches; only the masked form appears", "grep output"], ["Run gitleaks detect --source .", "The report says no leaks found", "gitleaks output"]],
+          "objectives": ["Scope credentials to what each tool needs", "Keep secrets out of model context and logs", "Detect leaked secrets before they ship"]
+        },
+        {
+          "topic": "Prompt Injection Through Tool Results: Seeing the Attack",
+          "subtopics": ["Indirect injection: instructions hidden in web pages, emails, tickets and files", "Why the model may obey text that arrives as a tool result", "Hidden text: HTML comments, white-on-white text and alt attributes", "Exfiltration through tool arguments and Markdown image URLs", "The lethal trifecta: private data, untrusted content and an outbound channel", "Attack success rate on a fixed payload set", "First mitigations: removing the outbound tool, confirmation and content labelling", "Writing up an injection finding"],
+          "tools": ["Python", "Anthropic Messages API", "OpenAI Responses API", "Local test web server"],
+          "lab_task": "In your own lab data, plant 5 injection payloads in ticket bodies and a local web page, each asking the agent to email the customer list to an outside address (send_email writes to a local file, not the internet). Count successful attacks with send_email enabled. Then remove send_email for runs that read untrusted content and rerun.",
+          "deliverable": "Injection experiment report with payloads, attack success counts and the traces of successful attacks",
+          "checks": [["Run the 5 payloads with send_email available", "Attack success is recorded as a count out of 5", "Run logs"], ["Rerun with send_email removed for runs that read untrusted content", "0 of 5 payloads cause an email", "Run logs"], ["Inspect one successful attack trace", "The send_email call is linked to the payload text that triggered it", "Annotated trace"]],
+          "objectives": ["Demonstrate indirect prompt injection through tool results", "Explain the lethal trifecta in a concrete toolset", "Measure the effect of removing an outbound capability"]
+        },
+        {
+          "topic": "Structured Audit Logs for Tool Calls",
+          "subtopics": ["One JSON record per call: run_id, call_id, tool, arguments, outcome and latency", "Who asked: user_id, agent_id and session_id", "Redacting personal data and secrets in arguments and results", "Storing a SHA-256 of large results instead of the result", "Outcome values for success, tool error and policy denial", "Querying logs with jq for failure rate per tool", "Retention period and access control for audit logs", "Linking log records to confirmation decisions"],
+          "tools": ["Python logging", "jq", "Microsoft Presidio", "grep"],
+          "lab_task": "Emit one JSON log line per tool call from the dispatcher with run_id, call_id, user_id, tool, redacted arguments, result SHA-256, outcome, approval_id and latency_ms. Run 30 tasks, then use jq to report calls per tool, error rate per tool and p95 latency, and show that no email address appears unmasked in the log.",
+          "deliverable": "Audit log file from 30 tasks with the jq queries and their output",
+          "checks": [["Count records with jq 'select(.outcome==\"error\")' | wc -l", "The count matches the errors in the run summary", "jq output"], ["Search the log with grep -E for email address patterns", "Only masked addresses such as j***@example.com appear", "grep output"], ["Pick an approved write call in the log", "Its approval_id matches a record in the confirmation log", "Log excerpts"]],
+          "objectives": ["Record tool calls in structured, queryable logs", "Redact sensitive values before they are stored", "Answer operational questions from audit logs"]
+        },
+        {
+          "topic": "Unit Tests for Tools and Scenario Checks for Tool Choice",
+          "subtopics": ["Testing tool handlers as plain functions with pytest", "Calling FastMCP tools through an in-memory client session in tests", "Faking upstream HTTP APIs with respx", "Testing error results and limits as well as success", "Scenario prompts: user request plus expected tool and key arguments", "Repeated trials at temperature 0", "Pass thresholds and handling flaky scenarios", "Running the suite on every change in CI"],
+          "tools": ["pytest", "respx", "MCP Python SDK", "GitHub Actions"],
+          "lab_task": "Write at least 12 pytest unit tests for the ticket tools covering success, validation errors, upstream timeout and the 8,000-character cap, with respx faking the API. Add 10 scenario prompts with expected tool names, run each 3 times against a model and fail the build if fewer than 27 of the 30 trials choose the expected tool.",
+          "deliverable": "Test suite with unit tests, scenario file and a CI run showing the gate",
+          "checks": [["Run uv run pytest -q", "At least 12 tests are collected and all pass", "pytest output"], ["Break the priority validation and rerun", "At least one test fails and names the priority case", "pytest output"], ["Run the scenario suite", "The report shows passed trials out of 30 and the gate result", "Scenario report"]],
+          "objectives": ["Unit test tool handlers and their failure paths", "Check model tool choice with scenario prompts", "Gate changes on test results"]
+        },
+        {
+          "topic": "Beginner Capstone: Safe Helpdesk Toolset Served over MCP",
+          "subtopics": ["Requirements: 6 tools covering search, read, update, comment, close and notify", "Side-effect register, annotations and confirmation rules", "A container-sandboxed report tool for ad-hoc analysis", "Audit logging with redaction", "Unit tests, scenario checks and an injection test set", "Demonstration and design review"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "Docker", "pytest", "jq"],
+          "lab_task": "Build a FastMCP helpdesk server with 6 tools, annotations, actionable errors and paginated results. Gate write and notify tools behind confirmation, add a run_python report tool in the locked-down container and log every call as JSON. Target: 12 or more passing unit tests, 27 of 30 scenario trials and 0 of 5 injection payloads succeeding.",
+          "deliverable": "Helpdesk MCP server repository with tests, side-effect register, audit log sample and a 10-minute demo",
+          "checks": [["Run the unit and scenario suites", "12 or more tests pass and at least 27 of 30 scenario trials succeed", "CI output"], ["Run the 5 injection payloads", "0 payloads cause data to leave the system", "Injection report"], ["Ask the agent to close a ticket", "A confirmation prompt appears and the audit log records its approval_id", "Demo recording and log line"]],
+          "objectives": ["Build a complete, tested toolset for an agent", "Apply side-effect controls and audit logging together", "Defend a tool design in a review"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who have built and tested a small toolset and now run agents with many tools, real credentials and real side effects. Covers the context cost of large catalogs, tool search with deferred loading, routing to toolsets and sub-agents, code-orchestrated tool calls, comparing code execution sandboxes, jailed filesystem and shell tools, computer-use tools, writing MCP clients, remote servers over Streamable HTTP, structured output and resource links, long-running tools, OAuth scopes per tool, least-privilege identities with short-lived credentials, idempotency, plan-then-apply tools, durable approval workflows, OpenTelemetry tool tracing, containing injection from tool results, and contract tests, ending with a multi-server toolkit capstone.",
+      "prerequisites": ["Completed the Tool Calling beginner level or has shipped an MCP server or agent toolset with tests, annotations and confirmation for writes", "Comfortable with async Python, HTTP APIs, Docker, PostgreSQL and reading JSON Web Tokens", "Has a Linux machine or VM where gVisor can be installed, plus access to Keycloak or another OAuth 2.1 authorization server and an OpenTelemetry backend such as Jaeger"],
+      "outcomes": ["Keep large tool catalogs usable with token measurement, tool search, routing and code-orchestrated calls", "Choose and operate execution runtimes for code, files, shells, browsers and desktops with measured isolation", "Build MCP clients and remote servers with structured output, progress, cancellation and OAuth scopes mapped to tools", "Make agent actions safe to retry and review with idempotency keys, plan-then-apply tools, durable approvals, tracing and injection containment"],
+      "days": [
+        {
+          "topic": "Context Cost of Tool Catalogs: Measuring Definition Tokens",
+          "subtopics": ["How tool definitions are sent with every request", "Counting definition tokens with /v1/messages/count_tokens and tiktoken", "Token cost of 5, 50 and 500 tools", "Selection accuracy as catalog size grows", "Connected MCP servers that silently add dozens of tools", "Per-agent tool budgets in tokens and counts", "Trimming descriptions without losing accuracy", "Reporting catalog cost per request and per day"],
+          "tools": ["Anthropic token counting API", "tiktoken", "MCP Python SDK", "pandas", "matplotlib"],
+          "lab_task": "Load tool definitions from 4 MCP servers, about 60 tools, and count tokens for 5, 20 and all 60 tools with the count_tokens endpoint using the same user message. Run 25 labelled tasks at each size and chart selection accuracy and input tokens against tool count. List the tools never selected and decide keep, merge or drop for each.",
+          "deliverable": "Catalog cost report with token counts, an accuracy chart and a keep-merge-drop list",
+          "checks": [["Count tokens for 0 tools and for 60 tools with the same message", "The difference is recorded as the per-request catalog cost", "count_tokens output"], ["Compare accuracy at 5 and 60 tools", "Accuracy at each size is reported as correct out of 25", "Chart"], ["List tools with zero selections across all runs", "Each unused tool has a keep, merge or drop decision", "Analysis sheet"]],
+          "objectives": ["Measure the context cost of tool definitions", "Relate catalog size to selection accuracy", "Prune catalogs with evidence"]
+        },
+        {
+          "topic": "Tool Search and Deferred Loading",
+          "subtopics": ["Loading a small core set and discovering other tools on demand", "Anthropic's tool search tool and defer_loading on tool definitions", "Regex and BM25 search variants", "Building your own search_tools tool over an embedding index", "What to index: names, descriptions, parameter names and examples", "Recall@k for tool retrieval on labelled tasks", "Keeping always-needed tools loaded", "Failure modes: the right tool never surfaces or near-duplicates crowd it out"],
+          "tools": ["Anthropic Messages API", "sentence-transformers", "NumPy", "MCP Python SDK"],
+          "lab_task": "Mark 55 of the 60 tools defer_loading true, enable Anthropic's tool search tool and run the 25 tasks, recording accuracy and input tokens. Then build your own search_tools tool with embeddings over names and descriptions, measure recall@5 on the same tasks and compare both designs with the all-tools-loaded baseline.",
+          "deliverable": "Tool search comparison with accuracy, tokens and recall@5 for three designs",
+          "checks": [["Run the 25 tasks with deferred loading", "Input tokens per request are lower than in the all-tools run", "Usage report"], ["Compute recall@5 for the embedding search", "Recall@5 is reported as a fraction of 25", "Evaluation script output"], ["Ask for a task that needs a deferred tool", "The trace shows a tool search step before that tool is called", "Response trace"]],
+          "objectives": ["Use provider tool search with deferred definitions", "Build and evaluate a custom tool retriever", "Decide which tools must stay loaded"]
+        },
+        {
+          "topic": "Routing Requests to Toolsets and Specialist Sub-Agents",
+          "subtopics": ["Static toolsets per agent role", "A small router model that picks a toolset", "Sub-agents with narrow tools and their own context windows", "Agents as tools: exposing a sub-agent to the orchestrator as one tool", "Returning only the needed result to the orchestrator", "Filtering tools by user permission before routing", "Router accuracy and fallback to a general toolset", "Latency and cost of the extra routing hop"],
+          "tools": ["OpenAI Agents SDK", "OpenAI Responses API", "MCP Python SDK", "pandas"],
+          "lab_task": "Split the 60 tools into 4 toolsets: billing, support, engineering and admin. Build a router with a small model that picks a toolset and expose each toolset as a sub-agent with the OpenAI Agents SDK agent.as_tool(). Run the 25 tasks and compare accuracy, total tokens and p50 latency with the single 60-tool agent.",
+          "deliverable": "Router and sub-agent implementation with a comparison table against the single agent",
+          "checks": [["Run the router on the 25 labelled tasks", "The expected toolset is chosen for a reported count out of 25", "Router log"], ["Compare total tokens with the single-agent run", "Token totals for both designs are reported side by side", "Comparison table"], ["Send a request outside all 4 domains", "The router falls back to the general toolset or asks a clarifying question", "Trace"]],
+          "objectives": ["Partition tools by role and route between them", "Wrap sub-agents as tools", "Measure the trade-offs of routing"]
+        },
+        {
+          "topic": "Programmatic Tool Orchestration: Letting Code Call Tools",
+          "subtopics": ["Why chaining many calls through the model costs tokens and latency", "The model writes a script that calls tools inside a sandbox", "Anthropic programmatic tool calling and the allowed_callers field", "Exposing MCP tools as a typed Python API inside the sandbox", "Keeping large intermediate results out of the model context", "Calls made from code still pass through policy and confirmation", "When direct calls are the better choice", "Debugging generated orchestration scripts"],
+          "tools": ["Anthropic Messages API", "Docker", "MCP Python SDK", "Python"],
+          "lab_task": "Pick a task that needs 20 or more lookups, such as summing overdue invoices across 25 customers. Run it with direct tool calls and record round trips, tokens and time. Then expose the same tools as Python functions inside your sandbox, let the model write one script that calls them, and compare tokens, time and correctness of the total.",
+          "deliverable": "Direct versus code-orchestrated comparison with traces and the generated script",
+          "checks": [["Run the direct-call version", "Model round trips and input tokens are recorded", "Trace"], ["Run the code-orchestrated version", "Input tokens are lower and the total matches the direct-call answer", "Comparison table"], ["Have the generated script call a write tool", "The call is held by the confirmation gate", "Gate log"]],
+          "objectives": ["Let models orchestrate tools through code", "Keep bulky intermediate data out of context", "Keep safety controls on code-initiated calls"]
+        },
+        {
+          "topic": "Code Execution Sandboxes Compared: Containers, gVisor, Firecracker and Hosted",
+          "subtopics": ["Threat model: kernel escape, resource abuse and data exfiltration", "Shared-kernel containers with runc and their limits", "gVisor runsc as a user-space kernel", "Firecracker microVMs and snapshot restore for fast start", "Hosted sandboxes such as E2B and provider code execution tools", "WebAssembly runtimes such as Pyodide and Wasmtime", "Start time, cost and package availability trade-offs", "Persisting files between calls in one session"],
+          "tools": ["Docker", "gVisor", "Firecracker", "E2B", "Pyodide"],
+          "lab_task": "Run 5 hostile snippets and a pandas workload in Docker with runc, in Docker with --runtime=runsc and in an E2B sandbox through Sandbox().run_code(). Record cold-start time over 10 runs, workload time and each snippet's outcome. Then choose a runtime for 3 described products and justify each choice in one paragraph.",
+          "deliverable": "Sandbox comparison matrix with timings, snippet outcomes and 3 runtime recommendations",
+          "checks": [["Run dmesg inside the runsc container", "Output shows gVisor's own boot messages, not the host kernel log", "Terminal output"], ["Measure cold start 10 times per runtime", "The median start time for each runtime is reported", "Timing table"], ["Run the network snippet in E2B", "The outcome matches the sandbox's configured internet access setting", "Results table"]],
+          "objectives": ["Compare isolation technologies for code execution", "Measure start-up and run-time cost of each runtime", "Match a runtime to a product's risk"]
+        },
+        {
+          "topic": "Filesystem and Shell Tools for Coding Agents: Path Jails and Command Allow-Lists",
+          "subtopics": ["Workspace roots and resolving paths with os.path.realpath before access", "Blocking ../ traversal and symlink escapes", "Text editor tools with view, create, str_replace and insert commands", "Shell tools with allow-listed commands and argument patterns", "Denying network commands and package installs by default", "Output limits and timeouts for long commands", "Allow, ask and deny permission rules in coding agents", "Undoing agent edits with snapshots or git worktrees"],
+          "tools": ["Python", "pytest", "ruff", "Docker"],
+          "lab_task": "Implement read_file, write_file and run_command tools jailed to a workspace directory. Resolve every path with os.path.realpath and refuse anything outside the root, including through symlinks. Allow only pytest, ruff and ls, with a 60-second timeout and a 10,000-character output cap. Run 8 escape attempts and record which were blocked.",
+          "deliverable": "Jailed file and shell tools with an escape-attempt results table",
+          "checks": [["Call read_file('../../etc/passwd')", "Refused with a path-outside-workspace error", "Tool result"], ["Read through a workspace symlink that points to /etc", "Refused after realpath resolution", "Tool result"], ["Call run_command('curl https://example.com')", "Refused because curl is not on the allow-list", "Tool result"]],
+          "objectives": ["Confine file tools to a workspace", "Restrict shell tools with allow-lists and limits", "Test tools against escape attempts"]
+        },
+        {
+          "topic": "Computer-Use Tools: Screenshots, Input Actions and a Virtual Display",
+          "subtopics": ["The screenshot, decide, act loop", "Anthropic computer use actions such as screenshot, left_click, type, key and scroll", "OpenAI computer use with computer_call and computer_call_output items", "Running a desktop in a container with Xvfb and a VNC viewer", "Screen resolution, scaling and click accuracy", "Pausing for confirmation on payments, sign-ins and sends", "Prompt injection from on-screen content", "When an API or browser tool should replace computer use"],
+          "tools": ["Anthropic computer use tool", "OpenAI computer use tool", "Docker", "Xvfb", "VNC viewer"],
+          "lab_task": "Start a containerised Linux desktop with Xvfb at 1280x800, connect a VNC viewer and drive it with a computer-use loop that opens a text editor, types a 3-line note and saves it. Add a rule that pauses for human confirmation when a dialog contains Pay or Sign in. Run the task 5 times and record actions, screenshots and success.",
+          "deliverable": "Computer-use harness with 5 run logs, the pause rule and a saved-file check",
+          "checks": [["Run the note task 5 times", "Success count out of 5 and average actions per run are recorded", "Run log"], ["Display a dialog that contains the word Pay", "The loop pauses and asks for human confirmation", "Screenshot and log"], ["Read the saved file with cat", "It contains exactly the 3 requested lines", "Terminal output"]],
+          "objectives": ["Run computer-use agents in an isolated desktop", "Add confirmation points to screen-driven actions", "Decide when computer use is the wrong tool"]
+        },
+        {
+          "topic": "Writing an MCP Client: Sessions, Multiple Servers and list_changed",
+          "subtopics": ["ClientSession with stdio_client and streamablehttp_client in the Python SDK", "initialize, capability negotiation and protocol version", "Building one catalog from several servers", "Prefixing tool names by server to avoid collisions", "Converting MCP tool schemas into provider tool definitions", "Handling notifications/tools/list_changed and refreshing the catalog", "Restarting crashed stdio servers", "Timeouts and cancellation with notifications/cancelled"],
+          "tools": ["MCP Python SDK", "Anthropic Messages API", "MCP Inspector", "Python asyncio"],
+          "lab_task": "Write a Python MCP client that connects to 3 servers (2 over stdio, 1 over Streamable HTTP), merges their tools with server-name prefixes, converts them to Anthropic tool definitions and runs an agent loop. Make one server add a tool at runtime and send list_changed, then kill a stdio server mid-run and show the client recovering.",
+          "deliverable": "MCP client source with logs of catalog refresh and server restart",
+          "checks": [["Print the merged catalog", "Every tool name has its server prefix and there are no duplicates", "Console output"], ["Trigger notifications/tools/list_changed", "The new tool appears in the next model request's tool list", "Client log"], ["Kill one stdio server process", "The client reports the failure, restarts the server and the next call succeeds", "Client log"]],
+          "objectives": ["Build an MCP client that manages several servers", "Keep the tool catalog current at runtime", "Recover from server failures"]
+        },
+        {
+          "topic": "Remote Tool Servers over Streamable HTTP: Sessions, Resumability and Origin Checks",
+          "subtopics": ["One MCP endpoint that accepts POST and GET", "Issuing and reusing the Mcp-Session-Id header", "The MCP-Protocol-Version header on requests", "SSE streams for server messages and Last-Event-ID resumption", "Validating the Origin header against DNS rebinding", "Binding local servers to 127.0.0.1", "Stateless mode for horizontal scaling", "Testing with curl and MCP Inspector"],
+          "tools": ["MCP Python SDK", "curl", "MCP Inspector", "Uvicorn"],
+          "lab_task": "Run the helpdesk server with transport=\"streamable-http\" bound to 127.0.0.1. Send initialize with curl -i, capture the Mcp-Session-Id header and call tools/list with it. Add Origin validation, send a request with Origin: https://evil.example and a request with a made-up session ID, record the status codes, then connect from Inspector.",
+          "deliverable": "Remote server configuration with curl transcripts for session, Origin and invalid-session cases",
+          "checks": [["POST initialize with curl -i", "The response includes an Mcp-Session-Id header", "curl output"], ["Send a request with Origin: https://evil.example", "The server rejects it with HTTP 403", "curl output"], ["Call tools/list with a made-up session ID", "The server returns HTTP 404", "curl output"]],
+          "objectives": ["Serve tools remotely over Streamable HTTP", "Handle MCP sessions and protocol headers", "Protect local and remote servers from cross-origin abuse"]
+        },
+        {
+          "topic": "Structured Tool Output: outputSchema, structuredContent and Resource Links",
+          "subtopics": ["Declaring outputSchema in tools/list", "structuredContent in CallToolResult with a text fallback", "Clients validating structuredContent against outputSchema", "resource_link items for large or binary results", "Embedded resources versus links", "Pydantic return types that generate outputSchema in FastMCP", "Consuming structured results in code without parsing text", "Changing output shapes without breaking clients"],
+          "tools": ["MCP Python SDK", "Pydantic", "jsonschema", "MCP Inspector"],
+          "lab_task": "Change get_ticket and search_tickets to return Pydantic models so FastMCP publishes an outputSchema, and return a resource_link for attachments instead of inlining them. In your client, validate structuredContent with jsonschema and fail the call on mismatch. Then remove a required field on the server and confirm the client rejects the result.",
+          "deliverable": "Server and client changes with Inspector JSON for the new results and the validation failure log",
+          "checks": [["Call tools/list", "get_ticket includes an outputSchema object", "Inspector JSON"], ["Call get_ticket", "The result has structuredContent and a text block carrying the same data", "Inspector JSON"], ["Return a ticket missing a required field", "Client validation fails and names the missing field", "Client log"]],
+          "objectives": ["Publish typed tool results", "Validate tool output on the client", "Use resource links for large content"]
+        },
+        {
+          "topic": "Long-Running Tools: Progress, Cancellation and Background Jobs",
+          "subtopics": ["Why multi-minute tool calls break agent loops", "progressToken and notifications/progress", "Context.report_progress in FastMCP", "Cancellation with notifications/cancelled", "The start_job, get_job_status and get_job_result pattern", "Task-based deferred results in recent MCP specification versions", "Timeout budgets across client, server and upstream", "Cleaning up abandoned jobs"],
+          "tools": ["MCP Python SDK", "MCP Inspector", "Python asyncio", "Redis"],
+          "lab_task": "Build export_report, which takes about 90 seconds. First implement it as one tool that calls ctx.report_progress every 10% and honours cancellation. Then implement start_export, get_export_status and get_export_result backed by Redis. Cancel one run at about 50% and confirm the worker stops and no file is written.",
+          "deliverable": "Both export implementations with Inspector captures of progress and cancellation",
+          "checks": [["Call export_report from Inspector", "At least 10 progress notifications arrive before the result", "Inspector notifications pane"], ["Cancel the request at about 50%", "The worker stops and no output file exists", "Server log and ls output"], ["Call get_export_status with an unknown job ID", "The result has isError true with a not-found message", "Tool result"]],
+          "objectives": ["Report progress from long tools", "Support cancellation end to end", "Design job-style tools for slow work"]
+        },
+        {
+          "topic": "OAuth for Remote Tools: Scopes, Audience-Bound Tokens and No Token Passthrough",
+          "subtopics": ["Tool servers as OAuth 2.1 resource servers", "Protected Resource Metadata (RFC 9728) and WWW-Authenticate on 401", "Authorization code flow with PKCE in MCP clients", "Resource indicators (RFC 8707) that bind a token to one server", "Validating iss, aud, exp and scope on every request", "Mapping scopes to tools: tickets:read versus tickets:write", "Why forwarding the client's token to upstream APIs is forbidden", "Returning 403 with error=\"insufficient_scope\""],
+          "tools": ["Keycloak", "MCP Python SDK", "PyJWT", "curl"],
+          "lab_task": "Protect the remote helpdesk server with Keycloak as authorization server. Serve /.well-known/oauth-protected-resource, return 401 with WWW-Authenticate when no token is sent, validate issuer, audience and expiry, and require tickets:write for write tools. Test with no token, a token for another audience and a token holding only tickets:read.",
+          "deliverable": "OAuth-protected server with metadata document and curl transcripts for the 3 negative tests",
+          "checks": [["Call the server with no token", "HTTP 401 with a WWW-Authenticate header that points to the resource metadata", "curl -i output"], ["Use a valid token issued for a different audience", "The request is rejected with 401", "Server log"], ["Call update_ticket with only tickets:read", "HTTP 403 with error=\"insufficient_scope\"", "curl -i output"]],
+          "objectives": ["Protect remote tools with OAuth 2.1", "Map scopes to individual tools", "Reject tokens not issued for this server"]
+        },
+        {
+          "topic": "Least-Privilege Tool Identities and Short-Lived Credentials",
+          "subtopics": ["One identity per tool group instead of a shared admin key", "Database roles with SELECT-only grants for read tools", "Row-level security to scope tools to one tenant", "Short-lived cloud credentials with AWS STS AssumeRole and session policies", "Dynamic database credentials from HashiCorp Vault", "Matching credential lifetime to run length", "Checking effective permissions with policy simulators", "Finding and removing unused permissions"],
+          "tools": ["PostgreSQL", "HashiCorp Vault", "AWS STS", "psql"],
+          "lab_task": "Create a PostgreSQL role agent_reader with SELECT on 2 tables and enable row-level security by tenant_id. Configure Vault's database secrets engine to issue agent_reader credentials with a 15-minute TTL. Make the query tool fetch new credentials per run, then attempt an UPDATE, a cross-tenant SELECT and a login after the lease expires.",
+          "deliverable": "Role and policy definitions, Vault configuration and results of the 3 privilege tests",
+          "checks": [["Run UPDATE tickets SET status='closed' through the query tool", "It fails with ERROR: permission denied for table tickets", "Tool result"], ["SELECT tickets belonging to another tenant", "The query returns 0 rows", "Query output"], ["Use the credentials after 15 minutes", "Login fails because Vault revoked the lease", "psql error output"]],
+          "objectives": ["Give each tool the narrowest identity it needs", "Issue short-lived credentials per run", "Prove least privilege with negative tests"]
+        },
+        {
+          "topic": "Idempotency and Duplicate Protection for Agent Actions",
+          "subtopics": ["Why agents repeat actions: retries, replays, loops and resumed runs", "Idempotency keys derived from run ID and call ID", "Deduplication tables with UNIQUE constraints", "Returning the original result for a repeated key", "Naturally idempotent set-state operations versus increments", "Upstream support such as the Idempotency-Key header on payment APIs", "Key expiry and conflicts when a key arrives with different arguments", "Testing duplicates with forced retries"],
+          "tools": ["PostgreSQL", "Python asyncio", "pytest", "Stripe test mode"],
+          "lab_task": "Add idempotency to refund_payment: derive a key from run_id and call_id, store it with a request hash and the result in a table with a UNIQUE constraint, return the stored result on repeat and reject the same key with different arguments. Fire the same call 5 times concurrently and resume a crashed run, then count refunds.",
+          "deliverable": "Idempotent refund tool with the deduplication schema and duplicate-test results",
+          "checks": [["Fire 5 concurrent identical refund calls", "Exactly 1 refund row exists and all 5 calls return the same refund ID", "SQL count and call results"], ["Reuse the key with a different amount", "The call fails with an idempotency conflict error", "Tool result"], ["Resume a crashed run that had already refunded", "No second refund is created", "Database query"]],
+          "objectives": ["Make write tools safe to repeat", "Detect key reuse with changed arguments", "Test duplicate protection under concurrency"]
+        },
+        {
+          "topic": "Dry Runs, Previews and Plan-Then-Apply Tools",
+          "subtopics": ["dry_run parameters versus separate preview tools", "Returning a diff or affected-record list before acting", "Plan IDs so that apply executes only what the human saw", "Patterns from operations tools: terraform plan and kubectl apply --dry-run=server", "Expiring plans when the underlying data changes", "Bulk operations with max_items and sample previews", "Showing previews in approval screens", "Testing that previews never write"],
+          "tools": ["PostgreSQL", "MCP Python SDK", "pytest", "Python"],
+          "lab_task": "Split bulk_close_tickets into plan_bulk_close, which returns affected IDs, a count and a plan_id tied to a hash of the selection, and apply_bulk_close(plan_id). Make apply fail if the plan is older than 10 minutes or the selection has changed. Show the plan in the confirmation prompt and prove the plan step never writes.",
+          "deliverable": "Plan and apply tools with tests for stale plans and zero writes during planning",
+          "checks": [["Run plan_bulk_close and count modified rows", "Zero rows are modified", "Row counts before and after"], ["Change one ticket, then call apply_bulk_close with the old plan_id", "Apply is refused with a stale-plan error", "Tool result"], ["Apply a fresh approved plan", "Exactly the planned number of tickets are closed", "SQL count"]],
+          "objectives": ["Preview the effect of destructive tools", "Bind execution to the approved plan", "Reject stale plans"]
+        },
+        {
+          "topic": "Approval Workflows: Risk Tiers, Pause-and-Resume and Approval Records",
+          "subtopics": ["Risk tiers derived from side-effect class and blast radius", "Pausing with LangGraph interrupt() and resuming with Command(resume=...)", "Checkpointers so paused runs survive restarts", "mcp_approval_request and mcp_approval_response items in the OpenAI Responses API", "Approvals through signed links in chat or email", "Editing arguments during approval and validating them again", "Approval expiry with default deny", "Separation of duties for high-risk actions"],
+          "tools": ["LangGraph", "PostgreSQL", "OpenAI Responses API", "FastAPI"],
+          "lab_task": "Build a LangGraph agent whose tool node calls interrupt() for tier-2 and tier-3 actions, with a Postgres checkpointer. Send approvals to a web page through a signed link and resume with Command(resume={\"approved\": True}). Restart the process while a run is paused, then resume it. Repeat one approval with the Responses API MCP tool.",
+          "deliverable": "Durable approval workflow with traces of the restart test and the Responses API approval",
+          "checks": [["Restart the process while a run waits for approval", "After approval the run resumes from the checkpoint with no repeated tool calls", "Trace"], ["Let an approval expire", "The action does not run and the model receives a denied result", "Run log"], ["Call the Responses API with an MCP tool that requires approval", "The output contains an mcp_approval_request item", "Response JSON"]],
+          "objectives": ["Build approvals that survive restarts", "Assign approval rules by risk tier", "Use provider-side approval for remote MCP tools"]
+        },
+        {
+          "topic": "Tracing Tool Execution with OpenTelemetry GenAI Conventions",
+          "subtopics": ["Spans for agent invocation, model calls and tool execution", "execute_tool spans with gen_ai.tool.name and gen_ai.tool.call.id", "Propagating trace context from client to remote tool server", "Recording failures with span status and error.type", "Keeping arguments and results out of spans by default", "Metrics: call count, duration histogram and error rate per tool", "Exporting over OTLP to Jaeger or a hosted backend", "Following one request across agent, MCP server and upstream API"],
+          "tools": ["OpenTelemetry Python SDK", "OpenTelemetry Collector", "Jaeger", "MCP Python SDK"],
+          "lab_task": "Instrument the client and the remote server with the OpenTelemetry SDK, emitting one execute_tool span per call with gen_ai.operation.name, gen_ai.tool.name and gen_ai.tool.call.id. Propagate traceparent over HTTP, export over OTLP to Jaeger, run 20 tasks and find the slowest tool and the most common error.type.",
+          "deliverable": "Instrumented client and server with Jaeger screenshots and a slowest-tool and top-error summary",
+          "checks": [["Open one trace in Jaeger", "Model call, execute_tool and upstream HTTP spans share one trace ID", "Jaeger screenshot"], ["Inspect an execute_tool span", "gen_ai.tool.name and gen_ai.tool.call.id are set and no raw arguments are recorded", "Span attributes"], ["Force a tool timeout", "The span has status ERROR and an error.type attribute", "Jaeger span view"]],
+          "objectives": ["Trace tool calls end to end", "Apply GenAI semantic conventions to tool spans", "Find slow and failing tools from traces"]
+        },
+        {
+          "topic": "Containing Injection from Tool Results: Labels, Quarantine and Capability Limits",
+          "subtopics": ["Marking untrusted results with delimiters and provenance", "Spotlighting with datamarking or encoding", "Quarantined reader models that have no tools", "Disabling outbound tools after untrusted content enters the context", "Allow-lists for URLs and recipients in outbound tools", "Classifier screening of tool results", "Measuring attack success and benign task success together", "Why detection alone is not a sufficient defence"],
+          "tools": ["Python", "Anthropic Messages API", "Prompt Guard or another injection classifier", "pandas"],
+          "lab_task": "Extend the beginner payload set to 20 payloads across tickets, web pages and PDFs in your lab. Add 3 defences one at a time: provenance labels, a quarantined summariser with no tools, and a session rule that disables send_email after untrusted content is read. After each step, record attack success out of 20 and success on 20 benign tasks.",
+          "deliverable": "Defence-by-defence results table with attack and benign success rates",
+          "checks": [["Run all 20 payloads with no defences", "Baseline attack success is recorded out of 20", "Results table"], ["Enable the rule that disables outbound tools after untrusted reads", "0 of 20 payloads send email", "Results table"], ["Run 20 benign tasks with all defences on", "Benign success is reported next to the attack results", "Results table"]],
+          "objectives": ["Layer defences against injection through tool results", "Limit capabilities based on what the agent has read", "Report security and utility together"]
+        },
+        {
+          "topic": "Contract and Replay Tests for Tool Servers",
+          "subtopics": ["Snapshot tests of tools/list to catch schema changes", "Contract tests between client expectations and server output", "Recording upstream HTTP with pytest-recording cassettes", "Replaying recorded agent trajectories against a new server version", "Property-based tests of argument validation with Hypothesis", "Fault injection: timeouts, HTTP 500s and malformed upstream responses", "Tests for annotations and auth requirements", "Running everything in CI with a merge gate"],
+          "tools": ["pytest", "pytest-recording", "Hypothesis", "respx", "GitHub Actions"],
+          "lab_task": "Add a tools/list snapshot test, 3 contract tests on structuredContent, pytest-recording cassettes for upstream calls and a Hypothesis test that fuzzes create_ticket arguments. Inject timeouts and HTTP 500s with respx. Rename a parameter and confirm the snapshot test fails in CI before the change can merge.",
+          "deliverable": "Contract and replay test suite with a failing CI run for the renamed parameter",
+          "checks": [["Rename a parameter and run pytest", "The tools/list snapshot test fails and shows the diff", "pytest output"], ["Run the Hypothesis test", "No unhandled exception occurs and invalid inputs return isError results", "pytest output"], ["Run the suite with network access blocked", "All tests pass using the recorded cassettes", "pytest output"]],
+          "objectives": ["Catch breaking tool changes before release", "Fuzz tool inputs", "Run tool tests offline and repeatably"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Server Agent Toolkit with Approvals and Tracing",
+          "subtopics": ["Three MCP servers behind one client with a prefixed catalog and tool search", "An OAuth-protected remote server with per-tool scopes", "Sandboxed code execution and jailed file tools", "Idempotent writes, plan-then-apply tools and durable approvals", "Injection containment with measured attack success", "OpenTelemetry traces and contract tests in CI"],
+          "tools": ["MCP Python SDK", "LangGraph", "Keycloak", "gVisor", "OpenTelemetry", "pytest"],
+          "lab_task": "Deliver an agent that uses 3 MCP servers, one remote behind OAuth, with tool search over 40 or more tools, a gVisor or hosted sandbox, an idempotent refund tool, plan-then-apply bulk tools, LangGraph approvals that survive restarts, OTel traces and CI tests. Targets: 22 of 25 tasks, 0 of 20 attacks and 0 duplicate writes.",
+          "deliverable": "Toolkit repository, evaluation and injection reports, trace screenshots and a design review",
+          "checks": [["Run the 25-task suite", "At least 22 tasks succeed", "Evaluation report"], ["Run the 20 injection payloads", "0 payloads exfiltrate data or perform writes", "Injection report"], ["Replay 10 write calls with forced retries", "0 duplicate records are created", "Database query"]],
+          "objectives": ["Integrate catalog scaling, runtimes, auth and safety controls", "Meet measured quality and security targets", "Present and defend a multi-server tool design"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform, security and staff engineers who run tools for many agents, teams or tenants. Covers tool platform architecture with a gateway, registry, policy engine and runtime pools, policy as code with Open Policy Agent, information-flow control and taint tracking, adversarial testing with AgentDojo and custom suites, tool poisoning and definition pinning, hardened sandboxes at scale, isolated browser agents, delegated authorization with token exchange, multi-tenant tool servers, sagas and compensation, approval at scale, tool SLOs, usability evaluation with simulated users, evaluation-driven tool improvement, canary releases, governance, supply chain controls, incident response and audit evidence, ending with a governed enterprise tool platform capstone.",
+      "prerequisites": ["Completed the Tool Calling intermediate level or operates agent tools in production with OAuth, sandboxes, approvals and tracing", "Writes production Python or Go and is comfortable with Kubernetes or another container platform, PostgreSQL and Prometheus or Grafana", "Has access to a Linux host or cluster for microVM or gVisor sandboxes, an OAuth server that supports token exchange such as Keycloak, and an S3-compatible object store"],
+      "outcomes": ["Design and run a tool platform with a gateway, registry, policy as code, taint tracking and pinned tool definitions", "Isolate code, browser and tenant workloads and delegate user authority to tools without confused-deputy risk", "Keep multi-step actions correct and reviewable with sagas, auto-approval rules, SLOs and canary releases", "Govern toolsets with inventories, supply chain controls, evaluation-driven improvement, incident response and tamper-evident audit evidence"],
+      "days": [
+        {
+          "topic": "Tool Platform Architecture: Gateway, Registry, Policy Engine and Runtimes",
+          "subtopics": ["Reference design: agents, tool gateway, registry, policy decision point and execution runtimes", "A gateway that terminates MCP and routes calls to backends", "A central registry with owner, risk tier and version for every tool", "Policy checks on every call, not only when the catalog is built", "Runtime pools for containers, microVMs, browsers and desktops", "Identity flow from user to agent to tool", "Audit and telemetry pipelines", "Failure domains and fail-closed behaviour"],
+          "tools": ["MCP Python SDK", "Open Policy Agent", "PostgreSQL", "OpenTelemetry", "Kubernetes"],
+          "lab_task": "Write an architecture decision record for a tool platform that serves 30 agents and 200 tools, with a component diagram, the call path for a write action and the identity flow. Then build a thin gateway that proxies MCP tools/call to 2 backend servers, asks a policy service before each call and emits an audit event after it.",
+          "deliverable": "Architecture decision record and a working gateway prototype with logs of one write call",
+          "checks": [["Trace one write call through the gateway", "Logs show the policy decision, backend call and audit event in that order", "Gateway log"], ["Stop the policy service and call a tool", "The gateway denies the call and returns an error result", "Tool result"], ["Review the decision record", "Each component has a named owner and a documented failure mode", "ADR document"]],
+          "objectives": ["Design a shared platform for agent tools", "Put policy and audit on every tool call", "Make the platform fail closed"]
+        },
+        {
+          "topic": "Policy as Code for Tool Calls with Open Policy Agent",
+          "subtopics": ["Policy input: user, agent, tool, arguments, risk tier and session taint", "Rego rules with default allow := false", "Argument rules: amount limits, recipient domains and path prefixes", "Returning decisions with reasons the model can read", "Unit testing policies with opa test", "Bundles and versioned policy distribution", "Decision logs for audit", "Decision latency per call"],
+          "tools": ["Open Policy Agent", "Rego", "opa test", "k6"],
+          "lab_task": "Write a Rego package tools.authz with default allow := false and rules that allow reads for all users, refunds up to 100.00 for support agents and email only to @example.com recipients. Write 15 opa test cases, serve the policy with opa run --server, call it from the gateway and measure p99 decision latency over 1,000 calls.",
+          "deliverable": "Rego policy with 15 tests, gateway integration and a latency benchmark",
+          "checks": [["Run opa test ./policy -v", "All 15 tests report PASS", "opa output"], ["Request a 250.00 refund as a support agent", "The decision is deny with a reason naming the 100.00 limit", "Decision log"], ["Benchmark 1,000 decisions", "p99 decision latency is reported in milliseconds", "Benchmark output"]],
+          "objectives": ["Express tool permissions as tested code", "Write argument-level rules", "Measure the cost of policy checks"]
+        },
+        {
+          "topic": "Information-Flow Control for Agents: Taint Tracking and CaMeL-Style Designs",
+          "subtopics": ["The lethal trifecta as a design constraint", "Tagging data with source and trust level as it enters the context", "Session taint: high-risk tools need approval once untrusted data is read", "The dual-LLM pattern: a privileged planner and a quarantined reader", "CaMeL: plans as code with capabilities attached to values", "Flow rules such as untrusted values never becoming email recipients", "Utility cost of strict flow control", "Combining flow labels with OPA policies"],
+          "tools": ["Open Policy Agent", "Python", "Anthropic Messages API", "pandas"],
+          "lab_task": "Add taint tracking to the gateway: tag every tool result trusted or untrusted, mark the session tainted when untrusted data is read and pass the taint to OPA. Deny send_email when the recipient value came from untrusted data. Rerun the 20 lab payloads and 20 benign tasks and report attack success and benign success.",
+          "deliverable": "Taint-tracking gateway changes, flow policies and a security-versus-utility results table",
+          "checks": [["Read an untrusted web page, then call send_email", "The decision is deny or approval-required because the session is tainted", "Decision log"], ["Run the 20 payloads", "0 payloads succeed", "Results table"], ["Run the 20 benign tasks", "Benign success is reported and compared with the intermediate baseline", "Results table"]],
+          "objectives": ["Track the trust level of data that flows through tools", "Block dangerous flows with policy", "Quantify the utility cost of flow control"]
+        },
+        {
+          "topic": "Adversarial Testing of Toolsets with AgentDojo and Custom Suites",
+          "subtopics": ["AgentDojo: environments, user tasks, injection tasks and suites", "Utility, utility under attack and targeted attack success rate", "Writing a custom suite for your own tools", "Attack styles: important-instructions, tool-knowledge and obfuscated payloads", "Adaptive attackers who read your tool descriptions", "Tracking results across model and defence changes", "Rules of engagement for testing internal tools", "Reporting findings with severity"],
+          "tools": ["AgentDojo", "Python", "Anthropic Messages API", "OpenAI Responses API"],
+          "lab_task": "Run AgentDojo's benchmark script on one built-in suite with a current model and record utility and targeted attack success rate. Then write a custom suite of 10 user tasks and 10 injection tasks for your helpdesk tools, run it with and without the taint policy and file the top 3 findings with severity and reproduction steps.",
+          "deliverable": "AgentDojo baseline results, custom suite source and 3 written findings",
+          "checks": [["Run AgentDojo on one built-in suite", "Utility and targeted attack success rate are recorded as percentages", "Benchmark output"], ["Run the custom suite without the taint policy", "Attack success is recorded out of 10", "Suite report"], ["Run the custom suite with the taint policy", "Attack success is lower and the change in utility is reported", "Suite report"]],
+          "objectives": ["Benchmark toolsets against injection attacks", "Build attack suites specific to your tools", "Report adversarial findings clearly"]
+        },
+        {
+          "topic": "Tool Poisoning and Rug Pulls: Pinning and Monitoring Tool Definitions",
+          "subtopics": ["Poisoned descriptions that tell the model to leak data", "Shadowing: one server's description changing how another server's tool is used", "Rug pulls: definitions that change after approval", "Hashing canonical tool definitions and pinning approved hashes", "Alerting when list_changed brings altered definitions", "Scanning descriptions for hidden instructions and unusual Unicode", "Showing reviewers the full description, not a truncated summary", "Quarantining servers that change unexpectedly"],
+          "tools": ["Python", "MCP Python SDK", "Open Policy Agent", "Prometheus Alertmanager"],
+          "lab_task": "Add a pinning check to the gateway: compute SHA-256 over each tool's canonical JSON definition, store approved hashes and block any tool whose hash changes until it is re-approved. Test with a lab server that adds a hidden instruction to a description after 5 minutes, and with a description containing a zero-width space.",
+          "deliverable": "Definition pinning and scanner code with alert logs from both tests",
+          "checks": [["Change one tool description on the server", "The gateway blocks that tool and raises a definition-changed alert", "Alert log"], ["Add a zero-width space (U+200B) to a description", "The scanner flags the character and its position", "Scanner output"], ["Restart with unchanged definitions", "All tools pass the hash check", "Gateway log"]],
+          "objectives": ["Detect changes to approved tool definitions", "Scan descriptions for hidden content", "Respond to suspicious servers"]
+        },
+        {
+          "topic": "Hardened Execution at Scale: seccomp, Egress Proxies and MicroVM Pools",
+          "subtopics": ["Custom seccomp profiles and syscall allow-lists", "Egress through an allow-listing proxy instead of open networking", "Warm pools of sandboxes with reset after each session", "Snapshot restore to cut cold starts", "Per-tenant sandbox isolation", "Quotas for CPU seconds, memory, disk and egress bytes per run", "Runtime threat detection with Falco", "Capacity planning for concurrent sessions"],
+          "tools": ["Docker", "gVisor", "Firecracker", "Squid", "Falco", "k6"],
+          "lab_task": "Run the sandbox with a seccomp profile that denies ptrace and mount, route egress through a Squid proxy that allows only pypi.org and files.pythonhosted.org, and keep a warm pool of 5 sandboxes reset after each session. Run the hostile snippets and measure p95 sandbox acquisition time under 20 concurrent sessions.",
+          "deliverable": "Hardened sandbox configuration, proxy rules and a load test report",
+          "checks": [["Call ptrace from a test program in the sandbox", "The call fails with EPERM (Operation not permitted)", "Program output"], ["Run pip install, then curl https://example.com", "pip succeeds through the proxy and curl receives HTTP 403 from the proxy", "Proxy access log"], ["Run 20 concurrent sessions", "p95 sandbox acquisition time is reported", "Load test output"]],
+          "objectives": ["Harden sandboxes beyond default containers", "Control sandbox egress with an allow-list", "Operate sandbox pools under load"]
+        },
+        {
+          "topic": "Browser Agent Isolation: Profiles, Egress Rules and Credential Handling",
+          "subtopics": ["Fresh, ephemeral browser contexts per task", "Remote browsers in containers versus a local browser", "Domain allow-lists and blocked downloads", "Injecting scoped session cookies instead of typing passwords", "Handing sign-ins to a human", "Detecting on-page injection and unexpected navigation", "Recording traces and video for review", "Rate limits and site terms for automation"],
+          "tools": ["Playwright for Python", "Docker", "Chromium", "Playwright Trace Viewer"],
+          "lab_task": "Run Playwright in a container with a fresh context per task, a page.route handler that aborts requests outside 2 allowed domains, downloads disabled, and a session cookie injected for the test app instead of a password. Run 10 tasks including 3 pages that try to redirect elsewhere, and record a Playwright trace for each.",
+          "deliverable": "Isolated browser tool configuration with 10 traces and a blocked-request log",
+          "checks": [["Open a page that redirects to an outside domain", "The request is aborted and logged by the route handler", "Route log"], ["Search tool inputs and traces for the test account password", "Zero occurrences are found", "grep output"], ["Open a trace with npx playwright show-trace", "Each action shows before and after snapshots", "Trace Viewer screenshot"]],
+          "objectives": ["Isolate browser agents per task", "Keep credentials out of model-driven input", "Restrict where a browser agent can go"]
+        },
+        {
+          "topic": "Delegated Authorization: Token Exchange, On-Behalf-Of and Per-User Consent",
+          "subtopics": ["Acting as the user versus acting as the agent", "OAuth 2.0 Token Exchange (RFC 8693) for downstream tokens", "The Microsoft Entra on-behalf-of flow as a comparison", "Narrowing audience and scope at every hop", "Per-user consent for third-party tools", "Storing and revoking refresh tokens", "Confused-deputy risk in shared tool servers", "Audit fields for user, agent and delegation chain"],
+          "tools": ["Keycloak", "PyJWT", "curl", "PostgreSQL"],
+          "lab_task": "Configure Keycloak token exchange so the gateway swaps a user's token for one with audience tickets-api and only tickets:read, and call the upstream API with the exchanged token, never the original. Show that user A's run cannot read user B's tickets, then revoke user A's session and confirm the next tool call fails.",
+          "deliverable": "Token exchange configuration, decoded tokens and results of the cross-user and revocation tests",
+          "checks": [["Decode the exchanged token", "aud is tickets-api and scope contains only tickets:read", "Decoded JWT"], ["As user A, request user B's ticket", "The API returns 403 or 404", "HTTP response"], ["Revoke user A's session and retry", "Token exchange fails and the tool returns an authorization error", "Gateway log"]],
+          "objectives": ["Delegate user authority to tools safely", "Narrow tokens at each hop", "Prevent confused-deputy access"]
+        },
+        {
+          "topic": "Multi-Tenant Tool Servers: Tenant Isolation and Data Scoping",
+          "subtopics": ["Deriving the tenant from the token, never from tool arguments", "Tenant-scoped database sessions with row-level security", "Per-tenant rate limits and quotas", "Per-tenant tool catalogs and feature flags", "Cache keys that include the tenant ID", "Noisy-neighbour protection", "Cross-tenant leak tests", "Tenant-aware logs and traces"],
+          "tools": ["PostgreSQL", "Redis", "MCP Python SDK", "pytest"],
+          "lab_task": "Make the helpdesk server multi-tenant: read tenant_id from a token claim, set it per transaction with SET LOCAL app.tenant_id for row-level security, include it in every cache key and limit each tenant to 60 calls per minute. Write 10 tests that try to reach another tenant's data through arguments, caching and pagination cursors.",
+          "deliverable": "Multi-tenant server changes with the cross-tenant test suite and rate-limit evidence",
+          "checks": [["Pass tenant_id=other in tool arguments", "The argument is rejected or ignored and only the caller's tenant data is returned", "Tool result"], ["Run the 10 cross-tenant tests", "0 tests return another tenant's data", "Test report"], ["Send 61 calls in one minute for one tenant", "Call 61 is rejected with a rate-limit error while other tenants are unaffected", "Gateway log"]],
+          "objectives": ["Isolate tenants in shared tool servers", "Apply tenant-scoped limits", "Test for cross-tenant leaks"]
+        },
+        {
+          "topic": "Sagas and Compensation for Multi-Step Agent Actions",
+          "subtopics": ["Actions that span systems: refund, update CRM and notify", "The saga pattern: each step has a compensating action", "Transactional outbox for reliable side effects", "Durable workflow engines such as Temporal for tool execution", "Recording progress so a resumed agent continues instead of restarting", "Running irreversible steps last", "Escalating to a human when compensation fails", "Injecting failure at every step"],
+          "tools": ["Temporal", "PostgreSQL", "Python", "pytest"],
+          "lab_task": "Implement a refund-and-notify saga as a Temporal workflow: refund_payment, then update_crm, then send_email last, with compensations for the first two. Inject a failure at each step in turn and verify the final state. Kill the worker after step 1, restart it and confirm the workflow completes with a single refund.",
+          "deliverable": "Saga workflow code with a failure-injection results table and Temporal histories",
+          "checks": [["Fail update_crm after a successful refund", "The refund is reversed and no email is sent", "Workflow history"], ["Kill the worker after step 1 and restart it", "The workflow completes with exactly one refund", "Temporal UI history and database count"], ["Run with no injected failures", "All 3 steps complete in order", "Workflow history"]],
+          "objectives": ["Coordinate multi-system tool actions", "Compensate partial failures", "Survive worker crashes without duplicate effects"]
+        },
+        {
+          "topic": "Approval at Scale: Auto-Approval Rules, Reviewer Load and Approval Fatigue",
+          "subtopics": ["Approval volume, latency and approve rate per tool", "Approval fatigue: near-100% approve rates that signal rubber-stamping", "Auto-approval rules for low-risk, bounded actions", "Sampled review of auto-approved actions", "Batching related approvals with clear diffs", "Escalation paths and on-call reviewers", "Approval screens that show risk, data impact and provenance", "Auditing reviewer decisions"],
+          "tools": ["Open Policy Agent", "pandas", "Jupyter", "PostgreSQL"],
+          "lab_task": "Analyse a provided 1,000-entry approval log for volume, median latency and approve rate per tool. Write OPA rules that auto-approve 3 low-risk patterns, replay the log through them to count how many human approvals they remove, confirm no tier-3 action is auto-approved, and add 5% sampling of auto-approved actions for review.",
+          "deliverable": "Approval analysis notebook, auto-approval policy and replay results",
+          "checks": [["Compute approve rate per tool", "A table lists approve rate and median latency for each tool", "Analysis notebook"], ["Replay the log through the auto-approval rules", "The number of human approvals removed is reported", "Replay output"], ["Check tier-3 entries in the replay", "0 tier-3 actions are auto-approved", "Replay output"]],
+          "objectives": ["Measure approval workload and quality", "Automate approvals for bounded low-risk actions", "Keep human review meaningful"]
+        },
+        {
+          "topic": "Tool Fleet Reliability: SLOs, Error Budgets and Per-Tool Dashboards",
+          "subtopics": ["Indicators for tools: success rate, latency and model-visible error rate", "SLOs per risk tier", "Error budgets and multi-window burn-rate alerts", "Dashboards by tool, server, tenant and model", "Spotting tools that models misuse through high error or retry rates", "Circuit breakers that remove failing tools from the catalog", "Synthetic probes that call tools on a schedule", "Weekly tool health reviews"],
+          "tools": ["OpenTelemetry Collector", "Prometheus", "Grafana", "Alertmanager"],
+          "lab_task": "From OpenTelemetry metrics, build a Grafana dashboard with success rate, p95 latency and calls per tool. Define a 99% success SLO for read tools over 30 days with a multi-window burn-rate alert, and a circuit breaker that removes a tool from tools/list after 20 failures in 5 minutes. Inject failures to trigger both.",
+          "deliverable": "SLO definitions, alert rules, dashboard JSON and evidence of both triggers",
+          "checks": [["Inject 30% errors into one read tool", "The burn-rate alert fires", "Alertmanager notification"], ["Cause 20 failures in 5 minutes", "The tool disappears from tools/list and list_changed is sent", "Client log"], ["Open the dashboard", "Each tool shows success rate, p95 latency and call count", "Dashboard screenshot"]],
+          "objectives": ["Define SLOs for agent tools", "Alert on error budget burn", "Remove failing tools automatically"]
+        },
+        {
+          "topic": "Evaluating Tool Usability with Simulated Users and Trajectories",
+          "subtopics": ["Tasks with a verifiable end state", "tau-bench style simulation: user simulator, policy document and database state", "Trajectory metrics: calls per task, redundant calls and error recoveries", "pass^k for consistency across repeated trials", "Reading transcripts to find confusing tools", "A/B comparison of tool variants on the same tasks", "Held-out tasks to avoid overfitting descriptions", "Cost per successful task"],
+          "tools": ["Python", "Anthropic Messages API", "OpenAI Responses API", "PostgreSQL", "pandas"],
+          "lab_task": "Build 30 helpdesk tasks, each with a simulated user, a policy text and a target database state. Run each task 4 times, compute pass^1 and pass^4, average calls per task and redundant-call rate, then read 10 failed transcripts and list the tool design problems they show with transcript references.",
+          "deliverable": "Simulation harness, metrics report and a tool design issue list",
+          "checks": [["Run the 30 tasks 4 times each", "pass^1 and pass^4 are reported and pass^4 is not higher than pass^1", "Evaluation report"], ["Compare final database states with targets", "Each run is scored by state comparison, not by the model's own claim", "Scoring script"], ["Review 10 failed transcripts", "At least 3 tool design issues are listed with transcript references", "Issue list"]],
+          "objectives": ["Evaluate tools with simulated users and state checks", "Measure consistency with pass^k", "Find design problems in transcripts"]
+        },
+        {
+          "topic": "Improving Tools with Evaluation-Driven Iteration",
+          "subtopics": ["Baseline, change one thing, rerun", "Asking a model to propose description and schema changes from failed transcripts", "Merging or splitting tools based on trajectory data", "Changing result formats and measuring tokens per task", "Guarding against regressions with held-out tasks", "Noise: repeated trials and confidence intervals", "A changelog of tool design changes with measured effects", "Stopping rules"],
+          "tools": ["Python", "Anthropic Messages API", "pandas", "SciPy"],
+          "lab_task": "Give the 10 failed transcripts to a model and ask for concrete tool changes. Apply the top 3 one at a time, rerunning the 30 tasks 4 times plus 10 held-out tasks after each. Keep only changes that raise pass^1 on both sets, and log each change with its measured effect and a 95% bootstrap confidence interval.",
+          "deliverable": "Iteration log with accepted and rejected changes, metrics and confidence intervals",
+          "checks": [["Rerun after each change", "pass^1 and tokens per task are recorded for each change", "Iteration log"], ["Check held-out results", "No accepted change lowers held-out pass^1", "Iteration log"], ["Compute bootstrap intervals", "Each accepted change has a 95% confidence interval", "Statistics output"]],
+          "objectives": ["Improve tools through measured iterations", "Avoid overfitting to the evaluation set", "Account for noise in agent evaluations"]
+        },
+        {
+          "topic": "Change Management for Toolsets: Versioned Releases, Canaries and Rollback",
+          "subtopics": ["Semantic versions for tool servers and definitions", "Breaking changes: renamed tools, removed parameters and new required fields", "Running old and new tool versions side by side", "Canary releases by share of agent sessions", "Automated canary analysis on success rate and evaluation scores", "Rollback triggers and procedure", "Deprecation notices in descriptions and registry metadata", "Release notes for agent owners"],
+          "tools": ["MCP Python SDK", "Argo Rollouts", "Prometheus", "Python"],
+          "lab_task": "Release v2 of search_tickets with a renamed parameter as a canary to 10% of sessions through the gateway. Compare success rate and pass^1 between v1 and v2 over 200 sessions and define a rollback trigger. Then ship a deliberately broken v2.1 and confirm automatic rollback within 5 minutes.",
+          "deliverable": "Canary configuration, comparison report and rollback timeline",
+          "checks": [["Count sessions by version during the canary", "About 10% of sessions use v2", "Gateway metrics"], ["Ship the broken v2.1", "The rollback trigger fires and traffic returns to v1 within 5 minutes", "Deployment log"], ["Diff the v1 and v2 tools/list output", "The renamed parameter is flagged as a breaking change", "Schema diff output"]],
+          "objectives": ["Release tool changes gradually", "Detect breaking schema changes", "Roll back tool releases automatically"]
+        },
+        {
+          "topic": "Tool Governance: Inventory, Ownership, Risk Classification and Review",
+          "subtopics": ["An inventory with owner, data accessed, side-effect class and risk tier", "Mapping controls to OWASP LLM06:2025 Excessive Agency", "Review gates for new tools and for changes to high-risk tools", "Tool cards: purpose, limits, known failure modes and evaluation results", "Periodic access recertification for tool identities", "Discovering unregistered MCP servers in use", "Governance metrics: unowned tools and overdue reviews", "A process light enough that teams follow it"],
+          "tools": ["YAML", "GitHub Actions", "Python", "OWASP Top 10 for LLM Applications"],
+          "lab_task": "Build a YAML inventory of all course tools with owner, data classes, side-effect class, risk tier, identity and last review date. Write a CI check that fails when a tool in tools/list is missing from the inventory or a tier-3 tool has no review in the last 90 days. Write a tool card for refund_payment.",
+          "deliverable": "Tool inventory, CI governance check and a refund_payment tool card",
+          "checks": [["Add an unregistered tool to a server", "The CI check fails and names the tool", "CI output"], ["Set refund_payment's last review to 120 days ago", "The CI check fails with an overdue-review message", "CI output"], ["Review the inventory", "Every tool has an owner and a risk tier", "Inventory file"]],
+          "objectives": ["Maintain an owned, classified tool inventory", "Automate governance checks", "Document tools for reviewers"]
+        },
+        {
+          "topic": "Supply Chain Controls for Third-Party Tool Servers",
+          "subtopics": ["Risks: typosquatted packages, malicious updates and over-broad servers", "Vetting checklist: publisher, source, permissions, network access and maintenance", "Pinning versions and digests for npx, uvx and container images", "Signing and verifying images with Sigstore cosign", "SBOMs with Syft and vulnerability scans with Grype", "Running third-party servers in sandboxes with restricted egress", "Private registries and allow-lists of approved servers", "Re-vetting on every update"],
+          "tools": ["Sigstore cosign", "Syft", "Grype", "Docker", "MCP Registry"],
+          "lab_task": "Vet 3 public MCP servers against a 12-point checklist. For the one you approve, pin its container image by digest, generate an SBOM with syft, scan it with grype, sign it with cosign and make the gateway refuse images that fail cosign verify. Run the approved server with egress limited to its one upstream API.",
+          "deliverable": "Vetting records for 3 servers, SBOM, scan report and signature verification policy",
+          "checks": [["Run cosign verify on the approved image", "Verification succeeds for the expected signing identity", "cosign output"], ["Start an unsigned image through the gateway", "The gateway refuses to start it", "Gateway log"], ["Run grype on the SBOM", "Findings are listed by severity with a decision for each critical finding", "grype output"]],
+          "objectives": ["Vet third-party tool servers", "Verify the provenance of tool server images", "Limit what approved servers can reach"]
+        },
+        {
+          "topic": "Incident Response for Tool Misuse: Kill Switches, Revocation and Forensics",
+          "subtopics": ["Incident types: data exfiltration, wrong bulk action, runaway loop and compromised server", "Kill switches per tool, per server, per agent and global", "Revoking credentials and tokens quickly", "Rebuilding the timeline from audit logs and traces", "Undoing damage with compensations and backups", "Notifying affected users", "Post-incident review with new tests", "Tabletop exercises"],
+          "tools": ["Open Policy Agent", "Jaeger", "jq", "PostgreSQL", "Keycloak"],
+          "lab_task": "Run a live drill in the lab: an injected ticket makes the agent bulk-close 200 tickets. Flip the kill switch for bulk_close_tickets, revoke the agent's credentials, rebuild the timeline from audit logs and traces, reopen the tickets with a compensation script and write a post-incident review that adds 3 new tests.",
+          "deliverable": "Incident timeline, compensation script, post-incident review and the 3 new tests",
+          "checks": [["Flip the bulk_close_tickets kill switch", "The next call is refused within 60 seconds on every gateway instance", "Gateway log"], ["Rebuild the timeline", "Every affected ticket ID links to a call_id and the triggering payload", "Timeline document"], ["Run the compensation script", "All 200 tickets are reopened", "SQL count"]],
+          "objectives": ["Stop tool misuse quickly", "Reconstruct incidents from tool telemetry", "Turn incidents into tests"]
+        },
+        {
+          "topic": "Audit Evidence and Retention for Agent Actions",
+          "subtopics": ["What auditors ask: who, what, when, on whose authority and with what result", "Tamper-evident logs with hash chains and write-once storage", "Retention periods and removing personal data from logs", "Linking audit records to approvals, policy versions and tool versions", "Answering subject access or regulator requests from logs", "Mapping evidence to ISO/IEC 42001 and SOC 2 controls", "Sampling audits of agent actions", "Storage cost of traces and audit logs"],
+          "tools": ["Amazon S3 Object Lock", "AWS CLI", "PostgreSQL", "jq"],
+          "lab_task": "Add a hash chain to audit records, where each record stores the SHA-256 of the previous one, and include the policy version and tool definition hash. Write records to an S3 bucket with Object Lock in compliance mode for 90 days. Answer a mock request: list every write action on customer C-1042 in March with its approver.",
+          "deliverable": "Hash-chained audit pipeline, chain verifier and the answered mock request",
+          "checks": [["Modify one stored record and run the chain verifier", "The verifier reports the first broken link", "Verifier output"], ["Try to delete a locked object version with the AWS CLI", "The delete is refused with AccessDenied", "AWS CLI output"], ["Run the C-1042 query", "Each write action lists tool, time, argument summary, approver and policy version", "Query output"]],
+          "objectives": ["Produce tamper-evident records of agent actions", "Retain audit evidence under policy", "Answer audit requests from tool logs"]
+        },
+        {
+          "topic": "Advanced Capstone: Governed Enterprise Tool Platform",
+          "subtopics": ["Gateway with registry, OPA policy, taint tracking and definition pinning", "Hardened sandboxes and isolated browsers", "Delegated, tenant-scoped authorization", "Sagas, idempotency and approval at scale", "SLOs, an incident drill and audit evidence", "Governance pack and architecture review"],
+          "tools": ["Open Policy Agent", "Keycloak", "gVisor", "Temporal", "Grafana", "Sigstore cosign"],
+          "lab_task": "Deliver a tool platform for 3 tenants and 2 agents: gateway with OPA and taint tracking, pinned definitions, token exchange, gVisor or microVM sandboxes, saga-based writes, an SLO dashboard and hash-chained audit. Targets: 0 targeted successes on the custom adversarial suite, pass^1 of at least 0.8 on 30 tasks and a passing kill-switch drill.",
+          "deliverable": "Platform repository, governance pack, evaluation and adversarial reports and an architecture review",
+          "checks": [["Run the custom adversarial suite", "0 targeted attacks succeed", "Suite report"], ["Run the 30-task evaluation", "pass^1 is 0.8 or higher", "Evaluation report"], ["Run the kill-switch drill", "The affected tool is disabled on all instances within 60 seconds", "Gateway log"]],
+          "objectives": ["Combine policy, isolation, delegation and governance in one platform", "Meet measured security and quality targets", "Defend platform decisions in an architecture review"]
+        }
+      ]
+    }
+  }
+}

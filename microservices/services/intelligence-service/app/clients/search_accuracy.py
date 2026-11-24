@@ -68,6 +68,7 @@ def matches_requested_skill(profile, search_text) -> bool:
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
+        str(profile.get("search_query") or ""),
         str(profile.get("slug") or ""),
         str(profile.get("source_url") or profile.get("url") or ""),
     ]).lower()
@@ -81,22 +82,30 @@ def matches_requested_skill(profile, search_text) -> bool:
 
 
 def is_current_year_result(profile) -> bool:
-    """Reject a result that explicitly advertises an older year."""
+    """Drop a page that only names a year older than last year.
+
+    "2019 - Present" and "since 2019" are current trainers. A bare older year,
+    with no sign the person is still training, is a stale page.
+    """
     current_year = datetime.utcnow().year
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
     ])
+    if re.search(r"\b(present|current|since)\b", haystack, re.IGNORECASE):
+        return True
     years = [int(year) for year in re.findall(r"\b20\d{2}\b", haystack)]
-    return not years or max(years) >= current_year
+    return not years or max(years) >= current_year - 1
 
 
 def has_trainer_language(profile) -> bool:
+    url = str(profile.get("source_url") or profile.get("url") or "")
     haystack = " ".join([
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
+        url.replace("-", " "),
     ])
     return bool(_TRAINER_LANGUAGE.search(haystack))
 
@@ -113,8 +122,8 @@ def is_trainer_profile_url(url) -> bool:
     return False
 
 
-def select_accurate_profiles(rows, search_text):
-    """Keep current-year trainer profiles whose text matches the requested skill."""
+def select_accurate_profiles(rows, search_text, require_current=True):
+    """Keep trainer profile links matching the skill and optional freshness rule."""
     kept = []
     for row in rows or []:
         if not isinstance(row, dict):
@@ -126,7 +135,7 @@ def select_accurate_profiles(rows, search_text):
             continue
         if not matches_requested_skill(row, search_text):
             continue
-        if not is_current_year_result(row):
+        if require_current and not is_current_year_result(row):
             continue
         kept.append(row)
     return kept
