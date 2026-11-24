@@ -1,0 +1,573 @@
+{
+  "domain": "Salesforce Admin",
+  "name": "Salesforce Admin",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "cloud-cog",
+  "aliases": ["Salesforce Administrator", "Salesforce Administration", "Salesforce Platform Administrator", "Salesforce Advanced Administrator", "Salesforce Platform Administrator II", "SFDC Admin", "Salesforce Admin Training", "Salesforce Platform App Builder", "Salesforce App Builder"],
+  "certifications": ["Salesforce Certified Platform Administrator (Plat-Admn-201)", "Salesforce Certified Platform Administrator II (Plat-Admn-301)", "Salesforce Certified Platform App Builder (Plat-Admn-202)", "Salesforce Certified Agentforce Specialist (AI-201)"],
+  "tools": ["Salesforce Developer Edition org", "Trailhead Playgrounds and special Developer Edition orgs", "Setup and Object Manager", "Lightning App Builder", "Flow Builder", "Data Loader", "Lifecycle Center", "Agentforce Builder"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new administrators, business analysts and power users taking over a Salesforce org, working hands-on in a Developer Edition org or Trailhead Playground. Covers the Platform Administrator exam scope: company settings, users and licences, objects, fields and relationships, formulas and validation, Lightning apps and pages, profiles, permission sets and sharing, Sales Cloud and Service Cloud configuration, activities and mobile, data tools, reports and dashboards, Flow and approvals, sandboxes and change sets, AgentExchange packages and the Agentforce and Einstein features an admin turns on.",
+      "prerequisites": ["Understands everyday sales and customer service work: leads, deals, customers and support requests", "Comfortable with web applications, spreadsheets and CSV files", "A free Developer Edition org and a Trailhead account with a Trailhead Playground"],
+      "outcomes": ["Configure company settings, users, licences, objects, fields, relationships and Lightning pages", "Control access with profiles, permission sets, roles, org-wide defaults and sharing rules", "Configure Sales Cloud and Service Cloud processes, load clean data and build reports and dashboards", "Automate work with Flow and approvals, move changes with change sets, turn on Agentforce features and sit the Platform Administrator exam"],
+      "days": [
+        {
+          "topic": "Org Setup: Company Settings, Users and Licences",
+          "subtopics": ["Developer Edition orgs and Trailhead Playgrounds: what each includes", "Finding your way round Setup, Quick Find and Object Manager", "Company Information: default locale, language, time zone and corporate currency", "Fiscal year: standard start month or a custom fiscal year", "Business hours and holidays", "Multiple currencies and conversion rates (activation cannot be reversed)", "User licences, permission set licences and feature licences", "Creating, freezing and deactivating users", "Password resets and administrator Login As access", "Setup with Agentforce for guided admin tasks"],
+          "tools": ["Developer Edition org", "Setup and Quick Find", "Company Information page", "Users page", "Setup with Agentforce"],
+          "lab_task": "Configure the org for Brightbrew, a fictional UK coffee machine supplier: locale English (United Kingdom), time zone Europe/London, corporate currency GBP with EUR added at 1.17, a fiscal year starting in April and 09:00 to 17:30 business hours with the eight England bank holidays; then create four test users (one on the spare Salesforce licence, three on Salesforce Platform licences) and freeze one of them.",
+          "deliverable": "Company settings record and a user list showing licence, profile and status for each user",
+          "checks": [["Open Company Information", "Locale, time zone, currency and fiscal year start match the brief", "Company Information screenshot"], ["Check the user licence table", "Used licences rise by one Salesforce and three Salesforce Platform licences", "User licence table"], ["Log in as the frozen user", "Login is refused until the user is unfrozen", "Login History entry"]],
+          "objectives": ["Navigate Setup and Object Manager", "Configure company-wide settings", "Create and manage users and licences"]
+        },
+        {
+          "topic": "Field Types, Picklists and Global Value Sets",
+          "subtopics": ["Creating a custom object: labels, record name and auto-number format", "Choosing field types: text, number, currency, percent, date, checkbox, email, phone and URL", "Picklists, multi-select picklists and restricted picklists", "Global value sets shared across objects", "Dependent picklists and the field dependency matrix", "Required, unique and external ID field settings", "Help text and descriptions on every field", "Deleting, restoring and changing the type of a field safely"],
+          "tools": ["Object Manager", "Fields & Relationships", "Picklist Value Sets", "Field Dependencies"],
+          "lab_task": "Create a Machine Model custom object with an MM-{0000} auto-number name and eight custom fields, including a GBP list price, a restricted Machine Type picklist that uses a five-value global value set, a dependent Boiler Size picklist and a unique external ID for the manufacturer code, with help text on every field.",
+          "deliverable": "Machine Model object definition with its field list, global value set and dependency matrix",
+          "checks": [["Choose Machine Type Bean-to-Cup", "Boiler Size offers only the values mapped to Bean-to-Cup", "Record edit screenshot"], ["Add a sixth value to the global value set", "The new value appears on every field that uses the set", "Picklist value set screenshot"], ["Save two models with the same manufacturer code", "The second save fails with a duplicate value error", "Error message"]],
+          "objectives": ["Create custom objects and fields", "Choose the right field type", "Manage picklists and value sets"]
+        },
+        {
+          "topic": "Lookup, Master-Detail and Many-to-Many Relationships",
+          "subtopics": ["Lookup relationships and what happens when the parent is deleted", "Master-detail relationships: ownership, sharing and cascade delete", "Roll-up summary fields: COUNT, SUM, MIN and MAX with filter criteria", "Junction objects for many-to-many relationships", "Hierarchical relationships on the User object", "Converting a lookup to master-detail when every record has a parent", "Limits of two master-detail and 40 total relationships per object", "Reading the data model in Schema Builder"],
+          "tools": ["Object Manager", "Schema Builder", "Related lists on page layouts", "Recycle Bin"],
+          "lab_task": "Create an Installed Machine object as a master-detail child of Account with a lookup to Machine Model and a purchase price field, build a Spare Part object and a Model Part junction object that links parts to the models they fit, and add roll-up summary fields on Account for the number of installed machines and their total purchase price.",
+          "deliverable": "Schema Builder diagram of the new objects with relationship and roll-up definitions",
+          "checks": [["Add three installed machines to one account", "Machine count shows 3 and the total equals the sum of the purchase prices", "Account record"], ["Link one spare part to two machine models", "The part appears in the related list of both models", "Machine Model related lists"], ["Delete an account that has two installed machines", "Both machines are deleted with it and come back when the account is restored", "Recycle Bin and account screenshots"]],
+          "objectives": ["Choose between lookup and master-detail", "Model many-to-many relationships", "Summarise child records with roll-ups"]
+        },
+        {
+          "topic": "Formula Fields and Validation Rule Logic",
+          "subtopics": ["Formula return types and the Advanced Formula editor", "Logical functions: IF, CASE, AND, OR, ISBLANK, TEXT and ISPICKVAL", "Date formulas with TODAY, ADDMONTHS and date differences", "Cross-object formulas through lookup and master-detail fields", "Validation rules: error condition formula, message and error location", "ISNEW, ISCHANGED and PRIORVALUE in validation rules", "Bypassing a rule for data migration with a custom permission", "Testing formulas and rules with pass and fail records"],
+          "tools": ["Advanced Formula editor", "Validation Rules", "Custom Permissions", "Object Manager"],
+          "lab_task": "On Installed Machine, build formulas for warranty end date (install date plus 24 months), days left on warranty and a Red, Amber or Green warranty status, add a cross-object formula for the account's billing city, then write validation rules for the serial number format AA-999999, no future install dates and no serial number change after installation, all bypassed by a Data Migration custom permission.",
+          "deliverable": "Formula and validation rule definitions with a test log of pass and fail inputs",
+          "checks": [["Save a machine installed on 1 March 2026", "Warranty end date shows 1 March 2028", "Record detail screenshot"], ["Enter serial number AB12345", "Save is blocked with the format message under the serial number field", "Error screenshot"], ["Change a serial number as a user with the Data Migration permission", "The save succeeds for that user only", "Record and permission set assignment"]],
+          "objectives": ["Write formula fields", "Write validation rules", "Test rules with pass and fail cases"]
+        },
+        {
+          "topic": "Lightning Apps, Record Pages and Dynamic Forms",
+          "subtopics": ["Lightning apps in App Manager: navigation items, utility bar and branding", "List views: filters, sharing, Kanban and inline editing across record types (Winter '27)", "Lightning App Builder templates and components", "Record types and their picklist values", "Activating record pages by app, record type and profile", "Dynamic Forms sections and field visibility rules", "Compact layouts and the highlights panel", "Checking pages on desktop and in the Salesforce mobile app"],
+          "tools": ["App Manager", "Lightning App Builder", "Object Manager", "Salesforce mobile app"],
+          "lab_task": "Build a Brightbrew Service Lightning app with six navigation items and a utility bar, create Rental and Purchase record types for Installed Machine, and build a Dynamic Forms record page that shows rental terms only for Rental machines and highlights a red warranty status, activated for the app and both record types.",
+          "deliverable": "Lightning app, record page activation settings and screenshots for both record types",
+          "checks": [["Open a Rental installed machine", "Rental terms show and purchase fields are hidden", "Record page screenshot"], ["Open the same record in the Salesforce mobile app", "The Dynamic Forms sections show in the mobile layout", "Mobile screenshot"], ["Switch a warranty list view to Kanban", "Machines are grouped into Red, Amber and Green columns", "List view screenshot"]],
+          "objectives": ["Build Lightning apps", "Design record pages with Dynamic Forms", "Use record types and page assignments"]
+        },
+        {
+          "topic": "Profiles, Permission Sets and Login Policies",
+          "subtopics": ["Profiles as a baseline in a permission-set-led access model", "Permission sets and permission set groups for job roles", "Object permissions: Read, Create, Edit, Delete, View All and Modify All", "Field-level security and where hidden fields disappear", "Profile login hours and login IP ranges", "Password policies and session timeout", "MFA for every user and phishing-resistant MFA for admins", "Checking a user's access with the user access summary"],
+          "tools": ["Profiles", "Permission Sets", "Permission Set Groups", "Password Policies", "Session Settings"],
+          "lab_task": "Clone the Standard Platform User profile into a Brightbrew Base profile with login hours of 07:00 to 20:00, create Sales Rep and Service Agent permission sets with object and field access for Installed Machine, bundle them into permission set groups, hide Purchase Price from service agents and register MFA for every test user.",
+          "deliverable": "Access matrix by job role and the profile, permission sets and groups that implement it",
+          "checks": [["Log in as a service agent", "Purchase Price is hidden on the page, in list views and in reports", "Screenshots taken as the service agent"], ["Log in outside the profile's login hours", "Login fails with a restricted hours error", "Login History"], ["Open the sales rep's access summary", "Installed Machine access comes from the Sales Rep permission set group", "User access summary screenshot"]],
+          "objectives": ["Design profile and permission set access", "Apply field-level security", "Set login and MFA policies"]
+        },
+        {
+          "topic": "Record Access: Org-Wide Defaults, Roles and Sharing Rules",
+          "subtopics": ["Org-wide defaults: Private, Public Read Only, Public Read/Write and Controlled by Parent", "Internal and external org-wide defaults", "Role hierarchy and Grant Access Using Hierarchies", "Owner-based and criteria-based sharing rules", "Public groups as sharing targets", "Manual sharing from the Sharing button", "How object permissions and record access combine", "Troubleshooting with Sharing Hierarchy and Setup with Agentforce"],
+          "tools": ["Sharing Settings", "Roles", "Public Groups", "Sharing Hierarchy", "Setup with Agentforce"],
+          "lab_task": "Set Account to Private and Installed Machine to Controlled by Parent, build a five-role hierarchy with UK North and UK South sales teams under a sales manager, add a criteria-based rule that shares Key Account tier accounts with a Service Managers public group, and prove access for three test users.",
+          "deliverable": "Sharing model design with org-wide defaults, roles and sharing rules, plus access test results",
+          "checks": [["Log in as a UK North rep and open a UK South account", "Access is refused with an insufficient privileges message", "Screenshot taken as the rep"], ["Log in as the sales manager", "The manager can view and edit every account owned by both teams", "List view screenshot"], ["Set an account's tier to Key Account", "Service managers gain read access through the criteria-based rule", "Sharing Hierarchy screenshot"]],
+          "objectives": ["Set org-wide defaults", "Open up access with roles and sharing rules", "Explain why a user can see a record"]
+        },
+        {
+          "topic": "Leads, Campaigns and Web-to-Lead",
+          "subtopics": ["Lead processes, lead statuses and lead record types", "Web-to-Lead forms with reCAPTCHA", "Lead assignment rules and lead queues", "Auto-response rules and email templates for new leads", "Lead conversion and custom field mapping", "Campaigns, campaign member statuses and campaign hierarchy", "Campaign influence and campaign reports", "Path with key fields and guidance for the lead process"],
+          "tools": ["Web-to-Lead", "Lead Assignment Rules", "Lead Auto-Response Rules", "Campaigns", "Path Settings"],
+          "lab_task": "Publish a Web-to-Lead form for machine rental enquiries on a test HTML page, route leads to North and South queues by postcode area with an assignment rule, send a branded auto-response, map four custom lead fields on conversion, and add converted leads to a Spring Trade Show campaign with Invited, Attended and Follow-Up member statuses.",
+          "deliverable": "Web-to-Lead HTML, assignment and auto-response rules, a field mapping table and a campaign report",
+          "checks": [["Submit the form with postcode LS1 4AP", "The lead lands in the North queue and the enquirer receives the auto-response", "Lead record and received email"], ["Convert the lead", "Account, contact and opportunity are created with the four mapped fields filled", "Converted records"], ["Run the campaign report", "Members are counted by status with responded members flagged", "Campaign report"]],
+          "objectives": ["Capture and route leads", "Convert leads with field mapping", "Track campaign results"]
+        },
+        {
+          "topic": "Sales Processes, Products, Price Books and Quotes",
+          "subtopics": ["Opportunity stages, probabilities and forecast categories", "Sales processes linked to opportunity record types", "Path for opportunities with key fields and guidance", "Products, the standard price book and custom price books", "Price book entries in GBP and EUR", "Quotes, quote templates and syncing a quote to its opportunity", "Opportunity contact roles", "Collaborative forecasts for opportunity revenue"],
+          "tools": ["Sales Processes", "Path Settings", "Products and Price Books", "Quote Templates", "Forecasts Settings"],
+          "lab_task": "Define a Machine Sale sales process with six stages and a Rental process with four, add Path guidance to both, load ten products into the standard price book and a Trade price book in GBP and EUR, quote three machines at a 10% trade discount, sync the quote and check the rep's forecast.",
+          "deliverable": "Sales process configuration, price books, a quote PDF and a forecast screenshot",
+          "checks": [["Move an opportunity to Negotiation", "Probability and forecast category update from the stage", "Opportunity record"], ["Sync the quote", "Opportunity products and amount match the quote lines", "Products related list"], ["Create the quote PDF", "The template shows the logo, three lines, the discount and a GBP total", "Quote PDF"]],
+          "objectives": ["Configure sales processes and Path", "Set up products and price books", "Quote and forecast opportunities"]
+        },
+        {
+          "topic": "Case Management: Assignment, Escalation and Email-to-Case",
+          "subtopics": ["Support processes, case statuses and case record types", "Case assignment rules and queues", "Email-to-Case routing addresses and email threading", "Web-to-Case forms", "Case auto-response rules", "Escalation rules that use business hours", "Case teams and contact roles on cases", "Email actions and the case feed"],
+          "tools": ["Support Settings", "Email-to-Case", "Case Assignment Rules", "Escalation Rules", "Web-to-Case"],
+          "lab_task": "Configure Email-to-Case for a breakdowns routing address, send breakdown cases to a Breakdowns queue and billing cases to a Billing queue, auto-respond with the case number, and escalate unowned high-priority cases to the service manager after 1 business hour.",
+          "deliverable": "Case routing design, Email-to-Case settings and escalation test evidence",
+          "checks": [["Email the routing address with the subject 'Machine not heating'", "A case is created in the Breakdowns queue and the customer gets the case number", "Case record and reply email"], ["Reply to the auto-response email", "The reply threads onto the same case", "Case feed"], ["Leave a high-priority case unowned for 1 business hour", "The case is reassigned to the service manager and marked escalated", "Case history"]],
+          "objectives": ["Configure case intake channels", "Route and escalate cases", "Apply business hours to service rules"]
+        },
+        {
+          "topic": "Lightning Knowledge, Macros and the Service Console",
+          "subtopics": ["Turning on Lightning Knowledge and article record types", "Article lifecycle: draft, publish, archive and versions", "Data categories and category visibility", "Attaching articles to cases and suggested articles", "Knowledge user licences and publishing permissions", "The Service Console app: split view, subtabs and utility bar", "Macros for repeated case steps", "Quick text for consistent replies"],
+          "tools": ["Knowledge Settings", "Data Categories", "Service Console app", "Macros", "Quick Text"],
+          "lab_task": "Turn on Lightning Knowledge, create How-To and Fault Fix article record types, publish eight articles under a Machine Type data category group, build a Service Console app with split view, and record a macro that sets the status, attaches the descaling article and sends a quick-text reply in one click.",
+          "deliverable": "Published articles, the data category group, a console app and a working macro",
+          "checks": [["Open a descaling case in the console", "Suggested articles include the descaling How-To", "Console screenshot"], ["Run the close macro", "Status, article attachment and reply email all complete in one run", "Case feed"], ["Edit a published article", "A draft version is created while the published version stays live", "Article version history"]],
+          "objectives": ["Run Lightning Knowledge", "Configure a service console", "Automate agent steps with macros"]
+        },
+        {
+          "topic": "Activities, Email Templates and the Salesforce Mobile App",
+          "subtopics": ["Tasks, events, recurring tasks and the activity timeline", "Activity settings and shared activities", "Lightning email templates, enhanced letterheads and merge fields", "Einstein Activity Capture syncing email as Salesforce activities, and its storage cost", "Chatter feed tracking, groups and @mentions", "Salesforce mobile app navigation and compact layouts", "Briefcase Builder for offline records", "Custom notifications to desktop and mobile"],
+          "tools": ["Lightning email templates", "Activity Settings", "Feed Tracking", "Salesforce mobile app", "Briefcase Builder"],
+          "lab_task": "Build a Brightbrew enhanced letterhead and two Lightning email templates with contact and machine merge fields, log a call and a site visit against an installed machine, turn on feed tracking for warranty status, and set the mobile navigation and a briefcase so technicians can read six machine fields offline.",
+          "deliverable": "Email templates, letterhead, feed tracking settings and the mobile and offline configuration",
+          "checks": [["Send the warranty reminder template from a contact", "Merge fields fill with the contact's name and the machine serial number", "Sent email in the activity timeline"], ["Change warranty status on a tracked machine", "A feed item shows the old and new values", "Chatter feed"], ["Open a briefcased machine on a phone in flight mode", "The six fields are readable offline", "Mobile screenshot"]],
+          "objectives": ["Configure activities and email templates", "Set up Chatter feed tracking", "Prepare the mobile app for field users"]
+        },
+        {
+          "topic": "Data Import Wizard, Data Loader and Duplicate Rules",
+          "subtopics": ["Choosing Data Import Wizard (up to 50,000 records) or Data Loader", "Preparing CSV files: UTF-8 encoding, date formats and record IDs", "Insert, update, upsert, delete and export in Data Loader", "External IDs and upserts that avoid duplicates", "Bulk API 2.0 in Data Loader for large files", "Matching rules and duplicate rules that alert or block", "Mass transfer, mass delete and the 15-day Recycle Bin", "Weekly Data Export Service and data storage limits"],
+          "tools": ["Data Import Wizard", "Data Loader", "Duplicate Management", "Data Export Service", "Storage Usage"],
+          "lab_task": "Import 200 accounts with the Data Import Wizard, upsert 800 installed machines with Data Loader on the serial number external ID, fix and reload the rows in the error file, then build a matching rule and duplicate rule that alert when a new account has the same postcode and a fuzzy-matched name.",
+          "deliverable": "Load plan, success and error files, and the matching and duplicate rule settings",
+          "checks": [["Upsert the same machine file twice", "The second run updates 800 records and creates none", "Data Loader success file"], ["Create 'Harbour Cafe Ltd' where 'Harbour Cafe Limited' exists at the same postcode", "A duplicate alert shows the existing account", "Duplicate alert screenshot"], ["Load a row with an invalid date", "The row is listed in the error file with the reason", "Data Loader error file"]],
+          "objectives": ["Choose and run the right data tool", "Upsert with external IDs", "Prevent duplicate records"]
+        },
+        {
+          "topic": "Report Types, Report Formulas and Dashboards",
+          "subtopics": ["Standard and custom report types, including 'with or without' relationships", "Tabular, summary and matrix formats", "Filters, filter logic and cross filters", "Bucket fields and row-level formulas", "Summary formulas and conditional formatting", "Dashboard components and the running user", "Dynamic dashboards and dashboard filters", "Report and dashboard folders, sharing and subscriptions"],
+          "tools": ["Lightning Report Builder", "Report Types", "Dashboard Builder", "Report and dashboard folders"],
+          "lab_task": "Create an Accounts with or without Installed Machines report type, build a summary report of machines by warranty status with a machine-age bucket, a matrix of pipeline by stage and close month, and a six-component service dashboard that runs as the viewer with a region filter, shared through a Service folder with a weekly subscription.",
+          "deliverable": "Custom report type, three reports, a dashboard and the folder sharing settings",
+          "checks": [["Run the Accounts with or without Installed Machines report", "Accounts with no machines appear with blank machine columns", "Report screenshot"], ["View the dashboard as a UK North rep", "Components show only records that rep can see", "Dashboard screenshot"], ["Add the cross filter Accounts without Cases", "Only accounts that never logged a case remain", "Report result"]],
+          "objectives": ["Build custom report types", "Summarise data with formulas and buckets", "Share dashboards securely"]
+        },
+        {
+          "topic": "Record-Triggered Flows and Scheduled Paths",
+          "subtopics": ["Flow types: record-triggered, screen, schedule-triggered and autolaunched", "Fast field updates before save and actions and related records after save", "Entry conditions and running only when a record is updated to meet them", "Get Records, Decision, Assignment, Create Records and Update Records elements", "Scheduled paths based on a date field", "Debugging a flow and reading the debug details", "Trigger order in Flow Trigger Explorer", "Moving old workflow rules with Migrate to Flow (support ended 31 December 2025)"],
+          "tools": ["Flow Builder", "Flow Trigger Explorer", "Automation app", "Migrate to Flow tool"],
+          "lab_task": "Build a before-save flow that sets an installed machine's service tier from its machine type, an after-save flow that creates a commissioning task and a welcome case for each new rental, and a scheduled path that emails the account owner 23 months after the install date, a month before the warranty ends.",
+          "deliverable": "Three active flows with debug runs and a test record log",
+          "checks": [["Create a Bean-to-Cup rental machine", "Service tier is Gold and a task and a case are created", "Record and related lists"], ["Create a machine installed 23 months ago", "The scheduled path runs within minutes and the owner receives the reminder", "Email log and flow interview list"], ["Edit a machine without changing its type", "The entry conditions skip the before-save flow", "Debug details"]],
+          "objectives": ["Choose the right flow type", "Build record-triggered flows", "Schedule time-based actions"]
+        },
+        {
+          "topic": "Screen Flows and Approval Routing",
+          "subtopics": ["Screen components, conditional visibility and input validation", "Launching screen flows from quick actions, record pages and the utility bar", "Passing the record into a flow with the recordId variable", "Classic approval processes: entry criteria, steps and approvers", "Submission, approval, rejection and recall actions", "Record locking and the Approval History related list", "Flow Approval Processes as the newer approval option", "Delegated approvers and approving by email reply"],
+          "tools": ["Flow Builder", "Lightning App Builder", "Approval Processes", "Approval History"],
+          "lab_task": "Build a three-screen Log Machine Fault flow launched from a quick action on Installed Machine that creates a case with the right priority, then build an approval process that sends opportunities with a discount over 15% to the sales manager and over 30% to the finance director, locking the record while it waits.",
+          "deliverable": "Screen flow, quick action and a two-step approval process with test approvals",
+          "checks": [["Run the fault flow and choose 'Leaking water'", "A high-priority case is created and linked to the machine", "Case record"], ["Submit an opportunity with a 35% discount", "It routes to the sales manager and then to the finance director", "Approval History"], ["Edit the pending opportunity as the rep", "The edit is blocked because the record is locked", "Error screenshot"]],
+          "objectives": ["Build screen flows for users", "Configure approval processes", "Compare classic and Flow approvals"]
+        },
+        {
+          "topic": "Sandboxes, Change Sets and AgentExchange Installs",
+          "subtopics": ["Sandbox types: Developer, Developer Pro, Partial Copy and Full", "Refresh intervals of 1, 1, 5 and 29 days and sandbox storage", "Deployment connections and outbound and inbound change sets", "Adding dependencies and validating before deployment", "What change sets miss and manual post-deployment steps", "AgentExchange (formerly AppExchange): managed and unmanaged packages", "Installing for admins only, all users or chosen profiles", "Checking a listing's security review, permissions and licences before installing"],
+          "tools": ["Sandboxes page", "Outbound and Inbound Change Sets", "Deployment Settings", "AgentExchange", "Installed Packages"],
+          "lab_task": "In a Developer sandbox of the trainer's Enterprise Edition training org, build a Spare Part object with its tab and permission set and deploy them to the integration sandbox with a validated outbound change set, then install the free Org Check package (a Salesforce Labs app) from AgentExchange into your Developer Edition org for admins only.",
+          "deliverable": "Change set component list, validation and deployment results, and the package installation record",
+          "checks": [["Validate the inbound change set", "Validation succeeds with every component listed", "Deployment Status page"], ["Deploy the object without its permission set", "Target users cannot see the object until the permission set follows", "Screenshot taken as a target user"], ["Open Installed Packages", "The package shows its version, namespace and licence settings", "Installed Packages page"]],
+          "objectives": ["Choose sandbox types", "Deploy with change sets", "Install and assess AgentExchange packages"]
+        },
+        {
+          "topic": "Agentforce, Prompt Builder and Einstein Scoring",
+          "subtopics": ["Einstein Setup, the Einstein Trust Layer and Agentforce on by default in Winter '27", "When an agent fits a task and when a flow or a report is the better choice", "Employee agents in Agentforce Builder: subagents (formerly topics), instructions and actions", "Agent permissions: who can build, test and use an agent", "Testing an agent in the conversation preview", "Prompt Builder field generation templates on Dynamic Forms fields", "Einstein Lead Scoring and Opportunity Scoring", "Usage-based credits for AI features and Digital Wallet"],
+          "tools": ["Einstein Setup", "Agentforce Studio and Agentforce Builder", "Prompt Builder", "Einstein Opportunity Scoring"],
+          "lab_task": "Turn on Einstein, build a Brightbrew Helper employee agent with a Machine Warranty subagent whose instructions call an autolaunched flow that returns warranty details for a serial number, create a field generation prompt template that drafts a case summary on the case page, and test five questions in the conversation preview.",
+          "deliverable": "Agent configuration, prompt template, five test conversations and notes on each wrong answer",
+          "checks": [["Ask the agent when the warranty ends for serial number BB-104233", "The agent calls the warranty flow and gives the correct date", "Conversation preview with the action trace"], ["Ask for a competitor's prices", "The agent declines and stays inside the subagent's scope", "Conversation preview"], ["Generate the case summary field", "A draft summary appears for review before the record is saved", "Case record screenshot"]],
+          "objectives": ["Turn on Agentforce and Einstein features safely", "Configure a simple employee agent", "Use prompt templates on record pages"]
+        },
+        {
+          "topic": "Platform Administrator Exam Readiness",
+          "subtopics": ["Exam format: 60 scored questions in 105 minutes and the 68% pass mark", "Section weights: Data and Analytics Management 17%; Configuration and Setup, Object Manager and Lightning App Builder, and Automation 15% each", "Sales and Marketing, Service and Support, and Productivity and Collaboration at 10% each, Agentforce at 8%", "Reading scenario questions and picking the simplest declarative answer", "Common traps: sharing versus permissions, lookup versus master-detail, choosing a flow type", "Booking through Trailhead Academy with Pearson VUE online or test-centre delivery", "Keeping the credential: the annual maintenance module on Trailhead", "Study help: Trailhead trails, superbadges and the Trailblazer Community on Slack"],
+          "tools": ["Trailhead Academy", "Administrator Certification Prep trail", "Trainer mock exam", "Developer Edition org"],
+          "lab_task": "Sit a timed 60-question mock exam in 105 minutes, mark it by section, rebuild in your org the three scenarios you got wrong, and write a two-week revision plan for your two weakest sections.",
+          "deliverable": "Marked mock exam, three rebuilt scenarios and a revision plan",
+          "checks": [["Mark the mock exam", "A score per section is set against the 68% pass mark", "Score sheet"], ["Rebuild a missed sharing scenario", "The org grants the access the correct answer predicted", "Org screenshot"], ["Review the plan with the trainer", "The plan targets the two lowest-scoring sections with dated tasks", "Revision plan"]],
+          "objectives": ["Explain the exam structure", "Answer scenario questions", "Plan final revision"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales and Service Org for a Coffee Machine Supplier",
+          "subtopics": ["Requirements workshop and solution design", "Data model, pages and security build", "Sales and service process configuration", "Data load and duplicate checks", "Automation, reports and an employee agent", "Change set deployment and stakeholder demo"],
+          "tools": ["Developer Edition org", "Flow Builder", "Data Loader", "Lightning Report Builder", "Agentforce Builder"],
+          "lab_task": "From a written brief, configure a fresh org for a coffee machine supplier with roles and permission sets for six personas, sales and service processes, 600 loaded records, three flows, an approval process, a service dashboard and an employee agent, then demonstrate five user stories end to end to a mock steering group.",
+          "deliverable": "Configured org, design document, test log and a 20-minute demonstration",
+          "checks": [["Run the new rental user story as a sales rep", "The lead converts, the quote is approved and the installed machine is created", "Demo recording and records"], ["Log a breakdown by email", "The case routes, escalates on time and closes with a macro", "Case history"], ["Review access with the trainer", "Each persona sees only the records and fields in the access matrix", "Access test log"]],
+          "objectives": ["Combine the beginner topics in one org", "Test user stories end to end", "Present an admin solution to stakeholders"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For working administrators who already configure orgs and are preparing for Platform Administrator II and Platform App Builder. Covers delegated administration and complex sharing, data model and page design choices, Sales Territories and forecasting, bulk-safe Flow design, debugging and orchestration, declarative integration, Omni-Channel and entitlements, Experience Cloud, Revenue Cloud, data governance, advanced reporting, Lifecycle Center, org monitoring and Agentforce agent configuration.",
+      "prerequisites": ["Holds the Platform Administrator certification or has a year of hands-on admin work", "Builds objects, page layouts, reports, record-triggered flows and sharing rules without help", "A Developer Edition org plus the Trailhead special orgs for Revenue Cloud and Lifecycle Center"],
+      "outcomes": ["Design complex access with delegated administration, permission set groups, teams, territories and restriction rules", "Build, debug and orchestrate multi-step flows and connect external systems without code", "Configure Omni-Channel, entitlements, Experience Cloud sites and Revenue Cloud quoting", "Govern data, monitor the org, promote changes with Lifecycle Center and configure Agentforce agents"],
+      "days": [
+        {
+          "topic": "Delegated Administration and Permission Set Groups",
+          "subtopics": ["Delegated administration groups: user management, assignable permission sets and custom object administration", "Permission set groups and muting permission sets", "Custom permissions referenced in validation rules and flows", "Permission set licences and when a permission set needs one", "Time-limited permission set assignments with expiry dates", "User access policies that grant and remove access automatically", "Session-based permission sets for elevated tasks", "Auditing who holds which permissions with assignment reports"],
+          "tools": ["Delegated Administration", "Permission Set Groups", "User Access Policies", "Custom Permissions", "Setup with Agentforce"],
+          "lab_task": "For Northgate Medical, a fictional device distributor, create a delegated admin group that lets two regional office managers reset passwords and assign three named permission sets to users in their roles only, build Sales Rep and Sales Manager permission set groups with a muting permission set that removes Delete on Opportunity, and add a user access policy that assigns a Field Technician group when a user's department is Field Service.",
+          "deliverable": "Delegation design, permission set group composition and a tested user access policy",
+          "checks": [["Log in as an office manager and edit a user outside their roles", "The edit is refused because the user is outside the delegated roles", "Error screenshot"], ["Check the Sales Manager group's combined permissions", "Delete on Opportunity is off because of the muting permission set", "Permission set group summary"], ["Change a user's department to Field Service", "The Field Technician group is assigned automatically", "User permission set assignments"]],
+          "objectives": ["Delegate admin tasks safely", "Compose access with groups and muting", "Automate access assignment"]
+        },
+        {
+          "topic": "Complex Sharing: Teams, Restriction Rules and Implicit Sharing",
+          "subtopics": ["Account teams, opportunity teams and case teams with their access levels", "Default account teams and adding them to owned accounts", "Implicit sharing between accounts and their contacts, opportunities and cases", "Reading the sharing detail: rule, team, manual and implicit shares", "Restriction rules that narrow access to tasks, events and custom objects", "Scoping rules that set a default record scope for users", "Sharing recalculation and deferring sharing calculations", "Troubleshooting access with Setup with Agentforce and the Sharing Hierarchy"],
+          "tools": ["Account Teams", "Opportunity Teams", "Restriction Rules", "Scoping Rules", "Sharing Hierarchy", "Setup with Agentforce"],
+          "lab_task": "With Private accounts at Northgate Medical, set default account teams for key account managers, add a restriction rule so contractors see only the tasks they own, add a scoping rule so reps open account lists filtered to their region, and write down the source of access for five user and record pairs.",
+          "deliverable": "Sharing design note and a five-row access source table with evidence",
+          "checks": [["Add a user to an account team with Read/Write account access", "The user can edit the account and its opportunities as the team settings allow", "Record screenshot"], ["Open the task list views as a contractor", "Only tasks the contractor owns are returned", "List view screenshot"], ["Ask Setup with Agentforce why a rep can see a hospital account", "The answer names the team membership or rule that grants the access", "Agent response screenshot"]],
+          "objectives": ["Use teams and implicit sharing", "Restrict and scope record visibility", "Explain the source of any record access"]
+        },
+        {
+          "topic": "Data Model Decisions: Person Accounts, Custom Metadata and Custom Settings",
+          "subtopics": ["Business accounts, person accounts and why enabling person accounts cannot be undone", "Contacts to multiple accounts and account contact relationships", "Account hierarchies and the hierarchy view", "Custom metadata types for configuration that deploys with change sets", "Referencing custom metadata in formulas, validation rules and flows", "Hierarchy custom settings for per-user and per-profile values", "Record types versus separate objects: a decision checklist", "Object and field limits to check before building"],
+          "tools": ["Account Settings", "Custom Metadata Types", "Custom Settings", "Schema Builder", "Flow Builder"],
+          "lab_task": "Enable contacts to multiple accounts for Northgate Medical, model clinics and the doctors who work at several of them, create a Discount Threshold custom metadata type with four region records, reference it in a validation rule and a flow that stop discounts above the region limit, and write a one-page note on whether to enable person accounts.",
+          "deliverable": "Data model decision note, custom metadata type with records and the rules that read it",
+          "checks": [["Add a doctor to a second clinic", "Both clinics list the doctor in Related Contacts with different roles", "Account related lists"], ["Enter a 22% discount in the North region where the limit is 20%", "Save is blocked with the threshold read from custom metadata", "Error screenshot"], ["Change the North threshold record to 25%", "The same 22% discount now saves without editing the rule or the flow", "Record save screenshot"]],
+          "objectives": ["Choose account models", "Store configuration in custom metadata", "Justify data model decisions"]
+        },
+        {
+          "topic": "Dynamic Actions, Quick Actions and Custom Buttons",
+          "subtopics": ["Object-specific and global quick actions with predefined field values", "Dynamic Actions that show buttons by field value, device or permission", "Custom buttons and links with URL parameters and merge fields", "Component visibility rules and tabs in Lightning App Builder", "Page performance analysis in Lightning App Builder", "Dynamic Related Lists with filters and sort order", "Standard components and AgentExchange Lightning components", "Desktop and phone form factors for record pages"],
+          "tools": ["Lightning App Builder", "Buttons, Links and Actions", "Global Actions", "Salesforce mobile app"],
+          "lab_task": "On the Opportunity page, add a Request Demo Unit quick action with five predefined values, show Submit for Approval only when the discount exceeds 15% using Dynamic Actions, add a Track Shipment custom link that opens the carrier site with the tracking number, and replace three related lists with one filtered Dynamic Related List to cut page load time.",
+          "deliverable": "Before and after page performance analysis, action configuration and a phone test",
+          "checks": [["Set the discount to 10% and then to 20%", "Submit for Approval appears only at 20%", "Two screenshots"], ["Click Track Shipment on an order with tracking number 1Z999AA10123456784", "The carrier page opens with that number in the URL", "Browser screenshot"], ["Run the page performance analysis before and after the change", "Estimated load time falls after the related list change", "Analysis screenshots"]],
+          "objectives": ["Configure quick actions and Dynamic Actions", "Build custom buttons and links", "Tune Lightning page performance"]
+        },
+        {
+          "topic": "Sales Territories, Forecast Types and Opportunity Splits",
+          "subtopics": ["Sales Territories (formerly Enterprise Territory Management): territory types and priorities", "Territory model states: planning, active and archived", "Account assignment rules by country, postcode and industry", "Assigning users to territories with roles in territory", "Opportunity territory assignment and manual overrides", "Collaborative forecast types for revenue, splits and territories", "Opportunity splits: revenue splits that total 100% and overlay splits", "Quotas, manager adjustments and forecast reports"],
+          "tools": ["Territory Models", "Territory Settings", "Forecasts Settings", "Opportunity Splits", "Territory reports"],
+          "lab_task": "Build a planning territory model with a UK region split into North, Midlands and South territories plus a Hospitals overlay, write postcode and industry assignment rules for 300 accounts, activate the model, then turn on revenue and overlay opportunity splits and a territory forecast with quotas for each territory.",
+          "deliverable": "Territory model hierarchy, assignment results, split settings and a forecast screenshot",
+          "checks": [["Run assignment rules in the planning model", "Accounts show their proposed territories with no access change until activation", "Territory model results"], ["Split an opportunity 70/30 between two reps", "Each rep's split forecast shows their share", "Forecast screenshot"], ["Move an account to postcode B1 1AA and rerun the rules", "The account moves to the Midlands territory and its reps gain access", "Account territory related list"]],
+          "objectives": ["Design and activate territory models", "Configure forecast types and quotas", "Use opportunity splits"]
+        },
+        {
+          "topic": "Bulk-Safe Flow Design with Collections and Transforms",
+          "subtopics": ["Record collections, collection filters and collection sorts", "Loops that use Assignment, with Get Records and Update Records kept outside", "The Transform element for mapping one collection into another", "Per-transaction limits of 100 queries and 150 DML statements", "How a record-triggered flow handles 200 records saved together", "Run Asynchronously paths for slow work and callouts", "Formula resources and text templates", "Order of execution: before-save flows, validation rules and after-save flows"],
+          "tools": ["Flow Builder", "Data Loader", "Debug Logs", "Flow Trigger Explorer"],
+          "lab_task": "Build a flow that recalculates the service tier of every installed device under an account when the account's contract level changes, using one Get Records, a collection filter, a Transform and one Update Records outside the loop, then update 200 accounts in one Data Loader batch and confirm that no limit is hit.",
+          "deliverable": "Flow design with element counts and a bulk test report",
+          "checks": [["Update 200 accounts in one Data Loader batch", "All devices update with no limit exception", "Data Loader success file and debug log"], ["Count the DML statements in the debug log", "One Update Records call covers every device in the batch", "Debug log extract"], ["Load the same batch against a version that updates inside the loop", "That version fails with a too many DML statements error", "Flow error email"]],
+          "objectives": ["Work with collections in Flow", "Build bulk-safe flows", "Explain the order of execution"]
+        },
+        {
+          "topic": "Flow Debugging, Fault Paths and Failed Interviews",
+          "subtopics": ["Debug runs in Flow Builder: running as another user, rollback mode and the debug panel", "Fault connectors and the Custom Error element", "Flow error emails and Process Automation Settings", "Paused and failed flow interviews in the Automation app", "Flow tests for record-triggered flows", "Debug logs and trace flags for automation", "Flow versions, activation and rolling back to an earlier version", "Reading an error message and finding the failing element"],
+          "tools": ["Flow Builder debug", "Flow Tests", "Automation app", "Debug Logs", "Process Automation Settings"],
+          "lab_task": "Take a provided warranty-claim flow with three seeded faults, reproduce each with debug runs as a service agent, add fault paths that write a Flow Error Log record and show a Custom Error message, create four flow tests that cover the fixed paths, and route flow error emails to the admin team.",
+          "deliverable": "Fault analysis log, the fixed flow version and four passing flow tests",
+          "checks": [["Debug the flow as a service agent", "The missing field permission fault is reproduced and named in the debug panel", "Debug panel screenshot"], ["Trigger the lookup fault after the fix", "A Flow Error Log record is created and the user sees a clear message", "Record and screen screenshots"], ["Run all flow tests", "Four tests pass on the active version", "Flow test results"]],
+          "objectives": ["Reproduce flow faults", "Handle faults safely", "Test flows before activation"]
+        },
+        {
+          "topic": "Multi-Step Approvals with Flow Orchestration",
+          "subtopics": ["Orchestration stages, interactive steps and background steps", "Work items, assignees and the Work Guide component", "Orchestration as a standard flow type since Spring '26", "Flow Approval Processes: approval stages, steps and approvers", "Choosing the approver from record data", "Recall, reassignment and approval history", "Monitoring orchestration runs and work items", "Choosing between classic approvals, Flow approvals and orchestration"],
+          "tools": ["Flow Builder", "Flow Approval Processes", "Work Guide", "Orchestration Runs list view"],
+          "lab_task": "Build an orchestration for onboarding a new hospital customer with credit check, contract signature and installation scheduling stages, then rebuild a two-level discount approval as a Flow Approval Process that takes the approver from the manager of the account's territory.",
+          "deliverable": "Orchestration and Flow Approval Process with run history for two test records",
+          "checks": [["Create a new hospital account", "A credit check work item appears for the finance user in Work Guide", "Work Guide screenshot"], ["Submit a 25% discount", "The approval goes to the territory manager read from the record", "Approval work item"], ["Reject the request in stage two", "The opportunity returns to the rep with the rejection comment", "Approval history"]],
+          "objectives": ["Coordinate multi-user processes", "Build Flow approvals", "Choose the right approval tool"]
+        },
+        {
+          "topic": "Declarative Integration: Named Credentials, External Services and Salesforce Connect",
+          "subtopics": ["Named credentials and external credentials with principals", "Granting external credential principals through permission sets", "Registering an OpenAPI specification as an External Service", "Calling External Service actions from Flow", "Salesforce Connect external objects with the OData 4.0 adapter", "External lookup and indirect lookup relationships", "Platform event-triggered flows", "Handling and monitoring callout errors"],
+          "tools": ["Named Credentials", "External Credentials", "External Services", "Salesforce Connect", "Flow Builder"],
+          "lab_task": "Register a shipment-tracking OpenAPI specification as an External Service behind a named credential, call it from a screen flow on Order to show delivery status, and connect the public Northwind OData 4.0 sample service as external objects with an indirect lookup to Product by product code.",
+          "deliverable": "Integration configuration, a working screen flow and external object list views",
+          "checks": [["Run the delivery status flow on an order with a valid tracking number", "Status and estimated delivery date come back from the service", "Flow screen screenshot"], ["Remove the user's access to the external credential principal", "The callout fails with an authentication error that the fault path handles", "Fault path screenshot"], ["Open a product record", "Related external records show live from the OData service", "Related list screenshot"]],
+          "objectives": ["Configure secure callouts", "Use External Services in Flow", "Show external data without copying it"]
+        },
+        {
+          "topic": "Omni-Channel Routing: Queues, Skills and Capacity",
+          "subtopics": ["Enhanced Omni-Channel now that Standard Omni-Channel retired in Summer '26", "Service channels, presence statuses and presence configurations", "Routing configurations: priority, push timeout and units of capacity", "Queue-based routing versus skills-based routing", "Omni-Channel flows that make routing decisions", "Capacity models: tab-based and status-based", "Omni Supervisor for backlogs and agent status", "Enhanced Chat as a routed messaging channel"],
+          "tools": ["Omni-Channel Settings", "Routing Configurations", "Presence Configurations", "Omni-Channel Flow", "Omni Supervisor"],
+          "lab_task": "Route cases from two queues to two test agents with Enhanced Omni-Channel: create presence statuses and a presence configuration, a routing configuration with a capacity of four cases per agent, an Omni-Channel flow that sends Spanish-language cases to the agent with the Spanish skill, and watch a 20-case test load in Omni Supervisor.",
+          "deliverable": "Omni-Channel configuration and Omni Supervisor evidence from a 20-case test",
+          "checks": [["Set an agent with four open cases to Available", "No fifth case is pushed until one closes", "Omni Supervisor screenshot"], ["Create a case with the language Spanish", "It routes only to the agent with the Spanish skill", "Agent work record"], ["Let a pushed case time out", "The case returns to the queue and goes to the next agent", "Agent work history"]],
+          "objectives": ["Configure Enhanced Omni-Channel", "Route by skill with Omni-Channel flows", "Supervise queues and capacity"]
+        },
+        {
+          "topic": "Entitlements, Milestones and Service Contracts",
+          "subtopics": ["Entitlement Management settings and entitlement templates", "Entitlements on accounts, assets and service contracts", "Entitlement processes and their entry criteria", "Milestones: first response, resolution and recurring", "Milestone warning, violation and success actions", "Business hours on entitlement processes", "The Milestone Tracker on the case page", "Reporting on milestone compliance"],
+          "tools": ["Entitlement Settings", "Entitlement Processes", "Milestones", "Service Contracts", "Milestone Tracker"],
+          "lab_task": "Create Gold and Silver entitlement processes for hospital service contracts with a 1-hour first response and 8-business-hour resolution milestone for Gold, add warning actions at 75% of the time and violation actions that alert the service manager, and run six test cases that prove both compliance and violations.",
+          "deliverable": "Entitlement process design, test case results and a milestone compliance report",
+          "checks": [["Respond to a Gold case within 40 minutes", "The first response milestone completes on time", "Milestone Tracker"], ["Leave a Gold case unresolved for more than 8 business hours", "The violation action alerts the service manager and marks the milestone violated", "Case milestone and alert email"], ["Run the compliance report", "The percentage of milestones met is shown by entitlement process", "Report"]],
+          "objectives": ["Configure entitlements", "Build milestone actions", "Report on service levels"]
+        },
+        {
+          "topic": "Experience Cloud Administration: Licences, Sharing Sets and Guest Access",
+          "subtopics": ["Choosing Customer Community, Customer Community Plus and Partner Community licences", "Site templates: Build Your Own (LWR) and the Aura Customer Service template", "Members, profiles, permission sets and self-registration", "External org-wide defaults and sharing sets for high-volume users", "Partner roles, account roles and sharing rules for partner users", "Guest user profile, guest sharing rules and public access", "Experience Builder pages, audiences and navigation", "Moderation, member login history and site reports"],
+          "tools": ["Digital Experiences settings", "Experience Builder", "Experience Workspaces", "Sharing Sets", "Guest User profile"],
+          "lab_task": "Build a support site on the Customer Service template for hospital customers, enable two customer users and one reseller partner user, add a sharing set that shows customers their own account's cases and assets, give the partner role access to its customers' cases with a sharing rule, and publish a public knowledge page for guests.",
+          "deliverable": "Site configuration, member settings, the sharing set and guest access test results",
+          "checks": [["Log in as a hospital customer", "Only cases and assets of the user's own account are visible", "Site screenshot as the customer"], ["Log in as the partner user", "Cases of the partner's customers appear through the sharing rule", "Site screenshot as the partner"], ["Open the site as a guest", "Knowledge articles are readable and case pages ask for a login", "Private browser window screenshot"]],
+          "objectives": ["Choose external licences", "Configure external sharing", "Secure guest access"]
+        },
+        {
+          "topic": "Revenue Cloud: Product Catalogue, Pricing Procedures and Quotes",
+          "subtopics": ["Revenue Cloud and Salesforce CPQ (end of sale since March 2025, still supported)", "Product Catalog Management: catalogues, categories and product classifications", "Product attributes and bundles", "Salesforce Pricing: price books and pricing procedures", "Pricing elements for list price, volume discounts and manual discounts", "Product Configurator rules for bundle choices", "Transaction Management: quotes, quote lines and orders", "Revenue Cloud permission sets for catalogue, pricing and sales users"],
+          "tools": ["Revenue Cloud special Developer Edition", "Product Catalog Management", "Salesforce Pricing", "Product Configurator", "Transaction Management"],
+          "lab_task": "In the Trailhead Revenue Cloud special Developer Edition, build a Patient Monitor catalogue with three classifications and a bundle of monitor, sensors and service plan, create a pricing procedure with list price and a 5% volume discount from 10 units, add a configurator rule that requires a service plan, then price a quote for 12 monitors.",
+          "deliverable": "Catalogue, bundle, pricing procedure, configurator rule and a priced quote",
+          "checks": [["Add 12 monitors to the quote", "The 5% volume discount applies from the pricing procedure", "Quote line price waterfall"], ["Configure the bundle without a service plan", "The configurator stops the quote with the rule message", "Configurator screenshot"], ["Change the quantity to 9 monitors", "No volume discount is applied", "Quote line price"]],
+          "objectives": ["Explain where Revenue Cloud and CPQ stand", "Configure catalogue and pricing", "Quote configured products"]
+        },
+        {
+          "topic": "Data Governance: Classification, Ownership and Duplicate Management",
+          "subtopics": ["Data classification fields: Data Owner, Field Usage, Data Sensitivity Level and compliance categorisation", "Data steward roles and a maintained data dictionary", "Field history tracking choices and the 18-month retention in the UI", "Duplicate rules that block on exact matches and alert on fuzzy matches", "Duplicate record sets and merging accounts, contacts and leads", "Data quality scores with formula fields and dashboards", "Record ownership rules, including records left with inactive users", "Retention and archiving decisions per object"],
+          "tools": ["Field classification in Object Manager", "Duplicate Management", "Merge Accounts", "Duplicate Record Sets", "Dashboard Builder"],
+          "lab_task": "Classify 30 Account and Contact fields by data owner, field usage and sensitivity, publish a data dictionary spreadsheet from the classifications, add a contact duplicate rule that blocks on exact email and alerts on fuzzy name and phone, merge ten seeded duplicate accounts, and build a completeness dashboard by region.",
+          "deliverable": "Classified fields, data dictionary, merge log and a data quality dashboard",
+          "checks": [["Create a contact with an email that already exists", "The duplicate rule blocks the save and shows the existing contact", "Duplicate block screenshot"], ["Merge three duplicate accounts", "The master keeps the chosen field values and all related records", "Merged account related lists"], ["Filter the dashboard to UK North", "Completeness per key field is shown as a percentage", "Dashboard screenshot"]],
+          "objectives": ["Classify and own data", "Run duplicate management", "Measure data quality"]
+        },
+        {
+          "topic": "Joined Reports, Historical Trending and Reporting Snapshots",
+          "subtopics": ["Joined reports with blocks from different report types", "Cross-block summary formulas", "Summary formulas with PARENTGROUPVAL and PREVGROUPVAL", "Historical trend reporting on opportunities and custom objects", "Reporting snapshots: source report, target object, field mapping and schedule", "Custom report types with up to four objects and fields added through lookups", "Conditional report subscriptions and dashboard refresh schedules", "Report performance: selective filters and row limits"],
+          "tools": ["Lightning Report Builder", "Reporting Snapshots", "Historical Trending settings", "Dashboard Builder"],
+          "lab_task": "Build a joined report that compares open cases and open opportunities for each hospital account, a summary report showing each territory's share of regional pipeline with PARENTGROUPVAL, turn on historical trending for opportunity amount and close date, and schedule a daily reporting snapshot of open cases into a Case Backlog custom object charted on a dashboard.",
+          "deliverable": "Joined report, share-of-pipeline report, trending report and a snapshot-fed backlog chart",
+          "checks": [["Run the joined report", "Each hospital shows case and pipeline blocks side by side", "Report screenshot"], ["Check the territory share column", "Shares add up to 100% within each region", "Report screenshot"], ["Check the snapshot after its first scheduled run", "Case Backlog records are created with the run date", "Snapshot run history"]],
+          "objectives": ["Build joined and formula reports", "Report on history and trends", "Store report results over time"]
+        },
+        {
+          "topic": "Lifecycle Center: Work Items, Pipelines and Promotion",
+          "subtopics": ["Lifecycle Center (formerly DevOps Center) compared with change sets", "Connecting a GitHub repository and source-tracked sandboxes", "Projects, work items and pulling changes from a development environment", "Pipeline stages: Integration, UAT, Staging and Production", "Reviewing changes and resolving conflicts", "Promoting single work items or bundles", "Unmanaged packages for one-off transfers", "Rolling back and writing release notes from work items"],
+          "tools": ["Lifecycle Center", "GitHub", "Developer sandboxes", "Change Sets"],
+          "lab_task": "In the Trailhead Lifecycle Center playground with a free GitHub account, create a project with Integration, UAT and Production stages, capture a new Device Model field and its page change as a work item from a development environment, promote it through two stages and resolve one seeded conflict.",
+          "deliverable": "Pipeline configuration, work item history and a promotion log",
+          "checks": [["Pull changes into the work item", "The new field and page appear as tracked components", "Work item screenshot"], ["Promote the work item to UAT", "Components deploy and the work item moves to the UAT stage", "Pipeline view"], ["Open the GitHub repository", "A branch and a merged pull request exist for the work item", "GitHub screenshot"]],
+          "objectives": ["Run source-driven releases without code", "Manage work items and pipelines", "Compare Lifecycle Center with change sets"]
+        },
+        {
+          "topic": "Audit Trails, Login History and Org Monitoring",
+          "subtopics": ["Setup Audit Trail: 180 days online and CSV download", "Field history tracking: up to 20 fields per object and history reports", "Login History and Identity Verification History", "Debug logs and trace flags for users and automated processes", "Monitoring scheduled jobs and bulk data load jobs", "System Overview: API requests, storage and limits", "Health Check scores and fixing high-risk settings", "Org Check (Salesforce Labs) now that Optimizer is retired"],
+          "tools": ["View Setup Audit Trail", "Login History", "Debug Logs", "System Overview", "Health Check", "Org Check"],
+          "lab_task": "Run a monthly monitoring routine on a seeded org: export 30 days of Setup Audit Trail and flag unapproved changes, find three failed logins and their source IP addresses, trace a failing scheduled flow with a debug log, raise the Health Check score above 90, and run Org Check to list the top ten issues.",
+          "deliverable": "Monthly monitoring report with findings, evidence and owners",
+          "checks": [["Filter the audit trail export by user", "An unapproved profile change is found with its date and user", "Audit trail CSV"], ["Fix the high-risk password and session settings", "The Health Check score rises above 90", "Health Check before and after"], ["Run Org Check", "Inactive users, unused fields and old API versions are listed", "Org Check report"]],
+          "objectives": ["Audit configuration changes", "Monitor logins and jobs", "Report on org health"]
+        },
+        {
+          "topic": "Agentforce Agents: Subagents, Actions and Testing",
+          "subtopics": ["Agentforce Builder in the Agentforce Studio app and moving legacy agents to it", "Subagents (formerly topics), the Agent Router and scope instructions", "Actions from flows, prompt templates and standard actions", "Agent Script for fixed steps such as identity checks", "Grounding answers with an Agentforce Data Library of knowledge articles", "Service agents: the agent user, Enhanced Chat and escalation to a queue", "Testing Center cases: utterance, expected subagent, expected actions and outcome", "Activating, deactivating and versioning agents"],
+          "tools": ["Agentforce Studio", "Agentforce Builder", "Agentforce Data Library", "Testing Center", "Enhanced Chat"],
+          "lab_task": "Build a customer-facing service agent for Northgate Medical with Order Status and Device Troubleshooting subagents, a flow action that looks up an order by number after an Agent Script identity check, a data library of 20 knowledge articles, escalation to an Omni-Channel queue and a Testing Center suite of 25 cases.",
+          "deliverable": "Agent configuration, data library, test suite results and an escalation test",
+          "checks": [["Ask 'Where is order 00012345?' without verifying identity", "The agent asks for the account email before calling the lookup action", "Conversation preview"], ["Run the 25-case test suite", "At least 23 cases pass the subagent and action checks", "Testing Center results"], ["Ask to speak to a person", "The conversation transfers to the Omni-Channel queue with a summary", "Transcript and Omni Supervisor screenshot"]],
+          "objectives": ["Configure subagents and actions", "Ground and test an agent", "Deploy an agent with human escalation"]
+        },
+        {
+          "topic": "Platform Administrator II and App Builder Exam Readiness",
+          "subtopics": ["Platform Administrator II format: 60 questions, 105 minutes, 65% pass mark and the Platform Administrator prerequisite", "Admin II weights: Security and Access 20%, Process Automation 20%, Objects and Applications 19%", "Admin II weights: Data and Analytics 13%, Cloud Applications 11%, Auditing and Monitoring 10%, Environment Management 7%", "App Builder sections: automation and data modelling make up about half the exam", "Scenario questions on sharing, territories and choosing automation", "Superbadges named in the exam guides", "Booking both exams through Trailhead Academy", "Mock exam review and a gap plan"],
+          "tools": ["Trailhead Academy", "Platform Administrator II trailmix", "Platform App Builder trail", "Trainer mock exams"],
+          "lab_task": "Sit two timed 60-question mock exams for Platform Administrator II and Platform App Builder, rebuild the four most-missed scenarios in your org, and prepare a 15-minute explanation of one territory or sharing scenario for the group.",
+          "deliverable": "Two marked mock exams, four rebuilt scenarios and a teach-back session",
+          "checks": [["Mark both mock exams by section", "Scores show the weakest section of each exam", "Score sheets"], ["Rebuild a missed automation scenario", "The org behaves as the correct answer describes", "Org screenshot or debug run"], ["Deliver the teach-back", "The group can say why the chosen answer beats the alternatives", "Trainer feedback form"]],
+          "objectives": ["Map skills to both exam guides", "Solve scenario questions", "Close knowledge gaps"]
+        },
+        {
+          "topic": "Intermediate Capstone: Partner Sales and Support Platform for a Device Distributor",
+          "subtopics": ["Access design with delegation, teams, territories and restriction rules", "Sales configuration with forecasting, splits and Revenue Cloud quotes", "Service configuration with Omni-Channel, entitlements and a partner site", "Automation with orchestrated flows, fault handling and an integration", "Governance: data quality, monitoring and Lifecycle Center promotion", "Service agent with tests and a steering group demo"],
+          "tools": ["Developer Edition org", "Lifecycle Center", "Flow Builder", "Experience Builder", "Agentforce Builder"],
+          "lab_task": "For a device distributor that sells through two reseller partners, design and build territory-based access, quoting, case routing with entitlements, a partner support site, an orchestrated onboarding flow with fault handling and a tested service agent, promote one change through Lifecycle Center and present the design trade-offs to a mock steering group.",
+          "deliverable": "Built solution, design decision log, test evidence and a 30-minute presentation",
+          "checks": [["Run a partner-sourced deal from lead to quote", "Partner and territory reps see the deal and split credit", "Records and forecast"], ["Log a Gold hospital case through the partner site", "The case routes by skill and meets its first response milestone", "Case and Milestone Tracker"], ["Answer the steering group's three design questions", "Each answer cites a tested configuration and its trade-off", "Presentation and decision log"]],
+          "objectives": ["Combine the intermediate topics", "Prove the build with tests", "Defend design choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For lead administrators, platform owners and admin managers who run Salesforce at enterprise scale. Covers org strategy, a security programme with Shield Event Monitoring, Platform Encryption, Field Audit Trail and Data Detect, single sign-on and integration access, large data volumes, backup and recovery, environment and release management, legacy automation migration, technical debt, Data 360 administration, Agentforce governance and the Einstein Trust Layer, privacy compliance, user adoption, the centre of excellence and admin team leadership.",
+      "prerequisites": ["Holds Platform Administrator II or has run a production org with more than 500 users", "Configures complex sharing, Flow, Experience Cloud and deployments without supervision", "Has the authority, or a sponsor, to change security, release and governance processes"],
+      "outcomes": ["Choose an org strategy and run a security programme with Shield, single sign-on and integration access controls", "Operate large orgs: data volumes, backups, environments, releases and automation migration", "Administer Data 360 and govern Agentforce with the Einstein Trust Layer and privacy controls", "Lead an admin team and centre of excellence that cuts technical debt and raises adoption"],
+      "days": [
+        {
+          "topic": "Org Strategy: Single-Org, Multi-Org and Hub-and-Spoke Models",
+          "subtopics": ["Decision drivers: shared customers, regulation, data residency and release independence", "Single-org designs that separate business units with record types, sharing and apps", "Multi-org costs: licences, duplicated configuration and integration", "Hub-and-spoke patterns with the Salesforce Connect cross-org adapter and Data 360", "One identity provider across several orgs", "Hyperforce regions and data residency", "Org merge and org split triggers after acquisitions", "Writing an org strategy decision record"],
+          "tools": ["Org strategy decision matrix", "Salesforce Connect cross-org adapter", "Hyperforce region information", "Salesforce Well-Architected guidance"],
+          "lab_task": "For Harbourline, a fictional insurer with UK, German and US businesses after an acquisition, score single-org, multi-org and hub-and-spoke options against eight weighted criteria, prototype a cross-org adapter view of policies held in a second Developer Edition org, and write a decision record for the board.",
+          "deliverable": "Weighted option matrix, cross-org prototype and an org strategy decision record",
+          "checks": [["Raise the weight of data residency from 10% to 25%", "The preferred option changes or the record explains why it does not", "Updated matrix"], ["Open a policy from the second org in the hub org", "External object records show live without copying data", "External object list view"], ["Present the decision record", "Risks, costs and exit criteria are stated for the chosen model", "Decision record"]],
+          "objectives": ["Compare org strategies", "Prototype cross-org data access", "Record and defend an org decision"]
+        },
+        {
+          "topic": "Security Programme: Health Check, Security Center and Access Reviews",
+          "subtopics": ["Health Check scores and up to five custom baselines", "Security Center for security posture across several orgs", "Quarterly access reviews of profile and permission set assignments", "Privileged users: phishing-resistant MFA and holders of View All Data and Modify All Data", "Session security levels, high-assurance sessions and login IP restrictions", "API Access Control and allowlisted connected apps", "Guest user and Experience Cloud exposure checks", "A security incident playbook with named roles"],
+          "tools": ["Health Check", "Security Center", "User access summary", "Session Settings", "Permission set assignment reports"],
+          "lab_task": "Import a custom Health Check baseline that matches Harbourline's password and session policy, run a quarterly access review that finds every user with Modify All Data, View All Data or Customize Application, remove five unjustified grants, require a high-assurance session for managing encryption keys, and write the security incident playbook.",
+          "deliverable": "Custom baseline file, access review evidence, a removed grants list and an incident playbook",
+          "checks": [["Run Health Check against the custom baseline", "The score reflects the stricter policy and lists the failing settings", "Health Check screenshot"], ["Run the privileged permissions report", "Every holder has a named justification or loses the permission", "Access review spreadsheet"], ["Open encryption key management in a standard session", "The user is asked to raise the session to high assurance", "Verification prompt screenshot"]],
+          "objectives": ["Run a repeatable security review", "Control privileged access", "Prepare for security incidents"]
+        },
+        {
+          "topic": "Event Monitoring and Transaction Security Policies",
+          "subtopics": ["Event log files: hourly and daily files kept for a year with Shield, against 24 hours of free daily logs", "Event Log File Browser and downloading logs", "Real-Time Event Monitoring: LoginEvent, ReportEvent, ApiEvent and ListViewEvent", "Storing real-time events with Event Manager", "Transaction security policies built in Condition Builder", "Threat Detection: session hijacking, credential stuffing and report anomalies", "Event Monitoring Analytics app dashboards", "Sending events to a SIEM such as Splunk"],
+          "tools": ["Event Log File Browser", "Event Manager", "Transaction Security Policies", "Event Monitoring Analytics app", "Threat Detection"],
+          "lab_task": "In a Shield-enabled training org, store ReportEvent and LoginEvent, build a Condition Builder policy that blocks report exports over 10,000 rows for non-finance users and a second that requires MFA for logins from outside the UK and Germany, then investigate a seeded data exfiltration attempt from the event logs.",
+          "deliverable": "Two active policies, event log extracts and an investigation timeline",
+          "checks": [["Export a 12,000-row report as a non-finance user", "The export is blocked and the security team is notified", "Block message and notification"], ["Log in through a VPN endpoint in Canada", "The policy challenges the login for MFA", "LoginEvent record"], ["Rebuild the seeded incident from ReportEvent and LoginEvent", "The timeline names the user, IP address, report and row counts", "Investigation timeline"]],
+          "objectives": ["Configure Event Monitoring", "Enforce transaction security policies", "Investigate user activity"]
+        },
+        {
+          "topic": "Shield Platform Encryption and Key Management",
+          "subtopics": ["What Shield Platform Encryption covers: fields, files, attachments and search indexes", "Probabilistic and deterministic encryption schemes", "Tenant secrets, key rotation and key destruction", "Bring Your Own Key and Cache-Only Key Service", "Feature limits on encrypted fields: formulas, sorting, filters and matching rules", "Encryption policy and the Encryption Statistics page", "Synchronising existing data after a field is encrypted", "Separating key management duties from admin duties"],
+          "tools": ["Encryption Policy", "Key Management", "Encryption Statistics", "Manage Encryption Keys permission"],
+          "lab_task": "Run a field-by-field impact assessment for encrypting 12 personal fields on Contact and a Policy Claim object, encrypt six of them (two deterministic for matching), generate and rotate a tenant secret, synchronise existing data from Encryption Statistics, and record which reports, filters and duplicate rules broke.",
+          "deliverable": "Encryption impact assessment, key rotation log and a remediation list for broken features",
+          "checks": [["Filter contacts on the deterministically encrypted email field", "Exact-match filters still return records", "List view screenshot"], ["Sort a report by a probabilistically encrypted field", "Sorting is unavailable and the report needs redesign", "Report builder screenshot"], ["Open Encryption Statistics after the sync", "The encrypted record count matches the total for each field", "Encryption Statistics page"]],
+          "objectives": ["Assess encryption impact", "Manage tenant secrets", "Encrypt data without breaking processes"]
+        },
+        {
+          "topic": "Field Audit Trail, Data Detect and Data Classification",
+          "subtopics": ["Field Audit Trail compared with standard field history (20 fields, 18 months)", "Tracking up to 200 fields per object with Field Audit Trail", "Retention policies and the FieldHistoryArchive big object", "Exporting archived history for an auditor", "Data Detect scans, sensitive data categories and results", "Applying data classification from Data Detect findings", "Using sensitivity levels to decide on encryption and masking", "Evidence packs for internal and external auditors"],
+          "tools": ["Field Audit Trail", "Data Detect", "Data classification settings", "Data Loader"],
+          "lab_task": "Set a Field Audit Trail policy that keeps 24 months of Policy Claim history in the org and archives older history for 10 years, run a Data Detect scan over Contact and Case to find email addresses, phone numbers and payment card numbers in free-text fields, classify the 15 fields it flags and build an audit evidence pack for one claim.",
+          "deliverable": "Retention policy, Data Detect results, classification changes and an audit evidence pack",
+          "checks": [["Run Data Detect on Case Description", "Card numbers are found with sample counts per field", "Scan results"], ["Retrieve the history of one claim field from 30 months ago", "The archived change shows the old value, new value, user and date", "Archive export"], ["Review the classification after the changes", "Flagged fields carry a sensitivity level and a data owner", "Field classification screenshot"]],
+          "objectives": ["Retain field history for audits", "Find sensitive data", "Classify data by sensitivity"]
+        },
+        {
+          "topic": "Single Sign-On with SAML, OpenID Connect and Just-in-Time Provisioning",
+          "subtopics": ["My Domain, login page branding and authentication configuration", "SAML single sign-on with Microsoft Entra ID or Okta as identity provider", "Federation ID mapping and the SAML Assertion Validator", "Just-in-time provisioning of users and profiles at first login", "OpenID Connect authentication providers for partner and social sign-in", "Login Discovery for identity-first login", "Salesforce as an identity provider for other applications", "Break-glass admin accounts and phishing-resistant MFA alongside SSO"],
+          "tools": ["My Domain", "Single Sign-On Settings", "SAML Assertion Validator", "Auth. Providers", "Microsoft Entra ID test tenant"],
+          "lab_task": "Configure SP-initiated SAML single sign-on with a Microsoft Entra ID test tenant using Federation ID, turn on just-in-time provisioning for a pilot group, add Google sign-in through an OpenID Connect provider for the partner site, keep two break-glass admin accounts with passkeys, and debug one failed assertion with the SAML Assertion Validator.",
+          "deliverable": "SSO configuration, provisioned test users, partner sign-in and a root cause note for the failed login",
+          "checks": [["Sign in through My Domain as an Entra ID pilot user with no Salesforce user", "A user is created with the pilot profile at first login", "User record and Login History"], ["Sign in with a mismatched Federation ID", "Login fails and the validator shows the subject mismatch", "SAML Assertion Validator output"], ["Turn off SSO in the test tenant", "Break-glass admins still log in with passkeys", "Login History"]],
+          "objectives": ["Configure SAML and OpenID Connect sign-in", "Provision users at login", "Keep admin access resilient"]
+        },
+        {
+          "topic": "Integration Users, External Client Apps and OAuth Policies",
+          "subtopics": ["Salesforce Integration user licences (five included in Enterprise, Unlimited and Performance editions) and the Minimum Access - API Only Integrations profile", "External client apps replacing connected apps, whose creation is restricted since Spring '26", "Server-to-server OAuth: JWT bearer and client credentials flows", "Refresh tokens that expire after 30 idle days in production from 4 November 2026", "Retirement of the username-password and user-agent flows on 20 February 2027", "Device flow restriction for connected apps from 30 November 2026", "Finding live integrations with Connected Apps OAuth Usage and Login History", "API Access Control and per-app IP and session policies"],
+          "tools": ["External Client App Manager", "Connected Apps OAuth Usage", "Login History", "Release Updates", "Salesforce Integration user licence"],
+          "lab_task": "Inventory every OAuth integration in a seeded org from Connected Apps OAuth Usage and Login History, record each one's flow and last use, move two username-password integrations to an external client app using the client credentials flow as a dedicated integration user, and publish a cut-over plan that finishes before 20 February 2027.",
+          "deliverable": "Integration inventory, two migrated integrations and a dated cut-over plan",
+          "checks": [["Filter Login History by login type", "Every remaining username-password login is listed with its app", "Login History export"], ["Run a migrated integration with client credentials", "It authenticates as the integration user with only its permission set's access", "Login History and API test result"], ["Revoke the old connected app", "The old flow fails while the external client app keeps working", "Error log and success log"]],
+          "objectives": ["Secure integration users", "Move integrations to external client apps", "Plan for OAuth deadlines"]
+        },
+        {
+          "topic": "Large Data Volumes: Data Skew, Selective Filters and Archiving",
+          "subtopics": ["Warning signs: slow list views, report timeouts and record locking errors", "Ownership skew and account data skew above 10,000 child records", "Lookup skew and record locking during loads", "Selective report and list view filters on indexed fields", "Requesting custom indexes and skinny tables from Salesforce Support", "Deferring sharing calculations and loading in parallel safely", "Planning Bulk API 2.0 loads with Data Loader", "Archive and storage strategies for old cases and emails"],
+          "tools": ["Data Loader", "Storage Usage", "Query Plan tool", "Salesforce Archive"],
+          "lab_task": "In a trainer-provided sandbox with 2 million cases, where one integration user owns 400,000 records and one account has 60,000 contacts, redesign ownership and account structure, rewrite three slow reports with selective filters, plan a Bulk API 2.0 reload with deferred sharing and propose an archive policy for cases older than three years.",
+          "deliverable": "Data volume diagnosis, skew remediation plan, faster reports and an archive policy",
+          "checks": [["Run the slow report before and after the filter change", "Run time drops and the report no longer times out", "Report timings"], ["Count records per owner and per account", "Owners and accounts above 10,000 child records are listed", "Skew report"], ["Review the reload plan with the trainer", "The plan orders objects, sets batch sizes and defers sharing", "Load plan"]],
+          "objectives": ["Recognise data skew", "Make reports and list views selective", "Plan large loads and archiving"]
+        },
+        {
+          "topic": "Org Backup, Data Restore and Incident Recovery",
+          "subtopics": ["Recovery point and recovery time objectives for CRM data", "Backup & Recover policies, frequency and retention", "The weekly Data Export Service and its limits", "Recycle Bin limits and what cannot be undeleted", "Restoring records and relationships after a bad data load", "Keeping metadata backups in source control", "Trust status, incident communication and maintenance windows", "Post-incident reviews and runbook updates"],
+          "tools": ["Backup & Recover", "Data Export Service", "Recycle Bin", "Data Loader", "Salesforce Trust status site"],
+          "lab_task": "Set daily backup policies for accounts, contacts, opportunities and cases, run a recovery drill after a seeded Data Loader mistake overwrote 5,000 account owners, restore the account owners and the related opportunity owners, measure the time taken against a 4-hour objective and update the runbook.",
+          "deliverable": "Backup policy, recovery drill timings and an updated incident runbook",
+          "checks": [["Compare owners before and after the drill", "All 5,000 account owners match the pre-incident backup", "Comparison report"], ["Time the drill", "The restore finishes inside the 4-hour objective or the gap is explained", "Drill log"], ["Try to undelete records deleted 20 days ago", "The Recycle Bin no longer holds them so a backup restore is needed", "Recycle Bin screenshot"]],
+          "objectives": ["Set recovery objectives", "Restore data after an incident", "Run recovery drills"]
+        },
+        {
+          "topic": "Environment Strategy: Sandbox Landscape, Seeding and Masking",
+          "subtopics": ["Mapping sandbox types to development, integration, UAT, training and staging", "Refresh calendars set against the release cycle", "Sandbox templates for Partial Copy sandboxes", "Data Mask & Seed for anonymised, realistic test data", "Post-refresh checklist: email deliverability, integration endpoints and users", "Sandbox cloning for parallel projects", "A hotfix path to production", "Who may create, refresh and log in to each environment"],
+          "tools": ["Sandboxes page", "Sandbox templates", "Data Mask & Seed", "Lifecycle Center", "Deliverability settings"],
+          "lab_task": "Design a sandbox landscape for three parallel projects and a hotfix path, write a refresh calendar for the next three seasonal releases, configure a Partial Copy template with 10 objects, mask names, emails and phone numbers with Data Mask & Seed, and complete a post-refresh checklist that stops test emails reaching customers.",
+          "deliverable": "Environment diagram, refresh calendar, masking configuration and a post-refresh checklist",
+          "checks": [["Open contacts in the masked sandbox", "Names, emails and phone numbers are anonymised in valid formats", "Sandbox record screenshot"], ["Send a test email after the refresh", "Deliverability is System email only so nothing reaches customers", "Deliverability settings"], ["Walk through the hotfix path", "A fix reaches production without passing through project sandboxes", "Environment diagram review"]],
+          "objectives": ["Design environments", "Protect data in sandboxes", "Run refreshes safely"]
+        },
+        {
+          "topic": "Seasonal Release Management and Release Updates",
+          "subtopics": ["Three releases a year: Spring, Summer and Winter dates and sandbox preview", "Preview and non-preview sandbox instances", "Triaging release notes by impact and team", "The Release Updates page: due dates, testing and enforcement", "Regression packs: flow tests, Testing Center suites and UAT scripts", "Release communication and change freezes", "Maintenance windows and the Trust status site", "Winter '27 changes admins had to act on: list view inline editing, Agentforce on by default and refresh token expiry"],
+          "tools": ["Release notes", "Release Updates", "Preview sandbox", "Salesforce Trust status site", "Testing Center"],
+          "lab_task": "Run release readiness for the next seasonal release on a preview sandbox: triage 40 release notes into act, test and inform, test three release updates before enforcement, run the flow test and agent test packs, and publish a release note for 2,000 users.",
+          "deliverable": "Release triage sheet, regression results and a release note for users",
+          "checks": [["Run the regression packs on the preview sandbox", "All tests pass or failures are logged with owners", "Test results"], ["Test one release update before enforcement", "Its effect on two integrations is recorded", "Release update test note"], ["Review the user release note", "It lists the visible changes with screenshots and dates", "Release note"]],
+          "objectives": ["Plan seasonal releases", "Test release updates", "Communicate change to users"]
+        },
+        {
+          "topic": "Automation Consolidation: Migrating Workflow Rules and Processes to Flow",
+          "subtopics": ["Inventory of workflow rules, processes and flows per object", "What the end of support for Workflow Rules and Process Builder on 31 December 2025 means", "Using Migrate to Flow and reviewing what it cannot convert", "Consolidating per object into before-save and after-save flows with clear entry conditions", "Trigger order and Flow Trigger Explorer", "Regression testing with flow tests and bulk loads", "Cut-over: activate flows, deactivate legacy automation and monitor", "Naming, description and documentation standards for flows"],
+          "tools": ["Migrate to Flow tool", "Flow Trigger Explorer", "Flow Tests", "Automation app", "Data Loader"],
+          "lab_task": "In a trainer-provided legacy org with 14 workflow rules and 6 processes on Opportunity and Case, inventory them, convert four with Migrate to Flow, consolidate the rest into one before-save and one after-save flow per object, prove the behaviour with 12 flow tests and a 200-record bulk test, and deactivate the legacy automation.",
+          "deliverable": "Automation inventory, consolidated flows, test evidence and a deactivation log",
+          "checks": [["Run the 12 flow tests", "All tests pass against the behaviour of the old rules", "Flow test results"], ["Load 200 opportunities", "The same field values and tasks result as before the migration", "Before and after comparison report"], ["List active legacy automation", "No active workflow rules or processes remain on the two objects", "Workflow Rules and Process Builder list views"]],
+          "objectives": ["Plan automation migration", "Consolidate flows per object", "Retire legacy automation safely"]
+        },
+        {
+          "topic": "Technical Debt: Org Check, Field Usage and Clean-Up Plans",
+          "subtopics": ["Types of admin debt: unused fields, stale reports, overlapping automation and surplus profiles", "Org Check (Salesforce Labs) as the replacement for the retired Optimizer", "Finding field usage with Where is this used? and page layout assignments", "Report and dashboard clean-up by last run date", "Flows and components left on old API versions", "Hard-coded record IDs and URLs in formulas, buttons and flows", "Scoring and ranking debt by risk and effort", "A quarterly clean-up cycle with stakeholder sign-off"],
+          "tools": ["Org Check", "Where is this used? button", "Report last run dates", "Automation app"],
+          "lab_task": "Run Org Check on a seeded org, find 50 fields with no data in 12 months and no references, 200 reports not run in a year and five hard-coded record IDs, score each item for risk and effort, remove a first batch after sign-off and set a quarterly clean-up calendar.",
+          "deliverable": "Technical debt register with scores, evidence for the first clean-up batch and a quarterly calendar",
+          "checks": [["Check a candidate field with Where is this used?", "No formulas, flows or layouts reference it before deletion", "Where is this used? screenshot"], ["Delete the first batch of 20 fields", "The fields sit in Deleted Fields for 15 days and the register is updated", "Deleted Fields list and register"], ["Run Org Check again", "The issue count falls against the first run", "Org Check comparison"]],
+          "objectives": ["Measure technical debt", "Rank clean-up work", "Remove debt without breaking processes"]
+        },
+        {
+          "topic": "Data 360 Administration: Data Streams, Identity Resolution and Segments",
+          "subtopics": ["Data 360 (formerly Data Cloud) provisioning, Data 360 Setup and standard permission sets", "Data spaces for brand or region separation", "The Salesforce CRM connector and data streams", "Data lake objects, data model objects and field mapping", "Identity resolution rulesets: match rules and reconciliation rules", "Calculated insights and segments", "Activation targets and Data 360 related lists on CRM records", "Consumption tracking in Digital Wallet"],
+          "tools": ["Data 360 Setup", "Data Streams", "Identity Resolution", "Segments", "Profile Explorer"],
+          "lab_task": "In a Data 360 Trailhead playground, bring in CRM contacts and a CSV of 5,000 web sign-ups as data streams, map them to Individual and Contact Point Email, build an identity resolution ruleset with exact email and fuzzy name matching, then create a lifetime value calculated insight and a high-value segment.",
+          "deliverable": "Data streams, mappings, identity ruleset, calculated insight and segment with unification statistics",
+          "checks": [["Run identity resolution", "The unified profile count is lower than the source records and a match rate is shown", "Identity resolution summary"], ["Open a unified profile for a contact who signed up on the web", "The profile shows both sources", "Profile Explorer screenshot"], ["Publish the high-value segment", "The segment population appears and refreshes on its schedule", "Segment screenshot"]],
+          "objectives": ["Administer Data 360", "Unify customer profiles", "Build insights and segments"]
+        },
+        {
+          "topic": "Agentforce Governance: Einstein Trust Layer, Agent Access and Observability",
+          "subtopics": ["Einstein Trust Layer: permission-aware grounding, data masking and zero data retention", "Toxicity scoring, audit trail and feedback data stored in Data 360", "Agentforce on by default in Winter '27: Einstein Setup, per-agent activation and Manage AI Agents", "Agent users and least-privilege permission sets for agent actions", "An AI use policy and an agent approval board", "Agentforce Observability (formerly Command Center): sessions, traces and quality scores", "Testing Center regression suites before each agent version", "Flex Credit consumption in Digital Wallet and usage alerts"],
+          "tools": ["Einstein Trust Layer settings", "Agentforce Observability", "Testing Center", "Digital Wallet", "Agentforce Builder"],
+          "lab_task": "Write an agent approval checklist for Harbourline, configure Trust Layer data masking for names, email addresses and phone numbers, review a claims agent's permission sets and remove two object permissions it does not need, run a 50-case regression suite before activating version 2, and review a week of seeded sessions in Agentforce Observability.",
+          "deliverable": "Agent approval checklist, masking settings, permission review, regression results and an observability review",
+          "checks": [["Send a prompt containing a customer email address through the agent", "The audit trail shows the address masked before the model call", "Trust Layer audit record"], ["Remove Edit on Policy from the agent user", "The update-policy action fails safely and the agent hands off", "Conversation preview"], ["Review last week's sessions", "Low-scoring sessions are listed with the subagent and action at fault", "Observability report"]],
+          "objectives": ["Configure Trust Layer controls", "Apply least privilege to agents", "Monitor agent quality and cost"]
+        },
+        {
+          "topic": "Privacy and Compliance: Consent, Data Subject Requests and Audit Evidence",
+          "subtopics": ["UK GDPR, EU GDPR and CCPA duties that fall to the Salesforce admin", "The consent data model: Individual, Contact Point Type Consent and Data Use Purpose", "Privacy Center retention and right-to-be-forgotten policies", "Answering a data subject access request within one month", "Email opt-out, unsubscribe handling and consent capture in forms and flows", "Change control evidence from Setup Audit Trail exports and approvals", "Segregation of duties for deployments and admin rights", "Preparing for an external audit with an evidence index"],
+          "tools": ["Privacy Center", "Consent data model objects", "Setup Audit Trail export", "Lifecycle Center work items", "Data Loader"],
+          "lab_task": "Model consent for marketing email and phone calls on the consent objects, handle a seeded subject access request and an erasure request with Privacy Center policies inside the one-month deadline, and assemble an audit evidence index that proves change control for last quarter's 12 releases.",
+          "deliverable": "Consent model, completed access and erasure requests, and an audit evidence index",
+          "checks": [["Run the erasure policy for the requester", "Personal fields are deleted or masked and related records follow the policy", "Privacy Center job result"], ["Export the subject access data", "The file covers every object that holds the requester's data", "Export file and object list"], ["Sample three releases from the evidence index", "Each has an approved work item, a test result and an audit trail entry", "Evidence index"]],
+          "objectives": ["Model consent", "Fulfil data subject requests", "Prove change control to auditors"]
+        },
+        {
+          "topic": "User Adoption: In-App Guidance, Usage Metrics and Feedback Loops",
+          "subtopics": ["Adoption measures: logins, records created and feature usage", "The Lightning Usage app and login reports", "In-App Guidance prompts (free) and walkthroughs (add-on licence)", "Path guidance and help text as in-context help", "Champion networks and role-based training plans", "Feedback channels: a Slack channel, surveys and request cases", "Adoption dashboards by team and manager", "Retiring unused features and announcing changes"],
+          "tools": ["In-App Guidance", "Lightning Usage app", "Dashboard Builder", "Slack"],
+          "lab_task": "Set adoption targets for 600 sales users after a territory change, build an adoption dashboard from login and opportunity update reports, publish three In-App Guidance prompts for the new forecast page, run a five-question feedback survey, and present a 30-day adoption plan to sales leaders.",
+          "deliverable": "Adoption targets, adoption dashboard, three prompts, survey results and a 30-day plan",
+          "checks": [["Log in as a targeted rep", "The forecast prompt appears once and links to the guide", "Prompt screenshot"], ["Filter the adoption dashboard by manager", "Teams below target are shown with login and update rates", "Dashboard screenshot"], ["Review the survey answers", "The top three blockers have owners and dates in the plan", "Adoption plan"]],
+          "objectives": ["Measure adoption", "Guide users in the app", "Act on user feedback"]
+        },
+        {
+          "topic": "Admin Centre of Excellence: Intake, Prioritisation and Change Control",
+          "subtopics": ["Centre of excellence roles: executive sponsor, product owner, design authority and admins", "One intake channel for requests, with acceptance criteria", "Prioritising with value, effort and risk scores", "Design authority reviews for new objects, automation and agents", "A change advisory meeting and release calendar", "Naming conventions and documentation standards", "Org health measures reported to the steering committee", "Funding and capacity planning for the admin backlog"],
+          "tools": ["Intake queue or Jira project", "Lifecycle Center work items", "Org health dashboard", "Decision log"],
+          "lab_task": "Set up a centre of excellence for an org with 3,000 users and four business units: write the charter and RACI, build a request intake form and queue, score 25 backlog items, run a mock design authority review of a new agent and a new object, and publish the first quarterly roadmap.",
+          "deliverable": "Charter, RACI, intake process, scored backlog and a quarterly roadmap",
+          "checks": [["Submit a request without acceptance criteria", "Intake sends it back to the requester", "Intake record"], ["Run the design review of the new object", "The review approves, changes or rejects it against the standards", "Design review minutes"], ["Present the roadmap", "Each roadmap item links to a scored backlog item", "Roadmap and backlog"]],
+          "objectives": ["Run a centre of excellence", "Prioritise admin demand", "Govern design and change"]
+        },
+        {
+          "topic": "Leading an Admin Team: Roles, Skills and Service Levels",
+          "subtopics": ["Team shapes: business admins, platform admins, release manager and data steward", "A skills matrix against Platform Administrator, Admin II and Agentforce Specialist skills", "Internal service levels for requests, incidents and access", "Rotas, on-call cover and handovers", "Coaching, peer review of configuration and pair building", "Learning plans with Trailhead and certification maintenance", "Working with architects, developers and partners", "Reporting the team's value to leadership"],
+          "tools": ["Skills matrix", "Trailhead", "Admin request queue", "Entitlement Processes", "Admin service dashboard"],
+          "lab_task": "Design a six-person admin team for Harbourline: map roles and a skills matrix, set service levels of 4 hours for access requests and 2 business days for small changes, build a request queue with milestones and a service dashboard, and write 90-day development plans for two junior admins.",
+          "deliverable": "Team design, skills matrix, service level dashboard and two development plans",
+          "checks": [["Log a test access request", "It is routed and its 4-hour milestone starts", "Case milestone"], ["Review the skills matrix", "Each critical skill has at least two people at working level", "Skills matrix"], ["Present the team value report", "Requests closed, cycle time and incidents are shown for the quarter", "Value report"]],
+          "objectives": ["Structure an admin team", "Set and track service levels", "Develop admin talent"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Admin Operating Model and Org Health Plan",
+          "subtopics": ["Org strategy and security programme", "Identity, integration access and Shield controls", "Data volume, backup and environment plan", "Release, automation migration and debt reduction roadmap", "Data 360 and Agentforce governance", "Operating model, adoption plan and board presentation"],
+          "tools": ["Shield-enabled training org", "Org Check", "Lifecycle Center", "Agentforce Observability", "Data 360"],
+          "lab_task": "For an insurer with two acquired orgs, 4,000 users and a regulator review in six months, produce an admin operating model and 12-month org health plan covering org strategy, security and Shield, identity and integrations, data volumes, backups, environments, releases, Data 360, Agentforce governance, privacy, adoption and team design, prove three controls in a live org and defend the plan to a mock board.",
+          "deliverable": "Operating model, 12-month plan, three proven controls and a 30-minute board presentation",
+          "checks": [["Demonstrate a transaction security policy", "A risky export is blocked and logged", "Live demo and event record"], ["Run a restore drill step from the plan", "Data is restored within the stated objective", "Drill log"], ["Answer the board's regulator questions", "Each answer points to a control, an owner and evidence", "Presentation and evidence index"]],
+          "objectives": ["Combine the advanced topics", "Prove controls with evidence", "Lead an enterprise admin programme"]
+        }
+      ]
+    }
+  }
+}

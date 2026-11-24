@@ -25,7 +25,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 from config import get_settings
-from agents.email_agent import compose_shortlist_first_email, send_email_async
+from agents.email_agent import clean_mail_secret, compose_shortlist_first_email, send_email_async
 from agents.pipeline import run_pipeline
 
 
@@ -45,8 +45,13 @@ DRIVE_SCOPES = [
     "https://www.googleapis.com/auth/drive.file",
 ]
 GOOGLE_OAUTH_SCOPES = GMAIL_SCOPES + CALENDAR_SCOPES + DRIVE_SCOPES
+DEFAULT_GOOGLE_AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
+DEFAULT_GOOGLE_TOKEN_URI = "https://oauth2.googleapis.com/token"
+DEFAULT_GOOGLE_CERT_URL = "https://www.googleapis.com/oauth2/v1/certs"
+DEFAULT_GOOGLE_CALLBACK = "http://localhost:5173/auth/callback"
 
 BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_DIR = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
 CONFIG_DIR = os.path.join(BACKEND_DIR, "config")
 ENV_PATH = os.path.join(BACKEND_DIR, ".env")
 CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_FILE", os.path.join(CONFIG_DIR, "credentials.json"))
@@ -86,6 +91,7 @@ def _is_placeholder_value(value: str) -> bool:
     return (
         lowered in {"yourgmail@gmail.com", "your_gmail_app_password", "your-project-id"}
         or "your_project_id" in lowered
+        or lowered.startswith("your-")
         or "projects/your" in lowered
         or lowered.startswith("your_")
     )
@@ -101,13 +107,97 @@ def _env_file_value(name: str) -> str:
             for line in env_file:
                 stripped = line.strip()
                 if stripped.startswith(prefix):
-                    values.append(stripped.split("=", 1)[1].strip())
+                    values.append(stripped.split("=", 1)[1].strip().strip("\"'"))
     except OSError:
         return ""
     for value in reversed(values):
         if value and not _is_placeholder_value(value):
             return value
     return ""
+
+
+def _google_config_path(env_name: str, default_filename: str) -> str:
+    configured = (
+        os.getenv(env_name, "")
+        or _env_file_value(env_name)
+        or getattr(get_settings(), env_name.lower(), "")
+    )
+    configured = str(configured or "").strip().strip("\"'")
+    if not configured or _is_placeholder_value(configured):
+        return os.path.join(CONFIG_DIR, default_filename)
+
+    configured = os.path.expanduser(os.path.expandvars(configured))
+    if os.path.isabs(configured):
+        return os.path.abspath(configured)
+
+    normalized = configured.replace("\\", "/").lstrip("./")
+    if normalized.startswith("backend/"):
+        return os.path.abspath(os.path.join(PROJECT_DIR, configured))
+    if normalized.startswith("config/"):
+        return os.path.abspath(os.path.join(BACKEND_DIR, configured))
+
+    candidates = [
+        os.path.abspath(os.path.join(BACKEND_DIR, configured)),
+        os.path.abspath(os.path.join(PROJECT_DIR, configured)),
+        os.path.abspath(configured),
+    ]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    return candidates[0]
+
+
+CREDENTIALS_PATH = _google_config_path("GOOGLE_CREDENTIALS_FILE", "credentials.json")
+TOKEN_PATH = _google_config_path("GOOGLE_TOKEN_FILE", "token.json")
+
+FULL_STACK = "full stack"
+DATA_SCIENCE = "data science"
+MACHINE_LEARNING = "machine learning"
+POWER_BI = "power bi"
+TRAINING_REQUIREMENT = "training requirement"
+TRAINING_DOMAIN_TECHNOLOGY = "Training domain/technology"
+REQUIREMENT_LABEL = "Training Requirement"
+CLIENT_ASKED_TO_CLOSE = "Client asked to close the requirement."
+SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
+MONGO_REGEX = "$regex"
+MONGO_OPTIONS = "$options"
+MONGO_SETONEINSERT = "$setOnInsert"
+DUPLICATE_CLARIFICATION_SUPPRESSION_HOURS = 24
+DUPLICATE_UNDATED_REQUIREMENT_HOURS = 24
+
+TRAINING_KEYWORDS = [
+    "training", "trainer", "workshop", "corporate training", "need trainer",
+    "require trainer", "kubernetes", "devops", "python", "java", "azure", "aws",
+    DATA_SCIENCE, MACHINE_LEARNING, POWER_BI, "tableau", "cloud", "genai",
+    "sap", "salesforce", FULL_STACK, "react", "node", "cybersecurity",
+]
+
+TECHNOLOGY_KEYWORDS = [
+    FULL_STACK, DATA_SCIENCE, MACHINE_LEARNING, POWER_BI, "cybersecurity",
+    "kubernetes", "devops", "python", "java", "azure", "aws", "tableau", "cloud",
+    "genai", "sap", "salesforce", "react", "node",
+]
+
+AUTO_REPLY_MARKERS = [
+    "out of office", "automatic reply", "auto-reply", "autoreply", "vacation responder",
+    "i am away", "away from office", "delivery status notification",
+]
+
+TRAINER_THREAD_MAIL_TYPES = {
+    "mail1",
+    "mail1_reminder",
+    "trainer_interest_check",
+    "mail2",
+    "mail2_followup",
+    "mail3",
+    "mail3_slot_followup",
+    "mail4",
+    "mail5_ok",
+    "mail5_reject",
+    "trainer_dates_clarification",
+    "trainer_commercial_negotiation",
+    "ai_extra_question_reply",
+}
 
 
 def _settings_value(name: str, default: str = "") -> str:
@@ -125,15 +215,95 @@ def _settings_value(name: str, default: str = "") -> str:
     return default
 
 
+def _split_env_values(value: str) -> List[str]:
+    return [part.strip() for part in re.split(r"[,;\s]+", str(value or "")) if part.strip()]
+
+
+def _oauth_redirect_uris_from_env() -> List[str]:
+    redirects: List[str] = []
+    for name in ("GOOGLE_REDIRECT_URI", "GOOGLE_REDIRECT_URIS"):
+        for value in _split_env_values(os.getenv(name, "") or _env_file_value(name)):
+            if value not in redirects:
+                redirects.append(value)
+
+    configured_redirect = _settings_value("google_redirect_uri")
+    if configured_redirect and configured_redirect not in redirects:
+        redirects.append(configured_redirect)
+
+    frontend_url = _settings_value("frontend_url", "http://localhost:5173").rstrip("/")
+    frontend_callback = f"{frontend_url}/auth/callback"
+    for value in (frontend_callback, DEFAULT_GOOGLE_CALLBACK):
+        if value not in redirects:
+            redirects.append(value)
+    return redirects
+
+
+def _oauth_client_config_from_env() -> Optional[Tuple[str, Dict[str, Any]]]:
+    client_id = _settings_value("google_client_id")
+    client_secret = _settings_value("google_client_secret")
+    if not client_id or not client_secret:
+        return None
+
+    return "web", {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "auth_uri": DEFAULT_GOOGLE_AUTH_URI,
+        "token_uri": DEFAULT_GOOGLE_TOKEN_URI,
+        "auth_provider_x509_cert_url": DEFAULT_GOOGLE_CERT_URL,
+        "redirect_uris": _oauth_redirect_uris_from_env(),
+    }
+
+
+def _oauth_client_config_from_token() -> Optional[Tuple[str, Dict[str, Any]]]:
+    if not os.path.exists(TOKEN_PATH):
+        return None
+    try:
+        with open(TOKEN_PATH, "r", encoding="utf-8") as token_file:
+            token_data = json.load(token_file)
+    except Exception:
+        return None
+
+    client_id = str(token_data.get("client_id") or "").strip()
+    client_secret = str(token_data.get("client_secret") or "").strip()
+    if (
+        not client_id
+        or not client_secret
+        or _is_placeholder_value(client_id)
+        or _is_placeholder_value(client_secret)
+    ):
+        return None
+
+    return "web", {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "auth_uri": DEFAULT_GOOGLE_AUTH_URI,
+        "token_uri": token_data.get("token_uri") or DEFAULT_GOOGLE_TOKEN_URI,
+        "auth_provider_x509_cert_url": DEFAULT_GOOGLE_CERT_URL,
+        "redirect_uris": _oauth_redirect_uris_from_env(),
+    }
+
+
 def _load_oauth_client_config() -> Tuple[str, Dict[str, Any]]:
-    if not os.path.exists(CREDENTIALS_PATH):
-        raise FileNotFoundError(f"Google OAuth credentials not found at {CREDENTIALS_PATH}")
-    with open(CREDENTIALS_PATH, "r", encoding="utf-8") as credentials_file:
-        config = json.load(credentials_file)
-    client_type = "web" if "web" in config else "installed" if "installed" in config else ""
-    if not client_type:
-        raise RuntimeError("Google OAuth credentials must contain a 'web' or 'installed' client.")
-    return client_type, config[client_type]
+    if os.path.exists(CREDENTIALS_PATH):
+        with open(CREDENTIALS_PATH, "r", encoding="utf-8") as credentials_file:
+            config = json.load(credentials_file)
+        client_type = "web" if "web" in config else "installed" if "installed" in config else ""
+        if not client_type:
+            raise RuntimeError("Google OAuth credentials must contain a 'web' or 'installed' client.")
+        return client_type, config[client_type]
+
+    env_config = _oauth_client_config_from_env()
+    if env_config:
+        return env_config
+
+    token_config = _oauth_client_config_from_token()
+    if token_config:
+        return token_config
+
+    raise FileNotFoundError(
+        "Google OAuth credentials not configured. Save the Google OAuth client JSON at "
+        f"{CREDENTIALS_PATH}, or set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in backend/.env."
+    )
 
 
 def _default_redirect_uri() -> str:
@@ -144,10 +314,16 @@ def _default_redirect_uri() -> str:
 
 def _oauth_flow(redirect_uri: Optional[str] = None) -> Flow:
     redirect = redirect_uri or _default_redirect_uri()
+    client_type, client = _load_oauth_client_config()
+    redirects = [str(uri).strip() for uri in (client.get("redirect_uris") or []) if uri]
+    if redirect and redirect not in redirects:
+        redirects.append(redirect)
+        client["redirect_uris"] = redirects
+
     if redirect.startswith("http://localhost") or redirect.startswith("http://127.0.0.1"):
         os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")  # NOSONAR: local OAuth callback only
-    return Flow.from_client_secrets_file(
-        CREDENTIALS_PATH,
+    return Flow.from_client_config(
+        {client_type: client},
         scopes=GOOGLE_OAUTH_SCOPES,
         redirect_uri=redirect,
     )
@@ -165,8 +341,20 @@ def get_gmail_oauth_url(redirect_uri: Optional[str] = None) -> Dict[str, Any]:
         "auth_url": auth_url,
         "state": state,
         "redirect_uri": redirect,
-        "required_scopes": GOOGLE_OAUTH_SCOPES,
+        "required_scopes": GMAIL_SCOPES,
+        "optional_scopes": CALENDAR_SCOPES + DRIVE_SCOPES,
+        "requested_scopes": GOOGLE_OAUTH_SCOPES,
     }
+
+
+def _missing_scopes(creds, scopes: List[str]) -> List[str]:
+    granted_scope_values = getattr(creds, "granted_scopes", None) or getattr(creds, "scopes", None)
+    if granted_scope_values:
+        granted_scopes = set(granted_scope_values)
+        return [scope for scope in scopes if scope not in granted_scopes]
+    if hasattr(creds, "has_scopes"):
+        return [scope for scope in scopes if not creds.has_scopes([scope])]
+    return []
 
 
 def save_gmail_oauth_token(code: str, redirect_uri: Optional[str] = None) -> Dict[str, Any]:
@@ -176,29 +364,54 @@ def save_gmail_oauth_token(code: str, redirect_uri: Optional[str] = None) -> Dic
     flow = _oauth_flow(redirect)
     flow.fetch_token(code=code)
     creds = flow.credentials
-    if hasattr(creds, "has_scopes") and not creds.has_scopes(GOOGLE_OAUTH_SCOPES):
-        granted_scopes = sorted(getattr(creds, "scopes", None) or [])
-        missing_scopes = [scope for scope in GOOGLE_OAUTH_SCOPES if scope not in granted_scopes]
+    missing_required_scopes = _missing_scopes(creds, GMAIL_SCOPES)
+    if missing_required_scopes:
         raise RuntimeError(
-            "Google did not grant all required permissions. "
-            f"Missing scopes: {', '.join(missing_scopes)}. "
-            "Reconnect and approve Gmail, Calendar, and Drive permissions."
+            "Google did not grant the required Gmail permissions. "
+            f"Missing scopes: {', '.join(missing_required_scopes)}. "
+            "Reconnect and approve Gmail permissions."
         )
-    os.makedirs(CONFIG_DIR, exist_ok=True)
+    missing_optional_scopes = _missing_scopes(creds, CALENDAR_SCOPES + DRIVE_SCOPES)
+    os.makedirs(os.path.dirname(TOKEN_PATH) or CONFIG_DIR, exist_ok=True)
     with open(TOKEN_PATH, "w", encoding="utf-8") as token_file:
         token_file.write(creds.to_json())
 
     service = build("gmail", "v1", credentials=creds, cache_discovery=False)
     profile = service.users().getProfile(userId="me").execute()
-    calendar_service = build("calendar", "v3", credentials=creds, cache_discovery=False)
-    calendar_service.calendarList().get(calendarId="primary").execute()
-    drive_service = build("drive", "v3", credentials=creds, cache_discovery=False)
-    drive_service.files().list(pageSize=1, fields="files(id,name)").execute()
+
+    calendar_connected = False
+    calendar_error = ""
+    if not _missing_scopes(creds, CALENDAR_SCOPES):
+        try:
+            calendar_service = build("calendar", "v3", credentials=creds, cache_discovery=False)
+            calendar_service.calendarList().get(calendarId="primary").execute()
+            calendar_connected = True
+        except Exception as exc:
+            calendar_error = str(exc)
+    else:
+        calendar_error = "Google Calendar permission was not granted."
+
+    drive_connected = False
+    drive_error = ""
+    if not _missing_scopes(creds, DRIVE_SCOPES):
+        try:
+            drive_service = build("drive", "v3", credentials=creds, cache_discovery=False)
+            drive_service.files().list(pageSize=1, fields="files(id,name)").execute()
+            drive_connected = True
+        except Exception as exc:
+            drive_error = str(exc)
+    else:
+        drive_error = "Google Drive permission was not granted."
+
     return {
         "success": True,
         "connected": True,
-        "calendar_connected": True,
-        "drive_connected": True,
+        "calendar_connected": calendar_connected,
+        "drive_connected": drive_connected,
+        "calendar_error": calendar_error,
+        "drive_error": drive_error,
+        "google_reconnect_required": bool(missing_optional_scopes),
+        "missing_optional_scopes": missing_optional_scopes,
         "gmail_user": profile.get("emailAddress") or _settings_value("gmail_user"),
         "redirect_uri": redirect,
         "scopes": sorted(getattr(creds, "scopes", None) or []),
@@ -313,6 +526,49 @@ def clean_email_body(text: str) -> str:
     return text.strip()
 
 
+def looks_like_client_requirement_closed(text: str) -> bool:
+    clean = clean_email_body(text or "")
+    if not clean:
+        return False
+    lowered = re.sub(r"\s+", " ", clean.lower()).strip()
+    if re.search(r"\b(do\s*not|don't|dont|not)\s+(close|cancel|withdraw)", lowered):
+        return False
+    closure_patterns = (
+        r"\bclose(?:d)?\s+(?:the\s+)?requirement\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?closed\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?cancelled\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?canceled\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?withdrawn\b",
+        r"\bposition\s+(?:is\s+|was\s+)?closed\b",
+        r"\brole\s+(?:is\s+|was\s+)?closed\b",
+        r"\bno\s+longer\s+(?:required|needed|interested)\b",
+        r"\bnot\s+(?:required|interested)\s+anymore\b",
+        r"\bnot\s+interested\b",
+        r"\bfound\s+(?:another|other)\s+trainer\b",
+        r"\balready\s+(?:finali[sz]ed|closed|hired|got)\b",
+        r"\b(?:too|so|very)\s+late\b",
+    )
+    return any(re.search(pattern, lowered) for pattern in closure_patterns)
+
+
+def client_requirement_closure_reason(text: str) -> str:
+    clean = re.sub(r"\s+", " ", clean_email_body(text or "")).strip()
+    lowered = clean.lower()
+    if re.search(r"\bnot\s+interested\b", lowered):
+        return "Client indicated they are not interested in this requirement."
+    if re.search(r"\b(?:too|so|very)?\s*late\b", lowered):
+        return "Client said the requirement is closed because the response was late."
+    if re.search(r"\bfound\s+(?:another|other)\s+trainer\b", lowered):
+        return "Client said they found another trainer."
+    if re.search(r"\balready\s+(?:finali[sz]ed|hired|got)\b", lowered):
+        return "Client said the requirement was already finalized."
+    if re.search(r"\bcancelled|canceled|withdrawn\b", lowered):
+        return "Client cancelled or withdrew the requirement."
+    if clean:
+        return f"Client asked to close the requirement: {clean[:180]}"
+    return CLIENT_ASKED_TO_CLOSE
+
+
 def is_auto_reply(headers: Dict[str, str], subject: str, body: str) -> bool:
     auto_submitted = headers.get("auto-submitted", "").lower()
     precedence = headers.get("precedence", "").lower()
@@ -322,6 +578,37 @@ def is_auto_reply(headers: Dict[str, str], subject: str, body: str) -> bool:
     if precedence in {"bulk", "junk", "list"}:
         return True
     return any(marker in subject_body for marker in AUTO_REPLY_MARKERS)
+
+
+def looks_like_explicit_trainer_requirement(subject: str = "", body: str = "") -> bool:
+    text = re.sub(r"\s+", " ", clean_email_body(f"{subject or ''}\n{body or ''}").lower()).strip()
+    if not text:
+        return False
+    has_requirement_for_trainer = bool(re.search(
+        r"\b(?:immediate\s+)?requirement\s+for\s+(?:a\s+|an\s+)?[a-z0-9 .+#/&-]{2,80}\s+trainer\b",
+        text,
+    ))
+    has_domain_label = bool(re.search(r"\b[*_`~]*domain[*_`~]*\s*:\s*\S+", text))
+    has_trainer_requirement = bool(re.search(r"\btrainer\s+requirement\b|\btraining\s+requirement\b", text))
+    return has_requirement_for_trainer or (has_domain_label and has_trainer_requirement)
+
+
+def looks_like_trainer_opportunity_or_promotion(subject: str = "", body: str = "") -> bool:
+    text = re.sub(r"\s+", " ", clean_email_body(f"{subject or ''}\n{body or ''}").lower()).strip()
+    if not text:
+        return False
+    if looks_like_explicit_trainer_requirement(subject, body):
+        return False
+    trainer_addressed = bool(re.search(r"\bdear\s+(?:trainer|trainers|candidate|consultant)\b", text))
+    asks_trainer_for_profile = bool(re.search(
+        r"\b(?:share|send|provide|forward)\s+(?:your\s+)?(?:updated\s+)?(?:profile|resume|cv|availability)\b",
+        text,
+    ))
+    availability_request = bool(re.search(
+        r"\b(?:if\s+you\s+are\s+interested\s+and\s+available|available\s+training\s+days|your\s+availability)\b",
+        text,
+    ))
+    return trainer_addressed and (asks_trainer_for_profile or availability_request)
 
 
 def is_likely_training_email(
@@ -341,6 +628,9 @@ def is_likely_training_email(
 
     subject_haystack = (subject or "").lower()
     haystack = f"{subject or ''}\n{body_preview or ''}".lower()
+    if looks_like_trainer_opportunity_or_promotion(subject, body_preview):
+        return False
+
     reject_markers = (
         "hotlist", "bench sales", "available consultant", "available candidates",
         "my resume", "attached resume", "application for", "job application",
@@ -386,25 +676,82 @@ def is_likely_training_email(
     )
 
 
+def looks_like_marketing_or_bulk_email(
+    subject: str = "",
+    from_email: str = "",
+    body: str = "",
+    headers: Optional[Dict[str, str]] = None,
+) -> bool:
+    headers = headers or {}
+    precedence = str(headers.get("precedence") or "").lower()
+    list_unsubscribe = str(headers.get("list-unsubscribe") or "").strip()
+    auto_submitted = str(headers.get("auto-submitted") or "").lower()
+    if precedence in {"bulk", "junk", "list"} or list_unsubscribe or (auto_submitted and auto_submitted != "no"):
+        return True
+
+    sender = str(from_email or "").lower()
+    haystack = f"{subject or ''}\n{body or ''}".lower()
+    sender_markers = ("no-reply", "noreply", "newsletter@", "marketing@", "notification@")
+    if looks_like_trainer_opportunity_or_promotion(subject, body):
+        return True
+
+    marketing_markers = (
+        "unsubscribe", "view in browser", "email preferences", "register now",
+        "free live workshop", "free workshop", "webinar", "newsletter",
+        "dear student", "batch start", "batch starts", "placement-focused",
+        "download brochure", "join the", "limited seats", "offer ends",
+    )
+    if any(marker in sender for marker in sender_markers):
+        return True
+    return any(marker in haystack for marker in marketing_markers)
+
+
 def classify_office_mail(subject: str, from_email: str = "", body_preview: str = "") -> str:
     haystack = f"{subject or ''}\n{from_email or ''}\n{body_preview or ''}".lower()
+
+    # ── trainer_interest must be checked BEFORE job_application ──────────────
+    # Reason: phrases like "freelance/permanent training position" and
+    # "training position" are genuine trainer self-introductions, but they
+    # could contain incidental job-seeker words ("position", "interest").
+    # Checking trainer interest first prevents those emails from falling into
+    # job_application incorrectly.
     if any(marker in haystack for marker in (
+        "expression of interest", "express my interest", "trainer position",
+        "freelance/permanent training position", "training position",
+        "freelance trainer", "i am a trainer", "i am an experienced trainer",
+        "as a trainer", "corporate trainer",
+    )):
+        return "trainer_interest"
+
+    # ── job_application ───────────────────────────────────────────────────────
+    # "software testing" is a QA job-seeker term, but only classify as
+    # job_application when explicit job-seeker signals are also present
+    # (resume attachment, CTC, notice period, etc.) to avoid mis-classifying
+    # a client asking for a "software testing" trainer requirement.
+    _job_primary_markers = (
         "my resume", "attached resume", "pfa my resume", "please find attached my resume",
         "resume attached", "find my resume attached", "resume for your review",
         "application for", "job application", "immediate joiner", "looking for job",
         "job change", "seeking opportunity", "suitable opportunity", "exploring",
         "open to onsite", "open to hybrid", "open to remote", "willing to relocate",
         "offer in hand", "last working day", "current ctc",
-        "expected ctc", "notice period", "manual and automation test engineer",
+        "expected ctc", "notice period",
+        "manual and automation test engineer",
         "qa engineer", "qa automation", "automation engineer", "tester", "istqb",
-        "playwright", "tosca automation", "postman", "software testing",
-    )):
+        "playwright", "tosca automation", "postman",
+    )
+    _job_secondary_markers = ("software testing",)
+    _job_seeker_signals = (
+        "my resume", "resume attached", "current ctc", "expected ctc", "notice period",
+        "looking for job", "job change", "immediate joiner", "offer in hand", "last working day",
+    )
+    if any(marker in haystack for marker in _job_primary_markers):
         return "job_application"
-    if any(marker in haystack for marker in (
-        "expression of interest", "express my interest", "trainer position",
-        "freelance/permanent training position", "training position",
-    )):
-        return "trainer_interest"
+    # "software testing" alone is ambiguous — require at least one job-seeker
+    # signal alongside it before classifying as a job application.
+    if any(marker in haystack for marker in _job_secondary_markers):
+        if any(signal in haystack for signal in _job_seeker_signals):
+            return "job_application"
     if any(marker in haystack for marker in (
         "hotlist", "bench sales", "available consultant", "available candidates",
     )):
@@ -428,7 +775,7 @@ def classify_office_mail(subject: str, from_email: str = "", body_preview: str =
 
 def generate_office_mail_reply(category: str, sender_name: str, subject: str) -> Optional[dict]:
     name = (sender_name or "").strip() or "Candidate"
-    signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
+    signature = SIGNATURE
     if category == "job_application":
         return {
             "subject": f"Re: {subject or 'Application Received'}",
@@ -525,7 +872,7 @@ def _google_credentials(scopes: Optional[List[str]] = None):
         )
     if creds.expired and creds.refresh_token:
         creds.refresh(GoogleAuthRequest())
-        os.makedirs(CONFIG_DIR, exist_ok=True)
+        os.makedirs(os.path.dirname(TOKEN_PATH) or CONFIG_DIR, exist_ok=True)
         with open(TOKEN_PATH, "w", encoding="utf-8") as token_file:
             token_file.write(creds.to_json())
 
@@ -541,12 +888,12 @@ def get_gmail_service():
 
 
 def get_calendar_service():
-    creds = _google_credentials(GOOGLE_OAUTH_SCOPES)
+    creds = _google_credentials(CALENDAR_SCOPES)
     return build("calendar", "v3", credentials=creds, cache_discovery=False)
 
 
 def get_drive_service():
-    creds = _google_credentials(GOOGLE_OAUTH_SCOPES)
+    creds = _google_credentials(DRIVE_SCOPES)
     return build("drive", "v3", credentials=creds, cache_discovery=False)
 
 
@@ -601,6 +948,9 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
         "credentials_present": os.path.exists(CREDENTIALS_PATH),
         "token_present": os.path.exists(TOKEN_PATH),
         "gmail_user": _settings_value("gmail_user"),
+        "calendar_connected": False,
+        "drive_connected": False,
+        "google_reconnect_required": False,
         "last_history_id": None,
         "last_webhook_received_at": None,
         "watch_expiration": None,
@@ -626,7 +976,9 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
             ("insufficient" in lowered_error and "scope" in lowered_error)
             or "missing calendar permission" in lowered_error
             or "missing scopes" in lowered_error
+            or "missing required permission" in lowered_error
         )
+        status["google_reconnect_required"] = status["google_reconnect_required"] or status["calendar_reconnect_required"]
         if status.get("connected"):
             status["calendar_optional"] = True
             status["calendar_error"] = (
@@ -638,6 +990,35 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
             status["calendar_error"] = (
                 "Google Calendar permission is missing. Reconnect Google from Settings so Calendar/Meet access is granted."
                 if status["calendar_reconnect_required"]
+                else error
+            )
+
+    try:
+        drive_service = get_drive_service()
+        drive_service.files().list(pageSize=1, fields="files(id,name)").execute()
+        status["drive_connected"] = True
+    except Exception as exc:
+        error = str(exc)
+        status["drive_connected"] = False
+        lowered_error = error.lower()
+        status["drive_reconnect_required"] = (
+            ("insufficient" in lowered_error and "scope" in lowered_error)
+            or "missing drive permission" in lowered_error
+            or "missing scopes" in lowered_error
+            or "missing required permission" in lowered_error
+        )
+        status["google_reconnect_required"] = status["google_reconnect_required"] or status["drive_reconnect_required"]
+        if status.get("connected"):
+            status["drive_optional"] = True
+            status["drive_error"] = (
+                "Gmail is connected. Google Drive permission is missing; click Renew Access before Drive uploads or business-register sync."
+                if status["drive_reconnect_required"]
+                else error
+            )
+        else:
+            status["drive_error"] = (
+                "Google Drive permission is missing. Reconnect Google from Settings so Drive access is granted."
+                if status["drive_reconnect_required"]
                 else error
             )
 
@@ -867,7 +1248,7 @@ def has_actionable_training_domain(value: Any) -> bool:
     generic_values = {
         "training",
         "trainer",
-        "training requirement",
+        TRAINING_REQUIREMENT,
         "trainer requirement",
         "corporate training",
         "software training",
@@ -892,6 +1273,90 @@ def _clean_ai_text(value: Any) -> str:
     return str(value).strip()
 
 
+def _technology_key(value: Any) -> str:
+    clean = re.sub(r"\s+", " ", _clean_ai_text(value)).strip().lower()
+    if not clean:
+        return ""
+    clean = clean.replace("&", " and ")
+    clean = re.sub(r"\b(full\s*stack|fullstack|mern|mean|mevn)\b", " full stack ", clean)
+    if re.search(r"\bfull\s+stack\b", clean):
+        return "full_stack_development"
+    clean = re.sub(
+        r"\b(trainer|training|requirement|requirements|course|workshop|program|programme)\b",
+        " ",
+        clean,
+    )
+    clean = re.sub(r"[^a-z0-9+#.]+", " ", clean)
+    return re.sub(r"\s+", " ", clean).strip()
+
+
+def _canonical_training_domain(value: Any) -> str:
+    raw = re.sub(r"\s+", " ", _clean_ai_text(value)).strip()
+    if not raw:
+        return ""
+    lowered = raw.lower()
+    if re.search(r"\b(full\s*stack|fullstack|mern|mean|mevn)\b", lowered):
+        return "Full Stack Development"
+    cleaned = re.sub(
+        r"\b(trainer\s+requirement|training\s+requirement|trainer|requirement|requirements)\b",
+        " ",
+        raw,
+        flags=re.IGNORECASE,
+    )
+    return re.sub(r"\s+", " ", cleaned).strip(" -:|") or raw
+
+
+def _is_thread_reply_subject(subject: Any) -> bool:
+    return bool(re.match(r"^\s*(re|fw|fwd)\s*:", str(subject or ""), flags=re.I))
+
+
+def _has_meaningful_context_value(value: Any) -> bool:
+    text = _clean_ai_text(value).strip().lower()
+    return bool(text and text not in {"none", "null", "n/a", "na", "unknown", "not specified"})
+
+
+def merge_requirement_context_for_reply(extracted: Dict[str, Any], requirement: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Fill reply-only missing fields from an existing requirement without rewriting the raw extraction."""
+    merged = dict(extracted or {})
+    if not requirement:
+        return merged
+
+    field_sources = {
+        "technology_needed": ("technology_needed", "job_title"),
+        "duration_days": ("duration_days",),
+        "duration_hours": ("duration_hours",),
+        "daily_timing": ("daily_timing", "training_timing"),
+        "participant_count": ("participant_count", "participants"),
+        "audience_level": ("audience_level", "level"),
+        "mode": ("mode", "training_mode"),
+        "location": ("location", "preferred_location"),
+        "budget_per_day": ("budget_per_day",),
+        "budget_total": ("budget_total",),
+        "budget_currency": ("budget_currency",),
+        "timeline_start": ("timeline_start", "start_date", "training_dates"),
+        "timeline_end": ("timeline_end", "end_date"),
+        "special_requirements": ("special_requirements", "job_description"),
+        "language_of_training": ("language_of_training",),
+    }
+    for target, sources in field_sources.items():
+        if _has_meaningful_context_value(merged.get(target)):
+            continue
+        for source in sources:
+            value = requirement.get(source)
+            if _has_meaningful_context_value(value):
+                merged[target] = value
+                break
+
+    if not merged.get("secondary_technologies"):
+        secondary = requirement.get("preferred_skills") or requirement.get("secondary_technologies") or []
+        if secondary:
+            merged["secondary_technologies"] = secondary
+
+    merged["requirement_id"] = requirement.get("requirement_id") or merged.get("requirement_id")
+    merged["requirement_status"] = requirement.get("status") or merged.get("requirement_status")
+    return merged
+
+
 def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Dict[str, Any]:
     defaults = {
         "client_name": None,
@@ -899,6 +1364,7 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         "client_email": meta.get("from_email"),
         "client_phone": None,
         "technology_needed": None,
+        "technology_key": "",
         "secondary_technologies": [],
         "duration_days": None,
         "duration_hours": None,
@@ -921,8 +1387,27 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         "needs_clarification": [],
         "is_training_request": False,
         "sender_is_known_client": False,
+        "marketing_or_bulk_email": False,
+        "trainer_opportunity_or_promotion": False,
     }
     merged = {**defaults, **(extracted or {})}
+    merged["trainer_opportunity_or_promotion"] = looks_like_trainer_opportunity_or_promotion(
+        meta.get("subject") or merged.get("email_subject") or "",
+        meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "",
+    )
+    merged["marketing_or_bulk_email"] = looks_like_marketing_or_bulk_email(
+        meta.get("subject") or merged.get("email_subject") or "",
+        meta.get("from_email") or merged.get("client_email") or "",
+        meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "",
+        meta.get("headers") or {},
+    )
+    if merged["marketing_or_bulk_email"] or merged["trainer_opportunity_or_promotion"]:
+        merged["is_training_request"] = False
+        merged["needs_clarification"] = []
+        try:
+            merged["confidence"] = min(float(merged.get("confidence") or 0.0), 0.2)
+        except Exception:
+            merged["confidence"] = 0.0
     for key in [
         "client_name", "client_company", "client_email", "client_phone", "technology_needed",
         "daily_timing", "audience_level", "mode", "location", "budget_currency",
@@ -934,11 +1419,15 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
     merged["email_subject"] = merged.get("email_subject") or meta.get("subject")
     merged["secondary_technologies"] = merged.get("secondary_technologies") or []
     merged["needs_clarification"] = merged.get("needs_clarification") or []
-    if not has_actionable_training_domain(merged.get("technology_needed")):
+    if has_actionable_training_domain(merged.get("technology_needed")):
+        merged["technology_needed"] = _canonical_training_domain(merged.get("technology_needed"))
+        merged["technology_key"] = _technology_key(merged.get("technology_needed"))
+    else:
         merged["technology_needed"] = None
+        merged["technology_key"] = ""
         existing_needs = {str(item).strip().lower() for item in merged["needs_clarification"]}
         if "training domain/technology" not in existing_needs:
-            merged["needs_clarification"].insert(0, "Training domain/technology")
+            merged["needs_clarification"].insert(0, TRAINING_DOMAIN_TECHNOLOGY)
         if merged.get("is_training_request"):
             try:
                 merged["confidence"] = min(float(merged.get("confidence") or 0.0), 0.55)
@@ -965,92 +1454,454 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
     return merged
 
 
+def client_requirement_closure_extraction(meta: Dict[str, Any], reason: str = "") -> Dict[str, Any]:
+    body = meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or ""
+    subject = meta.get("subject") or ""
+    technology = None
+    for keyword in TECHNOLOGY_KEYWORDS:
+        if re.search(rf"\b{re.escape(keyword)}\b", f"{subject}\n{body}", re.IGNORECASE):
+            technology = keyword.title()
+            break
+    extracted = _normalise_extraction({
+        "client_name": meta.get("from_name") or None,
+        "client_email": meta.get("from_email"),
+        "technology_needed": technology,
+        "email_subject": subject,
+        "email_summary": reason or CLIENT_ASKED_TO_CLOSE,
+        "confidence": 0.98,
+        "needs_clarification": [],
+        "is_training_request": False,
+        "client_request_closed": True,
+        "client_closed_reason": reason or CLIENT_ASKED_TO_CLOSE,
+    }, meta)
+    extracted["needs_clarification"] = []
+    extracted["is_training_request"] = False
+    extracted["client_request_closed"] = True
+    extracted["client_closed_reason"] = reason or CLIENT_ASKED_TO_CLOSE
+    return extracted
+
+
+def generate_client_requirement_closed_reply(
+    meta: Dict[str, Any],
+    reason: str = "",
+    signature: str = "",
+) -> Dict[str, Any]:
+    subject = str(meta.get("subject") or REQUIREMENT_LABEL).strip()
+    if not subject.lower().startswith("re:"):
+        subject = f"Re: {subject}"
+    client_name = _clean_ai_text(meta.get("from_name")) or "Client"
+    delay_context = bool(
+        re.search(r"\blate\b", str(reason or ""), re.IGNORECASE)
+        or re.search(r"\blate\b", str(meta.get("clean_body") or ""), re.IGNORECASE)
+    )
+    opening = (
+        "Sorry for the delayed response."
+        if delay_context else
+        "Thank you for the update."
+    )
+    footer = (signature or "Regards,\nRecruitment Team,\nCalhan Technologies").strip()
+    body = (
+        f"Dear {client_name},\n\n"
+        f"{opening} We understand that this requirement has been closed, and we will not proceed further on it.\n\n"
+        "For any future training requirements, please feel free to contact us. We will be happy to support you with suitable trainer profiles promptly.\n\n"
+        f"{footer}"
+    )
+    return {
+        "subject": subject,
+        "body": body,
+        "tone": "polite_closure_acknowledgement",
+        "asks_for_clarification": False,
+        "client_request_closed_ack": True,
+    }
+
+
 def _field_from_text(text: str, label: str) -> Optional[str]:
-    match = re.search(rf"(?im)^\s*{re.escape(label)}\s*:\s*(.+?)\s*$", text or "")
-    return match.group(1).strip() if match else None
+    match = re.search(
+        rf"(?im)^\s*[*_`~]*\s*{re.escape(label)}\s*[*_`~]*\s*:\s*(.+?)\s*$",
+        text or "",
+    )
+    if not match:
+        return None
+    return re.sub(r"^[\s*_`~]+|[\s*_`~]+$", "", match.group(1)).strip()
 
 
 def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
+    """Advanced heuristic fallback for extracting training requirements from client emails.
+
+    Used when AI extraction fails (rate limits, network issues). Handles:
+    - Structured emails with labeled fields (Technology: ..., Duration: ...)
+    - Unstructured natural language emails
+    - Mixed language (English/Hinglish/Regional)
+    - Multiple technology mentions
+    - Various date/time formats
+    - Budget in INR/USD with different formats
+    """
     body = meta.get("clean_body") or meta.get("raw_body") or ""
     subject = meta.get("subject") or ""
     haystack = f"{subject}\n{body}"
+    haystack_lower = haystack.lower()
+
+    # --- Technology extraction (multi-pass) ---
+    # Pass 1: Explicit labeled field
     tech = _field_from_text(body, "Technology")
+    if not tech:
+        tech = _field_from_text(body, "Domain")
+    if not tech:
+        tech = _field_from_text(body, "Skill")
+    if not tech:
+        tech = _field_from_text(body, "Training on")
+    if not tech:
+        tech = _field_from_text(body, "Subject")
+
+    # Pass 2: Technology keywords in context (prioritize subject line)
+    EXTENDED_TECH_KEYWORDS = [
+        # Cloud & DevOps
+        "aws", "azure", "gcp", "google cloud", "devops", "kubernetes", "docker",
+        "terraform", "ansible", "jenkins", "ci/cd", "cicd", "openshift",
+        "cloudformation", "eks", "aks", "gke", "helm", "istio", "argocd",
+        # Programming
+        "python", "java", "javascript", "typescript", "golang", "go lang",
+        "c#", "c++", "rust", "kotlin", "swift", "scala", "ruby",
+        # Web/Mobile
+        "react", "angular", "vue", "node.js", "nodejs", "express",
+        FULL_STACK, "fullstack", "frontend", "backend", "mern", "mean",
+        "next.js", "nextjs", "flutter", "react native", "spring boot",
+        # Data & AI
+        DATA_SCIENCE, MACHINE_LEARNING, "deep learning", "artificial intelligence",
+        "genai", "generative ai", "llm", "nlp", "computer vision",
+        "data engineering", "data analytics", "big data", "spark", "hadoop",
+        "snowflake", "databricks", "airflow", "kafka",
+        # BI & Visualization
+        POWER_BI, "tableau", "looker", "qlik", "excel", "advanced excel",
+        # Database
+        "sql", "mysql", "postgresql", "mongodb", "oracle", "sql server",
+        "nosql", "dynamodb", "redis", "cassandra",
+        # Enterprise
+        "sap", "sap s/4hana", "sap hana", "sap fico", "sap mm", "sap sd",
+        "salesforce", "servicenow", "workday", "oracle erp",
+        # Security
+        "cybersecurity", "cyber security", "information security", "ethical hacking",
+        "penetration testing", "soc", "siem", "network security",
+        # Testing
+        "selenium", "playwright", "cypress", "jmeter", "api testing",
+        "automation testing", "manual testing", "performance testing",
+        # Agile/Management
+        "agile", "scrum", "safe", "project management", "pmp",
+        "itil", "prince2", "six sigma", "lean",
+        # Soft Skills
+        "communication skills", "leadership", "soft skills",
+        "presentation skills", "team building", "conflict resolution",
+    ]
+
+    secondary_techs = []
+    if not tech:
+        # Check subject first (highest priority)
+        for keyword in EXTENDED_TECH_KEYWORDS:
+            if re.search(rf"\b{re.escape(keyword)}\b", subject, re.IGNORECASE):
+                tech = keyword.title()
+                break
+
+    if not tech:
+        # Check body
+        for keyword in EXTENDED_TECH_KEYWORDS:
+            if re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
+                if not tech:
+                    tech = keyword.title()
+                elif keyword.title() != tech:
+                    secondary_techs.append(keyword.title())
+                if len(secondary_techs) >= 4:
+                    break
+    else:
+        # Still look for secondary technologies
+        for keyword in EXTENDED_TECH_KEYWORDS:
+            if keyword.title() != tech and re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
+                secondary_techs.append(keyword.title())
+                if len(secondary_techs) >= 4:
+                    break
+
+    # --- Client contact extraction ---
     client_phone = (
         _field_from_text(body, "Phone")
         or _field_from_text(body, "Mobile")
-        or _field_from_text(body, "Contact")
+        or _field_from_text(body, "Contact No")
+        or _field_from_text(body, "Contact Number")
         or _field_from_text(body, "WhatsApp")
+        or _field_from_text(body, "Cell")
+        or _field_from_text(body, "Mob")
     )
-    if not tech:
-        for keyword in TECHNOLOGY_KEYWORDS:
-            if re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
-                tech = keyword.title()
-                break
+    # Also try regex for phone numbers in body
+    if not client_phone:
+        phone_match = re.search(r"(?:\+?91[\s.-]?)?[6-9]\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d", body)
+        if phone_match:
+            client_phone = re.sub(r"[\s.-]", "", phone_match.group(0))
+
+    # --- Client company extraction ---
+    client_company = (
+        _field_from_text(body, "Company")
+        or _field_from_text(body, "Organization")
+        or _field_from_text(body, "Organisation")
+        or _field_from_text(body, "Client")
+        or _field_from_text(body, "Firm")
+    )
+    # Try to extract from email signature domain
+    if not client_company:
+        from_email = meta.get("from_email", "")
+        if "@" in from_email:
+            domain = from_email.split("@")[1]
+            if domain and not any(free in domain for free in ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "rediffmail.com"]):
+                client_company = domain.split(".")[0].title()
+
+    # --- Participant count extraction ---
     participants = _field_from_text(body, "Participants")
+    if not participants:
+        participants = _field_from_text(body, "Batch Size")
+    if not participants:
+        participants = _field_from_text(body, "No of Participants")
+    if not participants:
+        participants = _field_from_text(body, "Number of Participants")
+    if not participants:
+        participants = _field_from_text(body, "Headcount")
+    # Try regex: "15 participants", "batch of 20"
+    if not participants:
+        part_match = re.search(r"(\d{1,3})\s*(?:participants?|people|attendees?|learners?|candidates?)", haystack_lower)
+        if part_match:
+            participants = part_match.group(1)
+        else:
+            batch_match = re.search(r"batch\s*(?:of|size)?\s*[:\-]?\s*(\d{1,3})", haystack_lower)
+            if batch_match:
+                participants = batch_match.group(1)
+
+    participant_count = None
+    if participants:
+        participant_match = re.search(r"\d+", str(participants))
+        if participant_match:
+            participant_count = int(participant_match.group(0))
+
+    # --- Duration extraction ---
     duration = _field_from_text(body, "Duration")
+    if not duration:
+        duration = _field_from_text(body, "Training Duration")
+    if not duration:
+        duration = _field_from_text(body, "No of Days")
+    if not duration:
+        duration = _field_from_text(body, "Number of Days")
+
+    duration_days = None
+    duration_hours = None
+    if duration:
+        days_match = re.search(r"(\d+)\s*(?:days?|d\b)", duration, re.IGNORECASE)
+        hours_match = re.search(r"(\d+)\s*(?:hours?|hrs?|h\b)", duration, re.IGNORECASE)
+        weeks_match = re.search(r"(\d+)\s*(?:weeks?|wks?)", duration, re.IGNORECASE)
+        if days_match:
+            duration_days = int(days_match.group(1))
+        elif weeks_match:
+            duration_days = int(weeks_match.group(1)) * 5  # business days
+        if hours_match:
+            duration_hours = int(hours_match.group(1))
+    else:
+        # Try to find in body: "5 days training", "40 hours"
+        dur_match = re.search(r"(\d{1,3})\s*(?:days?|d)\s*(?:training|program|course)?", haystack_lower)
+        if dur_match:
+            duration_days = int(dur_match.group(1))
+        else:
+            hrs_match = re.search(r"(\d{1,3})\s*(?:hours?|hrs?)\s*(?:training|program|course)?", haystack_lower)
+            if hrs_match:
+                duration_hours = int(hrs_match.group(1))
+
+    # --- Daily timing extraction ---
     daily_timing = (
         _field_from_text(body, "Daily Timings")
         or _field_from_text(body, "Daily Timing")
         or _field_from_text(body, "Timings")
         or _field_from_text(body, "Timing")
         or _field_from_text(body, "Time")
+        or _field_from_text(body, "Training Time")
+        or _field_from_text(body, "Session Time")
+        or _field_from_text(body, "Schedule")
     )
+    # Try regex for time ranges
+    if not daily_timing:
+        time_match = re.search(
+            r"(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*(?:to|-|–)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm))",
+            haystack, re.IGNORECASE
+        )
+        if time_match:
+            daily_timing = f"{time_match.group(1)} to {time_match.group(2)}"
+
+    # --- Timeline/dates extraction ---
     timeline_start = (
         _field_from_text(body, "Start Date")
+        or _field_from_text(body, "Training Date")
         or _field_from_text(body, "Training Dates")
+        or _field_from_text(body, "Preferred Date")
         or _field_from_text(body, "Dates")
         or _field_from_text(body, "Date")
+        or _field_from_text(body, "From")
+        or _field_from_text(body, "Starting")
+        or _field_from_text(body, "Commence")
     )
-    budget = _field_from_text(body, "Budget")
-    budget_number = None
-    if budget:
-        number_match = re.search(r"[\d,]+", budget)
-        if number_match:
-            budget_number = int(number_match.group(0).replace(",", ""))
-    participant_count = None
-    if participants:
-        participant_match = re.search(r"\d+", participants)
-        if participant_match:
-            participant_count = int(participant_match.group(0))
-    duration_days = None
-    if duration:
-        duration_match = re.search(r"\d+", duration)
-        if duration_match and "day" in duration.lower():
-            duration_days = int(duration_match.group(0))
 
+    # --- Audience level extraction ---
+    audience_level = (
+        _field_from_text(body, "Audience Level")
+        or _field_from_text(body, "Level")
+        or _field_from_text(body, "Audience")
+        or _field_from_text(body, "Skill Level")
+    )
+    if not audience_level:
+        if re.search(r"\b(beginner|basic|foundation|introduct)", haystack_lower):
+            audience_level = "beginner"
+        elif re.search(r"\b(intermediate|mid.?level)", haystack_lower):
+            audience_level = "intermediate"
+        elif re.search(r"\b(advanced|expert|senior|deep.?dive)", haystack_lower):
+            audience_level = "advanced"
+        elif re.search(r"\b(mixed|all levels?|varied)", haystack_lower):
+            audience_level = "mixed"
+
+    # --- Mode extraction ---
+    mode = (_field_from_text(body, "Mode") or _field_from_text(body, "Training Mode") or "").lower() or None
+    if not mode:
+        if re.search(r"\b(online|virtual|remote|zoom|teams|webex|google meet)\b", haystack_lower):
+            mode = "online"
+        elif re.search(r"\b(offline|classroom|in.?person|onsite|on.?site|physical)\b", haystack_lower):
+            mode = "offline"
+        elif re.search(r"\b(hybrid|blended)\b", haystack_lower):
+            mode = "hybrid"
+
+    # --- Location extraction ---
+    location = _field_from_text(body, "Location") or _field_from_text(body, "City") or _field_from_text(body, "Venue")
+
+    # --- Budget extraction ---
+    budget = (
+        _field_from_text(body, "Budget")
+        or _field_from_text(body, "Rate")
+        or _field_from_text(body, "Commercial")
+        or _field_from_text(body, "Charges")
+        or _field_from_text(body, "Cost")
+        or _field_from_text(body, "Price")
+    )
+    budget_number = None
+    budget_currency = None
+    is_per_day = False
+    if budget:
+        number_match = re.search(r"[\d,]+(?:\.\d+)?", budget)
+        if number_match:
+            budget_number = int(float(number_match.group(0).replace(",", "")))
+        if re.search(r"\binr\b|rs\.?|₹|rupee", budget, re.IGNORECASE):
+            budget_currency = "INR"
+        elif re.search(r"\busd\b|\$|dollar", budget, re.IGNORECASE):
+            budget_currency = "USD"
+        is_per_day = bool(re.search(r"per\s*day|/day|per\s*session|daily", budget, re.IGNORECASE))
+    else:
+        # Try to find budget mentions in body
+        budget_match = re.search(
+            r"(?:budget|rate|commercial|charges?|cost)\s*[:\-]?\s*(?:(?:inr|rs\.?|₹|usd|\$)\s*)?(\d[\d,]*(?:\.\d+)?)",
+            haystack_lower
+        )
+        if budget_match:
+            budget_number = int(float(budget_match.group(1).replace(",", "")))
+            context = haystack_lower[max(0, budget_match.start() - 20):budget_match.end() + 30]
+            if re.search(r"inr|rs\.?|₹|rupee", context):
+                budget_currency = "INR"
+            elif re.search(r"usd|\$|dollar", context):
+                budget_currency = "USD"
+            is_per_day = bool(re.search(r"per\s*day|/day|per\s*session|daily", context))
+
+    # --- Urgency detection ---
+    urgency = "normal"
+    if re.search(r"\b(urgent|asap|immediately|critical|priority|rush)\b", haystack_lower):
+        urgency = "urgent"
+    elif re.search(r"\b(flexible|no rush|whenever|at your convenience)\b", haystack_lower):
+        urgency = "flexible"
+
+    # --- Language of training ---
+    language = "English"
+    if re.search(r"\bhindi\b", haystack_lower):
+        language = "Hindi"
+    elif re.search(r"\btamil\b", haystack_lower):
+        language = "Tamil"
+    elif re.search(r"\btelugu\b", haystack_lower):
+        language = "Telugu"
+    elif re.search(r"\bkannada\b", haystack_lower):
+        language = "Kannada"
+
+    # --- Special requirements ---
+    special_requirements = _field_from_text(body, "Special Requirements")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Requirements")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Additional Requirements")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Lab")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Tools")
+
+    # --- Needs clarification ---
     needs = []
     if not tech:
-        needs.append("Training domain/technology")
-    if not _field_from_text(body, "Audience Level"):
-        needs.append("audience level")
-    if not _field_from_text(body, "Start Date"):
-        needs.append("start date")
+        needs.append(TRAINING_DOMAIN_TECHNOLOGY)
+    if not audience_level:
+        needs.append("Audience level (Beginner / Intermediate / Advanced)")
+    if not timeline_start:
+        needs.append("Preferred training dates")
+    if not daily_timing:
+        needs.append("Daily training timings")
+    if not mode:
+        needs.append("Training mode (Online / Offline / Hybrid)")
+    if not duration_days and not duration_hours:
+        needs.append("Training duration")
+
+    # --- Confidence calculation ---
+    confidence = 0.40  # base
+    if tech:
+        confidence += 0.20
+    if participant_count:
+        confidence += 0.08
+    if duration_days or duration_hours:
+        confidence += 0.08
+    if daily_timing:
+        confidence += 0.05
+    if timeline_start:
+        confidence += 0.05
+    if budget_number:
+        confidence += 0.05
+    if mode:
+        confidence += 0.04
+    if audience_level:
+        confidence += 0.03
+    if location:
+        confidence += 0.02
+    confidence = round(min(confidence, 0.92), 2)
 
     return {
         "client_name": meta.get("from_name") or None,
-        "client_company": None,
+        "client_company": client_company,
         "client_email": meta.get("from_email"),
         "client_phone": client_phone,
         "technology_needed": tech,
-        "secondary_technologies": [],
+        "secondary_technologies": secondary_techs[:5],
         "duration_days": duration_days,
-        "duration_hours": None,
+        "duration_hours": duration_hours,
         "daily_timing": daily_timing,
         "participant_count": participant_count,
-        "audience_level": None,
-        "mode": (_field_from_text(body, "Mode") or "").lower() or None,
-        "location": _field_from_text(body, "Location"),
-        "budget_per_day": budget_number if budget and "day" in budget.lower() else None,
-        "budget_total": budget_number if budget and "day" not in budget.lower() else None,
-        "budget_currency": "INR" if budget and re.search(r"\binr\b|rs\.?|₹", budget, re.IGNORECASE) else None,
+        "audience_level": audience_level,
+        "mode": mode,
+        "location": location,
+        "budget_per_day": budget_number if is_per_day else None,
+        "budget_total": budget_number if budget_number and not is_per_day else None,
+        "budget_currency": budget_currency,
         "timeline_start": timeline_start,
-        "timeline_flexible": False,
-        "urgency": "normal",
-        "special_requirements": None,
-        "language_of_training": "English",
+        "timeline_flexible": bool(re.search(r"\bflexible\b|\btentative\b|\bapprox", haystack_lower)),
+        "urgency": urgency,
+        "special_requirements": special_requirements,
+        "language_of_training": language,
         "email_subject": subject,
-        "email_summary": f"Client needs {tech or 'a'} trainer for a corporate training requirement.",
-        "confidence": 0.72,
+        "email_summary": f"Client needs {tech or 'a'} trainer for a corporate training requirement." + (
+            f" Duration: {duration_days} days." if duration_days else ""
+        ) + (
+            f" {participant_count} participants." if participant_count else ""
+        ),
+        "confidence": confidence,
         "needs_clarification": needs,
         "is_training_request": True,
         "sender_is_known_client": False,
@@ -1189,87 +2040,102 @@ async def process_client_email(message_id, gmail_service, meta: Optional[Dict[st
         }, meta)
         return meta
 
+    latest_client_text = meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or ""
+    if looks_like_client_requirement_closed(latest_client_text):
+        reason = client_requirement_closure_reason(latest_client_text)
+        meta["extracted"] = client_requirement_closure_extraction(meta, reason)
+        return meta
+
     body_for_gemini = meta.get("clean_body") or meta.get("raw_body") or ""
     if meta.get("attachments_text"):
         body_for_gemini = f"{body_for_gemini}\n\nPDF/RFP attachment text:\n{meta['attachments_text']}"
 
-    prompt = f"""You are an intelligent email analyst for Clahan Technologies,
-a corporate training company in India.
+    prompt = f"""You are an expert email analyst for Clahan Technologies, a premium corporate training company in India that connects clients with freelance trainers.
 
-Read this client email and extract all training requirement details.
-The client may write in formal English, casual English, Hinglish,
-Hindi, Tamil, Telugu, or any Indian regional language mixed with
-English. Understand the intent regardless of language or writing
-style.
+TASK: Read this client email and extract ALL training requirement details with high accuracy.
 
-Important business rule:
-- The client does not need to mention any trainer name.
-- If the client mentions only the training domain or technology, such as DevOps,
-  Full Stack Development, React, Azure, Python, Java, Data Science, or AWS,
-  that is enough to begin trainer matching.
-- If the domain/technology is not mentioned or is only generic, set
-  technology_needed to null and include "Training domain/technology" in
-  needs_clarification.
-- Never ask the client for a trainer name.
+LANGUAGE HANDLING:
+- The client may write in formal English, casual English, Hinglish, Hindi, Tamil, Telugu, Kannada, Malayalam, Marathi, or any Indian regional language mixed with English.
+- Understand the intent regardless of language, slang, abbreviations, or writing style.
+- Common abbreviations: "pls" = please, "req" = requirement, "dev" = development, "tech" = technology, "trng" = training, "avail" = availability/available
 
-Important business rule:
-- The client does not need to mention any trainer name.
-- If the client mentions only the training domain or technology, such as DevOps,
-  Full Stack Development, React, Azure, Python, Java, Data Science, or AWS,
-  that is enough to begin trainer matching.
-- If the domain/technology is not mentioned or is only generic, set
-  technology_needed to null and include "Training domain/technology" in
-  needs_clarification.
-- Never ask the client for a trainer name.
+CRITICAL BUSINESS RULES:
+1. Technology/Domain is the MOST IMPORTANT field. Extract it even if mentioned casually.
+   - "We need someone for DevOps" → technology_needed: "DevOps"
+   - "Python ka trainer chahiye" → technology_needed: "Python"
+   - "AWS + Kubernetes training" → technology_needed: "AWS", secondary: ["Kubernetes"]
+   - If ONLY generic words like "training" or "trainer" without domain → technology_needed: null
 
-Extract and return ONLY valid JSON with no extra text:
+2. Do NOT ask for trainer name. Clahan finds trainers. Only extract what the CLIENT provides.
+
+3. Extract client_phone ONLY if explicitly written (not from email signatures of other forwarded emails).
+
+4. For budget: Extract the NUMBER and CURRENCY. "25k per day" = budget_per_day: 25000, budget_currency: "INR". "1.5L total" = budget_total: 150000.
+
+5. For dates: Convert relative dates. "Next Monday" = actual date. "2nd week of July" = approximate date string.
+
+6. Confidence scoring:
+   - 0.9+ = All critical fields present (tech, duration, dates, mode, participants)
+   - 0.7-0.9 = Technology + some details present
+   - 0.5-0.7 = Technology present but many details missing
+   - 0.3-0.5 = Might be a training request but very unclear
+   - <0.3 = Probably not a training request
+
+7. is_training_request = true ONLY if the email is genuinely asking for a trainer or training service. NOT for:
+   - Job applications, vendor pitches, newsletters, invoices, general follow-ups
+   - "Expression of interest" from trainers wanting to join Clahan's panel
+   - Vague trainer opportunity/promotion mails addressed to "Dear Trainer" that only ask the recipient to share profile/resume/availability
+   - If the same email contains a concrete "requirement for [domain] Trainer" or a Domain field, classify it as a training request
+
+EXTRACTION OUTPUT (return ONLY valid JSON, no markdown, no explanation):
 {{
-  "client_name": "full name if found else null",
-  "client_company": "company name if found else null",
-  "client_email": "reply-to email address",
-  "client_phone": "client phone or WhatsApp number if explicitly found else null",
-  "technology_needed": "primary technology or skill/domain required, or null if not mentioned",
-  "secondary_technologies": ["array of additional skills if any"],
-  "duration_days": number or null,
-  "duration_hours": number or null,
-  "daily_timing": "daily class time like 9 AM to 4 PM or null",
-  "participant_count": number or null,
+  "client_name": "full name of the person requesting training (from email body or signature, not just From header) or null",
+  "client_company": "company/organization name if mentioned or inferable from email domain, else null",
+  "client_email": "the email to reply to (usually from_email unless different reply-to is specified)",
+  "client_phone": "phone/WhatsApp number if EXPLICITLY provided in body, else null",
+  "technology_needed": "primary technology/domain/skill for the training, null if not mentioned",
+  "secondary_technologies": ["additional technologies if training covers multiple areas"],
+  "duration_days": "number of training days or null",
+  "duration_hours": "total training hours if specified differently from days, or null",
+  "daily_timing": "daily training schedule like '9:30 AM to 5:30 PM IST' or null",
+  "participant_count": "number of participants/learners or null",
   "audience_level": "beginner or intermediate or advanced or mixed or null",
   "mode": "online or offline or hybrid or null",
-  "location": "city or null if offline",
-  "budget_per_day": number or null,
-  "budget_total": number or null,
+  "location": "city/venue for offline training or null",
+  "budget_per_day": "numeric budget per day/session or null",
+  "budget_total": "numeric total budget or null",
   "budget_currency": "INR or USD or null",
-  "timeline_start": "date string or description like next week or null",
-  "timeline_flexible": true or false,
-  "urgency": "urgent or normal or flexible",
-  "special_requirements": "any specific tools versions labs etc or null",
-  "language_of_training": "English or Hindi or Tamil etc",
-  "email_subject": "original subject line",
-  "email_summary": "2 sentence summary of what client needs",
-  "confidence": number from 0 to 1 how complete the extraction is,
-  "needs_clarification": ["list of important fields that are missing and the client should be asked about"],
-  "is_training_request": true or false,
-  "sender_is_known_client": false
+  "timeline_start": "training start date or description or null",
+  "timeline_flexible": "true if dates are flexible/tentative, false otherwise",
+  "urgency": "urgent (need within days) or normal (standard 1-2 weeks) or flexible (no rush)",
+  "special_requirements": "any specific tool versions, lab setup, prerequisites, certification prep, etc. or null",
+  "language_of_training": "English or Hindi or Tamil or Telugu or Kannada or other, default English",
+  "email_subject": "original email subject line",
+  "email_summary": "2-3 sentence concise summary of what the client needs and key details",
+  "confidence": "0.0 to 1.0 based on extraction completeness",
+  "needs_clarification": ["list of critical missing fields the client should be asked about"],
+  "is_training_request": "true or false - is this genuinely a training requirement email?"
 }}
 
-Email metadata:
-From name: {meta.get("from_name") or ""}
-From email: {meta.get("from_email") or ""}
-Subject: {meta.get("subject") or ""}
+EMAIL METADATA:
+From name: {meta.get("from_name") or "Unknown"}
+From email: {meta.get("from_email") or "Unknown"}
+Subject: {meta.get("subject") or "(no subject)"}
 
-Email text:
+EMAIL BODY:
 ---
 {body_for_gemini[:45000]}
 ---"""
 
     try:
-        extracted = await _ai_json(prompt, max_tokens=1800)
+        extracted = await _ai_json(prompt, max_tokens=2000)
     except httpx.HTTPStatusError as exc:
         if exc.response.status_code not in {429, 503}:
             raise
         extracted = _heuristic_training_extraction(meta)
     except (ValueError, json.JSONDecodeError):
+        extracted = _heuristic_training_extraction(meta)
+    except Exception:
         extracted = _heuristic_training_extraction(meta)
     meta["extracted"] = _normalise_extraction(extracted, meta)
     return meta
@@ -1355,10 +2221,10 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
     technology = extracted.get("technology_needed") if has_domain else "your training"
     raw_needs = list(extracted.get("needs_clarification") or [])
     budget = extracted.get("budget_total") or extracted.get("budget_per_day")
-    original_subject = extracted.get("email_subject") or context.get("subject") or "Training Requirement"
-    signature = context.get("reply_signature") or "Best Regards,\nRecruitment Team\nClahan Technologies"
+    original_subject = extracted.get("email_subject") or context.get("subject") or REQUIREMENT_LABEL
+    signature = context.get("reply_signature") or SIGNATURE
     if signature.strip() == "Regards,\nRecruitment Team,\nClahan Technologies":
-        signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
+        signature = SIGNATURE
 
     def has_any(*keys: str) -> bool:
         return any(str(extracted.get(key) or "").strip() for key in keys)
@@ -1367,6 +2233,7 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
         "duration": ("duration", "days", "hours", "training hours"),
         "dates": ("date", "start date", "end date", "schedule", "timeline"),
         "timings": ("timing", "time", "daily"),
+        "participants": ("participant", "learner", "attendee", "batch size"),
         "audience": ("audience", "level", "basic", "beginner", "intermediate", "advanced", "mixed"),
         "mode": ("mode", "online", "offline", "classroom", "hybrid"),
         "budget": ("budget", "commercial", "charge", "rate", "price", "cost"),
@@ -1376,6 +2243,7 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
         "duration": has_any("duration_days", "duration_hours", "duration_text", "training_duration"),
         "dates": has_any("timeline_start", "timeline_end", "training_dates", "start_date", "end_date"),
         "timings": has_any("daily_timing", "timing", "training_timing", "daily_timings"),
+        "participants": has_any("participant_count", "participants", "batch_size"),
         "audience": has_any("audience_level", "level"),
         "mode": has_any("mode", "training_mode", "preferred_mode"),
         "budget": bool(budget),
@@ -1387,10 +2255,11 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
 
     needs = [item for item in raw_needs if item and not need_is_known_detail_field(str(item))]
     required_missing = [
-        ("domain", "Training domain/technology"),
+        ("domain", TRAINING_DOMAIN_TECHNOLOGY),
         ("duration", "Training duration"),
         ("dates", "Preferred training dates"),
         ("timings", "Daily training timings"),
+        ("participants", "Number of participants"),
         ("audience", "Audience level (Beginner / Intermediate / Advanced)"),
         ("mode", "Training mode (Online / Offline / Hybrid)"),
     ]
@@ -1505,29 +2374,45 @@ async def check_if_duplicate(extracted: dict, db) -> bool:
 
 
 async def find_duplicate_requirement(extracted: dict, db) -> Optional[dict]:
-    technology = _clean_ai_text(extracted.get("technology_needed"))
+    technology = _canonical_training_domain(extracted.get("technology_needed"))
     if not technology:
         return None
+    technology_key = _technology_key(technology)
 
     client_email = _clean_ai_text(extracted.get("client_email")).lower()
     query: Dict[str, Any] = {
         "created_at": {"$gte": utc_now() - timedelta(days=7)},
-        "technology_needed": {"$regex": f"^{re.escape(technology)}$", "$options": "i"},
+        "status": {"$nin": ["closed", "completed", "fulfilled", "inactive", "cancelled", "archived"]},
     }
     if not client_email:
         return None
 
-    query["client_email"] = {"$regex": f"^{re.escape(client_email)}$", "$options": "i"}
+    query["client_email"] = {MONGO_REGEX: f"^{re.escape(client_email)}$", MONGO_OPTIONS: "i"}
 
     timeline = _clean_ai_text(extracted.get("timeline_start"))
     if timeline:
-        query["timeline_start"] = {"$regex": f"^{re.escape(timeline)}$", "$options": "i"}
+        query["timeline_start"] = {MONGO_REGEX: f"^{re.escape(timeline)}$", MONGO_OPTIONS: "i"}
+    elif not _is_thread_reply_subject(extracted.get("email_subject")):
+        query["created_at"] = {"$gte": utc_now() - timedelta(hours=DUPLICATE_UNDATED_REQUIREMENT_HOURS)}
+        query["$or"] = [
+            {"timeline_start": {"$exists": False}},
+            {"timeline_start": None},
+            {"timeline_start": ""},
+        ]
 
     participant_count = extracted.get("participant_count")
     if participant_count not in (None, ""):
         query["participant_count"] = participant_count
 
-    return await db["requirements"].find_one(query, {"_id": 0}, sort=[("created_at", -1)])
+    candidates = await db["requirements"].find(query, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
+    for candidate in candidates:
+        candidate_key = candidate.get("technology_key") or _technology_key(candidate.get("technology_needed"))
+        if technology_key and candidate_key == technology_key:
+            return candidate
+        candidate_technology = _canonical_training_domain(candidate.get("technology_needed")).lower()
+        if candidate_technology and candidate_technology == technology.lower():
+            return candidate
+    return None
 
 
 async def ensure_requirement_from_email(extracted: dict, email_id: str, db) -> str:
@@ -1548,6 +2433,254 @@ async def ensure_requirement_from_email(extracted: dict, email_id: str, db) -> s
     return await create_requirement_from_email(extracted, email_id, db)
 
 
+async def mark_client_requirement_closed(
+    db,
+    from_email: str = "",
+    requirement_id: str = "",
+    reason: str = "",
+    email_id: str = "",
+    subject: str = "",
+    body: str = "",
+) -> str:
+    closed_statuses = ["closed", "completed", "fulfilled", "inactive", "cancelled", "archived"]
+    req = None
+    if requirement_id:
+        req = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    client_email = _clean_ai_text(from_email).lower()
+    if not req and client_email:
+        active_query = {
+            "client_email": {MONGO_REGEX: f"^{re.escape(client_email)}$", MONGO_OPTIONS: "i"},
+            "status": {"$nin": closed_statuses},
+        }
+        req = await db["requirements"].find_one(
+            active_query,
+            {"_id": 0},
+            sort=[("last_client_email_at", -1), ("created_at", -1)],
+        )
+    if not req and client_email:
+        req = await db["requirements"].find_one(
+            {"client_email": {MONGO_REGEX: f"^{re.escape(client_email)}$", MONGO_OPTIONS: "i"}},
+            {"_id": 0},
+            sort=[("last_client_email_at", -1), ("created_at", -1)],
+        )
+    req_id = (req or {}).get("requirement_id") or requirement_id or ""
+    if not req_id:
+        return ""
+
+    closed_at = utc_now()
+    body_excerpt = re.sub(r"\s+", " ", clean_email_body(body or "")).strip()[:500]
+    update_doc = {
+        "status": "closed",
+        "close_date": closed_at,
+        "client_closed_at": closed_at,
+        "client_closed_reason": reason or CLIENT_ASKED_TO_CLOSE,
+        "client_closed_email_id": email_id,
+        "client_closed_subject": subject or "",
+        "client_closed_body_excerpt": body_excerpt,
+        "closed_by": "client_email",
+        "auto_match_status": "client_closed",
+        "trainer_outreach_status": "stopped_client_closed",
+        "last_client_email_id": email_id,
+        "last_client_email_at": closed_at,
+        "updated_at": closed_at,
+    }
+    await db["requirements"].update_one(
+        {"requirement_id": req_id},
+        {"$set": update_doc},
+    )
+    await db["shortlists"].update_many(
+        {"requirement_id": req_id},
+        {"$set": {
+            "status": "closed",
+            "pipeline_status": "client_closed",
+            "client_closed_at": closed_at,
+            "client_closed_reason": update_doc["client_closed_reason"],
+            "updated_at": closed_at,
+        }},
+    )
+    return req_id
+
+
+def _normalise_thread_subject(subject: str = "") -> str:
+    value = re.sub(r"(?i)^\s*(re|fw|fwd)\s*:\s*", "", str(subject or "")).strip()
+    value = re.sub(r"\s+", " ", value).lower()
+    return value
+
+
+def _trainer_reply_signal(body: str = "") -> bool:
+    text = re.sub(r"\s+", " ", clean_email_body(body or "").lower()).strip()
+    if not text:
+        return False
+    markers = (
+        "trainer",
+        "trainersync team",
+        "calhan technologies team",
+        "i am available",
+        "available for the following",
+        "time slots",
+        "slot 1",
+        "slot 2",
+        "slot 3",
+        "years of experience",
+        "trainings conducted",
+        "relevant certifications",
+        "expected commercial",
+        "commercial charges",
+        "current location",
+    )
+    has_time = bool(re.search(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b", text, flags=re.I))
+    has_slot_language = bool(re.search(r"\b(?:slot|available|availability|interview|discussion)\b", text, flags=re.I))
+    return any(marker in text for marker in markers) or (has_time and has_slot_language)
+
+
+async def find_matching_trainer_outbound_thread(
+    db,
+    from_email: str = "",
+    subject: str = "",
+    body: str = "",
+) -> Optional[dict]:
+    sender = _clean_ai_text(from_email).lower()
+    if not sender:
+        return None
+    candidates = await db["email_logs"].find(
+        {
+            "to_email": {MONGO_REGEX: f"^{re.escape(sender)}$", MONGO_OPTIONS: "i"},
+            "status": "sent",
+            "mail_type": {"$in": sorted(TRAINER_THREAD_MAIL_TYPES)},
+        },
+        {"_id": 0},
+    ).sort("sent_at", -1).limit(30).to_list(30)
+    if not candidates:
+        return None
+
+    reply_subject = _normalise_thread_subject(subject)
+    body_text = clean_email_body(body or "")
+    body_lower = body_text.lower()
+    has_trainer_signal = _trainer_reply_signal(body_text)
+
+    best: Optional[dict] = None
+    best_score = 0
+    for item in candidates:
+        sent_subject = _normalise_thread_subject(item.get("subject") or "")
+        trainer_name = _clean_ai_text(item.get("trainer_name")).lower()
+        mail_type = str(item.get("mail_type") or "")
+        score = 0
+        if sent_subject and reply_subject and (sent_subject in reply_subject or reply_subject in sent_subject):
+            score += 120
+        if "interview slot booking" in reply_subject and mail_type in {"mail3", "mail3_slot_followup", "ai_extra_question_reply"}:
+            score += 160
+        if "additional details required" in reply_subject and mail_type in {"mail2", "mail2_followup"}:
+            score += 120
+        if TRAINING_REQUIREMENT in reply_subject and mail_type in {"mail1", "mail1_reminder", "trainer_interest_check", "mail2", "mail2_followup"}:
+            score += 70
+        if trainer_name and trainer_name in body_lower:
+            score += 100
+        if has_trainer_signal:
+            score += 60
+        if mail_type.startswith("mail") and item.get("requirement_id") and item.get("trainer_id"):
+            score += 20
+        if score > best_score:
+            best_score = score
+            best = item
+
+    return best if best_score >= 100 else None
+
+
+async def record_trainer_reply_from_client_inbox(
+    db,
+    meta: Dict[str, Any],
+    trainer_thread: dict,
+) -> dict:
+    now = utc_now()
+    email_id = meta.get("email_id") or f"IMAP-TRAINER-{uuid.uuid4().hex[:8].upper()}"
+    body = meta.get("clean_body") or meta.get("raw_body") or ""
+    message_id_header = meta.get("message_id_header") or ""
+    requirement_id = trainer_thread.get("requirement_id") or ""
+    trainer_id = trainer_thread.get("trainer_id") or ""
+    trainer_name = trainer_thread.get("trainer_name") or meta.get("from_name") or ""
+
+    await db["email_logs"].update_one(
+        {"email_id": trainer_thread.get("email_id")},
+        {"$set": {
+            "reply_received": True,
+            "reply_text": body,
+            "reply_subject": meta.get("subject") or "",
+            "reply_message_id": message_id_header,
+            "replied_at": now,
+            "trainer_reply_routed_from_client_inbox": True,
+            "trainer_reply_inbound_email_id": email_id,
+            "updated_at": now,
+        }},
+    )
+
+    conversation_query: Dict[str, Any] = {
+        "direction": "received",
+        "from_email": {MONGO_REGEX: f"^{re.escape(meta.get('from_email') or '')}$", MONGO_OPTIONS: "i"},
+        "source_email_id": trainer_thread.get("email_id") or "",
+    }
+    if message_id_header:
+        conversation_query["message_id_header"] = message_id_header
+    else:
+        conversation_query["body"] = body
+
+    existing_conversation = await db["conversations"].find_one(conversation_query, {"_id": 0, "email_id": 1})
+    if not existing_conversation:
+        await db["conversations"].insert_one({
+            "email_id": email_id,
+            "source_email_id": trainer_thread.get("email_id") or "",
+            "message_id_header": message_id_header,
+            "trainer_id": trainer_id,
+            "trainer_name": trainer_name,
+            "requirement_id": requirement_id,
+            "from_email": meta.get("from_email") or "",
+            "from_name": meta.get("from_name") or "",
+            "to_email": meta.get("from_email") or "",
+            "subject": meta.get("subject") or "",
+            "body": body,
+            "direction": "received",
+            "status": "received",
+            "mail_type": "reply",
+            "source": "client_inbox_trainer_thread",
+            "sent_at": meta.get("received_at") or now,
+            "created_at": now,
+        })
+
+    extracted = {
+        "is_training_request": False,
+        "client_email": meta.get("from_email") or "",
+        "client_name": meta.get("from_name") or None,
+        "email_subject": meta.get("subject") or "",
+        "email_summary": "Inbound message matched an existing trainer outreach thread and was routed as a trainer reply.",
+        "confidence": 0.99,
+        "routed_to_trainer_reply": True,
+    }
+    inbox_doc = {
+        **meta,
+        "extracted": extracted,
+        "generated_reply": {},
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "status": "routed_to_trainer_reply",
+        "confidence": 0.99,
+        "extraction_error": "",
+        "auto_send_eligible": False,
+        "sent_at": None,
+        "sent_by": None,
+        "trainer_reply_source_email_id": trainer_thread.get("email_id") or "",
+        "trainer_reply_mail_type": trainer_thread.get("mail_type") or "",
+        "whatsapp_notified": False,
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["client_emails"].update_one(
+        {"email_id": email_id},
+        {MONGO_SETONEINSERT: inbox_doc},
+        upsert=True,
+    )
+    return inbox_doc
+
+
 async def get_email_auto_smtp_config(db) -> Dict[str, Any]:
     settings_doc = await db["admin_settings"].find_one(
         {"settings_id": "default"},
@@ -1561,13 +2694,200 @@ async def get_email_auto_imap_config(db) -> Dict[str, Any]:
     email_cfg = await get_email_auto_smtp_config(db)
     smtp_host = str(email_cfg.get("smtpHost") or "").lower()
     smtp_user = str(email_cfg.get("smtpUser") or "").strip()
+    env_gmail_user = _settings_value("gmail_user")
+    env_gmail_pass = _settings_value("gmail_app_password") or _settings_value("gmail_pass")
     hostinger = "hostinger" in smtp_host or smtp_user.endswith("@clahantechnologies.com")
     return {
         "imapHost": email_cfg.get("imapHost") or ("imap.hostinger.com" if hostinger else "imap.gmail.com"),
         "imapPort": int(email_cfg.get("imapPort") or 993),
-        "imapUser": email_cfg.get("imapUser") or email_cfg.get("smtpUser") or "",
-        "imapPass": email_cfg.get("imapPass") or email_cfg.get("smtpPass") or "",
+        "imapUser": email_cfg.get("imapUser") or email_cfg.get("smtpUser") or env_gmail_user or "",
+        "imapPass": email_cfg.get("imapPass") or email_cfg.get("smtpPass") or env_gmail_pass or "",
     }
+
+
+def parse_client_domain_csv(value: str) -> List[str]:
+    return [item.strip().lower() for item in (value or "").split(",") if item.strip()]
+
+
+async def get_client_inbox_auto_settings(db) -> Dict[str, Any]:
+    settings_doc = await db["admin_settings"].find_one(
+        {"settings_id": "default"},
+        {"_id": 0, "clientInboxCfg": 1, "twilioCfg": 1},
+    )
+    cfg = (settings_doc or {}).get("clientInboxCfg") or {}
+    twilio = (settings_doc or {}).get("twilioCfg") or {}
+    return {
+        "autoSendEnabled": bool(cfg.get("autoSendEnabled", True)),
+        "autoSendThreshold": float(cfg.get("autoSendThreshold", 70)),
+        "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
+        "replySignature": cfg.get("replySignature") or SIGNATURE,
+        "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
+        "inboxProvider": str(cfg.get("inboxProvider") or "gmail_api").strip().lower(),
+    }
+
+
+def client_reply_auto_send_eligible(
+    extracted: Dict[str, Any],
+    generated_reply: Dict[str, Any],
+    confidence: float,
+    settings: Dict[str, Any],
+    domain_is_allowed: bool,
+) -> bool:
+    if extracted.get("client_request_closed"):
+        return False
+    if extracted.get("marketing_or_bulk_email"):
+        return False
+    if not domain_is_allowed:
+        return False
+    threshold = float(settings.get("autoSendThreshold") or 70) / 100
+    if confidence >= threshold:
+        return True
+
+    if not extracted.get("is_training_request"):
+        return False
+    if not has_actionable_training_domain(extracted.get("technology_needed")):
+        return False
+    if not (generated_reply or {}).get("body"):
+        return False
+    if not ((generated_reply or {}).get("asks_for_clarification") or extracted.get("needs_clarification")):
+        return False
+    return confidence >= 0.55
+
+
+def is_client_clarification_reply(extracted: Dict[str, Any], generated_reply: Dict[str, Any]) -> bool:
+    reply = generated_reply or {}
+    subject = str(reply.get("subject") or "").lower()
+    body = str(reply.get("body") or "").lower()
+    return bool(
+        reply.get("asks_for_clarification")
+        or (extracted or {}).get("needs_clarification")
+        or "request for additional details" in subject
+        or "kindly provide the following details" in body
+    )
+
+
+async def find_existing_client_clarification_request(
+    db,
+    *,
+    from_email: str,
+    requirement_id: str = "",
+    generated_reply: Optional[Dict[str, Any]] = None,
+    extracted: Optional[Dict[str, Any]] = None,
+    exclude_email_id: str = "",
+) -> Optional[dict]:
+    if not from_email or not is_client_clarification_reply(extracted or {}, generated_reply or {}):
+        return None
+    sent_cutoff = utc_now() - timedelta(hours=DUPLICATE_CLARIFICATION_SUPPRESSION_HOURS)
+    query: Dict[str, Any] = {
+        "from_email": {MONGO_REGEX: f"^{re.escape(from_email)}$", MONGO_OPTIONS: "i"},
+        "sent_at": {"$gte": sent_cutoff},
+        "status": {"$in": ["auto_sent", "approved"]},
+        "$or": [
+            {"generated_reply.asks_for_clarification": True},
+            {"generated_reply.subject": {MONGO_REGEX: "request for additional details|additional details required", MONGO_OPTIONS: "i"}},
+            {"generated_reply.body": {MONGO_REGEX: "kindly provide the following details", MONGO_OPTIONS: "i"}},
+        ],
+    }
+    if requirement_id:
+        query["requirement_id"] = requirement_id
+    if exclude_email_id:
+        query["email_id"] = {"$ne": exclude_email_id}
+    return await db["client_emails"].find_one(
+        query,
+        {"_id": 0, "email_id": 1, "sent_at": 1, "subject": 1, "generated_reply.subject": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+
+
+async def mark_duplicate_client_clarification_skipped(db, email_id: str, existing: dict) -> None:
+    if not email_id:
+        return
+    await db["client_emails"].update_one(
+        {"email_id": email_id, "sent_at": None},
+        {"$set": {
+            "status": "auto_skipped_duplicate_clarification",
+            "auto_send_eligible": False,
+            "duplicate_clarification_email_id": (existing or {}).get("email_id", ""),
+            "duplicate_clarification_sent_at": (existing or {}).get("sent_at"),
+            "duplicate_clarification_checked_at": utc_now(),
+        }},
+    )
+
+
+async def auto_send_pending_client_replies_smtp(db, limit: int = 25) -> List[Dict[str, Any]]:
+    settings = await get_client_inbox_auto_settings(db)
+    if not settings.get("autoSendEnabled"):
+        return []
+
+    smtp_config = await get_email_auto_smtp_config(db)
+    docs = await db["client_emails"].find(
+        {"status": "pending_approval", "sent_at": None},
+        {"_id": 0},
+    ).sort("created_at", -1).limit(max(1, min(int(limit or 25), 100))).to_list(max(1, min(int(limit or 25), 100)))
+
+    sent: List[Dict[str, Any]] = []
+    whitelist = set(parse_client_domain_csv(settings.get("clientDomainsWhitelist", "")))
+    for doc in docs:
+        extracted = doc.get("extracted") or {}
+        generated_reply = doc.get("generated_reply") or {}
+        confidence = float(doc.get("confidence") or extracted.get("confidence") or 0)
+        domain = sender_domain(doc.get("from_email", ""))
+        domain_is_allowed = not whitelist or domain in whitelist
+        if not client_reply_auto_send_eligible(extracted, generated_reply, confidence, settings, domain_is_allowed):
+            continue
+        if not doc.get("from_email") or not generated_reply.get("body"):
+            continue
+
+        existing_clarification = await find_existing_client_clarification_request(
+            db,
+            from_email=doc.get("from_email", ""),
+            requirement_id=doc.get("requirement_id") or "",
+            generated_reply=generated_reply,
+            extracted=extracted,
+            exclude_email_id=doc.get("email_id") or "",
+        )
+        if existing_clarification:
+            await mark_duplicate_client_clarification_skipped(db, doc.get("email_id", ""), existing_clarification)
+            sent.append({
+                "status": "auto_skipped_duplicate_clarification",
+                "email_id": doc.get("email_id"),
+                "requirement_id": doc.get("requirement_id"),
+                "existing_email_id": existing_clarification.get("email_id"),
+            })
+            continue
+
+        subject = generated_reply.get("subject") or f"Re: {doc.get('subject') or 'Training Requirement'}"
+        success, error = await send_email_async(
+            doc.get("from_email", ""),
+            subject,
+            generated_reply.get("body") or "",
+            smtp_config,
+            "",
+        )
+        if not success:
+            await db["client_emails"].update_one(
+                {"email_id": doc.get("email_id"), "status": "pending_approval", "sent_at": None},
+                {"$set": {"extraction_error": error or "SMTP send failed", "auto_send_eligible": True}},
+            )
+            continue
+
+        now = utc_now()
+        await db["client_emails"].update_one(
+            {"email_id": doc.get("email_id"), "status": "pending_approval", "sent_at": None},
+            {"$set": {
+                "status": "auto_sent",
+                "auto_send_eligible": True,
+                "sent_at": now,
+                "sent_by": "auto_imap_pending",
+                "smtp_send_result": {"success": True, "provider": "smtp_imap_mode"},
+            }},
+        )
+        sent.append({
+            "status": "auto_sent",
+            "email_id": doc.get("email_id"),
+            "requirement_id": doc.get("requirement_id"),
+        })
+    return sent
 
 
 async def auto_contact_shortlisted_trainers(db, requirement: dict, shortlist: dict) -> dict:
@@ -1720,7 +3040,8 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
     if not has_actionable_training_domain(extracted.get("technology_needed")):
         return ""
     req_id = f"REQ-{uuid.uuid4().hex[:8].upper()}"
-    technology = extracted.get("technology_needed") or "Training Requirement"
+    technology = _canonical_training_domain(extracted.get("technology_needed")) or REQUIREMENT_LABEL
+    technology_key = _technology_key(technology)
     secondary = extracted.get("secondary_technologies") or []
     required_skills = [technology, *secondary]
     required_skills = [skill for skill in required_skills if skill]
@@ -1728,6 +3049,7 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
     doc = {
         "requirement_id": req_id,
         "technology_needed": technology,
+        "technology_key": technology_key,
         "min_experience_years": 2,
         "required_skills": required_skills,
         "preferred_skills": secondary,
@@ -1784,7 +3106,7 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
         return {"success": False, "error": "requirement_id missing"}
 
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0})
-    if existing:
+    if existing and existing.get("top_trainers"):
         outreach = await auto_contact_shortlisted_trainers(db, requirement, existing)
         return {"success": True, "already_exists": True, "outreach": outreach, "shortlist": existing}
 
@@ -1806,12 +3128,16 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
             category_filter_applied = result.get("category_filter_applied", False)
             no_category_match = result.get("no_category_match", False)
             category_match_count = result.get("category_match_count", 0)
+            pipeline_summary = result.get("pipeline_summary", {})
+            pipeline_stage_log = result.get("stage_log", [])
         else:
             top_trainers = []
             total_matched = 0
             category_filter_applied = False
             no_category_match = True
             category_match_count = 0
+            pipeline_summary = {}
+            pipeline_stage_log = []
 
         shortlist_doc = {
             "shortlist_id": f"SL-{uuid.uuid4().hex[:8].upper()}",
@@ -1822,6 +3148,11 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
             "category_filter_applied": category_filter_applied,
             "no_category_match": no_category_match,
             "category_match_count": category_match_count,
+            "pipeline_summary": pipeline_summary,
+            "pipeline_stage_log": pipeline_stage_log,
+            "matching_pipeline_version": pipeline_summary.get("pipeline_version", "trainer-match-v2"),
+            "pipeline_warnings": pipeline_summary.get("warnings", []),
+            "pipeline_errors": pipeline_summary.get("errors", []),
             "created_at": utc_now(),
             "auto_created": True,
             "source": "email_auto_match",
@@ -1856,6 +3187,7 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
             "total_available": len(filtered_trainers),
             "total_matched": total_matched,
             "top_trainers": len(top_trainers),
+            "pipeline_summary": pipeline_summary,
             "outreach": outreach,
             "shortlist": shortlist_doc,
         }
@@ -1928,10 +3260,94 @@ def send_gmail_reply(
     return gmail_service.users().messages().send(userId="me", body=payload).execute()
 
 
+async def poll_gmail_api_client_inbox(db) -> Dict[str, Any]:
+    """Poll Gmail inbox using Gmail API instead of IMAP"""
+    try:
+        gmail_service = get_gmail_service()
+    except Exception as exc:
+        return {"processed": 0, "skipped": f"Gmail OAuth not configured: {str(exc)}"}
+
+    processed = 0
+    auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
+    
+    try:
+        # Fetch last 20 unread messages from inbox
+        results = gmail_service.users().messages().list(
+            userId="me",
+            q="is:unread label:INBOX",
+            maxResults=20
+        ).execute()
+        
+        message_ids = [msg['id'] for msg in results.get('messages', [])]
+        
+        for msg_id in message_ids:
+            try:
+                # Fetch full message
+                msg = gmail_service.users().messages().get(
+                    userId="me",
+                    id=msg_id,
+                    format='full'
+                ).execute()
+                
+                headers = {h['name']: h['value'] for h in msg['payload'].get('headers', [])}
+                subject = headers.get('Subject', '')
+                from_email = headers.get('From', '')
+                message_id_header = headers.get('Message-ID', '')
+                
+                # Check if already processed
+                if await db['client_emails'].find_one({'email_id': msg_id}):
+                    continue
+                
+                # Extract body
+                body = ''
+                if 'parts' in msg['payload']:
+                    for part in msg['payload']['parts']:
+                        if part['mimeType'] == 'text/plain':
+                            data = part['body'].get('data', '')
+                            if data:
+                                body = base64.urlsafe_b64decode(data).decode('utf-8')
+                                break
+                elif 'body' in msg['payload']:
+                    data = msg['payload']['body'].get('data', '')
+                    if data:
+                        body = base64.urlsafe_b64decode(data).decode('utf-8')
+                
+                # Store email in database
+                email_doc = {
+                    'email_id': msg_id,
+                    'message_id_header': message_id_header,
+                    'subject': subject,
+                    'from_email': from_email,
+                    'body': body,
+                    'received_at': utc_now(),
+                    'status': 'pending_review',
+                    'source': 'gmail_api',
+                }
+                
+                await db['client_emails'].insert_one(email_doc)
+                processed += 1
+            except Exception as e:
+                logger.error(f"Error processing Gmail message {msg_id}: {str(e)}")
+                continue
+        
+        return {
+            "processed": processed,
+            "auto_sent_existing": auto_sent_existing,
+            "auto_sent_existing_count": len(auto_sent_existing),
+            "message": f"Fetched {processed} new emails from Gmail inbox"
+        }
+    except Exception as exc:
+        return {
+            "processed": 0,
+            "skipped": f"Gmail API error: {str(exc)}",
+            "error": str(exc)
+        }
+
+
 async def poll_imap_client_inbox(db) -> Dict[str, Any]:
     imap_cfg = await get_email_auto_imap_config(db)
     imap_user = str(imap_cfg.get("imapUser") or "").strip()
-    imap_pass = str(imap_cfg.get("imapPass") or "").replace(" ", "")
+    imap_pass = clean_mail_secret(imap_cfg.get("imapPass") or "")
     imap_host = str(imap_cfg.get("imapHost") or "imap.gmail.com").strip()
     imap_port = int(imap_cfg.get("imapPort") or 993)
     if not imap_user or not imap_pass:
@@ -1939,9 +3355,21 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
 
     processed = 0
     smtp_config = await get_email_auto_smtp_config(db)
+    inbox_settings = await get_client_inbox_auto_settings(db)
+    auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
     mail = imaplib.IMAP4_SSL(imap_host, imap_port)
     try:
-        mail.login(imap_user, imap_pass)
+        try:
+            mail.login(imap_user, imap_pass)
+        except imaplib.IMAP4.error as exc:
+            return {
+                "processed": 0,
+                "skipped": "IMAP authentication failed; update the mailbox username/password in Admin > Email Configuration or backend .env",
+                "imap_user": imap_user,
+                "imap_host": imap_host,
+                "error": str(exc),
+                "auto_sent_existing": len(auto_sent_existing),
+            }
         mail.select("inbox")
         _, unseen_ids = mail.search(None, "UNSEEN")
         _, all_ids = mail.search(None, "ALL")
@@ -1971,7 +3399,10 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
             raw_id_text = raw_id.decode("utf-8", errors="ignore") if isinstance(raw_id, bytes) else str(raw_id)
             stable_source = message_id_header or f"{imap_user}:{raw_id_text}:{subject}:{from_email}"
             pseudo_id = f"IMAP-{hashlib.sha1(stable_source.encode('utf-8', errors='ignore')).hexdigest()[:12].upper()}"
-            if await db["client_emails"].find_one({"email_id": pseudo_id}, {"_id": 1}):
+            existing_query = {"$or": [{"email_id": pseudo_id}]}
+            if message_id_header:
+                existing_query["$or"].append({"message_id_header": message_id_header})
+            if await db["client_emails"].find_one(existing_query, {"_id": 1}):
                 continue
 
             body = ""
@@ -1984,6 +3415,78 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
 
             clean_body = clean_email_body(body)
+            meta = {
+                "email_id": pseudo_id,
+                "thread_id": "",
+                "received_at": utc_now(),
+                "from_email": from_email,
+                "from_name": from_name,
+                "subject": subject,
+                "message_id_header": message_id_header,
+                "raw_body": body,
+                "clean_body": clean_body,
+                "attachments_text": "",
+            }
+            trainer_thread = await find_matching_trainer_outbound_thread(db, from_email, subject, clean_body or body)
+            if trainer_thread:
+                await record_trainer_reply_from_client_inbox(db, meta, trainer_thread)
+                processed += 1
+                continue
+
+            if looks_like_client_requirement_closed(clean_body or body):
+                reason = client_requirement_closure_reason(clean_body or body)
+                extracted = client_requirement_closure_extraction(meta, reason)
+                reply = generate_client_requirement_closed_reply(
+                    meta,
+                    reason,
+                    inbox_settings.get("replySignature"),
+                )
+                requirement_id = await mark_client_requirement_closed(
+                    db,
+                    from_email=from_email,
+                    reason=reason,
+                    email_id=pseudo_id,
+                    subject=subject,
+                    body=clean_body or body,
+                )
+                send_success = False
+                send_error = ""
+                sent_at = None
+                if inbox_settings.get("autoSendEnabled") and from_email and reply.get("body"):
+                    send_success, send_error = await send_email_async(
+                        from_email,
+                        reply.get("subject") or f"Re: {subject or 'Training Requirement'}",
+                        reply.get("body") or "",
+                        smtp_config,
+                        "",
+                    )
+                    if send_success:
+                        sent_at = utc_now()
+                await db["client_emails"].update_one(
+                    {"email_id": pseudo_id},
+                    {MONGO_SETONEINSERT: {
+                        **meta,
+                        "extracted": extracted,
+                        "generated_reply": reply,
+                        "requirement_id": requirement_id,
+                        "status": "client_closed_requirement",
+                        "confidence": float(extracted.get("confidence") or 0.98),
+                        "extraction_error": send_error,
+                        "auto_send_eligible": bool(inbox_settings.get("autoSendEnabled")),
+                        "sent_at": sent_at,
+                        "sent_by": "auto_imap_client_closure_ack" if send_success else None,
+                        "smtp_send_result": {"success": True, "provider": "smtp_imap_mode"} if send_success else None,
+                        "duplicate_clarification_email_id": "",
+                        "duplicate_clarification_sent_at": None,
+                        "client_closure_ack_sent": send_success,
+                        "client_closure_ack_error": send_error,
+                        "whatsapp_notified": False,
+                        "created_at": utc_now(),
+                    }},
+                    upsert=True,
+                )
+                processed += 1
+                continue
             if not is_likely_training_email(subject, from_email, body_preview=clean_body[:1000]):
                 office_category = classify_office_mail(subject, from_email, clean_body[:1500])
                 reply = generate_office_mail_reply(office_category, from_name, subject)
@@ -1991,7 +3494,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                     continue
                 existing_ack = await db["email_logs"].find_one(
                     {
-                        "to_email": {"$regex": f"^{re.escape(from_email)}$", "$options": "i"},
+                        "to_email": {MONGO_REGEX: f"^{re.escape(from_email)}$", MONGO_OPTIONS: "i"},
                         "subject": reply.get("subject") or f"Re: {subject}",
                         "office_mail_category": office_category,
                         "status": "sent",
@@ -2029,7 +3532,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 }
                 await db["client_emails"].update_one(
                     {"email_id": pseudo_id},
-                    {"$setOnInsert": {
+                    {MONGO_SETONEINSERT: {
                         **meta,
                         "office_mail_category": office_category,
                         "extracted": {
@@ -2103,36 +3606,79 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 extracted = await _extract_from_text(extraction_prompt_context)
             except Exception as exc:
                 extraction_error = str(exc)
-                extracted = {
-                    "client_name": from_name or None,
-                    "client_email": from_email,
-                    "technology_needed": None,
-                    "is_training_request": True,
-                    "confidence": 0.3,
-                    "needs_review": True,
-                    "missing_fields": ["AI extraction unavailable; review manually"],
-                }
+                extracted = _normalise_extraction(
+                    _heuristic_training_extraction(extraction_prompt_context),
+                    extraction_prompt_context,
+                )
             try:
-                reply = await generate_calhan_reply(extracted, {"subject": subject})
+                reply = await generate_calhan_reply(extracted, {
+                    "subject": subject,
+                    "reply_signature": inbox_settings.get("replySignature"),
+                })
             except Exception:
-                reply = ""
+                reply = {}
             requirement_id = None
             if extracted.get("is_training_request"):
                 requirement_id = await ensure_requirement_from_email(extracted, pseudo_id, db)
 
+            confidence = float(extracted.get("confidence") or 0)
+            domain = sender_domain(from_email)
+            whitelist = set(parse_client_domain_csv(inbox_settings.get("clientDomainsWhitelist", "")))
+            domain_is_allowed = not whitelist or domain in whitelist
+            auto_send_eligible = client_reply_auto_send_eligible(
+                extracted,
+                reply if isinstance(reply, dict) else {},
+                confidence,
+                inbox_settings,
+                domain_is_allowed,
+            )
+            send_success = False
+            send_error = ""
+            sent_at = None
+            duplicate_clarification = None
+            if auto_send_eligible and inbox_settings.get("autoSendEnabled") and isinstance(reply, dict) and reply.get("body"):
+                duplicate_clarification = await find_existing_client_clarification_request(
+                    db,
+                    from_email=from_email,
+                    requirement_id=requirement_id or "",
+                    generated_reply=reply,
+                    extracted=extracted,
+                    exclude_email_id=pseudo_id,
+                )
+                if duplicate_clarification:
+                    auto_send_eligible = False
+                else:
+                    send_success, send_error = await send_email_async(
+                        from_email,
+                        reply.get("subject") or f"Re: {subject or 'Training Requirement'}",
+                        reply.get("body") or "",
+                        smtp_config,
+                        "",
+                    )
+                    if send_success:
+                        sent_at = utc_now()
+
             await db["client_emails"].update_one(
                 {"email_id": pseudo_id},
-                {"$setOnInsert": {
+                {MONGO_SETONEINSERT: {
                     **meta,
                     "extracted": extracted,
                     "generated_reply": reply,
                     "requirement_id": requirement_id,
-                    "status": "pending_approval",
-                    "confidence": extracted.get("confidence", 0),
-                    "extraction_error": extraction_error,
-                    "auto_send_eligible": False,
-                    "sent_at": None,
-                    "sent_by": None,
+                    "status": (
+                        "auto_sent"
+                        if send_success else
+                        "auto_skipped_duplicate_clarification"
+                        if duplicate_clarification else
+                        "pending_approval"
+                    ),
+                    "confidence": confidence,
+                    "extraction_error": send_error or extraction_error,
+                    "auto_send_eligible": auto_send_eligible,
+                    "sent_at": sent_at,
+                    "sent_by": "auto_imap" if send_success else None,
+                    "duplicate_clarification_email_id": (duplicate_clarification or {}).get("email_id", ""),
+                    "duplicate_clarification_sent_at": (duplicate_clarification or {}).get("sent_at"),
                     "whatsapp_notified": False,
                     "created_at": utc_now(),
                 }},
@@ -2145,11 +3691,21 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
             mail.logout()
         except Exception:
             pass
-    return {"processed": processed, "imap_user": imap_user, "imap_host": imap_host}
+    return {
+        "processed": processed,
+        "imap_user": imap_user,
+        "imap_host": imap_host,
+        "auto_sent_existing": len(auto_sent_existing),
+    }
 
 
 async def _extract_from_text(meta: Dict[str, Any]) -> Dict[str, Any]:
     body_for_gemini = meta.get("clean_body") or meta.get("raw_body") or ""
+    if looks_like_client_requirement_closed(body_for_gemini):
+        return client_requirement_closure_extraction(
+            meta,
+            client_requirement_closure_reason(body_for_gemini),
+        )
     prompt = f"""You are an intelligent email analyst for Clahan Technologies,
 a corporate training company in India.
 
@@ -2158,6 +3714,7 @@ The client may write in formal English, casual English, Hinglish,
 Hindi, Tamil, Telugu, or any Indian regional language mixed with
 English. Understand the intent regardless of language or writing
 style.
+If the message has a concrete "requirement for [domain] Trainer" or a Domain field, classify it as a training request even when addressed to "Dear Trainer". Only vague profile/resume/availability collection mails should be treated as trainer opportunity/promotion.
 
 Extract and return ONLY valid JSON with no extra text:
 {{

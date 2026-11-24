@@ -1,0 +1,573 @@
+{
+  "domain": "Consul",
+  "name": "Consul",
+  "category": "DevOps and CI/CD",
+  "icon": "network",
+  "aliases": ["HashiCorp Consul", "Service Discovery", "Consul Service Mesh", "Consul Connect", "Consul on Kubernetes", "Consul Enterprise", "Consul Administration"],
+  "certifications": ["HashiCorp Certified: Consul Associate"],
+  "tools": ["HashiCorp Consul", "Consul CLI", "Consul UI", "Envoy", "consul-template", "consul-k8s CLI", "Helm", "Kubernetes", "HashiCorp Vault", "HashiCorp Nomad", "Prometheus", "Grafana", "dig", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For platform engineers, system administrators and developers who are new to HashiCorp Consul and need to run it for service discovery in a single datacenter. Covers the dev agent, server and client agents, agent configuration, bootstrapping a three-server cluster, service registration and health checks, the DNS interface and HTTP API, blocking queries, the KV store, sessions and locks, watches, consul-template, gossip and Raft basics, gossip encryption, TLS for agent traffic, ACL bootstrap and policies, the web UI, snapshots, and a capstone that wires a three-tier application together through Consul.",
+      "prerequisites": ["Comfortable on a Linux shell: systemd units, editing files, curl, dig and reading JSON with jq", "Understands basic networking: IP addresses, TCP and UDP ports, DNS records (A and SRV) and HTTP status codes", "Has a laptop with Docker or three small Linux VMs and rights to install the consul binary"],
+      "outcomes": ["Install Consul, run a dev agent and bootstrap a three-server cluster with a healthy Raft leader", "Register services with health checks and discover them through Consul DNS and the HTTP API", "Store and watch configuration in the KV store and render it into files with consul-template", "Secure a cluster with gossip encryption, TLS and default-deny ACLs, and back it up with snapshots"],
+      "days": [
+        {
+          "topic": "Consul Introduction and Dev Agent Setup",
+          "subtopics": ["What Consul solves: service discovery, health checking, KV configuration and service mesh", "Control plane and data plane roles in a Consul deployment", "Installing the consul binary from the HashiCorp apt/yum repository or releases page", "consul version and checking the build and protocol version", "Running consul agent -dev and what dev mode skips (persistence, TLS, ACLs)", "Default ports: 8300 RPC, 8301 LAN gossip, 8302 WAN gossip, 8500 HTTP, 8502 gRPC, 8600 DNS", "consul members and the Status, Type and Build columns", "Opening the UI on http://localhost:8500/ui", "Community edition compared with Consul Enterprise features", "The documentation, tutorials and changelog as references for later days"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Consul UI", "curl", "dig"],
+          "lab_task": "Install Consul from the HashiCorp package repository, start consul agent -dev -node=lab1 in one terminal and in another run consul members, curl http://127.0.0.1:8500/v1/status/leader and dig @127.0.0.1 -p 8600 consul.service.consul. Stop the agent, start it again and show that a KV key written before the restart is gone because dev mode keeps data in memory.",
+          "deliverable": "Setup notes with consul version output, consul members output and the lost-data observation",
+          "checks": [["Run consul members against the dev agent", "One node lab1 listed with Status alive and Type server", "Terminal output"], ["dig @127.0.0.1 -p 8600 consul.service.consul", "An A record answering 127.0.0.1 with status NOERROR", "dig output"], ["consul kv get demo/key after restarting the dev agent", "Error! No key exists at: demo/key", "Terminal output"]],
+          "objectives": ["Explain the problems Consul solves and its core components", "Run a dev agent and query it through CLI, HTTP and DNS", "Name the default Consul ports and what uses each one"]
+        },
+        {
+          "topic": "Consul Agents, Servers and Clients Explained",
+          "subtopics": ["Server agents: Raft membership, catalog state and RPC handling", "Client agents: local health checks, service registration and RPC forwarding", "Why a datacenter runs 3 or 5 servers and many clients", "Consul dataplane as the client-less option on Kubernetes and ECS", "Node names, node IDs and the node-id file in data_dir", "Datacenters as the unit of a single Raft cluster and LAN gossip pool", "Anti-entropy: how a client keeps the catalog in sync with local state", "consul info sections: agent, consul, raft, serf_lan and runtime"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Docker", "Docker Compose"],
+          "lab_task": "Use Docker Compose to start one Consul server (-server -bootstrap-expect=1) and two client agents that join it with -retry-join. Run consul members from a client, consul info on both roles and compare the raft section, then stop a client container and watch its status change from alive to failed and later to left after you run consul force-leave on it.",
+          "deliverable": "Compose file and a two-column table comparing consul info output on a server and a client",
+          "checks": [["consul members after all three containers start", "3 nodes alive: 1 of Type server, 2 of Type client", "Terminal output"], ["Stop one client container and wait 30 seconds", "That node shows Status failed in consul members", "Terminal output"], ["consul force-leave <client-node> then consul members", "The node shows Status left", "Terminal output"]],
+          "objectives": ["Distinguish server and client agent responsibilities", "Join agents into a LAN gossip pool", "Read membership state changes in consul members"]
+        },
+        {
+          "topic": "Writing Consul Agent Configuration Files",
+          "subtopics": ["HCL and JSON configuration formats and the -config-dir loading order", "Core keys: datacenter, data_dir, node_name, server, bind_addr, client_addr, advertise_addr", "Go sockaddr templates such as {{ GetPrivateInterfaces | attr \"address\" }}", "ui_config, ports and addresses blocks", "log_level, log_json and log_file settings", "consul validate to check a config directory before starting", "consul reload and which settings reload without a restart", "Running Consul under systemd with the packaged consul.service unit"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "systemd", "journalctl"],
+          "lab_task": "On a Linux VM write /etc/consul.d/consul.hcl with datacenter = \"dc1\", data_dir, a sockaddr template for bind_addr, client_addr = \"0.0.0.0\" and log_json = true. Run consul validate /etc/consul.d, introduce a typo in a key name and run validate again, fix it, then systemctl enable --now consul and read the startup logs with journalctl -u consul -o cat | jq.",
+          "deliverable": "Validated consul.hcl, the validate error captured for the typo and the JSON startup log excerpt",
+          "checks": [["consul validate /etc/consul.d with correct config", "Configuration is valid!", "Terminal output"], ["consul validate with a misspelled key such as datacentre", "Validation fails naming the invalid key datacentre", "Terminal output"], ["systemctl is-active consul after enable --now", "active", "Terminal output"]],
+          "objectives": ["Write a production-style agent configuration in HCL", "Validate and reload configuration safely", "Run Consul as a systemd service with structured logs"]
+        },
+        {
+          "topic": "Bootstrapping a Three-Server Consul Cluster",
+          "subtopics": ["server = true and bootstrap_expect = 3", "retry_join with static addresses and cloud auto-join (provider=aws tag_key=...)", "Leader election and the first Raft configuration", "consul operator raft list-peers: Node, ID, Address, State, Voter", "Quorum size (N/2)+1 and failure tolerance for 3 and 5 servers", "Why even numbers of servers add no tolerance", "Joining client agents to the server set", "Common bootstrap failures: mismatched datacenter, blocked port 8301, bootstrap_expect mismatch"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Docker Compose", "nc"],
+          "lab_task": "Start three server agents with server = true, bootstrap_expect = 3 and retry_join listing all three addresses. Run consul operator raft list-peers and record the leader. Stop the leader container, time how long it takes until list-peers shows a new leader, then stop a second server and show that writes such as consul kv put test/a 1 fail because quorum is lost.",
+          "deliverable": "Cluster config files, list-peers output before and after failover and a failover timing note",
+          "checks": [["consul operator raft list-peers on a healthy cluster", "3 peers, exactly 1 with State leader, all Voter true", "Terminal output"], ["Stop the leader and rerun list-peers after 10 seconds", "A different node is now leader", "Terminal output"], ["consul kv put test/a 1 with only one server running", "Error mentioning No cluster leader (HTTP 500)", "Terminal output"]],
+          "objectives": ["Bootstrap a three-server Raft cluster", "Calculate quorum and failure tolerance", "Diagnose a cluster that has lost quorum"]
+        },
+        {
+          "topic": "Registering Services in the Consul Catalog",
+          "subtopics": ["Service definition fields: name, id, port, address, tags and meta", "Registering through config files in the config dir", "consul services register and consul services deregister", "PUT /v1/agent/service/register through the agent API", "Agent services compared with catalog-only external registrations", "Multiple instances of one service on one node with distinct IDs", "consul catalog services -tags and consul catalog nodes -service", "enable_tag_override and tagged_addresses"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "curl", "jq"],
+          "lab_task": "Write web.hcl defining service web with id web-1, port 8080, tags [\"v1\",\"primary\"] and meta version = \"1.0\". Register it with consul services register web.hcl, register web-2 on port 8081 through curl -X PUT /v1/agent/service/register, then list instances with curl /v1/catalog/service/web | jq '.[].ServiceID'. Deregister web-2 and confirm the instance count drops.",
+          "deliverable": "Service definition files, catalog JSON before and after deregistration",
+          "checks": [["curl -s /v1/catalog/service/web | jq length after both registrations", "2", "Terminal output"], ["consul catalog services -tags", "web listed with tags primary,v1", "Terminal output"], ["consul services deregister -id=web-2 then the length query again", "1", "Terminal output"]],
+          "objectives": ["Define services with tags and metadata", "Register services through files, CLI and the agent API", "Query the catalog for services and instances"]
+        },
+        {
+          "topic": "Consul Health Check Types",
+          "subtopics": ["HTTP checks with interval, timeout and expected 2xx status", "TCP, UDP and gRPC checks", "TTL checks updated through /v1/agent/check/pass and /v1/agent/check/fail", "Script checks and why enable_local_script_checks must be set explicitly", "Alias checks that mirror another service's health", "Check states passing, warning and critical, and success_before_passing", "deregister_critical_service_after for automatic cleanup", "Maintenance mode with consul maint -enable -service"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "curl", "Python http.server"],
+          "lab_task": "Run python3 -m http.server 8080 and register web with an HTTP check on /, interval 5s and timeout 2s. Add a second service batch with a TTL check of 30s and pass it with curl -X PUT /v1/agent/check/pass/service:batch. Kill the web server, watch /v1/health/service/web?passing go empty, then put web into maintenance with consul maint -enable -service=web -reason=patching.",
+          "deliverable": "Check definitions and a timeline of check states captured from /v1/health/checks/web",
+          "checks": [["curl /v1/health/service/web?passing | jq length while the server runs", "1", "API output"], ["Kill the HTTP server and wait 10 seconds, then query /v1/health/checks/web", "Status critical for the HTTP check", "API output"], ["Do not update the batch TTL check for 30 seconds", "TTL check turns critical with output TTL expired", "consul UI or API output"]],
+          "objectives": ["Configure HTTP, TCP and TTL health checks", "Explain how check state affects discovery", "Use maintenance mode during planned work"]
+        },
+        {
+          "topic": "Querying Services through Consul DNS",
+          "subtopics": ["Name formats: <service>.service.consul, <tag>.<service>.service.<dc>.consul and <node>.node.consul", "RFC 2782 SRV lookups such as _web._tcp.service.consul", "Only healthy instances are returned, and dns_config only_passing for warnings", "service_ttl, node_ttl and allow_stale in dns_config", "Forwarding the .consul domain from systemd-resolved, dnsmasq or BIND", "recursors for non-Consul names", "Random ordering of A records as simple load balancing", "Port 8600 compared with binding DNS to port 53"],
+          "tools": ["HashiCorp Consul", "dig", "systemd-resolved", "dnsmasq"],
+          "lab_task": "Register three web instances with tags v1 and v2 and run dig @127.0.0.1 -p 8600 web.service.consul, dig ... v2.web.service.consul and dig ... web.service.consul SRV. Configure systemd-resolved with DNS=127.0.0.1:8600 and Domains=~consul so that curl http://web.service.consul:8080 works without the port flag, then fail one instance and show it disappears from answers.",
+          "deliverable": "dig outputs for A, tagged and SRV queries plus the resolved.conf drop-in",
+          "checks": [["dig @127.0.0.1 -p 8600 web.service.consul +short with 3 healthy instances", "3 IP addresses returned", "dig output"], ["dig @127.0.0.1 -p 8600 web.service.consul SRV", "SRV records carry each instance port such as 8080", "dig output"], ["Mark one instance critical and repeat the A query", "Only 2 addresses returned", "dig output"]],
+          "objectives": ["Discover services and tags through Consul DNS", "Forward the consul domain from the system resolver", "Explain how health affects DNS answers"]
+        },
+        {
+          "topic": "Consul HTTP API and Blocking Queries",
+          "subtopics": ["API layout: /v1/agent, /v1/catalog, /v1/health, /v1/kv, /v1/status", "Filtering with ?filter= expressions, for example Service.Tags contains \"v2\"", "Blocking queries with index and wait parameters", "X-Consul-Index, X-Consul-KnownLeader and X-Consul-LastContact headers", "Consistency modes: default, consistent and stale", "Agent caching with ?cached and the X-Cache header", "Datacenter selection with ?dc=", "Using the API from code with the official Go client and python-consul2-style libraries"],
+          "tools": ["curl", "jq", "Consul HTTP API", "Go consul/api client"],
+          "lab_task": "Call curl -i /v1/health/service/web?passing and note the X-Consul-Index value. Start a blocking query with ?index=<value>&wait=2m in one terminal, register a new web instance in another and measure how fast the blocked call returns. Then query with ?stale and ?consistent and compare X-Consul-LastContact, and filter instances with ?filter=Service.Meta.version==\"2.0\".",
+          "deliverable": "Script with the blocking-query loop and a note comparing the three consistency modes",
+          "checks": [["Blocking query with the current index and no changes", "Call returns after about the wait time with the same X-Consul-Index", "Timed curl output"], ["Register a new instance while the blocking query waits", "Call returns within 1 second with a higher X-Consul-Index", "Timed curl output"], ["/v1/catalog/services?stale on a follower", "Response includes X-Consul-KnownLeader: true and a LastContact value", "curl -i headers"]],
+          "objectives": ["Use the HTTP API to read catalog and health data", "Implement change detection with blocking queries", "Choose a consistency mode for a given read"]
+        },
+        {
+          "topic": "Consul KV Store Operations",
+          "subtopics": ["consul kv put, get, delete and the -recurse and -detailed flags", "Key naming conventions such as app/<service>/<env>/<key>", "Values are opaque bytes up to 512 KB", "ModifyIndex, CreateIndex and Flags metadata", "Check-and-set writes with -cas -modify-index", "consul kv export and consul kv import for JSON backups", "The /v1/kv endpoint with base64-encoded values and ?raw", "Transactions through /v1/txn for multi-key atomic updates"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "curl", "jq", "base64"],
+          "lab_task": "Load ten keys under app/checkout/prod/ with consul kv put, read one with consul kv get -detailed and note its ModifyIndex. Update it with -cas -modify-index=<old index> twice so the second attempt fails, export the prefix with consul kv export app/ > kv.json, delete it with -recurse and restore it with consul kv import @kv.json.",
+          "deliverable": "kv.json export plus terminal log showing the CAS success and failure",
+          "checks": [["consul kv put -cas -modify-index=<current> app/checkout/prod/timeout 5s", "Success! Data written to: app/checkout/prod/timeout", "Terminal output"], ["Repeat the same CAS write with the now-stale index", "Error! Did not write to app/checkout/prod/timeout: CAS failed", "Terminal output"], ["consul kv get -recurse app/ | wc -l after import", "10", "Terminal output"]],
+          "objectives": ["Manage configuration keys with the KV CLI and API", "Prevent lost updates with check-and-set", "Back up and restore KV data in JSON"]
+        },
+        {
+          "topic": "Sessions, Locks and Leader Election in Consul",
+          "subtopics": ["Sessions: node, checks, TTL and behavior release or delete", "lock-delay and its 15 second default", "Acquiring a KV key with ?acquire=<session> and releasing with ?release=", "consul lock for running a command under a distributed lock", "Semaphores with consul lock -n", "What happens to the lock when the holder's node fails a health check", "Session renewal with /v1/session/renew", "Typical uses: single cron runner and active-passive failover"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "curl", "jq"],
+          "lab_task": "Run consul lock locks/report ./report.sh on two nodes at once where report.sh sleeps 60 seconds and logs the hostname, and show that only one runs. Then create a session with curl -X PUT /v1/session/create -d '{\"TTL\":\"15s\",\"Behavior\":\"release\"}', acquire service/leader with ?acquire=<id>, stop renewing and confirm the key's Session field clears after the TTL expires.",
+          "deliverable": "Logs from both lock holders and the session JSON before and after expiry",
+          "checks": [["Second node runs consul lock while the first holds it", "Second command blocks until the first exits", "Timestamped logs"], ["PUT /v1/kv/service/leader?acquire=<session> from a second session while held", "false", "API output"], ["Read service/leader 30 seconds after renewals stop", "Session field absent from the key", "consul kv get -detailed output"]],
+          "objectives": ["Explain sessions, TTLs and lock-delay", "Run a single active job across nodes with consul lock", "Implement leader election with the session and KV APIs"]
+        },
+        {
+          "topic": "Consul Watches and Event Handlers",
+          "subtopics": ["Watch types: key, keyprefix, services, nodes, service, checks and event", "consul watch on the command line and watches in agent config", "Script handlers that receive JSON on stdin", "HTTP handlers that POST changes to a webhook", "consul event fire and user events over gossip", "Why handlers must be idempotent", "Watches compared with blocking queries in application code", "Handler failure logging and timeouts"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "jq", "bash"],
+          "lab_task": "Add a keyprefix watch on app/checkout/ to the agent config with a script handler that writes the changed keys and a timestamp to /var/log/consul-watch.log. Change two keys and check the log. Add a service watch for web with an HTTP handler pointing at a local netcat listener, then fail a web instance and capture the POSTed JSON body.",
+          "deliverable": "Watch configuration, handler script and captured handler payloads",
+          "checks": [["consul kv put app/checkout/limit 20", "A new line with app/checkout/limit appears in consul-watch.log within 2 seconds", "Log file"], ["Fail one web instance health check", "The HTTP handler receives a JSON array containing the instance with Status critical", "nc capture"], ["consul event fire deploy v42 with a matching event watch", "Handler receives an event with Name deploy and base64 payload of v42", "Handler output"]],
+          "objectives": ["Configure key, service and event watches", "Write idempotent script and HTTP handlers", "Choose between watches and blocking queries"]
+        },
+        {
+          "topic": "Rendering Config Files with consul-template",
+          "subtopics": ["Installing consul-template and its config file format", "Template functions: key, keyOrDefault, ls, tree and service", "range service \"web\" loops that build upstream lists", "Filtering healthy instances and tags in templates", "-template \"in.ctmpl:out.conf:reload command\" syntax", "-once, -dry and the wait min:max setting to avoid reload storms", "Exec mode for supervising a child process", "Running consul-template under systemd with an ACL token"],
+          "tools": ["consul-template", "HashiCorp Consul", "NGINX", "systemd"],
+          "lab_task": "Write upstream.ctmpl that renders an NGINX upstream block from {{ range service \"web\" }}server {{ .Address }}:{{ .Port }};{{ end }} plus a timeout from keyOrDefault. Run consul-template -dry -once to preview, then run it with the reload command nginx -s reload and wait 2s:10s. Add and remove web instances and count reloads in the NGINX error log.",
+          "deliverable": "Template file, rendered upstream.conf and a reload count for five catalog changes",
+          "checks": [["consul-template -dry -once with 3 healthy web instances", "Rendered output contains 3 server lines", "Terminal output"], ["Fail one instance health check", "upstream.conf drops to 2 server lines and NGINX reloads", "File diff and NGINX log"], ["Delete the timeout key used with keyOrDefault", "The default value is rendered and consul-template keeps running", "Rendered file"]],
+          "objectives": ["Render configuration from Consul catalog and KV data", "Control reload behaviour with wait settings", "Run consul-template as a managed service"]
+        },
+        {
+          "topic": "Gossip Protocol and Serf Membership",
+          "subtopics": ["Serf and memberlist: SWIM-based failure detection", "LAN pool per datacenter and WAN pool for servers", "Probe interval, indirect probes and suspicion timeouts", "Node status alive, failed and left, and reconnect_timeout", "Network coordinates and consul rtt", "Why ports 8301 TCP and UDP must both be open", "Flapping members and the consul.serf.member.flap metric", "Gossip compared with Raft: eventual membership versus strongly consistent state"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "iptables", "tcpdump"],
+          "lab_task": "In a four-node lab run consul rtt between two nodes, then block UDP 8301 on one client with iptables -A INPUT -p udp --dport 8301 -j DROP and watch the agent logs for fallback TCP pings. Block TCP 8301 as well and record how long until the node shows failed. Remove the rules and confirm it returns to alive, capturing a few packets with tcpdump -i any port 8301.",
+          "deliverable": "Timeline of membership changes with log lines and the consul rtt measurement",
+          "checks": [["consul rtt node-a node-b", "Estimated round trip time printed in ms", "Terminal output"], ["Block only UDP 8301 on one client", "Logs show memberlist Failed fallback ping or TCP fallback warnings while node stays alive", "Agent logs"], ["Block both UDP and TCP 8301", "Node reported failed in consul members on other agents", "Terminal output"]],
+          "objectives": ["Explain how gossip detects failures", "Diagnose gossip connectivity problems", "Use network coordinates to estimate latency"]
+        },
+        {
+          "topic": "Raft Consensus and Quorum in Consul",
+          "subtopics": ["Leader, follower and candidate states", "Log replication, commit index and applied index", "Raft snapshots of the state store compared with consul snapshot", "consul info raft fields: state, term, commit_index, last_log_index", "Leader lease and election timeouts tuned by raft_multiplier", "Voters and non-voters", "Stale reads from followers and their trade-offs", "Removing a dead server with consul operator raft remove-peer"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "jq"],
+          "lab_task": "On a three-server cluster write 1,000 keys with a loop of consul kv put, then compare consul info | grep -E 'commit_index|applied_index|state' on the leader and each follower. Kill one follower permanently, show it still listed by list-peers, remove it with consul operator raft remove-peer -address=<ip>:8300 and confirm the peer list shrinks to two voters.",
+          "deliverable": "Raft field comparison table and the remove-peer transcript",
+          "checks": [["consul info on each server after the write loop", "commit_index values equal or within a few entries across servers", "consul info output"], ["consul operator raft list-peers after one follower dies", "Dead server still listed, now 3 peers total", "Terminal output"], ["remove-peer on the dead server then list-peers", "2 voters remain and one is leader", "Terminal output"]],
+          "objectives": ["Describe how Raft commits writes", "Read Raft state from consul info", "Remove a failed server from the Raft configuration"]
+        },
+        {
+          "topic": "Gossip Encryption Keys and Keyring Rotation",
+          "subtopics": ["consul keygen and the 32-byte base64 key", "encrypt in agent config and encrypt_verify_incoming / encrypt_verify_outgoing", "Enabling encryption on an existing cluster in three rolling steps", "consul keyring -list, -install, -use and -remove", "Primary key and why it cannot be removed while in use", "Storing the key in Vault or a secrets manager rather than in git", "Keyring files under data_dir/serf", "Error when a node joins with the wrong key"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "HashiCorp Vault"],
+          "lab_task": "Generate a key with consul keygen, enable it on a running cluster by first setting encrypt_verify_incoming = false and encrypt_verify_outgoing = false, rolling all agents, then turning both on. Rotate with consul keyring -install <new>, -use <new> and -remove <old>. Start a new agent with a wrong key and capture the join error.",
+          "deliverable": "Rolling-enable procedure, keyring -list outputs at each rotation step and the wrong-key error",
+          "checks": [["consul keyring -list after -install of the new key", "Both keys listed, each on N/N nodes", "Terminal output"], ["consul keyring -remove <current primary>", "Command refused because the key is the primary key", "Terminal output"], ["Agent joins with a different encrypt key", "Join fails with a decryption or No installed keys could decrypt the message error", "Agent logs"]],
+          "objectives": ["Enable gossip encryption on a live cluster", "Rotate gossip keys without downtime", "Store gossip keys outside source control"]
+        },
+        {
+          "topic": "Securing Consul RPC with TLS Certificates",
+          "subtopics": ["consul tls ca create and consul tls cert create -server -dc dc1", "Server certificate SAN server.dc1.consul and verify_server_hostname", "The tls stanza: defaults, internal_rpc, https and grpc blocks", "verify_incoming and verify_outgoing", "Enabling HTTPS on 8501 and disabling HTTP with ports { http = -1 }", "auto_encrypt for distributing client certificates", "CONSUL_HTTP_ADDR, CONSUL_CACERT, CONSUL_CLIENT_CERT and CONSUL_CLIENT_KEY", "Certificate expiry and the consul.agent.tls.cert.expiry metric"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "OpenSSL", "curl"],
+          "lab_task": "Create a CA with consul tls ca create and three server certificates with consul tls cert create -server -dc dc1. Configure tls.defaults with ca_file, cert_file, key_file, verify_incoming and verify_outgoing, set tls.internal_rpc.verify_server_hostname = true, enable HTTPS on 8501 and auto_encrypt for clients. Inspect the SAN with openssl x509 -text and test the API with and without a client certificate.",
+          "deliverable": "TLS config, certificate SAN listing and curl results with and without client certs",
+          "checks": [["openssl x509 -in dc1-server-consul-0.pem -noout -text | grep DNS", "SAN includes server.dc1.consul and localhost", "Terminal output"], ["curl https://127.0.0.1:8501/v1/status/leader without a client certificate", "TLS handshake fails because verify_incoming requires a client cert", "curl output"], ["consul members with CONSUL_HTTP_ADDR=https://127.0.0.1:8501 and client cert variables set", "All members listed as alive", "Terminal output"]],
+          "objectives": ["Issue Consul agent certificates with the built-in CLI", "Enforce mutual TLS and hostname verification", "Configure the CLI for an HTTPS-only agent"]
+        },
+        {
+          "topic": "Consul ACL Bootstrap and Policies",
+          "subtopics": ["acl { enabled = true, default_policy = \"deny\", enable_token_persistence = true }", "consul acl bootstrap and the initial management token", "Policy rules in HCL: node_prefix, service_prefix, key_prefix, agent_prefix", "read, write, list and deny levels", "Creating policies and tokens with consul acl policy create and consul acl token create", "The anonymous token and what it can see", "Agent tokens set with consul acl set-agent-token agent <token>", "CONSUL_HTTP_TOKEN and the X-Consul-Token header"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "curl"],
+          "lab_task": "Enable ACLs with default_policy = \"deny\" on all agents, run consul acl bootstrap and store the SecretID safely. Create an agent policy and token per node, set it with consul acl set-agent-token, then create a policy kv-checkout granting key_prefix \"app/checkout/\" write. Test the checkout token against app/checkout/ and app/billing/ and run bootstrap a second time.",
+          "deliverable": "Policy HCL files, token accessor IDs (no secrets) and the access test results",
+          "checks": [["consul acl bootstrap run a second time", "Permission denied: ACL bootstrap no longer allowed", "Terminal output"], ["consul kv put app/billing/x 1 with the kv-checkout token", "Error with Unexpected response code: 403 (Permission denied)", "Terminal output"], ["consul kv put app/checkout/x 1 with the kv-checkout token", "Success! Data written to: app/checkout/x", "Terminal output"]],
+          "objectives": ["Bootstrap the ACL system safely", "Write least-privilege policies", "Issue agent and application tokens"]
+        },
+        {
+          "topic": "Using the Consul Web UI",
+          "subtopics": ["Enabling the UI with ui_config { enabled = true }", "Services, Nodes, Key/Value, Intentions and Access Controls tabs", "Logging in with an ACL token and what the UI shows per policy", "Filtering services by health, tags and source", "Health check output and node metadata views", "Editing KV entries and why production UIs should be read-mostly", "ui_config.metrics_provider for Prometheus-backed metrics", "Exposing the UI behind a reverse proxy with TLS"],
+          "tools": ["Consul UI", "HashiCorp Consul", "Consul CLI"],
+          "lab_task": "Enable the UI on one server, log in with a read-only token whose policy grants service_prefix \"\" read and node_prefix \"\" read, and try to edit a KV key. Log in with an operator token, filter the Services view to show only critical instances, open a failing check to read its output, and record which tabs each token can use.",
+          "deliverable": "Screenshot set and a table of UI capabilities per token",
+          "checks": [["Open /ui without a token on a default-deny cluster", "No services are listed until a token is entered", "Screenshot"], ["Attempt a KV edit with the read-only token", "UI shows a permission error and the value is unchanged", "Screenshot and consul kv get"], ["Filter Services by Health Status critical", "Only the service with the failing check is shown", "Screenshot"]],
+          "objectives": ["Navigate the Consul UI for daily operations", "Relate UI visibility to ACL policies", "Investigate failing checks from the UI"]
+        },
+        {
+          "topic": "Consul Snapshots and Restore Drills",
+          "subtopics": ["What a snapshot contains: catalog, KV, ACLs, sessions, config entries", "consul snapshot save, inspect and restore", "The -stale flag for saving from a follower", "Snapshot permissions: an operator-level management token", "Storing snapshots off-host with encryption", "Enterprise snapshot agent for scheduled backups to S3, Azure Blob or GCS", "Restore effects on running agents and anti-entropy re-registration", "Testing restores on a separate cluster"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "cron", "AWS CLI"],
+          "lab_task": "Write 200 KV keys and register five services, then run consul snapshot save backup.snap and consul snapshot inspect backup.snap. Delete the app/ prefix, run consul snapshot restore backup.snap and confirm the keys return. Restore the same file into a fresh three-server lab cluster and compare key counts, then schedule a nightly save with cron that uploads to object storage.",
+          "deliverable": "Snapshot inspect output, restore transcript and the cron job",
+          "checks": [["consul snapshot save backup.snap", "Saved and verified snapshot to index <n>", "Terminal output"], ["consul snapshot restore backup.snap after deleting app/", "Restored snapshot and consul kv get -recurse app/ | wc -l returns 200", "Terminal output"], ["consul snapshot inspect backup.snap", "Table with ID, Size, Index, Term and Version fields", "Terminal output"]],
+          "objectives": ["Back up Consul state with snapshots", "Restore a cluster from a snapshot", "Automate and test backup schedules"]
+        },
+        {
+          "topic": "Beginner Capstone: Service Discovery for a Three-Tier App",
+          "subtopics": ["Three-server cluster with gossip encryption, TLS and default-deny ACLs", "web, api and postgres services registered with health checks", "NGINX upstreams rendered by consul-template and DNS lookups for the API tier", "Configuration in KV, a snapshot backup and a failure demonstration"],
+          "tools": ["HashiCorp Consul", "consul-template", "NGINX", "PostgreSQL", "Docker Compose", "dig"],
+          "lab_task": "Build a three-server, two-client cluster with encryption, TLS and ACLs. Register web, api and postgres with HTTP and TCP checks, render NGINX upstreams for web with consul-template and make api reach postgres through postgres.service.consul. Store api settings in KV, take a snapshot, then kill one web and one api instance and show traffic keeps flowing.",
+          "deliverable": "Repository with configs, a runbook and a 10-minute demo recording",
+          "checks": [["curl through NGINX 20 times with one web instance killed", "20 of 20 requests return HTTP 200", "Script output"], ["consul members and list-peers at demo start", "5 nodes alive and 3 voters with one leader", "Terminal output"], ["curl /v1/catalog/services without a token", "Empty result or 403 because default_policy is deny", "curl output"]],
+          "objectives": ["Combine discovery, health checks and KV in one design", "Operate a secured single-datacenter cluster", "Show recovery behaviour under instance failure"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run Consul for service discovery and now need Consul service mesh on VMs, Kubernetes and Nomad. Covers Envoy sidecars and upstreams, service intentions, proxy-defaults and service-defaults, L7 traffic management with service-splitter, service-router and service-resolver, installing Consul on Kubernetes with the Helm chart and consul-k8s CLI, transparent proxy and CRDs, the Consul API gateway and terminating gateways, ACL roles and auth methods, the built-in and Vault CA providers, dynamic tokens from Vault, Nomad workloads in the mesh, Prometheus telemetry and sidecar debugging, ending with a zero-trust mesh capstone on Kubernetes.",
+      "prerequisites": ["Completed the beginner level or runs a secured Consul cluster with ACLs and TLS", "Uses kubectl and Helm to deploy workloads to a Kubernetes cluster such as kind, minikube, EKS, AKS or GKE", "Understands HTTP routing basics: paths, headers, retries, timeouts and mutual TLS"],
+      "outcomes": ["Run services on the Consul service mesh with Envoy sidecars and control access with intentions", "Shape traffic with service-splitter, service-router and service-resolver for canaries and failover", "Install and operate Consul on Kubernetes with Helm, CRDs, transparent proxy and the API gateway", "Integrate Consul with Vault and Nomad and monitor the mesh with Prometheus and Grafana"],
+      "days": [
+        {
+          "topic": "Consul Service Mesh Fundamentals with Envoy Sidecars",
+          "subtopics": ["connect { enabled = true } and the gRPC port 8502 or TLS gRPC port 8503", "Service identity encoded as SPIFFE IDs in leaf certificates", "sidecar_service blocks in a service definition", "consul connect envoy -sidecar-for <service-id>", "Envoy version compatibility with the Consul release", "xDS: how Consul pushes listeners, clusters and endpoints to Envoy", "Envoy admin API on 127.0.0.1:19000", "Inbound public listener port 21000+ and the local application port", "Mutual TLS between sidecars and plaintext only on localhost", "Mesh compared with plain DNS discovery: what changes for the application"],
+          "tools": ["HashiCorp Consul", "Envoy", "Consul CLI", "curl"],
+          "lab_task": "Enable connect on the servers, register counting with a sidecar_service block and start its proxy with consul connect envoy -sidecar-for counting-1 -admin-bind 127.0.0.1:19000. Check the SPIFFE ID with curl -s 127.0.0.1:19000/certs | jq, list clusters with /clusters, and show the sidecar registered in the catalog as counting-sidecar-proxy.",
+          "deliverable": "Service definition with sidecar, the Envoy certificate SAN and a cluster listing",
+          "checks": [["consul catalog services after starting the sidecar", "counting and counting-sidecar-proxy are both listed", "Terminal output"], ["curl -s 127.0.0.1:19000/certs | jq '.. | .uri? // empty'", "spiffe://<trust-domain>.consul/ns/default/dc/dc1/svc/counting", "Envoy admin output"], ["Sidecar health check in /v1/health/service/counting-sidecar-proxy", "Connect Sidecar Listening check is passing", "API output"]],
+          "objectives": ["Explain how Consul issues identities and configures Envoy", "Run an Envoy sidecar for a registered service", "Inspect a sidecar through the Envoy admin API"]
+        },
+        {
+          "topic": "Upstreams and Sidecar Proxy Registration",
+          "subtopics": ["proxy.upstreams with destination_name and local_bind_port", "local_bind_address and binding to 127.0.0.1 only", "Datacenter-specific upstreams with the datacenter field", "Upstream config overrides: connect_timeout_ms and protocol", "Health of upstream instances and Envoy outlier detection", "Expose paths for health checks through the sidecar", "Sidecar lifecycle with systemd units per proxy", "Removing direct network paths once services use the mesh"],
+          "tools": ["HashiCorp Consul", "Envoy", "systemd", "curl"],
+          "lab_task": "Register dashboard with a sidecar whose upstream is counting on local_bind_port 9001 and start both sidecars as systemd units. Point dashboard at http://127.0.0.1:9001 and confirm it works. Block direct access to counting's app port with a firewall rule so only the mesh path works, and add an expose path for /health on counting so the Consul HTTP check still passes.",
+          "deliverable": "Both service definitions, the systemd unit template and test results",
+          "checks": [["curl 127.0.0.1:9001 from the dashboard host", "HTTP 200 with a JSON count from counting", "curl output"], ["curl <counting-ip>:9003 directly after the firewall rule", "Connection refused or timed out", "curl output"], ["HTTP check for counting through the expose path", "Check status passing", "consul UI or /v1/health/checks/counting"]],
+          "objectives": ["Define upstreams for sidecar proxies", "Run sidecars as managed services", "Keep health checks working with expose paths"]
+        },
+        {
+          "topic": "Service Intentions as Config Entries",
+          "subtopics": ["service-intentions config entry structure: Kind, Name, Sources", "Action allow and deny for L4 traffic", "Wildcard sources and a default deny with Name = \"*\"", "Precedence: exact matches over wildcards", "consul config write and consul config read -kind service-intentions", "consul intention check and consul intention match", "ACL default policy and mesh default intention behaviour", "Intentions with Peer, Partition and Namespace fields"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Envoy", "curl"],
+          "lab_task": "Write a service-intentions entry for Name = \"*\" with a single source * deny, apply it with consul config write and show dashboard can no longer reach counting. Write a second entry for counting that allows dashboard, re-test, and use consul intention check for dashboard to counting and for an unknown service web to counting. Record the error the client sees when denied.",
+          "deliverable": "Intention HCL files and before-and-after curl results",
+          "checks": [["consul intention check dashboard counting after the allow entry", "Allowed", "Terminal output"], ["consul intention check web counting", "Denied", "Terminal output"], ["curl 127.0.0.1:9001 from dashboard under the global deny", "Recv failure: Connection reset by peer", "curl output"]],
+          "objectives": ["Write intentions as config entries", "Apply a default-deny mesh posture", "Test intention decisions before rollout"]
+        },
+        {
+          "topic": "Consul Config Entries: proxy-defaults and service-defaults",
+          "subtopics": ["Config entry kinds and their scope", "proxy-defaults named global: Config, MeshGateway mode, Expose", "service-defaults: Protocol http, http2, grpc or tcp", "UpstreamConfig defaults and overrides per upstream", "Transparent proxy and MutualTLSMode settings", "consul config list, read and delete", "Ordering: protocol must be set before L7 entries", "Keeping config entries in git and applying them in CI"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Envoy", "GitHub Actions"],
+          "lab_task": "Write proxy-defaults global with Config { protocol = \"http\" } and a service-defaults entry for counting with Protocol = \"http\" and UpstreamConfig defaults setting ConnectTimeoutMs = 5000. Apply both with consul config write, read them back with consul config read -kind service-defaults -name counting, and confirm Envoy switched to the HTTP connection manager by grepping /config_dump for http_connection_manager.",
+          "deliverable": "Config entry files, consul config list output and the config_dump excerpt",
+          "checks": [["consul config list -kind service-defaults", "counting listed", "Terminal output"], ["curl 127.0.0.1:19000/config_dump | grep -c http_connection_manager on the counting sidecar", "Count greater than 0", "Terminal output"], ["Response headers from counting through the mesh after the change", "x-envoy-upstream-service-time header present", "curl -i output"]],
+          "objectives": ["Use proxy-defaults and service-defaults to set protocols", "Manage config entries with the CLI", "Verify Envoy picked up configuration changes"]
+        },
+        {
+          "topic": "L7 Traffic Splitting with service-splitter",
+          "subtopics": ["Prerequisite: Protocol http, http2 or grpc on the service", "service-resolver Subsets with Filter expressions on Service.Meta.version", "service-splitter Splits with Weight and ServiceSubset", "Weights summing to 100 and rounding", "Canary rollout steps 90/10, 50/50 and 0/100", "Request headers added per split with RequestHeaders", "Observing split ratios through Envoy stats", "Rollback by rewriting the splitter"],
+          "tools": ["HashiCorp Consul", "Envoy", "Consul CLI", "hey"],
+          "lab_task": "Register api instances with meta version v1 and v2 and define a service-resolver with subsets v1 and v2 filtered on Service.Meta.version. Write a service-splitter sending 90 to v1 and 10 to v2, send 1,000 requests with hey through the upstream and count responses per version. Try the splitter on a tcp service to capture the error, then move to 50/50.",
+          "deliverable": "Resolver and splitter files, response counts per weight setting",
+          "checks": [["1,000 requests with the 90/10 splitter", "Between 850 and 950 responses from v1", "Request count script output"], ["consul config write of a splitter for a service with Protocol tcp", "Write rejected because the protocol does not support splitting", "Terminal output"], ["1,000 requests after changing to 50/50", "Between 450 and 550 responses from each version", "Request count script output"]],
+          "objectives": ["Define service subsets with service-resolver", "Run a weighted canary rollout", "Explain protocol requirements for L7 features"]
+        },
+        {
+          "topic": "HTTP Routing with service-router",
+          "subtopics": ["service-router Routes with Match.HTTP PathPrefix, PathExact and PathRegex", "Header and query parameter matches", "Destination Service, ServiceSubset and PrefixRewrite", "RequestTimeout, NumRetries and RetryOnStatusCodes", "Route order and first-match behaviour", "Combining router, splitter and resolver in one chain", "Inspecting the compiled chain with /v1/discovery-chain/<service>", "Testing routes with curl -H"],
+          "tools": ["HashiCorp Consul", "Envoy", "curl", "jq"],
+          "lab_task": "Write a service-router for web that sends PathPrefix /admin to service admin, sends requests with header x-canary: true to subset v2, and sets NumRetries = 3 with RetryOnStatusCodes = [503]. Inspect the compiled chain with curl /v1/discovery-chain/web | jq '.Chain.Nodes | keys', then test each route with curl and confirm retries in Envoy stats.",
+          "deliverable": "Router file, discovery chain JSON and a route test table",
+          "checks": [["curl 127.0.0.1:9002/admin/status through the web upstream", "Response body comes from the admin service", "curl output"], ["curl -H 'x-canary: true' 127.0.0.1:9002/", "Response from a v2 instance", "curl output"], ["Make v1 return 503 once and check upstream_rq_retry in Envoy /stats", "upstream_rq_retry counter increases by at least 1", "Envoy stats output"]],
+          "objectives": ["Route HTTP traffic by path and header", "Configure retries and timeouts in the mesh", "Read the compiled discovery chain"]
+        },
+        {
+          "topic": "Failover and Subsets with service-resolver",
+          "subtopics": ["DefaultSubset and named subsets", "Failover targets by datacenter, subset or service", "ConnectTimeout and RequestTimeout", "Redirect to another service or datacenter", "LoadBalancer policies: least_request, round_robin, ring_hash and maglev", "Hash policies for session affinity on headers or cookies", "OnlyPassing filtering", "How failover interacts with health checks"],
+          "tools": ["HashiCorp Consul", "Envoy", "Consul CLI", "curl"],
+          "lab_task": "Write a service-resolver for api with DefaultSubset v1, Failover for v1 pointing to subset v2, and LoadBalancer Policy ring_hash with a HashPolicies entry on header x-user. Send 50 requests with the same x-user and confirm one instance answers them all, then fail every v1 instance and show requests fail over to v2 without client changes.",
+          "deliverable": "Resolver file and test results for affinity and failover",
+          "checks": [["50 requests with x-user: alice", "All 50 answered by the same instance ID", "Script output"], ["Mark all v1 instances critical and send 20 requests", "20 of 20 succeed from v2 instances", "Script output"], ["consul config read -kind service-resolver -name api", "Shows DefaultSubset v1 and the Failover block", "Terminal output"]],
+          "objectives": ["Configure failover between subsets", "Choose load balancing and affinity policies", "Combine resolver settings with health checks"]
+        },
+        {
+          "topic": "Installing Consul on Kubernetes with Helm",
+          "subtopics": ["helm repo add hashicorp https://helm.releases.hashicorp.com", "Key values: global.name, global.datacenter, server.replicas, connectInject.enabled", "global.tls.enabled and global.acls.manageSystemACLs", "global.gossipEncryption.autoGenerate", "consul-k8s install, upgrade, status and uninstall", "Consul dataplane instead of client agents in pods", "Server StatefulSet, PVCs and storage class choices", "Accessing the UI with kubectl port-forward svc/consul-ui"],
+          "tools": ["Helm", "consul-k8s CLI", "Kubernetes", "kubectl", "kind"],
+          "lab_task": "Create a kind cluster, write values.yaml with server.replicas: 3, connectInject.enabled: true, global.tls.enabled: true, global.acls.manageSystemACLs: true and gossip autoGenerate. Install with helm install consul hashicorp/consul -n consul --create-namespace -f values.yaml, wait for pods, run consul-k8s status and exec into consul-server-0 to run consul operator raft list-peers.",
+          "deliverable": "values.yaml, kubectl get pods output and consul-k8s status output",
+          "checks": [["kubectl get pods -n consul after install", "consul-server-0, -1 and -2 Running plus a Running connect-injector pod", "kubectl output"], ["consul-k8s status", "Reports the release deployed and servers healthy", "Terminal output"], ["kubectl exec consul-server-0 -- consul operator raft list-peers with the bootstrap token", "3 voters with one leader", "Terminal output"]],
+          "objectives": ["Install a secured Consul cluster on Kubernetes", "Choose key Helm values for TLS, ACLs and gossip", "Check cluster health with consul-k8s"]
+        },
+        {
+          "topic": "Mesh Injection and Transparent Proxy on Kubernetes",
+          "subtopics": ["consul.hashicorp.com/connect-inject: \"true\" annotation", "Namespace selectors and connectInject.default", "Init container that writes iptables rules for transparent proxy", "Calling upstreams by Kubernetes Service DNS or <service>.virtual.consul", "dialedDirectly and exclude ports or CIDRs annotations", "consul-k8s proxy list and proxy read", "ServiceAccount names as Consul service identities", "Pod readiness and graceful shutdown with the dataplane"],
+          "tools": ["Kubernetes", "kubectl", "consul-k8s CLI", "Envoy"],
+          "lab_task": "Deploy frontend and backend with the connect-inject annotation and a ServiceAccount named after each Deployment. Check pods show 2/2 containers, call http://backend from frontend through transparent proxy, then add an exclude-outbound-ports annotation for a metrics port. Use consul-k8s proxy list -n default and consul-k8s proxy read <pod> to view frontend's clusters.",
+          "deliverable": "Manifests, pod listing and the proxy read output for frontend",
+          "checks": [["kubectl get pods for frontend", "READY 2/2", "kubectl output"], ["kubectl exec frontend -- curl -s http://backend", "HTTP 200 body from backend", "Terminal output"], ["consul-k8s proxy read <frontend-pod>", "A cluster entry for backend is listed", "Terminal output"]],
+          "objectives": ["Inject sidecars into Kubernetes workloads", "Use transparent proxy for upstream calls", "Inspect proxy configuration from the CLI"]
+        },
+        {
+          "topic": "Managing Consul CRDs on Kubernetes",
+          "subtopics": ["CRDs: ServiceDefaults, ServiceIntentions, ServiceRouter, ServiceSplitter, ServiceResolver, ProxyDefaults, Mesh", "The controller that syncs CRDs into Consul config entries", "Status conditions and the SYNCED column", "Field naming differences between HCL config entries and CRD specs", "Deleting CRDs and the finalizer that removes config entries", "Conflicts when the same entry is written by CLI and CRD", "GitOps with Argo CD or Flux for mesh config", "Namespacing CRDs and the consul namespace mapping"],
+          "tools": ["Kubernetes", "kubectl", "Helm", "Consul CLI"],
+          "lab_task": "Apply ServiceDefaults for backend with protocol http, a ServiceIntentions allowing frontend to backend with a default deny, and a ServiceRouter that sends /v2 to backend-v2. Check kubectl get servicedefaults,serviceintentions,servicerouters shows SYNCED True, read the same entries from Consul with consul config read, then write a conflicting entry with the CLI and observe the CRD status.",
+          "deliverable": "CRD manifests, kubectl get output and a note on the conflict behaviour",
+          "checks": [["kubectl get serviceintentions backend", "SYNCED column shows True", "kubectl output"], ["consul config read -kind service-intentions -name backend", "Sources list frontend with Action allow", "Terminal output"], ["kubectl delete servicerouter backend then consul config read for it", "Config entry not found", "Terminal output"]],
+          "objectives": ["Manage mesh configuration declaratively with CRDs", "Read CRD sync status", "Avoid conflicts between CLI and CRD ownership"]
+        },
+        {
+          "topic": "Consul API Gateway with Kubernetes Gateway API",
+          "subtopics": ["Gateway API CRDs: GatewayClass, Gateway, HTTPRoute, TCPRoute", "gatewayClassName: consul and the gateway controller in connect-inject", "Listeners, protocols, ports and TLS certificateRefs", "HTTPRoute parentRefs, path matches and backendRefs weights", "Intentions from the API gateway to backend services", "RouteAuthFilter and JWT checks on routes", "Gateway status conditions Accepted and Programmed", "API gateway compared with the deprecated ingress gateway"],
+          "tools": ["Kubernetes", "kubectl", "Helm", "Gateway API", "curl"],
+          "lab_task": "Create a Gateway with gatewayClassName consul and an HTTPS listener on 443 that uses a cert-manager issued Secret. Add an HTTPRoute sending /api to backend and /app to frontend, plus a ServiceIntentions allowing api-gateway to both. Check kubectl describe gateway for Accepted True and curl the external address for both paths, then remove the intention and repeat.",
+          "deliverable": "Gateway and HTTPRoute manifests, intention CRD and curl results",
+          "checks": [["kubectl describe gateway api-gateway", "Accepted condition with status True", "kubectl output"], ["curl -k https://<gateway-ip>/api", "HTTP 200 from backend", "curl output"], ["Remove the intention and repeat the curl", "Request no longer returns HTTP 200 because the gateway is not allowed to reach the backend", "curl output"]],
+          "objectives": ["Expose mesh services with the Consul API gateway", "Write Gateway API routes for Consul", "Combine gateway routes with intentions"]
+        },
+        {
+          "topic": "Terminating Gateways for External Services",
+          "subtopics": ["Why mesh services need a controlled exit to legacy or SaaS endpoints", "Registering external services in the catalog with external-node metadata", "terminating-gateway config entry with Services, CAFile and SNI", "ACL policy for the gateway: service:write on linked services", "Starting a gateway with consul connect envoy -gateway=terminating -register", "Intentions from mesh services to the external service", "TLS origination to the external endpoint", "Consul ESM for health-checking external nodes"],
+          "tools": ["HashiCorp Consul", "Envoy", "Consul ESM", "PostgreSQL"],
+          "lab_task": "Register an external PostgreSQL as service legacy-db on node legacy with NodeMeta external-node = \"true\" through PUT /v1/catalog/register. Start a terminating gateway with consul connect envoy -gateway=terminating -register -service tgw, link legacy-db in a terminating-gateway config entry, add an upstream from api and an intention api to legacy-db, then run psql through the upstream.",
+          "deliverable": "Catalog registration JSON, gateway config entry and psql output",
+          "checks": [["psql -h 127.0.0.1 -p 5433 -c 'select 1' from the api host", "Returns 1 row", "psql output"], ["consul catalog services after starting the gateway", "tgw and legacy-db listed", "Terminal output"], ["Remove the api to legacy-db intention and retry psql", "Connection closed by the server", "psql output"]],
+          "objectives": ["Bring external services under mesh policy", "Configure and run a terminating gateway", "Grant gateway ACL permissions correctly"]
+        },
+        {
+          "topic": "ACL Roles, Service Identities and Auth Methods",
+          "subtopics": ["Roles grouping policies, service identities and node identities", "consul acl token create -service-identity=web and -node-identity=node1:dc1", "Templated policies such as builtin/service", "Auth methods: kubernetes, jwt and oidc", "Binding rules with bind-type service, role and node and selectors", "consul login and consul logout with token sinks", "Token TTLs, expiration and local tokens", "Auditing tokens with consul acl token list"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Kubernetes", "kubectl"],
+          "lab_task": "Create a role web-role with -service-identity=web and a token from it. Configure a kubernetes auth method with the API server address, CA and a reviewer JWT, add a binding rule -bind-type=service -bind-name='${serviceaccount.name}', and from a pod run consul login -method=k8s -bearer-token-file=/var/run/secrets/kubernetes.io/serviceaccount/token -token-sink-file=/tmp/token. Read the resulting token's identities.",
+          "deliverable": "Role, auth method and binding rule commands plus consul acl token read output",
+          "checks": [["consul acl token read -self with the login token", "ServiceIdentities lists the pod's ServiceAccount name", "Terminal output"], ["Register a service named other with the web-role token", "403 Permission denied", "Terminal output"], ["consul logout with the login token then reuse it", "ACL not found error", "Terminal output"]],
+          "objectives": ["Use roles and service identities to reduce policy sprawl", "Configure the Kubernetes auth method", "Issue short-lived tokens through consul login"]
+        },
+        {
+          "topic": "Consul Built-in CA and Certificate Rotation",
+          "subtopics": ["The built-in CA provider and its trust domain", "LeafCertTTL, IntermediateCertTTL and RootCertTTL", "consul connect ca get-config and set-config", "/v1/connect/ca/roots and the Active flag", "Root rotation with cross-signing", "Leaf certificate renewal by agents and dataplanes", "PrivateKeyType ec or rsa and key bits", "Monitoring expiry with consul.mesh.active-root-ca.expiry"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "OpenSSL", "jq"],
+          "lab_task": "Read the CA config with consul connect ca get-config, then set LeafCertTTL to 1h with set-config. Fetch a leaf with curl /v1/agent/connect/ca/leaf/web and check its validity with openssl. Rotate the root by setting a new PrivateKeyType, confirm /v1/connect/ca/roots shows two roots during the transition and that mesh traffic keeps working throughout a 5-minute request loop.",
+          "deliverable": "CA config JSON before and after, root listing and the request-loop log",
+          "checks": [["openssl x509 -noout -dates on the leaf after set-config", "notAfter roughly 1 hour after notBefore", "Terminal output"], ["curl /v1/connect/ca/roots | jq '.Roots | length' during rotation", "2", "API output"], ["Request loop through the mesh during rotation", "0 failed requests", "Loop log"]],
+          "objectives": ["Configure the Consul CA provider", "Rotate the mesh root CA without downtime", "Verify leaf certificate lifetimes"]
+        },
+        {
+          "topic": "Vault as the Consul Connect CA Provider",
+          "subtopics": ["connect { ca_provider = \"vault\" } and ca_config", "root_pki_path and intermediate_pki_path", "Vault policy for Consul to manage the PKI mounts", "Vault token or auth_method in ca_config", "Migrating from the built-in CA to Vault", "Intermediate rotation and Vault lease handling", "Failure behaviour when Vault is sealed", "Separate intermediate paths per datacenter"],
+          "tools": ["HashiCorp Vault", "HashiCorp Consul", "Consul CLI", "OpenSSL"],
+          "lab_task": "In a Vault dev server create a policy allowing Consul to manage connect-root and connect-intermediate-dc1, issue a token, and switch Consul with consul connect ca set-config using Provider vault and Address, Token, RootPKIPath and IntermediatePKIPath. Confirm the new root, inspect a leaf issuer with openssl, then seal Vault and show existing mesh traffic still flows.",
+          "deliverable": "Vault policy, ca set-config JSON and leaf issuer output",
+          "checks": [["consul connect ca get-config after migration", "Provider is vault", "Terminal output"], ["vault list connect-root/certs", "At least one certificate serial listed", "vault output"], ["Seal Vault and send 20 mesh requests", "20 of 20 succeed using existing leaf certificates", "Script output"]],
+          "objectives": ["Configure Vault PKI as the Consul CA", "Migrate CA providers safely", "Explain dependency behaviour when Vault is unavailable"]
+        },
+        {
+          "topic": "Dynamic Consul Tokens with the Vault Consul Secrets Engine",
+          "subtopics": ["vault secrets enable consul", "consul/config/access with a management token for Vault", "Roles with consul_policies, consul_roles and service identities", "vault read consul/creds/<role> and the lease", "TTL and max_ttl on generated tokens", "Lease renewal and revocation deleting the Consul token", "consul-template and Vault Agent delivering tokens to apps", "Removing long-lived static application tokens"],
+          "tools": ["HashiCorp Vault", "HashiCorp Consul", "Vault Agent", "consul-template"],
+          "lab_task": "Enable the consul secrets engine, configure consul/config/access with a dedicated management token, and create role kv-checkout mapped to the kv-checkout policy with ttl=1h. Read credentials with vault read consul/creds/kv-checkout, use the token to write app/checkout/x, then revoke the lease with vault lease revoke and show the token no longer exists in Consul.",
+          "deliverable": "Vault commands, the token accessor and before-and-after access results",
+          "checks": [["vault read consul/creds/kv-checkout", "Returns lease_id, lease_duration 1h and a token field", "vault output"], ["consul kv put app/checkout/x 1 with the Vault-issued token", "Success! Data written to: app/checkout/x", "Terminal output"], ["consul acl token read -accessor-id <id> after lease revoke", "Error: ACL not found", "Terminal output"]],
+          "objectives": ["Issue Consul tokens dynamically from Vault", "Control token lifetime with leases", "Deliver short-lived tokens to applications"]
+        },
+        {
+          "topic": "Nomad Jobs on the Consul Service Mesh",
+          "subtopics": ["Nomad client consul block and Consul agent on each client", "Workload identity for Consul tokens and nomad setup consul", "network { mode = \"bridge\" } and CNI plugins", "service blocks with provider consul and connect { sidecar_service {} }", "Upstreams in Nomad with destination_name and local_bind_port", "Nomad-injected Envoy tasks and sidecar_task resources", "Health checks defined in jobspecs", "Intentions for Nomad services"],
+          "tools": ["HashiCorp Nomad", "HashiCorp Consul", "Envoy", "CNI plugins"],
+          "lab_task": "Run a Nomad dev agent with a local Consul agent and CNI plugins installed. Submit a jobspec with groups api and dashboard in bridge mode, each with a connect sidecar_service, and an upstream from dashboard to api on port 8080. Run nomad job run, check both services and their sidecar proxies in consul catalog services, then add a deny intention and observe dashboard errors.",
+          "deliverable": "Jobspec, nomad job status output and Consul catalog listing",
+          "checks": [["nomad job status countdash", "Both allocations running", "nomad output"], ["consul catalog services", "api, api-sidecar-proxy, dashboard and dashboard-sidecar-proxy listed", "Terminal output"], ["Write a deny intention dashboard to api and reload the dashboard", "Dashboard shows its upstream as disconnected or errors", "Screenshot"]],
+          "objectives": ["Run Nomad workloads on the Consul mesh", "Configure upstreams in jobspecs", "Apply intentions to Nomad services"]
+        },
+        {
+          "topic": "Consul Telemetry with Prometheus and Grafana",
+          "subtopics": ["telemetry { prometheus_retention_time, disable_hostname }", "/v1/agent/metrics?format=prometheus and its ACL requirement", "Key server metrics: consul_raft_commitTime, consul_raft_leader_lastContact, consul_autopilot_healthy", "Agent and RPC metrics: consul_rpc_request, consul_client_rpc, consul_serf_member_flap", "Envoy metrics with envoy_prometheus_bind_addr in proxy-defaults", "Envoy golden signals: upstream_rq_total, upstream_rq_xx, upstream_rq_time", "ui_config.metrics_provider for topology metrics in the UI", "Alert rules for leadership changes and unhealthy autopilot"],
+          "tools": ["Prometheus", "Grafana", "HashiCorp Consul", "Envoy"],
+          "lab_task": "Set prometheus_retention_time = \"60s\" on all agents, scrape /v1/agent/metrics?format=prometheus with a token that has agent read, and add envoy_prometheus_bind_addr = \"0.0.0.0:20200\" to proxy-defaults. Build a Grafana dashboard with Raft commit time, leader last contact and per-service request rate, then write a Prometheus alert for consul_autopilot_healthy == 0 and trigger it by stopping two servers.",
+          "deliverable": "Prometheus config, Grafana dashboard JSON and the alert rule",
+          "checks": [["curl /v1/agent/metrics?format=prometheus | grep -c consul_raft", "Count greater than 0", "Terminal output"], ["curl <sidecar-ip>:20200/metrics | grep envoy_cluster_upstream_rq_total", "Metric lines for each upstream cluster", "Terminal output"], ["Stop two of three servers for 2 minutes", "Alert ConsulAutopilotUnhealthy fires", "Prometheus alerts page"]],
+          "objectives": ["Collect Consul and Envoy metrics in Prometheus", "Build dashboards for control plane and mesh health", "Alert on loss of quorum"]
+        },
+        {
+          "topic": "Debugging Envoy Sidecars with consul troubleshoot",
+          "subtopics": ["consul troubleshoot upstreams and consul troubleshoot proxy", "Envoy admin endpoints: /config_dump, /clusters, /listeners, /stats", "Envoy response flags such as UF, UH, NR and URX in access logs", "Enabling access logs with the accessLogs block in proxy-defaults", "Common faults: protocol mismatch, missing intention, missing upstream, expired cert", "Checking xDS connectivity to Consul on port 8502", "Raising Envoy log level with /logging?level=debug", "Collecting evidence for a support case"],
+          "tools": ["Consul CLI", "Envoy", "jq", "kubectl"],
+          "lab_task": "Break the mesh in three ways: set counting's protocol to tcp while dashboard expects http, remove the allow intention, and remove the upstream from dashboard. For each, run consul troubleshoot proxy -upstream-envoy-id counting -envoy-admin-endpoint=127.0.0.1:19000 and read the access log response flag, then fix it and record which tool pointed at the cause first.",
+          "deliverable": "Fault table with symptoms, tool output, response flag and fix",
+          "checks": [["consul troubleshoot upstreams with the upstream removed", "counting missing from the upstream list", "Terminal output"], ["Access log entry after the intention is removed", "Connection reset logged for the inbound listener of counting", "Envoy access log"], ["consul troubleshoot proxy after all fixes", "All checks reported as passing with no errors", "Terminal output"]],
+          "objectives": ["Diagnose mesh failures with consul troubleshoot", "Read Envoy admin data and response flags", "Fix common sidecar misconfigurations"]
+        },
+        {
+          "topic": "Intermediate Capstone: Zero-Trust Mesh on Kubernetes",
+          "subtopics": ["Helm install with TLS, ACLs, gossip encryption and Vault-backed CA", "Three microservices with transparent proxy and default-deny intentions", "API gateway with HTTPS and a canary split for one service", "Prometheus and Grafana dashboards and a terminating gateway to an external database"],
+          "tools": ["Helm", "Kubernetes", "consul-k8s CLI", "HashiCorp Vault", "Prometheus", "Grafana"],
+          "lab_task": "Install Consul on Kubernetes with TLS, managed ACLs and Vault as CA. Deploy frontend, api and payments with transparent proxy, a global deny ServiceIntentions plus explicit allows, an API gateway HTTPS route, a 90/10 splitter for api v2 and a terminating gateway to an external PostgreSQL. Show the dashboard, then remove one allow and demonstrate the denied call in Envoy logs.",
+          "deliverable": "Git repository with Helm values, CRDs and manifests plus a demo recording and runbook",
+          "checks": [["kubectl get serviceintentions,servicesplitters,gateway -A", "All resources SYNCED True or Accepted True", "kubectl output"], ["200 requests through the gateway to api", "Between 170 and 190 served by api v1", "Script output"], ["Call payments from frontend which has no intention", "Request denied and reset logged by the payments sidecar", "Envoy log"]],
+          "objectives": ["Design a default-deny mesh on Kubernetes", "Integrate gateways, CA and observability in one platform", "Prove access policy with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior platform engineers and SREs who own Consul in production across several datacenters, clusters or tenants. Covers WAN federation directly and through mesh gateways, cluster peering with exported-services, sameness groups and prepared queries for failover, Consul Enterprise admin partitions, namespaces, redundancy zones, read replicas and audit logging, rolling server upgrades and Raft outage recovery with peers.json, server performance tuning and request rate limits, Envoy extensions and JWT-based intentions, multi-cluster peering and Vault-managed secrets on Kubernetes, distributed tracing through mesh proxies and incident runbooks, ending with a multi-region platform capstone.",
+      "prerequisites": ["Completed the intermediate level or runs Consul service mesh in production on VMs or Kubernetes", "Can read Raft, gossip and Envoy concepts in logs and metrics and has handled at least one production incident", "Has access to two or more clusters or datacenters, and for Enterprise days a Consul Enterprise trial licence"],
+      "outcomes": ["Connect datacenters and clusters with WAN federation or cluster peering and fail services over between them", "Design multi-tenant Consul with admin partitions, namespaces and scoped ACLs", "Upgrade, tune, rate-limit and recover Consul server clusters with tested runbooks", "Extend the mesh with Envoy extensions, JWT intentions and tracing, and diagnose incidents with consul debug"],
+      "days": [
+        {
+          "topic": "WAN Federation across Consul Datacenters",
+          "subtopics": ["WAN gossip pool between servers on port 8302", "retry_join_wan and consul join -wan", "primary_datacenter and why ACLs and CA roots originate there", "ACL replication with enable_token_replication and the replication token", "Cross-datacenter queries with ?dc= and the -datacenter flag", "Local and global tokens", "consul members -wan and server naming <node>.<dc>", "Operational limits of WAN federation for many datacenters"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Docker Compose", "curl"],
+          "lab_task": "Build dc1 and dc2 with three servers each, set primary_datacenter = \"dc1\" everywhere and retry_join_wan to the other side's servers. In dc2 set enable_token_replication = true and a replication token. Run consul members -wan, query consul catalog services -datacenter dc2 from dc1, create a global policy in dc1 and read it from dc2 after replication.",
+          "deliverable": "Federation configs, consul members -wan output and /v1/acl/replication status from dc2",
+          "checks": [["consul members -wan", "6 servers listed with names ending .dc1 and .dc2", "Terminal output"], ["curl /v1/acl/replication on a dc2 server", "Enabled true and Running true", "API output"], ["consul acl policy read -name global-read in dc2 after creating it in dc1", "Policy returned with the same ID as in dc1", "Terminal output"]],
+          "objectives": ["Federate datacenters over the WAN gossip pool", "Replicate ACLs from the primary datacenter", "Explain the limits of WAN federation"]
+        },
+        {
+          "topic": "WAN Federation through Mesh Gateways",
+          "subtopics": ["Mesh gateways as the only cross-datacenter network path", "connect.enable_mesh_gateway_wan_federation = true", "primary_gateways and primary_gateways_interval", "Starting mesh gateways with consul connect envoy -gateway=mesh -register -wan-address", "MeshGateway Mode local, remote and none in proxy-defaults or upstreams", "SNI-based routing without decrypting traffic", "Firewall design: only gateway WAN ports open between sites", "Cross-datacenter upstreams with the datacenter field"],
+          "tools": ["HashiCorp Consul", "Envoy", "Consul CLI", "iptables"],
+          "lab_task": "Rebuild dc1 and dc2 so servers cannot reach each other directly and only mesh gateways expose port 8443. Enable enable_mesh_gateway_wan_federation, set primary_gateways in dc2, start a mesh gateway in each datacenter and set MeshGateway Mode = \"local\" in proxy-defaults. Call an upstream in dc2 from web in dc1 and prove traffic passes through both gateways using their Envoy stats.",
+          "deliverable": "Firewall rules, gateway registrations and Envoy stats before and after the call",
+          "checks": [["consul members -wan with direct 8302 blocked", "Servers from both datacenters alive through the gateways", "Terminal output"], ["Upstream call from web in dc1 to api in dc2", "HTTP 200 returned", "curl output"], ["Envoy stats on both mesh gateways after 100 calls", "Downstream connection counters increase on both gateways", "Envoy /stats output"]],
+          "objectives": ["Federate datacenters through mesh gateways", "Configure mesh gateway modes", "Restrict cross-site traffic to gateway ports"]
+        },
+        {
+          "topic": "Cluster Peering and exported-services",
+          "subtopics": ["Peering compared with WAN federation: independent clusters, no shared ACLs or Raft", "consul peering generate-token and consul peering establish", "Peering states PENDING, ESTABLISHING, ACTIVE, FAILING and TERMINATED", "exported-services config entry with Consumers Peer", "Upstreams with destination_peer and DNS <svc>.virtual.<peer>.consul", "Intentions with Sources Peer", "peer_through_mesh_gateways in the mesh config entry", "consul peering list, read and delete"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Envoy", "dig"],
+          "lab_task": "Run two independent clusters, cluster-a and cluster-b. On cluster-a run consul peering generate-token -name cluster-b and on cluster-b run consul peering establish -name cluster-a -peering-token <token>. Export api from cluster-a to cluster-b with exported-services, add an intention on api with Peer = \"cluster-b\", and call it from web in cluster-b through an upstream with destination_peer = \"cluster-a\".",
+          "deliverable": "Peering commands, exported-services entry, intention and a successful cross-peer call",
+          "checks": [["consul peering list on both clusters", "State ACTIVE on each side", "Terminal output"], ["consul catalog services -peer cluster-a on cluster-b", "api listed", "Terminal output"], ["Cross-peer call before the Peer intention is added", "Connection reset by the api sidecar", "curl output"]],
+          "objectives": ["Establish cluster peering between independent clusters", "Export services to peers", "Authorize cross-peer traffic with intentions"]
+        },
+        {
+          "topic": "Sameness Groups and Cross-Peer Failover",
+          "subtopics": ["sameness-group config entry with Members partitions and peers (Enterprise)", "DefaultForFailover and IncludeLocal", "Exporting services to a sameness group", "service-resolver Failover with SamenessGroup", "Failover order and Targets with Peer", "Health-based failover timing and outlier detection", "DNS queries with sameness groups", "Failback and avoiding flapping"],
+          "tools": ["Consul Enterprise", "Consul CLI", "Envoy", "hey"],
+          "lab_task": "With two Enterprise clusters already peered, define a sameness-group prod on each side with members for the local partition and the peer and DefaultForFailover = true. Export api to the sameness group, then run hey -z 2m against the api upstream from web while stopping every local api instance at the 30-second mark. Record the error count and the time to failover and failback.",
+          "deliverable": "Sameness group entries, exported-services entry and a timeline graph",
+          "checks": [["consul config read -kind sameness-group -name prod", "Members list the local partition and the peer", "Terminal output"], ["hey run while local api instances are stopped", "Error rate under 1% of requests", "hey summary"], ["Restart local api instances", "Traffic returns to local instances, shown by response instance IDs", "Script output"]],
+          "objectives": ["Group equivalent services across peers", "Configure automatic cross-peer failover", "Measure failover and failback behaviour"]
+        },
+        {
+          "topic": "Prepared Queries for Geo Failover",
+          "subtopics": ["Prepared query definition: Service, OnlyPassing, Tags and Near", "Failover with NearestN and a Datacenters list", "Executing through /v1/query/<id>/execute and <name>.query.consul DNS", "Template queries with name_prefix_match and regexp", "Near = \"_agent\" and network coordinates", "ACL tokens stored on queries", "Prepared queries compared with sameness groups and resolver failover", "Use cases for non-mesh clients"],
+          "tools": ["HashiCorp Consul", "curl", "jq", "dig"],
+          "lab_task": "In a WAN-federated dc1 and dc2 create a prepared query api-geo with POST /v1/query containing Service api, OnlyPassing true and Failover NearestN 1 with Datacenters [\"dc2\"]. Resolve api-geo.query.consul through DNS, then mark all dc1 api instances critical and resolve again. Add a template query with name_prefix_match so any <svc>-geo name works.",
+          "deliverable": "Query definitions, execute JSON responses and dig outputs",
+          "checks": [["curl /v1/query/api-geo/execute | jq .Datacenter with dc1 healthy", "\"dc1\"", "API output"], ["Same request with all dc1 api instances critical", "Datacenter dc2 and Failovers 1", "API output"], ["dig @127.0.0.1 -p 8600 web-geo.query.consul with the template query", "A records for web instances returned", "dig output"]],
+          "objectives": ["Write prepared queries with datacenter failover", "Use template queries for many services", "Choose between prepared queries and mesh failover"]
+        },
+        {
+          "topic": "Admin Partitions in Consul Enterprise",
+          "subtopics": ["Partitions as isolated tenants sharing one server cluster", "consul partition create, list and delete", "Client agents and dataplanes joining with partition = \"team-a\"", "Partitions on separate Kubernetes clusters with global.adminPartitions", "Partition-scoped ACL policies and tokens", "exported-services between partitions with Consumers Partition", "Overlapping service names across partitions", "DNS forms that include .ap.<partition>"],
+          "tools": ["Consul Enterprise", "Consul CLI", "Kubernetes", "Helm"],
+          "lab_task": "On an Enterprise cluster create partitions team-a and team-b with consul partition create. Register a service api in both partitions, issue a token scoped to team-a and show it cannot read team-b services. Export api from team-a to team-b with exported-services, add an intention, and call it from a team-b service through an upstream with destination_partition = \"team-a\".",
+          "deliverable": "Partition commands, scoped policies and the cross-partition call result",
+          "checks": [["consul partition list", "default, team-a and team-b listed", "Terminal output"], ["consul catalog services -partition team-b with the team-a token", "Permission denied or an empty list", "Terminal output"], ["Cross-partition upstream call after export and intention", "HTTP 200 from api in team-a", "curl output"]],
+          "objectives": ["Isolate tenants with admin partitions", "Scope ACLs to partitions", "Share selected services across partitions"]
+        },
+        {
+          "topic": "Consul Enterprise Namespaces and Tenancy",
+          "subtopics": ["Namespaces inside a partition and the default namespace", "consul namespace create, write and list", "Namespace-scoped policies and namespace_prefix rules", "Kubernetes namespace mirroring with consulNamespaces.mirroringK8S", "Cross-namespace upstreams and intentions", "DNS form <svc>.service.<ns>.ns.consul", "Namespace defaults: policy_defaults and role_defaults", "Choosing between namespaces and partitions for a tenant model"],
+          "tools": ["Consul Enterprise", "Consul CLI", "Kubernetes", "Helm"],
+          "lab_task": "Create namespaces payments and orders with consul namespace create, add policy_defaults to payments so every token in it gets read access, and enable mirroringK8S in Helm so Kubernetes namespaces map to Consul namespaces. Deploy services in both, add an intention from orders/web to payments/api, and test DNS with dig api.service.payments.ns.consul.",
+          "deliverable": "Namespace definitions, Helm values diff and the tenancy design note",
+          "checks": [["consul namespace list", "default, orders and payments listed", "Terminal output"], ["dig @127.0.0.1 -p 8600 api.service.payments.ns.consul", "A records for api instances in payments", "dig output"], ["Call payments/api from orders/web without the intention", "Connection reset by the payments sidecar", "curl output"]],
+          "objectives": ["Use namespaces for team-level isolation", "Mirror Kubernetes namespaces into Consul", "Design a tenancy model with partitions and namespaces"]
+        },
+        {
+          "topic": "Autopilot, Redundancy Zones and Read Replicas",
+          "subtopics": ["consul operator autopilot get-config and set-config", "CleanupDeadServers, LastContactThreshold, MaxTrailingLogs and ServerStabilizationTime", "consul operator autopilot state: Healthy and FailureTolerance", "Redundancy zones with autopilot.redundancy_zone_tag and node_meta (Enterprise)", "Non-voting read replicas with read_replica = true (Enterprise)", "Placing servers across availability zones", "MinQuorum to stop autopilot removing too many servers", "Failure tolerance for zone loss"],
+          "tools": ["Consul Enterprise", "Consul CLI", "jq"],
+          "lab_task": "Deploy six Enterprise servers across three zones with node_meta zone = \"az1\" to \"az3\" and redundancy_zone_tag = \"zone\". Run consul operator autopilot state and note voters and FailureTolerance. Stop the voter in az1 and show its zone partner gets promoted, then add a read replica server and confirm it is a non-voter serving stale reads.",
+          "deliverable": "Autopilot config, state output before and after zone failure",
+          "checks": [["consul operator raft list-peers with redundancy zones", "3 voters, one per zone, and 3 non-voters", "Terminal output"], ["Stop the az1 voter and wait for ServerStabilizationTime", "The other az1 server becomes a voter", "list-peers output"], ["consul operator raft list-peers after adding the read replica", "Read replica shows Voter false", "Terminal output"]],
+          "objectives": ["Tune autopilot for production", "Use redundancy zones for zone-level tolerance", "Scale reads with non-voting replicas"]
+        },
+        {
+          "topic": "Rolling Consul Server Upgrades",
+          "subtopics": ["Reading the upgrade guide and version-specific notes before every upgrade", "Upgrade order: clients after servers, followers before the leader", "Health gates: list-peers, autopilot state and consul_autopilot_healthy", "consul leave for graceful server shutdown", "Taking a snapshot before each upgrade", "Upgrading the Helm chart and consul-k8s on Kubernetes", "Envoy and dataplane version compatibility during upgrades", "Enterprise automated upgrades with upgrade_version_tag"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "Helm", "Ansible"],
+          "lab_task": "Write an Ansible playbook with serial: 1 that, for each server, takes a snapshot, stops the agent with consul leave, replaces the binary, starts it, and waits until consul operator autopilot state reports Healthy true before the next host. Run it on a three-server lab with the leader last while a request loop runs against the KV API, and record any failed requests.",
+          "deliverable": "Upgrade playbook, version listing before and after and the request-loop result",
+          "checks": [["consul members after the playbook", "All servers report the new version in the Build column", "Terminal output"], ["Request loop during the upgrade", "Fewer than 5 failed requests, only during the leader change", "Loop log"], ["Health gate between hosts", "Playbook waits until autopilot reports Healthy true", "Ansible output"]],
+          "objectives": ["Plan a Consul upgrade from release notes", "Automate a gated rolling upgrade", "Upgrade without losing quorum"]
+        },
+        {
+          "topic": "Raft Outage Recovery with peers.json",
+          "subtopics": ["When quorum is lost and cannot return", "Symptoms: No cluster leader errors and failing writes", "peers.json format with id, address and non_voter", "Finding node IDs in data_dir/node-id", "Stopping all servers before writing peers.json", "Recovery when only one server survives", "Restoring from snapshot instead of peers.json", "Post-recovery checks and re-adding replacement servers"],
+          "tools": ["HashiCorp Consul", "Consul CLI", "jq"],
+          "lab_task": "On a three-server lab destroy two server data directories to simulate permanent loss. Confirm consul kv put fails with No cluster leader. Stop the surviving server, write data_dir/raft/peers.json containing only its node ID and address, start it, and confirm it elects itself and data is intact. Add two fresh servers and verify three voters.",
+          "deliverable": "Outage timeline, the peers.json file and post-recovery checks",
+          "checks": [["consul kv put test/x 1 during the outage", "Error with No cluster leader", "Terminal output"], ["Start the survivor with peers.json", "Logs show recovery from peers.json and the file is consumed", "Agent logs"], ["consul kv get -recurse app/ | wc -l after recovery", "Same key count as before the outage", "Terminal output"]],
+          "objectives": ["Recognise unrecoverable quorum loss", "Recover a cluster with peers.json", "Rebuild a healthy server set after recovery"]
+        },
+        {
+          "topic": "Performance Tuning Consul Servers",
+          "subtopics": ["performance.raft_multiplier = 1 for production", "Disk latency and its effect on consul_raft_commitTime", "Server sizing for catalog size and request rate", "Stale reads, max_stale and DNS allow_stale", "Agent caching and streaming backend (use_streaming_backend)", "limits.http_max_conns_per_client and rpc_max_conns_per_client", "Reducing write load: anti-entropy, check intervals and KV churn", "Load testing the HTTP API and reading the results"],
+          "tools": ["HashiCorp Consul", "hey", "Prometheus", "fio"],
+          "lab_task": "Measure fsync latency on server disks with fio, then load the cluster with hey -n 20000 -c 50 against /v1/health/service/web and with a KV write loop. Record p99 latency and consul_raft_commitTime. Set raft_multiplier = 1, enable stale reads for the health queries and move servers to faster disks, then repeat the test and compare.",
+          "deliverable": "Before-and-after table of p99 latency, commit time and leader CPU",
+          "checks": [["hey summary for health reads with ?stale", "p99 latency lower than the same test without ?stale", "hey output"], ["consul_raft_commitTime p99 on faster disks", "Lower than the baseline run", "Prometheus graph"], ["consul_raft_leader_lastContact during the load test after raft_multiplier = 1", "Stays below the 200 ms LastContactThreshold", "Prometheus graph"]],
+          "objectives": ["Identify server bottlenecks from metrics", "Apply production performance settings", "Validate tuning with repeatable load tests"]
+        },
+        {
+          "topic": "Consul Server Request Rate Limiting",
+          "subtopics": ["limits.request_limits with mode disabled, permissive or enforcing", "read_rate and write_rate per server", "HTTP 429 responses and gRPC ResourceExhausted", "Client retry behaviour for rate-limited reads", "Metric consul.rpc.rate_limit.exceeded and log entries", "Starting in permissive mode to size limits", "Enterprise control-plane-request-limit config entry per source", "Protecting servers from noisy clients and runaway watches"],
+          "tools": ["HashiCorp Consul", "hey", "Prometheus", "curl"],
+          "lab_task": "Set limits { request_limits { mode = \"permissive\" read_rate = 500 write_rate = 100 } } on servers, run a write loop at 300 requests per second and read the exceeded metric without any rejections. Switch mode to enforcing, repeat the loop, and count HTTP 429 responses. Tune write_rate to fit normal traffic plus headroom based on the permissive-mode data.",
+          "deliverable": "Rate limit config, metric graphs and 429 counts per mode",
+          "checks": [["Write loop in permissive mode", "0 HTTP 429 responses while the exceeded metric increases", "Loop log and Prometheus"], ["Write loop in enforcing mode at 300 rps", "HTTP 429 responses for traffic above the limit", "Loop log"], ["Read traffic below read_rate in enforcing mode", "All requests return HTTP 200", "hey output"]],
+          "objectives": ["Configure control plane rate limits", "Size limits from permissive-mode data", "Explain client behaviour under rate limiting"]
+        },
+        {
+          "topic": "Envoy Extensions: Lua, Wasm and ext_authz in Consul",
+          "subtopics": ["EnvoyExtensions in service-defaults and proxy-defaults", "builtin/lua with ProxyType, Listener and Script", "builtin/wasm with a remote or local module", "builtin/ext-authz with gRPC or HTTP authorization services", "builtin/property-override for direct Envoy field changes", "builtin/aws/lambda for invoking functions from the mesh", "Required and failure behaviour of extensions", "Testing extensions in staging before mesh-wide rollout"],
+          "tools": ["HashiCorp Consul", "Envoy", "Open Policy Agent", "curl"],
+          "lab_task": "Add a builtin/lua extension to service-defaults for api that sets response header x-mesh-region on the inbound listener and confirm it with curl -I. Then configure builtin/ext-authz on api pointing to an OPA Envoy plugin service with a policy that rejects requests missing header x-team, and test with and without the header.",
+          "deliverable": "service-defaults with both extensions, OPA policy and curl results",
+          "checks": [["curl -I through the api upstream after adding Lua", "Response includes x-mesh-region header", "curl output"], ["Request without x-team after ext_authz is enabled", "HTTP 403", "curl output"], ["Request with x-team: payments", "HTTP 200", "curl output"]],
+          "objectives": ["Extend sidecars with built-in Envoy extensions", "Delegate authorization to an external service", "Roll out extensions safely"]
+        },
+        {
+          "topic": "JWT Authentication in Service Intentions",
+          "subtopics": ["jwt-provider config entry: Issuer, Audiences and JSONWebKeySet", "Remote JWKS with caching and Local JWKS", "Where the token is read: Authorization header, other headers or query", "Intentions with JWT Providers and VerifyClaims", "Top-level JWT requirements compared with per-source permissions", "L7 permissions combining path, method and JWT claims", "Error responses: 401 for missing or invalid tokens, 403 for denied claims", "Forwarding validated claims to the application"],
+          "tools": ["HashiCorp Consul", "Envoy", "Keycloak", "curl"],
+          "lab_task": "Run Keycloak as an identity provider and write a jwt-provider entry with its issuer and remote JWKS URI. Update api's service-intentions to require that provider and VerifyClaims role = admin for path prefix /admin. Request /admin with no token, with a user token lacking the claim and with an admin token obtained from Keycloak's token endpoint.",
+          "deliverable": "jwt-provider and intention entries plus a response table for the three tokens",
+          "checks": [["Request /admin without a token", "HTTP 401 with Jwt is missing", "curl output"], ["Request /admin with a token lacking role admin", "HTTP 403 RBAC: access denied", "curl output"], ["Request /admin with an admin token", "HTTP 200", "curl output"]],
+          "objectives": ["Validate end-user JWTs at the sidecar", "Combine JWT claims with L7 intentions", "Read 401 and 403 responses correctly"]
+        },
+        {
+          "topic": "Consul on Kubernetes Multi-Cluster with Peering",
+          "subtopics": ["Helm values for peering: meshGateway.enabled and connectInject settings", "PeeringAcceptor and PeeringDialer CRDs and the token Secret", "Mesh CRD with peering.peerThroughMeshGateways", "ExportedServices CRD with consumers peer", "Upstreams with <svc>.virtual.<peer>.consul under transparent proxy", "ServiceIntentions with peer sources", "Copying the peering token Secret between clusters safely", "Checking peering status in CRD status and the UI"],
+          "tools": ["Kubernetes", "Helm", "kubectl", "consul-k8s CLI", "kind"],
+          "lab_task": "Create two kind clusters with Consul installed and mesh gateways enabled. Apply a PeeringAcceptor in cluster-1, copy the generated Secret to cluster-2 and apply a PeeringDialer referencing it. Set peerThroughMeshGateways in the Mesh CRD, export backend from cluster-1, add a peer-source intention and call http://backend.virtual.cluster-1.consul from frontend in cluster-2.",
+          "deliverable": "Helm values, peering CRDs, exported services CRD and the call result",
+          "checks": [["kubectl get peeringacceptor -o yaml in cluster-1", "Status shows the latest secret version and no errors", "kubectl output"], ["kubectl exec frontend -- curl -s http://backend.virtual.cluster-1.consul", "HTTP 200 body from backend in cluster-1", "Terminal output"], ["Delete the ExportedServices CRD and repeat the call", "Request fails because backend is no longer exported", "Terminal output"]],
+          "objectives": ["Peer Consul clusters on Kubernetes with CRDs", "Route traffic between clusters through mesh gateways", "Control cross-cluster exports declaratively"]
+        },
+        {
+          "topic": "Vault-Managed Secrets for Consul on Kubernetes",
+          "subtopics": ["global.secretsBackend.vault.enabled and the Vault Agent injector", "Vault Kubernetes auth roles for servers, clients and ACL init", "Gossip key from a KV v2 secret with secretName and secretKey", "Server TLS from Vault PKI with server.serverCert.secretName", "Bootstrap token and licence stored in Vault", "Connect CA backed by Vault PKI from Helm values", "Rotation of TLS certificates issued by Vault", "Troubleshooting injector annotations and permission errors"],
+          "tools": ["HashiCorp Vault", "Helm", "Kubernetes", "kubectl", "Vault Agent"],
+          "lab_task": "Store the gossip key in Vault KV at consul/data/secret/gossip, enable a PKI mount for server certificates, and create Kubernetes auth roles for consul-server and consul-server-acl-init. Configure Helm with secretsBackend.vault, gossipEncryption.secretName, tls.caCert and server.serverCert pointing at Vault paths. Install Consul and confirm no Consul secrets are stored as Kubernetes Secrets.",
+          "deliverable": "Vault policies and roles, Helm values and the secret inventory",
+          "checks": [["kubectl get pods -n consul", "Server pods Running with a vault-agent init container completed", "kubectl output"], ["kubectl get secrets -n consul | grep -i gossip", "No gossip key Secret present", "kubectl output"], ["openssl s_client to a server on 8501 and inspect the issuer", "Issuer matches the Vault PKI CA", "Terminal output"]],
+          "objectives": ["Use Vault as the secrets backend for Consul on Kubernetes", "Issue Consul TLS certificates from Vault PKI", "Remove Consul secrets from Kubernetes Secrets"]
+        },
+        {
+          "topic": "Consul Audit Logging and Compliance Controls",
+          "subtopics": ["Enterprise audit stanza: enabled and sink blocks", "Sink type file, format json, path and delivery_guarantee", "rotate_duration, rotate_bytes and rotate_max_files", "Audit event structure: stage OperationStart and OperationComplete, auth accessor ID", "Shipping audit logs to a SIEM", "Token hygiene reports from consul acl token list", "Mapping controls: least privilege, change tracking and key rotation evidence", "Retention and integrity of audit files"],
+          "tools": ["Consul Enterprise", "Fluent Bit", "jq", "Consul CLI"],
+          "lab_task": "Enable audit logging on Enterprise servers with a JSON file sink at /var/log/consul/audit.json and rotate_duration = \"24h\". Perform a KV write, an ACL policy change and a denied request, then use jq to extract each event's operation, accessor ID and response status. Ship the file to a log store with Fluent Bit and build a query for ACL changes.",
+          "deliverable": "Audit config, three extracted events and a SIEM query for ACL changes",
+          "checks": [["jq 'select(.payload.stage==\"OperationComplete\")' on the audit file after the KV write", "An event with the /v1/kv path and the writer's accessor ID", "jq output"], ["Denied request with an unprivileged token", "Audit event records response status 403", "jq output"], ["Fluent Bit delivery to the log store", "ACL policy change event searchable within 1 minute", "Log store query result"]],
+          "objectives": ["Enable Consul Enterprise audit logging", "Extract evidence from audit events", "Map Consul controls to compliance requirements"]
+        },
+        {
+          "topic": "Distributed Tracing through Consul Mesh Proxies",
+          "subtopics": ["Tracing needs protocol http on the services", "envoy_tracing_json and envoy_extra_static_clusters_json in proxy-defaults", "OpenTelemetry Collector, Jaeger or Zipkin as trace backends", "Header propagation the application must do: traceparent or b3", "Sampling settings and their cost", "builtin/otel-access-logging extension", "Correlating Envoy access logs with traces through x-request-id", "Finding latency added by sidecars and gateways"],
+          "tools": ["Envoy", "OpenTelemetry Collector", "Jaeger", "HashiCorp Consul"],
+          "lab_task": "Deploy an OpenTelemetry Collector forwarding to Jaeger. Add envoy_tracing_json with an OpenTelemetry tracer and envoy_extra_static_clusters_json for the collector in proxy-defaults, restart sidecars, and make the three demo services forward traceparent. Send 100 requests through the API gateway and find one trace in Jaeger that spans the gateway and all three services.",
+          "deliverable": "proxy-defaults tracing config, a Jaeger trace screenshot and a latency breakdown",
+          "checks": [["Jaeger search for the frontend service after 100 requests", "At least 1 trace returned", "Jaeger UI"], ["Open a trace from the gateway", "Spans from the gateway and 3 services in one trace", "Jaeger screenshot"], ["Remove traceparent forwarding from api and send requests", "Traces break into separate traces at the api hop", "Jaeger UI"]],
+          "objectives": ["Configure Envoy tracing through Consul proxy-defaults", "Propagate trace context across services", "Use traces to locate mesh latency"]
+        },
+        {
+          "topic": "Consul Operations Runbooks and Incident Diagnosis",
+          "subtopics": ["consul debug -duration and -capture targets: metrics, logs, host, agent, pprof", "consul monitor -log-level=trace -log-json for live logs", "Leadership churn: lastContact, disk latency and CPU starvation", "Gossip flapping: MTU, firewalls and overloaded agents", "ACL failures: ACL not found, Permission denied and replication lag", "Sidecar outages: xDS disconnects and expired certificates", "Severity, escalation paths and communication during incidents", "Post-incident review with timelines from metrics and logs"],
+          "tools": ["Consul CLI", "Prometheus", "Grafana", "jq", "Envoy"],
+          "lab_task": "Run a game day with four injected faults: slow disk on the leader with tc or a fio load, blocked UDP 8301 on clients, a deleted agent token, and a stopped xDS port. For each, collect consul debug -duration=2m output, identify the cause from metrics and logs, apply the runbook fix and record time to detect and time to resolve.",
+          "deliverable": "Runbook document with one section per fault and the four debug archives",
+          "checks": [["consul debug -duration=2m -interval=30s", "A consul-debug-<timestamp>.tar.gz archive is written", "Terminal output"], ["Deleted agent token fault", "Agent logs show ACL not found when syncing services", "Log excerpt"], ["Slow leader disk fault", "consul_raft_leader_lastContact rises and leadership changes are recorded", "Grafana panel"]],
+          "objectives": ["Collect diagnostic bundles for Consul incidents", "Map symptoms to causes for common failures", "Write and test operational runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Consul Platform with Peering and Failover",
+          "subtopics": ["Two regions as peered clusters with mesh gateways and separate ACL domains", "Exported services, peer intentions and resolver or sameness-group failover", "Rate limits, audit or access logging, tracing and Prometheus alerting", "Upgrade, snapshot and region-failure runbooks tested during the demo"],
+          "tools": ["HashiCorp Consul", "Kubernetes", "Helm", "HashiCorp Vault", "Prometheus", "Jaeger"],
+          "lab_task": "Build two regions as peered Consul clusters with mesh gateways and Vault-backed TLS and CA. Export api and payments from region A to region B with peer intentions, configure failover so region B serves when region A instances fail, add rate limits and tracing, then run a load test while you stop region A's api and do a rolling server upgrade in region B.",
+          "deliverable": "Architecture document, infrastructure code, runbooks and a recorded failover and upgrade demo",
+          "checks": [["Load test during region A api outage", "Success rate of at least 99%", "Load test report"], ["Rolling upgrade of region B servers during load", "Autopilot Healthy true after each server and no quorum loss", "Upgrade log"], ["consul peering list on both regions after the demo", "Peering state ACTIVE", "Terminal output"]],
+          "objectives": ["Design a multi-region Consul platform", "Prove failover and upgrade procedures under load", "Present operational evidence to stakeholders"]
+        }
+      ]
+    }
+  }
+}

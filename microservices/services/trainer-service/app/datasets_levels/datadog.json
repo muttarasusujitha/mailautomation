@@ -1,0 +1,573 @@
+{
+  "domain": "Datadog",
+  "name": "Datadog Observability",
+  "category": "Observability and SRE",
+  "icon": "activity",
+  "aliases": ["Datadog Monitoring", "Datadog APM", "Datadog Logs", "Datadog Log Management", "Datadog Synthetics", "Datadog RUM", "Datadog Dashboards", "Datadog Administration", "Datadog Training", "Datadog Agent", "Datadog Fundamentals", "Datadog Certification", "Bits AI"],
+  "certifications": ["Datadog Fundamentals", "Log Management Fundamentals", "APM and Distributed Tracing Fundamentals", "Database Monitoring Fundamentals"],
+  "tools": ["Datadog", "Datadog Agent", "Datadog tracing libraries", "DDOT Collector", "Datadog Operator", "Terraform Datadog provider"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, operations engineers and SREs who are starting with Datadog. Covers the platform and its products, a trial organisation with the Agent, infrastructure monitoring, integrations, metrics and custom metrics, dashboards and notebooks, monitors, log collection and pipelines, log indexes, archives and Flex Logs, APM with tracing libraries, the Software Catalog, RUM and Session Replay, synthetic tests, Kubernetes monitoring, SLOs, incidents and On-Call, the security products, access and usage management and troubleshooting missing data. Covers the Datadog Fundamentals certification topics.",
+      "prerequisites": ["Runs or supports web applications on Linux, containers or cloud services", "Comfortable with the command line and YAML", "Knows what metrics, logs and traces are"],
+      "outcomes": ["Install and configure the Agent, integrations and unified service tagging", "Build dashboards, monitors and SLOs from metrics, logs and traces", "Collect, parse and control logs and instrument services with APM, RUM and synthetic tests", "Run incidents and On-Call, manage access and usage and fix missing data"],
+      "days": [
+        {
+          "topic": "Datadog Overview: Platform, Products and the Course Application",
+          "subtopics": ["Datadog as a SaaS observability and security platform", "Infrastructure, APM, logs, RUM, synthetics and security products", "Datadog sites and regions", "Organisations, users and roles", "Unified service tagging with env, service and version", "Pricing units: hosts, ingested data and indexed data", "The Agent and integrations", "Datadog compared with open-source stacks", "The Datadog Fundamentals certification", "Course project overview: an online store on containers"],
+          "tools": ["Datadog", "Datadog documentation", "Course application"],
+          "lab_task": "Tour a Datadog organisation with demo data, find a host, a service, a log and a trace for the same request, and draw how the products connect.",
+          "deliverable": "Product map for the course application",
+          "checks": [["Find", "One request is followed across host, service, log and trace", "Screenshots"], ["Map", "Each product's job is correct on the map", "Product map"], ["Explain", "Unified service tags are explained with an example", "Notes"]],
+          "objectives": ["Describe the Datadog platform", "Navigate the main products", "Explain unified service tagging"]
+        },
+        {
+          "topic": "Lab Setup: Datadog Trial, API Keys and the Agent on Docker",
+          "subtopics": ["Creating a trial organisation on the right site", "API keys and application keys", "Installing the Agent on a Linux host", "Running the Agent as a container", "datadog.yaml and integration configuration files", "The agent status command", "Sending a test metric with DogStatsD", "Host and Agent tags", "Lab repository layout", "Smoke test in the Infrastructure List"],
+          "tools": ["Datadog Agent", "Docker", "DogStatsD"],
+          "lab_task": "Create a trial organisation, install the Agent on a host and as a container next to the course application, send a test metric with DogStatsD and confirm both hosts in the Infrastructure List.",
+          "deliverable": "Running Agents and a lab repository",
+          "checks": [["Install", "Both Agents report as running in agent status", "agent status output"], ["Send", "The test metric appears in the Metrics Explorer", "Metrics Explorer screenshot"], ["Tag", "Hosts carry the agreed env and team tags", "Infrastructure List"]],
+          "objectives": ["Install the Datadog Agent", "Use API and application keys", "Tag hosts from the start"]
+        },
+        {
+          "topic": "Infrastructure Monitoring: Hosts, Containers and Processes",
+          "subtopics": ["Host Map and the Infrastructure List", "Container and process views", "System metrics for CPU, memory, disk and network", "Live Processes", "Tags for filtering and grouping", "Host and container inventories", "Network traffic between hosts", "Downtimes for hosts"],
+          "tools": ["Datadog Infrastructure", "Live Processes", "Containers view"],
+          "lab_task": "Find the busiest host and container for the course application, trace a CPU spike to its process with Live Processes and schedule a downtime for a host under maintenance.",
+          "deliverable": "Infrastructure investigation notes and a downtime",
+          "checks": [["Find", "The busiest host and container are identified", "Host Map screenshot"], ["Trace", "The CPU spike is linked to its process", "Live Processes view"], ["Schedule", "The maintenance downtime mutes alerts for that host", "Downtime record"]],
+          "objectives": ["Monitor hosts and containers", "Investigate resource spikes", "Manage maintenance windows"]
+        },
+        {
+          "topic": "Integrations: Databases, Web Servers and Cloud Accounts",
+          "subtopics": ["How integrations work", "Agent-based and API-based integrations", "NGINX, PostgreSQL and Redis integrations", "AWS, Azure and Google Cloud integrations", "Integration dashboards", "Autodiscovery for containers", "Checking integration status", "Custom Agent checks"],
+          "tools": ["Datadog integrations", "Datadog Agent", "Cloud integration"],
+          "lab_task": "Turn on the NGINX, PostgreSQL and Redis integrations for the course application, connect one cloud account and fix one integration that reports an error.",
+          "deliverable": "Working integrations with their dashboards",
+          "checks": [["Enable", "Database and web server metrics arrive", "Integration dashboards"], ["Connect", "Cloud account metrics and resources appear", "Cloud integration page"], ["Fix", "The failing integration reports OK", "agent status output"]],
+          "objectives": ["Configure integrations", "Monitor cloud accounts", "Fix integration errors"]
+        },
+        {
+          "topic": "Metrics: Types, Tags, Queries and Custom Metrics",
+          "subtopics": ["Metric types: count, rate, gauge, histogram and distribution", "Tags and tag cardinality", "Queries with aggregation, rollup and functions", "DogStatsD for custom metrics", "Metrics Summary and metadata", "Metrics without Limits", "How custom metrics are billed", "Metrics generated from logs and traces"],
+          "tools": ["Metrics Explorer", "DogStatsD", "Metrics Summary"],
+          "lab_task": "Send business metrics for orders from the course application, query them with rollups and functions and limit the tags that are indexed to control cost.",
+          "deliverable": "Custom metrics with queries and tag configuration",
+          "checks": [["Send", "Order metrics arrive with their tags", "Metrics Explorer"], ["Query", "Rollups and functions give the expected values", "Query results"], ["Limit", "Indexed tag combinations fall after configuration", "Metrics Summary"]],
+          "objectives": ["Use metric types correctly", "Query metrics", "Control custom metric cost"]
+        },
+        {
+          "topic": "Dashboards and Notebooks",
+          "subtopics": ["Dashboard layouts", "Widgets: timeseries, query value, top list and heat map", "Template variables", "Powerpacks", "Sharing dashboards", "Notebooks for investigations", "Dashboards as JSON and Terraform", "Starting from integration dashboards"],
+          "tools": ["Datadog dashboards", "Notebooks", "Powerpacks"],
+          "lab_task": "Build a service dashboard with template variables and a powerpack for the golden signals, write a notebook for an investigation and export the dashboard as JSON.",
+          "deliverable": "Dashboard, powerpack, notebook and JSON export",
+          "checks": [["Build", "The dashboard filters by env and service", "Dashboard"], ["Reuse", "The powerpack is used on two dashboards", "Dashboards"], ["Investigate", "The notebook records the investigation steps", "Notebook"]],
+          "objectives": ["Build dashboards", "Reuse widgets", "Investigate with notebooks"]
+        },
+        {
+          "topic": "Monitors: Metric, Anomaly, Composite and Notifications",
+          "subtopics": ["Monitor types", "Thresholds, warning and recovery", "Multi alert by tag", "Anomaly, outlier and forecast monitors", "Composite monitors", "Notification messages and template variables", "Downtimes and scheduled muting", "Noisy and stale monitors"],
+          "tools": ["Datadog monitors", "Notification channels", "Downtimes"],
+          "lab_task": "Create a multi-alert monitor per service, an anomaly monitor for orders and a composite monitor that pages only when errors and latency rise together, with useful messages.",
+          "deliverable": "Monitor set with notification messages",
+          "checks": [["Alert", "A seeded error spike triggers the right monitor", "Monitor event"], ["Combine", "The composite monitor stays quiet for errors alone", "Monitor history"], ["Inform", "Messages include the service, runbook and dashboard link", "Notification"]],
+          "objectives": ["Create useful monitors", "Use anomaly and composite monitors", "Write actionable messages"]
+        },
+        {
+          "topic": "Log Management: Collection, Pipelines and Processors",
+          "subtopics": ["Collecting logs with the Agent", "Log pipelines and processors", "The Grok parser", "Standard attributes and remapping", "Facets and measures", "Sensitive Data Scanner", "Integration pipelines", "Multi-line logs"],
+          "tools": ["Datadog Log Management", "Log pipelines", "Sensitive Data Scanner"],
+          "lab_task": "Collect the course application's logs, parse a custom format with Grok, remap attributes to the standard ones, create facets and mask card numbers with Sensitive Data Scanner.",
+          "deliverable": "Parsed, masked and searchable logs",
+          "checks": [["Parse", "Custom log lines become structured attributes", "Log sample"], ["Facet", "Facets filter logs by status and service", "Log Explorer"], ["Mask", "Card numbers are masked", "Log sample"]],
+          "objectives": ["Collect and parse logs", "Standardise log attributes", "Protect sensitive data"]
+        },
+        {
+          "topic": "Log Explorer, Indexes, Archives and Flex Logs",
+          "subtopics": ["Log Explorer search syntax", "Patterns and log analytics", "Indexes and exclusion filters", "Retention per index", "Archives and rehydration", "Flex Logs for long retention", "Ingesting everything and indexing selectively", "Log-based metrics"],
+          "tools": ["Log Explorer", "Log indexes", "Log archives", "Flex Logs"],
+          "lab_task": "Exclude debug logs from indexing while keeping them in an archive, create a log-based metric for errors, move audit logs to Flex Logs and rehydrate a day of archived logs.",
+          "deliverable": "Index, archive and Flex Logs setup",
+          "checks": [["Exclude", "Debug logs are not indexed but are archived", "Index and archive settings"], ["Measure", "The error metric matches indexed error counts", "Metric and log counts"], ["Rehydrate", "Archived logs are searchable again", "Rehydration result"]],
+          "objectives": ["Search logs", "Control log cost", "Keep logs for long periods"]
+        },
+        {
+          "topic": "APM: Tracing Libraries, Services and Traces",
+          "subtopics": ["Tracing libraries and automatic instrumentation", "Single Step Instrumentation", "Services, resources and spans", "The service page: requests, errors and latency", "Trace view and flame graphs", "Connecting traces and logs", "Ingestion controls and retention filters", "OpenTelemetry with Datadog"],
+          "tools": ["Datadog APM", "Tracing libraries", "Single Step Instrumentation"],
+          "lab_task": "Instrument the course services with Single Step Instrumentation, find the slowest endpoint, open a trace and jump to its logs, and set a retention filter for errors.",
+          "deliverable": "Instrumented services and a trace investigation",
+          "checks": [["Instrument", "All services appear in APM", "Service list"], ["Investigate", "The slow span is found and linked to logs", "Trace view"], ["Retain", "Error traces are kept by the retention filter", "Retention filter settings"]],
+          "objectives": ["Instrument services", "Investigate traces", "Control trace retention"]
+        },
+        {
+          "topic": "Service Map, Software Catalog and Ownership",
+          "subtopics": ["The Service Map", "Software Catalog entries", "Ownership, on-call and links", "Service definitions in YAML", "Scorecards", "Dependencies from APM", "Catalog entries from Git and Terraform", "Using the catalog during incidents"],
+          "tools": ["Software Catalog", "Service Map", "Scorecards"],
+          "lab_task": "Register the course services in the Software Catalog with owners, on-call and runbook links from YAML in Git, and use a scorecard to find services missing monitors.",
+          "deliverable": "Catalogued services with a scorecard",
+          "checks": [["Register", "Every service has an owner and on-call link", "Software Catalog"], ["Sync", "Changes in Git update the catalog", "Catalog entry history"], ["Score", "Services without monitors are listed", "Scorecard"]],
+          "objectives": ["Record service ownership", "Keep the catalog in Git", "Use scorecards"]
+        },
+        {
+          "topic": "Real User Monitoring and Session Replay",
+          "subtopics": ["The RUM browser SDK", "Views, actions, resources and errors", "Core Web Vitals", "Session Replay", "Connecting RUM sessions to APM traces", "Mobile RUM", "Privacy settings", "Sampling and cost"],
+          "tools": ["Datadog RUM", "Session Replay", "Browser SDK"],
+          "lab_task": "Add the RUM SDK to the course store front end, find the slowest page by Core Web Vitals, replay a session with an error and follow it to the backend trace.",
+          "deliverable": "RUM setup and a front-end investigation",
+          "checks": [["Collect", "Views, actions and errors arrive", "RUM Explorer"], ["Find", "The slowest page is identified by Web Vitals", "Performance view"], ["Follow", "A session error links to its backend trace", "Session and trace views"]],
+          "objectives": ["Monitor real users", "Use Session Replay", "Connect front end and backend"]
+        },
+        {
+          "topic": "Synthetic Monitoring: API and Browser Tests",
+          "subtopics": ["API tests", "Multistep API tests", "Browser tests with the recorder", "Private locations", "Assertions and alert conditions", "Continuous Testing in CI", "Managed test locations", "Synthetic test cost"],
+          "tools": ["Datadog Synthetic Monitoring", "Browser test recorder", "Private location"],
+          "lab_task": "Create an API test for the store API, a browser test for checkout and a private location for an internal service, then run the browser test in CI before a release.",
+          "deliverable": "Synthetic tests with a CI run",
+          "checks": [["Test", "The checkout browser test passes against a healthy release", "Test result"], ["Detect", "The test fails and alerts when checkout breaks", "Test history"], ["Gate", "CI blocks a release that fails the test", "CI run"]],
+          "objectives": ["Test user journeys", "Monitor internal services", "Gate releases with tests"]
+        },
+        {
+          "topic": "Kubernetes Monitoring with the Datadog Operator",
+          "subtopics": ["The Datadog Operator and Helm chart", "The Cluster Agent", "Kubernetes state metrics", "Autodiscovery annotations", "The Kubernetes Explorer", "Unified service tagging in Kubernetes", "Resource utilisation views", "Container logs"],
+          "tools": ["Datadog Operator", "Cluster Agent", "kubectl"],
+          "lab_task": "Deploy the Agent with the Datadog Operator on a cluster, tag workloads with unified service tags, configure an integration with annotations and find an over-provisioned deployment.",
+          "deliverable": "Monitored cluster with tagged workloads",
+          "checks": [["Deploy", "Node Agents and the Cluster Agent are running", "Operator status"], ["Tag", "Workloads carry env, service and version tags", "Kubernetes Explorer"], ["Size", "An over-provisioned deployment is found", "Utilisation view"]],
+          "objectives": ["Monitor Kubernetes with Datadog", "Tag workloads", "Find wasted resources"]
+        },
+        {
+          "topic": "Service Level Objectives in Datadog",
+          "subtopics": ["Metric-based and monitor-based SLOs", "Time slice SLOs", "Error budgets and burn-rate alerts", "SLO widgets and reports", "SLOs in the Software Catalog", "Choosing SLIs from APM data", "Corrections for maintenance", "SLO reviews"],
+          "tools": ["Datadog SLOs", "APM metrics", "SLO alerts"],
+          "lab_task": "Create SLOs for checkout availability and latency from APM metrics, add burn-rate alerts and a correction for planned maintenance, and show them on the service dashboard.",
+          "deliverable": "SLOs with burn-rate alerts and a correction",
+          "checks": [["Create", "Both SLOs show status and error budget", "SLO page"], ["Alert", "A fast burn triggers the burn-rate alert", "Alert event"], ["Correct", "The maintenance window is excluded", "SLO history"]],
+          "objectives": ["Define SLOs in Datadog", "Alert on burn rate", "Report reliability"]
+        },
+        {
+          "topic": "Incident Management and On-Call in Datadog",
+          "subtopics": ["Declaring incidents from monitors", "Incident severity, fields and roles", "Datadog On-Call schedules and escalation policies", "Status pages", "Timelines and notifications", "Postmortem templates", "Slack and Microsoft Teams integration", "Incident analytics"],
+          "tools": ["Datadog Incident Management", "Datadog On-Call", "Status Pages"],
+          "lab_task": "Set up an On-Call schedule with escalation, declare an incident from a monitor, run it with roles and status page updates, and generate a postmortem from the timeline.",
+          "deliverable": "Incident record, status updates and postmortem draft",
+          "checks": [["Page", "The on-call engineer is paged and escalation works", "On-Call log"], ["Run", "Roles, updates and the timeline are recorded", "Incident page"], ["Review", "A postmortem is generated from the incident", "Postmortem"]],
+          "objectives": ["Run incidents in Datadog", "Set up On-Call", "Write postmortems from timelines"]
+        },
+        {
+          "topic": "Datadog Security Products: Cloud SIEM, Workload Protection and Code Security",
+          "subtopics": ["Cloud SIEM detection rules and signals", "Cloud Security for misconfigurations and vulnerabilities", "Workload Protection for runtime threats", "App and API Protection", "Code Security for libraries and code", "Security signals and triage", "Security in the same data as observability", "Choosing products for a team"],
+          "tools": ["Cloud SIEM", "Cloud Security", "Workload Protection", "Code Security"],
+          "lab_task": "Turn on Cloud SIEM and Cloud Security for the lab account, trigger a seeded suspicious login and a misconfiguration, triage both signals and list vulnerable libraries in the course services.",
+          "deliverable": "Security findings with triage notes",
+          "checks": [["Detect", "The suspicious login creates a signal", "Signal"], ["Find", "The misconfiguration is reported", "Findings list"], ["Triage", "Both findings have an owner and next step", "Triage notes"]],
+          "objectives": ["Use Datadog security products", "Triage security signals", "Find vulnerable code"]
+        },
+        {
+          "topic": "Access Control, Teams and Usage Management",
+          "subtopics": ["Roles and permissions", "Teams in Datadog", "SAML single sign-on", "API and application key management", "Restriction policies on resources", "Audit Trail", "Usage and estimated cost", "Usage attribution by tag"],
+          "tools": ["Datadog access management", "Audit Trail", "Usage pages"],
+          "lab_task": "Create teams and custom roles for developers and support, restrict editing of production monitors, rotate an API key and report usage by team.",
+          "deliverable": "Access model and usage report",
+          "checks": [["Restrict", "Support staff cannot edit production monitors", "Permission test"], ["Rotate", "The old API key stops working after rotation", "Agent logs"], ["Attribute", "Usage is reported per team tag", "Usage attribution report"]],
+          "objectives": ["Control access", "Manage keys", "Report usage by team"]
+        },
+        {
+          "topic": "Troubleshooting Datadog Data: Agent Status, Missing Metrics and Log Gaps",
+          "subtopics": ["Agent status and flares", "Missing hosts or metrics", "Clock skew and delayed data", "Logs that are not parsed or not indexed", "Traces missing from services", "Tag mistakes", "Integration errors", "Working with Datadog support"],
+          "tools": ["Datadog Agent", "Agent flare", "Log Explorer"],
+          "lab_task": "Diagnose four seeded problems, a host that stopped reporting, unparsed logs, missing traces and a wrong env tag, fix each one and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Data flows correctly after each fix", "Before-and-after screenshots"], ["Prevent", "A monitor or check now catches each problem", "Monitor list"]],
+          "objectives": ["Troubleshoot missing data", "Use agent status and flares", "Prevent repeat problems"]
+        },
+        {
+          "topic": "Beginner Capstone: Observability for the Online Store",
+          "subtopics": ["Agents, integrations and tags", "Logs, APM and RUM", "Dashboards, monitors and SLOs", "Incident drill"],
+          "tools": ["Datadog", "Datadog Agent", "Tracing libraries", "RUM SDK"],
+          "lab_task": "Deliver observability for the online store with Agents and integrations, parsed logs, APM and RUM, a service dashboard, monitors, SLOs, a synthetic checkout test and an incident drill with a postmortem.",
+          "deliverable": "Working store observability with a demo",
+          "checks": [["Observe", "One request is followed from browser to database", "Demo recording"], ["Alert", "Monitors and SLO alerts fire on seeded failures", "Alert events"], ["Respond", "The incident drill ends with a postmortem", "Postmortem"]],
+          "objectives": ["Combine beginner Datadog skills", "Observe a full application", "Respond to incidents"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who run Datadog for several teams. Covers tag governance, Datadog as code with Terraform and the API, custom instrumentation and trace queries, the Continuous Profiler and Dynamic Instrumentation, Database Monitoring, Cloud Network Monitoring, Observability Pipelines, OpenTelemetry with the DDOT Collector, log cost control, Watchdog, monitor strategy at scale, Workflow Automation and App Builder, CI Visibility and Test Optimization, serverless monitoring, LLM Observability, Cloud Cost Management, Bits AI and the MCP server, security operations and certification preparation.",
+      "prerequisites": ["Has set up Agents, logs, APM, dashboards and monitors in Datadog", "Comfortable with Terraform or another infrastructure as code tool", "Supports production services"],
+      "outcomes": ["Manage Datadog configuration and tagging as code for many teams", "Instrument, profile and trace services and databases in depth", "Control telemetry and cloud cost with pipelines, log tiers and cost data", "Automate operations with Workflows and Bits AI, and prepare for the Datadog certifications"],
+      "days": [
+        {
+          "topic": "Unified Service Tagging and Tag Governance at Scale",
+          "subtopics": ["Reserved tags and unified service tagging", "Tag standards for teams, cost centres and environments", "Tagging at the Agent, integration and code level", "Enforcing tags with Terraform and policies", "Tag cardinality and cost", "Fixing inconsistent tags", "Tag-based access and usage attribution", "Auditing tag coverage"],
+          "tools": ["Datadog tags", "Terraform", "Usage attribution"],
+          "lab_task": "Write a tag standard, audit the lab organisation for missing and inconsistent tags, fix them at the source and show coverage before and after.",
+          "deliverable": "Tag standard and coverage report",
+          "checks": [["Write", "The standard defines required tags and allowed values", "Tag standard"], ["Fix", "Inconsistent tags are fixed at the source", "Change list"], ["Measure", "Tag coverage rises after the fixes", "Coverage report"]],
+          "objectives": ["Govern tags", "Fix tagging at the source", "Measure tag coverage"]
+        },
+        {
+          "topic": "Datadog as Code: Terraform Provider, API and CI Checks",
+          "subtopics": ["The Terraform Datadog provider", "Importing existing dashboards and monitors", "Modules for standard monitors", "The Datadog API and client libraries", "Reviewing changes in pull requests", "Preventing manual drift", "Testing monitors before merge", "Secrets for API and application keys"],
+          "tools": ["Terraform Datadog provider", "Datadog API", "CI pipeline"],
+          "lab_task": "Import a dashboard and five monitors into Terraform, create a module for standard service monitors, apply it to three services through a pull request pipeline and detect a manual change.",
+          "deliverable": "Terraform code with a module and pipeline",
+          "checks": [["Import", "Existing resources are managed by Terraform", "Terraform state list"], ["Apply", "Three services get standard monitors from the module", "Plan and apply output"], ["Detect", "A manual change shows as drift", "Plan output"]],
+          "objectives": ["Manage Datadog as code", "Build reusable modules", "Prevent drift"]
+        },
+        {
+          "topic": "Advanced APM: Custom Instrumentation, Span Tags and Trace Queries",
+          "subtopics": ["Custom spans and span tags", "Instrumenting queues and background jobs", "Trace context propagation", "Trace Queries across spans", "Span-based metrics", "Error tracking", "Deployment tracking with versions", "Comparing versions after a release"],
+          "tools": ["Datadog APM", "Tracing libraries", "Error Tracking"],
+          "lab_task": "Add custom spans and business tags to the order flow, propagate context through a queue, write a trace query that finds failed orders with slow payments and compare two versions.",
+          "deliverable": "Custom instrumentation and trace analysis",
+          "checks": [["Instrument", "The queue consumer joins the original trace", "Trace view"], ["Query", "The trace query returns failed orders with slow payments", "Trace query result"], ["Compare", "Version comparison shows the regression", "Deployment tracking view"]],
+          "objectives": ["Instrument services in depth", "Query traces", "Track deployments"]
+        },
+        {
+          "topic": "Continuous Profiler and Dynamic Instrumentation",
+          "subtopics": ["Continuous profiling in production", "CPU, memory and lock profiles", "Comparing profiles between versions", "Code Hotspots from traces", "Dynamic Instrumentation for logs and metrics without redeploying", "Snapshots of variables", "Safety and sensitive data rules", "Working with developers on fixes"],
+          "tools": ["Continuous Profiler", "Dynamic Instrumentation", "Tracing libraries"],
+          "lab_task": "Profile the slowest course service, find the hot method from a trace, add a dynamic log line without redeploying to confirm the cause and measure the fix.",
+          "deliverable": "Profile analysis, dynamic probe and fix",
+          "checks": [["Profile", "The hot method is identified", "Profile view"], ["Probe", "The dynamic log line confirms the cause", "Probe output"], ["Fix", "CPU time drops after the fix", "Profile comparison"]],
+          "objectives": ["Profile production services", "Debug without redeploying", "Measure fixes"]
+        },
+        {
+          "topic": "Database Monitoring: Query Metrics, Samples and Explain Plans",
+          "subtopics": ["Database Monitoring setup for PostgreSQL and MySQL", "Query metrics and samples", "Explain plans", "Wait events and blocking queries", "Linking database queries to APM traces", "Database host health", "Index and query recommendations", "Database Monitoring cost"],
+          "tools": ["Database Monitoring", "PostgreSQL", "APM"],
+          "lab_task": "Turn on Database Monitoring for the course database, find the most expensive query, read its explain plan, add an index and show the change in latency and load.",
+          "deliverable": "Query analysis and index change",
+          "checks": [["Find", "The most expensive query is identified", "Query metrics"], ["Explain", "The explain plan shows the missing index", "Explain plan"], ["Fix", "Query latency and load drop after the index", "Before-and-after metrics"]],
+          "objectives": ["Monitor databases in depth", "Read explain plans", "Tune queries"]
+        },
+        {
+          "topic": "Cloud Network Monitoring and Network Path",
+          "subtopics": ["Network flows between services", "Cloud Network Monitoring setup", "DNS monitoring", "Network Path for hop-by-hop paths", "Cross-zone and egress traffic cost", "Network Device Monitoring", "Network dependencies in incidents", "Network alerts"],
+          "tools": ["Cloud Network Monitoring", "Network Path", "Network Device Monitoring"],
+          "lab_task": "Map network flows between the course services, find costly cross-zone traffic, trace a slow external dependency with Network Path and alert on DNS failures.",
+          "deliverable": "Network analysis with alerts",
+          "checks": [["Map", "Flows between services are shown with volume", "Network map"], ["Find", "Costly cross-zone traffic is identified", "Traffic analysis"], ["Alert", "DNS failures trigger an alert", "Alert event"]],
+          "objectives": ["Monitor networks", "Find network cost", "Trace network paths"]
+        },
+        {
+          "topic": "Observability Pipelines: Routing, Reducing and Redacting Telemetry",
+          "subtopics": ["The Observability Pipelines Worker", "Sources and destinations", "Filtering, sampling and deduplication", "Redacting sensitive data", "Routing to Datadog and to archives", "Quotas for log volume", "Pipeline monitoring", "Pipelines on premises and in the cloud"],
+          "tools": ["Observability Pipelines", "Pipelines Worker", "Object storage"],
+          "lab_task": "Deploy a pipeline that redacts personal data, samples debug logs, enforces a daily quota and sends full logs to object storage and selected logs to Datadog.",
+          "deliverable": "Pipeline with volume and redaction evidence",
+          "checks": [["Redact", "Personal data is removed before leaving the network", "Log sample"], ["Reduce", "Volume sent to Datadog falls by the planned share", "Volume metrics"], ["Route", "Full logs arrive in object storage", "Storage listing"]],
+          "objectives": ["Process telemetry before ingest", "Reduce log volume", "Route data to several destinations"]
+        },
+        {
+          "topic": "OpenTelemetry with Datadog: DDOT Collector, OTLP Ingest and Semantic Conventions",
+          "subtopics": ["OTLP ingest in the Agent", "The Datadog Distribution of OpenTelemetry Collector", "OpenTelemetry SDKs with Datadog", "Mapping semantic conventions to Datadog tags", "Mixing tracing libraries and OpenTelemetry", "Metrics and logs from OpenTelemetry", "Sampling choices", "Vendor neutrality"],
+          "tools": ["DDOT Collector", "OpenTelemetry SDK", "Datadog Agent"],
+          "lab_task": "Instrument one service with the OpenTelemetry SDK, send data through the DDOT Collector, map resource attributes to unified service tags and compare it with a library-instrumented service.",
+          "deliverable": "OpenTelemetry service in Datadog with a comparison",
+          "checks": [["Send", "Traces, metrics and logs arrive through the collector", "Service page"], ["Map", "Resource attributes become env, service and version", "Tag list"], ["Compare", "Differences from library instrumentation are listed", "Comparison notes"]],
+          "objectives": ["Use OpenTelemetry with Datadog", "Map semantic conventions", "Choose instrumentation"]
+        },
+        {
+          "topic": "Log Cost Control: Exclusion Filters, Flex Logs and Archives at Scale",
+          "subtopics": ["Where log cost comes from", "Ingest everything, index selectively", "Exclusion filters with sampling", "Index retention per log type", "Flex Logs tiers", "Archives and rehydration at scale", "Log usage per team", "Log budgets and alerts"],
+          "tools": ["Log indexes", "Flex Logs", "Log archives", "Usage attribution"],
+          "lab_task": "Cut indexed log cost by 40% for the lab organisation with sampling filters, Flex Logs and retention changes, keep audit logs searchable and alert when a team exceeds its budget.",
+          "deliverable": "Log cost plan with savings evidence",
+          "checks": [["Reduce", "Indexed log cost falls by 40%", "Usage report"], ["Keep", "Audit logs stay searchable", "Search result"], ["Alert", "A team over budget triggers an alert", "Alert event"]],
+          "objectives": ["Control log cost", "Use Flex Logs and archives", "Set log budgets"]
+        },
+        {
+          "topic": "Watchdog and Anomaly Detection",
+          "subtopics": ["Watchdog alerts", "Watchdog Root Cause Analysis", "Watchdog Insights in explorers", "Anomaly monitors", "Faulty deployment detection", "Tuning anomaly detection", "False positives", "Combining Watchdog with monitors"],
+          "tools": ["Watchdog", "Anomaly monitors", "APM"],
+          "lab_task": "Seed a faulty deployment and a latency anomaly, review the Watchdog findings and root cause analysis, and decide which ones should page.",
+          "deliverable": "Watchdog review and paging decisions",
+          "checks": [["Detect", "Watchdog flags the faulty deployment", "Watchdog alert"], ["Analyse", "Root cause analysis points to the right service", "Analysis view"], ["Decide", "Paging rules are recorded for Watchdog findings", "Decision record"]],
+          "objectives": ["Use Watchdog", "Evaluate anomaly findings", "Decide what should page"]
+        },
+        {
+          "topic": "Monitor Strategy: Templates, Tags and Notification Routing at Scale",
+          "subtopics": ["Monitor standards per service type", "Multi alert by team and service", "Notification routing by tag", "Priorities and escalation", "Monitor templates and Terraform modules", "Reviewing monitor quality", "Muting during deployments", "Monitor lifecycle and clean-up"],
+          "tools": ["Datadog monitors", "Terraform", "Monitor quality tools"],
+          "lab_task": "Replace forty per-host monitors with tag-based multi-alert monitors routed by team, run a quality review and delete stale monitors.",
+          "deliverable": "Consolidated monitors with routing and review",
+          "checks": [["Consolidate", "Forty monitors become a small set of multi-alert monitors", "Monitor list"], ["Route", "Alerts reach the owning team by tag", "Notification test"], ["Clean", "Stale monitors are deleted", "Change record"]],
+          "objectives": ["Scale monitors", "Route alerts by ownership", "Keep monitors clean"]
+        },
+        {
+          "topic": "Workflow Automation and App Builder",
+          "subtopics": ["Workflow triggers from monitors, incidents and schedules", "Actions across clouds and tools", "Human approvals", "Error handling and retries", "App Builder for internal tools", "Connections and credentials", "Testing and versioning workflows", "Auditing automation"],
+          "tools": ["Workflow Automation", "App Builder", "Connections"],
+          "lab_task": "Build a workflow that restarts a failed service after approval when a monitor fires, and an App Builder app that lets on-call engineers scale a deployment safely.",
+          "deliverable": "Workflow and app with audit records",
+          "checks": [["Trigger", "The monitor starts the workflow", "Workflow run"], ["Approve", "The restart waits for approval", "Approval record"], ["Use", "The app scales the deployment within limits", "App action log"]],
+          "objectives": ["Automate operations", "Build internal tools", "Keep humans in control"]
+        },
+        {
+          "topic": "CI Visibility and Test Optimization",
+          "subtopics": ["Pipeline Visibility for CI providers", "Pipeline duration and failures", "Test Optimization for test results", "Flaky test detection", "Test Impact Analysis", "Code coverage", "Quality gates", "DORA metrics from deployments and incidents"],
+          "tools": ["CI Visibility", "Test Optimization", "DORA Metrics"],
+          "lab_task": "Connect the course CI pipeline, find the slowest stage and flaky tests, add a quality gate and report DORA metrics for the course services.",
+          "deliverable": "CI analysis, quality gate and DORA report",
+          "checks": [["Find", "The slowest stage and flaky tests are identified", "Pipeline and test views"], ["Gate", "The quality gate blocks a failing change", "CI run"], ["Report", "DORA metrics are shown for each service", "DORA dashboard"]],
+          "objectives": ["Monitor CI pipelines", "Fix flaky tests", "Report delivery metrics"]
+        },
+        {
+          "topic": "Serverless Monitoring: AWS Lambda, Azure Functions and Cloud Run",
+          "subtopics": ["Serverless monitoring options", "The Datadog Lambda extension and layers", "Cold starts and duration", "Traces across functions and queues", "Logs from serverless platforms", "Azure Functions and Google Cloud Run", "Serverless cost signals", "Alerting on serverless workloads"],
+          "tools": ["Datadog Lambda extension", "Serverless view", "APM"],
+          "lab_task": "Instrument a Lambda function chain with the extension, trace a request through a queue, find cold starts that hurt latency and alert on throttles.",
+          "deliverable": "Serverless monitoring with an investigation",
+          "checks": [["Instrument", "Functions report traces, metrics and logs", "Serverless view"], ["Trace", "One request is traced across functions and the queue", "Trace view"], ["Alert", "Throttling triggers an alert", "Alert event"]],
+          "objectives": ["Monitor serverless workloads", "Trace across functions", "Alert on serverless problems"]
+        },
+        {
+          "topic": "LLM Observability: Traces, Evaluations and Cost",
+          "subtopics": ["Instrumenting LLM applications", "Traces of prompts, tool calls and responses", "Token use and cost", "Quality and safety evaluations", "Prompt and model version comparison", "Monitoring agents and tool calls", "Sensitive data in prompts", "Alerts on quality and cost"],
+          "tools": ["LLM Observability", "Tracing libraries", "Evaluations"],
+          "lab_task": "Instrument the course store's AI assistant, track token cost per request, run quality and safety evaluations and compare two prompt versions.",
+          "deliverable": "LLM traces, evaluations and a version comparison",
+          "checks": [["Trace", "Prompts, tool calls and responses appear as traces", "LLM trace view"], ["Evaluate", "Quality and safety evaluations run on traffic", "Evaluation results"], ["Compare", "The better prompt version is chosen from the data", "Comparison"]],
+          "objectives": ["Observe LLM applications", "Evaluate quality and safety", "Control AI cost"]
+        },
+        {
+          "topic": "Cloud Cost Management and Usage Optimisation",
+          "subtopics": ["Cloud Cost Management setup for AWS, Azure and Google Cloud", "Cost allocation with tags", "Container cost allocation", "Cost monitors and anomalies", "Cost recommendations", "Datadog usage and plan optimisation", "Showing cost on dashboards", "Unit cost metrics"],
+          "tools": ["Cloud Cost Management", "Cost monitors", "Usage attribution"],
+          "lab_task": "Allocate cloud and container cost to the course teams, create a cost anomaly monitor, act on one recommendation and show cost per order on a dashboard.",
+          "deliverable": "Cost allocation and unit cost dashboard",
+          "checks": [["Allocate", "Most cost is assigned to a team", "Cost explorer"], ["Alert", "A seeded cost spike triggers the monitor", "Monitor event"], ["Show", "Cost per order appears on the dashboard", "Dashboard"]],
+          "objectives": ["Allocate cloud cost", "Detect cost anomalies", "Report unit cost"]
+        },
+        {
+          "topic": "Bits AI: Chat, Bits AI SRE and the Datadog MCP Server",
+          "subtopics": ["Bits AI chat for questions about telemetry", "Bits AI SRE investigations", "How Bits AI uses telemetry and the Software Catalog", "Reviewing and correcting AI findings", "The Datadog MCP server for coding agents", "Permissions and data access", "Measuring time saved", "Where AI help is not enough"],
+          "tools": ["Bits AI", "Bits AI SRE", "Datadog MCP server"],
+          "lab_task": "Let Bits AI SRE investigate two replayed alerts, compare its findings with the known causes and query Datadog from a coding agent through the MCP server.",
+          "deliverable": "AI investigation review and MCP session",
+          "checks": [["Investigate", "Bits AI SRE findings are compared with known causes", "Comparison table"], ["Query", "The coding agent reads telemetry through MCP", "MCP transcript"], ["Govern", "Data access for AI features follows roles", "Permission settings"]],
+          "objectives": ["Use Bits AI", "Evaluate AI investigations", "Connect agents through MCP"]
+        },
+        {
+          "topic": "Security Monitoring Operations: Detection Rules, Signals and Investigations",
+          "subtopics": ["Out-of-the-box and custom detection rules", "Detection rules as code", "Signal triage and assignment", "Investigations across logs and traces", "Suppression and tuning", "Security dashboards", "Notifications and SOAR with Workflows", "Measuring detection coverage"],
+          "tools": ["Cloud SIEM", "Terraform", "Workflow Automation"],
+          "lab_task": "Write two custom detection rules as code, tune one noisy rule, investigate a seeded attack across logs and traces and automate containment with a workflow.",
+          "deliverable": "Detection rules, investigation and containment workflow",
+          "checks": [["Detect", "The custom rules fire on the seeded attack", "Signals"], ["Tune", "The noisy rule's signal count falls", "Signal trend"], ["Contain", "The workflow disables the compromised key after approval", "Workflow run"]],
+          "objectives": ["Run security monitoring", "Write rules as code", "Automate containment"]
+        },
+        {
+          "topic": "Datadog Certification Preparation: Platform, Logs and APM Exams",
+          "subtopics": ["Exam format: 90 multiple-choice questions in up to two hours", "The Datadog Fundamentals exam topics", "The Log Management Fundamentals exam topics", "The APM and Distributed Tracing Fundamentals exam topics", "Learning Center paths for each exam", "Mapping course days to exam topics", "Practice questions", "Review plan for weak areas"],
+          "tools": ["Datadog Learning Center", "Practice questions", "Course labs"],
+          "lab_task": "Take timed practice sets for the Fundamentals, Log Management and APM exams, map every wrong answer to a course day and complete a review plan.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "Three timed practice sets are completed", "Score sheet"], ["Map", "Each wrong answer is mapped to a course day", "Error log"], ["Plan", "The review plan covers the weakest topics", "Review plan"]],
+          "objectives": ["Prepare for Datadog certifications", "Find weak topics", "Plan focused review"]
+        },
+        {
+          "topic": "Intermediate Capstone: Datadog Platform for Several Product Teams",
+          "subtopics": ["Tags, Terraform and monitor standards", "Deep APM, profiling and Database Monitoring", "Pipelines, log tiers and cost", "Workflows, Bits AI and security operations"],
+          "tools": ["Datadog", "Terraform Datadog provider", "Observability Pipelines", "Workflow Automation"],
+          "lab_task": "Run Datadog for three product teams with tag governance, Terraform-managed monitors and dashboards, deep APM and Database Monitoring, a telemetry pipeline, log cost controls, an automated remediation workflow and a Bits AI review.",
+          "deliverable": "Team platform demo with evidence",
+          "checks": [["Govern", "Teams' resources are tagged and managed as code", "Terraform and tag reports"], ["Observe", "Each team can trace a problem to code or a query", "Investigation records"], ["Control", "Log and cloud cost fall against the baseline", "Cost reports"]],
+          "objectives": ["Combine intermediate Datadog skills", "Serve several teams", "Run Datadog with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For observability leads and architects who run Datadog across an organisation. Covers platform architecture with sites and multiple organisations, enterprise governance, telemetry strategy, cost engineering and contracts, large-scale Kubernetes and tracing, Observability Pipelines for compliance, reliability programmes with SLOs and scorecards, incident automation with Bits AI SRE, AI application monitoring, data residency and BYOC Logs, Datadog Disaster Recovery, security architecture, application security, migrations to Datadog, custom integrations, the developer portal and DORA metrics, the platform team operating model and troubleshooting at scale.",
+      "prerequisites": ["Runs Datadog for several teams in production", "Manages Datadog configuration as code", "Responsible for observability strategy, cost or compliance"],
+      "outcomes": ["Design Datadog organisations, governance and telemetry strategy for a company", "Engineer cost, sampling and pipelines at scale", "Build reliability, incident automation, AI monitoring and security programmes", "Migrate teams to Datadog and run it as an internal platform"],
+      "days": [
+        {
+          "topic": "Datadog Platform Architecture: Sites, Organisations and Multi-Org Accounts",
+          "subtopics": ["Choosing Datadog sites by region and regulation", "Single organisation or several child organisations", "Cross-organisation visibility", "Agent and network architecture: proxies and private links", "Integration accounts per environment", "Naming and tagging across organisations", "Failure modes and dependencies", "Architecture reviews"],
+          "tools": ["Datadog multi-organisation accounts", "Agent proxy", "Private connectivity"],
+          "lab_task": "Design the Datadog layout for a company with three regions and a regulated business unit, choose sites and organisations and defend the design in a review.",
+          "deliverable": "Platform architecture and review record",
+          "checks": [["Design", "Sites, organisations and connectivity are defined", "Architecture diagram"], ["Separate", "The regulated unit's data stays where required", "Data flow diagram"], ["Defend", "The review records decisions and risks", "Review record"]],
+          "objectives": ["Design Datadog platforms", "Choose sites and organisations", "Defend architecture decisions"]
+        },
+        {
+          "topic": "Enterprise Governance: Teams, Restriction Policies and Change Control",
+          "subtopics": ["Team structure in Datadog", "Role design for many teams", "Restriction policies for dashboards, monitors and notebooks", "Change control through Terraform", "Approvals for sensitive changes", "Audit Trail reviews", "Standards for monitors and dashboards", "Exceptions and their review"],
+          "tools": ["Datadog Teams", "Restriction policies", "Terraform", "Audit Trail"],
+          "lab_task": "Design roles and restriction policies for twenty teams, move production monitor changes to Terraform with approvals and review a month of Audit Trail events.",
+          "deliverable": "Governance model with an audit review",
+          "checks": [["Restrict", "Teams can change only their own resources", "Permission tests"], ["Approve", "Production monitor changes need approval", "Pull request records"], ["Audit", "Unusual changes are found in Audit Trail", "Audit review"]],
+          "objectives": ["Govern Datadog at scale", "Control changes", "Audit usage"]
+        },
+        {
+          "topic": "Telemetry Strategy: What to Collect, Index and Retain",
+          "subtopics": ["Value of each telemetry type", "Collection standards per service tier", "Indexing and retention by use case", "Sampling policies for traces and logs", "Custom metric budgets", "OpenTelemetry in the strategy", "Reviewing new telemetry requests", "Measuring the value of telemetry"],
+          "tools": ["Usage attribution", "Log indexes", "Retention filters", "Metrics without Limits"],
+          "lab_task": "Write a telemetry strategy with standards per service tier, apply it to two teams and measure cost and coverage before and after.",
+          "deliverable": "Telemetry strategy with pilot results",
+          "checks": [["Write", "Standards cover collection, indexing and retention by tier", "Strategy document"], ["Apply", "Two teams adopt the standards", "Configuration changes"], ["Measure", "Cost falls while incident coverage holds", "Pilot report"]],
+          "objectives": ["Set telemetry strategy", "Balance value and cost", "Pilot standards with teams"]
+        },
+        {
+          "topic": "Cost Engineering for Datadog: Contracts, Usage Attribution and Forecasts",
+          "subtopics": ["Datadog billing dimensions", "Commitments and on-demand usage", "Usage attribution and chargeback", "Forecasting usage growth", "Cost guardrails and alerts", "Optimising hosts, containers and custom metrics", "Negotiation data for renewals", "Executive cost reporting"],
+          "tools": ["Usage attribution", "Estimated usage metrics", "Spreadsheet"],
+          "lab_task": "Build a usage forecast and chargeback model for the organisation, add cost guardrails and prepare renewal data with three savings options.",
+          "deliverable": "Forecast, chargeback model and renewal pack",
+          "checks": [["Forecast", "Usage growth is forecast by product", "Forecast sheet"], ["Charge", "Each team gets a monthly share", "Chargeback report"], ["Save", "Three savings options are costed", "Renewal pack"]],
+          "objectives": ["Engineer Datadog cost", "Run chargeback", "Prepare renewals with data"]
+        },
+        {
+          "topic": "Large-Scale Kubernetes Monitoring with Datadog",
+          "subtopics": ["Agents across hundreds of clusters", "Cluster Agent scaling and cluster checks", "Admission controller for automatic instrumentation", "Fleet Automation for Agent configuration", "Resource utilisation and rightsizing at scale", "Kubernetes autoscaling with Datadog metrics", "Container cost allocation", "Multi-cluster dashboards"],
+          "tools": ["Datadog Operator", "Fleet Automation", "Admission controller"],
+          "lab_task": "Roll out a standard Agent configuration to many clusters with Fleet Automation, enable automatic instrumentation through the admission controller and produce a rightsizing report.",
+          "deliverable": "Fleet-wide configuration and rightsizing report",
+          "checks": [["Roll out", "All clusters run the standard configuration", "Fleet Automation view"], ["Instrument", "New services get traces without code changes", "Service list"], ["Rightsize", "Savings from rightsizing are estimated", "Rightsizing report"]],
+          "objectives": ["Monitor Kubernetes at scale", "Automate Agent configuration", "Rightsize workloads"]
+        },
+        {
+          "topic": "Distributed Tracing at Scale: Sampling Strategy and Trace Retention",
+          "subtopics": ["Head-based and adaptive sampling", "Ingestion controls per service", "Retention filters for important traces", "Trace metrics compared with sampled traces", "Sampling for high-volume services", "OpenTelemetry sampling with Datadog", "Trace cost per team", "Auditing sampling decisions"],
+          "tools": ["APM ingestion controls", "Retention filters", "Adaptive sampling"],
+          "lab_task": "Design a sampling strategy for services from 10 to 100,000 requests per second, keep error and slow traces, and show trace cost and coverage per team.",
+          "deliverable": "Sampling strategy with cost and coverage",
+          "checks": [["Design", "Each service tier has a sampling rule", "Sampling settings"], ["Keep", "Error and slow traces are always retained", "Retention test"], ["Report", "Trace cost and coverage are shown per team", "Report"]],
+          "objectives": ["Sample traces at scale", "Keep important traces", "Control trace cost"]
+        },
+        {
+          "topic": "Observability Pipelines at Scale: Multi-Destination Routing and Compliance",
+          "subtopics": ["Pipelines for many teams", "Routing to Datadog, SIEMs and data lakes", "Compliance rules: redaction and residency", "Pipeline high availability", "Pipeline configuration as code", "Back pressure and buffering", "Migrating destinations without data loss", "Pipeline cost"],
+          "tools": ["Observability Pipelines", "Pipelines Worker", "Terraform"],
+          "lab_task": "Run highly available pipelines for three teams that route logs to Datadog, a SIEM and a data lake with residency rules, and switch one destination without losing data.",
+          "deliverable": "Multi-team pipelines with a destination switch",
+          "checks": [["Route", "Each destination receives the right data", "Destination counts"], ["Comply", "Residency and redaction rules hold", "Compliance test"], ["Switch", "The destination change loses no data", "Event counts"]],
+          "objectives": ["Run pipelines for many teams", "Meet compliance rules", "Change destinations safely"]
+        },
+        {
+          "topic": "Reliability Programmes with Datadog SLOs and Scorecards",
+          "subtopics": ["SLO standards for service tiers", "SLOs as code", "Scorecards for production readiness", "Reliability reviews with leadership", "Error budget policies in practice", "SLO reports across teams", "Linking incidents to SLOs", "Measuring programme success"],
+          "tools": ["Datadog SLOs", "Scorecards", "Terraform"],
+          "lab_task": "Roll out SLOs as code for thirty services by tier, add readiness scorecards and run a quarterly reliability review with SLO and incident data.",
+          "deliverable": "SLO programme with a quarterly review",
+          "checks": [["Roll out", "Thirty services have SLOs by tier", "SLO list"], ["Score", "Scorecards show readiness gaps", "Scorecard report"], ["Review", "The quarterly review produces actions", "Review record"]],
+          "objectives": ["Run reliability programmes", "Use scorecards", "Report reliability to leadership"]
+        },
+        {
+          "topic": "Incident Automation: Bits AI SRE, Workflows and Remediation Guardrails",
+          "subtopics": ["Automated triage of alerts", "Bits AI SRE in the incident process", "Remediation workflows", "Guardrails and approvals", "Evaluating automation with past incidents", "Escalation when automation fails", "Audit of automated actions", "Responder skills"],
+          "tools": ["Bits AI SRE", "Workflow Automation", "Incident Management"],
+          "lab_task": "Design automated triage and two remediation workflows with guardrails, evaluate them against ten past incidents and define when a human must take over.",
+          "deliverable": "Incident automation design with an evaluation",
+          "checks": [["Evaluate", "Automation results on past incidents are scored", "Evaluation report"], ["Guard", "Risky actions need approval", "Workflow configuration"], ["Escalate", "Failed automation hands over to a human", "Escalation test"]],
+          "objectives": ["Automate incident response", "Set guardrails", "Evaluate automation"]
+        },
+        {
+          "topic": "Datadog for AI Applications: LLM Observability, Agent Monitoring and AI Security",
+          "subtopics": ["AI application architectures to monitor", "Agent and tool-call monitoring", "Evaluations at scale", "Prompt injection and data leakage risks", "AI Guard and security checks where available", "GPU and model serving monitoring", "Cost per conversation", "Release gates for model and prompt changes"],
+          "tools": ["LLM Observability", "GPU monitoring", "Security checks"],
+          "lab_task": "Monitor an AI agent with tool calls and a self-hosted model, detect a seeded prompt injection, gate a prompt change on evaluation results and report cost per conversation.",
+          "deliverable": "AI monitoring with a release gate",
+          "checks": [["Monitor", "Agent steps, tool calls and GPU use are visible", "Trace and GPU views"], ["Detect", "The prompt injection is flagged", "Security finding"], ["Gate", "The prompt change is blocked when evaluations drop", "Gate result"]],
+          "objectives": ["Monitor AI applications", "Detect AI security risks", "Gate AI changes"]
+        },
+        {
+          "topic": "Data Residency, BYOC Logs and Regulated Environments",
+          "subtopics": ["Datadog sites and data residency", "Bring Your Own Cloud logs", "Sensitive data handling", "Audit and retention rules", "US government and regulated sites", "Contracts and data processing terms", "Evidence for auditors", "Designs for regulated business units"],
+          "tools": ["Datadog sites", "BYOC Logs", "Sensitive Data Scanner", "Audit Trail"],
+          "lab_task": "Design log handling for a regulated unit that must keep logs in its own cloud account, apply sensitive data rules and produce an audit evidence pack.",
+          "deliverable": "Regulated design and audit evidence",
+          "checks": [["Design", "Logs stay in the unit's storage as required", "Data flow diagram"], ["Protect", "Sensitive data rules cover the required fields", "Scanner rules"], ["Prove", "The evidence pack answers audit questions", "Evidence pack"]],
+          "objectives": ["Meet data residency needs", "Use BYOC Logs", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Monitoring Resilience: Datadog Disaster Recovery and Secondary Sites",
+          "subtopics": ["Dependence on the monitoring platform", "Datadog Disaster Recovery and secondary sites", "Replicated resources such as dashboards and monitors", "Agent dual shipping", "Runbooks for monitoring outages", "Local fallbacks for critical alerts", "Testing failover of monitoring", "Communicating during monitoring outages"],
+          "tools": ["Datadog Disaster Recovery", "Agent dual shipping", "Runbooks"],
+          "lab_task": "Configure a secondary site with replicated resources, dual-ship critical Agents, run a monitoring outage drill and record how alerting continued.",
+          "deliverable": "Monitoring resilience plan and drill record",
+          "checks": [["Replicate", "Dashboards and monitors exist on the secondary site", "Resource list"], ["Ship", "Critical Agents send data to both sites", "Agent status"], ["Drill", "Alerting continues during the drill", "Drill record"]],
+          "objectives": ["Plan for monitoring outages", "Use secondary sites", "Test monitoring failover"]
+        },
+        {
+          "topic": "Security Platform at Scale: Cloud SIEM Architecture and Detection as Code",
+          "subtopics": ["SIEM data sources and costs", "Content packs and normalisation", "Detection engineering lifecycle", "Detection rules in Git with tests", "Risk-based prioritisation", "Investigations with Bits AI", "Retention for security data", "Integrating with other SIEMs"],
+          "tools": ["Cloud SIEM", "Terraform", "Content packs"],
+          "lab_task": "Build a detection-as-code pipeline for Cloud SIEM with tests, add content packs for two sources, measure rule noise and report detection coverage.",
+          "deliverable": "Detection pipeline and coverage report",
+          "checks": [["Test", "Rules are tested before deployment", "Pipeline run"], ["Measure", "Rule noise is measured and reduced", "Signal report"], ["Cover", "Coverage is mapped to MITRE ATT&CK", "Coverage map"]],
+          "objectives": ["Design SIEM on Datadog", "Run detection as code", "Measure coverage"]
+        },
+        {
+          "topic": "Application Security with App and API Protection and Code Security",
+          "subtopics": ["Threat detection for applications and APIs", "API inventory and risks", "In-app protection and blocking", "Software composition analysis", "Static and runtime code analysis", "Prioritising vulnerabilities with runtime context", "Developer workflows for fixes", "Security metrics for leadership"],
+          "tools": ["App and API Protection", "Code Security", "APM"],
+          "lab_task": "Turn on App and API Protection and Code Security for the course services, block a seeded attack, prioritise vulnerabilities that run in production and track fixes.",
+          "deliverable": "Application security setup and fix tracker",
+          "checks": [["Block", "The seeded attack is blocked", "Security trace"], ["Prioritise", "Running vulnerabilities rank first", "Vulnerability list"], ["Track", "Fixes are tracked to completion", "Tracker"]],
+          "objectives": ["Protect applications and APIs", "Prioritise vulnerabilities", "Drive fixes with developers"]
+        },
+        {
+          "topic": "Migrating to Datadog from Prometheus, Elastic or Other Tools",
+          "subtopics": ["Migration drivers and risks", "Mapping dashboards and alerts", "Prometheus and OpenMetrics ingestion", "Moving log pipelines", "Running tools in parallel", "Training teams", "Cost comparison after migration", "Decommissioning old tools"],
+          "tools": ["OpenMetrics check", "Terraform", "Log pipelines"],
+          "lab_task": "Migrate a team's Prometheus alerts and an Elastic log pipeline to Datadog, run both in parallel for a week of seeded data and compare alerts and cost.",
+          "deliverable": "Migration plan with parallel-run results",
+          "checks": [["Map", "Alerts and dashboards produce the same results", "Comparison"], ["Move", "The log pipeline parses the same fields", "Log sample"], ["Compare", "Cost and alert quality are compared", "Report"]],
+          "objectives": ["Migrate teams to Datadog", "Run tools in parallel", "Compare results and cost"]
+        },
+        {
+          "topic": "Building Integrations and Custom Checks",
+          "subtopics": ["When to build an integration", "Custom Agent checks in Python", "OpenMetrics-based checks", "The integrations developer tooling", "Dashboards and monitors shipped with integrations", "Testing integrations", "Publishing to the Datadog Marketplace", "Maintaining integrations"],
+          "tools": ["Datadog Agent", "Integrations developer tool", "Python"],
+          "lab_task": "Build a custom check for an internal service, ship it with a dashboard and a recommended monitor, test it and deploy it to the lab hosts.",
+          "deliverable": "Tested custom integration",
+          "checks": [["Build", "The check reports metrics and service checks", "agent check output"], ["Ship", "The dashboard and monitor install with the integration", "Integration page"], ["Test", "Integration tests pass", "Test output"]],
+          "objectives": ["Build Datadog integrations", "Test checks", "Ship dashboards and monitors"]
+        },
+        {
+          "topic": "Developer Portal and Delivery Metrics: Software Catalog, Scorecards and DORA Metrics",
+          "subtopics": ["Datadog as an internal developer portal", "Software Catalog at company scale", "Self-service actions", "Scorecards for standards", "DORA metrics from deployments and incidents", "Engineering reports for leadership", "Linking delivery and reliability", "Adoption by teams"],
+          "tools": ["Software Catalog", "Scorecards", "DORA Metrics", "Self-service actions"],
+          "lab_task": "Set up the Software Catalog as a portal with a self-service action for new services, scorecards for standards and DORA metrics, and report to engineering leadership.",
+          "deliverable": "Portal setup with delivery and standards reports",
+          "checks": [["Self-serve", "A new service is created through a self-service action", "Action log"], ["Score", "Scorecards show standards by team", "Scorecard report"], ["Report", "DORA metrics are reported with trends", "DORA dashboard"]],
+          "objectives": ["Use Datadog as a developer portal", "Measure delivery", "Report to leadership"]
+        },
+        {
+          "topic": "Platform Team Operating Model for Datadog",
+          "subtopics": ["Datadog as an internal platform", "Platform team roles and support", "Onboarding new teams", "Training and champions", "Standards and golden templates", "Feedback and roadmaps", "Measuring adoption and value", "Vendor management"],
+          "tools": ["Onboarding templates", "Training plan", "Adoption metrics"],
+          "lab_task": "Design the operating model for a Datadog platform team, onboard a new product team with templates and report adoption and value after a month.",
+          "deliverable": "Operating model and onboarding report",
+          "checks": [["Design", "Roles, support and standards are defined", "Operating model"], ["Onboard", "The new team is productive within a week", "Onboarding record"], ["Report", "Adoption and value are measured", "Adoption report"]],
+          "objectives": ["Run Datadog as a platform", "Onboard teams", "Measure platform value"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Agent Fleets, Data Delays and Rate Limits",
+          "subtopics": ["Agent fleet health at scale", "Data delays and their sources", "API rate limits", "Intake errors and dropped data", "High-cardinality problems", "Configuration drift across fleets", "Escalating to Datadog support", "Incident reviews for monitoring problems"],
+          "tools": ["Fleet Automation", "Agent flare", "API rate limit headers"],
+          "lab_task": "Diagnose seeded fleet problems, delayed metrics, rate-limited automation and a cardinality explosion, fix them and write an incident review.",
+          "deliverable": "Diagnoses, fixes and an incident review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Fix", "Data arrives on time and automation stays under limits", "Monitoring evidence"], ["Review", "The incident review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot Datadog at scale", "Handle rate limits", "Learn from monitoring incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Datadog Strategy and Rollout",
+          "subtopics": ["Architecture and governance", "Telemetry and cost strategy", "Reliability, incident and AI programmes", "Security, compliance and migration plan"],
+          "tools": ["Architecture documents", "Terraform", "Cost model", "Evidence packs"],
+          "lab_task": "Present an enterprise Datadog strategy to a review board with the platform architecture, governance, telemetry and cost strategy, reliability and incident automation programmes, security and compliance design and the migration plan.",
+          "deliverable": "Strategy with evidence and a board decision",
+          "checks": [["Design", "Architecture and governance pass review", "Review record"], ["Cost", "The cost plan uses forecasts and pilot data", "Cost model"], ["Plan", "Migration and programmes have owners and dates", "Plan documents"]],
+          "objectives": ["Combine advanced Datadog skills", "Design an enterprise rollout", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

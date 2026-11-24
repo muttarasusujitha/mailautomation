@@ -1,0 +1,573 @@
+{
+  "domain": "Ethical Hacking",
+  "name": "Ethical Hacking and Penetration Testing",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Certified Ethical Hacker", "CEH", "CEH v13", "CEH AI", "Offensive Security", "Red Team", "Red Teaming", "OSCP", "Penetration Tester", "Bug Bounty", "Web Application Hacking", "Ethical Hacking Training", "Hacking"],
+  "certifications": ["EC-Council Certified Ethical Hacker (CEH v13, also branded CEH AI)", "OffSec Certified Professional (OSCP and OSCP+)", "CompTIA PenTest+", "eLearnSecurity and other practical certifications"],
+  "tools": ["Kali Linux", "Metasploit Framework", "Burp Suite", "Nmap", "Wireshark", "Hashcat", "A deliberately vulnerable lab (Metasploitable, DVWA, HackTheBox or TryHackMe)", "AI-assisted recon and reporting tools"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For aspiring penetration testers, security analysts and IT staff who want to learn offensive security lawfully. Covers ethics, law and rules of engagement, a safe lab with Kali Linux and vulnerable targets, the hacking methodology, passive and active reconnaissance, scanning and enumeration, vulnerability assessment, password attacks, exploitation with Metasploit, web application attacks from the OWASP Top 10, network sniffing, social engineering awareness, wireless basics, maintaining access, covering tracks and detection, AI in offensive security, and clear reporting. Prepares for the CEH v13 exam.",
+      "prerequisites": ["Understands TCP/IP networking, subnets and common ports", "Comfortable on the Linux and Windows command line", "Has basic scripting with Python or Bash"],
+      "outcomes": ["Work legally within scope, rules of engagement and ethics", "Run reconnaissance, scanning, enumeration and vulnerability assessment", "Exploit common network and web weaknesses in a lab with Metasploit and Burp Suite", "Document findings and write a clear penetration test report"],
+      "days": [
+        {
+          "topic": "Ethical Hacking Overview: Hackers, Methodology and the CEH Framework",
+          "subtopics": ["What ethical hacking is and is not", "Black hat, white hat and grey hat", "The five phases: reconnaissance, scanning, gaining access, maintaining access and covering tracks", "Types of assessment: black box, grey box and white box", "The CEH v13 framework and AI additions", "Offensive security roles and career paths", "The cyber kill chain and MITRE ATT&CK", "Why defenders need offensive skills", "Certifications: CEH, OSCP and PenTest+", "Course project overview: a scoped test of a lab company"],
+          "tools": ["MITRE ATT&CK", "Cyber kill chain", "CEH blueprint"],
+          "lab_task": "Map a sample breach to the five phases and to MITRE ATT&CK tactics, and list which assessment type fits three client situations.",
+          "deliverable": "Methodology map with assessment choices",
+          "checks": [["Map", "Each breach step maps to a phase and an ATT&CK tactic", "Mapping table"], ["Choose", "Each situation has a justified assessment type", "Notes"], ["Explain", "The difference between ethical and criminal hacking is explained", "Notes"]],
+          "objectives": ["Describe the hacking methodology", "Use ATT&CK and the kill chain", "Choose assessment types"]
+        },
+        {
+          "topic": "Law, Ethics and Rules of Engagement",
+          "subtopics": ["Computer misuse and cybercrime laws", "Authorisation and written permission", "Scope and out-of-scope systems", "Rules of engagement documents", "Data handling and privacy during tests", "Responsible disclosure", "Get-out-of-jail letters", "Bug bounty programme rules", "Professional codes of conduct", "When to stop and escalate"],
+          "tools": ["Rules of engagement template", "Scope document", "Authorisation letter"],
+          "lab_task": "Write a rules of engagement document and scope statement for the lab company, listing allowed targets, timing, data handling and escalation.",
+          "deliverable": "Signed-off rules of engagement and scope",
+          "checks": [["Scope", "Allowed and forbidden targets are listed clearly", "Scope document"], ["Authorise", "The document records written permission", "Authorisation section"], ["Handle", "Data handling and escalation rules are defined", "Rules of engagement"]],
+          "objectives": ["Work within the law", "Write rules of engagement", "Define scope and escalation"]
+        },
+        {
+          "topic": "Building a Safe Lab with Kali Linux and Vulnerable Targets",
+          "subtopics": ["Isolated lab networking", "Installing Kali Linux", "Snapshots and safe rollback", "Vulnerable targets: Metasploitable, DVWA and OWASP Juice Shop", "Practice platforms such as HackTheBox and TryHackMe", "Keeping the lab offline from production", "Toolkit updates", "Note-taking and evidence folders", "Lab topology", "Checking the lab is ready"],
+          "tools": ["Kali Linux", "VirtualBox or a hypervisor", "Metasploitable and DVWA"],
+          "lab_task": "Build an isolated lab with Kali and two vulnerable targets, take clean snapshots and confirm the lab cannot reach the internet or production.",
+          "deliverable": "Working isolated lab",
+          "checks": [["Build", "Kali reaches the targets on an isolated network", "Ping and scan output"], ["Isolate", "The lab cannot reach production or the internet", "Connectivity test"], ["Save", "Clean snapshots exist for each VM", "Snapshot list"]],
+          "objectives": ["Build an offensive lab", "Use vulnerable targets", "Keep the lab isolated"]
+        },
+        {
+          "topic": "Passive Reconnaissance and Open-Source Intelligence",
+          "subtopics": ["Footprinting goals", "WHOIS and DNS records", "Subdomain discovery", "Search engine and Google dorking", "Public breach and credential data", "Social media and people searches", "Metadata in documents", "Certificate transparency logs", "AI-assisted open-source intelligence", "Recording findings"],
+          "tools": ["WHOIS and dig", "theHarvester", "Certificate transparency search"],
+          "lab_task": "Gather passive intelligence on the lab company's public footprint without touching its systems, and build a profile of hosts, names and emails.",
+          "deliverable": "Passive reconnaissance profile",
+          "checks": [["Collect", "Domains, hosts and emails are found passively", "Findings list"], ["Avoid", "No active connection was made to the target", "Activity log"], ["Record", "Findings are organised with sources", "Notes"]],
+          "objectives": ["Footprint a target passively", "Use open-source intelligence", "Record sources"]
+        },
+        {
+          "topic": "Active Reconnaissance and Network Scanning with Nmap",
+          "subtopics": ["Host discovery", "TCP and UDP scans", "Service and version detection", "Operating system fingerprinting", "Timing and stealth options", "Nmap Scripting Engine", "Scan output formats", "Reading scan results", "Avoiding noisy scans in scope", "Scan safety"],
+          "tools": ["Nmap", "Nmap Scripting Engine", "Wireshark"],
+          "lab_task": "Discover live hosts and open services on the lab network with Nmap, run safe scripts and confirm findings against the passive profile.",
+          "deliverable": "Network scan results",
+          "checks": [["Discover", "Live hosts and open ports are found", "Nmap output"], ["Identify", "Services and versions are detected", "Nmap output"], ["Verify", "Scan results match or extend the passive profile", "Comparison"]],
+          "objectives": ["Scan networks with Nmap", "Detect services and versions", "Scan safely"]
+        },
+        {
+          "topic": "Enumeration: Services, Shares, Users and Banners",
+          "subtopics": ["Enumeration goals", "SMB and NetBIOS enumeration", "SNMP enumeration", "LDAP and directory enumeration", "SMTP user enumeration", "Web and FTP banners", "Default credentials", "Mapping the attack surface", "Enumeration tools", "Recording enumerated data"],
+          "tools": ["enum4linux-ng", "smbclient", "snmpwalk"],
+          "lab_task": "Enumerate shares, users and services on the lab targets, find default credentials and map the attack surface.",
+          "deliverable": "Enumeration report",
+          "checks": [["Enumerate", "Shares, users and services are listed", "Tool output"], ["Find", "Default or weak credentials are identified", "Notes"], ["Map", "The attack surface is drawn from the findings", "Attack surface map"]],
+          "objectives": ["Enumerate services and users", "Find default credentials", "Map the attack surface"]
+        },
+        {
+          "topic": "Vulnerability Assessment and Scoring",
+          "subtopics": ["Vulnerability assessment compared with penetration testing", "Authenticated and unauthenticated scans", "Vulnerability scanners such as OpenVAS and Nessus", "Common Vulnerabilities and Exposures", "CVSS scoring", "The Exploit Prediction Scoring System", "False positives", "Prioritising findings", "Validating scanner results", "Reporting vulnerabilities"],
+          "tools": ["OpenVAS or Nessus Essentials", "CVSS calculator", "CVE databases"],
+          "lab_task": "Run a vulnerability scan against the lab targets, validate three findings by hand, score them with CVSS and prioritise them.",
+          "deliverable": "Validated vulnerability list",
+          "checks": [["Scan", "The scan finds known vulnerabilities", "Scan report"], ["Validate", "Three findings are confirmed by hand", "Validation notes"], ["Prioritise", "Findings are ranked with CVSS and context", "Ranked list"]],
+          "objectives": ["Run vulnerability scans", "Validate findings", "Score and prioritise"]
+        },
+        {
+          "topic": "Password Attacks: Cracking, Spraying and Hash Attacks",
+          "subtopics": ["How passwords are stored", "Online and offline attacks", "Dictionary, brute-force and rule-based attacks", "Password spraying", "Hashcat and John the Ripper", "Rainbow tables and why salting matters", "Capturing hashes in the lab", "Password policy weaknesses", "Defences against password attacks", "Lawful handling of captured credentials"],
+          "tools": ["Hashcat", "John the Ripper", "Wordlists"],
+          "lab_task": "Capture password hashes in the lab, crack weak ones with Hashcat and a rule set, and run a controlled password spray.",
+          "deliverable": "Password attack results with defences",
+          "checks": [["Crack", "Weak hashes are cracked", "Hashcat output"], ["Spray", "The spray finds a reused weak password", "Notes"], ["Defend", "Defences for each weakness are listed", "Notes"]],
+          "objectives": ["Attack passwords lawfully", "Use cracking tools", "Recommend password defences"]
+        },
+        {
+          "topic": "System Hacking and Exploitation with Metasploit",
+          "subtopics": ["The Metasploit Framework", "Searching and selecting exploits", "Payloads and Meterpreter", "Setting options and running an exploit", "Manual exploitation compared with frameworks", "Public exploit databases", "Compiling and adapting exploits safely", "Verifying exploitation", "Avoiding destructive exploits", "Recording proof"],
+          "tools": ["Metasploit Framework", "Meterpreter", "Exploit-DB"],
+          "lab_task": "Exploit a known vulnerability on Metasploitable with Metasploit, gain a Meterpreter session and collect proof without damaging the target.",
+          "deliverable": "Exploitation record with proof",
+          "checks": [["Exploit", "A session is obtained on the target", "Session output"], ["Prove", "Evidence of access is captured", "Screenshots"], ["Preserve", "The target is left usable", "Target check"]],
+          "objectives": ["Use Metasploit", "Gain and verify access", "Avoid damage"]
+        },
+        {
+          "topic": "Post-Exploitation and Privilege Escalation",
+          "subtopics": ["Post-exploitation goals", "Local enumeration after access", "Linux privilege escalation paths", "Windows privilege escalation paths", "Credential harvesting", "Pivoting through the network", "Data of interest and proof of impact", "Cleanup considerations", "Tools for escalation checks", "Recording the path"],
+          "tools": ["Meterpreter", "WinPEAS and LinPEAS", "BloodHound Community Edition"],
+          "lab_task": "From a foothold, enumerate the host, escalate to administrator or root on one Windows and one Linux target and pivot to a second host.",
+          "deliverable": "Privilege escalation and pivot record",
+          "checks": [["Escalate", "Higher privileges are gained on both hosts", "Proof output"], ["Harvest", "Credentials or keys are found", "Notes"], ["Pivot", "A second host is reached through the foothold", "Route proof"]],
+          "objectives": ["Perform post-exploitation", "Escalate privileges", "Pivot through a network"]
+        },
+        {
+          "topic": "Web Application Hacking: The OWASP Top 10",
+          "subtopics": ["How web applications work", "The OWASP Top 10 overview", "Broken access control", "Injection, including SQL injection", "Cross-site scripting", "Security misconfiguration", "Authentication and session weaknesses", "Using Burp Suite", "Mapping an application", "Reporting web findings"],
+          "tools": ["Burp Suite", "OWASP Juice Shop and DVWA", "OWASP Top 10"],
+          "lab_task": "Map a vulnerable web application with Burp Suite and exploit broken access control, a SQL injection and a cross-site scripting flaw.",
+          "deliverable": "Web application findings",
+          "checks": [["Map", "The application's requests and parameters are mapped", "Burp site map"], ["Exploit", "Three OWASP Top 10 flaws are exploited", "Proof for each"], ["Report", "Each finding has impact and a fix", "Findings list"]],
+          "objectives": ["Test web applications", "Exploit OWASP Top 10 flaws", "Report web findings"]
+        },
+        {
+          "topic": "SQL Injection in Depth",
+          "subtopics": ["How SQL injection works", "In-band injection", "Blind injection", "Error-based and union-based techniques", "Extracting data", "Automated tools such as sqlmap", "Second-order injection", "Defences: parameterised queries", "Testing safely in the lab", "Reporting the risk"],
+          "tools": ["Burp Suite", "sqlmap", "DVWA"],
+          "lab_task": "Find and exploit a SQL injection in the lab, extract database contents with manual queries and with sqlmap, and write the fix.",
+          "deliverable": "SQL injection proof and fix",
+          "checks": [["Find", "The injectable parameter is identified", "Notes"], ["Extract", "Database data is extracted as proof", "Output"], ["Fix", "The fix uses parameterised queries", "Recommendation"]],
+          "objectives": ["Exploit SQL injection", "Use sqlmap", "Recommend defences"]
+        },
+        {
+          "topic": "Network Sniffing and Man-in-the-Middle Attacks",
+          "subtopics": ["How sniffing works", "Passive and active sniffing", "ARP spoofing", "Capturing traffic with Wireshark", "Extracting credentials from cleartext protocols", "DNS spoofing basics", "SSL and TLS stripping concepts", "Detecting sniffing", "Defences such as encryption and port security", "Lawful capture in the lab"],
+          "tools": ["Wireshark", "Ettercap or bettercap", "Kali Linux"],
+          "lab_task": "Perform an ARP spoofing man-in-the-middle attack in the lab, capture cleartext credentials and show how encryption prevents it.",
+          "deliverable": "Sniffing attack and defence demonstration",
+          "checks": [["Spoof", "Traffic is intercepted through ARP spoofing", "Capture"], ["Extract", "Cleartext credentials are captured", "Wireshark output"], ["Defend", "Encryption stops the capture", "Second capture"]],
+          "objectives": ["Sniff network traffic", "Perform man-in-the-middle attacks", "Recommend defences"]
+        },
+        {
+          "topic": "Social Engineering and Phishing Awareness",
+          "subtopics": ["Social engineering principles", "Pretexting and impersonation", "Phishing, spear phishing and whaling", "Vishing and smishing", "Building a phishing email in a lab", "Credential harvesting pages", "Physical social engineering", "Measuring susceptibility", "Defences and training", "Ethics and consent for social engineering tests"],
+          "tools": ["Gophish in a lab", "Social engineering toolkit", "Awareness materials"],
+          "lab_task": "Build a lab phishing campaign with a consenting test group, measure click and submit rates and recommend awareness improvements.",
+          "deliverable": "Phishing campaign results with recommendations",
+          "checks": [["Build", "The campaign sends a convincing lab phish", "Campaign setup"], ["Measure", "Click and submit rates are recorded", "Results"], ["Recommend", "Awareness and technical defences are proposed", "Recommendations"]],
+          "objectives": ["Run social engineering tests ethically", "Measure susceptibility", "Recommend defences"]
+        },
+        {
+          "topic": "Wireless Network Attacks",
+          "subtopics": ["Wireless standards and security", "WEP, WPA2 and WPA3", "Monitor mode and capture", "Capturing WPA2 handshakes", "Cracking pre-shared keys in the lab", "Evil twin and rogue access points", "Deauthentication attacks", "Wireless reconnaissance", "Defences for wireless networks", "Lawful wireless testing"],
+          "tools": ["Aircrack-ng", "A supported wireless adapter", "A lab access point"],
+          "lab_task": "Capture a WPA2 handshake from a lab access point, crack a weak pre-shared key and demonstrate an evil twin, then recommend defences.",
+          "deliverable": "Wireless attack results with defences",
+          "checks": [["Capture", "A handshake is captured in monitor mode", "Capture file"], ["Crack", "A weak pre-shared key is recovered", "Output"], ["Defend", "Defences including WPA3 are recommended", "Recommendations"]],
+          "objectives": ["Attack wireless networks lawfully", "Crack weak keys", "Recommend wireless defences"]
+        },
+        {
+          "topic": "Evading Detection: Firewalls, IDS and Antivirus",
+          "subtopics": ["How detection works", "Firewall and IDS evasion ideas", "Fragmentation and timing", "Encoding and obfuscation", "Antivirus evasion concepts", "Living-off-the-land techniques", "Why evasion must stay in scope", "Detection from the defender's side", "Balancing stealth and safety", "Recording evasion attempts"],
+          "tools": ["Nmap evasion options", "Lab IDS such as Snort or Suricata", "Kali tools"],
+          "lab_task": "Compare a noisy scan and a stealthier scan against a lab IDS, show which alerts fire and explain the trade-offs.",
+          "deliverable": "Evasion comparison with detection notes",
+          "checks": [["Compare", "Noisy and stealthy scans are run", "Scan logs"], ["Detect", "IDS alerts for each scan are recorded", "IDS alerts"], ["Explain", "Trade-offs between stealth and safety are explained", "Notes"]],
+          "objectives": ["Understand detection evasion", "Compare noisy and stealthy actions", "See the defender's view"]
+        },
+        {
+          "topic": "Maintaining Access and Covering Tracks",
+          "subtopics": ["Persistence goals in a test", "Backdoors and scheduled tasks in the lab", "Web shells", "Why persistence needs clear authorisation", "Log tampering concepts", "Why testers should not destroy evidence", "Timestomping ideas", "Detection of persistence", "Clean removal after a test", "Recording persistence for the report"],
+          "tools": ["Meterpreter persistence", "Lab targets", "Log viewers"],
+          "lab_task": "Install an authorised persistence mechanism on a lab host, show how a defender would detect it and then remove it cleanly.",
+          "deliverable": "Persistence demonstration and clean-up",
+          "checks": [["Persist", "Access survives a reboot in the lab", "Reconnect proof"], ["Detect", "The persistence is found in logs or tools", "Detection notes"], ["Remove", "The host is returned to a clean state", "Verification"]],
+          "objectives": ["Demonstrate persistence lawfully", "Show detection", "Clean up after testing"]
+        },
+        {
+          "topic": "AI in Offensive Security: Assisted Recon, Exploitation and Defence",
+          "subtopics": ["How AI changes offensive security", "AI-assisted reconnaissance and open-source intelligence", "AI help with scripting and payloads", "AI-generated phishing and deepfakes", "Limits and hallucinations of AI tools", "Prompt injection against AI systems", "Attacks on machine learning models in brief", "Using AI responsibly and lawfully", "AI in the CEH v13 curriculum", "Recording AI use in a test"],
+          "tools": ["AI assistant", "Kali Linux", "Lab targets"],
+          "lab_task": "Use an AI assistant to speed up reconnaissance and script a safe lab task, then check its output for errors and record where it helped and misled.",
+          "deliverable": "AI-assisted task record",
+          "checks": [["Assist", "AI speeds up a recon or scripting task", "Work record"], ["Check", "AI errors are found and corrected", "Correction notes"], ["Record", "AI use is documented for the report", "Notes"]],
+          "objectives": ["Use AI in offensive security", "Check AI output", "Use AI lawfully"]
+        },
+        {
+          "topic": "Penetration Test Reporting and Remediation",
+          "subtopics": ["The purpose of the report", "Executive summary", "Findings with evidence", "Risk ratings", "Reproduction steps", "Remediation advice", "Retesting", "Communicating with stakeholders", "Report quality and clarity", "Protecting the report"],
+          "tools": ["Report template", "Findings from the lab", "Screenshots"],
+          "lab_task": "Write a penetration test report for the lab engagement with an executive summary, rated findings, evidence and remediation advice.",
+          "deliverable": "Penetration test report",
+          "checks": [["Summarise", "The executive summary is clear for non-technical readers", "Report"], ["Evidence", "Each finding has steps, evidence and a rating", "Findings section"], ["Remediate", "Each finding has practical remediation advice", "Remediation section"]],
+          "objectives": ["Write a penetration test report", "Rate risk", "Give remediation advice"]
+        },
+        {
+          "topic": "Beginner Capstone: Scoped Penetration Test of the Lab Company",
+          "subtopics": ["Scope and rules of engagement", "Reconnaissance and scanning", "Exploitation and privilege escalation", "Reporting"],
+          "tools": ["Kali Linux", "Metasploit", "Burp Suite", "Report template"],
+          "lab_task": "Run an end-to-end scoped penetration test of the lab company from reconnaissance to a privileged foothold and a web finding, and deliver a full report.",
+          "deliverable": "Completed test with a report",
+          "checks": [["Scope", "The test stays within the agreed scope", "Activity log"], ["Compromise", "A privileged foothold and a web finding are achieved", "Evidence"], ["Report", "The report rates findings and advises fixes", "Report"]],
+          "objectives": ["Combine beginner skills", "Run a scoped test", "Deliver a professional report"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For penetration testers who run assessments across networks, web, Active Directory and cloud. Covers engagement planning, advanced reconnaissance and attack-surface mapping, exploitation and exploit development basics, Active Directory attacks, lateral movement and pivoting, advanced web and API testing, authentication and token attacks, cloud penetration testing on AWS and Azure, container and Kubernetes attacks, wireless and network attacks at depth, command-and-control frameworks, payload development and evasion, phishing campaigns, mobile basics, OSINT programmes, reporting at scale and OSCP-style preparation.",
+      "prerequisites": ["Has completed a basic penetration test from recon to exploitation", "Comfortable with Linux, Windows and Python scripting", "Understands Active Directory and web application basics"],
+      "outcomes": ["Plan and run multi-domain penetration tests within clear rules", "Attack Active Directory, web, API and cloud targets and move laterally", "Build and deliver payloads with evasion using command-and-control frameworks", "Report technical findings and prepare for OSCP-style exams"],
+      "days": [
+        {
+          "topic": "Engagement Planning, Threat Modelling and Methodology Selection",
+          "subtopics": ["Engagement types: network, web, cloud, red team and purple team", "Scoping and sizing", "Threat modelling for the target", "Choosing a methodology such as PTES or OWASP", "Rules of engagement for deeper tests", "Deconfliction with the defence team", "Evidence and data handling standards", "Logistics and access", "Risk and safety controls", "Kickoff with the client"],
+          "tools": ["PTES guide", "Threat model template", "Rules of engagement"],
+          "lab_task": "Plan a multi-domain engagement for the lab company with a threat model, methodology choice, rules of engagement and a deconfliction plan.",
+          "deliverable": "Engagement plan",
+          "checks": [["Model", "The threat model drives the test plan", "Threat model"], ["Scope", "Scope, timing and safety controls are defined", "Rules of engagement"], ["Deconflict", "A deconfliction process is agreed", "Plan"]],
+          "objectives": ["Plan engagements", "Threat-model targets", "Choose methodologies"]
+        },
+        {
+          "topic": "Advanced Reconnaissance and Attack-Surface Management",
+          "subtopics": ["Large-scale subdomain and asset discovery", "Cloud asset discovery", "Technology fingerprinting", "Content discovery", "Credential and secret leaks", "API discovery", "Continuous attack-surface monitoring", "Prioritising the attack surface", "Automation of recon", "Recording the surface"],
+          "tools": ["Amass and subfinder", "httpx and nuclei", "Recon automation scripts"],
+          "lab_task": "Build an automated recon pipeline for the lab company that discovers assets, fingerprints technologies and flags leaked secrets, then prioritise the surface.",
+          "deliverable": "Attack-surface inventory",
+          "checks": [["Discover", "Assets and technologies are discovered at scale", "Pipeline output"], ["Flag", "Leaked secrets or risky endpoints are flagged", "Findings"], ["Prioritise", "The surface is prioritised by risk", "Ranked inventory"]],
+          "objectives": ["Automate reconnaissance", "Manage the attack surface", "Prioritise targets"]
+        },
+        {
+          "topic": "Exploitation Techniques and Exploit Development",
+          "subtopics": ["Memory corruption in brief", "Stack buffer overflows in a lab", "Finding the offset and controlling execution", "Shellcode and bad characters", "Public exploit analysis and modification", "Fuzzing basics", "Protections: DEP, ASLR and stack canaries", "When to buy, build or borrow exploits", "Safe testing of exploits", "Documenting exploit steps"],
+          "tools": ["A vulnerable lab binary", "Immunity Debugger or GDB", "Python"],
+          "lab_task": "Exploit a simple stack buffer overflow in a lab binary, find the offset, control execution and run shellcode, then explain the protections that would stop it.",
+          "deliverable": "Exploit development write-up",
+          "checks": [["Control", "Execution is controlled through the overflow", "Crash and control proof"], ["Execute", "Shellcode runs in the lab", "Output"], ["Explain", "Modern protections are explained", "Notes"]],
+          "objectives": ["Understand exploit development", "Exploit a buffer overflow", "Explain exploit mitigations"]
+        },
+        {
+          "topic": "Active Directory Attacks: Enumeration and Kerberos",
+          "subtopics": ["Active Directory from an attacker's view", "Domain enumeration", "BloodHound and attack paths", "Kerberoasting", "AS-REP roasting", "Pass-the-hash and pass-the-ticket", "Delegation abuse", "ADCS abuse in brief", "Detection of these attacks", "Recording the path to domain admin"],
+          "tools": ["BloodHound Community Edition", "Rubeus or impacket", "A lab Active Directory"],
+          "lab_task": "Enumerate a lab Active Directory, find an attack path with BloodHound, perform Kerberoasting and reach domain admin through the path.",
+          "deliverable": "Active Directory attack path to domain admin",
+          "checks": [["Enumerate", "Users, groups and paths are enumerated", "BloodHound output"], ["Attack", "Kerberoasting or delegation abuse succeeds", "Proof"], ["Reach", "Domain admin is reached through a documented path", "Path write-up"]],
+          "objectives": ["Attack Active Directory", "Use BloodHound", "Reach domain admin lawfully"]
+        },
+        {
+          "topic": "Lateral Movement, Pivoting and Persistence in Networks",
+          "subtopics": ["Lateral movement techniques", "Remote execution methods", "Pass-the-hash for movement", "Pivoting and tunnelling", "SOCKS proxies and port forwarding", "Living off the land", "Persistence across a domain", "Avoiding destructive actions", "Detection of lateral movement", "Mapping the compromise"],
+          "tools": ["impacket", "Chisel or Ligolo", "Lab network"],
+          "lab_task": "Move laterally across three lab hosts, set up a pivot and SOCKS proxy to reach a segmented network and document the movement.",
+          "deliverable": "Lateral movement and pivot map",
+          "checks": [["Move", "Lateral movement reaches new hosts", "Proof"], ["Pivot", "A segmented host is reached through a pivot", "Route proof"], ["Map", "The movement is mapped across hosts", "Compromise map"]],
+          "objectives": ["Move laterally", "Pivot into segmented networks", "Map the compromise"]
+        },
+        {
+          "topic": "Advanced Web Application Testing",
+          "subtopics": ["Mapping complex applications", "Authentication and session flaws", "Server-side request forgery", "Insecure deserialisation", "Template injection", "File upload and path traversal", "Business logic flaws", "Chaining vulnerabilities", "Testing single-page applications", "Reporting chained web attacks"],
+          "tools": ["Burp Suite Professional or Community", "Lab applications", "Custom scripts"],
+          "lab_task": "Test a complex lab application, exploit server-side request forgery and a business logic flaw and chain two issues into a higher-impact attack.",
+          "deliverable": "Advanced web findings with a chain",
+          "checks": [["Exploit", "Server-side request forgery and a logic flaw are exploited", "Proof"], ["Chain", "Two issues are chained for greater impact", "Chain write-up"], ["Report", "Findings include impact and remediation", "Findings list"]],
+          "objectives": ["Test complex web applications", "Exploit advanced flaws", "Chain vulnerabilities"]
+        },
+        {
+          "topic": "API Penetration Testing: REST, GraphQL and Tokens",
+          "subtopics": ["API attack surface", "Authentication and authorisation testing", "Broken object-level authorisation", "Mass assignment", "GraphQL introspection and abuse", "Rate limiting and abuse", "JWT weaknesses", "OAuth misconfiguration", "API documentation and discovery", "Reporting API findings"],
+          "tools": ["Burp Suite", "Postman", "Lab APIs"],
+          "lab_task": "Test a lab REST and GraphQL API for broken object-level authorisation, mass assignment and JWT weaknesses, and report the risks.",
+          "deliverable": "API test findings",
+          "checks": [["Authorise", "Broken object-level authorisation is proven", "Proof"], ["Abuse", "A GraphQL or JWT weakness is exploited", "Proof"], ["Report", "Findings include fixes", "Findings list"]],
+          "objectives": ["Test APIs", "Exploit authorisation flaws", "Report API risks"]
+        },
+        {
+          "topic": "Authentication and Token Attacks",
+          "subtopics": ["Credential stuffing and spraying at scale", "Multi-factor authentication bypasses", "Session fixation and hijacking", "JWT forgery and algorithm confusion", "OAuth and SAML attacks", "SSO weaknesses", "Phishing for tokens", "Detection of these attacks", "Defences and hardening", "Reporting authentication risk"],
+          "tools": ["Burp Suite", "jwt_tool", "Lab identity provider"],
+          "lab_task": "Attack a lab authentication system with token forgery and a multi-factor bypass technique, then recommend hardening.",
+          "deliverable": "Authentication attack results with hardening",
+          "checks": [["Forge", "A token is forged or manipulated", "Proof"], ["Bypass", "A multi-factor weakness is demonstrated", "Proof"], ["Harden", "Hardening steps are recommended", "Recommendations"]],
+          "objectives": ["Attack authentication", "Forge and abuse tokens", "Recommend hardening"]
+        },
+        {
+          "topic": "Cloud Penetration Testing on AWS and Azure",
+          "subtopics": ["Cloud testing rules and provider policies", "Enumerating cloud accounts and services", "Exposed storage and secrets", "Over-privileged roles and privilege escalation", "Metadata service attacks", "Serverless and container risks", "Cloud credential abuse", "Logging and detection in the cloud", "Staying within provider rules", "Reporting cloud findings"],
+          "tools": ["Pacu or ScoutSuite", "AWS and Azure CLIs", "A lab cloud account"],
+          "lab_task": "Enumerate a lab cloud account, find an over-privileged role and escalate privileges through it, and report the misconfiguration.",
+          "deliverable": "Cloud penetration test findings",
+          "checks": [["Enumerate", "Cloud assets and roles are enumerated", "Tool output"], ["Escalate", "Privilege escalation through a role is proven", "Proof"], ["Report", "The misconfiguration and fix are reported", "Findings"]],
+          "objectives": ["Test cloud environments", "Escalate cloud privileges", "Report cloud risks"]
+        },
+        {
+          "topic": "Container and Kubernetes Attacks",
+          "subtopics": ["Container and Kubernetes attack surface", "Insecure container images", "Breaking out of containers", "Exposed Kubernetes APIs", "Over-permissive service accounts", "Secrets in the cluster", "Lateral movement in a cluster", "Detection in Kubernetes", "Hardening recommendations", "Reporting cluster findings"],
+          "tools": ["kubectl", "kube-hunter or similar", "A lab cluster"],
+          "lab_task": "Attack a deliberately vulnerable lab cluster, escape a container or abuse a service account to reach the node and recommend hardening.",
+          "deliverable": "Kubernetes attack findings",
+          "checks": [["Exploit", "A container escape or service account abuse succeeds", "Proof"], ["Move", "Access reaches the node or another pod", "Proof"], ["Harden", "Hardening steps are recommended", "Recommendations"]],
+          "objectives": ["Attack containers and Kubernetes", "Escape or abuse access", "Recommend hardening"]
+        },
+        {
+          "topic": "Command-and-Control Frameworks and Operations",
+          "subtopics": ["Command-and-control concepts", "Open-source frameworks such as Sliver and Havoc", "Listeners, implants and beacons", "Redirectors and infrastructure", "Encrypted channels", "Operational security for testers", "Team collaboration in red teams", "Logging operator actions", "Detection of command and control", "Staying authorised"],
+          "tools": ["Sliver or another open-source framework", "Lab infrastructure", "Redirectors"],
+          "lab_task": "Set up a command-and-control framework in the lab with a redirector, deploy an implant to a lab host and run tasks through an encrypted channel.",
+          "deliverable": "Command-and-control setup record",
+          "checks": [["Deploy", "An implant checks in through a redirector", "Console output"], ["Operate", "Tasks run over an encrypted channel", "Task log"], ["Record", "Operator actions are logged", "Operator log"]],
+          "objectives": ["Run a command-and-control framework", "Use redirectors", "Keep operator logs"]
+        },
+        {
+          "topic": "Payload Development and Antivirus Evasion",
+          "subtopics": ["Payload types", "Staged and stageless payloads", "Obfuscation and packing", "Antivirus and endpoint detection concepts", "Living-off-the-land binaries", "In-memory execution", "Testing payloads against lab defences", "Measuring detection", "Keeping evasion in scope", "Documenting payloads"],
+          "tools": ["Payload tools", "Lab endpoint protection", "Kali Linux"],
+          "lab_task": "Build a payload that bypasses a lab antivirus, measure detection against two engines and record the techniques and their limits.",
+          "deliverable": "Payload with detection results",
+          "checks": [["Build", "The payload runs on a lab host", "Execution proof"], ["Measure", "Detection by lab defences is recorded", "Results"], ["Document", "Techniques and limits are documented", "Notes"]],
+          "objectives": ["Develop payloads", "Evade endpoint defences", "Measure detection"]
+        },
+        {
+          "topic": "Phishing Campaigns and Initial Access Operations",
+          "subtopics": ["Initial access strategy", "Pretext and lure design", "Phishing infrastructure", "Domain and email reputation", "Payload delivery", "Credential capture and session theft", "Consent and legal limits", "Measuring the campaign", "Defence recommendations", "Reporting initial access"],
+          "tools": ["Gophish or Evilginx in a lab", "Lab mail server", "Lab targets"],
+          "lab_task": "Run a consented lab phishing operation that captures a session or credential and leads to initial access, then report the chain and defences.",
+          "deliverable": "Initial access operation record",
+          "checks": [["Deliver", "The lure reaches the test group", "Campaign record"], ["Capture", "A credential or session is captured", "Proof"], ["Defend", "Defences for each step are recommended", "Recommendations"]],
+          "objectives": ["Run phishing operations lawfully", "Gain initial access", "Recommend defences"]
+        },
+        {
+          "topic": "Network and Wireless Attacks at Depth",
+          "subtopics": ["VLAN hopping", "Network access control bypass", "Rogue devices", "WPA2 Enterprise attacks", "Captive portal attacks", "Bluetooth and other radios in brief", "Network segmentation testing", "Detection of these attacks", "Defences for networks and wireless", "Reporting network findings"],
+          "tools": ["Kali Linux", "A supported wireless adapter", "A lab network"],
+          "lab_task": "Test segmentation with a VLAN hopping attempt and attack a lab WPA2 Enterprise network, then recommend network defences.",
+          "deliverable": "Network and wireless findings",
+          "checks": [["Test", "Segmentation and access control are tested", "Results"], ["Attack", "A wireless weakness is demonstrated", "Proof"], ["Defend", "Network defences are recommended", "Recommendations"]],
+          "objectives": ["Test network segmentation", "Attack enterprise wireless", "Recommend defences"]
+        },
+        {
+          "topic": "Mobile Application Penetration Testing",
+          "subtopics": ["Mobile attack surface", "Android and iOS application structure", "Static analysis of apps", "Dynamic analysis and interception", "Insecure storage", "Certificate pinning and bypass", "API testing for mobile", "Device and emulator setup", "Reporting mobile findings", "Limits of a basic mobile test"],
+          "tools": ["MobSF", "A rooted emulator", "Burp Suite"],
+          "lab_task": "Analyse a vulnerable lab Android app statically and dynamically, find insecure storage and an insecure API call and report them.",
+          "deliverable": "Mobile test findings",
+          "checks": [["Analyse", "Static analysis finds issues", "MobSF report"], ["Intercept", "App traffic is intercepted and a flaw found", "Proof"], ["Report", "Findings include fixes", "Findings list"]],
+          "objectives": ["Test mobile applications", "Intercept mobile traffic", "Report mobile risks"]
+        },
+        {
+          "topic": "OSINT Programmes and Threat-Informed Testing",
+          "subtopics": ["Building an OSINT process", "People, company and technical intelligence", "Dark web and breach data", "Threat intelligence for scoping", "Mapping to adversary behaviour", "Verifying intelligence", "Legal and ethical limits", "Protecting collected data", "Feeding OSINT into the test", "Reporting intelligence findings"],
+          "tools": ["OSINT tools", "Threat intelligence sources", "MITRE ATT&CK"],
+          "lab_task": "Build an OSINT profile of the lab company and map a likely adversary's behaviour to plan a threat-informed test.",
+          "deliverable": "Threat-informed OSINT profile",
+          "checks": [["Collect", "Intelligence covers people, company and technology", "Profile"], ["Map", "A likely adversary's behaviour is mapped", "ATT&CK mapping"], ["Plan", "The test plan reflects the intelligence", "Plan"]],
+          "objectives": ["Run an OSINT programme", "Map adversary behaviour", "Plan threat-informed tests"]
+        },
+        {
+          "topic": "Reporting at Scale and Retesting",
+          "subtopics": ["Report standards for teams", "Finding libraries and templates", "Risk scoring consistency", "Evidence management", "Executive and technical audiences", "Tracking remediation", "Retesting and verification", "Metrics across engagements", "Quality review of reports", "Delivering results to clients"],
+          "tools": ["Reporting platform or templates", "Findings library", "Tracker"],
+          "lab_task": "Produce a report from a multi-domain engagement using a findings library, consistent risk scoring and a remediation tracker, then plan the retest.",
+          "deliverable": "Standardised report and retest plan",
+          "checks": [["Standardise", "The report uses the library and scoring", "Report"], ["Track", "Remediation items are tracked", "Tracker"], ["Retest", "A retest plan verifies fixes", "Plan"]],
+          "objectives": ["Report consistently at scale", "Track remediation", "Plan retests"]
+        },
+        {
+          "topic": "OSCP and Practical Exam Preparation",
+          "subtopics": ["Practical exam formats", "Time management under pressure", "Enumeration discipline", "Note-taking for the exam", "Buffer overflow and privilege escalation practice", "Avoiding rabbit holes", "Exam report writing", "Practice labs and platforms", "Rest and exam logistics", "Review plan for weak areas"],
+          "tools": ["Practice labs such as HackTheBox", "Note-taking tool", "Exam report template"],
+          "lab_task": "Complete a timed practice box from enumeration to privilege escalation with full notes, then write the exam-style report.",
+          "deliverable": "Timed practice result and report",
+          "checks": [["Enumerate", "Enumeration is thorough and noted", "Notes"], ["Compromise", "The box is fully compromised in time", "Proof"], ["Report", "The exam-style report meets the format", "Report"]],
+          "objectives": ["Prepare for practical exams", "Keep exam notes", "Write exam reports"]
+        },
+        {
+          "topic": "Attacking CI/CD Pipelines and Developer Tooling",
+          "subtopics": ["The CI/CD attack surface", "Exposed pipeline configuration and secrets", "Poisoned pipeline execution", "Build agent compromise", "Dependency confusion", "Artefact and registry tampering", "Access to source control", "Detection of pipeline attacks", "Hardening recommendations", "Reporting pipeline findings"],
+          "tools": ["A lab CI/CD pipeline", "Source control", "Secret scanning tools"],
+          "lab_task": "Attack a lab CI/CD pipeline through an exposed secret and a poisoned pipeline step, reach the build agent and recommend hardening.",
+          "deliverable": "CI/CD attack findings",
+          "checks": [["Exploit", "A secret or pipeline step is abused", "Proof"], ["Reach", "The build agent or artefact is compromised", "Proof"], ["Harden", "Pipeline hardening is recommended", "Recommendations"]],
+          "objectives": ["Attack CI/CD pipelines", "Abuse secrets and steps", "Recommend pipeline hardening"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Domain Penetration Test with a Red Team Flavour",
+          "subtopics": ["Planning and threat model", "External and internal attack", "Active Directory and cloud", "Command and control and reporting"],
+          "tools": ["Kali Linux", "BloodHound", "A command-and-control framework", "Report template"],
+          "lab_task": "Run a multi-domain test of the lab company from external recon through phishing to Active Directory and cloud compromise using command and control, and deliver a report.",
+          "deliverable": "Multi-domain test with a report",
+          "checks": [["Compromise", "Access moves from external to domain and cloud", "Evidence chain"], ["Operate", "Command and control is used within scope", "Operator log"], ["Report", "The report rates and explains the chain", "Report"]],
+          "objectives": ["Combine intermediate skills", "Run a multi-domain test", "Report an attack chain"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior penetration testers, red team leads and offensive security managers. Covers red team programme design and planning, adversary emulation with threat intelligence, custom tooling and implant development, advanced evasion against endpoint detection, defence evasion with AMSI and ETW, physical and social engineering operations, assumed-breach and purple teaming, Active Directory and hybrid identity attacks, attacking AI and machine learning systems, OT and IoT testing, cloud and container attacks at depth, supply chain attacks, operational security and infrastructure, metrics and maturity, legal and insurance considerations, building a team and reporting to executives.",
+      "prerequisites": ["Has run multi-domain penetration tests and used command-and-control frameworks", "Strong Active Directory, cloud and scripting skills", "Responsible for leading tests or an offensive team"],
+      "outcomes": ["Design and lead red team and adversary-emulation programmes", "Build custom tooling and evade modern endpoint and detection controls", "Run purple teaming, physical operations and specialised tests including AI, OT and supply chain", "Measure offensive maturity, manage legal risk and report to executives"],
+      "days": [
+        {
+          "topic": "Red Team Programme Design and Operating Model",
+          "subtopics": ["Red team goals and value", "Red, blue and purple roles", "Programme governance", "Engagement types and cadence", "Rules of engagement for red teams", "Deconfliction and safety", "Target selection and objectives", "Metrics for the programme", "Building trust with defenders", "Reporting lines and independence"],
+          "tools": ["Programme charter", "Rules of engagement", "Metrics sheet"],
+          "lab_task": "Design a red team programme for the lab company with governance, engagement cadence, objectives and metrics, and present it to a leadership persona.",
+          "deliverable": "Red team programme design",
+          "checks": [["Govern", "Governance and safety controls are defined", "Charter"], ["Plan", "Engagement types and cadence are set", "Programme plan"], ["Measure", "Programme metrics are defined", "Metrics"]],
+          "objectives": ["Design a red team programme", "Set governance", "Measure the programme"]
+        },
+        {
+          "topic": "Adversary Emulation with Threat Intelligence",
+          "subtopics": ["Threat-informed defence and emulation", "Choosing an adversary to emulate", "Extracting behaviours from intelligence", "Mapping to MITRE ATT&CK", "Building an emulation plan", "Tooling that matches the adversary", "Executing the emulation", "Measuring defender response", "Feedback to the blue team", "Reporting the emulation"],
+          "tools": ["MITRE ATT&CK", "Adversary emulation plans", "Threat intelligence"],
+          "lab_task": "Build and run an adversary-emulation plan for a chosen threat actor against the lab, mapped to ATT&CK, and measure which techniques were detected.",
+          "deliverable": "Adversary-emulation plan and results",
+          "checks": [["Plan", "The plan matches the chosen adversary", "Emulation plan"], ["Execute", "Techniques are run and recorded", "Execution log"], ["Measure", "Detection of each technique is recorded", "Results"]],
+          "objectives": ["Emulate adversaries", "Map to ATT&CK", "Measure detection"]
+        },
+        {
+          "topic": "Custom Tooling and Implant Development",
+          "subtopics": ["Why teams build custom tools", "Implant design", "Command-and-control channels", "Modularity and tasking", "Obfuscation and signatures", "Reducing indicators", "Testing against detection", "Maintaining tooling", "Sharing tooling safely", "Documenting custom tools"],
+          "tools": ["A programming language such as Go or C#", "A command-and-control framework", "Lab defences"],
+          "lab_task": "Extend an open-source implant or build a simple one with a custom command channel, test it against lab detection and document its indicators.",
+          "deliverable": "Custom implant with indicator notes",
+          "checks": [["Build", "The implant checks in and runs tasks", "Console output"], ["Test", "Detection by lab defences is measured", "Results"], ["Document", "Indicators and limits are documented", "Notes"]],
+          "objectives": ["Build custom tooling", "Reduce indicators", "Test against detection"]
+        },
+        {
+          "topic": "Advanced Evasion: AMSI, ETW and Endpoint Detection",
+          "subtopics": ["How endpoint detection and response works", "Telemetry sources", "AMSI and its bypass concepts", "Event Tracing for Windows evasion", "In-memory and reflective execution", "Unhooking and syscalls", "Testing against a lab endpoint product", "Measuring what is detected", "Keeping evasion within scope", "Documenting evasion techniques"],
+          "tools": ["Lab endpoint detection product", "A command-and-control framework", "Windows lab"],
+          "lab_task": "Run a technique that a lab endpoint product detects, apply AMSI and ETW evasion, and measure the change in alerts without leaving scope.",
+          "deliverable": "Evasion results with detection comparison",
+          "checks": [["Detect", "The baseline technique is detected", "Alerts"], ["Evade", "Evasion lowers the alerts", "Comparison"], ["Document", "Techniques and limits are recorded", "Notes"]],
+          "objectives": ["Understand endpoint detection", "Evade AMSI and ETW", "Measure detection changes"]
+        },
+        {
+          "topic": "Physical and Social Engineering Operations",
+          "subtopics": ["Physical security assessment goals", "Tailgating and badge cloning concepts", "Lock and door bypass awareness", "Dropping devices and rogue implants", "On-site pretexting", "Combining physical and network access", "Safety and legal limits for physical tests", "Evidence from physical operations", "Defences for physical security", "Reporting physical findings"],
+          "tools": ["Physical assessment kit in a lab", "Rogue device", "Report template"],
+          "lab_task": "Plan a physical and social engineering operation for a lab scenario with pretexts, a drop device plan and safety limits, and write the playbook.",
+          "deliverable": "Physical operation playbook",
+          "checks": [["Plan", "Pretexts and entry methods are planned", "Playbook"], ["Limit", "Safety and legal limits are defined", "Rules"], ["Defend", "Physical defences are recommended", "Recommendations"]],
+          "objectives": ["Plan physical operations", "Combine physical and digital access", "Stay safe and lawful"]
+        },
+        {
+          "topic": "Assumed-Breach and Purple Team Operations",
+          "subtopics": ["The assumed-breach model", "Starting from a foothold", "Purple teaming goals", "Running techniques with the blue team watching", "Measuring detection and response times", "Tuning detections together", "Documenting coverage gaps", "Repeating to show improvement", "Collaboration habits", "Reporting purple team results"],
+          "tools": ["A command-and-control framework", "SIEM and detection tools", "ATT&CK"],
+          "lab_task": "Run an assumed-breach purple team exercise where the blue team watches, record which techniques were detected and tune two detections together.",
+          "deliverable": "Purple team exercise record",
+          "checks": [["Run", "Techniques are run from an assumed breach", "Execution log"], ["Measure", "Detection and response times are recorded", "Results"], ["Improve", "Two detections are tuned and retested", "Before-and-after"]],
+          "objectives": ["Run assumed-breach exercises", "Measure detection", "Improve detections with defenders"]
+        },
+        {
+          "topic": "Active Directory and Hybrid Identity Attacks at Depth",
+          "subtopics": ["Advanced Active Directory attack paths", "ADCS abuse in depth", "Trust and forest attacks", "Entra ID and hybrid attacks", "Token theft and cloud lateral movement", "Conditional Access bypass concepts", "Detection and hardening", "Tier 0 protection from the attacker's view", "Measuring exposure", "Reporting identity risk"],
+          "tools": ["BloodHound", "Rubeus and impacket", "A lab hybrid identity environment"],
+          "lab_task": "Attack a lab hybrid environment from an on-premises foothold to a cloud admin role through ADCS or token theft, then recommend tier 0 hardening.",
+          "deliverable": "Hybrid identity attack path and hardening",
+          "checks": [["Attack", "The path from on premises to cloud is proven", "Path write-up"], ["Explain", "Each step maps to a detection opportunity", "Mapping"], ["Harden", "Tier 0 and hybrid hardening is recommended", "Recommendations"]],
+          "objectives": ["Attack hybrid identity", "Reach cloud admin lawfully", "Recommend identity hardening"]
+        },
+        {
+          "topic": "Attacking AI and Machine Learning Systems",
+          "subtopics": ["The AI attack surface", "Prompt injection and jailbreaks", "Training data and model poisoning concepts", "Model extraction and inversion", "Attacking AI agents and tools", "Insecure AI integrations", "The OWASP Top 10 for large language model applications", "Testing an AI feature safely", "Defences for AI systems", "Reporting AI findings"],
+          "tools": ["A lab AI application", "OWASP LLM Top 10", "Prompt injection payloads"],
+          "lab_task": "Test a lab AI feature for prompt injection and insecure tool use, demonstrate a data leak and recommend defences.",
+          "deliverable": "AI system findings with defences",
+          "checks": [["Inject", "A prompt injection changes the AI behaviour", "Proof"], ["Leak", "Insecure tool use leaks data", "Proof"], ["Defend", "Defences for the AI system are recommended", "Recommendations"]],
+          "objectives": ["Attack AI systems lawfully", "Exploit prompt injection", "Recommend AI defences"]
+        },
+        {
+          "topic": "Operational Technology and IoT Testing",
+          "subtopics": ["OT and IoT risks", "Safety-first testing in OT", "Industrial protocols", "Device firmware analysis", "Hardware interfaces", "Network segmentation for OT", "Passive techniques for fragile systems", "Standards such as IEC 62443", "Defences for OT and IoT", "Reporting OT findings"],
+          "tools": ["A lab OT or IoT device", "Firmware analysis tools", "Protocol tools"],
+          "lab_task": "Analyse a lab IoT device's firmware and traffic with passive and safe methods, find a weakness and recommend defences without disrupting the device.",
+          "deliverable": "OT and IoT findings with defences",
+          "checks": [["Analyse", "Firmware or traffic reveals a weakness", "Findings"], ["Protect", "Fragile systems are not disrupted", "Activity log"], ["Defend", "Segmentation and hardening are recommended", "Recommendations"]],
+          "objectives": ["Test OT and IoT safely", "Analyse firmware and traffic", "Recommend OT defences"]
+        },
+        {
+          "topic": "Cloud and Container Attacks at Depth",
+          "subtopics": ["Advanced cloud attack paths", "Cross-account and cross-tenant attacks", "Cloud persistence", "Serverless abuse", "Container escape at depth", "Kubernetes cluster takeover", "Cloud detection and response", "Hardening recommendations", "Measuring cloud exposure", "Reporting cloud attack chains"],
+          "tools": ["Pacu and cloud CLIs", "A lab cloud and cluster", "ScoutSuite"],
+          "lab_task": "Chain a cloud misconfiguration into cluster takeover in the lab, establish cloud persistence and report the chain with hardening.",
+          "deliverable": "Cloud attack chain with hardening",
+          "checks": [["Chain", "A chain from misconfiguration to takeover is proven", "Chain write-up"], ["Persist", "Cloud persistence is demonstrated", "Proof"], ["Harden", "Hardening for each step is recommended", "Recommendations"]],
+          "objectives": ["Attack clouds and clusters at depth", "Establish cloud persistence", "Recommend hardening"]
+        },
+        {
+          "topic": "Supply Chain and Software Attacks",
+          "subtopics": ["Supply chain attack paths", "Dependency and package attacks", "Build pipeline compromise", "Signing and provenance weaknesses", "Insider and vendor risk", "Testing a software supply chain", "SLSA and defences", "Detection of supply chain attacks", "Measuring supply chain risk", "Reporting supply chain findings"],
+          "tools": ["A lab build pipeline", "Dependency tools", "SLSA guidance"],
+          "lab_task": "Compromise a lab build pipeline through a dependency or pipeline weakness, show the impact on the artefact and recommend supply chain defences.",
+          "deliverable": "Supply chain attack with defences",
+          "checks": [["Compromise", "The pipeline or dependency is abused", "Proof"], ["Impact", "The built artefact is affected", "Evidence"], ["Defend", "Supply chain defences are recommended", "Recommendations"]],
+          "objectives": ["Test software supply chains", "Compromise a pipeline lawfully", "Recommend supply chain defences"]
+        },
+        {
+          "topic": "Operational Security and Red Team Infrastructure",
+          "subtopics": ["Operational security for red teams", "Attacker infrastructure design", "Redirectors and domain fronting concepts", "Separating infrastructure per engagement", "Protecting operator identities", "Burn and rotation of infrastructure", "Logging and audit of operations", "Automation of infrastructure", "Takedown and clean-up", "Documenting infrastructure"],
+          "tools": ["Infrastructure automation", "Redirectors", "A command-and-control framework"],
+          "lab_task": "Stand up segregated red team infrastructure with redirectors and automation for a lab engagement, and document operational security controls.",
+          "deliverable": "Red team infrastructure with operational security",
+          "checks": [["Build", "Segregated infrastructure is deployed", "Infrastructure record"], ["Protect", "Operational security controls are in place", "Controls list"], ["Clean up", "Takedown and clean-up are planned", "Clean-up plan"]],
+          "objectives": ["Build red team infrastructure", "Apply operational security", "Plan takedown"]
+        },
+        {
+          "topic": "Offensive Security Metrics, Maturity and Legal Considerations",
+          "subtopics": ["Measuring offensive security value", "Coverage of ATT&CK techniques", "Detection improvement over time", "Maturity models for red teams", "Legal and contractual considerations", "Insurance and liability", "Data protection during engagements", "Working across jurisdictions", "Reporting maturity to leadership", "Continuous improvement"],
+          "tools": ["ATT&CK coverage tracker", "Maturity model", "Legal checklist"],
+          "lab_task": "Build an ATT&CK coverage and detection-improvement report for the lab programme and review legal and insurance considerations for a cross-border test.",
+          "deliverable": "Maturity report and legal review",
+          "checks": [["Measure", "Coverage and detection improvement are reported", "Report"], ["Assess", "Legal and insurance points are listed", "Legal review"], ["Improve", "Next steps for maturity are planned", "Plan"]],
+          "objectives": ["Measure offensive maturity", "Track ATT&CK coverage", "Manage legal risk"]
+        },
+        {
+          "topic": "Advanced Initial Access Tradecraft",
+          "subtopics": ["Initial access vectors for mature targets", "Pretext research and targeting", "Payload delivery that evades mail defences", "Browser-in-the-middle and token theft", "Malicious documents and link lures", "Callback and interaction techniques", "Measuring initial access success", "Defences against each vector", "Legal and consent limits", "Reporting initial access tradecraft"],
+          "tools": ["Lab mail defences", "Phishing framework", "A command-and-control framework"],
+          "lab_task": "Build an initial access chain that evades lab mail defences and captures a session, then map each step to a detection and defence.",
+          "deliverable": "Initial access tradecraft record",
+          "checks": [["Deliver", "The lure evades lab mail defences", "Delivery proof"], ["Capture", "A session or token is captured", "Proof"], ["Defend", "Each step has a detection and defence", "Mapping"]],
+          "objectives": ["Develop initial access tradecraft", "Evade mail defences", "Map defences"]
+        },
+        {
+          "topic": "Malware Development and Loaders for Red Teams",
+          "subtopics": ["Loader and stager design", "Shellcode loading techniques", "Encryption and staging", "Process injection techniques", "Avoiding common signatures", "Sandboxes and anti-analysis concepts", "Testing against lab detection", "Keeping development lawful and in scope", "Indicators of compromise", "Documenting the loader"],
+          "tools": ["A programming language such as C# or Rust", "Lab detection tools", "Debugger"],
+          "lab_task": "Build a lab loader that stages encrypted shellcode and injects into a process, test it against lab detection and document its indicators.",
+          "deliverable": "Loader with indicator notes",
+          "checks": [["Build", "The loader runs the staged payload", "Execution proof"], ["Test", "Detection by lab tools is measured", "Results"], ["Document", "Indicators of compromise are listed", "Notes"]],
+          "objectives": ["Develop loaders lawfully", "Use injection techniques", "Document indicators"]
+        },
+        {
+          "topic": "Network Detection Evasion and Deception Awareness",
+          "subtopics": ["Network detection and response concepts", "Traffic shaping and jitter", "Protocol blending and domain fronting concepts", "DNS and HTTPS channels", "Beacon configuration for stealth", "Detecting and avoiding deception technology", "Honeypots and honey tokens", "Measuring network detection", "Staying in scope", "Reporting evasion and deception findings"],
+          "tools": ["A command-and-control framework", "Lab network detection", "Lab honeypots"],
+          "lab_task": "Tune a beacon for stealthy network traffic, trigger a lab honey token on purpose to study deception and measure what network detection sees.",
+          "deliverable": "Network evasion and deception notes",
+          "checks": [["Tune", "Beacon traffic is made stealthier", "Traffic comparison"], ["Trip", "A honey token is studied and documented", "Notes"], ["Measure", "Network detection results are recorded", "Results"]],
+          "objectives": ["Evade network detection", "Recognise deception technology", "Measure network detection"]
+        },
+        {
+          "topic": "Data Exfiltration Techniques and Detection",
+          "subtopics": ["Exfiltration goals and risks in a test", "Channels: HTTPS, DNS and cloud storage", "Staging and compression", "Chunking and throttling", "Data loss prevention concepts", "Detecting exfiltration", "Proof of impact without real data", "Keeping client data safe", "Defences against exfiltration", "Reporting exfiltration findings"],
+          "tools": ["A command-and-control framework", "Lab data loss prevention", "Lab data"],
+          "lab_task": "Exfiltrate benign lab marker files over two channels within scope, show what data loss prevention detects and recommend defences.",
+          "deliverable": "Exfiltration demonstration with defences",
+          "checks": [["Exfiltrate", "Marker files leave over two channels", "Proof"], ["Detect", "Data loss prevention results are recorded", "Results"], ["Defend", "Exfiltration defences are recommended", "Recommendations"]],
+          "objectives": ["Demonstrate exfiltration safely", "Test data loss prevention", "Recommend defences"]
+        },
+        {
+          "topic": "Long-Haul Operations and Persistence at Scale",
+          "subtopics": ["Long-duration engagements", "Resilient persistence", "Multiple footholds and fallback channels", "Rotating infrastructure during an operation", "Operator shift handovers", "Avoiding detection over time", "Tracking actions for the report", "Clean-up across many hosts", "Measuring dwell time", "Reporting long-haul operations"],
+          "tools": ["A command-and-control framework", "Operator logs", "Lab hosts"],
+          "lab_task": "Plan a long-haul operation with resilient persistence and fallback channels across several lab hosts, run a shift handover and track all actions.",
+          "deliverable": "Long-haul operation plan and log",
+          "checks": [["Persist", "Multiple footholds survive disruption", "Reconnect proof"], ["Hand over", "A shift handover keeps context", "Handover note"], ["Track", "All actions are logged for the report", "Operator log"]],
+          "objectives": ["Run long-haul operations", "Build resilient persistence", "Track actions over time"]
+        },
+        {
+          "topic": "Breach and Attack Simulation and Automation",
+          "subtopics": ["Breach and attack simulation tools", "Automating technique execution", "Continuous validation of defences", "Mapping runs to ATT&CK", "Safe automation in production", "Comparing manual and automated testing", "Scheduling and reporting", "Feeding results to the blue team", "Measuring improvement over time", "Choosing where automation fits"],
+          "tools": ["An open-source breach and attack simulation tool", "ATT&CK", "SIEM"],
+          "lab_task": "Automate a set of ATT&CK techniques with a breach and attack simulation tool in the lab, compare the results with a manual run and report coverage.",
+          "deliverable": "Simulation automation results",
+          "checks": [["Automate", "Techniques run automatically and safely", "Run log"], ["Compare", "Automated and manual results are compared", "Comparison"], ["Report", "Coverage and improvement are reported", "Report"]],
+          "objectives": ["Use breach and attack simulation", "Automate technique runs", "Report coverage"]
+        },
+        {
+          "topic": "Advanced Capstone: Full-Scope Red Team Operation with Executive Reporting",
+          "subtopics": ["Objectives and threat model", "Initial access and operations", "Identity, cloud and detection", "Executive and technical reporting"],
+          "tools": ["A command-and-control framework", "BloodHound", "SIEM", "Report templates"],
+          "lab_task": "Lead a full-scope red team operation against the lab company with objective-based access, command and control, identity and cloud compromise, a purple team debrief and both executive and technical reports.",
+          "deliverable": "Red team operation with executive and technical reports",
+          "checks": [["Achieve", "The objectives are achieved within scope", "Evidence chain"], ["Debrief", "A purple team debrief improves detections", "Debrief record"], ["Report", "Executive and technical reports are delivered", "Reports"]],
+          "objectives": ["Combine advanced skills", "Lead a full-scope operation", "Report to executives and defenders"]
+        }
+      ]
+    }
+  }
+}

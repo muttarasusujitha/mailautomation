@@ -1,0 +1,32 @@
+"""Periodic Gmail inbox polling task — delegates to email-service via HTTP."""
+import logging
+import httpx
+
+from app.celery_app import celery_app
+from app.config import get_settings
+
+logger = logging.getLogger(__name__)
+settings = get_settings()
+
+
+@celery_app.task(name="app.tasks.inbox_poll.poll_inbox", bind=True, max_retries=3)
+def poll_inbox(self):
+    """Call email-service /inbox/poll/sync to fetch new inbound emails."""
+    url = f"{settings.EMAIL_SERVICE_URL}/api/v1/email/inbox/poll/sync"
+    try:
+        # Keep a per-run bound for Gmail API quota while scanning enough of the
+        # latest inbox to avoid repeatedly overlooking client mail behind alerts.
+        resp = httpx.post(url, json={"since_days": 30, "max_messages": 100}, timeout=300)
+        resp.raise_for_status()
+        data = resp.json()
+        logger.info(
+            "Inbox poll completed: stored=%s checked=%s failed=%s skipped=%s",
+            data.get("stored"),
+            data.get("checked"),
+            data.get("failed"),
+            data.get("skipped"),
+        )
+        return data
+    except Exception as exc:
+        logger.exception("Inbox poll failed")
+        raise self.retry(exc=exc, countdown=60)

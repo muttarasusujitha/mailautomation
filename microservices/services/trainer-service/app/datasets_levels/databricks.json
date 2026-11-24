@@ -1,0 +1,573 @@
+{
+  "domain": "Databricks",
+  "name": "Databricks Data Intelligence Platform",
+  "category": "Data Engineering and Analytics",
+  "icon": "database",
+  "aliases": ["Databricks Lakehouse", "Databricks Lakehouse Platform", "Azure Databricks", "Databricks on AWS", "Databricks Data Engineering", "Databricks Data Engineer", "Databricks Training", "Delta Lake", "Unity Catalog"],
+  "certifications": ["Databricks Certified Data Engineer Associate", "Databricks Certified Data Engineer Professional", "Databricks Certified Data Analyst Associate", "Databricks Certified Machine Learning Associate"],
+  "tools": ["Databricks Workspace", "Apache Spark", "PySpark", "Delta Lake", "Unity Catalog", "Databricks SQL", "Lakeflow", "MLflow"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For data engineers, analysts and developers new to Databricks. Covers the workspace, compute, Spark concepts, DataFrames, Spark SQL, Delta Lake, transformations, semi-structured data, Unity Catalog, Auto Loader, the medallion architecture, Lakeflow Jobs, PySpark functions, AI/BI dashboards, table maintenance, Git folders, cost basics, BI connections and the Spark UI.",
+      "prerequisites": ["Writes SQL with joins and GROUP BY", "Knows basic Python", "Understands what a data warehouse or data lake is in general terms"],
+      "outcomes": ["Load, transform and store data as Delta tables in Unity Catalog", "Build bronze, silver and gold layers with SQL and PySpark", "Schedule pipelines with Lakeflow Jobs and share results in dashboards", "Keep jobs efficient and find problems in the Spark UI"],
+      "days": [
+        {
+          "topic": "Databricks Platform Overview and Workspace Setup",
+          "subtopics": ["What the Databricks Data Intelligence Platform is", "Lakehouse compared with data lakes and warehouses", "Control plane and compute plane", "Databricks on Azure, AWS and GCP", "Workspaces, users and groups", "The workspace UI: workspace, catalog, compute, jobs and SQL", "Free Edition and trial accounts for practice", "Creating a first notebook", "Notebook languages and magic commands", "Course datasets and folders"],
+          "tools": ["Databricks Workspace", "Databricks Free Edition"],
+          "lab_task": "Sign in to a practice workspace, create a folder and a notebook, run Python and SQL cells against a sample dataset and note where each main area of the UI is.",
+          "deliverable": "Notebook with Python and SQL cells and a one-page UI map",
+          "checks": [["Run a SQL cell", "Sample table rows returned", "Notebook output"], ["Run a Python cell with %python", "Same row count as the SQL cell", "Notebook output"], ["Explain the planes", "Control and compute planes described correctly", "UI map"]],
+          "objectives": ["Describe the lakehouse", "Navigate the workspace", "Run notebooks"]
+        },
+        {
+          "topic": "Compute on Databricks: Clusters, Serverless and SQL Warehouses",
+          "subtopics": ["All-purpose and job compute", "Serverless compute for notebooks and jobs", "SQL warehouses", "Runtime versions and LTS releases", "Autoscaling and auto-termination", "Access modes: standard and dedicated", "Compute policies", "Choosing compute for a task"],
+          "tools": ["Databricks Workspace", "Databricks SQL"],
+          "lab_task": "Create an all-purpose cluster with auto-termination, attach a notebook, run the same query on serverless compute and a SQL warehouse and record start-up time and cost per run.",
+          "deliverable": "Compute configuration screenshots and comparison table",
+          "checks": [["Leave the cluster idle", "Terminates after the configured time", "Event log"], ["Compare start-up times", "Recorded for all three options", "Comparison table"], ["Choose compute for three scenarios", "Choice justified for each", "Written note"]],
+          "objectives": ["Create and manage compute", "Use serverless", "Choose compute by workload"]
+        },
+        {
+          "topic": "Apache Spark Concepts on Databricks",
+          "subtopics": ["Driver and executors", "Partitions and parallelism", "Transformations and actions", "Lazy evaluation", "Narrow and wide transformations", "Jobs, stages and tasks", "Caching in brief", "Spark Connect"],
+          "tools": ["PySpark", "Spark UI"],
+          "lab_task": "Run a chain of transformations and one action on a large sample dataset, count the stages in the Spark UI, change the partition count and explain the difference.",
+          "deliverable": "Notebook and Spark UI notes",
+          "checks": [["Run transformations without an action", "No job starts", "Spark UI"], ["Run the action", "Stages match the wide transformations", "Spark UI"], ["Change partitions", "Task count changes to match", "Spark UI"]],
+          "objectives": ["Explain how Spark runs work", "Read jobs and stages", "Control partitions"]
+        },
+        {
+          "topic": "Reading and Writing Data with DataFrames",
+          "subtopics": ["Reading CSV, JSON and Parquet", "Schemas: inferred and explicit", "Selecting, filtering and renaming columns", "Adding columns with withColumn", "Handling nulls", "Writing data and save modes", "Volumes for files in Unity Catalog", "display() and data profiles"],
+          "tools": ["PySpark", "Unity Catalog Volumes"],
+          "lab_task": "Upload raw sales CSV files to a volume, read them with an explicit schema, clean nulls and column names, and write the result as a table, then repeat a write with overwrite and append to see the difference.",
+          "deliverable": "Notebook and output table",
+          "checks": [["Read with a wrong type in the schema", "Bad values become null and are counted", "Notebook"], ["Append twice", "Row count doubles", "Query result"], ["Overwrite", "Row count back to one load", "Query result"]],
+          "objectives": ["Read files into DataFrames", "Apply schemas", "Write tables"]
+        },
+        {
+          "topic": "Spark SQL and Databricks SQL Queries",
+          "subtopics": ["Creating tables and views", "Temporary views", "SELECT, joins and aggregation in Spark SQL", "Common table expressions", "Built-in functions", "The SQL editor", "Query history", "Parameters in queries"],
+          "tools": ["Databricks SQL", "SQL editor", "Spark SQL"],
+          "lab_task": "Write SQL in the SQL editor to report revenue by month and region from the sales table, create a view for it, add a parameter for region and inspect the query history.",
+          "deliverable": "Saved queries, view definition and screenshots",
+          "checks": [["Run the parameterised query", "Results change with the parameter", "Screenshot"], ["Compare with PySpark", "Same totals", "Notebook and query"], ["Open query history", "Duration and rows read shown", "Screenshot"]],
+          "objectives": ["Query with Spark SQL", "Create views", "Use the SQL editor"]
+        },
+        {
+          "topic": "Delta Lake Tables",
+          "subtopics": ["What Delta Lake adds to Parquet", "The transaction log", "ACID transactions", "Managed and external tables", "Schema enforcement", "Schema evolution", "MERGE for upserts", "Table history"],
+          "tools": ["Delta Lake", "Spark SQL", "PySpark"],
+          "lab_task": "Create a managed Delta table of customers, try to append data with a wrong column type, evolve the schema with a new column and upsert changes with MERGE.",
+          "deliverable": "Notebook and table history output",
+          "checks": [["Append a wrong type", "Write rejected by schema enforcement", "Error output"], ["Run MERGE", "Updated and inserted row counts correct", "MERGE metrics"], ["Run DESCRIBE HISTORY", "Each operation listed", "History output"]],
+          "objectives": ["Use Delta tables", "Enforce and evolve schemas", "Upsert with MERGE"]
+        },
+        {
+          "topic": "Transformations: Joins, Aggregations and Windows",
+          "subtopics": ["Join types in PySpark", "Broadcast joins for small tables", "groupBy and agg", "Window functions", "Deduplication with row_number", "Pivoting data", "Handling dates and time zones", "Writing readable transformation code"],
+          "tools": ["PySpark", "Spark SQL"],
+          "lab_task": "Join orders, customers and products, compute revenue per customer per month, rank customers within regions with a window and remove duplicate orders keeping the latest version.",
+          "deliverable": "Notebook and result tables",
+          "checks": [["Deduplicate orders", "One row per order ID", "Query result"], ["Rank within regions", "Ranks restart in each region", "Query result"], ["Broadcast the product table", "Broadcast join shown in the plan", "explain() output"]],
+          "objectives": ["Join and aggregate data", "Use windows", "Deduplicate reliably"]
+        },
+        {
+          "topic": "Working with Semi-Structured Data",
+          "subtopics": ["Nested JSON", "Structs, arrays and maps", "explode and flatten", "from_json and schema hints", "The VARIANT type", "Rescued data columns", "Querying JSON with SQL", "Flattening for reporting"],
+          "tools": ["PySpark", "Spark SQL"],
+          "lab_task": "Load nested clickstream JSON, flatten events and their properties, store raw payloads in a VARIANT column and compare query speed and convenience of both approaches.",
+          "deliverable": "Notebook, flattened table and comparison notes",
+          "checks": [["Explode the items array", "One row per item", "Query result"], ["Query a nested field with VARIANT", "Correct values returned", "Query result"], ["Load a file with a new field", "Field kept in rescued data", "Query result"]],
+          "objectives": ["Read nested data", "Flatten structures", "Use VARIANT"]
+        },
+        {
+          "topic": "Unity Catalog: Catalogs, Schemas and Permissions",
+          "subtopics": ["The three-level namespace", "Metastores, catalogs and schemas", "Managed tables, views and volumes", "Granting privileges", "Groups and service principals", "Ownership", "Information schema", "Data discovery in Catalog Explorer"],
+          "tools": ["Unity Catalog", "Catalog Explorer"],
+          "lab_task": "Create dev and prod catalogs with bronze, silver and gold schemas, grant analysts read-only access to gold and engineers write access to all, and test access as each group.",
+          "deliverable": "Grant scripts and access test results",
+          "checks": [["Query silver as an analyst", "Permission denied", "Error output"], ["Query gold as an analyst", "Rows returned", "Query result"], ["List grants from information_schema", "Matches the plan", "Query result"]],
+          "objectives": ["Organise data in Unity Catalog", "Grant access", "Test permissions"]
+        },
+        {
+          "topic": "Ingesting Files with Auto Loader and COPY INTO",
+          "subtopics": ["Incremental file ingestion", "COPY INTO", "Auto Loader with cloudFiles", "Schema inference and evolution in Auto Loader", "Checkpoints", "Triggers: availableNow and continuous", "File notification and directory listing modes", "Handling bad records"],
+          "tools": ["Auto Loader", "COPY INTO", "Unity Catalog Volumes"],
+          "lab_task": "Ingest daily order files with COPY INTO, then switch to Auto Loader with schema evolution, drop in a file with a new column and a corrupt file, and confirm each file is loaded once.",
+          "deliverable": "Ingestion notebooks and load history",
+          "checks": [["Run the load twice", "Files not loaded again", "Row counts"], ["Add a file with a new column", "Column added by schema evolution", "Table schema"], ["Add a corrupt file", "Bad records kept separately", "Query result"]],
+          "objectives": ["Ingest files incrementally", "Handle schema changes", "Avoid duplicate loads"]
+        },
+        {
+          "topic": "Medallion Architecture: Bronze, Silver and Gold",
+          "subtopics": ["Purpose of each layer", "Bronze: raw and append-only", "Silver: cleaned and conformed", "Gold: business-level tables", "Naming conventions", "Reprocessing from bronze", "When to add or skip layers"],
+          "tools": ["Delta Lake", "PySpark", "Spark SQL"],
+          "lab_task": "Build bronze, silver and gold tables for the sales data with clear naming, then rebuild silver and gold from bronze after a cleaning rule changes.",
+          "deliverable": "Layered tables, notebooks and a design note",
+          "checks": [["Change a cleaning rule and rebuild", "Silver and gold updated from bronze", "Row counts"], ["Review bronze", "No transformations applied", "Table sample"], ["Review gold", "Tables match business questions", "Design note"]],
+          "objectives": ["Design medallion layers", "Build each layer", "Reprocess safely"]
+        },
+        {
+          "topic": "Scheduling Notebooks with Lakeflow Jobs",
+          "subtopics": ["Jobs and tasks", "Task dependencies", "Notebook, SQL and Python script tasks", "Job parameters", "Schedules and file arrival triggers", "Retries and timeouts", "Notifications", "Run history"],
+          "tools": ["Lakeflow Jobs", "Databricks Workspace"],
+          "lab_task": "Create a job that runs bronze, silver and gold tasks in order with parameters for the run date, a retry on the bronze task, a daily schedule and failure email alerts.",
+          "deliverable": "Job definition and run history",
+          "checks": [["Fail the silver task", "Gold does not run and an alert is sent", "Run history and email"], ["Run with a past date", "Parameter used in every task", "Run output"], ["Review retries", "Bronze retried before failing", "Run history"]],
+          "objectives": ["Schedule pipelines", "Chain tasks", "Handle failures"]
+        },
+        {
+          "topic": "PySpark Functions and User-Defined Functions",
+          "subtopics": ["Built-in functions first", "Writing reusable transformation functions", "Python UDFs and their cost", "pandas UDFs", "SQL UDFs in Unity Catalog", "Modules and imports from workspace files", "Unit testing functions", "Logging inside functions"],
+          "tools": ["PySpark", "pandas UDFs", "Unity Catalog"],
+          "lab_task": "Replace a slow Python UDF that cleans phone numbers with built-in functions and a pandas UDF, register a SQL UDF in Unity Catalog and compare run times.",
+          "deliverable": "Function module, UDFs and timing table",
+          "checks": [["Compare run times", "Built-in version fastest", "Timing table"], ["Call the SQL UDF from the SQL editor", "Correct output", "Query result"], ["Unit test the function", "Tests pass", "Test output"]],
+          "objectives": ["Write reusable functions", "Use UDFs carefully", "Share functions in Unity Catalog"]
+        },
+        {
+          "topic": "Visualising Data with AI/BI Dashboards",
+          "subtopics": ["Dashboards in Databricks", "Datasets and visualisations", "Filters and parameters", "Layout for readers", "Sharing and permissions", "Scheduled refresh and subscriptions", "Embedding dashboards", "When to use Power BI or Tableau instead"],
+          "tools": ["AI/BI Dashboards", "Databricks SQL"],
+          "lab_task": "Build a sales dashboard on the gold tables with a trend, top products, region filter and a daily email subscription, and share it with the analyst group only.",
+          "deliverable": "Published dashboard and sharing settings",
+          "checks": [["Filter by region", "All visuals update", "Screenshot"], ["Open as a user outside the group", "Access denied", "Screenshot"], ["Check the subscription", "Email arrives with the snapshot", "Email"]],
+          "objectives": ["Build dashboards in Databricks", "Share securely", "Schedule delivery"]
+        },
+        {
+          "topic": "Delta Table Maintenance: OPTIMIZE, VACUUM and Time Travel",
+          "subtopics": ["Small file problem", "OPTIMIZE", "Z-ordering and liquid clustering in brief", "Time travel queries", "RESTORE", "VACUUM and retention", "Predictive optimisation", "Table properties"],
+          "tools": ["Delta Lake", "Spark SQL"],
+          "lab_task": "Create a table with many small files, compact it with OPTIMIZE, query an older version with time travel, restore after a bad delete and VACUUM with the default retention.",
+          "deliverable": "Notebook and before and after file statistics",
+          "checks": [["Run OPTIMIZE", "File count lower afterwards", "DESCRIBE DETAIL output"], ["Restore after a bad delete", "Deleted rows back", "Query result"], ["VACUUM then query an old version", "Fails after retention passes and the reason explained", "Error output and note"]],
+          "objectives": ["Maintain Delta tables", "Use time travel", "Manage retention"]
+        },
+        {
+          "topic": "Git Folders and Collaborative Development",
+          "subtopics": ["Git folders in Databricks", "Branches and pull requests", "Notebooks as source files", "Workspace files and Python modules", "Code review for notebooks", "Comments and sharing", "Separating dev and prod work", "Secrets in code"],
+          "tools": ["Databricks Git folders", "GitHub or Azure DevOps", "Databricks secrets"],
+          "lab_task": "Connect a Git folder to a repository, move shared functions into a Python module, make a change on a branch, open a pull request and replace a hard-coded password with a secret scope.",
+          "deliverable": "Repository, pull request and secret configuration",
+          "checks": [["Commit from the workspace", "Change appears in the remote repository", "Repository history"], ["Print the secret", "Value shown as redacted", "Notebook output"], ["Import the module", "Function used from a notebook", "Notebook output"]],
+          "objectives": ["Use Git with Databricks", "Share code as modules", "Keep secrets out of code"]
+        },
+        {
+          "topic": "Cost Awareness on Databricks",
+          "subtopics": ["Databricks units and pricing", "Compute costs from the cloud provider", "Serverless versus classic costs", "Auto-termination and job compute", "Tags for cost tracking", "System tables for billing", "Common causes of waste", "Cost estimates for a pipeline"],
+          "tools": ["System tables", "Databricks SQL", "Compute policies"],
+          "lab_task": "Query billing system tables to find the costliest jobs and clusters of the last month, tag compute by project and write a cost estimate for the course pipeline.",
+          "deliverable": "Cost queries, tag settings and estimate",
+          "checks": [["Query billing", "Top five cost sources listed", "Query result"], ["Run tagged compute", "Tag appears in billing data", "Query result"], ["Review the estimate", "Compute and storage costs both included", "Estimate"]],
+          "objectives": ["Understand Databricks pricing", "Track cost", "Reduce waste"]
+        },
+        {
+          "topic": "Connecting BI Tools and External Systems",
+          "subtopics": ["JDBC and ODBC connections", "Partner Connect", "Power BI with Databricks", "Tableau with Databricks", "Personal access tokens versus OAuth", "Service principals for tools", "Query performance from BI tools", "Exporting data safely"],
+          "tools": ["Power BI", "Tableau", "Databricks SQL", "Partner Connect"],
+          "lab_task": "Connect Power BI to a SQL warehouse with OAuth, build a report on gold tables in DirectQuery mode, then connect a Python client with a service principal.",
+          "deliverable": "Report, connection settings and client script",
+          "checks": [["Refresh the report", "Data from the SQL warehouse", "Report screenshot"], ["Run the client script", "Authenticated as the service principal", "Script output"], ["Review the query history", "BI queries visible with duration", "Screenshot"]],
+          "objectives": ["Connect BI tools", "Authenticate safely", "Monitor BI queries"]
+        },
+        {
+          "topic": "Debugging Spark Jobs with the Spark UI",
+          "subtopics": ["Opening the Spark UI", "Jobs, stages and tasks views", "Reading the SQL query plan", "Shuffle read and write", "Data skew signs", "Spill to disk", "Driver logs and errors", "Common beginner errors"],
+          "tools": ["Spark UI", "Driver logs", "explain()"],
+          "lab_task": "Run three slow or failing jobs (a skewed join, an out-of-memory collect and a cartesian join), find each cause in the Spark UI and logs and fix it.",
+          "deliverable": "Diagnosis notes and fixed notebooks",
+          "checks": [["Find the skewed task", "Task with far more data identified", "Spark UI screenshot"], ["Fix the collect", "Driver no longer runs out of memory", "Run output"], ["Fix the cartesian join", "Join condition added and run time drops", "Spark UI"]],
+          "objectives": ["Read the Spark UI", "Diagnose slow jobs", "Fix common errors"]
+        },
+        {
+          "topic": "Beginner Capstone: Retail Sales Lakehouse",
+          "subtopics": ["Ingestion and layers", "Governance", "Scheduling", "Dashboard"],
+          "tools": ["Auto Loader", "Delta Lake", "Unity Catalog", "Lakeflow Jobs", "AI/BI Dashboards"],
+          "lab_task": "Build a retail lakehouse: ingest daily files with Auto Loader into bronze, clean to silver, build gold tables, secure them in Unity Catalog, schedule with a job and publish a dashboard, then demo a new day's file flowing through.",
+          "deliverable": "Notebooks, job, grants, dashboard and demo recording",
+          "checks": [["Drop a new day's file", "Dashboard shows the new day after the job runs", "Demo recording"], ["Query gold as an analyst", "Allowed, while silver is denied", "Test results"], ["Review the job", "Retries and alerts configured", "Job definition"]],
+          "objectives": ["Combine the beginner topics in one lakehouse", "Build an end-to-end pipeline", "Secure and share results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers who build pipelines on Databricks. Covers Lakeflow Declarative Pipelines, change data capture, Structured Streaming, layout and Spark tuning, Unity Catalog governance, Asset Bundles and CI/CD, testing, Lakeflow Connect, multi-task orchestration, SQL warehouses, Delta Sharing, MLflow, feature tables, slowly changing dimensions, monitoring, Terraform, cloud differences and Data Engineer Associate preparation.",
+      "prerequisites": ["Has built Delta tables and jobs on Databricks", "Writes PySpark and Spark SQL", "Uses Git for code"],
+      "outcomes": ["Build declarative batch and streaming pipelines with data quality rules", "Tune Spark and Delta layout for speed and cost", "Govern data with Unity Catalog and deploy with Asset Bundles through CI/CD", "Prepare for the Data Engineer Associate exam"],
+      "days": [
+        {
+          "topic": "Lakeflow Declarative Pipelines",
+          "subtopics": ["Declarative pipelines (formerly Delta Live Tables)", "Streaming tables and materialised views", "Defining pipelines in SQL and Python", "Expectations for data quality", "Development and production modes", "Pipeline graphs and event logs", "Serverless pipelines", "When to use pipelines or jobs with notebooks"],
+          "tools": ["Lakeflow Declarative Pipelines", "Spark SQL", "PySpark"],
+          "lab_task": "Rebuild the sales medallion flow as a declarative pipeline with streaming bronze, silver with expectations that drop or quarantine bad rows and gold materialised views, and read the event log for quality metrics.",
+          "deliverable": "Pipeline code, pipeline graph and quality metrics",
+          "checks": [["Load bad rows", "Rows dropped or quarantined as configured", "Event log query"], ["View the pipeline graph", "Dependencies match the design", "Screenshot"], ["Add a new file", "Only new data processed", "Event log"]],
+          "objectives": ["Build declarative pipelines", "Enforce quality with expectations", "Read pipeline events"]
+        },
+        {
+          "topic": "Change Data Capture with AUTO CDC",
+          "subtopics": ["CDC feeds from source databases", "Inserts, updates and deletes in CDC", "Ordering with sequence columns", "AUTO CDC (APPLY CHANGES) in pipelines", "SCD type 1 and type 2 outputs", "Change data feed on Delta tables", "Handling out-of-order events", "Reprocessing CDC safely"],
+          "tools": ["Lakeflow Declarative Pipelines", "Delta change data feed"],
+          "lab_task": "Apply a CDC feed of customer changes with out-of-order events to a type 2 customer table using AUTO CDC, then read the change data feed of silver to update a downstream table incrementally.",
+          "deliverable": "Pipeline code and table history",
+          "checks": [["Send an update before its insert", "Final state correct by sequence", "Query result"], ["Delete a customer", "Delete reflected in the target", "Query result"], ["Read the change data feed", "Only changed rows returned", "Query result"]],
+          "objectives": ["Process CDC feeds", "Build SCD tables", "Use change data feed"]
+        },
+        {
+          "topic": "Structured Streaming on Databricks",
+          "subtopics": ["Streaming concepts: micro-batches and triggers", "Sources: Kafka, Event Hubs, Kinesis and files", "Watermarks and late data", "Windowed aggregations", "Stream-to-static and stream-to-stream joins", "foreachBatch for custom writes", "Checkpoints and restarts", "Monitoring streams"],
+          "tools": ["Structured Streaming", "Apache Kafka or Azure Event Hubs", "Delta Lake"],
+          "lab_task": "Stream order events from Kafka, compute five-minute revenue windows with a watermark, join with a product table, write to Delta with foreachBatch MERGE and restart from the checkpoint.",
+          "deliverable": "Streaming notebook, output table and monitoring screenshots",
+          "checks": [["Send late events past the watermark", "Dropped and counted", "Stream metrics"], ["Restart the stream", "Continues without duplicates", "Row counts"], ["Check window results", "Revenue per window correct for sample data", "Query result"]],
+          "objectives": ["Build streaming pipelines", "Handle late data", "Restart safely"]
+        },
+        {
+          "topic": "Delta Layout Tuning: Partitioning, Liquid Clustering and Data Skipping",
+          "subtopics": ["How data skipping works", "File statistics", "When to partition and when not to", "Liquid clustering", "Choosing clustering keys", "Deletion vectors", "Optimised writes and auto compaction", "Measuring files read"],
+          "tools": ["Delta Lake", "Spark SQL", "Query profile"],
+          "lab_task": "Load 500 million rows, test queries with no layout, date partitioning and liquid clustering on customer and date, and compare files read and query time.",
+          "deliverable": "Layout experiments and results table",
+          "checks": [["Compare files read", "Fewer with liquid clustering for the filtered query", "Query profile"], ["Over-partition a table", "Small file problem shown", "DESCRIBE DETAIL output"], ["Change clustering keys", "Change applied without rewriting the table definition", "Table properties"]],
+          "objectives": ["Design table layout", "Use liquid clustering", "Measure data skipping"]
+        },
+        {
+          "topic": "Spark Execution: Shuffles, Joins and Adaptive Query Execution",
+          "subtopics": ["Physical plans", "Shuffle partitions", "Sort-merge, broadcast and shuffle hash joins", "Adaptive Query Execution", "Skew join handling", "Photon", "Caching and when it helps", "Memory and spill"],
+          "tools": ["Spark UI", "Query profile", "Photon"],
+          "lab_task": "Tune a slow gold job: read the plan, fix a skewed join, size shuffle partitions, enable Photon and record the run time after each change.",
+          "deliverable": "Tuning log with plans and timings",
+          "checks": [["Fix the skew", "Longest task time drops", "Spark UI"], ["Enable Photon", "Run time compared with and without", "Timing table"], ["Review the final plan", "Join strategy explained", "Plan notes"]],
+          "objectives": ["Read physical plans", "Tune joins and shuffles", "Use Photon"]
+        },
+        {
+          "topic": "Unity Catalog Governance: Lineage, Tags and Fine-Grained Access",
+          "subtopics": ["Data lineage", "Tags and classification", "Row filters", "Column masks", "Attribute-based access policies", "Audit logs in system tables", "Data quality monitoring", "Governance for files and models"],
+          "tools": ["Unity Catalog", "System tables", "Catalog Explorer"],
+          "lab_task": "Tag personal data columns, mask them for analysts, add a row filter so regional managers see only their region, trace lineage from bronze to a dashboard and query the audit log for access to the table.",
+          "deliverable": "Policies, lineage screenshot and audit query",
+          "checks": [["Query as a regional manager", "Only their region returned", "Query result"], ["Query a masked column as an analyst", "Values masked", "Query result"], ["Query the audit log", "Access events listed by user", "Query result"]],
+          "objectives": ["Govern data with Unity Catalog", "Apply fine-grained access", "Trace lineage and access"]
+        },
+        {
+          "topic": "Databricks Asset Bundles and CI/CD",
+          "subtopics": ["Why bundles", "Bundle configuration files", "Targets for dev, staging and prod", "Deploying jobs and pipelines as code", "Variables and overrides", "Running bundles from CI", "Service principals for deployment", "Promoting changes between environments"],
+          "tools": ["Databricks Asset Bundles", "Databricks CLI", "GitHub Actions"],
+          "lab_task": "Package the sales pipeline and jobs as a bundle with dev and prod targets, deploy it from GitHub Actions using a service principal and promote a change from dev to prod through a pull request.",
+          "deliverable": "Bundle files, workflow and deployment history",
+          "checks": [["Run bundle validate", "No errors", "CLI output"], ["Merge a pull request", "Prod deployment runs automatically", "Workflow log"], ["Review identities", "Deployment uses a service principal, not a user", "Job owner"]],
+          "objectives": ["Define resources as bundles", "Deploy through CI/CD", "Separate environments"]
+        },
+        {
+          "topic": "Testing PySpark and Pipeline Code",
+          "subtopics": ["What to test in data pipelines", "Unit tests with pytest and local Spark", "Databricks Connect for testing from the IDE", "Test data builders", "Comparing DataFrames", "Integration tests in a test workspace", "Data contract tests", "Running tests in CI"],
+          "tools": ["pytest", "Databricks Connect", "chispa", "GitHub Actions"],
+          "lab_task": "Write unit tests for the cleaning functions, an integration test that runs the pipeline on a small dataset in a test catalog and a CI step that runs both on each pull request.",
+          "deliverable": "Test suite and CI results",
+          "checks": [["Break a cleaning rule", "Unit test fails", "Test output"], ["Run the integration test", "Pipeline output matches the expected table", "Test output"], ["Open a pull request", "Tests run in CI", "CI log"]],
+          "objectives": ["Test data code", "Use Databricks Connect", "Run tests in CI"]
+        },
+        {
+          "topic": "Ingestion from Databases and SaaS with Lakeflow Connect",
+          "subtopics": ["Managed connectors", "Ingesting from SQL Server, Salesforce and others", "Incremental ingestion", "Lakehouse Federation for querying without copying", "JDBC reads with partitioning", "Choosing copy or federation", "Source system load", "Monitoring ingestion"],
+          "tools": ["Lakeflow Connect", "Lakehouse Federation", "JDBC"],
+          "lab_task": "Ingest a SQL Server table incrementally with a managed connector, query a PostgreSQL table in place through Lakehouse Federation and compare freshness, cost and source load.",
+          "deliverable": "Connector configuration, federation setup and comparison",
+          "checks": [["Update the source", "Change arrives in the next ingestion run", "Query result"], ["Query through federation", "Live source data returned", "Query result"], ["Write the comparison", "Freshness, cost and source load compared", "Comparison table"]],
+          "objectives": ["Ingest from databases and SaaS", "Query in place with federation", "Choose an approach"]
+        },
+        {
+          "topic": "Orchestrating Multi-Task Workflows",
+          "subtopics": ["Complex task graphs", "Conditional tasks", "For-each tasks", "Passing values between tasks", "Running pipelines from jobs", "Job clusters and serverless jobs", "Repair runs", "Orchestrating with Airflow or Azure Data Factory"],
+          "tools": ["Lakeflow Jobs", "Apache Airflow", "Azure Data Factory"],
+          "lab_task": "Build a workflow that loads data for each of five countries with a for-each task, runs quality checks, branches on the result and triggers a pipeline, then repair a failed run.",
+          "deliverable": "Job definition and run history",
+          "checks": [["Fail one country", "Repair reruns only the failed task", "Run history"], ["Fail the quality check", "Branch skips publishing", "Run history"], ["Pass a value between tasks", "Downstream task uses the value", "Task output"]],
+          "objectives": ["Orchestrate complex workflows", "Branch and loop", "Repair failed runs"]
+        },
+        {
+          "topic": "Databricks SQL Warehouses and Query Optimisation",
+          "subtopics": ["Warehouse sizes and types", "Serverless warehouses", "Scaling for concurrency", "Query profile", "Result caching", "Materialised views for BI", "Query federation from SQL", "SQL alerts"],
+          "tools": ["Databricks SQL", "Query profile", "SQL alerts"],
+          "lab_task": "Load test a dashboard with 30 concurrent users, size the warehouse and scaling, speed up the slowest query with a materialised view and set an alert on daily revenue.",
+          "deliverable": "Load test results, warehouse settings and alert",
+          "checks": [["Run the load test", "Queue time under the target", "Warehouse monitoring"], ["Add the materialised view", "Query time lower", "Query profile"], ["Trigger the alert", "Notification sent", "Alert history"]],
+          "objectives": ["Size SQL warehouses", "Optimise queries", "Alert on data"]
+        },
+        {
+          "topic": "Delta Sharing and Data Collaboration",
+          "subtopics": ["Delta Sharing protocol", "Sharing within Databricks", "Open sharing to other platforms", "Shares, recipients and providers", "Sharing views and partitions", "Clean rooms", "Databricks Marketplace", "Auditing shared data"],
+          "tools": ["Delta Sharing", "Clean Rooms", "Unity Catalog"],
+          "lab_task": "Share a gold table with a partner workspace, share a filtered view with an external recipient reading it from pandas, and audit what was read.",
+          "deliverable": "Share configuration, recipient output and audit query",
+          "checks": [["Read the share from pandas", "Rows returned", "Script output"], ["Revoke the recipient", "Access fails", "Script output"], ["Query the audit log", "Share access recorded", "Query result"]],
+          "objectives": ["Share data securely", "Use open sharing", "Audit sharing"]
+        },
+        {
+          "topic": "Machine Learning with MLflow on Databricks",
+          "subtopics": ["Experiments and runs", "Logging parameters, metrics and models", "Autologging", "Model registry in Unity Catalog", "Aliases for champion and challenger", "Batch scoring", "Model lineage", "Working with data scientists"],
+          "tools": ["MLflow", "scikit-learn", "Unity Catalog"],
+          "lab_task": "Train a churn model with autologging, compare runs, register the best model in Unity Catalog with a champion alias and score customers in a batch job.",
+          "deliverable": "Experiment, registered model and scored table",
+          "checks": [["Compare runs", "Best run chosen by metric", "MLflow UI"], ["Load the model by alias", "Champion version loaded", "Notebook output"], ["Run batch scoring", "Scores written for all customers", "Query result"]],
+          "objectives": ["Track experiments", "Register models", "Score in batch"]
+        },
+        {
+          "topic": "Feature Engineering and Feature Tables",
+          "subtopics": ["Features for machine learning", "Feature tables in Unity Catalog", "Primary keys and timestamps", "Point-in-time lookups", "Online feature serving", "Reusing features across models", "Feature freshness", "Avoiding training and serving skew"],
+          "tools": ["Databricks Feature Engineering", "Unity Catalog", "MLflow"],
+          "lab_task": "Build customer feature tables with timestamps, create a training set with point-in-time lookups and train a model that looks up the same features when scoring.",
+          "deliverable": "Feature tables, training set and model",
+          "checks": [["Check point-in-time correctness", "No feature values from after the label date", "Query result"], ["Score with the logged model", "Features looked up automatically", "Notebook output"], ["Find feature users", "Lineage shows which models use the table", "Catalog Explorer"]],
+          "objectives": ["Build feature tables", "Create correct training sets", "Reuse features"]
+        },
+        {
+          "topic": "Slowly Changing Dimensions and Dimensional Models in Delta",
+          "subtopics": ["Star schemas in the lakehouse", "SCD type 1 and type 2 with MERGE", "Surrogate keys and identity columns", "Primary and foreign key constraints", "Late-arriving dimensions", "Fact table loading", "Gold layer design for BI", "Testing dimensional logic"],
+          "tools": ["Delta Lake", "Spark SQL", "Databricks SQL"],
+          "lab_task": "Build a sales star schema with a type 2 customer dimension using MERGE, identity surrogate keys and declared keys, and load facts that handle late-arriving customers.",
+          "deliverable": "Model scripts, tables and tests",
+          "checks": [["Change a customer's region", "Old and new versions kept with dates", "Query result"], ["Load a fact for an unknown customer", "Linked to a placeholder and fixed later", "Query result"], ["Review constraints", "Keys declared for BI tools", "DESCRIBE output"]],
+          "objectives": ["Build dimensional models", "Handle SCDs", "Load facts correctly"]
+        },
+        {
+          "topic": "Lakehouse Monitoring and Alerts",
+          "subtopics": ["What to monitor in data platforms", "Job and pipeline run monitoring", "Data quality monitoring and profiles", "Drift detection", "System tables for jobs and queries", "Alerts and notification destinations", "Dashboards for operations", "On-call basics for data teams"],
+          "tools": ["Lakehouse Monitoring", "System tables", "SQL alerts"],
+          "lab_task": "Set up monitoring on the gold sales table, build an operations dashboard from job system tables and create alerts for failed runs, late data and a sudden drop in row counts.",
+          "deliverable": "Monitors, operations dashboard and alerts",
+          "checks": [["Load half the usual rows", "Alert fires", "Alert history"], ["Fail a job", "Appears on the operations dashboard", "Dashboard screenshot"], ["Review the monitor", "Profile and drift metrics generated", "Monitor output"]],
+          "objectives": ["Monitor data and jobs", "Alert on problems", "Build operations dashboards"]
+        },
+        {
+          "topic": "Infrastructure as Code with the Databricks Terraform Provider",
+          "subtopics": ["Workspace and account resources", "Terraform for Unity Catalog objects", "Clusters, policies and permissions as code", "Bundles versus Terraform", "State management", "Modules for repeatable workspaces", "Importing existing resources", "Reviewing plans"],
+          "tools": ["Terraform", "Databricks Terraform provider"],
+          "lab_task": "Manage catalogs, schemas, grants and compute policies with Terraform, import one existing catalog, and review a plan that changes permissions before applying it.",
+          "deliverable": "Terraform code, plan output and applied state",
+          "checks": [["Run terraform plan after no changes", "No changes reported", "Plan output"], ["Import the existing catalog", "Catalog in state without changes", "Plan output"], ["Change a grant", "Plan shows only that grant", "Plan output"]],
+          "objectives": ["Manage Databricks with Terraform", "Import resources", "Review changes safely"]
+        },
+        {
+          "topic": "Databricks on Azure, AWS and GCP",
+          "subtopics": ["What is the same on every cloud", "Azure Databricks integration with Entra ID and ADLS", "Databricks on AWS with S3 and IAM", "Databricks on GCP with GCS", "Storage credentials and external locations", "Networking options per cloud", "Cloud-native services to combine with", "Choosing and migrating across clouds"],
+          "tools": ["Azure Databricks", "Databricks on AWS", "Unity Catalog"],
+          "lab_task": "Configure external locations with storage credentials on Azure ADLS and AWS S3, read the same dataset on each and write a comparison of identity, storage and networking set-up.",
+          "deliverable": "External location configuration and comparison",
+          "checks": [["Read from ADLS", "Dataset read from ADLS with the Entra ID managed identity", "Notebook output"], ["Read from S3", "Dataset read from S3 with the IAM role credential", "Notebook output"], ["Review credentials", "No keys stored in notebooks", "Code review"]],
+          "objectives": ["Use Databricks on each cloud", "Configure storage access", "Compare cloud set-ups"]
+        },
+        {
+          "topic": "Data Engineer Associate Certification Preparation",
+          "subtopics": ["Exam domains and weighting", "Platform and compute questions", "Ingestion and transformation questions", "Pipelines and jobs questions", "Governance questions", "Common traps", "Timed practice", "Review of weak areas"],
+          "tools": ["Practice questions", "Databricks documentation"],
+          "lab_task": "Take a timed practice exam, review every wrong answer against the documentation, build a weak-areas list and repeat a second practice exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first practice exam", "Score recorded by domain", "Score sheet"], ["Review wrong answers", "Each linked to a documentation page", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Find weak areas", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Streaming Orders Lakehouse",
+          "subtopics": ["Streaming and CDC ingestion", "Governed gold layer", "CI/CD deployment", "Monitoring and sharing"],
+          "tools": ["Lakeflow Declarative Pipelines", "Structured Streaming", "Unity Catalog", "Databricks Asset Bundles", "Delta Sharing"],
+          "lab_task": "Build a streaming orders lakehouse: Kafka orders and CDC customers into a declarative pipeline with expectations, SCD type 2 dimensions, fine-grained access, monitoring, deployment through bundles and CI, and a share for a partner.",
+          "deliverable": "Bundle repository, pipeline, monitors, share and demo recording",
+          "checks": [["Send late and bad events", "Handled as designed and visible in metrics", "Demo recording"], ["Deploy through CI", "Prod updated from a merged pull request", "Workflow log"], ["Query as a partner", "Only shared data visible", "Demo recording"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Build governed streaming pipelines", "Deploy with CI/CD"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers, platform owners and architects. Covers enterprise lakehouse architecture, multi-workspace Unity Catalog, network security, stateful streaming, performance at scale, cost governance, data mesh, migrations, Mosaic AI model serving and vector search, RAG and agents, MLOps, Genie, data applications, disaster recovery, backfills, open table formats, platform automation, production troubleshooting and the Data Engineer Professional exam.",
+      "prerequisites": ["Has run Databricks pipelines in production", "Knows Unity Catalog, declarative pipelines and Asset Bundles", "Understands cloud networking and identity on at least one cloud"],
+      "outcomes": ["Design secure, multi-workspace lakehouse platforms", "Run streaming and batch at scale with controlled cost", "Deliver AI applications on governed data", "Operate, recover and troubleshoot the platform"],
+      "days": [
+        {
+          "topic": "Enterprise Lakehouse Architecture",
+          "subtopics": ["Reference architectures", "Workspace topology by environment and business unit", "Catalog design for many teams", "Storage layout and isolation", "Identity design with SCIM and groups", "Batch, streaming and serving together", "Architecture decision records", "Reviewing architecture against the Well-Architected lakehouse"],
+          "tools": ["Unity Catalog", "Databricks account console", "Architecture diagrams"],
+          "lab_task": "Design the lakehouse for a bank with three business units and strict separation of production data: workspaces, catalogs, storage, identity and data flows, recorded as decision records and reviewed against the Well-Architected lakehouse pillars.",
+          "deliverable": "Architecture diagram, decision records and review checklist",
+          "checks": [["Review isolation", "Production data separated by catalog and storage", "Architecture diagram"], ["Review decisions", "Each decision has options and reasons", "Decision records"], ["Score against the pillars", "Gaps listed with fixes", "Review checklist"]],
+          "objectives": ["Design enterprise lakehouses", "Plan workspaces and catalogs", "Record decisions"]
+        },
+        {
+          "topic": "Multi-Workspace Unity Catalog and Federation",
+          "subtopics": ["Metastores per region", "Binding catalogs to workspaces", "Sharing across regions with Delta Sharing", "Lakehouse Federation to other warehouses", "Hive metastore federation and migration", "Managing groups at account level", "Catalog-level ownership by domain teams", "Governance at scale"],
+          "tools": ["Unity Catalog", "Lakehouse Federation", "Delta Sharing"],
+          "lab_task": "Bind catalogs so finance data is visible only in finance workspaces, share a dataset from an EU metastore to a US workspace and federate a Snowflake database for read access.",
+          "deliverable": "Binding configuration, share and federation setup",
+          "checks": [["Open the finance catalog from another workspace", "Not visible", "Screenshot"], ["Read the cross-region share", "Data available in the US workspace", "Query result"], ["Query Snowflake through federation", "Rows returned with Unity Catalog permissions applied", "Query result"]],
+          "objectives": ["Govern many workspaces", "Share across regions", "Federate external systems"]
+        },
+        {
+          "topic": "Network and Platform Security Hardening",
+          "subtopics": ["Customer-managed VPC and VNet injection", "Private Link and front-end and back-end connectivity", "Secure cluster connectivity", "IP access lists", "Serverless egress controls", "Customer-managed keys", "Secrets and service principals", "Compliance security profile"],
+          "tools": ["Azure Databricks or Databricks on AWS", "Private Link", "Terraform"],
+          "lab_task": "Deploy a workspace with VNet injection or a customer VPC, Private Link, IP access lists, serverless egress rules and customer-managed keys using Terraform, and test that public access is blocked.",
+          "deliverable": "Terraform code, network diagram and access tests",
+          "checks": [["Open the workspace from a public IP", "Blocked", "Test result"], ["Call an unapproved internet host from serverless", "Egress denied", "Notebook output"], ["Review keys", "Customer-managed key used for managed storage", "Configuration output"]],
+          "objectives": ["Secure the network", "Control egress", "Manage encryption keys"]
+        },
+        {
+          "topic": "Advanced Streaming: Stateful Processing and Exactly-Once",
+          "subtopics": ["State stores and RocksDB", "transformWithState for custom state", "Stream-stream joins with state limits", "Exactly-once with idempotent writes", "Real-time mode and low latency", "Scaling streams", "Schema changes in long-running streams", "Recovering from checkpoint problems"],
+          "tools": ["Structured Streaming", "RocksDB state store", "Apache Kafka"],
+          "lab_task": "Build a fraud detection stream that tracks per-card state with transformWithState, joins with merchant events within time limits, writes exactly once and survives a schema change and restart.",
+          "deliverable": "Streaming code, state metrics and recovery notes",
+          "checks": [["Restart mid-stream", "No duplicates in the output", "Row counts"], ["Watch state size", "State bounded by time-outs", "Stream metrics"], ["Change the input schema", "Stream continues after the planned change", "Run log"]],
+          "objectives": ["Manage streaming state", "Guarantee exactly-once output", "Operate long-running streams"]
+        },
+        {
+          "topic": "Performance Engineering at Scale",
+          "subtopics": ["Benchmarking workloads", "Photon and vectorised execution", "Large joins and skew strategies", "Predictive optimisation and statistics", "Liquid clustering at petabyte scale", "Memory tuning for large jobs", "Serverless performance behaviour", "Regression testing for performance"],
+          "tools": ["Photon", "Query profile", "Spark UI", "System tables"],
+          "lab_task": "Benchmark the five costliest jobs, apply skew handling, clustering and compute changes, and add a performance regression test that fails if run time grows by more than 20 percent.",
+          "deliverable": "Benchmark report and regression test",
+          "checks": [["Compare benchmarks", "Run time and cost improved for at least three jobs", "Benchmark report"], ["Slow a job on purpose", "Regression test fails", "Test output"], ["Explain the largest gain", "Cause identified from the query profile", "Report"]],
+          "objectives": ["Benchmark workloads", "Tune at scale", "Prevent performance regressions"]
+        },
+        {
+          "topic": "Cost Governance: Budgets, Policies and System Tables",
+          "subtopics": ["Cost ownership by team", "Budgets and alerts", "Compute policies that limit cost", "Serverless budget policies", "Tagging standards", "Chargeback and showback", "Rightsizing from usage data", "Cost reviews with teams"],
+          "tools": ["System tables", "Compute policies", "Budgets", "Databricks SQL"],
+          "lab_task": "Set tagging standards and compute policies for three teams, build a showback dashboard from billing system tables, set budgets with alerts and cut the top waste source.",
+          "deliverable": "Policies, showback dashboard, budgets and savings report",
+          "checks": [["Create untagged compute", "Blocked by policy", "Error message"], ["Exceed a budget threshold", "Alert sent", "Alert history"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Govern platform cost", "Show cost by team", "Reduce waste"]
+        },
+        {
+          "topic": "Data Mesh and Data Products on Databricks",
+          "subtopics": ["Data mesh principles", "Domain ownership", "Data products and contracts", "Self-service platform features", "Federated governance in Unity Catalog", "Discoverability and documentation", "Quality and SLAs for data products", "When data mesh is the wrong choice"],
+          "tools": ["Unity Catalog", "Delta Sharing", "Data contracts"],
+          "lab_task": "Define two domain data products with contracts, SLAs and owners, publish them in Unity Catalog with documentation and quality monitors, and consume one from another domain.",
+          "deliverable": "Contracts, published products and consumer example",
+          "checks": [["Break a contract", "Contract check fails before publishing", "Check output"], ["Find the product in Catalog Explorer", "Owner, description and SLA shown", "Screenshot"], ["Consume across domains", "Access through granted permissions only", "Query result"]],
+          "objectives": ["Build data products", "Apply federated governance", "Decide when to use data mesh"]
+        },
+        {
+          "topic": "Migrating from Hadoop and Legacy Warehouses",
+          "subtopics": ["Migration assessment", "Hive and HDFS to Delta and Unity Catalog", "Warehouse migration from Teradata, Oracle or SQL Server", "Converting SQL dialects", "Migration tools", "Validating migrated data", "Running old and new in parallel", "Cutover planning"],
+          "tools": ["Databricks migration tools", "Delta Lake", "Unity Catalog"],
+          "lab_task": "Assess a sample Hive and SQL Server estate, migrate two tables and three stored procedures to Delta and Databricks SQL, validate data with row counts and checksums and write the cutover plan.",
+          "deliverable": "Assessment, migrated objects, validation report and cutover plan",
+          "checks": [["Validate migrated tables", "Row counts and checksums match", "Validation report"], ["Compare procedure results", "Same output on both systems", "Comparison"], ["Review the cutover plan", "Rollback step included", "Cutover plan"]],
+          "objectives": ["Plan migrations", "Migrate data and code", "Validate and cut over"]
+        },
+        {
+          "topic": "Mosaic AI: Model Serving and Vector Search",
+          "subtopics": ["Model serving endpoints", "Serving custom and foundation models", "Provisioned throughput and pay-per-token", "AI Gateway: rate limits, guardrails and usage tracking", "Vector Search indexes", "Delta Sync indexes", "AI functions in SQL", "Cost and latency for AI workloads"],
+          "tools": ["Mosaic AI Model Serving", "Vector Search", "AI Gateway", "AI functions"],
+          "lab_task": "Serve the churn model as a real-time endpoint, create a Vector Search index synced from a documents table, classify support tickets with an AI function in SQL and add rate limits through AI Gateway.",
+          "deliverable": "Endpoints, index and SQL classification results",
+          "checks": [["Call the model endpoint", "Prediction returned under the latency target", "Request output"], ["Update the source table", "Vector index reflects the change", "Search result"], ["Exceed the rate limit", "Requests rejected by AI Gateway", "Endpoint logs"]],
+          "objectives": ["Serve models", "Build vector indexes", "Use AI in SQL"]
+        },
+        {
+          "topic": "Building RAG and Agent Applications on Databricks",
+          "subtopics": ["RAG on governed data", "Chunking and embedding documents", "Retrieval with Vector Search", "Agent frameworks and tools in Unity Catalog", "Agent evaluation with MLflow", "Tracing agent runs", "Review apps and human feedback", "Deploying agents safely"],
+          "tools": ["Mosaic AI Agent Framework", "MLflow", "Vector Search", "Unity Catalog functions"],
+          "lab_task": "Build an assistant that answers policy questions from company documents and looks up order status through a Unity Catalog function tool, evaluate it on 30 questions with MLflow and deploy it with tracing.",
+          "deliverable": "Agent code, evaluation results and deployed endpoint",
+          "checks": [["Run the evaluation", "Correctness and groundedness scores recorded", "MLflow evaluation"], ["Ask for order status", "Tool called and the right answer returned", "Trace"], ["Ask as a user without document access", "Restricted content not returned", "Test result"]],
+          "objectives": ["Build RAG on governed data", "Give agents tools", "Evaluate and trace agents"]
+        },
+        {
+          "topic": "MLOps on Databricks",
+          "subtopics": ["MLOps stages and environments", "Model training pipelines as jobs", "Champion and challenger promotion", "Deployment approvals", "Inference tables", "Monitoring model quality and drift", "Retraining triggers", "MLOps Stacks and bundles"],
+          "tools": ["MLflow", "Lakehouse Monitoring", "Databricks Asset Bundles"],
+          "lab_task": "Build an MLOps flow for the churn model: scheduled training, automatic validation against the champion, approval before promotion, inference logging and drift monitoring that triggers retraining.",
+          "deliverable": "Bundle, pipeline runs and monitoring dashboard",
+          "checks": [["Train a worse model", "Not promoted", "Run output"], ["Inject drift", "Retraining triggered", "Job run history"], ["Review inference tables", "Requests and predictions logged", "Query result"]],
+          "objectives": ["Automate ML lifecycles", "Gate promotion", "Monitor models"]
+        },
+        {
+          "topic": "Genie and Natural-Language Analytics",
+          "subtopics": ["Genie spaces", "Preparing data for natural-language questions", "Instructions, example queries and trusted assets", "Testing accuracy with benchmarks", "Permissions and data security", "Feedback loops", "Embedding Genie in applications", "Limits and when to use dashboards instead"],
+          "tools": ["Genie", "Unity Catalog", "Databricks SQL"],
+          "lab_task": "Create a Genie space on the sales gold tables, add instructions and example queries, benchmark it with 25 business questions, fix the failures and confirm row filters still apply.",
+          "deliverable": "Genie space configuration and benchmark results",
+          "checks": [["Run the benchmark", "Accuracy recorded before and after changes", "Benchmark results"], ["Ask as a regional manager", "Only their region's data in answers", "Screenshot"], ["Review a wrong answer", "Cause and fix documented", "Review notes"]],
+          "objectives": ["Set up natural-language analytics", "Measure accuracy", "Keep data secure"]
+        },
+        {
+          "topic": "Data Applications with Databricks Apps and Lakebase",
+          "subtopics": ["Databricks Apps", "Frameworks: Streamlit, Dash and others", "App authentication and permissions", "Lakebase for operational data", "Syncing Delta tables to Lakebase", "Reverse ETL patterns", "Deploying apps with bundles", "Cost and scaling of apps"],
+          "tools": ["Databricks Apps", "Lakebase", "Streamlit", "Databricks Asset Bundles"],
+          "lab_task": "Build a Streamlit app where account managers view churn scores from a synced Lakebase table and record follow-up actions back to Lakebase, deployed with a bundle and using the user's permissions.",
+          "deliverable": "App code, bundle and demo recording",
+          "checks": [["Open the app as two users", "Each sees only permitted accounts", "Demo recording"], ["Record an action", "Saved in Lakebase and visible on reload", "Query result"], ["Update the Delta table", "Change synced to Lakebase", "Query result"]],
+          "objectives": ["Build data apps", "Serve operational data", "Deploy apps safely"]
+        },
+        {
+          "topic": "Disaster Recovery and Business Continuity",
+          "subtopics": ["Recovery objectives", "What needs protecting: data, code, metadata and identities", "Deep clone and replication", "Multi-region workspace strategies", "Re-deploying with bundles and Terraform", "Failover and failback", "DR testing", "Runbooks"],
+          "tools": ["Deep clone", "Terraform", "Databricks Asset Bundles"],
+          "lab_task": "Write a DR plan for the sales platform with RPO and RTO targets, replicate critical tables to a second region, re-deploy jobs there with code, run a failover test and time it.",
+          "deliverable": "DR plan, replication jobs and test report",
+          "checks": [["Run the failover test", "Platform running in the second region within the RTO", "Test report"], ["Check data loss", "Within the RPO", "Test report"], ["Review the runbook", "Every step tested", "Runbook"]],
+          "objectives": ["Plan disaster recovery", "Replicate data", "Test failover"]
+        },
+        {
+          "topic": "Backfills, Reprocessing and Idempotent Pipelines",
+          "subtopics": ["Why pipelines must be re-runnable", "Idempotent writes with MERGE and replaceWhere", "Backfilling history", "Reprocessing after logic changes", "Full refresh in declarative pipelines", "Late and corrected source data", "Communicating reprocessing to consumers", "Testing re-runs"],
+          "tools": ["Delta Lake", "Lakeflow Jobs", "Lakeflow Declarative Pipelines"],
+          "lab_task": "Backfill two years of data in monthly chunks, re-run one month after a logic fix with replaceWhere, prove re-running the same day twice gives the same result and notify consumers.",
+          "deliverable": "Backfill job, re-run evidence and consumer notice",
+          "checks": [["Run the same day twice", "Identical output", "Table comparison"], ["Reprocess one month", "Only that month changed", "Table history"], ["Review the backfill", "All months loaded with counts recorded", "Backfill log"]],
+          "objectives": ["Build idempotent pipelines", "Backfill safely", "Reprocess without side effects"]
+        },
+        {
+          "topic": "Open Table Formats: Delta, Iceberg and UniForm",
+          "subtopics": ["Delta Lake, Apache Iceberg and Apache Hudi", "UniForm for Iceberg readers", "Managed Iceberg tables in Unity Catalog", "Iceberg REST catalog access", "Interoperability with Snowflake, Trino and others", "Feature differences", "Avoiding lock-in", "Choosing a format"],
+          "tools": ["Delta Lake", "Apache Iceberg", "UniForm", "Unity Catalog"],
+          "lab_task": "Enable UniForm on a Delta table, read it as Iceberg from an external engine through the Unity Catalog Iceberg REST endpoint and compare features with a managed Iceberg table.",
+          "deliverable": "Table configuration, external read output and comparison",
+          "checks": [["Read from the external engine", "Same rows as in Databricks", "Query output"], ["Write in Databricks", "External reader sees the new data", "Query output"], ["Write the comparison", "Feature and support differences listed", "Comparison table"]],
+          "objectives": ["Use open formats", "Share tables across engines", "Choose a format"]
+        },
+        {
+          "topic": "Platform Operations and Workspace Automation",
+          "subtopics": ["Platform team responsibilities", "Automated workspace creation", "Golden policies and templates", "Runtime upgrades", "SDKs and the REST API", "Usage and adoption reporting", "Support processes for users", "Platform roadmaps"],
+          "tools": ["Databricks SDK for Python", "Terraform", "System tables"],
+          "lab_task": "Automate onboarding of a new team (groups, catalog, compute policies, budget and starter bundle) with the SDK and Terraform, and report adoption across teams from system tables.",
+          "deliverable": "Onboarding automation and adoption report",
+          "checks": [["Onboard a team", "All resources created in one run", "Automation output"], ["Re-run onboarding", "No duplicate resources", "Automation output"], ["Report adoption", "Active users and jobs per team", "Adoption report"]],
+          "objectives": ["Automate platform operations", "Onboard teams", "Report adoption"]
+        },
+        {
+          "topic": "Troubleshooting Production Databricks Workloads",
+          "subtopics": ["An incident method for data platforms", "Driver and executor failures", "Out-of-memory and spill problems", "Streaming lag and checkpoint errors", "Permission and credential failures", "Slow queries on SQL warehouses", "Using system tables and logs together", "Post-incident reviews"],
+          "tools": ["Spark UI", "Driver logs", "System tables", "Query profile"],
+          "lab_task": "Diagnose five injected incidents (executor out of memory, a stuck stream, an expired credential, a lock conflict on MERGE and a slow dashboard query), fix each and write a post-incident review for one.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Diagnose the MERGE conflict", "Concurrent writers identified with a fix", "Diagnosis notes"], ["Fix the stuck stream", "Stream catches up", "Stream metrics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose production problems", "Use logs and system tables", "Learn from incidents"]
+        },
+        {
+          "topic": "Data Engineer Professional Certification Preparation",
+          "subtopics": ["Exam domains", "Advanced pipeline questions", "Streaming questions", "Governance and security questions", "Monitoring, testing and deployment questions", "Scenario-based question strategy", "Timed practice", "Final review plan"],
+          "tools": ["Practice questions", "Databricks documentation"],
+          "lab_task": "Take a timed professional-level practice exam, review wrong answers by domain, practise ten scenario questions with a partner and take a second practice exam.",
+          "deliverable": "Two practice scores, review notes and final plan",
+          "checks": [["Take the first exam", "Score recorded by domain", "Score sheet"], ["Practise scenario questions", "Each answer explained with reasons", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Prepare for the professional exam", "Answer scenario questions", "Reach a passing score"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Lakehouse Platform",
+          "subtopics": ["Architecture and security", "Streaming and batch at scale", "AI application", "Operations and recovery"],
+          "tools": ["Unity Catalog", "Terraform", "Lakeflow", "Mosaic AI", "Databricks Asset Bundles", "System tables"],
+          "lab_task": "Deliver a lakehouse platform for a case enterprise: secure multi-workspace design in Terraform, streaming and batch pipelines with idempotent backfills, data products, a governed RAG assistant, cost governance and a tested DR failover, then present it to an architecture board.",
+          "deliverable": "Architecture records, code repositories, test reports and board presentation",
+          "checks": [["Run the DR test", "Recovery within the RTO", "Test report"], ["Evaluate the assistant", "Scores meet the agreed threshold", "MLflow evaluation"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run Databricks at enterprise scale", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

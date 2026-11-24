@@ -1,0 +1,1811 @@
+﻿{
+    "openapi":  "3.1.0",
+    "info":  {
+                 "title":  "Core API Service",
+                 "description":  "Customers, Requirements, Journeys, Automations, Dashboard, Client Pipeline",
+                 "version":  "1.0.0"
+             },
+    "paths":  {
+                  "/api/v1/customers":  {
+                                            "get":  {
+                                                        "tags":  [
+                                                                     "customers"
+                                                                 ],
+                                                        "summary":  "List Customers",
+                                                        "operationId":  "list_customers_api_v1_customers_get",
+                                                        "parameters":  [
+                                                                           {
+                                                                               "name":  "page",
+                                                                               "in":  "query",
+                                                                               "required":  false,
+                                                                               "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                           },
+                                                                           {
+                                                                               "name":  "page_size",
+                                                                               "in":  "query",
+                                                                               "required":  false,
+                                                                               "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                           },
+                                                                           {
+                                                                               "name":  "status",
+                                                                               "in":  "query",
+                                                                               "required":  false,
+                                                                               "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                           },
+                                                                           {
+                                                                               "name":  "search",
+                                                                               "in":  "query",
+                                                                               "required":  false,
+                                                                               "schema":  "@{anyOf=System.Object[]; title=Search}"
+                                                                           }
+                                                                       ],
+                                                        "responses":  {
+                                                                          "200":  {
+                                                                                      "description":  "Successful Response",
+                                                                                      "content":  "@{application/json=}"
+                                                                                  },
+                                                                          "422":  {
+                                                                                      "description":  "Validation Error",
+                                                                                      "content":  "@{application/json=}"
+                                                                                  }
+                                                                      }
+                                                    },
+                                            "post":  {
+                                                         "tags":  [
+                                                                      "customers"
+                                                                  ],
+                                                         "summary":  "Create Customer",
+                                                         "operationId":  "create_customer_api_v1_customers_post",
+                                                         "requestBody":  {
+                                                                             "required":  true,
+                                                                             "content":  {
+                                                                                             "application/json":  "@{schema=}"
+                                                                                         }
+                                                                         },
+                                                         "responses":  {
+                                                                           "201":  {
+                                                                                       "description":  "Successful Response",
+                                                                                       "content":  "@{application/json=}"
+                                                                                   },
+                                                                           "422":  {
+                                                                                       "description":  "Validation Error",
+                                                                                       "content":  "@{application/json=}"
+                                                                                   }
+                                                                       }
+                                                     }
+                                        },
+                  "/api/v1/customers/{customer_id}":  {
+                                                          "get":  {
+                                                                      "tags":  [
+                                                                                   "customers"
+                                                                               ],
+                                                                      "summary":  "Get Customer",
+                                                                      "operationId":  "get_customer_api_v1_customers__customer_id__get",
+                                                                      "parameters":  [
+                                                                                         {
+                                                                                             "name":  "customer_id",
+                                                                                             "in":  "path",
+                                                                                             "required":  true,
+                                                                                             "schema":  "@{type=string; title=Customer Id}"
+                                                                                         }
+                                                                                     ],
+                                                                      "responses":  {
+                                                                                        "200":  {
+                                                                                                    "description":  "Successful Response",
+                                                                                                    "content":  "@{application/json=}"
+                                                                                                },
+                                                                                        "422":  {
+                                                                                                    "description":  "Validation Error",
+                                                                                                    "content":  "@{application/json=}"
+                                                                                                }
+                                                                                    }
+                                                                  },
+                                                          "patch":  {
+                                                                        "tags":  [
+                                                                                     "customers"
+                                                                                 ],
+                                                                        "summary":  "Update Customer",
+                                                                        "operationId":  "update_customer_api_v1_customers__customer_id__patch",
+                                                                        "parameters":  [
+                                                                                           {
+                                                                                               "name":  "customer_id",
+                                                                                               "in":  "path",
+                                                                                               "required":  true,
+                                                                                               "schema":  "@{type=string; title=Customer Id}"
+                                                                                           }
+                                                                                       ],
+                                                                        "requestBody":  {
+                                                                                            "required":  true,
+                                                                                            "content":  {
+                                                                                                            "application/json":  "@{schema=}"
+                                                                                                        }
+                                                                                        },
+                                                                        "responses":  {
+                                                                                          "200":  {
+                                                                                                      "description":  "Successful Response",
+                                                                                                      "content":  "@{application/json=}"
+                                                                                                  },
+                                                                                          "422":  {
+                                                                                                      "description":  "Validation Error",
+                                                                                                      "content":  "@{application/json=}"
+                                                                                                  }
+                                                                                      }
+                                                                    },
+                                                          "delete":  {
+                                                                         "tags":  [
+                                                                                      "customers"
+                                                                                  ],
+                                                                         "summary":  "Delete Customer",
+                                                                         "operationId":  "delete_customer_api_v1_customers__customer_id__delete",
+                                                                         "parameters":  [
+                                                                                            {
+                                                                                                "name":  "customer_id",
+                                                                                                "in":  "path",
+                                                                                                "required":  true,
+                                                                                                "schema":  "@{type=string; title=Customer Id}"
+                                                                                            }
+                                                                                        ],
+                                                                         "responses":  {
+                                                                                           "204":  {
+                                                                                                       "description":  "Successful Response"
+                                                                                                   },
+                                                                                           "422":  {
+                                                                                                       "description":  "Validation Error",
+                                                                                                       "content":  "@{application/json=}"
+                                                                                                   }
+                                                                                       }
+                                                                     }
+                                                      },
+                  "/api/v1/requirements":  {
+                                               "get":  {
+                                                           "tags":  [
+                                                                        "requirements"
+                                                                    ],
+                                                           "summary":  "List Requirements",
+                                                           "operationId":  "list_requirements_api_v1_requirements_get",
+                                                           "parameters":  [
+                                                                              {
+                                                                                  "name":  "page",
+                                                                                  "in":  "query",
+                                                                                  "required":  false,
+                                                                                  "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                              },
+                                                                              {
+                                                                                  "name":  "page_size",
+                                                                                  "in":  "query",
+                                                                                  "required":  false,
+                                                                                  "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                              },
+                                                                              {
+                                                                                  "name":  "customer_id",
+                                                                                  "in":  "query",
+                                                                                  "required":  false,
+                                                                                  "schema":  "@{anyOf=System.Object[]; title=Customer Id}"
+                                                                              },
+                                                                              {
+                                                                                  "name":  "status",
+                                                                                  "in":  "query",
+                                                                                  "required":  false,
+                                                                                  "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                              }
+                                                                          ],
+                                                           "responses":  {
+                                                                             "200":  {
+                                                                                         "description":  "Successful Response",
+                                                                                         "content":  "@{application/json=}"
+                                                                                     },
+                                                                             "422":  {
+                                                                                         "description":  "Validation Error",
+                                                                                         "content":  "@{application/json=}"
+                                                                                     }
+                                                                         }
+                                                       },
+                                               "post":  {
+                                                            "tags":  [
+                                                                         "requirements"
+                                                                     ],
+                                                            "summary":  "Create Requirement",
+                                                            "operationId":  "create_requirement_api_v1_requirements_post",
+                                                            "requestBody":  {
+                                                                                "required":  true,
+                                                                                "content":  {
+                                                                                                "application/json":  "@{schema=}"
+                                                                                            }
+                                                                            },
+                                                            "responses":  {
+                                                                              "201":  {
+                                                                                          "description":  "Successful Response",
+                                                                                          "content":  "@{application/json=}"
+                                                                                      },
+                                                                              "422":  {
+                                                                                          "description":  "Validation Error",
+                                                                                          "content":  "@{application/json=}"
+                                                                                      }
+                                                                          }
+                                                        }
+                                           },
+                  "/api/v1/requirements/{req_id}":  {
+                                                        "get":  {
+                                                                    "tags":  [
+                                                                                 "requirements"
+                                                                             ],
+                                                                    "summary":  "Get Requirement",
+                                                                    "operationId":  "get_requirement_api_v1_requirements__req_id__get",
+                                                                    "parameters":  [
+                                                                                       {
+                                                                                           "name":  "req_id",
+                                                                                           "in":  "path",
+                                                                                           "required":  true,
+                                                                                           "schema":  "@{type=string; title=Req Id}"
+                                                                                       }
+                                                                                   ],
+                                                                    "responses":  {
+                                                                                      "200":  {
+                                                                                                  "description":  "Successful Response",
+                                                                                                  "content":  "@{application/json=}"
+                                                                                              },
+                                                                                      "422":  {
+                                                                                                  "description":  "Validation Error",
+                                                                                                  "content":  "@{application/json=}"
+                                                                                              }
+                                                                                  }
+                                                                },
+                                                        "patch":  {
+                                                                      "tags":  [
+                                                                                   "requirements"
+                                                                               ],
+                                                                      "summary":  "Update Requirement",
+                                                                      "operationId":  "update_requirement_api_v1_requirements__req_id__patch",
+                                                                      "parameters":  [
+                                                                                         {
+                                                                                             "name":  "req_id",
+                                                                                             "in":  "path",
+                                                                                             "required":  true,
+                                                                                             "schema":  "@{type=string; title=Req Id}"
+                                                                                         }
+                                                                                     ],
+                                                                      "requestBody":  {
+                                                                                          "required":  true,
+                                                                                          "content":  {
+                                                                                                          "application/json":  "@{schema=}"
+                                                                                                      }
+                                                                                      },
+                                                                      "responses":  {
+                                                                                        "200":  {
+                                                                                                    "description":  "Successful Response",
+                                                                                                    "content":  "@{application/json=}"
+                                                                                                },
+                                                                                        "422":  {
+                                                                                                    "description":  "Validation Error",
+                                                                                                    "content":  "@{application/json=}"
+                                                                                                }
+                                                                                    }
+                                                                  },
+                                                        "delete":  {
+                                                                       "tags":  [
+                                                                                    "requirements"
+                                                                                ],
+                                                                       "summary":  "Delete Requirement",
+                                                                       "operationId":  "delete_requirement_api_v1_requirements__req_id__delete",
+                                                                       "parameters":  [
+                                                                                          {
+                                                                                              "name":  "req_id",
+                                                                                              "in":  "path",
+                                                                                              "required":  true,
+                                                                                              "schema":  "@{type=string; title=Req Id}"
+                                                                                          }
+                                                                                      ],
+                                                                       "responses":  {
+                                                                                         "204":  {
+                                                                                                     "description":  "Successful Response"
+                                                                                                 },
+                                                                                         "422":  {
+                                                                                                     "description":  "Validation Error",
+                                                                                                     "content":  "@{application/json=}"
+                                                                                                 }
+                                                                                     }
+                                                                   }
+                                                    },
+                  "/api/v1/requirements/{req_id}/request-client-po":  {
+                                                                          "post":  {
+                                                                                       "tags":  [
+                                                                                                    "requirements"
+                                                                                                ],
+                                                                                       "summary":  "Request Client Po",
+                                                                                       "description":  "Send a Purchase Order request email to the client for a requirement.",
+                                                                                       "operationId":  "request_client_po_api_v1_requirements__req_id__request_client_po_post",
+                                                                                       "parameters":  [
+                                                                                                          {
+                                                                                                              "name":  "req_id",
+                                                                                                              "in":  "path",
+                                                                                                              "required":  true,
+                                                                                                              "schema":  "@{type=string; title=Req Id}"
+                                                                                                          }
+                                                                                                      ],
+                                                                                       "requestBody":  {
+                                                                                                           "required":  true,
+                                                                                                           "content":  {
+                                                                                                                           "application/json":  "@{schema=}"
+                                                                                                                       }
+                                                                                                       },
+                                                                                       "responses":  {
+                                                                                                         "200":  {
+                                                                                                                     "description":  "Successful Response",
+                                                                                                                     "content":  "@{application/json=}"
+                                                                                                                 },
+                                                                                                         "422":  {
+                                                                                                                     "description":  "Validation Error",
+                                                                                                                     "content":  "@{application/json=}"
+                                                                                                                 }
+                                                                                                     }
+                                                                                   }
+                                                                      },
+                  "/api/v1/requirements/{req_id}/request-client-budget-increase":  {
+                                                                                       "post":  {
+                                                                                                    "tags":  [
+                                                                                                                 "requirements"
+                                                                                                             ],
+                                                                                                    "summary":  "Request Client Budget Increase",
+                                                                                                    "description":  "Email the client requesting a budget increase for a requirement.",
+                                                                                                    "operationId":  "request_client_budget_increase_api_v1_requirements__req_id__request_client_budget_increase_post",
+                                                                                                    "parameters":  [
+                                                                                                                       {
+                                                                                                                           "name":  "req_id",
+                                                                                                                           "in":  "path",
+                                                                                                                           "required":  true,
+                                                                                                                           "schema":  "@{type=string; title=Req Id}"
+                                                                                                                       }
+                                                                                                                   ],
+                                                                                                    "requestBody":  {
+                                                                                                                        "required":  true,
+                                                                                                                        "content":  {
+                                                                                                                                        "application/json":  "@{schema=}"
+                                                                                                                                    }
+                                                                                                                    },
+                                                                                                    "responses":  {
+                                                                                                                      "200":  {
+                                                                                                                                  "description":  "Successful Response",
+                                                                                                                                  "content":  "@{application/json=}"
+                                                                                                                              },
+                                                                                                                      "422":  {
+                                                                                                                                  "description":  "Validation Error",
+                                                                                                                                  "content":  "@{application/json=}"
+                                                                                                                              }
+                                                                                                                  }
+                                                                                                }
+                                                                                   },
+                  "/api/v1/requirements/{req_id}/client-po/generate-invoice":  {
+                                                                                   "post":  {
+                                                                                                "tags":  [
+                                                                                                             "requirements"
+                                                                                                         ],
+                                                                                                "summary":  "Generate Invoice From Requirement Po",
+                                                                                                "description":  "Generate an invoice from the PO linked to a requirement via trainer-service.",
+                                                                                                "operationId":  "generate_invoice_from_requirement_po_api_v1_requirements__req_id__client_po_generate_invoice_post",
+                                                                                                "parameters":  [
+                                                                                                                   {
+                                                                                                                       "name":  "req_id",
+                                                                                                                       "in":  "path",
+                                                                                                                       "required":  true,
+                                                                                                                       "schema":  "@{type=string; title=Req Id}"
+                                                                                                                   }
+                                                                                                               ],
+                                                                                                "requestBody":  {
+                                                                                                                    "required":  true,
+                                                                                                                    "content":  {
+                                                                                                                                    "application/json":  "@{schema=}"
+                                                                                                                                }
+                                                                                                                },
+                                                                                                "responses":  {
+                                                                                                                  "200":  {
+                                                                                                                              "description":  "Successful Response",
+                                                                                                                              "content":  "@{application/json=}"
+                                                                                                                          },
+                                                                                                                  "422":  {
+                                                                                                                              "description":  "Validation Error",
+                                                                                                                              "content":  "@{application/json=}"
+                                                                                                                          }
+                                                                                                              }
+                                                                                            }
+                                                                               },
+                  "/api/v1/journeys":  {
+                                           "get":  {
+                                                       "tags":  [
+                                                                    "journeys"
+                                                                ],
+                                                       "summary":  "List Journeys",
+                                                       "operationId":  "list_journeys_api_v1_journeys_get",
+                                                       "parameters":  [
+                                                                          {
+                                                                              "name":  "page",
+                                                                              "in":  "query",
+                                                                              "required":  false,
+                                                                              "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                          },
+                                                                          {
+                                                                              "name":  "page_size",
+                                                                              "in":  "query",
+                                                                              "required":  false,
+                                                                              "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                          },
+                                                                          {
+                                                                              "name":  "customer_id",
+                                                                              "in":  "query",
+                                                                              "required":  false,
+                                                                              "schema":  "@{anyOf=System.Object[]; title=Customer Id}"
+                                                                          },
+                                                                          {
+                                                                              "name":  "status",
+                                                                              "in":  "query",
+                                                                              "required":  false,
+                                                                              "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                          }
+                                                                      ],
+                                                       "responses":  {
+                                                                         "200":  {
+                                                                                     "description":  "Successful Response",
+                                                                                     "content":  "@{application/json=}"
+                                                                                 },
+                                                                         "422":  {
+                                                                                     "description":  "Validation Error",
+                                                                                     "content":  "@{application/json=}"
+                                                                                 }
+                                                                     }
+                                                   },
+                                           "post":  {
+                                                        "tags":  [
+                                                                     "journeys"
+                                                                 ],
+                                                        "summary":  "Create Journey",
+                                                        "operationId":  "create_journey_api_v1_journeys_post",
+                                                        "requestBody":  {
+                                                                            "required":  true,
+                                                                            "content":  {
+                                                                                            "application/json":  "@{schema=}"
+                                                                                        }
+                                                                        },
+                                                        "responses":  {
+                                                                          "201":  {
+                                                                                      "description":  "Successful Response",
+                                                                                      "content":  "@{application/json=}"
+                                                                                  },
+                                                                          "422":  {
+                                                                                      "description":  "Validation Error",
+                                                                                      "content":  "@{application/json=}"
+                                                                                  }
+                                                                      }
+                                                    }
+                                       },
+                  "/api/v1/journeys/{journey_id}":  {
+                                                        "get":  {
+                                                                    "tags":  [
+                                                                                 "journeys"
+                                                                             ],
+                                                                    "summary":  "Get Journey",
+                                                                    "operationId":  "get_journey_api_v1_journeys__journey_id__get",
+                                                                    "parameters":  [
+                                                                                       {
+                                                                                           "name":  "journey_id",
+                                                                                           "in":  "path",
+                                                                                           "required":  true,
+                                                                                           "schema":  "@{type=string; title=Journey Id}"
+                                                                                       }
+                                                                                   ],
+                                                                    "responses":  {
+                                                                                      "200":  {
+                                                                                                  "description":  "Successful Response",
+                                                                                                  "content":  "@{application/json=}"
+                                                                                              },
+                                                                                      "422":  {
+                                                                                                  "description":  "Validation Error",
+                                                                                                  "content":  "@{application/json=}"
+                                                                                              }
+                                                                                  }
+                                                                },
+                                                        "patch":  {
+                                                                      "tags":  [
+                                                                                   "journeys"
+                                                                               ],
+                                                                      "summary":  "Update Journey",
+                                                                      "operationId":  "update_journey_api_v1_journeys__journey_id__patch",
+                                                                      "parameters":  [
+                                                                                         {
+                                                                                             "name":  "journey_id",
+                                                                                             "in":  "path",
+                                                                                             "required":  true,
+                                                                                             "schema":  "@{type=string; title=Journey Id}"
+                                                                                         }
+                                                                                     ],
+                                                                      "requestBody":  {
+                                                                                          "required":  true,
+                                                                                          "content":  {
+                                                                                                          "application/json":  "@{schema=}"
+                                                                                                      }
+                                                                                      },
+                                                                      "responses":  {
+                                                                                        "200":  {
+                                                                                                    "description":  "Successful Response",
+                                                                                                    "content":  "@{application/json=}"
+                                                                                                },
+                                                                                        "422":  {
+                                                                                                    "description":  "Validation Error",
+                                                                                                    "content":  "@{application/json=}"
+                                                                                                }
+                                                                                    }
+                                                                  },
+                                                        "delete":  {
+                                                                       "tags":  [
+                                                                                    "journeys"
+                                                                                ],
+                                                                       "summary":  "Delete Journey",
+                                                                       "operationId":  "delete_journey_api_v1_journeys__journey_id__delete",
+                                                                       "parameters":  [
+                                                                                          {
+                                                                                              "name":  "journey_id",
+                                                                                              "in":  "path",
+                                                                                              "required":  true,
+                                                                                              "schema":  "@{type=string; title=Journey Id}"
+                                                                                          }
+                                                                                      ],
+                                                                       "responses":  {
+                                                                                         "204":  {
+                                                                                                     "description":  "Successful Response"
+                                                                                                 },
+                                                                                         "422":  {
+                                                                                                     "description":  "Validation Error",
+                                                                                                     "content":  "@{application/json=}"
+                                                                                                 }
+                                                                                     }
+                                                                   }
+                                                    },
+                  "/api/v1/automations":  {
+                                              "get":  {
+                                                          "tags":  [
+                                                                       "automations"
+                                                                   ],
+                                                          "summary":  "List Automations",
+                                                          "operationId":  "list_automations_api_v1_automations_get",
+                                                          "parameters":  [
+                                                                             {
+                                                                                 "name":  "page",
+                                                                                 "in":  "query",
+                                                                                 "required":  false,
+                                                                                 "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                             },
+                                                                             {
+                                                                                 "name":  "page_size",
+                                                                                 "in":  "query",
+                                                                                 "required":  false,
+                                                                                 "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                             },
+                                                                             {
+                                                                                 "name":  "is_active",
+                                                                                 "in":  "query",
+                                                                                 "required":  false,
+                                                                                 "schema":  "@{anyOf=System.Object[]; title=Is Active}"
+                                                                             }
+                                                                         ],
+                                                          "responses":  {
+                                                                            "200":  {
+                                                                                        "description":  "Successful Response",
+                                                                                        "content":  "@{application/json=}"
+                                                                                    },
+                                                                            "422":  {
+                                                                                        "description":  "Validation Error",
+                                                                                        "content":  "@{application/json=}"
+                                                                                    }
+                                                                        }
+                                                      },
+                                              "post":  {
+                                                           "tags":  [
+                                                                        "automations"
+                                                                    ],
+                                                           "summary":  "Create Automation",
+                                                           "operationId":  "create_automation_api_v1_automations_post",
+                                                           "requestBody":  {
+                                                                               "required":  true,
+                                                                               "content":  {
+                                                                                               "application/json":  "@{schema=}"
+                                                                                           }
+                                                                           },
+                                                           "responses":  {
+                                                                             "201":  {
+                                                                                         "description":  "Successful Response",
+                                                                                         "content":  "@{application/json=}"
+                                                                                     },
+                                                                             "422":  {
+                                                                                         "description":  "Validation Error",
+                                                                                         "content":  "@{application/json=}"
+                                                                                     }
+                                                                         }
+                                                       }
+                                          },
+                  "/api/v1/automations/{automation_id}":  {
+                                                              "get":  {
+                                                                          "tags":  [
+                                                                                       "automations"
+                                                                                   ],
+                                                                          "summary":  "Get Automation",
+                                                                          "operationId":  "get_automation_api_v1_automations__automation_id__get",
+                                                                          "parameters":  [
+                                                                                             {
+                                                                                                 "name":  "automation_id",
+                                                                                                 "in":  "path",
+                                                                                                 "required":  true,
+                                                                                                 "schema":  "@{type=string; title=Automation Id}"
+                                                                                             }
+                                                                                         ],
+                                                                          "responses":  {
+                                                                                            "200":  {
+                                                                                                        "description":  "Successful Response",
+                                                                                                        "content":  "@{application/json=}"
+                                                                                                    },
+                                                                                            "422":  {
+                                                                                                        "description":  "Validation Error",
+                                                                                                        "content":  "@{application/json=}"
+                                                                                                    }
+                                                                                        }
+                                                                      },
+                                                              "patch":  {
+                                                                            "tags":  [
+                                                                                         "automations"
+                                                                                     ],
+                                                                            "summary":  "Update Automation",
+                                                                            "operationId":  "update_automation_api_v1_automations__automation_id__patch",
+                                                                            "parameters":  [
+                                                                                               {
+                                                                                                   "name":  "automation_id",
+                                                                                                   "in":  "path",
+                                                                                                   "required":  true,
+                                                                                                   "schema":  "@{type=string; title=Automation Id}"
+                                                                                               }
+                                                                                           ],
+                                                                            "requestBody":  {
+                                                                                                "required":  true,
+                                                                                                "content":  {
+                                                                                                                "application/json":  "@{schema=}"
+                                                                                                            }
+                                                                                            },
+                                                                            "responses":  {
+                                                                                              "200":  {
+                                                                                                          "description":  "Successful Response",
+                                                                                                          "content":  "@{application/json=}"
+                                                                                                      },
+                                                                                              "422":  {
+                                                                                                          "description":  "Validation Error",
+                                                                                                          "content":  "@{application/json=}"
+                                                                                                      }
+                                                                                          }
+                                                                        },
+                                                              "delete":  {
+                                                                             "tags":  [
+                                                                                          "automations"
+                                                                                      ],
+                                                                             "summary":  "Delete Automation",
+                                                                             "operationId":  "delete_automation_api_v1_automations__automation_id__delete",
+                                                                             "parameters":  [
+                                                                                                {
+                                                                                                    "name":  "automation_id",
+                                                                                                    "in":  "path",
+                                                                                                    "required":  true,
+                                                                                                    "schema":  "@{type=string; title=Automation Id}"
+                                                                                                }
+                                                                                            ],
+                                                                             "responses":  {
+                                                                                               "204":  {
+                                                                                                           "description":  "Successful Response"
+                                                                                                       },
+                                                                                               "422":  {
+                                                                                                           "description":  "Validation Error",
+                                                                                                           "content":  "@{application/json=}"
+                                                                                                       }
+                                                                                           }
+                                                                         }
+                                                          },
+                  "/api/v1/automations/{automation_id}/trigger":  {
+                                                                      "post":  {
+                                                                                   "tags":  [
+                                                                                                "automations"
+                                                                                            ],
+                                                                                   "summary":  "Trigger Automation",
+                                                                                   "operationId":  "trigger_automation_api_v1_automations__automation_id__trigger_post",
+                                                                                   "parameters":  [
+                                                                                                      {
+                                                                                                          "name":  "automation_id",
+                                                                                                          "in":  "path",
+                                                                                                          "required":  true,
+                                                                                                          "schema":  "@{type=string; title=Automation Id}"
+                                                                                                      }
+                                                                                                  ],
+                                                                                   "responses":  {
+                                                                                                     "200":  {
+                                                                                                                 "description":  "Successful Response",
+                                                                                                                 "content":  "@{application/json=}"
+                                                                                                             },
+                                                                                                     "422":  {
+                                                                                                                 "description":  "Validation Error",
+                                                                                                                 "content":  "@{application/json=}"
+                                                                                                             }
+                                                                                                 }
+                                                                               }
+                                                                  },
+                  "/api/v1/stats/overview":  {
+                                                 "get":  {
+                                                             "tags":  [
+                                                                          "stats"
+                                                                      ],
+                                                             "summary":  "Get Overview Stats",
+                                                             "operationId":  "get_overview_stats_api_v1_stats_overview_get",
+                                                             "responses":  {
+                                                                               "200":  {
+                                                                                           "description":  "Successful Response",
+                                                                                           "content":  "@{application/json=}"
+                                                                                       }
+                                                                           }
+                                                         }
+                                             },
+                  "/api/v1/stats/activity":  {
+                                                 "get":  {
+                                                             "tags":  [
+                                                                          "stats"
+                                                                      ],
+                                                             "summary":  "Get Recent Activity",
+                                                             "operationId":  "get_recent_activity_api_v1_stats_activity_get",
+                                                             "parameters":  [
+                                                                                {
+                                                                                    "name":  "days",
+                                                                                    "in":  "query",
+                                                                                    "required":  false,
+                                                                                    "schema":  "@{type=integer; default=7; title=Days}"
+                                                                                }
+                                                                            ],
+                                                             "responses":  {
+                                                                               "200":  {
+                                                                                           "description":  "Successful Response",
+                                                                                           "content":  "@{application/json=}"
+                                                                                       },
+                                                                               "422":  {
+                                                                                           "description":  "Validation Error",
+                                                                                           "content":  "@{application/json=}"
+                                                                                       }
+                                                                           }
+                                                         }
+                                             },
+                  "/api/v1/logs/email":  {
+                                             "get":  {
+                                                         "tags":  [
+                                                                      "logs"
+                                                                  ],
+                                                         "summary":  "List Email Logs",
+                                                         "operationId":  "list_email_logs_api_v1_logs_email_get",
+                                                         "parameters":  [
+                                                                            {
+                                                                                "name":  "page",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                            },
+                                                                            {
+                                                                                "name":  "page_size",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                            },
+                                                                            {
+                                                                                "name":  "customer_id",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{anyOf=System.Object[]; title=Customer Id}"
+                                                                            },
+                                                                            {
+                                                                                "name":  "direction",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{anyOf=System.Object[]; title=Direction}"
+                                                                            },
+                                                                            {
+                                                                                "name":  "status",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                            }
+                                                                        ],
+                                                         "responses":  {
+                                                                           "200":  {
+                                                                                       "description":  "Successful Response",
+                                                                                       "content":  "@{application/json=}"
+                                                                                   },
+                                                                           "422":  {
+                                                                                       "description":  "Validation Error",
+                                                                                       "content":  "@{application/json=}"
+                                                                                   }
+                                                                       }
+                                                     }
+                                         },
+                  "/api/v1/logs/email/{log_id}":  {
+                                                      "get":  {
+                                                                  "tags":  [
+                                                                               "logs"
+                                                                           ],
+                                                                  "summary":  "Get Email Log",
+                                                                  "operationId":  "get_email_log_api_v1_logs_email__log_id__get",
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "name":  "log_id",
+                                                                                         "in":  "path",
+                                                                                         "required":  true,
+                                                                                         "schema":  "@{type=string; title=Log Id}"
+                                                                                     }
+                                                                                 ],
+                                                                  "responses":  {
+                                                                                    "200":  {
+                                                                                                "description":  "Successful Response",
+                                                                                                "content":  "@{application/json=}"
+                                                                                            },
+                                                                                    "422":  {
+                                                                                                "description":  "Validation Error",
+                                                                                                "content":  "@{application/json=}"
+                                                                                            }
+                                                                                }
+                                                              }
+                                                  },
+                  "/api/v1/logs/whatsapp":  {
+                                                "get":  {
+                                                            "tags":  [
+                                                                         "logs"
+                                                                     ],
+                                                            "summary":  "List Whatsapp Logs",
+                                                            "operationId":  "list_whatsapp_logs_api_v1_logs_whatsapp_get",
+                                                            "parameters":  [
+                                                                               {
+                                                                                   "name":  "page",
+                                                                                   "in":  "query",
+                                                                                   "required":  false,
+                                                                                   "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                               },
+                                                                               {
+                                                                                   "name":  "page_size",
+                                                                                   "in":  "query",
+                                                                                   "required":  false,
+                                                                                   "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                               },
+                                                                               {
+                                                                                   "name":  "status",
+                                                                                   "in":  "query",
+                                                                                   "required":  false,
+                                                                                   "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                               }
+                                                                           ],
+                                                            "responses":  {
+                                                                              "200":  {
+                                                                                          "description":  "Successful Response",
+                                                                                          "content":  "@{application/json=}"
+                                                                                      },
+                                                                              "422":  {
+                                                                                          "description":  "Validation Error",
+                                                                                          "content":  "@{application/json=}"
+                                                                                      }
+                                                                          }
+                                                        }
+                                            },
+                  "/api/v1/logs/teams":  {
+                                             "get":  {
+                                                         "tags":  [
+                                                                      "logs"
+                                                                  ],
+                                                         "summary":  "List Teams Logs",
+                                                         "operationId":  "list_teams_logs_api_v1_logs_teams_get",
+                                                         "parameters":  [
+                                                                            {
+                                                                                "name":  "page",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                            },
+                                                                            {
+                                                                                "name":  "page_size",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                            },
+                                                                            {
+                                                                                "name":  "status",
+                                                                                "in":  "query",
+                                                                                "required":  false,
+                                                                                "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                            }
+                                                                        ],
+                                                         "responses":  {
+                                                                           "200":  {
+                                                                                       "description":  "Successful Response",
+                                                                                       "content":  "@{application/json=}"
+                                                                                   },
+                                                                           "422":  {
+                                                                                       "description":  "Validation Error",
+                                                                                       "content":  "@{application/json=}"
+                                                                                   }
+                                                                       }
+                                                     }
+                                         },
+                  "/api/v1/dashboard/stats":  {
+                                                  "get":  {
+                                                              "tags":  [
+                                                                           "dashboard"
+                                                                       ],
+                                                              "summary":  "Dashboard Stats",
+                                                              "description":  "Quick KPI numbers for the top-of-page dashboard cards.",
+                                                              "operationId":  "dashboard_stats_api_v1_dashboard_stats_get",
+                                                              "responses":  {
+                                                                                "200":  {
+                                                                                            "description":  "Successful Response",
+                                                                                            "content":  "@{application/json=}"
+                                                                                        }
+                                                                            }
+                                                          }
+                                              },
+                  "/api/v1/dashboard/analytics":  {
+                                                      "get":  {
+                                                                  "tags":  [
+                                                                               "dashboard"
+                                                                           ],
+                                                                  "summary":  "Dashboard Analytics",
+                                                                  "description":  "Time-series analytics for the dashboard charts.",
+                                                                  "operationId":  "dashboard_analytics_api_v1_dashboard_analytics_get",
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "name":  "days",
+                                                                                         "in":  "query",
+                                                                                         "required":  false,
+                                                                                         "schema":  "@{type=integer; maximum=365; minimum=1; default=30; title=Days}"
+                                                                                     }
+                                                                                 ],
+                                                                  "responses":  {
+                                                                                    "200":  {
+                                                                                                "description":  "Successful Response",
+                                                                                                "content":  "@{application/json=}"
+                                                                                            },
+                                                                                    "422":  {
+                                                                                                "description":  "Validation Error",
+                                                                                                "content":  "@{application/json=}"
+                                                                                            }
+                                                                                }
+                                                              }
+                                                  },
+                  "/api/v1/client-pipeline":  {
+                                                  "get":  {
+                                                              "tags":  [
+                                                                           "client-pipeline"
+                                                                       ],
+                                                              "summary":  "Get Client Pipeline",
+                                                              "description":  "Aggregate view of requirements with their shortlist/trainer pipeline info.\nMirrors the monolith\u0027s GET /client-pipeline endpoint.",
+                                                              "operationId":  "get_client_pipeline_api_v1_client_pipeline_get",
+                                                              "parameters":  [
+                                                                                 {
+                                                                                     "name":  "status",
+                                                                                     "in":  "query",
+                                                                                     "required":  false,
+                                                                                     "schema":  "@{anyOf=System.Object[]; title=Status}"
+                                                                                 },
+                                                                                 {
+                                                                                     "name":  "page",
+                                                                                     "in":  "query",
+                                                                                     "required":  false,
+                                                                                     "schema":  "@{type=integer; minimum=1; default=1; title=Page}"
+                                                                                 },
+                                                                                 {
+                                                                                     "name":  "page_size",
+                                                                                     "in":  "query",
+                                                                                     "required":  false,
+                                                                                     "schema":  "@{type=integer; maximum=100; minimum=1; default=20; title=Page Size}"
+                                                                                 }
+                                                                             ],
+                                                              "responses":  {
+                                                                                "200":  {
+                                                                                            "description":  "Successful Response",
+                                                                                            "content":  "@{application/json=}"
+                                                                                        },
+                                                                                "422":  {
+                                                                                            "description":  "Validation Error",
+                                                                                            "content":  "@{application/json=}"
+                                                                                        }
+                                                                            }
+                                                          }
+                                              },
+                  "/api/v1/database/clear":  {
+                                                 "delete":  {
+                                                                "tags":  [
+                                                                             "database"
+                                                                         ],
+                                                                "summary":  "Clear Database",
+                                                                "description":  "â ï¸  DEVELOPMENT ONLY â clears one or all non-critical collections.\nRefuses to run in production (DEBUG must be True in settings).",
+                                                                "operationId":  "clear_database_api_v1_database_clear_delete",
+                                                                "parameters":  [
+                                                                                   {
+                                                                                       "name":  "collection",
+                                                                                       "in":  "query",
+                                                                                       "required":  false,
+                                                                                       "schema":  "@{type=string; default=all; title=Collection}"
+                                                                                   }
+                                                                               ],
+                                                                "responses":  {
+                                                                                  "200":  {
+                                                                                              "description":  "Successful Response",
+                                                                                              "content":  "@{application/json=}"
+                                                                                          },
+                                                                                  "422":  {
+                                                                                              "description":  "Validation Error",
+                                                                                              "content":  "@{application/json=}"
+                                                                                          }
+                                                                              }
+                                                            }
+                                             },
+                  "/health":  {
+                                  "get":  {
+                                              "summary":  "Health",
+                                              "operationId":  "health_health_get",
+                                              "responses":  {
+                                                                "200":  {
+                                                                            "description":  "Successful Response",
+                                                                            "content":  "@{application/json=}"
+                                                                        }
+                                                            }
+                                          }
+                              }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "Automation":  {
+                                                          "properties":  {
+                                                                             "name":  {
+                                                                                          "type":  "string",
+                                                                                          "title":  "Name"
+                                                                                      },
+                                                                             "description":  {
+                                                                                                 "anyOf":  " ",
+                                                                                                 "title":  "Description"
+                                                                                             },
+                                                                             "trigger":  {
+                                                                                             "$ref":  "#/components/schemas/AutomationTrigger"
+                                                                                         },
+                                                                             "actions":  {
+                                                                                             "items":  "@{$ref=#/components/schemas/AutomationAction}",
+                                                                                             "type":  "array",
+                                                                                             "title":  "Actions",
+                                                                                             "default":  ""
+                                                                                         },
+                                                                             "is_active":  {
+                                                                                               "type":  "boolean",
+                                                                                               "title":  "Is Active",
+                                                                                               "default":  true
+                                                                                           },
+                                                                             "metadata":  {
+                                                                                              "additionalProperties":  true,
+                                                                                              "type":  "object",
+                                                                                              "title":  "Metadata",
+                                                                                              "default":  ""
+                                                                                          },
+                                                                             "_id":  {
+                                                                                         "type":  "string",
+                                                                                         "title":  "Id"
+                                                                                     },
+                                                                             "created_at":  {
+                                                                                                "type":  "string",
+                                                                                                "format":  "date-time",
+                                                                                                "title":  "Created At"
+                                                                                            },
+                                                                             "updated_at":  {
+                                                                                                "type":  "string",
+                                                                                                "format":  "date-time",
+                                                                                                "title":  "Updated At"
+                                                                                            },
+                                                                             "last_run":  {
+                                                                                              "anyOf":  " ",
+                                                                                              "title":  "Last Run"
+                                                                                          },
+                                                                             "run_count":  {
+                                                                                               "type":  "integer",
+                                                                                               "title":  "Run Count",
+                                                                                               "default":  0
+                                                                                           }
+                                                                         },
+                                                          "type":  "object",
+                                                          "required":  [
+                                                                           "name",
+                                                                           "trigger",
+                                                                           "_id",
+                                                                           "created_at",
+                                                                           "updated_at"
+                                                                       ],
+                                                          "title":  "Automation"
+                                                      },
+                                       "AutomationAction":  {
+                                                                "properties":  {
+                                                                                   "type":  {
+                                                                                                "type":  "string",
+                                                                                                "title":  "Type"
+                                                                                            },
+                                                                                   "config":  {
+                                                                                                  "additionalProperties":  true,
+                                                                                                  "type":  "object",
+                                                                                                  "title":  "Config",
+                                                                                                  "default":  ""
+                                                                                              }
+                                                                               },
+                                                                "type":  "object",
+                                                                "required":  [
+                                                                                 "type"
+                                                                             ],
+                                                                "title":  "AutomationAction"
+                                                            },
+                                       "AutomationCreate":  {
+                                                                "properties":  {
+                                                                                   "name":  {
+                                                                                                "type":  "string",
+                                                                                                "title":  "Name"
+                                                                                            },
+                                                                                   "description":  {
+                                                                                                       "anyOf":  " ",
+                                                                                                       "title":  "Description"
+                                                                                                   },
+                                                                                   "trigger":  {
+                                                                                                   "$ref":  "#/components/schemas/AutomationTrigger"
+                                                                                               },
+                                                                                   "actions":  {
+                                                                                                   "items":  "@{$ref=#/components/schemas/AutomationAction}",
+                                                                                                   "type":  "array",
+                                                                                                   "title":  "Actions",
+                                                                                                   "default":  ""
+                                                                                               },
+                                                                                   "is_active":  {
+                                                                                                     "type":  "boolean",
+                                                                                                     "title":  "Is Active",
+                                                                                                     "default":  true
+                                                                                                 },
+                                                                                   "metadata":  {
+                                                                                                    "additionalProperties":  true,
+                                                                                                    "type":  "object",
+                                                                                                    "title":  "Metadata",
+                                                                                                    "default":  ""
+                                                                                                }
+                                                                               },
+                                                                "type":  "object",
+                                                                "required":  [
+                                                                                 "name",
+                                                                                 "trigger"
+                                                                             ],
+                                                                "title":  "AutomationCreate"
+                                                            },
+                                       "AutomationTrigger":  {
+                                                                 "properties":  {
+                                                                                    "type":  {
+                                                                                                 "type":  "string",
+                                                                                                 "title":  "Type"
+                                                                                             },
+                                                                                    "event":  {
+                                                                                                  "anyOf":  " ",
+                                                                                                  "title":  "Event"
+                                                                                              },
+                                                                                    "cron":  {
+                                                                                                 "anyOf":  " ",
+                                                                                                 "title":  "Cron"
+                                                                                             },
+                                                                                    "conditions":  {
+                                                                                                       "additionalProperties":  true,
+                                                                                                       "type":  "object",
+                                                                                                       "title":  "Conditions",
+                                                                                                       "default":  ""
+                                                                                                   }
+                                                                                },
+                                                                 "type":  "object",
+                                                                 "required":  [
+                                                                                  "type"
+                                                                              ],
+                                                                 "title":  "AutomationTrigger"
+                                                             },
+                                       "AutomationUpdate":  {
+                                                                "properties":  {
+                                                                                   "name":  {
+                                                                                                "anyOf":  " ",
+                                                                                                "title":  "Name"
+                                                                                            },
+                                                                                   "description":  {
+                                                                                                       "anyOf":  " ",
+                                                                                                       "title":  "Description"
+                                                                                                   },
+                                                                                   "trigger":  {
+                                                                                                   "anyOf":  " "
+                                                                                               },
+                                                                                   "actions":  {
+                                                                                                   "anyOf":  " ",
+                                                                                                   "title":  "Actions"
+                                                                                               },
+                                                                                   "is_active":  {
+                                                                                                     "anyOf":  " ",
+                                                                                                     "title":  "Is Active"
+                                                                                                 },
+                                                                                   "metadata":  {
+                                                                                                    "anyOf":  " ",
+                                                                                                    "title":  "Metadata"
+                                                                                                }
+                                                                               },
+                                                                "type":  "object",
+                                                                "title":  "AutomationUpdate"
+                                                            },
+                                       "BudgetIncreaseRequest":  {
+                                                                     "properties":  {
+                                                                                        "current_budget":  {
+                                                                                                               "type":  "number",
+                                                                                                               "title":  "Current Budget",
+                                                                                                               "default":  0.0
+                                                                                                           },
+                                                                                        "requested_budget":  {
+                                                                                                                 "type":  "number",
+                                                                                                                 "title":  "Requested Budget",
+                                                                                                                 "default":  0.0
+                                                                                                             },
+                                                                                        "reason":  {
+                                                                                                       "type":  "string",
+                                                                                                       "title":  "Reason",
+                                                                                                       "default":  ""
+                                                                                                   },
+                                                                                        "client_email":  {
+                                                                                                             "type":  "string",
+                                                                                                             "title":  "Client Email",
+                                                                                                             "default":  ""
+                                                                                                         }
+                                                                                    },
+                                                                     "type":  "object",
+                                                                     "title":  "BudgetIncreaseRequest"
+                                                                 },
+                                       "ClientPORequest":  {
+                                                               "properties":  {
+                                                                                  "client_email":  {
+                                                                                                       "type":  "string",
+                                                                                                       "title":  "Client Email",
+                                                                                                       "default":  ""
+                                                                                                   },
+                                                                                  "subject":  {
+                                                                                                  "type":  "string",
+                                                                                                  "title":  "Subject",
+                                                                                                  "default":  ""
+                                                                                              },
+                                                                                  "notes":  {
+                                                                                                "type":  "string",
+                                                                                                "title":  "Notes",
+                                                                                                "default":  ""
+                                                                                            }
+                                                                              },
+                                                               "type":  "object",
+                                                               "title":  "ClientPORequest"
+                                                           },
+                                       "Customer":  {
+                                                        "properties":  {
+                                                                           "name":  {
+                                                                                        "type":  "string",
+                                                                                        "title":  "Name"
+                                                                                    },
+                                                                           "email":  {
+                                                                                         "type":  "string",
+                                                                                         "format":  "email",
+                                                                                         "title":  "Email"
+                                                                                     },
+                                                                           "company":  {
+                                                                                           "anyOf":  " ",
+                                                                                           "title":  "Company"
+                                                                                       },
+                                                                           "phone":  {
+                                                                                         "anyOf":  " ",
+                                                                                         "title":  "Phone"
+                                                                                     },
+                                                                           "linkedin_url":  {
+                                                                                                "anyOf":  " ",
+                                                                                                "title":  "Linkedin Url"
+                                                                                            },
+                                                                           "notes":  {
+                                                                                         "anyOf":  " ",
+                                                                                         "title":  "Notes"
+                                                                                     },
+                                                                           "tags":  {
+                                                                                        "items":  "@{type=string}",
+                                                                                        "type":  "array",
+                                                                                        "title":  "Tags",
+                                                                                        "default":  ""
+                                                                                    },
+                                                                           "status":  {
+                                                                                          "$ref":  "#/components/schemas/StatusEnum",
+                                                                                          "default":  "active"
+                                                                                      },
+                                                                           "priority":  {
+                                                                                            "$ref":  "#/components/schemas/PriorityEnum",
+                                                                                            "default":  "medium"
+                                                                                        },
+                                                                           "metadata":  {
+                                                                                            "additionalProperties":  true,
+                                                                                            "type":  "object",
+                                                                                            "title":  "Metadata",
+                                                                                            "default":  ""
+                                                                                        },
+                                                                           "_id":  {
+                                                                                       "type":  "string",
+                                                                                       "title":  "Id"
+                                                                                   },
+                                                                           "created_at":  {
+                                                                                              "type":  "string",
+                                                                                              "format":  "date-time",
+                                                                                              "title":  "Created At"
+                                                                                          },
+                                                                           "updated_at":  {
+                                                                                              "type":  "string",
+                                                                                              "format":  "date-time",
+                                                                                              "title":  "Updated At"
+                                                                                          }
+                                                                       },
+                                                        "type":  "object",
+                                                        "required":  [
+                                                                         "name",
+                                                                         "email",
+                                                                         "_id",
+                                                                         "created_at",
+                                                                         "updated_at"
+                                                                     ],
+                                                        "title":  "Customer"
+                                                    },
+                                       "CustomerCreate":  {
+                                                              "properties":  {
+                                                                                 "name":  {
+                                                                                              "type":  "string",
+                                                                                              "title":  "Name"
+                                                                                          },
+                                                                                 "email":  {
+                                                                                               "type":  "string",
+                                                                                               "format":  "email",
+                                                                                               "title":  "Email"
+                                                                                           },
+                                                                                 "company":  {
+                                                                                                 "anyOf":  " ",
+                                                                                                 "title":  "Company"
+                                                                                             },
+                                                                                 "phone":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Phone"
+                                                                                           },
+                                                                                 "linkedin_url":  {
+                                                                                                      "anyOf":  " ",
+                                                                                                      "title":  "Linkedin Url"
+                                                                                                  },
+                                                                                 "notes":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Notes"
+                                                                                           },
+                                                                                 "tags":  {
+                                                                                              "items":  "@{type=string}",
+                                                                                              "type":  "array",
+                                                                                              "title":  "Tags",
+                                                                                              "default":  ""
+                                                                                          },
+                                                                                 "status":  {
+                                                                                                "$ref":  "#/components/schemas/StatusEnum",
+                                                                                                "default":  "active"
+                                                                                            },
+                                                                                 "priority":  {
+                                                                                                  "$ref":  "#/components/schemas/PriorityEnum",
+                                                                                                  "default":  "medium"
+                                                                                              },
+                                                                                 "metadata":  {
+                                                                                                  "additionalProperties":  true,
+                                                                                                  "type":  "object",
+                                                                                                  "title":  "Metadata",
+                                                                                                  "default":  ""
+                                                                                              }
+                                                                             },
+                                                              "type":  "object",
+                                                              "required":  [
+                                                                               "name",
+                                                                               "email"
+                                                                           ],
+                                                              "title":  "CustomerCreate"
+                                                          },
+                                       "CustomerUpdate":  {
+                                                              "properties":  {
+                                                                                 "name":  {
+                                                                                              "anyOf":  " ",
+                                                                                              "title":  "Name"
+                                                                                          },
+                                                                                 "email":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Email"
+                                                                                           },
+                                                                                 "company":  {
+                                                                                                 "anyOf":  " ",
+                                                                                                 "title":  "Company"
+                                                                                             },
+                                                                                 "phone":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Phone"
+                                                                                           },
+                                                                                 "linkedin_url":  {
+                                                                                                      "anyOf":  " ",
+                                                                                                      "title":  "Linkedin Url"
+                                                                                                  },
+                                                                                 "notes":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Notes"
+                                                                                           },
+                                                                                 "tags":  {
+                                                                                              "anyOf":  " ",
+                                                                                              "title":  "Tags"
+                                                                                          },
+                                                                                 "status":  {
+                                                                                                "anyOf":  " "
+                                                                                            },
+                                                                                 "priority":  {
+                                                                                                  "anyOf":  " "
+                                                                                              },
+                                                                                 "metadata":  {
+                                                                                                  "anyOf":  " ",
+                                                                                                  "title":  "Metadata"
+                                                                                              }
+                                                                             },
+                                                              "type":  "object",
+                                                              "title":  "CustomerUpdate"
+                                                          },
+                                       "EmailLog":  {
+                                                        "properties":  {
+                                                                           "customer_id":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Customer Id"
+                                                                                           },
+                                                                           "requirement_id":  {
+                                                                                                  "anyOf":  " ",
+                                                                                                  "title":  "Requirement Id"
+                                                                                              },
+                                                                           "gmail_message_id":  {
+                                                                                                    "anyOf":  " ",
+                                                                                                    "title":  "Gmail Message Id"
+                                                                                                },
+                                                                           "gmail_thread_id":  {
+                                                                                                   "anyOf":  " ",
+                                                                                                   "title":  "Gmail Thread Id"
+                                                                                               },
+                                                                           "subject":  {
+                                                                                           "anyOf":  " ",
+                                                                                           "title":  "Subject"
+                                                                                       },
+                                                                           "sender":  {
+                                                                                          "anyOf":  " ",
+                                                                                          "title":  "Sender"
+                                                                                      },
+                                                                           "recipient":  {
+                                                                                             "anyOf":  " ",
+                                                                                             "title":  "Recipient"
+                                                                                         },
+                                                                           "body_snippet":  {
+                                                                                                "anyOf":  " ",
+                                                                                                "title":  "Body Snippet"
+                                                                                            },
+                                                                           "direction":  {
+                                                                                             "type":  "string",
+                                                                                             "title":  "Direction",
+                                                                                             "default":  "inbound"
+                                                                                         },
+                                                                           "status":  {
+                                                                                          "$ref":  "#/components/schemas/EmailStatusEnum",
+                                                                                          "default":  "pending"
+                                                                                      },
+                                                                           "processed":  {
+                                                                                             "type":  "boolean",
+                                                                                             "title":  "Processed",
+                                                                                             "default":  false
+                                                                                         },
+                                                                           "ai_analysis":  {
+                                                                                               "anyOf":  " ",
+                                                                                               "title":  "Ai Analysis"
+                                                                                           },
+                                                                           "metadata":  {
+                                                                                            "additionalProperties":  true,
+                                                                                            "type":  "object",
+                                                                                            "title":  "Metadata",
+                                                                                            "default":  ""
+                                                                                        },
+                                                                           "_id":  {
+                                                                                       "type":  "string",
+                                                                                       "title":  "Id"
+                                                                                   },
+                                                                           "created_at":  {
+                                                                                              "type":  "string",
+                                                                                              "format":  "date-time",
+                                                                                              "title":  "Created At"
+                                                                                          },
+                                                                           "updated_at":  {
+                                                                                              "type":  "string",
+                                                                                              "format":  "date-time",
+                                                                                              "title":  "Updated At"
+                                                                                          }
+                                                                       },
+                                                        "type":  "object",
+                                                        "required":  [
+                                                                         "_id",
+                                                                         "created_at",
+                                                                         "updated_at"
+                                                                     ],
+                                                        "title":  "EmailLog"
+                                                    },
+                                       "EmailStatusEnum":  {
+                                                               "type":  "string",
+                                                               "enum":  [
+                                                                            "pending",
+                                                                            "sent",
+                                                                            "failed",
+                                                                            "bounced",
+                                                                            "opened",
+                                                                            "replied"
+                                                                        ],
+                                                               "title":  "EmailStatusEnum"
+                                                           },
+                                       "HTTPValidationError":  {
+                                                                   "properties":  {
+                                                                                      "detail":  {
+                                                                                                     "items":  "@{$ref=#/components/schemas/ValidationError}",
+                                                                                                     "type":  "array",
+                                                                                                     "title":  "Detail"
+                                                                                                 }
+                                                                                  },
+                                                                   "type":  "object",
+                                                                   "title":  "HTTPValidationError"
+                                                               },
+                                       "InvoiceFromPORequest":  {
+                                                                    "properties":  {
+                                                                                       "gst_number":  {
+                                                                                                          "type":  "string",
+                                                                                                          "title":  "Gst Number",
+                                                                                                          "default":  ""
+                                                                                                      },
+                                                                                       "invoice_date":  {
+                                                                                                            "type":  "string",
+                                                                                                            "title":  "Invoice Date",
+                                                                                                            "default":  ""
+                                                                                                        },
+                                                                                       "additional_notes":  {
+                                                                                                                "type":  "string",
+                                                                                                                "title":  "Additional Notes",
+                                                                                                                "default":  ""
+                                                                                                            }
+                                                                                   },
+                                                                    "type":  "object",
+                                                                    "title":  "InvoiceFromPORequest"
+                                                                },
+                                       "Journey":  {
+                                                       "properties":  {
+                                                                          "customer_id":  {
+                                                                                              "type":  "string",
+                                                                                              "title":  "Customer Id"
+                                                                                          },
+                                                                          "requirement_id":  {
+                                                                                                 "anyOf":  " ",
+                                                                                                 "title":  "Requirement Id"
+                                                                                             },
+                                                                          "current_stage":  {
+                                                                                                "type":  "string",
+                                                                                                "title":  "Current Stage",
+                                                                                                "default":  "initial_contact"
+                                                                                            },
+                                                                          "steps":  {
+                                                                                        "items":  "@{$ref=#/components/schemas/JourneyStep}",
+                                                                                        "type":  "array",
+                                                                                        "title":  "Steps",
+                                                                                        "default":  ""
+                                                                                    },
+                                                                          "status":  {
+                                                                                         "$ref":  "#/components/schemas/StatusEnum",
+                                                                                         "default":  "active"
+                                                                                     },
+                                                                          "metadata":  {
+                                                                                           "additionalProperties":  true,
+                                                                                           "type":  "object",
+                                                                                           "title":  "Metadata",
+                                                                                           "default":  ""
+                                                                                       },
+                                                                          "_id":  {
+                                                                                      "type":  "string",
+                                                                                      "title":  "Id"
+                                                                                  },
+                                                                          "created_at":  {
+                                                                                             "type":  "string",
+                                                                                             "format":  "date-time",
+                                                                                             "title":  "Created At"
+                                                                                         },
+                                                                          "updated_at":  {
+                                                                                             "type":  "string",
+                                                                                             "format":  "date-time",
+                                                                                             "title":  "Updated At"
+                                                                                         }
+                                                                      },
+                                                       "type":  "object",
+                                                       "required":  [
+                                                                        "customer_id",
+                                                                        "_id",
+                                                                        "created_at",
+                                                                        "updated_at"
+                                                                    ],
+                                                       "title":  "Journey"
+                                                   },
+                                       "JourneyCreate":  {
+                                                             "properties":  {
+                                                                                "customer_id":  {
+                                                                                                    "type":  "string",
+                                                                                                    "title":  "Customer Id"
+                                                                                                },
+                                                                                "requirement_id":  {
+                                                                                                       "anyOf":  " ",
+                                                                                                       "title":  "Requirement Id"
+                                                                                                   },
+                                                                                "current_stage":  {
+                                                                                                      "type":  "string",
+                                                                                                      "title":  "Current Stage",
+                                                                                                      "default":  "initial_contact"
+                                                                                                  },
+                                                                                "steps":  {
+                                                                                              "items":  "@{$ref=#/components/schemas/JourneyStep}",
+                                                                                              "type":  "array",
+                                                                                              "title":  "Steps",
+                                                                                              "default":  ""
+                                                                                          },
+                                                                                "status":  {
+                                                                                               "$ref":  "#/components/schemas/StatusEnum",
+                                                                                               "default":  "active"
+                                                                                           },
+                                                                                "metadata":  {
+                                                                                                 "additionalProperties":  true,
+                                                                                                 "type":  "object",
+                                                                                                 "title":  "Metadata",
+                                                                                                 "default":  ""
+                                                                                             }
+                                                                            },
+                                                             "type":  "object",
+                                                             "required":  [
+                                                                              "customer_id"
+                                                                          ],
+                                                             "title":  "JourneyCreate"
+                                                         },
+                                       "JourneyStep":  {
+                                                           "properties":  {
+                                                                              "step":  {
+                                                                                           "type":  "string",
+                                                                                           "title":  "Step"
+                                                                                       },
+                                                                              "status":  {
+                                                                                             "type":  "string",
+                                                                                             "title":  "Status",
+                                                                                             "default":  "pending"
+                                                                                         },
+                                                                              "timestamp":  {
+                                                                                                "anyOf":  " ",
+                                                                                                "title":  "Timestamp"
+                                                                                            },
+                                                                              "notes":  {
+                                                                                            "anyOf":  " ",
+                                                                                            "title":  "Notes"
+                                                                                        },
+                                                                              "metadata":  {
+                                                                                               "additionalProperties":  true,
+                                                                                               "type":  "object",
+                                                                                               "title":  "Metadata",
+                                                                                               "default":  ""
+                                                                                           }
+                                                                          },
+                                                           "type":  "object",
+                                                           "required":  [
+                                                                            "step"
+                                                                        ],
+                                                           "title":  "JourneyStep"
+                                                       },
+                                       "JourneyUpdate":  {
+                                                             "properties":  {
+                                                                                "current_stage":  {
+                                                                                                      "anyOf":  " ",
+                                                                                                      "title":  "Current Stage"
+                                                                                                  },
+                                                                                "steps":  {
+                                                                                              "anyOf":  " ",
+                                                                                              "title":  "Steps"
+                                                                                          },
+                                                                                "status":  {
+                                                                                               "anyOf":  " "
+                                                                                           },
+                                                                                "metadata":  {
+                                                                                                 "anyOf":  " ",
+                                                                                                 "title":  "Metadata"
+                                                                                             }
+                                                                            },
+                                                             "type":  "object",
+                                                             "title":  "JourneyUpdate"
+                                                         },
+                                       "PaginatedResponse":  {
+                                                                 "properties":  {
+                                                                                    "items":  {
+                                                                                                  "items":  "",
+                                                                                                  "type":  "array",
+                                                                                                  "title":  "Items"
+                                                                                              },
+                                                                                    "total":  {
+                                                                                                  "type":  "integer",
+                                                                                                  "title":  "Total"
+                                                                                              },
+                                                                                    "page":  {
+                                                                                                 "type":  "integer",
+                                                                                                 "title":  "Page"
+                                                                                             },
+                                                                                    "page_size":  {
+                                                                                                      "type":  "integer",
+                                                                                                      "title":  "Page Size"
+                                                                                                  },
+                                                                                    "pages":  {
+                                                                                                  "type":  "integer",
+                                                                                                  "title":  "Pages"
+                                                                                              }
+                                                                                },
+                                                                 "type":  "object",
+                                                                 "required":  [
+                                                                                  "items",
+                                                                                  "total",
+                                                                                  "page",
+                                                                                  "page_size",
+                                                                                  "pages"
+                                                                              ],
+                                                                 "title":  "PaginatedResponse"
+                                                             },
+                                       "PriorityEnum":  {
+                                                            "type":  "string",
+                                                            "enum":  [
+                                                                         "low",
+                                                                         "medium",
+                                                                         "high",
+                                                                         "urgent"
+                                                                     ],
+                                                            "title":  "PriorityEnum"
+                                                        },
+                                       "StatusEnum":  {
+                                                          "type":  "string",
+                                                          "enum":  [
+                                                                       "active",
+                                                                       "inactive",
+                                                                       "pending",
+                                                                       "completed",
+                                                                       "failed"
+                                                                   ],
+                                                          "title":  "StatusEnum"
+                                                      },
+                                       "ValidationError":  {
+                                                               "properties":  {
+                                                                                  "loc":  {
+                                                                                              "items":  "@{anyOf=System.Object[]}",
+                                                                                              "type":  "array",
+                                                                                              "title":  "Location"
+                                                                                          },
+                                                                                  "msg":  {
+                                                                                              "type":  "string",
+                                                                                              "title":  "Message"
+                                                                                          },
+                                                                                  "type":  {
+                                                                                               "type":  "string",
+                                                                                               "title":  "Error Type"
+                                                                                           },
+                                                                                  "input":  {
+                                                                                                "title":  "Input"
+                                                                                            },
+                                                                                  "ctx":  {
+                                                                                              "type":  "object",
+                                                                                              "title":  "Context"
+                                                                                          }
+                                                                              },
+                                                               "type":  "object",
+                                                               "required":  [
+                                                                                "loc",
+                                                                                "msg",
+                                                                                "type"
+                                                                            ],
+                                                               "title":  "ValidationError"
+                                                           }
+                                   }
+                   }
+}

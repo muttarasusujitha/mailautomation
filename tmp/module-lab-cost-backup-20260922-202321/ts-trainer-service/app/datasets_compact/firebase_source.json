@@ -1,0 +1,456 @@
+{
+    "domain":  "Firebase",
+    "name":  "Firebase â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Google Firebase",
+                    "Firebase Platform"
+                ],
+    "tools":  [
+                  "Firebase Console",
+                  "Firebase CLI",
+                  "Firestore",
+                  "Firebase Authentication",
+                  "Cloud Functions"
+              ],
+    "certifications":  [
+                           "Firebase official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Architecture",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Primary use cases",
+                                       "Architecture components",
+                                       "Deployment models",
+                                       "Installation or managed setup",
+                                       "Client tools",
+                                       "Basic administration",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore"
+                               ],
+                     "lab_task":  "Set up Firebase and create the first working environment.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Architecture concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Architecture practically using Firebase.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Data Model and Schema Design",
+                     "subtopics":  [
+                                       "Data model",
+                                       "Keys and identifiers",
+                                       "Data types",
+                                       "Relationships or document structure",
+                                       "Schema design patterns",
+                                       "Normalization/denormalization considerations",
+                                       "Naming conventions",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI"
+                               ],
+                     "lab_task":  "Design a production-style Firebase schema for a sample application.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Data Model and Schema Design concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Data Model and Schema Design practically using Firebase.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "CRUD and Query Fundamentals",
+                     "subtopics":  [
+                                       "Create/insert operations",
+                                       "Read/query operations",
+                                       "Update operations",
+                                       "Delete operations",
+                                       "Filtering",
+                                       "Sorting",
+                                       "Pagination",
+                                       "Parameterization",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI"
+                               ],
+                     "lab_task":  "Implement complete CRUD and common queries in Firebase.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the CRUD and Query Fundamentals concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CRUD and Query Fundamentals practically using Firebase.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Querying",
+                     "subtopics":  [
+                                       "Aggregations",
+                                       "Joins or graph/document alternatives",
+                                       "Subqueries or nested queries",
+                                       "Indexes",
+                                       "Query planning",
+                                       "Query optimization",
+                                       "Common anti-patterns",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore"
+                               ],
+                     "lab_task":  "Build and optimize analytical and application queries.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Querying concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Querying practically using Firebase.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Transactions, Consistency and Concurrency",
+                     "subtopics":  [
+                                       "ACID or consistency model",
+                                       "Transactions",
+                                       "Isolation or consistency levels",
+                                       "Locking/conflict behavior",
+                                       "Retries",
+                                       "Idempotency",
+                                       "Concurrency patterns",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI"
+                               ],
+                     "lab_task":  "Test concurrent updates and consistency behavior.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Transactions, Consistency and Concurrency concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Transactions, Consistency and Concurrency practically using Firebase.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Security and Access Control",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Roles and privileges",
+                                       "Encryption in transit",
+                                       "Encryption at rest",
+                                       "Secrets handling",
+                                       "Least privilege",
+                                       "Auditing",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore"
+                               ],
+                     "lab_task":  "Configure secure least-privilege access.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Security and Access Control concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security and Access Control practically using Firebase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Backup, Recovery and High Availability",
+                     "subtopics":  [
+                                       "Backup methods",
+                                       "Restore",
+                                       "Replication",
+                                       "Failover",
+                                       "Disaster recovery",
+                                       "RPO/RTO",
+                                       "Operational runbooks",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore"
+                               ],
+                     "lab_task":  "Create and test a backup and recovery procedure.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Backup, Recovery and High Availability concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Backup, Recovery and High Availability practically using Firebase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Monitoring and Performance",
+                     "subtopics":  [
+                                       "Metrics",
+                                       "Logs",
+                                       "Slow query analysis",
+                                       "Capacity planning",
+                                       "Memory/storage tuning",
+                                       "Index tuning",
+                                       "Scaling",
+                                       "Troubleshooting",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore"
+                               ],
+                     "lab_task":  "Diagnose and tune a performance issue.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Performance concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Performance practically using Firebase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Application Integration",
+                     "subtopics":  [
+                                       "Drivers and SDKs",
+                                       "Connection management",
+                                       "Pooling",
+                                       "Prepared statements",
+                                       "Error handling",
+                                       "Retries",
+                                       "Testing",
+                                       "CI integration",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore"
+                               ],
+                     "lab_task":  "Connect a sample application to Firebase.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Application Integration concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Application Integration practically using Firebase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone Project",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Schema design",
+                                       "Data loading",
+                                       "Queries",
+                                       "Security",
+                                       "Performance",
+                                       "Monitoring",
+                                       "Backup",
+                                       "Documentation",
+                                       "Firebase terminology and feature mapping for this topic",
+                                       "Firebase configuration and implementation considerations",
+                                       "Firebase best practices and common mistakes for this topic",
+                                       "Cloud Firestore",
+                                       "Realtime Database",
+                                       "Firebase Authentication",
+                                       "Cloud Functions",
+                                       "Cloud Storage",
+                                       "Firebase Hosting",
+                                       "FCM",
+                                       "Security Rules",
+                                       "Firebase Emulator Suite",
+                                       "Analytics",
+                                       "Crashlytics"
+                                   ],
+                     "tools":  [
+                                   "Firebase Console",
+                                   "Firebase CLI",
+                                   "Firestore",
+                                   "Firebase Authentication"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style Firebase solution.",
+                     "technology":  "Firebase",
+                     "technology_id":  "firebase",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone Project concepts in the context of Firebase.",
+                                                 "Configure or implement the key Firebase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone Project practically using Firebase.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "firebase"
+}

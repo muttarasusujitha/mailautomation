@@ -1,0 +1,946 @@
+{
+  "domain": "Power BI",
+  "name": "Power BI",
+  "icon": "chart",
+  "program_title": "Power BI Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Power BI Expert",
+  "certifications": [
+    "Microsoft Certified: Data Analyst Associate",
+    "Microsoft Certified: Power BI Data Analyst",
+    "Databricks Certified Associate Data Analyst"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Power BI Fundamentals",
+      "subtopics": [
+        "Workspace",
+        "Apps",
+        "Navigation",
+        "Licensing"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Power BI basics"
+    },
+    {
+      "day": 2,
+      "topic": "Power BI Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Workspace",
+        "Part 2: Apps",
+        "Part 2: Navigation",
+        "Part 2: Licensing"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Power BI basics"
+    },
+    {
+      "day": 3,
+      "topic": "Data Sources & Connections",
+      "subtopics": [
+        "Excel",
+        "SQL",
+        "APIs",
+        "Data Gateway"
+      ],
+      "tools": [
+        "Power Query"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Data connections"
+    },
+    {
+      "day": 4,
+      "topic": "Data Sources & Connections - Part 2",
+      "subtopics": [
+        "Part 2: Excel",
+        "Part 2: SQL",
+        "Part 2: APIs",
+        "Part 2: Data Gateway"
+      ],
+      "tools": [
+        "Power Query"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Data connections"
+    },
+    {
+      "day": 5,
+      "topic": "Data Modeling",
+      "subtopics": [
+        "Tables",
+        "Relationships",
+        "Cardinality",
+        "Star Schema"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Data Modeling",
+      "lab_task": "Data modeling"
+    },
+    {
+      "day": 6,
+      "topic": "Data Modeling - Part 2",
+      "subtopics": [
+        "Part 2: Tables",
+        "Part 2: Relationships",
+        "Part 2: Cardinality",
+        "Part 2: Star Schema"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Data modeling"
+    },
+    {
+      "day": 7,
+      "topic": "Power Query",
+      "subtopics": [
+        "Queries",
+        "Transformations",
+        "M Language",
+        "Merge/Append"
+      ],
+      "tools": [
+        "Power Query"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Power Query editor"
+    },
+    {
+      "day": 8,
+      "topic": "Power Query - Part 2",
+      "subtopics": [
+        "Part 2: Queries",
+        "Part 2: Transformations",
+        "Part 2: M Language",
+        "Part 2: Merge/Append"
+      ],
+      "tools": [
+        "Power Query"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Power Query editor"
+    },
+    {
+      "day": 9,
+      "topic": "DAX Fundamentals",
+      "subtopics": [
+        "Syntax",
+        "Functions",
+        "Context"
+      ],
+      "tools": [
+        "DAX"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "DAX basics"
+    },
+    {
+      "day": 10,
+      "topic": "DAX Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Syntax",
+        "Part 2: Functions",
+        "Part 2: Context"
+      ],
+      "tools": [
+        "DAX"
+      ],
+      "jira_focus": "Sprint planning; review progress for DAX Fundamentals",
+      "lab_task": "Part 2 hands-on: DAX basics"
+    },
+    {
+      "day": 11,
+      "topic": "DAX Advanced",
+      "subtopics": [
+        "CALCULATE",
+        "FILTER",
+        "SUMX",
+        "Complex Formulas"
+      ],
+      "tools": [
+        "DAX"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Advanced DAX"
+    },
+    {
+      "day": 12,
+      "topic": "DAX Advanced - Part 2",
+      "subtopics": [
+        "Part 2: CALCULATE",
+        "Part 2: FILTER",
+        "Part 2: SUMX",
+        "Part 2: Complex Formulas"
+      ],
+      "tools": [
+        "DAX"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Advanced DAX"
+    },
+    {
+      "day": 13,
+      "topic": "Visualizations",
+      "subtopics": [
+        "Charts",
+        "Tables",
+        "Maps",
+        "Custom Visuals"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Creating visualizations"
+    },
+    {
+      "day": 14,
+      "topic": "Visualizations - Part 2",
+      "subtopics": [
+        "Part 2: Charts",
+        "Part 2: Tables",
+        "Part 2: Maps",
+        "Part 2: Custom Visuals"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Creating visualizations"
+    },
+    {
+      "day": 15,
+      "topic": "Dashboards",
+      "subtopics": [
+        "Dashboard Design",
+        "Interactivity",
+        "Filters",
+        "Sync"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Dashboards",
+      "lab_task": "Dashboard creation"
+    },
+    {
+      "day": 16,
+      "topic": "Dashboards - Part 2",
+      "subtopics": [
+        "Part 2: Dashboard Design",
+        "Part 2: Interactivity",
+        "Part 2: Filters",
+        "Part 2: Sync"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Dashboard creation"
+    },
+    {
+      "day": 17,
+      "topic": "Reports",
+      "subtopics": [
+        "Report Pages",
+        "Drillthrough",
+        "Bookmarks",
+        "Themes"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Report development"
+    },
+    {
+      "day": 18,
+      "topic": "Reports - Part 2",
+      "subtopics": [
+        "Part 2: Report Pages",
+        "Part 2: Drillthrough",
+        "Part 2: Bookmarks",
+        "Part 2: Themes"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Report development"
+    },
+    {
+      "day": 19,
+      "topic": "Performance Optimization",
+      "subtopics": [
+        "Query Optimization",
+        "Compression",
+        "Aggregations"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Performance tuning"
+    },
+    {
+      "day": 20,
+      "topic": "Performance Optimization - Part 2",
+      "subtopics": [
+        "Part 2: Query Optimization",
+        "Part 2: Compression",
+        "Part 2: Aggregations"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Performance Optimization",
+      "lab_task": "Part 2 hands-on: Performance tuning"
+    },
+    {
+      "day": 21,
+      "topic": "Row-Level Security",
+      "subtopics": [
+        "RLS",
+        "Dynamic Security",
+        "Configuration"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Security implementation"
+    },
+    {
+      "day": 22,
+      "topic": "Row-Level Security - Part 2",
+      "subtopics": [
+        "Part 2: RLS",
+        "Part 2: Dynamic Security",
+        "Part 2: Configuration"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Security implementation"
+    },
+    {
+      "day": 23,
+      "topic": "Advanced Analytics",
+      "subtopics": [
+        "R/Python Visuals",
+        "ML Models",
+        "Forecasting"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Advanced analytics"
+    },
+    {
+      "day": 24,
+      "topic": "Advanced Analytics - Part 2",
+      "subtopics": [
+        "Part 2: R/Python Visuals",
+        "Part 2: ML Models",
+        "Part 2: Forecasting"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Advanced analytics"
+    },
+    {
+      "day": 25,
+      "topic": "Sharing & Collaboration",
+      "subtopics": [
+        "Sharing Reports",
+        "Apps",
+        "Workspaces"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Sharing & Collaboration",
+      "lab_task": "Sharing and collaboration"
+    },
+    {
+      "day": 26,
+      "topic": "Sharing & Collaboration - Part 2",
+      "subtopics": [
+        "Part 2: Sharing Reports",
+        "Part 2: Apps",
+        "Part 2: Workspaces"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Sharing and collaboration"
+    },
+    {
+      "day": 27,
+      "topic": "Deployment",
+      "subtopics": [
+        "Premium Capacity",
+        "Refresh Schedules",
+        "Monitoring"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Deployment strategies"
+    },
+    {
+      "day": 28,
+      "topic": "Deployment - Part 2",
+      "subtopics": [
+        "Part 2: Premium Capacity",
+        "Part 2: Refresh Schedules",
+        "Part 2: Monitoring"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Deployment strategies"
+    },
+    {
+      "day": 29,
+      "topic": "Real-World Projects",
+      "subtopics": [
+        "End-to-end Analysis",
+        "Best Practices",
+        "Optimization"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Real-world projects"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "End-to-end Analysis",
+        "Best Practices",
+        "Optimization"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Real-World Projects",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Data Modeling Deep Dive",
+      "subtopics": [
+        "Data Modeling Deep Dive concepts",
+        "Data Modeling Deep Dive configuration",
+        "Data Modeling Deep Dive hands-on workflow",
+        "Data Modeling Deep Dive troubleshooting",
+        "Data Modeling Deep Dive best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Data Modeling Deep Dive"
+    },
+    {
+      "day": 32,
+      "topic": "Power Query Advanced",
+      "subtopics": [
+        "Power Query Advanced concepts",
+        "Power Query Advanced configuration",
+        "Power Query Advanced hands-on workflow",
+        "Power Query Advanced troubleshooting",
+        "Power Query Advanced best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Power Query Advanced"
+    },
+    {
+      "day": 33,
+      "topic": "DAX Context",
+      "subtopics": [
+        "DAX Context concepts",
+        "DAX Context configuration",
+        "DAX Context hands-on workflow",
+        "DAX Context troubleshooting",
+        "DAX Context best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: DAX Context"
+    },
+    {
+      "day": 34,
+      "topic": "Advanced DAX Patterns",
+      "subtopics": [
+        "Advanced DAX Patterns concepts",
+        "Advanced DAX Patterns configuration",
+        "Advanced DAX Patterns hands-on workflow",
+        "Advanced DAX Patterns troubleshooting",
+        "Advanced DAX Patterns best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Advanced DAX Patterns"
+    },
+    {
+      "day": 35,
+      "topic": "Time Intelligence",
+      "subtopics": [
+        "Time Intelligence concepts",
+        "Time Intelligence configuration",
+        "Time Intelligence hands-on workflow",
+        "Time Intelligence troubleshooting",
+        "Time Intelligence best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Time Intelligence"
+    },
+    {
+      "day": 36,
+      "topic": "Star Schema Design",
+      "subtopics": [
+        "Star Schema Design concepts",
+        "Star Schema Design configuration",
+        "Star Schema Design hands-on workflow",
+        "Star Schema Design troubleshooting",
+        "Star Schema Design best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Star Schema Design"
+    },
+    {
+      "day": 37,
+      "topic": "Report UX Design",
+      "subtopics": [
+        "Report UX Design concepts",
+        "Report UX Design configuration",
+        "Report UX Design hands-on workflow",
+        "Report UX Design troubleshooting",
+        "Report UX Design best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Report UX Design"
+    },
+    {
+      "day": 38,
+      "topic": "Dashboard Storytelling",
+      "subtopics": [
+        "Dashboard Storytelling concepts",
+        "Dashboard Storytelling configuration",
+        "Dashboard Storytelling hands-on workflow",
+        "Dashboard Storytelling troubleshooting",
+        "Dashboard Storytelling best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Dashboard Storytelling"
+    },
+    {
+      "day": 39,
+      "topic": "Bookmarks and Drillthrough",
+      "subtopics": [
+        "Bookmarks and Drillthrough concepts",
+        "Bookmarks and Drillthrough configuration",
+        "Bookmarks and Drillthrough hands-on workflow",
+        "Bookmarks and Drillthrough troubleshooting",
+        "Bookmarks and Drillthrough best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Bookmarks and Drillthrough"
+    },
+    {
+      "day": 40,
+      "topic": "Row Level Security",
+      "subtopics": [
+        "Row Level Security concepts",
+        "Row Level Security configuration",
+        "Row Level Security hands-on workflow",
+        "Row Level Security troubleshooting",
+        "Row Level Security best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Row Level Security"
+    },
+    {
+      "day": 41,
+      "topic": "Power BI Service",
+      "subtopics": [
+        "Power BI Service concepts",
+        "Power BI Service configuration",
+        "Power BI Service hands-on workflow",
+        "Power BI Service troubleshooting",
+        "Power BI Service best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Power BI Service"
+    },
+    {
+      "day": 42,
+      "topic": "Workspaces and Apps",
+      "subtopics": [
+        "Workspaces and Apps concepts",
+        "Workspaces and Apps configuration",
+        "Workspaces and Apps hands-on workflow",
+        "Workspaces and Apps troubleshooting",
+        "Workspaces and Apps best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Workspaces and Apps"
+    },
+    {
+      "day": 43,
+      "topic": "Gateway Configuration",
+      "subtopics": [
+        "Gateway Configuration concepts",
+        "Gateway Configuration configuration",
+        "Gateway Configuration hands-on workflow",
+        "Gateway Configuration troubleshooting",
+        "Gateway Configuration best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Gateway Configuration"
+    },
+    {
+      "day": 44,
+      "topic": "Incremental Refresh",
+      "subtopics": [
+        "Incremental Refresh concepts",
+        "Incremental Refresh configuration",
+        "Incremental Refresh hands-on workflow",
+        "Incremental Refresh troubleshooting",
+        "Incremental Refresh best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Incremental Refresh"
+    },
+    {
+      "day": 45,
+      "topic": "Performance Analyzer",
+      "subtopics": [
+        "Performance Analyzer concepts",
+        "Performance Analyzer configuration",
+        "Performance Analyzer hands-on workflow",
+        "Performance Analyzer troubleshooting",
+        "Performance Analyzer best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Performance Analyzer"
+    },
+    {
+      "day": 46,
+      "topic": "Composite Models",
+      "subtopics": [
+        "Composite Models concepts",
+        "Composite Models configuration",
+        "Composite Models hands-on workflow",
+        "Composite Models troubleshooting",
+        "Composite Models best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Composite Models"
+    },
+    {
+      "day": 47,
+      "topic": "Paginated Reports",
+      "subtopics": [
+        "Paginated Reports concepts",
+        "Paginated Reports configuration",
+        "Paginated Reports hands-on workflow",
+        "Paginated Reports troubleshooting",
+        "Paginated Reports best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Paginated Reports"
+    },
+    {
+      "day": 48,
+      "topic": "Power BI Governance",
+      "subtopics": [
+        "Power BI Governance concepts",
+        "Power BI Governance configuration",
+        "Power BI Governance hands-on workflow",
+        "Power BI Governance troubleshooting",
+        "Power BI Governance best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Power BI Governance"
+    },
+    {
+      "day": 49,
+      "topic": "Deployment Pipelines",
+      "subtopics": [
+        "Deployment Pipelines concepts",
+        "Deployment Pipelines configuration",
+        "Deployment Pipelines hands-on workflow",
+        "Deployment Pipelines troubleshooting",
+        "Deployment Pipelines best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Deployment Pipelines"
+    },
+    {
+      "day": 50,
+      "topic": "Power BI Embedded Basics",
+      "subtopics": [
+        "Power BI Embedded Basics concepts",
+        "Power BI Embedded Basics configuration",
+        "Power BI Embedded Basics hands-on workflow",
+        "Power BI Embedded Basics troubleshooting",
+        "Power BI Embedded Basics best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Power BI Embedded Basics"
+    },
+    {
+      "day": 51,
+      "topic": "BI Capstone Planning",
+      "subtopics": [
+        "BI Capstone Planning concepts",
+        "BI Capstone Planning configuration",
+        "BI Capstone Planning hands-on workflow",
+        "BI Capstone Planning troubleshooting",
+        "BI Capstone Planning best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: BI Capstone Planning"
+    },
+    {
+      "day": 52,
+      "topic": "BI Capstone Model",
+      "subtopics": [
+        "BI Capstone Model concepts",
+        "BI Capstone Model configuration",
+        "BI Capstone Model hands-on workflow",
+        "BI Capstone Model troubleshooting",
+        "BI Capstone Model best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: BI Capstone Model"
+    },
+    {
+      "day": 53,
+      "topic": "BI Capstone Dashboard",
+      "subtopics": [
+        "BI Capstone Dashboard concepts",
+        "BI Capstone Dashboard configuration",
+        "BI Capstone Dashboard hands-on workflow",
+        "BI Capstone Dashboard troubleshooting",
+        "BI Capstone Dashboard best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: BI Capstone Dashboard"
+    },
+    {
+      "day": 54,
+      "topic": "BI Final Demo",
+      "subtopics": [
+        "BI Final Demo concepts",
+        "BI Final Demo configuration",
+        "BI Final Demo hands-on workflow",
+        "BI Final Demo troubleshooting",
+        "BI Final Demo best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: BI Final Demo"
+    },
+    {
+      "day": 55,
+      "topic": "BI Capstone Requirement Analysis",
+      "subtopics": [
+        "BI Capstone Requirement Analysis concepts",
+        "BI Capstone Requirement Analysis hands-on workflow",
+        "BI Capstone Requirement Analysis validation",
+        "BI Capstone Requirement Analysis troubleshooting",
+        "BI Capstone Requirement Analysis best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: BI Capstone Requirement Analysis"
+    },
+    {
+      "day": 56,
+      "topic": "Data Model Build",
+      "subtopics": [
+        "Data Model Build concepts",
+        "Data Model Build hands-on workflow",
+        "Data Model Build validation",
+        "Data Model Build troubleshooting",
+        "Data Model Build best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Data Model Build"
+    },
+    {
+      "day": 57,
+      "topic": "DAX Measure Sprint",
+      "subtopics": [
+        "DAX Measure Sprint concepts",
+        "DAX Measure Sprint hands-on workflow",
+        "DAX Measure Sprint validation",
+        "DAX Measure Sprint troubleshooting",
+        "DAX Measure Sprint best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: DAX Measure Sprint"
+    },
+    {
+      "day": 58,
+      "topic": "Report UX Sprint",
+      "subtopics": [
+        "Report UX Sprint concepts",
+        "Report UX Sprint hands-on workflow",
+        "Report UX Sprint validation",
+        "Report UX Sprint troubleshooting",
+        "Report UX Sprint best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Report UX Sprint"
+    },
+    {
+      "day": 59,
+      "topic": "Power BI Service Deployment",
+      "subtopics": [
+        "Power BI Service Deployment concepts",
+        "Power BI Service Deployment hands-on workflow",
+        "Power BI Service Deployment validation",
+        "Power BI Service Deployment troubleshooting",
+        "Power BI Service Deployment best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Power BI Service Deployment"
+    },
+    {
+      "day": 60,
+      "topic": "BI Final Demo - Part 2",
+      "subtopics": [
+        "Part 2: BI Final Demo concepts",
+        "Part 2: BI Final Demo hands-on workflow",
+        "Part 2: BI Final Demo validation",
+        "Part 2: BI Final Demo troubleshooting",
+        "Part 2: BI Final Demo best practices"
+      ],
+      "tools": [
+        "Power BI"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 2 hands-on: Hands-on lab: BI Final Demo"
+    }
+  ],
+  "aliases": [
+    "Power BI",
+    "PowerBI",
+    "BI",
+    "Business Intelligence",
+    "DAX",
+    "Power Query",
+    "Power BI Dashboard",
+    "Power BI Developer"
+  ],
+  "official_sources": [
+    "https://learn.microsoft.com/en-us/power-bi/transform-model/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

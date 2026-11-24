@@ -1,0 +1,573 @@
+{
+  "domain": "Python Full Stack",
+  "name": "Python Full Stack",
+  "category": "Web and Full Stack Development",
+  "icon": "layers",
+  "aliases": ["Python Fullstack", "Python Full Stack Development", "Python Full Stack Developer", "Django Full Stack", "FastAPI Full Stack", "Python React Full Stack", "Python Web Full Stack", "Python Full Stack Bootcamp"],
+  "certifications": ["PCAP - Certified Associate in Python Programming", "PCPP1 - Certified Professional in Python Programming 1", "AWS Certified Developer - Associate"],
+  "tools": ["Python", "FastAPI", "SQLAlchemy", "Alembic", "PostgreSQL", "React", "TypeScript", "Vite", "pytest", "Playwright", "Docker Compose", "GitHub Actions", "Redis", "OpenTelemetry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know basic Python (functions, classes, pip) and want to build and ship a complete web application. Covers the browser, HTTP and JSON, a FastAPI backend with Pydantic, PostgreSQL and SQL, SQLAlchemy 2.0 and Alembic, a React and TypeScript client built with Vite, password hashing and token login, protected routes, pytest and Vitest, Dockerfiles and Docker Compose, and a support-desk ticketing capstone that runs from one command.",
+      "prerequisites": ["Writes Python functions, classes and modules and installs packages with pip", "Knows basic HTML and JavaScript syntax well enough to read a small script", "Has a laptop with rights to install Python 3.12 or later, Node.js LTS, Git, Docker Desktop or Docker Engine, and an editor such as Visual Studio Code"],
+      "outcomes": ["Explain how a request travels from a React page through a FastAPI route to PostgreSQL and back as JSON", "Build a typed REST API with FastAPI, SQLAlchemy 2.0 and Alembic migrations on PostgreSQL", "Build a React and TypeScript client that lists, creates and edits data and protects pages behind login", "Test both tiers and run the whole stack locally with Docker Compose"],
+      "days": [
+        {
+          "topic": "Python Web Stack Tour and Workstation Preparation",
+          "subtopics": ["Request path: browser, reverse proxy, ASGI server, route handler, database", "Roles of each tier: React client, FastAPI API, PostgreSQL storage", "Choosing FastAPI or Django and what this course uses", "Installing Python 3.12+, Node.js LTS, Git and Docker", "Checking versions: python --version, node --version, docker --version", "Editor extensions: Python, Pylance, ESLint, Docker", "Git identity and SSH or HTTPS credentials for GitHub", "Browser developer tools: Network and Console tabs", "Reading a HAR file to see one real request", "Course project: the Support Desk ticketing app"],
+          "tools": ["Python", "Node.js", "Git", "Docker", "Visual Studio Code", "Browser DevTools"],
+          "lab_task": "Install the toolchain and record python --version, node --version, git --version and docker run hello-world output. Open any public site, capture one XHR or fetch call in the Network tab, and write down its method, URL, status code, request headers and response Content-Type. Draw the tier diagram for the Support Desk app.",
+          "deliverable": "Environment report with version output, one annotated network capture and the tier diagram",
+          "checks": [["Run docker run hello-world", "Prints 'Hello from Docker!' and exits with code 0", "Terminal output"], ["Run python --version and node --version", "Python reports 3.12 or later and Node reports an LTS release", "Terminal output"], ["Inspect a fetch call in DevTools", "Report lists method, status 200 and Content-Type application/json for the call", "Annotated screenshot"]],
+          "objectives": ["Install and verify the Python, Node and Docker toolchain", "Trace one browser request through each tier", "Name the responsibility of the client, API and database"]
+        },
+        {
+          "topic": "Python Environments, uv and Project Layout",
+          "subtopics": ["Virtual environments with python -m venv and why they matter", "Installing and locking dependencies with uv or pip-tools", "pyproject.toml: project metadata, dependencies and tool tables", "Separating runtime and development dependencies", "Monorepo layout: backend/, frontend/, compose.yaml", "src layout versus flat layout for the API", "Ruff for linting and formatting; configuration in pyproject.toml", "Pre-commit hooks that run Ruff before every commit", "Environment variables and a committed .env.example", "A .gitignore that keeps .venv, node_modules and .env out of Git"],
+          "tools": ["uv", "pip", "Ruff", "pre-commit", "Git", "pyproject.toml"],
+          "lab_task": "Create a monorepo with backend/ and frontend/ folders. In backend/, run uv init, add fastapi, uvicorn and sqlalchemy, then add pytest and ruff as dev dependencies. Commit uv.lock, configure Ruff in pyproject.toml, install a pre-commit hook and prove that git commit is blocked when a file has an unused import.",
+          "deliverable": "Repository with pyproject.toml, lock file, Ruff configuration, pre-commit hook and .gitignore",
+          "checks": [["Run uv sync on a fresh clone", "The .venv is rebuilt with versions identical to uv.lock", "Terminal output and git diff showing no lock change"], ["Commit a file with an unused import", "Pre-commit fails the commit and Ruff reports F401", "Terminal output"], ["Run git status after creating .env", "The .env file does not appear as untracked", "git status output"]],
+          "objectives": ["Create reproducible Python environments with locked dependencies", "Configure Ruff and pre-commit for the repository", "Keep secrets and generated folders out of Git"]
+        },
+        {
+          "topic": "HTTP and JSON Through Python's Eyes",
+          "subtopics": ["Methods and their meaning: GET, POST, PUT, PATCH, DELETE", "Status code families: 2xx, 3xx, 4xx, 5xx and the common ones", "Headers: Content-Type, Accept, Authorization, Cache-Control", "Query strings, path parameters and request bodies", "JSON types and how they map to Python dict, list, str, int, bool and None", "json.loads and json.dumps, including ensure_ascii and indent", "Calling an API with httpx and checking response.raise_for_status()", "Idempotency: why PUT and DELETE can be retried and POST cannot", "Inspecting traffic with curl -v and Postman", "Reading an OpenAPI description to learn an unfamiliar API"],
+          "tools": ["httpx", "curl", "Postman", "Python", "jq", "Browser DevTools"],
+          "lab_task": "Write fetch_issues.py using httpx to call GET https://api.github.com/repos/python/cpython/issues?per_page=5 with an Accept header, print each issue number and title, and handle a 404 by printing the status code and exiting with code 1. Repeat the call with curl -i and compare headers, including X-RateLimit-Remaining.",
+          "deliverable": "fetch_issues.py, the curl transcript and a table mapping five status codes to their meaning",
+          "checks": [["Run fetch_issues.py against the valid URL", "Prints exactly 5 issue numbers with titles", "Terminal output"], ["Run it against a repository name that does not exist", "Prints status 404 and exits with code 1", "echo $? output"], ["Run curl -i on the same URL", "Response shows HTTP 200 and a content-type of application/json", "Saved transcript"]],
+          "objectives": ["Choose the correct method and status code for an operation", "Read and write JSON in Python", "Call an HTTP API with httpx and handle failures"]
+        },
+        {
+          "topic": "First FastAPI Service: Routes and Pydantic Models",
+          "subtopics": ["Creating the app object and running it with uvicorn app.main:app --reload", "Path operations with @app.get and @app.post", "Path and query parameters with type hints", "Pydantic v2 models for request bodies: BaseModel and Field", "Response models and response_model_exclude_unset", "Enum fields and Literal types for ticket status and priority", "Automatic validation and the 422 response format", "Swagger UI at /docs and ReDoc at /redoc", "The openapi.json document and how clients use it", "Health endpoint at /healthz for later container checks"],
+          "tools": ["FastAPI", "Pydantic", "uvicorn", "Swagger UI", "curl", "Postman"],
+          "lab_task": "Create backend/app/main.py with GET /healthz, GET /tickets and POST /tickets using an in-memory list. Define TicketCreate and TicketRead models with title (3 to 120 characters), priority (low, normal, high) and status. Run uvicorn app.main:app --reload and prove that a two-character title returns 422 with a loc of [body, title].",
+          "deliverable": "Running FastAPI service with models, three routes and a saved set of Postman or curl requests",
+          "checks": [["POST /tickets with a valid body", "Returns 201 with an id and status open", "curl output"], ["POST /tickets with title 'ab'", "Returns 422 and the detail loc is [\"body\", \"title\"]", "Response JSON"], ["Open /openapi.json", "Lists the paths /healthz and /tickets with schemas TicketCreate and TicketRead", "Saved JSON"]],
+          "objectives": ["Build routes with typed parameters and Pydantic models", "Read a 422 validation error and fix the request", "Use the generated OpenAPI docs to test the API"]
+        },
+        {
+          "topic": "PostgreSQL Tables and SQL for Application Developers",
+          "subtopics": ["Starting PostgreSQL in Docker with a named volume", "Connecting with psql and the postgres:// URL format", "Creating a database, a role and granting only needed privileges", "Tables, primary keys and identity columns", "Data types: text, integer, boolean, timestamptz, jsonb, uuid", "Constraints: NOT NULL, UNIQUE, CHECK and FOREIGN KEY", "INSERT ... RETURNING, UPDATE and DELETE with WHERE", "SELECT with WHERE, ORDER BY, LIMIT and OFFSET", "JOIN between tickets and users and GROUP BY counts", "Indexes: CREATE INDEX and reading a simple EXPLAIN"],
+          "tools": ["PostgreSQL", "psql", "Docker", "DBeaver", "pgAdmin", "SQL"],
+          "lab_task": "Run docker run -d --name pg -e POSTGRES_PASSWORD=dev -p 5432:5432 -v pgdata:/var/lib/postgresql/data postgres:17. In psql create database supportdesk, tables users and tickets with a foreign key and a CHECK on priority, insert 10 tickets, then write a query that counts open tickets per user and run EXPLAIN on it before and after adding an index.",
+          "deliverable": "schema.sql, seed data and a query sheet with the EXPLAIN output before and after indexing",
+          "checks": [["Insert a ticket with priority 'urgent'", "Fails with SQLSTATE 23514 check_violation", "psql error text"], ["Insert a ticket with a missing user_id", "Fails with SQLSTATE 23503 foreign_key_violation", "psql error text"], ["Run the per-user count query", "Returns one row per user and the counts sum to 10", "Query result"]],
+          "objectives": ["Design tables with keys and constraints", "Write SELECT, JOIN and GROUP BY queries", "Explain what an index changes in a query plan"]
+        },
+        {
+          "topic": "SQLAlchemy 2.0 Models and Sessions",
+          "subtopics": ["Declarative models with DeclarativeBase, Mapped and mapped_column", "Engine creation with create_engine and the postgresql+psycopg URL", "Session lifecycle: add, flush, commit, rollback, close", "select() statements and session.execute / session.scalars", "Relationships with relationship() and back_populates", "Lazy loading and the N+1 problem in a small example", "selectinload and joinedload to avoid extra queries", "Enum columns and server_default with func.now()", "Reading echo=True SQL logs", "Per-request sessions through a FastAPI dependency"],
+          "tools": ["SQLAlchemy", "psycopg", "PostgreSQL", "FastAPI", "pytest", "Python"],
+          "lab_task": "Add models User and Ticket with a one-to-many relationship in backend/app/models.py. Write a script that inserts 3 users and 30 tickets, then loads all users with their tickets twice: once with lazy loading and once with selectinload. Turn on echo=True and record the number of SELECT statements in each run.",
+          "deliverable": "models.py, the seed script and a table comparing SELECT counts for lazy loading and selectinload",
+          "checks": [["Load 3 users and touch user.tickets with lazy loading", "Logs show 1 + 3 = 4 SELECT statements", "SQL log"], ["Load the same users with selectinload(User.tickets)", "Logs show 2 SELECT statements", "SQL log"], ["Call session.rollback() after a failed insert", "The next query on the same session succeeds without an error", "Terminal output"]],
+          "objectives": ["Map Python classes to tables with SQLAlchemy 2.0", "Explain the session lifecycle and transactions", "Spot and fix an N+1 query"]
+        },
+        {
+          "topic": "Alembic Migrations for a Growing Schema",
+          "subtopics": ["Why migrations replace create_all in real projects", "alembic init and wiring env.py to the model metadata", "Reading the database URL from an environment variable", "alembic revision --autogenerate and reviewing the result", "alembic upgrade head, current, history and downgrade -1", "Autogenerate blind spots: renames, enums and server defaults", "Adding a NOT NULL column safely: nullable, backfill, then constrain", "Data migrations with op.execute", "Naming conventions for constraints and indexes", "Running migrations in CI against an empty database"],
+          "tools": ["Alembic", "SQLAlchemy", "PostgreSQL", "psql", "Docker", "Git"],
+          "lab_task": "Run alembic init, point env.py at Base.metadata and generate revision 0001 for users and tickets. Apply it with alembic upgrade head. Then add a nullable column assignee_id, backfill it with an UPDATE, make it NOT NULL in revision 0003, and test alembic downgrade -1 followed by alembic upgrade head.",
+          "deliverable": "alembic folder with three reviewed revisions and a README of migration commands",
+          "checks": [["Run alembic upgrade head on an empty database", "Tables users, tickets and alembic_version exist", "psql \\dt output"], ["Run alembic current", "Prints the id of revision 0003 followed by (head)", "Terminal output"], ["Run alembic downgrade -1", "assignee_id is nullable again and alembic current shows revision 0002", "psql \\d tickets and terminal output"]],
+          "objectives": ["Generate, review and apply migrations", "Change a populated table without data loss", "Roll a migration back and forward"]
+        },
+        {
+          "topic": "CRUD Endpoints Wired to PostgreSQL",
+          "subtopics": ["Router modules with APIRouter and a prefix", "Dependency injection: Depends(get_session)", "Create with 201 and a Location header", "Read one and list with 404 when missing", "PATCH versus PUT: partial updates with model_dump(exclude_unset=True)", "DELETE returning 204 with no body", "Committing in the route or in a unit-of-work wrapper", "Handling IntegrityError and returning 409", "Response models that never leak internal columns", "Trying every route from Swagger UI and Postman"],
+          "tools": ["FastAPI", "SQLAlchemy", "PostgreSQL", "Swagger UI", "Postman", "pytest"],
+          "lab_task": "Replace the in-memory list with database-backed routes: POST /tickets, GET /tickets, GET /tickets/{id}, PATCH /tickets/{id} and DELETE /tickets/{id}. Return 404 for unknown ids and 409 for a duplicate title in the same project. Import 25 tickets with a script and verify each route in Postman using a saved collection.",
+          "deliverable": "tickets router, Postman collection and a table of every route with its status codes",
+          "checks": [["GET /tickets/9999", "Returns 404 with detail 'Ticket not found'", "Response JSON"], ["PATCH /tickets/1 with only {\"status\": \"closed\"}", "Only status and updated_at change; title is unchanged", "Response JSON and psql row"], ["DELETE /tickets/1 then GET /tickets/1", "DELETE returns 204 and the GET returns 404", "Postman run results"]],
+          "objectives": ["Implement create, read, update and delete routes against PostgreSQL", "Return correct status codes for missing and duplicate data", "Keep internal fields out of responses"]
+        },
+        {
+          "topic": "Validation, Error Responses and Status Codes",
+          "subtopics": ["Field constraints: min_length, max_length, ge, le, pattern", "Custom validators with field_validator and model_validator", "Validating enums and cross-field rules (closed tickets need a resolution)", "HTTPException and custom exception handlers", "One error shape for the whole API: code, message, details", "RequestValidationError handler to reshape 422 bodies", "Not leaking stack traces: logging the error, returning a safe message", "Error codes the React client can switch on", "Unit tests for validators without a database", "Documenting error responses in OpenAPI with responses="],
+          "tools": ["Pydantic", "FastAPI", "pytest", "Postman", "Swagger UI", "Python"],
+          "lab_task": "Add a validator that rejects a closed ticket without a resolution, install exception handlers that return {\"error\": {\"code\", \"message\", \"details\"}} for 404, 409 and 422, and make an unhandled exception return 500 with a generic message while the traceback goes to the log. Write 6 pytest cases that assert the status code and the error code of each failure.",
+          "deliverable": "Error-handling module, six passing pytest cases and an error-code table for the client team",
+          "checks": [["PATCH a ticket to closed without a resolution", "Returns 422 with error.code validation_error and a details entry for resolution", "Response JSON"], ["Force a ZeroDivisionError in a test-only route", "Returns 500 with message 'Internal server error' and no traceback in the body", "Response body and log line"], ["Run pytest -q on the error tests", "6 passed", "Terminal output"]],
+          "objectives": ["Enforce data rules with Pydantic validators", "Return one consistent error format", "Keep internal details out of error responses"]
+        },
+        {
+          "topic": "TypeScript and Vite for the Browser Client",
+          "subtopics": ["Creating the client with npm create vite@latest and the react-ts template", "Project files: index.html, main.tsx, vite.config.ts, tsconfig.json", "npm run dev, build and preview and what each produces", "TypeScript basics: types, interfaces, unions, optional properties", "Strict mode and what the strict flag turns on", "Modules, import aliases and the type-only import", "Environment variables with import.meta.env and the VITE_ prefix", "The dev proxy: server.proxy forwarding /api to port 8000", "ESLint and Prettier configuration", "Reading a failing tsc error and fixing it"],
+          "tools": ["Vite", "TypeScript", "Node.js", "npm", "ESLint", "Prettier"],
+          "lab_task": "Run npm create vite@latest frontend -- --template react-ts, install dependencies and start npm run dev on port 5173. Add a server.proxy entry that forwards /api to http://localhost:8000, define a Ticket interface matching TicketRead, introduce a deliberate type error, read the tsc message, and fix it. Finish with npm run build and note the dist size.",
+          "deliverable": "Running Vite client with proxy, Ticket types, lint config and a build size note",
+          "checks": [["Run npm run dev", "Vite serves the app on http://localhost:5173", "Terminal output"], ["Assign a number to a string field of Ticket", "tsc reports error TS2322 for that line", "Terminal output"], ["Request /api/healthz from the browser", "The proxy returns the FastAPI health JSON with status 200", "DevTools Network tab"]],
+          "objectives": ["Create and run a Vite React TypeScript project", "Describe data with TypeScript interfaces and unions", "Proxy API calls to the backend in development"]
+        },
+        {
+          "topic": "React Components, Props and State for the Ticket Board",
+          "subtopics": ["Function components and JSX rules", "Props and children with typed interfaces", "useState for form fields and toggles", "Lists with map and stable key values", "Conditional rendering for empty, loading and error states", "Lifting state up to a parent component", "Events: onClick, onChange and typed event handlers", "Component files: TicketCard, TicketList, TicketBoard", "Styling with CSS modules or a utility class approach", "Reading the React DevTools component tree"],
+          "tools": ["React", "TypeScript", "Vite", "React DevTools", "CSS Modules", "Visual Studio Code"],
+          "lab_task": "Build TicketCard, TicketList and TicketBoard components with typed props and a hard-coded array of 8 tickets. Add a status filter using useState with options all, open and closed, show an empty-state message when no ticket matches, and verify in React DevTools that changing the filter re-renders only TicketList and its children.",
+          "deliverable": "Three typed components, a filter and screenshots of the DevTools tree for each filter value",
+          "checks": [["Select the closed filter", "Only tickets with status closed are listed", "Screenshot"], ["Select a filter that matches no ticket", "The text 'No tickets match' is shown", "Screenshot"], ["Run npx tsc --noEmit", "Exits with code 0 and prints no errors", "Terminal output"]],
+          "objectives": ["Compose a page from typed components", "Hold and lift state with useState", "Render lists and empty states correctly"]
+        },
+        {
+          "topic": "Fetching API Data in React with Typed Clients",
+          "subtopics": ["fetch and the Response object: ok, status, json()", "Writing a small api.ts wrapper that sets the base URL and headers", "Generic typed helpers: get<T>, post<T>", "useEffect for loading data and the dependency array", "Cleaning up with AbortController to cancel stale requests", "Loading, success and error states as a discriminated union", "Showing the API error code from the error body", "Avoiding request waterfalls and double fetches in StrictMode", "Refreshing a list after a mutation", "Why a data library comes later (TanStack Query)"],
+          "tools": ["React", "fetch", "TypeScript", "AbortController", "React DevTools", "Browser DevTools"],
+          "lab_task": "Write src/api.ts with a typed get<T> and post<T> that throw an ApiError holding status and code. Load GET /api/tickets in TicketBoard with useEffect and an AbortController, show loading and error states, and stop the API to confirm the error banner. Count requests in the Network tab in development and explain why StrictMode shows two.",
+          "deliverable": "api.ts wrapper, TicketBoard using live data and a note explaining the request count",
+          "checks": [["Load the page with the API running", "The board shows the same ticket count as SELECT count(*) FROM tickets", "Screenshot and psql output"], ["Stop the API and reload", "An error banner appears and the page does not crash", "Screenshot"], ["Navigate away while a request is pending", "The request shows as cancelled in the Network tab", "DevTools screenshot"]],
+          "objectives": ["Fetch typed data from the API in React", "Model loading and error states explicitly", "Cancel stale requests safely"]
+        },
+        {
+          "topic": "Forms, CORS and Talking to the Backend",
+          "subtopics": ["Controlled inputs and form submit handlers", "Preventing default and disabling the button while submitting", "Client-side checks that mirror server rules", "Showing field errors from a 422 response", "Same-origin policy and what a CORS preflight is", "CORSMiddleware with allow_origins, allow_methods and allow_headers", "Why allow_origins=['*'] with credentials is rejected", "Reading a CORS error in the browser console", "Optimistic update versus refetch after create", "Content-Type: application/json and the OPTIONS request"],
+          "tools": ["React", "FastAPI", "CORSMiddleware", "Browser DevTools", "TypeScript", "Postman"],
+          "lab_task": "Build a NewTicketForm with title, priority and description that POSTs to /api/tickets and maps 422 details to field messages. Remove the Vite proxy, call http://localhost:8000 directly, reproduce the CORS error, then add CORSMiddleware allowing only http://localhost:5173 and confirm the preflight returns the access-control-allow-origin header.",
+          "deliverable": "NewTicketForm, CORS configuration and a short write-up with the failing and fixed network captures",
+          "checks": [["Submit a two-character title", "The title field shows the server message and no ticket is created", "Screenshot"], ["Call the API directly from port 5173 without CORS", "Console shows 'blocked by CORS policy'", "Console screenshot"], ["Repeat after adding CORSMiddleware", "OPTIONS returns 200 with access-control-allow-origin: http://localhost:5173", "Network tab screenshot"]],
+          "objectives": ["Submit forms and show server-side validation errors", "Explain preflight requests and fix a CORS failure", "Configure CORS with an explicit origin list"]
+        },
+        {
+          "topic": "Password Hashing and Token Login",
+          "subtopics": ["Why passwords are hashed, not encrypted", "Argon2id or bcrypt through a maintained library", "Salts, work factors and rehash on login", "The users table: email unique, password_hash, is_active", "POST /auth/register and POST /auth/login", "JSON Web Tokens: header, payload, signature and exp claim", "Signing with HS256 and a secret from the environment", "OAuth2PasswordBearer and the Authorization: Bearer header", "A get_current_user dependency that returns 401 with WWW-Authenticate", "Token lifetime and why not to store secrets in the payload"],
+          "tools": ["FastAPI", "PyJWT", "argon2-cffi", "SQLAlchemy", "Postman", "jwt.io"],
+          "lab_task": "Add register and login routes that store an Argon2id hash and return an access token with a 15 minute exp. Create get_current_user and protect POST /tickets with it. In Postman, prove that a missing, a tampered and an expired token each give 401, and decode the token on jwt.io to list its claims.",
+          "deliverable": "Auth router, current-user dependency and a Postman collection showing all three 401 cases",
+          "checks": [["Query password_hash for a registered user", "Value starts with $argon2id$ and does not contain the plain password", "psql output"], ["POST /tickets with a token whose last character was changed", "Returns 401 with detail 'Could not validate credentials'", "Postman response"], ["POST /auth/login with a wrong password", "Returns 401 and the same message as an unknown email", "Postman response"]],
+          "objectives": ["Store passwords with a modern hash", "Issue and verify signed access tokens", "Protect routes with a dependency"]
+        },
+        {
+          "topic": "Protected Routes and the Current User in the Browser",
+          "subtopics": ["React Router: BrowserRouter, Routes, Route and Link", "Login page and form posting to /auth/login", "Where to keep the token: memory, cookie or localStorage and the trade-offs", "An AuthContext with user, login and logout", "A ProtectedRoute component that redirects with Navigate", "Remembering the page the user wanted before login", "Attaching Authorization headers in api.ts", "Handling 401 by clearing the session and redirecting", "Showing the user's email and a logout button", "Not trusting the client: the API still checks every call"],
+          "tools": ["React Router", "React", "TypeScript", "Browser DevTools", "FastAPI", "Postman"],
+          "lab_task": "Add routes /login, /tickets and /tickets/new using React Router. Implement AuthContext and ProtectedRoute, send the Authorization header from api.ts, and redirect to /login on any 401. Log in, copy the token, edit one character in DevTools storage, reload, and confirm that the app returns to the login page.",
+          "deliverable": "Routing, AuthContext and ProtectedRoute with a recorded login, logout and expired-token walkthrough",
+          "checks": [["Open /tickets while logged out", "Browser is redirected to /login", "Screenshot of the URL"], ["Log in successfully from /login?next=/tickets/new", "The browser lands on /tickets/new", "Screenshot of the URL"], ["Corrupt the stored token and reload", "API returns 401 and the user is sent to /login", "Network tab and screenshot"]],
+          "objectives": ["Add client routing and protected pages", "Keep session state in a context", "React correctly to expired or invalid tokens"]
+        },
+        {
+          "topic": "Pytest for the API with a Test Database",
+          "subtopics": ["Test layout: tests/, conftest.py and pytest.ini or pyproject settings", "FastAPI TestClient and httpx under the hood", "Fixtures with scope: function, module and session", "A separate test database created from Alembic migrations", "Rolling back each test inside a transaction", "dependency_overrides to swap get_session and get_current_user", "Parametrized tests with pytest.mark.parametrize", "Factories for users and tickets", "Coverage with pytest-cov and --cov-fail-under", "Running only failing tests with -x, -k and --lf"],
+          "tools": ["pytest", "pytest-cov", "TestClient", "FastAPI", "PostgreSQL", "SQLAlchemy"],
+          "lab_task": "Create a supportdesk_test database, a session fixture that wraps each test in a rolled-back transaction, and 12 tests covering register, login and ticket CRUD, including 401, 404 and 422 cases. Run pytest --cov=app --cov-report=term-missing and raise coverage on app/routers until it is at least 85 percent.",
+          "deliverable": "tests/ folder with 12 passing tests, conftest.py and a coverage report",
+          "checks": [["Run pytest -q", "12 passed with exit code 0", "Terminal output"], ["Run the suite twice in a row", "The second run passes and the tickets table is empty afterwards", "Terminal output and psql count"], ["Run pytest --cov=app --cov-fail-under=85", "Exit code 0 and total coverage of 85% or more", "Coverage report"]],
+          "objectives": ["Test API routes against a real PostgreSQL database", "Isolate tests with transactions and overrides", "Measure coverage and close gaps"]
+        },
+        {
+          "topic": "Vitest and Testing Library for the Client",
+          "subtopics": ["Vitest configuration in vite.config.ts with the jsdom environment", "Testing Library queries: getByRole, findByText, queryByText", "Why tests should find elements the way a user does", "user-event for typing and clicking", "Mocking fetch or using Mock Service Worker handlers", "Testing loading, success and error states", "Testing the ProtectedRoute redirect with MemoryRouter", "Snapshot tests: when they help and when they hurt", "Running vitest run and vitest --coverage", "Fixing a flaky test caused by missing await"],
+          "tools": ["Vitest", "Testing Library", "Mock Service Worker", "jsdom", "React", "TypeScript"],
+          "lab_task": "Add Vitest with jsdom and Mock Service Worker. Write 8 tests: TicketList shows rows, empty state, error banner, the form shows a server error for a 422, and ProtectedRoute redirects when logged out. Run npx vitest run --coverage and introduce a bug in the filter to show that one test fails with a readable message.",
+          "deliverable": "8 passing client tests, MSW handlers and a coverage summary",
+          "checks": [["Run npx vitest run", "8 tests passed", "Terminal output"], ["Break the status filter on purpose", "The filter test fails and prints the expected and received ticket titles", "Terminal output"], ["Render ProtectedRoute without a user", "Test asserts the login heading is shown", "Test code and output"]],
+          "objectives": ["Write user-focused component tests", "Mock network calls for the client", "Interpret failing test output"]
+        },
+        {
+          "topic": "Dockerfiles for the API and the Client",
+          "subtopics": ["Image layers and the build cache", "Choosing a python:3.12-slim base and pinning tags", "Installing dependencies before copying code to reuse the cache", "A .dockerignore that excludes .venv, node_modules and .git", "Running as a non-root user with USER", "CMD with uvicorn --host 0.0.0.0 --port 8000", "Multi-stage client build: node builder, nginx runtime", "Serving the Vite dist folder and fallback to index.html", "docker build -t, docker run -p and docker logs", "Checking image size with docker images and docker history"],
+          "tools": ["Docker", "uvicorn", "nginx", "Vite", "docker history", "Hadolint"],
+          "lab_task": "Write backend/Dockerfile on python:3.12-slim running as a non-root user, and frontend/Dockerfile with a node build stage and an nginx runtime stage with try_files to index.html. Build both with docker build -t, run them with -p 8000:8000 and -p 8080:80, then change one source file and show that the dependency layers are cached on rebuild.",
+          "deliverable": "Two Dockerfiles, two .dockerignore files and a build log showing cache hits",
+          "checks": [["Run docker exec on the API container with id -u", "Prints a non-zero user id", "Terminal output"], ["Rebuild after editing one .py file", "The pip install layer shows CACHED", "Build log"], ["Open http://localhost:8080/tickets directly", "nginx returns index.html with status 200 and the app loads", "Browser screenshot"]],
+          "objectives": ["Containerise a Python API and a React client", "Use layer caching and multi-stage builds", "Run containers as a non-root user"]
+        },
+        {
+          "topic": "Docker Compose for the Whole Stack Locally",
+          "subtopics": ["compose.yaml services: db, api, web", "Service networking: reaching db by name", "Volumes for PostgreSQL data and bind mounts for live code", "Environment files and variable interpolation", "depends_on with condition: service_healthy", "A pg_isready healthcheck", "Running migrations as a one-off service or entrypoint step", "docker compose up --build, down -v, logs and exec", "Profiles for optional services such as pgAdmin", "Resetting and reseeding the local database in one command"],
+          "tools": ["Docker Compose", "PostgreSQL", "FastAPI", "nginx", "psql", "Make"],
+          "lab_task": "Write compose.yaml with db (postgres:17 with a pg_isready healthcheck), api (waits for a healthy db, runs alembic upgrade head, then uvicorn) and web (nginx). Start it with docker compose up --build -d, confirm docker compose ps shows all services healthy or running, then docker compose down -v and bring it up again to prove the stack rebuilds from nothing.",
+          "deliverable": "compose.yaml, .env.example and a make or script target that resets the stack",
+          "checks": [["Run docker compose up --build -d on a clean clone", "All three services are Up and db is healthy", "docker compose ps output"], ["Run curl http://localhost:8000/healthz", "Returns {\"status\":\"ok\"} with HTTP 200", "Terminal output"], ["Run docker compose down -v then up again", "Migrations re-run and the tickets table exists and is empty", "psql output"]],
+          "objectives": ["Describe a multi-container stack in one Compose file", "Order start-up with health checks", "Rebuild the stack from nothing with one command"]
+        },
+        {
+          "topic": "Beginner Capstone: Support Desk Ticketing App",
+          "subtopics": ["Requirements and a short list of user stories with acceptance checks", "Repository layout, README and a one-command start", "Backend: users, tickets, comments, migrations and 85 percent coverage", "Frontend: login, ticket list with filters, create and edit forms, comment thread", "Quality gates: Ruff, tsc, pytest and Vitest all green", "Demo script and a retrospective on what to improve"],
+          "tools": ["FastAPI", "React", "PostgreSQL", "Docker Compose", "pytest", "Vitest"],
+          "lab_task": "Deliver the Support Desk app: register, login, create, filter, comment on and close tickets. Run it with docker compose up --build, show pytest and vitest passing, and keep the README with setup steps and a curl example. Demonstrate three user stories live and answer questions on one design choice.",
+          "deliverable": "Git repository with the working app, README, passing test suites and a five minute demo recording",
+          "checks": [["Clone the repository and run docker compose up --build", "App is reachable at http://localhost:8080 with no manual steps beyond copying .env.example", "Fresh-clone recording"], ["Run pytest, vitest, ruff check and tsc --noEmit", "All four commands exit with code 0", "Terminal output"], ["Log in as a second user and open the first user's private ticket by URL", "API returns 403 or 404 and the UI shows an error message", "Screenshot"]],
+          "objectives": ["Combine API, database and client into one working product", "Prove quality with automated tests and a clean start", "Present and justify design decisions"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a small FastAPI and React app and now need production habits. Covers service and repository layers, async SQLAlchemy and pooling, schema design and query plans, API contracts with generated TypeScript clients, refresh-token rotation, role-based access in API and UI, TanStack Query, React Hook Form with Zod, presigned uploads, Redis-backed jobs and caching, live updates, browser defences, Testcontainers and Playwright tests, GitHub Actions, hardened images, a cloud release with migrations, and a multi-user booking platform capstone.",
+      "prerequisites": ["Has built a FastAPI service with SQLAlchemy, Alembic and PostgreSQL and a React and TypeScript client that calls it", "Writes pytest and Vitest tests and runs a stack with Docker Compose", "Uses Git branches and pull requests and reads a GitHub Actions workflow file"],
+      "outcomes": ["Structure a backend and a client so features can grow without rewriting them", "Secure sessions and permissions on both the API and the browser, and defend against the common web attacks", "Move slow work to background jobs, add caching and deliver live updates to the page", "Ship through a CI pipeline that tests, scans and releases containers to a cloud host with safe migrations"],
+      "days": [
+        {
+          "topic": "Backend Structure: Routers, Services and Repositories",
+          "subtopics": ["Why route handlers should stay thin", "Package layout: api/, services/, repositories/, schemas/, models/", "Repository classes that hold SQLAlchemy queries", "Service functions that hold business rules and transactions", "Passing the session explicitly, not through globals", "Dependency injection of services with Depends", "Schemas separate from ORM models: Create, Update, Read", "Circular imports and how layering prevents them", "Unit-testing services with a fake repository", "Import rules enforced with import-linter or Ruff TID rules"],
+          "tools": ["FastAPI", "SQLAlchemy", "pytest", "import-linter", "Ruff", "Python"],
+          "lab_task": "Refactor the Support Desk API into routers, services and repositories. Move the close-ticket rule (needs a resolution, sets closed_at, writes an audit row) into services/tickets.py, test it with a fake repository, and add an import-linter contract that stops routers importing models directly. Show the contract failing and then passing.",
+          "deliverable": "Refactored backend, service unit tests and an import-linter contract in pyproject.toml",
+          "checks": [["Run lint-imports after a router imports a model", "Contract fails and names the offending import", "Terminal output"], ["Run the service tests with a fake repository", "They pass without a database connection", "pytest output with the database stopped"], ["Run the existing API test suite", "All earlier tests still pass after the refactor", "pytest output"]],
+          "objectives": ["Separate HTTP, business rules and data access", "Test business rules without a database", "Enforce layer boundaries automatically"]
+        },
+        {
+          "topic": "Async SQLAlchemy and Connection Pooling Under Load",
+          "subtopics": ["AsyncEngine, async_sessionmaker and the postgresql+asyncpg URL", "async def routes versus def routes and the thread pool", "await session.execute and session.scalars", "expire_on_commit=False and why it matters in async code", "Lazy loading errors: MissingGreenlet and how to avoid them", "Pool settings: pool_size, max_overflow, pool_timeout, pool_pre_ping", "Reading pg_stat_activity to count open connections", "Blocking calls inside async code and how to spot them", "Timeouts: statement_timeout and lock_timeout", "Measuring requests per second with hey or wrk"],
+          "tools": ["SQLAlchemy", "asyncpg", "FastAPI", "PostgreSQL", "hey", "psql"],
+          "lab_task": "Convert the repositories to AsyncSession with asyncpg. Set pool_size=5 and max_overflow=5, run hey -n 2000 -c 50 against GET /tickets, and watch SELECT count(*) FROM pg_stat_activity WHERE datname='supportdesk' during the run. Trigger MissingGreenlet with a lazy load, fix it with selectinload, and record requests per second before and after.",
+          "deliverable": "Async data layer, a load result table and a note on the MissingGreenlet fix",
+          "checks": [["Run hey with 50 concurrent clients", "pg_stat_activity never shows more than 10 connections for the app", "psql output during the run"], ["Access ticket.comments without loading it", "Raises sqlalchemy.exc.MissingGreenlet", "Traceback"], ["Run the load test again after selectinload", "No MissingGreenlet and all 2000 responses return 200", "hey summary"]],
+          "objectives": ["Use async SQLAlchemy safely", "Size a connection pool and verify it", "Find blocking calls in async handlers"]
+        },
+        {
+          "topic": "Relational Design: Constraints, Indexes and Query Plans",
+          "subtopics": ["Modelling bookings: resources, time slots, users and many-to-many tables", "Choosing keys: identity, uuid and natural keys", "Foreign keys with ON DELETE choices", "Partial and composite indexes and column order", "Exclusion constraints with btree_gist to stop overlapping bookings", "Reading EXPLAIN (ANALYZE, BUFFERS) output", "Seq Scan versus Index Scan and when each is right", "Generating 1 million rows with generate_series", "Why SELECT * and OFFSET paging hurt at scale", "Naming and documenting the schema with COMMENT ON"],
+          "tools": ["PostgreSQL", "EXPLAIN", "Alembic", "psql", "pgAdmin", "SQLAlchemy"],
+          "lab_task": "Create bookings(resource_id, during tstzrange) with an EXCLUDE USING gist constraint, insert 1 million rows using generate_series, and time a query for one resource and one day. Add a composite index, rerun EXPLAIN (ANALYZE, BUFFERS) and record execution time and buffers before and after. Attempt an overlapping booking and capture the error.",
+          "deliverable": "Alembic revision with the constraint and index plus a before and after plan comparison",
+          "checks": [["Insert two overlapping bookings for one resource", "Fails with SQLSTATE 23P01 exclusion_violation", "psql error text"], ["Run EXPLAIN ANALYZE before the index", "Plan shows Seq Scan on bookings", "Saved plan"], ["Run EXPLAIN ANALYZE after the index", "Plan shows Index Scan or Bitmap Index Scan and a lower execution time", "Saved plan with both timings"]],
+          "objectives": ["Model data so the database enforces business rules", "Read query plans and choose indexes", "Test with realistic data volumes"]
+        },
+        {
+          "topic": "Pagination, Filtering and Search Contracts",
+          "subtopics": ["Offset pagination and why deep pages are slow", "Keyset (cursor) pagination with an ordered tuple", "Encoding cursors as opaque base64 tokens", "Typed query parameter models with Depends and Query", "Filtering and sorting with an allow-list of columns", "Case-insensitive search with ILIKE and a pg_trgm index", "Total counts: cost and alternatives", "Response envelope: items, next_cursor", "Rejecting unknown sort fields with 422", "Documenting the contract so the client team can rely on it"],
+          "tools": ["FastAPI", "SQLAlchemy", "PostgreSQL", "pg_trgm", "Postman", "pytest"],
+          "lab_task": "Implement GET /bookings with limit up to 100, a keyset cursor, a status filter, a sort allow-list and ILIKE search backed by a pg_trgm GIN index. Seed 200000 rows, page through all of them with a script, and compare the time of page 1 and page 1000 with OFFSET paging against cursor paging.",
+          "deliverable": "Paginated endpoint, a paging script and a timing table for offset versus cursor",
+          "checks": [["Walk all pages with the cursor script", "Total rows read is 200000 with no duplicates and no gaps", "Script output"], ["Request sort=password_hash", "Returns 422 and does not touch the database", "Response JSON"], ["Compare page 1000 timings", "Cursor paging is at least 5 times faster than OFFSET paging", "Timing table"]],
+          "objectives": ["Design stable, fast list endpoints", "Allow only safe filters and sort columns", "Measure paging strategies on real volumes"]
+        },
+        {
+          "topic": "OpenAPI Contracts and Generated TypeScript Clients",
+          "subtopics": ["The OpenAPI document as the contract between tiers", "operation_id and tags for readable client method names", "Generating types with openapi-typescript or a client with hey-api", "Making generation part of npm scripts", "Failing CI when the generated client is stale", "Schema examples and descriptions in Pydantic Field", "Typing error responses with the responses parameter", "Handling nullable and optional fields correctly", "Breaking versus non-breaking changes in an API", "Detecting breaking changes with oasdiff in a pull request"],
+          "tools": ["OpenAPI", "openapi-typescript", "FastAPI", "oasdiff", "TypeScript", "npm"],
+          "lab_task": "Export openapi.json from the FastAPI app, generate src/api/schema.d.ts with openapi-typescript, and replace hand-written Ticket and Booking types with the generated ones. Add an npm script gen:api and a CI check that fails when git diff shows changes. Then rename a response field, run oasdiff breaking and capture the report.",
+          "deliverable": "Generated types in use in the client, the gen:api script and an oasdiff breaking-change report",
+          "checks": [["Rename a response field without regenerating", "tsc fails with an error on the old property", "Terminal output"], ["Run oasdiff breaking old.json new.json", "Reports a response-property-removed finding", "Report output"], ["Run npm run gen:api on a clean tree", "git diff --exit-code returns 0", "Terminal output"]],
+          "objectives": ["Treat the OpenAPI document as a contract", "Generate and use typed clients", "Catch breaking API changes before merging"]
+        },
+        {
+          "topic": "Access Tokens, Refresh Cookies and Rotation",
+          "subtopics": ["Short-lived access tokens and long-lived refresh tokens", "Storing the refresh token in an HttpOnly, Secure, SameSite cookie", "Keeping the access token in memory only", "Refresh token rotation and a refresh_tokens table with a hashed value", "Reuse detection: revoking the token family on replay", "POST /auth/refresh and POST /auth/logout", "Silent refresh in the client when a call returns 401", "Avoiding a refresh stampede with a single in-flight promise", "Cookie attributes: Path, Domain, Max-Age", "Testing rotation and replay with pytest and Postman"],
+          "tools": ["FastAPI", "PyJWT", "PostgreSQL", "React", "Postman", "pytest"],
+          "lab_task": "Implement login that sets an HttpOnly, Secure, SameSite=Lax refresh cookie and returns a 10 minute access token. Add rotation with a hashed refresh_tokens table, replay detection and logout. In the client, retry once after a 401 using a shared refresh promise, and prove that replaying an old refresh cookie revokes the whole family.",
+          "deliverable": "Auth service with rotation, client refresh logic and a replay test",
+          "checks": [["Inspect the Set-Cookie header on login", "Contains HttpOnly, Secure and SameSite=Lax", "DevTools or curl -i output"], ["Send the same refresh cookie twice", "Second call returns 401 and every token in the family is revoked", "pytest output and psql rows"], ["Fire 5 parallel API calls with an expired access token", "Exactly 1 call to /auth/refresh is made", "Network tab"]],
+          "objectives": ["Issue and rotate refresh tokens safely", "Keep tokens away from JavaScript storage", "Refresh sessions without duplicate calls"]
+        },
+        {
+          "topic": "Role-Based Access Across API and UI",
+          "subtopics": ["Roles and permissions: admin, agent, customer", "Where roles live: token claim versus database lookup", "A require_role dependency and a policy function per resource", "Object-level checks: owner or assigned agent", "Returning 403 versus 404 to avoid leaking existence", "Row filtering in queries, not after the fact", "Role-aware navigation and buttons in React", "Permission hooks such as useCan('ticket:close')", "Never trusting hidden buttons", "A permissions matrix test that runs every route for every role"],
+          "tools": ["FastAPI", "SQLAlchemy", "React", "pytest", "Postman", "TypeScript"],
+          "lab_task": "Add roles admin, agent and customer. Write a permission matrix in pytest.mark.parametrize that calls 10 routes as each role and asserts the expected status. Filter list queries by owner for customers, hide controls in React with a useCan hook, and show that calling a hidden admin route directly with a customer token returns 403.",
+          "deliverable": "Policy module, a 30-case permission matrix test and a role-aware UI",
+          "checks": [["Customer calls DELETE /tickets/{id}", "Returns 403", "Matrix test output"], ["Customer lists tickets", "Only that customer's rows are returned and the count matches psql", "API response and SQL count"], ["Run the permission matrix", "30 passed, covering 10 routes for 3 roles", "pytest output"]],
+          "objectives": ["Enforce permissions on the server", "Mirror permissions in the UI without relying on them", "Prove access rules with a matrix test"]
+        },
+        {
+          "topic": "Server State in React with TanStack Query",
+          "subtopics": ["Server state versus client state", "QueryClient, QueryClientProvider and useQuery", "Query keys as the cache identity", "staleTime, gcTime and refetch on focus", "useMutation with onSuccess and invalidateQueries", "Optimistic updates with rollback in onError", "Pagination with placeholderData and infinite queries", "Dependent queries and the enabled option", "Error and retry configuration", "TanStack Query Devtools and reading the cache"],
+          "tools": ["TanStack Query", "React", "TypeScript", "Vitest", "React DevTools", "Mock Service Worker"],
+          "lab_task": "Replace the useEffect fetch code with useQuery and useMutation. Add an optimistic close-ticket action that rolls back when the API returns 500, configure staleTime of 30 seconds, and use the Devtools to prove that returning to the list within 30 seconds triggers no network call. Test the rollback with Vitest and MSW.",
+          "deliverable": "Query hooks, an optimistic mutation with rollback and a passing test",
+          "checks": [["Leave the list and return within 30 seconds", "No new GET /tickets request appears", "Network tab"], ["Close a ticket while the API returns 500", "Ticket reverts to open and an error message is shown", "Screenshot and test output"], ["Create a ticket", "The list refetches via invalidateQueries and shows the new row", "Network tab"]],
+          "objectives": ["Manage server data with a query cache", "Apply optimistic updates safely", "Reduce duplicate network requests"]
+        },
+        {
+          "topic": "Forms with React Hook Form and Zod",
+          "subtopics": ["register, handleSubmit and formState.errors", "Zod schemas and inferred TypeScript types", "zodResolver connecting the two libraries", "Sharing rules: schema constants matching Pydantic limits", "Async validation, such as checking an email is free", "Server errors mapped with setError", "Field arrays for line items", "Disabling submit while isSubmitting", "Accessible labels, aria-invalid and error announcements", "Testing forms with user-event"],
+          "tools": ["React Hook Form", "Zod", "React", "TypeScript", "Testing Library", "Vitest"],
+          "lab_task": "Build the booking form with React Hook Form and a Zod schema: resource, start, end (end after start), attendees from 1 to 20 and an optional note up to 500 characters. Map a 409 overlap error from the API to a form error, add aria-invalid and role=alert messages, and write 6 tests including one for the overlap error.",
+          "deliverable": "Booking form, shared validation rules table and 6 passing tests",
+          "checks": [["Submit end before start", "Inline error 'End must be after start' appears and no request is sent", "Test output and Network tab"], ["Submit an overlapping slot", "API returns 409 and the form shows the server message", "Screenshot"], ["Run vitest on the form tests", "6 passed", "Terminal output"]],
+          "objectives": ["Validate forms with schemas", "Show server and client errors consistently", "Make form errors accessible"]
+        },
+        {
+          "topic": "File Uploads to Object Storage with Presigned URLs",
+          "subtopics": ["Why uploads should not stream through the API", "Object storage basics: buckets, keys and content types", "Running MinIO locally with S3-compatible APIs", "boto3 generate_presigned_url for put_object", "Server rules: size limit, allowed content types and key naming", "Browser upload with fetch PUT and progress via XMLHttpRequest", "Confirming the upload and saving metadata in PostgreSQL", "Private objects and short-lived download URLs", "Scanning or validating files after upload", "Cleaning up orphaned objects"],
+          "tools": ["MinIO", "boto3", "FastAPI", "React", "PostgreSQL", "curl"],
+          "lab_task": "Add MinIO to Compose. Create POST /attachments/presign returning a PUT URL that expires in 5 minutes and is limited to image/png, image/jpeg and application/pdf up to 5 MB. Upload from the browser with a progress bar, then POST /attachments to save the key, and show that an expired URL and a wrong content type are both rejected.",
+          "deliverable": "Presign endpoint, upload component with progress and a rejection test log",
+          "checks": [["PUT a file to the URL after 5 minutes", "Storage returns 403 with an expired request error", "curl output"], ["Request a presigned URL for application/x-msdownload", "API returns 422 and no URL", "Response JSON"], ["Upload a valid 1 MB PNG", "Object appears in the bucket and one attachments row exists", "MinIO console and psql"]],
+          "objectives": ["Upload files directly to object storage", "Constrain type, size and lifetime on the server", "Store only metadata in the database"]
+        },
+        {
+          "topic": "Background Jobs with Redis and a Worker",
+          "subtopics": ["When to use a job: email, reports, webhooks, slow calls", "Queue choices: Celery, RQ, Dramatiq or Arq", "Running Redis in Compose and a separate worker container", "Defining a task and enqueueing it from a route", "Returning 202 Accepted with a job id and a status endpoint", "Retries with backoff and a maximum attempt count", "Idempotent tasks: running twice must be safe", "Dead-letter handling for failed jobs", "Scheduling periodic tasks", "Monitoring queue length and failures"],
+          "tools": ["Redis", "Arq", "FastAPI", "Docker Compose", "redis-cli", "pytest"],
+          "lab_task": "Add a worker service using Arq and Redis. POST /reports returns 202 with a job id, the worker builds a CSV of 50000 bookings and stores it in MinIO, and GET /reports/{id} reports queued, running, done or failed. Make the task fail twice on purpose, confirm the retry delay in logs, and check the third attempt succeeds without duplicate files.",
+          "deliverable": "Worker service, report endpoints and a log showing retries and one final file",
+          "checks": [["POST /reports", "Returns 202 and a job id immediately in under 200 ms", "curl timing"], ["Force two failures then allow success", "Logs show 3 attempts with growing delays and one CSV exists", "Worker logs and bucket listing"], ["Run redis-cli LLEN for the queue after completion", "Returns 0", "redis-cli output"]],
+          "objectives": ["Move slow work out of the request", "Design retries and idempotent tasks", "Expose job status to the client"]
+        },
+        {
+          "topic": "Live Updates over Server-Sent Events and WebSockets",
+          "subtopics": ["Polling, SSE and WebSockets compared", "SSE with StreamingResponse and text/event-stream", "WebSocket routes and accept/receive/send", "Authenticating a socket: short-lived ticket in the query string", "Fan-out across several API instances with Redis pub/sub", "Heartbeats and idle timeouts through proxies", "Client reconnection with EventSource and backoff", "Updating the TanStack Query cache from a message", "Backpressure and slow clients", "Testing a WebSocket route with the test client"],
+          "tools": ["FastAPI", "Redis", "EventSource", "WebSocket", "React", "pytest"],
+          "lab_task": "Publish a booking.created message to a Redis channel after each insert. Add GET /events using SSE that streams it to browsers and update the TanStack Query cache on each message. Run two API replicas, create a booking via replica A and confirm a browser connected to replica B sees it within 1 second. Kill Redis and observe reconnection.",
+          "deliverable": "SSE endpoint, client subscription, two-replica Compose override and a latency note",
+          "checks": [["Create a booking through replica A", "A browser connected to replica B shows it in under 1 second", "Screen recording with timestamps"], ["Stop the Redis container for 10 seconds", "Client logs reconnect attempts and resumes after Redis returns", "Browser console"], ["Open /events with no token", "Returns 401", "curl output"]],
+          "objectives": ["Choose between polling, SSE and WebSockets", "Fan out events across API instances", "Keep the cache in step with pushed updates"]
+        },
+        {
+          "topic": "Caching with Redis and HTTP Cache Headers",
+          "subtopics": ["What to cache: slow, shared and rarely changing data", "Cache-aside pattern with a key naming scheme", "TTL choices and jitter to avoid synchronised expiry", "Invalidation on write and the stale data risk", "Cache stampede protection with a lock", "ETag and If-None-Match for 304 responses", "Cache-Control: public, private, max-age, no-store", "Never caching per-user data in shared caches", "Hit ratio from INFO stats", "Measuring the gain with before and after latency"],
+          "tools": ["Redis", "FastAPI", "redis-cli", "hey", "curl", "Chrome DevTools"],
+          "lab_task": "Cache GET /resources (a shared catalogue of 500 items) in Redis for 60 seconds with invalidation on update, and add ETag support so repeated calls with If-None-Match return 304. Run hey -n 5000 -c 25 before and after, read keyspace_hits and keyspace_misses from redis-cli INFO stats, and confirm per-user endpoints send Cache-Control: private, no-store.",
+          "deliverable": "Cached endpoint, ETag logic and a latency and hit ratio table",
+          "checks": [["Call GET /resources with a matching If-None-Match", "Returns 304 with an empty body", "curl -i output"], ["Update a resource and fetch the list", "New value appears immediately because the key was invalidated", "Response JSON"], ["Compare p95 latency before and after caching", "p95 improves and the hit ratio is above 90 percent", "hey results and INFO stats"]],
+          "objectives": ["Add cache-aside caching with safe invalidation", "Use HTTP validators and cache headers", "Prove the gain with measurements"]
+        },
+        {
+          "topic": "Browser Defences: CSRF, XSS, CSP and CORS",
+          "subtopics": ["Threats to the browser tier: XSS, CSRF, clickjacking, open redirect", "Why React escapes by default and what dangerouslySetInnerHTML breaks", "Sanitising rich text with DOMPurify", "CSRF with cookie auth: SameSite, double-submit token and Origin checks", "Content-Security-Policy: default-src, script-src, nonce and report-uri", "Other headers: X-Content-Type-Options, Referrer-Policy, Permissions-Policy", "Clickjacking and frame-ancestors", "Strict CORS lists and credentials", "Dependency risks in npm and pip audits", "Checking headers with curl -I and securityheaders.com style tools"],
+          "tools": ["Content-Security-Policy", "DOMPurify", "FastAPI", "OWASP ZAP", "curl", "npm audit"],
+          "lab_task": "Add middleware that sends CSP, X-Content-Type-Options, Referrer-Policy and frame-ancestors headers. Store the string <img src=x onerror=alert(1)> as a ticket comment, render it first as plain text, then through dangerouslySetInnerHTML to see it fire, then sanitise with DOMPurify. Add an Origin check on the refresh endpoint and run OWASP ZAP baseline against the stack.",
+          "deliverable": "Header middleware, XSS demo notes, CSRF check and the ZAP baseline report",
+          "checks": [["Render the payload through dangerouslySetInnerHTML without sanitising", "Alert fires, proving the XSS", "Screen recording"], ["Render the payload after DOMPurify", "No alert and the img tag has no onerror attribute", "DOM inspector screenshot"], ["Call POST /auth/refresh with Origin: https://evil.example", "Returns 403", "curl output"]],
+          "objectives": ["Recognise and block XSS and CSRF", "Set a Content-Security-Policy and related headers", "Run an automated baseline scan"]
+        },
+        {
+          "topic": "Contract and Integration Tests with Testcontainers",
+          "subtopics": ["Unit, integration and contract tests: what each proves", "Testcontainers for Python and the PostgresContainer class", "Applying Alembic migrations to a fresh container per session", "Running Redis and MinIO containers for tests", "Schemathesis: property-based testing from OpenAPI", "Seeding data with factories", "Making tests independent and parallel with pytest-xdist", "Time control with freezegun or time-machine", "Test duration budgets and slow test reports (--durations=10)", "Running the same tests locally and in CI"],
+          "tools": ["Testcontainers", "pytest", "Schemathesis", "pytest-xdist", "PostgreSQL", "Redis"],
+          "lab_task": "Replace the shared test database with a Testcontainers PostgresContainer that runs alembic upgrade head once per session. Add 10 integration tests across routes, run schemathesis run openapi.json --checks all against the app, fix at least one real failure it finds, and run pytest -n 4 to confirm tests stay independent.",
+          "deliverable": "Containerised test fixtures, Schemathesis report and a fixed defect",
+          "checks": [["Run pytest on a machine with no local PostgreSQL", "Tests pass using the container", "pytest output"], ["Run schemathesis against the OpenAPI schema", "Run completes with 0 failures after fixes", "Schemathesis summary"], ["Run pytest -n 4 three times", "Same count of passed tests each time", "Terminal output"]],
+          "objectives": ["Run integration tests against real services", "Generate API test cases from the contract", "Keep tests fast and independent"]
+        },
+        {
+          "topic": "Browser Tests with Playwright",
+          "subtopics": ["Playwright Test runner and npx playwright test", "Locators by role, label and text instead of CSS paths", "Auto-waiting and web-first assertions", "Fixtures and storageState to reuse a logged-in session", "Seeding data through the API before a test", "Network mocking with page.route for failure cases", "Traces, screenshots and video on failure: trace: on-first-retry", "Running Chromium, Firefox and WebKit projects", "Accessibility checks with axe-core", "Keeping end-to-end suites small and stable"],
+          "tools": ["Playwright", "TypeScript", "axe-core", "Docker Compose", "React", "GitHub Actions"],
+          "lab_task": "Write 6 Playwright tests against the Compose stack: login, create a booking, overlap error, role-restricted page, logout and an axe-core scan of the booking page. Reuse login through storageState, run with --project=chromium --project=firefox, make one test fail on purpose, and open its trace viewer to find the failing step.",
+          "deliverable": "Playwright suite with 6 tests, config and a trace analysis of one failure",
+          "checks": [["Run npx playwright test on two browsers", "12 passed (6 tests x 2 projects)", "Terminal output"], ["Fail one assertion on purpose", "HTML report shows trace with the failing step highlighted", "Trace viewer screenshot"], ["Run the axe scan on the booking page", "0 serious or critical violations", "Test output"]],
+          "objectives": ["Write stable end-to-end tests with role-based locators", "Reuse authenticated state and mock failures", "Diagnose failures from traces"]
+        },
+        {
+          "topic": "GitHub Actions Pipeline: Lint, Test, Build, Scan",
+          "subtopics": ["Workflow files: on, jobs, steps and needs", "Caching uv and npm dependencies", "Service containers for PostgreSQL and Redis", "Matrix builds for Python versions", "Jobs: ruff, mypy, pytest, vitest, playwright", "Uploading coverage and Playwright reports as artifacts", "Path filters so docs changes skip the test jobs", "Scanning with pip-audit, npm audit and Trivy", "Required status checks and branch protection", "Reading logs and re-running a failed job"],
+          "tools": ["GitHub Actions", "uv", "Trivy", "pip-audit", "Playwright", "Codecov"],
+          "lab_task": "Write .github/workflows/ci.yml with jobs lint, backend-test (PostgreSQL service container), frontend-test, e2e and scan. Cache dependencies, upload coverage artifacts and require all checks on main. Open one pull request that fails Ruff and fix it, then compare run time of the first and second runs to measure the cache gain.",
+          "deliverable": "ci.yml, a failed and a fixed run and a table of run times with and without cache",
+          "checks": [["Open a pull request with an unused import", "The lint job fails and the merge button is blocked", "Pull request screenshot"], ["Re-run after the fix", "All 5 jobs are green", "Actions run summary"], ["Compare run 1 and run 2 durations", "Second run is faster because of cache hits and the log shows 'Cache restored'", "Actions logs"]],
+          "objectives": ["Automate checks on every pull request", "Use service containers and caches", "Enforce checks with branch protection"]
+        },
+        {
+          "topic": "Container Images: Multi-Stage Builds, Non-Root and Scanning",
+          "subtopics": ["Reducing size: slim bases, multi-stage builds and uv's no-dev installs", "Reproducible builds with pinned digests", "Non-root user, read-only root filesystem and dropped capabilities", "Health checks in the image versus in the orchestrator", "Build secrets with --mount=type=secret instead of ARG", "Scanning with Trivy and reading severities", "SBOM generation with syft or docker buildx --sbom", "Pushing to GitHub Container Registry with provenance", "Tagging: git sha, semver and never relying on latest", "Comparing image size before and after hardening"],
+          "tools": ["Docker", "BuildKit", "Trivy", "syft", "GitHub Container Registry", "Hadolint"],
+          "lab_task": "Harden both images: multi-stage builds, a non-root user, a read-only root filesystem with a tmpfs for /tmp and no build tools in the runtime layer. Scan with trivy image --severity HIGH,CRITICAL, fix or document each finding, generate an SBOM with syft, push to ghcr.io tagged with the git sha and compare image sizes before and after.",
+          "deliverable": "Hardened Dockerfiles, Trivy and SBOM reports and a before and after size table",
+          "checks": [["Run docker run --read-only on the API image", "Starts and serves /healthz with status 200", "Terminal output"], ["Run trivy image --severity HIGH,CRITICAL --exit-code 1", "Exit code 0 or each remaining finding is documented with a reason", "Trivy report"], ["Compare docker images sizes", "Runtime image is at least 30 percent smaller than the first Dockerfile", "Size table"]],
+          "objectives": ["Build small, non-root images", "Scan images and generate an SBOM", "Tag and publish images traceably"]
+        },
+        {
+          "topic": "Shipping to a Cloud Host: Environments, Secrets and Release Migrations",
+          "subtopics": ["Hosting choices: managed containers, a VM with Compose, or a PaaS", "Managed PostgreSQL, backups and connection limits", "Staging and production environments with separate secrets", "Secrets in the platform store, not in the image or repository", "Running alembic upgrade head as a release step before traffic switches", "DNS, TLS certificates and a reverse proxy", "Health checks and rolling replacement", "Environment-specific configuration with pydantic-settings", "Smoke tests after release", "Rollback: redeploy the previous image tag and what migrations allow"],
+          "tools": ["Docker", "GitHub Actions", "PostgreSQL", "Caddy", "pydantic-settings", "curl"],
+          "lab_task": "Deploy the stack to a cloud VM or container service with managed PostgreSQL. Add a release job that pulls the image by git sha, runs alembic upgrade head, starts the new containers, and runs a smoke test with curl against /healthz and a login call. Deploy a bad image on purpose, watch the health check fail, and roll back to the previous tag.",
+          "deliverable": "Deploy workflow, a staging URL with HTTPS, smoke test script and a recorded rollback",
+          "checks": [["Run curl -I https://staging-host/healthz", "Returns HTTP/2 200 with a valid certificate", "curl output"], ["Deploy an image that crashes at start", "Health check fails and the previous version keeps serving", "Workflow log"], ["Redeploy the previous tag", "Smoke test passes and alembic current is unchanged", "Workflow log"]],
+          "objectives": ["Release containers to a real environment", "Keep secrets out of images and the repository", "Roll back a failed release"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-User Booking Platform",
+          "subtopics": ["Scope: roles, booking rules, notifications and a reporting export", "Architecture decision records for three design choices", "Delivery: CI, container images and a staging release", "Evidence pack: tests, load results, scans and runbook", "Demo and a peer code review", "Backlog of the top five follow-up improvements"],
+          "tools": ["FastAPI", "React", "PostgreSQL", "Redis", "Playwright", "GitHub Actions"],
+          "lab_task": "Deliver the booking platform with roles, overlap-proof bookings, cursor-paged lists, refresh-cookie auth, live updates, an async CSV report and attachments. Release to staging through CI, include a Playwright suite, a k6 or hey result at 50 concurrent users and a Trivy report, and present the evidence pack.",
+          "deliverable": "Repository, staging URL, CI run history, evidence pack and demo recording",
+          "checks": [["Push a commit to main", "CI passes and the release job deploys to staging automatically", "Actions run"], ["Run the Playwright suite against staging", "All tests pass including the overlap and role tests", "Report artifact"], ["Load test GET /bookings at 50 concurrent users", "p95 under 300 ms and zero 5xx responses", "Load tool summary"]],
+          "objectives": ["Deliver a multi-user product with production habits", "Back each claim with test, scan and load evidence", "Review and critique a teammate's design"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who ship Python and React products and now own their architecture and operation. Covers module boundaries in a monolith, PostgreSQL row-level security for tenants, expand and contract migrations, query tuning with pg_stat_statements, the transactional outbox and idempotency keys, event streaming, OIDC single sign-on, frontend performance and server rendering, OpenTelemetry from browser to database, k6 load testing, Kubernetes and Helm, Terraform, progressive delivery, supply-chain controls, pgvector AI features, data lifecycle and privacy, incident troubleshooting, upgrades, and a multi-tenant SaaS release capstone.",
+      "prerequisites": ["Has shipped a FastAPI or Django API with a React client, PostgreSQL and a CI pipeline to a cloud environment", "Reads EXPLAIN output, Dockerfiles and GitHub Actions workflows without help", "Understands tokens, cookies, CORS and the OWASP top risks at the level of the intermediate course"],
+      "outcomes": ["Design module boundaries, tenancy and data lifecycle for a product that must scale in users and teams", "Operate the stack with traces, load tests, safe migrations, progressive delivery and tested rollbacks", "Protect the platform with single sign-on, row-level isolation, signed artefacts and dependency controls", "Diagnose incidents that cross the browser, API and database and lead upgrades without downtime"],
+      "days": [
+        {
+          "topic": "Full Stack System Architecture: Monolith Boundaries and Modules",
+          "subtopics": ["Modular monolith versus microservices for a team of 5 to 30", "Bounded contexts: identity, billing, bookings, notifications", "Module public interfaces and forbidden imports", "Shared database, separate schemas per module", "In-process events between modules", "When a module should become a service: scaling, team and failure signals", "Architecture decision records and a decision log", "Frontend structure: feature folders mirroring backend modules"],
+          "tools": ["import-linter", "FastAPI", "PostgreSQL", "ADR tools", "Structurizr", "React"],
+          "lab_task": "Split the booking platform into identity, bookings, billing and notifications modules, each with its own PostgreSQL schema and a public.py interface. Enforce the rules with import-linter layers and independence contracts, draw a C4 container diagram, and write two ADRs: one for staying a monolith and one for the trigger that would extract notifications.",
+          "deliverable": "Module layout, import-linter contracts, C4 diagram and two ADRs",
+          "checks": [["Import bookings.internal from billing", "lint-imports fails and names the forbidden path", "Terminal output"], ["List schemas with psql \\dn", "Shows identity, bookings, billing and notifications", "psql output"], ["Read ADR 2", "States a measurable trigger for extracting notifications, such as queue lag above a stated threshold", "ADR document"]],
+          "objectives": ["Draw and enforce module boundaries", "Decide between monolith and services with evidence", "Record decisions so the team can revisit them"]
+        },
+        {
+          "topic": "Postgres Row-Level Security for Multi-Tenant Apps",
+          "subtopics": ["Tenancy models: database, schema and shared tables with tenant_id", "ALTER TABLE ... ENABLE ROW LEVEL SECURITY and FORCE", "CREATE POLICY with USING and WITH CHECK", "Setting the tenant per request with SET LOCAL app.tenant_id", "Pooling pitfalls: transaction pooling and session state", "Application role without BYPASSRLS and table ownership", "Indexes that lead with tenant_id", "Testing isolation with two tenants and a hostile query", "Admin access paths and audit", "Performance impact of policies seen in EXPLAIN"],
+          "tools": ["PostgreSQL", "SQLAlchemy", "FastAPI", "pytest", "PgBouncer", "psql"],
+          "lab_task": "Add tenant_id to bookings and users, enable and force RLS with policies using current_setting('app.tenant_id')::uuid, set it with SET LOCAL in a request-scoped transaction, and run the app as a role without BYPASSRLS. Write tests where tenant A queries tenant B's id directly, and try an INSERT with the wrong tenant_id.",
+          "deliverable": "RLS migration, tenant middleware and an isolation test suite",
+          "checks": [["Tenant A selects a booking id owned by tenant B", "Returns 0 rows", "pytest output"], ["Tenant A inserts a row with tenant B's tenant_id", "Fails with SQLSTATE 42501 new row violates row-level security policy", "psql error text"], ["Run the query with the tenant setting missing", "Returns 0 rows or an error and never returns all rows", "pytest output"]],
+          "objectives": ["Isolate tenants inside PostgreSQL", "Set tenant context safely with connection pools", "Test isolation with hostile queries"]
+        },
+        {
+          "topic": "Renaming Columns on Live Tables: Expand and Contract in Four Releases",
+          "subtopics": ["Locks taken by ALTER TABLE and lock_timeout", "Expand: add nullable columns and new tables", "Dual writes and backfills in batches", "Contract: switch reads, then drop the old column", "CREATE INDEX CONCURRENTLY and its failure mode", "Adding constraints with NOT VALID then VALIDATE CONSTRAINT", "Renaming safely with a view or a copy", "Compatibility of old and new application versions during a rollout", "Squawk or similar linting for risky migrations", "Rehearsing on a copy of production-sized data"],
+          "tools": ["PostgreSQL", "Alembic", "Squawk", "pgbench", "psql", "GitHub Actions"],
+          "lab_task": "Rename bookings.notes to bookings.note_text on a 5 million row table while pgbench runs at 20 clients. Use expand and contract in four releases: add the column, dual write, batch backfill 10000 rows at a time, then switch reads and drop. Add Squawk to CI and watch the maximum lock wait in pg_stat_activity throughout.",
+          "deliverable": "Four migrations, a batch backfill script, Squawk configuration and a latency chart during the change",
+          "checks": [["Run Squawk on a migration with ADD COLUMN ... NOT NULL DEFAULT in a risky form", "Squawk reports a rule violation and CI fails", "CI log"], ["Watch pgbench during the backfill", "No transaction errors and p99 latency stays under 2x the baseline", "pgbench output"], ["Run the old app version against the final schema", "It still works until the contract step is applied", "Smoke test output"]],
+          "objectives": ["Change big tables without downtime", "Keep old and new app versions compatible", "Lint migrations for risky locks"]
+        },
+        {
+          "topic": "Query Performance: pg_stat_statements and EXPLAIN",
+          "subtopics": ["Enabling pg_stat_statements and reading total_exec_time and calls", "Finding the top queries by total time, not by mean time", "auto_explain for slow statements", "Plan nodes: Hash Join, Nested Loop, Merge Join and their costs", "Statistics: ANALYZE, default_statistics_target and extended statistics", "Index-only scans and visibility maps", "Covering indexes with INCLUDE", "Fixing N+1 and wide SELECT * in SQLAlchemy", "Bloat, autovacuum and dead tuples signals", "Making a performance budget part of code review"],
+          "tools": ["pg_stat_statements", "auto_explain", "EXPLAIN", "pgbench", "SQLAlchemy", "psql"],
+          "lab_task": "Run a mixed workload with pgbench custom scripts for 10 minutes, list the top five statements by total_exec_time, and fix the worst two: one missing index and one N+1 in the ORM. Re-run and record total_exec_time, calls and p95 latency before and after. Capture one plan where an extended statistics object fixes a bad row estimate.",
+          "deliverable": "Top-query report, two fixes and a before and after comparison",
+          "checks": [["Query pg_stat_statements ordered by total_exec_time", "The worst statement is named with calls and total time", "Query output"], ["Re-run the workload after the fixes", "Total time of the top two statements drops by at least 50 percent", "Before and after table"], ["Run EXPLAIN ANALYZE after CREATE STATISTICS", "Estimated rows are within 2x of actual rows", "Plan comparison"]],
+          "objectives": ["Find costly queries from real statistics", "Fix both index and ORM causes", "Verify gains with repeatable workloads"]
+        },
+        {
+          "topic": "Transactional Outbox and Idempotent Endpoints",
+          "subtopics": ["The dual-write problem: database and message broker", "Outbox table written in the same transaction", "A relay worker with SELECT ... FOR UPDATE SKIP LOCKED", "At-least-once delivery and consumer deduplication", "Idempotency-Key header for POST requests", "Storing the key, request hash and response", "Handling concurrent retries with a unique constraint", "Expiring keys", "Retrying safely from the React client", "Testing duplicate and out-of-order delivery"],
+          "tools": ["PostgreSQL", "FastAPI", "Redis Streams", "pytest", "SQLAlchemy", "k6"],
+          "lab_task": "Add an outbox table written in the booking transaction and a relay that publishes with FOR UPDATE SKIP LOCKED. Implement Idempotency-Key on POST /payments, then send the same key from 20 parallel requests with k6 and verify exactly one payment row and 20 identical responses. Kill the relay mid-batch to prove no event is lost.",
+          "deliverable": "Outbox relay, idempotency middleware and a k6 duplicate-request test",
+          "checks": [["Send 20 parallel POSTs with one Idempotency-Key", "Exactly 1 payments row and every response body is identical", "k6 summary and psql count"], ["Kill the relay after reading a batch", "After restart every outbox row is published at least once", "Relay logs and stream length"], ["Reuse a key with a different body", "Returns 422 or 409 as designed", "Response JSON"]],
+          "objectives": ["Publish events reliably with the outbox pattern", "Make POST requests safe to retry", "Design for at-least-once delivery"]
+        },
+        {
+          "topic": "Event Streaming Between Services with Redis Streams or Kafka",
+          "subtopics": ["Streams, consumer groups and acknowledgements", "XADD, XREADGROUP, XACK and XPENDING in Redis", "Kafka topics, partitions and keys for comparison", "Ordering guarantees and partition keys", "Poison messages and a dead-letter stream", "Schema evolution and versioned event payloads", "Lag as the key health metric", "Replaying events to rebuild a read model", "Consumer concurrency and idempotency", "Choosing a broker by team size, durability needs and operations cost"],
+          "tools": ["Redis Streams", "Kafka", "FastAPI", "redis-cli", "Pydantic", "Docker Compose"],
+          "lab_task": "Build a notifications consumer group on Redis Streams with two consumers. Publish 10000 booking events, crash one consumer mid-run, and reclaim its pending messages with XAUTOCLAIM. Add a dead-letter stream for events failing three times, and show lag with XINFO GROUPS. Write one paragraph on when Kafka would be the better choice.",
+          "deliverable": "Consumer group service, dead-letter handling and a lag report",
+          "checks": [["Kill one consumer during processing", "XPENDING shows its messages and XAUTOCLAIM reassigns them", "redis-cli output"], ["Publish a malformed event", "It lands in the dead-letter stream after 3 attempts", "Stream contents"], ["Wait for completion", "Processed count is 10000 and lag is 0", "XINFO GROUPS output"]],
+          "objectives": ["Run consumer groups with acknowledgements", "Handle poison messages and replays", "Compare Redis Streams with Kafka honestly"]
+        },
+        {
+          "topic": "OIDC Single Sign-On and Session Hardening",
+          "subtopics": ["OpenID Connect authorization code flow with PKCE", "Discovery document, JWKS and key rotation", "Using Authlib or a maintained OIDC library in FastAPI", "Validating iss, aud, exp, nonce and the signature", "A backend-for-frontend session: the browser never sees tokens", "Mapping IdP groups to application roles", "Logout: local, RP-initiated and back-channel", "Account linking and email trust", "Running Keycloak in Compose for development", "Session timeout, idle timeout and step-up for sensitive actions"],
+          "tools": ["Keycloak", "Authlib", "FastAPI", "React", "OpenID Connect", "Playwright"],
+          "lab_task": "Add Keycloak to Compose with a realm, a client using PKCE and groups mapped to roles. Implement /auth/login, /auth/callback and /auth/logout in the API so the React app only holds a session cookie. Validate state, nonce, iss and aud, rotate the signing key in Keycloak, and prove the API picks up the new JWKS without a restart.",
+          "deliverable": "SSO flow, role mapping, rotation test and a Playwright login test",
+          "checks": [["Replay a callback URL with a wrong state", "API returns 400 and creates no session", "curl output"], ["Rotate the realm signing key and log in again", "Login succeeds and the API logs a JWKS refresh", "Logs"], ["Remove a user from the admin group and log in", "Admin pages return 403 after the new session", "Playwright test output"]],
+          "objectives": ["Implement authorization code flow with PKCE", "Validate ID token claims and keys", "Map identity groups to application roles"]
+        },
+        {
+          "topic": "Frontend Performance: Bundles, Code Splitting and Core Web Vitals",
+          "subtopics": ["Core Web Vitals: LCP, INP and CLS and their thresholds", "Measuring with Lighthouse and the web-vitals library", "Bundle analysis with rollup-plugin-visualizer", "Route-level code splitting with React.lazy and Suspense", "Image formats, sizing and loading=lazy", "Fonts: preload and font-display", "Avoiding rerenders: memoisation after measuring", "Virtualised lists for thousands of rows", "Compression and caching headers on static assets", "A performance budget enforced in CI with Lighthouse CI"],
+          "tools": ["Lighthouse", "Vite", "React", "web-vitals", "Lighthouse CI", "Chrome DevTools"],
+          "lab_task": "Measure the booking app with Lighthouse on a throttled mobile profile and record LCP, INP and CLS. Use rollup-plugin-visualizer to find the three heaviest dependencies, split routes with React.lazy, virtualise the 5000-row table, and enforce a 250 KB gzipped main bundle budget in Lighthouse CI. Report the before and after numbers.",
+          "deliverable": "Before and after Lighthouse reports, bundle analysis and a CI budget",
+          "checks": [["Run Lighthouse CI with the budget", "Fails when the main bundle exceeds 250 KB gzipped and passes after splitting", "CI log"], ["Compare LCP before and after", "LCP improves and is at or below 2.5 seconds on the throttled profile", "Lighthouse reports"], ["Scroll the 5000-row table", "The DOM holds fewer than 100 row elements", "DevTools Elements count"]],
+          "objectives": ["Measure real user-facing performance", "Reduce bundle size with splitting", "Enforce a budget automatically"]
+        },
+        {
+          "topic": "Server-Side Rendering and Edge Delivery for React",
+          "subtopics": ["Client rendering versus SSR versus static generation", "What hydration does and common mismatch errors", "Options: Vite SSR, Next.js or Remix with a FastAPI back end", "Caching rendered pages at a CDN with s-maxage and stale-while-revalidate", "Cache keys and the Vary header", "Serving static assets with immutable fingerprints", "Edge routing and cookies: what must bypass the cache", "SEO and social cards for public pages", "Fallback when the renderer fails", "Cost and complexity trade-offs for an internal app"],
+          "tools": ["Next.js", "CDN", "FastAPI", "Lighthouse", "curl", "React"],
+          "lab_task": "Render the public resource catalogue pages on the server with Next.js calling the FastAPI API. Set Cache-Control: s-maxage=60, stale-while-revalidate=300 and verify a CDN or local Caddy cache returns cache hits. Prove logged-in pages bypass the cache, and fix one hydration mismatch caused by rendering a date with the local time zone.",
+          "deliverable": "SSR catalogue pages, caching rules and a hydration fix",
+          "checks": [["Request a catalogue page twice", "Second response has a cache hit header and is faster", "curl -i output"], ["Request a page with a session cookie", "Response is Cache-Control: private and is never a cache hit", "curl -i output"], ["Load the page with the browser console open", "No hydration mismatch warning appears", "Console screenshot"]],
+          "objectives": ["Choose between client, server and static rendering", "Cache rendered pages safely at the edge", "Fix hydration mismatches"]
+        },
+        {
+          "topic": "Observability: OpenTelemetry Traces from Browser to Database",
+          "subtopics": ["Traces, metrics and logs and how they relate", "OpenTelemetry SDK and auto-instrumentation for FastAPI, SQLAlchemy and Redis", "W3C traceparent propagation from browser fetch to the API", "Browser instrumentation with the web SDK", "OpenTelemetry Collector pipelines and exporters", "Jaeger or Tempo for traces, Prometheus for metrics", "Structured JSON logs carrying trace_id", "RED metrics: rate, errors and duration per route", "Sampling: head versus tail and the cost impact", "Defining an SLI and an SLO for booking creation"],
+          "tools": ["OpenTelemetry", "Jaeger", "Prometheus", "Grafana", "FastAPI", "OpenTelemetry Collector"],
+          "lab_task": "Instrument the API and the browser with OpenTelemetry, route data through a Collector to Jaeger and Prometheus in Compose, and create one booking. Find a single trace that spans the click, the fetch, the FastAPI route, the SQLAlchemy query and the Redis publish. Add a Grafana panel for p95 latency and define a 99.5 percent availability SLO.",
+          "deliverable": "Instrumented stack, a trace screenshot, a Grafana dashboard and an SLO definition",
+          "checks": [["Create a booking in the browser", "One trace in Jaeger contains browser, API and database spans", "Jaeger screenshot"], ["Search logs for the trace_id from the trace", "Log lines from the API carry the same trace_id", "Log output"], ["Open the Grafana panel under load", "p95 latency by route is plotted and updates every 15 seconds", "Dashboard screenshot"]],
+          "objectives": ["Trace one request across every tier", "Correlate logs, metrics and traces", "Define SLIs and SLOs from real data"]
+        },
+        {
+          "topic": "Load Testing with k6 and Capacity Limits",
+          "subtopics": ["Workload models: open versus closed and arrival rate", "k6 scripts: options, scenarios, thresholds and checks", "Ramp, soak, spike and stress profiles", "Realistic data and login handling in scripts", "Reading http_req_duration percentiles and error rate", "Finding the bottleneck: CPU, pool, locks or network", "Running k6 in CI with thresholds that fail the build", "Test environment fidelity and warm-up", "Capacity formula: peak users to requests per second to replicas", "Writing a capacity note with a safety margin"],
+          "tools": ["k6", "Grafana", "PostgreSQL", "Docker Compose", "pg_stat_activity", "OpenTelemetry"],
+          "lab_task": "Write a k6 script with a ramping-arrival-rate scenario from 10 to 300 requests per second that logs in, lists and creates bookings, with thresholds http_req_failed<1% and p95<400ms. Find the rate where the threshold breaks, identify the bottleneck from traces and pg_stat_activity, fix it, and rerun to show the new limit.",
+          "deliverable": "k6 script, results before and after a fix and a capacity note",
+          "checks": [["Run k6 with the ramp", "Threshold breaks at a recorded request rate and k6 exits non-zero", "k6 summary"], ["Inspect pg_stat_activity at the failure point", "Shows the identified bottleneck, such as pool exhaustion or lock waits", "psql output"], ["Rerun after the fix", "Sustained rate is higher and thresholds pass", "k6 summary"]],
+          "objectives": ["Model a realistic workload", "Find the limiting resource under load", "Write a capacity note from evidence"]
+        },
+        {
+          "topic": "Kubernetes Manifests and Helm for the Stack",
+          "subtopics": ["Deployments, Services and Ingress for API and web", "ConfigMaps and Secrets and why Secrets are not encryption", "Liveness, readiness and startup probes using /healthz and /readyz", "Resource requests and limits and HorizontalPodAutoscaler", "Running migrations as a Job or a Helm hook", "PodDisruptionBudgets and graceful shutdown with preStop", "Helm charts: values.yaml, templates and helm template", "helm upgrade --install --atomic", "Running locally with kind or minikube", "kubectl describe and logs for failed rollouts"],
+          "tools": ["Kubernetes", "Helm", "kind", "kubectl", "FastAPI", "nginx Ingress"],
+          "lab_task": "Package the stack as a Helm chart and install it on kind with helm upgrade --install --atomic. Add readiness and liveness probes, requests and limits, an HPA at 70 percent CPU and a migration Job hook. Break the readiness path on purpose to see a failed rollout rolled back, then drive load and watch the HPA add replicas.",
+          "deliverable": "Helm chart, an install log and an HPA scaling capture",
+          "checks": [["Install a release whose readiness probe points to a wrong path", "helm --atomic fails and rolls the release back", "Helm output"], ["Run kubectl rollout status", "Reports successfully rolled out for the fixed release", "Terminal output"], ["Run load and kubectl get hpa -w", "Replica count rises above the minimum when CPU passes 70 percent", "kubectl output"]],
+          "objectives": ["Describe the stack as Kubernetes resources", "Use probes and limits correctly", "Roll out and roll back with Helm"]
+        },
+        {
+          "topic": "Infrastructure as Code with Terraform for a Cloud Environment",
+          "subtopics": ["Terraform workflow: init, plan, apply, destroy", "Providers, resources, variables, outputs and locals", "Remote state with locking and encryption", "Modules for network, database and service", "Managed PostgreSQL, a container service and object storage", "Least-privilege IAM roles for the app", "Separate staging and production with workspaces or directories", "Drift detection with terraform plan -detailed-exitcode", "Policy and scanning with tflint, Checkov or trivy config", "Cost estimate and tagging for ownership"],
+          "tools": ["Terraform", "tflint", "Checkov", "Cloud CLI", "GitHub Actions", "PostgreSQL"],
+          "lab_task": "Write Terraform modules for a VPC, a managed PostgreSQL instance, a container service and a storage bucket with remote state and locking. Run plan on pull requests with tflint and Checkov, apply staging from main, then change a security group by hand and use terraform plan -detailed-exitcode to detect the drift.",
+          "deliverable": "Terraform modules, a CI plan job and a drift report",
+          "checks": [["Run terraform plan -detailed-exitcode after a manual console change", "Exit code 2 and the plan shows the drifted resource", "Terminal output"], ["Run Checkov on a bucket that is public", "A failed check is reported and CI blocks the pull request", "Checkov report"], ["Run terraform destroy on staging then apply", "Environment is recreated from code with the same outputs", "Terraform output"]],
+          "objectives": ["Create cloud resources from code", "Review changes through plans in pull requests", "Detect and correct drift"]
+        },
+        {
+          "topic": "Progressive Delivery: Feature Flags, Canary and Rollback",
+          "subtopics": ["Separating deploy from release with feature flags", "Flag types: release, ops, experiment and permission", "Flag providers or a simple database-backed service", "Evaluating flags in the API and in React", "Canary: 5 percent, 25 percent then 100 percent", "Automatic rollback on error-rate or latency thresholds", "Blue-green with a fast switch back", "Database changes under canary: compatibility", "Cleaning up stale flags", "Release checklist and a rollback drill"],
+          "tools": ["Feature flags", "Argo Rollouts", "Kubernetes", "Prometheus", "FastAPI", "React"],
+          "lab_task": "Introduce a feature flag for a new pricing calculation, evaluated in the API and the UI. Release with a canary at 10, 50 and 100 percent using Argo Rollouts or weighted routing, and set an analysis that aborts when the 5xx rate exceeds 1 percent. Deploy a version that returns 500 for the new path and show the automatic rollback.",
+          "deliverable": "Flagged feature, a canary configuration and a recorded automatic rollback",
+          "checks": [["Set the flag to 0 percent", "Users see the old price and the new code is deployed", "Browser and API response"], ["Release a faulty canary", "Analysis fails and traffic returns to the stable version in under 5 minutes", "Rollout status and timeline"], ["Search code for the flag after full release", "Flag removal ticket exists and the cleanup merge request is linked", "Issue tracker link"]],
+          "objectives": ["Release gradually and measure", "Roll back automatically on bad signals", "Retire flags that are no longer needed"]
+        },
+        {
+          "topic": "Supply Chain Protection: SBOMs, Signing and Dependency Policy",
+          "subtopics": ["Threats: typosquatting, malicious updates and compromised maintainers", "Lock files and hash-pinned installs with uv or pip --require-hashes", "Dependabot or Renovate policies and grouping", "pip-audit and npm audit in CI with severity gates", "Generating an SBOM in CycloneDX or SPDX", "Signing images with cosign and verifying at deploy", "Build provenance and SLSA levels in plain terms", "GitHub Actions hardening: pin actions by SHA and use least-privilege permissions", "Secret scanning with gitleaks and push protection", "Responding when a dependency is compromised"],
+          "tools": ["cosign", "syft", "pip-audit", "gitleaks", "Dependabot", "GitHub Actions"],
+          "lab_task": "Pin Python dependencies with hashes, pin every GitHub Action to a commit SHA, set workflow permissions to contents: read, sign the API image with cosign and verify the signature in the deploy job. Plant a fake AWS key in a test commit to see gitleaks block it, and write a one-page response plan for a compromised dependency.",
+          "deliverable": "Hardened workflows, signed image verification and a response plan",
+          "checks": [["Deploy an unsigned image", "Verification fails and the deploy job stops", "Workflow log"], ["Push a commit with a fake AWS access key", "gitleaks fails the job and names the file and line", "CI log"], ["Run pip install --require-hashes on a tampered package hash", "pip refuses with a hash mismatch error", "Terminal output"]],
+          "objectives": ["Reduce supply chain risk in Python and npm", "Sign and verify artefacts", "Plan a response to a compromised dependency"]
+        },
+        {
+          "topic": "AI Features: Embeddings with pgvector and Streaming Responses",
+          "subtopics": ["Embeddings and cosine distance in plain terms", "Installing the pgvector extension and vector(n) columns", "HNSW and IVFFlat indexes and recall versus speed", "Generating embeddings in a background job", "Hybrid search: full-text plus vector ranking", "Calling a model API with timeouts, retries and cost limits", "Streaming tokens with StreamingResponse and consuming them in React", "Prompt injection and treating model output as untrusted", "Tenant isolation for embeddings with RLS", "Evaluating results with a small labelled set and recall at k"],
+          "tools": ["pgvector", "FastAPI", "React", "PostgreSQL", "Arq", "OpenAI-compatible API"],
+          "lab_task": "Add an embeddings vector(768) column to knowledge articles with an HNSW index, fill it from a background job and expose GET /search that mixes tsvector rank and vector distance. Stream a generated answer to React with fetch and ReadableStream. Evaluate on 30 labelled queries, record recall at 5, and prove that tenant B never sees tenant A's articles.",
+          "deliverable": "Search endpoint, streaming answer UI and an evaluation table",
+          "checks": [["Run the 30 labelled queries", "Recall at 5 is reported and is at least as good as keyword-only search", "Evaluation table"], ["Search as tenant B for a phrase unique to tenant A", "Returns 0 results", "pytest output"], ["Submit text that says 'ignore previous instructions' as an article", "The answer is not changed in behaviour and output is rendered as plain text", "Test output"]],
+          "objectives": ["Add vector search to PostgreSQL", "Stream model output to a React page", "Treat model output and input as untrusted"]
+        },
+        {
+          "topic": "Data Lifecycle: Backups, Restores and Privacy Deletion",
+          "subtopics": ["RPO and RTO as business numbers", "pg_dump versus physical backups and WAL archiving", "Point-in-time recovery with pgBackRest or a managed service", "Restore drills: the backup you never restored does not exist", "Retention rules and encrypted backups", "GDPR requests: export, rectification and erasure", "Soft delete versus hard delete and cascades", "Anonymising data for staging", "Audit logs that must outlive the user", "Deletion in backups, caches, search indexes and object storage"],
+          "tools": ["PostgreSQL", "pgBackRest", "Redis", "MinIO", "FastAPI", "psql"],
+          "lab_task": "Set up WAL archiving and take a base backup, insert rows, record a timestamp, delete a table by mistake, and restore to one minute before it with point-in-time recovery into a new instance. Then implement DELETE /me that erases a user across PostgreSQL, Redis and the bucket, and produce an export in JSON. Measure the real RTO of the restore.",
+          "deliverable": "Backup configuration, a timed restore drill and an erasure and export implementation",
+          "checks": [["Restore to the recorded timestamp", "The dropped table exists with its rows and rows after the timestamp are absent", "psql output"], ["Call DELETE /me and search for the user's email across stores", "No match in PostgreSQL, Redis keys or bucket objects", "Search results"], ["Compare restore time with the stated RTO", "Measured time is written down and compared with the target", "Drill report"]],
+          "objectives": ["Plan and prove recovery targets", "Implement export and erasure requests", "Keep audit data while deleting personal data"]
+        },
+        {
+          "topic": "Troubleshooting Incidents Across Browser, API and Database",
+          "subtopics": ["Incident roles: commander, communicator and investigator", "First five minutes: scope, recent changes and rollback decision", "Following one failing request with a trace ID", "Browser clues: CORS, mixed content, failed chunk loads and service worker caches", "API clues: 502 versus 504, worker restarts, event loop lag", "Database clues: lock waits, idle in transaction, connection exhaustion", "pg_stat_activity, pg_locks and the blocking query", "Queue clues: lag, retries and poison messages", "Writing a blameless post-incident review", "Turning findings into alerts and runbook steps"],
+          "tools": ["OpenTelemetry", "pg_stat_activity", "kubectl", "Grafana", "Chrome DevTools", "py-spy"],
+          "lab_task": "Run the three seeded faults provided by the trainer: a transaction left idle holding a lock, a pool exhausted by a missing await in an async handler, and a stale hashed JavaScript chunk after a release. For each, write a timeline, find the cause with traces, pg_locks and DevTools, apply a fix and add an alert so it is caught next time.",
+          "deliverable": "Three timelines, fixes, new alerts and one blameless post-incident review",
+          "checks": [["Query pg_stat_activity for state = 'idle in transaction'", "Finds the blocking session and the query holding the lock", "psql output"], ["Replay the stale chunk fault", "Browser console shows ChunkLoadError and the fix serves old assets for one release", "Console and release notes"], ["Review each alert", "Every alert has a threshold, an owner and a runbook link", "Alert rules"]],
+          "objectives": ["Diagnose faults across tiers using evidence", "Communicate during an incident", "Convert a failure into alerts and runbooks"]
+        },
+        {
+          "topic": "Upgrading Python, React and PostgreSQL Without Breaking Users",
+          "subtopics": ["Support windows and release cadences for Python, Node, React and PostgreSQL", "Reading release notes, deprecations and removed features", "Running warnings as errors: python -W error and pytest -W error", "Dependency upgrade strategy: small, frequent and grouped", "React major upgrades with codemods", "TypeScript and ESLint upgrades handled separately", "PostgreSQL major upgrades: pg_upgrade versus logical replication", "Testing the new version in CI with a matrix", "Canary of the new runtime in production", "Rollback plan and communication"],
+          "tools": ["pg_upgrade", "Renovate", "pytest", "GitHub Actions", "Docker", "codemods"],
+          "lab_task": "Add a CI matrix that runs the backend on the current and next Python versions with pytest -W error, fix every deprecation warning, and run the React codemod for one major upgrade. Rehearse a PostgreSQL major upgrade into a new container with logical replication, compare row counts and switch over with under 30 seconds of write pause.",
+          "deliverable": "Upgrade report, a CI matrix and a rehearsed database cutover",
+          "checks": [["Run pytest -W error on the next Python version", "0 failed and 0 warnings after fixes", "CI log"], ["Compare row counts between old and new PostgreSQL", "Every table's count matches before the cutover", "Query output"], ["Measure the write pause during cutover", "Pause is under 30 seconds", "Timed log"]],
+          "objectives": ["Plan upgrades from support windows", "Find breaking changes early with CI", "Rehearse a database major upgrade"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Multi-Tenant SaaS Release",
+          "subtopics": ["Scope: tenants, SSO, billing events, search and an admin console", "Architecture review against ADRs, RLS and the outbox", "Production readiness: SLOs, alerts, backups, load test and runbook", "Release through a canary with signed images", "Game day: one injected fault and the recovery", "Final review with a risk register and a next-quarter plan"],
+          "tools": ["FastAPI", "React", "PostgreSQL", "Kubernetes", "OpenTelemetry", "Terraform"],
+          "lab_task": "Release a multi-tenant SaaS built on your stack to a cloud environment using Terraform, Helm and a canary. Show RLS isolation tests, OIDC login, an outbox-driven notification, p95 under 300 ms at the agreed load, a restore drill, signed images and traces. Survive one fault injected by the reviewer and present the risk register.",
+          "deliverable": "Production-style environment, evidence pack, runbook, risk register and a recorded game day",
+          "checks": [["Run the tenant isolation suite and the k6 test against the release", "Isolation tests pass and p95 is under 300 ms at the agreed load", "Test and k6 output"], ["Reviewer injects a fault during the game day", "Alert fires and service is restored within the stated RTO", "Timeline and alert history"], ["Audit the pipeline", "Images are signed, scans are clean or justified and the SBOM is attached", "Pipeline run and attestations"]],
+          "objectives": ["Deliver a production-ready multi-tenant system", "Prove reliability, security and performance with evidence", "Present risks and a prioritised roadmap"]
+        }
+      ]
+    }
+  }
+}

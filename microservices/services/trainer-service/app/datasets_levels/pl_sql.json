@@ -1,0 +1,573 @@
+{
+  "domain": "PL/SQL",
+  "name": "PL/SQL",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Procedural Language SQL", "Oracle PL/SQL", "PLSQL", "PL/SQL Developer", "PL/SQL Programming", "Oracle PL/SQL Development", "PL/SQL Training", "Oracle Database Programming"],
+  "certifications": ["Oracle Database SQL Certified Associate (1Z0-071)", "Oracle Database PL/SQL Developer Certified Professional (1Z0-149)"],
+  "tools": ["Oracle Database Free", "SQLcl", "SQL*Plus", "Oracle SQL Developer", "Visual Studio Code", "utPLSQL", "DBMS_HPROF", "PL/Scope", "Liquibase", "python-oracledb", "ORDS", "Git"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and analysts who know basic SQL and are new to PL/SQL. Covers a local Oracle Database Free lab, block structure, datatypes, control flow, SQL in PL/SQL, cursors, exceptions, procedures, functions, packages, collections, triggers, transactions, compiler warnings and dictionary views, finishing with an order management package.",
+      "prerequisites": ["Writes SELECT, INSERT, UPDATE and DELETE statements with joins and GROUP BY", "Understands tables, primary keys, foreign keys and constraints", "Has a laptop that can run Docker or a cloud Oracle free-tier database, and uses a terminal confidently"],
+      "outcomes": ["Write, compile and debug PL/SQL blocks, procedures, functions and packages", "Process rows with cursors, records and collections and handle errors with exceptions", "Control transactions and write audit triggers", "Deliver a tested package with install and test scripts in Git"],
+      "days": [
+        {
+          "topic": "Oracle Database Free, SQLcl and VS Code Setup",
+          "subtopics": ["What PL/SQL is: Oracle's procedural extension, compiled and stored in the database", "Where PL/SQL runs: PL/SQL engine versus SQL engine and the context switch between them", "Running Oracle Database Free in a container with gvenzl/oracle-free or the official container-registry.oracle.com image", "Service names: the CDB root versus the FREEPDB1 pluggable database", "Creating an application schema with CREATE USER, QUOTA and a least-privilege grant list", "Connecting with SQLcl: sql user/password@localhost:1521/FREEPDB1", "SQL*Plus settings: SET SERVEROUTPUT ON, SET LINESIZE and SHOW ERRORS", "Oracle SQL Developer extension for Visual Studio Code and its connection manager", "The / terminator and why PL/SQL blocks need it in scripts", "Running a script with @file.sql and keeping the lab code in Git"],
+          "tools": ["Oracle Database Free", "Docker", "SQLcl", "SQL*Plus", "Visual Studio Code", "Git"],
+          "lab_task": "Start the container with docker run -d -p 1521:1521 -e ORACLE_PASSWORD=Lab_pw1 -e APP_USER=plsql_lab -e APP_USER_PASSWORD=Lab_pw1 gvenzl/oracle-free:23-slim, wait for the ready log line, connect with sql plsql_lab/Lab_pw1@localhost:1521/FREEPDB1, run SELECT user FROM dual and a block that prints Hello PL/SQL with DBMS_OUTPUT.",
+          "deliverable": "Working lab schema, a connection script and a hello.sql file committed to Git",
+          "checks": [["Run SELECT sys_context('USERENV','CON_NAME') FROM dual", "Returns FREEPDB1", "SQLcl output"], ["Run SELECT user FROM dual", "Returns PLSQL_LAB", "SQLcl output"], ["Run hello.sql with SET SERVEROUTPUT ON", "Prints the line Hello PL/SQL and ends with PL/SQL procedure successfully completed.", "Script log"]],
+          "objectives": ["Start a local Oracle database and connect to the pluggable database with SQLcl", "Explain where the PL/SQL and SQL engines meet", "Run a script that uses a block terminator and DBMS_OUTPUT"]
+        },
+        {
+          "topic": "PL/SQL Block Structure and Anonymous Blocks",
+          "subtopics": ["The four sections: DECLARE, BEGIN, EXCEPTION and END", "Anonymous versus named blocks and when each is stored", "Nested blocks and scope rules", "Labels and qualifying names with block labels", "NULL statement as a placeholder", "Comments with -- and /* */", "Identifiers, case rules and quoted identifiers", "Reserved words and checking V$RESERVED_WORDS", "Reading ORA-06550 and PLS-00103 compile messages", "Running a block from a script and from SQLcl"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "SQL*Plus"],
+          "lab_task": "Write block1.sql with an outer block declaring v_msg VARCHAR2(30) := 'outer' and an inner labeled block that redeclares it as 'inner'. Print both values with DBMS_OUTPUT.PUT_LINE and the outer value through the label name. Then remove a semicolon on purpose and record the PLS-00103 line and column.",
+          "deliverable": "block1.sql with nested scopes and a note listing the error text and the fix",
+          "checks": [["Run block1.sql with correct code", "Prints inner then outer then the outer value via the label", "Script output"], ["Remove the semicolon after the inner END", "Compiler raises PLS-00103 with a line and column", "Error text"], ["Query a reserved word as an identifier such as a variable named LOOP", "Compilation fails with PLS-00103", "Error text"]],
+          "objectives": ["Structure a block with declaration, executable and exception sections", "Explain variable scope and name resolution in nested blocks", "Read a compile error and locate the faulty line"]
+        },
+        {
+          "topic": "Scalar Datatypes, Constants and Declarations",
+          "subtopics": ["VARCHAR2 byte versus char semantics and the 32767 byte PL/SQL limit", "NUMBER(p,s), PLS_INTEGER and BINARY_INTEGER", "BINARY_FLOAT and BINARY_DOUBLE versus NUMBER", "DATE, TIMESTAMP and INTERVAL types", "BOOLEAN in PL/SQL and the SQL BOOLEAN type introduced in 23ai", "CONSTANT, NOT NULL and default values", "SUBTYPE declarations for domain-specific types", "Implicit conversion hazards and explicit TO_CHAR, TO_NUMBER, TO_DATE", "NLS settings that change conversions"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Declare c_tax_rate CONSTANT NUMBER(4,3) := 0.075, a SUBTYPE money_t IS NUMBER(12,2) and a PLS_INTEGER counter. Compute ROUND(199.99 * c_tax_rate, 2) into a money_t and print it. Trigger ORA-06502 by assigning a 40 character string to a VARCHAR2(30), and ORA-01722 with TO_NUMBER('12x'). Catch neither yet and record both messages.",
+          "deliverable": "Datatype cheat sheet and a script showing both conversion errors",
+          "checks": [["Compute ROUND(199.99 * 0.075, 2) into money_t", "Prints 15", "DBMS_OUTPUT line"], ["Assign a 40 char string to VARCHAR2(30)", "ORA-06502: PL/SQL: numeric or value error: character string buffer too large", "Error text"], ["Run TO_NUMBER('12x')", "ORA-01722: invalid number", "Error text"]],
+          "objectives": ["Choose suitable scalar types and subtypes", "Declare constants and enforce NOT NULL", "Predict and diagnose ORA-06502 and ORA-01722"]
+        },
+        {
+          "topic": "Conditional Logic and Loops",
+          "subtopics": ["IF, ELSIF and ELSE", "Searched and simple CASE statements versus CASE expressions", "Three-valued logic and NULL in conditions", "Basic LOOP with EXIT WHEN", "WHILE loops", "Numeric FOR loops, REVERSE and the iteration controls added in 21c", "CONTINUE and CONTINUE WHEN", "Labeled loops and exiting the outer loop", "GOTO and why to avoid it", "CASE_NOT_FOUND and ORA-06592"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "SQL*Plus"],
+          "lab_task": "Write a block that loops 1..30 and prints Fizz, Buzz or FizzBuzz using a searched CASE, skipping multiples of 10 with CONTINUE WHEN. Add a second loop with WHILE that finds the first n where n*n exceeds 500. Use a simple CASE with no ELSE on a value of 9 to provoke ORA-06592 and record it.",
+          "deliverable": "fizz.sql plus an output capture and a note on CASE statement versus CASE expression",
+          "checks": [["Run the FizzBuzz loop 1..30", "27 lines printed because 10, 20 and 30 are skipped", "Output count"], ["Run the WHILE search", "First n is 23 because 23*23 = 529", "Output line"], ["Run a simple CASE statement with no matching WHEN and no ELSE", "ORA-06592: CASE not found while executing CASE statement", "Error text"]],
+          "objectives": ["Control flow with IF, CASE and loops", "Handle NULL correctly in conditions", "Use CONTINUE and labels to control loop exits"]
+        },
+        {
+          "topic": "SQL Inside PL/SQL: SELECT INTO and DML",
+          "subtopics": ["SELECT INTO and the one-row rule", "NO_DATA_FOUND and TOO_MANY_ROWS", "INSERT, UPDATE, DELETE with PL/SQL values bound automatically", "RETURNING INTO to get generated values", "Sequences and identity columns in PL/SQL", "SQL%ROWCOUNT, SQL%FOUND and SQL%NOTFOUND", "MERGE from PL/SQL", "Bind variables: PL/SQL variables used in SQL are binds", "Aggregate queries with SELECT INTO", "DDL cannot run directly and what to do instead"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create tables customers and orders with identity primary keys. In a block, INSERT a customer RETURNING customer_id INTO v_id, insert two orders for v_id, then UPDATE one order and print SQL%ROWCOUNT. Run SELECT INTO against a missing id and against a name matching two rows and record ORA-01403 and ORA-01422.",
+          "deliverable": "Schema script, DML block and a table of the two single-row errors",
+          "checks": [["Insert a customer with RETURNING INTO", "v_id is populated and matches SELECT MAX(customer_id)", "Output value"], ["SELECT INTO with a missing id", "ORA-01403: no data found", "Error text"], ["SELECT INTO with a name matching two rows", "ORA-01422: exact fetch returns more than the requested number of rows", "Error text"]],
+          "objectives": ["Embed SELECT and DML in PL/SQL with correct variable binding", "Use RETURNING INTO and SQL%ROWCOUNT", "Explain the single-row contract of SELECT INTO"]
+        },
+        {
+          "topic": "%TYPE, %ROWTYPE and Records",
+          "subtopics": ["Anchoring with %TYPE", "Row structure with %ROWTYPE", "Record types with TYPE ... IS RECORD", "Nested records and record assignment", "INSERT and UPDATE using a whole record", "SELECT INTO a record", "Records in function return types", "Comparing records field by field", "How schema changes affect anchored code and dependencies", "Using USER_DEPENDENCIES to see invalidations"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Build a block using customers%ROWTYPE: fetch one row, change the email field, and UPDATE customers SET ROW = v_cust WHERE customer_id = v_cust.customer_id. Declare a record type with a nested address record. Then run ALTER TABLE customers ADD (phone VARCHAR2(20)) and show that a stored procedure anchored to %ROWTYPE became INVALID and recompiled.",
+          "deliverable": "Record demo script and a screenshot of USER_OBJECTS status before and after recompile",
+          "checks": [["Run UPDATE ... SET ROW with the record", "SQL%ROWCOUNT is 1 and the email shows the new value", "Query result"], ["Add a column then query USER_OBJECTS for the procedure", "STATUS is INVALID until first call or ALTER PROCEDURE COMPILE", "Query result"], ["Call the procedure again", "It recompiles automatically and runs; STATUS returns to VALID", "Query result"]],
+          "objectives": ["Declare variables anchored to column and row definitions", "Use records for single-row DML", "Explain how anchoring reduces maintenance and creates dependencies"]
+        },
+        {
+          "topic": "Implicit and Explicit Cursors",
+          "subtopics": ["Implicit cursor SQL attributes", "OPEN, FETCH and CLOSE", "%FOUND, %NOTFOUND, %ROWCOUNT and %ISOPEN", "Looping with FETCH and EXIT WHEN cursor%NOTFOUND", "Fetching into records", "SELECT FOR UPDATE and WHERE CURRENT OF", "Cursor scope and closing cursors in exception paths", "ORA-01000 maximum open cursors exceeded", "Reading the OPEN_CURSORS limit from V$PARAMETER as a developer", "Cursor expressions"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write a block that declares CURSOR c_ord IS SELECT order_id, total FROM orders WHERE status = 'NEW' FOR UPDATE, loops with explicit OPEN/FETCH/CLOSE, and applies a 5 percent discount using WHERE CURRENT OF c_ord. Print the count with c_ord%ROWCOUNT. Then loop opening cursors without closing to capture ORA-01000. Have SYSTEM grant SELECT_CATALOG_ROLE first for V$ views.",
+          "deliverable": "Cursor script with a note describing the leak and its fix",
+          "checks": [["Run the discount loop over 10 NEW orders", "c_ord%ROWCOUNT prints 10 and 10 rows are updated", "Output line and UPDATE count"], ["Run the leak loop with OPEN_CURSORS at the default", "ORA-01000: maximum open cursors exceeded", "Error text"], ["Run the fixed version with CLOSE in all paths", "Completes and V$OPEN_CURSOR count stays flat", "Query result"]],
+          "objectives": ["Process rows with explicit cursors and attributes", "Lock and update the current row safely", "Avoid cursor leaks"]
+        },
+        {
+          "topic": "Cursor FOR Loops and Parameterised Cursors",
+          "subtopics": ["Cursor FOR loop and implicit open, fetch, close", "Inline query FOR loops with no cursor declaration", "Parameterised cursors with default values", "Passing parameters with named notation", "Nested cursor loops versus a single join", "Why row-by-row slow-by-slow code is costly", "Cursor FOR loop optimisation: implicit bulk fetch of 100 rows at PLSQL_OPTIMIZE_LEVEL 2 or higher", "Dynamic ORDER BY choices", "Choosing between a join and a nested loop", "Reading SQL_ID from V$SQL to count executions"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create a cursor c_orders(p_customer_id NUMBER, p_status VARCHAR2 DEFAULT 'NEW') and call it from a nested FOR loop over customers. Then rewrite the nested loops as one join. Time both with DBMS_UTILITY.GET_TIME over 5000 customers and read EXECUTIONS from V$SQL for the inner statement (SYSTEM grants SELECT_CATALOG_ROLE first).",
+          "deliverable": "Two versions of the report and a timing and executions comparison table",
+          "checks": [["Run the nested version over 5000 customers", "Inner query shows EXECUTIONS of about 5000 in V$SQL", "V$SQL result"], ["Run the single join version", "Inner statement count drops to 1 execution", "V$SQL result"], ["Compare the elapsed centiseconds", "Join version is faster and the timing is recorded in the table", "Timing table"]],
+          "objectives": ["Use cursor FOR loops and parameterised cursors", "Replace nested row loops with joins", "Measure statement executions from a block"]
+        },
+        {
+          "topic": "Predefined and User-Defined Exceptions",
+          "subtopics": ["Exception section and handler matching order", "Predefined exceptions: NO_DATA_FOUND, TOO_MANY_ROWS, ZERO_DIVIDE, VALUE_ERROR, DUP_VAL_ON_INDEX", "WHEN OTHERS and why it must re-raise", "User-defined exceptions with EXCEPTION declarations", "PRAGMA EXCEPTION_INIT to name an ORA error", "RAISE_APPLICATION_ERROR and the range -20000 to -20999", "SQLCODE and SQLERRM", "Propagation out of nested blocks", "Exceptions raised in the declaration section", "Handling errors without losing rollback integrity"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write procedure add_customer(p_email) that inserts into a table with a unique email. Map ORA-00001 with PRAGMA EXCEPTION_INIT to e_dup, catch it and raise RAISE_APPLICATION_ERROR(-20010, 'Email already registered'). Add a WHEN OTHERS that logs SQLCODE and re-raises with RAISE. Call it twice with the same email and capture each outcome.",
+          "deliverable": "Exception handling script and a table of error codes and meanings",
+          "checks": [["Insert a duplicate email", "ORA-20010: Email already registered", "Error text"], ["Divide by zero in a test block", "ORA-01476 is raised and SQLCODE is -1476", "Output line"], ["Inspect a WHEN OTHERS block that ends with RAISE", "Original error is preserved and propagates to the caller", "Caller output"]],
+          "objectives": ["Handle and raise exceptions in a controlled way", "Map Oracle errors to named exceptions", "Raise application errors with meaningful codes"]
+        },
+        {
+          "topic": "Stored Procedures and Parameter Modes",
+          "subtopics": ["CREATE OR REPLACE PROCEDURE syntax", "IN, OUT and IN OUT parameters", "NOCOPY hint and when it matters", "Default parameter values", "Positional, named and mixed notation", "Calling from SQLcl with EXEC and from a block", "Reading compile errors with SHOW ERRORS and USER_ERRORS", "Grants: EXECUTE on a procedure", "Recompilation and DBMS_UTILITY.COMPILE_SCHEMA", "Dropping and the effect on dependent objects"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create procedure place_order(p_customer_id IN NUMBER, p_total IN NUMBER, p_order_id OUT NUMBER, p_status IN OUT VARCHAR2 DEFAULT 'NEW') that inserts into orders. Call it by name and by position. Introduce a typo, run SHOW ERRORS and query USER_ERRORS for the line and text. Grant EXECUTE to a second user and call it there.",
+          "deliverable": "place_order procedure, a call script and USER_ERRORS evidence",
+          "checks": [["Call place_order with named notation", "OUT parameter p_order_id returns a new id and status prints NEW", "Output lines"], ["Compile a procedure with a typo then SHOW ERRORS", "PLS-00201 identifier must be declared with line and column", "SQLcl output"], ["Call place_order as the second user without a grant", "PLS-00201 or ORA-00942 until EXECUTE is granted; then succeeds", "Both runs"]],
+          "objectives": ["Write procedures with all three parameter modes", "Debug compile errors with USER_ERRORS", "Grant execute access safely"]
+        },
+        {
+          "topic": "Stored Functions and Deterministic Code",
+          "subtopics": ["CREATE FUNCTION and the RETURN clause", "Calling functions from SQL and from PL/SQL", "Purity rules and side effects in SQL-callable functions", "ORA-14551 and ORA-14552 for DML inside queries", "DETERMINISTIC functions", "Return types: scalars, records and collections", "Function overloading", "Recursion and a depth limit", "Functions versus procedures: when to choose each", "Cost of calling PL/SQL functions per row in SQL"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create function order_tax(p_total NUMBER) RETURN NUMBER DETERMINISTIC and call it in SELECT order_id, order_tax(total) FROM orders. Create a second function that does an INSERT and call it in SELECT to capture ORA-14551. Compare the elapsed time of the SELECT with the inline expression total*0.075 on 100000 rows built with CONNECT BY LEVEL using SET TIMING ON.",
+          "deliverable": "Function script, error capture and a timing comparison",
+          "checks": [["Run SELECT using order_tax on 100000 rows", "Returns 100000 rows and elapsed time is recorded", "SET TIMING output"], ["Call a function that inserts inside SELECT", "ORA-14551: cannot perform a DML operation inside a query", "Error text"], ["Run the same query with the inline expression", "Returns the same rows in less time than the function version", "Timing table"]],
+          "objectives": ["Create functions callable from SQL", "Apply purity rules and DETERMINISTIC correctly", "Estimate the cost of per-row function calls"]
+        },
+        {
+          "topic": "Packages: Specification and Body",
+          "subtopics": ["Why packages: encapsulation, overloading, and dependency isolation", "Specification and body layout", "Public versus private subprograms", "Forward declarations", "Package constants and types", "Package initialization block", "Package state per session", "ORA-04068 existing state of packages has been discarded", "Compiling spec versus body and dependency effect", "Naming conventions for package API"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create package order_api with spec exposing create_order, cancel_order and a constant c_status_new, and a body with a private validate_total function. Add a package-level counter that increments per call. Call from two sessions to show per-session state, then recompile the body only and confirm dependents stay VALID but recompile the spec and observe them go INVALID.",
+          "deliverable": "order_api spec and body plus a dependency note",
+          "checks": [["Call create_order twice in one session and read the counter", "Counter shows 2 in that session and 0 in a new session", "Output lines"], ["Recompile only the package body", "Dependent objects remain VALID", "USER_OBJECTS query"], ["Recompile the spec after adding a function", "Dependent objects become INVALID until recompiled", "USER_OBJECTS query"]],
+          "objectives": ["Design a package with public and private parts", "Explain per-session package state", "Predict invalidation when the spec or body changes"]
+        },
+        {
+          "topic": "Associative Arrays, Nested Tables and VARRAYs",
+          "subtopics": ["Collection kinds and when to use each", "Associative arrays indexed by PLS_INTEGER and VARCHAR2", "Nested tables: constructors and EXTEND", "VARRAYs and their fixed upper bound", "Sparse versus dense collections", "Collections of records", "Schema-level versus package-level types", "Collections as table columns", "ORA-06531 and ORA-06533 and ORA-06532", "Passing collections between subprograms"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create a nested table type phone_list_t at schema level and an associative array of VARCHAR2 keyed by country code. Fill the array with 5 rows and print by FIRST/NEXT. Create a VARRAY(3) and try to extend it to 4 elements to record ORA-06532 and access an uninitialised nested table to record ORA-06531.",
+          "deliverable": "Collection script with an error table",
+          "checks": [["Iterate the associative array with FIRST and NEXT", "Prints 5 keys in sorted order", "Output lines"], ["EXTEND a VARRAY(3) beyond 3", "ORA-06532: Subscript outside of limit", "Error text"], ["Use an uninitialised nested table", "ORA-06531: Reference to uninitialized collection", "Error text"]],
+          "objectives": ["Select the right collection type", "Populate and traverse collections", "Recognise and avoid the common collection errors"]
+        },
+        {
+          "topic": "Collection Methods and Multiset Operations",
+          "subtopics": ["COUNT, FIRST, LAST, EXISTS, PRIOR and NEXT", "EXTEND, TRIM and DELETE", "ORA-06533 subscript beyond count", "MULTISET UNION, INTERSECT and EXCEPT", "MEMBER OF and SUBMULTISET OF", "SET function to remove duplicates", "TABLE() operator to query a collection in SQL", "Collection equality and IS EMPTY", "CAST and MULTISET to build collections from queries", "Sparse collection loops with VALUES OF and INDICES OF"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "With two nested tables of ids, apply MULTISET UNION DISTINCT, MULTISET INTERSECT and MULTISET EXCEPT and print the counts. Query a collection in SQL with SELECT * FROM TABLE(v_ids). Fill with CAST(MULTISET(SELECT order_id FROM orders WHERE ROWNUM <= 5) AS id_list_t), DELETE element 3 and iterate with FIRST/NEXT to avoid ORA-01403.",
+          "deliverable": "Collection methods demo with printed counts",
+          "checks": [["Union distinct of {1,2,3} and {3,4}", "COUNT is 4", "Printed count"], ["Intersect of {1,2,3} and {3,4}", "COUNT is 1", "Printed count"], ["Loop 1..COUNT after deleting element 3 from 5", "ORA-01403 no data found, fixed by FIRST/NEXT loop that prints 4 values", "Both outputs"]],
+          "objectives": ["Use collection methods safely", "Combine collections with multiset operators", "Query collections from SQL with TABLE"]
+        },
+        {
+          "topic": "Row-Level and Statement Triggers",
+          "subtopics": ["Trigger timing: BEFORE, AFTER and INSTEAD OF", "Row versus statement level and FOR EACH ROW", ":OLD and :NEW and the WHEN clause", "Triggers on INSERT, UPDATE OF column and DELETE", "Using INSERTING, UPDATING and DELETING predicates", "Audit trail triggers", "Populating columns with BEFORE triggers versus identity or defaults", "Trigger firing order and FOLLOWS", "ORA-04091 mutating table error", "Disabling triggers and the risk"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create orders_audit and a trigger trg_orders_aiud AFTER INSERT OR UPDATE OR DELETE ON orders FOR EACH ROW that stores :OLD.status, :NEW.status, the action and SYSTIMESTAMP. Update 3 rows in one statement and verify 3 audit rows. Then add a BEFORE UPDATE trigger that selects COUNT(*) from orders to provoke ORA-04091.",
+          "deliverable": "Audit trigger script with sample audit data",
+          "checks": [["UPDATE 3 orders in a single statement", "orders_audit gets 3 rows", "SELECT COUNT(*) FROM orders_audit"], ["Query the audit for one changed row", "OLD status NEW and NEW status SHIPPED are both stored", "Query result"], ["Run an UPDATE with a trigger that queries orders", "ORA-04091: table is mutating, trigger/function may not see it", "Error text"]],
+          "objectives": ["Write row-level and statement-level triggers", "Use :OLD and :NEW in auditing", "Recognise the mutating table error"]
+        },
+        {
+          "topic": "Transactions, COMMIT, ROLLBACK and Savepoints",
+          "subtopics": ["Transaction start and end rules", "COMMIT and ROLLBACK from PL/SQL", "SAVEPOINT and ROLLBACK TO", "Statement-level atomicity", "Implicit commit for DDL", "Where commit belongs: caller versus API", "Read consistency and what a session sees of others' uncommitted data", "COMMIT WRITE options", "Isolation: read committed and SERIALIZABLE", "ORA-08177 cannot serialize access"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write a block that inserts three orders with a SAVEPOINT after each, forces an error on the third using a CHECK constraint, rolls back to the second savepoint and commits. In two SQLcl sessions show that session B cannot see session A's uncommitted rows. Record row counts before and after COMMIT.",
+          "deliverable": "Transaction demo with two-session evidence",
+          "checks": [["After the failure, ROLLBACK TO the second savepoint and COMMIT", "Only 2 of the 3 orders persist", "SELECT COUNT(*)"], ["Query from session B before A commits", "Count excludes A's new rows", "Session B output"], ["Query from session B after A commits", "Count includes A's rows", "Session B output"]],
+          "objectives": ["Control transactions with savepoints", "Explain read consistency", "Decide where commits belong in an API"]
+        },
+        {
+          "topic": "Output, Debugging and Compiler Warnings",
+          "subtopics": ["DBMS_OUTPUT limits and buffer settings", "Logging versus printing", "PLSQL_WARNINGS and ALTER SESSION SET PLSQL_WARNINGS", "Warning categories SEVERE, PERFORMANCE and INFORMATIONAL", "PLW-06002 unreachable code and PLW-05005 function returns without a value", "Debugging in SQL Developer and the Visual Studio Code extension", "Breakpoints, step and watch values", "DBMS_UTILITY.FORMAT_CALL_STACK", "Using $$PLSQL_UNIT and $$PLSQL_LINE", "Compile-time versus runtime errors"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Visual Studio Code", "Oracle Database Free"],
+          "lab_task": "Run ALTER SESSION SET PLSQL_WARNINGS='ENABLE:ALL', then compile a function with an unreachable statement after RETURN and a function with a path that has no RETURN. Read the warnings from SHOW ERRORS, fix them, set a breakpoint in SQL Developer on the loop and step through three iterations watching one variable.",
+          "deliverable": "Warning report and a screenshot of the debugger session",
+          "checks": [["Compile code with unreachable statements", "PLW-06002: Unreachable code", "SHOW ERRORS output"], ["Compile a function with a path that lacks RETURN", "PLW-05005: subprogram returns without value at line N", "SHOW ERRORS output"], ["Step through the loop in the debugger", "Watched counter reads 1, 2 then 3", "Debugger screenshot"]],
+          "objectives": ["Turn on and interpret compiler warnings", "Debug with breakpoints and watches", "Use call stack functions for diagnostics"]
+        },
+        {
+          "topic": "Date, String and Number Handling in PL/SQL",
+          "subtopics": ["SYSDATE, SYSTIMESTAMP and CURRENT_DATE", "Date arithmetic and ADD_MONTHS, LAST_DAY, TRUNC", "TIMESTAMP WITH TIME ZONE and AT TIME ZONE", "String functions SUBSTR, INSTR, REPLACE, TRIM and LPAD", "Regular expressions REGEXP_LIKE, REGEXP_SUBSTR and REGEXP_REPLACE", "Number rounding with ROUND, TRUNC and MOD", "Format models for TO_CHAR", "NLS_DATE_FORMAT dependence and avoiding it", "Empty string equals NULL in Oracle", "LISTAGG and string aggregation"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write a function normalise_phone that strips non-digits with REGEXP_REPLACE(p, '[^0-9]', '') and formats ten digits as (NNN) NNN-NNNN. Add a function days_to_month_end(p_date). Show that an empty string compares as NULL, and that TO_DATE('2026-02-30','YYYY-MM-DD') raises ORA-01839. Test five inputs.",
+          "deliverable": "Utility functions and a test table with five inputs",
+          "checks": [["normalise_phone('415-555-0123')", "Returns (415) 555-0123", "Query result"], ["days_to_month_end(DATE '2026-02-10')", "Returns 18", "Query result"], ["TO_DATE('2026-02-30','YYYY-MM-DD')", "ORA-01839: date not valid for month specified", "Error text"]],
+          "objectives": ["Manipulate dates, strings and numbers in PL/SQL", "Use regular expressions for cleaning data", "Avoid session-dependent conversions"]
+        },
+        {
+          "topic": "Data Dictionary Views for PL/SQL Developers",
+          "subtopics": ["USER_SOURCE and reading stored code", "USER_OBJECTS and STATUS", "USER_ERRORS and USER_DEPENDENCIES", "USER_PROCEDURES and USER_ARGUMENTS", "USER_TRIGGERS and USER_TYPES", "ALL_ and DBA_ views and their scope", "DBMS_METADATA.GET_DDL", "Searching source code for a column or call", "USER_IDENTIFIERS preview and PL/Scope", "Generating documentation from the dictionary"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write a query on USER_SOURCE that lists every program unit referencing the ORDERS table, and one on USER_ARGUMENTS that prints each parameter, mode and datatype for ORDER_API. Use DBMS_METADATA.GET_DDL('PACKAGE_BODY','ORDER_API') to export the body. Spool a markdown API list of all packages to api.md.",
+          "deliverable": "Dictionary queries and the generated api.md",
+          "checks": [["Query USER_SOURCE for ORDERS", "Lists every unit that mentions ORDERS with its line number", "Query result"], ["Query USER_ARGUMENTS for ORDER_API", "Shows parameter names, IN or OUT mode and datatype for each routine", "Query result"], ["Run DBMS_METADATA.GET_DDL on the body", "Returns CREATE OR REPLACE PACKAGE BODY text that recompiles without errors", "Recompile output"]],
+          "objectives": ["Inspect stored code with dictionary views", "Find dependencies and arguments", "Extract DDL with DBMS_METADATA"]
+        },
+        {
+          "topic": "Beginner Capstone: Order Management API Package",
+          "subtopics": ["Design: tables, constraints and the package contract", "Implementation: create, cancel and ship procedures with exceptions", "Reporting function using a parameterised cursor", "Audit trigger and collections for batch input", "Unit test script with expected results", "Delivery: Git repository, README and run script"],
+          "tools": ["SQLcl", "Oracle Database Free", "Git", "Visual Studio Code"],
+          "lab_task": "Deliver package order_api with create_order, cancel_order, ship_order and a report function. Use constants for statuses, exceptions with error codes -20001 to -20005, an audit trigger and a nested table input. Provide install.sql, a test.sql with 10 assertions and a Git repository. Run test.sql on a clean schema and record that all 10 pass.",
+          "deliverable": "Git repository with install script, test script, README and a recorded run",
+          "checks": [["Run install.sql on an empty schema", "Finishes with no rows in USER_ERRORS", "Query on USER_ERRORS"], ["Run test.sql", "Prints 10 of 10 assertions passed", "Script output"], ["Cancel an already shipped order", "ORA-20003 is raised with a clear message and no row changes", "Error text and row count"]],
+          "objectives": ["Build a complete small PL/SQL API", "Apply exceptions, packages, triggers and collections together", "Provide repeatable install and test scripts"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who write basic PL/SQL and now need production-grade code. Covers bulk processing, REF cursors, pipelined functions, dynamic SQL and DBMS_SQL, autonomous transactions, error logging, compound triggers, definer's and invoker's rights, conditional compilation, package state, utPLSQL testing with coverage, PL/Scope, profiling, SQL macros, JSON and LOBs.",
+      "prerequisites": ["Completed the beginner level or can write packages, cursors, collections and exception handlers", "Reads execution output and SQL timing from SQLcl", "Can run Git and a container database locally"],
+      "outcomes": ["Process millions of rows with BULK COLLECT, FORALL and pipelined functions", "Write dynamic SQL, loggers and triggers that behave correctly under error", "Test PL/SQL with utPLSQL and measure coverage and hot spots", "Work with JSON and LOB data in PL/SQL"],
+      "days": [
+        {
+          "topic": "BULK COLLECT and the LIMIT Clause",
+          "subtopics": ["Context switches between PL/SQL and SQL engines", "SELECT BULK COLLECT INTO a collection", "FETCH BULK COLLECT with LIMIT", "Loop termination: %NOTFOUND at the end of the loop body versus COUNT = 0", "Choosing a LIMIT value such as 100 to 1000", "BULK COLLECT into collections of records", "PGA memory growth with unbounded BULK COLLECT", "RETURNING BULK COLLECT INTO", "Comparing with the cursor FOR loop optimisation", "Measuring with DBMS_UTILITY.GET_TIME and V$MYSTAT"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Load 1,000,000 rows into big_orders with INSERT ... SELECT LEVEL FROM dual CONNECT BY LEVEL <= 1000000. Process them three ways: a row-by-row FETCH loop, BULK COLLECT with LIMIT 100, and LIMIT 1000. Record elapsed time with DBMS_UTILITY.GET_TIME and PGA memory by querying V$MYSTAT joined to V$STATNAME for session pga memory.",
+          "deliverable": "Benchmark script and a table comparing the three methods by time and PGA memory",
+          "checks": [["Run the row-by-row loop on 1,000,000 rows", "Baseline time recorded in centiseconds", "Timing output"], ["Run BULK COLLECT with LIMIT 1000", "Elapsed time is lower than the baseline", "Timing table"], ["Run an unbounded BULK COLLECT and read session pga memory", "Peak PGA grows with rows loaded compared with the LIMIT run", "V$MYSTAT query"]],
+          "objectives": ["Fetch rows in batches with BULK COLLECT and LIMIT", "Pick a safe batch size", "Measure time and memory trade-offs"]
+        },
+        {
+          "topic": "FORALL, SAVE EXCEPTIONS and Bulk DML",
+          "subtopics": ["FORALL syntax and the single statement it sends", "INDICES OF and VALUES OF for sparse collections", "SQL%BULK_ROWCOUNT", "SAVE EXCEPTIONS and ORA-24381", "SQL%BULK_EXCEPTIONS and ERROR_INDEX", "Combining BULK COLLECT, LIMIT and FORALL", "Bulk DML limits with triggers and constraints", "Forbidden constructs: no loop logic inside FORALL", "Rolling back partial FORALL failures", "Direct-path insert with the APPEND_VALUES hint"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Read 50,000 rows with BULK COLLECT LIMIT 500 and FORALL insert them into orders_copy, where 10 rows break a CHECK (total >= 0). Use SAVE EXCEPTIONS, catch ORA-24381, loop SQL%BULK_EXCEPTIONS printing ERROR_INDEX and ERROR_CODE and store failures in load_errors. Compare timing with a plain FOR loop insert.",
+          "deliverable": "Bulk load script, error table and timing comparison",
+          "checks": [["Run the FORALL load with 10 bad rows", "ORA-24381 raised and 49,990 rows loaded", "COUNT(*) on orders_copy"], ["Read SQL%BULK_EXCEPTIONS", "10 entries with ERROR_CODE 2290", "load_errors table"], ["Run the FOR loop insert baseline", "Slower than FORALL for the same rows", "Timing table"]],
+          "objectives": ["Apply bulk DML with FORALL", "Capture row-level failures with SAVE EXCEPTIONS", "Combine BULK COLLECT and FORALL in a batch loop"]
+        },
+        {
+          "topic": "REF Cursors and SYS_REFCURSOR Parameters",
+          "subtopics": ["Strong versus weak cursor types", "SYS_REFCURSOR as a standard weak type", "OPEN FOR with a static and dynamic query", "Returning a result set from a function", "Consuming ref cursors in SQL*Plus, SQLcl and Java or Python clients", "FETCH from a ref cursor into records and bulk collections", "Passing cursors between PL/SQL units", "CURSOR expressions", "DBMS_SQL.TO_REFCURSOR and TO_CURSOR_NUMBER", "Closing ref cursors and avoiding leaks"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create package report_api with function orders_by_status(p_status VARCHAR2) RETURN SYS_REFCURSOR, which uses OPEN ... FOR with a bind. In SQLcl declare VARIABLE rc REFCURSOR, run EXEC :rc := report_api.orders_by_status('NEW') and PRINT rc. Add a second overload that takes a dynamic ORDER BY from a whitelist, and show a bad column name is rejected.",
+          "deliverable": "report_api package and printed result sets",
+          "checks": [["EXEC :rc := report_api.orders_by_status('NEW'); PRINT rc", "Prints only rows with status NEW", "SQLcl output"], ["Call with p_order_by => 'total DESC'", "Rows are returned sorted descending by total", "Output"], ["Call with p_order_by => '1; DROP TABLE orders'", "Rejected by the whitelist with ORA-20020 and table intact", "Error text and table count"]],
+          "objectives": ["Return result sets to callers with REF CURSORs", "Use weak and strong cursor types appropriately", "Validate dynamic ORDER BY input"]
+        },
+        {
+          "topic": "Pipelined Table Functions",
+          "subtopics": ["Table functions versus pipelined table functions", "PIPE ROW and the final RETURN", "Object and collection types for rows", "Streaming rows to SQL without building the whole collection", "Pipelined functions over ref cursor input", "Parallel-enabled pipelined functions with PARALLEL_ENABLE and PARTITION BY", "Using a pipelined function as a data source in INSERT ... SELECT", "Cardinality hints and the CARDINALITY and DYNAMIC_SAMPLING hints", "Error handling mid-stream", "Comparing with SQL macros and views"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create object type order_row_t, collection type order_tab_t and a pipelined function parse_orders(p_clob CLOB) that splits delimited lines with PIPE ROW. Query it with SELECT * FROM TABLE(parse_orders(:c)) on a 100,000 line CLOB, then use it in INSERT INTO orders_stage SELECT .... Compare PGA use against a non-pipelined version.",
+          "deliverable": "Pipelined parser, load script and memory comparison",
+          "checks": [["SELECT COUNT(*) FROM TABLE(parse_orders(:c))", "Returns 100000", "Query result"], ["INSERT INTO orders_stage SELECT * FROM TABLE(parse_orders(:c))", "100000 rows inserted", "SQL feedback"], ["Compare with a non-pipelined table function", "Pipelined version uses less session PGA memory", "V$MYSTAT query"]],
+          "objectives": ["Build a pipelined table function", "Stream rows to SQL consumers", "Know when to use parallel-enabled pipelining"]
+        },
+        {
+          "topic": "Native Dynamic SQL with EXECUTE IMMEDIATE",
+          "subtopics": ["When to use dynamic SQL", "EXECUTE IMMEDIATE with INTO, USING and RETURNING INTO", "Bind variables and IN, OUT, IN OUT in USING", "Dynamic DDL and the implicit commit", "Dynamic query with OPEN FOR USING", "Identifiers cannot be bound", "ORA-00904 and ORA-00942 at runtime", "Dynamic PL/SQL blocks with anonymous block text", "Soft parse and cursor sharing with binds", "Debugging by logging the generated statement"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write procedure purge_table(p_table VARCHAR2, p_days NUMBER) that builds DELETE FROM <table> WHERE created_at < SYSDATE - :1 with EXECUTE IMMEDIATE ... USING p_days and RETURNING COUNT. Call it on orders_archive. Pass a nonexistent table name and capture ORA-00942. Create a table dynamically with EXECUTE IMMEDIATE and show the implicit commit.",
+          "deliverable": "Dynamic SQL procedure and an error log",
+          "checks": [["Run purge_table('ORDERS_ARCHIVE', 90)", "Prints number of deleted rows equal to the pre-count of old rows", "Output and COUNT"], ["Run purge_table('NO_SUCH_TABLE', 90)", "ORA-00942: table or view does not exist", "Error text"], ["Insert, then run dynamic CREATE TABLE, then ROLLBACK", "Insert is committed by the DDL and cannot be rolled back", "Row count"]],
+          "objectives": ["Run dynamic SQL with binds", "Differentiate what can and cannot be bound", "Handle runtime SQL errors in generated statements"]
+        },
+        {
+          "topic": "DBMS_SQL for Unknown Column Lists",
+          "subtopics": ["When EXECUTE IMMEDIATE is not enough: unknown select list", "PARSE, BIND_VARIABLE and EXECUTE", "DESCRIBE_COLUMNS and DESC_TAB", "DEFINE_COLUMN and COLUMN_VALUE", "FETCH_ROWS loop", "Method 4 dynamic SQL", "Switching to a ref cursor with TO_REFCURSOR", "Closing with CLOSE_CURSOR", "Exception handling with IS_OPEN", "Building a generic CSV export"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write procedure export_csv(p_sql VARCHAR2) that parses any SELECT with DBMS_SQL.PARSE, calls DESCRIBE_COLUMNS to read names and types, defines every column as VARCHAR2(4000), loops with FETCH_ROWS and prints a header plus rows as CSV. Run it on three different queries and confirm the column count matches DESCRIBE output each time.",
+          "deliverable": "Generic CSV exporter and three sample outputs",
+          "checks": [["Run export_csv on SELECT * FROM customers", "Header row has the same number of columns as DESCRIBE customers", "Output"], ["Run export_csv on a join of customers and orders", "Header shows joined column aliases and data rows follow", "Output"], ["Run export_csv with an invalid statement", "Raises ORA-00942 or ORA-00900 and the cursor is closed", "Error text and V$OPEN_CURSOR count"]],
+          "objectives": ["Process queries with unknown select lists using DBMS_SQL", "Read column metadata with DESCRIBE_COLUMNS", "Close cursors on every path"]
+        },
+        {
+          "topic": "Autonomous Transactions and Logging Frameworks",
+          "subtopics": ["PRAGMA AUTONOMOUS_TRANSACTION", "Commit rules inside an autonomous block", "Logging that survives a rollback", "ORA-06519 active autonomous transaction detected and rolled back", "Deadlocks between parent and child transactions", "Logger design: levels, call stack, session info", "Using SYS_CONTEXT('USERENV', ...) in logs", "Avoiding autonomous transactions in triggers for business logic", "Volume control and purging logs", "Comparing a custom logger with the open-source OraOpenSource Logger"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create table app_log and package log_pkg with an autonomous procedure write(p_level, p_msg) capturing SYS_CONTEXT('USERENV','SESSIONID') and DBMS_UTILITY.FORMAT_CALL_STACK. Call it from a block that then does ROLLBACK and confirm the log row remains while the business insert is gone. Remove the COMMIT to reproduce ORA-06519.",
+          "deliverable": "log_pkg and evidence that logs survive a rollback",
+          "checks": [["Insert a business row, call log_pkg.write, then ROLLBACK", "The business row is gone and the log row remains", "Two COUNT queries"], ["Remove COMMIT from the autonomous procedure and call it", "ORA-06519: active autonomous transaction detected and rolled back", "Error text"], ["Select the call stack column from app_log", "Contains the calling package and line number", "Query result"]],
+          "objectives": ["Use autonomous transactions for logging", "Avoid common autonomous transaction errors", "Capture session and call stack context"]
+        },
+        {
+          "topic": "Error Stack, Backtrace and LOG ERRORS",
+          "subtopics": ["DBMS_UTILITY.FORMAT_ERROR_STACK and FORMAT_ERROR_BACKTRACE", "UTL_CALL_STACK for structured stack frames", "Why WHEN OTHERS THEN NULL is dangerous", "Re-raise versus raise a new error", "Exception handling in loops with per-item exceptions", "SQL error logging with DBMS_ERRLOG.CREATE_ERROR_LOG and LOG ERRORS INTO", "REJECT LIMIT semantics", "Error code ranges and an application error catalogue", "SQLERRM size and truncation", "Exceptions inside FORALL and pipelined functions"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create an error log with DBMS_ERRLOG.CREATE_ERROR_LOG('ORDERS_COPY','ERR$_ORDERS_COPY') and run INSERT INTO orders_copy SELECT * FROM orders_in LOG ERRORS INTO err$_orders_copy ('load1') REJECT LIMIT UNLIMITED. Then write a three level call chain that fails and print FORMAT_ERROR_BACKTRACE in the top handler with its line numbers.",
+          "deliverable": "Error-logging script and a backtrace screenshot",
+          "checks": [["Run the INSERT with 10 bad rows and LOG ERRORS", "Statement succeeds and err$_orders_copy has 10 rows", "COUNT on error table"], ["Print FORMAT_ERROR_BACKTRACE in the top-level handler", "Shows three ORA-06512 lines with correct unit names and lines", "Output"], ["Set REJECT LIMIT 5 and rerun", "Fails with the original ORA-02290 once the 6th bad row is hit", "Error text"]],
+          "objectives": ["Capture full error context", "Use LOG ERRORS for set-based loads", "Define an application error catalogue"]
+        },
+        {
+          "topic": "Compound Triggers and Mutating Table Avoidance",
+          "subtopics": ["Compound trigger timing points", "BEFORE STATEMENT, BEFORE EACH ROW, AFTER EACH ROW and AFTER STATEMENT", "Shared state in the declaration section", "Collecting row ids and processing after the statement", "Fixing ORA-04091 with a compound trigger", "Trigger performance on bulk DML", "Restrictions: no :OLD or :NEW outside the row timing points", "INSTEAD OF triggers on views", "Order of execution with FOLLOWS", "Avoiding trigger recursion"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Reproduce ORA-04091 with a row trigger on order_lines that sums the table. Replace it with a compound trigger that stores order ids in a nested table in AFTER EACH ROW and updates orders.total in AFTER STATEMENT using FORALL. Update 20,000 lines in one statement and verify totals match a SUM query.",
+          "deliverable": "Compound trigger with a before and after comparison",
+          "checks": [["Run the original row trigger on UPDATE", "ORA-04091: table is mutating", "Error text"], ["Run the compound trigger on a 20,000 row UPDATE", "Statement completes without ORA-04091", "SQL feedback"], ["Compare orders.total to SUM(order_lines.amount) for all orders", "Zero mismatched orders", "Mismatch count query"]],
+          "objectives": ["Write compound triggers", "Fix mutating table errors without autonomous transactions", "Keep triggers set-based and efficient"]
+        },
+        {
+          "topic": "Definer's Rights, Invoker's Rights and ACCESSIBLE BY",
+          "subtopics": ["AUTHID DEFINER and AUTHID CURRENT_USER", "Name resolution and privileges under each model", "Roles are disabled in definer's rights units", "Granting roles to PL/SQL units", "ACCESSIBLE BY whitelists for package access", "Invoker's rights with views and BEQUEATH CURRENT_USER", "Common pitfalls: ORA-00942 from the wrong schema", "Choosing a model for utility, API and data access code", "Testing with two schemas", "Auditing who ran what with SYS_CONTEXT"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "In schema app_owner, create table secret_t and procedures show_secret (AUTHID DEFINER) and show_secret_inv (AUTHID CURRENT_USER). Grant EXECUTE on both to app_user, who has no table access. Call both as app_user and record results. Then add ACCESSIBLE BY (api_pkg) on a helper and call it directly to capture PLS-00904.",
+          "deliverable": "Rights comparison script and results table",
+          "checks": [["As app_user call the AUTHID DEFINER procedure", "Returns the data from app_owner.secret_t", "Output"], ["As app_user call the AUTHID CURRENT_USER procedure", "ORA-00942: table or view does not exist", "Error text"], ["Call the ACCESSIBLE BY helper directly", "PLS-00904: insufficient privilege to access object", "Error text"]],
+          "objectives": ["Choose between definer's and invoker's rights", "Restrict callers with ACCESSIBLE BY", "Test privileges with two schemas"]
+        },
+        {
+          "topic": "Conditional Compilation and Inquiry Directives",
+          "subtopics": ["Selection directives $IF, $THEN, $ELSE and $END", "Inquiry directives $$PLSQL_UNIT, $$PLSQL_LINE and $$PLSQL_OPTIMIZE_LEVEL", "Custom flags via PLSQL_CCFLAGS", "Static package constants as conditions", "$ERROR to fail compilation", "DBMS_DB_VERSION constants for version checks", "DBMS_PREPROCESSOR to see the expanded source", "Code that adapts to 19c and 23ai", "Debug-only code and removing it in production", "Performance impact"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Add PLSQL_CCFLAGS = 'debug_on:TRUE' with ALTER SESSION and write a procedure that logs extra detail only under $IF $$debug_on $THEN. Use $IF DBMS_DB_VERSION.VER_LE_19 $THEN to select a different branch. Print DBMS_PREPROCESSOR.PRINT_POST_PROCESSED_SOURCE for both flag values and confirm the code is removed when false.",
+          "deliverable": "Conditional compilation demo with processed source outputs",
+          "checks": [["Compile with debug_on:TRUE and run", "Debug log lines appear", "Output"], ["Compile with debug_on:FALSE and print post-processed source", "Debug branch text is absent from the source", "Preprocessor output"], ["Add $ERROR when an unsupported version flag is set", "Compilation fails with PLS-00179 and the message text", "SHOW ERRORS"]],
+          "objectives": ["Compile code selectively with directives", "Check database version in code", "Inspect expanded source"]
+        },
+        {
+          "topic": "Package State and Serially Reusable Packages",
+          "subtopics": ["Where package variables live: session PGA", "Initialisation block run once per session", "Connection pools and stale package state", "ORA-04068 and ORA-04061 after recompilation", "DBMS_SESSION.RESET_PACKAGE and FREE_UNUSED_USER_MEMORY", "PRAGMA SERIALLY_REUSABLE", "Constants versus mutable state", "Caching small lookup tables in package memory", "Stateless design for pooled applications", "Testing with two sessions"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Build package cfg_pkg with a cached associative array loaded from a settings table. Show that a second session keeps the old value after the row is updated. Recompile the body from session A and call from session B to capture ORA-04068, then redesign with a version check using ORA_ROWSCN or a settings_version table.",
+          "deliverable": "Cache package, stale-state evidence and the improved design",
+          "checks": [["Update the settings row and read the cache in session B", "Session B still returns the old value", "Both outputs"], ["Recompile the package body and call it in session B", "ORA-04068: existing state of packages has been discarded", "Error text"], ["Call again after the version-check redesign", "Value reflects the new setting without error", "Output"]],
+          "objectives": ["Explain package state behaviour", "Handle ORA-04068 properly", "Design stateless or version-aware caches"]
+        },
+        {
+          "topic": "Unit Testing with utPLSQL v3",
+          "subtopics": ["utPLSQL concepts: suites, contexts and tests", "Installing utPLSQL in a test schema with install.sql", "Annotations: --%suite, --%test, --%beforeeach, --%aftereach", "Expectations ut.expect(...).to_equal and to_be_null", "Testing exceptions with --%throws", "Running with ut.run and ut.run('suite')", "Reporters: ut_documentation_reporter and ut_junit_reporter", "Test data setup and rollback", "Running from the command line with ut_runner", "Organising tests next to the code in a repository"],
+          "tools": ["utPLSQL", "SQLcl", "Oracle Database Free", "Git"],
+          "lab_task": "Install utPLSQL v3 and create package test_order_api with --%suite, three --%test procedures for order_api and one --%throws(-20003) test. Include --%beforeeach for data setup. Run with SELECT * FROM TABLE(ut.run('test_order_api')), then run with ut_junit_reporter and save results.xml. Break one expectation on purpose.",
+          "deliverable": "Test package, a console run and results.xml",
+          "checks": [["Run the suite with all code correct", "4 tests, 0 failed, 0 errored", "ut_documentation_reporter summary"], ["Change an expectation to the wrong value", "1 test fails with Actual and Expected values shown", "Reporter output"], ["Run with ut_junit_reporter", "results.xml has a testsuite element with tests=\"4\"", "XML file"]],
+          "objectives": ["Write utPLSQL tests with annotations", "Run suites with different reporters", "Test expected exceptions"]
+        },
+        {
+          "topic": "Test Data, Mocking and Code Coverage with utPLSQL",
+          "subtopics": ["Test isolation: transaction rollback and savepoints per test", "Building test data with factories", "Mocking by package seams and dependency injection", "Using views or synonyms to substitute data sources", "Expectations on cursors: ut.expect(rc).to_equal(rc2)", "Tags with --%tags and --%context", "Code coverage with ut_coverage_html_reporter", "Coverage thresholds in pipelines", "Parallel-safe tests", "Testing triggers and autonomous logging"],
+          "tools": ["utPLSQL", "SQLcl", "Oracle Database Free", "Git"],
+          "lab_task": "Refactor order_api to call a payment_gateway package through an injectable interface, then add a test that supplies a fake. Compare a ref cursor result with ut.expect(l_actual).to_equal(l_expected). Run with ut_coverage_html_reporter(a_project_name => 'order_api') and open coverage.html. Raise coverage from the baseline to at least 85 percent.",
+          "deliverable": "Tests with a fake dependency and the coverage HTML report",
+          "checks": [["Run the suite with ut_coverage_html_reporter", "Report lists order_api with a coverage percentage", "coverage.html"], ["Run the cursor comparison test with a changed row", "Fails and lists the differing row and column", "Reporter output"], ["Run the final suite", "Line coverage of order_api is 85 percent or higher", "Coverage report"]],
+          "objectives": ["Isolate tests from external dependencies", "Compare result sets in tests", "Measure and raise code coverage"]
+        },
+        {
+          "topic": "Static Analysis with PL/Scope",
+          "subtopics": ["PLSCOPE_SETTINGS: IDENTIFIERS:ALL and STATEMENTS:ALL", "Recompiling code to collect identifiers", "USER_IDENTIFIERS and USER_STATEMENTS", "Finding unused variables and parameters", "Finding hard-coded or unqualified calls", "Where-used analysis for a column or constant", "Detecting SQL statements inside loops", "Naming convention checks with queries", "Sonar and linter options for PL/SQL", "Adding checks to CI"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Run ALTER SESSION SET PLSCOPE_SETTINGS='IDENTIFIERS:ALL, STATEMENTS:ALL' and recompile order_api. Query USER_IDENTIFIERS for variables with usage DECLARATION that never have a REFERENCE, list SQL statements inside loops through USER_STATEMENTS and USER_IDENTIFIERS hierarchy, and fix at least 3 findings. Save the findings count before and after.",
+          "deliverable": "PL/Scope report with findings before and after cleanup",
+          "checks": [["Recompile with PLSCOPE_SETTINGS and query USER_IDENTIFIERS", "Returns rows for every declared identifier", "Query result"], ["Query for declared but unreferenced variables", "Lists unused variables found by name and line", "Query result"], ["Fix 3 findings and re-run the query", "Count of unused variables drops by 3", "Before and after counts"]],
+          "objectives": ["Collect identifier metadata with PL/Scope", "Find unused or risky code with SQL", "Use static analysis as a quality gate"]
+        },
+        {
+          "topic": "Profiling with DBMS_PROFILER and DBMS_HPROF",
+          "subtopics": ["Profiler choices: DBMS_PROFILER, DBMS_HPROF and SQL monitor", "Setting up HPROF: CREATE DIRECTORY, EXECUTE on DBMS_HPROF and dbmshptab.sql", "START_PROFILING and STOP_PROFILING", "Loading results with DBMS_HPROF.ANALYZE", "DBMSHP_FUNCTION_INFO and subtree elapsed time", "Self time versus subtree time", "Finding hot spots and call counts", "plshprof HTML reports", "Profiling in a test environment", "Comparing before and after a fix"],
+          "tools": ["DBMS_HPROF", "SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create a directory object HPROF_DIR, run DBMS_HPROF.START_PROFILING('HPROF_DIR','run1.trc') around a slow batch procedure, then call ANALYZE and query DBMSHP_FUNCTION_INFO ordered by SELF_ELAPSED_TIME desc. Fix the top hot spot and capture a second run. Report the elapsed time change per function.",
+          "deliverable": "Two profiler runs and a before and after table",
+          "checks": [["Profile the slow batch and query function info", "Top row by self time is identified by name", "Query result"], ["Fix the hot spot and profile again", "Self time of that function drops compared with run 1", "Comparison table"], ["Check the total elapsed time", "At least 30 percent less than the first run", "Timing output"]],
+          "objectives": ["Profile PL/SQL with the hierarchical profiler", "Interpret self and subtree time", "Prove a fix with measurements"]
+        },
+        {
+          "topic": "Reducing Context Switches: UDF Pragma, Inline Functions and SQL Macros",
+          "subtopics": ["Cost of PL/SQL calls from SQL", "PRAGMA UDF and its effect", "WITH FUNCTION clause inside a query", "Function result cache and RESULT_CACHE", "Scalar SQL macros and table SQL macros", "SQL_MACRO(SCALAR) and SQL_MACRO(TABLE)", "Replacing PL/SQL with pure SQL expressions", "Deterministic with a result cache", "Measuring with SET AUTOTRACE and V$SQL", "Choosing the right technique"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Time SELECT SUM(fmt_amount(total)) FROM big_orders for 1,000,000 rows with a normal function, with PRAGMA UDF, with a WITH FUNCTION clause and with a SQL_MACRO(SCALAR) version. Record elapsed time for each using SET TIMING ON, and show the expanded SQL from the macro in V$SQL.",
+          "deliverable": "Four-way timing table with a recommendation",
+          "checks": [["Run with the normal function", "Slowest baseline recorded", "SET TIMING output"], ["Run with the SQL macro", "Fastest of the four and similar to the inline expression", "SET TIMING output"], ["Query V$SQL for the macro statement text", "Shows the macro body expanded into the query", "V$SQL result"]],
+          "objectives": ["Reduce PL/SQL-to-SQL call overhead", "Write scalar and table SQL macros", "Compare techniques with timing evidence"]
+        },
+        {
+          "topic": "JSON in PL/SQL: JSON_OBJECT_T and JSON_TABLE",
+          "subtopics": ["JSON datatype and IS JSON constraint", "JSON_OBJECT_T, JSON_ARRAY_T and JSON_ELEMENT_T", "Parsing, reading and modifying documents", "JSON_VALUE, JSON_QUERY and JSON_EXISTS", "JSON_TABLE to relational rows", "JSON_OBJECT, JSON_ARRAYAGG and generating JSON from tables", "Error clauses: ERROR ON ERROR and NULL ON ERROR", "Patching with JSON_TRANSFORM", "Indexing JSON", "Validating with JSON schema"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create table events(id NUMBER, doc JSON). Insert an order document with 3 line items. In PL/SQL parse it with JSON_OBJECT_T.parse, add a field with put, and read the items via get_array. Write a SELECT with JSON_TABLE(doc, '$.items[*]' COLUMNS ...) and generate a JSON array from orders using JSON_ARRAYAGG.",
+          "deliverable": "JSON handling package and sample queries",
+          "checks": [["JSON_TABLE over a document with 3 items", "Returns 3 rows with sku, qty and price columns", "Query result"], ["Insert text that is not valid JSON into the JSON column", "ORA-40441: JSON syntax error", "Error text"], ["Add a field with put and print to_string", "Output contains the new key and the original 3 items", "Printed JSON"]],
+          "objectives": ["Process JSON documents in PL/SQL", "Convert between JSON and relational rows", "Handle invalid JSON"]
+        },
+        {
+          "topic": "Large Objects with DBMS_LOB and SecureFiles",
+          "subtopics": ["CLOB, BLOB, NCLOB and BFILE", "SecureFiles LOB storage options", "Temporary LOBs: DBMS_LOB.CREATETEMPORARY", "READ, WRITE, WRITEAPPEND, SUBSTR and INSTR", "Locators and SELECT FOR UPDATE", "COPY, ERASE and TRIM", "LOB in-line versus out-of-line", "Chunked processing for 2 GB-plus LOBs", "Freeing temporary LOBs and ORA-22275 invalid LOB locator", "Converting between CLOB and BLOB"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create documents(id, body CLOB, file_blob BLOB). Write a procedure that builds a 51,200,000 character CLOB with 1,600 DBMS_LOB.WRITEAPPEND calls of 32,000 characters, then reads the first and last 100 characters using DBMS_LOB.SUBSTR. Use temporary LOBs and free them, checking V$TEMPORARY_LOBS before and after.",
+          "deliverable": "LOB loader procedure and memory evidence",
+          "checks": [["Build the CLOB and call DBMS_LOB.GETLENGTH", "Returns 51200000", "Output"], ["Read the first 100 characters with SUBSTR", "Returns the expected 100 characters", "Output"], ["Free the temporary LOB and query V$TEMPORARY_LOBS", "Cache and temp LOB counts return to 0 for the session", "Query result"]],
+          "objectives": ["Work with CLOB and BLOB using DBMS_LOB", "Manage temporary LOBs", "Process large values in chunks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Bulk Loading and Reconciliation Engine",
+          "subtopics": ["Design: staging tables, error tables and a load control table", "Pipelined parser feeding BULK COLLECT and FORALL in batches", "Logging, error capture and autonomous log writer", "utPLSQL tests with at least 85 percent coverage", "Profiling a 1 million row run and removing the top hot spot", "Delivery: install, run book and benchmark report"],
+          "tools": ["utPLSQL", "DBMS_HPROF", "SQLcl", "Git"],
+          "lab_task": "Build a reconciliation engine that loads 1,000,000 rows from a staged file table into orders, using a pipelined parser, BULK COLLECT LIMIT and FORALL with SAVE EXCEPTIONS. Log load statistics with an autonomous logger, add a utPLSQL suite with 85 percent coverage, and profile with DBMS_HPROF. Reach under 60 seconds and record the final timing.",
+          "deliverable": "Repository with code, tests, profiler report and a benchmark summary",
+          "checks": [["Run the full load of 1,000,000 rows", "Loaded plus rejected rows equals 1,000,000", "Load control table"], ["Run the utPLSQL suite", "All tests pass and coverage is 85 percent or higher", "Coverage report"], ["Compare profiler runs", "Final elapsed time is lower than the first run and under 60 seconds", "Benchmark table"]],
+          "objectives": ["Combine bulk processing, logging, testing and profiling", "Prove performance claims with data", "Ship a documented and tested loader"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior PL/SQL developers and technical leads. Covers memory and collection design, object types, generic programming, injection defence, fine-grained access control, least-privilege code, Advanced Queuing, scheduler and parallel execution, concurrency, edition-based redefinition, Oracle 23ai features including duality views, vector search and JavaScript in the database, application integration, production troubleshooting, refactoring, CI/CD and API design.",
+      "prerequisites": ["Completed the intermediate level or has two years of PL/SQL experience", "Has written tests with utPLSQL and profiled code", "Has Docker and Git and can read SQL trace output"],
+      "outcomes": ["Design secure, least-privilege PL/SQL APIs", "Use queues, jobs, locks and editions for safe concurrent releases", "Apply Oracle 23ai JSON, vector and MLE features from PL/SQL", "Automate tests and deployment in a CI/CD pipeline"],
+      "days": [
+        {
+          "topic": "Advanced Collection Patterns and PGA Memory Limits",
+          "subtopics": ["Index-by tables as in-memory lookup caches", "Nested collections and collections of collections", "Collection of objects versus parallel arrays", "PGA memory growth and ORA-04030", "PGA_AGGREGATE_LIMIT and ORA-10260 seen from the developer side", "Measuring collection memory with V$MYSTAT and DBMS_SESSION.GET_PACKAGE_MEMORY_UTILIZATION", "Batching strategies to bound memory", "Sorting and searching in memory using VARCHAR2 indexes", "Sparse array performance traits", "Replacing collections with global temporary tables"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Load 2,000,000 product rows into an associative array keyed by VARCHAR2 sku, measure PGA through V$MYSTAT, and look up 500,000 keys. Redo the lookup using a global temporary table with a primary key and compare time and memory. Report the point at which memory per entry is highest and choose a batch limit for a safe design.",
+          "deliverable": "Memory and speed comparison of collection cache versus temporary table",
+          "checks": [["Fill the associative array and read session pga memory", "Memory delta is recorded in MB", "V$MYSTAT query"], ["Do 500,000 lookups from the array", "Elapsed time recorded and compared", "Timing output"], ["Repeat using a global temporary table", "Lower PGA delta with a different elapsed time", "Comparison table"]],
+          "objectives": ["Select collection or table structures for in-memory work", "Measure PGA use", "Set safe batch limits"]
+        },
+        {
+          "topic": "Object Types, Inheritance and Member Methods",
+          "subtopics": ["CREATE TYPE ... AS OBJECT and attributes", "Member functions, static functions and constructors", "Type inheritance with UNDER and NOT FINAL", "OVERRIDING and NOT INSTANTIABLE", "Object tables and object views", "MAP and ORDER methods", "REF and DEREF", "Type evolution with ALTER TYPE ... CASCADE", "Polymorphic collections", "When object types are worth using"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create base type shape_t NOT FINAL NOT INSTANTIABLE with a member function area, then subtypes circle_t and rect_t UNDER shape_t overriding area. Store 6 objects in a nested table of shape_t, call area polymorphically in a loop and sum them. Add a MAP method for sorting, ALTER TYPE to add an attribute with CASCADE, and show the dependents.",
+          "deliverable": "Type hierarchy script and polymorphism demo",
+          "checks": [["Sum the area of 3 circles radius 1 and 3 rectangles 2x3", "Prints 9.42 + 18 = 27.42 (approximately, to 2 decimals)", "Output"], ["Query USER_TYPES for circle_t", "SUPERTYPE_NAME is SHAPE_T", "Query result"], ["ALTER TYPE circle_t ADD ATTRIBUTE colour VARCHAR2(10) CASCADE", "Type and dependents are altered without invalid objects", "USER_OBJECTS query"]],
+          "objectives": ["Model with object types and inheritance", "Use polymorphism through overriding", "Evolve types safely"]
+        },
+        {
+          "topic": "ANYDATA, ANYTYPE and Generic Programming",
+          "subtopics": ["ANYDATA conversion with CONVERTNUMBER, CONVERTVARCHAR2 and CONVERTOBJECT", "Getting values back with ACCESSNUMBER and GETTYPENAME", "ANYTYPE and ANYDATASET", "Generic routines using ANYDATA parameters", "Dynamic typing trade-offs", "Polymorphic table functions (PTF)", "PTF describe and fetch_rows callbacks", "Overloading versus generics", "Type-safety checks and error handling", "When to avoid generic code"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Write procedure describe_value(p_val ANYDATA) that prints the type name from GETTYPENAME and the value for NUMBER, VARCHAR2 and DATE, raising a custom error for other types. Then build a polymorphic table function that adds a computed column to any table passed in, and call it with SELECT * FROM my_ptf(customers) and with orders.",
+          "deliverable": "Generic describe procedure and a working PTF",
+          "checks": [["Call describe_value with 42, 'abc' and DATE '2026-01-01'", "Prints SYS.NUMBER, SYS.VARCHAR2 and SYS.DATE type names with values", "Output"], ["Call describe_value with a BLOB-wrapped ANYDATA", "Raises ORA-20040 unsupported type", "Error text"], ["Run my_ptf(customers) then my_ptf(orders)", "Both return the input columns plus the computed column", "Query results"]],
+          "objectives": ["Use ANYDATA for generic APIs", "Handle unsupported types explicitly", "Build a polymorphic table function"]
+        },
+        {
+          "topic": "SQL Injection Defence with Bind Variables and DBMS_ASSERT",
+          "subtopics": ["Anatomy of SQL injection in dynamic PL/SQL", "Concatenation versus bind variables", "DBMS_ASSERT.SIMPLE_SQL_NAME, QUALIFIED_SQL_NAME and SQL_OBJECT_NAME", "ENQUOTE_NAME and ENQUOTE_LITERAL", "Whitelisting identifiers from the dictionary", "Second-order injection", "LIKE and IN list patterns that can be bound", "Testing with injection payloads", "Code review checklist for dynamic SQL", "Logging rejected input"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create vulnerable function find_user(p_name) using string concatenation and show that p_name => ''' OR ''1''=''1' returns all rows. Fix it with a bind. Build get_column(p_table, p_col) that validates both with DBMS_ASSERT.SQL_OBJECT_NAME and SIMPLE_SQL_NAME, and test five payloads, recording the ORA-44002 and ORA-44003 errors.",
+          "deliverable": "Vulnerable and fixed versions with a payload test table",
+          "checks": [["Call vulnerable find_user with the OR payload", "Returns every row in the table", "Row count"], ["Call the bind version with the same payload", "Returns 0 rows", "Row count"], ["Call get_column with a table of 'orders; DROP TABLE x'", "ORA-44002: invalid object name", "Error text"]],
+          "objectives": ["Recognise injection in dynamic PL/SQL", "Use binds and DBMS_ASSERT correctly", "Test with attack payloads"]
+        },
+        {
+          "topic": "Fine-Grained Access Control and Application Contexts",
+          "subtopics": ["Virtual Private Database concepts", "CREATE CONTEXT and DBMS_SESSION.SET_CONTEXT", "Trusted package for setting a context", "DBMS_RLS.ADD_POLICY and a policy function", "Statement types, update checks and policy groups", "Performance of policy predicates", "Debugging with DBMS_RLS views and trace", "Exempt access and bypass", "Testing row filters per user", "Comparison with Real Application Security and SQL domains"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create context app_ctx with trusted package ctx_pkg.set_dept(p_dept) and a policy function returning 'dept_id = SYS_CONTEXT(''app_ctx'',''dept_id'')'. Apply DBMS_RLS.ADD_POLICY on employees for SELECT, UPDATE. As user hr_app set dept 10 and count rows, set 20 and count again, and try to set the context directly to see ORA-01031.",
+          "deliverable": "Context, policy and per-department evidence",
+          "checks": [["Set dept 10 and SELECT COUNT(*) FROM employees", "Returns only the dept 10 count", "Output"], ["Set dept 20 and run the same query", "Returns a different count for dept 20", "Output"], ["Call DBMS_SESSION.SET_CONTEXT directly from SQL", "ORA-01031: insufficient privileges", "Error text"]],
+          "objectives": ["Implement row-level security in PL/SQL", "Create trusted contexts", "Test policies from multiple users"]
+        },
+        {
+          "topic": "Least-Privilege Code with Roles Granted to PL/SQL Units",
+          "subtopics": ["Why roles do not apply inside definer's rights units", "GRANT role TO PROCEDURE or PACKAGE", "Invoker's rights units with code-based roles", "Limiting what a unit can do with its caller's privileges", "ACCESSIBLE BY plus role grants", "Reviewing code role grants through the dictionary", "Secure coding review", "Schema design: owner, API and app user schemas", "Secrets handling: no passwords in code, using wallets", "Privilege escalation tests"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create three schemas: data_owner with tables, api_owner with the package, app_user with only CREATE SESSION. Give role api_read SELECT on the tables, grant it to PACKAGE api_owner.reports using GRANT api_read TO PACKAGE reports, make the package AUTHID CURRENT_USER and show that app_user can call reports but cannot SELECT the tables directly. Record each ORA error.",
+          "deliverable": "Three-schema privilege design and test log",
+          "checks": [["As app_user run SELECT * FROM data_owner.orders", "ORA-00942: table or view does not exist", "Error text"], ["As app_user call api_owner.reports.list_orders", "Returns rows through the role granted to the package", "Output"], ["Revoke the role from the package and call again", "ORA-00942 inside the package call", "Error text"]],
+          "objectives": ["Apply least privilege with code-based roles", "Separate data, API and user schemas", "Test privilege boundaries"]
+        },
+        {
+          "topic": "Advanced Queuing and Transactional Event Queues",
+          "subtopics": ["Message queuing concepts", "DBMS_AQADM.CREATE_QUEUE_TABLE and CREATE_QUEUE", "DBMS_AQ.ENQUEUE and DEQUEUE with payload types", "Visibility and transactional behaviour", "Dequeue modes, wait time and correlation ids", "Exception queues and retry delay", "Transactional Event Queues (TxEventQ) and Kafka-compatible APIs", "PL/SQL callback notifications", "Idempotent consumers", "Monitoring queue depth with the queue tables"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create a payload type order_msg_t, a queue order_q and a producer that enqueues 1,000 messages inside a transaction, then a consumer that dequeues in a loop with DBMS_AQ.DEQUEUE, a wait of 5 seconds and error handling for ORA-25228. Roll back a batch of enqueues and show that no messages appear. Record queue depth during the run.",
+          "deliverable": "Queue setup, producer and consumer packages with metrics",
+          "checks": [["Enqueue 1,000 messages and COMMIT", "Queue table contains 1,000 messages in READY state", "COUNT query"], ["Consume all messages", "Final queue has 0 READY messages and consumer reports 1000 processed", "Output"], ["Dequeue from an empty queue with wait 5", "ORA-25228: timeout or end-of-fetch during message dequeue", "Error text"]],
+          "objectives": ["Build producers and consumers with AQ", "Use transactional behaviour for exactly-once handling", "Handle timeouts and failures"]
+        },
+        {
+          "topic": "Jobs and Parallelism with DBMS_SCHEDULER and DBMS_PARALLEL_EXECUTE",
+          "subtopics": ["CREATE_JOB with PL/SQL block and stored procedure types", "Schedules, repeat intervals and calendar syntax", "Job chains and dependencies", "Job logs with USER_SCHEDULER_JOB_RUN_DETAILS", "Arguments and job classes", "DBMS_PARALLEL_EXECUTE: CREATE_TASK, CREATE_CHUNKS_BY_ROWID, RUN_TASK", "Chunk retries and task status", "Locks and restartability", "Error handling with USER_PARALLEL_EXECUTE_CHUNKS", "Choosing between FORALL, parallel DML and chunked tasks"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create a scheduler job nightly_close with repeat_interval 'FREQ=DAILY;BYHOUR=2'. Then update 5,000,000 rows in big_orders with DBMS_PARALLEL_EXECUTE chunked by ROWID with 4 parallel jobs. Force a failure in one chunk, read USER_PARALLEL_EXECUTE_CHUNKS, fix and resume with RESUME_TASK. Compare elapsed times with one UPDATE statement.",
+          "deliverable": "Job and chunked update scripts with run details",
+          "checks": [["Query USER_SCHEDULER_JOB_RUN_DETAILS after a test run", "Shows STATUS SUCCEEDED with an elapsed time", "Query result"], ["Run the chunked task with a failing chunk", "At least one chunk has STATUS PROCESSED_WITH_ERROR", "Chunk table"], ["Resume after fixing the data", "All chunks reach PROCESSED and row count updated is 5,000,000", "Chunk and COUNT queries"]],
+          "objectives": ["Schedule and monitor PL/SQL jobs", "Run large updates in restartable chunks", "Choose the right parallel technique"]
+        },
+        {
+          "topic": "Concurrency Control: SKIP LOCKED, Optimistic Locking and Locks",
+          "subtopics": ["Row locks and TX enqueues", "SELECT FOR UPDATE NOWAIT, WAIT n and SKIP LOCKED", "Work queue pattern with SKIP LOCKED", "Optimistic locking with a version column or ORA_ROWSCN", "ORA-00054 resource busy and ORA-00060 deadlock", "Deadlock trace awareness from a developer view", "DBMS_LOCK allocation and user locks", "Lost update demonstration", "Retry strategies", "Isolation and READ COMMITTED behaviour"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create jobs_q with status NEW and 1,000 rows. Start two SQLcl sessions that each loop SELECT ... FOR UPDATE SKIP LOCKED FETCH FIRST 10 ROWS ONLY, mark rows DONE and commit. Verify no row is processed twice. Then reproduce ORA-00054 with NOWAIT and an ORA-00060 deadlock with crossed updates, and add a version column check.",
+          "deliverable": "Two-worker queue demonstration and concurrency errors log",
+          "checks": [["Run two workers over 1,000 jobs", "All 1,000 are DONE and each processed by exactly one worker", "GROUP BY worker result"], ["Lock a row in one session and SELECT FOR UPDATE NOWAIT in another", "ORA-00054: resource busy and acquire with NOWAIT specified", "Error text"], ["Run two crossed updates", "One session receives ORA-00060: deadlock detected while waiting for resource", "Error text"]],
+          "objectives": ["Process shared work safely with SKIP LOCKED", "Implement optimistic locking", "Recognise and resolve lock errors"]
+        },
+        {
+          "topic": "Edition-Based Redefinition for Zero-Downtime Code Deployment",
+          "subtopics": ["The problem EBR solves", "Editions, editioning views and crossedition triggers", "ENABLE EDITIONS FOR a user", "CREATE EDITION and ALTER SESSION SET EDITION", "Editionable object types", "Patching package code in a child edition", "Retiring old editions", "Application ownership and rollout steps", "Limits: what EBR does not handle", "When to prefer feature flags or blue-green deployments"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Enable editions for app_owner, create edition v2 and in it recompile package pricing with a new discount rule. Show that a session in the ORA$BASE edition still gets the old result while a session using ALTER SESSION SET EDITION = v2 gets the new result. Then ALTER DATABASE DEFAULT EDITION = v2 as SYSTEM and confirm new sessions use it.",
+          "deliverable": "Edition rollout script and a before and after table",
+          "checks": [["Call pricing.discount(100) in ORA$BASE", "Returns 5", "Output"], ["Call pricing.discount(100) after SET EDITION v2", "Returns 10", "Output"], ["Open a new session after setting DEFAULT EDITION", "SYS_CONTEXT('USERENV','SESSION_EDITION_NAME') is V2", "Query result"]],
+          "objectives": ["Release PL/SQL code without downtime", "Use editions for side-by-side versions", "Plan a rollback"]
+        },
+        {
+          "topic": "Oracle 23ai Language Features for PL/SQL Developers",
+          "subtopics": ["BOOLEAN datatype in SQL", "IF [NOT] EXISTS in DDL", "SQL domains and column annotations", "RETURNING OLD and NEW in DML", "Table value constructors and GROUP BY column alias", "Schema-level privileges", "Direct joins for UPDATE and DELETE", "New PL/SQL language features listed in the 23ai New Features Guide", "Version checks and fallbacks for 19c clients", "Reading the new features guide on docs.oracle.com"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "On Oracle 23ai, create a table with a BOOLEAN column, DROP TABLE IF EXISTS in a re-runnable script, and a domain email_d with a CHECK. Run UPDATE orders SET total = total * 1.1 RETURNING OLD total, NEW total INTO v_old, v_new. Add annotations to a column and read USER_ANNOTATIONS_USAGE. Write each feature's 19c workaround.",
+          "deliverable": "23ai feature script and a 19c fallback table",
+          "checks": [["Run DROP TABLE IF EXISTS on a missing table", "No ORA-00942 error is raised", "Script output"], ["Insert 'abc' into a column of domain email_d", "ORA-11534 check constraint violated for the domain", "Error text"], ["UPDATE with RETURNING OLD and NEW", "v_old and v_new differ by a factor of 1.1", "Output"]],
+          "objectives": ["Use 23ai language features effectively", "Write fallbacks for older databases", "Read vendor documentation for features"]
+        },
+        {
+          "topic": "JSON Relational Duality Views and Documents from PL/SQL",
+          "subtopics": ["Duality view concept: documents over relational tables", "CREATE JSON RELATIONAL DUALITY VIEW syntax", "@insert, @update, @delete and @check annotations", "ETAG-based optimistic concurrency", "Reading documents with SELECT and JSON_SERIALIZE", "Updating a document and PL/SQL calls", "Mapping nested arrays to child tables", "Access through ORDS and MongoDB API", "Triggers and constraints still apply", "Choosing duality views versus plain JSON columns"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create a duality view order_dv over orders and order_lines with WITH INSERT UPDATE. Insert an order document with 2 lines via INSERT INTO order_dv VALUES (:json), read it back, then update a line quantity and capture the ORA-42699 error when the ETAG is stale. Confirm the relational tables hold the same data through SELECT.",
+          "deliverable": "Duality view DDL and a document round trip",
+          "checks": [["Insert a JSON order document with 2 lines", "orders has 1 new row and order_lines has 2 new rows", "COUNT queries"], ["Read the document from order_dv", "Returns the JSON with 2 line items and an _metadata etag", "Query result"], ["Update with an old ETAG", "ORA-42699: Cannot update JSON Relational Duality View because the ETAG has changed", "Error text"]],
+          "objectives": ["Create and use duality views", "Use ETAGs for optimistic concurrency", "Relate documents to relational tables"]
+        },
+        {
+          "topic": "AI Vector Search from PL/SQL",
+          "subtopics": ["The VECTOR datatype and dimensions", "VECTOR_DISTANCE, COSINE, EUCLIDEAN and DOT metrics", "FETCH APPROXIMATE FIRST n ROWS ONLY", "Vector indexes: HNSW and IVF with CREATE VECTOR INDEX", "Embedding generation with DBMS_VECTOR and ONNX models loaded into the database", "Chunking text with DBMS_VECTOR_CHAIN", "RAG retrieval function in PL/SQL", "Accuracy targets and hybrid filters", "Binding vectors from client drivers", "Privacy and prompt-handling constraints"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Create table docs(id, text, embedding VECTOR(384, FLOAT32)). Load 1,000 rows with embeddings from a loaded ONNX model via VECTOR_EMBEDDING, create CREATE VECTOR INDEX docs_hnsw ... ORGANIZATION INMEMORY NEIGHBOR GRAPH DISTANCE COSINE and write function top_k(p_query, p_k) using VECTOR_DISTANCE. Compare exact against approximate plans and results.",
+          "deliverable": "Vector table, index, retrieval function and plan comparison",
+          "checks": [["Run top_k('refund policy', 5)", "Returns 5 rows ordered by increasing distance", "Query result"], ["Insert a vector with 100 dimensions into a VECTOR(384) column", "ORA-51803: Vector dimension count must match the declared dimension count", "Error text"], ["Run EXPLAIN PLAN for the approximate query", "Plan shows VECTOR INDEX HNSW SCAN", "Plan output"]],
+          "objectives": ["Store and query embeddings from PL/SQL", "Create and use vector indexes", "Write a retrieval function"]
+        },
+        {
+          "topic": "JavaScript Stored Procedures with the Multilingual Engine",
+          "subtopics": ["MLE concepts: modules and environments", "CREATE MLE MODULE ... LANGUAGE JAVASCRIPT", "Exposing JavaScript through call specifications", "The oracledb driver inside MLE and session.execute", "Bind variables and fetching rows", "Importing community modules with MLE environments", "Debugging and errors from JavaScript", "Privileges: EXECUTE ON JAVASCRIPT and EXECUTE DYNAMIC MLE", "Performance versus PL/SQL", "Where MLE fits in a PL/SQL team"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "On 23ai create MLE module order_utils with a JavaScript function slugify(text) and one that runs session.execute('select count(*) from orders') then returns the count. Expose both with CREATE FUNCTION ... AS MLE MODULE order_utils SIGNATURE 'slugify(string)'. Call both from SQL, then throw a JavaScript error and capture the ORA-04161 message.",
+          "deliverable": "MLE module, call specifications and test results",
+          "checks": [["SELECT slugify('Hello World 2026') FROM dual", "Returns hello-world-2026", "Query result"], ["Call the JavaScript function that counts orders", "Returns the same number as SELECT COUNT(*) FROM orders", "Both values"], ["Throw an Error in JavaScript", "ORA-04161: Error: message text from JavaScript", "Error text"]],
+          "objectives": ["Write JavaScript stored procedures", "Expose them to SQL", "Choose between MLE and PL/SQL"]
+        },
+        {
+          "topic": "Application Integration: python-oracledb, JDBC and ORDS REST Services",
+          "subtopics": ["Calling PL/SQL from python-oracledb with callproc and callfunc", "Binding OUT parameters and REF CURSORs", "Array DML with executemany and batcherrors", "JDBC CallableStatement and registerOutParameter", "Connection pools and DRCP", "ORDS: enabling a schema with ORDS.ENABLE_SCHEMA", "ORDS handlers that run PL/SQL", "Error contracts: mapping ORA-20xxx errors to HTTP codes", "Edition and pool state interactions", "Versioning APIs seen by clients"],
+          "tools": ["python-oracledb", "ORDS", "SQLcl", "Oracle Database Free", "Docker", "curl"],
+          "lab_task": "From Python use python-oracledb with a pool to call order_api.create_order via cursor.callproc and fetch a REF CURSOR via callfunc. Use executemany with batcherrors=True on 1,000 rows. Publish the same procedure via an ORDS handler defined with ORDS.DEFINE_MODULE and call it with curl -X POST, checking JSON and the status code for a business error.",
+          "deliverable": "Python client, ORDS module and a curl test log",
+          "checks": [["callproc order_api.create_order from Python", "OUT parameter returns a numeric order id", "Python output"], ["executemany with 1000 rows including 10 bad rows", "cursor.getbatcherrors() has 10 entries", "Python output"], ["curl POST to the ORDS handler with invalid data", "HTTP 400 or the mapped status with JSON error body", "curl output"]],
+          "objectives": ["Call PL/SQL from Python and Java clients", "Expose PL/SQL through ORDS", "Design an error contract for clients"]
+        },
+        {
+          "topic": "Performance Troubleshooting for PL/SQL in Production",
+          "subtopics": ["Reading V$SESSION, V$SQL and V$SESSION_LONGOPS as a developer", "DBMS_APPLICATION_INFO.SET_MODULE and SET_CLIENT_INFO", "SQL trace with DBMS_MONITOR.SESSION_TRACE_ENABLE", "TKPROF output and the recursive SQL section", "Parse counts and cursor caching with SESSION_CACHED_CURSORS", "Hard parse due to concatenated literals", "Latch and mutex waits caused by application code", "Using SQL Monitor reports for long statements", "Identifying row-by-row processing with executions counts", "Building a diagnosis checklist"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Run a deliberately slow batch that concatenates literals. Tag it with DBMS_APPLICATION_INFO.SET_MODULE('batch','slow'), enable trace with DBMS_MONITOR.SESSION_TRACE_ENABLE(waits=>TRUE), run tkprof on the trace file, and record Parse and Execute counts. Fix with binds and compare V$SQL counts of statements sharing a FORCE_MATCHING_SIGNATURE.",
+          "deliverable": "Trace and TKPROF reports before and after the fix",
+          "checks": [["Run the literal-concatenation batch and query V$SQL", "Many distinct SQL_IDs share one FORCE_MATCHING_SIGNATURE", "V$SQL query"], ["Read TKPROF totals", "Parse count is close to the execute count before the fix", "TKPROF report"], ["Run the bind-variable version", "Parse count drops to about 1 and elapsed time falls", "TKPROF report"]],
+          "objectives": ["Trace and diagnose slow PL/SQL", "Spot literal and row-by-row anti-patterns", "Prove improvements with evidence"]
+        },
+        {
+          "topic": "Refactoring Legacy PL/SQL with Characterization Tests",
+          "subtopics": ["Reading unfamiliar code: USER_DEPENDENCIES and PL/Scope call graphs", "Characterization tests that record current behaviour", "Seams for breaking dependencies in package bodies", "Extract subprogram and rename safely", "Replacing global state with parameters", "Splitting a package without invalidating callers", "Removing WHEN OTHERS THEN NULL", "Replacing cursor loops with set-based SQL under test", "Tracking dead code with coverage data", "Measuring complexity and size with a SQL report"],
+          "tools": ["utPLSQL", "SQLcl", "Oracle SQL Developer", "Oracle Database Free", "Git"],
+          "lab_task": "Take a 1,500 line legacy package legacy_pkg. Capture its outputs for 20 inputs as utPLSQL characterization tests, then extract three private routines into new package pricing_rules, replace one row loop with a MERGE and remove a WHEN OTHERS THEN NULL handler. Re-run the tests after each step and keep every test green; report line counts before and after.",
+          "deliverable": "Refactoring log with tests that stay green at each step and a before and after size report",
+          "checks": [["Run the 20 characterization tests before changes", "20 tests pass against the unmodified package", "ut documentation reporter output"], ["Run the tests after extracting pricing_rules", "All 20 still pass and USER_OBJECTS shows no INVALID unit", "Reporter and USER_OBJECTS output"], ["Count lines in USER_SOURCE for legacy_pkg", "Fewer lines than the starting 1,500", "COUNT query"]],
+          "objectives": ["Protect legacy code with characterization tests", "Refactor in small safe steps", "Reduce risk and size measurably"]
+        },
+        {
+          "topic": "CI/CD Pipelines for PL/SQL with Liquibase, SQLcl and utPLSQL",
+          "subtopics": ["Repository layout for database code", "Change-based versus state-based deployment", "Liquibase changelogs and formatted SQL", "SQLcl Liquibase commands", "Running utPLSQL in a pipeline against a container database", "GitHub Actions job with gvenzl/oracle-free service container", "Invalid object checks with a post-deploy gate", "Rollback tags and release scripts", "Secrets handling in CI", "Quality gates: coverage, PL/Scope findings and warnings"],
+          "tools": ["Liquibase", "SQLcl", "GitHub Actions", "utPLSQL", "Docker", "Git"],
+          "lab_task": "Create a repository with changelog.xml, order_api and tests. Write a GitHub Actions workflow that starts gvenzl/oracle-free:23-slim, applies changes with liquibase update, runs utPLSQL via ut_runner, fails the build on any INVALID object in USER_OBJECTS, and uploads the JUnit and coverage reports. Make a bad change and watch the pipeline fail.",
+          "deliverable": "Repository and workflow with a passing and a failing run",
+          "checks": [["Push a correct change", "Workflow finishes with all steps green and utPLSQL tests passed", "Actions log"], ["Push a change that leaves a package INVALID", "The invalid object gate fails the workflow", "Actions log"], ["Run liquibase status", "Shows 0 pending changesets after update", "Command output"]],
+          "objectives": ["Automate database deployment with tests", "Gate releases on invalid objects and coverage", "Version database changes"]
+        },
+        {
+          "topic": "PL/SQL API Design: Thin Database API and Versioning",
+          "subtopics": ["Thin database API (TAPI and XAPI) rationale", "Package design: cohesion, naming and size", "Error contract with a catalogue of codes", "Idempotent operations and request ids", "Input validation at the boundary", "Versioned packages such as order_api_v2", "Deprecation with PRAGMA DEPRECATE", "Documentation with comment tags and generated docs", "Backward-compatible signatures using defaults", "Anti-patterns: god packages and hidden commits"],
+          "tools": ["SQLcl", "Oracle SQL Developer", "Oracle Database Free"],
+          "lab_task": "Review order_api against a checklist, split it into order_api_v1 and order_api_v2, mark an old function with PRAGMA DEPRECATE(old_fn, 'use new_fn') and compile with PLSQL_WARNINGS enabled for PLW-06020. Add request_id idempotency so that a repeated create_order returns the same id, and provide a documented error code table.",
+          "deliverable": "Versioned API, deprecation warnings and idempotency tests",
+          "checks": [["Compile a unit that calls the deprecated function", "PLW-06020: reference to a deprecated entity", "SHOW ERRORS"], ["Call create_order twice with the same request_id", "Both calls return the same order id and one row exists", "Output and COUNT"], ["Call v1 and v2 side by side", "Both return correct results for their own signatures", "Output"]],
+          "objectives": ["Design stable PL/SQL APIs", "Deprecate and version safely", "Make operations idempotent"]
+        },
+        {
+          "topic": "Advanced Capstone: Production-Ready PL/SQL Service",
+          "subtopics": ["Design review: schemas, privileges and API contract", "Implementation with bulk processing, queues and idempotency", "Test suite, coverage and profiling evidence", "Security tests: injection payloads, grants and policies", "CI/CD pipeline with deployment gates", "Delivery: run book, benchmark and review notes"],
+          "tools": ["utPLSQL", "Liquibase", "GitHub Actions", "SQLcl", "python-oracledb", "ORDS"],
+          "lab_task": "Deliver an order-processing service: three-schema privilege model, an order_api package with idempotent create_order, an AQ consumer using SKIP LOCKED style workers, and an ORDS endpoint. Provide utPLSQL tests at 85 percent coverage, injection tests, a Liquibase pipeline in GitHub Actions and a 100,000 order benchmark with throughput recorded.",
+          "deliverable": "Repository with code, tests, pipeline, security test log and benchmark report",
+          "checks": [["Run the pipeline on a clean container", "All tests pass with 85 percent coverage or higher and zero invalid objects", "Actions log"], ["Run the injection payload suite", "All payloads are rejected and no data changes", "Test report"], ["Run the 100,000 order benchmark", "Throughput in orders per second recorded with zero lost or duplicated orders", "Benchmark report"]],
+          "objectives": ["Integrate security, testing, performance and delivery", "Defend design choices with evidence", "Operate a PL/SQL service end to end"]
+        }
+      ]
+    }
+  }
+}

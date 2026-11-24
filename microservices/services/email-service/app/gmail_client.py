@@ -1,0 +1,889 @@
+"""Gmail OAuth2 + SMTP/IMAP helpers for the email-service."""
+import asyncio
+import base64
+import html
+import imaplib
+import logging
+import os
+import re
+import smtplib
+from email import message_from_bytes
+from email.header import decode_header, make_header
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import make_msgid, parseaddr, parsedate_to_datetime
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Tuple
+
+from app.config import get_settings
+
+logger = logging.getLogger(__name__)
+settings = get_settings()
+
+
+def _html_to_text(value: str) -> str:
+    text = re.sub(r"(?i)<\s*br\s*/?\s*>", "\n", value or "")
+    text = re.sub(r"(?i)</\s*(?:p|div|tr|table|h[1-6]|li)\s*>", "\n", text)
+    text = re.sub(r"(?i)</\s*t[dh]\s*>", "\t", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html.unescape(text)
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    return re.sub(r"\n\s*\n+", "\n", text).strip()
+
+
+def _fix_mojibake(value: str) -> str:
+    text = str(value or "")
+    markers = tuple(chr(code) for code in (0x00C3, 0x00C2, 0x00E2, 0x00F0, 0x00EF))
+    for _ in range(3):
+        if not any(marker in text for marker in markers):
+            break
+        try:
+            repaired = text.encode("cp1252").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            break
+        current_score = sum(text.count(marker) for marker in markers)
+        repaired_score = sum(repaired.count(marker) for marker in markers)
+        if repaired == text or repaired_score >= current_score:
+            break
+        text = repaired
+    return text
+
+def _decode_message_part(part: Any) -> str:
+    payload = part.get_payload(decode=True)
+    if not payload:
+        return ""
+    charset = part.get_content_charset() or "utf-8"
+    return _fix_mojibake(payload.decode(charset, errors="ignore"))
+
+GMAIL_SCOPES = [
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/gmail.send",
+]
+
+GMAIL_QUOTA_MARKERS = (
+    "daily user sending limit exceeded",
+    "user-rate limit exceeded",
+    "ratelimitexceeded",
+    "mail sending",
+)
+
+POSITIVE_SIGNALS = [
+    "yes", "available", "interested", "confirm", "accept",
+    "happy to", "sure", "okay", "ok", "look forward", "schedule", "agree",
+    "send it",
+]
+NEGATIVE_SIGNALS = [
+    "no", "not available", "not interested", "decline",
+    "unable", "cannot", "busy", "engaged", "withdraw",
+]
+
+CLIENT_SCOPE_EXTENSIONS = {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt"}
+MAX_CLIENT_SCOPE_ATTACHMENT_BYTES = 4 * 1024 * 1024
+MAX_CLIENT_SCOPE_MESSAGE_BYTES = 6 * 1024 * 1024
+
+
+def _decode_header(value: str) -> str:
+    try:
+        return _fix_mojibake(str(make_header(decode_header(value or ""))))
+    except Exception:
+        return str(value or "")
+
+
+def is_send_quota_error(value: Any) -> bool:
+    text = str(value or "").lower()
+    return any(marker in text for marker in GMAIL_QUOTA_MARKERS)
+
+
+def is_gmail_api_rate_limit(value: Any) -> bool:
+    """Return whether a Gmail API request was throttled by Google.
+
+    Inbox reads use the same per-user quota pool as other Gmail API activity.
+    Once it is exhausted, continuing to fetch each remaining message only
+    increases the cooldown pressure and produces noisy tracebacks.
+    """
+    text = str(value or "").lower()
+    return any(marker in text for marker in (
+        "ratelimitexceeded",
+        "rate limit exceeded",
+        "quota exceeded",
+        "total query cost",
+        "userratelimitexceeded",
+    ))
+
+
+def _friendly_send_error(exc: Exception) -> str:
+    text = str(exc)
+    if not is_send_quota_error(text):
+        return text
+    retry_match = re.search(r"Retry after ([^\".]+(?:\.\d+)?Z)", text)
+    retry = f" Retry after {retry_match.group(1)}." if retry_match else ""
+    return (
+        "Gmail sending quota exceeded for this sender account."
+        f"{retry} Wait for Google to reset the limit or use a different sender/provider."
+    )
+
+
+def _token_path() -> str:
+    path = settings.GOOGLE_TOKEN_FILE or "config/token.json"
+    if os.path.isabs(path):
+        return path
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, path)
+
+
+def _load_oauth_service():
+    """Load Gmail OAuth2 service. Returns (service, error_str)."""
+    token_file = _token_path()
+    if not os.path.exists(token_file):
+        return None, "Gmail OAuth token not found. Please reconnect Gmail."
+    try:
+        from google.auth.transport.requests import Request as GoogleAuthRequest
+        from google.oauth2.credentials import Credentials
+        from googleapiclient.discovery import build
+
+        # Preserve all granted scopes when refreshing the shared Gmail/Calendar token.
+        creds = Credentials.from_authorized_user_file(token_file)
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(GoogleAuthRequest())
+            with open(token_file, "w", encoding="utf-8") as f:
+                f.write(creds.to_json())
+        if not creds or not creds.valid:
+            return None, "Gmail OAuth token is invalid. Please reconnect Gmail."
+        return build("gmail", "v1", credentials=creds), ""
+    except Exception as exc:
+        logger.exception("Gmail OAuth service init failed")
+        return None, str(exc)
+
+
+PLACEHOLDER_SENDERS = {
+    "your-gmail@gmail.com",
+    "your-gmail-address@gmail.com",
+    "your-email@gmail.com",
+    "yourname@example.com",
+    "your-email@example.com",
+    "email@example.com",
+    "test@example.com",
+    "your@email.com",
+}
+
+
+def _normalize_email_address(email: str) -> str:
+    if not email:
+        return ""
+    normalized = str(email or "").strip()
+    if normalized.lower().startswith("mailto:"):
+        normalized = normalized[7:]
+    normalized = normalized.split("?", 1)[0].strip()
+    normalized = parseaddr(normalized)[1] or normalized
+    normalized = normalized.strip()
+    if normalized.lower() in PLACEHOLDER_SENDERS:
+        return ""
+    return normalized
+
+
+def _resolve_sender_email(from_email: str = "") -> str:
+    normalized = _normalize_email_address(from_email or "")
+    if normalized:
+        return normalized
+    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "") or "sujithaofficial585@gmail.com"
+
+
+def generate_message_id() -> str:
+    return make_msgid(domain="trainersync.local")
+
+
+def _build_sender_candidates(
+    smtp_config: Optional[Dict[str, Any]] = None,
+    from_name: str = "",
+    from_email: str = "",
+) -> List[Dict[str, Any]]:
+    cfg = smtp_config or {}
+    primary_user = (cfg.get("smtpUser") or settings.GMAIL_USER or "").strip()
+    primary_pass = (cfg.get("smtpPass") or settings.effective_gmail_pass or "").strip()
+    primary_name = (cfg.get("fromName") or from_name or settings.FROM_NAME or "Clahan Technologies").strip()
+    primary_email = _normalize_email_address(
+        cfg.get("fromEmail") or from_email or settings.FROM_EMAIL or primary_user or ""
+    )
+
+    candidates = [{
+        "smtpUser": primary_user,
+        "smtpPass": primary_pass,
+        "fromName": primary_name,
+        "fromEmail": primary_email,
+        "smtpHost": (cfg.get("smtpHost") or settings.SMTP_HOST).strip(),
+        "smtpPort": int(cfg.get("smtpPort") or settings.SMTP_PORT),
+    }]
+
+    fallback_user = (cfg.get("fallbackSmtpUser") or settings.GMAIL_FALLBACK_USER or "").strip()
+    fallback_pass = (cfg.get("fallbackSmtpPass") or settings.effective_gmail_fallback_pass or "").strip()
+    fallback_email = _normalize_email_address(
+        cfg.get("fallbackFromEmail") or settings.GMAIL_FALLBACK_FROM_EMAIL or fallback_user or ""
+    )
+    if fallback_user and fallback_pass and fallback_user.lower() != primary_user.lower():
+        candidates.append({
+            "smtpUser": fallback_user,
+            "smtpPass": fallback_pass,
+            "fromName": (cfg.get("fallbackFromName") or settings.GMAIL_FALLBACK_FROM_NAME or primary_name).strip(),
+            "fromEmail": fallback_email or fallback_user,
+            "smtpHost": (cfg.get("fallbackSmtpHost") or settings.SMTP_HOST).strip(),
+            "smtpPort": int(cfg.get("fallbackSmtpPort") or settings.SMTP_PORT),
+        })
+
+    return candidates
+
+
+def _is_trainer_reply(body: str) -> bool:
+    normalized = str(body or "").lower()
+    if re.search(r"\bdear\s+(?:trainer|consultant|candidate)\b", normalized):
+        return True
+    trainer_markers = (
+        "training opportunity",
+        "trainer availability",
+        "trainer profile",
+        "commercials for approval",
+        "interview slot booking",
+        "please confirm your availability",
+    )
+    return any(marker in normalized for marker in trainer_markers)
+
+
+def _normalize_trainer_reply_body(body: str) -> str:
+    if not _is_trainer_reply(body):
+        return body
+    text = str(body or "")
+    text = re.sub(
+        r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nClahan Technologies",
+        "Regards,\nClahan Technologies",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nCalhan Technologies",
+        "Regards,\nClahan Technologies",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return text
+
+
+def _strip_quoted_email_history(value: str) -> str:
+    text = str(value or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not text:
+        return ""
+    kept = []
+    marker_re = re.compile(
+        r"^(?:On .{0,160} wrote:|From:\s+|Sent:\s+|To:\s+|Subject:\s+|-{2,}\s*Original Message\s*-{2,})",
+        flags=re.IGNORECASE,
+    )
+    for line in text.splitlines():
+        clean_line = re.sub(r"\s+", " ", line).strip()
+        if clean_line.startswith(">") or marker_re.search(clean_line):
+            break
+        kept.append(line)
+    stripped = "\n".join(kept).strip()
+    return stripped or text
+
+
+def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
+    body = _normalize_trainer_reply_body(body)
+    from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
+    display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
+    tagline = from_email or "Trainer Matching Platform"
+    html_body = body.replace("\n", "<br>")
+    pixel = (
+        f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
+        if tracking_url else ""
+    )
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:30px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0"
+  style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+<tr><td style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:28px 36px;">
+<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">{display_name}</h1>
+<p style="margin:4px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">{tagline}</p>
+</td></tr>
+<tr><td style="padding:32px 36px;color:#1e293b;font-size:15px;line-height:1.8;">{html_body}</td></tr>
+</table></td></tr></table>
+{pixel}
+</body></html>"""
+
+
+def _attachment_part(att: Dict[str, Any]) -> Any:
+    filename = att.get("filename") or "attachment"
+    content = att.get("content") or b""
+    content_type = str(att.get("content_type") or "").lower()
+    subtype = str(att.get("subtype") or "octet-stream").lower()
+    if content_type == "text/calendar" or filename.lower().endswith(".ics") or subtype == "calendar":
+        text = content.decode("utf-8", errors="ignore") if isinstance(content, (bytes, bytearray)) else str(content or "")
+        part = MIMEText(text, "calendar", "utf-8")
+        part.replace_header("Content-Type", 'text/calendar; charset="UTF-8"; method=REQUEST')
+        part.add_header("Content-Class", "urn:content-classes:calendarmessage")
+        part.add_header("Content-Disposition", "attachment", filename=filename)
+        return part
+    part = MIMEApplication(content, _subtype=att.get("subtype") or "octet-stream")
+    part.add_header("Content-Disposition", "attachment", filename=filename)
+    return part
+
+
+def send_gmail_oauth(
+    to: str,
+    subject: str,
+    body: str,
+    from_name: str = "",
+    from_email: str = "",
+    tracking_url: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
+) -> Tuple[bool, str]:
+    body = _normalize_trainer_reply_body(body)
+    service, error = _load_oauth_service()
+    if not service:
+        return False, error
+    try:
+        profile = service.users().getProfile(userId="me").execute()
+        gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
+        sender_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or settings.FROM_NAME)
+        sender_email = _resolve_sender_email(from_email or settings.FROM_EMAIL or gmail_user)
+
+        msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"{sender_name} <{sender_email}>"
+        msg["To"] = to
+        msg["Reply-To"] = sender_email
+        # Let Gmail create the delivery Message-ID.  A synthetic local-domain
+        # Message-ID is unnecessary and can look suspicious to recipient spam
+        # filters.  We still keep the internal id in the database for tracing.
+        if message_id_header and not message_id_header.lower().endswith("@trainersync.local>"):
+            msg["Message-ID"] = message_id_header
+
+        alt = MIMEMultipart("alternative") if attachments else msg
+        if attachments:
+            msg.attach(alt)
+        alt.attach(MIMEText(body, "plain", "utf-8"))
+        alt.attach(MIMEText(_html_template(body, sender_name, sender_email, tracking_url), "html", "utf-8"))
+
+        for att in attachments or []:
+            msg.attach(_attachment_part(att))
+
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+        service.users().messages().send(userId="me", body={"raw": raw}).execute()
+        return True, ""
+    except Exception as exc:
+        logger.exception("Gmail OAuth send failed to %s", to)
+        if is_send_quota_error(exc) and settings.effective_gmail_fallback_pass:
+            logger.warning("Primary Gmail OAuth sender hit quota; retrying with fallback SMTP sender")
+            fallback_success, fallback_error = send_smtp(
+                to,
+                subject,
+                body,
+                smtp_config={
+                    "smtpUser": settings.GMAIL_FALLBACK_USER,
+                    "smtpPass": settings.effective_gmail_fallback_pass,
+                    "fromName": settings.GMAIL_FALLBACK_FROM_NAME or sender_name or settings.FROM_NAME,
+                    "fromEmail": settings.GMAIL_FALLBACK_FROM_EMAIL or settings.GMAIL_FALLBACK_USER or sender_email,
+                    "smtpHost": settings.SMTP_HOST,
+                    "smtpPort": settings.SMTP_PORT,
+                },
+                tracking_url=tracking_url,
+                attachments=attachments,
+                message_id_header=message_id_header,
+            )
+            if fallback_success:
+                return True, ""
+            # Preserve Google's retry timestamp even when the SMTP fallback
+            # has a separate transport problem.  Workflow callers use it to
+            # defer the next attempt rather than marking the message as a
+            # permanent manual failure or repeatedly retrying immediately.
+            return False, f"{_friendly_send_error(exc)} SMTP fallback failed: {fallback_error}"
+        return False, _friendly_send_error(exc)
+
+
+def send_smtp(
+    to: str,
+    subject: str,
+    body: str,
+    smtp_config: Optional[Dict[str, Any]] = None,
+    tracking_url: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
+) -> Tuple[bool, str]:
+    body = _normalize_trainer_reply_body(body)
+    candidates = _build_sender_candidates(smtp_config)
+    last_error: Optional[Exception] = None
+
+    for candidate in candidates:
+        user = candidate.get("smtpUser") or settings.GMAIL_USER
+        pwd = str(candidate.get("smtpPass") or settings.effective_gmail_pass or "").replace(" ", "")
+        from_name = candidate.get("fromName") or settings.FROM_NAME
+        from_email = _resolve_sender_email(candidate.get("fromEmail") or settings.FROM_EMAIL or user)
+        if _is_trainer_reply(body):
+            from_name = "Clahan Technologies"
+        host = candidate.get("smtpHost") or settings.SMTP_HOST
+        port = int(candidate.get("smtpPort") or settings.SMTP_PORT)
+
+        if not user:
+            return False, "SMTP user is not configured"
+        if not pwd:
+            return False, "SMTP password is not configured (set GMAIL_APP_PASSWORD)"
+
+        try:
+            # debug prints to verify attachments and SMTP flow in container logs
+            if attachments:
+                try:
+                    print(f"SMTP: Attempting to send {len(attachments)} attachment(s) to {to}: " + ", ".join(a.get('filename','<unknown>') for a in attachments))
+                except Exception:
+                    print(f"SMTP: Attempting to send {len(attachments)} attachment(s) to {to}")
+            if attachments:
+                msg = MIMEMultipart("mixed")
+                alternative = MIMEMultipart("alternative")
+                msg.attach(alternative)
+            else:
+                msg = MIMEMultipart("alternative")
+                alternative = msg
+
+            msg["Subject"] = subject
+            msg["From"] = f"{from_name} <{from_email}>"
+            msg["To"] = to
+            msg["Reply-To"] = from_email
+            # SMTP servers will add a standards-compliant Message-ID when one
+            # is absent; do not expose the internal trainersync.local id.
+            if message_id_header and not message_id_header.lower().endswith("@trainersync.local>"):
+                msg["Message-ID"] = message_id_header
+            alternative.attach(MIMEText(body, "plain"))
+            alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
+
+            for att in attachments or []:
+                msg.attach(_attachment_part(att))
+
+            if port == 587:
+                with smtplib.SMTP(host, port, timeout=15) as s:
+                    s.ehlo()
+                    s.starttls()
+                    s.ehlo()
+                    s.login(user, pwd)
+                    s.sendmail(from_email, to, msg.as_string())
+                print(f"SMTP: sendmail via STARTTLS to {to} completed")
+            else:
+                with smtplib.SMTP_SSL(host, port, timeout=15) as s:
+                    s.login(user, pwd)
+                    s.sendmail(from_email, to, msg.as_string())
+                print(f"SMTP: sendmail via SSL to {to} completed")
+
+            logger.info("Email sent to %s via %s", to, from_email)
+            return True, ""
+        except smtplib.SMTPAuthenticationError as exc:
+            last_error = exc
+            logger.warning("SMTP authentication failed for configured sender %s", user)
+            continue
+        except Exception as exc:
+            last_error = exc
+            logger.exception("SMTP send failed to %s via %s", to, from_email)
+            if is_send_quota_error(exc):
+                return False, _friendly_send_error(exc)
+            return False, str(exc)
+
+    if last_error is not None and is_send_quota_error(last_error):
+        return False, _friendly_send_error(last_error)
+    if isinstance(last_error, smtplib.SMTPAuthenticationError):
+        return False, "SMTP authentication failed"
+    return False, str(last_error or "SMTP send failed")
+
+
+async def send_email_async(
+    to: str,
+    subject: str,
+    body: str,
+    smtp_config: Optional[Dict[str, Any]] = None,
+    tracking_url: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
+) -> Tuple[bool, str]:
+    loop = asyncio.get_event_loop()
+    # Gmail API delivery is preferred: it uses the authenticated Gmail account
+    # directly and avoids an additional SMTP relay signal for bulk trainer mail.
+    oauth_ok, oauth_error = await loop.run_in_executor(
+        None,
+        send_gmail_oauth,
+        to,
+        subject,
+        body,
+        "",
+        "",
+        tracking_url,
+        attachments,
+        message_id_header,
+    )
+    if oauth_ok:
+        return True, ""
+
+    logger.warning("Gmail OAuth delivery failed for %s; trying SMTP fallback: %s", to, oauth_error)
+    smtp_ok, smtp_error = await loop.run_in_executor(
+        None,
+        send_smtp,
+        to,
+        subject,
+        body,
+        smtp_config,
+        tracking_url,
+        attachments,
+        message_id_header,
+    )
+    if smtp_ok:
+        return True, ""
+    return False, smtp_error or oauth_error
+
+
+def check_imap_replies(
+    since_days: int = 7,
+    max_messages: int = 50,
+    from_emails: Optional[List[str]] = None,
+    imap_config: Optional[Dict[str, Any]] = None,
+) -> List[Dict[str, Any]]:
+    """Poll Gmail IMAP inbox for replies."""
+    cfg = imap_config or {}
+    host = cfg.get("imapHost") or settings.IMAP_HOST
+    port = int(cfg.get("imapPort") or settings.IMAP_PORT)
+
+    candidates: List[Tuple[str, str]] = []
+
+    def add_candidate(user_value: str, pass_value: str) -> None:
+        user_clean = (user_value or "").strip()
+        pass_clean = (pass_value or "").replace(" ", "")
+        if not user_clean or not pass_clean:
+            return
+        key = user_clean.lower()
+        if any(existing_user.lower() == key for existing_user, _ in candidates):
+            return
+        candidates.append((user_clean, pass_clean))
+
+    add_candidate(
+        cfg.get("imapUser") or cfg.get("smtpUser") or settings.GMAIL_USER,
+        cfg.get("imapPass") or cfg.get("smtpPass") or settings.effective_gmail_pass,
+    )
+    add_candidate(settings.GMAIL_FALLBACK_USER, settings.effective_gmail_fallback_pass)
+    # STYLE_IMAP_* belongs to the separate sent-mail style importer. Polling it
+    # here would treat an archive mailbox as another reply inbox.
+    if settings.GMAIL_FALLBACK_FROM_EMAIL:
+        add_candidate(settings.GMAIL_FALLBACK_FROM_EMAIL, settings.effective_gmail_fallback_pass)
+    if settings.FROM_EMAIL:
+        add_candidate(settings.FROM_EMAIL, settings.effective_gmail_fallback_pass or settings.effective_gmail_pass)
+
+    if not candidates:
+        logger.warning("IMAP check skipped: Gmail user/password not configured")
+        return []
+
+    replies = []
+    seen_message_ids: set = set()
+
+    for user, pwd in candidates:
+        mail = None
+        try:
+            mail = imaplib.IMAP4_SSL(host, port, timeout=20)
+            mail.login(user, pwd)
+            mail.select("inbox")
+            since = (datetime.now() - timedelta(days=since_days)).strftime("%d-%b-%Y")
+
+            msg_ids: List[bytes] = []
+            if from_emails:
+                seen: set = set()
+                for sender in from_emails[:100]:
+                    _, data = mail.search(None, f'(SINCE {since} FROM "{sender}")')
+                    for mid in (data[0].split() if data and data[0] else []):
+                        if mid not in seen:
+                            seen.add(mid)
+                            msg_ids.append(mid)
+            else:
+                _, data = mail.search(None, f"(SINCE {since})")
+                msg_ids = data[0].split() if data and data[0] else []
+
+            for mid in msg_ids[-max_messages:]:
+                try:
+                    _, msg_data = mail.fetch(mid, "(RFC822)")
+                    if not msg_data or not isinstance(msg_data[0], tuple):
+                        continue
+                    msg = message_from_bytes(msg_data[0][1])
+                    message_id_header = msg.get("Message-ID", "")
+                    if message_id_header and message_id_header in seen_message_ids:
+                        continue
+                    if message_id_header:
+                        seen_message_ids.add(message_id_header)
+                    from_addr = msg.get("From", "")
+                    from_email = parseaddr(from_addr)[1] or from_addr
+                    subject = _decode_header(msg.get("Subject", ""))
+                    body_text = ""
+                    html_text = ""
+                    attachments: List[Dict[str, Any]] = []
+                    captured_attachment_bytes = 0
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            disposition = (part.get_content_disposition() or "").lower()
+                            filename = part.get_filename()
+                            if filename:
+                                decoded_filename = _decode_header(filename)
+                                attachment = {
+                                    "filename": decoded_filename,
+                                    "content_type": part.get_content_type(),
+                                    "disposition": disposition or "attachment",
+                                }
+                                extension = os.path.splitext(decoded_filename)[1].lower()
+                                if extension in CLIENT_SCOPE_EXTENSIONS:
+                                    raw_attachment = part.get_payload(decode=True) or b""
+                                    remaining = MAX_CLIENT_SCOPE_MESSAGE_BYTES - captured_attachment_bytes
+                                    if raw_attachment and len(raw_attachment) <= MAX_CLIENT_SCOPE_ATTACHMENT_BYTES and len(raw_attachment) <= remaining:
+                                        attachment["content_base64"] = base64.b64encode(raw_attachment).decode("ascii")
+                                        attachment["size_bytes"] = len(raw_attachment)
+                                        attachment["safe_client_scope"] = True
+                                        captured_attachment_bytes += len(raw_attachment)
+                                    elif raw_attachment:
+                                        attachment["capture_skipped"] = "attachment_size_limit"
+                                attachments.append(attachment)
+                            if disposition == "attachment":
+                                continue
+                            if part.get_content_type() == "text/plain" and not body_text:
+                                body_text = _decode_message_part(part)
+                            elif part.get_content_type() == "text/html" and not html_text:
+                                html_text = _html_to_text(_decode_message_part(part))
+                    else:
+                        if msg.get_content_type() == "text/html":
+                            html_text = _html_to_text(_decode_message_part(msg))
+                        else:
+                            body_text = _decode_message_part(msg)
+                    # A multipart/alternative email contains equivalent
+                    # plain-text and HTML renderings of one message. Prefer
+                    # the authored plain-text body; appending the HTML
+                    # alternative can pollute intent extraction with layout,
+                    # navigation, and promotional copy from the email design.
+                    body_text = body_text or html_text
+
+                    try:
+                        date_hdr = msg.get("Date", "")
+                        if date_hdr:
+                            parsed_date = parsedate_to_datetime(date_hdr)
+                            if parsed_date.tzinfo:
+                                received_at = parsed_date.astimezone(timezone.utc).replace(tzinfo=None)
+                            else:
+                                received_at = parsed_date
+                        else:
+                            received_at = datetime.utcnow()
+                    except Exception:
+                        received_at = datetime.utcnow()
+
+                    classification_text = _strip_quoted_email_history(body_text)
+                    lower = classification_text.lower()
+                    is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
+                    is_pos = False if is_neg else any(s in lower for s in POSITIVE_SIGNALS)
+                    sentiment = "negative" if is_neg else ("positive" if is_pos else "neutral")
+                    action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
+
+                    replies.append({
+                        "msg_id": mid.decode() if isinstance(mid, bytes) else str(mid),
+                        "message_id_header": message_id_header,
+                        "in_reply_to": msg.get("In-Reply-To", ""),
+                        "references": msg.get("References", ""),
+                        "from_email": from_email,
+                        "from_raw": from_addr,
+                        "subject": subject,
+                        "body": body_text[:2000],
+                        "full_body": body_text,
+                        "attachments": attachments,
+                        "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
+                        "sentiment": sentiment,
+                        "action": action,
+                        "received_at": received_at.isoformat(),
+                        "imap_user": user,
+                    })
+                except Exception:
+                    continue
+        except Exception:
+            logger.exception("IMAP check failed for configured mailbox")
+        finally:
+            try:
+                if mail:
+                    mail.close()
+            except Exception:
+                pass
+            try:
+                if mail:
+                    mail.logout()
+            except Exception:
+                pass
+
+    return replies
+
+
+def check_gmail_api_replies(
+    since_days: int = 7,
+    max_messages: int = 50,
+    from_emails: Optional[List[str]] = None,
+    search_query: str = "",
+) -> List[Dict[str, Any]]:
+    """Poll Gmail API inbox for recent messages using OAuth."""
+    service, error = _load_oauth_service()
+    if not service:
+        raise RuntimeError(f"Gmail API inbox polling is unavailable: {error or 'OAuth service could not be loaded'}")
+
+    if search_query:
+        query = search_query
+    else:
+        query_parts = [
+            "in:inbox",
+            f"newer_than:{max(1, int(since_days))}d",
+            "-in:sent",
+            "-in:trash",
+            "-in:spam",
+        ]
+        sender_filters = [
+            _normalize_email_address(sender)
+            for sender in (from_emails or [])
+            if _normalize_email_address(sender)
+        ]
+        if sender_filters:
+            query_parts.append("(" + " OR ".join(f"from:{sender}" for sender in sender_filters[:100]) + ")")
+        else:
+            query_parts.append(
+                '(training OR trainer OR trainers OR requirement OR requirements OR instructor OR '
+                'facilitator OR batch OR workshop OR course OR "corporate learning" OR '
+                'commercials OR TOC OR interview OR selected OR approved OR proceed OR '
+                'rejected OR availability OR slot)'
+            )
+        query = " ".join(query_parts)
+
+    replies: List[Dict[str, Any]] = []
+    seen_message_ids: set = set()
+    try:
+        response = service.users().messages().list(
+            userId="me",
+            q=query,
+            maxResults=max(1, min(max_messages, 500)),
+        ).execute()
+        messages = response.get("messages") or []
+        logger.info("Gmail API inbox query returned %s message(s)", len(messages))
+        for item in messages[:max_messages]:
+            gmail_id = item.get("id")
+            if not gmail_id:
+                continue
+            try:
+                raw_message = service.users().messages().get(
+                    userId="me",
+                    id=gmail_id,
+                    format="raw",
+                ).execute()
+                raw_payload = raw_message.get("raw") or ""
+                if not raw_payload:
+                    continue
+                msg_bytes = base64.urlsafe_b64decode(raw_payload.encode("utf-8"))
+                msg = message_from_bytes(msg_bytes)
+                message_id_header = msg.get("Message-ID", "")
+                if message_id_header and message_id_header in seen_message_ids:
+                    continue
+                if message_id_header:
+                    seen_message_ids.add(message_id_header)
+
+                from_addr = msg.get("From", "")
+                from_email = parseaddr(from_addr)[1] or from_addr
+                subject = _decode_header(msg.get("Subject", ""))
+                body_text = ""
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body_text = _decode_message_part(part)
+                            break
+                    if not body_text:
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/html":
+                                body_text = _html_to_text(_decode_message_part(part))
+                                break
+                else:
+                    body_text = _decode_message_part(msg)
+
+                # Gmail API returns the complete RFC822 message in raw mode.
+                # Capture safe client scope documents here just as the IMAP
+                # polling path does, otherwise Excel/PDF TOCs are silently
+                # dropped before requirement creation and trainer Mail 1.
+                attachments: List[Dict[str, Any]] = []
+                captured_attachment_bytes = 0
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        filename = part.get_filename()
+                        if not filename:
+                            continue
+                        decoded_filename = _decode_header(filename)
+                        disposition = (part.get_content_disposition() or "").lower()
+                        attachment = {
+                            "filename": decoded_filename,
+                            "content_type": part.get_content_type(),
+                            "disposition": disposition or "attachment",
+                        }
+                        extension = os.path.splitext(decoded_filename)[1].lower()
+                        if extension in CLIENT_SCOPE_EXTENSIONS:
+                            raw_attachment = part.get_payload(decode=True) or b""
+                            remaining = MAX_CLIENT_SCOPE_MESSAGE_BYTES - captured_attachment_bytes
+                            if (
+                                raw_attachment
+                                and len(raw_attachment) <= MAX_CLIENT_SCOPE_ATTACHMENT_BYTES
+                                and len(raw_attachment) <= remaining
+                            ):
+                                attachment["content_base64"] = base64.b64encode(raw_attachment).decode("ascii")
+                                attachment["size_bytes"] = len(raw_attachment)
+                                attachment["safe_client_scope"] = True
+                                captured_attachment_bytes += len(raw_attachment)
+                            elif raw_attachment:
+                                attachment["capture_skipped"] = "attachment_size_limit"
+                        attachments.append(attachment)
+
+                try:
+                    date_hdr = msg.get("Date", "")
+                    if date_hdr:
+                        parsed_date = parsedate_to_datetime(date_hdr)
+                        if parsed_date.tzinfo:
+                            received_at = parsed_date.astimezone(timezone.utc).replace(tzinfo=None)
+                        else:
+                            received_at = parsed_date
+                    else:
+                        internal_ms = int(raw_message.get("internalDate") or 0)
+                        received_at = datetime.utcfromtimestamp(internal_ms / 1000) if internal_ms else datetime.utcnow()
+                except Exception:
+                    received_at = datetime.utcnow()
+
+                classification_text = _strip_quoted_email_history(body_text)
+                lower = classification_text.lower()
+                is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
+                is_pos = False if is_neg else any(s in lower for s in POSITIVE_SIGNALS)
+                sentiment = "negative" if is_neg else ("positive" if is_pos else "neutral")
+                action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
+
+                replies.append({
+                    "msg_id": gmail_id,
+                    "gmail_message_id": gmail_id,
+                    "message_id_header": message_id_header,
+                    "in_reply_to": msg.get("In-Reply-To", ""),
+                    "references": msg.get("References", ""),
+                    "from_email": from_email,
+                    "from_raw": from_addr,
+                    "subject": subject,
+                    "body": body_text[:2000],
+                    "sentiment": sentiment,
+                    "action": action,
+                    "received_at": received_at.isoformat(),
+                    "gmail_api_user": "me",
+                    "attachments": attachments,
+                    "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
+                })
+            except Exception as exc:
+                if is_gmail_api_rate_limit(exc):
+                    logger.warning(
+                        "Gmail API inbox poll rate-limited after %s messages; "
+                        "stopping this poll until the next scheduled run.",
+                        len(replies),
+                    )
+                    break
+                logger.exception("Gmail API message fetch failed for %s", gmail_id)
+                continue
+    except Exception as exc:
+        logger.exception("Gmail API inbox check failed")
+        raise RuntimeError(f"Gmail API inbox check failed: {exc}") from exc
+    return replies

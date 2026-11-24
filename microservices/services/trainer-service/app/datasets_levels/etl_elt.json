@@ -1,0 +1,573 @@
+{
+  "domain": "ETL/ELT",
+  "name": "ETL/ELT",
+  "category": "Data Engineering and Analytics",
+  "icon": "workflow",
+  "aliases": ["Data Integration", "Data Pipeline Engineering", "ETL", "ELT", "ETL Pipelines", "ELT Pipelines", "Extract Transform Load", "Data Ingestion"],
+  "certifications": ["AWS Certified Data Engineer - Associate", "Google Cloud Professional Data Engineer", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)", "Databricks Certified Data Engineer Associate", "dbt Analytics Engineering Certification"],
+  "tools": ["Python", "SQL", "DuckDB", "PostgreSQL", "dbt", "Apache Airflow", "Dagster", "Prefect", "Airbyte", "Fivetran", "AWS Glue", "Azure Data Factory", "Great Expectations", "Soda"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For analysts, developers and database administrators who know basic SQL and Python and are new to building data pipelines. Covers the extract, transform and load stages, the difference between ETL and ELT, extraction from APIs, databases and files, full and incremental loads, staging layers, transformations in pandas, Polars and SQL, upserts with MERGE, idempotent re-runs, data types and time zones, reject handling, basic data quality checks, scheduling, secrets, pipeline tests, and a capstone that loads retail orders from an API and CSV files into DuckDB.",
+      "prerequisites": ["Writes SELECT queries with joins and GROUP BY and runs Python 3.11 or later scripts with pip and virtual environments", "Uses a terminal and Git for basic tasks such as cloning a repository and committing a file", "Has a laptop with Python, Docker Desktop (or Podman) and rights to install packages such as duckdb, polars, pandas and requests"],
+      "outcomes": ["Explain ETL and ELT trade-offs and choose a load pattern (full, incremental or upsert) for a given source", "Build a Python and SQL pipeline that extracts from an API, a database and files, stages the raw data and loads a curated table without duplicates", "Make a pipeline safe to re-run by using idempotent writes, reject tables and run metadata", "Test and schedule a pipeline with pytest, cron and environment-based configuration"],
+      "days": [
+        {
+          "topic": "ETL versus ELT: Pipeline Anatomy and Local Lab Setup",
+          "subtopics": ["Extract, transform and load as separate stages", "Why ELT became common with cloud warehouses and cheap storage", "When ETL is still the right choice: masking before landing, limited target compute", "Batch, micro-batch and streaming at a glance", "Sources, staging areas, targets and consumers", "Pipeline run, task and run id vocabulary", "Creating a Python virtual environment and installing duckdb, polars, pandas and requests", "Starting PostgreSQL 16 in Docker for the source database", "Repository layout: src, sql, tests and config folders", "Reading a pipeline diagram and naming data flows"],
+          "tools": ["Python", "DuckDB", "PostgreSQL", "Docker", "Git", "pandas"],
+          "lab_task": "Create a virtual environment, run pip install duckdb polars pandas requests sqlalchemy psycopg2-binary pytest, start postgres:16 with docker run -p 5432:5432, then write hello_pipeline.py that reads a 1,000-row CSV, loads it into a DuckDB table raw_orders and prints SELECT count(*) as the final line.",
+          "deliverable": "Working repository with hello_pipeline.py, a requirements.txt and a one-page diagram labelling extract, load and transform",
+          "checks": [["Run python hello_pipeline.py against the 1,000-row CSV", "Final line prints 1000", "Terminal output"], ["Run docker ps after starting the container", "postgres:16 shows status Up and port 5432 mapped", "docker ps output"], ["Describe a case where masking must happen before the data lands", "Learner picks ETL and names the compliance reason", "Written answer in the diagram notes"]],
+          "objectives": ["Explain the extract, transform and load stages and where ELT moves the transform step", "Prepare a reproducible local environment with a source database and a DuckDB target", "Draw a pipeline diagram that names sources, staging, target and consumers"]
+        },
+        {
+          "topic": "Source Systems and Extraction Patterns",
+          "subtopics": ["Operational databases, SaaS APIs, files and event streams as sources", "Full extraction: simplicity and cost", "Incremental extraction by timestamp, id or version column", "Change data capture preview and when it is needed", "Snapshot-diff extraction for sources with no change tracking", "Pull versus push ingestion", "Source impact: read replicas, off-peak windows and query limits", "Source contracts: owners, SLAs and field definitions", "Choosing a pattern from table size, change rate and delete behaviour"],
+          "tools": ["PostgreSQL", "Python", "SQL", "DuckDB"],
+          "lab_task": "Profile three source tables in PostgreSQL: run SELECT count(*), max(updated_at) and pg_total_relation_size on each, then fill a table with columns rows, change rate, has_updated_at, hard_deletes and recommended pattern, choosing full, incremental or CDC for each table with a one-line reason.",
+          "deliverable": "Source profiling sheet with measured sizes and a recommended extraction pattern per table",
+          "checks": [["Table with 500 rows and no updated_at column", "Full extraction is recommended because the table is small and cannot be tracked incrementally", "Profiling sheet row"], ["Table with 80 million rows, updated_at present, and hard deletes", "Incremental plus a delete strategy or CDC is recommended, not plain incremental", "Profiling sheet row"], ["Run pg_total_relation_size on the largest table", "Size in bytes is recorded and converted to MB", "SQL output"]],
+          "objectives": ["Compare full, incremental, snapshot-diff and CDC extraction", "Measure a source before choosing a pattern", "Identify the risks of hard deletes and missing change columns"]
+        },
+        {
+          "topic": "Extracting from REST APIs: Pagination, Rate Limits and Retries",
+          "subtopics": ["Offset, page-number and cursor pagination", "Link headers and next_page tokens", "HTTP status codes: 200, 401, 404, 429 and 5xx", "Retry-After and exponential backoff with jitter", "requests.Session, timeouts and connection reuse", "Authentication: API keys, bearer tokens and OAuth client credentials", "Handling partial pages and empty results", "Saving raw JSON responses before parsing", "Respecting rate limits with a simple token bucket"],
+          "tools": ["Python", "requests", "tenacity", "JSON", "DuckDB"],
+          "lab_task": "Write extract_api.py that calls a local mock API (json-server on port 3000 with 2,500 orders) with _page and _limit=100, uses requests.Session with timeout=10, retries 429 and 503 using tenacity wait_exponential, and writes each page to landing/orders_<page>.json. Inject 3 forced 503 responses and log each retry.",
+          "deliverable": "extract_api.py, 25 landed JSON files and a log showing the retries",
+          "checks": [["Run the extractor against the 2,500-order mock API", "25 files of 100 orders each land in landing/", "ls landing | wc -l output"], ["Force three consecutive HTTP 503 responses", "Log shows three retries with growing waits, then success", "Log lines with wait times"], ["Set the timeout to 0.001 seconds", "requests raises ConnectTimeout or ReadTimeout and the script exits non-zero", "Exit code and traceback"]],
+          "objectives": ["Page through an API with cursor or page parameters without missing rows", "Apply backoff and timeouts so transient errors do not fail the run", "Land raw responses unchanged before any parsing"]
+        },
+        {
+          "topic": "Extracting from Relational Databases with SQLAlchemy and Chunked Reads",
+          "subtopics": ["Connection strings and SQLAlchemy engines", "Server-side cursors versus client-side cursors", "Chunked reads with pandas read_sql chunksize", "Keyset pagination with WHERE id > :last_id ORDER BY id", "Why OFFSET gets slower on large tables", "Read-only database users and least privilege", "Reading from replicas and avoiding long transactions", "Writing extracts to Parquet with pyarrow", "Row counts and checksums to prove completeness"],
+          "tools": ["Python", "SQLAlchemy", "PostgreSQL", "pandas", "pyarrow"],
+          "lab_task": "Load 2 million generated rows into a PostgreSQL table, then write extract_db.py using a read-only role and keyset pagination with batches of 100,000 rows that writes orders_<n>.parquet files. Compare the peak memory of read_sql without chunksize against chunked reads with /usr/bin/time -v.",
+          "deliverable": "extract_db.py, 20 Parquet files, and a memory comparison table",
+          "checks": [["Run the chunked extractor on 2,000,000 rows", "20 Parquet files are written and their total row count is 2,000,000", "pyarrow row count script"], ["Compare peak memory of unchunked and chunked reads", "Chunked peak resident memory is clearly lower than the unchunked run", "/usr/bin/time -v output"], ["Try an INSERT with the read-only role", "PostgreSQL returns permission denied for table orders", "psql error message"]],
+          "objectives": ["Extract large tables in bounded memory with keyset pagination", "Use read-only credentials for extraction", "Prove completeness with row counts and checksums"]
+        },
+        {
+          "topic": "File Ingestion: CSV, JSON Lines and Parquet Landing Zones",
+          "subtopics": ["Delimiters, quoting, headers and escape characters in CSV", "Encodings: UTF-8, UTF-8 with BOM and Latin-1", "JSON versus JSON Lines for large payloads", "Parquet: columnar layout, row groups and compression", "Landing-zone folder conventions: source/table/dt=YYYY-MM-DD", "File arrival detection and completeness markers", "Checksums and file manifests", "Reading files with DuckDB read_csv and read_parquet", "Quarantining malformed files"],
+          "tools": ["DuckDB", "Python", "Parquet", "CSV", "JSON Lines"],
+          "lab_task": "Create a landing folder orders/dt=2026-01-15/ with a CSV that has a BOM and two malformed rows. Use DuckDB read_csv with header=true, ignore_errors=false first, record the error, then reload with store_rejects=true and report the row counts of the main result and reject tables.",
+          "deliverable": "Landing-zone layout, a file manifest and a comparison of strict and tolerant loads",
+          "checks": [["Read the CSV with strict settings", "DuckDB raises a conversion or parsing error naming the line", "Error message text"], ["Reload with store_rejects=true", "Valid rows load and the 2 bad rows appear in the reject table", "Row counts from both tables"], ["Compute sha256sum of the file twice", "Both hashes are identical and stored in the manifest", "Manifest file"]],
+          "objectives": ["Read CSV, JSON Lines and Parquet reliably with explicit options", "Organise a landing zone that supports re-runs", "Detect and quarantine malformed input instead of silently dropping rows"]
+        },
+        {
+          "topic": "Full Refresh Loads and Atomic Table Swaps",
+          "subtopics": ["Truncate and reload versus drop and recreate", "Why a half-loaded table is dangerous for readers", "Load into a shadow table then swap with ALTER TABLE RENAME", "Transactions around DDL in PostgreSQL", "Views as stable names over versioned tables", "Row-count guard before swap", "Rollback on failure", "When full refresh is acceptable: small dimensions and reference data", "Measuring load time as data grows"],
+          "tools": ["PostgreSQL", "SQL", "Python", "DuckDB"],
+          "lab_task": "In PostgreSQL write a script that loads dim_product_new from staging, checks the row count is at least 90 percent of the live dim_product, then runs BEGIN; ALTER TABLE dim_product RENAME TO dim_product_old; ALTER TABLE dim_product_new RENAME TO dim_product; COMMIT. Make the guard fail with a table of 10 rows and show the live table is untouched.",
+          "deliverable": "swap_load.sql, a guard script and before and after row counts",
+          "checks": [["Load a complete 10,000-row staging table", "Swap completes and dim_product returns 10000 rows", "SELECT count(*) output"], ["Load only 10 rows into staging", "Guard aborts the swap and dim_product still returns 10000 rows", "Script exit code and count"], ["Query dim_product during the swap from a second session", "Reader sees either the old or new table, never an empty one", "Two-session test notes"]],
+          "objectives": ["Implement a full refresh that readers never see half-finished", "Add a guard that blocks suspicious loads", "Decide when full refresh is cheaper than incremental logic"]
+        },
+        {
+          "topic": "Incremental Extraction with Watermarks",
+          "subtopics": ["High-water mark on updated_at or a monotonically increasing id", "State storage: control table, file or orchestrator variable", "Inclusive versus exclusive boundaries and the overlap window", "Late commits: rows with older timestamps appearing after the read", "Clock skew between source and pipeline", "Initial historical load versus ongoing increments", "Advancing the watermark only after a successful load", "Detecting that deletes are invisible to watermarks", "Testing the boundary with equal timestamps"],
+          "tools": ["Python", "PostgreSQL", "SQL", "DuckDB"],
+          "lab_task": "Create a control table etl_watermark(table_name, last_value). Write extract_incremental.py that selects rows WHERE updated_at > last_value - interval '5 minutes', loads them, and updates the watermark only after commit. Insert 3 new rows, update 2 existing rows and run twice, then show the second run loads 0 new rows beyond the overlap.",
+          "deliverable": "extract_incremental.py, the control table and a run-by-run log of rows read",
+          "checks": [["Run after 3 inserts and 2 updates", "5 changed rows are loaded and the watermark moves to the max updated_at", "Log and control table row"], ["Run again with no source changes", "Zero net-new rows appear in the target and the target count is unchanged", "Target row count before and after"], ["Kill the script before the load commits", "Watermark is unchanged so the next run re-reads the same rows", "Control table value"]],
+          "objectives": ["Implement a watermark that only advances after a successful load", "Use an overlap window to cover late commits", "Explain why hard deletes escape watermark extraction"]
+        },
+        {
+          "topic": "Staging Layers and Raw, Clean and Curated Zones",
+          "subtopics": ["Purpose of a raw zone: immutable, as received", "Metadata columns: _loaded_at, _source_file, _batch_id", "Clean zone: typed, deduplicated, renamed columns", "Curated zone: business entities and marts", "Bronze, silver and gold naming and how they map to raw, clean and curated", "Schema-on-read versus schema-on-write", "Retention for staging data", "Naming conventions and schemas per layer", "Why raw data is never edited in place"],
+          "tools": ["DuckDB", "SQL", "Python", "Parquet"],
+          "lab_task": "In DuckDB create schemas raw, clean and curated. Load orders.csv unchanged into raw.orders with added _loaded_at and _source_file, build clean.orders with typed columns and renamed fields, then curated.daily_sales with GROUP BY order_date. Output the row count and column list of each layer with DESCRIBE.",
+          "deliverable": "Three-layer DuckDB database with documented columns and a layer diagram",
+          "checks": [["DESCRIBE raw.orders", "All source columns are VARCHAR plus _loaded_at and _source_file", "DESCRIBE output"], ["DESCRIBE clean.orders", "order_date is DATE and amount is DECIMAL(12,2)", "DESCRIBE output"], ["Run SELECT count(*) on raw and clean after removing 5 duplicate rows", "Clean count is exactly 5 lower than raw", "Two count outputs"]],
+          "objectives": ["Separate raw, clean and curated data with clear responsibilities", "Add load metadata that supports debugging and lineage", "Keep raw data immutable so any layer can be rebuilt"]
+        },
+        {
+          "topic": "Transformations in Python with pandas and Polars",
+          "subtopics": ["DataFrame basics: select, filter, assign and group_by", "Type casting and parsing dates", "Null handling: fill, drop and flag", "String cleaning: strip, lower and regex replace", "Polars lazy API and query plans", "pandas versus Polars memory and speed on 5 million rows", "Vectorised operations versus row-by-row apply", "Avoiding chained assignment pitfalls", "Writing results to Parquet"],
+          "tools": ["Python", "pandas", "Polars", "Parquet", "DuckDB"],
+          "lab_task": "Generate a 5-million-row orders Parquet file, then implement the same clean-and-aggregate job in pandas and in Polars lazy mode (scan_parquet, filter, with_columns, group_by, collect). Time both with time.perf_counter, print peak memory using resource.getrusage and print .explain() for the Polars plan.",
+          "deliverable": "Two scripts, a timing and memory table, and the Polars query plan",
+          "checks": [["Run both versions on 5,000,000 rows", "Both produce an identical aggregate with the same row count and total amount", "Printed aggregate totals"], ["Compare elapsed times", "Polars lazy run is recorded next to the pandas run in the table", "Timing table"], ["Inspect the output of explain()", "Plan shows the filter pushed down to the Parquet scan", "Plan text"]],
+          "objectives": ["Transform data with DataFrame operations instead of row loops", "Measure and compare engines objectively", "Read a lazy query plan to find pushed-down filters"]
+        },
+        {
+          "topic": "Transformations in SQL: CTEs, Window Functions and Deduplication",
+          "subtopics": ["CTEs for readable multi-step logic", "ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) for latest record", "Removing duplicates with QUALIFY in DuckDB", "LAG, LEAD and running totals", "CASE expressions for business rules", "COALESCE and NULLIF for safe arithmetic", "Date truncation and date spine generation", "Set operations: UNION ALL versus UNION", "Reading EXPLAIN output for a transformation"],
+          "tools": ["DuckDB", "SQL", "PostgreSQL"],
+          "lab_task": "In DuckDB load events with 200,000 rows including 12,000 duplicate event_id values. Write clean_events.sql using ROW_NUMBER() OVER (PARTITION BY event_id ORDER BY ingested_at DESC) and QUALIFY rn = 1, then add a running daily total with SUM() OVER (ORDER BY event_date). Verify count(distinct event_id) equals count(*).",
+          "deliverable": "clean_events.sql and a verification query showing zero duplicates",
+          "checks": [["Count rows before and after deduplication", "188,000 rows remain from 200,000", "Two counts"], ["SELECT event_id FROM clean_events GROUP BY 1 HAVING count(*)>1", "Zero rows are returned", "Empty result"], ["Check the running total on the last date", "It equals SUM(amount) over all deduplicated rows", "Comparison query"]],
+          "objectives": ["Deduplicate records deterministically with window functions", "Structure multi-step transformations with CTEs", "Validate transformed results with comparison queries"]
+        },
+        {
+          "topic": "Joins, Lookups and Referential Integrity During Loads",
+          "subtopics": ["Inner, left and anti joins in load logic", "Fan-out: joins that multiply rows", "Lookup tables and surrogate key resolution", "Orphan rows: facts without a matching dimension", "Unknown member rows (-1 key) pattern", "Late-arriving dimensions and reprocessing facts", "Join keys: trimming, casing and type mismatches", "Counting rows before and after each join", "Anti-join to list unmatched records"],
+          "tools": ["SQL", "DuckDB", "Python", "PostgreSQL"],
+          "lab_task": "Load 50,000 order lines and a 2,000-row customers table in DuckDB where 150 lines reference missing customers. Write an anti-join to list the orphans, route them to a table orphan_lines, and load the rest with a LEFT JOIN that sets customer_key = -1 for unknown customers. Reconcile counts: loaded + orphaned = 50,000.",
+          "deliverable": "Load SQL, orphan table and a reconciliation query",
+          "checks": [["Anti-join orders against customers", "150 orphan lines are listed", "Query result count"], ["Join with an unknown member", "All 50,000 lines load and 150 carry customer_key -1", "Count by customer_key = -1"], ["Join to a customers table with a duplicate key", "Row count rises above 50,000 and the fan-out is detected", "Before and after counts"]],
+          "objectives": ["Detect and handle orphan records during loads", "Prevent and detect row fan-out in joins", "Reconcile row counts across a join step"]
+        },
+        {
+          "topic": "Upserts and MERGE: Loading Without Duplicates",
+          "subtopics": ["INSERT ... ON CONFLICT DO UPDATE in PostgreSQL", "MERGE INTO syntax in modern warehouses", "Natural keys versus surrogate keys for matching", "Change detection with hash columns", "Updating only changed rows to reduce writes", "Handling multiple source rows per key before MERGE", "Soft deletes with an is_deleted flag", "Inspecting inserted and updated row counts", "Transaction scope for an upsert batch"],
+          "tools": ["PostgreSQL", "SQL", "Python", "DuckDB"],
+          "lab_task": "Create target customers with PRIMARY KEY (customer_id) and run INSERT ... ON CONFLICT (customer_id) DO UPDATE SET ... WHERE customers.row_hash IS DISTINCT FROM EXCLUDED.row_hash from a staging batch of 1,000 rows (700 new, 200 changed, 100 unchanged). Report inserted, updated and skipped counts.",
+          "deliverable": "Upsert SQL, a batch loader and a run report with inserted, updated and unchanged counts",
+          "checks": [["Load batch 1 into an empty target", "1,000 rows inserted and the target holds 1000 rows", "Row counts"], ["Load a second batch with 200 changed rows", "200 rows updated, none duplicated, target count unchanged", "Counts and a changed value"], ["Re-run the same batch", "0 rows updated because row_hash is identical", "Rows-affected output of 0"]],
+          "objectives": ["Write upserts that never create duplicate keys", "Skip unchanged rows using a row hash", "Report inserted, updated and unchanged counts for each run"]
+        },
+        {
+          "topic": "Idempotent Runs and Safe Re-execution",
+          "subtopics": ["Definition of idempotency for pipelines", "Delete-then-insert by partition or batch id", "Overwrite a partition instead of appending", "Deterministic outputs: no now() or random() inside transforms", "Run identity: logical date versus wall-clock time", "Append-only loads and their duplicate risk", "Retry safety after partial failure", "Idempotency tests: run twice and diff the result", "Natural dedup keys for events"],
+          "tools": ["Python", "DuckDB", "SQL", "pytest"],
+          "lab_task": "Write load_day.py that takes --date and loads one day into fact_sales using DELETE FROM fact_sales WHERE sale_date = ? followed by INSERT in one transaction. Run it for 2026-01-15 three times, then pytest a test that hashes the table after run 1 and run 3 and asserts they are equal.",
+          "deliverable": "load_day.py, a pytest idempotency test and a run log of three identical loads",
+          "checks": [["Run load_day.py --date 2026-01-15 three times", "fact_sales count for that day is identical after every run", "Count after each run"], ["Hash the table after run 1 and run 3", "Both hashes are equal and pytest passes", "pytest output"], ["Switch the loader to plain INSERT and run twice", "Count doubles and the test fails, showing why append is unsafe", "Failing pytest output"]],
+          "objectives": ["Design loads that produce the same result when re-run", "Choose partition overwrite or delete-insert over blind append", "Write an automated test that proves idempotency"]
+        },
+        {
+          "topic": "Data Types, Time Zones and Encoding Pitfalls",
+          "subtopics": ["Decimals versus floats for money", "Integer overflow and BIGINT keys", "TIMESTAMP versus TIMESTAMPTZ and storing UTC", "Daylight saving transitions and ambiguous local times", "Date parsing formats and ISO 8601", "Unicode normalisation and UTF-8 handling", "Empty string versus NULL", "Boolean and flag columns from legacy systems", "Leading zeros in identifiers and ZIP codes"],
+          "tools": ["Python", "DuckDB", "PostgreSQL", "SQL"],
+          "lab_task": "Create test data with prices like 0.1 and 0.2, timestamps '2026-03-29 01:30' in Europe/London, a zip code 02134 and the text 'Zoë'. Load it first as float, naive timestamp and integer, then correctly as DECIMAL(12,2), TIMESTAMPTZ in UTC and VARCHAR, and show each difference with a query.",
+          "deliverable": "Before and after type mapping table and the queries that expose each bug",
+          "checks": [["SELECT 0.1::DOUBLE + 0.2::DOUBLE and the DECIMAL equivalent", "Float shows 0.30000000000000004 and DECIMAL shows 0.30", "Query output"], ["Load zip code 02134 as INTEGER versus VARCHAR", "Integer shows 2134 and VARCHAR keeps 02134", "Select output"], ["Read 'Zoë' with the wrong encoding", "Text appears corrupted until UTF-8 is set explicitly", "Before and after text"]],
+          "objectives": ["Pick types that preserve values such as money and identifiers", "Store timestamps in UTC with explicit time zones", "Avoid encoding corruption when reading files"]
+        },
+        {
+          "topic": "Rejects, Dead-Letter Tables and Error Handling",
+          "subtopics": ["Fail the run versus quarantine the row", "Reject tables with reason codes", "Error categories: parse, constraint, business rule and system", "Threshold rules: abort if rejects exceed 2 percent", "try/except patterns that preserve context", "Structured logs with run id and row id", "Reprocessing rejected rows after a fix", "Alerts for rejected counts", "Poison records and infinite retry loops"],
+          "tools": ["Python", "DuckDB", "SQL", "logging"],
+          "lab_task": "Extend the order loader so rows failing validation (negative quantity, missing order_id, invalid date) are written to etl_rejects(run_id, source_row, reason_code, payload) instead of failing the run. Add a rule that aborts with exit code 2 when rejects exceed 2 percent. Test with 1 percent and 5 percent bad data.",
+          "deliverable": "Loader with reject handling, the etl_rejects table and two test run logs",
+          "checks": [["Load 10,000 rows with 100 bad rows (1 percent)", "9,900 rows load, 100 land in etl_rejects, exit code 0", "Counts and exit code"], ["Load 10,000 rows with 500 bad rows (5 percent)", "Run aborts with exit code 2 before the target is changed", "Exit code 2 and unchanged target count"], ["Group etl_rejects by reason_code", "Each rejected row carries one of the three reason codes", "GROUP BY output"]],
+          "objectives": ["Route bad rows to a reject table with a reason code", "Apply a rejection threshold that stops the run", "Reprocess rejected rows after fixing the cause"]
+        },
+        {
+          "topic": "Basic Data Quality Checks with SQL and Python Assertions",
+          "subtopics": ["Completeness: null rate per column", "Uniqueness: primary key duplicates", "Validity: ranges, formats and accepted values", "Consistency: totals reconciled to source", "Timeliness: max timestamp age", "Row-count checks against the source", "Writing checks as SQL that returns violating rows", "Failing a run on a blocking check and warning on a soft one", "Storing check results in a table", "Keeping check queries fast"],
+          "tools": ["SQL", "Python", "DuckDB", "pytest"],
+          "lab_task": "Write checks.py with 6 SQL checks on clean.orders (not-null order_id, unique order_id, amount >= 0, status in a list of 4 values, max(order_date) within 1 day, count equals source count). Save each result to dq_results(run_id, check, status, violations). Break the data on purpose to trigger 2 failures.",
+          "deliverable": "checks.py, a dq_results table and a note on which checks block and which warn",
+          "checks": [["Run the 6 checks on clean data", "All 6 rows in dq_results show status pass with violations 0", "dq_results table"], ["Insert 5 rows with a negative amount", "The amount check fails with violations = 5", "dq_results row"], ["Delete 3 rows from the target and rerun", "Row-count check fails and the run exits non-zero", "Exit code and result row"]],
+          "objectives": ["Express completeness, uniqueness, validity and timeliness checks as queries", "Store check results for trend analysis", "Decide which failures block a load and which only warn"]
+        },
+        {
+          "topic": "Running Pipelines on a Schedule: cron, Logs and Exit Codes",
+          "subtopics": ["cron syntax: minute, hour, day, month and weekday", "Time zones in cron and server clocks", "Exit codes: 0 success, non-zero failure", "Logging to files with rotation", "Preventing overlapping runs with flock", "Run duration and timeout limits", "Passing the logical date to a script", "Why cron is limited: no dependencies, retries or backfill", "Signals that it is time to adopt an orchestrator"],
+          "tools": ["cron", "Bash", "Python", "flock", "Linux"],
+          "lab_task": "Add a crontab line '*/5 * * * * flock -n /tmp/etl.lock python /app/run.py --date $(date +\\%F) >> /var/log/etl.log 2>&1'. Make run.py sleep 7 minutes on the first run, then show from the log that the next cron firing is skipped by flock and that a failing run returns exit code 1.",
+          "deliverable": "Crontab entry, log excerpt of a skipped overlapping run and a list of cron limitations",
+          "checks": [["Start a 7-minute run and let cron fire again at 5 minutes", "flock -n prevents a second instance and the log shows no overlapping run", "ps output and log"], ["Raise an exception in run.py", "Process exits with code 1 and the log records the traceback", "echo $? output"], ["Delete the log and rerun", "Run recreates the log with a timestamped first line", "Log head"]],
+          "objectives": ["Schedule a pipeline and capture its logs and exit status", "Prevent overlapping runs of the same job", "List the gaps that justify an orchestrator"]
+        },
+        {
+          "topic": "Configuration, Secrets and Environment Separation",
+          "subtopics": ["Environment variables versus config files", "Separate dev, test and prod targets", ".env files and why they stay out of Git", "Secret managers: AWS Secrets Manager, Azure Key Vault and HashiCorp Vault at usage level", "Rotating credentials without code changes", "Parameterised paths, schemas and table names", "Pydantic settings for validated config", "Avoiding secrets in logs and stack traces", "Least-privilege service accounts per environment"],
+          "tools": ["Python", "pydantic", "Docker", "Git", "dotenv", "Bash"],
+          "lab_task": "Refactor the loader to read PIPELINE_ENV, DB_URL and API_TOKEN using pydantic-settings, with dev writing to schema dev_etl and prod to etl. Add .env to .gitignore, run git secrets or a grep scan for the token string and make the log mask the token as ****.",
+          "deliverable": "Settings module, .gitignore entry, an example .env.example and a scan result with zero hits",
+          "checks": [["Run with PIPELINE_ENV=dev", "Rows land in schema dev_etl and the prod schema is untouched", "Schema row counts"], ["Run without API_TOKEN set", "pydantic raises a validation error naming API_TOKEN before any extraction", "Error output"], ["grep the repository and logs for the real token", "Zero matches are found", "grep output"]],
+          "objectives": ["Keep configuration and secrets outside code", "Run the same pipeline against separate environments safely", "Validate settings before a run starts"]
+        },
+        {
+          "topic": "Testing Pipelines with pytest and Sample Fixtures",
+          "subtopics": ["Unit tests for pure transformation functions", "Small fixture datasets with known expected output", "Testing SQL with DuckDB in memory", "Contract tests for source schemas", "Edge cases: empty input, nulls, duplicates and late rows", "Integration test running the pipeline end to end on a sample", "Test data builders and parametrised tests", "Coverage reports with pytest-cov", "Running tests in CI with GitHub Actions"],
+          "tools": ["pytest", "Python", "DuckDB", "GitHub Actions", "pytest-cov"],
+          "lab_task": "Write tests/test_transform.py with 8 parametrised cases for clean_orders (nulls, duplicates, negative amounts, empty input), one DuckDB in-memory SQL test, and an end-to-end test on a 20-row fixture. Run pytest --cov=src --cov-report=term-missing and add a GitHub Actions job that runs it on push.",
+          "deliverable": "Test suite with 10 tests, a coverage report above 80 percent and a workflow file",
+          "checks": [["Run pytest on the full suite", "10 passed and no failures", "pytest summary line"], ["Run with --cov=src", "Coverage of src is 80 percent or higher", "Coverage table"], ["Pass an empty DataFrame to clean_orders", "Function returns an empty frame with the expected columns and does not raise", "Test result"]],
+          "objectives": ["Test transformations on small fixtures with known answers", "Cover edge cases such as empty input and duplicates", "Run pipeline tests automatically on each push"]
+        },
+        {
+          "topic": "Beginner Capstone: Retail Orders Pipeline from API and CSV into DuckDB",
+          "subtopics": ["Extract orders from a mock REST API with pagination and retries", "Ingest daily store CSV files into a landing zone", "Raw, clean and curated layers in DuckDB", "Idempotent daily load with reject handling", "Six data quality checks with stored results", "Cron schedule, tests and a README runbook"],
+          "tools": ["Python", "DuckDB", "requests", "pytest", "cron", "SQL"],
+          "lab_task": "Build a pipeline that pulls 5,000 orders from the mock API and 3 daily CSV files, lands them under landing/dt=, loads raw, clean and curated schemas in DuckDB with watermark increments and reject handling, runs 6 quality checks, and is scheduled by cron. Re-run the same date twice and prove identical counts.",
+          "deliverable": "Repository with code, tests, runbook and a demo showing counts per layer and a clean second run",
+          "checks": [["Run the pipeline for 2026-01-15 twice", "Curated daily_sales row counts and totals are identical after both runs", "Query output after each run"], ["Inject 3 percent bad rows in a CSV", "Bad rows are rejected, quality results are recorded and the run still succeeds", "etl_rejects count and dq_results"], ["Run pytest", "All tests pass and coverage meets the agreed threshold", "pytest summary"]],
+          "objectives": ["Deliver a complete batch pipeline from extraction to a curated table", "Demonstrate idempotency, reject handling and quality checks", "Document operation steps in a runbook"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For data engineers who can build a basic batch pipeline and now run pipelines across several sources and teams. Covers change data capture with query-based and log-based methods, Debezium, applying change streams with deletes and ordering, slowly changing history, ELT layering with dbt at usage level, ingestion tools (Airbyte, Fivetran, AWS Glue, Azure Data Factory), orchestration with Airflow, Dagster and Prefect, backfill design, schema evolution, data quality with Great Expectations and Soda, observability, bulk load performance, cost basics, and a capstone with CDC, quality gates and orchestration.",
+      "prerequisites": ["Has built a Python and SQL batch pipeline with incremental loads, upserts and tests, as covered at beginner level", "Reads Docker Compose files and runs multi-container labs locally", "Has access to PostgreSQL 16, a Python 3.11 or later environment and a free-tier or local target such as DuckDB, Postgres or a cloud warehouse trial"],
+      "outcomes": ["Choose between query-based and log-based CDC and apply change streams including updates, deletes and ordering", "Select and configure ingestion tools (Airbyte, Fivetran, AWS Glue, Azure Data Factory) against a build-it-yourself approach", "Orchestrate pipelines with Airflow, Dagster or Prefect using retries, partitions and safe backfills", "Add data quality gates, schema drift handling and run-level monitoring to production pipelines"],
+      "days": [
+        {
+          "topic": "Change Data Capture Concepts: Query-Based, Trigger-Based and Log-Based",
+          "subtopics": ["What CDC captures that watermarks miss: deletes and intermediate updates", "Query-based CDC with updated_at and its limits", "Trigger-based CDC and the write overhead on the source", "Log-based CDC from the WAL, binlog or redo log", "Change event anatomy: before, after, operation and position", "Snapshot plus stream: initial load then continuous changes", "Latency, ordering and delivery guarantees", "Source load and permissions needed for each method", "Decision matrix for method selection"],
+          "tools": ["PostgreSQL", "Python", "SQL", "Debezium"],
+          "lab_task": "On PostgreSQL 16 create an orders table, then implement three change feeds: a query on updated_at, an audit trigger writing to orders_audit, and a logical replication slot created with pg_create_logical_replication_slot('cdc_demo','pgoutput'). Run 5 inserts, 3 updates and 2 deletes and tabulate which feed captured each of the 10 operations.",
+          "deliverable": "Comparison table of three CDC methods with captured-operation counts and an overhead note",
+          "checks": [["Run 5 inserts, 3 updates and 2 deletes", "Query-based feed shows 8 changes and misses both deletes", "Feed output and counts"], ["Read the audit trigger table", "It records all 10 operations including 2 deletes", "Audit table select"], ["Check pg_replication_slots", "Slot cdc_demo exists with a restart_lsn that advances after consumption", "Query output"]],
+          "objectives": ["Explain what each CDC method can and cannot capture", "Observe source overhead and permission needs of each method", "Select a CDC method from requirements"]
+        },
+        {
+          "topic": "Log-Based CDC with Debezium and PostgreSQL Logical Replication",
+          "subtopics": ["wal_level=logical, max_replication_slots and publications", "Debezium PostgreSQL connector configuration", "Kafka Connect REST API: POST /connectors and status checks", "Topic naming: server.schema.table", "Initial snapshot modes", "Replica identity and why REPLICA IDENTITY FULL matters for updates and deletes", "Heartbeats and avoiding WAL bloat from idle slots", "Monitoring slot lag with pg_wal_lsn_diff", "Connector restart and offset behaviour"],
+          "tools": ["Debezium", "Kafka Connect", "PostgreSQL", "Docker Compose", "Kafka"],
+          "lab_task": "Start Kafka, Kafka Connect with the Debezium PostgreSQL plugin and Postgres via Docker Compose. POST a connector config with table.include.list=public.orders and snapshot.mode=initial to /connectors, then consume the topic with kafka-console-consumer. Insert, update and delete one row and capture the three event payloads.",
+          "deliverable": "docker-compose.yml, connector JSON and three captured change events",
+          "checks": [["GET /connectors/orders-cdc/status", "Connector and task state are RUNNING", "curl JSON response"], ["Update a row then read the topic", "Event has op u with both before and after images when replica identity is FULL", "Consumed event JSON"], ["Delete a row", "An event with op d is emitted and followed by a tombstone record", "Two consumed records"]],
+          "objectives": ["Configure a log-based CDC connector against PostgreSQL", "Read and interpret change events", "Monitor replication slot lag to prevent WAL growth"]
+        },
+        {
+          "topic": "Applying CDC Streams: Deletes, Ordering and Tombstones",
+          "subtopics": ["Applying inserts, updates and deletes to a target table", "Ordering by LSN, binlog position or source timestamp", "Deduplicating events per key keeping the latest", "Soft deletes versus hard deletes in the target", "Out-of-order and duplicate delivery", "Idempotent apply with MERGE and an event position column", "Compaction and tombstones in Kafka topics", "Snapshot-to-stream handoff without gaps", "Reconciling target to source with counts and checksums"],
+          "tools": ["Python", "SQL", "DuckDB", "Kafka", "PostgreSQL"],
+          "lab_task": "Load a JSON file of 10,000 CDC events (inserts, updates, deletes, 5 percent duplicates, 3 percent out of order) into stg_events. Write MERGE logic that keeps the highest lsn per key, applies deletes as is_deleted=true, and ignores events older than the stored lsn. Reconcile the result to the known final state of 6,200 live keys.",
+          "deliverable": "Apply script, stg_events table and a reconciliation report",
+          "checks": [["Apply the 10,000 events", "Target has exactly 6,200 rows with is_deleted = false", "Count query"], ["Apply the same file a second time", "Target is unchanged because every event lsn is not newer than the stored lsn", "Before and after hash"], ["Shuffle the event order and apply again", "Final table content is identical to the ordered run", "Hash comparison"]],
+          "objectives": ["Apply change events to a target idempotently and in any order", "Handle deletes with soft or hard strategies", "Reconcile a CDC target to the source"]
+        },
+        {
+          "topic": "Slowly Changing History in ELT Loads: Type 1, Type 2 and Snapshots",
+          "subtopics": ["Type 1 overwrite versus Type 2 history rows", "valid_from, valid_to and is_current columns", "Detecting change with hash diff", "Closing the old row and inserting the new row in one MERGE", "Point-in-time joins from facts to dimension history", "Snapshotting a source that has no history", "Late-arriving changes and backdating", "Costs of Type 2: storage and join complexity", "Testing history for overlaps and gaps"],
+          "tools": ["SQL", "DuckDB", "PostgreSQL", "Python"],
+          "lab_task": "Build dim_customer_scd2 from a daily snapshot table. Write SQL that closes changed rows (valid_to = snapshot_date) and inserts new versions with is_current = true. Run 3 daily snapshots with 40 address changes, then write a test query that proves no customer has overlapping valid_from/valid_to ranges.",
+          "deliverable": "SCD2 load SQL, three snapshot runs and an overlap test query",
+          "checks": [["Run three daily snapshots with 40 address changes", "dim_customer_scd2 holds 40 additional history rows with is_current false on the old versions", "Count by is_current"], ["Run the overlap test query", "Zero customers have overlapping validity ranges", "Empty result"], ["Join a fact dated before a change", "Fact picks the old address, not the current one", "Join output for one customer"]],
+          "objectives": ["Implement Type 2 history with a single MERGE or equivalent", "Join facts to the correct historical dimension row", "Test history tables for overlaps and gaps"]
+        },
+        {
+          "topic": "ELT Layering with dbt at Usage Level: Staging, Intermediate and Marts",
+          "subtopics": ["Why ELT keeps transformation in the warehouse", "Layer pattern: staging, intermediate and marts", "Running dbt run and dbt build against the loaded raw tables", "Sources and freshness thresholds as the pipeline contract", "Incremental models as the ELT load step", "Tests as quality gates between layers", "Handing off from ingestion tools to dbt", "Selecting nodes: dbt build --select staging+", "Where dbt ends and orchestration begins"],
+          "tools": ["dbt", "DuckDB", "SQL", "Git"],
+          "lab_task": "Using the raw tables from the earlier labs, create a dbt project with dbt init, define a source with freshness (warn_after 12 hours), write stg_orders, int_order_totals and fct_orders, add unique and not_null tests, then run dbt build --select +fct_orders and dbt source freshness. Record the pass counts.",
+          "deliverable": "dbt project with 3 models, 4 tests and the dbt build and freshness output",
+          "checks": [["Run dbt build --select +fct_orders", "3 models and all configured tests pass in the summary", "dbt summary line"], ["Run dbt source freshness with a stale _loaded_at", "Freshness reports WARN when the age exceeds 12 hours", "Freshness output"], ["Insert a duplicate order_id and rebuild", "The unique test on stg_orders fails with a failure count of 1", "dbt test failure"]],
+          "objectives": ["Place transformations in layers inside the warehouse after loading", "Use source freshness and tests as gates between ingestion and modelling", "Run selected parts of the project from an orchestrator"]
+        },
+        {
+          "topic": "Managed Ingestion with Airbyte: Connectors, Sync Modes and State",
+          "subtopics": ["Airbyte architecture: sources, destinations, connections and workers", "Running locally with abctl", "Sync modes: full refresh overwrite, full refresh append, incremental append and incremental append deduped", "Cursor fields and primary keys", "Stream selection and column selection", "Schema change handling per connection", "Sync state and resets", "Airbyte API and Terraform provider at usage level", "Connector builder for custom REST APIs"],
+          "tools": ["Airbyte", "abctl", "PostgreSQL", "DuckDB", "Docker"],
+          "lab_task": "Install Airbyte locally with abctl local install. Create a PostgreSQL source and a Postgres destination, set the orders stream to Incremental | Append + Deduped with cursor updated_at and primary key order_id, run a sync, change 20 source rows, run again and compare records emitted in the sync summary.",
+          "deliverable": "Connection screenshot, two sync logs and a query showing deduplicated destination rows",
+          "checks": [["First sync of the orders stream", "All source rows are loaded and the log shows the full record count", "Sync summary"], ["Update 20 rows and sync again", "Second sync reports 20 records read via the cursor", "Sync log record count"], ["Query the final destination table", "Each order_id appears once with the latest values", "SELECT count(*) vs count(distinct order_id)"]],
+          "objectives": ["Configure an Airbyte connection with the correct sync mode", "Explain cursor fields and primary keys in incremental sync", "Verify that deduplicated tables match the source"]
+        },
+        {
+          "topic": "Fivetran: Connectors, Schema Handling and Consumption Pricing",
+          "subtopics": ["Connector lifecycle: setup, historical sync and incremental syncs", "Sync frequency and its effect on cost", "Schema, table and column selection", "Handling schema changes: allow all, allow columns, block all", "Fivetran system columns: _fivetran_synced and _fivetran_deleted", "History mode for Type 2 style tables", "Monthly active rows as the pricing unit", "Transformations and dbt integration at usage level", "Alerts, sync failures and re-sync actions"],
+          "tools": ["Fivetran", "PostgreSQL", "SQL", "DuckDB"],
+          "lab_task": "In a Fivetran trial or from the official sample output, list the columns _fivetran_synced and _fivetran_deleted for a replicated orders table. Write a view that filters _fivetran_deleted = false, then estimate monthly active rows for three tables given changed rows per day and compare a 15-minute and a 6-hour sync frequency.",
+          "deliverable": "Connector design sheet, the filtering view and an MAR estimate table",
+          "checks": [["Select from the replicated table where _fivetran_deleted is true", "Soft-deleted source rows are visible and flagged", "Query output or documented sample"], ["Estimate MAR for three tables", "MAR equals the distinct primary keys changed per month, not total sync events", "Estimate sheet"], ["Compare 15-minute and 6-hour sync frequency", "Monthly rows do not change linearly with frequency, but freshness does", "Written analysis"]],
+          "objectives": ["Describe how Fivetran handles schema change and deletes", "Estimate consumption cost from changed rows", "Write views that hide deleted rows from consumers"]
+        },
+        {
+          "topic": "AWS Glue Jobs, Crawlers and the Data Catalog",
+          "subtopics": ["Glue Data Catalog databases and tables", "Crawlers and schema inference limits", "Glue ETL job types: Spark, Python shell and Ray at usage level", "DynamicFrame versus Spark DataFrame", "Job bookmarks for incremental processing", "DPU sizing and worker types G.1X and G.2X", "Reading from S3 with partition predicates", "IAM roles for Glue and least privilege", "Glue Studio visual jobs versus script-based jobs"],
+          "tools": ["AWS Glue", "S3", "Athena", "IAM", "Python", "AWS CLI"],
+          "lab_task": "In an AWS account or LocalStack, create an S3 prefix with 3 daily Parquet partitions, run a crawler into a database sales_db, query it in Athena with SELECT count(*), then create a Spark Glue job with --job-bookmark-option job-bookmark-enable, run it twice and compare rows read in each run from CloudWatch logs.",
+          "deliverable": "Crawler and job definitions plus a table comparing rows read per run",
+          "checks": [["Run the crawler on 3 partitions", "Table sales_orders appears with dt as a partition key", "aws glue get-table output"], ["Run the bookmarked job a second time with no new files", "Job reads 0 new input files and finishes successfully", "CloudWatch log lines"], ["Add a day partition and run again", "Only the new partition is processed", "Rows read in the job run"]],
+          "objectives": ["Create catalog tables with crawlers and know where they misinfer schemas", "Use job bookmarks for incremental file processing", "Size Glue jobs and assign least-privilege roles"]
+        },
+        {
+          "topic": "Azure Data Factory Pipelines, Copy Activity and Integration Runtimes",
+          "subtopics": ["Pipelines, activities, datasets and linked services", "Copy activity and its performance settings", "Azure IR, self-hosted IR and managed virtual network IR", "Triggers: schedule, tumbling window and storage event", "Tumbling window dependencies and retry policy", "Parameters, variables and dynamic content expressions", "Incremental copy using a watermark Lookup activity", "Mapping data flows at usage level", "Monitoring runs and rerunning from a failed activity"],
+          "tools": ["Azure Data Factory", "Azure SQL", "Azure Storage", "Azure CLI", "Git"],
+          "lab_task": "Build an ADF pipeline with a Lookup activity that reads the watermark from a control table, a Copy activity that selects rows WHERE updated_at > @{activity('LookupWatermark').output.firstRow.last_value}, and a Stored Procedure activity that advances it. Attach a tumbling window trigger with maxConcurrency 1 and run two windows.",
+          "deliverable": "Exported pipeline JSON, trigger JSON and two successful run records",
+          "checks": [["Run the pipeline when 120 rows have changed", "Copy activity reports rowsCopied 120", "Activity run output"], ["Run the next window with no changes", "Copy activity reports rowsCopied 0 and the watermark stays the same", "Control table value"], ["Set retry to 2 and break the linked service password", "Activity retries twice then fails with an authentication error", "Run monitor output"]],
+          "objectives": ["Build a watermark-driven incremental copy in Azure Data Factory", "Choose the correct integration runtime for network location", "Use tumbling windows for dependable windowed runs"]
+        },
+        {
+          "topic": "Orchestrating with Dagster: Assets, Partitions and Sensors",
+          "subtopics": ["Software-defined assets versus task-centred DAGs", "@asset, dependencies and the asset graph", "Partitions: daily and static", "Materialisation metadata and asset checks", "Resources and IO managers", "Schedules and sensors", "dagster dev and the UI", "Backfilling partitions from the UI or CLI", "Integrating dbt models as assets"],
+          "tools": ["Dagster", "Python", "DuckDB", "dbt", "pytest"],
+          "lab_task": "Run pip install dagster dagster-webserver, define assets raw_orders, clean_orders and daily_sales with DailyPartitionsDefinition(start_date='2026-01-01'), add an asset check not_null_order_id, run dagster dev, materialise 7 partitions and one backfill of 3 failed partitions. Report the materialisation metadata for row counts.",
+          "deliverable": "Dagster project, asset graph screenshot and backfill run record",
+          "checks": [["Materialise 7 daily partitions of raw_orders", "7 materialisation events appear in the asset catalog", "Asset catalog view"], ["Fail the not_null asset check on one partition", "The check shows as failed with the violating row count in metadata", "Asset check result"], ["Backfill 3 partitions from the UI", "A backfill with 3 partition runs completes and is listed under Backfills", "Backfills page"]],
+          "objectives": ["Model pipelines as assets with partitions", "Attach quality checks and metadata to assets", "Run partition backfills from Dagster"]
+        },
+        {
+          "topic": "Orchestrating with Prefect: Flows, Tasks, Deployments and Work Pools",
+          "subtopics": ["@flow and @task decorators", "Retries, retry_delay_seconds and timeouts", "Task caching with cache_key_fn and expiration", "Results persistence", "Deployments with prefect deploy and prefect.yaml", "Work pools and workers: process and Docker", "Schedules with cron and interval", "Automations and notifications at usage level", "Concurrency limits and tags"],
+          "tools": ["Prefect", "Python", "Docker", "DuckDB", "pytest"],
+          "lab_task": "Write a Prefect flow with tasks extract (retries=3, retry_delay_seconds=[1,2,4]), transform and load. Make extract fail twice via a counter, run it locally to show retries, then create a process work pool with prefect work-pool create etl-pool, deploy with a cron schedule, start a worker and trigger one run.",
+          "deliverable": "Flow code, prefect.yaml and a flow run with retry states",
+          "checks": [["Run the flow with extract failing twice", "UI or logs show 2 Retrying states then Completed", "Flow run log"], ["Run prefect deployment ls", "Deployment appears with the cron schedule attached", "CLI output"], ["Stop the worker and trigger a run", "Run stays Scheduled or Late until a worker polls the pool", "Run state view"]],
+          "objectives": ["Create resilient flows with retries and caching", "Deploy flows to work pools with schedules", "Explain how workers pull runs from pools"]
+        },
+        {
+          "topic": "Airflow Usage Patterns for ETL: Data Intervals, Retries and Backfill Commands",
+          "subtopics": ["Logical date, data_interval_start and data_interval_end in ETL tasks", "Using the interval to select source rows", "default_args: retries, retry_delay and retry_exponential_backoff", "max_active_runs and pools for source protection", "Idempotent task design with delete-then-insert per interval", "airflow dags backfill and airflow dags test", "Passing small values through XCom and large data through storage", "Clearing and re-running tasks from the UI", "Orchestration versus transformation: keep heavy work outside workers"],
+          "tools": ["Apache Airflow", "Python", "PostgreSQL", "Docker", "SQL"],
+          "lab_task": "Write an Airflow DAG daily_orders (schedule='@daily', catchup=False, max_active_runs=1) whose load task deletes and inserts rows for data_interval_start through data_interval_end. Run airflow dags test daily_orders 2026-01-10, then airflow dags backfill -s 2026-01-01 -e 2026-01-07 and show 7 runs with identical counts on re-run.",
+          "deliverable": "DAG file, backfill output and per-day row counts before and after a second backfill",
+          "checks": [["Run airflow dags backfill for 2026-01-01 to 2026-01-07", "7 DAG runs reach success", "airflow dags list-runs output"], ["Run the same backfill again", "Per-day counts are unchanged because the load is delete-insert", "Counts table"], ["Set max_active_runs=1 and trigger 3 runs together", "Runs execute one at a time and others queue", "Grid view"]],
+          "objectives": ["Use data intervals to scope each run to its own slice", "Configure retries and concurrency to protect sources", "Backfill safely with idempotent tasks"]
+        },
+        {
+          "topic": "Backfill Design: Partitioned Reloads and Late-Arriving Data",
+          "subtopics": ["Backfill triggers: new logic, bug fix, new source and late data", "Partitioning by event date versus load date", "Reprocessing windows and lookback periods (for example 3 days)", "Event time versus processing time", "Rebuilding downstream tables after a corrected partition", "Throttling backfills to protect sources and warehouses", "Dry runs and row-count previews", "Recording backfill requests and approvals", "Verifying backfill results against a control total"],
+          "tools": ["Python", "SQL", "DuckDB", "Airflow", "Dagster"],
+          "lab_task": "Partition fact_sales by event_date in DuckDB. Simulate 2,000 late rows arriving up to 3 days late, implement a lookback that rebuilds the last 3 partitions daily with DELETE+INSERT, and write a backfill script with --start, --end and --dry-run that prints expected rows per partition before changing anything.",
+          "deliverable": "Backfill script, dry-run output and a before and after control-total report",
+          "checks": [["Run the backfill script with --dry-run for 7 days", "It prints row counts per partition and writes nothing", "Output and unchanged target"], ["Load 2,000 late rows and run the 3-day lookback", "Affected partitions now match the source control totals", "Control-total query"], ["Run the same backfill twice", "Totals are identical after both runs", "Hash or sum comparison"]],
+          "objectives": ["Plan backfills with explicit start, end and dry-run behaviour", "Cover late-arriving data with a lookback window", "Prove a backfill is correct with control totals"]
+        },
+        {
+          "topic": "Schema Evolution: Additive Changes, Type Changes and Drift Detection",
+          "subtopics": ["Additive changes: new nullable columns", "Breaking changes: drops, renames and type narrowing", "Compatible type widening: int to bigint", "Detecting drift by comparing information_schema snapshots", "Schema-on-read tolerance with Parquet and JSON", "Ingestion tool behaviour on new columns (Airbyte, Fivetran, Glue)", "Allow, block and quarantine policies", "Notifying owners of changes before they break models", "Versioned tables and views for breaking changes"],
+          "tools": ["Python", "SQL", "PostgreSQL", "DuckDB", "Parquet"],
+          "lab_task": "Write detect_drift.py that stores a JSON snapshot of information_schema.columns for orders, then compares it on each run. Apply 3 source changes: add a nullable column, widen INT to BIGINT and rename a column. Classify each as additive, compatible or breaking, and make the script exit 1 only on breaking changes.",
+          "deliverable": "detect_drift.py, three drift reports and a policy table",
+          "checks": [["Add a nullable column discount to the source", "Drift report classifies it as additive and the exit code is 0", "Report and exit code"], ["Rename customer_id to cust_id", "Report shows one removed and one added column, classified breaking, exit code 1", "Report and exit code"], ["Widen quantity from INT to BIGINT", "Classified as compatible widening and exit code 0", "Report"]],
+          "objectives": ["Classify schema changes as additive, compatible or breaking", "Detect drift automatically before a load runs", "Define allow, block and quarantine policies"]
+        },
+        {
+          "topic": "Data Quality with Great Expectations: Suites, Checkpoints and Validation Results",
+          "subtopics": ["Core concepts: Data Context, Data Source, Batch, Expectation Suite and Checkpoint", "Common expectations: not null, unique, values between, set membership", "Expectations on aggregates and row count", "mostly parameter for tolerance", "Validation Definitions and Checkpoint actions", "Data Docs for readable results", "Running validations inside a pipeline task", "Blocking versus non-blocking failures", "Keeping suites in version control"],
+          "tools": ["Great Expectations", "Python", "pandas", "DuckDB", "Git"],
+          "lab_task": "Install great_expectations, create a file Data Context, build a suite for orders with ExpectColumnValuesToNotBeNull('order_id'), ExpectColumnValuesToBeUnique('order_id'), ExpectColumnValuesToBeBetween('amount', min_value=0), then run a Checkpoint on clean and corrupted data and open Data Docs. Make the pipeline step raise on failure.",
+          "deliverable": "GX project folder, suite JSON, Checkpoint run results and Data Docs page",
+          "checks": [["Run the Checkpoint on clean data", "Result success is true and all 3 expectations pass", "Checkpoint result"], ["Run on data with 5 negative amounts", "The between expectation fails and reports 5 unexpected values", "Validation result"], ["Set mostly=0.99 with 0.5 percent bad rows", "Expectation passes because the failure rate is within tolerance", "Result with unexpected_percent"]],
+          "objectives": ["Create expectation suites and run them in Checkpoints", "Use mostly and aggregate expectations sensibly", "Fail a pipeline step on validation failure"]
+        },
+        {
+          "topic": "Data Quality with Soda: SodaCL Checks, Scans and Freshness",
+          "subtopics": ["Soda Core and Soda Cloud at usage level", "configuration.yml data source connection", "checks.yml in SodaCL", "Metrics: row_count, missing_count, duplicate_count, invalid_count", "freshness(updated_at) < 1d", "Schema checks: required columns and type", "Warn versus fail thresholds", "soda scan exit codes", "Checks for failed rows and reference integrity"],
+          "tools": ["Soda", "Python", "PostgreSQL", "DuckDB", "YAML"],
+          "lab_task": "Install soda-core-postgres, write configuration.yml and checks.yml for orders with row_count > 0, missing_count(order_id) = 0, duplicate_count(order_id) = 0, freshness(updated_at) < 1d and a schema check. Run soda scan -d warehouse -c configuration.yml checks.yml on clean and broken data and read the exit codes.",
+          "deliverable": "Soda configuration, checks.yml and scan output for passing and failing runs",
+          "checks": [["Run soda scan on clean data", "All checks pass and exit code is 0", "Scan summary"], ["Insert 4 duplicate order_id rows", "duplicate_count check fails with value 4 and the exit code is 2 or higher", "Scan output"], ["Stop loading for 2 days", "Freshness check fails because the age is above 1 day", "Freshness result"]],
+          "objectives": ["Write declarative checks in SodaCL", "Use scan exit codes to gate orchestrated runs", "Combine freshness, schema and value checks"]
+        },
+        {
+          "topic": "Pipeline Observability: Run Metadata, Freshness SLAs and Alerts",
+          "subtopics": ["Run metadata table: run_id, start, end, status, rows_read, rows_written", "Metrics worth tracking: duration, volume, freshness and reject rate", "Freshness SLA and how to measure it", "Alert design: actionable, owned and deduplicated", "Webhook alerts to Slack or Microsoft Teams", "Distinguishing failure, delay and silent data loss", "Expected-volume bands from a rolling average", "Dashboards with SQL on the run table", "Runbooks linked from alerts"],
+          "tools": ["Python", "SQL", "PostgreSQL", "Slack webhooks", "Grafana"],
+          "lab_task": "Add a decorator that writes one row per run to etl_runs(run_id, pipeline, started_at, ended_at, status, rows_read, rows_written, rejects). Add a check that alerts through an incoming webhook when rows_written is outside 70 to 130 percent of the 7-run average or freshness exceeds 2 hours. Trigger one alert on purpose.",
+          "deliverable": "etl_runs table, alert code and a received alert message",
+          "checks": [["Run the pipeline 8 times with normal volume", "Eight rows appear in etl_runs with status success", "SELECT count(*) from etl_runs"], ["Load only 20 percent of normal volume", "Volume-band alert fires and names the pipeline and the expected range", "Webhook message"], ["Skip the scheduled run for 3 hours", "Freshness alert fires once and does not repeat every check cycle", "Alert log"]],
+          "objectives": ["Record run-level metadata for every pipeline execution", "Alert on volume anomalies and stale data", "Write alerts that an on-call person can act on"]
+        },
+        {
+          "topic": "Performance Tuning: Bulk Loads, COPY and Parallel Extraction",
+          "subtopics": ["Row-by-row INSERT versus bulk COPY", "PostgreSQL COPY FROM STDIN and psycopg copy", "Warehouse bulk loads from files: COPY INTO and similar", "File sizing for parallel loads (about 100 to 250 MB compressed)", "Parallel extraction by key ranges", "Dropping and rebuilding indexes around large loads", "Compression formats: gzip, snappy and zstd", "Network and serialisation costs", "Profiling with timing per stage"],
+          "tools": ["Python", "PostgreSQL", "psycopg", "Parquet", "DuckDB"],
+          "lab_task": "Load 1 million rows into PostgreSQL three ways: executemany INSERT, execute_values in batches of 10,000 and COPY FROM STDIN with psycopg. Time each with time.perf_counter, then split extraction into 4 id ranges with concurrent.futures and measure total time. Record rows per second in a table.",
+          "deliverable": "Benchmark script and a rows-per-second table for four approaches",
+          "checks": [["Run the three load methods on 1,000,000 rows", "COPY is fastest and executemany is slowest, with all three loading 1,000,000 rows", "Timing table and counts"], ["Extract with 4 parallel id ranges", "Total rows equal 1,000,000 with no overlap or gap", "Sum of range counts"], ["Check the count after parallel extraction against the source", "Counts match exactly", "Count comparison"]],
+          "objectives": ["Choose bulk load paths over row-by-row inserts", "Parallelise extraction without gaps or overlaps", "Measure stage timings before optimising"]
+        },
+        {
+          "topic": "Cost Basics for Pipelines: Compute, Data Transfer and Sync Volume",
+          "subtopics": ["Cost drivers: compute time, storage, transfer and per-row pricing", "Cloud egress and cross-region transfer", "Warehouse credits and auto-suspend", "Sync frequency versus freshness need", "Incremental loads versus full refresh cost", "File compaction and small-file overhead", "Cost per pipeline: tagging and allocation", "Cheap early filters: column and row pruning at extract", "Budgets and alerts", "Reading a cloud bill line by line"],
+          "tools": ["Python", "SQL", "AWS Cost Explorer", "DuckDB", "Spreadsheet"],
+          "lab_task": "Build a cost model spreadsheet for three pipelines using provided numbers (rows per day, bytes per row, sync frequency, compute minutes, egress GB). Calculate monthly cost under full refresh and incremental loads, then change sync frequency from hourly to daily and show the saving and the freshness lost.",
+          "deliverable": "Cost model with assumptions, results per pipeline and a recommendation",
+          "checks": [["Model a 50 GB table with 2 percent daily change", "Incremental load costs a small fraction of daily full refresh in the sheet", "Cost cells"], ["Change hourly sync to daily on a tool billed by distinct changed rows", "Monthly billed rows stay the same while average data age rises from about 30 minutes to about 12 hours", "Written note with formula"], ["Add a cross-region copy", "Egress line item appears and raises monthly cost", "Updated sheet"]],
+          "objectives": ["Identify the main cost drivers of a pipeline", "Compare incremental and full refresh costs", "Trade freshness against cost with numbers"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Source ELT Platform with CDC, Quality Gates and Orchestration",
+          "subtopics": ["PostgreSQL CDC through Debezium and a file source through a landing zone", "Idempotent apply into raw and clean layers", "dbt models for staging and marts", "Dagster, Prefect or Airflow orchestration with partitions", "Great Expectations or Soda gates before marts", "Run metadata, alerts and a documented backfill"],
+          "tools": ["Debezium", "dbt", "Dagster", "Great Expectations", "Soda", "PostgreSQL", "Airflow"],
+          "lab_task": "Build a platform that ingests orders by CDC and daily CSV refunds, applies changes idempotently, runs dbt marts, blocks the mart build when a Soda or Great Expectations check fails, and records run metadata. Demonstrate one injected bad batch, one schema change and a 7-day backfill with matching control totals.",
+          "deliverable": "Repository, architecture diagram, runbook and a recorded demo of a blocked bad batch and a backfill",
+          "checks": [["Inject a batch with 10 percent null order_id", "Quality gate fails and marts are not rebuilt", "Orchestrator run showing the failed gate"], ["Add a new nullable column to the source", "Drift detection reports it as additive and the pipeline continues", "Drift report and run status"], ["Backfill 7 days", "Control totals for each day match the source", "Control-total query output"]],
+          "objectives": ["Integrate CDC, files, transformation and orchestration in one platform", "Gate downstream models with data quality checks", "Demonstrate operating tasks: backfill, drift and failed batch"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior data engineers, platform engineers and architects who own pipelines that other teams depend on. Covers pipeline architecture patterns, data contracts and schema registries, exactly-once and effectively-once delivery, streaming ELT into warehouses, open table formats as targets, reverse ETL, metadata-driven pipelines, lineage with OpenLineage, anomaly detection, SLOs and incident response, cost engineering, security and PII handling, erasure and retention, CI/CD with data diffs, large backfills, legacy migration, multi-tenant design, production troubleshooting, and a capstone platform.",
+      "prerequisites": ["Operates production pipelines with an orchestrator, CDC or managed ingestion and data quality checks, as covered at intermediate level", "Reads Kafka, Avro or Protobuf basics and writes MERGE statements and window functions without reference", "Has access to a Kubernetes or Docker Compose lab, a warehouse or lakehouse sandbox and a CI system such as GitHub Actions"],
+      "outcomes": ["Design pipeline architectures with explicit delivery guarantees, contracts, SLOs and failure modes", "Run governed pipelines with lineage, anomaly detection, PII protection and compliant deletion", "Operate backfills, migrations and CI/CD safely at large scale with measurable cost and risk", "Diagnose and resolve production pipeline incidents and lead architecture reviews"],
+      "days": [
+        {
+          "topic": "Pipeline Architecture Patterns: Lambda, Kappa, Medallion and Micro-Batch",
+          "subtopics": ["Lambda architecture: batch and speed layers and the cost of two code paths", "Kappa architecture: one streaming path with replay", "Medallion layering across lakehouse and warehouse", "Micro-batch versus continuous processing", "Choosing latency targets: hours, minutes, seconds", "Push versus pull topologies and hub-and-spoke ingestion", "Data product boundaries and ownership", "Failure domains and blast radius", "Architecture decision records with trade-offs"],
+          "tools": ["Draw.io", "Kafka", "Spark", "SQL", "Markdown"],
+          "lab_task": "Take three requirements (hourly finance report, 5-minute fraud flag, daily ML features) and write an ADR for each choosing batch, micro-batch or streaming, with expected latency, cost order of magnitude, replay method and failure domain. Draw one combined architecture and mark where each pattern is used and where they share storage.",
+          "deliverable": "Three ADRs and one architecture diagram with failure domains marked",
+          "checks": [["Fraud flag needs 5-minute freshness", "ADR selects micro-batch or streaming with a stated latency budget and a replay path", "ADR text"], ["Hourly finance report with strict reconciliation", "ADR selects batch with control totals instead of streaming", "ADR text"], ["Mark failure domains on the diagram", "A failure in the speed layer does not take down the batch path", "Diagram annotation"]],
+          "objectives": ["Compare Lambda, Kappa and medallion patterns by latency, cost and complexity", "Select a processing style per requirement", "Document decisions with ADRs"]
+        },
+        {
+          "topic": "Data Contracts and Producer-Consumer Schema Governance",
+          "subtopics": ["Contract contents: schema, semantics, SLAs, ownership and quality rules", "Data contract specification in YAML (for example the Open Data Contract Standard)", "Producer-side validation before publishing", "Consumer-driven expectations and impact lists", "Versioning contracts with semantic versions", "Breaking change process: notice period and dual publishing", "Enforcement in CI and at runtime", "Contract tests between teams", "Metrics: contract coverage and violations"],
+          "tools": ["YAML", "Git", "GitHub Actions", "Python", "Soda"],
+          "lab_task": "Write a data contract YAML for the orders feed (fields, types, nullability, freshness 1 hour, owner, version 1.0.0). Add a CI job that validates a sample file against it with Python jsonschema or Soda, then propose a breaking change (removing a field) and show CI blocks it until the version becomes 2.0.0 with a consumer sign-off file.",
+          "deliverable": "Contract YAML, CI workflow and screenshots of one passing and one blocked pull request",
+          "checks": [["Open a PR that removes the amount field in version 1.x", "CI fails with a breaking-change message naming the field", "CI log"], ["Bump to 2.0.0 and add consumer sign-offs", "CI passes on the new major version", "CI log"], ["Send a file with a string in an integer field", "Validation fails with a type error identifying the field", "Validator output"]],
+          "objectives": ["Specify the schema, semantics and SLA of a data feed in a contract", "Enforce contracts in CI before changes merge", "Run a breaking-change process with consumer sign-off"]
+        },
+        {
+          "topic": "Schema Registry and Compatibility Modes with Avro and Protobuf",
+          "subtopics": ["Confluent-style Schema Registry subjects and IDs", "Avro schema, defaults and unions", "Protobuf field numbers and reserved fields", "Compatibility modes: BACKWARD, FORWARD, FULL and the TRANSITIVE variants", "Registering a schema through the REST API", "Testing compatibility before registering", "Subject naming strategies", "Serialisation format on the wire: magic byte plus schema id", "Evolution recipes: add with default, remove optional, rename with alias"],
+          "tools": ["Schema Registry", "Avro", "Protobuf", "Kafka", "curl", "Python"],
+          "lab_task": "Run a Schema Registry container and POST an Avro schema for orders-value to /subjects/orders-value/versions. Set BACKWARD compatibility with PUT /config/orders-value, test a new version that adds a field with a default via POST /compatibility/subjects/orders-value/versions/latest, then test one that adds a required field without default.",
+          "deliverable": "Registered schemas, API calls and the compatibility results",
+          "checks": [["Register version 1", "Registry returns an id such as {\"id\":1}", "curl response"], ["Test a new field with a default", "Compatibility response is {\"is_compatible\":true}", "curl response"], ["Test a new field without a default", "Compatibility response is {\"is_compatible\":false}", "curl response"]],
+          "objectives": ["Register and evolve schemas with compatibility enforcement", "Explain the compatibility modes and which direction each protects", "Apply safe evolution recipes"]
+        },
+        {
+          "topic": "Exactly-Once Semantics, Deduplication and Effectively-Once Loads",
+          "subtopics": ["At-most-once, at-least-once and exactly-once definitions", "Why exactly-once delivery across systems is not achievable and effectively-once is", "Producer idempotence and transactions in Kafka", "Consumer offsets committed with the sink write", "Idempotent sinks: keys, MERGE and upsert", "Deduplication windows and state size", "Two-phase commit and its costs", "Reconciling counts across the hop", "Failure injection to prove behaviour"],
+          "tools": ["Kafka", "Python", "PostgreSQL", "SQL", "Docker"],
+          "lab_task": "Write a consumer that reads orders from a Kafka topic and writes to PostgreSQL with INSERT ... ON CONFLICT (event_id) DO NOTHING, storing the offset in the same transaction. Produce 10,000 events including 500 duplicates, kill the consumer at random 3 times, restart and compare the final table to the 9,500 unique events.",
+          "deliverable": "Consumer code, a failure-injection log and a reconciliation result",
+          "checks": [["Produce 10,000 events with 500 duplicates and let the consumer finish", "Target contains exactly 9,500 rows", "Count query"], ["Kill the consumer 3 times mid-batch and restart", "Final count is still 9,500 with no missing event_id", "Count and anti-join against the producer list"], ["Commit the offset before the write and crash", "Rows are lost, demonstrating at-most-once, and the anti-join shows the gap", "Anti-join result"]],
+          "objectives": ["Differentiate delivery guarantees and explain effectively-once", "Build an idempotent sink with offsets stored transactionally", "Prove behaviour with failure injection"]
+        },
+        {
+          "topic": "Streaming ELT: Kafka Connect Sinks and Micro-Batch Loading into Warehouses",
+          "subtopics": ["Sink connectors: JDBC, S3 and warehouse sinks at usage level", "Connect configuration: tasks.max, batch.size and error.tolerance", "Dead letter queue for failed records", "Single message transforms", "Micro-batch buffering versus per-record writes", "Snowpipe Streaming and BigQuery Storage Write API concepts", "Compaction of small files", "Latency versus cost of frequent commits", "Connector monitoring through the Connect REST API"],
+          "tools": ["Kafka Connect", "Kafka", "S3", "PostgreSQL", "curl", "Docker"],
+          "lab_task": "Configure a Kafka Connect sink with errors.tolerance=all, errors.deadletterqueue.topic.name=orders_dlq and errors.deadletterqueue.context.headers.enable=true. Send 5,000 valid and 50 malformed records to the source topic, then count the rows in the target and the records in the DLQ topic and read one DLQ header.",
+          "deliverable": "Connector config, row counts and a DLQ record with its error headers",
+          "checks": [["Send 5,000 valid and 50 malformed records", "Target table holds 5000 rows and the DLQ topic holds 50 records", "Counts"], ["Read a DLQ record headers", "__connect.errors.exception.message header names the failure reason", "kafka-console-consumer output"], ["Set errors.tolerance to none and resend", "The task fails and the connector status shows FAILED", "Connector status JSON"]],
+          "objectives": ["Configure sink connectors with dead letter handling", "Balance micro-batch size against latency and file count", "Monitor and restart connectors through the REST API"]
+        },
+        {
+          "topic": "Open Table Formats as Targets: Iceberg and Delta Lake Merge Loads",
+          "subtopics": ["Table format features: ACID, snapshots, schema evolution and time travel", "Iceberg and Delta metadata layouts", "MERGE INTO and merge-on-read versus copy-on-write", "Partition evolution and hidden partitioning in Iceberg", "Compaction, OPTIMIZE and rewrite_data_files", "Snapshot expiration and orphan file removal", "Concurrent writers and optimistic concurrency conflicts", "Time travel for backfill verification", "Catalog choices: REST, Hive, Glue and Unity at usage level"],
+          "tools": ["Apache Iceberg", "Delta Lake", "Spark", "DuckDB", "S3", "Python"],
+          "lab_task": "In a local Spark session with an Iceberg catalog, create a table orders partitioned by days(order_ts), run MERGE INTO with 100,000 changes in 20 small commits, count data files from the files metadata table, run CALL system.rewrite_data_files, and query a previous snapshot with VERSION AS OF to compare counts.",
+          "deliverable": "Spark SQL script, file counts before and after compaction and a time travel query",
+          "checks": [["Run 20 small MERGE commits", "Files metadata table shows more than 20 data files", "SELECT count(*) FROM orders.files"], ["Run rewrite_data_files", "File count drops and row count is unchanged", "Before and after counts"], ["Query VERSION AS OF the first snapshot", "Row count equals the count recorded after commit 1", "Snapshot query output"]],
+          "objectives": ["Load open table formats with MERGE and manage small files", "Use snapshots to verify and roll back loads", "Explain concurrency conflicts between writers"]
+        },
+        {
+          "topic": "Reverse ETL and Operational Syncs",
+          "subtopics": ["Warehouse as the source of truth for operational tools", "Reverse ETL tools and custom syncs at usage level (Census, Hightouch, custom jobs)", "Sync modes: upsert, mirror and insert-only", "Primary keys and identity matching in the destination", "Destination API rate limits and batching", "Handling partial failures and retry", "Deleted and unsubscribed records", "Auditing what was sent", "Guardrails: record-count change limits"],
+          "tools": ["Python", "requests", "SQL", "PostgreSQL", "REST APIs"],
+          "lab_task": "Write sync_to_crm.py that reads segments from a warehouse view, compares them to the last-sent hash table, and sends only changes to a mock CRM API in batches of 100 with 429 backoff. Add a guard that aborts when changes exceed 20 percent of the previous sent count, and log request ids for each batch.",
+          "deliverable": "Sync script, sent-hash table and batch log",
+          "checks": [["First sync of 5,000 customers", "50 batches of 100 are sent and sent-hash holds 5000 rows", "Batch log and table count"], ["Change 80 customers and rerun", "Only 80 changes are sent in one batch", "Batch log"], ["Mark 30 percent of the customers as changed", "Guard aborts the run and nothing is sent", "Exit code and zero API calls"]],
+          "objectives": ["Send warehouse data to operational systems idempotently", "Limit blast radius with change guards", "Audit what each sync sent"]
+        },
+        {
+          "topic": "Metadata-Driven and Config-Generated Pipelines",
+          "subtopics": ["Config as data: YAML or tables describing sources, targets and rules", "Generic extract and load functions parameterised by config", "Generating orchestrator tasks from config", "Validation of configs in CI", "Template rendering with Jinja for SQL", "Trade-offs: flexibility versus debuggability", "Onboarding a new source by pull request", "Per-table overrides and exceptions", "Versioning configs with the code"],
+          "tools": ["Python", "YAML", "Jinja2", "pydantic", "Airflow", "Dagster"],
+          "lab_task": "Create sources.yaml with 12 tables (key, watermark column, schedule, quality rules). Write a pydantic model that validates it in CI, a Jinja template that renders the extraction SQL, and a generator that builds one task or asset per table. Add table 13 by changing only YAML and show the new task appears.",
+          "deliverable": "Config schema, generator, rendered SQL for 12 tables and a diff adding table 13",
+          "checks": [["Run the validator on sources.yaml with a missing key field", "Validation fails and names the table and the field", "CI output"], ["Render SQL for a table with a watermark", "SQL contains WHERE updated_at > with the parameter placeholder", "Rendered SQL file"], ["Add table 13 via YAML only", "Orchestrator lists 13 tasks and the diff touches no Python files", "Task list and git diff --stat"]],
+          "objectives": ["Drive many pipelines from validated configuration", "Generate tasks and SQL from templates", "Keep generated pipelines debuggable"]
+        },
+        {
+          "topic": "Lineage with OpenLineage and Column-Level Impact Analysis",
+          "subtopics": ["OpenLineage model: jobs, runs and datasets", "Facets for schema, data source and quality", "Emitting events from Airflow, Spark and dbt at usage level", "Marquez as a reference backend", "Table-level versus column-level lineage", "Impact analysis before changing a column", "Lineage gaps: manual scripts and BI extracts", "Lineage for incident triage", "Storing lineage events and retention"],
+          "tools": ["OpenLineage", "Marquez", "Airflow", "dbt", "Python", "Docker"],
+          "lab_task": "Start Marquez with docker compose up, POST START and COMPLETE OpenLineage events for a job load_orders with input raw.orders and output clean.orders to /api/v1/lineage, add a schema facet, then query the lineage graph for the output dataset. Identify the downstream impact of dropping raw.orders.amount.",
+          "deliverable": "OpenLineage event JSON, a lineage graph screenshot and an impact list",
+          "checks": [["POST START and COMPLETE events", "Marquez returns 201 and the job shows a completed run", "HTTP status and UI"], ["GET lineage for clean.orders", "Graph includes raw.orders as upstream", "API JSON"], ["List consumers of raw.orders.amount", "Impact list names every dependent dataset found in the lineage events", "Impact list"]],
+          "objectives": ["Emit and read OpenLineage events", "Use lineage to scope the impact of a schema change", "Identify gaps in captured lineage"]
+        },
+        {
+          "topic": "Anomaly Detection and Data Observability at Scale",
+          "subtopics": ["Observability pillars: freshness, volume, schema, distribution and lineage", "Rule-based thresholds versus statistical baselines", "Seasonality: day-of-week volume patterns", "Z-score, MAD and rolling quantile methods", "Distribution drift: PSI and null-rate shifts", "Alert fatigue and tuning sensitivity", "Monitors as code", "Tools at usage level: Monte Carlo, Elementary, Soda and Great Expectations", "Triage workflow from alert to root cause"],
+          "tools": ["Python", "SQL", "pandas", "Elementary", "Soda", "Grafana"],
+          "lab_task": "From 90 days of daily row counts for 10 tables, compute a day-of-week rolling median and MAD baseline in pandas, flag days where abs(count - median)/MAD exceeds 3.5, and compare to a fixed 20 percent threshold. Inject 3 anomalies and count true and false alerts for both methods.",
+          "deliverable": "Notebook or script, a comparison table of true positives and false positives",
+          "checks": [["Inject 3 known anomalies in 90 days", "The MAD method flags all 3 injected days", "Flagged dates"], ["Run the fixed 20 percent threshold", "It produces more false alerts on weekend days than the day-of-week MAD method", "False positive counts"], ["Increase the MAD multiplier from 3.5 to 6", "Alerts fall and the result notes any missed anomaly", "Updated counts"]],
+          "objectives": ["Build statistical monitors with seasonality awareness", "Compare monitor methods by true and false alerts", "Design a triage path from alert to root cause"]
+        },
+        {
+          "topic": "Pipeline SLOs, Error Budgets and Incident Response",
+          "subtopics": ["SLIs for pipelines: freshness, completeness, correctness and success rate", "Setting SLO targets with consumers", "Error budgets for a data product", "Severity levels and paging rules", "On-call runbooks and first-response checklists", "Incident roles and communication", "Blameless postmortems and action items", "Reducing mean time to detect and repair", "Reviewing SLO burn monthly"],
+          "tools": ["SQL", "Grafana", "PagerDuty", "Markdown", "Python"],
+          "lab_task": "Define SLOs for a sales mart: 99 percent of days fresh by 07:00 and 99.9 percent of rows passing checks. Compute the SLI and remaining error budget for 30 days from etl_runs data with SQL, then write a runbook and a postmortem template and run a tabletop exercise on a 6-hour freshness miss.",
+          "deliverable": "SLO document, SQL queries for the SLI, runbook and a completed tabletop postmortem",
+          "checks": [["Compute freshness SLI for 30 days with 2 late days", "SLI is 93.3 percent and the 99 percent SLO is breached", "SQL result"], ["Compute the monthly error budget for a 99 percent SLO", "Budget is about 0.3 days of lateness in a 30-day month", "Calculation"], ["Tabletop a 6-hour miss", "Postmortem lists detection time, cause and at least 3 owned actions", "Postmortem document"]],
+          "objectives": ["Define SLIs and SLOs for a data product", "Track error budgets from run metadata", "Run incident response and postmortems for data failures"]
+        },
+        {
+          "topic": "Cost Engineering: FinOps for Pipelines, Warehouse Credits and Egress",
+          "subtopics": ["Unit economics: cost per million rows and per pipeline run", "Tagging and chargeback by team and pipeline", "Warehouse right-sizing, auto-suspend and workload isolation", "Query and job cost attribution from account usage views", "Incremental processing, partition pruning and clustering", "Storage tiering and retention", "Egress avoidance: co-locate compute and data", "Commitment discounts and spot capacity for batch", "Budget alerts and cost regression tests in CI"],
+          "tools": ["SQL", "Python", "Snowflake", "BigQuery", "AWS Cost Explorer", "Grafana"],
+          "lab_task": "Export a month of query cost data to a table, compute credits or bytes billed per pipeline using query tags, rank the top 5 pipelines, then propose changes for the top two (pruning, incremental model, auto-suspend 60 seconds). Estimate the saving and add a CI check that fails when a model scans more than 20 percent above its baseline.",
+          "deliverable": "Cost report, top 5 ranking, savings proposals and the CI threshold check",
+          "checks": [["Rank pipelines by cost", "Top 5 pipelines together are identified with their share of total cost", "Ranking query"], ["Estimate saving from a full refresh to an incremental load", "Estimate is based on rows scanned and shows percent saved", "Calculation"], ["Make a model scan 30 percent more bytes", "CI check fails and prints the baseline and the new value", "CI log"]],
+          "objectives": ["Attribute warehouse and pipeline cost to owners", "Quantify savings from pruning, incremental loads and right-sizing", "Prevent cost regressions in CI"]
+        },
+        {
+          "topic": "Security for Pipelines: PII Masking, Tokenisation, Encryption and Least Privilege",
+          "subtopics": ["Classifying PII, sensitive and public fields", "Masking, hashing with salt and format-preserving tokenisation", "Deterministic tokens that preserve joins", "Encryption in transit and at rest, customer-managed keys", "Column-level and row-level access policies", "Service accounts per pipeline and role separation", "Secrets rotation and short-lived credentials", "Audit logs of pipeline access", "Pseudonymisation versus anonymisation under GDPR"],
+          "tools": ["Python", "SQL", "Vault", "AWS KMS", "Snowflake", "PostgreSQL"],
+          "lab_task": "Classify the columns of customers (email, phone, birth_date, country). Implement HMAC-SHA256 tokenisation of email with a key from environment, load tokens into clean.customers, create a masking view that shows only the last 4 digits of phone to the analyst role, and show that two tables joined on the email token still match.",
+          "deliverable": "Classification sheet, tokenisation code and masking view with role tests",
+          "checks": [["Tokenise the same email in two tables", "Both tables produce the same token and the join returns the expected rows", "Join count"], ["Select phone as the analyst role", "Only the last 4 digits are visible", "Query output"], ["Change the HMAC key", "All tokens change and old joins no longer match until re-tokenised", "Token comparison"]],
+          "objectives": ["Protect sensitive fields before and during loading", "Apply least privilege to pipeline and analyst roles", "Preserve joins while pseudonymising identifiers"]
+        },
+        {
+          "topic": "Compliance Deletes: GDPR Erasure and Retention in Immutable Layers",
+          "subtopics": ["Erasure requests and legal deadlines (one month under GDPR)", "Finding a subject across raw, clean, marts, backups and exports", "Delete propagation through CDC and incremental models", "Deleting from immutable files and open table formats", "Crypto-shredding with per-subject keys", "Retention policies and automated expiry", "Legal hold exceptions", "Evidence: deletion logs and certificates", "Testing that deleted subjects do not reappear after a reload"],
+          "tools": ["SQL", "Python", "Iceberg", "Delta Lake", "Spark", "S3"],
+          "lab_task": "Create a deletion request table with 20 subject ids. Write a job that deletes them from raw, clean and mart tables (DELETE for table formats, then expire snapshots and rewrite files), records the counts per table, and add a guard that blocks reloads of those ids from the source for 30 days. Test by replaying a historical file.",
+          "deliverable": "Deletion job, deletion log table and replay test result",
+          "checks": [["Run the deletion job for 20 subjects", "Zero rows remain for those ids in raw, clean and marts", "Count per table"], ["Replay the historical source file containing those ids", "Guard rejects the rows and the ids stay absent", "Reject count and queries"], ["Query time travel for an old snapshot before expiry", "Old snapshot still contains the data until expiration, so expiration is part of the process", "Snapshot query"]],
+          "objectives": ["Propagate erasure across all data layers", "Handle immutable storage and time travel in deletion", "Produce evidence of deletion"]
+        },
+        {
+          "topic": "CI/CD for Data Pipelines: Ephemeral Environments and Data Diff Testing",
+          "subtopics": ["Branch-based environments and schema-per-PR isolation", "Zero-copy clones or sampled data for test environments", "Running unit, contract and integration tests in CI", "Data diff between production and branch outputs", "Deploy gates: tests, cost and lineage impact", "Blue-green and shadow-run releases", "Database migrations with versioned scripts", "Rollback of code and data", "Promotion across environments with the same artefact"],
+          "tools": ["GitHub Actions", "dbt", "Python", "SQL", "Docker", "pytest"],
+          "lab_task": "Build a GitHub Actions workflow that on each pull request creates schema pr_<number>, builds changed models into it, runs tests, and runs a data diff (row count, primary key match and column value differences) against production. Change a rounding rule to produce a known 3 percent value difference and make the job fail above 1 percent.",
+          "deliverable": "Workflow file, PR with a failing data diff and the cleanup step that drops the schema",
+          "checks": [["Open a PR changing a rounding rule", "Data diff reports a value difference near 3 percent and the job fails", "Workflow log"], ["Revert the change", "Data diff reports 0 differing rows and the job passes", "Workflow log"], ["Close the PR", "Cleanup removes schema pr_<number>", "Schema listing"]],
+          "objectives": ["Test pipeline changes in isolated environments", "Gate merges on data diffs", "Automate cleanup and promotion"]
+        },
+        {
+          "topic": "Large-Scale Backfills and Reprocessing Campaigns",
+          "subtopics": ["Sizing a backfill: volume, partitions and compute", "Dependency order across layers and teams", "Throttling and rate limits on sources", "Separate compute for backfills to protect production", "Checkpointing progress and resuming", "Dual-run validation: old versus new output", "Switching consumers with views or pointer tables", "Communicating freshness impact to consumers", "Post-backfill verification and cleanup"],
+          "tools": ["Python", "SQL", "Airflow", "Dagster", "Spark", "DuckDB"],
+          "lab_task": "Plan a 3-year, 1,095-partition reprocess. Write a driver that runs partitions with concurrency 8, records status in backfill_progress(partition, status, rows, finished_at), resumes after a forced stop, loads into a shadow table, then compares per-partition counts and sums to the old table before swapping the view.",
+          "deliverable": "Backfill driver, progress table and a comparison report with a view swap",
+          "checks": [["Stop the driver after 400 partitions and restart", "It resumes from the remaining 695 partitions and does not redo finished ones", "backfill_progress counts"], ["Compare shadow and old tables", "All 1,095 partitions match on count and sum except 2 known corrected ones", "Comparison report"], ["Swap the consumer view to the shadow table", "Consumer query returns the corrected totals with no downtime", "Before and after query"]],
+          "objectives": ["Plan and run very large reprocessing safely", "Resume interrupted backfills from recorded progress", "Verify and switch consumers without downtime"]
+        },
+        {
+          "topic": "Migrating Legacy ETL Tools to Modern ELT",
+          "subtopics": ["Inventory of jobs, dependencies, schedules and owners", "Classifying jobs: retire, lift and shift, rebuild", "Translating logic from GUI mappings and stored procedures to SQL", "Parallel run with automatic output comparison", "Cut-over plan and rollback criteria", "Performance and cost comparison", "Handling undocumented business rules", "Skills and operating model changes", "Decommissioning and licence exit"],
+          "tools": ["SQL", "Python", "dbt", "Airflow", "Git", "Excel"],
+          "lab_task": "Take an inventory of 40 legacy jobs, classify them with usage data (last run, rows, consumers), select 5 for migration, rebuild one as SQL in dbt and run old and new side by side for 10 days. Report the row-count and value mismatch rate each day and the criteria for cut-over.",
+          "deliverable": "Inventory sheet, migration plan, rebuilt job and a 10-day comparison report",
+          "checks": [["Classify 40 jobs with last-run and consumer data", "Jobs with no consumers in 12 months are listed as retire candidates", "Inventory sheet"], ["Run old and new in parallel for 10 days", "Daily mismatch rate is reported and trends to 0 after fixing known rules", "Comparison report"], ["Define cut-over criteria", "Criteria require several consecutive days of zero mismatch and a rollback step", "Plan document"]],
+          "objectives": ["Inventory and classify legacy pipelines", "Validate migrations by parallel runs", "Plan cut-over and decommissioning"]
+        },
+        {
+          "topic": "Multi-Tenant and Multi-Region Pipeline Design",
+          "subtopics": ["Tenant isolation models: shared tables, schema per tenant and database per tenant", "Tenant id propagation and row-level security", "Noisy neighbour control with quotas and queues", "Onboarding and offboarding tenants", "Data residency and regional pipelines", "Cross-region replication and egress cost", "Region failover for pipelines and state", "Consistent configs across regions", "Testing isolation with canary tenants"],
+          "tools": ["PostgreSQL", "Python", "Airflow", "Terraform", "SQL"],
+          "lab_task": "Build a pipeline for 3 tenants using a shared table with tenant_id and PostgreSQL row-level security policies (CREATE POLICY ... USING (tenant_id = current_setting('app.tenant')::int)), then add per-tenant concurrency limits and a region flag that keeps EU tenant data in an eu schema. Prove isolation by querying as each tenant.",
+          "deliverable": "Schema, policies, tenant config and isolation test results",
+          "checks": [["Query as tenant 1", "Only rows with tenant_id 1 are returned", "Query output"], ["Attempt to insert a row for tenant 2 as tenant 1", "PostgreSQL rejects it with a row-level security policy violation", "Error message"], ["Load an EU tenant file", "Rows land in the eu schema only and the non-EU schema count is unchanged", "Counts per schema"]],
+          "objectives": ["Choose a tenant isolation model by requirements", "Enforce isolation with policies and quotas", "Keep regional data in region"]
+        },
+        {
+          "topic": "Troubleshooting Production Pipeline Failures",
+          "subtopics": ["Triage order: scope, impact, recent change and last good run", "Reading orchestrator logs, task state and upstream failures", "Source-side causes: schema change, locks, rate limits and outages", "Data-side causes: duplicates, late data, skew and nulls", "Load-side causes: constraint violations, deadlocks and quota errors", "Reproducing with the failing partition on a small sample", "Bisecting a change with git and run history", "Safe fixes: hotfix, rerun and backfill", "Documenting the root cause and the prevention"],
+          "tools": ["Airflow", "SQL", "Python", "Git", "Grafana", "PostgreSQL"],
+          "lab_task": "Diagnose five seeded incidents: 1) HTTP 429 from the API, 2) duplicate keys after a replay, 3) column renamed upstream, 4) a deadlock in a parallel MERGE, 5) timezone shift producing a missing day. For each, record the symptom, the log line, the root cause, the fix and the preventive control, and rerun the pipeline to green.",
+          "deliverable": "Incident log with five entries and a green run for each fix",
+          "checks": [["Pipeline fails with HTTP 429", "Diagnosis points to rate limiting and the fix adds backoff and lower concurrency", "Log excerpt and fix commit"], ["Daily total is short by exactly one day of data", "Root cause is a timezone boundary and the corrected query restores the missing day", "Before and after totals"], ["MERGE fails with a deadlock detected error", "Fix serialises overlapping key ranges or orders updates, and a rerun succeeds", "Error text and successful run"]],
+          "objectives": ["Triage failures from impact to root cause systematically", "Fix and verify the five common failure classes", "Record preventive controls for each incident"]
+        },
+        {
+          "topic": "Advanced Capstone: Resilient Governed Pipeline Platform",
+          "subtopics": ["Contracted sources with schema registry, CDC and managed ingestion", "Orchestrated, idempotent, partitioned pipelines with quality gates", "Lineage, observability, SLOs and cost attribution", "PII protection and compliant deletion", "CI/CD with data diffs and an ADR-backed architecture", "Failure drills: replay, backfill and region failover"],
+          "tools": ["Debezium", "Kafka", "Dagster", "Airflow", "dbt", "Great Expectations", "OpenLineage", "Iceberg"],
+          "lab_task": "Deliver a platform for orders, customers and refunds with contracts, CDC, an Iceberg or warehouse target, dbt marts, quality gates, OpenLineage events, SLO dashboards and PII tokenisation. Run three drills: schema-breaking change blocked in CI, a 30-day backfill with matching totals and one erasure request propagated to all layers.",
+          "deliverable": "Repository, ADRs, runbooks, dashboards and a recorded review demonstrating the three drills",
+          "checks": [["Propose a breaking schema change", "CI blocks it and names the affected consumers from lineage", "CI log and impact list"], ["Backfill 30 days", "Per-day control totals match the source and the SLO dashboard shows no breach", "Totals query and dashboard"], ["Process one erasure request", "The subject is absent from raw, clean and marts and a deletion record exists", "Count queries and deletion log"]],
+          "objectives": ["Integrate architecture, governance, reliability and cost in one platform", "Demonstrate operational drills with measurable results", "Present decisions and trade-offs to a review board"]
+        }
+      ]
+    }
+  }
+}

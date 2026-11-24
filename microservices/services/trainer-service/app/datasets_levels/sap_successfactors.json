@@ -1,0 +1,573 @@
+{
+  "domain": "SAP SuccessFactors",
+  "name": "SAP SuccessFactors HXM Suite",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "users",
+  "aliases": ["SuccessFactors", "SAP SF", "SAP SuccessFactors HXM", "SAP SuccessFactors Employee Central", "SuccessFactors Employee Central", "SAP SuccessFactors Consultant", "SuccessFactors Training", "SAP HXM", "SAP SuccessFactors Recruiting", "SAP SuccessFactors Compensation"],
+  "certifications": ["SAP Certified Associate - Implementation Consultant - SAP SuccessFactors Employee Central Core", "SAP Certified Associate - SAP SuccessFactors Performance and Goals", "SAP Certified Associate - SAP SuccessFactors Compensation", "SAP Certified Associate - SAP SuccessFactors Recruiting", "SAP Certified Associate - SAP SuccessFactors Onboarding", "SAP Certified Associate - SAP SuccessFactors Learning"],
+  "tools": ["SAP SuccessFactors demo or training instance", "Admin Center", "Provisioning (partner access)", "Integration Center", "SAP Integration Suite", "Story reports in People Analytics", "Excel import templates"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For HR professionals, HR IT staff and new SuccessFactors consultants. Covers the HXM suite and instance basics, navigation, Admin Center, role-based permissions, foundation objects and MDF, the Employee Central data model, hiring and job changes, position management, workflows, business rules, Time Off, Goal and Performance Management, Recruiting, Onboarding, Learning, story reports and data imports.",
+      "prerequisites": ["Understands HR processes such as hiring, job changes, leave and performance reviews", "Comfortable with Excel", "No previous SAP experience needed"],
+      "outcomes": ["Navigate and administer a SuccessFactors instance", "Configure Employee Central basics: foundation data, permissions, workflows and rules", "Run talent processes in Performance and Goals, Recruiting, Onboarding and Learning", "Report on HR data and load data with import templates"],
+      "days": [
+        {
+          "topic": "SAP SuccessFactors Overview, HXM Suite and Instance Setup",
+          "subtopics": ["What SAP SuccessFactors is and where it fits with SAP S/4HANA and SAP HCM", "The HXM suite: Employee Central, talent, learning, payroll and analytics", "Cloud release cycle: two major releases a year", "Instances: preview, production and test", "Demo and training instances for practice", "Logging in and the home page", "User roles: employee, manager, HR and administrator", "Implementation partners and SAP Activate in brief", "Course case company: a 3,000-person manufacturer in India and Germany", "Course instance and test users"],
+          "tools": ["SAP SuccessFactors training instance", "Admin Center"],
+          "lab_task": "Log in as an employee, a manager, an HR administrator and a system administrator, list what each can see and do, and map the course case company's HR processes to SuccessFactors modules.",
+          "deliverable": "Role comparison and process-to-module map",
+          "checks": [["Log in as each role", "Differences in menus and tiles recorded", "Role comparison"], ["Map processes to modules", "Each HR process linked to the right module", "Process map"], ["Explain the release cycle", "Preview and production timing described correctly", "Written note"]],
+          "objectives": ["Describe the HXM suite", "Navigate as different roles", "Map HR processes to modules"]
+        },
+        {
+          "topic": "Navigation, Home Page and People Profile",
+          "subtopics": ["Home page cards and quick actions", "Global search and action search", "People Profile", "Organisation Chart", "Notifications and To-Do items", "Personal settings and proxy", "Mobile app", "Accessibility settings"],
+          "tools": ["SAP SuccessFactors", "SuccessFactors mobile app"],
+          "lab_task": "Find an employee with action search, review their People Profile, follow the org chart to their manager, complete a To-Do item and act as a proxy for another user.",
+          "deliverable": "Navigation checklist with screenshots",
+          "checks": [["Use action search", "Target page opened directly", "Screenshot"], ["Act as proxy", "Actions logged as proxy", "Audit trail"], ["Use the mobile app", "Same To-Do visible on mobile", "Mobile screenshot"]],
+          "objectives": ["Navigate SuccessFactors", "Use People Profile and org chart", "Work with To-Do items"]
+        },
+        {
+          "topic": "Admin Center, Provisioning and Instance Settings",
+          "subtopics": ["Admin Center tools", "Company settings", "Provisioning and who has access to it", "Upgrade Center", "Picklists", "Text replacement and languages", "Email notification templates", "Check Tool for configuration issues"],
+          "tools": ["Admin Center", "Upgrade Center", "Check Tool"],
+          "lab_task": "Change company settings and languages, create a picklist, edit an email notification template, review the Upgrade Center and run the Check Tool to find and fix one issue.",
+          "deliverable": "Configuration changes and Check Tool results",
+          "checks": [["Create a picklist", "Values available in a field", "Screenshot"], ["Edit a notification", "New text received by a test user", "Email"], ["Run the Check Tool", "Issue found and fixed", "Check Tool results"]],
+          "objectives": ["Use Admin Center", "Manage picklists and notifications", "Check configuration"]
+        },
+        {
+          "topic": "Role-Based Permissions",
+          "subtopics": ["Permission roles and groups", "Granting roles to groups", "Target populations", "Field-level permissions", "Admin permissions", "Role-based permission reports", "Testing with proxy", "Common permission mistakes"],
+          "tools": ["Manage Permission Roles", "Manage Permission Groups"],
+          "lab_task": "Create roles for employee self-service, managers and HR business partners in India, grant them to dynamic groups with target populations and test with proxy.",
+          "deliverable": "Permission roles, groups and test results",
+          "checks": [["View as a manager", "Only direct reports visible", "Screenshot"], ["View salary as an employee for someone else", "Field not visible", "Screenshot"], ["Run a permission report", "Roles and groups listed for a user", "RBP report"]],
+          "objectives": ["Configure permissions", "Use target populations", "Test access"]
+        },
+        {
+          "topic": "Organisation Objects and the Metadata Framework",
+          "subtopics": ["Foundation objects: legal entity, business unit, division, department, location", "Job classifications and pay structures", "Associations between objects", "Metadata Framework objects", "Configure Object Definitions", "Manage Data", "Effective dating", "Importing foundation data"],
+          "tools": ["Manage Data", "Configure Object Definitions", "Import Foundation Data"],
+          "lab_task": "Create legal entities for India and Germany with business units, departments, locations and job classifications, link them with associations and import 50 cost centres.",
+          "deliverable": "Foundation data and import log",
+          "checks": [["Pick a department in a job record", "Only departments for the chosen division shown", "Screenshot"], ["Import cost centres", "50 records created", "Import log"], ["Change a department name effective next month", "Old name until the date", "Manage Data history"]],
+          "objectives": ["Create foundation data", "Use associations", "Understand effective dating"]
+        },
+        {
+          "topic": "Employee Central Data Model",
+          "subtopics": ["Corporate data model", "Succession data model", "Country-specific data models", "HRIS elements and fields", "Business configuration UI", "Field labels, visibility and required settings", "Country-specific fields for India and Germany", "Changing the data model safely"],
+          "tools": ["Manage Business Configuration", "Provisioning (read-only review)"],
+          "lab_task": "Review the data models, add a custom field to Job Information, make a field required for Germany only and add India-specific fields for PAN and Aadhaar with correct visibility.",
+          "deliverable": "Data model changes and screenshots",
+          "checks": [["Hire in Germany without the required field", "Save blocked", "Screenshot"], ["View the India fields", "Shown only for India employees", "Screenshot"], ["Review field permissions", "Sensitive IDs visible only to HR", "Permission test"]],
+          "objectives": ["Understand the EC data model", "Configure fields", "Handle country rules"]
+        },
+        {
+          "topic": "Hiring Employees and Managing Job Changes",
+          "subtopics": ["Add New Employee", "Hire templates", "Job information and compensation information", "Event reasons", "Job changes: promotion, transfer and pay change", "Terminations and rehires", "Employment history", "Mass changes"],
+          "tools": ["Employee Central", "Add New Employee"],
+          "lab_task": "Hire three employees with a hire template, promote one with a pay change, transfer one to Germany and terminate and rehire one, recording event reasons each time.",
+          "deliverable": "Employee records and history",
+          "checks": [["Promote with a pay change", "New job and pay records with the right event reason", "Employment history"], ["Transfer to Germany", "New legal entity and country fields", "Employee record"], ["Rehire", "Previous employment linked", "Employee record"]],
+          "objectives": ["Hire employees", "Process job changes", "Use event reasons"]
+        },
+        {
+          "topic": "Position Management",
+          "subtopics": ["Positions and their attributes", "Position hierarchy", "Position-to-job synchronisation", "Position-based hiring", "Vacancies and to-be-hired status", "Position org chart", "Mass position changes", "When to use position management"],
+          "tools": ["Position Management", "Position Org Chart"],
+          "lab_task": "Create positions for a new department, sync job data from positions, hire into a vacant position and view the position org chart.",
+          "deliverable": "Positions, hire record and org chart screenshot",
+          "checks": [["Hire into a position", "Job data filled from the position", "Employee record"], ["Change position data", "Incumbent's job data updated by sync rules", "Employee record"], ["View vacancies", "Vacant positions shown in the org chart", "Screenshot"]],
+          "objectives": ["Use positions", "Sync job data", "Hire into positions"]
+        },
+        {
+          "topic": "Workflows and Approvals",
+          "subtopics": ["Workflow configurations", "Approvers: managers, roles and dynamic groups", "Contributors and CC roles", "Delegation", "Workflow notifications", "Pending requests", "Escalations", "Monitoring workflows"],
+          "tools": ["Manage Organisation, Pay and Job Structures", "Workflow configuration"],
+          "lab_task": "Create a promotion workflow approved by the manager's manager and HR, with HR CC'd, delegate approval during leave and escalate requests pending for five days.",
+          "deliverable": "Workflow configuration and test records",
+          "checks": [["Submit a promotion", "Approvals routed in the right order", "Workflow history"], ["Delegate approval", "Delegate receives the request", "Screenshot"], ["Leave a request pending", "Escalation after five days", "Workflow history"]],
+          "objectives": ["Configure workflows", "Route approvals", "Escalate stuck requests"]
+        },
+        {
+          "topic": "Business Rules",
+          "subtopics": ["Rule scenarios", "Rule syntax: If, Then and Else", "Default values and derivations", "Validation rules", "Triggering workflows with rules", "Event reason derivation", "onChange, onSave and onInit events", "Testing rules"],
+          "tools": ["Configure Business Rules", "Manage Business Configuration"],
+          "lab_task": "Write rules that default the probation end date, validate notice periods by country, derive event reasons for pay changes and trigger the promotion workflow.",
+          "deliverable": "Rules and test results",
+          "checks": [["Hire an employee", "Probation end date filled", "Employee record"], ["Enter an invalid notice period", "Validation message shown", "Screenshot"], ["Change pay", "Event reason derived and workflow triggered", "Workflow history"]],
+          "objectives": ["Write business rules", "Validate data", "Trigger workflows with rules"]
+        },
+        {
+          "topic": "Time Off Management",
+          "subtopics": ["Time types and accounts", "Time profiles", "Holiday calendars", "Work schedules", "Accruals", "Leave requests and approvals", "Period-end processing", "Country rules for India and Germany"],
+          "tools": ["Time Off", "Holiday calendars"],
+          "lab_task": "Configure annual leave with monthly accruals, sick leave and public holidays for India and Germany, request leave as an employee, approve it and run period-end processing.",
+          "deliverable": "Time Off configuration and test results",
+          "checks": [["Run accruals", "Balance increases each month", "Time account details"], ["Request leave over a holiday", "Holiday not deducted", "Leave request"], ["Run period-end", "Carry-forward applied", "Time account details"]],
+          "objectives": ["Configure Time Off", "Set accruals and holidays", "Process leave"]
+        },
+        {
+          "topic": "Goal Management",
+          "subtopics": ["Goal plans", "Goal templates and fields", "SMART goals", "Cascading goals", "Goal library", "Group goals", "Goal progress updates", "Goal reports"],
+          "tools": ["Goal Management", "Goal plan templates"],
+          "lab_task": "Configure a goal plan with weights, cascade a company goal to two teams, create goals from the library and update progress as employees.",
+          "deliverable": "Goal plan configuration and goal records",
+          "checks": [["Cascade a goal", "Goal appears for both teams", "Screenshot"], ["Exceed 100 percent weighting", "Warning shown", "Screenshot"], ["Update progress", "Status shown to the manager", "Screenshot"]],
+          "objectives": ["Configure goal plans", "Cascade goals", "Track progress"]
+        },
+        {
+          "topic": "Performance Management",
+          "subtopics": ["Performance form templates", "Route maps", "Rating scales", "Competencies", "Manager and self assessment steps", "Calibration in brief", "Continuous Performance Management", "Launching forms"],
+          "tools": ["Performance Management", "Route Map", "Form templates"],
+          "lab_task": "Build a performance form with goals and competencies, a route map with self and manager assessment, launch it for a team and complete one review end to end.",
+          "deliverable": "Form template, route map and completed review",
+          "checks": [["Launch forms", "Forms in employees' inboxes", "Screenshot"], ["Complete self assessment", "Form moves to the manager step", "Route map status"], ["Rate competencies", "Overall rating calculated", "Completed form"]],
+          "objectives": ["Configure performance reviews", "Build route maps", "Run reviews"]
+        },
+        {
+          "topic": "Recruiting: Job Requisitions and Approvals",
+          "subtopics": ["Recruiting Management overview", "Job requisition templates", "Requisition approval routes", "Job profile builder", "Requisition statuses", "Recruiting operators and roles", "Linking requisitions to positions", "Requisition reports"],
+          "tools": ["Recruiting Management", "Job Profile Builder"],
+          "lab_task": "Create a requisition template, open a requisition from a vacant position, route it for approval and attach a job profile.",
+          "deliverable": "Template, requisition and approval history",
+          "checks": [["Open from a position", "Job details filled from the position", "Requisition"], ["Route for approval", "Approved by the right people", "Approval history"], ["Attach a job profile", "Description and skills shown", "Requisition"]],
+          "objectives": ["Create requisitions", "Route approvals", "Use job profiles"]
+        },
+        {
+          "topic": "Recruiting: Postings, Candidates and Interviews",
+          "subtopics": ["Posting jobs", "Career site basics", "Applications and candidate profiles", "Applicant status pipeline", "Screening questions", "Interview scheduling", "Offers and offer approval", "Moving hires to onboarding"],
+          "tools": ["Recruiting Management", "Career site"],
+          "lab_task": "Post the job, apply as two candidates, move them through the status pipeline, schedule an interview, approve an offer and send the hire to Onboarding.",
+          "deliverable": "Candidate records, interview and offer",
+          "checks": [["Apply as a candidate", "Application in the pipeline", "Screenshot"], ["Approve the offer", "Offer sent after approvals", "Offer details"], ["Hire the candidate", "Onboarding started", "Onboarding dashboard"]],
+          "objectives": ["Post jobs", "Manage candidates", "Make offers"]
+        },
+        {
+          "topic": "Onboarding",
+          "subtopics": ["Onboarding process overview", "Onboarding programmes and tasks", "New hire data review", "Documents and e-signature", "Buddies and welcome messages", "Compliance forms", "Offboarding", "Onboarding dashboard"],
+          "tools": ["Onboarding", "Onboarding dashboard"],
+          "lab_task": "Configure onboarding tasks for IT, facilities and the manager, assign a buddy, collect new hire documents and complete the hire into Employee Central.",
+          "deliverable": "Onboarding configuration and completed process",
+          "checks": [["Complete new hire data", "Data passed to Employee Central", "Employee record"], ["Assign tasks", "IT and facilities receive their tasks", "Screenshot"], ["Sign documents", "Signed documents stored", "Document list"]],
+          "objectives": ["Configure onboarding", "Coordinate tasks", "Complete hires"]
+        },
+        {
+          "topic": "SuccessFactors Learning: Items, Assignments and Curricula",
+          "subtopics": ["Learning admin interface", "Items and classes", "Curricula", "Assignment profiles", "Learning plans", "Completions and history", "External content", "Learning reports"],
+          "tools": ["SuccessFactors Learning", "Learning Administration"],
+          "lab_task": "Create a safety item and a curriculum, assign them to new hires with an assignment profile, complete a course as an employee and report overdue training.",
+          "deliverable": "Learning items, assignment profile and report",
+          "checks": [["Assign by profile", "New hires receive the curriculum", "Learning plan"], ["Complete a course", "Completion recorded in history", "Learning history"], ["Report overdue training", "Overdue employees listed", "Report"]],
+          "objectives": ["Administer learning", "Assign training", "Report compliance"]
+        },
+        {
+          "topic": "Reporting with Story Reports and People Analytics",
+          "subtopics": ["Reporting options", "Story reports", "Data sources and joins", "Charts and tables", "Filters and parameters", "Sharing reports", "Report permissions", "Scheduling reports"],
+          "tools": ["People Analytics", "Story reports"],
+          "lab_task": "Build story reports for headcount by department, hires and leavers by month and pending leave, share them with HR business partners and schedule a weekly email.",
+          "deliverable": "Story reports and schedule",
+          "checks": [["Compare headcount", "Matches the employee list", "Comparison"], ["Share with HR partners", "Visible only to permitted users", "Screenshot"], ["Receive the scheduled report", "Delivered on schedule", "Email"]],
+          "objectives": ["Build story reports", "Share safely", "Schedule reports"]
+        },
+        {
+          "topic": "Importing Employee Data with Import Templates",
+          "subtopics": ["Import tools in Admin Center", "Templates for basic and extended data", "Import order", "Full purge and incremental loads", "Effective-dated imports", "Validation and errors", "Import job monitoring", "Data quality before import"],
+          "tools": ["Import Employee Data", "Monitor Jobs", "Excel"],
+          "lab_task": "Load 200 employees from a legacy file in the right order (basic data, personal, employment, job and compensation), fix import errors and run an incremental update.",
+          "deliverable": "Import files, job results and error fixes",
+          "checks": [["Run imports in order", "All employees created", "Monitor Jobs output"], ["Fix import errors", "Errors resolved and re-imported", "Error report"], ["Run an incremental update", "Only changed records updated", "Employee history"]],
+          "objectives": ["Import employee data", "Follow import order", "Fix import errors"]
+        },
+        {
+          "topic": "Beginner Capstone: HR Processes for the Case Company",
+          "subtopics": ["Foundation and permissions", "Core HR processes", "Talent processes", "Reporting"],
+          "tools": ["Employee Central", "Time Off", "Performance and Goals", "Recruiting", "Onboarding", "People Analytics"],
+          "lab_task": "Configure foundation data, permissions, a hire-to-retire flow with workflows and rules, Time Off, a goal and review cycle and recruiting through onboarding for the case company, then demo it with reports.",
+          "deliverable": "Configuration workbook, test records, reports and demo recording",
+          "checks": [["Hire a candidate end to end", "Requisition to Employee Central record completed", "Demo recording"], ["Test permissions", "Each role sees only what it should", "Test results"], ["Present reports", "Headcount and leave reports correct", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one solution", "Run core HR and talent processes", "Present a working demo"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For SuccessFactors consultants and HRIS analysts. Covers advanced Employee Central data models, MDF objects and UIs, advanced business rules, Employee Central Payroll and Payroll Control Center, Time Tracking, Compensation, Variable Pay, Succession and Career Development, advanced Recruiting, Recruiting Marketing, advanced Onboarding and Learning, Integration Center, OData APIs and Integration Suite, data protection and privacy, release management, advanced People Analytics and certification preparation.",
+      "prerequisites": ["Configures Employee Central foundation data, permissions, workflows and rules", "Has run talent processes in SuccessFactors", "Understands HR processes in at least one country"],
+      "outcomes": ["Design advanced Employee Central configurations with MDF and rules", "Configure payroll, time, compensation and succession processes", "Integrate SuccessFactors through Integration Center, OData and Integration Suite", "Manage privacy, releases and certification readiness"],
+      "days": [
+        {
+          "topic": "Employee Central Data Model Configuration in Depth",
+          "subtopics": ["XML data models and when they are still used", "Country-specific succession data models", "Custom fields and HRIS sections", "Picklist dependencies", "Employee Central Country/Region pack settings", "Global assignments and concurrent employment", "Contingent workers", "Data model change control"],
+          "tools": ["Manage Business Configuration", "Provisioning", "Picklist Center"],
+          "lab_task": "Configure dependent picklists, a global assignment from India to Germany, concurrent employment for a second job and contingent workers with their own fields, under change control.",
+          "deliverable": "Configuration changes, change log and test records",
+          "checks": [["Pick a country then a state", "State list depends on the country", "Screenshot"], ["Create a global assignment", "Home and host assignments linked", "Employee record"], ["Add a contingent worker", "Separate worker type with its fields", "Employee record"]],
+          "objectives": ["Configure advanced data models", "Handle global employment", "Control changes"]
+        },
+        {
+          "topic": "MDF Objects, Rules and Custom UIs",
+          "subtopics": ["Designing custom MDF objects", "Object relationships", "Object permissions", "MDF rules", "Configuration UI", "Generic objects in Employee Central", "Workflows on MDF objects", "Importing and exporting MDF data"],
+          "tools": ["Configure Object Definitions", "Manage Configuration UI", "Manage Data"],
+          "lab_task": "Build a custom MDF object for company assets with relationships to employees, rules, permissions, a custom UI and an approval workflow, and import 100 assets.",
+          "deliverable": "Object definition, UI, rules and imported data",
+          "checks": [["Assign an asset", "Linked to the employee with approval", "Workflow history"], ["View as an unauthorised user", "Object hidden", "Screenshot"], ["Import assets", "100 records created", "Import log"]],
+          "objectives": ["Build MDF objects", "Add rules and UIs", "Secure custom data"]
+        },
+        {
+          "topic": "Business Rules in Depth",
+          "subtopics": ["Cross-entity rules", "Rules with lookups", "Rule contexts and base objects", "Rules for alerts and notifications", "Rule performance", "Rule traces", "Organising and naming rules", "Testing rules in preview"],
+          "tools": ["Configure Business Rules", "Rule Traces"],
+          "lab_task": "Write a cross-entity rule that updates compensation when job grade changes, a lookup rule for location allowances, an alert for contracts ending soon and trace a rule that misfires.",
+          "deliverable": "Rules, test results and trace analysis",
+          "checks": [["Change job grade", "Pay updated by the cross-entity rule", "Compensation record"], ["Run the rule trace", "Misfire cause found", "Rule trace"], ["Wait for the alert", "Alert raised before contract end", "Alert list"]],
+          "objectives": ["Write advanced rules", "Use lookups", "Debug rules with traces"]
+        },
+        {
+          "topic": "Employee Central Payroll and Payroll Control Center",
+          "subtopics": ["Employee Central Payroll architecture", "Replication from Employee Central to payroll", "Payroll areas and periods", "Wage types in brief", "Payroll Control Center", "Validations and alerts", "Off-cycle payroll", "Payroll integration with third-party providers"],
+          "tools": ["Employee Central Payroll", "Payroll Control Center", "Data replication monitor"],
+          "lab_task": "Replicate employees to Employee Central Payroll, run a payroll simulation, resolve Payroll Control Center alerts and process an off-cycle payment.",
+          "deliverable": "Replication log, simulation results and alert resolutions",
+          "checks": [["Replicate a new hire", "Employee in payroll with correct data", "Replication monitor"], ["Resolve alerts", "All validation alerts cleared", "Payroll Control Center"], ["Run an off-cycle payment", "Payment processed for the employee", "Payroll result"]],
+          "objectives": ["Connect EC and payroll", "Use Payroll Control Center", "Handle off-cycle payments"]
+        },
+        {
+          "topic": "Time Tracking and Time Sheets",
+          "subtopics": ["Time Tracking compared with Time Off", "Time sheets", "Time valuation", "Overtime rules", "Time collectors and pay types", "Clock in and clock out", "Time sheet approvals", "Time data to payroll"],
+          "tools": ["Time Tracking", "Time sheet configuration"],
+          "lab_task": "Configure time sheets with overtime rules for Germany, record a week with overtime, approve it and pass the valuated time to payroll.",
+          "deliverable": "Time configuration and test week",
+          "checks": [["Record overtime", "Overtime calculated by the valuation rules", "Time sheet"], ["Approve the time sheet", "Status approved", "Time sheet"], ["Send to payroll", "Time pay types in payroll", "Payroll data"]],
+          "objectives": ["Configure time tracking", "Value time", "Feed payroll"]
+        },
+        {
+          "topic": "Compensation Planning",
+          "subtopics": ["Compensation templates", "Plan settings and eligibility", "Guidelines", "Budgets", "Compensation worksheets", "Approvals", "Rewards statements", "Publishing to Employee Central"],
+          "tools": ["Compensation", "Compensation templates"],
+          "lab_task": "Configure a merit plan with eligibility, guidelines by rating and budgets, run worksheets for two managers, approve them and publish results to Employee Central.",
+          "deliverable": "Template, worksheets and published records",
+          "checks": [["Plan outside guidelines", "Warning shown", "Worksheet"], ["Exceed the budget", "Budget warning shown", "Worksheet"], ["Publish results", "New pay in Employee Central", "Compensation history"]],
+          "objectives": ["Configure compensation plans", "Use guidelines and budgets", "Publish results"]
+        },
+        {
+          "topic": "Bonus and Incentive Plans",
+          "subtopics": ["Variable pay programmes", "Business goals and weights", "Individual performance in bonus", "Bonus calculations", "Variable pay worksheets", "History data", "Statements", "Integration with payroll"],
+          "tools": ["Variable Pay", "Compensation"],
+          "lab_task": "Configure a bonus plan using business results and individual ratings, import history, run worksheets and generate bonus statements.",
+          "deliverable": "Plan configuration, worksheets and statements",
+          "checks": [["Calculate a bonus", "Matches a manual calculation", "Worksheet and calculation"], ["Change a business result", "Bonuses recalculate", "Worksheet"], ["Generate statements", "Statements for each employee", "Statements"]],
+          "objectives": ["Configure variable pay", "Calculate bonuses", "Produce statements"]
+        },
+        {
+          "topic": "Succession Planning and Talent Reviews",
+          "subtopics": ["Succession org chart", "Talent pools", "Nominations", "Readiness ratings", "Nine-box grid and calibration", "Talent review forms", "Succession reports", "Permissions for succession data"],
+          "tools": ["Succession Management", "Calibration"],
+          "lab_task": "Nominate successors for three key roles, set readiness, build a talent pool, run a calibration session with a nine-box grid and report succession gaps.",
+          "deliverable": "Nominations, calibration results and gap report",
+          "checks": [["Nominate successors", "Successors and readiness shown on the org chart", "Screenshot"], ["Run calibration", "Ratings adjusted and saved", "Calibration session"], ["Report gaps", "Roles without ready successors listed", "Report"]],
+          "objectives": ["Plan succession", "Run calibration", "Report talent gaps"]
+        },
+        {
+          "topic": "Career Development Planning and Mentoring",
+          "subtopics": ["Development plans", "Career worksheet", "Role readiness assessments", "Learning activities in development plans", "Mentoring programmes", "Opportunity Marketplace in brief", "Development goals", "Reporting on development"],
+          "tools": ["Career Development Planning", "Mentoring"],
+          "lab_task": "Configure development plans and a career worksheet, run a role readiness assessment, link learning to a development goal and set up a mentoring programme.",
+          "deliverable": "Configuration and test records",
+          "checks": [["Run a readiness assessment", "Gaps against the target role shown", "Assessment"], ["Link learning", "Course appears in the development plan", "Screenshot"], ["Match mentors", "Mentors matched to mentees", "Programme screenshot"]],
+          "objectives": ["Configure development plans", "Assess readiness", "Run mentoring"]
+        },
+        {
+          "topic": "Recruiting Management in Depth",
+          "subtopics": ["Requisition template design", "Candidate profile template", "Application template", "Status sets and flows", "Interview Central and interview scheduling", "Offer templates and letters", "Background checks", "Recruiting permissions"],
+          "tools": ["Recruiting Management", "Interview Scheduling"],
+          "lab_task": "Redesign status sets for graduate and experienced hiring, configure interview scheduling with Outlook, build offer letter templates and set recruiting permissions by stage.",
+          "deliverable": "Templates, status sets and test candidates",
+          "checks": [["Move a candidate", "Only allowed status moves possible", "Screenshot"], ["Schedule interviews", "Calendar invitations sent", "Calendar"], ["View a candidate as a hiring manager", "Only permitted fields visible", "Screenshot"]],
+          "objectives": ["Design recruiting templates", "Configure statuses", "Control recruiting access"]
+        },
+        {
+          "topic": "Recruiting Marketing and Career Site Builder",
+          "subtopics": ["Career Site Builder", "Branding and pages", "Job search and job alerts", "Talent community", "Job distribution to job boards", "Analytics for sources", "SEO for career sites", "Accessibility of career sites"],
+          "tools": ["Career Site Builder", "Recruiting Marketing"],
+          "lab_task": "Build a branded career site with search, job alerts and a talent community, distribute jobs to two job boards and report applicants by source.",
+          "deliverable": "Career site and source report",
+          "checks": [["Search for a job", "Job found with filters", "Screenshot"], ["Subscribe to alerts", "Alert email for a new job", "Email"], ["Report by source", "Applicants per source shown", "Report"]],
+          "objectives": ["Build career sites", "Distribute jobs", "Measure sources"]
+        },
+        {
+          "topic": "Onboarding in Depth: Programmes, Compliance and Offboarding",
+          "subtopics": ["Onboarding process variants", "Business rules in Onboarding", "Document flows", "Compliance forms by country", "Crossboarding for internal moves", "Offboarding tasks", "Integration with IT provisioning", "Onboarding analytics"],
+          "tools": ["Onboarding", "Document flow", "Business rules"],
+          "lab_task": "Configure country-specific onboarding variants, a document flow with e-signature, crossboarding for a transfer and offboarding with IT access removal tasks.",
+          "deliverable": "Process variants, documents and test records",
+          "checks": [["Hire in Germany", "German variant and forms used", "Onboarding record"], ["Transfer an employee", "Crossboarding tasks created", "Screenshot"], ["Offboard an employee", "IT removal task assigned", "Task list"]],
+          "objectives": ["Configure onboarding variants", "Handle compliance documents", "Run offboarding"]
+        },
+        {
+          "topic": "Learning Administration in Depth",
+          "subtopics": ["Learning connectors", "Learning assignment profiles at scale", "Instructor-led classes and registration", "Online content and SCORM", "Learning approvals", "Learning notifications", "Compliance training", "Learning reporting"],
+          "tools": ["SuccessFactors Learning", "Content administration"],
+          "lab_task": "Import SCORM content, schedule an instructor-led class with registration approval, run assignment profiles for 1,000 employees and report compliance by department.",
+          "deliverable": "Content, class, profiles and report",
+          "checks": [["Launch SCORM content", "Completion recorded", "Learning history"], ["Register for a class", "Approval routed to the manager", "Approval history"], ["Report compliance", "Percentage complete by department", "Report"]],
+          "objectives": ["Administer learning at scale", "Manage content", "Report compliance"]
+        },
+        {
+          "topic": "Integration Center",
+          "subtopics": ["Integration Center overview", "Outbound file integrations", "Field mapping and calculated fields", "Filters and effective dating", "SFTP destinations", "Inbound integrations", "Scheduling", "Monitoring"],
+          "tools": ["Integration Center", "SFTP"],
+          "lab_task": "Build an outbound integration that sends new hires to a third-party benefits provider over SFTP daily, with filters and calculated fields, and an inbound integration for bank details.",
+          "deliverable": "Integration definitions and run logs",
+          "checks": [["Run the outbound integration", "File delivered with new hires only", "SFTP listing"], ["Run the inbound integration", "Bank details updated", "Employee record"], ["Monitor runs", "Run status and errors shown", "Execution manager"]],
+          "objectives": ["Build integrations", "Map fields", "Monitor runs"]
+        },
+        {
+          "topic": "OData APIs and SAP Integration Suite",
+          "subtopics": ["SuccessFactors OData API", "API Center", "Authentication with OAuth", "Querying entities", "Upserting data", "SAP Integration Suite for SuccessFactors", "Prepackaged integration content", "Error handling and monitoring"],
+          "tools": ["OData API", "API Center", "SAP Integration Suite", "Postman"],
+          "lab_task": "Query employees through OData with OAuth, upsert a job change, deploy a prepackaged Integration Suite flow and monitor a failed message.",
+          "deliverable": "API collection, flow deployment and monitoring notes",
+          "checks": [["Query employees", "Results returned with filters", "Postman result"], ["Upsert a job change", "Change saved", "Employee record"], ["Inspect a failed message", "Error found in Integration Suite monitoring", "Monitoring screenshot"]],
+          "objectives": ["Use OData APIs", "Deploy Integration Suite flows", "Monitor integrations"]
+        },
+        {
+          "topic": "Data Protection, Privacy and Retention",
+          "subtopics": ["Data protection and privacy features", "Consent statements", "Data retention management", "Purge requests", "Change audit and read audit", "Sensitive data handling", "Information reports for data subjects", "Country rules: GDPR and India's DPDP Act"],
+          "tools": ["Data Retention Management", "Change audit", "Read audit"],
+          "lab_task": "Configure retention times for terminated employees, run a purge request, turn on read audit for sensitive fields and produce a data subject information report.",
+          "deliverable": "Retention settings, purge results and audit reports",
+          "checks": [["Run the purge", "Data removed after retention", "Purge request status"], ["Read sensitive data", "Read logged in the audit", "Read audit report"], ["Produce the information report", "Personal data listed for the employee", "Report"]],
+          "objectives": ["Protect personal data", "Apply retention", "Audit access"]
+        },
+        {
+          "topic": "Release Management and Instance Synchronisation",
+          "subtopics": ["Release cycle and release notes", "Preview and production timing", "Opt-in and universal features", "Testing releases", "Instance Synchronisation tool", "Moving configuration between instances", "Change logs", "Regression testing"],
+          "tools": ["Instance Synchronisation", "Upgrade Center", "Release notes"],
+          "lab_task": "Review the upcoming release notes, plan testing for affected processes, move configuration from test to production with Instance Synchronisation and run a regression test.",
+          "deliverable": "Release plan, sync log and regression results",
+          "checks": [["Sync configuration", "Changes in production", "Sync log"], ["Run regression tests", "Key processes pass", "Test results"], ["Review release impact", "Affected processes listed", "Release plan"]],
+          "objectives": ["Manage releases", "Move configuration safely", "Test regressions"]
+        },
+        {
+          "topic": "People Analytics in Depth",
+          "subtopics": ["Story reports with multiple data sources", "Calculated columns", "Workforce analytics metrics", "Report-level permissions", "Embedding reports in the home page", "Exporting and scheduling", "Report performance", "Analytics governance"],
+          "tools": ["People Analytics", "Story reports"],
+          "lab_task": "Build an attrition and diversity story with calculated metrics, restrict it by role, add it to the home page and tune a slow report.",
+          "deliverable": "Story reports and settings",
+          "checks": [["Calculate attrition", "Rate matches a manual calculation", "Comparison"], ["Restrict by role", "HR partners see only their population", "Screenshot"], ["Tune the slow report", "Load time lower", "Timing notes"]],
+          "objectives": ["Build advanced reports", "Secure analytics", "Tune reports"]
+        },
+        {
+          "topic": "SuccessFactors Certification Preparation",
+          "subtopics": ["Certification paths and exams", "Employee Central Core topics", "Talent module topics", "Exam question styles", "Common traps", "Practice in the instance", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "SAP Learning Hub", "Training instance"],
+          "lab_task": "Take a timed practice exam for your chosen module, rebuild wrong answers in the instance, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each confirmed in the instance", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exams", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Global Talent and Pay Cycle",
+          "subtopics": ["Design", "Configuration", "Integration", "Demo"],
+          "tools": ["Employee Central", "Compensation", "Succession", "Recruiting", "Integration Center", "People Analytics"],
+          "lab_task": "For the case company, configure an annual cycle: goals and reviews, calibration, merit and bonus planning published to Employee Central and payroll, succession nominations, an external benefits integration and analytics, then demo it.",
+          "deliverable": "Configuration workbook, test records, integration logs and demo recording",
+          "checks": [["Run the cycle end to end", "Ratings drive pay changes published to payroll", "Demo recording"], ["Run the integration", "Benefits provider receives correct data", "SFTP file"], ["Present analytics", "Attrition and pay reports correct", "Demo recording"]],
+          "objectives": ["Combine the intermediate topics in one cycle", "Connect talent and pay", "Present a working solution"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For SuccessFactors solution architects and programme leads. Covers HXM solution architecture, global Employee Central design, integration with SAP S/4HANA and payroll, BTP extensions, AI with Joule, talent intelligence, workforce planning, data migration, testing, identity and security, compliance and works councils, performance at scale, change management, landscape governance, HR service delivery, global payroll integration, HR process transformation, production troubleshooting and programme leadership.",
+      "prerequisites": ["Has configured several SuccessFactors modules in projects", "Understands integrations through Integration Center or Integration Suite", "Has worked with HR stakeholders in more than one country"],
+      "outcomes": ["Design global SuccessFactors solutions and integration architectures", "Extend the suite with BTP and AI features", "Lead data migration, testing, security and compliance", "Run implementations and support with strong governance"],
+      "days": [
+        {
+          "topic": "HXM Solution Architecture and Implementation Approach",
+          "subtopics": ["Solution scope and module choices", "SAP Activate for SuccessFactors", "Design documents and configuration workbooks", "Fit-to-standard workshops", "Core and local design", "Integration landscape", "Architecture decision records", "Reviewing solution designs"],
+          "tools": ["SAP Activate", "Configuration workbooks", "Architecture diagrams"],
+          "lab_task": "Run a fit-to-standard workshop for hire-to-retire, produce a solution design with core and local parts for three countries and record key decisions.",
+          "deliverable": "Workshop notes, solution design and decision records",
+          "checks": [["Run the workshop", "Gaps recorded with standard options", "Workshop notes"], ["Separate core and local", "Global and country parts clearly listed", "Solution design"], ["Record decisions", "Options and reasons for each decision", "Decision records"]],
+          "objectives": ["Design HXM solutions", "Run fit-to-standard", "Record decisions"]
+        },
+        {
+          "topic": "Global Employee Central Design",
+          "subtopics": ["Global data standards", "Legal entity and organisation design", "Job architecture", "Country localisation", "Global assignments at scale", "Multi-language design", "Global reporting needs", "Avoiding over-customisation"],
+          "tools": ["Employee Central", "Configuration workbooks"],
+          "lab_task": "Design a global Employee Central for operations in India, Germany, the US and Singapore: organisation, job architecture, local fields and languages, and review it for unnecessary customisation.",
+          "deliverable": "Global design and review findings",
+          "checks": [["Review job architecture", "One global structure with local grades mapped", "Design document"], ["Review localisation", "Only required local fields added", "Review findings"], ["Test a cross-country transfer", "Data mapped correctly", "Test record"]],
+          "objectives": ["Design global EC", "Build job architecture", "Limit customisation"]
+        },
+        {
+          "topic": "Integrating SuccessFactors with SAP S/4HANA and SAP HCM",
+          "subtopics": ["Integration scenarios", "Employee Central to S/4HANA replication", "Organisational data and cost centres", "Hybrid HCM with on-premises payroll", "Core hybrid and side-by-side models", "Integration through Integration Suite", "Error handling and monitoring", "Choosing an integration model"],
+          "tools": ["SAP Integration Suite", "SAP S/4HANA", "Employee Central"],
+          "lab_task": "Replicate employees and organisation data from Employee Central to S/4HANA, fix a replication error and compare core hybrid and side-by-side models for the case company.",
+          "deliverable": "Replication results, error fix and model comparison",
+          "checks": [["Replicate a hire", "Employee created in S/4HANA", "Replication monitor"], ["Fix the error", "Cause found and replication succeeds", "Monitoring log"], ["Compare models", "Recommendation with reasons", "Comparison"]],
+          "objectives": ["Integrate with S/4HANA", "Choose hybrid models", "Monitor replication"]
+        },
+        {
+          "topic": "Extending SuccessFactors with SAP BTP",
+          "subtopics": ["When to extend and when to configure", "BTP services for HR extensions", "SAP Build Apps and Build Process Automation", "CAP applications using SuccessFactors APIs", "Event-driven extensions", "Security and principal propagation", "Deploying extensions", "Lifecycle of extensions"],
+          "tools": ["SAP BTP", "SAP Build", "SAP Event Mesh", "Cloud Application Programming Model"],
+          "lab_task": "Build an approval app on BTP that reads employee data from SuccessFactors, reacts to a hire event and writes back with the user's permissions.",
+          "deliverable": "Extension app, event set-up and tests",
+          "checks": [["Trigger a hire", "Extension receives the event", "Event log"], ["Write back as a user", "User's permissions applied", "API log"], ["Review the decision", "Extension justified over configuration", "Decision record"]],
+          "objectives": ["Extend with BTP", "Use events", "Secure extensions"]
+        },
+        {
+          "topic": "AI in SuccessFactors: Joule and AI-Assisted Processes",
+          "subtopics": ["AI features across HXM", "Joule for employees and managers", "AI-assisted writing in performance and goals", "AI in recruiting: job descriptions and matching", "Skills inference", "Responsible AI and works council concerns", "Enabling and governing AI features", "Measuring value"],
+          "tools": ["Joule", "AI features in SuccessFactors"],
+          "lab_task": "Enable selected AI features in a test instance, test Joule tasks for managers, review AI-written feedback for bias and write a governance note for rollout.",
+          "deliverable": "Test results, bias review and governance note",
+          "checks": [["Run Joule tasks", "Tasks complete correctly", "Test log"], ["Review AI feedback", "Bias or tone issues identified", "Review notes"], ["Write the governance note", "Rules for use and review defined", "Governance note"]],
+          "objectives": ["Use AI in SuccessFactors", "Review AI output", "Govern AI rollout"]
+        },
+        {
+          "topic": "Talent Intelligence Hub and Opportunity Marketplace",
+          "subtopics": ["Skills-based talent", "Talent Intelligence Hub", "Skills libraries and attributes", "Growth Portfolio", "Opportunity Marketplace", "Gigs and internal mobility", "Connecting skills to learning and recruiting", "Measuring internal mobility"],
+          "tools": ["Talent Intelligence Hub", "Opportunity Marketplace"],
+          "lab_task": "Load a skills library, let employees add skills, post two gigs in the marketplace, match employees and report internal mobility.",
+          "deliverable": "Skills configuration, gigs and mobility report",
+          "checks": [["Add skills", "Skills shown in Growth Portfolio", "Screenshot"], ["Match a gig", "Employees matched by skills", "Screenshot"], ["Report mobility", "Internal moves measured", "Report"]],
+          "objectives": ["Build skills-based talent", "Use the marketplace", "Measure mobility"]
+        },
+        {
+          "topic": "Workforce Analytics and Workforce Planning",
+          "subtopics": ["Workforce planning concepts", "Headcount and cost models", "Scenarios", "Data from Employee Central", "SAP Analytics Cloud for HR", "Strategic and operational planning", "Planning with finance", "Presenting plans"],
+          "tools": ["SAP Analytics Cloud", "People Analytics"],
+          "lab_task": "Build a three-year headcount and cost plan with scenarios from Employee Central data in SAP Analytics Cloud and present it to a role-play finance partner.",
+          "deliverable": "Planning model, scenarios and presentation",
+          "checks": [["Load EC data", "Current headcount and cost match", "Reconciliation"], ["Compare scenarios", "Cost difference per scenario shown", "Planning model"], ["Present to finance", "Assumptions and risks explained", "Presentation feedback"]],
+          "objectives": ["Plan the workforce", "Model scenarios", "Work with finance"]
+        },
+        {
+          "topic": "Data Migration Strategy for SuccessFactors",
+          "subtopics": ["Migration scope", "Source analysis from SAP HCM and other systems", "Data mapping", "Data cleansing", "Migration tools and templates", "Mock loads", "Reconciliation", "Cutover"],
+          "tools": ["Import templates", "SAP migration tools", "Excel"],
+          "lab_task": "Map data from a legacy HR system, cleanse it, run two mock loads, reconcile counts and pay totals and write the cutover plan.",
+          "deliverable": "Mapping, mock load results, reconciliation and cutover plan",
+          "checks": [["Run mock loads", "Error rate falls in the second load", "Load reports"], ["Reconcile", "Counts and pay totals match the source", "Reconciliation report"], ["Review the cutover plan", "Steps, owners and rollback included", "Cutover plan"]],
+          "objectives": ["Plan data migration", "Run mock loads", "Reconcile data"]
+        },
+        {
+          "topic": "Testing Strategy and Test Automation",
+          "subtopics": ["Test phases: unit, integration, UAT and regression", "Test scenarios for HR processes", "Test data", "Role-based testing", "Automating regression tests", "Testing each release", "Defect management", "Test sign-off"],
+          "tools": ["Test management tool", "Test automation tool", "Training instance"],
+          "lab_task": "Write a test strategy and scenarios for hire-to-retire, automate five regression tests, run them against a release preview and manage defects to sign-off.",
+          "deliverable": "Strategy, scenarios, automated tests and sign-off",
+          "checks": [["Run automated tests", "Results recorded for the preview release", "Test report"], ["Raise defects", "Defects logged with steps", "Defect list"], ["Get sign-off", "Business owners sign off", "Sign-off record"]],
+          "objectives": ["Plan testing", "Automate regression", "Manage sign-off"]
+        },
+        {
+          "topic": "Identity, Single Sign-On and Security Architecture",
+          "subtopics": ["SAP Cloud Identity Services: IAS and IPS", "Single sign-on with corporate identity providers", "User provisioning", "Role design at scale", "Segregation of duties", "Security audits", "API security", "Security incident response"],
+          "tools": ["SAP Cloud Identity Services", "Corporate identity provider", "RBP"],
+          "lab_task": "Set up SSO through IAS with a corporate identity provider, provision users with IPS, review roles for segregation of duties and audit API users.",
+          "deliverable": "Identity configuration, role review and audit",
+          "checks": [["Log in through SSO", "Login without a SuccessFactors password", "Login screenshot"], ["Provision a user", "User created with the right groups", "User record"], ["Review segregation", "Conflicting permissions found and fixed", "Review report"]],
+          "objectives": ["Design identity", "Provision users", "Audit security"]
+        },
+        {
+          "topic": "Compliance, Works Councils and Global Regulations",
+          "subtopics": ["HR regulations by region", "Works council requirements in Germany", "Data residency", "Retention by country", "Consent and transparency", "Audits and evidence", "Change approval with employee representatives", "Compliance roadmaps"],
+          "tools": ["Data protection features", "Documentation templates"],
+          "lab_task": "Prepare a works council briefing for a Germany rollout, define retention by country, check data residency and assemble audit evidence.",
+          "deliverable": "Briefing pack, retention matrix and evidence",
+          "checks": [["Review the briefing", "Data use and monitoring explained clearly", "Briefing pack"], ["Build the retention matrix", "Rules per country and data type", "Retention matrix"], ["Review evidence", "Configuration matches the policy", "Evidence pack"]],
+          "objectives": ["Meet HR regulations", "Work with works councils", "Prepare evidence"]
+        },
+        {
+          "topic": "Performance, Scale and Centralised Services",
+          "subtopics": ["Large instances", "Centralised services for Employee Central", "Mass changes", "Performance of rules and workflows", "Report performance", "Integration volumes", "Monitoring instance health", "Working with SAP support"],
+          "tools": ["Employee Central", "Check Tool", "Monitoring tools"],
+          "lab_task": "Run mass changes for 10,000 employees, find a slow rule and fix it, review centralised services settings and plan integration volumes for peak periods.",
+          "deliverable": "Mass change results, rule fix and volume plan",
+          "checks": [["Run mass changes", "Completed within the window", "Job monitor"], ["Fix the slow rule", "Save time reduced", "Timing notes"], ["Review the volume plan", "Peak loads planned", "Volume plan"]],
+          "objectives": ["Run large instances", "Tune rules", "Plan for volume"]
+        },
+        {
+          "topic": "Change Management and User Adoption",
+          "subtopics": ["Stakeholder analysis", "Communication plans", "Training approaches", "Manager enablement", "Adoption metrics", "Feedback loops", "Resistance and how to address it", "Sustaining adoption"],
+          "tools": ["Change plan templates", "Analytics", "Survey tools"],
+          "lab_task": "Write a change and training plan for a Performance and Goals rollout, define adoption metrics, run a manager briefing role play and plan follow-up.",
+          "deliverable": "Change plan, metrics and briefing notes",
+          "checks": [["Review the plan", "Audiences, messages and timing defined", "Change plan"], ["Define metrics", "Measurable adoption targets", "Metrics"], ["Run the briefing", "Manager questions answered", "Observer notes"]],
+          "objectives": ["Lead change", "Train users", "Measure adoption"]
+        },
+        {
+          "topic": "Landscape and Configuration Governance",
+          "subtopics": ["Instance landscape", "Configuration ownership", "Change request process", "Documentation standards", "Release governance", "Preventing configuration drift", "Audit of configuration changes", "Governance board"],
+          "tools": ["Instance Synchronisation", "Change audit", "Governance templates"],
+          "lab_task": "Design the instance landscape and change process, document configuration owners, detect a drift between test and production and set up a governance board.",
+          "deliverable": "Landscape design, process and drift report",
+          "checks": [["Detect drift", "Differences between instances listed", "Comparison report"], ["Process a change request", "Approved, tested and moved", "Change record"], ["Review ownership", "Owner for every module", "Ownership matrix"]],
+          "objectives": ["Govern configuration", "Control change", "Prevent drift"]
+        },
+        {
+          "topic": "HR Service Delivery and Case Management Integration",
+          "subtopics": ["HR service delivery models", "Employee Central Service Center", "Integration with ServiceNow HR or SAP Service Cloud", "Knowledge for HR", "Case routing", "Employee self-service design", "Measuring HR service", "Data security for cases"],
+          "tools": ["Employee Central Service Center", "ServiceNow HRSD or SAP Service Cloud"],
+          "lab_task": "Design HR service delivery for the case company, route HR cases from SuccessFactors to a service tool with employee context and measure response times.",
+          "deliverable": "Service design, integration and metrics",
+          "checks": [["Raise a case", "Case created with employee context", "Case record"], ["Route by topic", "Case reaches the right team", "Case record"], ["Report response times", "Times measured", "Report"]],
+          "objectives": ["Design HR service delivery", "Integrate case management", "Measure service"]
+        },
+        {
+          "topic": "Global Payroll Integration Patterns",
+          "subtopics": ["Payroll options by country", "Employee Central Payroll and third-party payroll", "Payroll integration standards", "Cut-off dates and calendars", "Payroll results back to SuccessFactors", "Reconciliation", "Error handling", "Choosing payroll per country"],
+          "tools": ["SAP Integration Suite", "Employee Central Payroll", "Third-party payroll interfaces"],
+          "lab_task": "Design payroll integration for four countries with different providers, build one third-party interface, reconcile results and handle a cut-off failure.",
+          "deliverable": "Payroll integration design, interface and reconciliation",
+          "checks": [["Send payroll data", "Provider receives complete data before cut-off", "Interface log"], ["Reconcile results", "Gross pay totals match", "Reconciliation"], ["Handle a cut-off failure", "Recovery steps run", "Incident notes"]],
+          "objectives": ["Design payroll integration", "Reconcile payroll", "Handle failures"]
+        },
+        {
+          "topic": "HR Process Transformation",
+          "subtopics": ["Current-state process analysis", "Standard SuccessFactors processes", "Simplifying approvals", "Self-service first", "Measuring process time", "Global and local process variants", "Process mining for HR", "Business cases for change"],
+          "tools": ["Process modelling tools", "SAP Signavio or similar"],
+          "lab_task": "Map the current promotion process, design a simpler standard process in SuccessFactors, estimate time saved and present a business case.",
+          "deliverable": "Current and future process maps and business case",
+          "checks": [["Map the current process", "Steps and delays measured", "Process map"], ["Design the future process", "Fewer steps using standard features", "Process map"], ["Present the business case", "Time and cost savings estimated", "Business case"]],
+          "objectives": ["Transform HR processes", "Simplify with standard features", "Build business cases"]
+        },
+        {
+          "topic": "Troubleshooting Production SuccessFactors Issues",
+          "subtopics": ["An incident method for SuccessFactors", "Permission problems", "Workflow failures", "Rule errors", "Integration failures", "Data issues after imports", "Release side effects", "Working with SAP support"],
+          "tools": ["Check Tool", "Rule traces", "Integration monitoring", "Audit reports"],
+          "lab_task": "Diagnose five injected issues (missing permissions, a stuck workflow, a failing rule, a broken integration and bad imported data), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the stuck workflow", "Workflow completes", "Workflow history"], ["Fix the integration", "Failed records reprocessed", "Monitoring log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose production issues", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Programme Leadership and Application Management Support",
+          "subtopics": ["Programme structure", "Roles: client, partner and SAP", "Plans and milestones", "Risk management", "Moving from project to support", "Support models and service levels", "Continuous improvement after go-live", "Reporting to sponsors"],
+          "tools": ["Programme plan templates", "Risk log", "Service level reports"],
+          "lab_task": "Build a programme plan for a three-country rollout with risks, design the support model after go-live and present a status report to a sponsor.",
+          "deliverable": "Programme plan, risk log, support model and status report",
+          "checks": [["Review the plan", "Milestones and dependencies clear", "Programme plan"], ["Review the support model", "Service levels and owners defined", "Support model"], ["Present the status", "Risks and decisions clear to the sponsor", "Presentation feedback"]],
+          "objectives": ["Lead SuccessFactors programmes", "Plan support", "Report to sponsors"]
+        },
+        {
+          "topic": "Advanced Capstone: Global SuccessFactors Transformation",
+          "subtopics": ["Solution design", "Integration and extensions", "Migration and testing", "Leadership review"],
+          "tools": ["SuccessFactors HXM suite", "SAP Integration Suite", "SAP BTP", "SAP Analytics Cloud"],
+          "lab_task": "Design and partly build a global SuccessFactors transformation for the case company: global EC design, S/4HANA and payroll integration, a BTP extension, data migration with reconciliation, AI governance, testing and a go-live plan, then present it to a steering committee.",
+          "deliverable": "Solution design, integration evidence, migration results, test plan and steering presentation",
+          "checks": [["Run the integration demo", "Hire flows to S/4HANA and payroll", "Demo recording"], ["Reconcile the migration", "Counts and pay totals match", "Reconciliation report"], ["Present to the steering committee", "Design, risks and plan defended", "Panel feedback"]],
+          "objectives": ["Combine the advanced topics in one programme", "Design global HXM solutions", "Lead the transformation"]
+        }
+      ]
+    }
+  }
+}
