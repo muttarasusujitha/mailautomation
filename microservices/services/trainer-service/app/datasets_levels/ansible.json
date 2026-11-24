@@ -164,7 +164,7 @@
           "lab_task": "Connect to a Windows server, install IIS, deploy a site, set a registry value and install updates in a maintenance playbook.",
           "deliverable": "Inventory settings, playbook and run output",
           "checks": [["Open the site", "IIS serves the deployed page", "Browser screenshot"], ["Run the playbook again", "No changes", "Play recap"], ["Check the registry value", "Set correctly", "Command output"]],
-          "objectives": ["Automate Windows servers", "Use Windows modules", "Understand Windows-specific connection setup"]
+          "objectives": ["Automate Windows servers", "Use Windows modules", "Explain Windows-specific connection setup"]
         },
         {
           "topic": "Network Device Automation",

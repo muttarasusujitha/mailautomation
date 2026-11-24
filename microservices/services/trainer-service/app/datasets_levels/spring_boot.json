@@ -20,7 +20,7 @@
           "lab_task": "Generate a Spring Boot project with the web, validation and actuator starters, organise packages by feature, change the server port in application.yml and run it from the IDE and with the Maven wrapper.",
           "deliverable": "Project in Git with a README explaining how to run it",
           "checks": [["Run ./mvnw spring-boot:run", "Application starts on the configured port", "Console log"], ["Call /actuator/health", "Response shows status UP", "curl output"], ["Review the package layout", "Packages grouped by feature, not by layer", "Project tree"]],
-          "objectives": ["Create a Spring Boot project", "Understand starters and the main class", "Run the application"]
+          "objectives": ["Create a Spring Boot project", "Explain starters and the main class", "Run the application"]
         },
         {
           "topic": "Dependency Injection and Spring Beans",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose four injected production problems (a deadlock, a memory leak, pool exhaustion and a slow query) using only production-safe tools, fix each and write a post-incident review for one.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Find the deadlock", "Threads and locks named from the thread dump", "Diagnosis notes"], ["Find the leak", "Leaking object identified in the heap dump", "MAT report"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose production problems", "Use dumps and telemetry", "Learn from incidents"]
+          "objectives": ["Diagnose production problems", "Use dumps and telemetry", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Production-Ready Spring Boot Platform",

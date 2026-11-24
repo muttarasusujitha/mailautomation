@@ -164,7 +164,7 @@
           "lab_task": "Create two personas and a journey map for the app, define an MVP and two hypotheses with success measures, and test a paper prototype with users.",
           "deliverable": "Personas, journey map, MVP definition and test results",
           "checks": [["Review the MVP", "Smallest release that tests the main hypothesis", "MVP definition"], ["Review hypotheses", "Each has a measurable success criterion", "Hypothesis sheet"], ["Test the prototype", "Findings recorded from at least three users", "Test notes"]],
-          "objectives": ["Understand users", "Define an MVP", "Test hypotheses"]
+          "objectives": ["Describe the target users with personas and journeys", "Define an MVP", "Test hypotheses"]
         },
         {
           "topic": "Agile in Non-Software Teams",

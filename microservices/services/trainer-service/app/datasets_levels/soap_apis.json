@@ -369,7 +369,7 @@
           "lab_task": "Configure a SOAP service to require client certificates. Use openssl s_client -connect host:8443 -cert client.pem -key client.key to confirm the handshake, call it with curl --cert, then call without a certificate and with an untrusted one and capture each failure.",
           "deliverable": "mTLS-enabled SOAP service with three captured handshake outcomes",
           "checks": [["curl with the trusted client certificate", "HTTP 200 with a SOAP response", "curl output"], ["curl with no client certificate", "The TLS handshake fails (alert handshake failure or certificate required)", "curl output"], ["curl with a certificate from an untrusted CA", "A certificate unknown or bad certificate alert", "curl or s_client output"]],
-          "objectives": ["Enable mutual TLS", "Diagnose TLS errors", "Know when to add message-level security"]
+          "objectives": ["Enable mutual TLS", "Diagnose TLS errors", "Decide when to add message-level security"]
         },
         {
           "topic": "Intermediate Capstone: Contract-First Claims Service on Java and .NET",

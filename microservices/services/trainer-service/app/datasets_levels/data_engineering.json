@@ -430,7 +430,7 @@
           "lab_task": "Run concurrent writers on one table, compare clustering strategies on query time, set up maintenance jobs and read the same table from Spark and Trino.",
           "deliverable": "Experiment results, maintenance jobs and interoperability demo",
           "checks": [["Run two concurrent writers", "Conflicts handled as documented", "Logs"], ["Compare clustering strategies", "Query time and files scanned recorded", "Results table"], ["Query from Trino", "Same results as Spark", "Query output"]],
-          "objectives": ["Understand table format internals", "Maintain large tables", "Share tables across engines"]
+          "objectives": ["Explain table format internals", "Maintain large tables", "Share tables across engines"]
         },
         {
           "topic": "Real-Time Data Systems with Apache Flink",

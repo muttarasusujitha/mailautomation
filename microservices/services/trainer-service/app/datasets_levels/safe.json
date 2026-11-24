@@ -234,7 +234,7 @@
           "lab_task": "Build personas and a journey map for the train's main customer, prototype a feature and test it with users, then update the feature's benefit hypothesis.",
           "deliverable": "Personas, journey map, test results and updated feature",
           "checks": [["Review the journey map", "Pain points identified", "Journey map"], ["Test the prototype", "Findings from at least three users", "Test notes"], ["Update the hypothesis", "Changes linked to findings", "Feature"]],
-          "objectives": ["Apply design thinking", "Understand customers", "Validate features"]
+          "objectives": ["Apply design thinking", "Describe the target customers and their problems", "Validate features"]
         },
         {
           "topic": "Product Owner Practices in SAFe",

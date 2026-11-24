@@ -243,7 +243,7 @@
           "lab_task": "Create a table with two correlated columns, show a bad estimate, fix it with extended statistics, raise a column's statistics target and compare plans.",
           "deliverable": "Plans before and after and pg_stats output",
           "checks": [["Query on both correlated columns", "Estimate far below actual before the fix", "EXPLAIN output"], ["Add extended statistics and ANALYZE", "Estimate close to actual", "EXPLAIN output"], ["Inspect pg_stats", "Most common values shown for the column", "Query result"]],
-          "objectives": ["Understand planner estimates", "Maintain statistics", "Fix estimate problems"]
+          "objectives": ["Explain planner estimates", "Maintain statistics", "Fix estimate problems"]
         },
         {
           "topic": "MVCC, VACUUM and Autovacuum",
@@ -261,7 +261,7 @@
           "lab_task": "Create a lock queue with an ALTER TABLE behind a long query, find the blocker, use lock_timeout to protect the migration and build a job queue with SKIP LOCKED.",
           "deliverable": "Lock queries, session transcripts and the job queue code",
           "checks": [["Find the blocker", "Blocking process identified", "pg_blocking_pids output"], ["Run the migration with lock_timeout", "Fails fast instead of blocking others", "Error output"], ["Run four queue workers", "Each job processed once", "Query result"]],
-          "objectives": ["Understand locks", "Find blockers", "Build safe job queues"]
+          "objectives": ["Explain locks", "Find blockers", "Build safe job queues"]
         },
         {
           "topic": "Transaction Isolation Levels",
@@ -369,7 +369,7 @@
           "lab_task": "Create a PostgreSQL instance on two cloud providers, change a parameter, create a read replica, restore to a point in time and compare features, limits and monthly cost.",
           "deliverable": "Instance settings, test results and comparison table",
           "checks": [["Restore to a point in time", "New instance with data from that time", "Query result"], ["Try to create a superuser", "Blocked and the managed alternative used", "Error output"], ["Compare costs", "Monthly cost for the same size on both", "Comparison table"]],
-          "objectives": ["Use managed PostgreSQL", "Know their limits", "Compare providers"]
+          "objectives": ["Use managed PostgreSQL", "Identify their limits", "Compare providers"]
         },
         {
           "topic": "Intermediate Capstone: Tuning and Protecting a Production-Like Database",
@@ -394,7 +394,7 @@
           "lab_task": "Inspect a table page with pageinspect, read WAL records for an update with pg_waldump, show a HOT update after lowering fillfactor and see which tables fill shared buffers.",
           "deliverable": "Annotated internals notes",
           "checks": [["Inspect a page", "Live and dead tuples identified", "pageinspect output"], ["Read the WAL record for an update", "Record type and relation identified", "pg_waldump output"], ["Lower fillfactor and update", "HOT updates counted", "pg_stat_user_tables output"]],
-          "objectives": ["Understand storage", "Read WAL", "Use HOT updates"]
+          "objectives": ["Explain storage", "Read WAL", "Use HOT updates"]
         },
         {
           "topic": "High Availability with Patroni",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose and fix five injected incidents (a plan regression, a lock pile-up, a full disk from a stuck replication slot, a connection storm and lag from a long query on a standby) and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the stuck slot", "WAL space freed and the cause removed", "Disk usage output"], ["Clear the lock pile-up", "Blocker found and the queue cleared", "pg_locks output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose database incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose database incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Running PostgreSQL as a Database Platform",

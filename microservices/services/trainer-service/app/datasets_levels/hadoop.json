@@ -137,7 +137,7 @@
           "lab_task": "Run a three-node ZooKeeper ensemble, inspect the znodes used by HBase, stop one node to show the quorum still works and stop two to show it fails.",
           "deliverable": "ZooKeeper notes with test results",
           "checks": [["Inspect znodes", "HBase znodes found and explained", "zkCli output"], ["Lose one node", "Ensemble keeps working", "Status output"], ["Lose quorum", "Ensemble stops serving with two nodes down", "Status output"]],
-          "objectives": ["Explain ZooKeeper's role", "Operate an ensemble", "Understand quorum"]
+          "objectives": ["Explain ZooKeeper's role", "Operate an ensemble", "Explain quorum"]
         },
         {
           "topic": "Hadoop Cluster Configuration and Core Settings",
@@ -207,7 +207,7 @@
           "lab_task": "Configure NameNode high availability with journal nodes and automatic failover, kill the active NameNode during writes and confirm clients continue.",
           "deliverable": "HA configuration and failover report",
           "checks": [["Fail over", "Standby becomes active automatically", "haadmin output"], ["Keep writing", "Client writes continue after failover", "Client log"], ["Explain fencing", "Fencing method configured and explained", "Configuration notes"]],
-          "objectives": ["Make HDFS highly available", "Test failover", "Understand federation"]
+          "objectives": ["Make HDFS highly available", "Test failover", "Explain federation"]
         },
         {
           "topic": "YARN Schedulers: Capacity and Fair Scheduler",
@@ -484,7 +484,7 @@
           "lab_task": "Apply an erasure coding policy to cold data, measure storage savings and read performance, and test recovery after losing DataNodes.",
           "deliverable": "Erasure coding report",
           "checks": [["Save storage", "Storage use reduced for cold data", "Before and after report"], ["Measure reads", "Read performance impact measured", "Benchmark results"], ["Recover", "Data readable after losing nodes within tolerance", "Test output"]],
-          "objectives": ["Use erasure coding", "Save storage", "Understand trade-offs"]
+          "objectives": ["Use erasure coding", "Save storage", "Explain trade-offs"]
         },
         {
           "topic": "Disaster Recovery Across Data Centres",
@@ -547,7 +547,7 @@
           "lab_task": "Work through four incidents: a NameNode heap crisis, a metastore outage, an expired keytab and a failing disk, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot clusters", "Restore service quickly", "Learn from incidents"]
+          "objectives": ["Troubleshoot clusters", "Restore service quickly", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Big Data Platform Strategy",

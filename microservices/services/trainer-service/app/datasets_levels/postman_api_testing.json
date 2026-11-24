@@ -92,7 +92,7 @@
           "lab_task": "Generate unique emails and order references with pre-request scripts, compute a request signature header and move shared scripts to the collection level.",
           "deliverable": "Collection with pre-request scripts",
           "checks": [["Generate data", "Each run creates unique emails and references", "Run results"], ["Sign requests", "The signed request is accepted by the API", "Response screenshot"], ["Share scripts", "Shared logic lives at collection level", "Script review"]],
-          "objectives": ["Write pre-request scripts", "Generate dynamic data", "Understand script order"]
+          "objectives": ["Write pre-request scripts", "Generate dynamic data", "Explain script order"]
         },
         {
           "topic": "Chaining Requests: Passing Data Between Requests",
@@ -261,7 +261,7 @@
           "lab_task": "Run a performance test with a ramp-up profile on three key endpoints, find the slowest endpoint and error threshold, and compare two runs after a configuration change.",
           "deliverable": "Performance run results and a comparison",
           "checks": [["Run load", "The ramp-up profile completes for three endpoints", "Run report"], ["Find limits", "The slowest endpoint and error threshold are identified", "Analysis notes"], ["Compare", "Two runs are compared with conclusions", "Comparison"]],
-          "objectives": ["Run basic performance tests", "Read performance metrics", "Know when to use load tools"]
+          "objectives": ["Run basic performance tests", "Read performance metrics", "Decide when to use load tools"]
         },
         {
           "topic": "Testing Microservice APIs and Dependencies",

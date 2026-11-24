@@ -448,7 +448,7 @@
           "lab_task": "Collect and analyse five near misses through interviews, describe the adaptations that prevented incidents and recommend ways to support them.",
           "deliverable": "Near-miss analysis and recommendations",
           "checks": [["Collect", "Five near misses are documented", "Reports"], ["Analyse", "Adaptations that prevented incidents are described", "Analysis"], ["Recommend", "Recommendations support adaptive capacity", "Recommendation list"]],
-          "objectives": ["Apply resilience engineering", "Learn from near misses", "Support adaptive capacity"]
+          "objectives": ["Apply resilience engineering", "Record the cause and a follow-up action for each near miss", "Support adaptive capacity"]
         },
         {
           "topic": "Continuous Chaos in Production: Automated Experiments and Guardrails",
@@ -538,7 +538,7 @@
           "lab_task": "Map the course company's SRE practices to EU DORA and UK operational resilience duties, fill the gaps with owners and prepare an evidence pack for a supervisor.",
           "deliverable": "Regulatory mapping, gap plan and evidence pack",
           "checks": [["Map", "Each duty maps to a practice or a gap", "Mapping sheet"], ["Close", "Gaps have owners and dates", "Gap plan"], ["Prove", "The evidence pack answers a supervisor's questions", "Evidence pack"]],
-          "objectives": ["Understand operational resilience rules", "Map SRE practices to regulation", "Prepare evidence"]
+          "objectives": ["Explain operational resilience rules", "Map SRE practices to regulation", "Prepare evidence"]
         },
         {
           "topic": "Building an SRE Practice: Hiring, Training and Career Paths",
@@ -556,7 +556,7 @@
           "lab_task": "Analyse three public outage postmortems, apply one lesson to the course service and complete a timed practice set mapped to the SRE Practitioner topics.",
           "deliverable": "Case study analysis and practice results",
           "checks": [["Analyse", "Three outages are analysed for patterns", "Case study notes"], ["Apply", "One lesson changes the course service", "Change record"], ["Practise", "The practice set score and weak areas are recorded", "Practice results"]],
-          "objectives": ["Learn from public outages", "Apply lessons", "Prepare for the SRE Practitioner exam"]
+          "objectives": ["Explain the root cause of a public outage and the control that would have prevented it", "Apply lessons", "Prepare for the SRE Practitioner exam"]
         },
         {
           "topic": "Advanced Capstone: Organisation-Wide Reliability Programme",

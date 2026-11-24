@@ -29,7 +29,7 @@
           "lab_task": "Analyse two sample applications with Protocol Advisor and browser tools, choose a protocol for each and write the reasons.",
           "deliverable": "Protocol choices with reasons",
           "checks": [["Analyse", "Protocol Advisor results are recorded", "Screenshots"], ["Choose", "Each application has a chosen protocol", "Decision note"], ["Justify", "Reasons cite the application's traffic", "Decision note"]],
-          "objectives": ["Understand protocols", "Use Protocol Advisor", "Choose protocols with evidence"]
+          "objectives": ["Explain protocols", "Use Protocol Advisor", "Choose protocols with evidence"]
         },
         {
           "topic": "Recording Web HTTP/HTML Scripts in VuGen",

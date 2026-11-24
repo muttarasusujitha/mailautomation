@@ -164,7 +164,7 @@
           "lab_task": "Identify your conflict style, then resolve two role-play disagreements with a colleague using \"I\" statements and common ground.",
           "deliverable": "Conflict style result and role-play notes",
           "checks": [["Use \"I\" statements", "At least two used", "Observer notes"], ["Reach an agreement", "Both sides agree a next step", "Observer notes"], ["Identify your style", "Style named with its risks", "Written note"]],
-          "objectives": ["Understand conflict styles", "Handle disagreements calmly", "Find common ground"]
+          "objectives": ["Explain conflict styles", "Handle disagreements calmly", "Find common ground"]
         },
         {
           "topic": "Interview and Career Conversation Skills",
@@ -351,7 +351,7 @@
           "lab_task": "Handle a serious customer escalation in a role play, coordinate internally, write the customer update and run a short lessons-learned discussion.",
           "deliverable": "Role-play notes, customer update and lessons learned",
           "checks": [["Handle the angry customer", "Customer calms and agrees next steps", "Observer notes"], ["Write the customer update", "Apology, cause, fix and timeline clear", "Update"], ["Run lessons learned", "Two process improvements agreed", "Notes"]],
-          "objectives": ["Handle escalations", "Recover service", "Learn from complaints"]
+          "objectives": ["Handle escalations", "Recover service", "Record the cause and a follow-up action for each complaint"]
         },
         {
           "topic": "Professional Writing for Influence",
@@ -394,7 +394,7 @@
           "lab_task": "Complete a leadership style assessment, gather 360 feedback from five colleagues and write a personal leadership development plan.",
           "deliverable": "Assessment, 360 summary and leadership plan",
           "checks": [["Summarise 360 feedback", "Themes and blind spots identified", "Summary"], ["Review the plan", "Specific behaviours and measures", "Leadership plan"], ["Apply situational leadership", "Style chosen for three scenarios with reasons", "Scenario sheet"]],
-          "objectives": ["Understand your leadership style", "Use feedback for growth", "Adapt your style"]
+          "objectives": ["Describe your leadership style", "Use feedback for growth", "Adapt your style"]
         },
         {
           "topic": "Leading Teams Through Change",

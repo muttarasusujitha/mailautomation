@@ -252,7 +252,7 @@
           "lab_task": "Generate a JSON schema from a pydantic Invoice model and request schema-constrained output using the current parameter from the docs. Run 100 invoice texts, count schema-valid responses, and induce a max_tokens=30 truncation to show the one failure mode the guarantee does not cover.",
           "deliverable": "invoice_schema.py, 100-sample results and a note on the truncation exception",
           "checks": [["Run 100 invoice texts with the schema enabled", "Schema-valid count is 100 of 100 excluding truncated or refused responses", "Validation log"], ["Set max_tokens to 30", "Output is cut short with stop_reason max_tokens and JSON fails to parse", "Response JSON"], ["Use an unsupported schema keyword", "API returns 400 describing the unsupported feature", "Error JSON"]],
-          "objectives": ["Request schema-constrained output", "Know the limits of the guarantee", "Build a validation pipeline around it"]
+          "objectives": ["Request schema-constrained output", "Identify the limits of the guarantee", "Build a validation pipeline around it"]
         },
         {
           "topic": "Message Batches API for Bulk Workloads",

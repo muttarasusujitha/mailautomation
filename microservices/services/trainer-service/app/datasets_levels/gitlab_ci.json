@@ -74,7 +74,7 @@
           "lab_task": "Add project and group variables with masking, protection and environment scopes, use a file variable for a credential, prove that protected variables are absent on feature branches and fix a script that would print a secret.",
           "deliverable": "Configured variables and secure scripts",
           "checks": [["Protect", "Protected variables are only available on protected branches", "Job logs"], ["Mask", "Masked values do not appear in logs", "Job log"], ["Scope", "Environment-scoped variables apply to the right deployments", "Job logs"]],
-          "objectives": ["Use CI/CD variables", "Protect and mask secrets", "Understand variable precedence"]
+          "objectives": ["Use CI/CD variables", "Protect and mask secrets", "Explain variable precedence"]
         },
         {
           "topic": "Artifacts, Caching and Job Dependencies",
@@ -243,7 +243,7 @@
           "lab_task": "Enable merged results pipelines and merge trains, queue four merge requests where one conflicts logically with another and show the train catching the break before main.",
           "deliverable": "Merge train setup with break evidence",
           "checks": [["Enable", "Merged results pipelines run for merge requests", "Pipeline list"], ["Catch", "The train stops the breaking merge request", "Merge train view"], ["Protect main", "Main stays green throughout", "Pipeline history"]],
-          "objectives": ["Keep main green", "Use merge trains", "Understand merged results pipelines"]
+          "objectives": ["Keep main green", "Use merge trains", "Explain merged results pipelines"]
         },
         {
           "topic": "Self-Managed Runners at Scale: Autoscaling and the Kubernetes Executor",

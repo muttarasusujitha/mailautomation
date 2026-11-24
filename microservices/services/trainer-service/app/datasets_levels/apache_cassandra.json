@@ -297,7 +297,7 @@
           "lab_task": "Expand a three-node cluster to four: start node 4, watch UJ in nodetool status change to UN, track streaming with nodetool netstats, then run nodetool cleanup on nodes 1 to 3. Next run nodetool decommission on node 4. Finally kill node 2 container and replace it using -Dcassandra.replace_address_first_boot=<ip>. Record each state change and timing.",
           "deliverable": "Runbook with each command, state transitions seen and the elapsed time",
           "checks": [["Start node 4 and run nodetool status", "Node 4 shows UJ during bootstrap and then UN", "nodetool output"], ["Run nodetool decommission on node 4", "Node leaves the ring and status shows three nodes", "nodetool output"], ["Replace node 2 with replace_address_first_boot", "New node shows UN and the dead address no longer appears as DN", "nodetool output"]],
-          "objectives": ["Add, remove and replace nodes safely", "Monitor streaming", "Know when cleanup is required"]
+          "objectives": ["Add, remove and replace nodes safely", "Monitor streaming", "Decide when cleanup is required"]
         },
         {
           "topic": "Snapshots, Incremental Backups and Restore",

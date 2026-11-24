@@ -288,7 +288,7 @@
           "lab_task": "Write a function that returns a customer's order summary as a table and a procedure that places an order, checks stock, raises clear errors and commits in batches for bulk loads.",
           "deliverable": "Function and procedure code with test calls",
           "checks": [["Call the summary function", "Returns the expected rows", "Query result"], ["Place an order for more than the stock", "Clear error raised and nothing changed", "Error and rows"], ["Bulk-load 50,000 orders with the procedure", "Completes with batch commits", "Logs and row count"]],
-          "objectives": ["Write functions and procedures", "Handle errors in procedural SQL", "Know the vendor differences"]
+          "objectives": ["Write functions and procedures", "Handle errors in procedural SQL", "Explain how stored procedures differ between database vendors"]
         },
         {
           "topic": "Triggers and Auditing",

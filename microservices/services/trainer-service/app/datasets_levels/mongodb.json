@@ -261,7 +261,7 @@
           "lab_task": "Watch cache use under load, change compression for a collection, measure the effect on size and speed and size a server for a growing working set.",
           "deliverable": "Measurements and sizing note",
           "checks": [["Watch cache use", "Cache pressure seen under load", "serverStatus output"], ["Change compression", "Size and speed difference recorded", "Comparison table"], ["Size the server", "RAM fits the working set", "Sizing note"]],
-          "objectives": ["Understand storage", "Tune compression", "Size servers"]
+          "objectives": ["Explain storage", "Tune compression", "Size servers"]
         },
         {
           "topic": "Connection Management and Driver Tuning",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, check wrong answers in mongosh, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Check wrong answers", "Each confirmed in mongosh", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Scaled Order Platform on MongoDB",
@@ -394,7 +394,7 @@
           "lab_task": "Compare plans from the classic and slot-based engines, read the plan cache, trace a write through the oplog and analyse diagnostic data for a slowdown.",
           "deliverable": "Annotated internals notes",
           "checks": [["Compare engines", "Engine used and effect recorded", "explain output"], ["Read the plan cache", "Cached plans listed", "Plan cache output"], ["Analyse diagnostic data", "Cause of the slowdown found", "Diagnostic notes"]],
-          "objectives": ["Understand internals", "Read diagnostics", "Explain performance"]
+          "objectives": ["Explain internals", "Read diagnostics", "Explain performance"]
         },
         {
           "topic": "Very Large Sharded Clusters",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (a missing index after a release, replication lag, an election storm, cache pressure and a connection storm), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the missing index", "Query time back to normal", "Profiler output"], ["Stop the election storm", "Stable primary", "rs.status output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Database Strategy: When to Choose MongoDB",

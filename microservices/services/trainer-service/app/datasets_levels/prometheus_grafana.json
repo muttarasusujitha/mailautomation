@@ -47,7 +47,7 @@
           "lab_task": "Expose a counter, a gauge, a histogram and a summary from a small Python service, generate traffic and explain what each one tells you.",
           "deliverable": "Service code, metrics output and explanation",
           "checks": [["Restart the service", "Counter resets and rate() handles it", "Query result"], ["Read the histogram buckets", "Request durations spread across buckets", "/metrics output"], ["Name the metrics", "Names follow conventions with units", "Code review"]],
-          "objectives": ["Understand metric types", "Name metrics well", "Choose types"]
+          "objectives": ["Explain metric types", "Name metrics well", "Choose types"]
         },
         {
           "topic": "Querying with PromQL: Selectors, Rates and Aggregation",
@@ -439,7 +439,7 @@
           "lab_task": "Add RED metrics and traces to an uninstrumented legacy service with Beyla, compare with SDK instrumentation on another service and list what eBPF could not capture.",
           "deliverable": "Beyla configuration, comparison and limits list",
           "checks": [["Query the legacy service", "RED metrics present without code changes", "Query result"], ["Compare with SDK data", "Differences recorded", "Comparison table"], ["List limits", "Missing details named", "Limits list"]],
-          "objectives": ["Instrument with eBPF", "Compare approaches", "Know the limits"]
+          "objectives": ["Instrument with eBPF", "Compare approaches", "Identify the limits"]
         },
         {
           "topic": "Running an SLO Programme Across Teams",
@@ -475,7 +475,7 @@
           "lab_task": "Set up on-call schedules and escalations, run a simulated incident through declaration, roles, timeline and status updates, and write the post-incident review with actions.",
           "deliverable": "On-call configuration, incident record and review",
           "checks": [["Fire a critical alert", "On-call engineer paged and escalated when unacknowledged", "Escalation log"], ["Build the timeline", "Events and data in order", "Incident timeline"], ["Write the review", "Causes and actions with owners", "Post-incident review"]],
-          "objectives": ["Run incident response", "Use on-call tooling", "Learn from incidents"]
+          "objectives": ["Run incident response", "Use on-call tooling", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Observability Cost Management",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected stack failures (a scrape timeout, out-of-order samples, a throttled tenant, a slow query and broken alert delivery) and add a dead man's switch alert.",
           "deliverable": "Diagnosis notes, fixes and meta-monitoring alerts",
           "checks": [["Fix out-of-order samples", "Cause found and samples accepted", "Ingester logs"], ["Break alert delivery", "Dead man's switch alert reaches the backup channel", "Notification log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose stack problems", "Monitor the monitoring", "Learn from incidents"]
+          "objectives": ["Diagnose stack problems", "Monitor the monitoring", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Company-Wide Observability Platform",

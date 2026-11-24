@@ -38,7 +38,7 @@
           "lab_task": "Complete a strengths or style profile, ask three colleagues for feedback on how you work under pressure, compare the results and write a one-paragraph leadership statement.",
           "deliverable": "Profile summary, feedback themes and leadership statement",
           "checks": [["Identify strengths", "Three strengths with examples from work are recorded", "Reflection"], ["Find blind spots", "At least one blind spot is confirmed by colleague feedback", "Feedback summary"], ["Write a statement", "The statement links values to how you will lead", "Leadership statement"]],
-          "objectives": ["Understand your leadership style", "Find blind spots", "Define how you want to lead"]
+          "objectives": ["Describe your leadership style", "Find blind spots", "Define how you want to lead"]
         },
         {
           "topic": "One-to-One Meetings That Matter",
@@ -83,7 +83,7 @@
           "lab_task": "Find out what motivates each of four role-played team members, write specific recognition for recent work linked to company values and design a recognition habit for the team.",
           "deliverable": "Motivation notes, recognition messages and a team habit",
           "checks": [["Know your people", "Motivators are recorded for each team member", "Motivation notes"], ["Be specific", "Each recognition names the work and its effect", "Recognition messages"], ["Stay fair", "The plan recognises all team members over a quarter", "Recognition planner"]],
-          "objectives": ["Understand motivation", "Recognise work specifically", "Build fair recognition habits"]
+          "objectives": ["Explain what motivates each team member", "Recognise work specifically", "Build fair recognition habits"]
         },
         {
           "topic": "Running Team Meetings and Rituals",
@@ -182,7 +182,7 @@
           "lab_task": "Work through six people-management scenarios (leave, sickness, a harassment complaint, probation, a grievance and a data request), decide what policy applies and what to do first, and check answers with an HR partner.",
           "deliverable": "Scenario answers with policy references",
           "checks": [["Apply policy", "Each scenario cites the relevant policy", "Scenario answers"], ["Escalate correctly", "Scenarios needing HR are escalated before action", "Scenario answers"], ["Protect data", "Employee information is handled within data protection rules", "Scenario answers"]],
-          "objectives": ["Apply HR policies", "Respond to complaints correctly", "Know when to involve HR"]
+          "objectives": ["Apply HR policies", "Respond to complaints correctly", "Decide when to involve HR"]
         },
         {
           "topic": "Beginner Capstone: First Ninety Days as a Manager Plan",
@@ -279,7 +279,7 @@
           "lab_task": "Make a staffing decision in a case using a decision matrix and bias checklist, consult a role-played team, record the decision and review it against what happened next in the case.",
           "deliverable": "Decision matrix, decision log entry and review",
           "checks": [["Use criteria", "Options are scored against agreed criteria", "Decision matrix"], ["Check bias", "At least two biases are checked and addressed", "Bias checklist"], ["Review", "The review compares the decision with the outcome", "Decision review"]],
-          "objectives": ["Make better decisions", "Reduce bias", "Learn from past decisions"]
+          "objectives": ["Make better decisions", "Reduce bias", "Review a past decision and record what to repeat or change"]
         },
         {
           "topic": "Managing Conflict Between Teams",

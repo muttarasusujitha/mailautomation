@@ -29,7 +29,7 @@
           "lab_task": "Build header, book list and book card components, compose them into the app shell and log lifecycle hooks to see when each runs.",
           "deliverable": "Components and a lifecycle log",
           "checks": [["Render the book list", "Cards shown for each book", "Screenshot"], ["Read the lifecycle log", "Order of ngOnInit and ngOnDestroy explained", "Console output"], ["Change a component style", "Style does not leak to other components", "Screenshot"]],
-          "objectives": ["Build components", "Compose views", "Understand lifecycle hooks"]
+          "objectives": ["Build components", "Compose views", "Explain lifecycle hooks"]
         },
         {
           "topic": "Data Binding and Event Handling",
@@ -261,7 +261,7 @@
           "lab_task": "Profile a slow list, switch components to OnPush with signals, enable zoneless change detection, fix the parts that break and compare render times.",
           "deliverable": "Profiles before and after and migration notes",
           "checks": [["Profile the slow list", "Excess change detection cycles found", "Angular DevTools profile"], ["Enable zoneless", "App works after fixes", "Screenshot"], ["Compare render times", "Faster after the changes", "Profile comparison"]],
-          "objectives": ["Understand change detection", "Use OnPush", "Go zoneless"]
+          "objectives": ["Explain change detection", "Use OnPush", "Go zoneless"]
         },
         {
           "topic": "Server-Side Rendering, Hydration and Prerendering",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected issues (a memory leak, a hydration mismatch, chunk load errors after deploy, an infinite change detection loop and a slow route), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the memory leak", "Heap stable over repeated navigation", "Memory profile"], ["Fix chunk load errors", "Users recover after deploy", "Test results"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose front-end issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose front-end issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Angular Platform",

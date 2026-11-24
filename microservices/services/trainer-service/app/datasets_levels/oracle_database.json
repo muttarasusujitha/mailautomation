@@ -119,7 +119,7 @@
           "lab_task": "Create blocking between two sessions, find the blocker in v$session, cause a deadlock and read its trace file, and use FOR UPDATE NOWAIT in an application query.",
           "deliverable": "Session transcripts and trace extract",
           "checks": [["Find the blocker", "Blocking session ID found", "Query result"], ["Read the deadlock trace", "Statements involved identified", "Trace file extract"], ["Use NOWAIT on a locked row", "ORA-00054 returned immediately", "Error output"]],
-          "objectives": ["Understand read consistency", "Find blocking sessions", "Handle deadlocks"]
+          "objectives": ["Explain read consistency", "Find blocking sessions", "Handle deadlocks"]
         },
         {
           "topic": "Data Pump Export and Import",
@@ -182,7 +182,7 @@
           "lab_task": "Apply a Release Update to a lab Oracle home with OPatch, run datapatch for all PDBs, confirm the patch level and practise rolling it back.",
           "deliverable": "Patch log, inventory output and rollback notes",
           "checks": [["Run opatch lsinventory", "New patch listed", "OPatch output"], ["Query dba_registry_sqlpatch", "Patch applied in every PDB", "Query result"], ["Roll back the patch", "Inventory shows the previous level", "OPatch output"]],
-          "objectives": ["Understand patch types", "Apply and roll back patches", "Record patch levels"]
+          "objectives": ["Explain patch types", "Apply and roll back patches", "Record patch levels"]
         },
         {
           "topic": "Beginner Capstone: Building and Protecting an Application Database",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, review each wrong answer against the documentation, practise weak areas in the lab and take a second practice exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Review wrong answers", "Each linked to a documentation section", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close knowledge gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close knowledge gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Protected and Tuned Production Database",
@@ -547,7 +547,7 @@
           "lab_task": "Review feature usage on three databases, find packs and options used without licences, design a consolidation onto multitenant and estimate savings.",
           "deliverable": "Usage review, consolidation design and savings estimate",
           "checks": [["Query feature usage", "Licensable features in use listed", "Query result"], ["Turn off an unlicensed pack", "control_management_pack_access set correctly", "Parameter output"], ["Estimate savings", "Licence and hardware savings calculated", "Savings estimate"]],
-          "objectives": ["Understand licensing", "Avoid accidental use", "Reduce cost"]
+          "objectives": ["Explain licensing", "Avoid accidental use", "Reduce cost"]
         },
         {
           "topic": "Troubleshooting Production Oracle Incidents",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected incidents (a stuck archiver, a hang, a plan flip, an internal error and standby lag), collect diagnostics with TFA and write a post-incident review.",
           "deliverable": "Diagnosis notes, TFA collection and a post-incident review",
           "checks": [["Fix the stuck archiver", "Archiving resumes and sessions continue", "Alert log"], ["Analyse the hang", "Final blocker identified", "hanganalyze output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Oracle incidents", "Collect diagnostics", "Learn from incidents"]
+          "objectives": ["Diagnose Oracle incidents", "Collect diagnostics", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Mission-Critical Oracle Platform",

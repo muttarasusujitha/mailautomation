@@ -38,7 +38,7 @@
           "lab_task": "Build the same view with a field as discrete and as continuous, fix a postcode read as a number, change default aggregations and explain each pill colour.",
           "deliverable": "Workbook and explanation notes",
           "checks": [["Switch a date between discrete and continuous", "Headers become an axis", "Screenshots"], ["Fix the postcode", "String type with a geographic role", "Data pane"], ["Explain pill colours", "Discrete and continuous explained correctly", "Notes"]],
-          "objectives": ["Understand fields", "Use data roles", "Avoid type mistakes"]
+          "objectives": ["Explain fields", "Use data roles", "Avoid type mistakes"]
         },
         {
           "topic": "Building Core Chart Types",
@@ -56,7 +56,7 @@
           "lab_task": "Build a top 10 products view that respects a region filter using a context filter, sort in several ways, group small categories into \"Other\" and explain the filter order.",
           "deliverable": "Workbook and filter order notes",
           "checks": [["Apply top 10 with a region filter", "Correct products after adding context", "Screenshot"], ["Group categories", "Small categories grouped", "Screenshot"], ["Explain filter order", "Order of operations described correctly", "Notes"]],
-          "objectives": ["Filter data", "Sort and group", "Understand filter order"]
+          "objectives": ["Filter data", "Sort and group", "Explain filter order"]
         },
         {
           "topic": "Hierarchies, Drill-Down and Sets",
@@ -182,7 +182,7 @@
           "lab_task": "Take a timed practice exam, rebuild each wrong answer in Tableau, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each answer confirmed in Tableau", "Workbook"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Beginner Capstone: Sales Performance Dashboard",
@@ -369,7 +369,7 @@
           "lab_task": "Complete a timed practice exam with hands-on tasks, review mistakes, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Redo failed tasks", "Each completed correctly", "Workbooks"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Work under time", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Work under time", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Customer Analytics Suite",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected issues (an expired database credential, a backgrounder backlog, a slow view after a change, an SSO failure and a full disk), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the backlog", "Queue cleared and cause removed", "Admin view"], ["Fix SSO", "Users log in again", "Login test"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Tableau issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Tableau issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Tableau Programme",

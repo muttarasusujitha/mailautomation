@@ -101,7 +101,7 @@
           "lab_task": "Create a reporting view of sales, grant a reporting user access to the view only, add CHECK OPTION to an updatable view and compare view algorithms in EXPLAIN.",
           "deliverable": "View definitions and tests",
           "checks": [["Query the base table as the reporting user", "Access denied", "Error message"], ["Update through the view outside its filter", "Rejected by CHECK OPTION", "Error message"], ["Compare algorithms", "Plans differ as expected", "EXPLAIN output"]],
-          "objectives": ["Create views", "Secure data with views", "Understand view algorithms"]
+          "objectives": ["Create views", "Secure data with views", "Explain view algorithms"]
         },
         {
           "topic": "Indexes in MySQL",
@@ -252,7 +252,7 @@
           "lab_task": "Grow the history list with a long transaction, watch purge catch up when it ends, compare flushing under two settings and explain each section of InnoDB status.",
           "deliverable": "Status output and notes",
           "checks": [["Hold a long transaction", "History list length grows", "InnoDB status"], ["End the transaction", "Purge reduces the history list", "InnoDB status"], ["Compare flushing settings", "Write latency difference recorded", "Benchmark results"]],
-          "objectives": ["Understand InnoDB", "Watch purge", "Read InnoDB status"]
+          "objectives": ["Explain InnoDB", "Watch purge", "Read InnoDB status"]
         },
         {
           "topic": "Locking, Deadlocks and Contention",
@@ -261,7 +261,7 @@
           "lab_task": "Reproduce gap lock blocking under repeatable read, find blockers with sys.innodb_lock_waits, log every deadlock and remove one by changing access order.",
           "deliverable": "Session transcripts, lock output and fixes",
           "checks": [["Find the blocker", "Blocking statement identified", "sys view output"], ["Log all deadlocks", "Deadlocks written to the error log", "Error log"], ["Change access order", "Deadlock no longer occurs under load", "Load test output"]],
-          "objectives": ["Understand InnoDB locks", "Find blockers", "Reduce deadlocks"]
+          "objectives": ["Explain InnoDB locks", "Find blockers", "Reduce deadlocks"]
         },
         {
           "topic": "Replication with GTIDs",
@@ -351,7 +351,7 @@
           "lab_task": "Create MySQL on two cloud providers, change parameters, add a replica, restore to a point in time and compare features, limits and cost.",
           "deliverable": "Settings, test results and comparison",
           "checks": [["Restore to a point in time", "New instance with data from that time", "Query result"], ["Try SUPER privilege", "Blocked and the managed alternative used", "Error message"], ["Compare costs", "Monthly cost for the same size", "Comparison table"]],
-          "objectives": ["Use managed MySQL", "Know the limits", "Compare providers"]
+          "objectives": ["Use managed MySQL", "Identify the limits", "Compare providers"]
         },
         {
           "topic": "Upgrading MySQL: 5.7 to 8.0 to 8.4",
@@ -394,7 +394,7 @@
           "lab_task": "Measure page splits from random and sequential keys, watch adaptive flushing under a write spike and explain buffer pool behaviour from metrics.",
           "deliverable": "Measurements and notes",
           "checks": [["Compare key types", "More page splits with random keys", "innodb_metrics output"], ["Cause a write spike", "Flushing adapts and the change is recorded", "Metrics graph"], ["Explain LRU behaviour", "Young and old sublists explained with data", "Notes"]],
-          "objectives": ["Understand InnoDB internals", "Measure page splits", "Read flushing behaviour"]
+          "objectives": ["Explain InnoDB internals", "Measure page splits", "Read flushing behaviour"]
         },
         {
           "topic": "Tuning for High Concurrency and Write-Heavy Workloads",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (a metadata lock pile-up, a connection storm, broken replication from a duplicate key, binary logs filling the disk and a plan change), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix broken replication", "Replica consistent and running again", "Replica status and checksum"], ["Free disk space", "Binary log retention fixed", "Disk usage output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Running MySQL as a Database Platform",

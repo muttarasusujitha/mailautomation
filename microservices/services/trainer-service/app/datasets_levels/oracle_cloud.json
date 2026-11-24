@@ -29,7 +29,7 @@
           "lab_task": "Subscribe to a second region, list availability and fault domains in each and place two instances in different fault domains.",
           "deliverable": "Region and placement notes",
           "checks": [["List availability domains", "Domains per region recorded", "CLI output"], ["Place instances", "Instances in different fault domains", "Instance details"], ["Explain choices", "Region choice for India customers justified", "Notes"]],
-          "objectives": ["Understand OCI geography", "Place resources for availability", "Choose regions"]
+          "objectives": ["Explain OCI geography", "Place resources for availability", "Choose regions"]
         },
         {
           "topic": "Compartments, Users, Groups and Policies",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, rebuild wrong answers in the tenancy, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each confirmed in the tenancy", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Secure Containerised Platform on OCI",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected issues (a wrong route, a missing policy, a full boot volume, a hit service limit and a database wallet problem), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the route", "Path Analyzer shows a good path", "Analyzer output"], ["Fix the policy", "Action allowed after the change", "Test result"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose OCI issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose OCI issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "OCI Architect Professional Certification Preparation",

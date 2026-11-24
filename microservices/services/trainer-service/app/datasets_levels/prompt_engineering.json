@@ -315,7 +315,7 @@
           "lab_task": "Attack the support assistant with direct and document-based injections, add separation, tool limits and output checks and measure attack success again.",
           "deliverable": "Attack results and defences",
           "checks": [["Run injection tests", "Attack success rate recorded", "Results table"], ["Add defences", "Success rate lower", "Results table"], ["Try a tool misuse attack", "Blocked by tool limits", "Log"]],
-          "objectives": ["Understand injection", "Apply defences", "Test defences"]
+          "objectives": ["Explain injection", "Apply defences", "Test defences"]
         },
         {
           "topic": "Cost and Latency Optimisation for Prompts",

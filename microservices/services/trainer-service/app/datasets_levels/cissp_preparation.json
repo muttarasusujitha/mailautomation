@@ -484,7 +484,7 @@
           "lab_task": "Take a timed adaptive-style practice set, practise pacing and distractor elimination and record a personal exam-day strategy.",
           "deliverable": "Exam strategy and practice record",
           "checks": [["Pace", "Pacing fits the adaptive format", "Practice record"], ["Eliminate", "Distractor elimination is practised", "Notes"], ["Strategise", "A personal exam-day strategy is written", "Strategy"]],
-          "objectives": ["Understand the adaptive test", "Pace the exam", "Build an exam strategy"]
+          "objectives": ["Describe how the adaptive test works", "Pace the exam", "Build an exam strategy"]
         },
         {
           "topic": "High-Difficulty Practice: Security and Risk, Asset and Architecture",

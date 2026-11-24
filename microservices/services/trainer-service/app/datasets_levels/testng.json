@@ -38,7 +38,7 @@
           "lab_task": "Add print statements to every lifecycle annotation across two classes and a suite, predict the order, run it and explain any differences.",
           "deliverable": "Lifecycle demo with explained order",
           "checks": [["Predict", "The predicted order is written before running", "Notes"], ["Run", "The actual order is captured from output", "Terminal output"], ["Explain", "Differences from the prediction are explained", "Notes"]],
-          "objectives": ["Use TestNG annotations", "Understand the lifecycle", "Control setup and teardown"]
+          "objectives": ["Use TestNG annotations", "Explain the TestNG test lifecycle", "Control setup and teardown"]
         },
         {
           "topic": "Assertions: Hard and Soft",
@@ -403,7 +403,7 @@
           "lab_task": "Trace a suite run through TestNG's internals in the debugger, implement an IHookable that wraps tests with timing and an IAlterSuiteListener that changes suites at start.",
           "deliverable": "Internal trace notes and two extensions",
           "checks": [["Trace", "The run path is explained from the debugger", "Trace notes"], ["Wrap", "IHookable records timing for every test", "Output"], ["Alter", "Suites change at start as designed", "Test output"]],
-          "objectives": ["Understand TestNG internals", "Use deep extension points", "Manage extension risks"]
+          "objectives": ["Explain TestNG internals", "Use deep extension points", "Manage extension risks"]
         },
         {
           "topic": "Configuration as Code for Suites",

@@ -412,7 +412,7 @@
           "lab_task": "Create three agents Auditor, Archiver and Notifier subscribed to topic type 'orders'. Publish 20 OrderPlaced events with TopicId('orders', f'tenant-{i%2}'). Count handled events per agent and tenant key, then remove the Notifier subscription with runtime.remove_subscription and republish to confirm it stops receiving.",
           "deliverable": "Pub-sub script and a table of events per agent and tenant",
           "checks": [["Publish 20 events to three subscribers", "Each subscriber handled 20 events, 60 handler calls in total", "Counter table"], ["Check instances by tenant source", "Each agent has two instances, tenant-0 and tenant-1, with 10 events each", "Counter table"], ["Remove the Notifier subscription and publish 5 more", "Notifier count stays at 20 while the others reach 25", "Counter table"]],
-          "objectives": ["Broadcast events with topics", "Understand source-based instance creation", "Manage subscriptions at runtime"]
+          "objectives": ["Broadcast events with topics", "Explain source-based instance creation", "Manage subscriptions at runtime"]
         },
         {
           "topic": "Direct RPC Messaging with AgentId and Cancellation",

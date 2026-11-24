@@ -38,7 +38,7 @@
           "lab_task": "Create a custom equipment loan table that extends Task, add reference, choice and date fields, override a dictionary attribute for incident and view the schema map.",
           "deliverable": "Table definition and schema map screenshot",
           "checks": [["Open the new table", "Inherits Task fields such as number and assignment group", "Form screenshot"], ["Pick a reference field value", "Values come from the referenced table", "Form screenshot"], ["Check the dictionary override", "Applies only to the incident table", "Dictionary record"]],
-          "objectives": ["Understand tables", "Create custom tables and fields", "Use dictionary overrides"]
+          "objectives": ["Explain tables", "Create custom tables and fields", "Use dictionary overrides"]
         },
         {
           "topic": "Configuring Forms and Lists",
@@ -128,7 +128,7 @@
           "lab_task": "Create servers, an application and a business service with relationships, link them to incidents and changes and view the dependency map and CMDB health.",
           "deliverable": "CIs, dependency map and health dashboard screenshot",
           "checks": [["Open the dependency map", "Service, application and servers linked", "Map screenshot"], ["Raise an incident on a server", "Affected service shown", "Incident record"], ["View CMDB health", "Completeness and correctness scores shown", "Dashboard screenshot"]],
-          "objectives": ["Understand the CMDB", "Create CIs and relationships", "Use the CMDB in processes"]
+          "objectives": ["Explain the CMDB", "Create CIs and relationships", "Use the CMDB in processes"]
         },
         {
           "topic": "Access Control Rules and Platform Security",
@@ -164,7 +164,7 @@
           "lab_task": "Capture the catalog item work in an update set, move it to a second instance, resolve a preview error and list which records had to be moved separately.",
           "deliverable": "Update set, preview report and a note on uncaptured items",
           "checks": [["Commit on the target", "Catalog item works on the second instance", "Screenshot"], ["Resolve the preview error", "Error fixed before commit", "Preview report"], ["List uncaptured data", "Data records such as groups identified", "Written note"]],
-          "objectives": ["Move configuration", "Fix preview errors", "Know what update sets miss"]
+          "objectives": ["Move configuration", "Fix preview errors", "Identify what update sets miss"]
         },
         {
           "topic": "Service Portal and Employee Center",
@@ -182,7 +182,7 @@
           "lab_task": "Take a timed CSA practice exam, review each wrong answer in the documentation, repeat the related lab task and take a second practice exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Review wrong answers", "Each linked to a documentation page", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the CSA exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Explain the CSA exam", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Beginner Capstone: IT Service Desk on ServiceNow",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed CAD practice exam, review wrong answers in the documentation, rebuild one weak-area feature in the lab and take a second practice exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice exam", "Score recorded by topic", "Score sheet"], ["Rebuild a weak-area feature", "Feature works in the lab", "Lab screenshot"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the CAD exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Explain the CAD exam", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Scoped Asset Booking Application",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected problems (a looping business rule, a stuck flow, an expired integration credential, an ACL blocking agents and a slow report after an upgrade), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the looping rule", "Recursion stopped and the cause removed", "System log"], ["Fix the ACL problem", "Agents regain access with the right scope", "Test results"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose platform issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose platform issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Service Management Platform",

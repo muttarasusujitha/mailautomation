@@ -38,7 +38,7 @@
           "lab_task": "Trace a VM write through the Controller VM and replication factor, power off a node in the lab and watch data rebuild and the VM restart.",
           "deliverable": "Architecture notes with a node failure test",
           "checks": [["Trace", "The write path is drawn correctly", "Diagram"], ["Fail", "The VM restarts after the node fails", "Event log"], ["Rebuild", "Data protection returns to normal", "Data resiliency view"]],
-          "objectives": ["Explain Nutanix architecture", "Understand replication factor", "Observe failure handling"]
+          "objectives": ["Explain Nutanix architecture", "Explain replication factor", "Observe failure handling"]
         },
         {
           "topic": "Prism Element and Prism Central: Management Planes and Dashboards",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose seeded problems, an unstable service, a network partition and a Prism Central fault, fix them, open a support case and write a review.",
           "deliverable": "Diagnoses, support case and review",
           "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Escalate", "The support case has the needed logs", "Support case"], ["Review", "The review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot Nutanix at scale", "Collect evidence", "Learn from incidents"]
+          "objectives": ["Troubleshoot Nutanix at scale", "Collect evidence", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Nutanix Platform and VMware Exit Design",

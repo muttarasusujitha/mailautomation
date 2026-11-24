@@ -324,7 +324,7 @@
           "lab_task": "Add _design/auth with validate_doc_update that requires a title string, forbids changing owner after creation and allows only role editor to set status published. Write 8 test documents covering allowed and rejected cases, run them with curl and record each status code and reason. Replicate a bad document into the database to see rejection.",
           "deliverable": "Validation function and a test matrix of 8 cases with expected and observed status codes",
           "checks": [["PUT a document without a title", "HTTP 403 with error forbidden and your custom reason", "curl -i output"], ["Change owner on an existing document", "HTTP 403 with reason owner cannot be changed", "curl -i output"], ["Set status published as a user without the editor role", "HTTP 403 forbidden", "curl -i output"]],
-          "objectives": ["Write validation functions", "Test allowed and rejected writes", "Understand how replication interacts with validation"]
+          "objectives": ["Write validation functions", "Test allowed and rejected writes", "Explain how replication interacts with validation"]
         },
         {
           "topic": "Authentication Options: Cookie, Basic, JWT and Proxy",

@@ -164,7 +164,7 @@
           "lab_task": "Build IDMap,Flat over 100,000 vectors with IDs 0 to 99,999. Remove IDs 0 to 9,999 with remove_ids(faiss.IDSelectorRange(0, 10000)) and record the return value and ntotal. Then build IVF256,Flat with tenant-coded IDs and search with faiss.SearchParametersIVF(sel=faiss.IDSelectorBatch(allowed), nprobe=32), confirming that every returned label is in the allowed set.",
           "deliverable": "Removal and filtering notebook with counts before and after and an allowed-ID assertion",
           "checks": [["remove_ids(faiss.IDSelectorRange(0, 10000)) on the IDMap,Flat index", "Returns 10000 and ntotal drops to 90,000", "Notebook output"], ["Search with an IDSelectorBatch of 500 allowed IDs", "Every non -1 label is in the allowed set", "Assertion output"], ["Search IDs removed earlier as exact query vectors", "None of the removed IDs appear in the results", "Search output"]],
-          "objectives": ["Delete vectors by ID", "Apply search-time ID filters", "Know which index types support these operations"]
+          "objectives": ["Delete vectors by ID", "Apply search-time ID filters", "Identify which index types support these operations"]
         },
         {
           "topic": "Range Search and Similarity Thresholds in FAISS",
@@ -457,7 +457,7 @@
           "lab_task": "Write an IVF16384,PQ64 index of 50,000,000 vectors to disk. Compare read_index time and RSS for a plain load and for faiss.IO_FLAG_MMAP | faiss.IO_FLAG_READ_ONLY. Start 4 uvicorn workers that each load the mapped index and measure total memory with free -m and per-process RSS, then repeat with plain loads and compare totals.",
           "deliverable": "mmap loading report with start-up times and multi-worker memory totals",
           "checks": [["Compare read_index time for plain and IO_FLAG_MMAP loads", "The mmap load returns much faster", "Timing log"], ["Compare total memory of 4 workers with mmap and plain loads", "The mmap configuration uses less total memory because pages are shared", "free -m output"], ["Measure RSS immediately after the IO_FLAG_MMAP load and before any search", "RSS grows far less than the file size until queries touch the mapped pages", "psutil output"]],
-          "objectives": ["Load FAISS indexes with memory mapping", "Share index memory across processes", "Know the limits of mapped indexes"]
+          "objectives": ["Load FAISS indexes with memory mapping", "Share index memory across processes", "Identify the limits of mapped indexes"]
         },
         {
           "topic": "Additive Quantizers: Residual and Local Search Quantization",

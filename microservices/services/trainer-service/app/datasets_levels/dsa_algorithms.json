@@ -369,7 +369,7 @@
           "lab_task": "Complete three timed 25 minute rounds with a partner or a timer: one graph problem, one heap or interval problem and one DP problem, all unseen medium level. Score each against a rubric of clarification, approach, code, tests and complexity, and write a mistake log with the pattern you missed.",
           "deliverable": "Three scored mock rounds, a mistake log and a plan for the next five practice problems",
           "checks": [["Round scoring sheet", "Each round has five rubric scores and a written complexity statement", "Completed rubric"], ["Submitted solutions", "At least two of three pass all visible tests within the time box", "Judge submission history"], ["Mistake log", "Every missed pattern is named and paired with one new practice problem", "Mistake log file"]],
-          "objectives": ["Solve medium problems within a time limit", "Explain trade-offs while coding", "Learn systematically from mistakes"]
+          "objectives": ["Solve medium problems within a time limit", "Explain trade-offs while coding", "Record the cause and a follow-up action for each mistake"]
         },
         {
           "topic": "Capstone: Pattern Playbook and Timed Mock Set",

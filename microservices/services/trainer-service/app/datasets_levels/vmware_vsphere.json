@@ -297,7 +297,7 @@
           "lab_task": "Issue a certificate from an enterprise CA, replace the vCenter Machine SSL certificate, renew host certificates, check the STS signing certificate and set expiry alarms.",
           "deliverable": "Certificate inventory and replacement procedure",
           "checks": [["Replace the Machine SSL certificate", "Browser trusts vCenter with no warning", "Browser screenshot"], ["Renew host certificates", "Hosts show new expiry dates", "Certificate screenshot"], ["Check STS expiry", "STS certificate valid for more than a year", "Certificate details"]],
-          "objectives": ["Understand vSphere certificates", "Replace certificates safely", "Prevent expiry outages"]
+          "objectives": ["Explain vSphere certificates", "Replace certificates safely", "Prevent expiry outages"]
         },
         {
           "topic": "Identity Federation with External Identity Providers",
@@ -502,7 +502,7 @@
           "lab_task": "Count licensed cores across a sample estate with a script, model edition choices and host consolidation, and present three renewal options with costs and risks.",
           "deliverable": "Licensing model and renewal recommendation",
           "checks": [["Count cores", "Core totals match host inventory with minimums applied", "Core count report"], ["Model consolidation", "Savings from fewer hosts calculated", "Consolidation model"], ["Present options", "Three options with cost and risk compared", "Finance presentation"]],
-          "objectives": ["Understand current VMware licensing", "Count cores accurately", "Recommend renewal options"]
+          "objectives": ["Explain current VMware licensing", "Count cores accurately", "Recommend renewal options"]
         },
         {
           "topic": "Planning an Exit from VMware: Nutanix, Hyper-V, OpenShift Virtualization and Proxmox",

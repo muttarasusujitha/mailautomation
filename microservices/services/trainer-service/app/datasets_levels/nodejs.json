@@ -92,7 +92,7 @@
           "lab_task": "Build a small JSON API with the http module only, with GET, POST and DELETE routes, correct status codes, JSON body parsing and static file serving.",
           "deliverable": "HTTP server and a list of pain points for frameworks to solve",
           "checks": [["Call each route", "Correct status codes for success and errors", "curl output"], ["Send bad JSON", "Server returns 400 instead of crashing", "Response"], ["Serve a static file", "File downloads with the correct content type", "Response headers"]],
-          "objectives": ["Understand HTTP in Node.js", "Build a server without a framework", "Explain what frameworks add"]
+          "objectives": ["Explain HTTP in Node.js", "Build a server without a framework", "Explain what frameworks add"]
         },
         {
           "topic": "Building REST APIs with Express",
@@ -547,7 +547,7 @@
           "lab_task": "Work through four simulated incidents: an event loop stall, a memory leak, pool exhaustion and a crash loop, restore service in each and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Find root causes", "Each root cause proven with evidence", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Triage Node.js incidents", "Find root causes under pressure", "Learn from incidents"]
+          "objectives": ["Triage Node.js incidents", "Find root causes under pressure", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Node.js Architecture Reviews and Technical Leadership",

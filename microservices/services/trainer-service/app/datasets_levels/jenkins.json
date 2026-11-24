@@ -394,7 +394,7 @@
           "lab_task": "Trace how a pipeline step runs from the controller to an agent, change durability settings and measure the effect on throughput, and explain build storage on disk.",
           "deliverable": "Annotated trace, durability benchmark and storage diagram",
           "checks": [["Compare throughput across durability settings", "Measured difference with explanation", "Benchmark table"], ["Explain the storage diagram", "Build XML, logs and workflow files are identified", "Diagram"], ["Simulate a controller restart mid-pipeline", "Pipeline resumes or fails as the durability setting predicts", "Build log"]],
-          "objectives": ["Explain how Jenkins runs pipelines", "Tune durability and throughput", "Understand Jenkins storage"]
+          "objectives": ["Explain how Jenkins runs pipelines", "Tune durability and throughput", "Explain Jenkins storage"]
         },
         {
           "topic": "JVM Tuning and Controller Performance",

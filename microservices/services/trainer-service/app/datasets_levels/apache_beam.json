@@ -315,7 +315,7 @@
           "lab_task": "Define a Purchase POJO with @DefaultSchema(JavaFieldSchema.class). Compute total per country with Group.byFieldNames('country').aggregateField('amount', Sum.ofLongs(), 'total') and with SqlTransform.query('SELECT country, SUM(amount) AS total FROM PCOLLECTION GROUP BY country'). Add a TUMBLE(ts, INTERVAL '1' MINUTE) query and compare results.",
           "deliverable": "Java project with the Group, SQL and windowed SQL versions and result comparison",
           "checks": [["Run the Group and SQL variants on 12 purchases", "Both produce identical per-country totals", "Printed rows"], ["Run the TUMBLE query over events across 3 minutes", "One row per country and minute window", "Printed rows"], ["Query a column that does not exist", "SqlTransform fails at construction time with a column-not-found error", "Stack trace"]],
-          "objectives": ["Use schema-based transforms in Java", "Run SQL inside a Beam pipeline", "Know where Beam SQL ends and warehouse SQL begins"]
+          "objectives": ["Use schema-based transforms in Java", "Run SQL inside a Beam pipeline", "Identify where Beam SQL ends and warehouse SQL begins"]
         },
         {
           "topic": "Dataflow Streaming Jobs: Streaming Engine, Autoscaling and Monitoring",

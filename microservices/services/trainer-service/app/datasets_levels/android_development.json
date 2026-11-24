@@ -556,7 +556,7 @@
           "lab_task": "Work through four production issues: an ANR on startup, a crash on one device family, an out-of-memory crash and a regression after release, fix each and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Fix the ANR", "ANR rate drops after the fix", "Vitals screenshot"], ["Reproduce a device bug", "Device-specific crash reproduced and fixed", "Notes"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot Android apps in production", "Use vitals and traces", "Learn from incidents"]
+          "objectives": ["Troubleshoot Android apps in production", "Use vitals and traces", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Module Super App",

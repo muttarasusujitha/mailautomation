@@ -164,7 +164,7 @@
           "lab_task": "Create table docs(id INT, body JSON CHECK (JSON_VALID(body))). Insert three order documents with an items array. Query JSON_VALUE(body,'$.customer'), expand items with JSON_TABLE into rows, and add a PERSISTENT generated column on customer with an index. Try inserting '{bad' and capture the error. Create one dynamic column with COLUMN_CREATE.",
           "deliverable": "JSON query pack with JSON_TABLE output, the generated-column index and the rejected insert",
           "checks": [["INSERT the text '{bad' into the JSON column", "ERROR 4025 CONSTRAINT docs.body failed", "Error message"], ["JSON_TABLE over an items array of 3 elements", "Returns 3 rows per document", "Result grid"], ["EXPLAIN a WHERE on the indexed generated customer column", "key shows the generated-column index", "EXPLAIN output"]],
-          "objectives": ["Store and query JSON in MariaDB", "Index JSON values via generated columns", "Know when to use dynamic columns"]
+          "objectives": ["Store and query JSON in MariaDB", "Index JSON values via generated columns", "Decide when to use dynamic columns"]
         },
         {
           "topic": "Loading, Exporting and Connecting Applications",

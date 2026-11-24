@@ -466,7 +466,7 @@
           "lab_task": "Create a lab root CA with openssl and issue an intermediate for Puppet. On a fresh primary run puppetserver ca import --cert-bundle bundle.pem --crl-chain crls.pem --private-key int.key. Bootstrap an agent and run openssl verify -CAfile bundle.pem on its certificate. Let the root CRL expire or remove it from the chain and record how agents behave with certificate_revocation = chain.",
           "deliverable": "Import log, chain verification output and the CRL failure observation",
           "checks": [["Run openssl verify -CAfile bundle.pem on a newly signed agent cert", "Prints OK", "Terminal output"], ["Run puppet agent -t on the new agent", "The run succeeds with the imported chain", "Agent output"], ["Remove the root CRL from the chain and restart the server", "Agents fail with a CRL-related verification error", "Agent output"]],
-          "objectives": ["Run Puppet as an intermediate CA", "Validate certificate chains", "Understand CRL requirements across a chain"]
+          "objectives": ["Run Puppet as an intermediate CA", "Validate certificate chains", "Explain CRL requirements across a chain"]
         },
         {
           "topic": "PuppetDB Performance, Retention TTLs and Garbage Collection",

@@ -270,7 +270,7 @@
           "lab_task": "Build a small OData V2 service in SEGW for courses, test CRUD and $expand in the Gateway client and compare it with the RAP service for effort and features.",
           "deliverable": "SEGW service, test results and comparison",
           "checks": [["Create a course through the Gateway client", "Record created", "Gateway client response"], ["Query with $expand to bookings", "Courses return with bookings", "Gateway client response"], ["Compare with RAP", "Effort and features compared", "Comparison sheet"]],
-          "objectives": ["Understand classic OData services", "Test OData requests", "Choose RAP for new work"]
+          "objectives": ["Explain classic OData services", "Test OData requests", "Choose RAP for new work"]
         },
         {
           "topic": "Enhancements: User Exits, BAdIs and Enhancement Points",

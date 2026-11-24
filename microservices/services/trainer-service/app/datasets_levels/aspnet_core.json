@@ -403,7 +403,7 @@
           "lab_task": "Build a dynamic endpoint data source from configuration, a custom constraint and transformer, attach metadata used by middleware and debug an ambiguous match.",
           "deliverable": "Routing extensions with notes",
           "checks": [["Add endpoints at runtime", "Configured endpoints appear without code changes", "Route list"], ["Use metadata", "Middleware reads endpoint metadata to apply a rule", "Log output"], ["Fix ambiguity", "Ambiguous match resolved with the cause explained", "Notes"]],
-          "objectives": ["Understand routing internals", "Extend routing", "Debug route matching"]
+          "objectives": ["Explain routing internals", "Extend routing", "Debug route matching"]
         },
         {
           "topic": "Source Generators, Request Delegate Generation and AOT-Safe APIs",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: thread pool starvation, socket exhaustion, a slow query after a release and memory growth, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by traces, dumps or plans", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot ASP.NET Core in production", "Find root causes", "Learn from incidents"]
+          "objectives": ["Troubleshoot ASP.NET Core in production", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Tenant API Platform on ASP.NET Core",

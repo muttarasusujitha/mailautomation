@@ -56,7 +56,7 @@
           "lab_task": "Automate a registration form with text fields, dropdowns, checkboxes, radio buttons and a file upload, submit it and check the confirmation page.",
           "deliverable": "Automated form spec",
           "checks": [["Fill every field", "All field types are filled with Cypress commands", "Spec code"], ["Upload", "The uploaded file name appears on the confirmation page", "Test output"], ["Avoid forcing", "No command uses force: true", "Code review"]],
-          "objectives": ["Interact with page elements", "Upload files", "Understand actionability"]
+          "objectives": ["Interact with page elements", "Upload files", "Explain actionability checks"]
         },
         {
           "topic": "Assertions with should and expect",
@@ -369,7 +369,7 @@
           "lab_task": "List the limits that affect your product, implement workarounds for two of them, and decide for one scenario whether Cypress or another tool should cover it.",
           "deliverable": "Limits list, workarounds and a tool decision",
           "checks": [["List limits", "Each limit is linked to a product scenario", "Limits list"], ["Work around", "Two workarounds pass in tests", "Test output"], ["Decide", "The tool decision is justified", "Decision note"]],
-          "objectives": ["Know Cypress limits", "Apply workarounds", "Choose tools for edge cases"]
+          "objectives": ["Identify Cypress limits", "Apply workarounds", "Choose tools for edge cases"]
         },
         {
           "topic": "Intermediate Capstone: Component and End-to-End Suite with Cypress Cloud",

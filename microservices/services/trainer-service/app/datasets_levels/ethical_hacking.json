@@ -155,7 +155,7 @@
           "lab_task": "Compare a noisy scan and a stealthier scan against a lab IDS, show which alerts fire and explain the trade-offs.",
           "deliverable": "Evasion comparison with detection notes",
           "checks": [["Compare", "Noisy and stealthy scans are run", "Scan logs"], ["Detect", "IDS alerts for each scan are recorded", "IDS alerts"], ["Explain", "Trade-offs between stealth and safety are explained", "Notes"]],
-          "objectives": ["Understand detection evasion", "Compare noisy and stealthy actions", "See the defender's view"]
+          "objectives": ["Explain detection evasion", "Compare noisy and stealthy actions", "See the defender's view"]
         },
         {
           "topic": "Maintaining Access and Covering Tracks",
@@ -225,7 +225,7 @@
           "lab_task": "Exploit a simple stack buffer overflow in a lab binary, find the offset, control execution and run shellcode, then explain the protections that would stop it.",
           "deliverable": "Exploit development write-up",
           "checks": [["Control", "Execution is controlled through the overflow", "Crash and control proof"], ["Execute", "Shellcode runs in the lab", "Output"], ["Explain", "Modern protections are explained", "Notes"]],
-          "objectives": ["Understand exploit development", "Exploit a buffer overflow", "Explain exploit mitigations"]
+          "objectives": ["Explain exploit development", "Exploit a buffer overflow", "Explain exploit mitigations"]
         },
         {
           "topic": "Active Directory Attacks: Enumeration and Kerberos",
@@ -421,7 +421,7 @@
           "lab_task": "Run a technique that a lab endpoint product detects, apply AMSI and ETW evasion, and measure the change in alerts without leaving scope.",
           "deliverable": "Evasion results with detection comparison",
           "checks": [["Detect", "The baseline technique is detected", "Alerts"], ["Evade", "Evasion lowers the alerts", "Comparison"], ["Document", "Techniques and limits are recorded", "Notes"]],
-          "objectives": ["Understand endpoint detection", "Evade AMSI and ETW", "Measure detection changes"]
+          "objectives": ["Explain endpoint detection", "Evade AMSI and ETW", "Measure detection changes"]
         },
         {
           "topic": "Physical and Social Engineering Operations",

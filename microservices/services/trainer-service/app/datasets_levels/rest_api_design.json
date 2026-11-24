@@ -412,7 +412,7 @@
           "lab_task": "Design a set of internal platform APIs for compute, storage and deployments following one set of guidelines, with standard methods, operations and errors, and review them against public cloud guidance.",
           "deliverable": "Platform API designs and guideline map",
           "checks": [["Apply standard methods", "All resources follow the same method patterns", "Design review"], ["Standardise operations", "Long-running work uses one operation model", "Design notes"], ["Compare with guidance", "Differences from public guidelines justified", "Comparison table"]],
-          "objectives": ["Design platform APIs", "Apply organisation-wide guidelines", "Learn from cloud API design"]
+          "objectives": ["Design platform APIs", "Apply organisation-wide guidelines", "Apply lessons from cloud API design to a new API"]
         },
         {
           "topic": "Multi-Tenant API Design",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: a breaking change, an expired signing key, a runaway client and a dependency outage, restore service, communicate with consumers and write one post-incident review.",
           "deliverable": "Incident notes, communications and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Communicate", "Consumer updates sent at each stage", "Status page history"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot API platforms", "Communicate with consumers", "Learn from incidents"]
+          "objectives": ["Troubleshoot API platforms", "Communicate with consumers", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise API Platform and Governance Programme",

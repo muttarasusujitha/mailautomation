@@ -556,7 +556,7 @@
           "lab_task": "Diagnose seeded fleet problems, delayed metrics, rate-limited automation and a cardinality explosion, fix them and write an incident review.",
           "deliverable": "Diagnoses, fixes and an incident review",
           "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Fix", "Data arrives on time and automation stays under limits", "Monitoring evidence"], ["Review", "The incident review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot Datadog at scale", "Handle rate limits", "Learn from monitoring incidents"]
+          "objectives": ["Troubleshoot Datadog at scale", "Handle rate limits", "Write a post-incident review of a monitoring incident with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Datadog Strategy and Rollout",

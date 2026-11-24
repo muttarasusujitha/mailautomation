@@ -146,7 +146,7 @@
           "lab_task": "Record a login and search flow with Selenium IDE and Playwright codegen, add assertions, run them and break one by changing a locator to see the maintenance cost.",
           "deliverable": "Two recorded tests and notes",
           "checks": [["Run the recorded tests", "Both pass", "Test output"], ["Change a locator", "Test fails at that step", "Test output"], ["Choose tests to automate", "Choice justified by value and stability", "Notes"]],
-          "objectives": ["Decide what to automate", "Record first automated tests", "Understand maintenance"]
+          "objectives": ["Decide what to automate", "Record first automated tests", "Explain the maintenance cost of automated tests"]
         },
         {
           "topic": "Performance Testing: Load, Stress and Response Times",
@@ -182,7 +182,7 @@
           "lab_task": "Take a 40-question timed ISTQB Foundation practice exam, review every wrong answer against the syllabus and plan final study.",
           "deliverable": "Practice score, review notes and study plan",
           "checks": [["Complete the practice exam", "Score recorded", "Test results"], ["Review wrong answers", "Each linked to a syllabus section", "Review notes"], ["Review the study plan", "Weak chapters covered", "Study plan"]],
-          "objectives": ["Prepare for ISTQB Foundation", "Learn the syllabus terms", "Practise exam questions"]
+          "objectives": ["Prepare for ISTQB Foundation", "Define the syllabus terms", "Practise exam questions"]
         },
         {
           "topic": "Beginner Capstone: Full Test Cycle for a Web Application",
@@ -430,7 +430,7 @@
           "lab_task": "Define steady state for a service, inject latency, pod loss and dependency failure, measure the impact and run a game day with the team.",
           "deliverable": "Experiment plans, results and game day report",
           "checks": [["Inject pod loss", "Service stays within its SLO or the gap is recorded", "Dashboard"], ["Inject dependency latency", "Timeouts and fallbacks work or a defect is logged", "Results"], ["Run the game day", "Findings with owners", "Game day report"]],
-          "objectives": ["Test resilience", "Run chaos experiments safely", "Learn from failures"]
+          "objectives": ["Test resilience", "Run chaos experiments safely", "Record the root cause and a preventive action for each failure"]
         },
         {
           "topic": "Security Test Automation",

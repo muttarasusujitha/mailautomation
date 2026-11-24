@@ -29,7 +29,7 @@
           "lab_task": "Count words in a large text corpus with RDDs, compare reduceByKey and groupByKey in the Spark UI and show that nothing runs until an action is called.",
           "deliverable": "Notebook and Spark UI comparison",
           "checks": [["Run transformations without an action", "No job in the Spark UI", "Screenshot"], ["Compare reduceByKey and groupByKey", "Less shuffle data with reduceByKey", "Spark UI stage metrics"], ["Explain lineage", "Recovery from a lost partition described", "Written note"]],
-          "objectives": ["Use RDD operations", "Understand lazy evaluation", "Know when RDDs fit"]
+          "objectives": ["Use RDD operations", "Explain lazy evaluation", "Decide when RDDs fit"]
         },
         {
           "topic": "DataFrames and Schemas",
@@ -74,7 +74,7 @@
           "lab_task": "Report trips and revenue by borough and hour, pivot by weekday, compute median fares and compare exact and approximate distinct driver counts with their run times.",
           "deliverable": "Notebook and result tables",
           "checks": [["Pivot by weekday", "One column per weekday", "Notebook output"], ["Compare distinct counts", "Approximate count close and faster", "Timing output"], ["Read the shuffle", "Shuffle stage found for the groupBy", "Spark UI"]],
-          "objectives": ["Aggregate data", "Pivot and roll up", "Understand shuffles"]
+          "objectives": ["Aggregate data", "Pivot and roll up", "Explain shuffles"]
         },
         {
           "topic": "Joining DataFrames",
@@ -137,7 +137,7 @@
           "lab_task": "Measure partition sizes, change shuffle partitions for a large aggregation, fix a job that writes thousands of tiny files and record run times.",
           "deliverable": "Notebook, Spark UI notes and timings",
           "checks": [["Check partition sizes", "Sizes per partition reported", "Notebook output"], ["Tune shuffle partitions", "Run time improves", "Timing table"], ["Fix small files", "Output written as fewer, larger files", "File listing"]],
-          "objectives": ["Understand partitions", "Control parallelism", "Avoid small files"]
+          "objectives": ["Explain partitions", "Control parallelism", "Avoid small files"]
         },
         {
           "topic": "Caching and Persistence",
@@ -207,7 +207,7 @@
           "lab_task": "Trace one query from logical plan to physical plan, find which optimisation rules changed it, identify code generation stages and predict the number of stages before running it.",
           "deliverable": "Annotated plans and predictions",
           "checks": [["Predict stage count", "Prediction matches the Spark UI", "Spark UI"], ["Find a pushed-down filter", "Filter moved into the scan", "explain() output"], ["Identify code generation", "WholeStageCodegen stages found", "explain() output"]],
-          "objectives": ["Understand Catalyst", "Read physical plans", "Predict stages"]
+          "objectives": ["Explain Catalyst", "Read physical plans", "Predict stages"]
         },
         {
           "topic": "Adaptive Query Execution",
@@ -234,7 +234,7 @@
           "lab_task": "Reproduce driver and executor out-of-memory errors, fix them, size executors for a 1 TB job and compare run times with three executor shapes.",
           "deliverable": "Error diagnosis, sizing calculation and timings",
           "checks": [["Fix the driver OOM", "Large collect removed", "Driver log"], ["Fix the executor OOM", "Spill or partitioning change fixes it", "Executor log"], ["Compare executor shapes", "Fastest shape recorded with reasons", "Timing table"]],
-          "objectives": ["Understand Spark memory", "Fix OOM errors", "Size executors"]
+          "objectives": ["Explain Spark memory", "Fix OOM errors", "Size executors"]
         },
         {
           "topic": "Configuration and Job Tuning Method",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, review wrong answers by running the code, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Re-run wrong answers as code", "Each answer confirmed in Spark", "Notebook"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Streaming and Batch Order Analytics",
@@ -394,7 +394,7 @@
           "lab_task": "Trace a shuffle-heavy job through event logs, kill an executor mid-shuffle and explain recovery, and compare default and push-based shuffle.",
           "deliverable": "Event log analysis and comparison",
           "checks": [["Kill an executor", "Lost stages re-run and the job completes", "Event log"], ["Compare shuffle modes", "Shuffle read time for each", "Timing table"], ["Explain the scheduler", "Stage and task flow described correctly", "Written note"]],
-          "objectives": ["Understand Spark internals", "Explain recovery", "Compare shuffle implementations"]
+          "objectives": ["Explain Spark internals", "Explain recovery", "Compare shuffle implementations"]
         },
         {
           "topic": "Cost-Based Optimisation and Statistics",
@@ -421,7 +421,7 @@
           "lab_task": "Run a TPC-DS subset on standard Spark and a native engine, find operators that fall back to the JVM and estimate cost per query.",
           "deliverable": "Benchmark results and fallback analysis",
           "checks": [["Compare query times", "Speed-up per query recorded", "Benchmark table"], ["Find fallbacks", "Operators not run natively listed", "Plan output"], ["Estimate cost", "Cost per query for each engine", "Cost table"]],
-          "objectives": ["Understand native engines", "Benchmark them", "Weigh cost"]
+          "objectives": ["Explain native engines", "Benchmark them", "Weigh cost"]
         },
         {
           "topic": "Advanced Streaming: Latency, Real-Time Mode and Operations",
@@ -538,7 +538,7 @@
           "lab_task": "Diagnose five injected failures (a fetch failure storm, a new skewed key, an upstream schema change, a full worker disk and a driver crash), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the fetch failures", "Cause found and job completes", "Event log"], ["Fix the schema change", "Job handles the new schema", "Job log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Spark failures", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Spark failures", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Contributing to Apache Spark and the Ecosystem",
@@ -547,7 +547,7 @@
           "lab_task": "Build Spark from source, run a module's tests, reproduce a known issue with a minimal example and write an issue report or small documentation fix.",
           "deliverable": "Build log, reproduction and issue or pull request draft",
           "checks": [["Build Spark", "Build completes", "Build log"], ["Run module tests", "Tests pass", "Test output"], ["Write the reproduction", "Minimal example shows the issue", "Reproduction code"]],
-          "objectives": ["Understand the Spark project", "Build from source", "Contribute well"]
+          "objectives": ["Describe the Spark project's structure and contribution process", "Build from source", "Contribute well"]
         },
         {
           "topic": "Spark Platform Strategy and Team Practices",

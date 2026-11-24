@@ -83,7 +83,7 @@
           "lab_task": "Load sales data into objects and use LINQ to find revenue by region, top products, monthly totals and customers with no orders.",
           "deliverable": "LINQ queries and results",
           "checks": [["Group revenue by region", "Totals match the answer sheet", "Terminal output"], ["Find customers with no orders", "Correct list", "Terminal output"], ["Show deferred execution", "Explained with output", "Notes and output"]],
-          "objectives": ["Query data with LINQ", "Group and join data", "Understand deferred execution"]
+          "objectives": ["Query data with LINQ", "Group and join data", "Explain deferred execution"]
         },
         {
           "topic": "Exceptions and Error Handling",

@@ -556,7 +556,7 @@
           "lab_task": "Diagnose seeded problems at scale, a replication failure with lingering objects, a duplicate SPN and a cluster outage, fix them and write an incident review.",
           "deliverable": "Diagnoses, fixes and an incident review",
           "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Fix", "Replication, Kerberos and the cluster work after the fixes", "Health reports"], ["Review", "The review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot Windows at scale", "Fix Kerberos and replication", "Learn from incidents"]
+          "objectives": ["Troubleshoot Windows at scale", "Fix Kerberos and replication", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Windows Infrastructure Modernisation Plan",

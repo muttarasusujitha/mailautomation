@@ -182,7 +182,7 @@
           "lab_task": "Start Pinecone Local with docker run -p 5080-5090:5080-5090 ghcr.io/pinecone-io/pinecone-local, create a client pointed at http://localhost:5080, and write three pytest tests for the FAQ code: upsert then fetch, filtered query, and delete. Run pytest -q, then restart the container and run the fetch test alone.",
           "deliverable": "pytest suite and a run log against Pinecone Local",
           "checks": [["Run pytest -q against the running emulator", "3 passed is reported", "pytest output"], ["Run the fetch test after docker restart without re-seeding", "The test fails because local data does not survive a restart", "pytest output"], ["Run the suite with PINECONE_API_KEY unset", "Tests still pass because the emulator does not check the key", "pytest output"]],
-          "objectives": ["Run Pinecone Local in Docker", "Write tests that do not touch the cloud project", "Know the emulator's limits"]
+          "objectives": ["Run Pinecone Local in Docker", "Write tests that do not touch the cloud project", "Identify the emulator's limits"]
         },
         {
           "topic": "Capstone: Pinecone Product Knowledge Search with Integrated Embedding",
@@ -297,7 +297,7 @@
           "lab_task": "Enable deletion protection on faq-int with pc.configure_index(name='faq-int', deletion_protection='enabled') and add tags env=prod, owner=search-team and cost_centre=cc-42. Try pc.delete_index('faq-int') and record the error. Write a script that lists all indexes and prints any without an owner tag, then disable protection on a scratch index and delete it.",
           "deliverable": "Index governance script and the protected-delete error",
           "checks": [["Call delete_index on an index with deletion protection enabled", "The call fails with 403 and a message that deletion protection is enabled", "Exception text"], ["Run the tag audit script across the project", "Every index missing an owner tag is printed by name", "Script output"], ["Call configure_index to change the dimension", "The SDK or API rejects it because dimension is immutable", "Exception text"]],
-          "objectives": ["Protect production indexes from deletion", "Label indexes with tags for ownership and cost", "Know which settings can change after creation"]
+          "objectives": ["Protect production indexes from deletion", "Label indexes with tags for ownership and cost", "Identify which settings can change after creation"]
         },
         {
           "topic": "LangChain Retrieval with langchain-pinecone",
@@ -315,7 +315,7 @@
           "lab_task": "Load 200 Markdown files with SimpleDirectoryReader, index them into a new Pinecone index through PineconeVectorStore and StorageContext, and fetch one stored record to inspect the metadata LlamaIndex wrote. Reconnect with VectorStoreIndex.from_vector_store, run a query engine with similarity_top_k=5 and a MetadataFilters filter on file_name, and confirm no re-ingestion happened.",
           "deliverable": "LlamaIndex pipeline notebook with a sample stored record and filtered query output",
           "checks": [["Fetch one record written by LlamaIndex", "Metadata includes a node content field and the file_name", "fetch output"], ["Run from_vector_store and check stats before and after", "The record count does not change", "Stats JSON"], ["Query with a MetadataFilters filter on one file_name", "All source nodes come from that file", "Query output"]],
-          "objectives": ["Use Pinecone as a LlamaIndex vector store", "Understand what LlamaIndex stores in Pinecone metadata", "Reuse an existing index without reloading"]
+          "objectives": ["Use Pinecone as a LlamaIndex vector store", "Explain what LlamaIndex stores in Pinecone metadata", "Reuse an existing index without reloading"]
         },
         {
           "topic": "Retrieval Evaluation on Pinecone: Recall@k and Rerank Lift",

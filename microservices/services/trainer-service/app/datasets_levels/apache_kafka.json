@@ -29,7 +29,7 @@
           "lab_task": "Create topics with different partition and replica settings, stop a broker and watch leaders move, and show writes failing when in-sync replicas fall below the minimum.",
           "deliverable": "Topic settings and failover notes",
           "checks": [["Stop a broker", "Leaders move to other brokers", "kafka-topics describe output"], ["Drop below min.insync.replicas", "Producer with acks=all fails", "Producer error"], ["Increase partitions", "New partitions created and keys remapped noted", "Command output"]],
-          "objectives": ["Configure topics", "Understand replication", "See failover"]
+          "objectives": ["Configure topics", "Explain replication", "See failover"]
         },
         {
           "topic": "Producers: Sending Events Reliably",
@@ -101,7 +101,7 @@
           "lab_task": "Set short retention on a topic and watch segments deleted, use a compacted topic for customer profiles, delete a key with a tombstone and inspect segment files.",
           "deliverable": "Topic settings, file listings and notes",
           "checks": [["Wait past retention", "Old segments deleted", "File listing"], ["Write several values per key to a compacted topic", "Latest value kept after compaction", "Consumer output"], ["Send a tombstone", "Key removed after compaction", "Consumer output"]],
-          "objectives": ["Manage retention", "Use compaction", "Understand storage"]
+          "objectives": ["Manage retention", "Use compaction", "Explain storage"]
         },
         {
           "topic": "Kafka Connect: Source and Sink Connectors",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, check wrong answers by running small experiments, practise weak areas and take a second exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Test wrong answers", "Each confirmed with an experiment", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Real-Time Order and Fraud Platform",
@@ -394,7 +394,7 @@
           "lab_task": "Inspect segment and index files, trace a produce request through request metrics, cause a leader change and explain how leader epochs prevent data loss.",
           "deliverable": "Annotated internals notes",
           "checks": [["Dump a segment", "Record batches and offsets shown", "kafka-dump-log output"], ["Trace a produce request", "Time per stage from request metrics", "Metrics breakdown"], ["Explain leader epochs", "Truncation behaviour explained", "Written note"]],
-          "objectives": ["Understand broker internals", "Explain replication", "Read low-level data"]
+          "objectives": ["Explain broker internals", "Explain replication", "Read low-level data"]
         },
         {
           "topic": "KRaft Controller Internals and Metadata Management",
@@ -403,7 +403,7 @@
           "lab_task": "Inspect the metadata log and snapshots, fail the active controller and measure election time, and add a controller to the quorum.",
           "deliverable": "Metadata inspection notes and failover timings",
           "checks": [["Read the metadata log", "Topic creation records found", "metadata shell output"], ["Fail the active controller", "New leader elected and the time recorded", "Quorum status"], ["Add a controller", "Quorum grows without downtime", "Quorum status"]],
-          "objectives": ["Understand KRaft", "Manage the controller quorum", "Troubleshoot metadata"]
+          "objectives": ["Explain KRaft", "Manage the controller quorum", "Troubleshoot metadata"]
         },
         {
           "topic": "Event-Driven Architecture Patterns",
@@ -421,7 +421,7 @@
           "lab_task": "Event-source a wallet service on Kafka, build two projections, rebuild one from the start of the topic and handle an event schema change.",
           "deliverable": "Event model, projections and rebuild evidence",
           "checks": [["Rebuild a projection", "Matches the live projection", "Comparison output"], ["Change an event schema", "Old and new events read correctly", "Test output"], ["Write the limits", "Cases where Kafka is a poor event store listed", "Written note"]],
-          "objectives": ["Apply event sourcing", "Build projections", "Know the limits"]
+          "objectives": ["Apply event sourcing", "Build projections", "Identify the limits"]
         },
         {
           "topic": "Sagas and Distributed Transactions over Kafka",
@@ -493,7 +493,7 @@
           "lab_task": "Tune a trading-style flow to under 10 ms p99 end to end, measure the cost in throughput and durability and find what causes the slowest one percent.",
           "deliverable": "Tuning steps and latency report",
           "checks": [["Measure p99", "Under 10 ms end to end", "Latency report"], ["Record trade-offs", "Throughput and durability effects stated", "Latency report"], ["Find tail causes", "Causes of p99.9 spikes identified", "Analysis notes"]],
-          "objectives": ["Tune for latency", "Understand trade-offs", "Reduce tail latency"]
+          "objectives": ["Tune for latency", "Explain trade-offs", "Reduce tail latency"]
         },
         {
           "topic": "Kafka for Analytics, Lakehouses and Streaming Databases",
@@ -520,7 +520,7 @@
           "lab_task": "Run the shop workload on Kafka, Redpanda and one cloud service, compare compatibility, latency, operations effort and cost, and write a recommendation for three use cases.",
           "deliverable": "Benchmark results, comparison and recommendation",
           "checks": [["Run the Kafka clients against Redpanda", "Clients work without code changes", "Client output"], ["Compare latency and cost", "Results recorded for each platform", "Comparison table"], ["Write the recommendation", "Platform chosen for each use case with reasons", "Recommendation"]],
-          "objectives": ["Compare streaming platforms", "Know Kafka's alternatives", "Choose platforms by use case"]
+          "objectives": ["Compare streaming platforms", "Compare Kafka's alternatives", "Choose platforms by use case"]
         },
         {
           "topic": "Cost Management for Kafka",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (a rebalance storm, a full broker disk, a slow follower, producer timeouts from throttling and a stuck consumer), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the rebalance storm", "Cause found and rebalances stop", "Consumer logs"], ["Free the full disk", "Retention or reassignment fixes it", "Broker metrics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Kafka incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Kafka incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Streaming Strategy and Team Practices",

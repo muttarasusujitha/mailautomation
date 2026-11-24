@@ -306,7 +306,7 @@
           "lab_task": "With curl and jq, create a collection under default_tenant/default_database, capture its id, add 3 records with explicit 4-dimension embeddings, query with one embedding and n_results 2, and count records. Then request a collection that does not exist and send an add body with mismatched list lengths, recording the status code and error body of each.",
           "deliverable": "curl script with every request and response and a table of status codes",
           "checks": [["POST a query with one embedding and n_results 2", "The response ids contain one list of 2 IDs", "jq output"], ["GET the count endpoint after adding 3 records", "The response body is 3", "Terminal output"], ["GET a collection name that does not exist", "HTTP 404 with an error body", "curl -i output"]],
-          "objectives": ["Call Chroma over raw HTTP", "Understand how SDK calls map to REST routes", "Read API error responses"]
+          "objectives": ["Call Chroma over raw HTTP", "Explain how SDK calls map to REST routes", "Read API error responses"]
         },
         {
           "topic": "Putting Chroma Behind a Reverse Proxy with Token Auth",

@@ -547,7 +547,7 @@
           "lab_task": "Map the SOC's regulatory and notification duties for a breach scenario, and build an evidence and notification checklist.",
           "deliverable": "Regulatory duty map and checklist",
           "checks": [["Map", "Duties for the scenario are mapped", "Map"], ["Notify", "Notification timelines are correct", "Checklist"], ["Prove", "Evidence handling meets legal needs", "Checklist"]],
-          "objectives": ["Understand SOC regulation", "Meet notification duties", "Handle evidence legally"]
+          "objectives": ["Explain SOC regulation", "Meet notification duties", "Handle evidence legally"]
         },
         {
           "topic": "Security Data Lakes and Next-Generation SIEM",

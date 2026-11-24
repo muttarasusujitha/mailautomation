@@ -47,7 +47,7 @@
           "lab_task": "Build a shopping cart with add, remove and quantity change, keep items in state immutably and show the total, then fix a provided bug caused by mutating state.",
           "deliverable": "Cart component and bug fix note",
           "checks": [["Change quantities", "Total updates correctly", "Screenshot"], ["Fix the mutation bug", "UI updates after the fix", "Code diff"], ["Click add three times quickly", "Count increases by three with functional updates", "Screenshot"]],
-          "objectives": ["Manage state", "Update state immutably", "Understand re-rendering"]
+          "objectives": ["Manage state", "Update state immutably", "Explain re-rendering"]
         },
         {
           "topic": "Events and Conditional Rendering",

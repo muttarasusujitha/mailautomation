@@ -562,7 +562,7 @@
           "lab_task": "Add C2PA content credentials to generated marketing images, test two AI-text detectors on 40 human and AI texts, and write a publishing policy based on the results.",
           "deliverable": "Signed images, detector test results and a publishing policy",
           "checks": [["Inspect a signed image with a C2PA verifier", "Credentials show the generator and edits", "Verifier output"], ["Run both detectors on the 40 texts", "Error rates recorded", "Test results"], ["Review the publishing policy", "Matches the detector limits found", "Policy document"]],
-          "objectives": ["Track the origin of generated content", "Understand copyright and licence risks", "Set publishing rules"]
+          "objectives": ["Track the origin of generated content", "Explain copyright and licence risks", "Set publishing rules"]
         },
         {
           "topic": "Economics of Generative AI",

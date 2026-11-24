@@ -38,7 +38,7 @@
           "lab_task": "Schedule the sales DAG daily, show how data intervals map to runs, run a backfill for the past week and fix a DAG that runs too often because of a wrong start date.",
           "deliverable": "Schedules, backfill log and notes",
           "checks": [["Run a backfill", "One run per day of the week", "Grid view"], ["Read the data interval", "Interval matches the processed day", "Task log"], ["Fix the start date", "Expected number of runs", "Grid view"]],
-          "objectives": ["Schedule DAGs", "Understand data intervals", "Backfill safely"]
+          "objectives": ["Schedule DAGs", "Explain data intervals", "Backfill safely"]
         },
         {
           "topic": "The TaskFlow API",
@@ -207,7 +207,7 @@
           "lab_task": "Run the same workload on the Local, Celery and Kubernetes executors, measure throughput and task start-up time and write a recommendation.",
           "deliverable": "Benchmark results and recommendation",
           "checks": [["Compare throughput", "Tasks per minute for each executor", "Benchmark table"], ["Compare start-up time", "Pod start-up cost shown for Kubernetes", "Benchmark table"], ["Write the recommendation", "Executor chosen with reasons", "Recommendation"]],
-          "objectives": ["Understand executors", "Measure trade-offs", "Choose an executor"]
+          "objectives": ["Explain executors", "Measure trade-offs", "Choose an executor"]
         },
         {
           "topic": "CeleryExecutor and Worker Scaling",
@@ -234,7 +234,7 @@
           "lab_task": "Load 500 generated DAGs, measure scheduling delay, tune parsing and concurrency settings, add a second scheduler and measure again.",
           "deliverable": "Tuning log and metrics before and after",
           "checks": [["Measure scheduling delay", "Delay recorded before tuning", "Metrics"], ["Add a second scheduler", "Delay reduced", "Metrics"], ["Use pools", "Database tasks limited to the pool size", "Pool view"]],
-          "objectives": ["Understand the scheduler", "Tune for scale", "Use pools"]
+          "objectives": ["Explain the scheduler", "Tune for scale", "Use pools"]
         },
         {
           "topic": "The Metadata Database",
@@ -394,7 +394,7 @@
           "lab_task": "Trace a task from scheduled to success through database records and logs, create a zombie task and explain how Airflow detects and handles it.",
           "deliverable": "Annotated trace and zombie analysis",
           "checks": [["Trace state changes", "Each state recorded with times", "Database query"], ["Create a zombie", "Detected and failed or retried", "Scheduler log"], ["Explain serialised DAGs", "Role in the webserver described", "Written note"]],
-          "objectives": ["Understand internals", "Trace task lifecycles", "Handle zombies"]
+          "objectives": ["Explain internals", "Trace task lifecycles", "Handle zombies"]
         },
         {
           "topic": "High Availability and Disaster Recovery for Airflow",
@@ -511,7 +511,7 @@
           "lab_task": "Build the same small pipeline in Airflow, Dagster and Prefect, compare authoring, testing, observability and operations and recommend one for three scenarios.",
           "deliverable": "Three implementations and recommendation",
           "checks": [["Build all three", "Same outputs from each", "Comparison"], ["Compare testing", "Effort recorded for each", "Comparison table"], ["Write the recommendation", "Tool chosen per scenario with reasons", "Recommendation"]],
-          "objectives": ["Compare orchestrators", "Know their strengths", "Choose deliberately"]
+          "objectives": ["Compare orchestrators", "Compare their strengths", "Choose deliberately"]
         },
         {
           "topic": "Compliance, Auditing and Change Control for Pipelines",
@@ -529,7 +529,7 @@
           "lab_task": "Set up Breeze, run a provider's tests, reproduce a reported issue and prepare a documentation fix or small pull request.",
           "deliverable": "Environment, test run and pull request draft",
           "checks": [["Start Breeze", "Development environment running", "Terminal output"], ["Run provider tests", "Tests pass", "Test output"], ["Prepare the contribution", "Change with tests or docs ready", "Pull request draft"]],
-          "objectives": ["Understand the project", "Run Airflow tests", "Contribute"]
+          "objectives": ["Describe the project's structure and contribution process", "Run Airflow tests", "Contribute"]
         },
         {
           "topic": "Testing Strategy for Large Airflow Codebases",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (tasks stuck in queued, a database lock, a memory leak in a worker, a broken image and a slow scheduler), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix stuck queued tasks", "Cause found and tasks run", "Grid view"], ["Fix the database lock", "Blocking query found and cleared", "Database query"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Airflow incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Airflow incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Orchestration Strategy and Team Practices",

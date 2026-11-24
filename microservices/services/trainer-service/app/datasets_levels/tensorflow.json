@@ -47,7 +47,7 @@
           "lab_task": "Build Sequential models for classification and regression, read their summaries, check parameter counts by hand and run predictions before training.",
           "deliverable": "Sequential model notebook",
           "checks": [["Build models", "Both models produce outputs of the right shape", "Notebook output"], ["Count parameters", "Counts match hand calculations", "Notebook output"], ["Explain limits", "Cases that need the Functional API listed", "Notes"]],
-          "objectives": ["Build Sequential models", "Read model summaries", "Know when to use other APIs"]
+          "objectives": ["Build Sequential models", "Read model summaries", "Decide when to use other APIs"]
         },
         {
           "topic": "The Keras Functional API",
@@ -547,7 +547,7 @@
           "lab_task": "Work through four model incidents: a skewed feature, a latency regression, a wrong model version and slow accuracy decay, fix each and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Fix skew", "Skewed feature found and fixed", "Notes"], ["Fix the version mix-up", "Correct model version restored", "Serving logs"], ["Write the review", "Review lists causes and follow-ups", "Post-incident review"]],
-          "objectives": ["Debug production models", "Find data and serving issues", "Learn from incidents"]
+          "objectives": ["Debug production models", "Find data and serving issues", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Leading Deep Learning Platforms",

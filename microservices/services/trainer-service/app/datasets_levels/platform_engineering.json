@@ -360,7 +360,7 @@
           "lab_task": "Run a game day where a bad policy change blocks every deployment, respond, roll back, communicate through the status page and write the post-incident review.",
           "deliverable": "Game day record and post-incident review",
           "checks": [["Respond", "The incident is declared and roles are assigned", "Incident timeline"], ["Recover", "Deployments work again after the rollback", "Deployment record"], ["Review", "Actions from the review are in the backlog", "Review document"]],
-          "objectives": ["Respond to platform incidents", "Change shared components safely", "Learn from incidents"]
+          "objectives": ["Respond to platform incidents", "Change shared components safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "CNPA Exam Preparation: Domains, Practice and Review",

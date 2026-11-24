@@ -47,7 +47,7 @@
           "lab_task": "Build product searches that combine full-text matching with fuzziness, filters for price and category, sorting and highlighting, and explain why the top result ranks first.",
           "deliverable": "Search queries with explanations",
           "checks": [["Search", "Full-text queries return relevant products, even with typos", "Search results"], ["Filter", "Filters narrow results without changing scores", "Score comparison"], ["Explain", "The top result's score is explained", "explain output"]],
-          "objectives": ["Write Query DSL searches", "Combine queries and filters", "Understand relevance"]
+          "objectives": ["Write Query DSL searches", "Combine queries and filters", "Explain relevance"]
         },
         {
           "topic": "Text Analysis: Analyzers, Tokenizers and Synonyms",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose seeded master instability, heap pressure and a network partition on a large test cluster with diagnostics bundles, fix them and write an incident review.",
           "deliverable": "Diagnoses, fixes and an incident review",
           "checks": [["Diagnose", "Each failure's cause is shown with evidence", "Diagnostic analysis"], ["Fix", "The cluster stays stable under load after the fixes", "Monitoring graphs"], ["Review", "The incident review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot large clusters", "Use diagnostics", "Learn from cluster incidents"]
+          "objectives": ["Troubleshoot large clusters", "Use diagnostics", "Write a post-incident review of a cluster incident with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Company-Wide Elastic Platform Design",

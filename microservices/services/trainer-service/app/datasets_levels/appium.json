@@ -155,7 +155,7 @@
           "lab_task": "Run the login test on an iOS simulator with the XCUITest driver, handle a system alert, and document the signing steps needed for a real device.",
           "deliverable": "Passing iOS test and signing notes",
           "checks": [["Run on iOS", "The test passes on the simulator", "Test output"], ["Handle alerts", "The system alert is handled", "Test output"], ["Document signing", "Signing steps for real devices are written", "Notes"]],
-          "objectives": ["Automate iOS apps", "Understand WebDriverAgent", "Prepare real-device signing"]
+          "objectives": ["Automate iOS apps", "Explain WebDriverAgent", "Prepare real-device signing"]
         },
         {
           "topic": "Android Automation Essentials: UiAutomator2, Espresso Driver and ADB",
@@ -297,7 +297,7 @@
           "lab_task": "Automate a biometric login on both platforms with simulated fingerprints and Face ID, test a photo upload from the picker and test a QR scan with an injected image where available.",
           "deliverable": "Device feature tests with limits noted",
           "checks": [["Simulate biometrics", "Biometric login succeeds and fails as expected", "Test output"], ["Use the camera", "Photo selection completes", "Test output"], ["Note limits", "Features that need real devices are listed", "Limits list"]],
-          "objectives": ["Test device features", "Simulate biometrics", "Know simulation limits"]
+          "objectives": ["Test device features", "Simulate biometrics", "Identify simulation limits"]
         },
         {
           "topic": "Webviews and Hybrid Apps in Depth",
@@ -421,7 +421,7 @@
           "lab_task": "Run containerised Android emulators and Appium on a Kubernetes cluster, scale to six parallel sessions for a suite and record costs and limits.",
           "deliverable": "Cluster setup, parallel run and cost notes",
           "checks": [["Deploy", "Emulators and Appium run in the cluster", "Cluster status"], ["Scale", "Six sessions run in parallel", "Test output"], ["Record limits", "Costs and iOS limits are documented", "Notes"]],
-          "objectives": ["Run Appium on Kubernetes", "Scale emulators", "Understand cluster limits"]
+          "objectives": ["Run Appium on Kubernetes", "Scale emulators", "Explain cluster limits"]
         },
         {
           "topic": "Scaling with Device Clouds: Concurrency, Costs and Reliability",
@@ -529,7 +529,7 @@
           "lab_task": "Trace one command through the server logs to the driver, upgrade Appium and the drivers in a test environment, fix one breaking change and pin versions in CI.",
           "deliverable": "Command trace, upgrade record and pinned versions",
           "checks": [["Trace", "The command path is explained from logs", "Trace notes"], ["Upgrade", "The suite passes after the upgrade", "Test output"], ["Pin", "CI uses pinned server and driver versions", "Pipeline config"]],
-          "objectives": ["Understand Appium internals", "Upgrade safely", "Manage driver versions"]
+          "objectives": ["Explain Appium internals", "Upgrade safely", "Manage driver versions"]
         },
         {
           "topic": "Release Quality Gates for Mobile Apps",

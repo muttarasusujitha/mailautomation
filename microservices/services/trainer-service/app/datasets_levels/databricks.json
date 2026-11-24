@@ -164,7 +164,7 @@
           "lab_task": "Query billing system tables to find the costliest jobs and clusters of the last month, tag compute by project and write a cost estimate for the course pipeline.",
           "deliverable": "Cost queries, tag settings and estimate",
           "checks": [["Query billing", "Top five cost sources listed", "Query result"], ["Run tagged compute", "Tag appears in billing data", "Query result"], ["Review the estimate", "Compute and storage costs both included", "Estimate"]],
-          "objectives": ["Understand Databricks pricing", "Track cost", "Reduce waste"]
+          "objectives": ["Explain Databricks pricing", "Track cost", "Reduce waste"]
         },
         {
           "topic": "Connecting BI Tools and External Systems",
@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice exam, review every wrong answer against the documentation, build a weak-areas list and repeat a second practice exam.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice exam", "Score recorded by domain", "Score sheet"], ["Review wrong answers", "Each linked to a documentation page", "Review notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the exam", "Find weak areas", "Reach a passing score"]
+          "objectives": ["Describe the exam format and domains", "Find weak areas", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Streaming Orders Lakehouse",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (executor out of memory, a stuck stream, an expired credential, a lock conflict on MERGE and a slow dashboard query), fix each and write a post-incident review for one.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Diagnose the MERGE conflict", "Concurrent writers identified with a fix", "Diagnosis notes"], ["Fix the stuck stream", "Stream catches up", "Stream metrics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose production problems", "Use logs and system tables", "Learn from incidents"]
+          "objectives": ["Diagnose production problems", "Use logs and system tables", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Data Engineer Professional Certification Preparation",

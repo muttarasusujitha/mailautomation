@@ -403,7 +403,7 @@
           "lab_task": "Inspect compiled output for three templates, explain patch flags, rewrite a hot component as a render function, try Vapor Mode on a component and fix a hydration mismatch.",
           "deliverable": "Rendering analysis with measurements",
           "checks": [["Explain compiled output", "Patch flags matched to template features", "Analysis notes"], ["Compare render cost", "Render time measured before and after changes", "Performance trace"], ["Fix hydration", "No hydration mismatch warnings", "Console screenshot"]],
-          "objectives": ["Understand Vue rendering", "Use compiler hints", "Fix hydration problems"]
+          "objectives": ["Explain Vue rendering", "Use compiler hints", "Fix hydration problems"]
         },
         {
           "topic": "Front-End Architecture for Large Vue Applications",
@@ -556,7 +556,7 @@
           "lab_task": "Work through four production issues: a hydration error, a memory leak, a slow release and a browser-specific bug, find each root cause and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Fix the hydration error", "No mismatch after the fix", "Console screenshot"], ["Find the slow commit", "git bisect identifies the change", "Bisect log"], ["Write the review", "Review lists causes and follow-ups", "Post-incident review"]],
-          "objectives": ["Troubleshoot production Vue issues", "Find root causes quickly", "Learn from incidents"]
+          "objectives": ["Troubleshoot production Vue issues", "Find root causes quickly", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Team Nuxt Commerce Platform",

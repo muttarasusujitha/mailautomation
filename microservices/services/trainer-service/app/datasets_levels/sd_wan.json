@@ -47,7 +47,7 @@
           "lab_task": "Draw the planes for Cisco Catalyst SD-WAN and Fortinet SD-WAN, find each component in the lab and show what happens when a controller is unreachable.",
           "deliverable": "Architecture comparison with a failure test",
           "checks": [["Map", "Each plane's components are named for both vendors", "Architecture diagram"], ["Find", "Components are located in the lab", "Screenshots"], ["Fail", "Data traffic continues when a controller is unreachable", "Test record"]],
-          "objectives": ["Explain SD-WAN planes", "Compare vendor architectures", "Understand controller failure"]
+          "objectives": ["Explain SD-WAN planes", "Compare vendor architectures", "Explain controller failure"]
         },
         {
           "topic": "Overlay Tunnels: IPsec Fabrics, Hub-and-Spoke and Full Mesh",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose seeded problems across many sites, a carrier fault, a control plane limit and an application issue, coordinate fixes and write an incident review.",
           "deliverable": "Diagnoses, fixes and an incident review",
           "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Coordinate", "Carriers and vendors get clear evidence", "Ticket records"], ["Review", "The review lists actions", "Review document"]],
-          "objectives": ["Troubleshoot at scale", "Separate overlay and underlay faults", "Learn from incidents"]
+          "objectives": ["Troubleshoot at scale", "Separate overlay and underlay faults", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Global WAN Transformation Design",

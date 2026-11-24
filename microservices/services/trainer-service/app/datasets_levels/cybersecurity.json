@@ -29,7 +29,7 @@
           "lab_task": "Analyse ten sample emails and messages, mark each as phishing or genuine with the clues, and map three real breaches to the attack types used.",
           "deliverable": "Email analysis and breach mapping",
           "checks": [["Classify the ten messages", "At least nine correct with clues listed", "Analysis sheet"], ["Map three breaches", "Attack types and entry points named", "Mapping"], ["Explain how ransomware spreads", "Correct explanation", "Written answer"]],
-          "objectives": ["Recognise common attacks", "Spot phishing", "Learn from real breaches"]
+          "objectives": ["Recognise common attacks", "Spot phishing", "Explain the root cause of a real breach and the control that would have prevented it"]
         },
         {
           "topic": "Networking for Security",
@@ -279,7 +279,7 @@
           "lab_task": "In a lab domain, find an attack path to Domain Admin with BloodHound, demonstrate Kerberoasting, then fix the path with tiering and LAPS and detect the attack in the SIEM.",
           "deliverable": "Attack path, fixes and detection evidence",
           "checks": [["Show the attack path", "Path to Domain Admin found", "BloodHound graph"], ["Detect Kerberoasting", "SIEM alert on the ticket requests", "Alert"], ["Rerun BloodHound after fixes", "Path no longer exists", "BloodHound graph"]],
-          "objectives": ["Understand AD attacks", "Harden Active Directory", "Detect AD attacks"]
+          "objectives": ["Explain AD attacks", "Harden Active Directory", "Detect AD attacks"]
         },
         {
           "topic": "Cloud Security in AWS and Azure",

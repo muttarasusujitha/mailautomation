@@ -252,7 +252,7 @@
           "lab_task": "Write a zip3-style function using parameter packs that zips any number of sequences with each and repeat, add conditional conformance so Pair<A, B> is Equatable when both are, create a generic Repository<Model: Identifiable> with a where clause on ID, and show the compile error when constraints are not met.",
           "deliverable": "Generic utility library with tests and a list of constraint diagnostics",
           "checks": [["Zip three arrays of lengths 3, 4 and 5", "Returns three tuples and stops at the shortest", "Test output"], ["Compare Pair<Int, String> values with ==", "Compiles and compares correctly through conditional conformance", "Test output"], ["Instantiate Repository with a non-Identifiable model", "Compiler error: type does not conform to protocol Identifiable", "Compiler output"]],
-          "objectives": ["Write constrained generic APIs", "Use conditional conformance and parameter packs", "Understand how constraints produce diagnostics"]
+          "objectives": ["Write constrained generic APIs", "Use conditional conformance and parameter packs", "Explain how constraints produce diagnostics"]
         },
         {
           "topic": "Property Wrappers and Result Builders",

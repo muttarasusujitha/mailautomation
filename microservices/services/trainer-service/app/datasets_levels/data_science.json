@@ -101,7 +101,7 @@
           "lab_task": "Simulate sampling from a skewed population, show the sampling distribution of the mean becoming normal, estimate standard errors by formula and by bootstrap, and show how sample size changes precision.",
           "deliverable": "Simulation notebook",
           "checks": [["Plot sampling distributions", "Approximately normal for larger samples", "Charts"], ["Compare standard errors", "Formula and bootstrap agree", "Notebook output"], ["Double the sample size four times", "Standard error halves", "Notebook output"]],
-          "objectives": ["Understand sampling", "Apply the central limit theorem", "Bootstrap estimates"]
+          "objectives": ["Explain sampling", "Apply the central limit theorem", "Bootstrap estimates"]
         },
         {
           "topic": "Confidence Intervals and Estimation",
@@ -119,7 +119,7 @@
           "lab_task": "Test whether a new website layout changed conversion and time on page, choose suitable tests, report p-values with effect sizes and calculate the power the study had.",
           "deliverable": "Testing notebook and plain-language summary",
           "checks": [["Choose tests", "Correct test for each metric", "Notebook"], ["Report effect sizes", "Effect size with interval for each test", "Notebook output"], ["Calculate power", "Power of the study stated", "Notebook output"]],
-          "objectives": ["Run hypothesis tests", "Report effect sizes", "Understand power"]
+          "objectives": ["Run hypothesis tests", "Report effect sizes", "Explain statistical power"]
         },
         {
           "topic": "Correlation and Linear Regression",
@@ -547,7 +547,7 @@
           "lab_task": "Investigate four failing models (a changed upstream field, delayed labels, concept drift and a segment failure), find each root cause, fix it and write a post-incident review.",
           "deliverable": "Investigation notes, fixes and a post-incident review",
           "checks": [["Find the upstream change", "Changed field and its effect identified", "Investigation notes"], ["Find the segment failure", "Segment and cause identified", "Segment analysis"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose model failures", "Find root causes", "Learn from incidents"]
+          "objectives": ["Diagnose model failures", "Find root causes", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Leading Data Science Teams and Strategy",

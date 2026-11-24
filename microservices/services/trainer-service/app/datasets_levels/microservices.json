@@ -556,7 +556,7 @@
           "lab_task": "Work through four incidents: a retry storm, a poison message backlog, a cascading timeout and an ordering bug, restore service and write one post-incident review.",
           "deliverable": "Incident notes and a post-incident review",
           "checks": [["Restore service", "All four incidents mitigated within their time limits", "Incident timeline"], ["Prove root causes", "Each cause backed by traces, logs or broker data", "Evidence pack"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
-          "objectives": ["Troubleshoot distributed incidents", "Stop cascading failures", "Learn from incidents"]
+          "objectives": ["Troubleshoot distributed incidents", "Stop cascading failures", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Multi-Region Microservices Platform",

@@ -29,7 +29,7 @@
           "lab_task": "Write jobs-to-be-done statements, two proto-personas and an empathy map for your course product, and list the assumptions you will test in interviews.",
           "deliverable": "Jobs statements, personas, empathy map and assumption list",
           "checks": [["Write jobs", "Each job states situation, motivation and outcome", "Jobs statements"], ["Build personas", "Personas describe goals and pains, not only demographics", "Personas"], ["List assumptions", "At least five testable assumptions are listed", "Assumption list"]],
-          "objectives": ["Understand customer jobs", "Build useful personas", "Identify assumptions to test"]
+          "objectives": ["Describe customer jobs to be done", "Build useful personas", "Identify assumptions to test"]
         },
         {
           "topic": "Customer Interviews: Planning, Asking and Synthesising",
@@ -173,7 +173,7 @@
           "lab_task": "Propose a three-tier package for your course product based on willingness-to-pay research and competitor prices, and write the pricing page summary.",
           "deliverable": "Pricing proposal and pricing page summary",
           "checks": [["Use research", "Price points are supported by willingness-to-pay data", "Research summary"], ["Package", "Tiers have clear differences in value", "Tier table"], ["Communicate", "The pricing page summary is clear to a new customer", "Page draft"]],
-          "objectives": ["Understand pricing approaches", "Package a product", "Communicate pricing"]
+          "objectives": ["Explain pricing approaches", "Package a product", "Communicate pricing"]
         },
         {
           "topic": "Product Management Tools: Jira, Figma and Analytics in a Week of Work",
@@ -324,7 +324,7 @@
           "lab_task": "Read an architecture diagram with an engineer, trace one user action through the system, make an API call with Postman and estimate the cloud cost of a new feature.",
           "deliverable": "Annotated diagram, traced flow and cost estimate",
           "checks": [["Trace a flow", "The user action is traced through each component", "Annotated diagram"], ["Use an API", "A request and response are explained in plain terms", "Postman screenshot"], ["Estimate cost", "The cost estimate states assumptions", "Cost estimate"]],
-          "objectives": ["Understand system architecture", "Work with APIs and data", "Estimate technical costs"]
+          "objectives": ["Explain system architecture", "Work with APIs and data", "Estimate technical costs"]
         },
         {
           "topic": "Managing Product Debt and Quality Trade-offs",

@@ -29,7 +29,7 @@
           "lab_task": "Compare a base model and its instruct version on the same ten prompts, read both model cards and explain the differences in behaviour from their training stages.",
           "deliverable": "Base and instruct comparison with explanations",
           "checks": [["Compare", "Both models answer the same prompts", "Notebook output"], ["Read cards", "Training stages are summarised from the model cards", "Notes"], ["Explain", "Behaviour differences are linked to training stages", "Notes"]],
-          "objectives": ["Explain how LLMs are trained", "Tell base and instruct models apart", "Understand what fine-tuning changes"]
+          "objectives": ["Explain how LLMs are trained", "Tell base and instruct models apart", "Explain what fine-tuning changes"]
         },
         {
           "topic": "Environment Setup: GPUs, Python, PyTorch and Hugging Face",
@@ -38,7 +38,7 @@
           "lab_task": "Set up a GPU environment, install the libraries, log in to Hugging Face, load a small model and generate text, and record GPU memory before and after loading.",
           "deliverable": "Working training environment with memory notes",
           "checks": [["Check the GPU", "nvidia-smi and PyTorch both see the GPU", "Terminal output"], ["Load a model", "A small model loads and generates text", "Notebook output"], ["Record memory", "GPU memory use is recorded", "Notes"]],
-          "objectives": ["Set up a fine-tuning environment", "Use Hugging Face libraries", "Understand GPU memory limits"]
+          "objectives": ["Set up a fine-tuning environment", "Use Hugging Face libraries", "Explain GPU memory limits"]
         },
         {
           "topic": "Choosing a Base Model: Size, Licence and Benchmarks",

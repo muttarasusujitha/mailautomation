@@ -83,7 +83,7 @@
           "lab_task": "Send a PNG invoice and a 2-page PDF to Amazon Nova Lite through Converse using image and document content blocks. Ask for vendor, invoice number, total and due date as JSON, compare against ground truth for 5 files, and report field-level accuracy and token cost for images versus PDFs.",
           "deliverable": "Extraction script, 5-file accuracy table and notes on failure cases",
           "checks": [["Send an image block with an invoice PNG", "Reply contains vendor and total fields as JSON", "Script output"], ["Send the PDF as a document block", "Fields match the PDF and usage shows more input tokens than the text-only prompt", "Usage log"], ["Compare against ground truth on 5 files", "Field accuracy is reported per field, with at least one error explained", "Accuracy table"]],
-          "objectives": ["Send images and documents to a multimodal model", "Measure extraction accuracy against ground truth", "Know the limits of model-based extraction"]
+          "objectives": ["Send images and documents to a multimodal model", "Measure extraction accuracy against ground truth", "Identify the limits of model-based extraction"]
         },
         {
           "topic": "Amazon Rekognition Image and Video Analysis",
@@ -324,7 +324,7 @@
           "lab_task": "Create an AgentCore Memory resource with a user-preference strategy, add the memory to your agent, tell it in session 1 that you prefer metric units, then in session 2 ask a question and confirm the preference is used. Enable observability and find the trace for session 2 in CloudWatch.",
           "deliverable": "Agent with long-term memory and a trace walkthrough with latency per step",
           "checks": [["Start session 2 for the same user", "The agent answers in metric units without being told again", "Transcript"], ["List memory records for the user namespace", "A preference record containing metric units exists", "CLI output"], ["Open the session trace", "Spans show model calls and tool calls with durations", "Trace screenshot"]],
-          "objectives": ["Add long-term memory scoped per user", "Understand outbound identity handling", "Trace agent sessions end to end"]
+          "objectives": ["Add long-term memory scoped per user", "Explain outbound identity handling", "Trace agent sessions end to end"]
         },
         {
           "topic": "Guardrails in Depth: PII, Grounding Checks and ApplyGuardrail",

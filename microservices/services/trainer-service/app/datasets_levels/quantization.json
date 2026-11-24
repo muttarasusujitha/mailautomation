@@ -502,7 +502,7 @@
           "lab_task": "Write tp_check.py that reads config.json and group_size from a quantized checkpoint and reports which TP sizes 1, 2, 4 and 8 satisfy (intermediate_size / TP) mod group_size = 0. Run it for Llama-3.1-70B (intermediate 28672) and Qwen2.5-72B (intermediate 29568) with group size 128, then try to start vLLM with each TP size on a machine with multiple GPUs if available.",
           "deliverable": "tp_check.py, a validity table per model and TP size and recorded vLLM startup results",
           "checks": [["Run tp_check.py for intermediate_size 28672 and group size 128", "Valid for TP 1, 2, 4 and 8 (224 groups divide evenly)", "Script output"], ["Run tp_check.py for intermediate_size 29568 and group size 128", "Valid for TP 1 only because 231 groups does not divide by 2, 4 or 8", "Script output"], ["Launch vLLM with an invalid TP size on a quantized checkpoint, if hardware is available", "Startup fails with an error saying the input size is not aligned with the quantized weight shape, or the log notes padding in newer versions", "Server log"]],
-          "objectives": ["Check tensor-parallel compatibility of a quantized checkpoint", "Understand how fused modules affect scales", "Pick a quantization scheme that matches the deployment topology"]
+          "objectives": ["Check tensor-parallel compatibility of a quantized checkpoint", "Explain how fused modules affect scales", "Pick a quantization scheme that matches the deployment topology"]
         },
         {
           "topic": "Speculative Decoding and LoRA Serving on Quantized Bases",

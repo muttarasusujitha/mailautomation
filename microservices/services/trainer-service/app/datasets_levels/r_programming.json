@@ -252,7 +252,7 @@
           "lab_task": "Open an in-memory DuckDB connection, write nycflights13::flights with dbWriteTable(), build tbl(con, \"flights\") |> filter(dest == \"LAX\") |> summarise(n = n(), .by = carrier), print show_query(), run collect(), then query with dbGetQuery(con, \"SELECT ... WHERE dest = ?\", params = list(\"LAX\")).",
           "deliverable": "Script with the lazy pipeline, the generated SQL and a parameterised query",
           "checks": [["Run dbListTables(con)", "Returns \"flights\" after dbWriteTable()", "Console output"], ["Run class(tbl(con, \"flights\") |> filter(month == 1))", "Includes tbl_lazy and no rows are collected yet", "Console output"], ["Run show_query() on the pipeline", "Prints a SELECT ... WHERE dest = 'LAX' GROUP BY carrier statement", "Printed SQL"]],
-          "objectives": ["Query databases with DBI and dbplyr", "Understand lazy database queries", "Prevent SQL injection with parameters"]
+          "objectives": ["Query databases with DBI and dbplyr", "Explain lazy database queries", "Prevent SQL injection with parameters"]
         },
         {
           "topic": "Web APIs and Scraping with httr2 and rvest",
@@ -351,7 +351,7 @@
           "lab_task": "Build an app with a selectInput for species, a sliderInput for bill length and a renderPlot() plus renderTable() of penguins filtered by a shared reactive(). Add req(nrow(data()) > 0), an observeEvent() reset button, a downloadHandler() for CSV and use reactlog to confirm the plot and table invalidate together.",
           "deliverable": "app.R with working inputs, plot, table and download, and a reactlog screenshot",
           "checks": [["Select a species and move the slider", "Plot and table update to the same filtered rows", "Screen recording"], ["Filter so no rows remain", "The empty state is shown through req() instead of a red error", "Screenshot"], ["Read input$species at the top level of server", "Error: Operation not allowed without an active reactive context", "Console error"]],
-          "objectives": ["Build reactive Shiny apps", "Understand the reactive dependency graph", "Handle empty and invalid states"]
+          "objectives": ["Build reactive Shiny apps", "Explain the reactive dependency graph", "Handle empty and invalid states"]
         },
         {
           "topic": "Shiny Layouts, Modules and bslib Themes",
@@ -412,7 +412,7 @@
           "lab_task": "Generate a 10-million-row table with data.table (id, group, value), compare dplyr::summarise(.by = group), data.table dt[, .(m = mean(value)), by = group] and dtplyr lazy_dt() with bench::mark(), time fread() versus readr::read_csv() on the written file, and show := modifying without copying using tracemem().",
           "deliverable": "Benchmark table of three engines on 10 million rows and a note on reference semantics",
           "checks": [["Run dt[, .N, by = group]", "Counts add up to 10000000", "Console output"], ["Run dt2 <- dt; dt2[, z := 1]", "dt also gains column z because := modifies by reference", "Console output"], ["Run bench::mark() across the three engines", "All three give equal aggregate results and data.table has the lowest median time", "bench table"]],
-          "objectives": ["Use data.table syntax for fast aggregation", "Understand update by reference", "Compare engines fairly"]
+          "objectives": ["Use data.table syntax for fast aggregation", "Explain update by reference", "Compare engines fairly"]
         },
         {
           "topic": "Larger-than-Memory Analytics with Arrow and DuckDB",

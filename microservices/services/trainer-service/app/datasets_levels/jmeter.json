@@ -29,7 +29,7 @@
           "lab_task": "Build a test plan with a setUp thread group that creates test data, a main thread group with ramp-up and duration, and a tearDown group that cleans up.",
           "deliverable": "Structured test plan",
           "checks": [["Configure load", "The main group uses the planned users, ramp-up and duration", "Test plan"], ["Prepare and clean", "setUp and tearDown groups run in the right order", "Results tree"], ["Name elements", "Every element has a meaningful name", "Test plan"]],
-          "objectives": ["Build test plans", "Configure thread groups", "Understand scoping and order"]
+          "objectives": ["Build test plans", "Configure thread groups", "Explain scoping and order"]
         },
         {
           "topic": "HTTP Request Samplers and Config Elements",
@@ -74,7 +74,7 @@
           "lab_task": "Add realistic think time to the journey, then use a throughput timer to hold a target request rate and compare results with and without timers.",
           "deliverable": "Timed script and comparison",
           "checks": [["Add think time", "Steps have realistic random pauses", "Test plan"], ["Hold a rate", "The throughput timer holds the target rate", "Results"], ["Compare", "Results with and without timers are compared", "Notes"]],
-          "objectives": ["Model think time", "Control throughput", "Understand timer effects"]
+          "objectives": ["Model think time", "Control throughput", "Explain timer effects"]
         },
         {
           "topic": "Parameterisation with CSV Data Set Config",

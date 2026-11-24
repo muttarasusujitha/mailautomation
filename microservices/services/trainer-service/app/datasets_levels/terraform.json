@@ -41,7 +41,7 @@
           "lab_task": "Create a virtual network with two subnets and a security group, look up the latest Linux image with a data source, and output the subnet IDs.",
           "deliverable": "Configuration files and outputs",
           "checks": [["Run terraform output", "Shows both subnet IDs", "Command output"], ["Run terraform validate on a broken reference", "Validation reports the error", "Command output"], ["Explain the dependency order", "Participant explains why subnets wait for the network", "Explanation with terraform graph"]],
-          "objectives": ["Write resources, data sources and outputs", "Understand implicit dependencies", "Validate and format code"]
+          "objectives": ["Write resources, data sources and outputs", "Explain implicit dependencies", "Validate and format code"]
         },
         {
           "topic": "Input Settings: Variables, Types and Validation",

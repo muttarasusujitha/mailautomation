@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected issues (missing licences, an agent ignoring knowledge, a failing connector, an answer from overshared content and slow responses), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the knowledge issue", "Agent answers from knowledge", "Test result"], ["Fix the oversharing answer", "Content no longer returned", "Test result"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose Copilot issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose Copilot issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "AI Strategy with Microsoft Copilot",

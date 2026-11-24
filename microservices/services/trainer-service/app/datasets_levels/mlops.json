@@ -538,7 +538,7 @@
           "lab_task": "Run a drill for a model producing harmful predictions after a data pipeline change: detect it, roll back model and data, communicate and write the post-incident review.",
           "deliverable": "Drill timeline, communications and post-incident review",
           "checks": [["Detect the incident", "Alert or report leads to triage within the target", "Drill timeline"], ["Roll back", "Model and data restored to the last good version", "Rollback log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Respond to ML incidents", "Roll back safely", "Learn from incidents"]
+          "objectives": ["Respond to ML incidents", "Roll back safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Migrating Between ML Platforms",

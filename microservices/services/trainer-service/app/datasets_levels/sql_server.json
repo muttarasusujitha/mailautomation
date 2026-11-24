@@ -119,7 +119,7 @@
           "lab_task": "Create blocking between two sessions, find the blocker with DMVs and sp_WhoIsActive, show dirty reads with NOLOCK and fix a long transaction.",
           "deliverable": "Session transcripts and DMV output",
           "checks": [["Find the blocker", "Blocking session and its query found", "DMV output"], ["Read with NOLOCK during an update", "Uncommitted data seen", "Query result"], ["Set XACT_ABORT ON and fail a statement", "Whole transaction rolled back", "Query result"]],
-          "objectives": ["Use transactions", "Find blocking", "Understand locking risks"]
+          "objectives": ["Use transactions", "Find blocking", "Explain locking risks"]
         },
         {
           "topic": "Stored Procedures",
@@ -225,7 +225,7 @@
           "lab_task": "Show a bad plan from stale statistics, update them, compare estimates under two compatibility levels and add filtered statistics for a skewed column.",
           "deliverable": "Statistics output, plans and notes",
           "checks": [["Read the histogram", "Steps and ranges explained", "DBCC SHOW_STATISTICS output"], ["Update stale statistics", "Estimate closer to actual", "Execution plan"], ["Compare compatibility levels", "Estimates differ and the cause is explained", "Plan comparison"]],
-          "objectives": ["Understand statistics", "Maintain statistics", "Fix estimates"]
+          "objectives": ["Explain statistics", "Maintain statistics", "Fix estimates"]
         },
         {
           "topic": "Query Store and Plan Regressions",
@@ -315,7 +315,7 @@
           "lab_task": "Set up log shipping to a DR server with a delayed restore, recover a dropped table from it and write a comparison of log shipping, FCIs and availability groups.",
           "deliverable": "Log shipping configuration, recovery evidence and comparison",
           "checks": [["Check log shipping status", "Backups, copies and restores current", "Monitor report"], ["Recover the dropped table", "Table copied from the delayed secondary", "Query result"], ["Write the comparison", "Cost, recovery and effort compared", "Comparison table"]],
-          "objectives": ["Use log shipping", "Understand FCIs", "Choose HA options"]
+          "objectives": ["Use log shipping", "Explain FCIs", "Choose HA options"]
         },
         {
           "topic": "Encryption, Masking and Auditing",
@@ -394,7 +394,7 @@
           "lab_task": "Inspect data and index pages with DBCC PAGE, read log records for an update, fix a log with too many VLFs and watch ghost cleanup after deletes.",
           "deliverable": "Annotated internals notes",
           "checks": [["Read a data page", "Row offsets and records identified", "DBCC PAGE output"], ["Fix the VLF count", "VLFs reduced after resizing", "sys.dm_db_log_info output"], ["Read log records", "Update operation found in the log", "fn_dblog output"]],
-          "objectives": ["Understand storage internals", "Read pages and log records", "Manage the log"]
+          "objectives": ["Explain storage internals", "Read pages and log records", "Manage the log"]
         },
         {
           "topic": "Advanced Query Tuning: Parameter Sniffing and Intelligent Query Processing",
@@ -457,7 +457,7 @@
           "lab_task": "Inventory a sample estate, design a consolidation onto fewer licensed hosts, apply Hybrid Benefit for Azure workloads and estimate savings.",
           "deliverable": "Inventory, consolidation design and savings estimate",
           "checks": [["Inventory features used", "Enterprise features in use listed", "Inventory"], ["Design consolidation", "Workloads fit on fewer hosts", "Design document"], ["Estimate savings", "Licence and hardware savings calculated", "Savings estimate"]],
-          "objectives": ["Understand licensing", "Consolidate instances", "Reduce cost"]
+          "objectives": ["Explain licensing", "Consolidate instances", "Reduce cost"]
         },
         {
           "topic": "Upgrades and Migrations",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected incidents (CPU from a plan regression, a blocking storm, a full log from an open transaction, a suspended AG replica and page corruption), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the full log", "Cause found and log space reused", "log_reuse_wait_desc output"], ["Repair the corruption", "Page restored from backup", "Restore log"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise SQL Server Platform",

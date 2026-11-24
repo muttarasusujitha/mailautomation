@@ -173,7 +173,7 @@
           "lab_task": "Write a Workflow with three steps: load text, retrieve with a retriever, and synthesise an answer, connected by custom events. Run it with verbose=True and timeout=60, render the graph with draw_all_possible_flows to workflow.html, then raise ValueError in step two and capture the surfaced exception.",
           "deliverable": "Workflow module, the rendered workflow.html and the captured exception output",
           "checks": [["Run the three-step workflow with verbose=True", "Steps run in order and each step name is printed once", "Verbose log"], ["Open workflow.html", "The diagram shows StartEvent leading through both custom events to StopEvent", "Rendered file"], ["Raise ValueError inside the second step", "workflow.run raises an exception that names that step", "Exception trace"]],
-          "objectives": ["Write a Workflow with typed events", "Run and visualise a workflow", "Understand error propagation between steps"]
+          "objectives": ["Write a Workflow with typed events", "Run and visualise a workflow", "Explain error propagation between steps"]
         },
         {
           "topic": "Evaluating a First RAG App with Faithfulness and Relevancy",
@@ -439,7 +439,7 @@
           "lab_task": "Run a four-step Workflow, serialise the Context to Redis after step two using JsonSerializer, kill the process, restore with Context.from_dict, resume, and show that steps one and two do not run again while steps three and four complete with the same stored state.",
           "deliverable": "Resume demo with logs from both processes and a check that completed steps are not repeated",
           "checks": [["Kill the process after step two and resume from the stored context", "Steps three and four run and steps one and two do not", "Both logs"], ["Compare ctx.store values before and after resume", "Stored values are equal", "Printed state"], ["Store a non-serialisable object in ctx.store", "Serialisation fails with a clear error naming the type", "Exception text"]],
-          "objectives": ["Persist and restore Workflow contexts", "Make steps safe to resume", "Know the limits of serialisation"]
+          "objectives": ["Persist and restore Workflow contexts", "Make steps safe to resume", "Identify the limits of serialisation"]
         },
         {
           "topic": "Reflection and Self-Correcting Retrieval Loops",

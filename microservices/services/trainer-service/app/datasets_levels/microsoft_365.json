@@ -369,7 +369,7 @@
           "lab_task": "Take a timed practice assessment, repeat failed tasks in the tenant, review Microsoft Learn modules for weak areas and take a second practice assessment.",
           "deliverable": "Two practice scores and a weak-areas list",
           "checks": [["Take the first practice", "Score recorded by area", "Score sheet"], ["Repeat failed tasks", "Each done correctly in the tenant", "Notes"], ["Take the second practice", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand MS-102", "Close gaps", "Reach a passing score"]
+          "objectives": ["Describe the MS-102 exam format and domains", "Close gaps", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Secure and Compliant Microsoft 365 for a Regulated Company",
@@ -556,7 +556,7 @@
           "lab_task": "Diagnose five injected issues (a Conditional Access lockout, a mail loop, an Entra sync failure, an Intune policy conflict and poor Teams calls), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the lockout", "Users sign in and the policy is corrected", "Sign-in log"], ["Fix the policy conflict", "Device applies one setting", "Intune report"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose complex issues", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose complex issues", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "Advanced Capstone: Enterprise Microsoft 365 Architecture",

@@ -306,7 +306,7 @@
           "lab_task": "Deploy the upstream kube-prometheus-stack chart pinned to a version as source one, with valueFiles: [$values/monitoring/values-prod.yaml] pointing at a second source with ref: values from your config repo. Add a third source with extra PrometheusRule manifests. Change a value in the config repo only and confirm Argo CD detects and syncs it while the chart version stays the same.",
           "deliverable": "Multi-source Application YAML and history showing per-source revisions",
           "checks": [["Run argocd app get monitoring", "Three sources are listed with their revisions", "CLI output"], ["Change values-prod.yaml in the config repo", "Application turns OutOfSync and the chart version is unchanged after sync", "argocd app history output"], ["Misspell the $values reference", "ComparisonError reports the values file cannot be found", "Application condition"]],
-          "objectives": ["Combine sources in one Application", "Keep upstream charts and company values in separate repos", "Understand multi-source limits"]
+          "objectives": ["Combine sources in one Application", "Keep upstream charts and company values in separate repos", "Explain multi-source limits"]
         },
         {
           "topic": "Sealed Secrets in an Argo CD Workflow",

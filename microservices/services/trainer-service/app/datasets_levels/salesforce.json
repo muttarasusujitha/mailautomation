@@ -234,7 +234,7 @@
           "lab_task": "Write a bulkified trigger with a handler class that keeps account totals in sync with opportunities, prevents recursion and works with a 200-record data load.",
           "deliverable": "Trigger, handler and data load results",
           "checks": [["Load 200 opportunities", "Account totals correct and no limit errors", "Debug log"], ["Update an opportunity twice in one transaction", "Handler runs once", "Debug log"], ["Explain order of execution", "Correct order including flows", "Written answer"]],
-          "objectives": ["Write bulkified triggers", "Use handler patterns", "Understand order of execution"]
+          "objectives": ["Write bulkified triggers", "Use handler patterns", "Explain order of execution"]
         },
         {
           "topic": "Apex Testing and Code Coverage",

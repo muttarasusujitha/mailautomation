@@ -216,7 +216,7 @@
           "lab_task": "Serve a website from a non-default directory and port with SELinux enforcing, fix each denial correctly with contexts, port labels and booleans, and never set permissive mode.",
           "deliverable": "Commands, denial analysis and working site",
           "checks": [["Load the site from the new directory", "Works with SELinux enforcing", "curl output"], ["Read the denial", "Cause explained with audit2why", "audit2why output"], ["Relabel the file system", "Contexts kept after restorecon", "ls -Z output"]],
-          "objectives": ["Understand SELinux", "Fix denials properly", "Keep SELinux enforcing"]
+          "objectives": ["Explain SELinux", "Fix denials properly", "Keep SELinux enforcing"]
         },
         {
           "topic": "Performance Monitoring and Tuning",
@@ -369,7 +369,7 @@
           "lab_task": "Complete two timed practice exams on fresh servers, reboot after each to check persistence, review every failed task and repeat weak areas.",
           "deliverable": "Two scored practice exams and a weak-areas list",
           "checks": [["Reboot after the practice exam", "All changes persist", "Verification script output"], ["Score the first exam", "Score recorded by objective", "Score sheet"], ["Score the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the RHCSA exam", "Work fast and accurately", "Reach a passing score"]
+          "objectives": ["Explain the RHCSA exam", "Work fast and accurately", "Reach a passing score"]
         },
         {
           "topic": "Intermediate Capstone: Secure Multi-Server Environment",
@@ -547,7 +547,7 @@
           "lab_task": "Diagnose five injected incidents (an OOM kill loop, a disk full of deleted files, file descriptor exhaustion, intermittent DNS timeouts and clock drift), fix each and write a post-incident review.",
           "deliverable": "Diagnosis notes, fixes and a post-incident review",
           "checks": [["Fix the OOM loop", "Cause found and memory limits set", "Kernel log and fix notes"], ["Fix descriptor exhaustion", "Limit raised and the leak reported", "Terminal output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
-          "objectives": ["Diagnose production incidents", "Fix them safely", "Learn from incidents"]
+          "objectives": ["Diagnose production incidents", "Fix them safely", "Write a post-incident review with the root cause and a preventive action"]
         },
         {
           "topic": "RHCE Certification Preparation",
@@ -556,7 +556,7 @@
           "lab_task": "Complete two timed RHCE practice exams writing playbooks against fresh managed nodes, review failed tasks and repeat weak areas.",
           "deliverable": "Two scored practice exams and a weak-areas list",
           "checks": [["Re-run every playbook", "Idempotent with no changes", "Ansible output"], ["Score the first exam", "Score recorded by objective", "Score sheet"], ["Score the second exam", "Score above the pass mark", "Score sheet"]],
-          "objectives": ["Understand the RHCE exam", "Automate under time pressure", "Reach a passing score"]
+          "objectives": ["Explain the RHCE exam", "Automate under time pressure", "Reach a passing score"]
         },
         {
           "topic": "Advanced Capstone: Production Linux Platform",
