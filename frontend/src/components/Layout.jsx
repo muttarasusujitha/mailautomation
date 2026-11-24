@@ -14,6 +14,7 @@ import PageLoader from './PageLoader'
 import ErrorBoundary from './ErrorBoundary'
 import FloatingIntegrations from './FloatingIntegrations'
 import ChatAssistant from './ChatAssistant'
+import { resolveNavigationRoute } from '../utils/navigation'
 
 const NAV_GROUPS = [
   {
@@ -22,10 +23,12 @@ const NAV_GROUPS = [
       { to: '/dashboard',       label: 'Dashboard',        icon: LayoutDashboard, keywords: ['dashboard','stats','overview'] },
       { to: '/resume-upload',   label: 'Upload Resumes',   icon: Upload,          keywords: ['upload','resume','import'] },
       { to: '/requirements',    label: 'Find Trainers',    icon: FileSearch,      keywords: ['find','requirement','match'] },
-      { to: '/shortlist1',      label: 'AI Pipeline',      icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
-      { to: '/shortlist',       label: 'Shortlist',        icon: ListChecks,      keywords: ['shortlist','trainer shortlist'] },
+      { to: '/shortlist1',      label: 'Confirmed Batch Pipeline', icon: Zap, keywords: ['advanced','shortlist1','confirmed batch','pipeline'] },
+      { to: '/shortlist',       label: 'Shortlist',        icon: ListChecks,      keywords: ['shortlist','trainer shortlist','compare trainers','select trainers'] },
       { to: '/profile-reviews', label: 'Profile Reviews',  icon: ClipboardCheck,  keywords: ['profile review','trainer rating','document review','skill fit'] },
       { to: '/trainers',        label: 'Trainer Database', icon: Users,           keywords: ['trainers','database'] },
+      { to: '/trainer-applications', label: 'Trainer Applications', icon: Linkedin, keywords: ['trainer applications','linkedin profiles','trainer resumes'] },
+      { to: '/partner-opportunities', label: 'Trainer Opportunities', icon: BriefcaseBusiness, keywords: ['partner companies','trainer opportunities','openings'] },
     ],
     more: [
       { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Mic,        keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
@@ -40,10 +43,11 @@ const NAV_GROUPS = [
     items: [
       { to: '/client-requests',      label: 'Client Requests',  icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
       { to: '/interview-scheduled',  label: 'Interviews',       icon: CalendarCheck,     keywords: ['interview','schedule','meeting','meet link'] },
-      { to: '/client-mail-pipeline', label: 'Client Pipeline',  icon: Kanban,            keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
+      { to: '/client-mail-pipeline', label: 'Client Pipeline',  icon: Kanban,            keywords: ['client pipeline','client mail pipeline','client mails'] },
       { to: '/invoices',             label: 'Invoices',         icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
-      { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['purchase order','purchase orders','generate po','po generator'] },
+      { to: '/purchase-orders',      label: 'Purchase Orders',  icon: ScrollText,        keywords: ['po','client po','client purchase order','purchase order','purchase orders','generate po','po generator'] },
       { to: '/finance-approvals',    label: 'PO PDF Approvals', icon: ClipboardCheck,    keywords: ['po pdf','finance approvals','purchase order approval','client po review'] },
+      { to: '/travel-bookings',      label: 'Travel Bookings',  icon: MapPin,            keywords: ['travel','flight','bus','car','hotel','ticket','booking','trainer travel'] },
     ],
     more: [
     ],
@@ -65,18 +69,13 @@ const NAV_GROUPS = [
 
 const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(g => [...g.items, ...(g.more || [])])
 
-function norm(v) {
-  return String(v || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
-}
 function routeForQuery(q) {
-  const n = norm(q)
-  if (!n) return null
-  return ALL_NAV_ITEMS.find(item =>
-    item.keywords.some(k => n === norm(k) || n.includes(norm(k)))
-  )?.to || null
+  return resolveNavigationRoute(q, NAV_GROUPS)
 }
 function pageTitle(pathname) {
   if (pathname === '/dashboard') return 'Dashboard'
+  if (pathname === '/trainer-portal') return 'Trainer Portal'
+  if (pathname === '/client-portal') return 'Client Portal'
   const item = ALL_NAV_ITEMS.find(e => pathname === e.to || pathname.startsWith(`${e.to}/`))
   return item?.label || 'TrainerSync'
 }
@@ -117,9 +116,12 @@ function moreGroupsForPath(pathname) {
   )
 }
 
-function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
+function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname, isAdmin }) {
+  const navGroups = NAV_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item => item.to !== '/admin' || isAdmin),
+  }))
   const [openMore, setOpenMore] = useState(() => moreGroupsForPath(pathname))
-
   useEffect(() => {
     setOpenMore(prev => {
       const active = moreGroupsForPath(pathname)
@@ -138,10 +140,10 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
 
         <div className={clsx(
           'mt-4 flex items-center gap-2 rounded-lg border px-3 py-2',
-          connected ? 'border-green-100 bg-green-50' : 'border-amber-100 bg-amber-50'
+          connected ? 'border-blue-100 bg-blue-50' : 'border-amber-100 bg-amber-50'
         )}>
-          <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
-          <span className={clsx('text-[12px] font-semibold', connected ? 'text-green-700' : 'text-amber-700')}>
+          <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
+          <span className={clsx('text-[12px] font-semibold', connected ? 'text-blue-700' : 'text-amber-700')}>
             {connected ? 'Gmail connected' : 'Gmail not connected'}
           </span>
         </div>
@@ -149,7 +151,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
 
       {/* Navigation */}
       <div className="sidebar-body">
-        {/* Home */}
+        {/* The brand home page remains available from the workspace navigation. */}
         <NavLink
           to="/home"
           onClick={onNavigate}
@@ -160,7 +162,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
         </NavLink>
 
         <div className="space-y-5">
-          {NAV_GROUPS.map(group => (
+          {navGroups.map(group => (
             <div key={group.label}>
               <p className="sidebar-group-label">{group.label}</p>
               <div className="space-y-0.5">
@@ -199,7 +201,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
           className="nav-item"
         >
           <UserCircle className="h-4 w-4 flex-shrink-0 text-slate-400" />
-          <span className="text-[13.5px]">Recruiter Profile</span>
+          <span className="text-[13.5px]">Admin Profile</span>
         </NavLink>
         {onLogout && (
           <button
@@ -217,7 +219,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate, connected, pathname }) {
 }
 
 
-export default function Layout({ onLogout }) {
+export default function Layout({ onLogout, isAdmin = false }) {
   const [query, setQuery]         = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pendingInbox, setPendingInbox] = useState(0)
@@ -267,9 +269,11 @@ export default function Layout({ onLogout }) {
       pending = true
       try {
         const config = { signal: controller.signal, timeout: 10000, retry: false }
+        let accountRole = ''
+        try { accountRole = JSON.parse(sessionStorage.getItem('ts_auth') || '{}').role || '' } catch { /* use safe status fallback */ }
         const [inboxRes, gmailRes] = await Promise.allSettled([
           api.get('/inbox', { ...config, params: { status: 'pending_approval', limit: 1 } }),
-          api.get('/gmail/auth-status', config),
+          api.get(accountRole === 'admin' ? '/gmail/auth-status' : '/gmail/me/auth-status', config),
         ])
         if (cancelled) return
         if (inboxRes.status === 'fulfilled') {
@@ -302,7 +306,7 @@ export default function Layout({ onLogout }) {
     <div className="app-shell">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
-        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} connected={connected} pathname={location.pathname} />
+        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} connected={connected} pathname={location.pathname} isAdmin={isAdmin} />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -314,7 +318,7 @@ export default function Layout({ onLogout }) {
             aria-label="Close navigation"
           />
           <div className="mobile-drawer absolute inset-y-0 left-0 shadow-2xl">
-            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} connected={connected} pathname={location.pathname} />
+            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} connected={connected} pathname={location.pathname} isAdmin={isAdmin} />
           </div>
           <button
             type="button"
@@ -376,11 +380,11 @@ export default function Layout({ onLogout }) {
               className={clsx(
                 'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
                 connected
-                  ? 'border-green-200 bg-green-50 text-green-700'
+                  ? 'border-blue-200 bg-blue-50 text-blue-700'
                   : 'border-amber-200 bg-amber-50 text-amber-700'
               )}
             >
-              <span className={clsx('status-dot', connected ? 'green' : 'amber')} />
+              <span className={clsx('status-dot', connected ? 'blue' : 'amber')} />
               {connected ? 'Gmail ready' : 'Connect Gmail'}
             </NavLink>
 

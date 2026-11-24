@@ -1,0 +1,573 @@
+{
+  "domain": "SD-WAN",
+  "name": "SD-WAN and SASE Networking",
+  "category": "Networking",
+  "icon": "network",
+  "aliases": ["SDWAN", "Software-Defined WAN", "Cisco SD-WAN", "Cisco Catalyst SD-WAN", "Viptela", "Meraki SD-WAN", "Fortinet SD-WAN", "FortiGate SD-WAN", "Fortinet Secure SD-WAN", "Prisma SD-WAN", "VeloCloud", "Arista VeloCloud", "Aruba EdgeConnect", "Versa SD-WAN", "SASE", "ENSDWI"],
+  "certifications": ["Cisco 300-415 ENSDWI: Implementing Cisco SD-WAN Solutions", "Fortinet Certified Solution Specialist (FCSS) SD-WAN Architect", "Vendor SASE certifications"],
+  "tools": ["Cisco Catalyst SD-WAN (Manager, Controller, Validator, WAN Edge)", "FortiGate and FortiManager", "Cisco DevNet sandboxes", "Cloud WAN services", "Traffic generators", "Terraform and Ansible"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For network engineers who are starting with SD-WAN. Covers why WANs changed, a lab with Cisco Catalyst SD-WAN and FortiGate, WAN transports, orchestration, control and data planes, overlay tunnels, zero-touch provisioning, Cisco components and configuration groups, Fortinet SD-WAN zones, rules and performance SLAs, application-aware routing, SLA probes, QoS, local internet breakout, segmentation and security, routing integration, cloud on-ramps, monitoring, branch high availability and troubleshooting.",
+      "prerequisites": ["Understands IP routing, subnets and VLANs", "Has configured a router or firewall", "Knows what VPN tunnels are"],
+      "outcomes": ["Explain SD-WAN architecture, overlays and onboarding", "Configure Cisco Catalyst SD-WAN and Fortinet SD-WAN for branches", "Steer applications by measured path quality with QoS and local breakout", "Secure, monitor, make resilient and troubleshoot branch WANs"],
+      "days": [
+        {
+          "topic": "SD-WAN Overview: Why Enterprise WANs Changed",
+          "subtopics": ["Traditional WANs built on MPLS", "Cloud and SaaS traffic patterns", "What SD-WAN changes", "Overlay and underlay", "Central orchestration", "Application-aware routing", "SD-WAN and SASE", "The main vendors", "Certifications: Cisco ENSDWI and Fortinet SD-WAN", "Course project overview: a head office, three branches and two clouds"],
+          "tools": ["Course network diagram", "Vendor documentation", "WAN cost sheet"],
+          "lab_task": "Map the course company's current WAN, list its applications and their needs, and show where SD-WAN would change traffic paths and costs.",
+          "deliverable": "Current WAN map with SD-WAN opportunities",
+          "checks": [["Map", "Sites, links and applications are on the map", "WAN map"], ["List", "Application needs for latency and loss are listed", "Application table"], ["Explain", "Overlay, underlay and orchestration are explained correctly", "Notes"]],
+          "objectives": ["Explain SD-WAN", "Map a WAN", "Identify SD-WAN benefits"]
+        },
+        {
+          "topic": "Lab Setup: Cisco Catalyst SD-WAN Sandbox and FortiGate VMs",
+          "subtopics": ["Booking a Cisco DevNet SD-WAN sandbox", "Logging in to SD-WAN Manager", "FortiGate virtual machines for the lab", "Lab underlay with two transports", "Simulating loss and latency", "Traffic generators for applications", "Saving lab configuration", "Lab topology diagram", "Admin accounts", "Checking the lab is ready"],
+          "tools": ["Cisco DevNet sandbox", "FortiGate VM", "Network emulator", "Traffic generator"],
+          "lab_task": "Reserve the Cisco sandbox, deploy two FortiGate VMs with two transports, add a network emulator to impair one link and confirm traffic flows end to end.",
+          "deliverable": "Ready lab with two platforms",
+          "checks": [["Access", "SD-WAN Manager and both FortiGates are reachable", "Login tests"], ["Impair", "The emulator adds loss and delay to one link", "Ping results"], ["Flow", "Test traffic crosses the lab", "Traffic generator output"]],
+          "objectives": ["Prepare the SD-WAN lab", "Simulate WAN problems", "Generate application traffic"]
+        },
+        {
+          "topic": "WAN Transports: MPLS, Broadband, LTE, 5G and Satellite",
+          "subtopics": ["MPLS and its service levels", "Business and consumer broadband", "LTE and 5G links", "Low-earth-orbit satellite links", "Transport costs", "Transport diversity", "Carrier contracts and handoffs", "Choosing a transport mix per site"],
+          "tools": ["Transport comparison sheet", "Course site list"],
+          "lab_task": "Choose a transport mix for each course site based on application needs, cost and diversity, and justify it.",
+          "deliverable": "Transport plan per site",
+          "checks": [["Choose", "Each site has a transport mix", "Transport plan"], ["Diversify", "No site depends on a single path", "Diversity check"], ["Cost", "Monthly cost is estimated", "Cost sheet"]],
+          "objectives": ["Compare WAN transports", "Plan transport diversity", "Estimate cost"]
+        },
+        {
+          "topic": "SD-WAN Architecture: Orchestration, Control and Data Planes",
+          "subtopics": ["Management and orchestration plane", "Control plane and route distribution", "Data plane and tunnels", "Controllers on premises or in the cloud", "Device identity and trust", "Scaling the control plane", "How architectures differ between vendors", "Failure of controllers"],
+          "tools": ["Cisco Catalyst SD-WAN", "FortiManager", "Architecture diagram tool"],
+          "lab_task": "Draw the planes for Cisco Catalyst SD-WAN and Fortinet SD-WAN, find each component in the lab and show what happens when a controller is unreachable.",
+          "deliverable": "Architecture comparison with a failure test",
+          "checks": [["Map", "Each plane's components are named for both vendors", "Architecture diagram"], ["Find", "Components are located in the lab", "Screenshots"], ["Fail", "Data traffic continues when a controller is unreachable", "Test record"]],
+          "objectives": ["Explain SD-WAN planes", "Compare vendor architectures", "Understand controller failure"]
+        },
+        {
+          "topic": "Overlay Tunnels: IPsec Fabrics, Hub-and-Spoke and Full Mesh",
+          "subtopics": ["IPsec tunnels in SD-WAN", "Hub-and-spoke overlays", "Full mesh and partial mesh", "Dynamic tunnels between branches", "Tunnel scaling limits", "Keys and rekeying", "NAT traversal", "Choosing a topology"],
+          "tools": ["Cisco Catalyst SD-WAN", "FortiGate ADVPN", "Tunnel status views"],
+          "lab_task": "Build a hub-and-spoke overlay, add on-demand tunnels between branches and measure tunnel counts as sites are added.",
+          "deliverable": "Overlay topology with tunnel measurements",
+          "checks": [["Build", "Spokes reach each other through the hub", "Traceroute"], ["Shortcut", "On-demand tunnels form between branches", "Tunnel status"], ["Measure", "Tunnel counts are recorded per topology", "Measurement table"]],
+          "objectives": ["Build overlays", "Use dynamic tunnels", "Choose overlay topologies"]
+        },
+        {
+          "topic": "Device Onboarding: Zero-Touch Provisioning and Certificates",
+          "subtopics": ["Zero-touch provisioning", "Plug-and-play servers", "Device certificates and serial numbers", "Bootstrap configuration", "Staging and shipping devices", "Onboarding failures", "Replacing a failed device", "Onboarding checklists"],
+          "tools": ["Cisco Plug and Play", "FortiManager zero-touch", "Device inventory"],
+          "lab_task": "Onboard a new WAN edge with zero-touch provisioning, fix a seeded certificate problem and replace a failed device with the same configuration.",
+          "deliverable": "Onboarded and replaced devices",
+          "checks": [["Onboard", "The new edge joins the fabric without local setup", "Device status"], ["Fix", "The certificate problem is resolved", "Onboarding log"], ["Replace", "The replacement device takes over the site", "Device status"]],
+          "objectives": ["Onboard devices with zero touch", "Fix onboarding problems", "Replace devices quickly"]
+        },
+        {
+          "topic": "Cisco Catalyst SD-WAN Components: Manager, Controller, Validator and WAN Edges",
+          "subtopics": ["SD-WAN Manager", "SD-WAN Controller", "SD-WAN Validator", "WAN Edge routers", "TLOCs, colours and system IPs", "Overlay Management Protocol", "Control connections", "Site IDs and organisation names"],
+          "tools": ["Cisco SD-WAN Manager", "WAN Edge CLI", "Control connection views"],
+          "lab_task": "Inspect control connections, TLOCs and OMP routes in the Cisco fabric, change a transport colour and confirm the effect on tunnels.",
+          "deliverable": "Cisco fabric inspection notes",
+          "checks": [["Inspect", "Control connections and TLOCs are listed", "Manager screenshots"], ["Route", "OMP routes show the expected next hops", "CLI output"], ["Change", "The colour change alters tunnel formation", "Tunnel status"]],
+          "objectives": ["Explain Cisco SD-WAN components", "Read TLOCs and OMP", "Manage transport colours"]
+        },
+        {
+          "topic": "Configuration Groups and Templates in Cisco Catalyst SD-WAN",
+          "subtopics": ["Configuration groups", "Feature profiles", "Device templates and feature templates", "Variables per device", "Deploying configuration", "Configuration drift", "Rollback of configuration", "Choosing groups or templates"],
+          "tools": ["Cisco SD-WAN Manager", "Configuration groups", "Feature profiles"],
+          "lab_task": "Build a configuration group for small branches with variables, deploy it to two edges, change one setting and roll back a bad change.",
+          "deliverable": "Branch configuration group with deployment record",
+          "checks": [["Build", "The group covers system, transport and service settings", "Group view"], ["Deploy", "Both edges get the configuration", "Deployment status"], ["Roll back", "The bad change is reverted", "Configuration history"]],
+          "objectives": ["Use configuration groups", "Deploy configuration safely", "Roll back changes"]
+        },
+        {
+          "topic": "Fortinet Secure SD-WAN: Members, Zones, Performance SLAs and Rules",
+          "subtopics": ["SD-WAN interface members", "SD-WAN zones", "Performance SLAs", "SD-WAN rules and strategies", "Firewall policies for SD-WAN zones", "ADVPN for branch-to-branch", "FortiManager management", "Fortinet SD-WAN monitoring"],
+          "tools": ["FortiGate", "FortiManager", "SD-WAN monitor"],
+          "lab_task": "Configure SD-WAN members and zones on a FortiGate, add performance SLAs, write rules that prefer the best link for SaaS and send bulk traffic to broadband.",
+          "deliverable": "FortiGate SD-WAN configuration with tests",
+          "checks": [["Configure", "Members and zones are set", "SD-WAN status"], ["Measure", "Performance SLAs report link quality", "SLA monitor"], ["Steer", "SaaS and bulk traffic take their chosen links", "Session list"]],
+          "objectives": ["Configure Fortinet SD-WAN", "Use performance SLAs", "Write SD-WAN rules"]
+        },
+        {
+          "topic": "Application-Aware Routing and Path Selection",
+          "subtopics": ["Application recognition", "Path selection by application", "SLA classes", "Preferred and backup paths", "Load sharing across links", "Fallback when no path meets the SLA", "Policy order", "Testing path choices"],
+          "tools": ["Cisco Catalyst SD-WAN", "FortiGate", "Network emulator"],
+          "lab_task": "Send voice over the best-quality path, move it when the emulator adds loss, load-share bulk traffic and confirm fallback when every path breaks the SLA.",
+          "deliverable": "Application routing tests",
+          "checks": [["Steer", "Voice uses the best path", "Flow records"], ["Move", "Voice moves when loss rises", "Path change log"], ["Fall back", "Traffic uses the fallback when no path meets the SLA", "Flow records"]],
+          "objectives": ["Route applications by quality", "Configure fallback", "Test path selection"]
+        },
+        {
+          "topic": "Performance SLAs: Probes, Latency, Jitter and Loss Thresholds",
+          "subtopics": ["How probes measure paths", "Latency, jitter and loss", "Probe intervals and sensitivity", "Thresholds for each application class", "Avoiding path flapping", "Probe overhead", "Reading SLA history", "Tuning thresholds"],
+          "tools": ["SLA monitors", "Network emulator", "Traffic generator"],
+          "lab_task": "Tune probe intervals and thresholds so voice moves within a few seconds of loss without flapping, and record the trade-offs.",
+          "deliverable": "Tuned SLA settings with results",
+          "checks": [["Detect", "Path problems are detected within the target time", "SLA log"], ["Stabilise", "Paths do not flap under small changes", "Path change log"], ["Record", "Trade-offs are documented", "Tuning notes"]],
+          "objectives": ["Measure path quality", "Tune thresholds", "Prevent path flapping"]
+        },
+        {
+          "topic": "Quality of Service for Voice and Video over SD-WAN",
+          "subtopics": ["Why QoS still matters with SD-WAN", "Classification and marking", "Queuing and shaping on WAN links", "Per-tunnel QoS", "Bandwidth limits on broadband", "Voice and video needs", "Measuring call quality", "QoS policies across vendors"],
+          "tools": ["QoS policies", "Traffic generator", "Call quality tools"],
+          "lab_task": "Mark and queue voice, video and bulk traffic, shape the broadband link and show that voice quality holds during a bulk transfer.",
+          "deliverable": "QoS policy with call quality results",
+          "checks": [["Mark", "Traffic classes are marked correctly", "Packet capture"], ["Queue", "Voice keeps priority during congestion", "Queue statistics"], ["Measure", "Call quality stays within target", "Quality report"]],
+          "objectives": ["Apply QoS over SD-WAN", "Shape broadband links", "Protect voice and video"]
+        },
+        {
+          "topic": "Direct Internet Access and Local Breakout",
+          "subtopics": ["Backhaul compared with local breakout", "Local breakout for SaaS", "NAT at the branch", "Security for local internet access", "Breakout to a cloud security service", "DNS for breakout", "Measuring SaaS performance", "Policies for guest traffic"],
+          "tools": ["Cisco Catalyst SD-WAN", "FortiGate", "SaaS test tools"],
+          "lab_task": "Break out SaaS traffic locally at one branch with security on, keep other traffic backhauled and compare SaaS response times.",
+          "deliverable": "Local breakout design with measurements",
+          "checks": [["Break out", "SaaS traffic leaves at the branch", "Flow records"], ["Secure", "Breakout traffic is inspected", "Security logs"], ["Compare", "SaaS response time improves", "Before-and-after times"]],
+          "objectives": ["Configure local breakout", "Secure branch internet access", "Measure SaaS performance"]
+        },
+        {
+          "topic": "SD-WAN Security: Segmentation, Firewalling and Encryption",
+          "subtopics": ["Segments for users, guests and devices", "Branch firewalling", "Encryption of overlay traffic", "Intrusion prevention at the branch", "URL filtering at the branch", "Securing the management plane", "Security compared with SASE", "Branch security checklist"],
+          "tools": ["Cisco Catalyst SD-WAN security", "FortiGate security profiles", "Segment policies"],
+          "lab_task": "Separate corporate, guest and IoT segments, add branch firewalling and intrusion prevention, and prove guests cannot reach corporate systems.",
+          "deliverable": "Segmented and secured branch",
+          "checks": [["Segment", "Each segment is isolated", "Reachability tests"], ["Inspect", "Branch firewall and IPS act on traffic", "Security logs"], ["Encrypt", "Overlay traffic is encrypted", "Tunnel details"]],
+          "objectives": ["Segment branch networks", "Secure branches", "Verify encryption"]
+        },
+        {
+          "topic": "Routing Integration: BGP and OSPF at the Branch and Data Centre",
+          "subtopics": ["Service-side routing at the branch", "OSPF with branch LANs", "BGP with data centre routers", "Redistribution between overlay and underlay", "Route preference and loops", "Route summarisation", "Default routes", "Testing routing changes"],
+          "tools": ["WAN Edge routing", "FortiGate routing", "Lab routers"],
+          "lab_task": "Run OSPF with a branch LAN router and BGP with the data centre core, redistribute routes into the overlay and prevent a seeded routing loop.",
+          "deliverable": "Integrated routing with loop prevention",
+          "checks": [["Peer", "OSPF and BGP sessions are up", "Routing status"], ["Advertise", "Branch and data centre routes reach each other", "Route tables"], ["Prevent", "The routing loop is stopped", "Traceroute"]],
+          "objectives": ["Integrate SD-WAN with routing", "Redistribute safely", "Prevent loops"]
+        },
+        {
+          "topic": "Cloud On-Ramps: SaaS Optimisation and Cloud Hubs",
+          "subtopics": ["SaaS path optimisation", "Cloud hubs in public clouds", "Virtual WAN edges in the cloud", "Connecting to cloud regions", "Choosing the nearest exit", "Monitoring SaaS experience", "Costs of cloud hubs", "Security for cloud traffic"],
+          "tools": ["Virtual WAN edges", "Cloud provider console", "SaaS monitoring"],
+          "lab_task": "Deploy a virtual WAN edge in a cloud region, route branch traffic to cloud workloads through it and steer a SaaS application to its best exit.",
+          "deliverable": "Cloud hub with SaaS steering",
+          "checks": [["Deploy", "The cloud edge joins the fabric", "Device status"], ["Route", "Branches reach cloud workloads through the hub", "Traceroute"], ["Steer", "The SaaS app uses its best exit", "Flow records"]],
+          "objectives": ["Extend SD-WAN to the cloud", "Optimise SaaS paths", "Plan cloud hubs"]
+        },
+        {
+          "topic": "Monitoring SD-WAN: Dashboards, Flow Visibility and Alarms",
+          "subtopics": ["Health dashboards", "Tunnel and link status", "Application performance views", "Flow records", "Alarms and events", "Reports for operations", "Exporting telemetry", "Monitoring checklists"],
+          "tools": ["SD-WAN Manager dashboards", "FortiManager and FortiAnalyzer", "Flow tools"],
+          "lab_task": "Build a monitoring view for the course fabric, trigger a link failure and an SLA breach, and find both in alarms and flow data.",
+          "deliverable": "Monitoring setup with alarm evidence",
+          "checks": [["Watch", "Dashboards show site, link and application health", "Dashboard"], ["Alarm", "The link failure raises an alarm", "Alarm list"], ["Trace", "The SLA breach is visible in flow data", "Flow view"]],
+          "objectives": ["Monitor SD-WAN", "Read alarms and flows", "Report health"]
+        },
+        {
+          "topic": "Branch High Availability: Dual Edges, Dual Transports and Failover",
+          "subtopics": ["Single and dual edge designs", "Dual transports", "First-hop redundancy at the branch", "Transport failover", "Edge failover", "LTE as a backup link", "Failover timings", "High availability tests"],
+          "tools": ["WAN Edges", "FortiGate HA", "First-hop redundancy"],
+          "lab_task": "Build a dual-edge branch with two transports, fail one transport and then one edge, and measure how long traffic stops each time.",
+          "deliverable": "Highly available branch with failover times",
+          "checks": [["Build", "Both edges and transports are active", "Status views"], ["Fail", "Traffic survives transport and edge failures", "Test record"], ["Time", "Failover times are measured", "Timing table"]],
+          "objectives": ["Design branch high availability", "Test failover", "Measure recovery time"]
+        },
+        {
+          "topic": "Troubleshooting SD-WAN: Control Connections, Tunnels and Path Choices",
+          "subtopics": ["A method for SD-WAN problems", "Control connection failures", "Tunnel failures", "Wrong path choices", "Application recognition problems", "Underlay problems", "Packet captures on edges", "Writing up fixes"],
+          "tools": ["Troubleshooting tools in SD-WAN Manager", "FortiGate diagnostics", "Packet capture"],
+          "lab_task": "Diagnose four seeded problems, a control connection failure, a tunnel down, a wrong path choice and an unrecognised application, fix them and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Traffic flows correctly after each fix", "Test results"], ["Prove", "Diagnostic output backs each finding", "Captures and command output"]],
+          "objectives": ["Troubleshoot SD-WAN", "Use diagnostic tools", "Document fixes"]
+        },
+        {
+          "topic": "Beginner Capstone: SD-WAN Rollout for Three Branches",
+          "subtopics": ["Transport and topology design", "Onboarding and configuration", "Application policy and QoS", "Security, monitoring and failover tests"],
+          "tools": ["Cisco Catalyst SD-WAN or FortiGate", "Network emulator", "Monitoring views"],
+          "lab_task": "Roll out SD-WAN to three branches with a transport plan, zero-touch onboarding, application routing, QoS, local breakout, segmentation, monitoring and failover tests.",
+          "deliverable": "Working three-branch rollout with a demo",
+          "checks": [["Steer", "Applications follow policy under impaired links", "Flow records"], ["Secure", "Segments stay isolated", "Reachability tests"], ["Survive", "Branches keep working through failures", "Test records"]],
+          "objectives": ["Combine beginner SD-WAN skills", "Roll out branches", "Prove policy and resilience"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For network engineers who design and run SD-WAN for many sites. Covers design methodology, segmentation at scale, centralised control and data policies, application recognition, FEC and packet duplication, multi-region fabrics, data centre integration, cloud networking with AWS Cloud WAN, Azure Virtual WAN and Google Network Connectivity Center, SASE integration, ZTNA and secure web gateways, Fortinet at scale, other platforms compared, automation, telemetry and experience monitoring, AI operations, MPLS migration, wireless WAN, collaboration tuning and certification preparation.",
+      "prerequisites": ["Has configured SD-WAN branches with application policy", "Understands BGP and OSPF well", "Comfortable with APIs or scripting"],
+      "outcomes": ["Design SD-WAN for many site types with segmentation and central policy", "Integrate data centres, clouds and SASE services", "Automate, monitor and tune SD-WAN at scale", "Migrate from MPLS and prepare for ENSDWI and Fortinet SD-WAN exams"],
+      "days": [
+        {
+          "topic": "SD-WAN Design Methodology: Requirements, Site Types and Topologies",
+          "subtopics": ["Gathering requirements", "Site types and templates", "Application inventory", "Topology choices per region", "Capacity per site", "Security requirements", "Design documents", "Design reviews"],
+          "tools": ["Requirements template", "Design document template", "Site inventory"],
+          "lab_task": "Gather requirements for fifty sites, define four site types, choose topologies and write a design document for review.",
+          "deliverable": "SD-WAN design document",
+          "checks": [["Gather", "Requirements cover applications, security and capacity", "Requirements list"], ["Type", "Every site maps to a site type", "Site table"], ["Review", "The design passes peer review", "Review notes"]],
+          "objectives": ["Design SD-WAN systematically", "Define site types", "Document designs"]
+        },
+        {
+          "topic": "Segmentation at Scale: VPNs, VRFs and Service Chaining",
+          "subtopics": ["Segments across the fabric", "Service VPNs and VRFs", "Route leaking between segments", "Service chaining through firewalls", "Segments in the data centre", "Segments for partners", "Testing segmentation", "Segmentation documentation"],
+          "tools": ["Cisco Catalyst SD-WAN", "FortiGate VDOMs", "Firewalls"],
+          "lab_task": "Build corporate, PCI and partner segments across all sites, leak one shared service route safely and chain PCI traffic through a firewall.",
+          "deliverable": "Segmented fabric with service chaining",
+          "checks": [["Isolate", "Segments cannot reach each other except as allowed", "Reachability tests"], ["Leak", "The shared service is reachable from both segments", "Route tables"], ["Chain", "PCI traffic passes through the firewall", "Firewall logs"]],
+          "objectives": ["Segment at scale", "Leak routes safely", "Chain services"]
+        },
+        {
+          "topic": "Centralised Policy: Control Policies, Data Policies and Topology Shaping",
+          "subtopics": ["Control policies for route distribution", "Data policies for traffic handling", "Topology shaping with policies", "Regional hubs through policy", "Policy order and matching", "Testing policies before activation", "Policy versioning", "Common policy mistakes"],
+          "tools": ["Cisco SD-WAN Manager policies", "Policy preview", "Lab traffic"],
+          "lab_task": "Use a control policy to build regional hub-and-spoke, add a data policy that sends guest traffic to local breakout and preview both before activation.",
+          "deliverable": "Centralised policies with previews",
+          "checks": [["Shape", "Spokes use their regional hub", "Route tables"], ["Steer", "Guest traffic breaks out locally", "Flow records"], ["Preview", "Policy previews match the results", "Preview output"]],
+          "objectives": ["Write centralised policies", "Shape topology", "Test policies before activation"]
+        },
+        {
+          "topic": "Application Recognition and Custom Applications",
+          "subtopics": ["Deep packet inspection for applications", "SaaS recognition", "Custom applications by address, port or name", "Application families and groups", "Encrypted traffic recognition", "Recognition updates", "Misclassified traffic", "Reporting by application"],
+          "tools": ["Application recognition", "Custom application definitions", "Flow records"],
+          "lab_task": "Define custom applications for two internal apps, fix a misclassified SaaS app and report bandwidth by application group.",
+          "deliverable": "Custom applications with reporting",
+          "checks": [["Define", "Internal apps are recognised", "Flow records"], ["Fix", "The SaaS app is classified correctly", "Flow records after the fix"], ["Report", "Bandwidth by application group is reported", "Report"]],
+          "objectives": ["Recognise applications", "Create custom applications", "Report by application"]
+        },
+        {
+          "topic": "Forward Error Correction, Packet Duplication and TCP Optimisation",
+          "subtopics": ["When links lose packets", "Forward error correction", "Packet duplication for critical traffic", "Overhead of each method", "TCP optimisation", "Compression", "Choosing per application", "Measuring results"],
+          "tools": ["FEC settings", "Packet duplication", "Network emulator"],
+          "lab_task": "Add loss to a link, protect voice with FEC and packet duplication, measure quality and overhead, and choose a setting.",
+          "deliverable": "Loss mitigation tests and a recommendation",
+          "checks": [["Protect", "Voice quality improves under loss", "Quality results"], ["Measure", "Bandwidth overhead is recorded", "Overhead table"], ["Choose", "The chosen method is justified", "Recommendation"]],
+          "objectives": ["Mitigate packet loss", "Compare FEC and duplication", "Choose per application"]
+        },
+        {
+          "topic": "Multi-Region Fabric and Hierarchical Designs",
+          "subtopics": ["Why flat fabrics stop scaling", "Multi-region fabric concepts", "Core and access regions", "Border routers", "Regional policies", "Inter-region traffic", "Scaling limits", "Migrating to a hierarchical design"],
+          "tools": ["Cisco Multi-Region Fabric", "Regional hubs", "Route tables"],
+          "lab_task": "Split the fabric into two access regions and a core region with border routers, and confirm inter-region traffic uses the core.",
+          "deliverable": "Hierarchical fabric with tests",
+          "checks": [["Split", "Sites belong to their regions", "Region view"], ["Route", "Inter-region traffic uses border routers", "Traceroute"], ["Scale", "Tunnel counts fall compared with full mesh", "Tunnel counts"]],
+          "objectives": ["Design hierarchical fabrics", "Use border routers", "Scale the overlay"]
+        },
+        {
+          "topic": "Data Centre Integration: Hubs, Redundancy and Routing Policies",
+          "subtopics": ["Data centre hub designs", "Dual data centres", "Preferring one data centre", "Failover between data centres", "Route policies at hubs", "Integration with data centre firewalls", "Hub capacity", "Testing data centre failover"],
+          "tools": ["Hub WAN edges", "Data centre routers", "Firewalls"],
+          "lab_task": "Connect two data centres as hubs, prefer one per region, fail it and show branches moving to the other with routing intact.",
+          "deliverable": "Dual data centre design with failover test",
+          "checks": [["Prefer", "Regions use their preferred data centre", "Route tables"], ["Fail", "Branches move to the other data centre", "Test record"], ["Secure", "Traffic still passes the data centre firewalls", "Firewall logs"]],
+          "objectives": ["Integrate data centres", "Design hub redundancy", "Test data centre failover"]
+        },
+        {
+          "topic": "Cloud Networking with SD-WAN: AWS Cloud WAN, Azure Virtual WAN and Google NCC",
+          "subtopics": ["Cloud networking services", "SD-WAN integration with AWS Cloud WAN and Transit Gateway", "Azure Virtual WAN hubs", "Google Network Connectivity Center", "BGP with cloud routers", "Segmentation into the cloud", "Cost of cloud networking", "Choosing an integration"],
+          "tools": ["AWS Cloud WAN", "Azure Virtual WAN", "Google Network Connectivity Center", "Virtual WAN edges"],
+          "lab_task": "Connect the fabric to one cloud networking service with BGP, carry two segments into the cloud and estimate monthly cost.",
+          "deliverable": "Cloud integration with segments and cost",
+          "checks": [["Peer", "BGP sessions with the cloud are up", "Routing status"], ["Segment", "Both segments reach their cloud networks only", "Reachability tests"], ["Cost", "Monthly cost is estimated", "Cost sheet"]],
+          "objectives": ["Connect SD-WAN to clouds", "Carry segments into the cloud", "Estimate cloud networking cost"]
+        },
+        {
+          "topic": "SASE Integration: Security Service Edge for SD-WAN Branches",
+          "subtopics": ["What SASE combines", "Security service edge components", "Tunnels from branches to SSE", "Choosing SSE points of presence", "Policy in the SSE", "Failover between SSE locations", "Logging and visibility", "Single-vendor and multi-vendor SASE"],
+          "tools": ["SSE service", "WAN Edges", "Policy console"],
+          "lab_task": "Send branch internet traffic to an SSE service through tunnels, apply web and threat policy there, fail one SSE location and confirm recovery.",
+          "deliverable": "Branches protected by SSE",
+          "checks": [["Tunnel", "Branch tunnels reach the SSE", "Tunnel status"], ["Protect", "SSE policy acts on branch traffic", "SSE logs"], ["Fail", "Traffic moves to the second SSE location", "Test record"]],
+          "objectives": ["Integrate SD-WAN with SSE", "Apply cloud security", "Plan SSE failover"]
+        },
+        {
+          "topic": "ZTNA and Secure Web Gateway for Branch Users",
+          "subtopics": ["Zero Trust network access", "Private application access", "Secure web gateway", "Cloud access security broker features", "Identity for branch users", "Device posture", "User experience", "Replacing VPN for branch staff"],
+          "tools": ["ZTNA service", "Secure web gateway", "Identity provider"],
+          "lab_task": "Publish a private application through ZTNA for branch users, apply secure web gateway policy and check that only compliant devices reach the app.",
+          "deliverable": "ZTNA and SWG setup for branches",
+          "checks": [["Publish", "The private app is reachable through ZTNA", "Access test"], ["Filter", "Web policy acts on branch users", "Gateway logs"], ["Check", "Non-compliant devices are refused", "Access log"]],
+          "objectives": ["Use ZTNA for private apps", "Apply web security", "Check device posture"]
+        },
+        {
+          "topic": "Fortinet SD-WAN at Scale with FortiManager and Overlay Templates",
+          "subtopics": ["FortiManager for many FortiGates", "Overlay templates", "SD-WAN templates", "ADVPN at scale", "Regional hubs with Fortinet", "Policy packages", "Monitoring with FortiAnalyzer", "Upgrades at scale"],
+          "tools": ["FortiManager", "FortiAnalyzer", "FortiGates"],
+          "lab_task": "Build a fifty-site Fortinet design with overlay templates, deploy it to lab devices, enable ADVPN and monitor it in FortiAnalyzer.",
+          "deliverable": "Template-based Fortinet deployment",
+          "checks": [["Template", "Devices get configuration from templates", "Deployment status"], ["Shortcut", "ADVPN shortcuts form between branches", "Tunnel status"], ["Monitor", "FortiAnalyzer shows SD-WAN health", "Reports"]],
+          "objectives": ["Run Fortinet SD-WAN at scale", "Use overlay templates", "Monitor with FortiAnalyzer"]
+        },
+        {
+          "topic": "Other Platforms Compared: Prisma SD-WAN, Arista VeloCloud, HPE Aruba EdgeConnect, Versa and Cato",
+          "subtopics": ["Prisma SD-WAN", "Arista VeloCloud", "HPE Aruba EdgeConnect", "Versa Networks", "Cato Networks SASE", "Meraki SD-WAN", "Comparison criteria", "Lab trials of a second platform"],
+          "tools": ["Vendor trials", "Comparison matrix", "Documentation"],
+          "lab_task": "Trial one more platform in a lab, configure the same branch policy as before and score three platforms against the course company's criteria.",
+          "deliverable": "Platform comparison with a trial",
+          "checks": [["Trial", "The same policy runs on the trial platform", "Trial notes"], ["Score", "Platforms are scored on agreed criteria", "Comparison matrix"], ["Recommend", "A recommendation fits the company", "Recommendation"]],
+          "objectives": ["Compare SD-WAN platforms", "Trial a platform", "Recommend with evidence"]
+        },
+        {
+          "topic": "Automation: APIs, Terraform and Ansible for SD-WAN",
+          "subtopics": ["SD-WAN Manager APIs", "FortiManager APIs", "Terraform providers", "Ansible collections", "Site onboarding as code", "Bulk changes", "Testing automation", "Secrets for automation"],
+          "tools": ["SD-WAN APIs", "Terraform", "Ansible", "Python"],
+          "lab_task": "Onboard a new site from a data file with Terraform or Ansible, make a bulk policy change through the API and test the automation before running it.",
+          "deliverable": "Automation code with tests",
+          "checks": [["Onboard", "The new site is created from data", "Automation run"], ["Change", "The bulk change applies to all target sites", "API results"], ["Test", "Tests catch a bad input before it runs", "Test output"]],
+          "objectives": ["Automate SD-WAN", "Onboard sites as code", "Test automation"]
+        },
+        {
+          "topic": "Monitoring at Scale: Telemetry, NetFlow and Digital Experience Monitoring",
+          "subtopics": ["Streaming telemetry", "Flow export", "Monitoring platforms", "Digital experience monitoring", "Baselines and anomalies", "Capacity trends", "Alert design", "Reports for leadership"],
+          "tools": ["Telemetry collectors", "Flow analyser", "Experience monitoring tool"],
+          "lab_task": "Stream telemetry and flows to a monitoring platform, baseline link use, add experience monitoring for two SaaS apps and alert on degradation.",
+          "deliverable": "Monitoring at scale with alerts",
+          "checks": [["Stream", "Telemetry and flows arrive", "Monitoring platform"], ["Baseline", "Baselines show normal use", "Baseline charts"], ["Alert", "Degradation raises alerts", "Alert record"]],
+          "objectives": ["Monitor SD-WAN at scale", "Measure user experience", "Alert on degradation"]
+        },
+        {
+          "topic": "AI Operations for SD-WAN: Anomaly Detection and Predictive Path Selection",
+          "subtopics": ["AI features in SD-WAN platforms", "Anomaly detection", "Predictive path selection", "Root cause suggestions", "Natural language assistants", "Checking AI recommendations", "Data needed for AI features", "Limits of AI operations"],
+          "tools": ["Vendor AI operations features", "Monitoring data", "Network emulator"],
+          "lab_task": "Use AI operations features on lab data, compare an anomaly finding with the real cause and test whether predictive path selection moves traffic earlier.",
+          "deliverable": "AI operations evaluation",
+          "checks": [["Detect", "The anomaly finding is compared with the real cause", "Comparison"], ["Predict", "Predictive selection moves traffic before the breach", "Path change log"], ["Judge", "Trust levels for AI features are recorded", "Notes"]],
+          "objectives": ["Use AI operations for SD-WAN", "Check AI findings", "Decide when to trust AI"]
+        },
+        {
+          "topic": "Migration from MPLS to SD-WAN: Coexistence and Cutover",
+          "subtopics": ["Migration approaches", "Running MPLS and SD-WAN together", "Routing during coexistence", "Site cutover steps", "Rollback plans", "Carrier contract timing", "Measuring migration success", "Decommissioning MPLS"],
+          "tools": ["Migration plan template", "Routing tools", "Monitoring views"],
+          "lab_task": "Migrate two lab sites from MPLS to SD-WAN while a third stays on MPLS, keep routing correct during coexistence and roll back one cutover.",
+          "deliverable": "Migration record with rollback",
+          "checks": [["Coexist", "Migrated and MPLS sites reach each other", "Reachability tests"], ["Cut over", "Sites cut over with minimal outage", "Cutover log"], ["Roll back", "One cutover is reverted cleanly", "Rollback record"]],
+          "objectives": ["Migrate from MPLS", "Manage coexistence", "Roll back safely"]
+        },
+        {
+          "topic": "Wireless WAN: 5G, LTE and Satellite Links in SD-WAN",
+          "subtopics": ["Cellular modems and routers", "5G for primary and backup links", "Satellite links and their latency", "Data caps and cost controls", "Policies for metered links", "Signal monitoring", "Pop-up and mobile sites", "Testing wireless links"],
+          "tools": ["Cellular WAN edges", "Policy controls", "Monitoring views"],
+          "lab_task": "Add a cellular link as backup with a data cap policy, keep bulk traffic off it and design a pop-up site that runs only on 5G and satellite.",
+          "deliverable": "Wireless WAN policies and pop-up design",
+          "checks": [["Back up", "Traffic fails over to cellular", "Test record"], ["Cap", "Bulk traffic stays off the metered link", "Flow records"], ["Design", "The pop-up site design meets its needs", "Design document"]],
+          "objectives": ["Use wireless WAN links", "Control metered links", "Design mobile sites"]
+        },
+        {
+          "topic": "Voice, Video and Collaboration Performance Tuning",
+          "subtopics": ["Collaboration traffic patterns", "SaaS collaboration endpoints", "Local breakout for collaboration", "Tuning SLAs for real-time traffic", "QoS for collaboration", "Measuring meeting quality", "Working with collaboration admins", "Troubleshooting poor calls"],
+          "tools": ["Collaboration admin tools", "QoS policies", "Call quality reports"],
+          "lab_task": "Tune breakout, SLAs and QoS for a collaboration service, run test calls under impairment and use call quality reports to confirm the fix.",
+          "deliverable": "Tuned collaboration performance",
+          "checks": [["Tune", "Settings are changed for collaboration traffic", "Configuration change"], ["Test", "Test calls stay within quality targets", "Call quality report"], ["Fix", "A poor call problem is diagnosed and fixed", "Investigation notes"]],
+          "objectives": ["Tune collaboration traffic", "Measure meeting quality", "Fix call problems"]
+        },
+        {
+          "topic": "Cisco ENSDWI 300-415 and Fortinet SD-WAN Certification Preparation",
+          "subtopics": ["ENSDWI exam topics", "Fortinet SD-WAN architect exam topics", "Mapping course days to exam topics", "Practice questions", "Lab practice for weak areas", "Time management", "Exam logistics", "Review plan"],
+          "tools": ["Cisco learning materials", "Fortinet training", "Course labs"],
+          "lab_task": "Take timed practice sets for ENSDWI and the Fortinet SD-WAN exam, map every miss to a course day and repeat the weakest lab tasks.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "Both practice sets are completed", "Score sheet"], ["Map", "Each miss is mapped to a course day", "Error log"], ["Repeat", "The weakest lab tasks are repeated", "Lab log"]],
+          "objectives": ["Prepare for SD-WAN exams", "Find weak areas", "Practise weak tasks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Regional SD-WAN with Cloud and SASE Integration",
+          "subtopics": ["Design and site types", "Segmentation and central policy", "Data centre, cloud and SASE integration", "Automation and monitoring"],
+          "tools": ["Cisco Catalyst SD-WAN or Fortinet", "Cloud networking service", "SSE service", "Terraform"],
+          "lab_task": "Deliver a regional SD-WAN for fifty sites in the lab with site types, segmentation, central policy, dual data centres, a cloud connection, SSE for internet traffic, automated onboarding and monitoring.",
+          "deliverable": "Regional SD-WAN demo with evidence",
+          "checks": [["Design", "Sites follow their types and policies", "Design and configuration"], ["Integrate", "Data centres, cloud and SSE work together", "Test results"], ["Operate", "Onboarding and monitoring are automated", "Automation and monitoring records"]],
+          "objectives": ["Combine intermediate SD-WAN skills", "Deliver a regional WAN", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For network architects and WAN programme leads. Covers WAN strategy with SD-WAN, SASE and network as a service, global architecture, policy design at scale, multi-cloud networking, single-vendor and multi-vendor SASE, Zero Trust branches, industry site designs, managed SD-WAN, performance engineering, resilience engineering, automation pipelines with a source of truth, assurance and reporting, security assurance, vendor selection, large migration programmes, cost engineering, the operations model, self-driving WANs and troubleshooting at scale.",
+      "prerequisites": ["Has designed or run SD-WAN for many sites", "Understands cloud networking and security services", "Responsible for WAN strategy, architecture or operations"],
+      "outcomes": ["Set WAN and SASE strategy and global architecture", "Design multi-cloud, Zero Trust and industry-specific WANs", "Run automation, assurance, migration and cost programmes", "Lead WAN operations and vendor decisions"],
+      "days": [
+        {
+          "topic": "Enterprise WAN Strategy: SD-WAN, SASE and Network as a Service",
+          "subtopics": ["Business drivers for WAN change", "SD-WAN, SASE and network as a service models", "Build, buy or managed", "Roadmaps and phases", "Risk and resilience goals", "Funding and business cases", "Measuring outcomes", "Executive communication"],
+          "tools": ["Strategy template", "Business case template", "Current WAN data"],
+          "lab_task": "Write a three-year WAN strategy for the course company with a delivery model, phases, business case and outcome measures, and present it to the CIO persona.",
+          "deliverable": "WAN strategy and business case",
+          "checks": [["Choose", "The delivery model is justified", "Strategy document"], ["Phase", "Phases link to business outcomes", "Roadmap"], ["Present", "The CIO persona approves the strategy", "Approval record"]],
+          "objectives": ["Set WAN strategy", "Build a business case", "Choose a delivery model"]
+        },
+        {
+          "topic": "Global SD-WAN Architecture: Regions, Hubs and Failure Domains",
+          "subtopics": ["Global regions and hubs", "Controller placement worldwide", "Failure domains and blast radius", "Latency budgets between regions", "Regional internet exits", "Regulatory constraints on traffic", "Scaling limits", "Architecture reviews"],
+          "tools": ["Architecture diagram tool", "Latency data", "Decision records"],
+          "lab_task": "Design a global SD-WAN for four hundred sites in four regions with controller placement and failure domains, and defend it in a review.",
+          "deliverable": "Global architecture and review record",
+          "checks": [["Design", "Regions, hubs and controllers are placed", "Architecture diagram"], ["Contain", "Failures stay inside their domains", "Failure analysis"], ["Defend", "The review accepts the design with actions", "Review record"]],
+          "objectives": ["Design global SD-WAN", "Plan failure domains", "Defend architecture decisions"]
+        },
+        {
+          "topic": "Large-Scale Policy Design and Change Control",
+          "subtopics": ["Policy hierarchy for many regions", "Shared and regional policies", "Policy change risk", "Staged policy rollout", "Policy testing environments", "Change control boards", "Policy documentation", "Rollback strategy"],
+          "tools": ["Policy tools", "Change management system", "Lab environment"],
+          "lab_task": "Design a policy hierarchy for four regions, roll out a risky policy change in stages with tests and roll back one stage.",
+          "deliverable": "Policy hierarchy and staged change record",
+          "checks": [["Design", "Shared and regional policies are separated", "Policy design"], ["Stage", "The change rolls out region by region", "Change record"], ["Roll back", "The failed stage is reverted", "Rollback record"]],
+          "objectives": ["Design policy at scale", "Roll out changes in stages", "Control policy risk"]
+        },
+        {
+          "topic": "Multi-Cloud Networking Architecture with SD-WAN",
+          "subtopics": ["Multi-cloud traffic patterns", "Cloud-native networking compared with SD-WAN overlays", "Multi-cloud networking platforms", "Inter-cloud routing", "Segmentation across clouds", "Cost of cross-cloud traffic", "Operations across clouds", "Architecture choices"],
+          "tools": ["Cloud networking services", "Multi-cloud networking platform", "Cost model"],
+          "lab_task": "Design networking for workloads in two clouds and the data centre, compare SD-WAN overlays with cloud-native options and cost cross-cloud traffic.",
+          "deliverable": "Multi-cloud networking design with costs",
+          "checks": [["Design", "Workloads in every location are connected with segments", "Design diagram"], ["Compare", "Overlay and cloud-native options are compared", "Comparison"], ["Cost", "Cross-cloud traffic is costed", "Cost model"]],
+          "objectives": ["Design multi-cloud networking", "Compare overlay options", "Cost cross-cloud traffic"]
+        },
+        {
+          "topic": "Single-Vendor SASE and Multi-Vendor Designs",
+          "subtopics": ["What single-vendor SASE means", "Benefits and lock-in", "Multi-vendor SD-WAN and SSE combinations", "Policy consistency across vendors", "Logging and operations across vendors", "Contracts and support", "Migration between models", "Decision criteria"],
+          "tools": ["SASE comparison matrix", "Vendor documentation", "Cost model"],
+          "lab_task": "Compare a single-vendor SASE design with a multi-vendor design for the course company on policy, operations, cost and risk, and recommend one.",
+          "deliverable": "SASE model comparison and recommendation",
+          "checks": [["Compare", "Both models are compared on four criteria", "Comparison matrix"], ["Cost", "Costs are estimated for both", "Cost model"], ["Recommend", "The recommendation includes an exit plan", "Recommendation"]],
+          "objectives": ["Compare SASE models", "Weigh lock-in and simplicity", "Recommend a model"]
+        },
+        {
+          "topic": "Zero Trust Branch Design",
+          "subtopics": ["Zero Trust for branches", "Identity-based access at the branch", "Device profiling and IoT", "Microsegmentation at the branch", "Removing trust from the WAN", "Secure access for third parties", "Monitoring Zero Trust controls", "Phased adoption"],
+          "tools": ["Identity services", "Device profiling", "Segmentation policies"],
+          "lab_task": "Design a Zero Trust branch with identity-based access, IoT profiling and microsegmentation, and test that a compromised device cannot move laterally.",
+          "deliverable": "Zero Trust branch design with tests",
+          "checks": [["Design", "Access depends on identity and device", "Design document"], ["Profile", "IoT devices are identified and segmented", "Device inventory"], ["Contain", "Lateral movement from the test device fails", "Test record"]],
+          "objectives": ["Design Zero Trust branches", "Segment devices", "Test containment"]
+        },
+        {
+          "topic": "SD-WAN for Retail, Manufacturing and Healthcare Sites",
+          "subtopics": ["Retail sites: payment, guest and stores at scale", "Manufacturing sites: OT networks and uptime", "Healthcare sites: clinical systems and privacy", "Compliance needs per industry", "Site templates per industry", "Local survivability", "Wireless and IoT needs", "Industry case studies"],
+          "tools": ["Industry requirement matrix", "Site templates", "Compliance checklists"],
+          "lab_task": "Design site templates for a store, a factory and a clinic with their compliance and uptime needs, and test local survivability for the factory.",
+          "deliverable": "Industry site templates with tests",
+          "checks": [["Design", "Each template meets its industry needs", "Templates"], ["Comply", "Compliance needs are mapped", "Compliance matrix"], ["Survive", "The factory keeps running when the WAN fails", "Test record"]],
+          "objectives": ["Design industry-specific sites", "Meet compliance needs", "Plan local survivability"]
+        },
+        {
+          "topic": "Service Provider and Managed SD-WAN Models",
+          "subtopics": ["Managed SD-WAN services", "Co-managed models", "Multi-tenant platforms", "Service level agreements", "Visibility for the customer", "Change processes with providers", "Exit and transition planning", "Evaluating providers"],
+          "tools": ["Service contract templates", "Provider evaluation sheet", "Tenant portals"],
+          "lab_task": "Compare managed, co-managed and self-run models for the course company, draft key service levels and plan a transition between providers.",
+          "deliverable": "Service model comparison and transition plan",
+          "checks": [["Compare", "The models are compared on control, cost and risk", "Comparison"], ["Draft", "Service levels cover availability and change times", "Service level draft"], ["Plan", "The transition plan avoids outages", "Transition plan"]],
+          "objectives": ["Evaluate managed SD-WAN", "Set service levels", "Plan provider transitions"]
+        },
+        {
+          "topic": "Performance Engineering: Capacity, Encryption Overhead and Scaling Limits",
+          "subtopics": ["Sizing WAN edges", "Encryption and inspection overhead", "Tunnel scale limits", "Hub capacity planning", "Bandwidth forecasting", "Load testing", "Bottleneck analysis", "Capacity reports"],
+          "tools": ["Load test tools", "Sizing sheets", "Monitoring data"],
+          "lab_task": "Size hubs and edges for the global design, load-test an edge with encryption and inspection, find the bottleneck and write a capacity report.",
+          "deliverable": "Sizing and load test report",
+          "checks": [["Size", "Sizing uses traffic forecasts", "Sizing sheet"], ["Test", "Throughput with encryption is measured", "Load test results"], ["Report", "Headroom is stated for each tier", "Capacity report"]],
+          "objectives": ["Size SD-WAN components", "Test performance", "Report capacity"]
+        },
+        {
+          "topic": "Resilience Engineering: Controller Outages, Transport Failures and Disaster Recovery",
+          "subtopics": ["Failure scenarios", "Controller outages", "Regional transport failures", "Hub failures", "Disaster recovery for management", "Resilience testing", "Runbooks for outages", "Learning from incidents"],
+          "tools": ["Lab environment", "Runbooks", "Test plan"],
+          "lab_task": "Test controller loss, a regional transport outage and a hub failure in the lab, measure impact and update the runbooks.",
+          "deliverable": "Resilience test report and runbooks",
+          "checks": [["Test", "All three scenarios are tested", "Test record"], ["Measure", "Impact on traffic is measured", "Impact table"], ["Update", "Runbooks reflect the findings", "Runbooks"]],
+          "objectives": ["Engineer WAN resilience", "Test failure scenarios", "Improve runbooks"]
+        },
+        {
+          "topic": "Network Automation Pipelines for SD-WAN: Source of Truth and CI Validation",
+          "subtopics": ["A source of truth for sites and policies", "Generating configuration from data", "CI validation of changes", "Pre-change and post-change checks", "Approvals in the pipeline", "Drift detection", "Rollback from the source of truth", "Measuring change success"],
+          "tools": ["NetBox or another source of truth", "CI pipeline", "Terraform or Ansible"],
+          "lab_task": "Drive site configuration from a source of truth through a pipeline with validation and post-change checks, detect drift and roll back a bad change.",
+          "deliverable": "Automation pipeline with checks",
+          "checks": [["Generate", "Site changes come from the source of truth", "Pipeline run"], ["Validate", "Bad data is caught before deployment", "Validation log"], ["Recover", "A bad change is rolled back", "Rollback record"]],
+          "objectives": ["Automate with a source of truth", "Validate changes", "Detect drift"]
+        },
+        {
+          "topic": "Observability and Assurance: SLAs, Experience Scores and Reporting",
+          "subtopics": ["Assurance goals", "Application experience scores", "SLA reporting to the business", "Carrier performance reporting", "Synthetic tests for key apps", "Reporting for executives", "Linking incidents to experience", "Continuous improvement"],
+          "tools": ["Assurance platform", "Synthetic tests", "Reporting tools"],
+          "lab_task": "Define experience scores and SLAs for five key apps, report carrier performance and present a monthly assurance report to the business.",
+          "deliverable": "Assurance report",
+          "checks": [["Define", "Scores and SLAs are defined", "Assurance definitions"], ["Report", "Carrier performance is reported", "Carrier report"], ["Present", "The business report shows trends and actions", "Monthly report"]],
+          "objectives": ["Run WAN assurance", "Report experience", "Manage carriers with data"]
+        },
+        {
+          "topic": "Security Assurance: Encryption, Key Management and Compliance",
+          "subtopics": ["Encryption standards for overlays", "Key management and rotation", "Certificate lifecycle", "Management plane security", "Compliance frameworks", "Audit evidence", "Penetration testing of the WAN", "Remediation tracking"],
+          "tools": ["Security settings", "Certificate management", "Evidence store"],
+          "lab_task": "Check overlay encryption and key rotation against policy, renew certificates before expiry and prepare audit evidence for the WAN.",
+          "deliverable": "Security assurance evidence",
+          "checks": [["Check", "Encryption and rotation meet policy", "Settings report"], ["Renew", "Certificates are renewed before expiry", "Certificate list"], ["Prove", "Audit evidence answers the requests", "Evidence pack"]],
+          "objectives": ["Assure WAN security", "Manage keys and certificates", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Vendor Selection and Proof of Concept for SD-WAN and SASE",
+          "subtopics": ["Requirements and scoring", "Request for proposal", "Proof of concept design", "Test cases", "Commercial evaluation", "Reference checks", "Decision records", "Negotiation inputs"],
+          "tools": ["RFP template", "Proof of concept plan", "Scoring sheet"],
+          "lab_task": "Write an RFP and a proof of concept plan with test cases, score two seeded vendor responses and record the decision.",
+          "deliverable": "RFP, proof of concept plan and decision",
+          "checks": [["Write", "The RFP covers technical and commercial needs", "RFP document"], ["Test", "Test cases cover key requirements", "Proof of concept plan"], ["Decide", "The decision is recorded with scores", "Decision record"]],
+          "objectives": ["Select SD-WAN vendors", "Run a proof of concept", "Record decisions"]
+        },
+        {
+          "topic": "Large-Scale Migration Programmes: Waves, Site Surveys and Cutover",
+          "subtopics": ["Programme structure", "Site surveys", "Wave planning", "Field engineering and logistics", "Cutover windows", "Rollback and hypercare", "Communication with sites", "Programme reporting"],
+          "tools": ["Programme plan", "Site survey template", "Cutover checklist"],
+          "lab_task": "Plan a four-hundred-site migration in waves with surveys, logistics and cutover checklists, and run a rehearsal for the first wave.",
+          "deliverable": "Migration programme plan and rehearsal report",
+          "checks": [["Plan", "Waves cover all sites with dependencies", "Programme plan"], ["Rehearse", "The first wave rehearsal succeeds", "Rehearsal report"], ["Report", "Programme reporting tracks progress and risks", "Status report"]],
+          "objectives": ["Run large migrations", "Plan waves", "Rehearse cutovers"]
+        },
+        {
+          "topic": "Cost Engineering: Transport Mix, Licences and Total Cost of Ownership",
+          "subtopics": ["WAN cost drivers", "Transport mix optimisation", "Licence tiers", "Hardware and cloud costs", "Operations costs", "Total cost of ownership", "Savings tracking", "Renewal planning"],
+          "tools": ["Cost model", "Transport quotes", "Licence data"],
+          "lab_task": "Build a total cost of ownership model for the global WAN, optimise the transport mix and licence tiers and track savings against the business case.",
+          "deliverable": "Cost model with savings plan",
+          "checks": [["Model", "All cost drivers are included", "Cost model"], ["Optimise", "Changes reduce cost without breaking SLAs", "Savings plan"], ["Track", "Savings are tracked against the business case", "Savings report"]],
+          "objectives": ["Engineer WAN cost", "Optimise transports and licences", "Track savings"]
+        },
+        {
+          "topic": "SD-WAN Operations Model: NOC Processes, Change and Vendor Management",
+          "subtopics": ["Network operations centre roles", "Monitoring and on-call", "Incident and problem management", "Change management", "Carrier and vendor management", "Knowledge base and runbooks", "Skills and training", "Service metrics"],
+          "tools": ["Service management tool", "Runbooks", "Service reports"],
+          "lab_task": "Design the WAN operations model with NOC roles, incident and change processes and carrier management, and report a seeded month of service metrics.",
+          "deliverable": "Operations model and service report",
+          "checks": [["Design", "Roles and processes are defined", "Operations model"], ["Run", "Incidents and changes follow the processes", "Process records"], ["Report", "Service metrics are reported", "Service report"]],
+          "objectives": ["Run WAN operations", "Manage carriers and vendors", "Measure the service"]
+        },
+        {
+          "topic": "Self-Driving WANs: AI and Automation for Closed-Loop Operations",
+          "subtopics": ["Closed-loop automation", "Intent-based policies", "AI agents for network operations", "Guardrails for automated changes", "Evaluating automated actions", "Human approval points", "Data quality for automation", "Roadmap to closed-loop operations"],
+          "tools": ["AI operations features", "Automation pipeline", "Monitoring data"],
+          "lab_task": "Build a closed-loop action that moves traffic off a degrading link and opens a carrier ticket, with guardrails and approval for wider changes, and evaluate it on replayed events.",
+          "deliverable": "Closed-loop automation with an evaluation",
+          "checks": [["Act", "The action moves traffic and opens a ticket", "Run log"], ["Guard", "Wider changes wait for approval", "Approval record"], ["Evaluate", "Results on replayed events are scored", "Evaluation report"]],
+          "objectives": ["Design closed-loop WAN operations", "Apply guardrails", "Evaluate automated actions"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Overlay, Underlay and Application Problems",
+          "subtopics": ["Separating overlay and underlay problems", "Carrier problems", "Control plane scale problems", "Application problems that look like network problems", "Data from many sites", "Working with vendors and carriers", "Major incident handling", "Incident reviews"],
+          "tools": ["SD-WAN troubleshooting tools", "Monitoring data", "Packet captures"],
+          "lab_task": "Diagnose seeded problems across many sites, a carrier fault, a control plane limit and an application issue, coordinate fixes and write an incident review.",
+          "deliverable": "Diagnoses, fixes and an incident review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Coordinate", "Carriers and vendors get clear evidence", "Ticket records"], ["Review", "The review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot at scale", "Separate overlay and underlay faults", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Global WAN Transformation Design",
+          "subtopics": ["Strategy and architecture", "SASE and Zero Trust design", "Migration, automation and assurance", "Cost and operations model"],
+          "tools": ["Architecture documents", "Migration plan", "Cost model", "Evidence packs"],
+          "lab_task": "Present a global WAN transformation to a review board with the strategy, global architecture, SASE and Zero Trust design, migration programme, automation pipeline, assurance plan, cost model and operations model.",
+          "deliverable": "Transformation design with evidence and a board decision",
+          "checks": [["Design", "Architecture and SASE design pass review", "Review record"], ["Plan", "Migration and cost plans are realistic", "Plan review"], ["Run", "Automation and operations plans have owners", "Plan documents"]],
+          "objectives": ["Combine advanced SD-WAN skills", "Design a global WAN transformation", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

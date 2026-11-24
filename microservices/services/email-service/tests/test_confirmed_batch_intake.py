@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from app.routes.inbox import (
     _confirmed_intake_ready_for_trainer_mail,
     _with_missing_dated_slots,
@@ -36,16 +39,16 @@ def test_complete_confirmed_first_mail_can_start_trainer_mail():
     assert ready is True
 
 
-def test_confirmed_mail_without_an_attached_toc_waits():
+def test_confirmed_mail_without_an_attached_toc_can_start_sourcing():
     ready = _confirmed_intake_ready_for_trainer_mail(
         _complete_extracted(),
         {"attachments": []},
         "Confirmed DevOps training for 20 participants.",
     )
-    assert ready is False
+    assert ready is True
 
 
-def test_incomplete_confirmed_mail_waits_for_a_later_reply():
+def test_missing_participant_count_does_not_block_confirmed_sourcing():
     extracted = _complete_extracted()
     extracted["participant_count"] = None
     ready = _confirmed_intake_ready_for_trainer_mail(
@@ -53,7 +56,7 @@ def test_incomplete_confirmed_mail_waits_for_a_later_reply():
         _toc_email(),
         "Confirmed DevOps training.",
     )
-    assert ready is False
+    assert ready is True
 
 
 def test_tentative_first_mail_is_not_treated_as_ready_confirmed_intake():
@@ -75,9 +78,9 @@ def test_interested_reply_without_three_dated_slots_is_one_followup_item():
 
 
 def test_three_dated_slots_are_not_added_to_the_followup():
-    reply = "\n".join([
-        "01 November 2026, 10:00 AM IST",
-        "03 November 2026, 2:00 PM IST",
-        "05 November 2026, 4:00 PM IST",
-    ])
+    today = datetime.now(ZoneInfo("Asia/Kolkata")).date()
+    reply = "\n".join(
+        f"{(today + timedelta(days=day)).strftime('%d %B %Y')}, {hour:02d}:00 {period} IST"
+        for day, hour, period in ((3, 10, "AM"), (4, 2, "PM"), (5, 4, "PM"))
+    )
     assert _with_missing_dated_slots([], reply) == []

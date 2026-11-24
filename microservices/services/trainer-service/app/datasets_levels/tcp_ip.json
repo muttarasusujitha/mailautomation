@@ -1,0 +1,573 @@
+{
+  "domain": "TCP/IP",
+  "name": "TCP/IP",
+  "category": "Networking",
+  "icon": "network",
+  "aliases": ["TCP/IP Networking", "Internet Protocol Suite", "TCP/IP Protocol Suite", "TCP/IP Stack", "Linux TCP/IP Networking", "TCP/IP Performance Tuning", "TCP/IP Packet Analysis", "Host Networking"],
+  "certifications": ["CompTIA Network+", "Wireshark Certified Analyst (WCA)"],
+  "tools": ["iproute2 (ip, ss)", "tcpdump", "Wireshark", "tshark", "nftables", "conntrack-tools", "ethtool", "tc and netem", "iperf3", "mtr", "Scapy", "bpftrace", "dnsmasq", "Python socket module"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, system administrators, SREs and support engineers who use networked systems every day but have never looked at what their hosts actually put on the wire. Works entirely from the Linux host's point of view in a lab of network namespaces and veth pairs: layered models and encapsulation, Ethernet framing and MTU, ARP and the neighbour table, the IPv4 header and fragmentation, CIDR arithmetic, the host routing table, ICMP, IPv6 addressing, Neighbor Discovery and SLAAC, DHCPv4, UDP, the TCP handshake and state machine, tcpdump and Wireshark, source NAT with nftables, sockets in Python and a layer-by-layer fault-finding method, ending with a two-subnet Linux router capstone.",
+      "prerequisites": ["Uses a Linux shell confidently: running commands with sudo, editing files and reading man pages", "Can write and run a short Python 3 script", "Has a Linux VM or laptop (any current distribution with kernel 5.15 or later) with root access, iproute2, nftables, tcpdump and Wireshark installed"],
+      "outcomes": ["Build isolated multi-subnet labs with ip netns, veth pairs and Linux bridges and reason about each hop", "Explain and verify Ethernet, ARP, IPv4, IPv6, ICMP, UDP and TCP behaviour from packet captures", "Read and change host addresses, routes, neighbour entries and NAT rules with ip, ss and nft", "Find the failing layer in a connectivity fault using a repeatable, evidence-based method"],
+      "days": [
+        {
+          "topic": "Lab Environment with Network Namespaces and veth Pairs",
+          "subtopics": ["Why namespaces: separate interfaces, routes, ARP tables and sockets on one kernel", "ip netns add, ip netns exec and ip netns list", "veth pairs as a virtual cable: ip link add type veth peer name", "Moving an interface into a namespace with ip link set netns", "Linux bridges as a virtual switch: ip link add type bridge and master", "Bringing links up and the loopback interface inside each namespace", "ip -br addr and ip -br link for compact state", "Scripting the lab so it can be torn down and rebuilt in seconds"],
+          "tools": ["iproute2 (ip)", "ip netns", "bridge", "bash"],
+          "lab_task": "Write lab.sh that creates namespaces h1, h2 and r1, links h1-r1 and h2-r1 with veth pairs, assigns 10.0.1.1/24 and 10.0.1.254/24, 10.0.2.1/24 and 10.0.2.254/24, and brings all links and lo up. Add a teardown that runs ip netns del for each. Run ip netns exec h1 ping -c 3 10.0.1.254 and record 0% packet loss.",
+          "deliverable": "lab.sh with build and teardown functions plus ip -br addr output from each namespace",
+          "checks": [["ip netns exec h1 ping -c 3 10.0.1.254", "3 packets transmitted, 3 received, 0% packet loss", "Terminal output"], ["ip netns exec h1 ip -br link before bringing lo up", "lo is listed with state DOWN", "ip -br link output"], ["Run teardown then ip netns list", "No h1, h2 or r1 namespaces are listed", "Terminal output"]],
+          "objectives": ["Create isolated network stacks with ip netns", "Connect namespaces with veth pairs and bridges", "Automate lab build and teardown"]
+        },
+        {
+          "topic": "Layered Models and Encapsulation on the Wire",
+          "subtopics": ["The four-layer TCP/IP model and how it maps to the seven OSI layers", "Protocol data units: frame, packet, segment and datagram", "Encapsulation: each layer adds a header and the next-protocol field", "EtherType 0x0800 (IPv4), 0x86DD (IPv6) and 0x0806 (ARP)", "IP protocol numbers: 1 ICMP, 6 TCP, 17 UDP, 58 ICMPv6", "Ports as the transport-layer demultiplexing key", "Where the kernel ends and the application begins: the socket API boundary", "Header overhead and how much payload fits in a 1500-byte MTU"],
+          "tools": ["tcpdump", "Wireshark", "curl", "python3 -m http.server"],
+          "lab_task": "In the lab start python3 -m http.server 8000 in h2 and capture in h1 with tcpdump -i any -nn -w http.pcap while running curl http://10.0.2.1:8000/. Open the capture in Wireshark, expand one HTTP request and write down the EtherType, IP protocol number, source and destination ports, and the byte offset where each header starts. Calculate total header overhead for that packet.",
+          "deliverable": "Annotated screenshot of one packet's layers and a table of header sizes and offsets",
+          "checks": [["Inspect the Ethernet header of the HTTP request", "Type field shows IPv4 (0x0800)", "Wireshark packet details"], ["Inspect the IPv4 header of the same packet", "Protocol field shows TCP (6)", "Wireshark packet details"], ["Sum Ethernet, IPv4 and TCP header lengths without options", "Total is 54 bytes (14 + 20 + 20)", "Overhead table"]],
+          "objectives": ["Map protocols to TCP/IP and OSI layers", "Identify next-protocol fields in each header", "Calculate per-packet header overhead"]
+        },
+        {
+          "topic": "Ethernet Frames, MAC Addresses and MTU",
+          "subtopics": ["Ethernet II frame layout: destination, source, EtherType, payload, FCS", "MAC address structure: OUI, unicast/multicast bit and locally administered bit", "Broadcast ff:ff:ff:ff:ff:ff and IPv4/IPv6 multicast MAC mapping", "Minimum 64-byte and standard 1518-byte frame sizes and padding", "MTU as the largest IP packet, not the largest frame", "Changing MTU with ip link set mtu and jumbo frames", "802.1Q VLAN tags and their 4-byte cost", "How a Linux bridge learns MACs: bridge fdb show"],
+          "tools": ["iproute2 (ip)", "bridge", "tcpdump", "Wireshark"],
+          "lab_task": "Attach h1, h2 and h3 to bridge br0 in a namespace. Ping from h1 to h2 and run bridge fdb show br br0 to list learned MACs. Capture with tcpdump -e -nn to print MAC headers. Set h2's MTU to 1400 with ip link set dev eth0 mtu 1400, then ping -M do -s 1400 from h1 and record what h2 receives. Note which MAC addresses are locally administered.",
+          "deliverable": "Captured frame headers, bridge FDB listing and a note explaining the MTU mismatch result",
+          "checks": [["bridge fdb show br br0 after h1 pings h2", "MAC addresses of h1 and h2 appear on their bridge ports", "FDB output"], ["tcpdump -e -nn during an ARP request", "Destination MAC is ff:ff:ff:ff:ff:ff", "tcpdump output"], ["ping -M do -s 1400 from h1 (MTU 1500) to h2 (MTU 1400)", "No replies arrive: the 1428-byte packet exceeds h2's MTU and is dropped", "ping output and h2 ip -s link RX error counters"]],
+          "objectives": ["Decode an Ethernet II frame", "Explain how bridges learn and forward frames", "Predict the effect of mismatched MTUs"]
+        },
+        {
+          "topic": "ARP Resolution and the Neighbour Table",
+          "subtopics": ["ARP request and reply, opcode 1 and 2", "Sender and target hardware and protocol address fields", "ip neigh show and the states INCOMPLETE, REACHABLE, STALE, DELAY, PROBE and FAILED", "Base reachable time and gc_stale_time sysctls", "Gratuitous ARP and duplicate address detection with arping -D", "Proxy ARP and when routers answer for other hosts", "Flushing and adding static entries with ip neigh flush and ip neigh add", "ARP for off-link destinations: why hosts ARP for the gateway"],
+          "tools": ["iproute2 (ip neigh)", "arping", "tcpdump", "Wireshark"],
+          "lab_task": "In h1 run ip neigh flush dev eth0, start tcpdump -nn -e arp, then ping -c 1 10.0.1.254 and record the request and reply. Watch ip neigh show over 60 seconds and note when the entry moves from REACHABLE to STALE. Ping an unused address 10.0.1.99 and capture the repeated requests and FAILED state. Use arping -D -I eth0 10.0.1.254 to show duplicate detection.",
+          "deliverable": "Capture of the ARP exchange, a timeline of neighbour states and the FAILED entry output",
+          "checks": [["ping -c 1 10.0.1.254 after flushing", "One ARP request (who-has) and one reply (is-at) precede the ICMP echo", "tcpdump output"], ["ip neigh show 10.0.1.99 after pinging the unused address", "Entry shows FAILED (or INCOMPLETE while still probing)", "ip neigh output"], ["arping -D -I eth0 10.0.1.254 from h1", "Reports a reply, meaning the address is already in use", "arping output"]],
+          "objectives": ["Trace ARP resolution on the wire", "Interpret Linux neighbour states", "Detect duplicate IPv4 addresses"]
+        },
+        {
+          "topic": "IPv4 Header Fields and Fragmentation",
+          "subtopics": ["Version, IHL, total length and header checksum", "DSCP and ECN bits in the old ToS byte", "Identification, flags (DF, MF) and fragment offset", "TTL: decrement per hop and typical starting values 64, 128 and 255", "How a sender fragments when DF is clear", "Reassembly at the destination and ipfrag_time", "Why fragmentation hurts: lost fragments, middleboxes and security filters", "ping -M do, -M dont and -s to control DF and size"],
+          "tools": ["ping", "tcpdump", "Wireshark", "iproute2 (ip)"],
+          "lab_task": "Set r1's link to h2 to MTU 1000. From h1 run ping -M dont -s 2000 -c 1 10.0.2.1 and capture on h2 with tcpdump -nn -v. Record each fragment's ID, offset and MF flag. Repeat with ping -M do -s 2000 and record the error. Then inspect the TTL received in h2 compared with what h1 sent and explain the difference.",
+          "deliverable": "Fragment table (ID, offset, length, MF) and the DF error output with explanation",
+          "checks": [["ping -M dont -s 2000 through the 1000-byte MTU link", "h2 receives three fragments sharing one IP ID: h1 splits at 1480 bytes and r1 splits the first again, giving offsets 0, 976 and 1480", "tcpdump -v output"], ["ping -M do -s 2000 -c 1 from h1 (local MTU 1500)", "ping prints local error: message too long, mtu=1500", "ping output"], ["Compare TTL sent by h1 with TTL seen in h2", "TTL is one lower after crossing r1 (64 becomes 63)", "tcpdump -v output from both namespaces"]],
+          "objectives": ["Decode IPv4 header fields", "Explain fragmentation and the DF bit", "Use TTL to count hops"]
+        },
+        {
+          "topic": "IPv4 Prefixes, CIDR and Subnet Arithmetic",
+          "subtopics": ["Prefix length and netmask: /24 is 255.255.255.0", "Network, broadcast and usable host range", "Splitting a /24 into /26 and /27 blocks", "Variable-length subnet planning from host counts", "Private ranges in RFC 1918 and shared address space 100.64.0.0/10", "Special ranges: 127.0.0.0/8, 169.254.0.0/16 and 0.0.0.0/0", "/31 point-to-point links and /32 host routes", "Checking work with ipcalc and Python's ipaddress module"],
+          "tools": ["ipcalc", "python3 ipaddress", "iproute2 (ip)"],
+          "lab_task": "Plan 10.20.0.0/24 for four sites needing 100, 50, 25 and 10 hosts. Write plan.py using ipaddress.ip_network and subnets() to allocate the largest blocks first and print network, broadcast, first and last host. Confirm two results with ipcalc. Then assign 10.0.1.65/26 to a namespace and run ip route show to see which connected route the kernel creates.",
+          "deliverable": "plan.py, its printed allocation table and the connected route output",
+          "checks": [["python3 -c \"import ipaddress;print(ipaddress.ip_network('10.20.0.0/26').num_addresses)\"", "Prints 64", "Terminal output"], ["Run plan.py for 100, 50, 25 and 10 hosts", "Allocates 10.20.0.0/25, 10.20.0.128/26, 10.20.0.192/27 and 10.20.0.224/28 with no overlap", "Allocation table"], ["ip addr add 10.0.1.65/26 dev eth0 then ip route show", "Connected route 10.0.1.64/26 dev eth0 proto kernel scope link src 10.0.1.65", "ip route output"]],
+          "objectives": ["Calculate network ranges for any prefix", "Plan non-overlapping subnets from host counts", "Relate an address assignment to its connected route"]
+        },
+        {
+          "topic": "Host Routing Tables and Route Lookup with ip route",
+          "subtopics": ["Connected, static and default routes", "Longest-prefix match and route metrics", "ip route show, ip route get and ip -6 route", "The local table: ip route show table local", "Enabling forwarding with net.ipv4.ip_forward and net.ipv6.conf.all.forwarding", "Blackhole, unreachable and prohibit route types", "Asymmetric routing and reverse-path filtering (rp_filter)", "Making routes persistent with NetworkManager or systemd-networkd"],
+          "tools": ["iproute2 (ip route)", "sysctl", "traceroute", "tcpdump"],
+          "lab_task": "Give h1 and h2 default routes via r1 and enable net.ipv4.ip_forward=1 in r1. Verify h1 to h2 ping. Add a more specific route 10.0.2.128/25 via a second router r2 and run ip route get 10.0.2.200 and ip route get 10.0.2.10 to show longest-prefix match. Add ip route add blackhole 10.0.2.250/32 and record the ping error.",
+          "deliverable": "Route tables from each namespace, ip route get results and the blackhole test output",
+          "checks": [["ip route get 10.0.2.200 in h1", "Result shows via r2's address, the /25 route", "ip route get output"], ["ping h2 with net.ipv4.ip_forward=0 in r1", "100% packet loss although r1 answers its own addresses", "ping output"], ["ping 10.0.2.250 after adding the blackhole route", "ping fails at once with an Invalid argument error and nothing leaves h1", "ping output and empty tcpdump"]],
+          "objectives": ["Read and change host routing tables", "Predict route selection with longest-prefix match", "Turn a Linux host into a router"]
+        },
+        {
+          "topic": "ICMP Messages, ping and traceroute",
+          "subtopics": ["Echo request and reply: type 8 and type 0", "Destination unreachable type 3 and its codes: net, host, port, fragmentation needed", "Time exceeded type 11 and how traceroute uses it", "traceroute default UDP probes from port 33434, -I for ICMP and -T for TCP", "Redirect type 5 and why hosts often ignore it", "ICMP rate limiting: net.ipv4.icmp_ratelimit", "Why blocking all ICMP breaks networks", "mtr for continuous per-hop loss and latency"],
+          "tools": ["ping", "traceroute", "mtr", "tcpdump"],
+          "lab_task": "Build h1-r1-r2-h2 in namespaces. Run traceroute -n 10.0.3.1 from h1 while capturing on h1 with tcpdump -nn icmp; record the TTL exceeded sources. Run traceroute -n -T -p 80 and compare. In h2 add nft rule to reject UDP with icmp port-unreachable, then send a UDP probe with nc -u and capture the ICMP type and code returned.",
+          "deliverable": "traceroute outputs for UDP and TCP modes and the captured ICMP messages with types and codes",
+          "checks": [["traceroute -n 10.0.3.1 from h1", "Hops 1 and 2 are r1 and r2, final hop is 10.0.3.1", "traceroute output"], ["tcpdump -nn icmp in h1 during traceroute", "ICMP time exceeded in-transit messages arrive from r1 and r2", "tcpdump output"], ["nc -u 10.0.3.1 9999 to a closed port", "h1 receives ICMP type 3 code 3 (port unreachable)", "Wireshark packet details"]],
+          "objectives": ["Interpret ICMP types and codes", "Explain how traceroute discovers hops", "Choose the right probe type for filtered paths"]
+        },
+        {
+          "topic": "IPv6 Address Types and Interface Identifiers",
+          "subtopics": ["128-bit notation, zero compression and the canonical form of RFC 5952", "Link-local fe80::/10 and why every interface has one", "Global unicast 2000::/3 and documentation prefix 2001:db8::/32", "Unique local addresses fd00::/8", "Multicast ff00::/8 and scopes: ff02::1, ff02::2", "Modified EUI-64, stable privacy addresses (RFC 7217) and temporary addresses", "Zone IDs: ping fe80::1%eth0", "/64 as the subnet size and prefix planning from a /48 or /56"],
+          "tools": ["iproute2 (ip -6)", "ping", "python3 ipaddress", "tcpdump"],
+          "lab_task": "In h1 and h2 list addresses with ip -6 addr and identify the link-local address on each. Ping h2's link-local with and without %eth0 and record the difference. Add 2001:db8:1::10/64 to h1 and 2001:db8:1::20/64 to h2, ping between them, and use python3 ipaddress to print the compressed and exploded forms. Explain how the link-local interface ID was generated (check addr_gen_mode).",
+          "deliverable": "Address inventory per namespace, ping results and a note on interface ID generation",
+          "checks": [["ping -c 1 fe80::<h2 id> without a zone ID", "Fails with an error about the interface (for example Invalid argument)", "ping output"], ["ping -c 1 fe80::<h2 id>%eth0", "1 received, 0% packet loss", "ping output"], ["python3 -c \"import ipaddress;print(ipaddress.ip_address('2001:db8:1::10').exploded)\"", "Prints 2001:0db8:0001:0000:0000:0000:0000:0010", "Terminal output"]],
+          "objectives": ["Write and compress IPv6 addresses correctly", "Distinguish link-local, ULA, global and multicast scopes", "Use zone IDs with link-local addresses"]
+        },
+        {
+          "topic": "Neighbor Discovery Protocol and SLAAC",
+          "subtopics": ["ICMPv6 types 133 to 137: RS, RA, NS, NA and redirect", "Solicited-node multicast ff02::1:ffXX:XXXX", "Duplicate Address Detection and the tentative and dadfailed flags", "Router Advertisement contents: prefix, lifetimes, MTU and router preference", "SLAAC: building addresses from an advertised /64", "accept_ra and forwarding interaction in Linux sysctls", "Running radvd as a router advertisement daemon", "ip -6 neigh and how NDP replaces ARP"],
+          "tools": ["radvd", "rdisc6 (ndisc6)", "tcpdump", "iproute2 (ip -6)"],
+          "lab_task": "Run radvd in r1 advertising 2001:db8:10::/64 on the h1 link. In h1 capture with tcpdump -nn -i eth0 icmp6 and run rdisc6 eth0. Confirm h1 forms a SLAAC address and a default route via r1's link-local. Then put h3 on the same bridge, assign it h1's SLAAC address manually and observe DAD fail. Record NS and NA exchanges for one ping.",
+          "deliverable": "radvd.conf, capture of RS/RA and NS/NA, and h1's resulting address and route",
+          "checks": [["ip -6 addr show dev eth0 in h1 after the RA", "A 2001:db8:10::/64 address with dynamic and mngtmpaddr flags appears", "ip -6 addr output"], ["ip -6 route show default in h1", "default via fe80::... dev eth0 proto ra", "ip -6 route output"], ["Add a duplicate address on h3 with ip -6 addr add", "Address on h3 shows the dadfailed tentative flags", "ip -6 addr output on h3"]],
+          "objectives": ["Trace NDP message exchanges", "Configure and verify SLAAC with radvd", "Recognise and diagnose DAD failures"]
+        },
+        {
+          "topic": "DHCPv4 Lease Exchange (DORA)",
+          "subtopics": ["Discover, Offer, Request and Acknowledge messages", "UDP ports 67 and 68 and broadcast before an address exists", "Options: subnet mask (1), router (3), DNS servers (6), lease time (51)", "Lease renewal at T1 and rebinding at T2", "DHCP relay agents and giaddr", "Running dnsmasq as a lab DHCP server with dhcp-range", "Clients: dhclient, NetworkManager and systemd-networkd", "Static reservations by MAC and lease files"],
+          "tools": ["dnsmasq", "dhclient", "tcpdump", "Wireshark"],
+          "lab_task": "In r1 run dnsmasq --no-daemon --interface=veth-h1 --dhcp-range=10.0.1.100,10.0.1.150,12h --dhcp-option=3,10.0.1.254. In h1 flush the address and run dhclient -v eth0 while capturing with tcpdump -nn -w dhcp.pcap port 67 or port 68. Identify the four DORA messages, the offered address and lease time. Add a reservation for h1's MAC and show it gets the reserved address next time.",
+          "deliverable": "dhcp.pcap with the DORA exchange annotated and the dnsmasq lease file",
+          "checks": [["Open dhcp.pcap in Wireshark with filter dhcp", "Four messages: Discover, Offer, Request and ACK", "Wireshark packet list"], ["Inspect the ACK options", "Option 51 lease time is 43200 seconds and option 3 router is 10.0.1.254", "Wireshark packet details"], ["Add dhcp-host=<h1 MAC>,10.0.1.120 and renew", "h1 receives 10.0.1.120", "ip addr output and lease file"]],
+          "objectives": ["Explain each step of DHCPv4", "Run and configure a lab DHCP server", "Read DHCP options from a capture"]
+        },
+        {
+          "topic": "UDP Datagrams and Port Numbers",
+          "subtopics": ["The 8-byte UDP header: ports, length and checksum", "Connectionless delivery: no handshake, ordering or retransmission", "Ephemeral port range and net.ipv4.ip_local_port_range", "ICMP port unreachable when no socket is bound", "Message boundaries: each recvfrom returns one datagram", "Datagram size limits and fragmentation of large datagrams", "Listing UDP sockets with ss -uanp", "Typical UDP protocols: DNS, DHCP, NTP, syslog and QUIC"],
+          "tools": ["nc (OpenBSD netcat)", "socat", "ss", "tcpdump"],
+          "lab_task": "In h2 run nc -u -l 5000. From h1 send three lines with nc -u 10.0.2.1 5000 and capture with tcpdump -nn -X udp. Confirm each line is a separate datagram with UDP length = payload + 8. Stop the listener and send again, capturing the ICMP error. Send a 3000-byte datagram with socat and observe IP fragments. List sockets with ss -uanp.",
+          "deliverable": "Capture showing datagram boundaries, the ICMP error and the fragmented large datagram",
+          "checks": [["Send 'hello' (6 bytes with newline) to the listener", "UDP length field is 14", "tcpdump -v output"], ["ss -uanp in h2 while nc listens", "Shows UNCONN 0.0.0.0:5000 owned by nc", "ss output"], ["Send a 3000-byte datagram over a 1500 MTU link", "Capture shows IPv4 fragments with the MF flag on the first", "tcpdump output"]],
+          "objectives": ["Describe UDP's guarantees and lack of them", "Observe datagram boundaries and errors", "Inspect UDP sockets on a host"]
+        },
+        {
+          "topic": "TCP Three-Way Handshake and Connection Teardown",
+          "subtopics": ["SYN, SYN-ACK and ACK and the initial sequence numbers", "Options negotiated in the SYN: MSS, SACK permitted, window scale and timestamps", "Relative versus absolute sequence numbers in Wireshark", "Graceful close with FIN from each side", "Half-close: shutdown(SHUT_WR) and continuing to receive", "Abortive close with RST and SO_LINGER zero", "RST in reply to a SYN on a closed port", "SYN retries: net.ipv4.tcp_syn_retries and connection timeout"],
+          "tools": ["tcpdump", "Wireshark", "curl", "nc (OpenBSD netcat)"],
+          "lab_task": "Capture tcpdump -nn -S 'tcp port 8000' in h1 while curl fetches from h2's http.server. Label the SYN, SYN-ACK, ACK, data, FIN and final ACK and note the MSS and wscale options. Connect to closed port 8001 and record the RST. Drop SYNs in h2 with nft and time curl until it fails, then relate the delay to tcp_syn_retries.",
+          "deliverable": "Labelled handshake and teardown capture, RST example and the timed SYN retry result",
+          "checks": [["Inspect the SYN option list", "MSS 1460, SACK permitted, timestamps and window scale present", "tcpdump output"], ["curl to closed port 8001", "Server replies with RST,ACK and curl reports Connection refused", "Capture and curl output"], ["time curl with SYNs dropped and tcp_syn_retries=6", "curl fails after roughly 127-130 seconds with a timeout", "time output"]],
+          "objectives": ["Identify every packet of a TCP connection lifecycle", "Explain negotiated TCP options", "Distinguish refused from timed-out connections"]
+        },
+        {
+          "topic": "TCP Connection States with ss",
+          "subtopics": ["The TCP state machine from LISTEN to CLOSED", "SYN-SENT, SYN-RECV and ESTAB", "FIN-WAIT-1, FIN-WAIT-2, CLOSE-WAIT, LAST-ACK and TIME-WAIT", "Which side ends in TIME-WAIT and why it lasts 60 seconds on Linux", "CLOSE-WAIT build-up as an application bug", "ss -tan, ss -tlnp and state filters such as ss state time-wait", "Recv-Q and Send-Q meaning for listening and connected sockets", "Accept queue overflow and somaxconn"],
+          "tools": ["ss", "nc (OpenBSD netcat)", "python3", "watch"],
+          "lab_task": "Write a Python server in h2 that accepts connections but never calls close(). Connect from h1 with nc and quit nc. Use ss -tan in both namespaces to find FIN-WAIT-2 on h1 and CLOSE-WAIT on h2. Then fix the server to close, repeat, and find TIME-WAIT on the side that closed first. Use ss -tlnp to show the listener's Recv-Q under 20 unaccepted connections.",
+          "deliverable": "ss outputs for each state reached and the fixed server code",
+          "checks": [["ss -tan state close-wait in h2 with the buggy server", "One CLOSE-WAIT socket on port 9000", "ss output"], ["ss -tan state time-wait after the client closes first", "TIME-WAIT appears on h1, not h2", "ss output"], ["ss -tlnp with backlog 5 and 20 pending connections", "Listener Recv-Q shows 6 and Send-Q shows 5", "ss output"]],
+          "objectives": ["Map ss output to TCP states", "Diagnose CLOSE-WAIT leaks", "Interpret listener queue columns"]
+        },
+        {
+          "topic": "Packet Capture with tcpdump and BPF Filters",
+          "subtopics": ["Choosing the interface: -i eth0 versus -i any", "-nn, -e, -v, -X and -A output options", "Writing and reading files: -w, -r and -c", "Snap length -s and capture size", "BPF primitives: host, net, port, src, dst and proto", "Combining filters with and, or, not and parentheses", "Byte-offset filters such as 'tcp[tcpflags] & tcp-syn != 0'", "Capture permissions, CAP_NET_RAW and 'packets dropped by kernel'"],
+          "tools": ["tcpdump", "tshark", "capinfos", "editcap"],
+          "lab_task": "Generate mixed traffic in the lab (ping, DNS-like UDP to port 53, HTTP on 8000). Write five tcpdump filters: only SYN packets without ACK, only traffic between h1 and h2 on 8000, only ICMP echo requests, only UDP not port 53, and IPv6 only. Save each to a file and count packets with capinfos -c. Explain any packets dropped by kernel.",
+          "deliverable": "Five filter expressions with file packet counts and the matching capinfos output",
+          "checks": [["tcpdump -nn 'tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn'", "Only initial SYN packets appear, none with ACK set", "tcpdump output"], ["tcpdump -nn 'icmp[icmptype] == icmp-echo'", "Only echo requests appear, no replies", "tcpdump output"], ["capinfos -c syn.pcap after three new connections", "Number of packets = 3", "capinfos output"]],
+          "objectives": ["Write precise BPF capture filters", "Save, read and summarise capture files", "Recognise capture-side packet loss"]
+        },
+        {
+          "topic": "Reading Captures in Wireshark: Display Filters and Follow Stream",
+          "subtopics": ["Capture filters versus display filters", "Display filter fields: ip.addr, tcp.port, tcp.flags.syn, http.request.method", "Comparison and membership operators: ==, !=, in {}", "Follow TCP Stream and tcp.stream eq N", "Statistics > Conversations and Endpoints", "Time display formats and delta time since previous displayed packet", "Adding columns and coloring rules", "Exporting specified packets and filtering with tshark -Y"],
+          "tools": ["Wireshark", "tshark", "tcpdump"],
+          "lab_task": "Open a capture with several HTTP requests from curl and a browser. Use display filters to show only GET requests, only stream 2 and only packets with tcp.len > 0. Follow one TCP stream and save the conversation. Add a column for tcp.analysis.ack_rtt. Reproduce one filter with tshark -r cap.pcap -Y and count results with wc -l.",
+          "deliverable": "Filter list with result counts, saved stream text and a screenshot with the RTT column",
+          "checks": [["Display filter http.request.method == \"GET\"", "Only HTTP GET request packets are shown", "Wireshark status bar count"], ["tshark -r cap.pcap -Y 'tcp.stream eq 2' | wc -l", "Count matches Wireshark's displayed packets for the same filter", "Terminal output and screenshot"], ["Statistics > Conversations > TCP tab", "Lists one row per TCP connection with bytes in each direction", "Screenshot"]],
+          "objectives": ["Use display filters to isolate traffic", "Reconstruct application conversations", "Script repeatable analysis with tshark"]
+        },
+        {
+          "topic": "Source NAT and Masquerading with nftables",
+          "subtopics": ["Why NAT exists and its effect on end-to-end addressing", "nftables tables, chains, hooks and priorities", "type nat hook postrouting priority srcnat", "masquerade versus snat to a fixed address", "Connection tracking and the reply direction", "conntrack -L to view translations", "Port translation and source port preservation", "Persisting rules in /etc/nftables.conf"],
+          "tools": ["nftables (nft)", "conntrack-tools", "tcpdump", "curl"],
+          "lab_task": "Treat r1's eth-out link as the 'internet' side with a server in namespace inet1. In r1 create table ip nat with a postrouting chain and rule oifname \"eth-out\" masquerade. From h1 curl the server and capture on both sides of r1 to compare source addresses. Run conntrack -L and record the original and reply tuples. Remove the rule and show that replies no longer return.",
+          "deliverable": "nft ruleset, before-and-after captures on both sides of r1 and conntrack output",
+          "checks": [["nft list ruleset in r1", "Shows chain postrouting type nat hook postrouting with oifname \"eth-out\" masquerade", "nft output"], ["tcpdump on eth-out during curl", "Source address is r1's eth-out address, not 10.0.1.1", "tcpdump output"], ["conntrack -L -p tcp --dport 80", "Entry shows src=10.0.1.1 in the original tuple and dst=r1 address in the reply tuple", "conntrack output"]],
+          "objectives": ["Configure source NAT with nftables", "Read conntrack translation entries", "Explain how NAT replies are matched"]
+        },
+        {
+          "topic": "Sockets in Python: TCP Echo Server and Client",
+          "subtopics": ["socket.socket with AF_INET, AF_INET6, SOCK_STREAM and SOCK_DGRAM", "Server calls: bind, listen, accept and the backlog argument", "Client calls: connect and create_connection with timeouts", "send versus sendall and partial writes", "recv returning b'' on orderly close", "Framing messages over a byte stream with length prefixes or delimiters", "Errors: ConnectionRefusedError, TimeoutError and OSError errno 98", "SO_REUSEADDR and binding to :: for dual-stack"],
+          "tools": ["python3", "ss", "tcpdump", "nc (OpenBSD netcat)"],
+          "lab_task": "Write echo_server.py that binds to :: port 7000, accepts clients in a loop and echoes newline-delimited messages, and echo_client.py that sends 1000 lines and verifies each echo. Run them across namespaces over IPv4 and IPv6. Stop the server while a client is connected so the server closes first, restart it with and without SO_REUSEADDR and record the error. Connect to a stopped server and record the exception.",
+          "deliverable": "Server and client code, a test run log over both IP versions and the recorded errors",
+          "checks": [["Run echo_client.py against the server", "1000 of 1000 messages echoed correctly", "Client output"], ["Restart the server within 60 s without SO_REUSEADDR", "OSError: [Errno 98] Address already in use", "Traceback"], ["Connect to port 7000 with no server", "ConnectionRefusedError: [Errno 111] Connection refused", "Traceback"]],
+          "objectives": ["Write a TCP client and server with the socket API", "Frame messages correctly over a stream", "Handle common socket errors"]
+        },
+        {
+          "topic": "Layered Troubleshooting Method for Connectivity Faults",
+          "subtopics": ["Define the symptom: which source, destination, port and protocol", "Bottom-up checks: link, address, neighbour, route, filter, socket", "ip -br link, ip addr, ip neigh, ip route get and ss -tlnp in order", "Capturing at two points to split the path", "Distinguishing refused, timed out, unreachable and reset", "Checking nftables counters with nft list ruleset", "Recording hypotheses and evidence", "Writing a short fault report"],
+          "tools": ["iproute2 (ip)", "ss", "tcpdump", "nftables (nft)", "mtr"],
+          "lab_task": "A trainer script injects five faults into the lab (link down, wrong prefix length, missing return route, nft drop rule, service bound to 127.0.0.1). For each, record the symptom from curl, run checks in layer order, capture at two points where useful, identify the fault and fix it. Time each fault and write one-paragraph reports.",
+          "deliverable": "Five fault reports with evidence and the commands used, plus time to resolution for each",
+          "checks": [["Service bound to 127.0.0.1 tested from h1", "curl reports Connection refused and ss -tlnp shows 127.0.0.1:8000", "ss output"], ["Missing return route on h2", "tcpdump on h2 shows SYNs arriving but no SYN-ACK leaving", "tcpdump output"], ["nft drop rule in r1", "The drop rule's counter increases with each attempt", "nft list ruleset output"]],
+          "objectives": ["Apply a layered fault-finding sequence", "Use two-point capture to isolate a fault", "Report faults with evidence"]
+        },
+        {
+          "topic": "Beginner Capstone: Two-Subnet Linux Router with NAT, DHCP and Captured Proof",
+          "subtopics": ["Scripted namespace topology with two LANs and an upstream link", "DHCPv4 with dnsmasq and IPv6 SLAAC with radvd", "Routing and source NAT on the router with nftables", "A Python TCP service reachable from both LANs", "Capture evidence of ARP, DHCP, NDP, the TCP handshake and NAT", "Fault injection and recovery demonstration"],
+          "tools": ["iproute2 (ip)", "nftables (nft)", "dnsmasq", "radvd", "tcpdump", "Wireshark"],
+          "lab_task": "Build a script that creates two client LANs and an upstream namespace behind router r1. Serve DHCPv4 and RAs on both LANs, route between them, masquerade to upstream and run your echo server upstream. Prove each step with saved captures. Have a peer inject one fault, find it with your method and fix it.",
+          "deliverable": "Build script, configs, labelled pcap files, a test log and the peer fault report",
+          "checks": [["Clients on both LANs boot with empty config", "Each gets an IPv4 lease and a SLAAC IPv6 address", "ip addr output and lease file"], ["echo_client.py from each LAN to the upstream server", "All messages echo and upstream capture shows r1's address as source", "Client output and tcpdump"], ["Peer-injected fault", "Fault identified with evidence and fixed", "Fault report"]],
+          "objectives": ["Integrate addressing, routing and NAT on a Linux router", "Prove protocol behaviour with captures", "Diagnose an unseen fault"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who can already read a TCP handshake in a capture, configure addresses, routes and NAT on Linux and write a simple socket program, and who now need to explain why connections are slow, stall or fail under real conditions. Covers TCP sequence and acknowledgement mechanics with SACK, flow control and window scaling, RTO and RACK-TLP loss recovery, slow start, Reno and CUBIC, Nagle and delayed ACK, TIME-WAIT and ephemeral port exhaustion, path MTU discovery, DHCPv6 and RA flags, IPv6 extension headers, policy routing, stateful nftables and conntrack, destination NAT, epoll-based servers, UDP multicast, the QUIC transport, NIC offloads with ethtool, throughput testing, Wireshark TCP analysis and Scapy packet tests.",
+      "prerequisites": ["Completed the beginner level or can build namespace labs, read tcpdump output and explain TCP states shown by ss", "Writes Python 3 programs that use the socket module", "Has a Linux host or VM with root access plus iperf3, mtr, ethtool, Scapy and Wireshark installed"],
+      "outcomes": ["Explain TCP throughput and latency from sequence numbers, windows, RTT and loss recovery seen in captures and ss -ti", "Configure dual-stack hosts with DHCPv6, policy routing, stateful filtering and destination NAT on Linux", "Build event-driven TCP and UDP programs that handle partial I/O, multicast and many concurrent connections", "Measure and diagnose throughput, MTU and offload problems with iperf3, ethtool, Wireshark and Scapy"],
+      "days": [
+        {
+          "topic": "TCP Sequence Numbers, Acknowledgements and SACK",
+          "subtopics": ["Byte-based sequence numbers and the initial sequence number", "Cumulative ACKs and the next expected byte", "Duplicate ACKs when a segment is missing", "Selective acknowledgement blocks (RFC 2018) and SACK permitted", "D-SACK for reporting duplicate segments", "Timestamps option and PAWS protection against wrapped sequence numbers", "Wireshark tcp.analysis.lost_segment, duplicate_ack and sack fields", "net.ipv4.tcp_sack and net.ipv4.tcp_timestamps sysctls"],
+          "tools": ["tcpdump", "Wireshark", "tc netem", "iperf3"],
+          "lab_task": "Add tc qdisc add dev eth0 root netem loss 2% on r1's link to h2. Run iperf3 -c 10.0.2.1 -t 10 from h1 while capturing the first 2000 packets with tcpdump -s 96. In Wireshark filter tcp.analysis.duplicate_ack and tcp.options.sack_le and pick one loss event; write down the missing range, the SACK blocks and the retransmission. Repeat with net.ipv4.tcp_sack=0 on h1 and compare.",
+          "deliverable": "Annotated loss event showing duplicate ACKs, SACK blocks and the retransmission, with the SACK-off comparison",
+          "checks": [["Filter tcp.options.sack_le with SACK enabled", "Duplicate ACKs carry SACK blocks above the missing range", "Wireshark packet details"], ["Filter tcp.options.sack_le with tcp_sack=0 on both ends", "No packets match", "Wireshark status bar"], ["iperf3 retransmit column with 2% loss", "Retr count is non-zero for the 10-second run", "iperf3 output"]],
+          "objectives": ["Trace how TCP acknowledges bytes", "Read SACK blocks during a loss event", "Compare recovery with and without SACK"]
+        },
+        {
+          "topic": "TCP Flow Control: Receive Window and Window Scaling",
+          "subtopics": ["The 16-bit window field and the 65535-byte limit", "Window scale option in the SYN and shift counts", "Receive buffer autotuning and net.ipv4.tcp_rmem", "Zero window, window probes and window update", "Bandwidth-delay product and the window needed to fill a path", "SO_RCVBUF and why setting it disables autotuning", "ss -tmi fields: rcv_space, rcv_wnd, skmem and wscale", "Wireshark tcp.analysis.zero_window and window_full"],
+          "tools": ["ss", "iperf3", "Wireshark", "tc netem", "python3"],
+          "lab_task": "Add 50 ms netem delay on both r1 links (100 ms RTT). Run iperf3 -c 10.0.2.1 -t 10 and note throughput. Repeat with iperf3 -w 32K to fix a small buffer and compare against the BDP. Write a Python receiver that reads 1 KB per second and a sender that writes as fast as possible; capture and find the zero window and window probes. Record wscale from ss -ti.",
+          "deliverable": "Throughput table for default and fixed buffers with BDP calculation and a capture of a zero-window event",
+          "checks": [["ss -ti on an established iperf3 connection", "Output includes wscale:N,N with both values greater than 0", "ss output"], ["iperf3 -w 32K over 100 ms RTT", "Throughput is a few Mbit/s, close to window divided by RTT rather than link speed", "iperf3 output"], ["Wireshark filter tcp.analysis.zero_window with the slow reader", "Receiver advertises win=0 and sender sends window probes", "Wireshark packet list"]],
+          "objectives": ["Calculate the window needed for a path", "Observe window scaling and autotuning", "Diagnose receiver-limited transfers"]
+        },
+        {
+          "topic": "Retransmission Timers: RTO, Fast Retransmit and RACK-TLP",
+          "subtopics": ["SRTT, RTTVAR and RTO calculation (RFC 6298)", "Linux minimum RTO of 200 ms and initial RTO of 1 second", "Exponential backoff and tcp_retries2", "Fast retransmit after three duplicate ACKs", "RACK time-based loss detection and Tail Loss Probe (RFC 8985)", "Spurious retransmissions and F-RTO", "ss -ti fields: rto, rtt, retrans and lost", "nstat counters TcpRetransSegs, TcpExtTCPLossProbes and TcpExtTCPTimeouts"],
+          "tools": ["ss", "nstat", "tc netem", "Wireshark"],
+          "lab_task": "Run a long transfer h1 to h2 and record rto and rtt with ss -ti every second. Add netem loss 100% on r1 for 5 seconds and capture: measure the gaps between retransmissions to show backoff. Then drop only the last segment of short responses (netem loss 10% with small HTTP replies) and look for tail loss probes in nstat -az TcpExtTCPLossProbes before and after.",
+          "deliverable": "RTO samples, a retransmission timeline showing backoff and the nstat counter deltas",
+          "checks": [["ss -ti on an idle-path connection with 1 ms RTT", "rto value is near 201-204 ms", "ss output"], ["Gaps between retransmissions during 100% loss", "Each gap roughly doubles (about 0.2, 0.4, 0.8, 1.6 s)", "Wireshark time deltas"], ["nstat -az TcpExtTCPLossProbes before and after the lossy test", "Counter increases", "nstat output"]],
+          "objectives": ["Explain how Linux computes RTO", "Distinguish timeout, fast retransmit and probe-based recovery", "Use counters to measure retransmission causes"]
+        },
+        {
+          "topic": "Congestion Control: Slow Start, Reno and CUBIC",
+          "subtopics": ["Congestion window versus receive window", "Initial window of 10 segments (RFC 6928)", "Slow start, ssthresh and congestion avoidance", "Reno multiplicative decrease and recovery", "CUBIC window growth and why it is the Linux default", "net.ipv4.tcp_congestion_control and tcp_available_congestion_control", "Per-socket TCP_CONGESTION with setsockopt", "Reading cwnd and ssthresh from ss -ti over time"],
+          "tools": ["ss", "iperf3", "tc netem", "Wireshark", "python3"],
+          "lab_task": "Set 40 ms delay and a 20 Mbit/s rate with tc on r1. Sample ss -ti every 100 ms during iperf3 -t 20 with reno and then cubic (iperf3 -C reno / -C cubic). Plot cwnd against time with Python and mark slow start, loss events and recovery. In Wireshark open Statistics > TCP Stream Graphs > Stevens for the start of one run.",
+          "deliverable": "cwnd plots for Reno and CUBIC with annotations and the Stevens graph",
+          "checks": [["sysctl net.ipv4.tcp_congestion_control on a stock host", "Returns cubic", "sysctl output"], ["ss -ti in the first RTT of a new connection", "cwnd:10 is shown", "ss output"], ["Plot cwnd after the first loss for reno", "cwnd roughly halves then grows linearly", "cwnd plot"]],
+          "objectives": ["Explain slow start and congestion avoidance", "Compare Reno and CUBIC behaviour", "Select congestion control per host or socket"]
+        },
+        {
+          "topic": "Nagle, Delayed ACK and TCP_NODELAY",
+          "subtopics": ["Nagle's algorithm: holding small segments while data is unacknowledged", "Delayed ACKs and Linux's quick-ack mode", "The write-write-read pattern and the 40 ms stall", "TCP_NODELAY and when to set it", "TCP_CORK and MSG_MORE for batching", "TCP_QUICKACK and why it is not sticky", "Measuring request latency with tcpdump timestamps", "Application-level fixes: one write per message with writev"],
+          "tools": ["python3", "tcpdump", "Wireshark", "strace"],
+          "lab_task": "Write a client that sends a request as two small send() calls (header then body) and waits for a one-line reply, and a server that replies after reading both. Measure 200 round trips over a namespace link. Repeat with TCP_NODELAY set on the client, then with a single sendall. Capture one slow exchange and show the delayed ACK gap.",
+          "deliverable": "Latency table for the three variants with a capture of the delayed exchange",
+          "checks": [["200 requests with two writes and Nagle on", "Median request time is about 40 ms", "Client timing output"], ["Same test with TCP_NODELAY on the client", "Median drops to under 1 ms", "Client timing output"], ["Wireshark delta before the second small segment", "Gap of roughly 40 ms waiting for the server's delayed ACK", "Wireshark time column"]],
+          "objectives": ["Recognise Nagle and delayed ACK interaction", "Choose between TCP_NODELAY, corking and batched writes", "Measure small-message latency"]
+        },
+        {
+          "topic": "TIME-WAIT, Port Exhaustion and SO_REUSEADDR",
+          "subtopics": ["Why TIME-WAIT exists: delayed duplicates and the final ACK", "The 4-tuple and how many connections one client IP can open to one server port", "net.ipv4.ip_local_port_range default 32768-60999", "EADDRNOTAVAIL: Cannot assign requested address", "net.ipv4.tcp_tw_reuse and its values", "Why tcp_tw_recycle was removed", "SO_REUSEADDR versus SO_REUSEPORT", "Connection pooling and keep-alive as the real fix"],
+          "tools": ["ss", "python3", "sysctl", "nstat"],
+          "lab_task": "Narrow h1's port range with sysctl -w net.ipv4.ip_local_port_range='40000 40100'. Run a Python client that opens, sends one line and closes connections to h2 in a loop as fast as possible and count successes before the first error. Inspect ss -tan state time-wait | wc -l. Then switch the client to one persistent connection and repeat for 10,000 messages.",
+          "deliverable": "Error output, TIME-WAIT counts and a comparison with the persistent-connection client",
+          "checks": [["Loop of short connections with 101 local ports", "Client fails with OSError: [Errno 99] Cannot assign requested address", "Traceback"], ["ss -tan state time-wait | wc -l at the moment of failure", "About 101 lines (100 sockets plus header)", "ss output"], ["Persistent connection sending 10,000 messages", "Completes with no errors and one ESTAB socket", "Client output and ss"]],
+          "objectives": ["Explain TIME-WAIT and port use per 4-tuple", "Reproduce and diagnose ephemeral port exhaustion", "Fix churn with connection reuse"]
+        },
+        {
+          "topic": "Path MTU Discovery and PMTU Black Holes",
+          "subtopics": ["Classic PMTUD with DF and ICMP fragmentation-needed (type 3 code 4)", "ICMPv6 Packet Too Big (type 2) and the 1280-byte IPv6 minimum", "Route exceptions: ip route get showing cache mtu", "PMTU black holes when ICMP is filtered", "MSS clamping: nft tcp option maxseg size set rt mtu", "Packetization-layer PMTUD and net.ipv4.tcp_mtu_probing", "Tunnels and overlay overhead: WireGuard, VXLAN and GRE", "tracepath for discovering path MTU"],
+          "tools": ["tracepath", "ping", "nftables (nft)", "tcpdump", "curl"],
+          "lab_task": "Set the r1-h2 link MTU to 1400. From h1 run tracepath -n 10.0.2.1 and ip route get 10.0.2.1 after a large ping with -M do -s 1472. Then drop ICMP type 3 code 4 in r1 with nft and download a 5 MB file with curl from h2: show it hangs. Fix it first with MSS clamping on r1 and then with tcp_mtu_probing=1 instead.",
+          "deliverable": "tracepath output, route cache entry, black-hole capture and both fixes with timings",
+          "checks": [["ip route get 10.0.2.1 after the oversized DF ping", "Output includes cache expires ... mtu 1400", "ip route output"], ["curl 5 MB with fragmentation-needed ICMP dropped", "Transfer stalls after the handshake and small packets", "curl progress and capture"], ["Same download with MSS clamping on r1", "SYN shows MSS 1360 and the download completes", "tcpdump output and curl result"]],
+          "objectives": ["Explain how PMTUD works for IPv4 and IPv6", "Reproduce and diagnose a PMTU black hole", "Apply MSS clamping and MTU probing"]
+        },
+        {
+          "topic": "DHCPv6 Stateful and Stateless Modes with RA Flags",
+          "subtopics": ["RA M (managed) and O (other configuration) flags", "Stateless DHCPv6: Information-Request for DNS options only", "Stateful DHCPv6: Solicit, Advertise, Request and Reply", "UDP ports 546 (client) and 547 (server) and ff02::1:2", "DUIDs and IAIDs instead of MAC-based identity", "IA_NA addresses and IA_PD prefix delegation", "Why DHCPv6 does not provide a default route", "dnsmasq ra-only, ra-stateless and ra-names modes"],
+          "tools": ["dnsmasq", "radvd", "dhclient", "tcpdump", "Wireshark"],
+          "lab_task": "Configure dnsmasq in r1 with dhcp-range=::100,::1ff,constructor:veth-h1,64,12h and enable-ra. In h1 run dhclient -6 -v eth0 while capturing udp port 546 or 547 and icmp6. Identify the RA flags and the four DHCPv6 messages. Switch to ra-stateless and capture again to show only Information-Request and Reply. Record h1's addresses and routes in both modes.",
+          "deliverable": "Captures for stateful and stateless modes with flags and message types annotated",
+          "checks": [["Inspect the RA in stateful mode", "Managed address configuration flag M is set", "Wireshark packet details"], ["Filter dhcpv6 in stateful mode", "Solicit, Advertise, Request and Reply appear in order", "Wireshark packet list"], ["ip -6 route show default in h1 after stateful DHCPv6", "Default route comes from the RA (proto ra), not from DHCPv6", "ip -6 route output"]],
+          "objectives": ["Explain how RA flags steer IPv6 host configuration", "Run stateful and stateless DHCPv6", "Read DHCPv6 identity and options in captures"]
+        },
+        {
+          "topic": "IPv6 Extension Headers and ICMPv6 Filtering Rules",
+          "subtopics": ["The fixed 40-byte IPv6 header and the Next Header chain", "Hop-by-Hop (0), Routing (43), Fragment (44) and Destination Options (60)", "Fragmentation only at the source with the Fragment header", "Flow label and traffic class", "Why dropping all ICMPv6 breaks NDP and PMTUD", "RFC 4890 recommendations for ICMPv6 filtering", "nftables rules with meta l4proto ipv6-icmp and icmpv6 type", "Extension header drops on the Internet and their effect"],
+          "tools": ["Scapy", "tcpdump", "nftables (nft)", "Wireshark"],
+          "lab_task": "Use Scapy to send an ICMPv6 echo from h1 with IPv6()/IPv6ExtHdrDestOpt()/ICMPv6EchoRequest() and a 3000-byte echo with fragment6 to h2, and capture the Next Header chain. In h2 add an inet filter table that drops all ICMPv6 and show neighbour resolution fails. Replace it with an RFC 4890-style rule set allowing types 1-4, 128-129 and 133-136 and show ping and PMTUD work.",
+          "deliverable": "Captures of extension header chains and the before-and-after ICMPv6 rule sets",
+          "checks": [["Capture the Scapy packet with a destination options header", "IPv6 Next Header is 60, followed by ICMPv6 (58)", "Wireshark packet details"], ["Ping h2 with all ICMPv6 dropped in h2", "ip -6 neigh in h1 shows h2's address as FAILED", "ip -6 neigh output"], ["Ping after applying the RFC 4890-style rules", "Replies received and counters for types 135 and 136 increase", "ping and nft list ruleset output"]],
+          "objectives": ["Decode IPv6 extension header chains", "Write safe ICMPv6 filtering rules", "Explain why IPv6 depends on ICMPv6"]
+        },
+        {
+          "topic": "Policy Routing with ip rule and Multiple Tables",
+          "subtopics": ["The routing policy database: ip rule show and priorities 0, 32766 and 32767", "Custom tables in /etc/iproute2/rt_tables or by number", "Selectors: from, to, iif, oif, fwmark, ipproto and dport", "Source-based routing for multi-homed hosts", "Marking packets with nft meta mark set", "ip route get with from, mark and iif options", "rp_filter and asymmetric return paths", "Route flush, cache and verifying with traceroute"],
+          "tools": ["iproute2 (ip rule, ip route)", "nftables (nft)", "traceroute", "tcpdump"],
+          "lab_task": "Give h1 two uplinks via r1 (10.0.1.0/24) and r2 (10.0.9.0/24). Add table 100 with a default via r2 and ip rule add from 10.0.9.10 table 100 priority 1000. Show replies leave through the interface they arrived on. Then mark TCP port 443 with nft meta mark set 0x1 in output and add ip rule add fwmark 0x1 table 100. Verify with ip route get and captures.",
+          "deliverable": "ip rule and table listings, ip route get results and captures showing each path",
+          "checks": [["ip rule show after changes", "Rules at priority 1000 (from 10.0.9.10) and the fwmark rule appear above 32766 main", "ip rule output"], ["ip route get 8.8.8.8 from 10.0.9.10", "Route shows via r2's address on the r2 uplink", "ip route get output"], ["curl to port 443 versus port 80 while capturing on both uplinks", "Port 443 leaves via r2, port 80 via r1", "tcpdump output on each link"]],
+          "objectives": ["Build source and mark-based routing policies", "Fix asymmetric routing on multi-homed hosts", "Verify policy decisions with ip route get"]
+        },
+        {
+          "topic": "Stateful Filtering with nftables and conntrack",
+          "subtopics": ["inet family tables for IPv4 and IPv6 in one rule set", "Base chain hooks input, forward and output with policy drop", "ct state established,related accept and ct state invalid drop", "Sets and maps: ip saddr @allowed and tcp dport { 22, 443 }", "Counters and log statements with prefixes", "conntrack -L, conntrack -E and connection timeouts", "UDP pseudo-connections and ICMP related errors", "Atomic loading with nft -f and testing with nft -c"],
+          "tools": ["nftables (nft)", "conntrack-tools", "tcpdump", "nc (OpenBSD netcat)"],
+          "lab_task": "Write /etc/nftables-lab.conf for h2: inet filter table, input policy drop, accept lo, established/related, ICMP and ICMPv6 essentials, TCP 22 and 8000 from a named set, and log-then-drop the rest with prefix \"h2-drop \". Check with nft -c -f then load. Test allowed and blocked ports from h1, watch conntrack -E and read the log lines with journalctl -k.",
+          "deliverable": "Rule file, test matrix of allowed and blocked flows and conntrack and log evidence",
+          "checks": [["nft -c -f /etc/nftables-lab.conf", "Exits 0 with no output", "Terminal output and exit code"], ["nc -zv -w 3 10.0.2.1 8000 and 8001 from h1", "8000 succeeds; 8001 times out", "nc output"], ["journalctl -k | grep h2-drop after the 8001 attempt", "Log line shows DPT=8001", "Kernel log"]],
+          "objectives": ["Write a stateful nftables rule set", "Use conntrack to inspect flow state", "Test and log filtering decisions"]
+        },
+        {
+          "topic": "Destination NAT, Port Forwarding and Hairpin NAT",
+          "subtopics": ["dnat in the prerouting hook at priority dstnat", "Port mapping: tcp dport 8080 dnat to 10.0.2.1:80", "Forward chain rules needed alongside DNAT", "Hairpin NAT when internal clients use the public address", "Why hairpin also needs SNAT", "redirect for local port changes", "Viewing translations with conntrack -L -j and -n", "IPv6 and the case against NAT66"],
+          "tools": ["nftables (nft)", "conntrack-tools", "curl", "tcpdump"],
+          "lab_task": "On r1 forward its upstream address port 8080 to h2's web server on port 80 with a prerouting dnat rule and matching forward accept. Test from the upstream namespace. Then curl r1's upstream address from h3 on h2's own LAN and show the hairpin fails. Add a postrouting masquerade for traffic from 10.0.2.0/24 to 10.0.2.1 port 80 and show it works. Capture each case on h2.",
+          "deliverable": "NAT rules, conntrack entries and captures of the failed and working hairpin flows",
+          "checks": [["curl http://<r1 upstream>:8080 from upstream", "HTTP 200 from h2", "curl -i output"], ["conntrack -L -p tcp --dport 8080", "Reply tuple shows src=10.0.2.1 sport=80", "conntrack output"], ["Hairpin from h3 before adding SNAT", "h2 replies directly to h3, h3 resets the unexpected reply and curl does not complete", "tcpdump on h3 and h2"]],
+          "objectives": ["Publish an internal service with DNAT", "Diagnose and fix hairpin NAT", "Read DNAT translations in conntrack"]
+        },
+        {
+          "topic": "Non-Blocking Sockets with epoll",
+          "subtopics": ["Blocking, non-blocking and setblocking(False)", "BlockingIOError (EAGAIN) and partial send and recv", "select, poll and epoll scalability", "Level-triggered and edge-triggered (EPOLLET) modes", "Per-connection buffers and write readiness (EPOLLOUT)", "Python's selectors module and select.epoll", "Non-blocking connect and EINPROGRESS", "File descriptor limits: ulimit -n and RLIMIT_NOFILE"],
+          "tools": ["python3", "strace", "ss", "wrk"],
+          "lab_task": "Build an epoll echo server with select.epoll that keeps per-connection write buffers and only registers EPOLLOUT when a buffer is non-empty. Load it with a Python client opening 5000 concurrent connections each echoing 100 messages. Raise ulimit -n to 10000 first. Run strace -c -f on the server to count epoll_wait calls and show no thread per connection.",
+          "deliverable": "Server code, load test results and strace summary",
+          "checks": [["5000 clients x 100 messages", "500,000 echoes verified with no errors", "Client output"], ["ss -tn state established '( sport = :7000 )' | wc -l during the test", "About 5001 lines", "ss output"], ["Run with ulimit -n 1024", "Server logs OSError: [Errno 24] Too many open files", "Server log"]],
+          "objectives": ["Write an event-driven socket server", "Handle partial reads and writes correctly", "Diagnose file descriptor limits"]
+        },
+        {
+          "topic": "UDP Multicast and Broadcast Sockets",
+          "subtopics": ["IPv4 multicast 224.0.0.0/4 and administratively scoped 239.0.0.0/8", "IP_ADD_MEMBERSHIP and IGMP membership reports", "IP_MULTICAST_TTL default of 1 and IP_MULTICAST_LOOP", "IPv6 multicast with IPV6_JOIN_GROUP and MLD", "Multicast routes: ip route add 224.0.0.0/4 dev eth0", "SO_BROADCAST and limited broadcast 255.255.255.255", "ip maddr show and bridge multicast snooping", "Receiving on SO_REUSEADDR with multiple listeners"],
+          "tools": ["python3", "ip maddr", "tcpdump", "socat"],
+          "lab_task": "Write a Python sender that sends one datagram per second to 239.1.2.3:5007 and receivers that join the group in h1, h2 and h3 on a bridge. Capture IGMP reports with tcpdump -nn igmp and check ip maddr show. Send a broadcast with and without SO_BROADCAST. Repeat the multicast test over IPv6 using ff15::1234 and MLD.",
+          "deliverable": "Sender and receiver code, IGMP and MLD captures and broadcast test output",
+          "checks": [["ip maddr show dev eth0 in a joined receiver", "Lists inet 239.1.2.3", "ip maddr output"], ["Send to 255.255.255.255 without SO_BROADCAST", "PermissionError: [Errno 13] Permission denied", "Traceback"], ["tcpdump -nn igmp when a receiver joins", "IGMP membership report for 239.1.2.3", "tcpdump output"]],
+          "objectives": ["Write multicast senders and receivers", "Trace group membership with IGMP and MLD", "Use broadcast sockets safely"]
+        },
+        {
+          "topic": "QUIC Transport: Connection IDs, Streams and Handshake",
+          "subtopics": ["QUIC over UDP port 443 and RFC 9000, 9001 and 9002", "Long header packets: Initial, 0-RTT, Handshake and Retry", "Short header 1-RTT packets", "TLS 1.3 inside CRYPTO frames and the 1-RTT handshake", "Connection IDs and why QUIC survives address changes", "Bidirectional and unidirectional streams without head-of-line blocking", "Version negotiation and the Initial packet 1200-byte minimum", "HTTP/3 discovery with Alt-Svc and the curl --http3 option"],
+          "tools": ["Wireshark", "tshark", "curl (with HTTP/3)", "aioquic"],
+          "lab_task": "Run the aioquic example HTTP/3 server in h2 with a self-signed certificate and fetch with the aioquic example client from h1, writing keys with --secrets-log. Capture udp port 4433. In Wireshark load the key log, then list the packet types of the handshake, find the CRYPTO and STREAM frames and the connection IDs. Measure UDP payload size of the first Initial packet.",
+          "deliverable": "Annotated QUIC handshake capture with packet types, connection IDs and stream IDs",
+          "checks": [["Inspect the client's first Initial datagram", "UDP payload is at least 1200 bytes", "Wireshark packet details"], ["Filter quic.long.packet_type with keys loaded", "Initial and Handshake packets appear before 1-RTT short header packets", "Wireshark packet list"], ["Inspect STREAM frames for one request", "Client-initiated bidirectional stream ID 0 carries the request", "Wireshark packet details"]],
+          "objectives": ["Describe the QUIC packet and frame structure", "Decrypt and read a QUIC handshake", "Explain how QUIC differs from TCP plus TLS"]
+        },
+        {
+          "topic": "NIC Offloads and Statistics with ethtool",
+          "subtopics": ["ethtool -i for driver and firmware", "ethtool -k offloads: TSO, GSO, GRO, LRO and checksum offload", "Why tcpdump shows packets larger than the MTU", "Checksum offload and Wireshark 'incorrect checksum' warnings", "Ring buffers: ethtool -g and -G", "Channels and queues: ethtool -l and -L", "Driver statistics with ethtool -S and ip -s link", "Link speed, duplex and autonegotiation with ethtool"],
+          "tools": ["ethtool", "tcpdump", "iperf3", "ip -s link"],
+          "lab_task": "On a VM NIC (virtio or a physical NIC) record ethtool -i, -k, -g and -l. Capture an iperf3 transfer and find the largest captured packet length. Disable with ethtool -K eth0 tso off gso off gro off, repeat, and compare captured sizes and CPU usage from mpstat. Re-enable offloads. Note any rx drop counters from ethtool -S.",
+          "deliverable": "Offload settings before and after, packet size comparison and CPU usage table",
+          "checks": [["tcpdump on the sender with TSO and GSO on", "Some captured packets have length well above 1500 bytes", "tcpdump output"], ["Same capture with tso, gso and gro off", "No captured packet exceeds 1514 bytes on the wire", "tcpdump output"], ["ethtool -k eth0 | grep tcp-segmentation-offload after re-enabling", "Shows tcp-segmentation-offload: on", "ethtool output"]],
+          "objectives": ["Read NIC capabilities and statistics", "Explain offload effects on captures", "Measure CPU cost of disabling offloads"]
+        },
+        {
+          "topic": "Measuring Throughput and Latency with iperf3 and mtr",
+          "subtopics": ["iperf3 server and client, -t, -P, -R and --bidir", "UDP mode with -u -b and reading jitter and loss", "JSON output with -J for scripted results", "Setting congestion control and window per test", "mtr report mode: mtr -rwzbc 100", "Reading per-hop loss that is really ICMP rate limiting", "Latency under load: ping during an iperf3 run", "Repeatable test plans and statistical spread"],
+          "tools": ["iperf3", "mtr", "ping", "python3", "tc"],
+          "lab_task": "Shape r1 to 50 Mbit/s with tc tbf and add 20 ms netem delay in each direction. Run iperf3 TCP tests with -P 1 and -P 4, reverse with -R, and a UDP test at 60 Mbit/s. Save JSON and extract sum_received bits_per_second with Python. Run ping during the TCP test and compare RTT idle versus loaded. Run mtr -rwc 100 to h2 and explain any intermediate-hop loss.",
+          "deliverable": "Results table from JSON, idle and loaded RTT comparison and the mtr report",
+          "checks": [["iperf3 -c 10.0.2.1 -t 20 through the 50 Mbit/s shaper", "Received throughput is 45-50 Mbit/s", "iperf3 JSON"], ["iperf3 -u -b 60M through the 50 Mbit/s shaper", "Lost/Total datagrams around 15-20%", "iperf3 UDP output"], ["ping RTT during the TCP test compared with idle", "Loaded RTT is higher than the 40 ms idle RTT", "ping summary lines"]],
+          "objectives": ["Run repeatable throughput tests", "Interpret UDP jitter and loss figures", "Explain latency under load and per-hop loss"]
+        },
+        {
+          "topic": "Wireshark TCP Analysis: Expert Information and I/O Graphs",
+          "subtopics": ["Analyze > Expert Information severity groups", "tcp.analysis.retransmission, fast_retransmission and spurious_retransmission", "tcp.analysis.out_of_order, lost_segment and ack_lost_segment", "Bytes in flight and tcp.analysis.bytes_in_flight", "I/O Graphs with multiple filters and intervals", "TCP Stream Graphs: Stevens, tcptrace, throughput and RTT", "Where you captured matters: sender versus receiver view", "tshark -z io,stat and -z expert for command-line summaries"],
+          "tools": ["Wireshark", "tshark", "tc netem", "iperf3"],
+          "lab_task": "Capture a 30-second iperf3 run with netem delay 30 ms loss 1% reorder 5% applied on r1, once at the sender and once at the receiver. Use Expert Information to count retransmissions, out-of-order and duplicate ACKs. Build an I/O graph of throughput and retransmissions per 100 ms. Compare the tcptrace graphs from both capture points and explain the differences.",
+          "deliverable": "Expert counts from both capture points, I/O graph and a written comparison",
+          "checks": [["tshark -r sender.pcap -q -z io,stat,0,tcp.analysis.retransmission", "Retransmission frame count is non-zero", "tshark output"], ["Filter tcp.analysis.out_of_order on the receiver capture", "Packets match because netem reordered segments", "Wireshark status bar"], ["Max tcp.analysis.bytes_in_flight on the sender capture", "Value is reported in bytes and stays below the receive window", "Wireshark column or tshark output"]],
+          "objectives": ["Use Wireshark's TCP analysis flags", "Graph throughput and retransmissions", "Account for capture location in analysis"]
+        },
+        {
+          "topic": "Scripting Packet Tests with Scapy",
+          "subtopics": ["Building packets with the / operator: Ether()/IP()/TCP()", "Sending at layer 3 with send and sr1 and layer 2 with sendp and srp", "Reading answers: summary(), show() and field access", "Crafting SYN probes and interpreting SA and RA flags", "ARP and NDP queries with srp and Ether(dst='ff:ff:ff:ff:ff:ff')", "Reading and writing pcaps with rdpcap and wrpcap", "Why the kernel sends RST to replies for Scapy-only connections", "Using Scapy in lab namespaces only, with permission"],
+          "tools": ["Scapy", "python3", "tcpdump", "nftables (nft)"],
+          "lab_task": "In the lab write a Scapy script that ARP-scans 10.0.1.0/24 with srp, then SYN-probes ports 22, 80 and 8000 on each live host with sr1(IP()/TCP(flags='S')) and prints open (SA), closed (RA) or filtered (no answer, timeout 1). Compare with nft rules on h2. Load a saved pcap with rdpcap and count TCP SYNs in Python.",
+          "deliverable": "Scapy script, its port table for each lab host and the pcap SYN count",
+          "checks": [["sr1 SYN to an open port 8000 on h2", "Reply has flags SA", "Script output"], ["sr1 SYN to a port dropped by nft on h2", "No reply within 1 s, reported as filtered", "Script output"], ["Count SYNs in a saved pcap with rdpcap", "Count equals capinfos/tshark count for tcp.flags.syn==1 && tcp.flags.ack==0", "Script and tshark output"]],
+          "objectives": ["Craft and send packets with Scapy", "Classify ports from probe answers", "Process captures programmatically"]
+        },
+        {
+          "topic": "Intermediate Capstone: Dual-Stack Service Behind NAT with Tuned TCP and Capture Evidence",
+          "subtopics": ["Dual-stack lab with DHCPv6, SLAAC and DHCPv4", "Stateful nftables firewall with DNAT port forwarding", "epoll-based TCP service and a multicast announcement", "Path MTU and MSS handling across a reduced-MTU link", "Throughput and latency test plan with iperf3 and netem", "Wireshark analysis report of one impaired transfer"],
+          "tools": ["nftables (nft)", "dnsmasq", "iperf3", "tc netem", "Wireshark", "python3"],
+          "lab_task": "Build a dual-stack lab where clients get DHCPv4 and DHCPv6 addresses, a router applies stateful filtering, DNAT to your epoll service and MSS clamping on a 1400 MTU link. Run iperf3 with 40 ms delay and 1% loss, tune buffers or congestion control and show measured change. Hand in captures for handshake, PMTU and loss recovery.",
+          "deliverable": "Lab scripts, rule sets, service code, test results before and after tuning and an analysis report",
+          "checks": [["Client reaches the service via the forwarded port over IPv4 and IPv6", "Echo test passes on both", "Client output"], ["Download across the 1400 MTU link with ICMP filtered", "Completes because of MSS clamping", "curl output and SYN capture"], ["iperf3 before and after tuning", "Report states the measured throughput change with three runs each", "iperf3 JSON summary"]],
+          "objectives": ["Integrate addressing, filtering, NAT and services", "Tune and measure TCP on an impaired path", "Present capture-backed analysis"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior network, platform and performance engineers who already diagnose TCP loss recovery, MTU, NAT and filtering problems from captures and now own high-throughput or latency-sensitive hosts. Covers BBR and pacing, bufferbloat and AQM with fq_codel and CAKE, controlled impairment with netem, the Linux receive path (NAPI, RSS, RPS, IRQ affinity), buffer sizing for high bandwidth-delay paths, TCP Fast Open, keepalive and user timeout, ECN, DCTCP and L4S, Multipath TCP, QUIC loss recovery and migration, decrypting TLS and QUIC captures, zero-copy and AF_XDP, XDP and tc eBPF filtering, stack tracing with bpftrace and nstat, conntrack at scale, IPv6-only hosts with NAT64 and 464XLAT, ECMP and nexthop groups, protocol attacks and hardening, high-rate capture and root-cause analysis of intermittent faults.",
+      "prerequisites": ["Completed the intermediate level or can explain cwnd, RTO, SACK, PMTUD and conntrack behaviour from captures and ss -ti", "Reads C or Python comfortably and can build small programs against Linux APIs", "Has root on a Linux host or VM with a recent kernel (6.1 or later recommended), bpftrace, bpftool, xdp-tools, iperf3 and flent or equivalent"],
+      "outcomes": ["Choose and tune congestion control, queueing discipline and buffer sizes for a measured path and prove the effect", "Profile and tune the kernel receive and transmit path, including RSS, RPS, offloads, XDP and zero-copy options", "Operate modern transports and features such as QUIC, MPTCP, TFO and ECN, and decrypt and analyse their traffic", "Lead root-cause analysis of intermittent latency, loss and NAT or conntrack failures with counters, tracing and captures"],
+      "days": [
+        {
+          "topic": "BBR Congestion Control and Pacing with fq",
+          "subtopics": ["Model-based congestion control: bottleneck bandwidth and min RTT", "BBR phases: Startup, Drain, ProbeBW and ProbeRTT", "Why BBR relies on pacing and the fq qdisc", "Loading tcp_bbr and setting net.ipv4.tcp_congestion_control=bbr", "net.core.default_qdisc=fq and SO_MAX_PACING_RATE", "ss -ti bbr:(bw,mrtt,pacing_gain,cwnd_gain) fields", "BBR versus CUBIC on shallow buffers and random loss", "Fairness concerns when BBR and CUBIC share a bottleneck"],
+          "tools": ["ss", "iperf3", "tc", "sysctl", "python3"],
+          "lab_task": "Shape r1 to 100 Mbit/s with 50 ms RTT and a shallow 50-packet buffer, plus netem loss 0.5%. Run three 30-second iperf3 tests each with -C cubic and -C bbr, with fq on the sender. Sample ss -ti every 200 ms and plot pacing rate and RTT. Then run CUBIC and BBR flows at the same time and report the throughput share.",
+          "deliverable": "Results table of six runs, pacing and RTT plots and the shared-bottleneck share result",
+          "checks": [["sysctl net.ipv4.tcp_available_congestion_control after modprobe tcp_bbr", "List includes bbr", "sysctl output"], ["ss -ti on a BBR flow", "Output shows a bbr:(bw:...,mrtt:...) block and pacing_rate", "ss output"], ["CUBIC versus BBR with 0.5% random loss", "BBR achieves higher mean throughput across the three runs", "iperf3 results table"]],
+          "objectives": ["Explain BBR's model and phases", "Enable BBR with fq pacing", "Measure BBR and CUBIC trade-offs"]
+        },
+        {
+          "topic": "Bufferbloat and Active Queue Management with fq_codel and CAKE",
+          "subtopics": ["Bufferbloat: queueing delay at the bottleneck", "Measuring latency under load with flent rrul or ping during load", "pfifo_fast and pfifo versus fq_codel", "CoDel target and interval and sojourn time", "Flow queueing and sparse flow priority", "CAKE with bandwidth, diffserv and nat options", "Shaping at the bottleneck: why the queue must be where you control it", "tc -s qdisc show: drops, overlimits, backlog and ecn_mark"],
+          "tools": ["tc", "flent", "ping", "iperf3"],
+          "lab_task": "Shape r1 egress to 20 Mbit/s with tbf and a large pfifo limit 1000. Run four upload flows with iperf3 -P 4 and measure ping RTT. Replace with tc qdisc replace dev eth1 root cake bandwidth 20mbit and repeat, then with htb plus fq_codel. Report median and 95th-percentile RTT under load and tc -s qdisc drop counts.",
+          "deliverable": "Latency-under-load table for three queue setups with tc -s qdisc statistics",
+          "checks": [["Ping under load with pfifo limit 1000", "RTT rises by hundreds of milliseconds over idle", "ping summary"], ["Ping under load with CAKE at 20mbit", "RTT stays within a few tens of milliseconds of idle", "ping summary"], ["tc -s qdisc show dev eth1 with CAKE", "Shows non-zero drops or marks and a small backlog", "tc output"]],
+          "objectives": ["Measure bufferbloat", "Deploy fq_codel and CAKE", "Read qdisc statistics"]
+        },
+        {
+          "topic": "Network Emulation with tc netem for Loss, Delay and Reordering",
+          "subtopics": ["netem delay with jitter and distribution", "Random and correlated loss and the Gilbert-Elliott model", "Reordering, duplication and corruption", "Rate limiting inside netem versus tbf", "Egress-only effect and using ifb for ingress impairment", "Combining netem as a child of htb or tbf", "Reproducible test profiles for mobile, satellite and lossy Wi-Fi", "Validating the emulation with ping and iperf3"],
+          "tools": ["tc netem", "ifb", "ping", "iperf3", "bash"],
+          "lab_task": "Write netem profiles for 4G (40 ms +/- 10 ms, 0.5% loss), satellite (300 ms, 0.1% loss, 20 Mbit/s) and bad Wi-Fi (5 ms, gemodel loss, 1% reorder). Apply ingress impairment using an ifb device. For each profile verify RTT and loss with ping -c 500 and throughput with iperf3, and keep the profiles in a script with apply and clear commands.",
+          "deliverable": "netem profile script and a validation table of measured RTT, loss and throughput per profile",
+          "checks": [["tc qdisc show dev eth0 after applying the 4G profile", "Shows netem delay 40ms 10ms loss 0.5%", "tc output"], ["ping -c 500 with the satellite profile on both directions", "Average RTT about 600 ms", "ping summary"], ["tc qdisc show dev ifb0 with ingress redirect", "netem qdisc is attached to ifb0", "tc output"]],
+          "objectives": ["Model realistic paths with netem", "Impair ingress traffic with ifb", "Validate emulation results"]
+        },
+        {
+          "topic": "Kernel Receive Path: NAPI, RSS, RPS and IRQ Affinity",
+          "subtopics": ["Interrupts, NAPI polling and net.core.netdev_budget", "/proc/net/softnet_stat columns: processed, dropped and time_squeeze", "RSS queues and indirection tables with ethtool -x and -X", "RPS and RFS via /sys/class/net/<dev>/queues/rx-N/rps_cpus", "IRQ affinity, /proc/interrupts and irqbalance", "Interrupt coalescing with ethtool -c and -C", "GRO and busy polling (net.core.busy_poll)", "Measuring softirq CPU with mpstat and perf top"],
+          "tools": ["ethtool", "mpstat", "perf", "iperf3", "irqbalance"],
+          "lab_task": "On a multi-queue NIC or virtio VM, run iperf3 -P 8 to the host and record per-CPU softirq with mpstat -P ALL 1 and /proc/net/softnet_stat. Set all queues' IRQ affinity to one CPU and repeat. Restore spread affinity, enable RPS on a single-queue device and compare. Change ethtool -C rx-usecs and record interrupt rate and RTT.",
+          "deliverable": "Per-CPU softirq tables for each configuration and softnet_stat deltas",
+          "checks": [["All RX IRQs pinned to CPU 0 under load", "CPU 0 %soft near 100% and throughput lower than spread affinity", "mpstat output"], ["softnet_stat third column before and after the pinned test", "time_squeeze count increases", "softnet_stat deltas"], ["ethtool -l eth0", "Lists maximum and current combined channels", "ethtool output"]],
+          "objectives": ["Trace a packet through NAPI and softirq", "Spread receive work across CPUs", "Diagnose receive drops from softnet counters"]
+        },
+        {
+          "topic": "Socket Buffer Autotuning and sysctl Limits for High-BDP Paths",
+          "subtopics": ["Bandwidth-delay product: 1 Gbit/s at 100 ms is 12.5 MB", "net.ipv4.tcp_rmem and tcp_wmem min, default and max", "net.core.rmem_max and wmem_max for SO_RCVBUF/SO_SNDBUF", "tcp_adv_win_scale and buffer overhead", "tcp_notsent_lowat for latency-sensitive senders", "Autotuning progress visible in ss -tmi rcv_space and skmem", "Memory pressure: net.ipv4.tcp_mem and TcpExtTCPMemoryPressures", "Why bigger is not always better: queueing and memory per socket"],
+          "tools": ["sysctl", "ss", "iperf3", "nstat", "tc"],
+          "lab_task": "Emulate 1 Gbit/s with 100 ms RTT between namespaces. Run iperf3 -t 30 with default sysctls and record throughput and peak rcv_space. Calculate BDP, raise tcp_rmem and tcp_wmem max to 2 x BDP, repeat, and record the change. Set tcp_notsent_lowat=131072 and measure the effect on a small-message latency probe running in parallel.",
+          "deliverable": "BDP calculation, sysctl diffs and before-and-after throughput and latency results",
+          "checks": [["sysctl net.ipv4.tcp_rmem on the default host", "Prints three values, min default max, for example 4096 131072 6291456", "sysctl output"], ["iperf3 at 100 ms RTT with default max", "Throughput limited below line rate, roughly max window divided by RTT", "iperf3 output"], ["iperf3 after raising max to 2 x BDP", "Throughput rises close to the emulated 1 Gbit/s", "iperf3 output"]],
+          "objectives": ["Size buffers from a measured BDP", "Observe autotuning", "Balance throughput against latency and memory"]
+        },
+        {
+          "topic": "TCP Fast Open, Keepalive and User Timeout",
+          "subtopics": ["TFO cookies and data in the SYN", "net.ipv4.tcp_fastopen bitmask values 1, 2 and 3", "Server TCP_FASTOPEN option and client MSG_FASTOPEN or TCP_FASTOPEN_CONNECT", "nstat TcpExtTCPFastOpenActive and TCPFastOpenPassive", "Keepalive defaults: 7200 s idle, 75 s interval, 9 probes", "Per-socket TCP_KEEPIDLE, TCP_KEEPINTVL and TCP_KEEPCNT", "TCP_USER_TIMEOUT for bounding unacknowledged data", "Detecting dead peers behind NAT idle timeouts"],
+          "tools": ["python3", "nstat", "tcpdump", "nftables (nft)"],
+          "lab_task": "Set tcp_fastopen=3 in both namespaces. Write a Python server with TCP_FASTOPEN and a client using MSG_FASTOPEN in sendto. Capture the first and second connections and show data in the second SYN. Then set keepalive 10 s idle, 2 s interval, 3 probes, drop all packets with nft, and time detection. Repeat with TCP_USER_TIMEOUT=5000 during a send.",
+          "deliverable": "TFO capture comparison, keepalive and user-timeout timings and nstat deltas",
+          "checks": [["Second TFO connection capture", "SYN carries payload and a TFO cookie option", "tcpdump output"], ["Keepalive 10/2/3 with all packets dropped", "Socket error ETIMEDOUT after about 16 seconds", "Client log with timestamps"], ["nstat -az TcpExtTCPFastOpenPassive on the server", "Counter increases by one per accepted TFO connection", "nstat output"]],
+          "objectives": ["Enable and verify TCP Fast Open", "Tune keepalive for dead-peer detection", "Bound stalls with TCP_USER_TIMEOUT"]
+        },
+        {
+          "topic": "ECN, DCTCP and L4S",
+          "subtopics": ["ECN codepoints: Not-ECT, ECT(0), ECT(1) and CE", "TCP ECE and CWR flags and ECN negotiation in the SYN", "net.ipv4.tcp_ecn values 0, 1 and 2", "AQM marking with fq_codel ecn and red ecn", "DCTCP: proportional window reduction and data-centre marking thresholds", "L4S architecture (RFC 9330) and the ECT(1) identifier", "Dual-queue coupled AQM and scalable congestion control such as TCP Prague", "Middlebox ECN bleaching and how to detect it"],
+          "tools": ["sysctl", "tc", "tcpdump", "Wireshark", "iperf3"],
+          "lab_task": "Set tcp_ecn=1 on both ends and fq_codel with ecn on r1's bottleneck. Run iperf3 and capture: confirm ECN negotiation in the SYN, ECT(0) data, CE marks and the ECE/CWR response. Switch both ends to dctcp with a shallow marking threshold (red ecn) and compare queue delay and throughput. Where the kernel provides it, test the dualpi2 qdisc.",
+          "deliverable": "Captures showing negotiation and marking and a CUBIC versus DCTCP comparison",
+          "checks": [["Wireshark filter ip.dsfield.ecn == 3", "CE-marked packets appear at the receiver during congestion", "Wireshark status bar"], ["SYN and SYN-ACK flags with tcp_ecn=1 on both ends", "SYN has ECE and CWR set; SYN-ACK has ECE set", "Wireshark packet details"], ["tc -s qdisc show on r1 during the test", "ecn_mark counter is non-zero", "tc output"]],
+          "objectives": ["Explain ECN signalling end to end", "Configure marking AQM and DCTCP", "Describe L4S components and deployment limits"]
+        },
+        {
+          "topic": "Multipath TCP on Linux",
+          "subtopics": ["MPTCP architecture: one connection, many subflows (RFC 8684)", "MP_CAPABLE, MP_JOIN and ADD_ADDR options", "net.mptcp.enabled and the in-kernel path manager", "ip mptcp endpoint add with subflow, signal and backup flags", "ip mptcp limits set subflows and add_addr_accepted", "IPPROTO_MPTCP sockets and mptcpize for unmodified apps", "Schedulers and failover behaviour", "ss -M and nstat MPTcpExt counters"],
+          "tools": ["iproute2 (ip mptcp)", "mptcpize", "ss", "iperf3", "Wireshark"],
+          "lab_task": "Connect h1 and h2 with two paths through r1 and r2, each shaped to 20 Mbit/s. Enable net.mptcp.enabled=1, set limits and add endpoints on both addresses of h1 with subflow. Run mptcpize run iperf3 and show combined throughput. Bring one link down mid-transfer and confirm the transfer continues. Capture MP_CAPABLE and MP_JOIN.",
+          "deliverable": "Endpoint configuration, throughput results with one and two paths and the failover capture",
+          "checks": [["ss -M during the transfer", "Shows an MPTCP socket", "ss output"], ["mptcpize run iperf3 over two 20 Mbit/s paths", "Throughput above 20 Mbit/s, approaching 40", "iperf3 output"], ["Wireshark filter tcp.options.mptcp.subtype == 1", "MP_JOIN SYN appears for the second subflow", "Wireshark packet list"]],
+          "objectives": ["Configure MPTCP endpoints and limits", "Aggregate and fail over across paths", "Read MPTCP options in captures"]
+        },
+        {
+          "topic": "QUIC Loss Recovery, Congestion Control and Connection Migration",
+          "subtopics": ["Packet number spaces and monotonically increasing packet numbers", "ACK frames, ACK ranges and ack_delay", "Loss detection by packet and time thresholds (RFC 9002)", "Probe timeout (PTO) instead of RTO", "Congestion control in user space: NewReno, CUBIC and BBR in QUIC stacks", "Connection migration and path validation with PATH_CHALLENGE and PATH_RESPONSE", "NAT rebinding and connection ID rotation", "qlog and qvis for transport event analysis"],
+          "tools": ["aioquic", "Wireshark", "tc netem", "qvis", "python3"],
+          "lab_task": "Run the aioquic HTTP/3 example server and client with --quic-log to produce qlog files and --secrets-log for keys. Download a 20 MB file with netem loss 2% and view the qlog in qvis: identify loss detection, PTO and cwnd. Then change the client's source address mid-transfer by moving it behind a NAT rule change and capture PATH_CHALLENGE and PATH_RESPONSE.",
+          "deliverable": "qlog files, annotated qvis screenshots and a decrypted migration capture",
+          "checks": [["qvis congestion graph for the lossy run", "Shows packet_lost events and cwnd reductions", "qvis screenshot"], ["Decrypted capture after the address change", "PATH_CHALLENGE and matching PATH_RESPONSE frames appear", "Wireshark packet details"], ["Transfer status after migration", "Download completes with the same connection", "Client log"]],
+          "objectives": ["Explain QUIC loss detection and PTO", "Analyse QUIC with qlog", "Demonstrate connection migration"]
+        },
+        {
+          "topic": "Decrypting TLS and QUIC Captures with Key Log Files",
+          "subtopics": ["The NSS key log format and SSLKEYLOGFILE", "Applications that honour SSLKEYLOGFILE: curl, Firefox and Chromium", "Wireshark TLS preference (Pre)-Master-Secret log filename", "Embedding secrets in pcapng with editcap --inject-secrets", "Why RSA private key decryption no longer works with TLS 1.3", "Decrypting HTTP/2 and HTTP/3 streams", "Handling key files as secrets: storage, access and deletion", "tshark -o tls.keylog_file for batch decryption"],
+          "tools": ["Wireshark", "tshark", "editcap", "curl"],
+          "lab_task": "Export SSLKEYLOGFILE=/tmp/keys.txt and capture curl --http2 https://<lab server> and, if built with HTTP/3, curl --http3. Load keys.txt in Wireshark and show HTTP/2 headers. Run editcap --inject-secrets tls,/tmp/keys.txt cap.pcapng dec.pcapng and open dec.pcapng with no key file configured. Extract all request paths with tshark -Y http2.headers.path. Delete the key files afterwards.",
+          "deliverable": "Decrypted captures, the tshark path list and a short handling procedure for key logs",
+          "checks": [["Open cap.pcapng without keys", "Only TLS Application Data records are visible", "Wireshark packet list"], ["Open dec.pcapng with no key file configured", "HTTP/2 HEADERS frames are decoded", "Wireshark packet details"], ["tshark -r dec.pcapng -Y http2.headers.path -T fields -e http2.headers.path", "Prints the requested paths", "tshark output"]],
+          "objectives": ["Decrypt TLS 1.3 and QUIC captures with key logs", "Share decrypted captures safely", "Automate decryption with tshark"]
+        },
+        {
+          "topic": "Zero-Copy and Kernel Bypass: MSG_ZEROCOPY, io_uring and AF_XDP",
+          "subtopics": ["Copy costs in send and recv paths", "sendfile and splice for file-to-socket transfers", "SO_ZEROCOPY with MSG_ZEROCOPY and completion notifications on the error queue", "When zero-copy helps: large sends, not small messages", "io_uring for batched socket I/O", "AF_XDP sockets: UMEM, fill and completion rings", "Copy mode versus zero-copy mode and driver support", "Trade-offs of bypassing the kernel stack"],
+          "tools": ["perf", "python3", "xdp-tools", "iperf3", "strace"],
+          "lab_task": "Compare iperf3 with and without --zerocopy (which uses sendfile) on 30-second transfers between hosts or VMs and record CPU per Gbit/s with perf stat. Use strace -c to count syscalls in each mode. Then run the xdp-tools xdp-trafficgen or an AF_XDP sample in copy mode on a veth pair and record packets per second. Note the driver mode reported.",
+          "deliverable": "CPU and syscall comparison for copy and zero-copy and AF_XDP throughput results",
+          "checks": [["strace -c on iperf3 --zerocopy sender", "sendfile appears among the top syscalls", "strace summary"], ["perf stat CPU cycles per byte with and without --zerocopy", "Zero-copy run shows fewer cycles per byte", "perf stat output"], ["Attach an XDP program in generic mode and run ip link show", "Interface shows xdpgeneric with a program id", "ip link output"]],
+          "objectives": ["Measure copy overhead in network I/O", "Use zero-copy send paths", "Explain AF_XDP and its limits"]
+        },
+        {
+          "topic": "XDP and tc eBPF Programs for Packet Filtering",
+          "subtopics": ["XDP hook position before skb allocation", "Return codes XDP_PASS, XDP_DROP, XDP_TX, XDP_REDIRECT and XDP_ABORTED", "Native, generic and offload modes", "tc clsact ingress and egress BPF programs", "BPF maps for counters and block lists", "Loading with ip link set xdp, xdp-loader and bpftool", "Verifier errors and bounds checks", "xdp-filter for port and address filtering without writing C"],
+          "tools": ["bpftool", "xdp-tools", "clang", "iproute2 (ip)", "tcpdump"],
+          "lab_task": "Write an XDP program in C that drops UDP to port 9999 and counts drops in a per-CPU array map, compile with clang -O2 -target bpf and attach with ip link set dev veth0 xdpgeneric obj drop.o sec xdp. Send traffic with a UDP generator, read the counter with bpftool map dump. Compare with xdp-filter port 9999 and with an equivalent nft rule for CPU per million packets.",
+          "deliverable": "XDP source, load commands, map dumps and a CPU comparison table",
+          "checks": [["bpftool prog show after attaching", "Lists an xdp program with the expected name", "bpftool output"], ["UDP to port 9999 with the program attached", "Receiver gets nothing and the map counter matches packets sent", "bpftool map dump and sender count"], ["Load a program reading past packet end without a bounds check", "Verifier rejects it with an invalid access to packet error", "Loader output"]],
+          "objectives": ["Write and load XDP programs", "Use BPF maps for counters", "Compare XDP with nftables filtering"]
+        },
+        {
+          "topic": "Tracing the Stack with bpftrace, ss -ti and nstat Counters",
+          "subtopics": ["nstat -az and delta mode for SNMP and TcpExt counters", "Key counters: TcpRetransSegs, TcpExtListenOverflows, TcpExtListenDrops, TcpExtTCPTimeouts", "ss -ti fields: rtt, rto, cwnd, retrans, delivery_rate, busy and limited times", "tcp tracepoints: tcp:tcp_retransmit_skb, tcp:tcp_probe, sock:inet_sock_set_state", "skb:kfree_skb with drop reasons", "bpftrace one-liners and histograms", "dropwatch and perf for drop location", "Low-overhead production tracing practices"],
+          "tools": ["bpftrace", "nstat", "ss", "perf", "dropwatch"],
+          "lab_task": "Create three faults: an accept queue overflow (backlog 10, slow accept), random loss with netem, and an nft drop. For each, capture nstat deltas over 10 s, run bpftrace -e 'tracepoint:tcp:tcp_retransmit_skb { @[args->daddr] = count(); }' or a kfree_skb drop-reason histogram, and use ss -ti. Write which counter or tracepoint pinpointed each fault.",
+          "deliverable": "Fault-to-evidence table with nstat deltas, bpftrace outputs and ss samples",
+          "checks": [["nstat delta during the slow accept test", "TcpExtListenOverflows and TcpExtListenDrops increase", "nstat output"], ["bpftrace kfree_skb reason histogram during the nft drop", "NETFILTER_DROP reason dominates", "bpftrace output"], ["ss -ti on a flow under netem loss", "retrans counter is non-zero", "ss output"]],
+          "objectives": ["Use kernel counters to locate drops", "Trace TCP events with bpftrace", "Map symptoms to evidence quickly"]
+        },
+        {
+          "topic": "conntrack Table Tuning and NAT at Scale",
+          "subtopics": ["nf_conntrack_max, nf_conntrack_count and hash table size", "dmesg 'nf_conntrack: table full, dropping packet'", "Per-protocol timeouts: tcp_timeout_established, udp_timeout", "conntrack -S counters: insert_failed, drop and early_drop", "NAT source port allocation and clashes for UDP", "notrack for high-volume stateless flows", "Flowtables for fast-path forwarding in nftables", "Memory sizing and monitoring conntrack usage"],
+          "tools": ["conntrack-tools", "nftables (nft)", "sysctl", "python3"],
+          "lab_task": "Set nf_conntrack_max=2000 on r1 and run a Python UDP generator from h1 that opens 5000 distinct source ports to h2. Record dmesg messages, conntrack -C and conntrack -S. Fix by lowering udp_timeout, raising the limit and adding a notrack rule for a stateless port. Then add an nftables flowtable for TCP and compare forwarding CPU with iperf3 -P 8.",
+          "deliverable": "Before-and-after counters, sysctl changes, notrack and flowtable rules and the CPU comparison",
+          "checks": [["dmesg on r1 while the generator exceeds 2000 entries", "nf_conntrack: table full, dropping packet", "Kernel log"], ["conntrack -C after the notrack rule for the stateless port", "Count no longer grows with that traffic", "conntrack output"], ["nft list flowtables after configuration", "Shows the flowtable with hook ingress and the devices", "nft output"]],
+          "objectives": ["Size and monitor conntrack", "Diagnose NAT and table exhaustion", "Use notrack and flowtables appropriately"]
+        },
+        {
+          "topic": "IPv6-Only Hosts with NAT64, DNS64 and 464XLAT",
+          "subtopics": ["Why operators move to IPv6-only access", "The well-known NAT64 prefix 64:ff9b::/96", "Stateful NAT64 with Jool or Tayga", "DNS64 synthesising AAAA records", "ipv4only.arpa prefix discovery (RFC 7050) and PREF64 in RAs (RFC 8781)", "464XLAT: CLAT on the host and PLAT in the network", "Applications that break: IPv4 literals and IPv4-only sockets", "Testing with curl -6, getaddrinfo and captures"],
+          "tools": ["Jool", "unbound", "tcpdump", "curl", "iproute2 (ip -6)"],
+          "lab_task": "Make h1 IPv6-only. Run Jool stateful NAT64 on r1 with pool6 64:ff9b::/96 and an IPv4 pool, and unbound with the dns64 module. From h1 resolve an IPv4-only lab name, curl it and capture both sides of r1. Then curl an IPv4 literal and show it fails, and explain how a CLAT would fix it.",
+          "deliverable": "Jool and unbound configs, captures across the translator and the IPv4-literal failure note",
+          "checks": [["dig AAAA ipv4only-server.lab from h1", "Answer is 64:ff9b::<IPv4 in hex>", "dig output"], ["curl the IPv4-only server by name from h1", "HTTP 200 and r1 upstream capture shows IPv4", "curl output and tcpdump"], ["curl http://10.0.9.20/ from h1", "Fails with Network is unreachable", "curl output"]],
+          "objectives": ["Run NAT64 and DNS64 for IPv6-only hosts", "Trace translation across the gateway", "Explain 464XLAT and remaining failures"]
+        },
+        {
+          "topic": "Host Multipathing: ECMP Routes, Nexthop Groups and Hash Policy",
+          "subtopics": ["Equal-cost multipath routes with multiple nexthop entries", "Nexthop objects: ip nexthop add id and group", "Resilient nexthop groups and bucket rebalancing", "net.ipv4.fib_multipath_hash_policy 0, 1, 2 and 3", "Flow hashing and why per-packet spraying reorders", "ip route get with ipproto, sport and dport to predict a path", "Nexthop failure detection and removal", "Hosts with anycast service addresses on loopback"],
+          "tools": ["iproute2 (ip nexthop, ip route)", "iperf3", "tcpdump", "nstat"],
+          "lab_task": "Give h1 two equal paths to 10.0.3.0/24 via r1 and r2 using ip nexthop groups. With fib_multipath_hash_policy=0 run iperf3 -P 16 and count flows per path; switch to policy 1 and repeat. Use ip route get 10.0.3.1 ipproto tcp sport 40000 dport 5201 to predict paths. Remove one nexthop mid-test and record which flows move.",
+          "deliverable": "Nexthop configuration, flow distribution tables for each hash policy and the failure test result",
+          "checks": [["ip nexthop show", "Lists two nexthops and a group referencing both ids", "ip nexthop output"], ["16 flows with hash policy 0 (L3 only)", "All flows take one path", "Per-interface byte counters"], ["16 flows with hash policy 1 (L4)", "Flows are split across both paths", "Per-interface byte counters"]],
+          "objectives": ["Configure ECMP with nexthop groups", "Choose a hash policy for flow spreading", "Predict and verify path selection"]
+        },
+        {
+          "topic": "Protocol Attacks and Hardening: SYN Floods, RST Injection and RA Spoofing",
+          "subtopics": ["SYN floods, the SYN queue and tcp_max_syn_backlog", "SYN cookies: net.ipv4.tcp_syncookies and TcpExtSyncookiesSent", "Blind RST and data injection and RFC 5961 challenge ACKs", "ARP spoofing and neighbour table poisoning", "Rogue IPv6 Router Advertisements and accept_ra on servers", "Reverse-path filtering and source address validation", "ICMP redirect acceptance: accept_redirects and secure_redirects", "Hardening sysctls baseline and testing it"],
+          "tools": ["hping3", "Scapy", "nstat", "sysctl", "tcpdump"],
+          "lab_task": "In an isolated lab you own, flood h2:8000 with hping3 -S -p 8000 --flood from h3 with tcp_syncookies=0 and show a client from h1 fails to connect. Enable syncookies and show it succeeds while TcpExtSyncookiesSent rises. Send a spoofed RA with Scapy and show h1 gains a rogue default route, then set accept_ra=0 and show it is ignored. Record the sysctl baseline you would apply.",
+          "deliverable": "Attack and defence evidence for each case and a hardening sysctl file",
+          "checks": [["Client connect during the flood with syncookies off", "Connection times out", "Client output"], ["nstat TcpExtSyncookiesSent during the flood with syncookies on", "Counter increases and the client connects", "nstat and client output"], ["ip -6 route after the spoofed RA with accept_ra=0", "No new default route appears", "ip -6 route output"]],
+          "objectives": ["Reproduce common protocol attacks in a lab", "Apply and verify host hardening", "Explain the protection each setting gives"]
+        },
+        {
+          "topic": "Capturing at High Packet Rates: Ring Buffers, Snap Length and Drops",
+          "subtopics": ["Kernel drops versus interface drops in tcpdump statistics", "Buffer size with tcpdump -B and dumpcap -B", "Snap length -s 128 for headers only", "Ring buffers: tcpdump -C -W and -G, dumpcap -b filesize and files", "Filtering in the kernel with BPF to reduce load", "TPACKET_V3 and PACKET_FANOUT for parallel capture", "Timestamp precision: --time-stamp-precision nano and adapter timestamps", "Privacy and retention for stored captures"],
+          "tools": ["tcpdump", "dumpcap", "capinfos", "mergecap", "iperf3"],
+          "lab_task": "Drive about 1 Mpps of small UDP with iperf3 -u -l 64 -b 0 between namespaces. Capture with default settings and record packets dropped by kernel. Repeat with -B 262144, -s 96 and a BPF filter, then with dumpcap -b filesize:100000 -b files:10 as a ring. Check timestamps with capinfos and merge files with mergecap -w.",
+          "deliverable": "Drop counts for each capture configuration, ring file list and capinfos summary",
+          "checks": [["Default tcpdump at high rate", "Exit summary shows a non-zero packets dropped by kernel count", "tcpdump summary"], ["tcpdump -B 262144 -s 96 with a filter", "Dropped by kernel count is lower than the default run", "tcpdump summary"], ["ls of the dumpcap ring after a long run", "No more than 10 files exist", "ls output"]],
+          "objectives": ["Capture at high rates without losing evidence", "Run long-term rotating captures", "Report capture loss honestly"]
+        },
+        {
+          "topic": "Root-Cause Analysis of Intermittent Latency and Packet Loss",
+          "subtopics": ["Stating the symptom with percentiles, not averages", "Correlating application timing with ss -ti, nstat and capture timestamps", "Separating network, host and application delay in a capture", "Interface, qdisc and softnet drop counters in one view", "Microbursts and queue drops at short timescales", "Using two-point captures to locate loss", "Hypothesis testing with controlled change", "Writing a root-cause report with timeline and evidence"],
+          "tools": ["tcpdump", "Wireshark", "nstat", "bpftrace", "tc", "ethtool"],
+          "lab_task": "A trainer scenario produces p99 request latency spikes between two namespaces caused by one of: netem bursts, a small pfifo queue, a CPU-pinned IRQ, delayed ACK interplay or conntrack drops. Collect timing logs, ss -ti, nstat deltas, tc -s qdisc and two-point captures, find the cause, prove it with a controlled change, and write the report.",
+          "deliverable": "Root-cause report with timeline, evidence, controlled-change result and prevention steps",
+          "checks": [["Two-point capture comparison", "Loss or delay located on one specific hop or host", "Annotated captures"], ["Controlled change applied", "p99 latency returns to baseline", "Before and after timing logs"], ["Report reviewed by a peer", "Peer can reproduce the conclusion from the evidence alone", "Review notes"]],
+          "objectives": ["Correlate evidence across layers", "Locate intermittent faults with two-point capture", "Prove root cause with controlled change"]
+        },
+        {
+          "topic": "Advanced Capstone: Tuned High-BDP Service with Measured Before-and-After Results",
+          "subtopics": ["Baseline measurement plan on an emulated long fat network", "Congestion control, pacing and AQM selection", "Buffer sizing and receive-path tuning", "Kernel counters and tracing dashboards", "Hardening and conntrack limits", "Decrypted capture evidence and a final report"],
+          "tools": ["iperf3", "tc", "ss", "nstat", "bpftrace", "Wireshark"],
+          "lab_task": "Emulate a 1 Gbit/s, 120 ms path with 0.2% loss and a bloated bottleneck. Baseline a TLS file service. Tune congestion control, fq pacing, AQM, buffers and RSS or RPS, apply hardening and conntrack limits, and re-measure throughput and p99 latency with five runs each. Present decrypted captures and counters explaining each gain.",
+          "deliverable": "Tuning log, configuration diff, five-run before-and-after results and a final report",
+          "checks": [["Five baseline and five tuned runs", "Report shows mean and spread for throughput and p99 latency", "Results table"], ["Each change in the tuning log", "Has a measured effect or is reverted", "Tuning log"], ["Decrypted capture of one tuned transfer", "Shows request paths and no unexpected retransmission bursts", "Wireshark screenshots"]],
+          "objectives": ["Plan and execute measured tuning", "Combine transport, queue and host settings", "Justify every change with evidence"]
+        }
+      ]
+    }
+  }
+}

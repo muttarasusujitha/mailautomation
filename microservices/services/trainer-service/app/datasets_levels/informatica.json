@@ -1,0 +1,573 @@
+{
+  "domain": "Informatica",
+  "name": "Informatica Data Integration",
+  "category": "Data Engineering and Analytics",
+  "icon": "shuffle",
+  "aliases": ["Informatica PowerCenter", "PowerCenter", "Informatica IICS", "IICS", "Informatica Cloud", "Informatica IDMC", "IDMC", "Informatica Intelligent Data Management Cloud", "Informatica ETL", "Informatica Developer", "Informatica Cloud Data Integration", "Informatica CDI"],
+  "certifications": ["Informatica Cloud Data Integration Professional", "Informatica Cloud Application Integration Professional", "Informatica PowerCenter Data Integration Developer (legacy)"],
+  "tools": ["Informatica Intelligent Data Management Cloud (Cloud Data Integration)", "Informatica PowerCenter", "Secure Agent", "Oracle or SQL Server", "Snowflake or another cloud warehouse", "Flat files"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For ETL developers and data engineers new to Informatica. Covers the product family, IDMC and the Secure Agent, connections, mappings, sources and targets, core transformations, expressions, lookups, joiners, aggregators, routers and filters, sorters and rank, mapping tasks and parameters, taskflows, error handling, incremental loads, slowly changing dimensions, PowerCenter basics, monitoring and good mapping design.",
+      "prerequisites": ["Writes SQL with joins and aggregation", "Understands data warehouse basics: facts, dimensions and staging", "No previous Informatica experience needed"],
+      "outcomes": ["Build and run mappings in Informatica Cloud Data Integration", "Use core transformations to clean, join, aggregate and route data", "Load incrementally and build slowly changing dimensions", "Schedule, monitor and troubleshoot jobs and read PowerCenter work"],
+      "days": [
+        {
+          "topic": "Informatica Overview, IDMC and Secure Agent Setup",
+          "subtopics": ["Informatica's place in data integration", "PowerCenter and Intelligent Data Management Cloud", "IDMC services: Data Integration, Application Integration, Data Quality and more", "Organisations, users and roles", "The Secure Agent and runtime environments", "Installing a Secure Agent on Windows or Linux", "Serverless runtime in brief", "The IDMC user interface", "Projects and folders", "The course project: retail sales warehouse"],
+          "tools": ["Informatica IDMC trial", "Secure Agent", "Windows or Linux server"],
+          "lab_task": "Create an IDMC trial organisation, install a Secure Agent, check its services are running, create a project structure and record what each IDMC service does.",
+          "deliverable": "Agent status screenshot, project structure and service notes",
+          "checks": [["Check the Secure Agent", "Status up with Data Integration service running", "Runtime environment page"], ["Create projects", "Folders for sources, staging and warehouse", "Explore page"], ["Describe services", "Purpose of each service correct", "Service notes"]],
+          "objectives": ["Describe Informatica products", "Install a Secure Agent", "Navigate IDMC"]
+        },
+        {
+          "topic": "Connections to Databases, Files and Cloud Applications",
+          "subtopics": ["Connection types", "Relational connections: Oracle, SQL Server and PostgreSQL", "Flat file connections", "Cloud warehouse connections: Snowflake and others", "Application connections such as Salesforce", "Connection testing", "Credentials and security", "Naming conventions"],
+          "tools": ["IDMC", "Secure Agent", "Database clients"],
+          "lab_task": "Create connections to a SQL Server source, a flat file folder and a Snowflake target, test each through the Secure Agent and apply naming standards.",
+          "deliverable": "Connection list and test results",
+          "checks": [["Test each connection", "All tests succeed", "Connection page"], ["Use a wrong password", "Clear failure message", "Connection test output"], ["Review names", "All follow the naming standard", "Connection list"]],
+          "objectives": ["Create connections", "Test connections", "Secure credentials"]
+        },
+        {
+          "topic": "Mappings: Sources, Targets and Data Flow",
+          "subtopics": ["Mapping Designer", "Source transformation", "Target transformation", "Field mapping", "Data preview", "Running a mapping with a mapping task", "Target operations: insert, update, upsert and delete", "Mapping validation"],
+          "tools": ["Mapping Designer", "Mapping tasks"],
+          "lab_task": "Build a mapping that copies customers from SQL Server to a Snowflake staging table, preview data, validate the mapping and run it with a mapping task.",
+          "deliverable": "Mapping, task and run results",
+          "checks": [["Preview source data", "Rows shown before running", "Preview screenshot"], ["Run the mapping task", "Target row count matches the source", "Monitor page"], ["Change the operation to upsert", "Re-run updates rows without duplicates", "Query result"]],
+          "objectives": ["Build mappings", "Map fields", "Run mapping tasks"]
+        },
+        {
+          "topic": "Expression Transformation and Functions",
+          "subtopics": ["Expression transformation", "Output fields and variable fields", "String functions", "Date functions", "Conditional logic with IIF and DECODE", "Null handling", "Data type conversion", "Reusable expressions"],
+          "tools": ["Mapping Designer", "Expression transformation"],
+          "lab_task": "Clean customer data with an Expression transformation: trim and standardise names, parse dates, derive an age band and handle nulls.",
+          "deliverable": "Mapping and sample output",
+          "checks": [["Standardise names", "Consistent case and no extra spaces", "Data preview"], ["Parse dates", "Valid dates converted and bad ones flagged", "Data preview"], ["Handle nulls", "Defaults applied as designed", "Data preview"]],
+          "objectives": ["Transform fields", "Use functions", "Handle nulls and types"]
+        },
+        {
+          "topic": "Filter and Router Transformations",
+          "subtopics": ["Filter transformation", "Router transformation", "Groups and default group", "Filtering at the source", "Rejecting bad rows", "Routing to several targets", "Performance of filtering early", "Testing conditions"],
+          "tools": ["Mapping Designer", "Filter and Router transformations"],
+          "lab_task": "Route orders into valid, suspect and invalid targets with a Router, filter test data at the source and count rows in each output.",
+          "deliverable": "Mapping and row counts",
+          "checks": [["Route orders", "Each group receives the right rows", "Row counts"], ["Check the default group", "Unmatched rows captured", "Target table"], ["Filter at the source", "Fewer rows read", "Session log"]],
+          "objectives": ["Filter data", "Route rows", "Filter early"]
+        },
+        {
+          "topic": "Joiner and Lookup Transformations",
+          "subtopics": ["Joiner transformation and join types", "Master and detail sources", "Sorted input for joins", "Lookup transformation", "Connected and unconnected lookups", "Lookup caching", "Handling lookup misses", "Joiner compared with lookup"],
+          "tools": ["Mapping Designer", "Joiner and Lookup transformations"],
+          "lab_task": "Join orders with customers from another system, look up product categories with a cached lookup, handle missing products and compare join and lookup approaches.",
+          "deliverable": "Mapping and comparison notes",
+          "checks": [["Join orders and customers", "Row count as expected for the join type", "Row counts"], ["Handle lookup misses", "Unknown products flagged", "Data preview"], ["Compare approaches", "Trade-offs recorded", "Notes"]],
+          "objectives": ["Join data", "Use lookups", "Handle misses"]
+        },
+        {
+          "topic": "Aggregator, Sorter and Rank Transformations",
+          "subtopics": ["Aggregator transformation", "Group by fields", "Aggregate functions", "Sorted input for aggregation", "Sorter transformation", "Rank transformation", "Distinct rows", "Performance of aggregation"],
+          "tools": ["Mapping Designer", "Aggregator, Sorter and Rank transformations"],
+          "lab_task": "Summarise daily sales by store and product, rank the top five products per store and remove duplicate rows with a Sorter.",
+          "deliverable": "Mapping and outputs",
+          "checks": [["Summarise sales", "Totals match a SQL query", "Comparison"], ["Rank products", "Top five per store", "Target table"], ["Remove duplicates", "Distinct rows only", "Row counts"]],
+          "objectives": ["Aggregate data", "Rank rows", "Remove duplicates"]
+        },
+        {
+          "topic": "Normaliser, Union and Other Transformations",
+          "subtopics": ["Normaliser for repeating fields", "Union transformation", "Sequence generator", "Data masking in brief", "Java and Python transformations in brief", "Hierarchy transformations for JSON and XML", "Choosing transformations", "Keeping mappings simple"],
+          "tools": ["Mapping Designer", "Normaliser, Union and Sequence transformations"],
+          "lab_task": "Turn monthly columns into rows with a Normaliser, combine three regional files with a Union, generate surrogate keys and parse a JSON order file.",
+          "deliverable": "Mappings and outputs",
+          "checks": [["Normalise months", "One row per month", "Data preview"], ["Union regional files", "All rows combined", "Row counts"], ["Parse JSON", "Orders and items flattened", "Data preview"]],
+          "objectives": ["Reshape data", "Combine sources", "Handle hierarchical data"]
+        },
+        {
+          "topic": "Parameters and Reusable Mapping Logic",
+          "subtopics": ["Mapping parameters", "In-out parameters", "Parameter files", "Parameterised connections", "Mapplets", "Reusable expressions", "Templates", "Naming and documenting parameters"],
+          "tools": ["Mapping Designer", "Mapplets", "Parameter files"],
+          "lab_task": "Parameterise the source query date range and connections, build a mapplet for address cleaning used by two mappings and run with a parameter file.",
+          "deliverable": "Parameterised mapping, mapplet and parameter file",
+          "checks": [["Run with a parameter file", "Date range applied", "Session log"], ["Reuse the mapplet", "Both mappings clean addresses the same way", "Data preview"], ["Switch connections by parameter", "Mapping runs against test", "Session log"]],
+          "objectives": ["Parameterise mappings", "Reuse logic", "Configure environments"]
+        },
+        {
+          "topic": "Taskflows and Scheduling",
+          "subtopics": ["Taskflows", "Sequential and parallel steps", "Decision steps", "Notifications", "Schedules", "File listeners", "Taskflow parameters", "Restarting failed taskflows"],
+          "tools": ["Taskflows", "Schedules", "File listener"],
+          "lab_task": "Build a taskflow that loads staging tables in parallel, then dimensions and facts, sends a notification and starts when a file arrives.",
+          "deliverable": "Taskflow, schedule and run history",
+          "checks": [["Drop a file", "Taskflow starts", "Monitor page"], ["Fail a step", "Notification sent and later steps skipped", "Monitor page"], ["Restart from the failure", "Completes without re-running earlier steps", "Monitor page"]],
+          "objectives": ["Orchestrate with taskflows", "Schedule jobs", "Restart failures"]
+        },
+        {
+          "topic": "Error Handling and Reject Data",
+          "subtopics": ["Row errors and fatal errors", "Error rows and reject files", "Error handling settings", "Data validation in mappings", "Error tables", "Notifications on errors", "Reprocessing rejected rows", "Error reporting"],
+          "tools": ["Mapping tasks", "Error tables"],
+          "lab_task": "Send invalid rows to an error table with reasons, stop the job when errors pass a threshold and reprocess fixed rows.",
+          "deliverable": "Mapping, error table and reprocessing evidence",
+          "checks": [["Load invalid rows", "Rows in the error table with reasons", "Query result"], ["Exceed the error threshold", "Job stops", "Monitor page"], ["Reprocess fixed rows", "Rows loaded once", "Row counts"]],
+          "objectives": ["Handle errors", "Capture rejects", "Reprocess data"]
+        },
+        {
+          "topic": "Incremental Loads and Change Detection",
+          "subtopics": ["Full and incremental loads", "Watermarks and last run time", "In-out parameters for watermarks", "Change data capture options", "Detecting changes with hashes", "Deletes in sources", "Late-arriving data", "Testing incremental logic"],
+          "tools": ["Mapping Designer", "In-out parameters"],
+          "lab_task": "Load orders incrementally with an in-out parameter watermark, detect changed customers with hashes and handle deleted source rows.",
+          "deliverable": "Incremental mapping and test results",
+          "checks": [["Run twice with no changes", "Second run loads nothing", "Row counts"], ["Change a customer", "Change detected and loaded", "Target table"], ["Delete a source row", "Delete handled as designed", "Target table"]],
+          "objectives": ["Load incrementally", "Detect changes", "Handle deletes"]
+        },
+        {
+          "topic": "Slowly Changing Dimensions",
+          "subtopics": ["SCD types 1, 2 and 3", "Surrogate keys", "Effective dates and current flags", "SCD type 2 mapping design", "Lookups for SCD", "Late changes", "Testing SCD logic", "Performance of SCD loads"],
+          "tools": ["Mapping Designer", "Lookup and Router transformations"],
+          "lab_task": "Build a type 2 customer dimension that keeps history with effective dates and a current flag, and test address changes and repeated loads.",
+          "deliverable": "SCD mapping and test results",
+          "checks": [["Change an address", "New row added and old row closed", "Query result"], ["Re-run the load", "No new rows", "Row counts"], ["Check current flags", "One current row per customer", "Query result"]],
+          "objectives": ["Build SCD loads", "Keep history", "Test SCD logic"]
+        },
+        {
+          "topic": "Loading Facts and Building a Star Schema",
+          "subtopics": ["Fact table design", "Surrogate key lookups", "Unknown members", "Loading order: dimensions then facts", "Aggregated fact tables", "Reconciliation with sources", "Partitioned targets", "Documentation"],
+          "tools": ["Mapping Designer", "Taskflows", "Snowflake or another warehouse"],
+          "lab_task": "Load the sales fact table with surrogate key lookups and unknown members, build a daily aggregate and reconcile totals with the source.",
+          "deliverable": "Fact mappings, taskflow and reconciliation",
+          "checks": [["Load facts", "All rows have dimension keys or unknown members", "Query result"], ["Reconcile totals", "Fact totals match the source", "Reconciliation table"], ["Load in order", "Dimensions before facts in the taskflow", "Taskflow"]],
+          "objectives": ["Load facts", "Use surrogate keys", "Reconcile loads"]
+        },
+        {
+          "topic": "Loading Cloud Data Warehouses with Pushdown Optimisation",
+          "subtopics": ["Cloud warehouse targets", "Bulk loading", "Pushdown optimisation", "Source, target and full pushdown", "What can and cannot be pushed down", "Staging in cloud storage", "Cost of pushdown", "Comparing run times"],
+          "tools": ["Snowflake", "Pushdown optimisation", "Cloud storage"],
+          "lab_task": "Load the warehouse in Snowflake with and without full pushdown, read the generated SQL and compare run times and warehouse cost.",
+          "deliverable": "Run comparison and generated SQL",
+          "checks": [["Turn on pushdown", "Transformations run as SQL in Snowflake", "Session log"], ["Compare run times", "Time for both modes", "Comparison table"], ["Find a non-pushable step", "Step identified and changed", "Session log"]],
+          "objectives": ["Load cloud warehouses", "Use pushdown", "Compare cost and speed"]
+        },
+        {
+          "topic": "PowerCenter Essentials for Existing Projects",
+          "subtopics": ["PowerCenter architecture: repository, integration service and clients", "Designer, Workflow Manager and Workflow Monitor", "Mappings, sessions and workflows", "Reading existing PowerCenter mappings", "Session logs", "Parameter files in PowerCenter", "Common PowerCenter patterns", "PowerCenter compared with Cloud Data Integration"],
+          "tools": ["Informatica PowerCenter", "Workflow Monitor"],
+          "lab_task": "Open an existing PowerCenter workflow, trace a mapping from source to target, read a failed session log and change a parameter file to re-run it.",
+          "deliverable": "Trace notes and re-run evidence",
+          "checks": [["Trace the mapping", "Each transformation explained", "Trace notes"], ["Read the session log", "Failure cause found", "Session log"], ["Re-run with a new parameter", "Session succeeds", "Workflow Monitor"]],
+          "objectives": ["Read PowerCenter work", "Use Workflow Monitor", "Support existing projects"]
+        },
+        {
+          "topic": "Monitoring Jobs and Reading Session Logs",
+          "subtopics": ["The Monitor service", "Job status and row counts", "Session logs", "Common errors", "Performance statistics", "Alerts and notifications", "Job history", "Escalation to support"],
+          "tools": ["IDMC Monitor", "Session logs"],
+          "lab_task": "Diagnose four failed jobs from their logs (a connection failure, a data type error, a lookup cache problem and a target constraint error) and fix each.",
+          "deliverable": "Diagnosis notes and fixed jobs",
+          "checks": [["Fix the data type error", "Cause found and job succeeds", "Session log"], ["Fix the constraint error", "Rows load after the fix", "Monitor page"], ["Review history", "Failures and fixes recorded", "Job history"]],
+          "objectives": ["Monitor jobs", "Read logs", "Fix common failures"]
+        },
+        {
+          "topic": "Profiling and Cleansing Data in Informatica",
+          "subtopics": ["Data quality dimensions", "Profiling data", "Cleansing rules", "Standardisation", "Duplicate detection basics", "Data quality scorecards", "Embedding rules in mappings", "Quality reports"],
+          "tools": ["Informatica Cloud Data Quality", "Data Profiling"],
+          "lab_task": "Profile customer data, create cleansing and standardisation rules, use them in the load mapping and build a scorecard.",
+          "deliverable": "Profile, rules and scorecard",
+          "checks": [["Run the profile", "Nulls, patterns and duplicates found", "Profile results"], ["Apply rules in the mapping", "Cleaned data in the target", "Data preview"], ["Build the scorecard", "Quality scores shown", "Scorecard"]],
+          "objectives": ["Profile data", "Cleanse data", "Measure quality"]
+        },
+        {
+          "topic": "Good Mapping Design and Development Standards",
+          "subtopics": ["Naming standards", "Simple mappings over complex ones", "Reusable components", "Comments and documentation", "Version control and export", "Peer review", "Test data and unit tests", "Performance habits"],
+          "tools": ["IDMC", "Version control", "Review checklist"],
+          "lab_task": "Review three poorly built mappings against a standards checklist, fix naming, complexity and documentation problems and export the fixed assets to version control.",
+          "deliverable": "Fixed mappings, review notes and exported assets",
+          "checks": [["Apply the checklist", "Every item passes", "Review checklist"], ["Simplify a mapping", "Fewer transformations with the same output", "Comparison"], ["Export to version control", "Assets committed", "Repository"]],
+          "objectives": ["Follow standards", "Review mappings", "Version assets"]
+        },
+        {
+          "topic": "Beginner Capstone: Retail Sales Data Warehouse Load",
+          "subtopics": ["Design", "Build", "Orchestration and quality", "Demo"],
+          "tools": ["Informatica Cloud Data Integration", "Taskflows", "Snowflake or another warehouse"],
+          "lab_task": "Build the retail warehouse load: staging from files and SQL Server, cleansing, SCD type 2 customers, facts with surrogate keys, incremental loads, error handling and a scheduled taskflow, then demo it with reconciliation.",
+          "deliverable": "Mappings, taskflow, reconciliation and demo recording",
+          "checks": [["Run the full taskflow", "All steps succeed", "Monitor page"], ["Reconcile", "Warehouse totals match sources", "Reconciliation table"], ["Load bad rows during the demo", "Rejected with reasons and the load continues", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one load", "Build a warehouse with Informatica", "Prove it with reconciliation"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Informatica developers who run production loads. Covers performance tuning, partitioning, advanced lookups, advanced transformations, dynamic mappings, mass ingestion, CDC, Application Integration and APIs, data quality in depth, master data concepts, metadata and lineage with the data catalogue, deployment between environments, the REST API, Secure Agent operations, security, operational monitoring, PowerCenter to cloud migration, Spark and elastic mappings, testing and certification preparation.",
+      "prerequisites": ["Builds mappings and taskflows with core transformations", "Loads warehouses with incremental and SCD logic", "Reads session logs to fix failures"],
+      "outcomes": ["Tune and scale data integration jobs", "Build dynamic, CDC and API-based integrations", "Govern data with quality, catalogue and lineage", "Deploy, secure, operate and migrate Informatica workloads"],
+      "days": [
+        {
+          "topic": "Performance Tuning for Mappings and Tasks",
+          "subtopics": ["Finding bottlenecks: source, transformation or target", "Session statistics", "Source query tuning", "Lookup cache tuning", "Sorted input", "Commit intervals and bulk loading", "Pushdown and partitioning in tuning", "Recording tuning results"],
+          "tools": ["IDMC", "Session logs", "Database query plans"],
+          "lab_task": "Tune a slow load by finding its bottleneck, tuning the source query, lookup caches and commit settings, and recording each change and its effect.",
+          "deliverable": "Tuning log with timings",
+          "checks": [["Find the bottleneck", "Slowest stage identified from statistics", "Session statistics"], ["Tune the lookup", "Cache build time lower", "Session log"], ["Compare final and first runs", "Run time reduced", "Timing table"]],
+          "objectives": ["Find bottlenecks", "Tune mappings", "Record results"]
+        },
+        {
+          "topic": "Partitioning and Parallel Processing",
+          "subtopics": ["Partition types", "Key range and hash partitioning", "Pass-through partitioning", "Database partitioning", "Parallel taskflow steps", "Secure Agent capacity", "Partitioning pitfalls", "Measuring gains"],
+          "tools": ["IDMC", "Secure Agent", "Partitioning options"],
+          "lab_task": "Partition a large fact load by key range, run independent loads in parallel and measure throughput and agent resource use.",
+          "deliverable": "Configuration and measurements",
+          "checks": [["Partition the load", "Rows split across partitions", "Session log"], ["Compare throughput", "Faster than a single partition", "Timing table"], ["Watch agent resources", "CPU and memory recorded", "Agent metrics"]],
+          "objectives": ["Partition loads", "Run in parallel", "Watch capacity"]
+        },
+        {
+          "topic": "Advanced Lookups and Caching",
+          "subtopics": ["Dynamic lookup cache", "Persistent caches", "Shared caches", "Lookup on large tables", "Unconnected lookups in expressions", "Lookup SQL overrides", "Cache memory settings", "Choosing lookup strategies"],
+          "tools": ["Lookup transformation", "Cache settings"],
+          "lab_task": "Use a dynamic lookup cache to detect new and changed rows in one pass, share a persistent cache between two tasks and measure memory use.",
+          "deliverable": "Mappings and measurements",
+          "checks": [["Use the dynamic cache", "New and changed rows flagged in one pass", "Data preview"], ["Share a persistent cache", "Second task reuses it", "Session log"], ["Measure memory", "Cache memory recorded", "Session statistics"]],
+          "objectives": ["Use advanced lookups", "Share caches", "Tune memory"]
+        },
+        {
+          "topic": "Dynamic Mappings and Schema Drift",
+          "subtopics": ["Dynamic mappings", "Field rules", "Schema drift", "Parameterised sources and targets", "Mapping task templates", "Loading many tables with one mapping", "Testing dynamic mappings", "Limits of dynamic design"],
+          "tools": ["Mapping Designer", "Dynamic mappings"],
+          "lab_task": "Build one dynamic mapping that loads 20 staging tables with field rules, add a column to a source and confirm it flows through.",
+          "deliverable": "Dynamic mapping, task list and drift test",
+          "checks": [["Load 20 tables", "All loaded from one mapping", "Monitor page"], ["Add a source column", "New column appears in the target", "Target table"], ["Review limits", "Cases unsuitable for dynamic mappings listed", "Notes"]],
+          "objectives": ["Build dynamic mappings", "Handle schema drift", "Load many tables"]
+        },
+        {
+          "topic": "Mass Ingestion for Files, Databases and Streams",
+          "subtopics": ["Mass Ingestion services", "File ingestion", "Database ingestion: initial and incremental loads", "Streaming ingestion in brief", "Targets: cloud storage and warehouses", "Monitoring ingestion jobs", "Schema changes during ingestion", "Choosing ingestion or mappings"],
+          "tools": ["Mass Ingestion", "Cloud storage", "Cloud warehouse"],
+          "lab_task": "Ingest a whole SQL Server schema to a cloud warehouse with database ingestion, then incremental changes, and land daily files in cloud storage with file ingestion.",
+          "deliverable": "Ingestion tasks and monitoring evidence",
+          "checks": [["Run the initial load", "All tables loaded", "Monitor page"], ["Change source rows", "Changes applied incrementally", "Target query"], ["Land files", "Files in cloud storage", "Storage listing"]],
+          "objectives": ["Use mass ingestion", "Load whole schemas", "Choose ingestion approaches"]
+        },
+        {
+          "topic": "Change Data Capture with Informatica",
+          "subtopics": ["CDC concepts", "Log-based CDC sources", "Database prerequisites", "Applying inserts, updates and deletes", "Ordering and consistency", "Restart and recovery", "Monitoring CDC lag", "CDC compared with watermark loads"],
+          "tools": ["Informatica CDC", "Oracle or SQL Server"],
+          "lab_task": "Capture changes from SQL Server logs, apply them to the warehouse, stop and restart the job and measure lag under load.",
+          "deliverable": "CDC configuration and test results",
+          "checks": [["Update source rows", "Changes applied in order", "Target query"], ["Restart the job", "Resumes without gaps or duplicates", "Row counts"], ["Measure lag", "Lag recorded under load", "Monitor page"]],
+          "objectives": ["Capture changes", "Apply CDC safely", "Monitor lag"]
+        },
+        {
+          "topic": "Application Integration and APIs",
+          "subtopics": ["Cloud Application Integration", "Processes and service connectors", "REST and SOAP", "Real-time compared with batch integration", "Exposing processes as APIs", "Calling APIs from mappings", "Error handling in processes", "API security"],
+          "tools": ["Cloud Application Integration", "Postman"],
+          "lab_task": "Build a process that receives an order through a REST API, validates it, writes it to a database and calls a shipping API, and expose it securely.",
+          "deliverable": "Process, API definition and test results",
+          "checks": [["Call the API", "Order stored and shipping called", "Postman result and database query"], ["Send an invalid order", "Error returned clearly", "Postman result"], ["Call without credentials", "Refused", "Postman result"]],
+          "objectives": ["Build integration processes", "Expose APIs", "Handle errors"]
+        },
+        {
+          "topic": "Data Quality in Depth",
+          "subtopics": ["Rule specifications", "Cleanse assets", "Parsing and standardising addresses and names", "Matching and deduplication", "Exception management", "Data quality in pipelines", "Scorecards and trends", "Ownership of quality rules"],
+          "tools": ["Cloud Data Quality", "Rule specifications", "Dictionaries"],
+          "lab_task": "Build rule specifications for customer data, match and merge duplicates, route exceptions for review and track quality trends over a month of loads.",
+          "deliverable": "Rules, match results and trend scorecard",
+          "checks": [["Match duplicates", "Duplicate groups found", "Match results"], ["Route exceptions", "Exceptions listed for stewards", "Exception list"], ["Track trends", "Scores over time shown", "Scorecard"]],
+          "objectives": ["Build quality rules", "Deduplicate data", "Manage exceptions"]
+        },
+        {
+          "topic": "Master Data Management Concepts",
+          "subtopics": ["What master data is", "MDM styles: registry, consolidation and centralised", "Golden records", "Match and merge in MDM", "Data stewardship", "Hierarchies", "Informatica MDM SaaS in brief", "When an organisation needs MDM"],
+          "tools": ["Informatica MDM (overview)", "Data quality tools"],
+          "lab_task": "Design a customer master for a company with three systems, define match and survivorship rules for the golden record and plan stewardship.",
+          "deliverable": "MDM design, rules and stewardship plan",
+          "checks": [["Define match rules", "Rules find true duplicates in sample data", "Test results"], ["Define survivorship", "Golden record fields chosen with rules", "Rule table"], ["Plan stewardship", "Roles and processes defined", "Stewardship plan"]],
+          "objectives": ["Understand MDM", "Design golden records", "Plan stewardship"]
+        },
+        {
+          "topic": "Metadata, Lineage and the Data Catalogue",
+          "subtopics": ["Cloud Data Governance and Catalog", "Scanning sources", "Business glossary", "Lineage from mappings", "Impact analysis", "Data classification", "Search and discovery", "Governance workflows"],
+          "tools": ["Cloud Data Governance and Catalog"],
+          "lab_task": "Scan the warehouse and mappings, link glossary terms to columns, trace lineage from source to report and run impact analysis for a column change.",
+          "deliverable": "Catalogue entries, lineage and impact report",
+          "checks": [["View lineage", "Source to warehouse path shown", "Lineage view"], ["Run impact analysis", "Affected mappings listed", "Impact report"], ["Link glossary terms", "Terms shown on columns", "Catalogue screenshot"]],
+          "objectives": ["Catalogue data", "Trace lineage", "Analyse impact"]
+        },
+        {
+          "topic": "Deploying Between Environments",
+          "subtopics": ["Development, test and production organisations", "Export and import", "Asset dependencies", "Connection and parameter differences", "Source control integration", "Release packages", "Rollback", "Release documentation"],
+          "tools": ["IDMC export and import", "Git integration"],
+          "lab_task": "Promote a project from development to test with export and import, switch connections by environment and set up Git integration for assets.",
+          "deliverable": "Release package, import log and Git history",
+          "checks": [["Import to test", "Assets and dependencies imported", "Import log"], ["Run in test", "Uses test connections", "Session log"], ["Commit assets", "Asset versions in Git", "Repository"]],
+          "objectives": ["Promote assets", "Manage environment differences", "Version assets"]
+        },
+        {
+          "topic": "Automating with the IDMC REST API",
+          "subtopics": ["REST API overview", "Logging in and sessions", "Running tasks through the API", "Checking job status", "Exporting and importing through the API", "Managing connections", "Scripting in Python", "Integrating with CI/CD and schedulers"],
+          "tools": ["IDMC REST API", "Python", "Postman"],
+          "lab_task": "Write Python scripts that start a taskflow, wait for its result, export a project and update a connection through the REST API.",
+          "deliverable": "Scripts and run logs",
+          "checks": [["Start a taskflow", "Job started and completed", "Script output"], ["Export a project", "Export file downloaded", "Script output"], ["Update a connection", "Change applied", "Connection page"]],
+          "objectives": ["Automate IDMC", "Script operations", "Integrate with other tools"]
+        },
+        {
+          "topic": "Secure Agent Operations and High Availability",
+          "subtopics": ["Agent groups", "High availability with several agents", "Agent sizing", "Agent upgrades", "Agent logs", "Network and proxy settings", "Monitoring agents", "Troubleshooting agents"],
+          "tools": ["Secure Agent", "Runtime environments"],
+          "lab_task": "Create an agent group with two agents, stop one during a job, size agents for the workload and fix an agent that cannot reach the cloud.",
+          "deliverable": "Agent configuration and test results",
+          "checks": [["Stop one agent", "Jobs continue on the other", "Monitor page"], ["Fix connectivity", "Agent back online after the fix", "Agent status"], ["Size agents", "Sizing justified by workload", "Sizing notes"]],
+          "objectives": ["Run Secure Agents", "Provide high availability", "Troubleshoot agents"]
+        },
+        {
+          "topic": "Security, Roles and Data Protection",
+          "subtopics": ["Users, groups and roles", "Asset permissions", "Single sign-on", "Secure connections and encryption", "Data masking", "Audit logs", "Sensitive data handling", "Security reviews"],
+          "tools": ["IDMC Administrator", "Data masking"],
+          "lab_task": "Set up roles for developers and operators, restrict production assets, turn on SSO, mask personal data for test environments and review audit logs.",
+          "deliverable": "Security configuration and audit review",
+          "checks": [["Edit a production asset as a developer", "Not allowed", "UI message"], ["Run the masking task", "Personal data masked in test", "Data preview"], ["Review audit logs", "Changes listed by user", "Audit log"]],
+          "objectives": ["Secure IDMC", "Mask data", "Audit access"]
+        },
+        {
+          "topic": "Operational Monitoring and Support",
+          "subtopics": ["Job monitoring at scale", "Alerts and notifications", "Operational dashboards", "Support runbooks", "Service levels for loads", "Handling late sources", "Communication during failures", "Reporting on operations"],
+          "tools": ["IDMC Monitor", "Operational Insights", "Notifications"],
+          "lab_task": "Build an operations dashboard for nightly loads, alert on failures and late finishes, write runbooks for the top failures and report service levels for a month.",
+          "deliverable": "Dashboard, alerts, runbooks and report",
+          "checks": [["Fail a load", "Alert sent with a runbook link", "Notification"], ["Finish late", "Late alert sent", "Notification"], ["Report service levels", "Loads on time per month", "Report"]],
+          "objectives": ["Monitor operations", "Alert on failures", "Support loads"]
+        },
+        {
+          "topic": "Migrating from PowerCenter to Cloud Data Integration",
+          "subtopics": ["Why migrate", "Assessment of PowerCenter estates", "Migration tools and conversion", "Unsupported features", "Testing converted mappings", "Running in parallel", "Cutover", "Retiring PowerCenter"],
+          "tools": ["PowerCenter", "Cloud Data Integration", "Migration utilities"],
+          "lab_task": "Assess a sample PowerCenter repository, convert three workflows to Cloud Data Integration, fix conversion problems and validate outputs against PowerCenter.",
+          "deliverable": "Assessment, converted assets and validation report",
+          "checks": [["Run the assessment", "Complexity and blockers listed", "Assessment report"], ["Convert workflows", "Converted assets run", "Monitor page"], ["Validate outputs", "Same results as PowerCenter", "Validation report"]],
+          "objectives": ["Assess PowerCenter estates", "Convert to the cloud", "Validate migrations"]
+        },
+        {
+          "topic": "Elastic Mappings and Spark Processing",
+          "subtopics": ["Advanced mode and elastic processing", "Spark clusters behind mappings", "When elastic mappings help", "Hierarchical data in elastic mappings", "Cluster configuration", "Cost of elastic processing", "Monitoring Spark jobs", "Elastic compared with pushdown"],
+          "tools": ["Cloud Data Integration advanced mode", "Spark"],
+          "lab_task": "Run a large JSON processing mapping in advanced mode on Spark, compare time and cost with standard mode and pushdown and choose the right engine.",
+          "deliverable": "Run comparison and recommendation",
+          "checks": [["Run in advanced mode", "Mapping runs on the Spark cluster", "Monitor page"], ["Compare engines", "Time and cost for each", "Comparison table"], ["Write the recommendation", "Engine chosen with reasons", "Recommendation"]],
+          "objectives": ["Use elastic processing", "Compare engines", "Control cost"]
+        },
+        {
+          "topic": "Testing Informatica Workloads",
+          "subtopics": ["Test levels for ETL", "Unit testing mappings", "Test data sets", "Data validation and reconciliation tests", "Regression testing", "Automating tests with scripts", "Test evidence", "Testing after upgrades"],
+          "tools": ["IDMC", "SQL", "Python test scripts"],
+          "lab_task": "Write unit tests with fixed test data for three mappings, automate reconciliation tests in Python and run a regression suite after a change.",
+          "deliverable": "Test data, scripts and results",
+          "checks": [["Run unit tests", "Expected outputs produced", "Test results"], ["Break a mapping", "Regression test fails", "Test results"], ["Reconcile automatically", "Differences reported", "Script output"]],
+          "objectives": ["Test ETL", "Automate reconciliation", "Run regressions"]
+        },
+        {
+          "topic": "Cloud Data Integration Certification Preparation",
+          "subtopics": ["Certification topics", "Mapping and transformation questions", "Taskflow questions", "Administration questions", "Performance questions", "Common traps", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "IDMC documentation"],
+          "lab_task": "Take a timed practice exam, rebuild wrong answers in IDMC, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Rebuild wrong answers", "Each confirmed in IDMC", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Near-Real-Time Customer Data Hub",
+          "subtopics": ["Design", "Ingestion and CDC", "Quality and APIs", "Operations"],
+          "tools": ["Mass Ingestion", "CDC", "Cloud Data Quality", "Application Integration", "Data Catalog"],
+          "lab_task": "Build a customer data hub fed by CDC and mass ingestion, with quality rules and deduplication, an API for lookups, lineage in the catalogue, environment promotion and monitoring, then demo a failure and recovery.",
+          "deliverable": "Assets, catalogue entries, dashboards and demo recording",
+          "checks": [["Change a source customer", "Hub updated within minutes", "Demo recording"], ["Restart CDC after a failure", "No gaps or duplicates", "Demo recording"], ["Present lineage", "Source to hub path shown", "Lineage view"]],
+          "objectives": ["Combine the intermediate topics in one hub", "Deliver near-real-time integration", "Govern and operate it"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior integration engineers and architects. Covers integration architecture, IDMC platform design, high-volume performance, CDC at scale, real-time and event-driven integration, API management, enterprise data quality, MDM implementation, governance programmes, privacy and masking, DevOps and CI/CD, large migrations, hybrid and multi-cloud, cost, AI with CLAIRE, platform operations, alternatives, production troubleshooting and integration strategy.",
+      "prerequisites": ["Runs production Informatica workloads with CDC, quality and APIs", "Promotes assets between environments", "Tunes mappings and agents"],
+      "outcomes": ["Design enterprise integration and governance on IDMC", "Run high-volume, real-time and hybrid integration reliably", "Lead migrations, DevOps and cost control", "Choose and justify integration tools and strategy"],
+      "days": [
+        {
+          "topic": "Enterprise Data Integration Architecture",
+          "subtopics": ["Integration patterns: batch, CDC, streaming and APIs", "Hub-and-spoke and point-to-point", "Integration layers in a data platform", "Where Informatica fits with warehouses and lakes", "Non-functional requirements", "Reference architectures", "Architecture decision records", "Reviewing designs"],
+          "tools": ["Architecture diagrams", "Decision record templates"],
+          "lab_task": "Design integration for a bank with 40 source systems, choose patterns per source, place IDMC in the platform and defend the design in a review.",
+          "deliverable": "Architecture, decision records and review notes",
+          "checks": [["Choose patterns", "Pattern justified for each source group", "Decision records"], ["Check non-functional needs", "Volumes, latency and recovery covered", "Architecture document"], ["Defend the design", "Questions answered with trade-offs", "Review notes"]],
+          "objectives": ["Design integration architecture", "Choose patterns", "Record decisions"]
+        },
+        {
+          "topic": "IDMC Platform Design: Organisations, Runtimes and Environments",
+          "subtopics": ["Organisation and sub-organisation design", "Runtime environment strategy", "Agent placement near data", "Serverless runtimes", "Environment separation", "Licensing and IPU consumption", "Naming and standards", "Platform documentation"],
+          "tools": ["IDMC Administrator", "Runtime environments"],
+          "lab_task": "Design the IDMC organisation structure, runtimes and environments for three business units with data in two clouds and on-premises, and estimate IPU consumption.",
+          "deliverable": "Platform design and IPU estimate",
+          "checks": [["Place agents", "Agents close to each data source", "Platform design"], ["Separate environments", "Development, test and production isolated", "Platform design"], ["Estimate IPUs", "Monthly consumption estimated", "IPU estimate"]],
+          "objectives": ["Design IDMC platforms", "Place runtimes", "Plan consumption"]
+        },
+        {
+          "topic": "High-Volume Performance Engineering",
+          "subtopics": ["Throughput targets", "End-to-end tuning across source, agent and target", "Bulk APIs and loaders", "Parallelism at scale", "Memory and disk on agents", "Network limits", "Benchmarking", "Performance regression tests"],
+          "tools": ["IDMC", "Secure Agent metrics", "Database monitoring"],
+          "lab_task": "Tune a 500-million-row nightly load to finish within the window, record each change and add a regression test that fails if run time grows by 20 percent.",
+          "deliverable": "Tuning log and regression test",
+          "checks": [["Meet the window", "Load finishes in time", "Monitor page"], ["Record each change", "Effect of each change measured", "Tuning log"], ["Slow the job on purpose", "Regression test fails", "Test output"]],
+          "objectives": ["Tune at high volume", "Benchmark", "Prevent regressions"]
+        },
+        {
+          "topic": "CDC at Scale and Replication Design",
+          "subtopics": ["Many sources and tables", "Initial loads and switchover to CDC", "Throughput and lag at scale", "Schema changes in CDC", "Recovery and resynchronisation", "Consistency across tables", "Monitoring and alerting", "Capacity planning for CDC"],
+          "tools": ["Informatica CDC", "Mass Ingestion", "Monitoring"],
+          "lab_task": "Replicate 300 tables with CDC, change a source schema, recover after a long outage with resynchronisation and keep lag within the target.",
+          "deliverable": "Replication design, test results and capacity plan",
+          "checks": [["Change a source schema", "Change handled without stopping", "Monitor page"], ["Recover after an outage", "Tables resynchronised", "Validation report"], ["Measure lag", "Within target at peak", "Lag report"]],
+          "objectives": ["Run CDC at scale", "Handle schema changes", "Recover replication"]
+        },
+        {
+          "topic": "Real-Time and Event-Driven Integration",
+          "subtopics": ["Event-driven patterns", "Streaming ingestion to Kafka and cloud streams", "Processing events in Application Integration", "Combining events and batch", "Ordering and duplicates", "Back-pressure", "Monitoring real-time flows", "When real time is worth it"],
+          "tools": ["Streaming Ingestion", "Apache Kafka", "Application Integration"],
+          "lab_task": "Stream order events through Kafka into the warehouse and an operational API, handle duplicates and late events and compare cost with a 15-minute batch.",
+          "deliverable": "Flows, test results and cost comparison",
+          "checks": [["Send duplicates", "Applied once", "Target query"], ["Measure end-to-end latency", "Latency recorded", "Monitoring"], ["Compare with batch", "Cost and latency trade-off stated", "Comparison"]],
+          "objectives": ["Build real-time integration", "Handle event problems", "Decide when to use real time"]
+        },
+        {
+          "topic": "API Management and Integration Services",
+          "subtopics": ["API strategy for integration", "API Center and API management", "Policies: rate limits and security", "Versioning APIs", "Developer portals", "Monitoring API use", "Error handling standards", "Retiring APIs"],
+          "tools": ["Application Integration", "API management"],
+          "lab_task": "Publish integration APIs with rate limits, OAuth and versioning, document them in a developer portal and monitor use.",
+          "deliverable": "API definitions, policies and monitoring",
+          "checks": [["Exceed the rate limit", "Requests rejected", "API response"], ["Call version 1 after version 2", "Still works", "API response"], ["Monitor use", "Calls and errors per API shown", "Dashboard"]],
+          "objectives": ["Manage integration APIs", "Apply policies", "Monitor use"]
+        },
+        {
+          "topic": "Enterprise Data Quality Programmes",
+          "subtopics": ["Quality strategy", "Critical data elements", "Rule libraries", "Quality at entry and in pipelines", "Stewardship workflows", "Quality metrics for leaders", "Root cause analysis for bad data", "Funding quality work"],
+          "tools": ["Cloud Data Quality", "Data Governance and Catalog"],
+          "lab_task": "Define critical data elements for customer and product data, build a shared rule library, set up stewardship and report quality trends to leadership.",
+          "deliverable": "Programme plan, rule library and leadership report",
+          "checks": [["Define critical elements", "Elements with owners and rules", "Programme plan"], ["Run stewardship", "Issues assigned and resolved", "Stewardship queue"], ["Report to leadership", "Trends and actions clear", "Report"]],
+          "objectives": ["Run quality programmes", "Share rules", "Report quality"]
+        },
+        {
+          "topic": "Implementing Master Data Management",
+          "subtopics": ["MDM implementation phases", "Data model for the master", "Match and merge tuning", "Survivorship rules", "Stewardship and workflows", "Publishing master data", "Hierarchy management", "Measuring MDM success"],
+          "tools": ["Informatica MDM SaaS", "Cloud Data Quality"],
+          "lab_task": "Implement a customer master with matching, survivorship and stewardship, publish golden records to two systems and measure duplicate reduction.",
+          "deliverable": "MDM configuration, published records and results",
+          "checks": [["Tune matching", "False matches reduced on test data", "Match results"], ["Publish golden records", "Both systems receive them", "Integration logs"], ["Measure duplicates", "Duplicate rate reduced", "Results table"]],
+          "objectives": ["Implement MDM", "Tune matching", "Publish master data"]
+        },
+        {
+          "topic": "Data Governance Programmes with the Catalogue",
+          "subtopics": ["Governance operating models", "Glossary and ownership", "Policies and classifications", "Lineage for compliance", "Data marketplace and access requests", "Governance metrics", "Adoption across the business", "Governance reviews"],
+          "tools": ["Cloud Data Governance and Catalog", "Data Marketplace"],
+          "lab_task": "Set up glossary ownership, classify personal data automatically, publish data products in the marketplace with access requests and report governance metrics.",
+          "deliverable": "Governance set-up, marketplace and metrics",
+          "checks": [["Classify personal data", "Columns tagged automatically", "Catalogue screenshot"], ["Request access", "Request approved through the workflow", "Marketplace history"], ["Report metrics", "Ownership and coverage measured", "Report"]],
+          "objectives": ["Run governance", "Classify data", "Share data products"]
+        },
+        {
+          "topic": "Privacy, Masking and Test Data Management",
+          "subtopics": ["Privacy regulations and data integration", "Persistent and dynamic masking", "Masking rules that keep data usable", "Test data subsets", "Synthetic data", "Masking in pipelines", "Evidence for privacy audits", "Data subject requests"],
+          "tools": ["Informatica data masking", "Test Data Management"],
+          "lab_task": "Create a masked and subsetted copy of production for testing that keeps referential integrity, and handle a data subject deletion request across systems.",
+          "deliverable": "Masking rules, test database and deletion evidence",
+          "checks": [["Query the test copy", "No real personal data", "Query result"], ["Check referential integrity", "Keys still join", "Query result"], ["Process the deletion request", "Data removed across systems", "Evidence log"]],
+          "objectives": ["Protect privacy", "Mask data", "Manage test data"]
+        },
+        {
+          "topic": "DevOps and CI/CD for Informatica",
+          "subtopics": ["Source control for IDMC assets", "Branching and code review", "Automated deployment through the REST API", "Automated tests in pipelines", "Environment configuration", "Approvals", "Rollback", "Measuring delivery"],
+          "tools": ["Git", "IDMC REST API", "GitHub Actions or Azure DevOps"],
+          "lab_task": "Build a pipeline that exports assets on merge, runs unit and reconciliation tests in test, deploys to production after approval and rolls back on failure.",
+          "deliverable": "Pipeline, tests and deployment history",
+          "checks": [["Merge a change", "Deployed to test with tests run", "Pipeline log"], ["Fail a test", "Production deployment blocked", "Pipeline log"], ["Roll back", "Previous version restored", "Deployment history"]],
+          "objectives": ["Apply DevOps to ETL", "Automate deployment", "Roll back safely"]
+        },
+        {
+          "topic": "Large-Scale Migration Programmes",
+          "subtopics": ["Migration strategy", "Inventory and complexity scoring", "Waves", "Automated conversion", "Testing at scale", "Parallel runs", "Cutover and hypercare", "Decommissioning"],
+          "tools": ["Migration utilities", "Test automation", "Programme plans"],
+          "lab_task": "Plan a migration of 2,000 PowerCenter workflows in waves, convert and test one wave with automation and write the cutover and hypercare plan.",
+          "deliverable": "Migration plan, wave results and cutover plan",
+          "checks": [["Score complexity", "Workflows grouped into waves", "Inventory"], ["Test the wave", "Automated tests pass", "Test report"], ["Review the cutover plan", "Hypercare and rollback included", "Cutover plan"]],
+          "objectives": ["Plan large migrations", "Automate conversion and tests", "Cut over safely"]
+        },
+        {
+          "topic": "Hybrid and Multi-Cloud Integration",
+          "subtopics": ["Data across on-premises and several clouds", "Network paths and private connectivity", "Agent placement for cost and speed", "Data residency", "Cloud-native services compared with IDMC", "Cross-cloud data transfer cost", "Security across clouds", "Design trade-offs"],
+          "tools": ["IDMC", "AWS", "Azure", "On-premises databases"],
+          "lab_task": "Design and build integration that moves data from on-premises to AWS and Azure under residency rules, with agents placed to cut transfer cost.",
+          "deliverable": "Design, flows and cost estimate",
+          "checks": [["Check residency", "Data stays in allowed regions", "Data flow review"], ["Compare agent placements", "Transfer cost difference calculated", "Cost table"], ["Test private connectivity", "No traffic over the public internet", "Network test"]],
+          "objectives": ["Integrate across clouds", "Respect residency", "Control transfer cost"]
+        },
+        {
+          "topic": "Cost Management and IPU Optimisation",
+          "subtopics": ["How IPUs are consumed", "Monitoring consumption", "Expensive patterns", "Pushdown and elastic choices for cost", "Scheduling for cost", "Removing unused assets and jobs", "Chargeback", "Cost reviews"],
+          "tools": ["IPU consumption reports", "IDMC Monitor"],
+          "lab_task": "Find the top IPU consumers, change three jobs to cheaper patterns, remove unused jobs and report monthly savings.",
+          "deliverable": "Consumption report before and after",
+          "checks": [["List top consumers", "Jobs ranked by IPUs", "Consumption report"], ["Change three jobs", "Lower IPUs with the same output", "Consumption report"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Understand IPU cost", "Reduce consumption", "Report by team"]
+        },
+        {
+          "topic": "AI in Informatica: CLAIRE and Generative AI Features",
+          "subtopics": ["CLAIRE recommendations", "Auto-mapping and transformation suggestions", "AI-assisted data quality rules", "Catalogue enrichment with AI", "CLAIRE GPT and natural-language tasks", "Checking AI suggestions", "Governance of AI features", "Preparing data for AI workloads"],
+          "tools": ["CLAIRE", "CLAIRE GPT", "IDMC"],
+          "lab_task": "Use CLAIRE to suggest mappings and quality rules, check each suggestion, use natural-language requests to build a simple pipeline and write rules for AI use.",
+          "deliverable": "Suggestion review, generated pipeline and AI rules",
+          "checks": [["Review suggestions", "Wrong suggestions found and corrected", "Review notes"], ["Build with natural language", "Pipeline works after review", "Monitor page"], ["Write AI rules", "Rules for checking AI output defined", "Rules document"]],
+          "objectives": ["Use AI features", "Check AI output", "Govern AI use"]
+        },
+        {
+          "topic": "Platform Operations and Support Model",
+          "subtopics": ["Platform team responsibilities", "Release management for IDMC updates", "Agent fleet management", "Incident and problem management", "Capacity planning", "Support with Informatica", "Documentation and runbooks", "Platform health reporting"],
+          "tools": ["IDMC Administrator", "Monitoring", "Runbooks"],
+          "lab_task": "Design the support model for the platform, plan for the next IDMC release, automate agent upgrades and write a monthly platform health report.",
+          "deliverable": "Support model, release plan and health report",
+          "checks": [["Review the support model", "Roles and service levels defined", "Support model"], ["Upgrade agents", "Fleet upgraded without failed jobs", "Upgrade log"], ["Present the health report", "Trends and actions clear", "Report"]],
+          "objectives": ["Operate the platform", "Manage releases", "Report health"]
+        },
+        {
+          "topic": "Informatica and Alternatives: Cloud-Native ETL and ELT Tools",
+          "subtopics": ["When Informatica fits", "dbt and ELT in warehouses", "Fivetran and Airbyte", "Azure Data Factory, AWS Glue and Dataflow", "Coexistence strategies", "Total cost comparison", "Skills and hiring", "Choosing tools"],
+          "tools": ["Informatica", "dbt", "Azure Data Factory or AWS Glue"],
+          "lab_task": "Build the same load in Informatica and in a cloud-native stack, compare effort, governance, run time and total cost and recommend tools for three use cases.",
+          "deliverable": "Two implementations, comparison and recommendation",
+          "checks": [["Compare outputs", "Same results from both", "Comparison"], ["Compare total cost", "Licence, compute and effort compared", "Cost table"], ["Write the recommendation", "Tool chosen per use case", "Recommendation"]],
+          "objectives": ["Compare integration tools", "Plan coexistence", "Choose deliberately"]
+        },
+        {
+          "topic": "Troubleshooting Production Informatica Incidents",
+          "subtopics": ["An incident method for integration", "Agent failures", "Source and target outages", "Performance collapse", "CDC lag spikes", "Data quality incidents", "Working with Informatica support", "Post-incident reviews"],
+          "tools": ["IDMC Monitor", "Agent logs", "Session logs"],
+          "lab_task": "Diagnose five injected incidents (an agent out of disk, a source password change, a slow lookup after data growth, CDC lag and a bad data load), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the agent disk problem", "Agent healthy and jobs resume", "Agent status"], ["Fix the slow lookup", "Run time back to normal", "Session statistics"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose integration incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Integration Strategy and Centre of Excellence",
+          "subtopics": ["Integration strategy", "Centre of excellence roles", "Standards and reusable assets", "Intake and prioritisation", "Training and certification", "Measuring integration value", "Roadmaps", "Communicating with leadership"],
+          "tools": ["Strategy templates", "Roadmap template"],
+          "lab_task": "Write an integration strategy and centre of excellence plan for a company, with standards, intake, training and a 12-month roadmap, and present it to leadership.",
+          "deliverable": "Strategy, CoE plan and presentation",
+          "checks": [["Review standards", "Clear rules and reusable assets listed", "Strategy document"], ["Review intake", "Prioritisation criteria defined", "CoE plan"], ["Present to leadership", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Set integration strategy", "Build a centre of excellence", "Lead integration work"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Integration and Governance Platform",
+          "subtopics": ["Architecture", "Build", "Governance and operations", "Review"],
+          "tools": ["IDMC", "CDC", "Cloud Data Quality", "MDM", "Data Governance and Catalog", "REST API"],
+          "lab_task": "Design and build an integration and governance platform for a case company: hybrid runtimes, CDC and APIs, a quality programme, a customer master, catalogue and lineage, DevOps, cost reporting and a migration wave, then present it to an architecture board.",
+          "deliverable": "Architecture records, assets, pipelines, reports and board presentation",
+          "checks": [["Run the end-to-end demo", "Source change reaches the master and the warehouse", "Demo recording"], ["Deploy through the pipeline", "Tested and promoted automatically", "Pipeline log"], ["Present to the board", "Design and cost choices defended", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run integration at enterprise scale", "Defend platform decisions"]
+        }
+      ]
+    }
+  }
+}

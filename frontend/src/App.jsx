@@ -42,6 +42,7 @@ const AdminDashboard = lazyWithRetry(() => import('./pages/AdminDashboard'))
 const Trainers = lazyWithRetry(() => import('./pages/Trainers'))
 const Requirements = lazyWithRetry(() => import('./pages/Requirements'))
 const Emails = lazyWithRetry(() => import('./pages/Emails'))
+const Inbox = lazyWithRetry(() => import('./pages/Inbox'))
 const ClientRequests = lazyWithRetry(() => import('./pages/ClientRequests'))
 const LinkedInSearch = lazyWithRetry(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazyWithRetry(() => import('./pages/LinkedInPipeline'))
@@ -53,6 +54,7 @@ const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedule
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const PurchaseOrders = lazyWithRetry(() => import('./pages/PurchaseOrders'))
 const FinanceApprovals = lazyWithRetry(() => import('./pages/FinanceApprovals'))
+const TravelBookings = lazyWithRetry(() => import('./pages/TravelBookings'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
@@ -64,9 +66,20 @@ const Shortlist = lazyWithRetry(() => import('./pages/Shortlist'))
 const Shortlist1 = lazyWithRetry(() => import('./pages/Shortlist1'))
 const Profile = lazyWithRetry(() => import('./pages/Profile'))
 const ProfileReviews = lazyWithRetry(() => import('./pages/ProfileReviews'))
+const TrainerPortal = lazyWithRetry(() => import('./pages/TrainerPortal'))
+const TrainerApplications = lazyWithRetry(() => import('./pages/TrainerApplications'))
+const PartnerOpportunities = lazyWithRetry(() => import('./pages/PartnerOpportunities'))
+const ClientPortal = lazyWithRetry(() => import('./pages/ClientPortal'))
 
-function PrivateRoute({ children, isLoggedIn }) {
-  return isLoggedIn ? children : <Navigate to="/login" replace />
+function PrivateRoute({ children, isLoggedIn, user, trainerOnly = false, clientOnly = false, adminOnly = false }) {
+  if (!isLoggedIn) return <Navigate to="/login" replace />
+  if (trainerOnly) return user?.role === 'trainer' ? children : <Navigate to="/dashboard" replace />
+  if (clientOnly) return user?.role === 'client' ? children : <Navigate to="/dashboard" replace />
+  if (!['admin', 'trainer', 'client'].includes(user?.role)) return <Navigate to="/login" replace />
+  if (user?.role === 'trainer') return <Navigate to="/trainer-portal" replace />
+  if (user?.role === 'client') return <Navigate to="/client-portal" replace />
+  if (adminOnly && user?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  return children
 }
 
 function RouteBoundary({ children }) {
@@ -76,23 +89,31 @@ function RouteBoundary({ children }) {
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [authReady, setAuthReady] = useState(false)
+  const [user, setUser] = useState(null)
+  const [authReady, setAuthReady] = useState(() => {
+    // Keep public auth routes available while session restoration is checked.
+    return !['/login', '/admin-login', '/trainer-login', '/client-login', '/reset-password']
+      .includes(window.location.pathname)
+  })
   useEffect(() => {
     let active = true
-    const expired = () => setIsLoggedIn(false)
+    const expired = () => { setIsLoggedIn(false); setUser(null) }
     window.addEventListener('auth-expired', expired)
-    getSession().then(() => { if (active) setIsLoggedIn(true) })
+    getSession().then(account => { if (active) { setUser(account); setIsLoggedIn(true) } })
       .catch(() => { if (active) setIsLoggedIn(false) })
       .finally(() => { if (active) setAuthReady(true) })
     return () => { active = false; window.removeEventListener('auth-expired', expired) }
   }, [])
   const handleLogin = async () => {
-    await getSession()
+    const account = await getSession()
+    setUser(account)
     setIsLoggedIn(true)
+    return account
   }
   const handleLogout = async () => {
     try { await logoutSession() } catch { /* expired sessions already require login */ }
     setIsLoggedIn(false)
+    setUser(null)
   }
   if (!authReady) return <PageLoader />
 
@@ -110,27 +131,37 @@ export default function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/login" element={
-            isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+            isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <Login key="login-page" onLogin={handleLogin} initialRole={null} />
           } />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
-          <Route path="/auth/linkedin/callback" element={<LinkedInCallback onLogin={handleLogin} />} />
+          <Route path="/admin-login" element={isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <Login key="admin-login-page" onLogin={handleLogin} initialRole="admin" allowSignup={false} />} />
+          <Route path="/trainer-login" element={isLoggedIn ? <Navigate to={user?.role === 'trainer' ? '/trainer-portal' : user?.role === 'client' ? '/client-portal' : '/dashboard'} replace /> : <Login key="trainer-login" onLogin={handleLogin} initialRole="trainer" />} />
+          <Route path="/client-login" element={isLoggedIn ? <Navigate to={user?.role === 'client' ? '/client-portal' : user?.role === 'trainer' ? '/trainer-portal' : '/dashboard'} replace /> : <Login key="client-login" onLogin={handleLogin} initialRole="client" />} />
+          <Route path="/trainer-portal" element={
+            <PrivateRoute isLoggedIn={isLoggedIn} user={user} trainerOnly>
+              <TrainerPortal user={user} onLogout={handleLogout} />
+            </PrivateRoute>
+          } />
+          <Route path="/client-portal" element={<PrivateRoute isLoggedIn={isLoggedIn} user={user} clientOnly><ClientPortal user={user} onLogout={handleLogout} /></PrivateRoute>} />
+          <Route path="/reset-password" element={user?.role === 'trainer' ? <Navigate to="/trainer-portal" replace /> : user?.role === 'client' ? <Navigate to="/client-portal" replace /> : <ResetPassword />} />
+          <Route path="/home" element={<Home user={user} onLogout={isLoggedIn ? handleLogout : undefined} />} />
+          <Route path="/" element={<Home user={user} onLogout={isLoggedIn ? handleLogout : undefined} />} />
+          <Route path="/contact" element={user?.role === 'trainer' ? <Navigate to="/trainer-portal" replace /> : user?.role === 'client' ? <Navigate to="/client-portal" replace /> : <Contact />} />
+          <Route path="/feedback" element={user?.role === 'trainer' ? <Navigate to="/trainer-portal" replace /> : user?.role === 'client' ? <Navigate to="/client-portal" replace /> : <Feedback />} />
+          <Route path="/auth/callback" element={user?.role === 'trainer' ? <Navigate to="/trainer-portal" replace /> : user?.role === 'client' ? <Navigate to="/client-portal" replace /> : <GmailCallback onLogin={handleLogin} />} />
+          <Route path="/auth/linkedin/callback" element={user?.role === 'trainer' ? <Navigate to="/trainer-portal" replace /> : user?.role === 'client' ? <Navigate to="/client-portal" replace /> : <LinkedInCallback onLogin={handleLogin} />} />
           <Route element={
-            <PrivateRoute isLoggedIn={isLoggedIn}>
-              <Layout onLogout={handleLogout} />
+            <PrivateRoute isLoggedIn={isLoggedIn} user={user}>
+              <Layout isAdmin={user?.role === 'admin'} onLogout={handleLogout} />
             </PrivateRoute>
           }>
-            <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard"    element={<Dashboard />} />
             <Route path="admin-dashboard" element={<AdminDashboard />} />
             <Route path="trainers"     element={<Trainers />} />
+            <Route path="trainer-applications" element={<TrainerApplications />} />
+            <Route path="partner-opportunities" element={<PartnerOpportunities />} />
             <Route path="requirements" element={<Requirements />} />
             <Route path="emails"       element={<Emails />} />
-            <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />
+            <Route path="inbox"        element={<Inbox />} />
             <Route path="client-requests" element={<ClientRequests />} />
             <Route path="trainer-comms" element={<Navigate to="/dashboard" replace />} />
             <Route path="client-comms" element={<Navigate to="/dashboard" replace />} />
@@ -155,12 +186,13 @@ export default function App() {
             <Route path="invoices" element={<Invoices />} />
             <Route path="purchase-orders" element={<PurchaseOrders />} />
             <Route path="finance-approvals" element={<FinanceApprovals />} />
+            <Route path="travel-bookings" element={<TravelBookings />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
-            <Route path="admin"        element={<Admin />} />
+            <Route path="admin"        element={<PrivateRoute isLoggedIn={isLoggedIn} user={user} adminOnly><Admin /></PrivateRoute>} />
             <Route path="toc-knowledge" element={<TocKnowledge />} />
             <Route path="lab-cost" element={<LabCost />} />
-            <Route path="commercial" element={<CommercialAnalysis />} />
+            <Route path="commercial" element={<PrivateRoute isLoggedIn={isLoggedIn} user={user} adminOnly><CommercialAnalysis /></PrivateRoute>} />
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
             <Route path="ai-pipeline"  element={<Shortlist1 />} />
@@ -168,7 +200,7 @@ export default function App() {
             <Route path="profile"      element={<Profile />} />
             <Route path="profile-reviews" element={<ProfileReviews />} />
           </Route>
-          <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
+          <Route path="*" element={<Navigate to={isLoggedIn ? (user?.role === 'trainer' ? "/trainer-portal" : user?.role === 'client' ? "/client-portal" : "/dashboard") : "/login"} replace />} />
         </Routes>
       </Suspense>
       </RouteBoundary>

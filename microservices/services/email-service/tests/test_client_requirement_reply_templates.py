@@ -122,8 +122,9 @@ def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
         "Lab setup details",
     }.intersection(extracted["requested_details"])
     body = _client_proceed_ack_reply(extracted)["body"]
-    assert "Could you please confirm the participant count, lab hours per day, and preferred cloud provider (AWS, Azure, or GCP)?" in body
-    assert "lab estimate once" in body.lower()
+    assert "Could you please confirm" not in body
+    assert "lab estimate for one participant and 3 hours per day" in body.lower()
+    assert "approved one-person, three-hour baseline" in body.lower()
     assert "not treated as the participant count" not in body
     assert "confirmed batch scope" not in body
 
@@ -268,8 +269,9 @@ def test_total_client_commercial_uses_duration_without_fifteen_thousand_cap():
 def test_first_trainer_mail_requests_three_dated_interview_slots():
     mail = _trainer_mail_for_requirement({"technology_needed": "DevOps"}, "REQ-1")
 
-    assert "3 convenient interview/discussion slots" in mail["body"]
+    assert "three convenient interview/discussion slots that you are actually available for" in mail["body"]
     assert "date, time, and time zone" in mail["body"]
+    assert "illustrative, not booked appointments" in mail["body"]
 
 
 def test_date_first_training_dates_are_extracted_from_recent_client_request():

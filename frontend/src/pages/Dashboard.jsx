@@ -13,6 +13,7 @@ import {
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import { normalizeGmailStatus } from '../utils/gmailOAuth'
+import { syncGmailInbox } from '../utils/gmailSync'
 
 /* ─── Helpers ──────────────────────────────────────────────── */
 function AnimatedNumber({ value, duration = 1100 }) {
@@ -268,14 +269,12 @@ export default function Dashboard() {
     if (syncingInbox) return
     setSyncingInbox(true)
     try {
-      const res = await api.post('/gmail/sync-now?limit=50&process=false')
-      if (res.data?.queued) {
-        toast.success('Inbox fetch started for review. No client replies will be sent.')
-        window.setTimeout(() => load(true), 10000)
-        return
-      }
-      const processed = Number(res.data?.processed_count || 0)
-      toast.success(`Inbox checked: ${processed} message(s) fetched for review`)
+      const res = await syncGmailInbox({ limit: 50, process: false })
+      const processed = Number(res.stored ?? res.processed_count ?? 0)
+      toast.success(processed
+        ? 'Inbox checked: ' + processed + ' message(s) refreshed for review'
+        : 'Inbox checked. No matching messages were found.'
+      )
       await load(true)
     } catch (e) { toast.error(e.message || 'Inbox sync failed') }
     finally { setSyncingInbox(false) }
@@ -349,7 +348,7 @@ export default function Dashboard() {
     { icon: Mail,              label: 'Emails Sent',     value: totalEmails, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp,        label: 'Replies',         value: totalReplies, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
     { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? stats?.requirements?.total ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
-    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
+    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist' },
     { icon: Send,              label: 'WhatsApp Activity', value: whatsappAttempted, sub: `${whatsappSent} sent, ${whatsappFailed} failed, ${whatsappSkipped} skipped`, tone: whatsappFailed ? 'red' : 'green' },
   ]
   const primaryCards = [statCards[1], statCards[0], statCards[4], statCards[2]]
@@ -460,7 +459,7 @@ export default function Dashboard() {
             </div>
             <div className="flex flex-wrap gap-2">
               <button onClick={syncClientInbox} disabled={!gmailConnected || syncingInbox} className="btn-primary text-sm disabled:opacity-50">
-                {syncingInbox ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Check Inbox Now
+                {syncingInbox ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} {syncingInbox ? 'Checking inbox...' : 'Check Inbox Now'}
               </button>
               <button onClick={() => navigate('/client-requests')} className="btn-secondary text-sm">
                 <BriefcaseBusiness className="h-4 w-4" /> Client Requests

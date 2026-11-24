@@ -1,0 +1,573 @@
+{
+  "domain": "MongoDB",
+  "name": "MongoDB",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Mongo DB", "Mongo", "MongoDB Atlas", "MongoDB Developer", "MongoDB DBA", "MongoDB Administration", "MongoDB Training", "NoSQL with MongoDB", "MongoDB Database"],
+  "certifications": ["MongoDB Associate Developer", "MongoDB Associate Database Administrator", "MongoDB Associate Data Modeler"],
+  "tools": ["MongoDB 8", "MongoDB Atlas", "mongosh", "MongoDB Compass", "Node.js or Python drivers", "Docker"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and DBAs new to MongoDB. Covers document databases, installation and Atlas, databases and collections, inserting, querying and updating documents, query operators, projections and sorting, arrays and embedded documents, data modelling, indexes, the aggregation pipeline, schema validation, transactions, drivers, users and roles, backups, Atlas search, change streams and Compass.",
+      "prerequisites": ["Writes code in JavaScript or Python", "Knows what JSON is", "Basic database concepts such as tables and keys"],
+      "outcomes": ["Store, query and update documents with mongosh and drivers", "Model data with embedding and references", "Index collections and build aggregation pipelines", "Secure, back up and run MongoDB on Atlas"],
+      "days": [
+        {
+          "topic": "MongoDB Overview, Atlas and Local Setup",
+          "subtopics": ["Document databases compared with relational databases", "Where MongoDB is used", "Documents, collections and databases", "BSON and data types", "Installing MongoDB locally and with Docker", "Creating a free MongoDB Atlas cluster", "Connecting with mongosh", "MongoDB Compass", "Loading the sample datasets", "The course project: an online bookshop"],
+          "tools": ["MongoDB", "MongoDB Atlas", "mongosh", "Compass", "Docker"],
+          "lab_task": "Run MongoDB in Docker and create a free Atlas cluster, connect to both with mongosh and Compass, load the sample data and explore the collections.",
+          "deliverable": "Connection notes and screenshots",
+          "checks": [["Run db.version()", "Server version shown for both", "mongosh output"], ["List sample databases", "Sample data loaded in Atlas", "Compass screenshot"], ["Explain BSON types", "Dates, ObjectId and decimals described correctly", "Written note"]],
+          "objectives": ["Describe document databases", "Set up MongoDB and Atlas", "Connect with tools"]
+        },
+        {
+          "topic": "Creating and Inserting Documents",
+          "subtopics": ["Databases and collections created on first use", "insertOne and insertMany", "The _id field and ObjectId", "Ordered and unordered inserts", "Write concern in brief", "Importing data with mongoimport", "Document size limits", "Naming fields"],
+          "tools": ["mongosh", "mongoimport"],
+          "lab_task": "Create a books collection, insert documents with nested authors and arrays of tags, import 10,000 books from JSON and handle a duplicate key error in an unordered insert.",
+          "deliverable": "Insert scripts and import results",
+          "checks": [["Insert a document without _id", "ObjectId generated", "Query result"], ["Import the file", "10,000 documents inserted", "mongoimport output"], ["Insert duplicates unordered", "Other documents still inserted", "mongosh output"]],
+          "objectives": ["Insert documents", "Import data", "Handle insert errors"]
+        },
+        {
+          "topic": "Querying Documents",
+          "subtopics": ["find and findOne", "Equality filters", "Comparison operators", "Logical operators", "Querying nested fields", "Querying arrays", "Counting documents", "Cursors and iteration"],
+          "tools": ["mongosh", "Compass"],
+          "lab_task": "Answer ten questions about the bookshop, including books under a price in two genres, books by an author's nested name and books with a given tag.",
+          "deliverable": "Query file and results",
+          "checks": [["Filter nested fields", "Correct books returned", "Query result"], ["Combine $and and $or", "Results match the question", "Query result"], ["Count documents", "Count matches the find result", "Query result"]],
+          "objectives": ["Query documents", "Use operators", "Query nested data"]
+        },
+        {
+          "topic": "Projections, Sorting and Paging",
+          "subtopics": ["Including and excluding fields", "Projecting nested fields", "Sorting", "limit and skip", "Paging with range queries", "Collation for language-aware sorting", "Distinct values", "Performance of large skips"],
+          "tools": ["mongosh"],
+          "lab_task": "Return only titles and prices sorted by price, page through results with skip and then with range-based paging, and sort titles correctly with a collation.",
+          "deliverable": "Queries and timings",
+          "checks": [["Project fields", "Only requested fields returned", "Query result"], ["Compare paging methods", "Range paging faster for deep pages", "Timing output"], ["Sort with collation", "Accented titles sorted correctly", "Query result"]],
+          "objectives": ["Shape results", "Sort and page", "Use collations"]
+        },
+        {
+          "topic": "Updating and Deleting Documents",
+          "subtopics": ["updateOne and updateMany", "$set, $unset and $inc", "Array update operators: $push, $pull and $addToSet", "Positional operators", "Upserts", "replaceOne", "deleteOne and deleteMany", "findOneAndUpdate"],
+          "tools": ["mongosh"],
+          "lab_task": "Update stock counts, add and remove tags, update one item inside an order's array, upsert inventory records and delete discontinued books.",
+          "deliverable": "Update scripts and results",
+          "checks": [["Update an array element", "Only that item changed", "Query result"], ["Run an upsert twice", "One document created then updated", "Query result"], ["Use findOneAndUpdate", "Updated document returned", "mongosh output"]],
+          "objectives": ["Update documents", "Change arrays", "Use upserts"]
+        },
+        {
+          "topic": "Working with Arrays and Embedded Documents",
+          "subtopics": ["Arrays of values and arrays of documents", "$elemMatch", "$size and $all", "Array filters in updates", "Embedded documents", "Dot notation", "Unbounded arrays and their problems", "When to embed arrays"],
+          "tools": ["mongosh"],
+          "lab_task": "Query orders whose items match two conditions on the same element, update items with array filters and find a document whose array grows without limit.",
+          "deliverable": "Queries, updates and notes",
+          "checks": [["Use $elemMatch", "Only orders with one matching item returned", "Query result"], ["Update with array filters", "Matching items changed", "Query result"], ["Find the unbounded array", "Problem explained with a fix", "Notes"]],
+          "objectives": ["Query arrays", "Update nested data", "Avoid unbounded arrays"]
+        },
+        {
+          "topic": "Data Modelling: Embedding and Referencing",
+          "subtopics": ["Modelling for queries", "One-to-one and one-to-many", "Embedding", "Referencing", "Many-to-many", "Duplication trade-offs", "Document growth", "Modelling workshop"],
+          "tools": ["mongosh", "Data modelling worksheet"],
+          "lab_task": "Model the bookshop's customers, orders, reviews and authors for its main queries, choosing embedding or references for each relationship with reasons.",
+          "deliverable": "Data model and reasons",
+          "checks": [["List the main queries", "Model supports each in one query where possible", "Model document"], ["Choose for reviews", "Embed or reference justified by size and access", "Model document"], ["Load sample data", "Queries run as designed", "Query results"]],
+          "objectives": ["Model documents", "Choose embedding or references", "Design for queries"]
+        },
+        {
+          "topic": "Schema Design Patterns",
+          "subtopics": ["Attribute pattern", "Bucket pattern", "Computed pattern", "Extended reference", "Subset pattern", "Outlier pattern", "Schema versioning", "Choosing patterns"],
+          "tools": ["mongosh"],
+          "lab_task": "Apply the bucket pattern to page views, the computed pattern to book ratings, the subset pattern to recent reviews and add schema versions to customers.",
+          "deliverable": "Pattern implementations and notes",
+          "checks": [["Use the bucket pattern", "Fewer documents with the same data", "Collection stats"], ["Use the computed pattern", "Ratings read without aggregation", "Query result"], ["Read two schema versions", "Code handles both", "Test output"]],
+          "objectives": ["Apply schema patterns", "Pre-compute values", "Version schemas"]
+        },
+        {
+          "topic": "Indexes and Query Performance",
+          "subtopics": ["How indexes work in MongoDB", "Single-field and compound indexes", "The ESR rule: equality, sort and range", "Multikey indexes", "explain() output", "Covered queries", "Index costs", "Finding slow queries"],
+          "tools": ["mongosh", "explain()", "Atlas Performance Advisor"],
+          "lab_task": "Load a million orders, explain three slow queries, add compound indexes following the ESR rule and show the change in documents examined and time.",
+          "deliverable": "explain() output before and after",
+          "checks": [["Run explain before indexing", "COLLSCAN shown", "explain output"], ["Add the compound index", "IXSCAN with fewer documents examined", "explain output"], ["Build a covered query", "totalDocsExamined is zero", "explain output"]],
+          "objectives": ["Create indexes", "Read explain output", "Apply the ESR rule"]
+        },
+        {
+          "topic": "Special Indexes: Text, Geospatial, TTL and Partial",
+          "subtopics": ["Text indexes", "2dsphere indexes and geo queries", "TTL indexes", "Partial indexes", "Unique indexes", "Sparse indexes", "Wildcard indexes", "Hidden indexes for testing"],
+          "tools": ["mongosh"],
+          "lab_task": "Add a text index for book search, find stores near a customer with 2dsphere, expire sessions with TTL, index only active products with a partial index and test dropping an index by hiding it.",
+          "deliverable": "Indexes and query results",
+          "checks": [["Find nearby stores", "Stores within 5 km in distance order", "Query result"], ["Wait for TTL", "Old sessions removed", "Collection count"], ["Hide an index", "Query plan changes and the effect is measured", "explain output"]],
+          "objectives": ["Use special indexes", "Run geo queries", "Expire data"]
+        },
+        {
+          "topic": "The Aggregation Pipeline",
+          "subtopics": ["Pipeline stages", "$match and $project", "$group and accumulators", "$sort and $limit", "$unwind", "$addFields and $set", "Expressions", "Placing $match early"],
+          "tools": ["mongosh", "Compass aggregation builder"],
+          "lab_task": "Build pipelines for revenue by month and genre, the top ten authors by sales and average order size per country, and move $match to the start for speed.",
+          "deliverable": "Pipelines and results",
+          "checks": [["Total revenue by month", "Matches a manual check", "Pipeline result"], ["Rank authors", "Top ten correct", "Pipeline result"], ["Move $match first", "Faster run", "Timing output"]],
+          "objectives": ["Build pipelines", "Group and unwind", "Order stages well"]
+        },
+        {
+          "topic": "Advanced Aggregation: $lookup, $facet and Window Functions",
+          "subtopics": ["$lookup for joins", "Pipelines inside $lookup", "$facet for several results", "$bucket", "$setWindowFields", "$merge and $out", "Aggregation performance and memory", "When to model instead of joining"],
+          "tools": ["mongosh"],
+          "lab_task": "Join orders with customers, build a faceted search result with counts by genre and price band, calculate running totals with window functions and save a summary with $merge.",
+          "deliverable": "Pipelines and output collection",
+          "checks": [["Join with $lookup", "Orders include customer names", "Pipeline result"], ["Build facets", "Counts by genre and price band", "Pipeline result"], ["Save with $merge", "Summary collection updated", "Collection query"]],
+          "objectives": ["Join collections", "Use facets and windows", "Save results"]
+        },
+        {
+          "topic": "Schema Validation",
+          "subtopics": ["Flexible schemas and their risks", "JSON Schema validation", "Required fields and types", "Validation levels and actions", "Adding validation to existing collections", "Validation errors", "Schema evolution", "Validation in application code"],
+          "tools": ["mongosh", "Compass"],
+          "lab_task": "Add JSON Schema validation to orders, test rejected inserts, apply moderate validation to existing data and plan a schema change.",
+          "deliverable": "Validator and test results",
+          "checks": [["Insert a bad order", "Rejected with a clear error", "mongosh output"], ["Update an old document under moderate validation", "Allowed as configured", "mongosh output"], ["Plan the change", "Steps for old and new documents", "Plan"]],
+          "objectives": ["Validate documents", "Choose validation levels", "Evolve schemas"]
+        },
+        {
+          "topic": "Transactions and Consistency",
+          "subtopics": ["Single-document atomicity", "Multi-document transactions", "Sessions", "Read and write concerns", "Read preferences", "Retryable writes", "Transaction limits", "When to avoid transactions"],
+          "tools": ["mongosh", "Node.js or Python driver"],
+          "lab_task": "Place an order that updates stock and creates an order in one transaction, fail it half-way to show rollback and compare with a single-document design.",
+          "deliverable": "Transaction code and test results",
+          "checks": [["Fail mid-transaction", "No partial changes", "Query result"], ["Use majority write concern", "Write confirmed by most members", "Driver output"], ["Compare with one document", "Same result without a transaction", "Notes"]],
+          "objectives": ["Use transactions", "Choose concerns", "Design to avoid transactions"]
+        },
+        {
+          "topic": "Using MongoDB from Applications",
+          "subtopics": ["Official drivers", "Connection strings and pools", "CRUD in Node.js or Python", "Error handling", "Object document mappers: Mongoose and Beanie", "Environment-based configuration", "Injection risks in queries", "Testing with a test database"],
+          "tools": ["Node.js with the MongoDB driver or Python with PyMongo", "Mongoose or Beanie"],
+          "lab_task": "Build a small API for books and orders with the driver, validate input to stop query injection, handle errors and test against a test database.",
+          "deliverable": "API code and tests",
+          "checks": [["Send an operator in input", "Treated as data, not a query", "API test"], ["Run the tests", "Pass against the test database", "Test output"], ["Search code for passwords", "Read from the environment", "Code search"]],
+          "objectives": ["Use drivers", "Prevent injection", "Test applications"]
+        },
+        {
+          "topic": "Users, Roles and Security",
+          "subtopics": ["Authentication", "Built-in and custom roles", "Least privilege for applications", "Network access lists in Atlas", "TLS", "Encryption at rest", "Auditing in brief", "Security checklist"],
+          "tools": ["mongosh", "Atlas security settings"],
+          "lab_task": "Create an application user with read and write on one database, a read-only analyst, restrict Atlas network access and run the security checklist.",
+          "deliverable": "Users, roles and checklist",
+          "checks": [["Write as the analyst", "Not authorised", "Error message"], ["Connect from a blocked address", "Connection refused", "Client error"], ["Run the checklist", "Each item passes or is justified", "Checklist"]],
+          "objectives": ["Secure MongoDB", "Create roles", "Restrict network access"]
+        },
+        {
+          "topic": "Backups and Restores",
+          "subtopics": ["Backup options", "mongodump and mongorestore", "Atlas cloud backups", "Point-in-time restore in Atlas", "Restoring one collection", "Testing restores", "Backup retention", "Restore time"],
+          "tools": ["mongodump", "mongorestore", "Atlas backups"],
+          "lab_task": "Back up with mongodump, restore a deleted collection, take an Atlas snapshot and restore the cluster to a point before a bad update.",
+          "deliverable": "Backup files and restore evidence",
+          "checks": [["Restore a collection", "Documents back", "Query result"], ["Restore to a point in time", "Data before the update", "Query result"], ["Time the restore", "Restore time recorded", "Notes"]],
+          "objectives": ["Back up MongoDB", "Restore data", "Test restores"]
+        },
+        {
+          "topic": "Atlas Search and Vector Search",
+          "subtopics": ["Atlas Search indexes", "Full-text queries with $search", "Autocomplete", "Fuzzy matching", "Facets with $searchMeta", "Vector Search indexes", "Semantic search with embeddings", "Combining text and vector search"],
+          "tools": ["Atlas Search", "Atlas Vector Search", "Embedding model"],
+          "lab_task": "Add search with autocomplete and typo tolerance for book titles, add embeddings for descriptions and build a semantic search for similar books.",
+          "deliverable": "Search indexes, queries and results",
+          "checks": [["Search with a typo", "Correct book found", "Query result"], ["Use autocomplete", "Suggestions while typing", "Query result"], ["Find similar books", "Semantically related books returned", "Query result"]],
+          "objectives": ["Use Atlas Search", "Build autocomplete", "Add vector search"]
+        },
+        {
+          "topic": "Change Streams and Event-Driven Features",
+          "subtopics": ["What change streams are", "Watching collections", "Filtering events", "Resume tokens", "Full document lookups", "Using change streams in applications", "Atlas Triggers", "Use cases: notifications and sync"],
+          "tools": ["mongosh", "Node.js or Python driver", "Atlas Triggers"],
+          "lab_task": "Watch orders with a change stream to send notifications, resume after a restart without missing events and create an Atlas Trigger that updates stock.",
+          "deliverable": "Listener code, trigger and test results",
+          "checks": [["Insert an order", "Notification sent", "Listener log"], ["Restart the listener", "Missed events processed from the resume token", "Listener log"], ["Fire the trigger", "Stock updated", "Query result"]],
+          "objectives": ["Use change streams", "Resume safely", "Use Atlas Triggers"]
+        },
+        {
+          "topic": "Beginner Capstone: Online Bookshop Database",
+          "subtopics": ["Model", "Queries and pipelines", "Security and backups", "Application"],
+          "tools": ["MongoDB Atlas", "mongosh", "Driver", "Atlas Search"],
+          "lab_task": "Build the bookshop database with a modelled schema, validation, indexes, reporting pipelines, search, transactions for orders, secured users, backups and a small API, then demo it.",
+          "deliverable": "Scripts, pipelines, API code and demo recording",
+          "checks": [["Run the reports", "Correct results within one second", "Pipeline results"], ["Place an order in the demo", "Stock and order updated together", "Demo recording"], ["Restore from backup", "Database works after restore", "Demo recording"]],
+          "objectives": ["Combine the beginner topics in one database", "Build a secure, fast schema", "Present a working application"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and DBAs running MongoDB. Covers replica sets, read and write concerns in depth, sharding, shard keys, balancing, performance tuning, the profiler, WiredTiger, connection management, advanced modelling, time series collections, Queryable Encryption, monitoring, Atlas operations, Kubernetes operators, migrations from relational databases, upgrades, data APIs, testing and the developer certification.",
+      "prerequisites": ["Models documents, writes queries and builds aggregation pipelines", "Creates indexes and reads explain output", "Uses a driver in an application"],
+      "outcomes": ["Run replica sets and sharded clusters", "Tune queries, indexes and storage", "Secure, monitor and operate MongoDB on Atlas or Kubernetes", "Migrate relational data and pass the developer certification"],
+      "days": [
+        {
+          "topic": "Replica Sets and High Availability",
+          "subtopics": ["Replica set members", "Elections", "Oplog", "Read preferences", "Hidden and delayed members", "Arbiters and their risks", "Replication lag", "Failover testing"],
+          "tools": ["MongoDB", "Docker Compose", "mongosh"],
+          "lab_task": "Build a three-member replica set, stop the primary and watch an election, read from secondaries, add a delayed member and measure lag.",
+          "deliverable": "Configuration, election log and lag readings",
+          "checks": [["Stop the primary", "New primary elected", "rs.status output"], ["Read from a secondary", "Read preference respected", "Driver log"], ["Recover from the delayed member", "Deleted data copied back", "Query result"]],
+          "objectives": ["Run replica sets", "Test failover", "Use delayed members"]
+        },
+        {
+          "topic": "Write Concern, Read Concern and Causal Consistency",
+          "subtopics": ["Write concern levels", "Journaling", "Read concern levels", "Causal consistency sessions", "Read your own writes", "Trade-offs in latency", "Choosing per operation", "Testing consistency"],
+          "tools": ["mongosh", "Driver"],
+          "lab_task": "Show a stale read from a secondary, fix it with a causally consistent session and compare latency for write concerns 1 and majority.",
+          "deliverable": "Test code and measurements",
+          "checks": [["Read from a secondary after a write", "Stale value shown", "Test output"], ["Use a causal session", "Read sees the write", "Test output"], ["Compare write concerns", "Latency for each recorded", "Timing table"]],
+          "objectives": ["Choose concerns", "Use causal consistency", "Balance latency and safety"]
+        },
+        {
+          "topic": "Sharding Architecture",
+          "subtopics": ["Why shard", "Shards, config servers and mongos", "Chunks and ranges", "Hashed and ranged sharding", "Zones", "Shard-aware drivers", "Sharded cluster set-up", "When not to shard"],
+          "tools": ["MongoDB", "Docker Compose", "mongosh"],
+          "lab_task": "Build a small sharded cluster, shard the orders collection, insert data and see how it is spread across shards.",
+          "deliverable": "Cluster configuration and distribution report",
+          "checks": [["Shard the collection", "Data on several shards", "sh.status output"], ["Query through mongos", "Correct results from all shards", "Query result"], ["Explain a targeted query", "Only one shard used", "explain output"]],
+          "objectives": ["Build sharded clusters", "Distribute data", "Target queries"]
+        },
+        {
+          "topic": "Choosing Shard Keys",
+          "subtopics": ["Cardinality", "Frequency", "Monotonic keys", "Hot shards", "Compound shard keys", "Resharding", "Refining shard keys", "Testing shard keys"],
+          "tools": ["MongoDB", "mongosh"],
+          "lab_task": "Test three shard keys for orders, find the one that causes a hot shard, reshard to a better key online and compare distribution.",
+          "deliverable": "Key tests, resharding log and distribution",
+          "checks": [["Use a monotonic key", "Inserts go to one shard", "Shard stats"], ["Reshard online", "Collection resharded while in use", "Resharding status"], ["Compare distribution", "Even spread with the new key", "Shard stats"]],
+          "objectives": ["Choose shard keys", "Avoid hot shards", "Reshard collections"]
+        },
+        {
+          "topic": "Balancing, Zones and Data Locality",
+          "subtopics": ["The balancer", "Chunk migrations", "Balancer windows", "Zone sharding", "Keeping data in a region", "Jumbo chunks", "Monitoring migrations", "Balancer problems"],
+          "tools": ["MongoDB", "mongosh"],
+          "lab_task": "Pin EU customers to an EU shard with zones, set a balancer window and fix a jumbo chunk.",
+          "deliverable": "Zone configuration and notes",
+          "checks": [["Insert an EU customer", "Stored on the EU shard", "Shard query"], ["Set a balancer window", "Migrations only in the window", "Balancer log"], ["Fix the jumbo chunk", "Chunk split and moved", "sh.status output"]],
+          "objectives": ["Manage the balancer", "Use zones", "Keep data in a region"]
+        },
+        {
+          "topic": "Performance Tuning and the Profiler",
+          "subtopics": ["Database profiler", "Slow query logs", "Query planner and plan cache", "Index selection", "$indexStats", "Removing unused indexes", "Query shape", "Atlas Performance Advisor and Query Insights"],
+          "tools": ["Database profiler", "Atlas Performance Advisor"],
+          "lab_task": "Turn on the profiler, find the five slowest queries, fix them with indexes or query changes and remove unused indexes found with $indexStats.",
+          "deliverable": "Tuning log with before and after data",
+          "checks": [["Find slow queries", "Five listed with durations", "Profiler output"], ["Remove unused indexes", "Indexes with no use dropped", "$indexStats output"], ["Compare times", "Each slow query faster", "Tuning log"]],
+          "objectives": ["Profile queries", "Tune with indexes", "Remove unused indexes"]
+        },
+        {
+          "topic": "WiredTiger Storage and Server Resources",
+          "subtopics": ["WiredTiger cache", "Compression", "Checkpoints and journaling", "Working set and RAM", "Disk I/O", "Fragmentation and compact", "Server metrics", "Sizing hardware"],
+          "tools": ["serverStatus", "mongostat", "mongotop"],
+          "lab_task": "Watch cache use under load, change compression for a collection, measure the effect on size and speed and size a server for a growing working set.",
+          "deliverable": "Measurements and sizing note",
+          "checks": [["Watch cache use", "Cache pressure seen under load", "serverStatus output"], ["Change compression", "Size and speed difference recorded", "Comparison table"], ["Size the server", "RAM fits the working set", "Sizing note"]],
+          "objectives": ["Understand storage", "Tune compression", "Size servers"]
+        },
+        {
+          "topic": "Connection Management and Driver Tuning",
+          "subtopics": ["Connection pools", "Pool size settings", "Timeouts", "Retryable reads and writes", "Server selection", "Serverless and short-lived functions", "Monitoring connections", "Common driver mistakes"],
+          "tools": ["Driver", "mongosh", "Atlas metrics"],
+          "lab_task": "Fix an application that opens a new connection per request, tune pool sizes and timeouts and show retries surviving a failover.",
+          "deliverable": "Fixed code and measurements",
+          "checks": [["Fix connection handling", "Connections stable under load", "Atlas metrics"], ["Fail over during traffic", "Retryable writes succeed", "Application log"], ["Tune pool size", "Latency lower at peak", "Load test output"]],
+          "objectives": ["Manage connections", "Tune drivers", "Survive failovers"]
+        },
+        {
+          "topic": "Advanced Data Modelling for Scale",
+          "subtopics": ["Modelling for sharding", "Polymorphic collections", "Tree structures", "Many-to-many at scale", "Archiving patterns", "Document versioning for history", "Approximation and pre-aggregation", "Reviewing a model for scale"],
+          "tools": ["mongosh", "Data modelling worksheet"],
+          "lab_task": "Redesign the bookshop model for ten million customers and sharding, model category trees, keep order history versions and review the design with a peer.",
+          "deliverable": "Model, migration plan and review notes",
+          "checks": [["Model the category tree", "Ancestors and children queried efficiently", "Query results"], ["Keep history", "Previous versions retrievable", "Query result"], ["Review for scale", "Hot spots and growth risks addressed", "Review notes"]],
+          "objectives": ["Model for scale", "Model trees and history", "Review designs"]
+        },
+        {
+          "topic": "Time Series Collections",
+          "subtopics": ["Time series collections", "Time and meta fields", "Granularity", "Secondary indexes on time series", "Window functions on time series", "Expiring old data", "Compression benefits", "Time series compared with the bucket pattern"],
+          "tools": ["mongosh"],
+          "lab_task": "Store sensor readings in a time series collection, query averages per hour, expire data after 90 days and compare storage with a normal collection.",
+          "deliverable": "Collection set-up, queries and comparison",
+          "checks": [["Query hourly averages", "Correct per sensor", "Pipeline result"], ["Compare storage", "Time series much smaller", "Collection stats"], ["Expire old data", "Old readings removed", "Collection count"]],
+          "objectives": ["Use time series collections", "Query time data", "Expire data"]
+        },
+        {
+          "topic": "Queryable Encryption and Field-Level Encryption",
+          "subtopics": ["Client-side field level encryption", "Queryable Encryption", "Key management with KMS", "Encrypted fields and queries", "Key rotation", "Performance cost", "Compliance uses", "Limits"],
+          "tools": ["MongoDB drivers", "Cloud KMS", "Atlas"],
+          "lab_task": "Encrypt customer phone numbers and national IDs with Queryable Encryption, query by encrypted value, rotate a key and confirm the server never sees plain text.",
+          "deliverable": "Encryption set-up and tests",
+          "checks": [["Query by an encrypted field", "Correct document returned", "Driver output"], ["Read data as a database admin", "Values encrypted", "mongosh output"], ["Rotate a key", "Data still readable", "Driver output"]],
+          "objectives": ["Encrypt fields", "Query encrypted data", "Manage keys"]
+        },
+        {
+          "topic": "Monitoring MongoDB",
+          "subtopics": ["Key metrics", "Atlas monitoring and alerts", "Ops Manager and Cloud Manager", "Prometheus exporter and Grafana", "Replication and oplog alerts", "Disk and connection alerts", "Logs", "Alert runbooks"],
+          "tools": ["Atlas alerts", "Prometheus MongoDB exporter", "Grafana"],
+          "lab_task": "Monitor a replica set with Atlas alerts and Grafana, alert on replication lag, oplog window and connections and write runbooks.",
+          "deliverable": "Dashboards, alerts and runbooks",
+          "checks": [["Raise replication lag", "Alert fires", "Alert notification"], ["Shrink the oplog window", "Alert fires before it is too small", "Alert notification"], ["View the dashboard", "Operations, latency and cache shown", "Screenshot"]],
+          "objectives": ["Monitor MongoDB", "Alert on key risks", "Write runbooks"]
+        },
+        {
+          "topic": "Operating MongoDB Atlas",
+          "subtopics": ["Cluster tiers and scaling", "Auto-scaling", "Multi-cloud and multi-region clusters", "Maintenance windows", "Private endpoints", "Atlas Administration API", "Terraform for Atlas", "Cost management"],
+          "tools": ["MongoDB Atlas", "Terraform", "Atlas CLI"],
+          "lab_task": "Manage an Atlas project with Terraform: a multi-region cluster, private endpoint, auto-scaling and alerts, then scale it and review the bill.",
+          "deliverable": "Terraform code, cluster settings and cost review",
+          "checks": [["Apply Terraform", "Cluster created as defined", "Atlas UI"], ["Trigger auto-scaling", "Tier increases under load", "Activity feed"], ["Review cost", "Monthly cost by cluster", "Billing page"]],
+          "objectives": ["Operate Atlas", "Use infrastructure as code", "Control cost"]
+        },
+        {
+          "topic": "MongoDB on Kubernetes with Operators",
+          "subtopics": ["Running MongoDB on Kubernetes", "MongoDB Community and Enterprise operators", "Percona Operator for MongoDB", "Storage classes", "Backups to object storage", "Scaling and upgrades", "Monitoring", "When to use Atlas instead"],
+          "tools": ["Kubernetes", "MongoDB operator", "Object storage"],
+          "lab_task": "Deploy a replica set with an operator, back it up to object storage, delete a pod and restore a new cluster from backup.",
+          "deliverable": "Manifests and recovery evidence",
+          "checks": [["Delete the primary pod", "Election and recovery", "Kubernetes events"], ["Restore from backup", "New cluster has the data", "Query result"], ["Upgrade through the operator", "Rolling upgrade without client errors", "Client log"]],
+          "objectives": ["Run MongoDB on Kubernetes", "Back up and restore", "Upgrade safely"]
+        },
+        {
+          "topic": "Migrating from Relational Databases to MongoDB",
+          "subtopics": ["When migration makes sense", "Relational Migrator", "Mapping tables to documents", "Data migration jobs", "Rewriting queries", "Running in parallel", "Validation", "Cutover"],
+          "tools": ["MongoDB Relational Migrator", "PostgreSQL or MySQL"],
+          "lab_task": "Migrate a relational order schema to MongoDB with Relational Migrator, choose embedding for order lines, rewrite five queries and validate counts and totals.",
+          "deliverable": "Mapping, migrated data and validation",
+          "checks": [["Map tables", "Order lines embedded in orders", "Mapping screenshot"], ["Validate totals", "Same totals as the source", "Validation report"], ["Rewrite queries", "Same results in MongoDB", "Query comparison"]],
+          "objectives": ["Plan migrations", "Map relational schemas", "Validate migrated data"]
+        },
+        {
+          "topic": "Upgrades and Feature Compatibility",
+          "subtopics": ["Release cycle", "Feature compatibility version", "Rolling upgrades of replica sets", "Upgrading sharded clusters", "Driver compatibility", "Testing upgrades", "Rollback options", "Atlas upgrades"],
+          "tools": ["MongoDB", "mongosh"],
+          "lab_task": "Upgrade a replica set by one major version with a rolling upgrade, set the feature compatibility version and run application tests.",
+          "deliverable": "Upgrade log and test results",
+          "checks": [["Upgrade members one by one", "Cluster available throughout", "Client log"], ["Set the feature compatibility version", "New version active", "Admin command output"], ["Run application tests", "All pass", "Test output"]],
+          "objectives": ["Plan upgrades", "Upgrade without downtime", "Test after upgrades"]
+        },
+        {
+          "topic": "Data APIs, GraphQL and App Services Patterns",
+          "subtopics": ["Exposing data through APIs", "Building REST services with frameworks", "GraphQL with MongoDB", "Authentication and rules", "Pagination patterns", "Caching", "Rate limits", "API security"],
+          "tools": ["Node.js or Python framework", "GraphQL server", "MongoDB driver"],
+          "lab_task": "Build REST and GraphQL APIs over the bookshop with cursor pagination, field-level permissions and rate limits.",
+          "deliverable": "APIs, schema and tests",
+          "checks": [["Page with cursors", "Stable pages under inserts", "API test"], ["Request a restricted field", "Access denied", "API response"], ["Exceed the rate limit", "Requests rejected", "API response"]],
+          "objectives": ["Expose data through APIs", "Paginate safely", "Secure APIs"]
+        },
+        {
+          "topic": "Testing MongoDB Applications",
+          "subtopics": ["Unit tests with mocks", "Integration tests with Testcontainers", "Test data builders", "Testing aggregation pipelines", "Testing migrations", "Performance tests", "Tests in CI", "Cleaning test data"],
+          "tools": ["Testcontainers", "pytest or Jest", "GitHub Actions"],
+          "lab_task": "Add integration tests with a MongoDB container, tests for three aggregation pipelines and a migration test, and run them in CI.",
+          "deliverable": "Test suite and CI run",
+          "checks": [["Break a pipeline", "Test fails", "Test output"], ["Run integration tests", "Pass against a container", "Test report"], ["Run in CI", "All tests pass", "CI log"]],
+          "objectives": ["Test MongoDB code", "Test pipelines", "Run tests in CI"]
+        },
+        {
+          "topic": "MongoDB Associate Developer Certification Preparation",
+          "subtopics": ["Exam topics", "CRUD questions", "Indexing questions", "Aggregation questions", "Data modelling questions", "Driver questions", "Timed practice", "Weak-area review"],
+          "tools": ["Practice questions", "MongoDB documentation", "MongoDB University"],
+          "lab_task": "Take a timed practice exam, check wrong answers in mongosh, practise weak areas and take a second exam.",
+          "deliverable": "Two practice scores and a weak-areas list",
+          "checks": [["Take the first exam", "Score recorded by topic", "Score sheet"], ["Check wrong answers", "Each confirmed in mongosh", "Notes"], ["Take the second exam", "Score above the pass mark", "Score sheet"]],
+          "objectives": ["Understand the exam", "Close gaps", "Reach a passing score"]
+        },
+        {
+          "topic": "Intermediate Capstone: Scaled Order Platform on MongoDB",
+          "subtopics": ["Design", "Cluster and data", "Performance and security", "Operations"],
+          "tools": ["MongoDB Atlas or a sharded cluster", "Terraform", "Queryable Encryption", "Grafana"],
+          "lab_task": "Build an order platform on a sharded cluster with a tested shard key, zones for EU data, encrypted personal fields, tuned queries, monitoring and alerts, then demo a failover and a resharding.",
+          "deliverable": "Infrastructure code, model, dashboards and demo recording",
+          "checks": [["Fail over in the demo", "Application continues", "Demo recording"], ["Reshard during the demo", "Traffic continues", "Demo recording"], ["Present the design", "Model and cluster choices defended", "Presentation feedback"]],
+          "objectives": ["Combine the intermediate topics in one platform", "Run MongoDB at scale", "Show resilience"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers, DBAs and architects. Covers internals, very large sharded clusters, global clusters, multi-region disaster recovery, performance engineering, advanced schema design, multi-tenancy, security and compliance, encryption key management, AI applications with vector search, streaming with Atlas Stream Processing and Kafka, analytics, data lifecycle, migrations at scale, cost, platform operations, troubleshooting and strategy.",
+      "prerequisites": ["Runs replica sets or sharded clusters in production", "Tunes queries and models data for scale", "Operates Atlas or self-managed MongoDB"],
+      "outcomes": ["Design global, sharded and multi-tenant MongoDB platforms", "Tune performance and cost at very large scale", "Build AI and streaming workloads on MongoDB", "Lead migrations, operations and incident response"],
+      "days": [
+        {
+          "topic": "MongoDB Internals: Query Engine, Replication and Storage",
+          "subtopics": ["Query planner internals", "Slot-based execution engine", "Plan cache", "Oplog internals", "Replication protocol", "WiredTiger internals", "Locks and concurrency", "Reading diagnostic data"],
+          "tools": ["mongosh", "Full Time Diagnostic Data Capture", "Logs"],
+          "lab_task": "Compare plans from the classic and slot-based engines, read the plan cache, trace a write through the oplog and analyse diagnostic data for a slowdown.",
+          "deliverable": "Annotated internals notes",
+          "checks": [["Compare engines", "Engine used and effect recorded", "explain output"], ["Read the plan cache", "Cached plans listed", "Plan cache output"], ["Analyse diagnostic data", "Cause of the slowdown found", "Diagnostic notes"]],
+          "objectives": ["Understand internals", "Read diagnostics", "Explain performance"]
+        },
+        {
+          "topic": "Very Large Sharded Clusters",
+          "subtopics": ["Scaling beyond tens of shards", "Config server load", "mongos fleets", "Chunk counts and migrations at scale", "Adding and removing shards", "Cross-shard queries at scale", "Hedged reads", "Operating large clusters"],
+          "tools": ["Sharded cluster", "Monitoring tools"],
+          "lab_task": "Add shards to a loaded cluster, drain a shard for removal, measure the effect of scatter-gather queries and tune mongos placement.",
+          "deliverable": "Operation log and measurements",
+          "checks": [["Add shards", "Data balanced to new shards", "sh.status output"], ["Drain a shard", "Shard emptied and removed", "sh.status output"], ["Measure scatter-gather", "Latency compared with targeted queries", "Timing table"]],
+          "objectives": ["Run large clusters", "Add and remove shards", "Limit scatter-gather"]
+        },
+        {
+          "topic": "Global Clusters and Data Residency",
+          "subtopics": ["Global clusters in Atlas", "Zone mapping by location", "Low-latency local reads and writes", "Data residency rules", "Cross-region queries", "Failover across regions", "Cost of global clusters", "Design trade-offs"],
+          "tools": ["MongoDB Atlas global clusters"],
+          "lab_task": "Build a global cluster with zones for India, the EU and the US, route customers to their region, check residency and measure local and cross-region latency.",
+          "deliverable": "Cluster configuration, residency checks and latency report",
+          "checks": [["Write an EU customer", "Stored in the EU zone", "Shard query"], ["Read locally", "Low latency in each region", "Latency report"], ["Check residency", "No regulated data outside its region", "Review notes"]],
+          "objectives": ["Build global clusters", "Keep data in region", "Reduce latency"]
+        },
+        {
+          "topic": "Multi-Region Disaster Recovery",
+          "subtopics": ["Recovery objectives", "Multi-region replica sets", "Priority and voting design", "Backup copies across regions", "DR runbooks", "Regional failover drills", "Failback", "Testing backups automatically"],
+          "tools": ["MongoDB Atlas or self-managed replica sets", "Backup tools"],
+          "lab_task": "Design a two-region replica set with correct priorities, run a regional failover drill, fail back and automate a weekly restore test.",
+          "deliverable": "DR design, drill report and restore job",
+          "checks": [["Run the drill", "Service restored within the RTO", "Drill report"], ["Check data loss", "Within the RPO", "Drill report"], ["Run the restore test", "Restore verified automatically", "Job log"]],
+          "objectives": ["Plan DR", "Run drills", "Test backups automatically"]
+        },
+        {
+          "topic": "MongoDB Performance Engineering at Scale",
+          "subtopics": ["Benchmarking with realistic workloads", "Index strategy for many query shapes", "Aggregation optimisation", "Write-heavy workloads", "Hot documents", "Caching layers", "Hardware and storage choices", "Performance regression testing"],
+          "tools": ["Load generators", "Profiler", "Atlas Query Insights"],
+          "lab_task": "Benchmark a mixed workload, fix the top bottlenecks including a hot counter document and a slow pipeline, and add a performance regression test.",
+          "deliverable": "Benchmark reports, fixes and regression test",
+          "checks": [["Fix the hot document", "Write throughput improves", "Benchmark report"], ["Fix the pipeline", "Run time lower", "Timing table"], ["Slow a query on purpose", "Regression test fails", "Test output"]],
+          "objectives": ["Benchmark MongoDB", "Fix bottlenecks", "Prevent regressions"]
+        },
+        {
+          "topic": "Advanced Schema Design Reviews",
+          "subtopics": ["Reviewing models against workloads", "Anti-patterns: massive arrays, bloated documents and too many collections", "Case-insensitive search design", "Separating hot and cold data", "Schema migrations at scale", "Backward-compatible changes", "Governance of schemas", "Schema review checklist"],
+          "tools": ["MongoDB schema analysis tools", "Compass schema tab"],
+          "lab_task": "Review three production-like schemas for anti-patterns, design fixes and plan an online migration with backward-compatible application changes.",
+          "deliverable": "Review reports and migration plans",
+          "checks": [["Find anti-patterns", "Each anti-pattern with impact", "Review report"], ["Plan the migration", "Online steps with no downtime", "Migration plan"], ["Test compatibility", "Old and new code work during migration", "Test results"]],
+          "objectives": ["Review schemas", "Fix anti-patterns", "Migrate schemas online"]
+        },
+        {
+          "topic": "Multi-Tenant MongoDB Design",
+          "subtopics": ["Tenancy models: shared collection, collection per tenant and database per tenant", "Tenant isolation", "Shard keys with tenant IDs", "Noisy neighbours", "Moving tenants", "Backups per tenant", "Limits on collections", "Choosing a model"],
+          "tools": ["MongoDB", "Driver"],
+          "lab_task": "Build a SaaS app with shared collections keyed by tenant and with a database per tenant, move a large tenant to its own shard and compare effort.",
+          "deliverable": "Two designs, migration log and comparison",
+          "checks": [["Query as a tenant", "Only that tenant's data returned", "Test output"], ["Move a tenant", "Tenant moved with little downtime", "Migration log"], ["Compare models", "Effort and risk compared", "Comparison table"]],
+          "objectives": ["Design multi-tenant systems", "Isolate tenants", "Move tenants"]
+        },
+        {
+          "topic": "Security and Compliance at Scale",
+          "subtopics": ["Threats to MongoDB", "Least privilege at scale", "LDAP and OIDC authentication", "Auditing", "Network isolation", "Compliance with PCI DSS and HIPAA", "Security reviews", "Evidence for auditors"],
+          "tools": ["MongoDB Enterprise or Atlas", "Audit logs", "Identity provider"],
+          "lab_task": "Move users to OIDC authentication, audit access to sensitive collections, isolate the network and prepare compliance evidence.",
+          "deliverable": "Security configuration, audit samples and evidence pack",
+          "checks": [["Log in through OIDC", "Access with corporate identity", "Client output"], ["Read a sensitive collection", "Access audited", "Audit log"], ["Review the evidence pack", "Access traceable to people", "Evidence pack"]],
+          "objectives": ["Secure at scale", "Audit access", "Meet compliance needs"]
+        },
+        {
+          "topic": "Encryption and Key Management Architecture",
+          "subtopics": ["Encryption at rest options", "Customer-managed keys", "Client-side encryption at scale", "Key hierarchies", "Key rotation processes", "Separation of duties for keys", "Crypto-shredding for deletion", "Performance planning"],
+          "tools": ["Cloud KMS", "MongoDB encryption features"],
+          "lab_task": "Design key management for a payments platform, set customer-managed keys, rotate keys without downtime and delete a customer's data by destroying their key.",
+          "deliverable": "Key design, rotation log and deletion evidence",
+          "checks": [["Rotate keys", "Data readable throughout", "Test output"], ["Destroy a customer key", "Customer data unreadable", "Test output"], ["Review duties", "Key admins separate from database admins", "Review notes"]],
+          "objectives": ["Design key management", "Rotate keys", "Use crypto-shredding"]
+        },
+        {
+          "topic": "AI Applications with Atlas Vector Search",
+          "subtopics": ["RAG on MongoDB", "Chunking and embeddings", "Vector index tuning", "Pre-filtering with metadata", "Hybrid search with text and vectors", "Storing agent memory", "Evaluating retrieval", "Cost and latency"],
+          "tools": ["Atlas Vector Search", "Embedding model", "LLM API"],
+          "lab_task": "Build a support assistant that retrieves policy documents with hybrid search filtered by product, stores conversation memory and evaluate retrieval on 50 questions.",
+          "deliverable": "Assistant code, indexes and evaluation results",
+          "checks": [["Ask a question", "Answer cites the right document", "Response"], ["Filter by product", "Only that product's documents retrieved", "Retrieval log"], ["Run the evaluation", "Retrieval scores recorded", "Evaluation report"]],
+          "objectives": ["Build RAG on MongoDB", "Tune vector search", "Evaluate retrieval"]
+        },
+        {
+          "topic": "Streaming with Atlas Stream Processing and Kafka",
+          "subtopics": ["Event streams and MongoDB", "Kafka connector for MongoDB", "Atlas Stream Processing", "Windowed aggregations on streams", "Writing results back", "Change streams to Kafka", "Exactly-once considerations", "Monitoring streams"],
+          "tools": ["Atlas Stream Processing", "Apache Kafka", "MongoDB Kafka connector"],
+          "lab_task": "Stream orders from Kafka into MongoDB, compute per-minute revenue with Atlas Stream Processing and publish order changes back to Kafka.",
+          "deliverable": "Stream processors, connectors and outputs",
+          "checks": [["Send orders to Kafka", "Orders stored in MongoDB", "Query result"], ["Compute windows", "Per-minute revenue correct", "Output collection"], ["Change an order", "Change published to Kafka", "Kafka consumer output"]],
+          "objectives": ["Stream with MongoDB", "Process windows", "Integrate with Kafka"]
+        },
+        {
+          "topic": "Analytics on MongoDB Data",
+          "subtopics": ["Analytics nodes", "Workload isolation", "Online archive and data federation", "Atlas SQL", "BI connectors", "Exporting to data warehouses", "Aggregation for analytics", "Choosing where to analyse"],
+          "tools": ["Atlas analytics nodes", "Atlas Data Federation", "Atlas SQL"],
+          "lab_task": "Add analytics nodes for reports, query archived and live data together with data federation and connect a BI tool through Atlas SQL.",
+          "deliverable": "Configuration, federated queries and BI report",
+          "checks": [["Run reports on analytics nodes", "Operational latency unaffected", "Metrics"], ["Query archive and live data", "Combined results", "Query result"], ["Connect the BI tool", "Report built through Atlas SQL", "Screenshot"]],
+          "objectives": ["Analyse MongoDB data", "Isolate workloads", "Query archives"]
+        },
+        {
+          "topic": "Data Lifecycle: Archiving, Tiering and Retention",
+          "subtopics": ["Data growth", "Online archive rules", "TTL at scale", "Cold storage", "Retention rules by data type", "Deleting at scale", "Legal holds", "Measuring savings"],
+          "tools": ["Atlas Online Archive", "TTL indexes", "Object storage"],
+          "lab_task": "Archive orders older than two years, keep them queryable, apply retention by data type and measure storage savings.",
+          "deliverable": "Archive rules, retention settings and savings report",
+          "checks": [["Archive old orders", "Moved to the archive and still queryable", "Query result"], ["Apply retention", "Data removed after its period", "Collection counts"], ["Measure savings", "Storage cost reduced", "Savings report"]],
+          "objectives": ["Manage data growth", "Archive data", "Apply retention"]
+        },
+        {
+          "topic": "Migrations at Scale",
+          "subtopics": ["Migrating between clusters and clouds", "mongosync for cluster-to-cluster sync", "Live migration to Atlas", "Large relational migrations", "Validation at scale", "Cutover planning", "Rollback", "Decommissioning"],
+          "tools": ["mongosync", "Atlas Live Migration", "Validation scripts"],
+          "lab_task": "Migrate a self-managed cluster to Atlas with live migration, sync two clusters with mongosync, validate data and run a cutover rehearsal.",
+          "deliverable": "Migration plan, validation report and rehearsal log",
+          "checks": [["Validate data", "Counts and checksums match", "Validation report"], ["Rehearse cutover", "Downtime within the target", "Rehearsal log"], ["Review rollback", "Rollback steps tested", "Plan"]],
+          "objectives": ["Plan large migrations", "Sync clusters", "Cut over safely"]
+        },
+        {
+          "topic": "Cost Optimisation for MongoDB",
+          "subtopics": ["Where MongoDB money goes", "Right-sizing clusters", "Storage and index costs", "Archiving to save cost", "Serverless and flex tiers", "Data transfer costs", "Showback by team", "Cost reviews"],
+          "tools": ["Atlas billing", "Metrics", "Spreadsheet"],
+          "lab_task": "Review cost for five clusters, right-size two, drop unused indexes, archive cold data and report monthly savings.",
+          "deliverable": "Cost review and savings report",
+          "checks": [["Right-size clusters", "Smaller tiers with the same performance", "Metrics"], ["Drop unused indexes", "Storage reduced", "Collection stats"], ["Report savings", "Monthly saving calculated", "Savings report"]],
+          "objectives": ["Measure MongoDB cost", "Reduce cost", "Report savings"]
+        },
+        {
+          "topic": "Running MongoDB as a Platform",
+          "subtopics": ["Platform responsibilities", "Standard cluster templates", "Self-service provisioning", "Service levels", "Developer guidance and reviews", "Training", "Platform health measures", "Roadmap"],
+          "tools": ["Terraform", "Atlas Administration API", "Internal portal"],
+          "lab_task": "Build self-service cluster provisioning with standard templates, write developer guidance and a schema review process and set service levels.",
+          "deliverable": "Templates, guidance and service levels",
+          "checks": [["Provision through self-service", "Cluster ready with standard settings", "Atlas project"], ["Review a schema", "Review checklist applied", "Review notes"], ["Publish service levels", "Availability and support times defined", "Service level document"]],
+          "objectives": ["Run MongoDB as a platform", "Offer self-service", "Guide developers"]
+        },
+        {
+          "topic": "Observability for MongoDB Fleets",
+          "subtopics": ["Monitoring many clusters", "Fleet dashboards", "Query Insights across clusters", "SLOs for databases", "Log aggregation", "Alert design and noise", "Capacity trends", "Monthly health reviews"],
+          "tools": ["Atlas monitoring", "Prometheus", "Grafana", "Loki"],
+          "lab_task": "Build fleet dashboards for 15 clusters, define availability and latency SLOs, aggregate logs and run a monthly health review with actions.",
+          "deliverable": "Dashboards, SLOs and review notes",
+          "checks": [["View the fleet dashboard", "All clusters reporting", "Grafana screenshot"], ["Breach a latency SLO", "Alert fires with the cluster name", "Alert notification"], ["Run the health review", "Actions agreed with owners", "Review notes"]],
+          "objectives": ["Monitor fleets", "Set database SLOs", "Review health"]
+        },
+        {
+          "topic": "Troubleshooting Production MongoDB Incidents",
+          "subtopics": ["An incident method", "Slow queries after data growth", "Replication lag and rollbacks", "Elections and flapping", "Cache pressure", "Connection storms", "Disk full", "Post-incident reviews"],
+          "tools": ["Logs", "Diagnostic data", "Profiler", "Atlas metrics"],
+          "lab_task": "Diagnose five injected incidents (a missing index after a release, replication lag, an election storm, cache pressure and a connection storm), fix each and write a post-incident review.",
+          "deliverable": "Diagnosis notes, fixes and a post-incident review",
+          "checks": [["Fix the missing index", "Query time back to normal", "Profiler output"], ["Stop the election storm", "Stable primary", "rs.status output"], ["Write the review", "Timeline, cause and actions recorded", "Post-incident review"]],
+          "objectives": ["Diagnose incidents", "Fix them safely", "Learn from incidents"]
+        },
+        {
+          "topic": "Database Strategy: When to Choose MongoDB",
+          "subtopics": ["Document databases compared with relational, key-value and graph", "Polyglot persistence", "Total cost of ownership", "Skills and hiring", "Vendor and licence considerations", "Migration risks", "Decision records", "Communicating choices"],
+          "tools": ["Decision templates", "Comparison matrix"],
+          "lab_task": "Evaluate MongoDB against PostgreSQL with JSONB and DynamoDB for three workloads, record decisions and present them to a role-play architecture board.",
+          "deliverable": "Evaluation, decision records and presentation",
+          "checks": [["Compare options", "Each workload scored on agreed criteria", "Comparison matrix"], ["Record decisions", "Options and reasons recorded", "Decision records"], ["Present to the board", "Questions answered with evidence", "Presentation feedback"]],
+          "objectives": ["Choose databases deliberately", "Compare options", "Record decisions"]
+        },
+        {
+          "topic": "Advanced Capstone: Global MongoDB Platform",
+          "subtopics": ["Architecture", "Build", "AI and streaming", "Operations"],
+          "tools": ["MongoDB Atlas global clusters", "Vector Search", "Stream Processing", "Terraform"],
+          "lab_task": "Design and build a global platform for a marketplace: regional zones, encryption with customer keys, multi-tenant design, vector search, stream processing, archiving and cost controls, then run a DR drill and present to an architecture board.",
+          "deliverable": "Architecture records, infrastructure code, drill report and board presentation",
+          "checks": [["Run the DR drill", "Service restored within the target", "Drill report"], ["Check residency", "Regulated data stays in its region", "Review notes"], ["Present to the board", "Design choices defended with evidence", "Board feedback"]],
+          "objectives": ["Combine the advanced topics in one platform", "Run MongoDB globally", "Defend design decisions"]
+        }
+      ]
+    }
+  }
+}

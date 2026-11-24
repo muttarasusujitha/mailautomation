@@ -13,6 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson.binary import Binary
 
 from shared.database.service import get_db
+from shared.trainer_experience import extract_domain_experience, extract_experience_years
 from app.config import get_settings
 
 router = APIRouter()
@@ -342,6 +343,15 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
     )
     result["skills"] = skills
 
+    source_text = " ".join([
+        raw_text[:50000],
+        _clean_text(result.get("summary")),
+        _clean_text(result.get("technologies")),
+    ])
+    domain_experience = extract_domain_experience(source_text)
+    result["domain_experience"] = domain_experience
+    result["experience_by_domain"] = domain_experience
+
     category = _infer_category(
         skills,
         " ".join([
@@ -364,9 +374,15 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
         result["technologies"] = ", ".join(skills)
 
     years = _safe_float(result.get("experience_years"))
+    experience_evidence = extract_experience_years(raw_text)
+    if experience_evidence is not None:
+        years = experience_evidence
     result["experience_years"] = years
-    if years and not _clean_text(result.get("experience_raw")):
-        result["experience_raw"] = f"{years:g} years"
+    if not _clean_text(result.get("experience_raw")):
+        if experience_evidence is not None:
+            result["experience_raw"] = f"{experience_evidence:g} years (resume text)"
+        elif years > 0:
+            result["experience_raw"] = f"{years:g} years"
 
     if _clean_text(result.get("summary")).lower() == _clean_text(result.get("name")).lower():
         result["summary"] = ""
@@ -390,7 +406,7 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
     email_m = re.search(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text[:12000])
     phone_m = re.search(r"\+?\d[\d ().-]{8,20}\d", text[:12000])
     li_m = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[^\s,;)>]{1,120}", text[:12000], re.IGNORECASE)
-    exp_vals = [float(m.group(1)) for m in re.finditer(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)", text, re.IGNORECASE)]
+    parsed_experience = extract_experience_years(text)
     skills = _detected_skills_from_text(text)
 
     # Derive name: first non-empty line that looks like a name
@@ -431,7 +447,8 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
             phone_m.group(0).strip() if phone_m else "",
         ),
         "linkedin": li_m.group(0) if li_m else "",
-        "experience_years": max(exp_vals) if exp_vals else 0,
+        "experience_years": parsed_experience or 0,
+        "experience_raw": f"{parsed_experience:g} years (resume text)" if parsed_experience is not None else "",
         "role_designation": title,
         "skills": skills,
         "extraction_method": "regex_fallback",
@@ -442,11 +459,11 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
 def _profile_prompt(text: str) -> str:
     return (
         "Extract from this resume. Return ONLY valid JSON with keys: "
-        "name, email, phone, location, experience_years (number), role_designation, linkedin, "
+        "name, email, phone, location, experience_years (number), domain_experience (object mapping each domain to explicit years), role_designation, linkedin, "
         "education, skills (list), certifications (list), past_clients (list), "
         "training_count (int or null), day_rate (number or null), "
         "technology_category, secondary_categories (list), summary. "
-        "Extract only facts explicitly present in the resume. Leave missing fields empty; "
+        "Extract only facts explicitly present in the resume. For domain_experience, report years only when the text explicitly connects a duration to that domain (for example, '5 years AWS experience'); never infer domain years from merely listing a skill or tool. Leave missing fields empty; "
         "never invent identity links, clients, qualifications or experience.\n\n"
         f"Resume:\n{text[:50000]}"
     )

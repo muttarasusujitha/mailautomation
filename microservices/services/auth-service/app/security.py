@@ -73,7 +73,8 @@ async def issue_session(db, request, response, user):
         await db['auth_sessions'].delete_one({'_id': digest(old)})
     token, csrf = secrets.token_urlsafe(48), secrets.token_urlsafe(32)
     settings = get_settings()
-    seconds = max(1, min(settings.AUTH_SESSION_HOURS, 168)) * 3600
+    session_hours = getattr(settings, 'AUTH_SESSION_HOURS', 12)
+    seconds = max(1, min(session_hours, 168)) * 3600
     await db['auth_sessions'].insert_one({
         '_id': digest(token), 'user_id': user['user_id'], 'csrf': csrf,
         'auth_version': user.get('auth_version', 0), 'created_at': datetime.utcnow(),
@@ -94,6 +95,8 @@ async def authenticate(db, request, *, method=None):
     user = await db['auth_users'].find_one({'user_id': session['user_id'], 'status': 'active'})
     if not user or user.get('auth_version', 0) != session.get('auth_version', 0):
         raise HTTPException(401, 'Session revoked. Sign in again.')
+    if user.get('role') not in {'admin', 'trainer', 'client'}:
+        raise HTTPException(403, 'This account role is no longer supported. Contact the administrator.')
     if (method or request.method).upper() not in {'GET', 'HEAD', 'OPTIONS'}:
         require_origin(request)
         if not hmac.compare_digest(request.headers.get('x-csrf-token', ''), session['csrf']):

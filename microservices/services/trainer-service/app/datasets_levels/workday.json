@@ -1,0 +1,573 @@
+{
+  "domain": "Workday",
+  "name": "Workday HCM and Financials",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "users",
+  "aliases": ["Workday HCM", "Workday Financials", "Workday Financial Management", "Workday Training", "Workday Integrations", "Workday Studio", "Workday Reporting", "Workday Report Writer", "Workday Payroll", "Workday Recruiting", "Workday Security", "Workday Extend", "Workday Prism Analytics", "Workday Administrator", "Workday Implementation", "Workday EIB"],
+  "certifications": ["Workday partner certifications (such as Core HCM, Integrations, Reporting and Financials)", "Workday Pro certifications for customers", "Workday Extend certification"],
+  "tools": ["Workday tenant", "Report Writer", "Calculated fields", "EIB", "Workday Studio", "Workday Web Services and REST APIs", "Prism Analytics", "Workday Extend"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For HR, finance and HRIS staff and new consultants who are starting with Workday. Covers the object model, tenants and twice-yearly releases, navigation, supervisory and other organisations, staffing models, workers and job profiles, business processes, hire, job change and termination, compensation, absence and time tracking, benefits, recruiting and onboarding, talent and performance, security groups and policies, Report Writer, calculated fields, dashboards, Financials core with worktags, EIB loads and release management.",
+      "prerequisites": ["Understands basic HR or finance processes", "Comfortable with web applications and spreadsheets", "No Workday experience needed"],
+      "outcomes": ["Navigate Workday and explain its object model, organisations and staffing models", "Run and adjust core HR business processes, compensation, absence and recruiting", "Build reports, calculated fields and dashboards and load data with EIB", "Explain Workday security and the release cycle"],
+      "days": [
+        {
+          "topic": "Workday Overview: Object Model, Tenants and the Twice-Yearly Releases",
+          "subtopics": ["Workday as one cloud system for HR and finance", "The object model: business objects, fields and instances", "Business processes as the engine", "Tenants: production, sandbox, preview and implementation", "Releases twice a year and weekly service updates", "HCM, Financials, Payroll and Adaptive Planning", "Workday AI features and agents", "Customers, partners and Workday Community", "Certification routes for customers and partners", "Course project overview: a company moving HR and finance to Workday"],
+          "tools": ["Workday tenant", "Workday Community", "Release notes"],
+          "lab_task": "Tour a Workday training tenant, find a worker, an organisation and a business process, read one release note and map the course company's needs to Workday products.",
+          "deliverable": "Product map for the course company",
+          "checks": [["Find", "A worker, an organisation and a business process are located", "Screenshots"], ["Map", "Needed Workday products are listed with reasons", "Product map"], ["Explain", "Tenant types and the release cycle are explained correctly", "Notes"]],
+          "objectives": ["Describe Workday's object model", "Navigate tenants", "Plan product scope"]
+        },
+        {
+          "topic": "Navigation Basics: Home, Search, Worklets and Related Actions",
+          "subtopics": ["The Workday home page and apps", "Search prefixes and search categories", "Worker profiles", "Related actions and the related actions menu", "Inbox and notifications", "Worklets and menu apps", "Favourites and recent items", "Delegation of tasks", "Mobile app basics", "Help and Workday Assistant"],
+          "tools": ["Workday tenant", "Inbox", "Related actions"],
+          "lab_task": "Find a worker with search prefixes, act on an inbox task, use related actions to view the worker's history and set up a delegation.",
+          "deliverable": "Navigation exercise record",
+          "checks": [["Search", "The worker is found with a search prefix", "Screenshot"], ["Act", "An inbox task is completed", "Inbox history"], ["Delegate", "The delegation routes tasks to the delegate", "Delegation record"]],
+          "objectives": ["Navigate Workday", "Use related actions", "Work with the inbox"]
+        },
+        {
+          "topic": "Organisations: Supervisory, Company, Cost Centre and Matrix",
+          "subtopics": ["Supervisory organisations as the core structure", "Company and cost centre organisations", "Regions, locations and location hierarchies", "Matrix organisations", "Organisation roles and role assignments", "Organisation hierarchies", "Creating and reorganising organisations", "Organisation design for the course company"],
+          "tools": ["Workday tenant", "Organisation tasks", "Org chart"],
+          "lab_task": "Build supervisory organisations, companies and cost centres for the course company, assign organisation roles and view the org chart.",
+          "deliverable": "Organisation design in the tenant",
+          "checks": [["Build", "Supervisory organisations follow the design", "Org chart"], ["Assign", "Managers and HR partners are assigned", "Role assignments"], ["Link", "Workers inherit company and cost centre", "Worker profile"]],
+          "objectives": ["Design organisations", "Assign organisation roles", "Read org charts"]
+        },
+        {
+          "topic": "Staffing Models: Position Management and Job Management",
+          "subtopics": ["Position management", "Job management", "Headcount management", "Choosing a staffing model per organisation", "Creating positions and job requisitions", "Position restrictions", "Staffing rules", "Changing staffing models"],
+          "tools": ["Workday tenant", "Staffing model settings", "Position tasks"],
+          "lab_task": "Set position management for one organisation and job management for another, create positions with restrictions and compare hiring in each.",
+          "deliverable": "Staffing model setup and comparison",
+          "checks": [["Configure", "Each organisation uses its staffing model", "Organisation settings"], ["Restrict", "Position restrictions limit hires as expected", "Hire test"], ["Compare", "Differences between the models are listed", "Comparison notes"]],
+          "objectives": ["Explain staffing models", "Create positions", "Choose a staffing model"]
+        },
+        {
+          "topic": "Workers, Jobs and Job Profiles",
+          "subtopics": ["Employees and contingent workers", "Job profiles and job families", "Job categories and management levels", "Worker profiles and personal data", "Primary and additional jobs", "Worker history", "Contact and emergency information", "Data changes through self-service"],
+          "tools": ["Workday tenant", "Job profiles", "Worker profile"],
+          "lab_task": "Create job profiles and families, hire an employee and a contingent worker, add an additional job and update personal data through self-service.",
+          "deliverable": "Workers with job data",
+          "checks": [["Profile", "Job profiles and families exist", "Job profile list"], ["Hire", "Both workers have correct jobs", "Worker profiles"], ["Update", "Self-service changes appear in history", "Worker history"]],
+          "objectives": ["Manage job profiles", "Manage worker records", "Use self-service"]
+        },
+        {
+          "topic": "Business Processes: Definitions, Steps and Approvals",
+          "subtopics": ["Business process definitions", "Initiating actions and steps", "Approvals, to-dos and checklists", "Conditions on steps", "Notifications", "Business process history", "Editing a definition safely", "Testing business process changes"],
+          "tools": ["Workday tenant", "Business process definitions", "Process history"],
+          "lab_task": "Edit the hire business process to add an approval with a condition, a to-do and a notification, test it with two hires and read the process history.",
+          "deliverable": "Edited business process with tests",
+          "checks": [["Edit", "The new steps appear in the definition", "Definition view"], ["Condition", "The approval runs only when the condition is met", "Two test hires"], ["Notify", "The notification reaches the right role", "Notification record"]],
+          "objectives": ["Explain business processes", "Edit process definitions", "Test process changes"]
+        },
+        {
+          "topic": "Hire, Change Job and Termination Processes",
+          "subtopics": ["Hire and its sub-processes", "Onboarding steps", "Change job for promotions and transfers", "Edit position and change organisation assignments", "Termination and reasons", "Rehire", "Rescinding and correcting processes", "Audit of process history"],
+          "tools": ["Workday tenant", "Core HR processes", "Process history"],
+          "lab_task": "Run a hire with onboarding, a promotion through change job, a transfer, a termination and a rescind, and review the history of each.",
+          "deliverable": "Core HR process trail",
+          "checks": [["Hire", "Onboarding tasks are created for the new hire", "Inbox items"], ["Change", "Promotion and transfer update the job", "Worker history"], ["Correct", "The rescinded process leaves a clean history", "Process history"]],
+          "objectives": ["Run core HR processes", "Correct mistakes safely", "Review process history"]
+        },
+        {
+          "topic": "Compensation: Plans, Grades and Eligibility Rules",
+          "subtopics": ["Compensation packages, grades and grade profiles", "Salary, allowance and bonus plans", "Eligibility rules", "Compensation in hire and change job", "Request compensation change", "Compensation review basics", "Statements", "Compensation history"],
+          "tools": ["Workday tenant", "Compensation plans", "Eligibility rules"],
+          "lab_task": "Create grades, a salary plan and an allowance plan with eligibility rules, apply them in a hire and change compensation for an existing worker.",
+          "deliverable": "Compensation setup with tested changes",
+          "checks": [["Configure", "Grades and plans follow the design", "Plan setup"], ["Qualify", "Eligibility rules include and exclude the right workers", "Eligibility test"], ["Change", "The compensation change updates pay", "Compensation history"]],
+          "objectives": ["Configure compensation", "Use eligibility rules", "Change compensation"]
+        },
+        {
+          "topic": "Absence and Time Tracking",
+          "subtopics": ["Time off plans and leave of absence", "Accruals and balances", "Absence calendars", "Time entry codes and time blocks", "Time calculations", "Scheduling basics", "Approvals for time and absence", "Absence and time reports"],
+          "tools": ["Workday tenant", "Absence Management", "Time Tracking"],
+          "lab_task": "Configure a time off plan with accruals, request time off, enter a week of time with overtime and approve both as the manager.",
+          "deliverable": "Absence and time records",
+          "checks": [["Accrue", "Balances accrue as configured", "Time off balance"], ["Calculate", "Overtime is calculated correctly", "Time calculation results"], ["Approve", "The manager approves time and absence", "Approval history"]],
+          "objectives": ["Configure time off", "Track time", "Approve time and absence"]
+        },
+        {
+          "topic": "Benefits: Plans, Enrolment Events and Carriers",
+          "subtopics": ["Benefit groups and plans", "Coverage types and costs", "Enrolment events", "Open enrolment", "Dependants and beneficiaries", "Evidence of insurability", "Carrier integrations", "Benefits reports"],
+          "tools": ["Workday tenant", "Benefits", "Enrolment events"],
+          "lab_task": "Configure a medical and a life plan, run a new hire enrolment and a life event with a dependant, and check the costs.",
+          "deliverable": "Benefits setup with enrolments",
+          "checks": [["Configure", "Plans and costs follow the design", "Plan setup"], ["Enrol", "Enrolment events create correct elections", "Benefit elections"], ["Cost", "Employee and employer costs are correct", "Cost report"]],
+          "objectives": ["Configure benefits", "Run enrolment events", "Check benefit costs"]
+        },
+        {
+          "topic": "Recruiting and Onboarding",
+          "subtopics": ["Job requisitions", "Job postings and career sites", "Candidate pipeline and stages", "Interviews and feedback", "Offers", "Moving candidates to hire", "Onboarding plans", "Recruiting reports"],
+          "tools": ["Workday Recruiting", "Career site", "Onboarding"],
+          "lab_task": "Create a requisition, post it, move a candidate through screening and interviews, make an offer, hire the candidate and run onboarding.",
+          "deliverable": "Recruiting trail from requisition to onboarding",
+          "checks": [["Post", "The job appears on the career site", "Posting"], ["Progress", "The candidate moves through each stage", "Candidate history"], ["Onboard", "The hired candidate gets onboarding tasks", "Onboarding plan"]],
+          "objectives": ["Run recruiting", "Manage candidates", "Onboard new hires"]
+        },
+        {
+          "topic": "Talent and Performance",
+          "subtopics": ["Goals", "Performance reviews", "Check-ins and feedback", "Talent reviews and nine-box grids", "Succession plans", "Skills and the Skills Cloud", "Career interests", "Talent reports"],
+          "tools": ["Workday tenant", "Performance reviews", "Talent reviews"],
+          "lab_task": "Set goals, run a performance review with self and manager steps, hold a talent review with a nine-box grid and name a successor.",
+          "deliverable": "Performance and talent records",
+          "checks": [["Review", "The performance review completes all steps", "Review record"], ["Assess", "Workers are placed on the nine-box grid", "Talent review"], ["Plan", "A successor is named for a key position", "Succession plan"]],
+          "objectives": ["Run performance reviews", "Run talent reviews", "Plan succession"]
+        },
+        {
+          "topic": "Security: Security Groups, Domains and Business Process Policies",
+          "subtopics": ["How Workday security works", "Security group types", "Domain security policies", "Business process security policies", "Activating pending security changes", "Viewing security for a user", "Security reports", "Common security mistakes"],
+          "tools": ["Workday tenant", "Security groups", "Security policies"],
+          "lab_task": "Create a role-based security group for HR partners, grant it domain and business process permissions, activate the changes and test what a user can do.",
+          "deliverable": "Security group with tested permissions",
+          "checks": [["Create", "The group has the intended members", "Group membership"], ["Grant", "Permissions are activated", "Security timestamp"], ["Test", "The user can do only allowed tasks", "Access test"]],
+          "objectives": ["Explain Workday security", "Grant permissions", "Test user access"]
+        },
+        {
+          "topic": "Reporting with Report Writer: Data Sources, Fields and Filters",
+          "subtopics": ["Data sources and business objects", "Simple and advanced reports", "Fields from related business objects", "Filters and prompts", "Sorting and grouping", "Sharing reports", "Report security", "Exporting results"],
+          "tools": ["Report Writer", "Data sources", "Report sharing"],
+          "lab_task": "Build an advanced report of workers by organisation with job and pay data, add prompts and filters, and share it with HR partners.",
+          "deliverable": "Shared advanced report",
+          "checks": [["Build", "The report returns correct workers", "Report output"], ["Filter", "Prompts and filters narrow the results", "Report runs"], ["Share", "Only HR partners can run it", "Sharing test"]],
+          "objectives": ["Build Workday reports", "Use data sources", "Share reports securely"]
+        },
+        {
+          "topic": "Calculated Fields",
+          "subtopics": ["Why calculated fields exist", "Lookup related value", "Extract multi-instance", "True or false conditions", "Evaluate expression", "Date calculations", "Text formatting", "Testing calculated fields"],
+          "tools": ["Calculated fields", "Report Writer"],
+          "lab_task": "Build calculated fields for tenure in years, a flag for workers without a manager and the count of direct reports, and use them in a report.",
+          "deliverable": "Calculated fields used in a report",
+          "checks": [["Calculate", "Tenure is correct for sample workers", "Report output"], ["Flag", "Workers without a manager are flagged", "Report output"], ["Count", "Direct report counts match the org chart", "Comparison"]],
+          "objectives": ["Build calculated fields", "Combine field types", "Test calculations"]
+        },
+        {
+          "topic": "Dashboards, Worklets and Discovery Boards",
+          "subtopics": ["Dashboards and their worklets", "Report-based worklets", "Discovery boards for analysis", "Charts and visualisations", "Sharing dashboards", "Dashboards for managers", "People analytics features", "Choosing dashboards or reports"],
+          "tools": ["Dashboards", "Discovery boards", "Worklets"],
+          "lab_task": "Build a manager dashboard with headcount and absence worklets and a discovery board that analyses turnover by organisation.",
+          "deliverable": "Manager dashboard and discovery board",
+          "checks": [["Build", "The dashboard shows headcount and absence", "Dashboard"], ["Analyse", "The discovery board shows turnover by organisation", "Discovery board"], ["Share", "Managers see only their teams", "Access test"]],
+          "objectives": ["Build dashboards", "Analyse with discovery boards", "Share insights safely"]
+        },
+        {
+          "topic": "Workday Financials Core: Worktags, Accounting, Suppliers and Customers",
+          "subtopics": ["Worktags as accounting dimensions", "Companies, ledgers and the account set", "Journals and account posting rules", "Supplier accounts and invoices", "Customer accounts and invoices", "Payments and settlement", "Business assets", "Financial reports"],
+          "tools": ["Workday Financial Management", "Worktags", "Financial reports"],
+          "lab_task": "Create worktags for the course company, enter a journal, process a supplier invoice and a customer invoice to settlement and run a trial balance.",
+          "deliverable": "Financial transactions with a trial balance",
+          "checks": [["Tag", "Transactions carry the right worktags", "Transaction details"], ["Settle", "Supplier and customer invoices are settled", "Settlement records"], ["Balance", "The trial balance balances", "Trial balance"]],
+          "objectives": ["Use worktags", "Process finance transactions", "Run financial reports"]
+        },
+        {
+          "topic": "EIB for Mass Data Loads",
+          "subtopics": ["Enterprise Interface Builder", "Inbound and outbound EIBs", "Spreadsheet templates", "Web service operations behind EIBs", "Validating loads", "Errors and reprocessing", "Scheduling outbound EIBs", "Choosing EIB or another integration"],
+          "tools": ["EIB", "Spreadsheet templates", "Integration events"],
+          "lab_task": "Load job profiles and compensation changes with inbound EIBs, fix the errors, and schedule an outbound EIB that sends workers to a file.",
+          "deliverable": "Inbound loads and a scheduled outbound EIB",
+          "checks": [["Load", "Inbound records load successfully", "Integration event"], ["Fix", "Errors are fixed and reloaded", "Error and reload events"], ["Send", "The outbound file contains the right workers", "Output file"]],
+          "objectives": ["Load data with EIB", "Handle load errors", "Schedule outbound files"]
+        },
+        {
+          "topic": "Release Management: Sandbox, Preview and Production Tenants",
+          "subtopics": ["Feature releases and service updates", "The preview tenant", "Release notes and the feature release guide", "Opt-in features and automatic features", "Testing in preview", "Communicating changes", "Release calendars", "Post-release checks"],
+          "tools": ["Preview tenant", "Feature release guide", "Test plan template"],
+          "lab_task": "Review the next feature release for the course modules, choose opt-in features, test five scenarios in the preview tenant and plan communication.",
+          "deliverable": "Release review with tests and communication plan",
+          "checks": [["Review", "Relevant features are listed with impact", "Release review"], ["Test", "Five scenarios are tested in preview", "Test results"], ["Plan", "Communication reaches the right users", "Communication plan"]],
+          "objectives": ["Prepare for Workday releases", "Test in preview", "Communicate changes"]
+        },
+        {
+          "topic": "Beginner Capstone: Hire-to-Pay Walkthrough in a Workday Tenant",
+          "subtopics": ["Organisations and staffing", "Hire, compensation and benefits", "Absence and time", "Reports and dashboards"],
+          "tools": ["Workday tenant", "Report Writer", "EIB"],
+          "lab_task": "Run hire-to-pay for the course company with organisations, a hire with compensation and benefits, absence and time, an EIB load and a dashboard of results.",
+          "deliverable": "Process walkthrough with a dashboard",
+          "checks": [["Run", "The hire-to-pay steps complete without errors", "Process history"], ["Secure", "Each step is done by a user with the right role", "Access record"], ["Report", "The dashboard shows the results", "Dashboard"]],
+          "objectives": ["Combine beginner Workday skills", "Run end-to-end HR processes", "Report results"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For HRIS analysts, Workday administrators and consultants who configure and integrate Workday. Covers business process design, compensation cycles, payroll, security in depth, advanced and composite reports, calculated fields in depth, Core Connectors and Document Transformation, Workday Studio, web services, REST APIs and Reports as a Service, Prism Analytics, Financials configuration, procurement and expenses, Workday Extend, Workday Build and custom agents, Workday Illuminate and agents, tenant management, release testing, data conversion and certification paths.",
+      "prerequisites": ["Has used Workday as an administrator, analyst or key user", "Understands Workday business processes, security and reports", "Comfortable with XML or JSON for integration work"],
+      "outcomes": ["Configure business processes, compensation, payroll and security to requirements", "Build complex reports, Prism datasets and integrations with connectors, Studio and APIs", "Extend Workday with Extend, Workday Build and agents", "Manage tenants, releases and data conversion and choose the right certification"],
+      "days": [
+        {
+          "topic": "Business Process Design: Conditions, Sub-Processes and Notifications",
+          "subtopics": ["Designing processes from requirements", "Condition rules", "Sub-processes and their order", "Parallel and serial approvals", "Escalations and delays", "Notification design", "Business process policies by organisation", "Documenting process designs"],
+          "tools": ["Business process definitions", "Condition rules", "Notifications"],
+          "lab_task": "Redesign the change job process for two countries with condition rules, a parallel approval, an escalation and notifications, and test six cases.",
+          "deliverable": "Redesigned process with test results",
+          "checks": [["Route", "Each case follows the expected route", "Process history"], ["Escalate", "A delayed approval escalates", "Escalation record"], ["Test", "All six cases pass", "Test sheet"]],
+          "objectives": ["Design business processes", "Use condition rules", "Test complex routing"]
+        },
+        {
+          "topic": "Compensation Cycles: Merit, Bonus and Stock Plans",
+          "subtopics": ["Compensation review processes", "Merit plans and matrices", "Bonus plans and targets", "Stock plans", "Budgets and pools", "Manager worksheets", "Calibration and approvals", "Statements and reporting"],
+          "tools": ["Compensation review", "Merit plans", "Bonus plans"],
+          "lab_task": "Configure a merit and bonus cycle with budgets, run it as two managers, calibrate results and produce statements.",
+          "deliverable": "Completed compensation cycle",
+          "checks": [["Configure", "Plans and budgets follow the design", "Plan setup"], ["Run", "Managers complete worksheets within budget", "Worksheet results"], ["State", "Statements show the right amounts", "Statements"]],
+          "objectives": ["Run compensation cycles", "Manage budgets", "Produce statements"]
+        },
+        {
+          "topic": "Workday Payroll: Pay Groups, Earnings, Deductions and Pay Runs",
+          "subtopics": ["Pay groups and periods", "Earnings and deductions", "Payroll calculation", "Pay run audits", "Retro pay", "Payroll results and payslips", "Payroll accounting", "Third-party payroll options"],
+          "tools": ["Workday Payroll", "Pay calculation", "Payroll audits"],
+          "lab_task": "Configure an earning and a deduction, run a pay calculation for a pay group, audit the results, process a retro change and post payroll accounting.",
+          "deliverable": "Audited payroll run",
+          "checks": [["Calculate", "Pay results are correct for test workers", "Pay results"], ["Retro", "The retro change pays the difference", "Retro results"], ["Post", "Payroll accounting posts to the ledger", "Accounting results"]],
+          "objectives": ["Configure payroll", "Run and audit pay", "Handle retro changes"]
+        },
+        {
+          "topic": "Security Configuration in Depth: Role-Based, User-Based and Intersection Groups",
+          "subtopics": ["Security group types in depth", "Role-based constrained and unconstrained groups", "Intersection and aggregation groups", "Segment-based security", "Domain and business process policy design", "Security for integrations", "Security audits and reports", "Testing security with proxy"],
+          "tools": ["Security groups", "Security policies", "Proxy"],
+          "lab_task": "Design security for HR partners by country with intersection groups, restrict pay data with segments, give an integration user minimal access and test with proxy.",
+          "deliverable": "Security design with tests",
+          "checks": [["Restrict", "HR partners see only their country's workers", "Proxy test"], ["Segment", "Pay data is hidden from unauthorised users", "Proxy test"], ["Limit", "The integration user has only needed domains", "Security report"]],
+          "objectives": ["Design Workday security", "Use intersection and segment security", "Secure integrations"]
+        },
+        {
+          "topic": "Advanced Reports: Composite, Matrix and Trending Reports",
+          "subtopics": ["Matrix reports", "Trending reports", "Composite reports", "Report performance", "Indexed data sources", "Sub-filters", "Reports as a Service output", "Report governance"],
+          "tools": ["Report Writer", "Composite reports", "Report performance tools"],
+          "lab_task": "Build a matrix report of headcount by organisation and grade, a trending report of turnover and a composite report for the board, and tune a slow report.",
+          "deliverable": "Three reports and a tuned report",
+          "checks": [["Build", "Matrix, trending and composite reports return correct data", "Report outputs"], ["Combine", "The composite report joins its sub-reports correctly", "Composite output"], ["Tune", "The slow report runs faster", "Run time comparison"]],
+          "objectives": ["Build complex reports", "Tune report performance", "Govern reports"]
+        },
+        {
+          "topic": "Calculated Fields in Depth: Lookups, Evaluations and Performance",
+          "subtopics": ["Nested calculated fields", "Lookup range bands", "Aggregate related instances", "Global and report-specific fields", "Calculated fields in business process conditions", "Performance of calculated fields", "Naming and documentation standards", "Retiring unused fields"],
+          "tools": ["Calculated fields", "Report Writer", "Condition rules"],
+          "lab_task": "Build nested calculated fields for pay band position and pending actions, use one in a business process condition and document them to the standard.",
+          "deliverable": "Documented calculated fields in use",
+          "checks": [["Calculate", "Nested fields return correct values", "Report output"], ["Use", "The process condition uses the field correctly", "Process test"], ["Document", "Fields follow the naming standard", "Field list"]],
+          "objectives": ["Build complex calculated fields", "Use fields in conditions", "Govern calculated fields"]
+        },
+        {
+          "topic": "Integrations with Core Connectors and Document Transformation",
+          "subtopics": ["Integration types in Workday", "Core Connector: Worker", "Integration maps and services", "Changes-only output", "Document Transformation with XSLT", "Integration events and errors", "Scheduling and launch parameters", "Integration security"],
+          "tools": ["Core Connectors", "Document Transformation", "Integration events"],
+          "lab_task": "Build a Core Connector: Worker integration with changes-only output, transform it to a vendor's CSV format with Document Transformation and schedule it.",
+          "deliverable": "Scheduled changes-only integration",
+          "checks": [["Extract", "The connector outputs changed workers", "Integration output"], ["Transform", "The vendor file matches the specification", "File comparison"], ["Schedule", "The integration runs on schedule", "Integration events"]],
+          "objectives": ["Build connector integrations", "Transform output", "Schedule integrations"]
+        },
+        {
+          "topic": "Workday Studio: Assemblies, Web Services and Error Handling",
+          "subtopics": ["When to use Workday Studio", "Assemblies and components", "Calling web services", "Splitting and aggregating data", "Error handling and messages", "Launch parameters and attachments", "Testing and debugging", "Deploying Studio integrations"],
+          "tools": ["Workday Studio", "Workday Web Services", "Integration events"],
+          "lab_task": "Build a Studio integration that reads a vendor file, validates rows, creates workers through web services and reports errors without stopping the run.",
+          "deliverable": "Deployed Studio integration",
+          "checks": [["Load", "Valid rows create workers", "Worker records"], ["Report", "Invalid rows are reported without stopping the run", "Error report"], ["Deploy", "The integration runs in the tenant", "Integration event"]],
+          "objectives": ["Build Studio integrations", "Call web services", "Handle errors in integrations"]
+        },
+        {
+          "topic": "Workday Web Services, REST APIs and Reports as a Service",
+          "subtopics": ["SOAP web services and WSDLs", "REST APIs", "Reports as a Service", "Authentication with integration system users and OAuth", "API clients and scopes", "Paging and limits", "Building outbound feeds with RaaS", "Choosing the right API"],
+          "tools": ["Workday Web Services", "REST APIs", "Reports as a Service", "Postman"],
+          "lab_task": "Call a SOAP operation and a REST endpoint with OAuth, expose a report as a service in JSON and build a small feed from it.",
+          "deliverable": "API calls and a RaaS feed",
+          "checks": [["Call", "SOAP and REST calls return data", "API responses"], ["Expose", "The report returns JSON as a service", "RaaS output"], ["Secure", "The API client has only needed scopes", "Client settings"]],
+          "objectives": ["Use Workday APIs", "Use Reports as a Service", "Secure API access"]
+        },
+        {
+          "topic": "Prism Analytics: Datasets, Data Change Tasks and Publishing",
+          "subtopics": ["What Prism Analytics adds", "Tables and datasets", "Bringing in external data", "Data change tasks", "Transformations in pipelines", "Publishing as data sources", "Security for Prism data", "Reports on blended data"],
+          "tools": ["Prism Analytics", "Data change tasks", "Report Writer"],
+          "lab_task": "Load an external engagement survey file into Prism, blend it with worker data, publish it and report engagement by organisation.",
+          "deliverable": "Published Prism data source with a report",
+          "checks": [["Load", "The survey file loads into a table", "Table view"], ["Blend", "Survey and worker data join correctly", "Dataset preview"], ["Report", "The report shows engagement by organisation", "Report output"]],
+          "objectives": ["Use Prism Analytics", "Blend external data", "Report on blended data"]
+        },
+        {
+          "topic": "Workday Financials Configuration: Ledgers, Account Posting Rules and Close",
+          "subtopics": ["Account sets and ledger accounts", "Account posting rules", "Worktag rules and defaults", "Intercompany", "Allocations", "Period close tasks", "Consolidation", "Financial reporting"],
+          "tools": ["Workday Financial Management", "Account posting rules", "Close tasks"],
+          "lab_task": "Configure account posting rules and worktag defaults, set up intercompany and an allocation, run a period close and a consolidated report.",
+          "deliverable": "Financials configuration with a closed period",
+          "checks": [["Post", "Transactions post to the right accounts", "Journal lines"], ["Allocate", "The allocation posts as designed", "Allocation results"], ["Close", "The period closes and consolidates", "Consolidated report"]],
+          "objectives": ["Configure Workday Financials", "Automate postings", "Close periods"]
+        },
+        {
+          "topic": "Procurement and Expenses in Workday",
+          "subtopics": ["Requisitions and catalogues", "Purchase orders and receipts", "Supplier invoices and matching", "Expense reports and policies", "Credit card transactions", "Spend categories", "Approvals for spend", "Spend reports"],
+          "tools": ["Workday Procurement", "Workday Expenses", "Spend categories"],
+          "lab_task": "Configure spend categories and an expense policy, run a requisition to invoice match and an expense report with a card transaction, and report spend.",
+          "deliverable": "Procurement and expense trail with a spend report",
+          "checks": [["Buy", "The requisition becomes a matched invoice", "Transaction trail"], ["Expense", "The expense report follows the policy", "Expense report"], ["Report", "Spend is reported by category", "Spend report"]],
+          "objectives": ["Run procurement", "Run expenses", "Report spend"]
+        },
+        {
+          "topic": "Workday Extend: App Builder, Orchestrations and Model Components",
+          "subtopics": ["What Workday Extend provides", "App Builder", "Model components and business objects", "Pages and presentation", "Orchestrations", "Security for Extend apps", "Testing and deploying apps", "App lifecycle with releases"],
+          "tools": ["Workday Extend", "App Builder", "Orchestrate"],
+          "lab_task": "Build an Extend app for equipment requests with a custom business object, a page and an orchestration that notifies IT, and deploy it.",
+          "deliverable": "Deployed Extend app",
+          "checks": [["Build", "Requests are stored in the custom object", "Object records"], ["Orchestrate", "The orchestration notifies IT", "Orchestration log"], ["Deploy", "Only intended users can use the app", "Access test"]],
+          "objectives": ["Build Extend apps", "Use orchestrations", "Deploy apps securely"]
+        },
+        {
+          "topic": "Workday Build and Custom Agents: Developer Tools for AI Apps",
+          "subtopics": ["Workday Build as the developer platform", "Building custom agents that run on Workday", "Connecting agents to Workday data and actions", "Verifying agents before release", "Guardrails and security for agents", "Using familiar agent frameworks with Workday", "Testing and monitoring agents", "When to build or use delivered agents"],
+          "tools": ["Workday Build", "Workday Extend", "Agent testing tools"],
+          "lab_task": "Build a custom agent that answers policy questions and creates time off requests through Workday actions, verify it against test cases and deploy it.",
+          "deliverable": "Verified custom agent",
+          "checks": [["Build", "The agent answers and acts through Workday", "Conversation log"], ["Verify", "Test cases pass before release", "Verification report"], ["Guard", "The agent cannot act beyond the user's permissions", "Access test"]],
+          "objectives": ["Build custom Workday agents", "Verify agents", "Apply guardrails"]
+        },
+        {
+          "topic": "Workday AI: Illuminate, Delivered Agents and the Agent System of Record",
+          "subtopics": ["Workday Illuminate", "Delivered agents for HR and finance", "Workday Assistant", "The Agent System of Record", "Agent access and security", "Human review of agent work", "Measuring agent value", "Responsible AI in Workday"],
+          "tools": ["Workday Illuminate", "Delivered agents", "Agent System of Record"],
+          "lab_task": "Use two delivered agents on sample tasks, register an agent in the Agent System of Record with its permissions and define human review steps.",
+          "deliverable": "Agent trial and registration record",
+          "checks": [["Use", "Both agents complete their tasks", "Agent output"], ["Register", "The agent is recorded with owner and permissions", "Agent record"], ["Review", "Human review steps are written", "Review notes"]],
+          "objectives": ["Use Workday AI", "Govern agents", "Plan human review"]
+        },
+        {
+          "topic": "Tenant Management: Object Transporter, Refreshes and Configuration Moves",
+          "subtopics": ["Tenant types and their purposes", "Sandbox refresh schedule", "Moving configuration with Object Transporter", "Solution packaging", "Tracking configuration changes", "Implementation tenants", "Data in non-production tenants", "Tenant access"],
+          "tools": ["Object Transporter", "Tenant management", "Configuration audit reports"],
+          "lab_task": "Move a business process change and a report from sandbox to production with Object Transporter, track it in a change log and check data masking in sandbox.",
+          "deliverable": "Configuration move with a change log",
+          "checks": [["Move", "Changes arrive in the target tenant", "Target configuration"], ["Track", "The change log records what moved and why", "Change log"], ["Mask", "Sensitive data is masked in sandbox", "Data sample"]],
+          "objectives": ["Manage tenants", "Move configuration safely", "Protect data in non-production"]
+        },
+        {
+          "topic": "Testing Workday Releases: Feature Review and Regression Testing",
+          "subtopics": ["Release testing strategy", "Choosing regression scenarios by risk", "Test data in preview tenants", "Automated testing options", "Integrations in release testing", "Defects and Workday Support", "Sign-off", "Lessons for the next release"],
+          "tools": ["Preview tenant", "Test management tool", "Workday Community"],
+          "lab_task": "Build a risk-based regression plan for the next feature release, run it in preview including two integrations, log defects and sign off.",
+          "deliverable": "Release regression results and sign-off",
+          "checks": [["Plan", "Scenarios are chosen by risk", "Test plan"], ["Run", "Integrations are tested in preview", "Test results"], ["Sign", "Sign-off records open risks", "Sign-off note"]],
+          "objectives": ["Test Workday releases", "Scope tests by risk", "Sign off releases"]
+        },
+        {
+          "topic": "Data Conversion for Workday Implementations: Mock Loads and Validation",
+          "subtopics": ["Conversion scope and sequence", "Data templates and mapping", "Cleansing legacy data", "Mock conversions", "Validation reports", "Reconciliation with the source", "Cutover conversion", "Sign-off by data owners"],
+          "tools": ["Data conversion templates", "EIB", "Validation reports"],
+          "lab_task": "Run a mock conversion of workers, positions and compensation, reconcile counts and pay totals with the source and present results to the data owners.",
+          "deliverable": "Mock conversion and reconciliation report",
+          "checks": [["Load", "Objects load in sequence", "Load results"], ["Reconcile", "Counts and pay totals match the source", "Reconciliation sheet"], ["Sign", "Data owners accept or reject with reasons", "Sign-off record"]],
+          "objectives": ["Plan data conversion", "Run mock conversions", "Reconcile with the source"]
+        },
+        {
+          "topic": "Workday Certification Paths: Partner Certifications and Workday Pro",
+          "subtopics": ["Partner certification paths", "Workday Pro for customers", "Extend and integrations certifications", "Prerequisites and training", "Mapping course days to certification topics", "Practice tasks in a tenant", "Keeping certifications current with releases", "Review plan for weak areas"],
+          "tools": ["Workday Learning", "Practice tenant", "Course notes"],
+          "lab_task": "Choose the right certification for your role, complete practice tasks in a tenant, map gaps to course days and write a study plan.",
+          "deliverable": "Certification choice and study plan",
+          "checks": [["Choose", "The certification fits the role", "Choice record"], ["Practise", "Practice tasks are completed", "Task log"], ["Plan", "The study plan covers the gaps", "Study plan"]],
+          "objectives": ["Choose Workday certifications", "Practise in a tenant", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Configured Workday HCM Pilot with Integrations and Reports",
+          "subtopics": ["Processes, compensation and payroll", "Security design", "Integrations and APIs", "Reports, Prism and an agent"],
+          "tools": ["Workday tenant", "Core Connectors", "Workday Studio", "Prism Analytics"],
+          "lab_task": "Deliver a pilot for the course company with redesigned processes, a compensation cycle, payroll, country security, two integrations, a RaaS feed, Prism reporting and an agent, and present it to the steering group persona.",
+          "deliverable": "Pilot demo with evidence",
+          "checks": [["Configure", "Processes, pay and security work as designed", "Test results"], ["Integrate", "Integrations and feeds run without errors", "Integration events"], ["Report", "Reports and Prism data answer the steering questions", "Demo recording"]],
+          "objectives": ["Combine intermediate Workday skills", "Deliver a working pilot", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For Workday architects, programme leads and senior consultants. Covers programme architecture, global deployments, security architecture and audits, integration architecture, mass organisation changes, workforce planning, people analytics, financial close and Adaptive Planning, Extend at enterprise scale, AI agent governance, release strategy, data privacy, mergers and acquisitions, moves from SAP HCM, Oracle or PeopleSoft, payroll partners, performance and volume, post-go-live support, a centre of excellence and change management.",
+      "prerequisites": ["Has delivered or run at least one Workday deployment", "Understands Workday configuration, security, integrations and reporting", "Responsible for design, programme or architecture decisions"],
+      "outcomes": ["Design global Workday programmes with security, integration and data architectures", "Run mass changes, planning, analytics and releases at scale", "Govern Extend apps, agents and privacy", "Lead migrations, mergers, support and change"],
+      "days": [
+        {
+          "topic": "Workday Programme Architecture: Global Design, Integrations and Data",
+          "subtopics": ["Solution architecture for HCM and Financials", "Global design principles", "Integration landscape", "Data ownership and flows", "Reporting landscape", "Non-functional requirements", "Architecture decisions", "Design authority"],
+          "tools": ["Architecture diagram tool", "Decision records", "Integration catalogue"],
+          "lab_task": "Design the Workday architecture for a multinational with HCM, Payroll partners and Financials, and defend it to a design authority.",
+          "deliverable": "Programme architecture and decision records",
+          "checks": [["Design", "Products, integrations and data flows are shown", "Architecture diagram"], ["Decide", "Key decisions are recorded with options", "Decision records"], ["Defend", "The design authority accepts the design with actions", "Review record"]],
+          "objectives": ["Design Workday programmes", "Map data and integrations", "Run a design authority"]
+        },
+        {
+          "topic": "Global Deployments: Localisation, Country Requirements and Rollout Waves",
+          "subtopics": ["Global and local design", "Country-specific fields and processes", "Works councils and consultation", "Data residency and privacy by country", "Language and translation", "Country rollout waves", "Local payroll options", "Template-based deployment"],
+          "tools": ["Localisation guides", "Rollout plan", "Country requirement tracker"],
+          "lab_task": "Design a global template with variations for three countries, plan works council consultation and data privacy needs and schedule the rollout waves.",
+          "deliverable": "Global template and rollout plan",
+          "checks": [["Template", "Global and local elements are separated", "Template document"], ["Comply", "Each country's requirements are covered", "Requirement tracker"], ["Plan", "Waves have dates and dependencies", "Rollout plan"]],
+          "objectives": ["Design global deployments", "Handle country requirements", "Plan rollout waves"]
+        },
+        {
+          "topic": "Security Architecture and Audits: Segregation of Duties and Policy Reviews",
+          "subtopics": ["Security design at scale", "Segregation of duties in Workday", "Sensitive data domains", "Security audits", "Access certifications", "Emergency and support access", "Security change control", "Evidence for auditors"],
+          "tools": ["Security reports", "Audit trails", "Access review process"],
+          "lab_task": "Design the security model for the programme, find segregation of duties conflicts, run an access review and prepare audit evidence.",
+          "deliverable": "Security model and audit pack",
+          "checks": [["Design", "Groups and policies cover all roles with least privilege", "Security model"], ["Analyse", "Conflicts are found and resolved", "Conflict report"], ["Prove", "The audit pack answers auditor questions", "Evidence pack"]],
+          "objectives": ["Design Workday security architecture", "Control segregation of duties", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Integration Architecture at Scale: Patterns, Monitoring and Recovery",
+          "subtopics": ["Integration patterns and trade-offs", "Middleware and Workday", "Event-driven and scheduled integrations", "Monitoring integration events", "Error recovery and reprocessing", "Integration security at scale", "Integration catalogue and ownership", "Testing integrations at scale"],
+          "tools": ["Integration catalogue", "Middleware", "Integration monitoring"],
+          "lab_task": "Design the integration architecture for forty interfaces with patterns, owners and monitoring, and run a recovery drill for a failed payroll interface.",
+          "deliverable": "Integration architecture and recovery drill",
+          "checks": [["Design", "Each interface has a pattern and owner", "Integration catalogue"], ["Monitor", "Failures raise alerts to the support team", "Alert test"], ["Recover", "The failed interface is reprocessed correctly", "Drill record"]],
+          "objectives": ["Design integration architecture", "Monitor integrations", "Recover from failures"]
+        },
+        {
+          "topic": "Organisation Change at Scale: Reorganisations and Mass Job Changes",
+          "subtopics": ["Reorganisation planning", "Mass operations for organisations and jobs", "Mass job change with validation", "Effective dating", "Impacts on security and approvals", "Communicating changes", "Testing mass changes", "Rolling back mistakes"],
+          "tools": ["Mass operations", "Organisation tasks", "Validation reports"],
+          "lab_task": "Plan a reorganisation of 2,000 workers, run it in sandbox with mass job changes and validation, check security impacts and plan the production run.",
+          "deliverable": "Reorganisation plan with sandbox results",
+          "checks": [["Run", "The mass change completes in sandbox", "Validation results"], ["Check", "Security and approvals still route correctly", "Test results"], ["Plan", "The production run has timing and rollback steps", "Run plan"]],
+          "objectives": ["Run mass organisation changes", "Validate impacts", "Plan safe production runs"]
+        },
+        {
+          "topic": "Workforce Planning and Headcount Management",
+          "subtopics": ["Strategic workforce planning", "Headcount plans", "Position budgeting", "Scenario planning", "Linking plans to recruiting", "Skills-based planning", "Reporting plan versus actual", "Planning governance"],
+          "tools": ["Headcount plans", "Adaptive Planning", "Reports"],
+          "lab_task": "Build a headcount plan with two scenarios, link approved positions to recruiting and report plan against actual for a quarter.",
+          "deliverable": "Headcount plan with plan-versus-actual report",
+          "checks": [["Plan", "Both scenarios are modelled", "Plan view"], ["Link", "Approved positions open requisitions", "Requisition list"], ["Report", "Plan versus actual is reported", "Report output"]],
+          "objectives": ["Plan the workforce", "Model scenarios", "Track plan against actual"]
+        },
+        {
+          "topic": "People Analytics: Prism, Discovery Boards and Executive Dashboards",
+          "subtopics": ["People analytics strategy", "Metrics and definitions", "Prism data from several sources", "Executive dashboards", "Data quality checks", "Privacy in analytics", "Self-service analytics", "Analytics roadmap"],
+          "tools": ["Prism Analytics", "Discovery boards", "Dashboards"],
+          "lab_task": "Define ten people metrics, build an executive dashboard with Prism data, add data quality checks and present insights to the leadership persona.",
+          "deliverable": "Executive dashboard and metric definitions",
+          "checks": [["Define", "Metrics have owners and definitions", "Metric register"], ["Build", "The dashboard shows all metrics", "Dashboard"], ["Check", "Data quality checks flag seeded problems", "Quality report"]],
+          "objectives": ["Run people analytics", "Define metrics", "Present insights"]
+        },
+        {
+          "topic": "Financial Close, Consolidation and Planning with Adaptive Planning",
+          "subtopics": ["Close processes at scale", "Intercompany and eliminations", "Consolidation across companies", "Adaptive Planning models", "Budgets and forecasts", "Linking actuals to plans", "Management reporting", "Close improvement"],
+          "tools": ["Workday Financial Management", "Adaptive Planning", "Close tasks"],
+          "lab_task": "Run a multi-company close with intercompany eliminations, load actuals into an Adaptive Planning model and report forecast against actual.",
+          "deliverable": "Closed period and forecast report",
+          "checks": [["Close", "Eliminations and consolidation are correct", "Consolidated report"], ["Load", "Actuals arrive in the planning model", "Model view"], ["Report", "Forecast versus actual is reported", "Report output"]],
+          "objectives": ["Run financial close", "Connect actuals to planning", "Report forecasts"]
+        },
+        {
+          "topic": "Workday Extend at Enterprise Scale: App Governance, Security and Lifecycle",
+          "subtopics": ["App portfolio management", "Standards for Extend apps", "Security reviews for apps", "Testing and release pipelines", "Apps through Workday releases", "Monitoring app use", "Retiring apps", "Building a developer community"],
+          "tools": ["Workday Extend", "Workday Build", "App catalogue"],
+          "lab_task": "Set standards and a review process for Extend apps, run two apps through the process and plan their maintenance through the next release.",
+          "deliverable": "App governance process with reviewed apps",
+          "checks": [["Standardise", "Standards cover security, testing and support", "Standards document"], ["Review", "Two apps pass the review", "Review records"], ["Maintain", "Release maintenance is planned", "Maintenance plan"]],
+          "objectives": ["Govern Extend apps", "Review app security", "Maintain apps through releases"]
+        },
+        {
+          "topic": "AI Agent Governance in Workday: Permissions, Audit and Responsible AI",
+          "subtopics": ["Governance roles for AI agents", "Delivered and custom agents in one register", "Permissions and data access", "Human approval points", "Monitoring agent actions", "Bias and fairness reviews", "Regulations for AI in HR", "Retiring agents"],
+          "tools": ["Agent System of Record", "Security policies", "Audit reports"],
+          "lab_task": "Write an AI agent policy for HR and finance, apply permissions and approvals to three agents and review a month of seeded agent actions for errors and bias.",
+          "deliverable": "Agent policy and action review",
+          "checks": [["Govern", "The policy defines roles, approvals and audit", "Policy document"], ["Apply", "Agents follow permissions and approvals", "Configuration and tests"], ["Review", "Seeded errors and bias are found and acted on", "Review report"]],
+          "objectives": ["Govern Workday agents", "Control agent access", "Review agent actions"]
+        },
+        {
+          "topic": "Release Strategy at Scale: Feature Adoption and Governance",
+          "subtopics": ["Release governance roles", "Feature adoption roadmap", "Impact analysis across products", "Risk-based regression testing", "Training for releases", "Communication by audience", "Measuring adoption of new features", "Lessons from each release"],
+          "tools": ["Feature release guide", "Adoption tracker", "Test management tool"],
+          "lab_task": "Run release governance for the next feature release across HCM and Financials with impact analysis, an adoption roadmap and a communication plan.",
+          "deliverable": "Release governance pack",
+          "checks": [["Analyse", "Impacts are assessed per product", "Impact matrix"], ["Adopt", "Features are scheduled on the roadmap", "Adoption roadmap"], ["Communicate", "Each audience gets the right message", "Communication plan"]],
+          "objectives": ["Govern Workday releases", "Plan feature adoption", "Communicate change"]
+        },
+        {
+          "topic": "Data Privacy in Workday: GDPR, Retention and Purging",
+          "subtopics": ["Personal data in Workday", "Lawful basis and consent", "Data retention policies", "Purging and scrambling data", "Subject access requests", "Cross-border transfers", "Privacy in non-production tenants", "Privacy audits"],
+          "tools": ["Data purge tasks", "Retention policies", "Privacy reports"],
+          "lab_task": "Define retention rules for three data types, run a purge in sandbox, answer a subject access request and prepare privacy audit evidence.",
+          "deliverable": "Retention rules, purge record and audit evidence",
+          "checks": [["Define", "Retention rules cover the data types", "Retention policy"], ["Purge", "Data is purged as defined", "Purge results"], ["Answer", "The subject access request is complete", "Response pack"]],
+          "objectives": ["Protect personal data", "Run retention and purging", "Answer privacy requests"]
+        },
+        {
+          "topic": "Mergers and Acquisitions: Bringing Acquired Companies into Workday",
+          "subtopics": ["Day-one requirements", "Organisation and job mapping", "Data conversion for acquisitions", "Compensation and benefits harmonisation", "Security and access for new staff", "Payroll transitions", "Divestitures and data separation", "Integration checklists"],
+          "tools": ["Conversion templates", "Mapping workbooks", "Integration checklists"],
+          "lab_task": "Plan the integration of a 500-person acquisition with day-one access, organisation mapping, conversion and payroll transition, and a divestiture data split.",
+          "deliverable": "Acquisition and divestiture plan",
+          "checks": [["Map", "Organisations and jobs are mapped", "Mapping workbook"], ["Convert", "A mock conversion loads the acquired workers", "Load results"], ["Separate", "Divested data is identified and separated", "Separation plan"]],
+          "objectives": ["Integrate acquisitions", "Convert acquired data", "Separate divested data"]
+        },
+        {
+          "topic": "Moving from SAP HCM, Oracle or PeopleSoft to Workday",
+          "subtopics": ["Reasons and risks of moving", "Comparing source systems with Workday", "History and data decisions", "Custom reports and interfaces", "Payroll transition options", "Coexistence periods", "Decommissioning", "Lessons from past moves"],
+          "tools": ["Fit-gap workbook", "Conversion tools", "Decommissioning plan"],
+          "lab_task": "Assess a SAP HCM estate for a move to Workday, decide on history, reports and interfaces, and plan coexistence and decommissioning.",
+          "deliverable": "Move assessment and roadmap",
+          "checks": [["Assess", "Reports and interfaces are classified", "Assessment"], ["Decide", "History and coexistence decisions are recorded", "Decision records"], ["Plan", "Decommissioning has dates and owners", "Roadmap"]],
+          "objectives": ["Plan moves to Workday", "Handle history and reports", "Plan coexistence"]
+        },
+        {
+          "topic": "Payroll Partner Integrations: Cloud Connect, PECI and Third-Party Payroll",
+          "subtopics": ["Workday Payroll or a partner", "Cloud Connect for Third-Party Payroll", "Payroll Effective Change Interface", "Payroll results back into Workday", "Country payroll partners", "Reconciliation with partners", "Testing pay with partners", "Support between Workday and partners"],
+          "tools": ["Cloud Connect for Third-Party Payroll", "PECI", "Integration events"],
+          "lab_task": "Configure a payroll effective change interface for a partner, run two pay periods with changes, load results back and reconcile with the partner.",
+          "deliverable": "Partner payroll interface with reconciliation",
+          "checks": [["Send", "Changes reach the partner correctly", "Interface output"], ["Return", "Results load back into Workday", "Results records"], ["Reconcile", "Workday and partner totals match", "Reconciliation sheet"]],
+          "objectives": ["Integrate payroll partners", "Exchange pay data", "Reconcile with partners"]
+        },
+        {
+          "topic": "Performance and Volume: Large Reports, Integrations and Process Load",
+          "subtopics": ["Performance requirements", "Large report design", "Integration volume and timing", "Business process load at peak periods", "Background processes", "Monitoring performance", "Working with Workday Support on performance", "Performance testing"],
+          "tools": ["Report performance tools", "Integration events", "Background process monitor"],
+          "lab_task": "Measure performance during a seeded open enrolment peak, tune the slowest report and integration, and plan schedules that avoid overlaps.",
+          "deliverable": "Performance report with tuning and schedule plan",
+          "checks": [["Measure", "Peak load is measured", "Performance report"], ["Tune", "Report and integration times improve", "Before-and-after times"], ["Schedule", "Background schedules avoid overlaps", "Schedule plan"]],
+          "objectives": ["Plan Workday performance", "Tune reports and integrations", "Schedule background work"]
+        },
+        {
+          "topic": "Post-Go-Live Support Model and Application Management Services",
+          "subtopics": ["Support tiers after go-live", "Working with Workday Support", "Application management services partners", "Incident and request management", "Service levels", "Knowledge base", "Continuous improvement backlog", "Measuring support quality"],
+          "tools": ["Service management tool", "Workday Support portal", "Knowledge base"],
+          "lab_task": "Design the post-go-live support model with service levels, raise a well-formed support case for a seeded issue and set up an improvement backlog.",
+          "deliverable": "Support model and improvement backlog",
+          "checks": [["Design", "Tiers and service levels are defined", "Support model"], ["Raise", "The support case has all needed details", "Support case"], ["Improve", "The backlog is ranked by value", "Backlog"]],
+          "objectives": ["Run Workday support", "Work with Workday Support", "Improve continuously"]
+        },
+        {
+          "topic": "Workday Centre of Excellence and Roadmap",
+          "subtopics": ["Centre of excellence roles", "Demand intake and prioritisation", "Product roadmap", "Standards and design authority", "Skills and training", "Measuring value", "Partner management", "Community and knowledge sharing"],
+          "tools": ["Roadmap template", "Demand tracker", "Value dashboard"],
+          "lab_task": "Design a Workday centre of excellence with roles, intake and a twelve-month roadmap, and report value against the business case.",
+          "deliverable": "Centre of excellence plan and value report",
+          "checks": [["Design", "Roles and governance are defined", "Plan document"], ["Prioritise", "Demand is ranked by value", "Demand list"], ["Report", "Value is measured against the business case", "Value report"]],
+          "objectives": ["Run a Workday centre of excellence", "Prioritise demand", "Measure value"]
+        },
+        {
+          "topic": "Change Management and Adoption for Workday Programmes",
+          "subtopics": ["Stakeholder mapping", "Change impact analysis", "Training by role", "Manager and employee self-service adoption", "Champions network", "Communication plans", "Adoption metrics", "Benefits tracking"],
+          "tools": ["Change impact template", "Training plan", "Adoption dashboard"],
+          "lab_task": "Build a change impact analysis and training plan for managers and employees, design the champions network and set self-service adoption targets.",
+          "deliverable": "Change and adoption plan",
+          "checks": [["Analyse", "Impacts are listed per audience", "Impact analysis"], ["Train", "Training fits each role", "Training plan"], ["Measure", "Adoption targets are set and tracked", "Adoption plan"]],
+          "objectives": ["Lead change for Workday", "Plan training", "Measure adoption"]
+        },
+        {
+          "topic": "Advanced Capstone: Global Workday Programme Design",
+          "subtopics": ["Architecture and global template", "Security, privacy and data designs", "Integrations and payroll partners", "AI governance, releases and support"],
+          "tools": ["Architecture documents", "Conversion and cutover plans", "Governance packs"],
+          "lab_task": "Present the global Workday programme design to a steering committee with the architecture, global template, security and privacy, integrations and payroll partners, analytics, AI governance, release strategy and support model.",
+          "deliverable": "Programme design with evidence and a steering decision",
+          "checks": [["Design", "Architecture and template pass review", "Review record"], ["Plan", "Conversion, payroll and cutover plans are realistic", "Plan review"], ["Govern", "AI, release and support governance have owners", "Governance pack"]],
+          "objectives": ["Combine advanced Workday skills", "Design a global programme", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

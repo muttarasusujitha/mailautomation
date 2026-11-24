@@ -1,6 +1,6 @@
 {
   "domain": "Jaeger",
-  "name": "Jaeger â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "Jaeger – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "Jaeger Tracing",
     "Distributed Tracing"
@@ -25,9 +25,6 @@
         "Use cases",
         "Threats or failure modes",
         "Lab setup",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
         "distributed tracing",
         "spans",
         "traces",
@@ -111,22 +108,7 @@
         "Addressing/identity concepts",
         "State",
         "Control plane/data plane",
-        "Common configurations",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Common configurations"
       ],
       "tools": [
         "Jaeger",
@@ -198,22 +180,7 @@
         "Scalability",
         "Trust boundaries",
         "Failure domains",
-        "Cloud considerations",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Cloud considerations"
       ],
       "tools": [
         "Jaeger",
@@ -285,22 +252,7 @@
         "Certificates/keys",
         "Hardening",
         "Least privilege",
-        "Logging and auditing",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Logging and auditing"
       ],
       "tools": [
         "Jaeger",
@@ -372,22 +324,7 @@
         "Common faults",
         "Diagnostic commands",
         "Alerting",
-        "Incident workflow",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Incident workflow"
       ],
       "tools": [
         "Jaeger",
@@ -459,22 +396,7 @@
         "Change control",
         "Versioning",
         "Testing",
-        "Operational runbooks",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Operational runbooks"
       ],
       "tools": [
         "Jaeger",
@@ -546,22 +468,7 @@
         "Performance",
         "High availability",
         "Disaster recovery",
-        "Cost considerations",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Cost considerations"
       ],
       "tools": [
         "Jaeger",
@@ -634,22 +541,7 @@
         "Testing",
         "Monitoring",
         "Troubleshooting",
-        "Documentation",
-        "Jaeger terminology and feature mapping for this topic",
-        "Jaeger configuration and implementation considerations",
-        "Jaeger best practices and common mistakes for this topic",
-        "distributed tracing",
-        "spans",
-        "traces",
-        "trace context",
-        "propagation",
-        "sampling",
-        "collector",
-        "query service",
-        "storage",
-        "service dependencies",
-        "latency analysis",
-        "OpenTelemetry integration"
+        "Documentation"
       ],
       "tools": [
         "Jaeger",
@@ -717,5 +609,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

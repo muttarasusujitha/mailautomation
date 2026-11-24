@@ -60,6 +60,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "https://localhost:5173"
     CORE_API_URL: str = "http://core-api:8001"
     TRAINER_SERVICE_URL: str = "http://trainer-service:8004"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
     INTERNAL_SERVICE_TOKEN: str = ""
 
     @field_validator("FROM_EMAIL", mode="before")
@@ -98,6 +99,8 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     AI_PROVIDER: str = "openai"
     OLLAMA_URL: str = "http://localhost:11434/api/generate"
     OLLAMA_MODEL: str = "qwen3:8b"

@@ -111,6 +111,84 @@ def _extract_fields(text: str) -> Dict[str, Any]:
     fields["missing_fields"] = [key for key, value in fields.items() if key in {
         "po_number", "po_date", "total_amount", "client_name", "vendor_name"
     } and value in (None, "", 0)]
+    return _mark_auto_process_eligibility(normalized, fields)
+
+
+def _mark_auto_process_eligibility(text: str, fields: Dict[str, Any]) -> Dict[str, Any]:
+    """Permit auto-invoicing only from a complete, final INR PO with a clear tax basis."""
+    normalized = str(text or "")
+    blockers = []
+    lowered = normalized.lower()
+    draft_markers = (
+        "draft", "for review", "for authorization", "indicative", "unverified",
+        "subject to approval", "subject to confirmation", "not approved", "not authorized",
+    )
+    draft_reasons = [marker for marker in draft_markers if marker in lowered]
+    placeholder_fields = [
+        key for key in ("po_number", "client_name", "vendor_name")
+        if re.search(r"(?i)\b(?:TBD|TBC|XXXX|PLACEHOLDER|INSERT)\b", str(fields.get(key) or ""))
+        or str(fields.get(key) or "").strip().lower() in {"tbd", "tbc", "xxxx", "placeholder", "insert"}
+    ]
+    currency_inr = bool(re.search(r"(?i)\bINR\b|\bRs\.?\s*\d|\u20b9", normalized))
+    foreign_currency = bool(re.search(r"(?i)\b(?:USD|US\s*\$|EUR|GBP|AED|SGD|AUD)\b", normalized))
+    tax_exempt = bool(re.search(r"(?i)\b(?:GST\s*(?:not applicable|exempt)|no GST|without GST|GST\s*@?\s*0\s*%)\b", normalized))
+    tax_exclusive = bool(re.search(r"(?i)\b(?:exclusive of (?:all )?(?:tax|GST)|excluding (?:all )?(?:tax|GST)|GST extra|plus GST|taxes extra)\b", normalized))
+    gst_rate = float(fields.get("gst_rate") or 0)
+
+    def amount_for(pattern: str) -> Optional[float]:
+        match = re.search(
+            rf"(?im)^\s*(?:{pattern})\b\s*[:\-]?\s*(?:INR|Rs\.?|\u20b9)?\s*([0-9][0-9,]*(?:\.\d{{1,2}})?)",
+            normalized,
+        )
+        if not match:
+            return None
+        try:
+            return float(match.group(1).replace(",", ""))
+        except ValueError:
+            return None
+
+    subtotal = amount_for(r"subtotal(?:\s+amount)?|taxable\s+(?:value|amount)|net\s+amount\s+before\s+tax|amount\s+before\s+tax")
+    face_total = amount_for(r"grand\s+total|net\s+payable|total\s+(?:po\s+)?amount|total\s+value|order\s+value|po\s+value|total")
+    amount_basis = "unknown"
+    if subtotal and subtotal > 0:
+        fields["total_amount"] = subtotal
+        amount_basis = "pre_tax"
+    elif face_total and face_total > 0 and gst_rate > 0 and (
+        re.search(r"(?i)\bgrand\s+total\b|\bnet\s+payable\b|inclusive of (?:all )?(?:tax|GST)|including (?:all )?(?:tax|GST)", normalized)
+    ):
+        fields["total_amount"] = round(face_total / (1 + gst_rate / 100), 2)
+        amount_basis = "grand_total_includes_tax"
+    elif fields.get("total_amount") and fields["total_amount"] > 0 and (tax_exclusive or tax_exempt):
+        amount_basis = "pre_tax"
+    fields["po_face_total"] = face_total or subtotal or fields.get("total_amount")
+    fields["amount_basis"] = amount_basis
+    fields["currency"] = "INR" if currency_inr and not foreign_currency else ""
+    fields["draft_document"] = bool(draft_reasons)
+    fields["draft_reasons"] = draft_reasons
+    fields["placeholder_fields"] = placeholder_fields
+
+    if draft_reasons:
+        blockers.append("PO is marked draft, indicative, or unapproved")
+    if placeholder_fields:
+        blockers.append("PO contains placeholder values: " + ", ".join(placeholder_fields))
+    if not currency_inr or foreign_currency:
+        blockers.append("PO currency is missing or is not INR")
+    if amount_basis == "unknown":
+        blockers.append("PO amount or tax basis is ambiguous")
+    if subtotal and face_total and gst_rate > 0 and abs(round(subtotal * (1 + gst_rate / 100), 2) - face_total) > 1:
+        blockers.append("PO subtotal, GST rate, and grand total do not reconcile")
+    if gst_rate <= 0 and not tax_exempt:
+        blockers.append("PO does not state a GST rate or tax exemption")
+    vendor_name = str(fields.get("vendor_name") or "").strip()
+    if not vendor_name or "clahan" not in vendor_name.lower():
+        blockers.append("PO supplier is missing or does not identify Clahan")
+    required = ("po_number", "po_date", "total_amount", "client_name", "vendor_name")
+    fields["missing_fields"] = [key for key in required if fields.get(key) in (None, "", 0)]
+    blockers.extend(f"Missing required PO field: {key.replace('_', ' ')}" for key in fields["missing_fields"])
+
+    fields["auto_processing_blockers"] = list(dict.fromkeys(blockers))
+    fields["auto_processing_eligible"] = bool(fields.get("document_detected") and not fields["auto_processing_blockers"])
+    fields["review_required"] = not fields["auto_processing_eligible"]
     return fields
 
 
@@ -151,5 +229,5 @@ def extract_purchase_order_attachments(attachments: Optional[List[Dict[str, Any]
         "status": "parsed" if any(item.get("status") == "parsed" for item in po_docs) else "partial" if po_docs else "no_po_pdf",
         "documents": po_docs,
         "fields": next((item["fields"] for item in po_docs if item.get("fields")), {}),
-        "review_required": True,
+        "review_required": not any(item.get("fields", {}).get("auto_processing_eligible") for item in po_docs),
     }

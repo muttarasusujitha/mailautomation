@@ -68,6 +68,7 @@ def matches_requested_skill(profile, search_text) -> bool:
         str(profile.get("title") or ""),
         str(profile.get("snippet") or ""),
         str(profile.get("content") or ""),
+        str(profile.get("search_query") or ""),
         str(profile.get("slug") or ""),
         str(profile.get("source_url") or profile.get("url") or ""),
     ]).lower()
@@ -117,8 +118,8 @@ def is_trainer_profile_url(url) -> bool:
     return False
 
 
-def select_accurate_profiles(rows, search_text):
-    """Keep current-year trainer profiles whose text matches the requested skill."""
+def select_accurate_profiles(rows, search_text, require_current=True):
+    """Keep trainer profile links matching the skill and optional freshness rule."""
     kept = []
     for row in rows or []:
         if not isinstance(row, dict):
@@ -130,7 +131,7 @@ def select_accurate_profiles(rows, search_text):
             continue
         if not matches_requested_skill(row, search_text):
             continue
-        if not is_current_year_result(row):
+        if require_current and not is_current_year_result(row):
             continue
         kept.append(row)
     return kept

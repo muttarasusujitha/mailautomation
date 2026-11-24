@@ -1,0 +1,573 @@
+{
+  "domain": "Keycloak",
+  "name": "Keycloak",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["Keycloak IAM", "Open-Source Identity Provider", "Keycloak SSO", "Keycloak Administration", "Keycloak Server", "Red Hat build of Keycloak", "Keycloak Identity and Access Management", "Keycloak Operator"],
+  "certifications": [],
+  "tools": ["Keycloak", "Keycloak Admin Console", "kc.sh", "kcadm.sh", "Admin REST API", "Keycloak Operator", "Infinispan", "PostgreSQL", "Docker", "keycloak-js", "Keycloakify", "Terraform Keycloak provider", "keycloak-config-cli", "OpenLDAP"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, system administrators and security engineers who are new to Keycloak and need to add single sign-on to applications. Covers the Quarkus distribution in development mode, the admin console and master realm, realms, users, groups and roles, OIDC clients and the authorization code flow with PKCE, tokens, client scopes and mappers, securing a single-page app and an API, service accounts, self-service and email, password policies, brute force detection, TOTP, sessions and logout, events, and realm export and import, ending with an SSO capstone for two applications.",
+      "prerequisites": ["Understands HTTP, URLs, cookies and redirects and can use curl and browser developer tools", "Can run containers with Docker or Podman and edit files from a terminal", "Has built or deployed a simple web application or API in any language"],
+      "outcomes": ["Run Keycloak locally and manage realms, users, groups and roles in the admin console", "Register OIDC clients and run the authorization code flow with PKCE, client credentials and token introspection", "Secure a single-page app and a backend API with Keycloak tokens, scopes and role checks", "Apply password policies, brute force detection, OTP, session limits and event auditing to a realm"],
+      "days": [
+        {
+          "topic": "Keycloak Orientation: Realms, Clients and the Quarkus Distribution",
+          "subtopics": ["What Keycloak is: an open-source identity and access management server from the CNCF", "Keycloak community releases and the Red Hat build of Keycloak", "The Quarkus-based distribution and why the WildFly distribution was retired", "Realms as isolated tenants and the special role of the master realm", "Clients, users, groups and roles and how they relate", "Supported protocols: OpenID Connect, OAuth 2.0 and SAML 2.0", "Identity brokering and user federation at a glance", "Browser login, account console and admin console", "Directory layout: bin, conf, providers, themes, data and lib", "Where Keycloak fits beside API gateways, applications and directories"],
+          "tools": ["Keycloak", "Keycloak Admin Console", "Docker", "curl", "jq"],
+          "lab_task": "Start Keycloak with docker run -p 8080:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak start-dev, sign in at http://localhost:8080/admin, then run curl -s http://localhost:8080/realms/master/.well-known/openid-configuration | jq .issuer and record the issuer, token_endpoint and jwks_uri values.",
+          "deliverable": "Orientation sheet mapping realms, clients, users, groups and roles with the master realm discovery output",
+          "checks": [["Fetch /realms/master/.well-known/openid-configuration with curl", "issuer equals http://localhost:8080/realms/master", "jq output"], ["List the realms in the admin console realm selector on a fresh install", "Only the master realm is present", "Admin console screenshot"], ["Request /realms/doesnotexist/.well-known/openid-configuration", "HTTP 404 with error Realm does not exist", "curl -i output"]],
+          "objectives": ["Describe the Keycloak object model of realms, clients, users, groups and roles", "Explain the protocols Keycloak supports and when each is used", "Locate the discovery document and key endpoints of a realm"]
+        },
+        {
+          "topic": "Running Keycloak in Development Mode with Docker and kc.sh",
+          "subtopics": ["start-dev versus start and what development mode relaxes", "Bootstrap admin with KC_BOOTSTRAP_ADMIN_USERNAME and KC_BOOTSTRAP_ADMIN_PASSWORD", "Running the ZIP distribution with bin/kc.sh and bin/kc.bat", "Configuration sources: CLI options, KC_ environment variables and conf/keycloak.conf", "The dev-file H2 database and its limits", "Ports 8080 for HTTP and 9000 for the management interface", "Persisting data with a Docker volume on /opt/keycloak/data", "Reading the startup log: profile, features and listening address"],
+          "tools": ["Keycloak", "kc.sh", "Docker", "Podman", "OpenJDK 21"],
+          "lab_task": "Run Keycloak twice: once from the ZIP with bin/kc.sh start-dev --http-port=8180 and once with Docker using a named volume on /opt/keycloak/data. Create a realm, restart the container and confirm the realm survives. Then run kc.sh start without options and record the error that production mode raises about the missing hostname and HTTPS settings.",
+          "deliverable": "Lab log with both start commands, the persistence test and the production-mode startup error",
+          "checks": [["Start with bin/kc.sh start-dev --http-port=8180", "Log shows Listening on: http://0.0.0.0:8180 and Profile dev activated", "Startup log"], ["Restart the container that mounts a named volume on /opt/keycloak/data", "The realm created before the restart is still listed", "Admin console screenshot"], ["Run bin/kc.sh start with no hostname or TLS options", "Startup fails with an error asking for the hostname option and HTTPS or http-enabled", "Startup log"]],
+          "objectives": ["Run Keycloak locally from the ZIP and the container image", "Configure Keycloak with CLI options, environment variables and keycloak.conf", "Explain the differences between development and production mode"]
+        },
+        {
+          "topic": "Admin Console Tour and the Master Realm",
+          "subtopics": ["Signing in to /admin and switching realms", "Realm settings tabs: General, Login, Email, Themes, Keys, Events and Sessions", "Why day-to-day users and apps never live in the master realm", "Temporary bootstrap admin and creating a permanent admin user", "kc.sh bootstrap-admin for recovering lost admin access", "The admin-cli and security-admin-console clients", "Realm-management client roles such as manage-users and view-realm", "The Welcome page, account console and admin console URLs"],
+          "tools": ["Keycloak Admin Console", "kc.sh", "Firefox Developer Tools", "Keycloak"],
+          "lab_task": "Sign in with the bootstrap admin, create a permanent admin user in the master realm with the admin role, sign in as that user and delete the temporary account. Then stop Keycloak, run bin/kc.sh bootstrap-admin user --username tmpadm, start again and confirm you can sign in as tmpadm. Record which banner disappears once the temporary admin is gone.",
+          "deliverable": "Admin access runbook covering the permanent admin, temporary admin removal and bootstrap-admin recovery",
+          "checks": [["Sign in with the bootstrap admin created by environment variables", "The console shows a warning that a temporary admin user is in use", "Admin console screenshot"], ["Sign in as the new permanent admin after deleting the temporary one", "The temporary admin warning is no longer shown", "Admin console screenshot"], ["Run kc.sh bootstrap-admin user --username tmpadm and sign in", "Login as tmpadm succeeds in the master realm", "Terminal output and screenshot"]],
+          "objectives": ["Navigate the admin console and realm settings", "Secure the master realm with a permanent admin account", "Recover admin access with kc.sh bootstrap-admin"]
+        },
+        {
+          "topic": "Creating Realms, Users and Credentials",
+          "subtopics": ["Creating a realm and choosing a lowercase realm name for clean URLs", "Realm display name and HTML display name", "User attributes: username, email, first name, last name and enabled", "Setting passwords and the Temporary toggle", "Credentials tab: password, OTP and WebAuthn credentials", "Login with email and duplicate email settings", "Searching users and the exact search option", "Disabling versus deleting a user"],
+          "tools": ["Keycloak Admin Console", "Keycloak Account Console", "Keycloak"],
+          "lab_task": "Create a realm named training, add users alice, bob and carol with emails, give alice a permanent password and bob a temporary password, then sign in to http://localhost:8080/realms/training/account as each. Enable Login with email in realm settings and sign in as alice using her email. Disable carol and record the message shown when she tries to sign in.",
+          "deliverable": "Realm and user setup sheet with screenshots of the three login outcomes",
+          "checks": [["Sign in to the account console as bob with a temporary password", "Keycloak forces an Update password screen before access", "Screenshot"], ["Sign in as alice using her email address after enabling Login with email", "Login succeeds and the account console shows alice", "Screenshot"], ["Sign in as the disabled user carol", "Login page shows Account is disabled, contact your administrator", "Screenshot"]],
+          "objectives": ["Create realms and users with sensible naming", "Set temporary and permanent passwords", "Explain user states and login identifier options"]
+        },
+        {
+          "topic": "Groups, Realm Roles and Client Roles",
+          "subtopics": ["Realm roles compared with client roles", "Composite roles and role inheritance", "Default roles: the default-roles-<realm> composite", "Groups, subgroups and group paths such as /engineering/backend", "Role mappings assigned to groups versus directly to users", "Effective roles and the Hide inherited roles toggle", "Group attributes and default groups for new users", "Designing roles for applications without role explosion"],
+          "tools": ["Keycloak Admin Console", "Keycloak", "jq"],
+          "lab_task": "In realm training create realm roles employee and manager (manager composite including employee), a client named hr-app with client roles hr-viewer and hr-editor, and groups /staff and /staff/hr. Map employee to /staff and hr-editor to /staff/hr, add bob to /staff/hr, then open bob's Role mapping tab with inherited roles shown and list his effective roles.",
+          "deliverable": "Role and group design diagram with bob's effective role list",
+          "checks": [["View bob's role mappings with inherited roles shown", "employee, hr-editor and default-roles-training are listed", "Screenshot"], ["Assign manager to alice and view her effective roles", "employee appears through the manager composite", "Screenshot"], ["Create a new user in a realm where /staff is a default group", "The new user is automatically a member of /staff", "Groups tab screenshot"]],
+          "objectives": ["Model access with realm roles, client roles and composites", "Use group hierarchies to assign roles", "Read effective role mappings for a user"]
+        },
+        {
+          "topic": "Registering an OIDC Client for a Web Application",
+          "subtopics": ["Client ID, name and the openid-connect protocol", "Client authentication on (confidential) and off (public)", "Capability config: Standard flow, Direct access grants, Implicit and Service accounts", "Valid redirect URIs, wildcards and why exact URIs are safer", "Valid post logout redirect URIs and Web origins", "Root URL, Home URL and Admin URL", "Client secret on the Credentials tab and regenerating it", "Front channel and back channel logout settings"],
+          "tools": ["Keycloak Admin Console", "curl", "Keycloak", "oauth2-proxy"],
+          "lab_task": "Create a confidential client web-portal in realm training with Standard flow only and redirect URI http://localhost:4180/oauth2/callback. Run oauth2-proxy with --provider=keycloak-oidc --oidc-issuer-url=http://localhost:8080/realms/training and that client's secret in front of a sample app, sign in as alice, then change the redirect URI to a different port and record the error page.",
+          "deliverable": "Client configuration export JSON and screenshots of a successful login and a redirect URI failure",
+          "checks": [["Sign in through oauth2-proxy as alice", "Browser returns to the protected app with an authenticated session", "Screenshot"], ["Start a login after the registered redirect URI no longer matches", "Keycloak shows the error page Invalid parameter: redirect_uri", "Screenshot and Keycloak log line"], ["Call the token endpoint with a wrong client_secret", "HTTP 401 with error invalid_client", "curl output"]],
+          "objectives": ["Register confidential and public OIDC clients", "Configure redirect URIs and web origins safely", "Diagnose redirect URI and client secret errors"]
+        },
+        {
+          "topic": "Authorization Code Flow with PKCE against Keycloak Endpoints",
+          "subtopics": ["The /protocol/openid-connect/auth endpoint and its parameters", "response_type=code, scope=openid and state", "code_verifier, code_challenge and S256", "Enforcing PKCE with the client advanced setting Proof Key for Code Exchange Code Challenge Method", "Exchanging the code at /protocol/openid-connect/token", "Single-use codes and the code lifespan", "nonce and how it binds the ID token to the request", "Reading Keycloak login and CODE_TO_TOKEN events"],
+          "tools": ["curl", "openssl", "Firefox Developer Tools", "jq", "Keycloak"],
+          "lab_task": "Create a public client cli-demo with redirect URI http://localhost:8000/cb and PKCE method S256. Generate a code_verifier and code_challenge with openssl, open the authorization URL in a browser, sign in as alice, copy the code from the redirect and exchange it with curl -d grant_type=authorization_code -d code_verifier=... at the token endpoint. Repeat the exchange with the same code and record both responses.",
+          "deliverable": "Step-by-step flow log with request URLs, token response and replay error",
+          "checks": [["Exchange a fresh code with the correct code_verifier", "HTTP 200 with access_token, id_token and refresh_token", "curl and jq output"], ["Exchange the same code a second time", "HTTP 400 with error invalid_grant and Code not valid", "curl output"], ["Start the flow without code_challenge on the S256-enforced client", "Redirect carries error=invalid_request about a missing code challenge", "Redirect URL"]],
+          "objectives": ["Run the authorization code flow by hand against Keycloak", "Enforce PKCE on a public client", "Interpret errors returned by the token endpoint"]
+        },
+        {
+          "topic": "Tokens Issued by Keycloak: Access, ID and Refresh Tokens",
+          "subtopics": ["Access token claims: iss, sub, aud, azp, exp, iat and scope", "realm_access and resource_access role claims", "ID token claims: preferred_username, email and auth_time", "Refresh tokens and their typ claim", "Signing keys, kid and the /protocol/openid-connect/certs JWKS endpoint", "Token introspection at /protocol/openid-connect/token/introspect", "The userinfo endpoint", "Access token lifespan and the default of 5 minutes"],
+          "tools": ["curl", "jq", "jwt.io", "Keycloak", "Postman"],
+          "lab_task": "Using the tokens from the PKCE lab, decode the access token and ID token with jq (base64 split on dots) and list every claim. Call /userinfo with the access token, introspect the token with the web-portal client credentials, wait until exp passes and introspect again. Match the token header kid to an entry in the realm JWKS.",
+          "deliverable": "Annotated claim table for access and ID tokens plus introspection results before and after expiry",
+          "checks": [["Introspect a valid access token with confidential client credentials", "Response contains active: true with username alice", "curl output"], ["Introspect the same token after exp has passed", "Response is active: false", "curl output"], ["Compare the token header kid with /protocol/openid-connect/certs", "Exactly one JWKS key has the same kid", "jq output"]],
+          "objectives": ["Read and explain Keycloak token claims", "Validate tokens with introspection, userinfo and JWKS", "Explain token lifetimes and refresh behaviour"]
+        },
+        {
+          "topic": "Client Scopes and Protocol Mappers",
+          "subtopics": ["Default and optional client scopes", "Built-in scopes: profile, email, roles, web-origins, acr, basic and offline_access", "Requesting optional scopes with the scope parameter", "Protocol mapper types: User Attribute, Group Membership, Audience and Hardcoded claim", "Add to ID token, access token, userinfo and introspection switches", "Dedicated client scopes for one client", "Evaluating tokens on the Client scopes Evaluate tab", "Keeping tokens small with lightweight access tokens"],
+          "tools": ["Keycloak Admin Console", "jq", "curl", "Keycloak"],
+          "lab_task": "Create a client scope hr-api with an Audience mapper for hr-app and a User Attribute mapper that maps attribute department to claim department, add it as optional to web-portal, and set alice's department to finance. Use the Evaluate tab to generate an access token for alice with and without scope=hr-api and compare the aud and department claims.",
+          "deliverable": "Client scope configuration and side-by-side generated tokens",
+          "checks": [["Generate a token for alice with scope hr-api on the Evaluate tab", "aud contains hr-app and department equals finance", "Generated token JSON"], ["Generate the token without the optional scope", "Neither the hr-app audience nor department is present", "Generated token JSON"], ["Add a Group Membership mapper with Full group path on", "Claim groups lists /staff/hr for bob", "Generated token JSON"]],
+          "objectives": ["Design default and optional client scopes", "Add custom claims with protocol mappers", "Control token audience and size"]
+        },
+        {
+          "topic": "Securing a Single-Page App with keycloak-js",
+          "subtopics": ["Public clients for browser applications", "Installing keycloak-js from npm and creating new Keycloak({ url, realm, clientId })", "init options: onLoad login-required versus check-sso and pkceMethod S256", "silent-check-sso.html and third-party cookie limits", "Token refresh with updateToken(30)", "Calling APIs with the Bearer token", "Web origins and CORS for the token endpoint", "Logout with keycloak.logout and the post logout redirect URI"],
+          "tools": ["keycloak-js", "Vite", "Node.js", "Keycloak", "Firefox Developer Tools"],
+          "lab_task": "Create a public client spa with redirect URI http://localhost:5173/* and web origin http://localhost:5173. Build a Vite app that calls keycloak.init({ onLoad: 'check-sso', pkceMethod: 'S256' }), shows preferred_username after login, refreshes with updateToken(30) on a timer and logs out. Then remove the web origin and record the browser console error on the token request.",
+          "deliverable": "SPA source with screenshots of login, token refresh in the network panel and the CORS failure",
+          "checks": [["Load the app and sign in as alice", "The page shows alice from keycloak.tokenParsed.preferred_username", "Screenshot"], ["Watch the network panel while updateToken(30) runs near expiry", "A POST to the token endpoint with grant_type=refresh_token returns 200", "Network panel export"], ["Remove http://localhost:5173 from Web origins and sign in again", "The browser blocks the token request with a CORS error", "Console screenshot"]],
+          "objectives": ["Integrate a browser app with keycloak-js", "Handle token refresh and logout in a SPA", "Configure web origins for CORS"]
+        },
+        {
+          "topic": "Protecting a Backend API as a Keycloak Resource Server",
+          "subtopics": ["Bearer-only APIs and why they need no Keycloak client secret", "Issuer URI and JWKS-based JWT validation", "Checking aud, exp and iss in the API", "Mapping realm_access.roles to application roles", "Spring Boot with spring.security.oauth2.resourceserver.jwt.issuer-uri", "Node.js validation with the jose library and createRemoteJWKSet", "Returning 401 versus 403", "Clock skew and key caching"],
+          "tools": ["Spring Boot", "Node.js", "jose", "curl", "Keycloak"],
+          "lab_task": "Build a small API in Spring Boot or Node.js that trusts issuer http://localhost:8080/realms/training, requires aud hr-app and allows GET /payroll only for tokens carrying client role hr-editor. Call it with tokens for bob, alice and an expired token and record each status code.",
+          "deliverable": "API source, configuration and a status code table for each test token",
+          "checks": [["Call GET /payroll with bob's token that includes hr-editor and aud hr-app", "HTTP 200", "curl output"], ["Call GET /payroll with alice's token that lacks hr-editor", "HTTP 403", "curl output"], ["Call GET /payroll with an expired token", "HTTP 401 with a WWW-Authenticate Bearer error=\"invalid_token\" header", "curl -i output"]],
+          "objectives": ["Validate Keycloak tokens in a backend API", "Enforce audience and role checks", "Return correct HTTP status codes for auth failures"]
+        },
+        {
+          "topic": "Service Accounts and the Client Credentials Grant",
+          "subtopics": ["Machine-to-machine access with Service accounts roles enabled", "The service-account-<clientId> user created by Keycloak", "Assigning roles to the service account", "grant_type=client_credentials at the token endpoint", "Why client credentials returns no refresh token by default", "Client secret rotation on the Credentials tab", "Signed JWT client authentication as an alternative to secrets", "Auditing service account use with CLIENT_LOGIN events"],
+          "tools": ["curl", "jq", "Keycloak Admin Console", "Keycloak"],
+          "lab_task": "Create a confidential client report-job with only Service accounts enabled, give its service account the hr-viewer role, then request a token with curl -d grant_type=client_credentials -u report-job:<secret>. Decode it, find the service account username claim, call the payroll API from the previous lab and enable event saving to find the CLIENT_LOGIN event.",
+          "deliverable": "Service account setup notes, decoded token and event record",
+          "checks": [["Request a token with grant_type=client_credentials", "HTTP 200 with access_token and no refresh_token", "curl output"], ["Decode the service account access token", "preferred_username is service-account-report-job", "jq output"], ["Request a password grant from report-job with Direct access grants disabled", "HTTP 400 unauthorized_client with Client not allowed for direct access grants", "curl output"]],
+          "objectives": ["Configure service accounts for machine clients", "Obtain and use client credentials tokens", "Audit machine authentication with events"]
+        },
+        {
+          "topic": "User Self-Service: Registration, Account Console and Required Actions",
+          "subtopics": ["Enabling User registration on the realm Login tab", "Forgot password, Remember me and Edit username options", "The account console at /realms/<realm>/account", "Required actions: Update Password, Configure OTP, Verify Email, Update Profile and Terms and Conditions", "Default required actions for new users", "Setting required actions on an existing user", "Application-initiated actions with the kc_action parameter", "Linked accounts and device activity in the account console"],
+          "tools": ["Keycloak Account Console", "Keycloak Admin Console", "Keycloak"],
+          "lab_task": "Enable User registration and the Terms and Conditions required action as a default action in realm training. Register a new user from the login page, accept the terms, then sign in to the account console and update the profile. Finally start a login with kc_action=UPDATE_PASSWORD on web-portal and confirm Keycloak shows the password change screen to an already signed-in user.",
+          "deliverable": "Self-service walkthrough with screenshots of registration, terms and kc_action",
+          "checks": [["Open the login page after enabling registration", "A Register link appears below the login form", "Screenshot"], ["Sign in as a user who has the Terms and Conditions required action", "A Terms and Conditions page must be accepted before login completes", "Screenshot"], ["Start an authorization request with kc_action=UPDATE_PASSWORD", "The Update password page appears without asking for the username again", "Screenshot"]],
+          "objectives": ["Enable self-registration and account self-service", "Use required actions to enforce user tasks", "Trigger application-initiated actions"]
+        },
+        {
+          "topic": "Email Configuration, Verification and Password Reset",
+          "subtopics": ["Realm Email tab: host, port, from address, encryption and authentication", "Test connection and the admin user's email requirement", "Verify email at login and its action token", "Forgot password and the reset credentials flow", "Action token lifespans for email verification and reset", "Execute actions email from the admin console and REST API", "Email themes and message bundles", "Running a local mail catcher such as Mailpit"],
+          "tools": ["Mailpit", "Docker", "Keycloak Admin Console", "Keycloak"],
+          "lab_task": "Run Mailpit with docker run -p 1025:1025 -p 8025:8025 axllent/mailpit, configure realm training to send through host mailpit port 1025, and use Test connection. Turn on Verify email, register a user and click the verification link in Mailpit. Then use Forgot password for alice, wait past a 5-minute action token lifespan and click the link to record the error.",
+          "deliverable": "SMTP configuration, captured emails and the expired-link result",
+          "checks": [["Click Test connection on the Email tab", "Mailpit receives a test message from Keycloak", "Mailpit screenshot"], ["Click the verification link from a new registration", "The user's Email verified flag becomes On", "User details screenshot"], ["Open a reset password link after its lifespan expired", "Keycloak shows Action expired. Please continue with login now", "Screenshot"]],
+          "objectives": ["Configure SMTP for a realm", "Run email verification and password reset", "Explain action tokens and their lifespans"]
+        },
+        {
+          "topic": "Password Policies and Brute Force Detection",
+          "subtopics": ["Password policies: Minimum length, Not username, Not email, Digits, Special characters and Uppercase", "Password history and Not recently used", "Expire password and forced periodic change", "Password blacklist files", "Hashing algorithm and hash iterations policies", "Brute force detection modes: lockout permanently or temporarily", "Max login failures, wait increment and quick login check", "Unlocking users and the user temporarily locked state"],
+          "tools": ["Keycloak Admin Console", "curl", "Keycloak"],
+          "lab_task": "In realm training add policies Minimum length 12, Not username and Password history 3, then try to set a 10-character password for alice. Enable brute force detection with temporary lockout after 3 failures, script four wrong password-grant attempts with curl against a test client that allows direct access grants, then try the correct password and finally unlock alice from the admin console.",
+          "deliverable": "Policy configuration, rejected password message and lockout test log",
+          "checks": [["Set a 10-character password for alice", "Rejected with Invalid password: minimum length 12", "Screenshot"], ["Send the correct password after 3 failed attempts", "HTTP 400 invalid_grant and a LOGIN_ERROR event with error user_temporarily_disabled", "curl output and event record"], ["Reuse alice's previous password", "Rejected with Invalid password: must not be equal to any of last 3 passwords", "Screenshot"]],
+          "objectives": ["Configure password policies that match a security standard", "Enable and tune brute force detection", "Unlock users and read lockout events"]
+        },
+        {
+          "topic": "One-Time Passwords with TOTP in Keycloak",
+          "subtopics": ["OTP policy: type totp or hotp, algorithm, digits, period and look-ahead window", "Configure OTP required action and the QR code", "Authenticator apps such as FreeOTP, Google Authenticator and Microsoft Authenticator", "Conditional OTP in the default browser flow", "Making OTP mandatory for all users", "Resetting a lost OTP credential from the Credentials tab", "Clock drift and the look-ahead window", "Recovery options when users lose their device"],
+          "tools": ["FreeOTP", "oathtool", "Keycloak Admin Console", "Keycloak"],
+          "lab_task": "Set the Configure OTP required action on alice, sign in and enrol the QR code in an authenticator app, reading the secret so you can also generate codes with oathtool --totp -b <secret>. Sign in with a valid code, then with a code generated for a time two periods ago. Delete alice's OTP credential as admin and confirm she is asked to enrol again.",
+          "deliverable": "OTP enrolment evidence, code test results and the credential reset procedure",
+          "checks": [["Sign in with a current oathtool code", "Login completes and the account console opens", "Screenshot"], ["Sign in with a code from two periods ago and look-ahead window 1", "Login page shows Invalid authenticator code", "Screenshot"], ["Sign in after the admin deleted alice's OTP credential", "The Mobile Authenticator Setup page appears again", "Screenshot"]],
+          "objectives": ["Configure OTP policy and enrolment", "Verify TOTP behaviour including clock drift", "Reset OTP credentials for locked-out users"]
+        },
+        {
+          "topic": "Sessions, Token Lifespans and Logout in Keycloak",
+          "subtopics": ["SSO Session Idle and SSO Session Max with their 30-minute and 10-hour defaults", "Client session idle and max overrides", "Remember me session settings", "Offline access and offline sessions", "Revoke refresh token and refresh token reuse", "RP-initiated logout with id_token_hint and post_logout_redirect_uri", "Back-channel logout URLs for confidential clients", "Viewing and signing out sessions from the Sessions tab"],
+          "tools": ["Keycloak Admin Console", "curl", "jq", "Keycloak"],
+          "lab_task": "Set SSO Session Idle to 2 minutes in realm training, sign in to the account console as alice, wait 3 minutes and reload. Then sign in again, obtain a refresh token for web-portal, sign alice out from the admin Sessions tab and try to refresh. Finally perform RP-initiated logout through /protocol/openid-connect/logout with id_token_hint and a registered post_logout_redirect_uri.",
+          "deliverable": "Session timing results, refresh failure and logout URL used",
+          "checks": [["Reload the account console after the idle timeout passed", "The login page is shown again", "Screenshot"], ["Use a refresh token after the admin signed the session out", "HTTP 400 invalid_grant with Session not active", "curl output"], ["Call the logout endpoint with id_token_hint and a registered post_logout_redirect_uri", "Browser is redirected to the post logout URI and the Sessions tab shows no session for alice", "Screenshot"]],
+          "objectives": ["Tune SSO session and token lifespans", "Revoke sessions and refresh tokens", "Implement RP-initiated and back-channel logout"]
+        },
+        {
+          "topic": "Login and Admin Events for Auditing",
+          "subtopics": ["User events versus admin events", "Enabling Save events and event expiration", "Event types: LOGIN, LOGIN_ERROR, CODE_TO_TOKEN, REFRESH_TOKEN, LOGOUT and UPDATE_PASSWORD", "Admin events with Include representation", "Filtering events by user, client, type and date", "The jboss-logging event listener and log output", "Querying events with GET /admin/realms/<realm>/events", "Privacy and retention considerations for stored events"],
+          "tools": ["Keycloak Admin Console", "Admin REST API", "curl", "jq", "Keycloak"],
+          "lab_task": "Enable Save events with a 7-day expiration and admin events with Include representation in realm training. Produce one successful login, one wrong password and one role change, then query GET /admin/realms/training/events?type=LOGIN_ERROR and /admin-events with an admin token and record the fields that identify the user, IP address and resource path.",
+          "deliverable": "Event configuration and an audit report built from the REST queries",
+          "checks": [["Query /admin/realms/training/events?type=LOGIN_ERROR after one failed login", "One event with error invalid_user_credentials", "jq output"], ["Query /admin/realms/training/admin-events after a role mapping change", "An event with operationType CREATE and a resourcePath containing role-mappings", "jq output"], ["Check stored events after the expiration time", "Older events are no longer returned", "Query output"]],
+          "objectives": ["Enable and filter user and admin events", "Query audit data through the Admin REST API", "Set event retention that fits privacy rules"]
+        },
+        {
+          "topic": "Realm Export and Import with kc.sh",
+          "subtopics": ["kc.sh export --dir and --file options", "--realm and --users realm_file, different_files or skip", "Exporting while the server is stopped", "kc.sh import and the --override option", "--import-realm with files in /opt/keycloak/data/import", "Partial export from the admin console and secret masking", "What is not exported: sessions and some credentials", "Keeping realm JSON in version control"],
+          "tools": ["kc.sh", "Docker", "jq", "Keycloak"],
+          "lab_task": "Stop Keycloak and run bin/kc.sh export --dir /tmp/kc-export --realm training --users realm_file. Count the users and clients in the JSON with jq, start a second fresh container with the file mounted in /opt/keycloak/data/import and start-dev --import-realm, then sign in as alice on the second server. Compare a partial export from the admin console to see how client secrets appear.",
+          "deliverable": "Export files, jq counts and a note on secret handling in partial exports",
+          "checks": [["Count users in the exported training-realm.json with jq '.users | length'", "The count equals the number of users in the realm", "jq output"], ["Start a new container with --import-realm", "Log shows Realm 'training' imported and alice can sign in", "Startup log and screenshot"], ["Open the partial export from the admin console", "Client secrets are masked as **********", "JSON excerpt"]],
+          "objectives": ["Export and import realms with kc.sh", "Seed new environments with --import-realm", "Explain what exports include and mask"]
+        },
+        {
+          "topic": "Beginner Capstone: Single Sign-On for Two Apps in a Keycloak Realm",
+          "subtopics": ["Realm, roles and groups for a small company", "Confidential web app and public SPA clients with PKCE", "Protected API with audience and role checks", "Password policy, OTP for managers and brute force detection", "Events, sessions and logout across both apps", "Realm export for handover and demonstration"],
+          "tools": ["Keycloak", "keycloak-js", "oauth2-proxy", "Mailpit", "kc.sh", "Docker"],
+          "lab_task": "Build a realm acme with groups /staff and /managers, a confidential web app behind oauth2-proxy and a keycloak-js SPA that calls a protected API. Enforce a 12-character password policy, OTP for /managers and brute force lockout. Show single sign-on from the web app into the SPA without a second login, single logout from both, and hand over a realm export.",
+          "deliverable": "Running solution, realm export JSON, architecture diagram and recorded demonstration",
+          "checks": [["Sign in to the web app then open the SPA in the same browser", "The SPA authenticates without showing a login page", "Screen recording"], ["Sign in as a member of /managers", "An OTP code is requested after the password", "Screenshot"], ["Log out from the SPA and reload the web app", "The web app requires a new login", "Screen recording"]],
+          "objectives": ["Combine realms, clients, roles and policies into one working setup", "Demonstrate SSO and single logout across apps", "Hand over a reproducible realm configuration"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already integrate applications with Keycloak and now run it for a team or company. Covers production builds with kc.sh build and start --optimized, PostgreSQL, hostname, TLS and reverse proxies, custom authentication flows, passkeys, step-up authentication with ACR levels, OIDC and social identity brokering, first broker login, LDAP, Active Directory and Kerberos federation, SAML clients, the declarative user profile, themes, kcadm.sh and Admin REST API automation, organizations, client policies, and configuration as code, ending with a federated workforce SSO capstone.",
+      "prerequisites": ["Completed the beginner level or has configured Keycloak realms, clients and roles for real applications", "Understands TLS certificates, reverse proxies and basic PostgreSQL administration", "Can write Bash or Python scripts that call REST APIs"],
+      "outcomes": ["Deploy an optimized Keycloak on PostgreSQL behind a TLS proxy with correct hostname settings", "Design authentication flows with passkeys, conditional MFA and ACR-based step-up", "Federate users from LDAP, Active Directory, Kerberos, social and OIDC providers and serve SAML applications", "Automate Keycloak administration with kcadm.sh, the Admin REST API, Terraform and keycloak-config-cli"],
+      "days": [
+        {
+          "topic": "Production Configuration: kc.sh build, start --optimized and show-config",
+          "subtopics": ["Build-time options such as --db, --features and --health-enabled versus runtime options", "kc.sh build and the optimized server image", "start --optimized and why it starts faster", "Multi-stage Containerfile: builder stage, COPY --from=builder and ENTRYPOINT", "kc.sh show-config and the source of each value", "Enabling and disabling features with --features and --features-disabled", "Adding providers to /opt/keycloak/providers before the build", "Configuration precedence: CLI, environment, keycloak.conf"],
+          "tools": ["kc.sh", "Docker", "Podman", "Keycloak"],
+          "lab_task": "Write a multi-stage Containerfile FROM quay.io/keycloak/keycloak that sets KC_DB=postgres, KC_HEALTH_ENABLED=true and KC_METRICS_ENABLED=true, runs /opt/keycloak/bin/kc.sh build, and starts with start --optimized. Build it, run kc.sh show-config inside the image, then start the image with a different --db value and record the warning or error about changed build options.",
+          "deliverable": "Containerfile, show-config output and notes on build-time versus runtime options",
+          "checks": [["Run kc.sh show-config in the built image", "kc.db shows postgres sourced from the persisted build configuration", "Terminal output"], ["Start the optimized image and compare startup time with an unoptimized start", "The optimized start skips the build step and is measurably faster", "Startup logs with timings"], ["Start the optimized image with --db=mysql", "Keycloak reports that build-time options differ and an explicit build is needed", "Startup log"]],
+          "objectives": ["Separate build-time and runtime configuration", "Produce an optimized Keycloak container image", "Inspect effective configuration with show-config"]
+        },
+        {
+          "topic": "PostgreSQL as the Keycloak Database",
+          "subtopics": ["Supported databases and choosing PostgreSQL", "db-url, db-username, db-password and db-schema options", "Connection pool settings db-pool-initial-size, db-pool-min-size and db-pool-max-size", "Schema creation and Liquibase migrations on first start", "Key tables: REALM, USER_ENTITY, CLIENT and OFFLINE_USER_SESSION", "Database transaction timeouts and lock waits", "TLS to the database with sslmode in the JDBC URL", "Backing up the Keycloak schema with pg_dump"],
+          "tools": ["PostgreSQL", "psql", "pg_dump", "Docker Compose", "Keycloak"],
+          "lab_task": "Run PostgreSQL and Keycloak with Docker Compose using KC_DB_URL=jdbc:postgresql://db:5432/keycloak, a dedicated keycloak database user and db-pool-max-size 20. After the first start, list the tables with psql \\dt and query DATABASECHANGELOG for the applied migrations. Create a user in the admin console and find it in USER_ENTITY, then take a pg_dump backup.",
+          "deliverable": "Compose file, table listing, changelog query result and backup file",
+          "checks": [["Query SELECT count(*) FROM databasechangelog after first start", "A non-zero count of applied migration changesets", "psql output"], ["Search USER_ENTITY for the user created in the console", "One row with the matching USERNAME and REALM_ID", "psql output"], ["Start Keycloak with a wrong db-password", "Startup fails with a FATAL password authentication failed error for user keycloak", "Startup log"]],
+          "objectives": ["Connect Keycloak to PostgreSQL securely", "Size the database connection pool", "Inspect and back up the Keycloak schema"]
+        },
+        {
+          "topic": "Hostname, TLS and Reverse Proxy Configuration for Keycloak",
+          "subtopics": ["The hostname option with a full URL such as https://id.example.com", "hostname-admin for a separate admin URL", "hostname-strict and backchannel dynamic hostnames", "HTTPS with https-certificate-file and https-certificate-key-file", "Edge TLS termination and http-enabled=true behind a proxy", "proxy-headers xforwarded versus forwarded", "Exposed paths: /realms and /resources public, /admin internal only", "Debugging with the /realms/master/hostname-debug page"],
+          "tools": ["NGINX", "openssl", "Keycloak", "curl", "Docker Compose"],
+          "lab_task": "Put Keycloak behind NGINX that terminates TLS for https://id.local and forwards X-Forwarded-For, -Proto and -Host. Start Keycloak with --hostname=https://id.local --proxy-headers=xforwarded --http-enabled=true and --hostname-debug=true. Check the discovery issuer, then remove --proxy-headers and compare the URLs the hostname-debug page reports.",
+          "deliverable": "NGINX and Keycloak configuration with discovery output and hostname-debug screenshots",
+          "checks": [["Fetch https://id.local/realms/master/.well-known/openid-configuration", "issuer is https://id.local/realms/master", "curl output"], ["Open the hostname-debug page with proxy headers configured", "Request scheme is https and no hostname warning is shown", "Screenshot"], ["Restart without --proxy-headers and repeat the login", "Keycloak builds http URLs or the browser shows a mixed or invalid redirect error", "Screenshot and log"]],
+          "objectives": ["Configure hostname and admin hostname correctly", "Run Keycloak behind a TLS-terminating proxy", "Expose only the paths that must be public"]
+        },
+        {
+          "topic": "Authentication Flows: Executions, Sub-Flows and Conditions",
+          "subtopics": ["Built-in flows: browser, direct grant, registration, reset credentials, clients and first broker login", "Duplicating a flow before editing", "Requirement levels: Required, Alternative, Conditional and Disabled", "Executions such as Cookie, Username Password Form, Identity Provider Redirector and OTP Form", "Sub-flows and how Alternative branches are evaluated", "Conditions: Condition - user role, Condition - user configured and Condition - user attribute", "Binding a flow to the realm or overriding it per client", "Identity-first login with Username Form and Password Form"],
+          "tools": ["Keycloak Admin Console", "Keycloak", "Firefox Developer Tools"],
+          "lab_task": "Duplicate the browser flow as browser-identity-first, replace Username Password Form with Username Form followed by Password Form, and bind it to realm training. Add a conditional sub-flow that requires OTP Form only when Condition - user role matches manager. Test sign-in as alice and bob and then override the flow only for client web-portal using the client's Advanced tab.",
+          "deliverable": "Flow diagram, exported flow JSON and test results per user",
+          "checks": [["Open the login page after binding browser-identity-first", "Only a username field is shown on the first screen", "Screenshot"], ["Sign in as a user with role manager", "An OTP step follows the password step", "Screenshot"], ["Sign in as a user without the manager role", "Login completes after the password with no OTP step", "Screenshot"]],
+          "objectives": ["Build custom authentication flows safely", "Use conditions to control which steps run", "Bind flows per realm and per client"]
+        },
+        {
+          "topic": "Passkeys and WebAuthn Policies in Keycloak",
+          "subtopics": ["WebAuthn Policy versus WebAuthn Passwordless Policy", "Relying party ID, attestation conveyance and authenticator attachment", "Resident keys and user verification requirement", "Required actions webauthn-register and webauthn-register-passwordless", "Passkey login in the browser flow with conditional UI", "Platform authenticators, security keys and synced passkeys", "Allowing multiple passkeys per user and naming them", "Fallback and account recovery when a passkey is lost"],
+          "tools": ["Keycloak", "Chrome DevTools WebAuthn panel", "YubiKey", "Keycloak Account Console"],
+          "lab_task": "Set the WebAuthn Passwordless Policy for realm training with resident key Yes and user verification required, add WebAuthn Passwordless Authenticator as an Alternative to the password step in a copy of the browser flow, and enrol a passkey for alice using Chrome DevTools' virtual authenticator. Sign in with the passkey, then remove the virtual authenticator and confirm the password fallback still works.",
+          "deliverable": "Policy settings, flow export and passkey login evidence",
+          "checks": [["Enrol a passkey through the webauthn-register-passwordless required action", "The Credentials tab for alice lists a Passkey credential", "Screenshot"], ["Sign in with the virtual authenticator present", "Login completes without typing a password", "Screen recording"], ["Attempt registration with user verification required on an authenticator that cannot verify", "Registration fails and the credential is not stored", "Screenshot and event"]],
+          "objectives": ["Configure WebAuthn and passkey policies", "Offer passwordless login with a safe fallback", "Explain relying party ID and user verification choices"]
+        },
+        {
+          "topic": "Conditional MFA and Step-Up Authentication with ACR Levels",
+          "subtopics": ["acr_values and the acr claim", "ACR to Level of Authentication mapping in realm and client settings", "Condition - Level Of Authentication in a browser flow", "Max age per level and re-authentication", "Default ACR values for a client", "Requesting a higher level from the application", "Step-up after an existing SSO session", "Returning to the app with acr=gold in the ID token"],
+          "tools": ["Keycloak", "Keycloak Admin Console", "jq", "curl"],
+          "lab_task": "Map ACR silver to level 1 and gold to level 2 in realm training, then build a browser flow with two conditional sub-flows: level 1 runs Username Password Form and level 2 runs OTP Form. Sign in to web-portal with acr_values=silver, then request acr_values=gold in the same session and check the acr claim in both ID tokens.",
+          "deliverable": "ACR mapping table, flow export and the two decoded ID tokens",
+          "checks": [["Sign in with acr_values=silver", "ID token contains acr: silver and no OTP prompt was shown", "Decoded token"], ["Request acr_values=gold during the existing session", "Only the OTP step is requested and the new ID token has acr: gold", "Screen recording and decoded token"], ["Request acr_values=gold after the level 2 max age has passed", "OTP is requested again", "Screenshot"]],
+          "objectives": ["Map ACR values to authentication levels", "Implement step-up authentication flows", "Verify the authentication level in tokens"]
+        },
+        {
+          "topic": "Identity Brokering with External OIDC Providers",
+          "subtopics": ["Adding an OpenID Connect v1.0 identity provider", "Alias and the redirect URI /realms/<realm>/broker/<alias>/endpoint", "Discovery endpoint import and client authentication to the provider", "Sync mode: import, legacy and force", "Identity provider mappers: Attribute Importer, Hardcoded Role and Advanced Claim to Role", "kc_idp_hint and the Identity Provider Redirector", "Hide on login page and trust email", "Storing and retrieving external tokens"],
+          "tools": ["Keycloak", "Keycloak Admin Console", "curl", "Docker"],
+          "lab_task": "Run a second Keycloak container as an upstream provider with realm partner, register a client there, and add it to realm training as an OIDC identity provider with alias partner. Add an Advanced Claim to Role mapper that grants employee when the upstream groups claim contains staff, sign in through the partner button and confirm the brokered user gets employee. Repeat with kc_idp_hint=partner.",
+          "deliverable": "Broker configuration, mapper settings and login trace",
+          "checks": [["Click the partner button on the training login page", "Browser goes to the partner realm and returns signed in", "Screen recording"], ["Inspect the brokered user after login", "The Identity provider links tab shows partner and employee is mapped", "Screenshot"], ["Open the auth URL with kc_idp_hint=partner", "The training login page is skipped and the partner login page is shown", "Network trace"]],
+          "objectives": ["Broker logins to an external OIDC provider", "Map external claims to Keycloak roles", "Route users straight to a provider with kc_idp_hint"]
+        },
+        {
+          "topic": "Social Login with Google, GitHub and Microsoft in Keycloak",
+          "subtopics": ["Built-in social providers and their required client ID and secret", "Registering the Keycloak redirect URI with each provider", "Default scopes requested from Google, GitHub and Microsoft", "Microsoft tenant settings and the Microsoft provider", "GitHub emails that are private and the user:email scope", "Username generation and Sync mode for social users", "Restricting Google logins with hosted domain", "Branding the social buttons on the login page"],
+          "tools": ["Keycloak", "Google Cloud Console", "GitHub Developer Settings", "Microsoft Entra admin center"],
+          "lab_task": "Register an OAuth app in GitHub Developer Settings with callback http://localhost:8080/realms/training/broker/github/endpoint and add the GitHub provider in realm training. Do the same for Google with a hosted domain restriction. Sign in with each, inspect the created users and attributes, then attempt a Google login with an account outside the hosted domain and record the result.",
+          "deliverable": "Provider registrations, created user records and the hosted domain rejection",
+          "checks": [["Sign in with GitHub", "A user is created and linked to identity provider github", "Identity provider links screenshot"], ["Sign in with a Google account inside the hosted domain", "Login completes and email is populated from Google", "User details screenshot"], ["Sign in with a Google account outside the hosted domain", "Keycloak rejects the login with an error about the hosted domain", "Screenshot and event"]],
+          "objectives": ["Configure common social identity providers", "Register Keycloak callback URLs with each provider", "Restrict social logins to permitted domains"]
+        },
+        {
+          "topic": "First Broker Login Flow and Account Linking",
+          "subtopics": ["The first broker login flow and when it runs", "Review Profile and its update profile on first login option", "Create User If Unique and Handle Existing Account", "Confirm Link Existing Account and Verify Existing Account By Email", "Automatically set existing user and its takeover risk", "Post login flows for brokered users", "Linking and unlinking accounts in the account console", "Trust email and why it must match the provider's guarantees"],
+          "tools": ["Keycloak", "Keycloak Admin Console", "Keycloak Account Console", "Mailpit"],
+          "lab_task": "Make sure alice exists locally with alice@example.com, then sign in through the partner provider with an upstream user that has the same email. Record the account linking screens of the default first broker login flow, complete linking with Verify Existing Account By Email via Mailpit, and then unlink partner from the account console. Explain why Automatically set existing user is unsafe without trusted email.",
+          "deliverable": "First broker login walkthrough, linking evidence and a risk note",
+          "checks": [["Broker in with an email that already exists locally", "Keycloak shows Account already exists with options to link or review profile", "Screenshot"], ["Click the email verification link from Mailpit", "alice's Identity provider links tab lists partner", "Screenshot"], ["Remove the link in the account console Linked accounts page", "partner disappears from alice's links and the next broker login asks to link again", "Screenshots"]],
+          "objectives": ["Explain each step of the first broker login flow", "Link brokered identities to existing accounts safely", "Assess account takeover risks in linking options"]
+        },
+        {
+          "topic": "LDAP and Active Directory User Federation",
+          "subtopics": ["Adding an LDAP provider with vendor Active Directory or Other", "Connection URL, bind DN, bind credential and Use Truststore SPI", "Users DN, username, RDN and UUID LDAP attributes such as uid, sAMAccountName, entryUUID and objectGUID", "Edit mode: READ_ONLY, WRITABLE and UNSYNCED", "Import users on or off and periodic full and changed users sync", "Mappers: user attribute, group-ldap-mapper and role-ldap-mapper", "Password validation through LDAP bind", "Connection pooling, pagination and search scope subtree"],
+          "tools": ["OpenLDAP", "ldapsearch", "Active Directory", "Keycloak"],
+          "lab_task": "Run OpenLDAP with osixia/openldap, load 50 users and two groups from an LDIF, and add an LDAP provider to realm training with edit mode READ_ONLY and Users DN ou=people,dc=example,dc=org. Add a group-ldap-mapper for ou=groups, run Sync all users and Sync LDAP groups to Keycloak, then sign in as an LDAP user and try to change their password in the account console.",
+          "deliverable": "Provider configuration export, sync summary and test results",
+          "checks": [["Click Test connection and Test authentication", "Both report success", "Screenshot"], ["Run Sync all users", "Summary reports 50 users added", "Sync result screenshot"], ["Change an LDAP user's password in the account console with READ_ONLY mode", "Change is rejected because the federated user is read-only", "Screenshot"]],
+          "objectives": ["Connect Keycloak to LDAP and Active Directory", "Map LDAP attributes and groups", "Choose edit and sync modes for a directory"]
+        },
+        {
+          "topic": "Kerberos and SPNEGO Desktop Single Sign-On",
+          "subtopics": ["How SPNEGO works with the WWW-Authenticate: Negotiate header", "Service principal HTTP/id.example.com@EXAMPLE.COM and keytab files", "Kerberos user federation provider versus Kerberos integration on the LDAP provider", "The Kerberos execution in the browser flow set to Alternative", "Browser configuration: network.negotiate-auth.trusted-uris and Chrome AuthServerAllowlist", "Fallback to the password form when no ticket exists", "Credential delegation and the gss_delegation_credential claim", "Clock skew and DNS requirements"],
+          "tools": ["MIT Kerberos", "kinit", "klist", "ktutil", "Keycloak", "Firefox"],
+          "lab_task": "In a lab KDC create principal HTTP/id.example.com and export a keytab, mount it into Keycloak and add a Kerberos provider with that principal and keytab. Set Kerberos to Alternative in the browser flow, run kinit alice on the client machine, configure Firefox trusted URIs and open the account console. Repeat after kdestroy and record the difference.",
+          "deliverable": "KDC setup notes, provider configuration and login results with and without a ticket",
+          "checks": [["Open the login URL with curl -i and no ticket", "Response is HTTP 401 with WWW-Authenticate: Negotiate and a login form body", "curl output"], ["Open the account console after kinit alice with trusted URIs configured", "alice is signed in without a password prompt", "Screen recording"], ["Repeat after kdestroy", "The username and password form is shown", "Screenshot"]],
+          "objectives": ["Configure Kerberos authentication in Keycloak", "Prepare browsers for SPNEGO", "Diagnose ticket, keytab and DNS problems"]
+        },
+        {
+          "topic": "SAML Service Provider Clients in Keycloak",
+          "subtopics": ["Creating a client with protocol saml and the SP entity ID as Client ID", "Importing SP metadata and exporting the IdP descriptor at /protocol/saml/descriptor", "Assertion Consumer Service POST and redirect bindings", "Signing documents, signing assertions and encrypting assertions", "Name ID format: email, persistent, transient and username", "SAML mappers: User Attribute, Role list and Group list", "IdP-initiated SSO URL name and /protocol/saml/clients/<name>", "Reading SAML responses with SAML-tracer"],
+          "tools": ["Keycloak", "SAML-tracer", "SimpleSAMLphp", "xmlsec1", "Docker"],
+          "lab_task": "Run a SimpleSAMLphp service provider in Docker, import its metadata into realm training as a SAML client, set Name ID format email, sign assertions and add a Role list mapper. Sign in through the SP and capture the response in SAML-tracer, verify the signature with xmlsec1, then trigger IdP-initiated SSO with the configured URL name.",
+          "deliverable": "SAML client configuration, captured response and signature verification output",
+          "checks": [["Sign in through the SimpleSAMLphp SP", "The SP shows the user's email as NameID and a Role attribute", "Screenshot"], ["Verify the captured assertion with xmlsec1 --verify and the realm certificate", "xmlsec1 prints OK", "Terminal output"], ["Send an AuthnRequest with an unregistered ACS URL", "Keycloak shows Invalid requester and logs an invalid redirect error", "Screenshot and log"]],
+          "objectives": ["Register and configure SAML service providers", "Choose signing, encryption and NameID settings", "Inspect and validate SAML responses"]
+        },
+        {
+          "topic": "Declarative User Profile and Custom Attributes",
+          "subtopics": ["User profile configuration on the realm settings User profile tab", "Attribute definitions with display names and annotations", "Validators: length, pattern, email, options and person-name-prohibited-characters", "Required for users or admins and the scopes that make an attribute required", "Permissions for who can view and edit each attribute", "Attribute groups and form ordering", "Unmanaged attributes policy: disabled, enabled, admin view and admin edit", "Editing the user profile JSON with the REST API"],
+          "tools": ["Keycloak Admin Console", "Admin REST API", "curl", "Keycloak"],
+          "lab_task": "Add attributes employeeNumber (pattern ^E[0-9]{6}$, required, admin edit only) and department (options finance, hr, engineering, user editable) to the user profile of realm training. Register a new user and check the form, try to save an invalid employee number as admin, and download the profile JSON with GET /admin/realms/training/users/profile.",
+          "deliverable": "User profile JSON and screenshots of the forms and validation messages",
+          "checks": [["Open the registration page", "A department dropdown is shown and employeeNumber is not editable by the user", "Screenshot"], ["Save employeeNumber X123 for a user as admin", "Save is rejected by the pattern validator", "Screenshot"], ["GET /admin/realms/training/users/profile", "JSON contains both attribute definitions with their validators", "curl and jq output"]],
+          "objectives": ["Define managed user attributes with validation", "Control attribute permissions for users and admins", "Manage user profile configuration as JSON"]
+        },
+        {
+          "topic": "Login Theme Customisation with FreeMarker and Keycloakify",
+          "subtopics": ["Theme types: login, account, admin, email and welcome", "theme.properties with parent=keycloak.v2 and import", "Overriding login.ftl, template.ftl and stylesheets", "Message bundles and internationalisation with messages_de.properties", "Disabling theme caching with spi-theme-cache-themes=false during development", "Packaging a theme as a JAR with META-INF/keycloak-themes.json", "Keycloakify for React-based login themes", "Selecting themes per realm and per client"],
+          "tools": ["Keycloak", "FreeMarker", "Keycloakify", "Maven", "Node.js"],
+          "lab_task": "Create a login theme acme with parent keycloak.v2 that adds a logo, custom CSS and an English and German message for loginTitle. Mount it into /opt/keycloak/themes with theme caching disabled, select it for realm training, enable internationalisation and switch the login page to German. Then package the theme as a JAR in providers/, run kc.sh build and confirm it still appears.",
+          "deliverable": "Theme source, JAR file and screenshots in both languages",
+          "checks": [["Open the login page after selecting theme acme", "The custom logo and colours are shown", "Screenshot"], ["Switch the locale to Deutsch", "The German loginTitle text is displayed", "Screenshot"], ["Restart with the JAR in providers/ after kc.sh build", "acme is still listed in the realm Themes tab", "Screenshot"]],
+          "objectives": ["Create and package Keycloak themes", "Localise login pages with message bundles", "Choose between FreeMarker themes and Keycloakify"]
+        },
+        {
+          "topic": "Admin CLI Automation with kcadm.sh",
+          "subtopics": ["kcadm.sh config credentials with --server, --realm, --user and --client", "Config file location and --config for separate sessions", "create, get, update and delete with -s and -f", "Querying with -q, --fields and --format csv", "add-roles, get-roles and set-password", "Service account authentication with --client and --secret", "Idempotent scripts and handling 409 Conflict", "Running kcadm.sh from the container image"],
+          "tools": ["kcadm.sh", "Bash", "jq", "Keycloak"],
+          "lab_task": "Write a Bash script that signs in with kcadm.sh config credentials, creates realm lab2 with enabled=true, creates 20 users from a CSV with set-password, adds role employee to each with add-roles, and prints a CSV of username and id with get users --fields username,id --format csv. Run it twice and make the second run report existing users instead of failing.",
+          "deliverable": "Idempotent kcadm script with output of both runs",
+          "checks": [["Run get users -r lab2 --fields username --format csv after the script", "20 usernames are listed", "Terminal output"], ["Run kcadm.sh create users for an existing username", "Error with HTTP 409 and User exists with same username", "Terminal output"], ["Run get-roles -r lab2 --uusername user01", "employee is listed among the realm roles", "Terminal output"]],
+          "objectives": ["Automate realm administration with kcadm.sh", "Write idempotent provisioning scripts", "Authenticate the CLI with users or service accounts"]
+        },
+        {
+          "topic": "Admin REST API Scripting with Service Account Tokens",
+          "subtopics": ["Admin REST API base path /admin/realms", "Getting a token for an admin service account in the target realm", "Assigning realm-management roles such as manage-users and view-clients", "Paging with first and max and GET /users/count", "Creating resources and reading the Location header", "Partial import with POST /admin/realms/<realm>/partialImport and ifResourceExists", "Common errors: 401, 403 and 409", "Using the generated Admin REST API reference"],
+          "tools": ["Admin REST API", "curl", "Python requests", "jq", "Keycloak"],
+          "lab_task": "Create client provisioner in realm lab2 with a service account that has only realm-management manage-users and view-users. With Python requests obtain a client credentials token, create a user, read its id from the Location header, page through users 10 at a time and compare the total with GET /users/count. Then try to create a client with the same token and record the status.",
+          "deliverable": "Python script, page-by-page output and the permission test result",
+          "checks": [["GET /admin/realms/lab2/users/count", "The number matches the sum of all paged results", "Script output"], ["POST a new user", "HTTP 201 with a Location header ending in the new user id", "Script log"], ["POST /admin/realms/lab2/clients with the provisioner token", "HTTP 403 Forbidden", "Script log"]],
+          "objectives": ["Call the Admin REST API with least-privilege service accounts", "Page and count large user sets", "Interpret REST API errors"]
+        },
+        {
+          "topic": "Organizations for Multi-Tenant B2B Identity",
+          "subtopics": ["Enabling Organizations in realm settings", "Organization name, alias, domains and attributes", "Managed and unmanaged members", "Inviting members by email and the invitation link", "Linking an identity provider to an organization and redirect when email domain matches", "The organization client scope and the organization claim", "Identity-first login for organization members", "Organization admin endpoints under /admin/realms/<realm>/organizations"],
+          "tools": ["Keycloak", "Keycloak Admin Console", "Admin REST API", "Mailpit"],
+          "lab_task": "Enable Organizations in realm training and create organizations globex (domain globex.test) and initech (domain initech.test). Invite a member to globex through Mailpit, link the partner identity provider to initech with redirect on email domain, then sign in with an initech.test address and confirm the redirect. Request scope organization and inspect the organization claim.",
+          "deliverable": "Organization setup, invitation evidence and decoded tokens for both tenants",
+          "checks": [["Accept the globex invitation link from Mailpit", "The user appears on the globex Members tab", "Screenshot"], ["Enter bob@initech.test on the identity-first login page", "Browser is redirected to the partner identity provider", "Network trace"], ["Request a token with scope organization for a globex member", "Token contains an organization claim listing globex", "Decoded token"]],
+          "objectives": ["Model B2B tenants with organizations", "Route organization members to their identity provider", "Expose organization membership in tokens"]
+        },
+        {
+          "topic": "Client Policies and Profiles: PKCE, FAPI and OAuth 2.1 Enforcement",
+          "subtopics": ["Client profiles as sets of executors", "Client policies as conditions plus profiles", "Executors: pkce-enforcer, secure-client-authenticator, secure-redirect-uris-enforcer and holder-of-key-enforcer", "Conditions: client-roles, client-access-type, any-client and client-updater-context", "Built-in profiles fapi-1-baseline, fapi-2-security-profile and oauth-2-1-for-public-client", "Enforcing rules at client registration and at token requests", "Testing policies against existing clients", "Migrating legacy clients without breaking them"],
+          "tools": ["Keycloak Admin Console", "curl", "Keycloak"],
+          "lab_task": "Create a client policy require-pkce in realm training with condition client-access-type public and a profile that uses the pkce-enforcer executor with auto-configure off. Start an authorization request for the public client spa without a code_challenge, then with S256. Finally apply the oauth-2-1-for-public-client profile and try to enable the implicit flow on spa.",
+          "deliverable": "Policy and profile JSON with the test outcomes",
+          "checks": [["Start an authorization request on spa without code_challenge", "Error invalid_request about the missing PKCE code challenge", "Redirect URL"], ["Start the request with code_challenge_method=S256", "Login proceeds and a code is returned", "Redirect URL"], ["Enable Implicit flow on spa with the OAuth 2.1 profile active", "The update is rejected by the client policy", "Screenshot"]],
+          "objectives": ["Enforce client security rules with policies and profiles", "Apply FAPI and OAuth 2.1 profiles", "Roll out policies without breaking existing clients"]
+        },
+        {
+          "topic": "Keycloak Configuration as Code with Terraform and keycloak-config-cli",
+          "subtopics": ["Why click-ops drifts and configuration as code helps", "The Terraform keycloak provider and its authentication options", "Resources keycloak_realm, keycloak_openid_client, keycloak_role and keycloak_group", "terraform plan to detect drift", "keycloak-config-cli and declarative realm YAML or JSON", "Variable substitution and secret injection", "Choosing what to manage: realm settings versus users", "Running configuration pipelines in CI"],
+          "tools": ["Terraform", "Terraform Keycloak provider", "keycloak-config-cli", "GitHub Actions", "Keycloak"],
+          "lab_task": "Describe realm lab3 with two clients, three roles and a group in Terraform, run terraform apply, then change a client redirect URI by hand in the admin console and run terraform plan. Do the same realm in keycloak-config-cli YAML, run it twice and compare outputs. Record which tool reported the manual change and how.",
+          "deliverable": "Terraform module, keycloak-config-cli file and a short comparison",
+          "checks": [["Run terraform apply on an empty server", "Apply reports the realm, clients, roles and group created", "Terraform output"], ["Run terraform plan after the manual redirect URI change", "Plan shows 1 to change on the keycloak_openid_client resource", "Terraform output"], ["Run keycloak-config-cli a second time with the same file", "No changes are applied for the unchanged realm", "Tool log"]],
+          "objectives": ["Manage Keycloak configuration as code", "Detect and correct configuration drift", "Compare Terraform and keycloak-config-cli"]
+        },
+        {
+          "topic": "Intermediate Capstone: Federated Workforce SSO with LDAP, Social Login and SAML",
+          "subtopics": ["Production-style Keycloak on PostgreSQL behind a TLS proxy", "LDAP federation with group mapping", "Identity brokering and organizations for a partner company", "SAML and OIDC clients with step-up for sensitive apps", "Branded login theme and declarative user profile", "Configuration as code and an operations runbook"],
+          "tools": ["Keycloak", "PostgreSQL", "NGINX", "OpenLDAP", "Terraform", "SimpleSAMLphp"],
+          "lab_task": "Deploy an optimized Keycloak image on PostgreSQL behind NGINX for https://id.acme.test. Federate employees from OpenLDAP, broker a partner organization through OIDC, connect one SAML app and one OIDC app, require OTP step-up with ACR gold for the payroll app, apply a branded theme, and manage all realm configuration with Terraform so terraform plan is clean at handover.",
+          "deliverable": "Deployed environment, Terraform code, runbook and demonstration recording",
+          "checks": [["Sign in as an LDAP employee to the SAML app then the OIDC app", "The second app signs in without a new password prompt", "Screen recording"], ["Open the payroll app requiring acr gold", "OTP is requested and the ID token shows acr gold", "Recording and decoded token"], ["Run terraform plan at handover", "Plan reports No changes", "Terraform output"]],
+          "objectives": ["Integrate directories, brokers and protocols in one realm", "Apply step-up and branding to a real workforce setup", "Hand over Keycloak as reproducible code"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For identity platform engineers and architects who operate Keycloak at scale. Covers authorization services and UMA, fine-grained admin permissions, token exchange, custom SPI providers, the Kubernetes operator, clustering with Infinispan, multi-site deployments, persistent sessions and sizing, metrics, tracing, logging and alerting, load testing, upgrades, hardening and FIPS mode, the vault and key rotation, DPoP and mutual TLS, disaster recovery and structured troubleshooting, ending with a highly available multi-tenant platform capstone.",
+      "prerequisites": ["Completed the intermediate level or runs a production Keycloak with federation and custom flows", "Can deploy and debug workloads on Kubernetes with kubectl", "Can write and build Java code with Maven"],
+      "outcomes": ["Implement fine-grained authorization, delegated administration and token exchange", "Extend Keycloak with custom authenticators, event listeners and user storage providers", "Run highly available Keycloak on Kubernetes with the operator, Infinispan and persistent sessions", "Operate Keycloak with observability, load testing, upgrades, hardening and tested disaster recovery"],
+      "days": [
+        {
+          "topic": "Authorization Services: Resources, Scopes, Policies and Permissions",
+          "subtopics": ["Enabling Authorization on a confidential client", "Resources with types, URIs and owners", "Authorization scopes such as view, edit and delete", "Policies: role, group, user, client, time, regex and aggregated", "Resource-based and scope-based permissions", "Decision strategies: UNANIMOUS, AFFIRMATIVE and CONSENSUS", "Policy enforcement mode ENFORCING, PERMISSIVE and DISABLED", "The Evaluate tab for testing decisions"],
+          "tools": ["Keycloak Admin Console", "curl", "jq", "Keycloak"],
+          "lab_task": "Enable Authorization on client invoice-api, create resource Invoice with scopes invoice:view and invoice:approve, a role policy for manager, a time policy for office hours and a scope permission that grants invoice:approve when both pass with UNANIMOUS. Use the Evaluate tab for alice and bob, then request a decision with grant_type=urn:ietf:params:oauth:grant-type:uma-ticket and response_mode=decision.",
+          "deliverable": "Authorization settings export and an evaluation table per user and scope",
+          "checks": [["Request a decision for Invoice#invoice:approve as a manager inside office hours", "Response is {\"result\":true}", "curl output"], ["Request the same decision as a user without manager", "HTTP 403 with error access_denied", "curl output"], ["Switch the permission decision strategy to AFFIRMATIVE and re-evaluate outside office hours", "The manager is now granted invoice:approve", "Evaluate tab screenshot"]],
+          "objectives": ["Model protected resources and scopes in Keycloak", "Combine policies into permissions with decision strategies", "Query authorization decisions from an application"]
+        },
+        {
+          "topic": "UMA, Permission Tickets and Policy Enforcers",
+          "subtopics": ["Requesting party tokens and the authorization claim with permissions", "The uma-ticket grant with permission, audience and response_mode parameters", "Permission tickets and the UMA 2.0 flow", "User-managed access and resource sharing in the account console", "The Protection API: resource_set and permission endpoints", "Policy enforcers in Quarkus OIDC and the keycloak-policy-enforcer library", "Path-to-resource mapping and lazy loading of paths", "Caching decisions and the cost of per-request evaluation"],
+          "tools": ["Keycloak", "Quarkus", "curl", "jq", "Keycloak Account Console"],
+          "lab_task": "Enable User-Managed Access in realm training, let alice own resource alice-invoice-42 through the Protection API, and have bob request it to receive a permission ticket. Share the resource with bob from alice's account console, have bob exchange the ticket for a requesting party token and decode the permissions claim. Then protect a Quarkus endpoint with the policy enforcer and call it with both tokens.",
+          "deliverable": "UMA flow trace with permission ticket, RPT and enforcer test results",
+          "checks": [["Bob requests the resource before it is shared", "HTTP 401 with a WWW-Authenticate UMA header carrying a ticket", "curl -i output"], ["Bob exchanges the ticket after alice shared the resource", "The RPT authorization.permissions lists alice-invoice-42", "Decoded token"], ["Call the Quarkus endpoint with a plain access token without permission", "HTTP 403 from the policy enforcer", "curl output"]],
+          "objectives": ["Run the UMA 2.0 flow with Keycloak", "Let resource owners share access", "Enforce Keycloak authorization in application code"]
+        },
+        {
+          "topic": "Fine-Grained Admin Permissions and Delegated Administration",
+          "subtopics": ["Why manage-users on realm-management is too broad", "Enabling admin permissions on a realm", "Permission resource types: Users, Groups, Clients and Roles", "Scopes such as view, manage, manage-group-membership and impersonate", "Granting a helpdesk group control over one group's members", "Restricting which roles an admin can map", "Combining the query-users and view-users roles", "Testing delegated admins in the admin console"],
+          "tools": ["Keycloak Admin Console", "kcadm.sh", "Keycloak"],
+          "lab_task": "Enable admin permissions in realm training, create group /helpdesk and give its members query-users, then add a permission allowing them to view, manage and reset credentials only for users in /staff/hr. Sign in to the admin console as a helpdesk user, reset an HR user's password and attempt the same on alice outside /staff/hr. Record what the console shows for each.",
+          "deliverable": "Permission design, policy export and delegated admin test evidence",
+          "checks": [["Sign in as a helpdesk member and search users", "Only members of /staff/hr are manageable", "Screenshot"], ["Reset the password of an HR user", "The password is updated and an admin event records the helpdesk user", "Admin event JSON"], ["Try to update alice who is outside /staff/hr with kcadm.sh as the helpdesk user", "HTTP 403 Forbidden", "Terminal output"]],
+          "objectives": ["Delegate realm administration with least privilege", "Configure fine-grained admin permissions", "Verify delegated rights with tests"]
+        },
+        {
+          "topic": "Token Exchange and Impersonation in Keycloak",
+          "subtopics": ["RFC 8693 parameters: subject_token, subject_token_type, audience and requested_token_type", "Standard token exchange for internal-to-internal exchange and the client switch that allows it", "Audience checks on the subject token", "Downscoping with the scope parameter", "Legacy token exchange preview for external tokens and impersonation", "Admin impersonation from the console and the impersonator claim", "Delegation versus impersonation in microservice chains", "Auditing TOKEN_EXCHANGE events"],
+          "tools": ["curl", "jq", "Keycloak", "Keycloak Admin Console"],
+          "lab_task": "Configure client gateway with standard token exchange enabled and add an audience mapper so gateway is in tokens issued to web-portal. Exchange a web-portal access token at the token endpoint with grant_type=urn:ietf:params:oauth:grant-type:token-exchange and audience=invoice-api, decode the result, then repeat with a subject token that lacks gateway in aud. Finally impersonate bob from the admin console and inspect the session.",
+          "deliverable": "Exchange requests and responses, decoded tokens and an event log",
+          "checks": [["Exchange a token that includes gateway in aud for audience invoice-api", "HTTP 200 and the new access token has aud invoice-api and the same sub", "Decoded token"], ["Exchange a token whose aud does not include gateway", "HTTP 400 or 403 with an error about the client not being in the audience", "curl output"], ["Check events after the exchange", "A TOKEN_EXCHANGE event lists gateway as the client", "Event JSON"]],
+          "objectives": ["Exchange tokens between services with RFC 8693", "Limit exchanged tokens by audience and scope", "Distinguish delegation from impersonation"]
+        },
+        {
+          "topic": "Custom Authenticators with the Keycloak SPI",
+          "subtopics": ["The Service Provider Interface model: Provider and ProviderFactory", "Authenticator and AuthenticatorFactory methods: authenticate, action, requiresUser and configuredFor", "AuthenticationFlowContext: success, failure, challenge and attempted", "Configurable authenticators and AuthenticatorConfigModel", "Login forms with FreeMarker and context.form()", "Registering the factory in META-INF/services", "Packaging with Maven against keycloak-server-spi and keycloak-services", "Deploying to providers/ and running kc.sh build"],
+          "tools": ["Java 21", "Maven", "Keycloak SPI", "kc.sh", "Keycloak"],
+          "lab_task": "Write an authenticator that blocks login when the user attribute contractEnd is before today and shows a custom FreeMarker error page. Register its factory in META-INF/services/org.keycloak.authentication.AuthenticatorFactory, build the JAR with Maven, copy it to providers/, run kc.sh build and add the step after Username Password Form. Test with an expired and a current contractor.",
+          "deliverable": "Provider source, JAR, flow export and test results",
+          "checks": [["Open Add step in a browser flow copy after deploying the JAR", "The new authenticator appears in the list", "Screenshot"], ["Sign in as a user whose contractEnd is in the past", "The custom error page is shown and a LOGIN_ERROR event is stored", "Screenshot and event"], ["Sign in as a user whose contractEnd is in the future", "Login completes normally", "Screenshot"]],
+          "objectives": ["Implement and register a custom authenticator", "Package and deploy Keycloak providers", "Fit custom steps into authentication flows"]
+        },
+        {
+          "topic": "Event Listener and User Storage Provider Extensions",
+          "subtopics": ["EventListenerProvider with onEvent for user and admin events", "Enabling custom listeners on the realm Events config", "Sending events to a message broker asynchronously and transaction callbacks", "UserStorageProvider for legacy user databases", "UserLookupProvider, CredentialInputValidator and UserQueryProvider", "Import versus non-import federation and migration on login", "Provider configuration properties and ProviderConfigProperty", "Testing providers with Testcontainers and the Keycloak test framework"],
+          "tools": ["Java 21", "Maven", "Keycloak SPI", "Testcontainers", "Apache Kafka", "Keycloak"],
+          "lab_task": "Build an event listener that publishes LOGIN and LOGIN_ERROR events as JSON to a Kafka topic after the transaction commits, and a read-only user storage provider that validates passwords against a legacy PostgreSQL users table with bcrypt hashes. Enable both in realm training and sign in as a legacy user, then consume the topic and count the events.",
+          "deliverable": "Two provider JARs, configuration and Kafka consumer output",
+          "checks": [["Sign in as a user who exists only in the legacy table", "Login succeeds and the user shows the custom provider as federation link", "Screenshot"], ["Perform 3 logins and 2 failed logins then consume the topic", "5 messages with types LOGIN and LOGIN_ERROR are read", "Consumer output"], ["Run the Testcontainers integration test", "All tests pass", "Test report"]],
+          "objectives": ["Extend Keycloak with event listeners", "Federate users from a legacy database", "Test custom providers automatically"]
+        },
+        {
+          "topic": "Keycloak Operator on Kubernetes: Keycloak and KeycloakRealmImport Resources",
+          "subtopics": ["Installing the operator with OLM or the published Kubernetes manifests", "The Keycloak custom resource: instances, db, http.tlsSecret and hostname", "Supplying database credentials with usernameSecret and passwordSecret", "Additional options and unsupported podTemplate overrides", "Custom images built with kc.sh build and spec.image", "KeycloakRealmImport resources and their one-time import behaviour", "Ingress, Services and the management port 9000 for probes", "Reading the Keycloak status conditions"],
+          "tools": ["Keycloak Operator", "kubectl", "kind", "Kubernetes", "PostgreSQL", "cert-manager"],
+          "lab_task": "On a kind cluster install the Keycloak Operator, deploy PostgreSQL, and apply a Keycloak resource (apiVersion k8s.keycloak.org/v2alpha1) with instances 2, db.vendor postgres, a TLS secret from cert-manager and hostname id.kind.test. Apply a KeycloakRealmImport for realm training, wait for the Ready condition and fetch the discovery document through the Ingress.",
+          "deliverable": "Custom resources, kubectl output and discovery check",
+          "checks": [["Run kubectl get keycloak -o jsonpath on status conditions", "Condition Ready is True", "kubectl output"], ["Run kubectl get pods", "Two Keycloak pods are Running and ready", "kubectl output"], ["Run kubectl get keycloakrealmimport training", "Status shows the import Done and realm training exists", "kubectl output and screenshot"]],
+          "objectives": ["Deploy Keycloak with the operator", "Import realms declaratively on Kubernetes", "Read operator status to verify a deployment"]
+        },
+        {
+          "topic": "Clustering with Embedded Infinispan and JDBC_PING",
+          "subtopics": ["Local caches: realms, users, authorization and keys", "Distributed caches: sessions, authenticationSessions, loginFailures, actionTokens and work", "The cache option ispn and cache-config-file conf/cache-ispn.xml", "Cache stacks and JDBC_PING discovery through the database", "Owners and what happens when a node leaves", "Invalidation messages for realm and user changes", "Sticky sessions and the AUTH_SESSION_ID cookie", "JGroups ports 7800 and 57800 and network policies"],
+          "tools": ["Infinispan", "JGroups", "Keycloak", "Docker Compose", "NGINX"],
+          "lab_task": "Run three Keycloak containers on one PostgreSQL database with --cache=ispn and the default JDBC_PING based stack, behind NGINX with round-robin balancing. Confirm from the logs that the cluster view has 3 members, sign in through one node, stop that node and continue using the session. Change a realm setting on node 2 and verify node 3 shows it immediately.",
+          "deliverable": "Compose file, cluster view log lines and failover test evidence",
+          "checks": [["Search each node's log for the cluster view", "Log lines show a view with 3 members", "Log excerpt"], ["Stop the node that served the login and reload the account console", "The user stays signed in through another node", "Screen recording"], ["Change the realm display name on node 2 and query node 3", "Node 3 returns the new display name without a restart", "curl output"]],
+          "objectives": ["Explain Keycloak's local and distributed caches", "Form a Keycloak cluster with database discovery", "Test failover and cache invalidation"]
+        },
+        {
+          "topic": "Multi-Site Keycloak with External Infinispan",
+          "subtopics": ["Why multi-site needs an external Infinispan cluster and a synchronously replicated database", "Active-active and active-passive multi-site models", "Connecting with cache-remote-host, cache-remote-port and credentials", "Cross-site replication between Infinispan sites", "Load balancer health checks and site failover", "Split-brain and how sites are taken offline and brought back", "Latency budgets between sites", "Following the Keycloak high availability guides for the deployment blueprint"],
+          "tools": ["Infinispan", "Infinispan Operator", "Keycloak Operator", "Kubernetes", "PostgreSQL", "Keycloak"],
+          "lab_task": "Following the Keycloak high availability guide, deploy two sites in separate kind clusters, each with an Infinispan cluster configured for cross-site backup and Keycloak connected with the remote cache options, sharing one database. Sign in on site A, read the session on site B, then take site A offline at the load balancer and measure how long users need to re-authenticate.",
+          "deliverable": "Two-site architecture diagram, configuration and failover timing",
+          "checks": [["Sign in on site A and call the account console on site B", "The session is valid on site B", "curl output with cookies"], ["Check the Infinispan cross-site status", "The backup site status for the sessions cache is online", "CLI output"], ["Take site A offline at the load balancer", "Users continue on site B with no new login prompt", "Recording and timing notes"]],
+          "objectives": ["Describe Keycloak's multi-site architecture", "Connect Keycloak to an external Infinispan", "Run and measure a site failover"]
+        },
+        {
+          "topic": "Persistent User Sessions, Offline Sessions and Cache Sizing",
+          "subtopics": ["Persistent user sessions stored in the database and surviving restarts", "Session tables OFFLINE_USER_SESSION and OFFLINE_CLIENT_SESSION", "Memory limits for session caches with cache-embedded max-count options", "Offline tokens with scope offline_access and offline session idle", "Session counts per realm from the Sessions tab and REST API", "Effect of session volume on database writes", "Purging expired sessions", "Estimating heap and database size from active sessions"],
+          "tools": ["Keycloak", "PostgreSQL", "psql", "keycloak-benchmark", "Admin REST API"],
+          "lab_task": "Create 10,000 sessions in realm training with keycloak-benchmark, restart every Keycloak node and confirm the sessions remain valid. Count rows in OFFLINE_USER_SESSION before and after, request 100 offline tokens with scope offline_access and check the client's offline session count, then calculate heap and database growth per 1,000 sessions from your measurements.",
+          "deliverable": "Session persistence test results and a sizing worksheet",
+          "checks": [["Refresh a token issued before a full cluster restart", "Refresh succeeds with HTTP 200", "curl output"], ["Count OFFLINE_USER_SESSION rows after creating 10,000 sessions", "About 10,000 rows for realm training", "psql output"], ["Read GET /admin/realms/training/clients/<id>/offline-session-count", "count equals 100", "jq output"]],
+          "objectives": ["Explain where Keycloak stores sessions", "Manage offline sessions and tokens", "Size memory and database for session volume"]
+        },
+        {
+          "topic": "Keycloak Metrics, Health Checks and OpenTelemetry Tracing",
+          "subtopics": ["Enabling metrics-enabled and health-enabled", "The management interface on port 9000 for /metrics and /health", "/health/live, /health/ready and /health/started", "HTTP server metrics such as http_server_requests_seconds", "Database pool and JVM metrics", "User event metrics with event-metrics-user-enabled", "Tracing with tracing-enabled and an OTLP endpoint", "Grafana dashboards published for Keycloak"],
+          "tools": ["Prometheus", "Grafana", "Jaeger", "OpenTelemetry Collector", "Keycloak"],
+          "lab_task": "Start Keycloak with --metrics-enabled=true --health-enabled=true --event-metrics-user-enabled=true --tracing-enabled=true and an OTLP endpoint on an OpenTelemetry Collector that exports to Jaeger. Scrape port 9000 with Prometheus, import the Keycloak Grafana dashboards, run 100 logins and find a trace for the token endpoint in Jaeger with its database spans.",
+          "deliverable": "Prometheus config, dashboard screenshots and a token request trace",
+          "checks": [["curl http://localhost:9000/health/ready", "Response status is UP", "curl output"], ["Query keycloak_user_events_total after 100 logins", "The login event counter increased by 100", "Prometheus query result"], ["Open Jaeger for service keycloak", "A trace for POST /realms/training/protocol/openid-connect/token is shown with child spans", "Screenshot"]],
+          "objectives": ["Expose Keycloak metrics and health endpoints", "Trace Keycloak requests with OpenTelemetry", "Build dashboards for Keycloak service health"]
+        },
+        {
+          "topic": "Keycloak Logging, Event Metrics and Alerting",
+          "subtopics": ["log option with console, file and syslog handlers", "log-level per category such as org.keycloak.events:DEBUG", "JSON console output with log-console-output=json", "MDC fields for realm, client and user in log lines", "Shipping logs to Loki or Elasticsearch", "Alert rules on login error rate and failed admin logins", "Alerts on database pool saturation and pod restarts", "Avoiding secrets and personal data in logs"],
+          "tools": ["Prometheus", "Alertmanager", "Grafana Loki", "Keycloak", "Grafana"],
+          "lab_task": "Configure Keycloak with --log=console --log-console-output=json and org.keycloak.events at DEBUG, ship the logs to Loki, and write a Prometheus alert that fires when LOGIN_ERROR events exceed 20 per minute for realm training. Run a script that sends 50 wrong passwords in a minute and confirm the alert fires and the Loki query shows the matching events.",
+          "deliverable": "Logging configuration, alert rules and evidence of the alert firing",
+          "checks": [["View a log line from the events category", "The line is valid JSON with the event type field", "Log excerpt"], ["Send 50 wrong passwords within one minute", "The LOGIN_ERROR alert goes to firing in Alertmanager", "Alertmanager screenshot"], ["Run a Loki query for type LOGIN_ERROR in realm training", "Roughly 50 log entries for the test minute", "Grafana Explore screenshot"]],
+          "objectives": ["Configure structured Keycloak logging", "Alert on authentication failure patterns", "Keep sensitive data out of logs"]
+        },
+        {
+          "topic": "Performance Tuning and Load Testing with keycloak-benchmark",
+          "subtopics": ["keycloak-benchmark Gatling scenarios such as AuthorizationCode and ClientSecret", "Measuring logins per second and token requests per second", "CPU cost of password hashing and how hash iterations affect throughput", "Heap sizing with JAVA_OPTS_KC_HEAP and container memory", "Database pool size versus worker threads", "Sizing guidance from the Keycloak concepts for sizing CPU and memory guide", "Horizontal scaling and stateless load balancing", "Reading p95 latency and error rate from Gatling reports"],
+          "tools": ["keycloak-benchmark", "Gatling", "Grafana", "Prometheus", "Keycloak"],
+          "lab_task": "Run the keycloak-benchmark AuthorizationCode scenario against a two-node cluster at increasing rates until p95 latency for logins exceeds 500 ms, recording CPU per pod. Repeat with the ClientSecret scenario, then change the pool size and heap and re-run. Calculate logins per second per vCPU and compare with the published sizing guide.",
+          "deliverable": "Gatling reports, a tuning log and a capacity plan",
+          "checks": [["Run AuthorizationCode at the target rate", "Gatling reports p95 below 500 ms and errors below 1%", "Gatling report"], ["Raise the rate beyond saturation", "CPU nears the pod limit and p95 latency rises above 500 ms", "Grafana screenshot"], ["Run ClientSecret at the same rate", "Token requests complete with lower CPU per request than password logins", "Comparison table"]],
+          "objectives": ["Load test Keycloak with realistic scenarios", "Identify CPU, memory and database bottlenecks", "Plan capacity from measured throughput"]
+        },
+        {
+          "topic": "Keycloak Upgrades: Database Migration and Rolling Updates",
+          "subtopics": ["Reading release notes and the upgrade guide before each upgrade", "Automatic database migration at startup", "Manual migration strategy that writes keycloak-database-update.sql for DBA review", "Backups and rollback planning", "Compatibility of themes, providers and deprecated options", "Rolling updates within a compatible release and the update-compatibility command", "Operator update strategies for Keycloak custom resources", "Upgrading the operator and Keycloak in the right order"],
+          "tools": ["Keycloak Operator", "kc.sh", "PostgreSQL", "pg_dump", "kubectl"],
+          "lab_task": "Take a pg_dump of a lab Keycloak database, then start the next minor release with the manual migration strategy so Keycloak writes keycloak-database-update.sql instead of migrating. Review the SQL, apply it with psql, start the new version and run a smoke test. On Kubernetes, update the image of a 2-instance Keycloak resource and record whether pods roll or recreate.",
+          "deliverable": "Upgrade runbook, generated SQL, smoke test results and operator observations",
+          "checks": [["Start the new release with manual migration on the old schema", "Keycloak writes keycloak-database-update.sql and stops", "Startup log and file"], ["Start after applying the SQL", "Startup succeeds and login with an existing user works", "Startup log and screenshot"], ["Restore the pg_dump into a fresh database", "The old version starts on the restored database", "Startup log"]],
+          "objectives": ["Plan and test Keycloak upgrades", "Control database migrations", "Choose rolling or recreate updates safely"]
+        },
+        {
+          "topic": "Keycloak Hardening: Admin Isolation, Security Headers and FIPS Mode",
+          "subtopics": ["Separate admin hostname and blocking /admin at the public proxy", "Removing unused master realm admins and enforcing MFA for admins", "Disabling unused flows such as implicit and direct access grants", "Security defenses: X-Frame-Options, Content-Security-Policy and HSTS headers", "Refresh token rotation and revoke refresh token", "Truststore configuration with truststore-paths", "FIPS 140-2 mode with features=fips and fips-mode=strict", "Running the container as non-root with a read-only filesystem"],
+          "tools": ["Keycloak", "NGINX", "OWASP ZAP", "testssl.sh", "curl"],
+          "lab_task": "Harden the lab: serve the admin console only on admin.id.local with --hostname-admin, return 403 for /admin on the public host, require OTP for master realm admins, disable direct access grants on all clients that do not need them and set HSTS and a strict CSP in the realm Security defenses. Scan before and after with OWASP ZAP and testssl.sh and compare findings.",
+          "deliverable": "Hardening checklist with before and after scan reports",
+          "checks": [["curl https://id.local/admin/ from outside", "HTTP 403 from the proxy", "curl output"], ["Inspect response headers of the login page", "Strict-Transport-Security and Content-Security-Policy headers are present", "curl -I output"], ["Run testssl.sh against id.local", "No protocols below TLS 1.2 are offered", "testssl.sh report"]],
+          "objectives": ["Isolate the Keycloak admin surface", "Apply secure defaults to realms and clients", "Verify hardening with scanners"]
+        },
+        {
+          "topic": "Secrets with the Keycloak Vault, Key Rotation and Signing Algorithms",
+          "subtopics": ["The file vault and the Kubernetes secrets vault with vault-dir", "Referencing secrets as ${vault.<key>} in SMTP, LDAP bind and identity provider settings", "Realm key providers: rsa-generated, ecdsa-generated, hmac-generated and aes-generated", "Key priority and the active, passive and disabled states", "Rotating signing keys without breaking clients", "Choosing RS256, PS256, ES256 or EdDSA per client", "Importing keys from a keystore with java-keystore provider", "Client secret rotation policies"],
+          "tools": ["Keycloak", "Kubernetes Secrets", "keytool", "jq", "curl"],
+          "lab_task": "Move the SMTP password and the LDAP bind credential into a file vault with --vault=file --vault-dir, replacing them with ${vault.smtp_password} and ${vault.ldap_bind}. Then rotate the realm signing key: add a new rsa-generated provider with higher priority, confirm both keys appear in the JWKS, keep the old key passive until old tokens expire and disable it.",
+          "deliverable": "Vault setup, key rotation timeline and JWKS snapshots",
+          "checks": [["Test the SMTP connection after switching to the vault reference", "Test connection succeeds", "Screenshot"], ["Fetch /protocol/openid-connect/certs after adding the new key", "Two RSA keys with different kid values are listed", "jq output"], ["Validate a token signed by the old key after it is disabled", "Validation fails because the kid is no longer in the JWKS", "API log"]],
+          "objectives": ["Keep secrets out of realm configuration", "Rotate realm signing keys safely", "Choose signing algorithms per client"]
+        },
+        {
+          "topic": "DPoP, Mutual TLS and Sender-Constrained Tokens in Keycloak",
+          "subtopics": ["Why bearer tokens can be replayed when stolen", "DPoP proofs, the DPoP header and the cnf.jkt claim", "Requiring DPoP-bound tokens on a client", "OAuth 2.0 mutual TLS client authentication with X509 Certificate", "Certificate-bound tokens with the cnf x5t#S256 claim", "Client certificate lookup behind a proxy", "Resource server checks for DPoP and mTLS binding", "FAPI 2.0 profiles that require sender-constrained tokens"],
+          "tools": ["Keycloak", "openssl", "curl", "Python", "NGINX"],
+          "lab_task": "Enable DPoP-bound tokens on a test client, generate an EC key pair in Python, sign a DPoP proof for the token request and check the cnf.jkt claim. Replay the token from a different key at an API that verifies DPoP. Then configure a confidential client with X509 Certificate authentication and certificate-bound tokens and request a token with curl --cert and --key.",
+          "deliverable": "Scripts, decoded tokens with cnf claims and replay test results",
+          "checks": [["Request a token with a valid DPoP proof", "token_type is DPoP and the access token has cnf.jkt", "Decoded token"], ["Send the token to the API with a proof signed by another key", "HTTP 401 because the proof key does not match cnf.jkt", "API response"], ["Request a token with curl --cert for the mTLS client", "The access token contains cnf with x5t#S256", "Decoded token"]],
+          "objectives": ["Explain sender-constrained tokens", "Configure DPoP and mTLS in Keycloak", "Verify token binding at a resource server"]
+        },
+        {
+          "topic": "Backup, Disaster Recovery and Realm Migration Between Clusters",
+          "subtopics": ["What to back up: database, providers, themes, configuration and secrets", "Point-in-time recovery for PostgreSQL", "Recovery time and recovery point objectives for identity", "Moving a realm with kc.sh export and import versus database restore", "Preserving client secrets, keys and user credentials during migration", "Rebuilding a cluster from Git, images and a database backup", "Break-glass admin access with kc.sh bootstrap-admin", "Running restore drills on a schedule"],
+          "tools": ["PostgreSQL", "pg_dump", "kc.sh", "Velero", "Kubernetes", "Keycloak"],
+          "lab_task": "Write a disaster recovery plan for a Kubernetes Keycloak with RPO 15 minutes and RTO 1 hour, then run a drill: delete the namespace, recreate it from Git manifests, restore PostgreSQL to a point in time and start Keycloak. Measure the time until users can sign in, confirm existing passwords and client secrets still work and recover admin access with bootstrap-admin.",
+          "deliverable": "Disaster recovery plan, drill timeline and post-drill findings",
+          "checks": [["Sign in as an existing user after the restore", "Login works with the pre-incident password", "Screenshot"], ["Use a confidential client's existing secret after the restore", "client_credentials returns HTTP 200", "curl output"], ["Compare the drill timeline with the RTO", "Total recovery time is under 1 hour", "Timeline record"]],
+          "objectives": ["Design backup and recovery for Keycloak", "Migrate realms between clusters without data loss", "Prove recovery with timed drills"]
+        },
+        {
+          "topic": "Troubleshooting Keycloak: Login Loops, Redirect Errors and Token Failures",
+          "subtopics": ["Reading the error page together with the server log and events", "Invalid parameter: redirect_uri and web origin mistakes", "Cookie not found and third-party cookie or SameSite problems", "Login loops caused by hostname, proxy headers or clock skew", "Invalid token issuer errors when the frontend URL differs", "invalid_grant causes: expired codes, inactive sessions and refresh token reuse", "Slow logins from LDAP timeouts and database pool exhaustion", "Debug logging for org.keycloak.services and org.keycloak.events"],
+          "tools": ["Keycloak", "Firefox Developer Tools", "SAML-tracer", "curl", "jq"],
+          "lab_task": "The trainer breaks a lab cluster in five ways: wrong redirect URI, missing proxy headers, issuer mismatch between internal and public URLs, an LDAP server that times out and a pool size of 2 under load. For each, reproduce the symptom, find the cause in the browser trace, log or events within 15 minutes, fix it and write a one-line root cause.",
+          "deliverable": "Troubleshooting log with symptom, evidence, root cause and fix for each fault",
+          "checks": [["API validates a token minted through the internal URL", "API rejects it with an invalid issuer message", "API log"], ["Log in while the LDAP server is unreachable", "Login fails after the connection timeout and the log shows a communication error", "Server log"], ["Run 50 concurrent logins with db-pool-max-size=2", "Requests time out and the log reports the pool could not acquire a connection", "Server log"]],
+          "objectives": ["Diagnose common Keycloak login failures", "Use logs, events and browser traces together", "Fix configuration faults quickly and record root causes"]
+        },
+        {
+          "topic": "Advanced Capstone: Highly Available Multi-Tenant Keycloak Platform on Kubernetes",
+          "subtopics": ["Operator-managed cluster with persistent sessions on PostgreSQL", "Organizations per tenant with brokered identity providers", "Authorization services and delegated admins per tenant", "Token exchange, DPoP and client policies for APIs", "Metrics, tracing, alerts and load test evidence", "Upgrade, hardening and disaster recovery runbooks"],
+          "tools": ["Keycloak Operator", "Kubernetes", "PostgreSQL", "Prometheus", "keycloak-benchmark", "Terraform"],
+          "lab_task": "Deliver a Keycloak platform on Kubernetes with 3 operator-managed instances, three tenant organizations with their own identity providers and delegated admins, fine-grained authorization for an invoice API, token exchange between services and DPoP for one client. Prove 200 logins per second with p95 under 500 ms, survive a pod kill with no forced re-login and run a rolling upgrade.",
+          "deliverable": "Platform repository, runbooks, load test report and a recorded demonstration",
+          "checks": [["Kill one Keycloak pod during the load test", "Error rate stays below 1% and signed-in users stay signed in", "Gatling report and recording"], ["Sign in as a tenant admin and try to manage another tenant's users", "HTTP 403 Forbidden", "Screenshot or curl output"], ["Run the load test at 200 logins per second", "p95 login latency is under 500 ms", "Gatling report"]],
+          "objectives": ["Design a production Keycloak platform end to end", "Prove availability and performance with evidence", "Operate multi-tenant identity with delegation and policies"]
+        }
+      ]
+    }
+  }
+}

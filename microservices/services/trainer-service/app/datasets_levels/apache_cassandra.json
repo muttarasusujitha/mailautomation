@@ -1,0 +1,573 @@
+{
+  "domain": "Apache Cassandra",
+  "name": "Apache Cassandra",
+  "category": "Databases",
+  "icon": "database",
+  "aliases": ["Cassandra", "Cassandra NoSQL", "Cassandra Database", "Cassandra DBA", "Cassandra CQL", "Apache Cassandra 5", "Cassandra Administration", "Cassandra Data Modeling"],
+  "certifications": [],
+  "tools": ["Apache Cassandra 5.0", "cqlsh", "nodetool", "cassandra-stress", "Docker", "DSBulk", "Java driver 4.x", "Python cassandra-driver", "sstabledump", "Cassandra Reaper", "Medusa", "K8ssandra", "Prometheus", "Grafana"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and administrators who know SQL or another database and are new to Apache Cassandra. Covers running Cassandra 5.0 in Docker, the ring and gossip, keyspaces and replication, CQL types and primary keys, writes, reads and tombstones, query-first data modeling, tunable consistency, batches, lightweight transactions and counters, driver connections from Java and Python, Storage-Attached Indexes, nodetool health checks, bulk data loading, and a three-node order tracking capstone.",
+      "prerequisites": ["Knows basic SQL: tables, primary keys, SELECT, INSERT and UPDATE", "Uses a terminal and Docker Desktop or Docker Engine, with at least 8 GB of RAM free for a three-node lab", "Reads simple Python or Java code and can run a script from the command line"],
+      "outcomes": ["Run a Cassandra 5.0 cluster in Docker and operate it with cqlsh and nodetool", "Design query-first tables with correct partition keys and clustering columns", "Explain the write path, read path, tombstones and consistency levels with evidence from traces and nodetool", "Build and test a small Cassandra-backed service that survives one node failure"],
+      "days": [
+        {
+          "topic": "Cassandra 5.0 Orientation and Docker Cluster Setup",
+          "subtopics": ["Where Cassandra fits: wide-column, masterless, linearly scalable writes", "What is new in 5.0: Storage-Attached Indexes, vector type, Unified Compaction Strategy, trie memtables, dynamic data masking", "Supported Java versions for 5.0 (11 and 17) and the Python needed by cqlsh", "Running the official cassandra:5.0 image with docker run and port 9042", "Reading system.log and debug.log during start-up", "The startup line 'Starting listening for CQL clients' and what it means", "Opening cqlsh and reading its connection banner", "Default cluster_name, datacenter1 and rack1 values", "Data, commitlog and saved_caches directories and mounting a Docker volume", "Stopping, restarting and wiping a single node safely"],
+          "tools": ["Docker", "Apache Cassandra 5.0", "cqlsh", "nodetool", "Visual Studio Code"],
+          "lab_task": "Start a node with docker run -d --name cass1 -p 9042:9042 cassandra:5.0, wait for 'Starting listening for CQL clients' in docker logs, then run docker exec -it cass1 cqlsh. Run SELECT release_version, cluster_name FROM system.local; and DESCRIBE KEYSPACES; and record the output. Run nodetool status and note the UN state.",
+          "deliverable": "Setup report with docker logs excerpt, system.local query output and nodetool status output",
+          "checks": [["Run docker exec cass1 nodetool status after 60 seconds", "One node listed in state UN (Up/Normal) in datacenter1", "nodetool output"], ["Run SELECT release_version FROM system.local in cqlsh", "Returns a 5.0.x version string", "cqlsh output"], ["Run DESCRIBE KEYSPACES", "Lists system, system_schema, system_auth, system_distributed, system_traces and system_views", "cqlsh output"]],
+          "objectives": ["Run a Cassandra 5.0 node in Docker and connect with cqlsh", "Locate the log, data and commitlog directories", "Name the major features added in Cassandra 5.0"]
+        },
+        {
+          "topic": "Ring Topology, Tokens and Gossip",
+          "subtopics": ["Peer-to-peer design: no primary node and no single point of failure", "Murmur3Partitioner and the token range -2^63 to 2^63-1", "How a partition key hashes to a token with the token() function", "Virtual nodes and the 16-token default in 5.0", "Coordinator and replica roles for a request", "Gossip: how nodes share state every second", "Seed nodes and their role at first start only", "Node states UN, UJ, UL and DN", "nodetool ring and nodetool describecluster", "Why adding nodes scales both storage and throughput"],
+          "tools": ["nodetool", "cqlsh", "Docker", "Apache Cassandra 5.0"],
+          "lab_task": "Run SELECT token(user_id), user_id FROM demo.users; for ten rows and sort the tokens. Run nodetool ring and nodetool describecluster on the Docker node. Count the token lines for the node and confirm it matches num_tokens in cassandra.yaml. Draw the ring with three nodes and mark which node owns each of your ten tokens.",
+          "deliverable": "Ring diagram with ten partition keys placed on three nodes and the nodetool ring output",
+          "checks": [["Run nodetool ring on a single node with num_tokens: 16", "16 token lines are shown for the node", "nodetool output"], ["Run nodetool describecluster", "Shows the Murmur3Partitioner and one schema version", "nodetool output"], ["Run SELECT token(user_id) for two different keys", "Each key returns a different signed 64-bit integer", "cqlsh output"]],
+          "objectives": ["Explain how the ring and tokens place data", "Read nodetool ring and describecluster output", "Describe the role of gossip and seed nodes"]
+        },
+        {
+          "topic": "Keyspaces, Replication Settings and cqlsh Sessions",
+          "subtopics": ["CREATE KEYSPACE with SimpleStrategy and NetworkTopologyStrategy", "Replication factor and what it controls", "Why NetworkTopologyStrategy is used even for one datacenter", "DURABLE_WRITES and the commit log", "ALTER KEYSPACE and the repair needed afterwards", "DESCRIBE KEYSPACE, DESCRIBE TABLE and DESCRIBE SCHEMA", "USE, CONSISTENCY, TRACING, EXPAND ON and PAGING in cqlsh", "Running scripts with cqlsh -f and one-off statements with -e", "system_schema tables that store definitions", "Naming rules and case sensitivity of quoted identifiers"],
+          "tools": ["cqlsh", "Docker", "nodetool", "Visual Studio Code"],
+          "lab_task": "In cqlsh create keyspace shop WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 1}; then DESCRIBE KEYSPACE shop; Save the statements to schema.cql and replay them on a second container with cqlsh -f schema.cql. Query system_schema.keyspaces to confirm the replication map. Try CREATE KEYSPACE Shop and note the case handling.",
+          "deliverable": "schema.cql file and a note comparing the output of DESCRIBE KEYSPACE on both containers",
+          "checks": [["Run DESCRIBE KEYSPACE shop", "Prints CREATE KEYSPACE shop with 'datacenter1': '1' and durable_writes = true", "cqlsh output"], ["Run cqlsh -f schema.cql on the second container", "Exits with code 0 and the same DESCRIBE output appears", "Terminal output and exit code"], ["Run CREATE KEYSPACE shop again without IF NOT EXISTS", "Fails with AlreadyExists: Cannot add existing keyspace \"shop\"", "cqlsh error text"]],
+          "objectives": ["Create and describe keyspaces with correct replication", "Use cqlsh commands and script files", "Read schema definitions from system_schema"]
+        },
+        {
+          "topic": "CQL Data Types and Table Creation",
+          "subtopics": ["Text types: text, varchar and ascii", "Numeric types: int, bigint, varint, decimal, float and double", "uuid, timeuuid and the now() and uuid() functions", "timestamp, date and time and their input formats", "boolean, blob and inet", "duration and when it is allowed", "CREATE TABLE with IF NOT EXISTS", "Table options: comment, default_time_to_live and gc_grace_seconds", "Altering tables: ADD, DROP and the limits on type changes", "Casting and functions such as toTimestamp() and minTimeuuid()"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "Visual Studio Code"],
+          "lab_task": "Create shop.customers with customer_id uuid, email text, name text, balance decimal, created_at timestamp, active boolean. Insert three rows using uuid() and toTimestamp(now()). Add a column phone text with ALTER TABLE, then try ALTER TABLE customers ALTER email TYPE blob and record the error. Query system_schema.columns for the table.",
+          "deliverable": "CQL script creating customers, three inserted rows and the recorded ALTER error",
+          "checks": [["Run SELECT customer_id, created_at FROM customers", "Three rows with uuid values and ISO timestamps", "cqlsh output"], ["Run ALTER TABLE customers ADD phone text", "Succeeds and DESCRIBE TABLE lists phone text", "DESCRIBE output"], ["Try to change email from text to blob", "InvalidRequest error that altering column types is not supported", "cqlsh error text"]],
+          "objectives": ["Choose the right CQL type for a column", "Create and alter tables", "Use built-in uuid and time functions"]
+        },
+        {
+          "topic": "Partition Keys, Clustering Columns and Primary Keys",
+          "subtopics": ["PRIMARY KEY structure: partition key plus clustering columns", "Simple, composite and compound partition keys", "How the partition key decides the node", "Clustering order and WITH CLUSTERING ORDER BY", "Rows sorted within a partition on disk", "Why a primary key cannot be changed after creation", "Unique rows and the upsert behaviour of equal keys", "Reading a query to see if it hits one partition", "Partition size guideline: stay under about 100 MB", "nodetool getendpoints to find replicas for a key"],
+          "tools": ["cqlsh", "nodetool", "Apache Cassandra 5.0"],
+          "lab_task": "Create shop.orders_by_customer with PRIMARY KEY ((customer_id), order_ts, order_id) and WITH CLUSTERING ORDER BY (order_ts DESC, order_id ASC). Insert 12 orders for two customers. Run SELECT with a customer_id restriction and check the newest order is first. Run nodetool getendpoints shop orders_by_customer <customer_id> and record the replica address.",
+          "deliverable": "Table definition, 12 rows and screenshots of the ordered result and getendpoints output",
+          "checks": [["SELECT * FROM orders_by_customer WHERE customer_id = <id>", "Rows return with order_ts in descending order", "cqlsh output"], ["Insert a row with an existing full primary key and a new total", "A single row remains with the new total (upsert), count unchanged", "SELECT count output"], ["Run nodetool getendpoints for the key", "Prints one IP address when RF is 1", "nodetool output"]],
+          "objectives": ["Design a primary key with partition and clustering columns", "Predict row order within a partition", "Locate the replica for a partition key"]
+        },
+        {
+          "topic": "Inserts, Updates, Deletes and Upserts",
+          "subtopics": ["INSERT and UPDATE are both upserts", "IF NOT EXISTS and its cost", "USING TTL on a row and on a column", "USING TIMESTAMP and last-write-wins", "WRITETIME() and TTL() functions", "DELETE of a column, a row and a range", "Setting a column to null creates a tombstone", "INSERT ... JSON and SELECT ... JSON", "Why Cassandra has no read-before-write for plain writes", "Idempotent writes and safe retries"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "nodetool"],
+          "lab_task": "On shop.customers run INSERT ... USING TTL 60, then SELECT TTL(name), WRITETIME(name). Update the same row with USING TIMESTAMP set lower than the first write and show that the older timestamp loses. Delete a column and run SELECT. Wait 60 seconds and confirm the TTL row is gone. Record each output.",
+          "deliverable": "Transcript showing TTL countdown, a write that loses on timestamp and the delete result",
+          "checks": [["SELECT TTL(name) right after INSERT ... USING TTL 60", "Returns a value of 60 or slightly less", "cqlsh output"], ["UPDATE with a USING TIMESTAMP lower than the existing WRITETIME", "The newer value is still returned", "SELECT output with WRITETIME"], ["SELECT after 61 seconds", "The expired row returns zero rows", "cqlsh output"]],
+          "objectives": ["Write and delete data using CQL upserts", "Use TTL and write timestamps", "Explain last-write-wins conflict resolution"]
+        },
+        {
+          "topic": "SELECT Queries and Query Restrictions",
+          "subtopics": ["WHERE clause rules for partition and clustering columns", "Range queries on clustering columns", "IN on partition and clustering keys and its cost", "ORDER BY limited to clustering order", "LIMIT and PER PARTITION LIMIT", "token() range scans and why they are used for full scans", "ALLOW FILTERING and why it is dangerous", "SELECT DISTINCT on partition keys", "Aggregates: count, min, max, sum, avg", "Reading error messages for rejected queries"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "Visual Studio Code"],
+          "lab_task": "On orders_by_customer run a range query on order_ts for one customer, then SELECT * WHERE total > 50 and capture the ALLOW FILTERING error. Rerun with ALLOW FILTERING on the 12-row table and note why it will not scale. Run SELECT customer_id, count(*) ... GROUP BY customer_id and PER PARTITION LIMIT 2 to return the two newest orders per customer.",
+          "deliverable": "Query cookbook with each statement, its result and a note on whether it touches one or many partitions",
+          "checks": [["SELECT * WHERE total > 50 without ALLOW FILTERING", "InvalidRequest: Cannot execute this query as it might involve data filtering", "cqlsh error text"], ["SELECT ... PER PARTITION LIMIT 2", "At most 2 rows per customer are returned", "cqlsh output"], ["SELECT ... ORDER BY total", "Rejected because ORDER BY must follow clustering order", "cqlsh error text"]],
+          "objectives": ["Write valid single-partition queries", "Explain why filtering and unrestricted scans are costly", "Use LIMIT, PER PARTITION LIMIT and aggregates"]
+        },
+        {
+          "topic": "Collections, User-Defined Types and Static Columns",
+          "subtopics": ["list, set and map collections and when to use each", "Frozen versus non-frozen collections", "Appending, removing and replacing collection elements", "Collection size limits and why to keep them small", "User-defined types with CREATE TYPE", "Nesting UDTs and the frozen requirement", "tuple type and its position-based access", "Static columns shared by a partition", "Indexing and querying inside collections", "Read-before-write cost of list operations"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "Visual Studio Code"],
+          "lab_task": "Create type shop.address (street text, city text, zip text). Create shop.profiles with emails set<text>, prefs map<text,text>, home frozen<address> and a static column plan text. Insert two profiles, add an email with emails = emails + {'a@x.io'}, remove a map key with DELETE prefs['theme'], then SELECT and DESCRIBE TYPE to confirm.",
+          "deliverable": "Schema with a UDT, a set, a map and a static column plus the SELECT results after each change",
+          "checks": [["UPDATE profiles SET emails = emails + {'a@x.io'}", "The set contains the new address once, even if run twice", "SELECT output"], ["DELETE prefs['theme']", "The key is gone and other map entries remain", "SELECT output"], ["Update the static column for one partition with two clustering rows", "Both rows show the new plan value", "SELECT output"]],
+          "objectives": ["Use collections and UDTs in table design", "Update collections without overwriting them", "Explain static columns"]
+        },
+        {
+          "topic": "Query-First Data Modeling",
+          "subtopics": ["Start from application queries, not entities", "Conceptual, logical and physical models", "Chebotko diagrams for tables and access patterns", "One table per query pattern", "Choosing partition keys for even distribution", "Avoiding hot partitions and unbounded partitions", "Choosing clustering columns for sort order", "Why joins are not available and how to replace them", "Modeling a one-to-many and a many-to-many relationship", "Reviewing a model against a workload sheet"],
+          "tools": ["Visual Studio Code", "cqlsh", "Apache Cassandra 5.0"],
+          "lab_task": "For a food-delivery app list five queries (orders by customer, orders by restaurant per day, order by id, courier location history, open orders by city). Draw a Chebotko diagram and write CQL for each table. Load 100 sample rows each and run each query from cqlsh, confirming every one uses only partition key equality plus optional clustering ranges.",
+          "deliverable": "Diagram, five CREATE TABLE statements and a table mapping query to table and key",
+          "checks": [["Review each of the five queries against its table", "All five restrict the full partition key by equality", "Review table"], ["Run all five queries with 100 sample rows", "Every query returns rows without ALLOW FILTERING", "cqlsh output"], ["Check the partition key of the restaurant-per-day table", "Includes the date so the partition is bounded", "CQL script"]],
+          "objectives": ["Derive tables from application queries", "Draw a Chebotko diagram", "Choose bounded partition keys"]
+        },
+        {
+          "topic": "Denormalization and Time-Series Table Patterns",
+          "subtopics": ["Writing the same data into several tables on purpose", "Keeping duplicates in step with a logged batch", "Time bucketing: day, hour or month in the partition key", "Reverse-chronological storage for latest-first reads", "TimeUUID clustering columns", "Sizing a bucket: rows per second times row size", "default_time_to_live for rolling retention", "Latest value per entity tables", "Pagination within and across buckets", "Estimating partition size with the formula from the Cassandra documentation"],
+          "tools": ["cqlsh", "Python cassandra-driver", "Apache Cassandra 5.0"],
+          "lab_task": "Create shop.sensor_readings with PRIMARY KEY ((sensor_id, day), ts) and default_time_to_live = 604800. Write a Python script with cassandra-driver that inserts 10,000 readings across 3 days and 5 sensors. Query one sensor-day and count rows. Calculate expected partition size from row size times rows per bucket and record whether it is under 100 MB.",
+          "deliverable": "Python loader, table definition and a partition size calculation",
+          "checks": [["SELECT count(*) WHERE sensor_id = 's1' AND day = '2026-01-01'", "Returns the number of rows written for that bucket, matching the script log", "cqlsh output"], ["DESCRIBE TABLE sensor_readings", "Shows default_time_to_live = 604800", "DESCRIBE output"], ["Query a sensor with only sensor_id and no day", "Rejected because the full partition key is required", "cqlsh error text"]],
+          "objectives": ["Model time-series data with bucketed partitions", "Apply denormalization with writes to several tables", "Estimate partition size"]
+        },
+        {
+          "topic": "Write Path: Commit Log, Memtables and SSTables",
+          "subtopics": ["Order of a write: commit log then memtable", "commitlog_sync periodic versus batch and the 10000 ms default window", "Memtable flush triggers and memtable_flush_writers", "Immutable SSTables on disk", "SSTable components: Data.db, Index.db, Filter.db, Statistics.db, TOC.txt", "nodetool flush and nodetool drain", "Commit log replay after an unclean shutdown", "Why writes are fast: sequential appends", "Write consistency and acknowledgments", "Locating files under data/<keyspace>/<table>-<id>"],
+          "tools": ["nodetool", "Docker", "cqlsh"],
+          "lab_task": "Insert 50,000 rows into a table, run nodetool tablestats shop.events and record Memtable cell count and SSTable count. Run nodetool flush shop events then docker exec cass1 ls on the table directory and list the new SSTable component files. Run tablestats again and compare SSTable count and memtable size before and after.",
+          "deliverable": "Before-and-after tablestats values and a directory listing of SSTable components",
+          "checks": [["Run nodetool tablestats before flush", "SSTable count 0 and a non-zero memtable cell count", "nodetool output"], ["Run nodetool flush then list the table directory", "Files named with -Data.db, -Index.db, -Filter.db and -Statistics.db are present", "Directory listing"], ["Run nodetool tablestats after flush", "SSTable count 1 and memtable cell count 0", "nodetool output"]],
+          "objectives": ["Trace a write through commit log, memtable and SSTable", "Force a flush and inspect files", "Explain why Cassandra writes are fast"]
+        },
+        {
+          "topic": "Read Path: Bloom Filters, Caches and Merging",
+          "subtopics": ["Memtable plus SSTables merged for every read", "Bloom filters and bloom_filter_fp_chance", "Partition index and summary", "Key cache and row cache and when row cache is wrong", "Chunk cache and compression chunk length", "Merging by timestamp and returning the newest cell", "Read amplification from many SSTables", "nodetool tablehistograms and SSTables per read", "Request tracing with TRACING ON", "Reading a trace to see which SSTables were touched"],
+          "tools": ["cqlsh", "nodetool", "Apache Cassandra 5.0"],
+          "lab_task": "Create shop.events, then insert 5,000 rows and flush after each 1,000 to get five SSTables. Run TRACING ON and SELECT one partition. Read the trace for Bloom filter and merge steps. Run nodetool tablehistograms shop events and note SSTables per read. Run nodetool compact shop events and repeat the read and compare.",
+          "deliverable": "Two traces (five SSTables and one SSTable) and the tablehistograms output",
+          "checks": [["Run SELECT with TRACING ON after five flushes", "Trace lists reads across multiple SSTables", "Trace output"], ["Run nodetool compact then the same SELECT", "Trace shows one SSTable merged", "Trace output"], ["Run nodetool tablehistograms", "SSTables column shows a lower value after compaction", "nodetool output"]],
+          "objectives": ["Explain how reads merge memtable and SSTables", "Read a request trace", "Describe Bloom filters and caches"]
+        },
+        {
+          "topic": "Tombstones, TTL and gc_grace_seconds",
+          "subtopics": ["What a tombstone is and why deletes are writes", "Cell, row, range and partition tombstones", "gc_grace_seconds default of 864000 seconds (10 days)", "Why tombstones must live until repairs run", "Zombie data after a node misses a delete", "TTL expiry creates tombstones too", "tombstone_warn_threshold 1000 and tombstone_failure_threshold 100000", "TombstoneOverwhelmingException", "Queue-like workloads as an anti-pattern", "Viewing tombstones with sstabledump"],
+          "tools": ["cqlsh", "nodetool", "sstabledump"],
+          "lab_task": "Create a table, insert 2,000 rows into one partition and DELETE 1,500 of them individually. Run TRACING ON with SELECT on the partition and read the 'tombstone cells' count. Flush with nodetool flush, then run tools/bin/sstabledump on the Data.db file and count the deletion entries. Set gc_grace_seconds = 0 on a test table to see the effect after nodetool compact.",
+          "deliverable": "Trace and sstabledump excerpts showing tombstone counts and a note on gc_grace_seconds risk",
+          "checks": [["SELECT with TRACING ON after 1,500 deletes", "Trace reports about 1500 tombstone cells read", "Trace output"], ["Run sstabledump on the flushed file", "Entries with a deletion_info marker are listed", "sstabledump output"], ["DESCRIBE TABLE on a default table", "Shows gc_grace_seconds = 864000", "DESCRIBE output"]],
+          "objectives": ["Explain how deletes work in Cassandra", "Count tombstones with tracing and sstabledump", "State why gc_grace_seconds must exceed the repair interval"]
+        },
+        {
+          "topic": "Tunable Consistency Levels",
+          "subtopics": ["Replication factor versus consistency level", "ONE, TWO, THREE, QUORUM, ALL, ANY", "LOCAL_ONE, LOCAL_QUORUM and EACH_QUORUM", "Quorum formula: floor(RF / 2) + 1", "R + W > RF and strong consistency", "Availability trade-offs when nodes are down", "Setting CONSISTENCY in cqlsh and in drivers", "Unavailable and timeout exceptions", "Read repair and hinted handoff at a glance", "Choosing levels per query, not per cluster"],
+          "tools": ["Docker", "cqlsh", "nodetool"],
+          "lab_task": "Start a three-node cluster with Docker, create a keyspace with RF 3, insert a row at CONSISTENCY QUORUM. Stop two nodes with docker stop. Try reading at QUORUM and then at ONE and record the results. Restart the nodes and confirm nodetool status shows UN for all three. Write a table of RF 3 with the nodes needed for ONE, QUORUM and ALL.",
+          "deliverable": "Experiment log with the results at each consistency level and a three-row requirements table",
+          "checks": [["With two of three nodes down, SELECT at CONSISTENCY QUORUM", "Fails with Unavailable: Cannot achieve consistency level QUORUM", "cqlsh error text"], ["With two of three nodes down, SELECT at CONSISTENCY ONE", "Returns the row from the surviving replica", "cqlsh output"], ["Compute the quorum for RF 3", "Quorum is 2 nodes", "Table"]],
+          "objectives": ["Choose a consistency level for each operation", "Calculate quorum sizes", "Explain availability under node failure"]
+        },
+        {
+          "topic": "Batches, Lightweight Transactions and Counters",
+          "subtopics": ["LOGGED and UNLOGGED batches and what each guarantees", "Batches are for atomicity, not for speed", "batch_size_warn_threshold 5KiB and batch_size_fail_threshold 50KiB", "Multi-partition batch cost on the coordinator", "IF NOT EXISTS and IF column = value conditions", "The [applied] column in an LWT result", "SERIAL and LOCAL_SERIAL consistency", "Cost of a compare-and-set: four round trips with Paxos", "Counter tables and their restrictions", "Counter retries are not idempotent"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "Python cassandra-driver"],
+          "lab_task": "Run INSERT INTO shop.users (email, id) VALUES ('a@x.io', uuid()) IF NOT EXISTS; twice and capture [applied]. Create shop.page_views (page text PRIMARY KEY, views counter) and run UPDATE ... SET views = views + 1 ten times. Write a 100-statement unlogged batch across partitions and observe the batch size warning in system.log.",
+          "deliverable": "Transcript showing [applied] true and false, the counter total and the batch warning line",
+          "checks": [["Run the conditional INSERT twice", "First returns [applied] = True, second returns False with the existing row", "cqlsh output"], ["Run 10 counter increments then SELECT views", "views = 10", "cqlsh output"], ["Run an oversized batch", "system.log contains a 'Batch ... exceeding specified threshold' warning", "Log line"]],
+          "objectives": ["Use batches only for atomicity across tables", "Run lightweight transactions and read [applied]", "Use counters and know their limits"]
+        },
+        {
+          "topic": "Connecting from Java and Python Applications",
+          "subtopics": ["Apache Cassandra Java driver 4.x and CqlSession", "Python cassandra-driver Cluster and Session", "Contact points and local datacenter setting", "Prepared statements and bound values", "Reading rows and mapping types", "Execution profiles and consistency per request", "Paging and fetch size", "Connection pooling and the shared session rule", "Closing sessions and handling NoHostAvailableException", "Keeping credentials out of source code"],
+          "tools": ["Python cassandra-driver", "Java driver 4.x", "Apache Cassandra 5.0", "Visual Studio Code"],
+          "lab_task": "Write a Python script with cassandra-driver that connects to 127.0.0.1:9042, prepares INSERT INTO shop.customers, inserts 1,000 rows with execute_concurrent_with_args and then reads them with fetch_size=100. Port the read to a Java CqlSession with withLocalDatacenter(\"datacenter1\"). Print the row count from both and the elapsed time.",
+          "deliverable": "Python and Java programs that both return a count of 1000 and report elapsed time",
+          "checks": [["Run the Python loader then SELECT count(*)", "Count equals 1000", "cqlsh output"], ["Run the Java reader", "Prints 1000 rows read using pages of 100", "Program output"], ["Stop the node and run the script", "Raises NoHostAvailable and exits non-zero", "Error text"]],
+          "objectives": ["Connect to Cassandra from two languages", "Use prepared statements and paging", "Handle connection failures"]
+        },
+        {
+          "topic": "Querying with Storage-Attached Indexes",
+          "subtopics": ["Why secondary indexes were hard to use before SAI", "CREATE INDEX ... USING 'sai'", "Equality and range queries on non-key columns", "Text analysis options on SAI string columns", "Querying several indexed columns with AND", "Indexes on collection values and map keys", "Index build status and nodetool", "SAI limits: no OR through the default syntax and no cross-partition ordering", "Disk and write overhead of indexes", "When a new table is better than an index"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "nodetool"],
+          "lab_task": "On shop.customers (1,000 rows) create CREATE CUSTOM INDEX cust_city_idx ON customers (city) USING 'StorageAttachedIndex'; and one on balance. Query WHERE city = 'Pune' AND balance > 100. Compare to the same query before indexing and record the error. Check the index with SELECT * FROM system_views.sstable_indexes; and DESCRIBE TABLE.",
+          "deliverable": "Index DDL, before-and-after queries and the system_views output",
+          "checks": [["Query WHERE city = 'Pune' before creating an index", "Rejected with a message that the query may need ALLOW FILTERING", "cqlsh error text"], ["Query after creating the SAI index", "Rows are returned without ALLOW FILTERING", "cqlsh output"], ["Run DESCRIBE TABLE customers", "Shows CREATE CUSTOM INDEX with StorageAttachedIndex", "DESCRIBE output"]],
+          "objectives": ["Create and query SAI indexes", "Combine indexed predicates", "Judge when an index fits"]
+        },
+        {
+          "topic": "nodetool Status, Ring and Health Commands",
+          "subtopics": ["nodetool status columns: load, tokens, owns, host ID", "nodetool info and uptime, heap and key cache hit rate", "nodetool tpstats and pending or blocked tasks", "nodetool tablestats and nodetool tablehistograms", "nodetool netstats and streaming", "nodetool gossipinfo", "nodetool describecluster and schema agreement", "nodetool compactionstats", "Connecting remotely over JMX on port 7199", "system_views virtual tables as an alternative"],
+          "tools": ["nodetool", "Docker", "cqlsh"],
+          "lab_task": "On the three-node cluster run nodetool status, info, tpstats, compactionstats, netstats, describecluster and gossipinfo. Create a one-page health checklist listing the command, the healthy value and the warning sign for each. Query SELECT * FROM system_views.thread_pools and SELECT * FROM system_views.settings to compare with nodetool output.",
+          "deliverable": "One-page health checklist and a captured run of each command",
+          "checks": [["Run nodetool status on a healthy cluster", "All three nodes show UN", "nodetool output"], ["Run nodetool describecluster", "A single schema version listed with three nodes", "nodetool output"], ["Run nodetool tpstats", "Pending and Blocked columns are zero for MutationStage and ReadStage", "nodetool output"]],
+          "objectives": ["Run the main nodetool health commands", "Interpret status, tpstats and schema agreement", "Use virtual tables for the same data"]
+        },
+        {
+          "topic": "Loading, Exporting and Importing Data with COPY and DSBulk",
+          "subtopics": ["cqlsh COPY TO and COPY FROM with options HEADER and DELIMITER", "COPY limits and when it is too slow", "DataStax Bulk Loader (dsbulk) load and unload", "dsbulk -k, -t, -url and -header options", "Rate limits and batching in dsbulk", "Handling bad rows and the operation directory", "Counting records with dsbulk count", "Validating counts after a load", "CSV and JSON formats", "Loading into a table with a TTL"],
+          "tools": ["cqlsh", "DSBulk", "Docker"],
+          "lab_task": "Generate a customers.csv file with 100,000 rows. Load it with dsbulk load -k shop -t customers -url customers.csv -header true, then run dsbulk count -k shop -t customers. Export 1,000 rows with cqlsh COPY customers TO 'out.csv' WITH HEADER = true. Introduce 5 malformed rows and report how dsbulk handles them.",
+          "deliverable": "Load script, count output, exported CSV and a note on bad-row handling",
+          "checks": [["Run dsbulk load for 100,000 rows", "Summary shows total 100000 and failed 0", "dsbulk summary"], ["Run dsbulk count", "Reports 100000 rows", "dsbulk output"], ["Load a file with 5 malformed rows", "Summary shows failed of 5 and a bad file is written", "dsbulk summary and bad file"]],
+          "objectives": ["Load and export data with COPY and dsbulk", "Validate loaded row counts", "Handle failed rows"]
+        },
+        {
+          "topic": "Beginner Capstone: Order Tracking Service on a Three-Node Cluster",
+          "subtopics": ["Design three query-first tables from a workload sheet", "Create the keyspace with RF 3 and the schema script", "Load sample data with dsbulk or a Python script", "Demonstrate LOCAL_QUORUM reads with one node down", "Document health checks and a summary of results"],
+          "tools": ["Docker", "cqlsh", "nodetool", "Python cassandra-driver", "DSBulk"],
+          "lab_task": "Build an order-tracking service. Start three nodes, create the keyspace with RF 3, create tables for orders by customer, orders by id and orders by status per day, and load 50,000 orders. Run five required queries, stop one node and re-run them at LOCAL_QUORUM, then record nodetool status, tablestats and a trace for one query.",
+          "deliverable": "Repository folder with schema.cql, loader, query script, outputs and a two-page design and test report",
+          "checks": [["Run all five required queries with all nodes up", "Every query returns data with no ALLOW FILTERING", "Query output"], ["Stop one node and re-run at LOCAL_QUORUM", "Queries still succeed", "cqlsh output"], ["Run nodetool status after restart", "Three nodes in UN state with the data load balanced", "nodetool output"]],
+          "objectives": ["Deliver a working Cassandra schema and load process", "Show tolerance of one node failure", "Present design choices with evidence"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and database administrators who can model and query Cassandra tables and now need to configure, secure, monitor and tune multi-node clusters. Covers cassandra.yaml, snitches and datacenters, repair and hints, vector search with SAI, partition sizing, compaction strategies including Unified Compaction Strategy, trie memtables and the BTI format, node lifecycle, backups, roles, TLS, metrics, audit and full query logging, stress testing, guardrails, driver resilience, and a secured multi-datacenter capstone.",
+      "prerequisites": ["Completed the beginner level or can create tables, run CQL queries and use nodetool status", "Can read Linux logs and edit YAML configuration files", "Has Docker Compose or a lab of at least three Linux VMs available"],
+      "outcomes": ["Configure and operate a secured multi-node, multi-datacenter Cassandra 5.0 cluster", "Choose and tune compaction strategies and run repairs, backups and node changes", "Build dashboards, alerts and load tests that give a measurable performance baseline", "Use SAI, vector search and guardrails correctly in application designs"],
+      "days": [
+        {
+          "topic": "Multi-Node Cluster Configuration with cassandra.yaml",
+          "subtopics": ["cluster_name and why all nodes must match", "seed_provider and choosing two or three seeds per datacenter", "listen_address, rpc_address and broadcast_address", "num_tokens and allocate_tokens_for_local_replication_factor", "endpoint_snitch and cassandra-rackdc.properties", "data_file_directories, commitlog_directory and separating disks", "concurrent_reads, concurrent_writes and their sizing rules", "Timeouts: read_request_timeout, write_request_timeout, range_request_timeout", "Configuration through environment variables and JVM option files", "Verifying effective settings with system_views.settings"],
+          "tools": ["Docker", "nodetool", "cqlsh", "Apache Cassandra 5.0"],
+          "lab_task": "Using Docker Compose define three nodes in one datacenter with CASSANDRA_CLUSTER_NAME=training, CASSANDRA_SEEDS=cass1 and CASSANDRA_DC=dc1. Start them one at a time, waiting for UN before the next. Mount a custom cassandra.yaml changing read_request_timeout to 8000ms and confirm with SELECT name, value FROM system_views.settings WHERE name = 'read_request_timeout';",
+          "deliverable": "docker-compose.yml, cassandra.yaml diff and the nodetool status output for three nodes",
+          "checks": [["Run nodetool status after staged start", "Three nodes in UN, 16 tokens each", "nodetool output"], ["Query system_views.settings for read_request_timeout", "Value shows 8000ms", "cqlsh output"], ["Start a node with a different cluster_name", "It does not join and logs a cluster name mismatch", "Log line"]],
+          "objectives": ["Configure a multi-node cluster safely", "Verify effective settings in a running node", "Explain seeds and bootstrap order"]
+        },
+        {
+          "topic": "Snitches, Datacenters and Racks with NetworkTopologyStrategy",
+          "subtopics": ["GossipingPropertyFileSnitch and cassandra-rackdc.properties", "Why SimpleSnitch is for one-node tests only", "Replica placement across racks", "Defining RF per datacenter", "Changing a snitch on a live cluster and the risks", "Rack awareness and losing a rack", "nodetool status per datacenter", "Dynamic snitching and dynamic_snitch settings", "Cloud snitches such as Ec2Snitch and their purpose", "Checking placement with nodetool getendpoints"],
+          "tools": ["Docker", "nodetool", "cqlsh"],
+          "lab_task": "Build six nodes: dc1 with racks r1 and r2, dc2 with rack r1. Set cassandra-rackdc.properties per node. Create keyspace geo with {'class': 'NetworkTopologyStrategy', 'dc1': 3, 'dc2': 2}. Run nodetool getendpoints geo orders <key> for five keys and record, for each, which racks and datacenters hold the replicas.",
+          "deliverable": "Topology file set, CREATE KEYSPACE statement and a table of five keys by replica location",
+          "checks": [["Run nodetool status", "Two Datacenter sections with 4 nodes in dc1 and 2 in dc2", "nodetool output"], ["Run getendpoints for any key", "Five replicas: three in dc1 across both racks and two in dc2", "nodetool output"], ["Run DESCRIBE KEYSPACE geo", "Shows 'dc1': '3', 'dc2': '2'", "DESCRIBE output"]],
+          "objectives": ["Configure datacenters and racks", "Set per-datacenter replication", "Verify replica placement"]
+        },
+        {
+          "topic": "Replication, Read Repair and Hinted Handoff",
+          "subtopics": ["Write path to replicas and the coordinator acknowledging at the chosen level", "Hinted handoff and max_hint_window of 3 hours", "hints_directory and nodetool statushandoff", "Read repair on digest mismatch", "Blocking read repair and monotonic quorum reads", "Speculative retry: table option speculative_retry", "Anti-entropy repair as the third line of defence", "Replica divergence after a node outage", "Watching mismatches in the metrics", "Why hints are not a substitute for repair"],
+          "tools": ["Docker", "nodetool", "cqlsh"],
+          "lab_task": "On a three-node RF 3 cluster stop node 3, write 1,000 rows at QUORUM, restart node 3 and run nodetool tpstats on node 1 looking at HintsDispatcher, then watch SELECT count(*) at ONE on node 3 until it reaches 1000. Repeat with node 3 down for longer than max_hint_window by setting it to 1 minute and see the rows missing.",
+          "deliverable": "Timeline of hint replay with counts and a second run showing missing rows without hints",
+          "checks": [["Stop node 3, write 1,000 rows at QUORUM, restart", "Writes succeed and node 3 count at ONE reaches 1000 within minutes via hints", "cqlsh counts"], ["Keep node 3 down past a 1 minute max_hint_window", "Count on node 3 stays below 1000 after restart", "cqlsh counts"], ["Run nodetool statushandoff", "Reports Hinted handoff is running", "nodetool output"]],
+          "objectives": ["Describe how replicas converge after failure", "Measure hint replay", "Explain the limit of hints"]
+        },
+        {
+          "topic": "Vector Search with the VECTOR Type and ANN Queries",
+          "subtopics": ["The vector<float, N> column type introduced in 5.0", "Embeddings as arrays of fixed dimension", "Creating an SAI index on a vector column", "similarity_function: COSINE, DOT_PRODUCT and EUCLIDEAN", "ORDER BY embedding ANN OF [...] LIMIT k", "Combining ANN with a filter on another SAI column", "Similarity functions such as similarity_cosine() in SELECT", "Loading embeddings from Python", "Approximate versus exact results and recall", "Limits: dimension size, one ANN ordering per query, memory use during indexing"],
+          "tools": ["cqlsh", "Python cassandra-driver", "Apache Cassandra 5.0"],
+          "lab_task": "Create shop.products (id int PRIMARY KEY, name text, category text, embedding vector<float, 3>) with SAI indexes on embedding (similarity_function COSINE) and category. Insert 1,000 rows from Python, then run SELECT name, similarity_cosine(embedding, [0.1,0.2,0.3]) FROM products ORDER BY embedding ANN OF [0.1,0.2,0.3] LIMIT 5; and the same with category = 'shoes'.",
+          "deliverable": "Table and index DDL, loader and ANN query results for both queries",
+          "checks": [["Query ORDER BY embedding ANN OF a vector with LIMIT 5", "Exactly 5 rows ordered by decreasing similarity", "cqlsh output"], ["Insert a vector with 4 elements into vector<float, 3>", "Rejected with an invalid vector dimension error", "cqlsh error text"], ["Add AND category = 'shoes' to the ANN query", "All returned rows have category shoes", "cqlsh output"]],
+          "objectives": ["Store embeddings in Cassandra 5.0", "Run approximate nearest neighbour queries with SAI", "Combine ANN with metadata filters"]
+        },
+        {
+          "topic": "Partition Sizing, Wide Partitions and Bucketing Strategies",
+          "subtopics": ["Size estimates: row bytes times rows per partition", "Two billion cell limit and the 100 MB practical guide", "nodetool tablehistograms partition size percentiles", "nodetool tablestats Compacted partition maximum bytes", "Hot partitions versus wide partitions", "Bucketing by time, by hash and by counter", "Adding a synthetic bucket column to the key", "Reading across buckets with parallel queries", "Moving data from an old to a new model with dsbulk", "Guardrails for partition size warnings"],
+          "tools": ["nodetool", "cqlsh", "Python cassandra-driver"],
+          "lab_task": "Create a messages table keyed only by chat_id and load 2 million rows for one chat, then run nodetool tablestats and tablehistograms and record the maximum partition size. Create messages_v2 with PRIMARY KEY ((chat_id, bucket), ts) with bucket as a month. Reload and compare the maximum partition size and p99 read latency of a latest-messages query.",
+          "deliverable": "Both table designs with maximum partition size and p99 latency before and after",
+          "checks": [["Run tablestats on the original table", "Compacted partition maximum bytes shows a very large single partition", "nodetool output"], ["Run tablestats on the bucketed table", "Maximum partition bytes is under 100 MB", "nodetool output"], ["Latest 50 messages query on both tables", "Bucketed table p99 latency is lower or equal", "Latency table"]],
+          "objectives": ["Estimate and measure partition size", "Redesign a wide partition with buckets", "Compare designs using metrics"]
+        },
+        {
+          "topic": "Materialized Views, SAI and Query Alternatives Compared",
+          "subtopics": ["Materialized view syntax and the base table dependency", "Why materialized views are experimental and off by default (materialized_views_enabled: false)", "Known repair and consistency problems with views", "SAI as the preferred option for filtering on non-key columns", "Application-managed denormalized tables", "Cost of each choice on write and read paths", "Choosing the access path from a decision table", "Migrating from a view to an SAI index or a table", "Checking index and view build status", "Guardrails that block unsafe features"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0", "nodetool"],
+          "lab_task": "For a users_by_id table, build three ways to query by email: a materialized view (enable materialized_views_enabled for the test only), an SAI index and a second table written by the app. Load 100,000 users, measure insert time for each design with a Python timer, and record the read latency of the same lookup.",
+          "deliverable": "Comparison matrix with write time, read latency and operational notes for the three options",
+          "checks": [["Create the view with materialized_views_enabled false", "Rejected with a message that materialized views are disabled", "cqlsh error text"], ["Compare 100,000 insert times", "Table with extra writes and view are slower than the SAI-only variant", "Timing table"], ["Look up by email in each design", "All return the same single row", "cqlsh output"]],
+          "objectives": ["Compare query alternatives for non-key columns", "Explain why views are not recommended for production", "Choose between SAI and extra tables"]
+        },
+        {
+          "topic": "Compaction Strategies: STCS, LCS and TWCS",
+          "subtopics": ["Why compaction exists: merge SSTables, drop tombstones, reduce read amplification", "SizeTieredCompactionStrategy and min_threshold of 4", "LeveledCompactionStrategy and sstable_size_in_mb", "TimeWindowCompactionStrategy with compaction_window_unit and compaction_window_size", "Space amplification of STCS and the 50 percent headroom rule", "Write amplification of LCS", "ALTER TABLE ... WITH compaction", "nodetool compactionstats and compactionhistory", "nodetool setcompactionthroughput", "Choosing a strategy by workload"],
+          "tools": ["nodetool", "cqlsh", "cassandra-stress"],
+          "lab_task": "Create three copies of one table using STCS, LCS (sstable_size_in_mb 160) and TWCS (1 day window) and load the same 5 million rows into each with cassandra-stress. After each run, record nodetool tablestats SSTable count, nodetool compactionhistory entries and disk use via nodetool tablestats Space used.",
+          "deliverable": "Table of SSTable count, space used and compaction history for each strategy",
+          "checks": [["Run DESCRIBE TABLE on the LCS table", "compaction shows LeveledCompactionStrategy with sstable_size_in_mb 160", "DESCRIBE output"], ["Run nodetool tablestats on each table after load", "SSTable counts differ across the three strategies", "nodetool output"], ["Run nodetool compactionhistory", "Entries listed for the tested tables with bytes in and out", "nodetool output"]],
+          "objectives": ["Select a compaction strategy for a workload", "Switch strategies with ALTER TABLE", "Measure compaction effects"]
+        },
+        {
+          "topic": "Unified Compaction Strategy in Cassandra 5.0",
+          "subtopics": ["The idea behind UCS: one strategy that spans STCS and LCS behaviours", "scaling_parameters values such as T4, L4, N and mixed lists", "Positive and negative values and what they mean", "Sharding by token range and base_shard_count", "target_sstable_size and sstable growth", "Parallel compaction of shards", "Switching an existing table to UCS", "Default for new tables in later releases and how to opt in on 5.0", "Metrics and logging for UCS", "Comparing UCS against STCS and LCS on the same data"],
+          "tools": ["cqlsh", "nodetool", "cassandra-stress"],
+          "lab_task": "Create shop.events_ucs WITH compaction = {'class': 'UnifiedCompactionStrategy', 'scaling_parameters': 'T4'}. Load 5 million rows with cassandra-stress, record SSTable count and compaction time, then ALTER TABLE to 'L10' and observe SSTable count after nodetool compactionstats shows idle. Compare both runs with the STCS and LCS results from the previous day.",
+          "deliverable": "Table of SSTable count and compaction time for T4 and L10 plus a comparison with STCS and LCS",
+          "checks": [["Run DESCRIBE TABLE events_ucs", "Shows UnifiedCompactionStrategy with scaling_parameters T4", "DESCRIBE output"], ["Alter scaling_parameters to L10 and wait for idle", "SSTable count after settling is lower than under T4", "nodetool tablestats"], ["Compare with LCS results", "Documented difference in compaction work and SSTable count", "Comparison table"]],
+          "objectives": ["Configure UCS on a table", "Explain scaling_parameters", "Compare UCS with older strategies"]
+        },
+        {
+          "topic": "Trie Memtables and the BTI SSTable Format",
+          "subtopics": ["Skip list memtables versus trie memtables", "Configuring memtable.configurations in cassandra.yaml", "Table option memtable = 'trie' to select per table", "Off-heap versus on-heap allocation for memtables", "The BTI SSTable format (trie-based partition and row indexes)", "sstable.selected_format: big or bti", "Mixed formats in one node and upgrade behaviour", "Reduced index memory and faster index lookups", "Measuring heap use and flush sizes", "Rollback considerations before adopting BTI"],
+          "tools": ["cassandra.yaml", "nodetool", "cassandra-stress", "cqlsh"],
+          "lab_task": "In a test cluster add a trie memtable configuration to cassandra.yaml, restart, ALTER TABLE events WITH memtable = 'trie', and load 5 million rows with cassandra-stress. Record heap use from nodetool info and flush sizes from system.log. Then set sstable selected_format to bti on one node, flush, and list the new file names to see the format prefix.",
+          "deliverable": "Config diff, heap use comparison and file listings for each format",
+          "checks": [["DESCRIBE TABLE events after ALTER", "Shows memtable = 'trie'", "DESCRIBE output"], ["List files after flush on the bti node", "New SSTables carry the bti format prefix in the name", "Directory listing"], ["Compare nodetool info heap use for skiplist and trie runs", "Recorded difference with the workload held constant", "nodetool output"]],
+          "objectives": ["Enable trie memtables for a table", "Choose an SSTable format", "Judge risks of format changes"]
+        },
+        {
+          "topic": "Repair: Full, Incremental and Subrange",
+          "subtopics": ["Why anti-entropy repair is needed: gc_grace_seconds and missed writes", "Merkle trees and the validation compaction", "nodetool repair -pr for primary range", "Full versus incremental repair and the default in 4.0 and later", "Repaired and unrepaired SSTable sets", "nodetool repair_admin list and cancel", "Subrange repair with -st and -et", "Repair parallelism: sequential, parallel and datacenter-aware", "repair_session_space and streaming throughput", "A repair schedule that finishes inside gc_grace_seconds"],
+          "tools": ["nodetool", "Docker", "cqlsh"],
+          "lab_task": "On a 3-node RF 3 cluster write 100,000 rows, stop node 3, write 50,000 more at QUORUM, then disable hints with nodetool disablehandoff on node 1 and 2, start node 3 and count at ONE. Run nodetool repair -pr shop on each node and recount. Run nodetool repair_admin list to see session status and record duration.",
+          "deliverable": "Counts before and after repair, repair durations and repair_admin output",
+          "checks": [["SELECT count(*) at ONE from node 3 before repair", "Count is below 150000", "cqlsh output"], ["Run nodetool repair -pr shop on each node", "Command ends with 'Repair command #1 finished' on each node", "nodetool output"], ["SELECT count(*) at ONE from node 3 after repair", "Count equals 150000", "cqlsh output"]],
+          "objectives": ["Run primary range repair", "Explain full and incremental repair", "Plan repairs inside gc_grace_seconds"]
+        },
+        {
+          "topic": "Adding, Removing and Replacing Nodes",
+          "subtopics": ["Bootstrap: streaming ranges to a new node", "auto_bootstrap and when to set it false", "nodetool cleanup after adding nodes", "nodetool decommission and the streaming it triggers", "nodetool removenode and assassinate as last resorts", "Replacing a dead node with -Dcassandra.replace_address_first_boot", "Monitoring with nodetool netstats", "Adding a node while serving traffic and limiting stream_throughput_outbound", "Adding nodes one at a time and cluster-wide range movement rules", "Verifying ownership with nodetool status"],
+          "tools": ["nodetool", "Docker", "cqlsh"],
+          "lab_task": "Expand a three-node cluster to four: start node 4, watch UJ in nodetool status change to UN, track streaming with nodetool netstats, then run nodetool cleanup on nodes 1 to 3. Next run nodetool decommission on node 4. Finally kill node 2 container and replace it using -Dcassandra.replace_address_first_boot=<ip>. Record each state change and timing.",
+          "deliverable": "Runbook with each command, state transitions seen and the elapsed time",
+          "checks": [["Start node 4 and run nodetool status", "Node 4 shows UJ during bootstrap and then UN", "nodetool output"], ["Run nodetool decommission on node 4", "Node leaves the ring and status shows three nodes", "nodetool output"], ["Replace node 2 with replace_address_first_boot", "New node shows UN and the dead address no longer appears as DN", "nodetool output"]],
+          "objectives": ["Add, remove and replace nodes safely", "Monitor streaming", "Know when cleanup is required"]
+        },
+        {
+          "topic": "Snapshots, Incremental Backups and Restore",
+          "subtopics": ["Hard-link snapshots with nodetool snapshot -t", "Snapshot per keyspace and per table", "auto_snapshot on drop and truncate", "incremental_backups: true and the backups directory", "Cleaning with nodetool clearsnapshot", "Restoring with sstableloader", "Restoring by copying SSTables and nodetool refresh", "Schema backup with DESCRIBE or cqlsh -e", "Testing a restore on a new cluster", "Space used by snapshots shown by nodetool listsnapshots"],
+          "tools": ["nodetool", "sstableloader", "cqlsh", "Docker"],
+          "lab_task": "Take nodetool snapshot -t pre_change shop on all nodes, TRUNCATE shop.orders (with auto_snapshot disabled), then restore: copy the snapshot files back into the table directory and run nodetool refresh shop orders, or stream them with sstableloader to a new cluster. Compare SELECT count(*) before and after, and run nodetool listsnapshots.",
+          "deliverable": "Restore runbook with row counts before the change, after truncation and after restore",
+          "checks": [["Run nodetool listsnapshots after taking pre_change", "Snapshot pre_change is listed with its size on disk", "nodetool output"], ["Count rows after TRUNCATE", "Returns 0", "cqlsh output"], ["Count rows after restore", "Equals the original count", "cqlsh output"]],
+          "objectives": ["Take and manage snapshots", "Restore data to the same or another cluster", "Verify a backup by restoring"]
+        },
+        {
+          "topic": "Roles, Authentication and Authorization",
+          "subtopics": ["Turning on authenticator: PasswordAuthenticator", "authorizer: CassandraAuthorizer and role_manager", "Replacing the default cassandra/cassandra superuser", "system_auth keyspace replication and why RF must be raised", "CREATE ROLE with LOGIN and PASSWORD", "GRANT SELECT, MODIFY and ALTER on keyspaces and tables", "Role inheritance and LIST ROLES", "Permission caches: roles_validity and permissions_validity", "Credentials in cqlshrc and drivers", "Auditing who has which permissions"],
+          "tools": ["cqlsh", "cassandra.yaml", "Docker"],
+          "lab_task": "Enable PasswordAuthenticator and CassandraAuthorizer, restart, log in as cassandra, create superuser admin, disable the default cassandra role, set system_auth to NetworkTopologyStrategy RF 3 and run repair. Create app_ro (SELECT on shop) and app_rw (SELECT and MODIFY). Test with each role and capture the Unauthorized errors.",
+          "deliverable": "Role script, permission matrix and test transcript for each role",
+          "checks": [["Log in as app_ro and INSERT into shop.orders", "Unauthorized: User app_ro has no MODIFY permission", "cqlsh error text"], ["Run LIST ALL PERMISSIONS OF app_rw", "Shows SELECT and MODIFY on keyspace shop", "cqlsh output"], ["Log in with the old cassandra/cassandra credentials", "AuthenticationFailed after the role is disabled", "cqlsh error text"]],
+          "objectives": ["Enable and configure authentication and authorization", "Apply least-privilege roles", "Retire default credentials"]
+        },
+        {
+          "topic": "TLS Encryption and Mutual TLS Authentication",
+          "subtopics": ["server_encryption_options for node-to-node traffic", "client_encryption_options for driver traffic", "Keystores, truststores and PKCS12 format", "internode_encryption values: none, dc, rack, all", "require_client_auth for client certificates", "Generating a CA and node certificates with keytool or openssl", "cqlsh --ssl and the cqlshrc [ssl] section", "Driver SSL context configuration", "Certificate expiry and reload through nodetool reloadssl", "MutualTlsAuthenticator in 5.0 for certificate-based roles"],
+          "tools": ["openssl", "keytool", "cqlsh", "nodetool"],
+          "lab_task": "Create a CA and three node certificates with openssl, build keystores and truststores, then enable server_encryption_options (internode_encryption: all) and client_encryption_options (enabled: true, require_client_auth: true). Restart nodes one at a time, connect with cqlsh --ssl using a client certificate, and show a connection without a certificate being rejected.",
+          "deliverable": "Certificate scripts, cassandra.yaml section and test results for with and without a client certificate",
+          "checks": [["Connect with cqlsh --ssl and a valid client certificate", "Connection succeeds and the banner is shown", "cqlsh output"], ["Connect with --ssl but no client certificate", "Handshake fails with a certificate error", "cqlsh error text"], ["Check internode traffic with nodetool status after rolling restart", "All nodes UN with encryption enabled", "nodetool output"]],
+          "objectives": ["Enable internode and client TLS", "Require client certificates", "Rotate certificates without downtime"]
+        },
+        {
+          "topic": "JMX Metrics, Prometheus and Grafana Dashboards",
+          "subtopics": ["Cassandra metrics from the Dropwizard registry over JMX", "Key metrics: ClientRequest latency, Compaction PendingTasks, ThreadPools, Table metrics", "Exporting with the Prometheus JMX exporter or a metrics agent", "Scrape configuration and labels for cluster and datacenter", "Grafana dashboards for read latency p99, pending compactions, dropped messages", "Alert rules: node down, pending compactions, dropped mutations", "Virtual tables in system_views for quick checks", "Cardinality of per-table metrics", "Securing JMX with authentication", "Baselines and what to alert on"],
+          "tools": ["Prometheus", "Grafana", "nodetool", "Docker"],
+          "lab_task": "Attach the Prometheus JMX exporter to each node with a javaagent option in jvm-server.options, add a scrape job to prometheus.yml, and import a Cassandra dashboard into Grafana. Run cassandra-stress for 10 minutes and screenshot read p99 and pending compactions. Write alert rules for node down and dropped mutations greater than 0 in 5 minutes.",
+          "deliverable": "Dashboard screenshots, prometheus.yml scrape job and two alert rules with a test firing",
+          "checks": [["Open the Prometheus targets page", "All three Cassandra targets show state UP", "Targets page"], ["Stop a node container", "The node-down alert moves to firing in under 2 minutes", "Alert page"], ["Run the 10 minute load", "Dashboard shows request latency and throughput rise from baseline", "Dashboard screenshot"]],
+          "objectives": ["Export Cassandra metrics to Prometheus", "Build a dashboard of key signals", "Define actionable alerts"]
+        },
+        {
+          "topic": "Logging, Audit Logs and Full Query Logging",
+          "subtopics": ["logback.xml and levels for system.log and debug.log", "Slow query logging with slow_query_log_timeout", "Audit logging: nodetool enableauditlog and audit_logging_options", "Included and excluded keyspaces, categories and users", "Binary log format and the audit directory", "Full query logging with nodetool enablefullquerylog", "Reading and replaying logs with fqltool dump and fqltool replay", "Log rotation and storage limits", "Sending logs to a central system", "Privacy and data minimisation in logs"],
+          "tools": ["nodetool", "fqltool", "cqlsh", "Apache Cassandra 5.0"],
+          "lab_task": "Run nodetool enableauditlog --included-categories DML,DDL --logger BinAuditLogger, execute eight statements as different roles, then dump with auditlogviewer. Run nodetool enablefullquerylog --path /tmp/fql, send 1,000 queries, disable it, and use fqltool dump and fqltool replay against a second cluster, comparing results.",
+          "deliverable": "Audit log excerpt with user and statement, plus the replay report",
+          "checks": [["Run the eight statements and read the audit log", "Each statement appears with the role name and category", "auditlogviewer output"], ["Run fqltool dump on the captured path", "1000 queries listed", "fqltool output"], ["Run nodetool disablefullquerylog", "Command succeeds and the query count stops growing", "nodetool output"]],
+          "objectives": ["Enable audit logging", "Capture and replay a workload", "Control log volume and privacy"]
+        },
+        {
+          "topic": "Load Generation and Baselines with cassandra-stress",
+          "subtopics": ["The cassandra-stress YAML profile for custom schemas", "write, read and mixed commands with ratio", "Threads, rate limits and -rate threads=", "Population distributions for keys: uniform, gaussian", "-graph and -log options for reports", "Warm-up and steady-state measurement", "Reading latency percentiles from the summary", "Running multiple stress clients", "Comparing before and after configuration changes", "Avoiding client bottlenecks"],
+          "tools": ["cassandra-stress", "nodetool", "Grafana"],
+          "lab_task": "Write a stress profile for shop.orders_by_customer with partition and column distributions. Run cassandra-stress user profile=orders.yaml n=5000000 'ops(insert=1,read=3)' -rate threads=64 -node cass1,cass2,cass3 -log file=base.log. Record op rate, p50, p95, p99 and p999 latency. Change concurrent_reads and rerun, and compare the two runs.",
+          "deliverable": "Profile file, two summary reports and a before-and-after table",
+          "checks": [["Run the stress profile for 5 million operations", "Summary shows op rate in ops/s and total errors 0", "cassandra-stress summary"], ["Compare p99 for two settings", "Table shows both values and the percentage change", "Comparison table"], ["Check nodetool tpstats during the run", "Pending tasks stay low in MutationStage and ReadStage", "nodetool output"]],
+          "objectives": ["Write a realistic stress profile", "Establish a performance baseline", "Measure the effect of a configuration change"]
+        },
+        {
+          "topic": "Guardrails and Production Limits",
+          "subtopics": ["What guardrails are and the 4.1 introduction", "Warn and fail thresholds in cassandra.yaml", "partition_size_warn_threshold and collection_size_warn_threshold", "in_select_cartesian_product_fail_threshold", "allow_filtering_enabled and other feature flags", "Limiting the number of tables and secondary indexes", "Guardrails for page size and read-before-write list operations", "Guardrails in 5.0 around SAI and vectors", "Reading guardrail warnings from drivers", "Setting limits without breaking existing applications"],
+          "tools": ["cassandra.yaml", "cqlsh", "Python cassandra-driver"],
+          "lab_task": "Set allow_filtering_enabled: false and a collection_size_warn_threshold of 1KiB in cassandra.yaml (names as in your 5.0 build), restart a test node, and run a query with ALLOW FILTERING and an oversized collection update. Capture the client error and the warnings returned in the driver response_future.warnings list.",
+          "deliverable": "Configuration diff and transcripts of rejected and warned statements",
+          "checks": [["Run SELECT with ALLOW FILTERING with the flag disabled", "Rejected with a guardrail error that ALLOW FILTERING is not allowed", "cqlsh error text"], ["Update a collection above the warn threshold", "Succeeds and a warning is returned to the client", "Driver warnings"], ["Check effective values in system_views.settings", "Shows the new thresholds", "cqlsh output"]],
+          "objectives": ["Use guardrails to enforce safe usage", "Read guardrail warnings in clients", "Roll out limits with warnings first"]
+        },
+        {
+          "topic": "Paging, Retries, Idempotence and Timeouts in Drivers",
+          "subtopics": ["Fetch size and paging state tokens", "Statement idempotence flag and automatic retries", "Retry policies and speculative executions", "Request timeouts versus server read_request_timeout", "Load balancing: DC-aware, token-aware", "Handling WriteTimeout, ReadTimeout and Unavailable exceptions", "Non-idempotent operations: counters and list appends", "Exponential backoff with jitter", "Metrics exposed by the driver", "Testing failure paths with a stopped node"],
+          "tools": ["Java driver 4.x", "Python cassandra-driver", "Docker"],
+          "lab_task": "In a Java 4.x driver application set basic.request.timeout to 2 seconds, mark inserts as idempotent and configure a speculative execution policy. Run a 10-minute insert loop while docker stop kills one node and restarts it. Count exceptions by type and verify that the final SELECT count equals the number of acknowledged writes.",
+          "deliverable": "Application source, exception counts by type and the final reconciliation of counts",
+          "checks": [["Stop a node during the write loop at LOCAL_QUORUM with RF 3", "No failed writes and the application keeps running", "Application log"], ["Stop two nodes during the loop", "Unavailable exceptions are counted and logged", "Application log"], ["Compare acknowledged writes with SELECT count(*)", "Counts match", "Reconciliation output"]],
+          "objectives": ["Configure retries safely using idempotence", "Handle driver exceptions", "Validate behaviour under node failure"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Datacenter Cluster with Backup, Security and Monitoring",
+          "subtopics": ["Two-datacenter topology with NetworkTopologyStrategy and rack awareness", "Authentication, role permissions and TLS enabled", "Dashboards and alert rules in Prometheus and Grafana", "Snapshot backup and a tested restore", "Load test results and tuned compaction strategy"],
+          "tools": ["Docker", "nodetool", "cqlsh", "Prometheus", "Grafana", "cassandra-stress"],
+          "lab_task": "Deploy six nodes across dc1 and dc2 with RF 3 in each, enable password authentication and TLS, create three roles, load 5 million rows with cassandra-stress, run repair -pr on every node, snapshot and restore one table, and show LOCAL_QUORUM reads continue in dc2 when all dc1 nodes are stopped. Provide dashboards and a final report.",
+          "deliverable": "Environment repository, a Grafana dashboard export, test results and a runbook of six procedures",
+          "checks": [["Stop all nodes in dc1 and read from dc2 at LOCAL_QUORUM", "Reads succeed from dc2", "cqlsh output"], ["Restore a snapshot of one table", "Row count matches the pre-snapshot count", "cqlsh output"], ["Connect without credentials", "Rejected with an authentication error", "cqlsh error text"]],
+          "objectives": ["Build a secured two-datacenter cluster", "Operate backup, repair and monitoring", "Demonstrate resilience with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior engineers, SREs and database architects who run Cassandra in production. Covers gossip and failure detection internals, token allocation, SSTable inspection, compaction backlog control, migration to UCS, JVM tuning, latency and tombstone diagnosis, Reaper-driven repair, Paxos v2 lightweight transactions, multi-datacenter failover, dynamic data masking, CIDR authorization and mutual TLS, Kubernetes operations, Medusa point-in-time recovery, CDC and Spark pipelines, 4.x to 5.0 rolling upgrades, capacity planning, failure drills and a production readiness capstone.",
+      "prerequisites": ["Completed the intermediate level or has run a multi-node Cassandra cluster in production", "Comfortable reading JVM GC logs, Linux I/O statistics and Kubernetes manifests", "Has a six-node lab (containers, VMs or a Kubernetes cluster) with enough capacity for load tests"],
+      "outcomes": ["Diagnose latency, tombstone, compaction and repair problems using traces, metrics and SSTable tools", "Plan and execute rolling upgrades, UCS migrations and datacenter changes with tested rollbacks", "Apply 5.0 security features such as data masking, CIDR authorization and mutual TLS", "Size a cluster from measurements and prove readiness with failure drills and restore tests"],
+      "days": [
+        {
+          "topic": "Gossip, Failure Detection and Hint Internals",
+          "subtopics": ["Gossip rounds: SYN, ACK and ACK2 messages", "Endpoint state: generation, heartbeat version and application states", "The phi accrual failure detector and phi_convict_threshold", "nodetool gossipinfo fields: STATUS, SCHEMA, DC, RACK, LOAD", "Gossip problems: schema disagreement and ghost nodes", "Hints: file format, hints_flush_period and max_hints_file_size", "Hint delivery throttle with hinted_handoff_throttle", "nodetool pausehandoff and truncatehints", "Network partition behaviour and split decisions", "Debugging with the Gossiper logger at DEBUG"],
+          "tools": ["nodetool", "Docker", "tcpdump"],
+          "lab_task": "On a three-node cluster use docker network disconnect to isolate node 3 for 5 minutes. Read nodetool gossipinfo and the failure detector log on nodes 1 and 2, note when node 3 becomes DN, reconnect it, and measure time to UN. Repeat with phi_convict_threshold set to 12 and compare detection time.",
+          "deliverable": "Timeline for both phi settings with log lines and detection and recovery times",
+          "checks": [["Disconnect node 3 and run nodetool status on node 1", "Node 3 is listed DN within the detection window", "nodetool output"], ["Change phi_convict_threshold to 12 and repeat", "Detection takes longer than with the default setting", "Timeline table"], ["Reconnect node 3 and check hints", "Hints delivered and nodetool status shows UN", "nodetool output"]],
+          "objectives": ["Describe gossip and failure detection", "Measure detection time with different settings", "Diagnose a partitioned node"]
+        },
+        {
+          "topic": "Token Allocation, Virtual Nodes and Ring Balance",
+          "subtopics": ["Random token assignment versus the token allocation algorithm", "allocate_tokens_for_local_replication_factor", "Choosing num_tokens: 16 compared with 4 and 256", "Effect of vnodes on repair and streaming", "Measuring ownership skew in nodetool status with a keyspace argument", "initial_token for manual placement", "Balancing racks and nodes per rack", "Adding nodes to an unbalanced cluster", "Token ranges and nodetool describering", "Impact on bootstrap time and hot spots"],
+          "tools": ["nodetool", "Docker", "Python cassandra-driver"],
+          "lab_task": "Bootstrap six-node clusters twice: once with random allocation at num_tokens 16, once with allocate_tokens_for_local_replication_factor: 3. Run nodetool status shop on each and record the Owns percentage per node. Compute the standard deviation of ownership. Then run a Python script using the driver's token map to count ranges per node.",
+          "deliverable": "Ownership tables and standard deviation for both clusters",
+          "checks": [["Run nodetool status shop on the random cluster", "Owns values shown for each node summing to about 300 percent at RF 3", "nodetool output"], ["Run it on the allocation-enabled cluster", "Ownership standard deviation is smaller", "Calculation sheet"], ["Run nodetool describering shop", "Lists token ranges with replica endpoints", "nodetool output"]],
+          "objectives": ["Choose vnode settings", "Measure ring balance", "Use token allocation for new clusters"]
+        },
+        {
+          "topic": "Storage Engine Internals and SSTable Inspection",
+          "subtopics": ["Anatomy of an SSTable: Data, Index, Summary, Filter, Statistics, CompressionInfo, Digest, TOC", "sstabledump for rows and tombstones", "sstablemetadata: min and max timestamp, droppable tombstones, repaired at", "sstableexpiredblocker and sstablelevelreset", "Compression: LZ4Compressor, chunk_length_in_kb", "Partition and clustering index entries", "Row and cell timestamps, TTL and local deletion time", "Reading commit log segments with commitlogreader", "Offline versus online tool use and risks", "Verification with nodetool verify and sstableverify"],
+          "tools": ["sstabledump", "sstablemetadata", "nodetool", "Docker"],
+          "lab_task": "Flush a table holding 1,000 rows with a mix of updates, TTL and deletes. Run sstablemetadata on the Data.db file and record min and max timestamp and repaired at. Run sstabledump -d for three partitions and annotate cell timestamps, ttl, expires_at and deletion_info. Run nodetool verify shop events and report the result.",
+          "deliverable": "Annotated sstabledump excerpt, sstablemetadata output and verify result",
+          "checks": [["Run sstablemetadata on the flushed SSTable", "Shows min and max timestamps and repairedAt 0 for unrepaired data", "sstablemetadata output"], ["Run sstabledump on a partition with a TTL cell", "JSON includes ttl and expires_at fields", "sstabledump output"], ["Run nodetool verify on the table", "Completes with no corruption errors", "nodetool output"]],
+          "objectives": ["Inspect SSTables with offline tools", "Interpret timestamps and tombstones in dumps", "Verify data integrity"]
+        },
+        {
+          "topic": "Compaction Throughput, Concurrency and Backlog Control",
+          "subtopics": ["compaction_throughput and nodetool setcompactionthroughput", "concurrent_compactors sizing by disk type", "Reading nodetool compactionstats during backlog", "Pending compactions and read latency", "Tombstone compaction: tombstone_threshold and unchecked_tombstone_compaction", "Major compaction with nodetool compact and why to avoid it for STCS", "nodetool garbagecollect and nodetool upgradesstables", "Stopping a compaction with nodetool stop", "Disk space headroom and compaction failures", "Alerting on backlog growth"],
+          "tools": ["nodetool", "cassandra-stress", "Grafana"],
+          "lab_task": "Run cassandra-stress writes at the highest rate your laptop sustains for 15 minutes and chart PendingTasks in Grafana. Change compaction throughput from 64 to 16 MiB/s with nodetool setcompactionthroughput 16, observe backlog and read p99, then raise to 128 and observe recovery. Record the time to drain to zero in each case.",
+          "deliverable": "Chart of pending compactions and read p99 with three throughput settings",
+          "checks": [["Run nodetool getcompactionthroughput after changing it", "Reports the new MB/s value", "nodetool output"], ["Chart PendingTasks at 16 MiB/s", "Backlog grows during the load", "Grafana screenshot"], ["Chart PendingTasks at 128 MiB/s", "Backlog drains to 0 faster than at the default", "Grafana screenshot"]],
+          "objectives": ["Tune compaction throughput and concurrency", "Identify backlog symptoms", "Choose safe emergency actions"]
+        },
+        {
+          "topic": "Migrating Tables to UCS at Scale",
+          "subtopics": ["Inventory of tables and strategies with system_schema.tables", "Choosing scaling_parameters per table: T4, L4, N and negative values", "base_shard_count and shard sizing for large nodes", "target_sstable_size and the effect on file counts", "Changing strategy without a large compaction storm", "Rolling the change across nodes with a controlled throughput", "Measuring write amplification and read amplification before and after", "Rollback to the old strategy", "Per-table strategy options inside UCS", "Documenting the decision and the results"],
+          "tools": ["cqlsh", "nodetool", "cassandra-stress", "Grafana"],
+          "lab_task": "Select an STCS table with at least 20 GB, record SSTable count, tablehistograms p99 and compaction bytes, then run ALTER TABLE ... WITH compaction = {'class':'UnifiedCompactionStrategy','scaling_parameters':'T4','base_shard_count':4} on one node group at a time with throughput limited. Compare metrics after 24 hours and write the rollback command.",
+          "deliverable": "Migration plan, before-and-after metrics and a tested rollback command",
+          "checks": [["Run DESCRIBE TABLE after the change", "Shows UnifiedCompactionStrategy with base_shard_count 4", "DESCRIBE output"], ["Compare SSTable count 24 hours later", "Count is within the expected range for T4 sharding", "nodetool tablestats"], ["Run the rollback ALTER TABLE on a test copy", "Table returns to SizeTieredCompactionStrategy", "DESCRIBE output"]],
+          "objectives": ["Plan a UCS migration", "Control compaction load while migrating", "Document and test rollback"]
+        },
+        {
+          "topic": "JVM Tuning: Heap, Garbage Collection and Native Memory",
+          "subtopics": ["jvm17-server.options and jvm11-server.options", "G1GC defaults and heap sizing guidance", "Setting -Xms and -Xmx equal", "Off-heap use: memtables, bloom filters, chunk cache, compression metadata", "ZGC and other collectors for large heaps and how to test them on JDK 17", "Reading GC logs and pause times", "Heap dumps and OutOfMemoryError handling", "Direct memory and Netty buffer pools", "Container memory limits and the JVM", "Setting a pause target and verifying p99 latency"],
+          "tools": ["JDK 17", "jcmd", "GCViewer", "cassandra-stress"],
+          "lab_task": "Run a 30-minute mixed stress test on a node with an 8 GiB heap under G1GC with MaxGCPauseMillis=300, then repeat with a 16 GiB heap and with ZGC enabled in jvm17-server.options. Parse gc.log for pause time p99 and max, collect the read p99 from the client and tabulate the results.",
+          "deliverable": "GC log analysis with pause statistics and the final recommended configuration",
+          "checks": [["Check GC log for the 8 GiB G1 run", "p99 pause is recorded and max pause below 1 second or noted", "GC analysis"], ["Compare the 16 GiB heap and ZGC runs", "A table of pause and read p99 for each configuration", "Comparison table"], ["Run jcmd <pid> VM.flags", "Shows the collector flags active", "jcmd output"]],
+          "objectives": ["Size and tune the Cassandra JVM", "Read GC logs", "Account for off-heap memory"]
+        },
+        {
+          "topic": "Read Latency Diagnosis with Tracing and Metrics",
+          "subtopics": ["Layers of a read: client, coordinator, replica, disk", "nodetool proxyhistograms and tablehistograms", "nodetool tablestats: SSTable count, bloom filter false ratio, local read latency", "Probabilistic tracing: nodetool settraceprobability", "system_traces.sessions and events tables", "Slow query log entries", "Read repair and speculative retries in the trace", "Disk I/O wait versus CPU saturation", "Hot partitions and the topPartitions command", "Building a flowchart for p99 regressions"],
+          "tools": ["nodetool", "cqlsh", "iostat", "Grafana"],
+          "lab_task": "Create a read p99 regression by loading 20 small SSTables on a table (flush every 10,000 rows with compaction disabled). Capture tablehistograms, a TRACING ON read, and nodetool settraceprobability 0.01 sampled traces. Query system_traces.events for the slowest sessions. Re-enable compaction and compare p99 and SSTables per read.",
+          "deliverable": "Diagnosis report with traces, histogram output and fix verification numbers",
+          "checks": [["Run tablehistograms with 20 SSTables", "SSTables column median shows many files per read", "nodetool output"], ["Query system_traces.sessions ordered by duration", "Slowest sessions listed with durations in microseconds", "cqlsh output"], ["Re-enable compaction and recheck p99", "p99 decreases and SSTables per read drops", "Comparison table"]],
+          "objectives": ["Locate the layer responsible for slow reads", "Use tracing and histograms together", "Verify a fix with numbers"]
+        },
+        {
+          "topic": "Tombstone Failures and Wide-Partition Troubleshooting",
+          "subtopics": ["tombstone_warn_threshold 1000 and tombstone_failure_threshold 100000", "TombstoneOverwhelmingException and ReadFailure error code", "Range tombstones and how they accumulate", "Queue and delete-heavy anti-patterns", "TTL on every cell and expiry waves", "Compaction behaviour with tombstones and gc_grace_seconds", "Finding offending partitions with nodetool toppartitions", "Fixing with data model changes, TWCS or bucketing", "Emergency actions: raising thresholds temporarily and forced compaction", "Prevention with guardrails and testing"],
+          "tools": ["nodetool", "sstabledump", "cqlsh", "Python cassandra-driver"],
+          "lab_task": "Reproduce a queue anti-pattern: insert and delete 200,000 messages in one partition, then SELECT with LIMIT 10 and capture the ReadFailure with tombstone_failure_threshold. Use nodetool toppartitions shop queue 10000 to identify the key. Remodel with hourly buckets and TWCS and rerun to show the query succeeds with fewer than 1,000 tombstones read.",
+          "deliverable": "Reproduction script, error text, toppartitions output and the fixed model results",
+          "checks": [["SELECT LIMIT 10 on the queue partition", "Fails with a tombstone threshold ReadFailure", "Client error"], ["Run nodetool toppartitions for 10000 ms", "The queue partition appears at the top by reads", "nodetool output"], ["Run the remodelled query", "Returns 10 rows and trace shows fewer than 1000 tombstones", "Trace output"]],
+          "objectives": ["Diagnose tombstone failures", "Find the offending partitions", "Fix the model rather than raise the threshold"]
+        },
+        {
+          "topic": "Repair Operations at Scale with Reaper and Preview Repair",
+          "subtopics": ["Repair scheduling goals and the gc_grace_seconds window", "Cassandra Reaper: segments, schedules and intensity", "Reaper backends and running it in a cluster", "Subrange repairs and repair cost per segment", "Incremental repair risks and the repaired set", "Preview repair: nodetool repair --preview and --validate", "nodetool repair_admin list, cancel and summarize-pending", "Handling stuck repairs and streaming failures", "Measuring repair time versus data growth", "Reporting percentage repaired"],
+          "tools": ["Cassandra Reaper", "nodetool", "Docker", "Grafana"],
+          "lab_task": "Deploy Reaper with a Cassandra backend against a six-node cluster, schedule a full repair on shop with intensity 0.5 and a 7-day interval, run it and record segments, duration and any failed segments. Run nodetool repair --preview --full on one node afterwards and confirm no differences. Document the process in a runbook.",
+          "deliverable": "Reaper schedule export, run summary and preview repair output",
+          "checks": [["Open the Reaper UI after the run", "The repair run shows state DONE and all segments done", "Reaper screenshot"], ["Run nodetool repair --preview --full shop", "Reports no mismatched ranges", "nodetool output"], ["Compute repair interval versus gc_grace_seconds", "Interval 7 days is less than 10 days", "Calculation"]],
+          "objectives": ["Automate repairs with Reaper", "Verify repair coverage using preview repair", "Handle failed repair runs"]
+        },
+        {
+          "topic": "Lightweight Transactions and Paxos v2",
+          "subtopics": ["Paxos phases: prepare, read, propose, commit", "Contention and CAS timeouts: CasWriteTimeoutException", "paxos_variant: v1 and v2 in 4.1 and later", "Paxos repair and the paxos_state_purging setting", "Serial reads with SERIAL and LOCAL_SERIAL", "Conditional batches within a single partition", "Reading [applied] and the current values on failure", "Measuring LWT latency compared with normal writes", "Design patterns that avoid LWT", "The transaction work (Accord) that is not part of 5.0"],
+          "tools": ["cqlsh", "cassandra-stress", "Python cassandra-driver"],
+          "lab_task": "Run 32 concurrent Python workers executing UPDATE seats SET owner = ? WHERE id = ? IF owner = null for 100 seats and verify exactly one worker wins each seat. Compare latency against 32 workers doing plain writes. Switch paxos_variant to v2 on a test cluster and rerun, comparing throughput and CAS timeouts.",
+          "deliverable": "Results table for v1 and v2 and the single winner check for 100 seats",
+          "checks": [["Count rows where owner is not null after the run", "Exactly 100 seats have one owner each", "cqlsh output"], ["Compare p99 of LWT versus plain writes", "LWT latency is several times higher", "Latency table"], ["Run with paxos_variant v2", "Throughput and CAS timeouts recorded and compared with v1", "Comparison table"]],
+          "objectives": ["Explain Paxos steps in LWT", "Measure LWT cost", "Choose between LWT and other designs"]
+        },
+        {
+          "topic": "Multi-Datacenter Topology Design and Failover",
+          "subtopics": ["Choosing RF per datacenter and how many datacenters", "LOCAL_QUORUM and EACH_QUORUM trade-offs", "Adding a datacenter: ALTER KEYSPACE, then nodetool rebuild -- dc1", "Removing a datacenter safely", "Cross-datacenter latency and the WAN", "Driver datacenter failover policies", "Hint and repair behaviour across datacenters", "Operating during a datacenter outage", "Capacity: each datacenter can serve all traffic", "Testing failover and failback with timing"],
+          "tools": ["Docker", "nodetool", "cqlsh", "Java driver 4.x"],
+          "lab_task": "Add dc2 to a running dc1 cluster: ALTER KEYSPACE shop WITH replication = {'class': 'NetworkTopologyStrategy', 'dc1': 3, 'dc2': 3}, start the dc2 nodes with auto_bootstrap false, run nodetool rebuild -- dc1 on each, then run repair. Cut dc1 with docker network disconnect while a Java app runs at LOCAL_QUORUM with dc2 as failover and record the recovery time.",
+          "deliverable": "Expansion runbook and a failover test log with recovery time",
+          "checks": [["Run nodetool rebuild -- dc1 on each dc2 node", "Streaming completes and dc2 nodes hold data", "nodetool output"], ["Disconnect dc1 while the app runs", "Application errors for a few seconds then resumes via dc2", "Application log"], ["Reconnect dc1 and run repair", "Counts match across datacenters", "cqlsh counts"]],
+          "objectives": ["Add and remove datacenters", "Design for datacenter failure", "Test failover and failback"]
+        },
+        {
+          "topic": "Dynamic Data Masking and Sensitive Data Controls",
+          "subtopics": ["Dynamic data masking introduced in Cassandra 5.0", "MASKED WITH on column definitions", "Built-in masking functions: mask_default, mask_null, mask_replace, mask_inner, mask_outer, mask_hash", "UNMASK and SELECT_MASKED permissions", "Applying masks with ALTER TABLE ... ALTER ... MASKED WITH", "Masking and indexes or key columns", "Masking in query results versus stored values", "Combining masks with roles for support teams", "Limits: masking does not encrypt stored data", "Testing masked output per role"],
+          "tools": ["cqlsh", "Apache Cassandra 5.0"],
+          "lab_task": "Create shop.people with ssn text MASKED WITH mask_inner(0, 4) and email text MASKED WITH mask_hash. Create roles support (SELECT only, no UNMASK) and auditor (UNMASK granted). Select as each and confirm different output. Run ALTER TABLE ... DROP MASKED on email and show the clear value returned to support.",
+          "deliverable": "Table DDL, role grants and screenshots of masked and unmasked output",
+          "checks": [["Select ssn as the support role", "Value shows masked characters except the last four", "cqlsh output"], ["Select ssn as auditor with UNMASK", "Full value returned", "cqlsh output"], ["Query system_schema.column_masks", "Lists the mask functions on ssn and email", "cqlsh output"]],
+          "objectives": ["Apply dynamic data masking", "Control access with UNMASK permissions", "State what masking does not protect"]
+        },
+        {
+          "topic": "CIDR Authorization, Mutual TLS and Network Hardening",
+          "subtopics": ["cidr_authorizer in 5.0 and restricting roles by network", "CREATE ROLE ... WITH ACCESS FROM CIDRS", "Checking CIDR groups through the system_views tables", "MutualTlsAuthenticator mapping certificate identities to roles", "Certificate validators and identity extraction", "Firewalling ports: 7000, 7001, 9042, 7199", "Binding JMX to localhost and enabling JMX authentication", "Disabling unused features such as legacy native ports", "Network policies in containers", "Verification with nmap and cqlsh"],
+          "tools": ["cqlsh", "openssl", "nmap", "Docker"],
+          "lab_task": "Enable cidr_authorizer and create role ops_app WITH LOGIN = true AND PASSWORD = '...' AND ACCESS FROM CIDRS = {'10.10.0.0/16'}. Connect from a container in 10.10.0.0/16 and from another outside, noting the results. Enable MutualTlsAuthenticator, map a certificate to role ops_app and connect without a password. Scan ports with nmap -p 7000-7199,9042.",
+          "deliverable": "Role and config scripts, test results for allowed and denied networks and the nmap report",
+          "checks": [["Connect to the cluster from the allowed CIDR", "Login succeeds and queries run", "cqlsh output"], ["Connect as the same role from another network", "Rejected with an access error", "cqlsh error text"], ["Run nmap against the node from outside the cluster network", "Ports 7000 and 7199 report filtered or closed", "nmap output"]],
+          "objectives": ["Restrict roles by network range", "Configure certificate identity login", "Reduce the exposed ports"]
+        },
+        {
+          "topic": "Kubernetes Operations with K8ssandra and cass-operator",
+          "subtopics": ["Operator pattern: CassandraDatacenter and K8ssandraCluster resources", "Installing the operator with Helm", "StatefulSets, PVCs and storage classes for Cassandra", "Rack-aware scheduling with zones and anti-affinity", "Rolling restarts and configuration changes through the CRD", "Scaling by changing size in the spec", "Medusa and Reaper components in K8ssandra", "Pod disruption budgets and node drains", "Network exposure through headless services", "Failure of a pod and a node"],
+          "tools": ["K8ssandra", "cass-operator", "kubectl", "Helm", "kind"],
+          "lab_task": "On a kind or minikube cluster install cert-manager and the K8ssandra operator with Helm, apply a K8ssandraCluster with 3 Cassandra 5.0 nodes, then kubectl get pods until all are Ready. Scale to 4 nodes by editing size, delete one pod while cassandra-stress runs and record client errors and the time for the pod to rejoin.",
+          "deliverable": "Manifests, kubectl transcript and the failure test results",
+          "checks": [["Run kubectl get pods after applying the cluster", "Three Cassandra pods show 2/2 Ready", "kubectl output"], ["Edit size to 4", "Fourth pod joins and nodetool status shows four UN nodes", "nodetool output"], ["Delete one pod during the load", "Client error count is zero or low and the pod returns to Ready", "Test log"]],
+          "objectives": ["Deploy Cassandra on Kubernetes with an operator", "Scale and restart safely", "Test pod failure"]
+        },
+        {
+          "topic": "Medusa Backups and Point-in-Time Recovery",
+          "subtopics": ["Medusa architecture: backups to object storage", "Configuring medusa.ini with a bucket and credentials", "medusa backup --backup-name and --mode differential", "medusa list-backups and medusa verify", "medusa restore-cluster and restore-node", "Commit log archiving with commitlog_archiving.properties", "restore_point_in_time and replay", "Retention and purge of old backups", "RPO and RTO calculations", "Restore tests on a schedule"],
+          "tools": ["Medusa", "nodetool", "MinIO", "Docker"],
+          "lab_task": "Run MinIO as an S3 target and configure Medusa on each node. Take a full backup, load 10,000 new rows, take a differential backup, then truncate the table. Run medusa restore-cluster for the differential backup and verify the row count. Time the backup and restore and compute your RPO and RTO.",
+          "deliverable": "Medusa configuration, backup listing, restore transcript and an RPO and RTO table",
+          "checks": [["Run medusa list-backups", "Shows the full and the differential backup with node counts", "medusa output"], ["Restore the differential backup", "Row count equals the count at backup time", "cqlsh output"], ["Calculate RPO and RTO from the timings", "Values documented with measured durations", "Calculation sheet"]],
+          "objectives": ["Automate backups to object storage", "Restore a cluster from a backup", "Calculate RPO and RTO"]
+        },
+        {
+          "topic": "Change Data Capture and Spark Connector Pipelines",
+          "subtopics": ["cdc_enabled in cassandra.yaml and per-table cdc = true", "cdc_raw_directory and cdc_total_space limits", "Commit log segments exposed to consumers", "Consumers: Debezium connector for Cassandra and custom readers", "Handling duplicates and ordering at the consumer", "Spark Cassandra Connector reads with token-range splits", "Writes with spark.cassandra.output.consistency.level", "Pushing predicates down and reading only needed columns", "Limiting analytics load on production nodes", "Data validation by row counts and checksums"],
+          "tools": ["Spark Cassandra Connector", "Apache Spark", "Debezium", "nodetool"],
+          "lab_task": "Enable CDC on shop.orders (cdc = true) and write 10,000 rows. Check files appear in cdc_raw after commit log segments fill or flush, then read them with a small consumer. Run a Spark job with the connector that reads shop.orders, aggregates by day, and writes to shop.orders_daily at LOCAL_QUORUM. Compare totals with a CQL aggregate.",
+          "deliverable": "CDC consumer output, Spark job and a reconciliation of totals",
+          "checks": [["List cdc_raw after writing and flushing", "CommitLog-*_cdc.idx files and segment files appear", "Directory listing"], ["Run the Spark job", "orders_daily rows written for each day with no task failures", "Spark log"], ["Compare daily totals with CQL", "Totals match exactly", "Reconciliation table"]],
+          "objectives": ["Enable CDC and understand its limits", "Run Spark jobs against Cassandra safely", "Reconcile pipeline output"]
+        },
+        {
+          "topic": "Rolling Upgrades from 4.x to 5.0",
+          "subtopics": ["Supported upgrade paths and reading the NEWS.txt for each version", "Pre-upgrade checks: schema agreement, repair status, disk space", "storage_compatibility_mode in 5.0: CASSANDRA_4, UPGRADING, NONE", "Rolling steps: nodetool drain, stop, replace binaries, start", "nodetool upgradesstables and when it is needed", "Config differences and deprecated settings", "Mixed-version rules: no schema changes or topology changes during the upgrade", "Driver and tooling compatibility", "Rollback boundaries before changing compatibility mode", "Post-upgrade validation"],
+          "tools": ["nodetool", "Docker", "cqlsh", "cassandra-stress"],
+          "lab_task": "Build a three-node 4.1 cluster, run cassandra-stress mixed load, then upgrade each node to 5.0 one at a time with nodetool drain, container swap and a wait for UN, keeping storage_compatibility_mode at CASSANDRA_4. Run upgradesstables, validate counts and later move the mode toward NONE. Record client errors during the upgrade.",
+          "deliverable": "Upgrade runbook with timings, versions per node from nodetool version and client error counts",
+          "checks": [["Run nodetool version on all nodes mid-upgrade", "Shows a mix of 4.1.x and 5.0.x", "nodetool output"], ["Count client errors during the rolling upgrade", "Zero errors at LOCAL_QUORUM", "Stress summary"], ["Run nodetool describecluster at the end", "A single schema version and all nodes on 5.0.x", "nodetool output"]],
+          "objectives": ["Plan a rolling upgrade", "Use storage compatibility mode correctly", "Validate the cluster after upgrade"]
+        },
+        {
+          "topic": "Capacity Planning and Data Density",
+          "subtopics": ["Estimating raw size: rows times bytes times replication factor", "Overhead of compression and metadata", "Disk headroom for compaction and repair", "Data per node targets and the effect on streaming time", "CPU and memory sizing from the throughput target", "Estimating cluster size from load tests", "Growth forecasts and when to add nodes", "Cost model for cloud instances and storage", "Using nodetool tablestats and tablehistograms as inputs", "Presenting plan and assumptions"],
+          "tools": ["nodetool", "cassandra-stress", "Excel"],
+          "lab_task": "Take a production-like schema, load 10 million rows and record Space used from tablestats and compression ratio. Extrapolate to 5 billion rows at RF 3 and add 50 percent headroom. Run a 30-minute mixed stress test to find ops per second per node, and compute nodes needed for 100,000 ops/s. Build a spreadsheet with assumptions.",
+          "deliverable": "Capacity spreadsheet with the formulas, inputs, node count and sensitivity analysis",
+          "checks": [["Compare tablestats Space used to the raw data size", "Compression ratio documented", "tablestats output"], ["Run a stress test on one node", "Ops per second per node recorded with p99 latency", "Stress summary"], ["Compute nodes for 100,000 ops/s with headroom", "Calculation shows the node count with assumptions", "Spreadsheet"]],
+          "objectives": ["Estimate storage and throughput needs", "Turn load tests into node counts", "State assumptions and growth"]
+        },
+        {
+          "topic": "Failure Injection and Disaster Recovery Drills",
+          "subtopics": ["Drill scenarios: node loss, disk full, rack loss, datacenter loss, corrupted SSTable", "Safe failure injection with docker stop, tc netem and fio", "Detecting each failure from metrics and logs", "Recovery actions: replace node, removenode, restore, rebuild", "Handling disk failure policy: disk_failure_policy and commit_failure_policy", "Corrupted SSTable handling with nodetool scrub and sstablescrub", "Communicating status and keeping timelines", "Measuring RTO and RPO per scenario", "Blameless review and fixing gaps", "Automating the drills"],
+          "tools": ["Docker", "nodetool", "tc", "Grafana"],
+          "lab_task": "Run three drills on a six-node, two-datacenter test cluster under constant stress load: (1) kill a node and replace it, (2) add 200 ms latency between datacenters with tc netem, (3) corrupt one SSTable by overwriting bytes and recover with nodetool scrub. Record detection time, user impact and recovery time for each in a table.",
+          "deliverable": "Drill log with metrics, timelines and three improvement actions",
+          "checks": [["Kill a node under load at LOCAL_QUORUM", "Client error rate stays near 0 and alert fires", "Dashboard and alert log"], ["Add 200 ms of inter-datacenter latency", "LOCAL_QUORUM p99 is unchanged and EACH_QUORUM p99 rises", "Latency table"], ["Run nodetool scrub on the corrupted table", "Scrub completes and the damaged file is quarantined or rewritten", "nodetool output"]],
+          "objectives": ["Run controlled failure drills", "Measure RTO and RPO", "Turn findings into fixes"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Readiness Review and Runbook for a Multi-Region Cluster",
+          "subtopics": ["Architecture review: topology, RF, consistency and capacity", "Security review: roles, TLS, masking, network rules", "Operations review: repair, backup, upgrade, monitoring", "Failure drill evidence and measured RTO and RPO", "Final runbook and sign-off checklist"],
+          "tools": ["Docker", "nodetool", "cassandra-stress", "Reaper", "Medusa", "Grafana"],
+          "lab_task": "Take a six-node, two-datacenter Cassandra 5.0 cluster with authentication, TLS, Reaper, Medusa and Grafana and review it against a 60-point checklist. Run a 1-hour mixed load, one failure drill and one restore test. Fix the three highest-risk gaps found, rerun the evidence collection and present a readiness decision.",
+          "deliverable": "Review document with the checklist results, evidence bundle, runbook and a signed readiness decision",
+          "checks": [["Run the 1-hour load with one node stopped partway", "p99 latency and error rate stay within the stated targets", "Grafana export"], ["Run medusa restore on a test cluster", "Row counts match source", "cqlsh output"], ["Rerun the checklist after fixes", "The three high-risk gaps show as closed", "Checklist"]],
+          "objectives": ["Assess a cluster for production readiness", "Present evidence for operational controls", "Close the highest-risk gaps"]
+        }
+      ]
+    }
+  }
+}

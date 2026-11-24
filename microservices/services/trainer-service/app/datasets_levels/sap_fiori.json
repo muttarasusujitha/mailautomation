@@ -1,0 +1,573 @@
+{
+  "domain": "SAP Fiori",
+  "name": "SAP Fiori",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "layout-grid",
+  "aliases": ["Fiori", "SAP Fiori Development", "SAP Fiori Developer", "SAP Fiori Consultant", "SAPUI5", "SAP UI5", "UI5", "OpenUI5", "SAP Fiori Elements", "Fiori Elements", "SAP Fiori Launchpad", "Fiori Launchpad", "SAP Fiori and UI5", "Fiori and UI5", "SAP UX"],
+  "certifications": ["SAP Certified Associate - SAP Fiori Application Developer (C_FIORD)", "SAP Certified Technology Associate - SAP Fiori System Administration (C_FIOAD)"],
+  "tools": ["SAP Business Application Studio", "SAP Fiori tools", "SAP BTP trial account", "SAP S/4HANA 2025 training system"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For web developers, functional consultants and launchpad administrators new to SAP Fiori. Covers Fiori design and floorplans, the development tools, SAPUI5 controls, views, data binding, OData models, routing, tables, forms, fragments and translations, Fiori elements apps with annotations, theming, launchpad content, activating standard apps, unit tests and deployment.",
+      "prerequisites": ["Knows HTML, CSS and JavaScript basics", "Has used a business application such as an ERP or CRM", "Access to an SAP BTP trial account and an S/4HANA training system"],
+      "outcomes": ["Build SAPUI5 freestyle apps with views, bindings and routing", "Generate Fiori elements apps and shape them with annotations", "Set up launchpad content and activate standard apps", "Test and deploy Fiori apps to the ABAP repository and SAP BTP"],
+      "days": [
+        {
+          "topic": "SAP Fiori Overview: Design Principles and the Launchpad",
+          "subtopics": ["What SAP Fiori is: design system, apps and launchpad", "The design principles: role-based, adaptive, simple, coherent and delightful", "SAP Fiori launchpad, spaces, pages and tiles", "Fiori apps compared with SAP GUI transactions", "SAPUI5 and OpenUI5", "Fiori elements apps and freestyle apps", "OData services behind Fiori apps", "Where Fiori runs: S/4HANA, SAP BTP and SAP Build Work Zone", "Fiori roles: UX designer, developer and launchpad administrator", "Course map and tools"],
+          "tools": ["SAP Fiori launchpad", "SAP Fiori apps reference library"],
+          "lab_task": "Explore the launchpad of the training system, open one app of each floorplan type, and use the Fiori apps reference library to look up two apps with their OData services and business roles.",
+          "deliverable": "App comparison sheet with app IDs, floorplans, services and roles",
+          "checks": [["Look up the Manage Sales Orders app in the reference library", "App ID, OData service and business role are listed", "Screenshot"], ["Open a list report and an object page", "Floorplans are identified correctly", "Annotated screenshots"], ["Explain the difference between Fiori elements and freestyle apps", "Correct explanation with an example of each", "Written answer"]],
+          "objectives": ["Explain what SAP Fiori is", "Navigate the launchpad", "Find technical details of apps"]
+        },
+        {
+          "topic": "SAP Fiori Design Guidelines and Floorplans",
+          "subtopics": ["The SAP Fiori design guidelines", "Floorplans: list report, object page, worklist and overview page", "Analytical list page", "Transactional, analytical and fact sheet apps", "Dynamic page layout and header behaviour", "Flexible column layout", "Message handling patterns", "Sketching an app with the SAP Fiori UI kit"],
+          "tools": ["SAP Fiori design guidelines", "SAP Fiori UI kit for Figma"],
+          "lab_task": "Choose floorplans for three needs, approving leave requests, monitoring late deliveries and maintaining products, and sketch one of them with the SAP Fiori UI kit.",
+          "deliverable": "Floorplan decisions with reasons and one wireframe",
+          "checks": [["Review the floorplan for monitoring late deliveries", "A worklist or analytical list page is chosen with a reason", "Decision sheet"], ["Review the wireframe", "Header, filter bar and table follow the guidelines", "Wireframe"], ["Explain when to use the flexible column layout", "A correct use case is given", "Written answer"]],
+          "objectives": ["Apply the design guidelines", "Choose floorplans", "Sketch Fiori apps"]
+        },
+        {
+          "topic": "Development Environment Setup: SAP Business Application Studio and SAP Fiori Tools",
+          "subtopics": ["SAP BTP trial account and subaccount", "Subscribing to SAP Business Application Studio", "Dev spaces for SAP Fiori", "SAP Fiori tools extensions", "Visual Studio Code as an alternative", "Node.js, npm and UI5 Tooling", "Destinations to back-end systems", "Git in the dev space", "Running an app with mock data", "Command palette and shortcuts"],
+          "tools": ["SAP Business Application Studio", "SAP Fiori tools", "SAP BTP cockpit", "Git"],
+          "lab_task": "Create a dev space for SAP Fiori in a BTP trial, create a destination to a sample OData service, generate a basic app, run it with mock data and push it to Git.",
+          "deliverable": "Running dev space, a working destination and the app in a Git repository",
+          "checks": [["Run the app with npm start", "App opens in the browser preview", "Screenshot"], ["Check the destination", "Connection check succeeds", "Destination check result"], ["Push the project to Git", "Commit is visible in the remote repository", "Repository link"]],
+          "objectives": ["Set up Fiori development tools", "Connect to back-end services", "Run and version apps"]
+        },
+        {
+          "topic": "SAPUI5 Basics: Bootstrapping, Controls and the Component",
+          "subtopics": ["SAPUI5 and OpenUI5", "Bootstrapping and index.html", "Component.js and manifest.json", "Libraries: sap.m, sap.f and sap.ui.layout", "Controls: properties, aggregations and events", "Modules with sap.ui.define", "UI5 Inspector and browser developer tools", "API reference and samples in the Demo Kit", "Asynchronous loading", "Project structure from the generator"],
+          "tools": ["SAP Business Application Studio", "UI5 Demo Kit", "UI5 Inspector"],
+          "lab_task": "Build a small app from the basic template with a page, a button, an input and a list, wire an event handler and inspect the control tree with the UI5 Inspector.",
+          "deliverable": "Working app and an annotated control tree",
+          "checks": [["Click the button", "Event handler shows a message toast with the input value", "Screenshot"], ["Inspect the page", "Control tree shows the page, input and list", "UI5 Inspector screenshot"], ["Explain manifest.json", "Role of the app descriptor explained correctly", "Written answer"]],
+          "objectives": ["Explain how a UI5 app starts", "Use controls and events", "Inspect UI5 apps"]
+        },
+        {
+          "topic": "XML Views and Controllers",
+          "subtopics": ["XML views and why they are preferred", "Controller lifecycle: onInit, onBeforeRendering, onAfterRendering and onExit", "Event handlers and finding controls by ID", "Namespaces in XML views", "Nested views", "Controller extensions in brief", "Base controllers for shared logic", "Code quality with ESLint"],
+          "tools": ["SAP Business Application Studio", "ESLint"],
+          "lab_task": "Split the app into a main view and a detail view with their own controllers, move shared code into a base controller and fix the lint findings.",
+          "deliverable": "Refactored app and a clean lint report",
+          "checks": [["Run the app", "Both views render", "Screenshot"], ["Run ESLint", "No errors are reported", "Lint output"], ["Call a base controller method from both controllers", "Shared method works in both views", "Screenshot"]],
+          "objectives": ["Build XML views", "Structure controllers", "Keep code clean"]
+        },
+        {
+          "topic": "Data Binding with JSON Models",
+          "subtopics": ["Models in SAPUI5: JSON, resource and OData", "One-way, two-way and one-time binding", "Property binding", "Aggregation binding with templates", "Element binding", "Absolute and relative binding paths", "Default and named models", "Debugging bindings"],
+          "tools": ["SAP Business Application Studio", "UI5 Inspector"],
+          "lab_task": "Load a JSON file of products into a model, bind a list with a template, bind a detail form to the selected product and let an input change the model with two-way binding.",
+          "deliverable": "App with list, detail form and binding notes",
+          "checks": [["Select a product", "Detail form shows the selected product", "Screenshot"], ["Change a value in the form", "List shows the new value", "Screenshot"], ["Switch the model to one-way binding", "List no longer updates from the form", "Screenshot"]],
+          "objectives": ["Bind data to controls", "Use binding modes", "Debug bindings"]
+        },
+        {
+          "topic": "Consuming OData Services with OData V2 and V4 Models",
+          "subtopics": ["OData basics: entity sets, entities, navigation and metadata", "OData V2 and V4 compared", "Data sources and models in the manifest", "Reading with bindings: filter, sort and expand", "Creating, updating and deleting", "Batch requests and CSRF tokens", "Mock server for local development", "Gateway client and error log in brief"],
+          "tools": ["SAP Business Application Studio", "SAP GUI /IWFND/GW_CLIENT", "SAP Fiori tools mock server"],
+          "lab_task": "Connect the app to a sales order OData service, list orders with filter and sort, show items through navigation and update a field in a batch request, then repeat with the mock server.",
+          "deliverable": "App working against the service and the mock server, with network traces",
+          "checks": [["Filter orders by customer", "Request contains a $filter option", "Network trace"], ["Update a field", "Change is saved in a batch request", "Network trace"], ["Run with mock data", "App works without the back end", "Screenshot"]],
+          "objectives": ["Consume OData services", "Read and change data", "Develop with mock data"]
+        },
+        {
+          "topic": "Routing and Navigation in SAPUI5 Apps",
+          "subtopics": ["Router configuration in the manifest", "Routes, targets and patterns", "Navigating with parameters", "Handling the route-matched event", "Not-found handling", "Browser history and back navigation", "Deep links and bookmarks", "Cross-app navigation in brief"],
+          "tools": ["SAP Business Application Studio"],
+          "lab_task": "Add list and detail routes with an order ID parameter, a not-found page and back navigation, and test deep links to an order.",
+          "deliverable": "App with routing and a test log of links",
+          "checks": [["Open a deep link to an order", "Detail page shows that order", "Screenshot"], ["Open an unknown route", "Not-found page appears", "Screenshot"], ["Press back on the detail page", "List page is shown again", "Screenshot"]],
+          "objectives": ["Configure routing", "Pass navigation parameters", "Support deep links"]
+        },
+        {
+          "topic": "Lists, Tables and Responsive Layouts",
+          "subtopics": ["sap.m.List and sap.m.Table", "Responsive tables: pop-in and column importance", "Grid tables with sap.ui.table", "Growing lists and paging", "Sorting, grouping and filtering", "Responsive layouts: FlexBox, Grid and SimpleForm", "Device model and content density", "Testing on phone, tablet and desktop sizes"],
+          "tools": ["SAP Business Application Studio", "Browser device emulation"],
+          "lab_task": "Build an orders table that pops in columns on a phone, groups by status, grows by 20 rows and filters with a search field, and test it in three device sizes.",
+          "deliverable": "Responsive table and screenshots at three sizes",
+          "checks": [["View the table at phone width", "Low-importance columns pop in", "Screenshot"], ["Search for a customer", "Only matching rows are shown", "Screenshot"], ["Scroll past 20 rows", "Next rows are loaded", "Network trace"]],
+          "objectives": ["Build lists and tables", "Design responsive layouts", "Test across devices"]
+        },
+        {
+          "topic": "Forms, Input Validation and Messages",
+          "subtopics": ["Forms with SimpleForm and Form", "Input controls: Input, DatePicker, Select and ComboBox", "Value help dialogs", "Data types and constraints", "Validation with the message manager", "Message popover and message strip", "Required fields and value states", "Saving and handling back-end errors"],
+          "tools": ["SAP Business Application Studio"],
+          "lab_task": "Build a create-order form with typed fields, a customer value help, required fields and a message popover that lists validation errors before saving.",
+          "deliverable": "Form with validation and screenshots of each error case",
+          "checks": [["Enter letters in the quantity field", "Field shows an error state", "Screenshot"], ["Save with required fields empty", "Message popover lists the errors", "Screenshot"], ["Choose a customer in the value help", "Customer ID and name are filled", "Screenshot"]],
+          "objectives": ["Build forms", "Validate input", "Show messages the Fiori way"]
+        },
+        {
+          "topic": "Fragments, Dialogs and Reuse",
+          "subtopics": ["XML fragments", "Loading fragments asynchronously", "Dialogs and popovers", "Reusing fragments across views", "Fragment IDs and lifecycle", "Busy indicators", "Confirmation dialogs", "When a reuse component is better"],
+          "tools": ["SAP Business Application Studio"],
+          "lab_task": "Move the value help and a confirmation dialog into fragments, reuse the confirmation dialog in two views and add busy indicators while saving.",
+          "deliverable": "Refactored app with fragments and a reuse note",
+          "checks": [["Open the dialog twice", "Fragment is loaded only once", "Network trace"], ["Confirm a delete", "Item is deleted only after confirmation", "Screenshot"], ["Save an order", "Busy indicator shows during the save", "Screenshot"]],
+          "objectives": ["Use fragments", "Build dialogs", "Reuse UI parts"]
+        },
+        {
+          "topic": "Formatters, Expression Binding and Translations",
+          "subtopics": ["Formatter functions", "Expression binding", "Types for dates, numbers and currencies", "Resource bundles and i18n files", "Translatable texts with placeholders", "Locale and language fallback", "Status colours and semantic states", "Unit tests for formatters in brief"],
+          "tools": ["SAP Business Application Studio"],
+          "lab_task": "Add formatters for order status colours, expression binding to hide empty fields, currency and date formats and German translations, and run the app in English and German.",
+          "deliverable": "App in two languages with formatted values",
+          "checks": [["Switch the language to German", "Texts appear in German", "Screenshot"], ["Show a delayed order", "Status shows the warning state", "Screenshot"], ["Show an amount", "Currency is formatted for the locale", "Screenshot"]],
+          "objectives": ["Format values", "Translate apps", "Use expression binding"]
+        },
+        {
+          "topic": "Generating Fiori Elements Apps with SAP Fiori Tools",
+          "subtopics": ["When to choose Fiori elements", "Application generator: templates and data sources", "List report and object page for OData V4", "The page map", "Guided development", "Service modeler", "Running with live and mock data", "Generated project structure"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Generate a list report and object page for a sales order OData V4 service, add a filter field and a table column with guided development and check the result in the page map.",
+          "deliverable": "Generated app with the added filter and column",
+          "checks": [["Run the app", "List report shows sales orders", "Screenshot"], ["Add a filter field with guided development", "Filter appears and filters the list", "Screenshot"], ["Open the page map", "List report and object page are linked", "Screenshot"]],
+          "objectives": ["Generate Fiori elements apps", "Use guided development", "Read the page map"]
+        },
+        {
+          "topic": "Annotations for List Reports and Object Pages",
+          "subtopics": ["Back-end CDS annotations and local annotation files", "UI.LineItem for table columns", "UI.SelectionFields for filters", "UI.HeaderInfo", "UI.Facets and UI.FieldGroup for object page sections", "Common.ValueList for value helps", "UI.DataPoint and criticality", "The annotation language server in SAP Fiori tools"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Use local annotations to add columns with criticality, a header with title and description, two object page sections with field groups and a value help for the customer filter.",
+          "deliverable": "Annotated app and the annotation file",
+          "checks": [["Open an order", "Header shows the order number and customer", "Screenshot"], ["Show a delayed order in the list", "Status column shows the critical colour", "Screenshot"], ["Open the customer filter value help", "Customers are listed", "Screenshot"]],
+          "objectives": ["Shape Fiori elements apps with annotations", "Build object page sections", "Add value helps"]
+        },
+        {
+          "topic": "Theming and SAP Fiori Horizon",
+          "subtopics": ["SAP Fiori themes: Horizon, Quartz and high contrast", "Theme parameters and CSS variables", "Content density: compact and cozy", "UI theme designer", "Company branding: logo and colours", "Custom CSS and when to avoid it", "Dark and high-contrast themes for accessibility", "Applying themes in the launchpad"],
+          "tools": ["UI theme designer", "SAP Fiori launchpad", "SAP Business Application Studio"],
+          "lab_task": "Create a company theme based on Horizon with the company colours and logo, apply it to the launchpad and check the app in the dark and high-contrast variants.",
+          "deliverable": "Custom theme and screenshots in three variants",
+          "checks": [["Apply the custom theme", "Launchpad shows the company colours and logo", "Screenshot"], ["Switch to high contrast", "App stays readable", "Screenshot"], ["Review the app's CSS", "No custom CSS overrides theme parameters", "Code review note"]],
+          "objectives": ["Apply Fiori themes", "Brand the launchpad", "Keep apps accessible"]
+        },
+        {
+          "topic": "Fiori Launchpad Content: Catalogs, Spaces, Pages and Tiles",
+          "subtopics": ["Launchpad building blocks: catalogs, tiles and target mappings", "Business catalogs and business roles", "Spaces and pages replacing groups", "Static and dynamic tiles", "Assigning content to PFCG roles", "The launchpad content manager", "My Home in S/4HANA", "Personalisation by users"],
+          "tools": ["SAP GUI /UI2/FLPCM_CONF", "Manage Launchpad Spaces app", "Manage Launchpad Pages app", "SAP GUI PFCG"],
+          "lab_task": "Create a space with two pages for a sales role, add tiles from a business catalog, assign the space to a PFCG role and log on as a test user to check it.",
+          "deliverable": "Space, pages, role assignment and test user screenshots",
+          "checks": [["Log on as the test user", "Space and pages appear", "Screenshot"], ["Open a tile", "App launches", "Screenshot"], ["Remove the catalog from the role", "Tiles can no longer be launched", "Screenshot"]],
+          "objectives": ["Build launchpad content", "Assign content to roles", "Explain spaces and pages"]
+        },
+        {
+          "topic": "SAP Fiori Apps Reference Library and Activating Standard Apps",
+          "subtopics": ["Finding apps by role, line of business and product version", "Implementation information: services, roles and SAP Notes", "Front-end and back-end components", "Activating OData services", "Rapid content activation with task lists", "ICF nodes", "Checking apps after activation", "Common activation errors"],
+          "tools": ["SAP Fiori apps reference library", "SAP GUI STC01", "SAP GUI /IWFND/MAINT_SERVICE and /IWFND/V4_ADMIN", "SAP GUI SICF"],
+          "lab_task": "Find the implementation details of three standard apps, activate their OData services and business role with a rapid activation task list and test each app.",
+          "deliverable": "Implementation notes, task list log and app screenshots",
+          "checks": [["Run the task list", "Services and the business role are activated", "Task list log"], ["Open each app", "Apps load data", "Screenshots"], ["Open an app whose service is inactive", "Cause is found in the error log and fixed", "/IWFND/ERROR_LOG screenshot"]],
+          "objectives": ["Use the apps reference library", "Activate standard apps", "Fix activation errors"]
+        },
+        {
+          "topic": "Unit Tests for SAPUI5 Apps with QUnit",
+          "subtopics": ["Why UI5 apps need tests", "QUnit structure: modules, tests and assertions", "Testing formatters and model helpers", "Sinon stubs and spies", "Running tests in the browser and with Karma", "Test coverage", "Writing a test for a bug before fixing it", "Integration tests with OPA5 in brief"],
+          "tools": ["QUnit", "Sinon", "Karma"],
+          "lab_task": "Write QUnit tests for the formatters and a model helper, stub a back-end call with Sinon, run them with coverage and add a failing test for a known bug before fixing it.",
+          "deliverable": "Test suite, coverage report and the fixed bug",
+          "checks": [["Run the tests", "All tests pass", "Test report"], ["Check coverage", "Formatters are fully covered", "Coverage report"], ["Fix the known bug", "The new test passes after the fix", "Test report"]],
+          "objectives": ["Write unit tests for UI5", "Stub dependencies", "Measure coverage"]
+        },
+        {
+          "topic": "Deploying Apps to the ABAP Repository and SAP BTP",
+          "subtopics": ["Building with UI5 Tooling", "Deployment configuration with SAP Fiori tools", "Deploying to the ABAP repository with a transport", "App index and cache refresh", "Deploying to SAP BTP Cloud Foundry with an MTA", "Adding the deployed app to the launchpad", "Versions and undeploying", "Checking the deployed app"],
+          "tools": ["SAP Business Application Studio", "SAP GUI /UI5/APP_INDEX_CALCULATE", "Cloud MTA Build Tool", "SAP BTP cockpit"],
+          "lab_task": "Deploy the app to the ABAP repository with a transport, add a tile for it in a test space and deploy a second copy to SAP BTP Cloud Foundry.",
+          "deliverable": "Deployment logs, launchpad tile and the BTP app URL",
+          "checks": [["Run the ABAP deployment", "App appears in the repository under the transport", "Deployment log"], ["Open the tile", "Deployed app launches", "Screenshot"], ["Deploy to Cloud Foundry", "App runs from the BTP URL", "Screenshot"]],
+          "objectives": ["Deploy to the ABAP repository", "Deploy to SAP BTP", "Publish apps in the launchpad"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Order Tracker for the Model Company",
+          "subtopics": ["Freestyle app with list, detail and routing", "Fiori elements app with annotations", "Translations, theme and messages", "Tests and deployment", "Launchpad space for the sales role", "Demo and questions"],
+          "tools": ["SAP Business Application Studio", "SAP Fiori tools", "SAP Fiori launchpad"],
+          "lab_task": "Build a freestyle sales order tracker with list, detail, filters and status colours on the sales order service, a Fiori elements list report for customers, tests for the formatters, deploy both and add them to a space for the sales role.",
+          "deliverable": "Two deployed apps, test report, launchpad space and a 10-minute demo",
+          "checks": [["Open both apps from the launchpad as the sales user", "Apps load live data", "Screenshots"], ["Run the tests", "All tests pass", "Test report"], ["Answer questions on the design", "Floorplan and binding choices explained", "Demo"]],
+          "objectives": ["Combine the beginner topics in one solution", "Deliver working Fiori apps", "Explain design choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Fiori developers and administrators who can build and deploy basic apps. Covers UI5 app architecture, custom controls, OData V4 in depth, Fiori elements building blocks and extensions, analytical apps and charts, CDS UI annotations, draft and side effects, intent-based navigation, authorisations, launchpad plugins, key user adaptation and adaptation projects, performance, accessibility, TypeScript, OPA5 and wdi5 tests, CI/CD and SAP Build Work Zone.",
+      "prerequisites": ["Can build a SAPUI5 freestyle app with views, bindings and routing", "Has generated a Fiori elements app and edited its annotations", "Knows launchpad content, spaces and pages"],
+      "outcomes": ["Build transactional and analytical Fiori apps on OData V4", "Extend and adapt Fiori elements and standard apps safely", "Secure, navigate and publish apps across the launchpad and SAP Build Work Zone", "Deliver accessible, fast and tested apps through a pipeline"],
+      "days": [
+        {
+          "topic": "SAPUI5 App Architecture: Components, Manifest and Models in Depth",
+          "subtopics": ["Component lifecycle and component containers", "Manifest sections: sap.app, sap.ui5 and sap.fiori", "Model instantiation and preloading", "Resource roots and library dependencies", "Asynchronous loading and lazy libraries", "Reuse components and component usages", "Structuring large apps", "Manifest versions and the app descriptor schema"],
+          "tools": ["SAP Business Application Studio", "UI5 Tooling"],
+          "lab_task": "Restructure the tracker app into a root component that embeds a reuse component for customer details through a component usage, with lazy-loaded libraries and preloaded models.",
+          "deliverable": "Restructured app with a reuse component and a load analysis",
+          "checks": [["Load the app", "Reuse component renders inside the main app", "Screenshot"], ["Check the network requests", "Libraries load only when they are needed", "Network trace"], ["Validate the manifest", "No schema errors are reported", "Validation output"]],
+          "objectives": ["Design UI5 app architecture", "Use reuse components", "Control loading behaviour"]
+        },
+        {
+          "topic": "Custom Controls and Reusable Control Libraries",
+          "subtopics": ["When a custom control is the right choice", "Control metadata: properties, aggregations and events", "Renderers with the semantic rendering API", "Extending existing controls", "Theme parameters in custom controls", "Building a control library with UI5 Tooling", "Using one library in several apps", "Accessibility of custom controls"],
+          "tools": ["SAP Business Application Studio", "UI5 Tooling"],
+          "lab_task": "Build a rating-and-comment custom control with properties, an event and a renderer, package it in a control library and use it in two apps.",
+          "deliverable": "Control library and two apps that use it",
+          "checks": [["Use the control in an app", "Control renders and fires its change event", "Screenshot"], ["Switch to the dark theme", "Control follows the theme parameters", "Screenshot"], ["Operate the control with the keyboard", "Control works without a mouse", "Screen recording"]],
+          "objectives": ["Write custom controls", "Package control libraries", "Keep controls themable and accessible"]
+        },
+        {
+          "topic": "OData V4 in Depth: Batch Groups, Deep Create and Server-Side Operations",
+          "subtopics": ["The OData V4 model and list bindings", "Batch groups and update groups", "Deferred and automatic update groups", "Deep create of header and items", "Bound actions and functions", "Server-side filtering, sorting and paging", "ETags and optimistic locking", "Server messages and error handling"],
+          "tools": ["SAP Business Application Studio", "Browser developer tools"],
+          "lab_task": "Build an order entry view that creates a header with items in one deep create, submits changes through a deferred update group, calls a bound action to release the order and handles an ETag conflict.",
+          "deliverable": "Order entry view and network traces for each case",
+          "checks": [["Create an order with items", "One request creates the header and items", "Network trace"], ["Release the order", "Bound action runs and the status changes", "Screenshot"], ["Edit the same order in two sessions", "The second save shows a conflict message", "Screenshot"]],
+          "objectives": ["Use the OData V4 model fully", "Run actions and deep creates", "Handle concurrency"]
+        },
+        {
+          "topic": "Fiori Elements Building Blocks in Custom Pages",
+          "subtopics": ["The flexible programming model", "Building blocks: Table, FilterBar, Field and Chart", "Custom pages made of building blocks", "Custom sections and actions in object pages", "The extension API", "Combining freestyle code with Fiori elements behaviour", "Guided development for flexible programming", "When to stop using Fiori elements"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Add a custom page to the Fiori elements app that combines filter bar, table and chart building blocks on the same service, plus a custom object page section with its own controller.",
+          "deliverable": "Custom page, custom section and a design note",
+          "checks": [["Open the custom page", "Filter bar drives both the table and the chart", "Screenshot"], ["Open the custom section", "Section shows data of the current order", "Screenshot"], ["Run the custom action through the extension API", "Table refreshes after the action", "Screenshot"]],
+          "objectives": ["Use building blocks", "Build custom pages", "Mix custom code with Fiori elements"]
+        },
+        {
+          "topic": "Fiori Elements Extensions: Custom Columns, Actions and Filters",
+          "subtopics": ["Extension points in list reports and object pages", "Controller extensions and lifecycle hooks", "Custom columns and custom fields", "Custom actions with enablement rules", "Custom filters", "Extending OData V2 and V4 apps compared", "Keeping extensions upgrade-safe", "Testing extensions"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Add a custom column with a progress indicator, a custom action that copies an order and a custom filter for delayed orders, all as manifest-based extensions.",
+          "deliverable": "Extended app and an upgrade-safety review",
+          "checks": [["Show the list report", "Custom column shows delivery progress", "Screenshot"], ["Run the copy action on a selected order", "A new order is created from it", "Screenshot"], ["Use the custom filter", "Only delayed orders are listed", "Screenshot"]],
+          "objectives": ["Extend Fiori elements apps", "Write controller extensions", "Keep extensions upgrade-safe"]
+        },
+        {
+          "topic": "Analytical Apps: Analytical List Pages and Card-Based Dashboards",
+          "subtopics": ["Analytical floorplans", "Analytical list page: chart and table views", "KPIs and visual filters", "Overview page cards: list, table, analytical and link list", "UI.Chart, UI.PresentationVariant and UI.SelectionVariant", "Aggregation in OData services", "Navigation from cards to apps", "Performance of analytical queries"],
+          "tools": ["SAP Fiori tools", "SAP Business Application Studio"],
+          "lab_task": "Build an overview page for a sales manager with four cards and an analytical list page for delayed deliveries with a KPI and visual filters.",
+          "deliverable": "Overview page, analytical list page and screenshots",
+          "checks": [["Open the overview page", "Four cards show live data", "Screenshot"], ["Click a card", "Target app opens with the card's filter", "Screenshot"], ["Use a visual filter", "Chart and table filter together", "Screenshot"]],
+          "objectives": ["Build analytical Fiori apps", "Use analytical annotations", "Design manager dashboards"]
+        },
+        {
+          "topic": "Charts and Visualisations in SAPUI5",
+          "subtopics": ["VizFrame charts", "Micro charts from sap.suite.ui.microchart", "Micro charts in tables and headers", "Chart containers and toolbars", "Semantic colours in charts", "Accessibility of charts", "Choosing a chart type", "Performance with large data sets"],
+          "tools": ["SAP Business Application Studio", "UI5 Demo Kit"],
+          "lab_task": "Add micro charts to the orders table, a VizFrame chart of revenue by month with drill-down and a chart container that switches between chart and table.",
+          "deliverable": "App with charts and a chart choice note",
+          "checks": [["Click a bar in the revenue chart", "Drill-down filters the table", "Screenshot"], ["Show the orders table", "Each row shows its micro chart", "Screenshot"], ["Switch the container to table view", "The same data is shown as a table", "Screenshot"]],
+          "objectives": ["Add charts to UI5 apps", "Choose chart types", "Keep charts accessible"]
+        },
+        {
+          "topic": "CDS Annotations for UI: Line Items, Facets, Value Helps and Criticality",
+          "subtopics": ["Metadata extensions in ABAP CDS", "@UI annotations for list reports", "@UI.facet for object pages", "Value help definitions", "Text associations and semantics", "Criticality and data points", "Annotation layering: back end, local and app", "Reading annotations in $metadata"],
+          "tools": ["ABAP Development Tools (Eclipse)", "SAP Fiori tools"],
+          "lab_task": "Move the local annotations of the Fiori elements app into a CDS metadata extension on the back end, add a value help definition and text associations, and check that the app looks the same.",
+          "deliverable": "Metadata extension, an app with no local annotations and a comparison",
+          "checks": [["Remove the local annotations and reload", "App shows the same columns and sections", "Screenshot"], ["Open the value help", "Value help comes from the CDS definition", "Screenshot"], ["Read $metadata", "UI annotations are present", "Metadata excerpt"]],
+          "objectives": ["Annotate CDS views for Fiori", "Layer annotations", "Debug annotations"]
+        },
+        {
+          "topic": "Transactional Apps with Draft and Side Effects",
+          "subtopics": ["Why draft handling exists", "Draft actions: edit, activate and discard", "Draft in RAP and CAP services", "Side effects that refresh dependent fields", "Validations and determinations shown as messages", "Create and edit flows in object pages", "Concurrency with draft locks", "Testing draft scenarios"],
+          "tools": ["SAP Fiori tools", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Enable draft for the order app, add a side effect that recalculates the total when an item changes and test edit, discard and two-user locking.",
+          "deliverable": "Draft-enabled app and test results",
+          "checks": [["Change an item quantity", "Total refreshes before saving", "Screenshot"], ["Discard a draft", "Active order is unchanged", "Screenshot"], ["Edit the order in a second session", "Lock message names the other user", "Screenshot"]],
+          "objectives": ["Build draft-enabled apps", "Use side effects", "Handle locks"]
+        },
+        {
+          "topic": "Intent-Based Navigation: Semantic Objects, Target Mappings and Parameters",
+          "subtopics": ["Semantic objects and actions", "Target mappings and their parameters", "Navigating between apps with the navigation service", "Parameters and default values", "Smart links and quick views", "Navigating to SAP GUI and Web Dynpro apps", "Targets the user is not authorised for", "Testing navigation"],
+          "tools": ["SAP GUI /UI2/SEMOBJ", "SAP GUI /UI2/FLPCM_CONF", "SAP Business Application Studio"],
+          "lab_task": "Create a semantic object and target mappings for the tracker and customer apps, add navigation with parameters between them and a smart link to the customer quick view.",
+          "deliverable": "Navigation setup and test screenshots",
+          "checks": [["Click a customer link", "Quick view opens with customer details", "Screenshot"], ["Navigate to the customer app", "Customer app opens filtered by the customer ID", "URL and screenshot"], ["Navigate as a user without the target", "Link is disabled or hidden", "Screenshot"]],
+          "objectives": ["Configure intent-based navigation", "Pass parameters between apps", "Handle missing targets"]
+        },
+        {
+          "topic": "Authorisations for Fiori: Roles, Catalogs and OData Service Access",
+          "subtopics": ["Front-end and back-end authorisations", "Business catalogs in PFCG roles", "S_SERVICE for OData services", "Start authorisations for apps", "Back-end authorisation objects behind apps", "Troubleshooting with SU53 and STAUTHTRACE", "Role templates from SAP", "Least-privilege role design"],
+          "tools": ["SAP GUI PFCG, SU53 and STAUTHTRACE"],
+          "lab_task": "Build front-end and back-end roles for the tracker app from an SAP business role template, test with a new user, trace a missing authorisation and fix it with least privilege.",
+          "deliverable": "Role design, trace output and test results",
+          "checks": [["Log on as the new user", "App opens with only the allowed data", "Screenshot"], ["Trace a failing call", "The missing authorisation object is identified", "STAUTHTRACE output"], ["Remove S_SERVICE from the role", "OData calls fail with 403", "Network trace"]],
+          "objectives": ["Design Fiori roles", "Trace authorisation problems", "Apply least privilege"]
+        },
+        {
+          "topic": "Launchpad Extensions: Shell Plugins and Custom Tiles",
+          "subtopics": ["Shell services: navigation, user information and UI services", "Launchpad plugins", "Header items and footer buttons", "Dynamic tiles with service URLs", "Launchpad notifications", "Performance and governance of plugins", "Activating plugins per role", "Testing plugins"],
+          "tools": ["SAP Business Application Studio", "SAP Fiori launchpad", "SAP GUI /UI2/FLP_CUS_CONF"],
+          "lab_task": "Build a launchpad plugin that adds a help button to the shell header and a dynamic tile that shows the number of delayed orders, activate both for one role and test them.",
+          "deliverable": "Plugin, dynamic tile and role activation evidence",
+          "checks": [["Log on with the role", "Help button appears in the shell header", "Screenshot"], ["Delay an order", "Dynamic tile count goes up", "Screenshot"], ["Log on without the role", "Plugin is not loaded", "Network trace"]],
+          "objectives": ["Extend the launchpad shell", "Build dynamic tiles", "Govern plugins"]
+        },
+        {
+          "topic": "Key User Adaptation and Adaptation Projects",
+          "subtopics": ["Adapting standard apps without code", "Key user adaptation at runtime", "Adding fields with custom fields extensibility", "Adaptation projects in SAP Business Application Studio", "App variants", "Controller extensions in adaptation projects", "Transporting adaptations", "Upgrade safety of adaptations"],
+          "tools": ["SAP Fiori launchpad", "Custom Fields app", "SAP Business Application Studio"],
+          "lab_task": "Adapt the Manage Sales Orders app by hiding two fields and adding a custom field as a key user, then create an adaptation project with an app variant that adds a custom action, and transport both.",
+          "deliverable": "Key user changes, adaptation project and transport logs",
+          "checks": [["Open the app as a business user", "Key user changes are visible", "Screenshot"], ["Launch the app variant", "Custom action appears only in the variant", "Screenshot"], ["Release the transports", "Adaptations arrive in the test system", "Transport log"]],
+          "objectives": ["Adapt standard Fiori apps", "Build app variants", "Transport adaptations"]
+        },
+        {
+          "topic": "Performance of SAPUI5 Apps: Loading, Bundling and Caching",
+          "subtopics": ["Measuring with the support assistant and browser tools", "Asynchronous module loading", "Component preload and bundling with UI5 Tooling", "Cache buster and application cache", "Fewer OData requests: $select, $expand and batch", "Lazy loading of views and fragments", "Rendering speed in large tables", "Performance budgets"],
+          "tools": ["UI5 support assistant", "Browser developer tools", "UI5 Tooling"],
+          "lab_task": "Measure the tracker app's start time, fix the support assistant findings, bundle it with a component preload, reduce OData payloads and compare before and after.",
+          "deliverable": "Before and after measurements with the changes made",
+          "checks": [["Run the support assistant", "No high-priority findings remain", "Support assistant report"], ["Compare start times", "Start time is lower after bundling", "Measurements"], ["Check OData payloads", "Only the needed fields are requested", "Network trace"]],
+          "objectives": ["Measure UI5 performance", "Bundle and cache apps", "Reduce data traffic"]
+        },
+        {
+          "topic": "Accessibility and Keyboard Support in Fiori Apps",
+          "subtopics": ["Requirements: WCAG 2.2 and the European Accessibility Act", "Built-in accessibility of UI5 controls", "Labels, ARIA attributes and invisible texts", "Keyboard navigation and focus handling", "Screen reader testing", "Colour contrast and high-contrast themes", "Accessibility rules in the support assistant", "Writing an accessibility test plan"],
+          "tools": ["UI5 support assistant", "NVDA screen reader", "Browser developer tools"],
+          "lab_task": "Audit the tracker app with a screen reader and the keyboard only, fix the label, focus and contrast findings and write a test plan.",
+          "deliverable": "Audit findings, fixes and an accessibility test plan",
+          "checks": [["Complete an order using only the keyboard", "Every step can be done", "Screen recording"], ["Read the form with a screen reader", "Every field is announced with its label", "Test notes"], ["Run the accessibility rules", "No accessibility findings remain", "Support assistant report"]],
+          "objectives": ["Test accessibility", "Fix accessibility issues", "Plan accessibility testing"]
+        },
+        {
+          "topic": "TypeScript for SAPUI5",
+          "subtopics": ["Why TypeScript for UI5", "Type definitions: @sapui5/types and @openui5/types", "Project configuration with ui5-tooling-transpile", "Typed controllers and models", "Typed custom controls with the interface generator", "Converting a JavaScript app step by step", "Linting TypeScript", "Debugging with source maps"],
+          "tools": ["SAP Business Application Studio", "TypeScript", "UI5 Tooling"],
+          "lab_task": "Convert the tracker app's controllers and formatters to TypeScript, add types for the model data and fix the type errors the compiler finds.",
+          "deliverable": "TypeScript app with a clean compiler run",
+          "checks": [["Run the TypeScript compiler", "No type errors are reported", "Compiler output"], ["Debug a controller", "Breakpoints stop in the TypeScript source", "Screenshot"], ["Use a wrong property name on purpose", "Compiler reports the error", "Compiler output"]],
+          "objectives": ["Write UI5 apps in TypeScript", "Type models and controls", "Convert JavaScript apps"]
+        },
+        {
+          "topic": "Integration Tests with OPA5 and End-to-End Tests with wdi5",
+          "subtopics": ["Test pyramid for UI5 apps", "OPA5 journeys, pages, arrangements, actions and assertions", "Mock server for repeatable tests", "wdi5 with WebdriverIO", "Testing Fiori elements apps with the test library", "Running tests headless in pipelines", "Avoiding flaky tests", "Reporting test results"],
+          "tools": ["OPA5", "wdi5", "WebdriverIO"],
+          "lab_task": "Write OPA5 journeys for searching and opening an order on mock data and a wdi5 end-to-end test that creates an order in the test system, and run both headless.",
+          "deliverable": "Test suites and headless run reports",
+          "checks": [["Run the OPA5 journeys", "All journeys pass on mock data", "Test report"], ["Run the wdi5 test", "Order is created in the test system", "Test report and order number"], ["Change a control ID the tests use", "Tests fail with a clear message", "Test report"]],
+          "objectives": ["Write integration tests", "Write end-to-end tests", "Run tests headless"]
+        },
+        {
+          "topic": "CI/CD for Fiori Apps: Build, Lint and Deploy Pipelines",
+          "subtopics": ["Pipeline stages for UI5 apps", "SAP Continuous Integration and Delivery service", "Project Piper and GitHub Actions as alternatives", "Linting and unit tests in the pipeline", "Building with UI5 Tooling", "Deploying to ABAP and Cloud Foundry from a pipeline", "Secrets and technical users", "Release versions and rollback"],
+          "tools": ["SAP Continuous Integration and Delivery", "GitHub Actions", "UI5 Tooling"],
+          "lab_task": "Set up a pipeline that lints, tests, builds and deploys the tracker app to the ABAP test system on every merge and stops when a test fails.",
+          "deliverable": "Pipeline definition and run logs",
+          "checks": [["Merge a change", "Pipeline deploys to the test system", "Pipeline log"], ["Merge a change with a failing test", "Pipeline stops before deployment", "Pipeline log"], ["Scan the repository for secrets", "No credentials are stored in it", "Scan result"]],
+          "objectives": ["Build pipelines for Fiori apps", "Automate deployment", "Protect secrets"]
+        },
+        {
+          "topic": "Publishing Apps in SAP Build Work Zone, Standard Edition",
+          "subtopics": ["SAP Build Work Zone, standard and advanced editions", "Content providers: HTML5 repository and S/4HANA", "Content manager: apps, catalogs, groups and roles", "Site settings and themes", "Role collections in SAP BTP", "Federating S/4HANA content in brief", "Site URL and single sign-on", "Updating published content"],
+          "tools": ["SAP Build Work Zone, standard edition", "SAP BTP cockpit", "HTML5 application repository"],
+          "lab_task": "Deploy the tracker app to the HTML5 repository, expose it through a content provider, build a Work Zone site with a role and assign the role collection to a test user.",
+          "deliverable": "Work Zone site, role setup and test user evidence",
+          "checks": [["Log on to the site as the test user", "App tile appears and launches", "Screenshot"], ["Remove the role collection", "Tile disappears from the site", "Screenshot"], ["Deploy a new version", "Site shows the new version after refresh", "Screenshot"]],
+          "objectives": ["Publish apps in SAP Build Work Zone", "Assign content through role collections", "Update published apps"]
+        },
+        {
+          "topic": "Intermediate Capstone: Transactional Fiori App with Extensions",
+          "subtopics": ["Draft-enabled Fiori elements app", "Custom page with building blocks and a chart", "Navigation, roles and launchpad content", "TypeScript extension, tests and pipeline", "Accessibility and performance results", "Design walkthrough"],
+          "tools": ["SAP Business Application Studio", "SAP Fiori tools", "SAP Continuous Integration and Delivery"],
+          "lab_task": "Build an order management solution with a draft-enabled Fiori elements app on CDS annotations, a custom page with building blocks and a chart, navigation to the customer app, roles, a TypeScript extension, OPA5 tests and a pipeline deployment, then present the results.",
+          "deliverable": "Apps, pipeline run, test and accessibility reports and a 15-minute walkthrough",
+          "checks": [["Run the pipeline", "Apps are deployed after the tests pass", "Pipeline log"], ["Edit an order in two sessions", "Draft lock and side effects behave correctly", "Screenshots"], ["Answer design questions", "Choices explained with alternatives", "Walkthrough"]],
+          "objectives": ["Combine the intermediate topics", "Deliver a tested transactional app", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Fiori developers, UX architects and launchpad platform owners. Covers UX strategy and front-end architecture, content federation and governance, UI5 Web Components, mobile and offline, Joule and AI, performance engineering, security hardening, front-end server operations, moving users from SAP GUI, legacy UI migration and UI5 2 readiness, clean core governance, UX research, localisation, troubleshooting, design systems, testing at scale and programme leadership.",
+      "prerequisites": ["Has built and deployed transactional Fiori apps", "Knows launchpad content, roles, navigation and SAP Build Work Zone", "Has worked on an S/4HANA or SAP BTP project"],
+      "outcomes": ["Design Fiori UX strategies and front-end architectures", "Govern launchpad content and custom apps across landscapes", "Harden, tune and operate Fiori landscapes", "Lead Fiori adoption, migration and programmes"],
+      "days": [
+        {
+          "topic": "Fiori UX Strategy and Solution Architecture",
+          "subtopics": ["UX strategy for an SAP landscape", "Role-based design across S/4HANA, SAP BTP and other systems", "Choosing standard apps, adaptations, Fiori elements or freestyle", "Front-end server deployment: embedded and hub", "Entry points: launchpad, SAP Build Work Zone and SAP Mobile Start", "UI technology roadmap: UI5 2, Web Components and SAP Build", "Architecture decision records", "Measuring the value of UX work"],
+          "tools": ["SAP Fiori apps reference library", "Diagramming tool", "SAP Fiori design guidelines"],
+          "lab_task": "Write a UX strategy for a company moving 400 SAP GUI users to Fiori, with role analysis, app choices per role, front-end deployment, entry points and three architecture decision records.",
+          "deliverable": "UX strategy document with role mapping and decision records",
+          "checks": [["Map roles to apps", "Each role lists standard, adapted or custom apps", "Role mapping"], ["Review a decision record", "Alternatives and consequences are stated", "Decision record"], ["Check the strategy against the UI roadmap", "No deprecated UI technology is planned", "Review note"]],
+          "objectives": ["Write a Fiori UX strategy", "Choose app approaches per role", "Record architecture decisions"]
+        },
+        {
+          "topic": "Fiori Launchpad Architecture: Embedded, Hub and SAP Build Work Zone",
+          "subtopics": ["Embedded front-end server in S/4HANA", "Central hub deployment and its limits", "SAP Build Work Zone as a central entry point", "Content from several back-end systems", "Single sign-on and identity propagation", "Network, reverse proxy and SAP Web Dispatcher", "High availability of the front end", "Choosing a deployment for a landscape"],
+          "tools": ["SAP Build Work Zone", "SAP Web Dispatcher", "Diagramming tool"],
+          "lab_task": "Compare embedded, hub and Work Zone designs for a landscape with S/4HANA, a BW/4HANA system and BTP apps, choose one and draw the target architecture with single sign-on and network flows.",
+          "deliverable": "Option comparison, target architecture and SSO sequence diagram",
+          "checks": [["Score the options", "Each option is scored on cost, upgrades and user experience", "Comparison table"], ["Trace the single sign-on flow", "Identity flows from the identity provider to each back end", "Sequence diagram"], ["Review availability", "No single point of failure remains", "Architecture diagram"]],
+          "objectives": ["Design launchpad architectures", "Plan single sign-on", "Make the front end highly available"]
+        },
+        {
+          "topic": "Content Federation Across S/4HANA, SAP BTP and Third-Party Apps",
+          "subtopics": ["Content providers and exposed content", "Exposing S/4HANA business roles to SAP Build Work Zone", "Federating BTP and partner apps", "Adding third-party web apps and URLs", "Mapping roles between systems and role collections", "Keeping federated content in sync", "Navigation across systems", "Monitoring federation"],
+          "tools": ["SAP Build Work Zone", "SAP GUI /UI2/CDM3_EXP_SCOPE", "SAP BTP cockpit"],
+          "lab_task": "Expose two S/4HANA business roles to SAP Build Work Zone, combine them with a BTP app and a third-party URL in one site, and resync the content after a role change.",
+          "deliverable": "Federated site, role mapping and sync evidence",
+          "checks": [["Open the site", "S/4HANA, BTP and third-party tiles appear together", "Screenshot"], ["Change the S/4HANA role and resync", "Site shows the change", "Screenshot"], ["Navigate from the BTP app to an S/4HANA app", "Target opens with single sign-on", "Screenshot"]],
+          "objectives": ["Federate launchpad content", "Map roles across systems", "Keep federated content current"]
+        },
+        {
+          "topic": "Launchpad Content Governance and Role Design at Scale",
+          "subtopics": ["Content model: business roles, catalogs, spaces and pages", "Copying SAP content or referencing it", "Naming conventions and ownership", "Content transport and lifecycle", "Mass maintenance and content checks", "Effects of upgrades on content", "Retiring unused apps and tiles", "Usage analytics for content decisions"],
+          "tools": ["SAP GUI /UI2/FLPCM_CONF", "Launchpad content checks", "SAP Cloud ALM"],
+          "lab_task": "Define a content governance model for 30 business roles, run the content checks, fix broken target mappings and retire tiles that were not used in 90 days.",
+          "deliverable": "Governance model, check results and a change log",
+          "checks": [["Run the content checks", "Broken target mappings are listed", "Check report"], ["Fix the mappings and check again", "Content checks pass", "Check report"], ["Retire unused tiles", "Tiles are removed with the owner's sign-off", "Change log"]],
+          "objectives": ["Govern launchpad content", "Design roles at scale", "Use usage data for content decisions"]
+        },
+        {
+          "topic": "UI5 Web Components and Modern Front-End Stacks",
+          "subtopics": ["UI5 Web Components and their use outside UI5", "UI5 Web Components for React", "Fiori design in apps not built with UI5", "Choosing UI5, Web Components or SAP Build Apps", "Calling SAP back ends through OData and REST", "Consistent theming of Web Components", "Accessibility in Web Components", "Packaging and hosting on SAP BTP"],
+          "tools": ["UI5 Web Components for React", "Node.js", "SAP BTP"],
+          "lab_task": "Build a small React app with UI5 Web Components that shows open orders from the OData service in the Horizon theme, host it on SAP BTP and compare it with the UI5 version.",
+          "deliverable": "React app, hosting configuration and a comparison note",
+          "checks": [["Run the React app", "Orders load in Fiori style", "Screenshot"], ["Switch the theme", "Web Components follow the theme", "Screenshot"], ["Compare with the UI5 version", "Trade-offs are listed with evidence", "Comparison note"]],
+          "objectives": ["Use UI5 Web Components", "Bring Fiori design to other stacks", "Choose a UI technology"]
+        },
+        {
+          "topic": "Fiori on Mobile Devices: SAP Mobile Start and Offline Apps",
+          "subtopics": ["Mobile entry points: SAP Mobile Start and the browser", "Native features through SAP Mobile Services", "Offline OData", "SAP Mobile Development Kit", "Push notifications and to-dos", "Device management and security policies", "Limits of responsive design", "Choosing a mobile approach"],
+          "tools": ["SAP Mobile Start", "SAP Mobile Services", "SAP Mobile Development Kit"],
+          "lab_task": "Connect SAP Mobile Start to the Work Zone site, build an MDK app for goods receipt that works offline and synchronises later, and test push notifications for approvals.",
+          "deliverable": "Mobile Start setup, offline MDK app and test evidence",
+          "checks": [["Open SAP Mobile Start", "Apps and to-dos from the site appear", "Screenshot"], ["Post a goods receipt offline and synchronise", "Document is created after synchronisation", "S/4HANA document"], ["Send an approval request", "Push notification arrives on the device", "Screenshot"]],
+          "objectives": ["Plan mobile access to SAP apps", "Build offline apps", "Manage mobile security"]
+        },
+        {
+          "topic": "Generative AI and Joule in Fiori Apps",
+          "subtopics": ["Joule in the launchpad: what users can ask", "AI-assisted features in Fiori elements apps", "Generating apps with Joule in SAP Build Code", "Joule in SAP Business Application Studio for annotations and code", "Calling AI services from custom apps through Generative AI Hub", "UX patterns for AI: explanations, review and undo", "AI governance and data privacy", "Testing AI-generated code"],
+          "tools": ["Joule", "SAP Build Code", "SAP AI Core and Generative AI Hub"],
+          "lab_task": "Generate a Fiori elements app and its annotations with Joule in SAP Build Code, review every generated file, add an AI summary panel that calls Generative AI Hub with a review step, and log the defects found in the generated code.",
+          "deliverable": "Generated app with fixes, review log and the AI summary panel",
+          "checks": [["Run the generated app after review", "App works with the fixes applied", "Screenshot"], ["Review the generated code", "Every defect is logged with its fix", "Review log"], ["Use the summary panel", "Summary is labelled as AI output and can be edited or discarded", "Screenshot"]],
+          "objectives": ["Use Joule for Fiori development", "Design AI features users can trust", "Review generated code"]
+        },
+        {
+          "topic": "Performance Engineering for Fiori Landscapes",
+          "subtopics": ["End-to-end performance: browser, network, front-end server and back end", "Measuring with UI5 diagnostics and SAP Cloud ALM", "Front-end server caches and invalidation", "OData performance: CDS views, paging and batch", "Launchpad start-up optimisation", "Compression and content delivery", "Load testing Fiori apps", "Performance budgets for a programme"],
+          "tools": ["SAP Cloud ALM", "SAP GUI /IWFND/TRACES and ST05", "Load testing tool"],
+          "lab_task": "Find the five slowest apps in the landscape, trace one end to end from browser to database, fix the top cause and load test the launchpad with 200 users.",
+          "deliverable": "Performance analysis, fix evidence and a load test report",
+          "checks": [["Trace the slow app", "Time is split across browser, network, gateway and database", "Trace"], ["Apply the fix", "Response time falls", "Before and after measurements"], ["Run the load test", "Launchpad meets the budget at 200 users", "Load test report"]],
+          "objectives": ["Engineer Fiori performance", "Trace end to end", "Load test the launchpad"]
+        },
+        {
+          "topic": "Security Hardening for Fiori: Content Security Policy, Clickjacking and Authentication",
+          "subtopics": ["Threats to Fiori apps: XSS, clickjacking and CSRF", "Content Security Policy for UI5 apps", "Frame options and clickjacking protection", "CSRF tokens in OData", "Authentication: SAML, OpenID Connect and X.509", "Secure UI5 coding: formatted text and sanitising", "Security headers and HTTPS settings", "Security testing of Fiori apps"],
+          "tools": ["Browser developer tools", "SAP GUI SICF", "Web security scanner"],
+          "lab_task": "Turn on a strict Content Security Policy for the tracker app, configure frame protection, fix an XSS finding in a formatted text control and run a security scan.",
+          "deliverable": "Security settings, fixed code and a scan report",
+          "checks": [["Load the app with the strict policy", "App works with no policy violations", "Console log"], ["Embed the launchpad in an unknown site", "Framing is blocked", "Screenshot"], ["Run the security scan", "No high findings remain", "Scan report"]],
+          "objectives": ["Harden Fiori apps", "Configure authentication", "Test Fiori security"]
+        },
+        {
+          "topic": "Front-End Server Operations: Gateway, Caches and Upgrades",
+          "subtopics": ["Front-end server components: SAP Gateway, UI5 libraries and launchpad", "UI5 version management and maintenance strategy", "Front-end server upgrades and compatibility", "Metadata and global cache management", "Error logs and traces", "System aliases and routing", "Health monitoring", "Runbooks for common incidents"],
+          "tools": ["SAP GUI /IWFND/ERROR_LOG and /IWFND/CACHE_CLEANUP", "SAP GUI /UI2/INVALIDATE_GLOBAL_CACHES", "SAP GUI /IWFND/MAINT_SERVICE"],
+          "lab_task": "Plan a UI5 version upgrade on the front-end server, test the custom apps against the new version, clear caches after a transport and write runbooks for three common incidents.",
+          "deliverable": "Upgrade plan, test results and three runbooks",
+          "checks": [["Test custom apps on the new UI5 version", "Each app is passed or has a logged defect", "Test log"], ["Import a transport and clear caches", "Users see the new app version", "Screenshot"], ["Follow a runbook for a failed service", "Service is restored with the steps", "Runbook test log"]],
+          "objectives": ["Operate the front-end server", "Plan UI5 upgrades", "Write operational runbooks"]
+        },
+        {
+          "topic": "Moving Users from SAP GUI to Fiori in S/4HANA Programmes",
+          "subtopics": ["Transaction usage analysis", "Mapping transactions to Fiori apps", "The SAP Fiori apps recommendations report", "SAP GUI for HTML tiles as a bridge", "Training and change management", "Adoption metrics", "Phasing the move by role", "Keeping power users productive"],
+          "tools": ["SAP Fiori apps recommendations report", "SAP GUI ST03N", "SAP Fiori apps reference library"],
+          "lab_task": "Analyse transaction usage for three roles, map the top transactions to Fiori apps with the recommendations report, plan the phases and define adoption KPIs.",
+          "deliverable": "Usage analysis, transaction-to-app mapping, phase plan and KPIs",
+          "checks": [["Run the usage analysis", "Top transactions per role are listed", "Report"], ["Map the transactions", "Each one has an app or a bridge decision", "Mapping sheet"], ["Define adoption KPIs", "Each KPI has a baseline and a target", "KPI sheet"]],
+          "objectives": ["Plan the move from SAP GUI", "Map transactions to apps", "Measure adoption"]
+        },
+        {
+          "topic": "Migrating Legacy UIs: Web Dynpro, Older UI5 Code and Deprecated APIs",
+          "subtopics": ["Inventory of legacy UIs", "Options for Web Dynpro and Floorplan Manager apps", "Preparing for UI5 2 by removing deprecated APIs", "The UI5 linter", "Synchronous loading and global names", "Moving OData V2 apps to V4", "Migration patterns and order", "Regression testing migrated apps"],
+          "tools": ["UI5 linter", "SAP Business Application Studio", "OPA5"],
+          "lab_task": "Run the UI5 linter on three older apps, fix the deprecated API and synchronous loading findings in one of them and prove with regression tests that it behaves the same.",
+          "deliverable": "Linter reports, fixed app and regression test report",
+          "checks": [["Run the UI5 linter", "Findings are listed per app", "Linter output"], ["Fix the findings in one app", "Linter run is clean", "Linter output"], ["Run the regression tests", "Behaviour is unchanged", "Test report"]],
+          "objectives": ["Plan UI migration", "Remove deprecated UI5 usage", "Prove behaviour after migration"]
+        },
+        {
+          "topic": "Clean Core Governance for Custom Fiori Apps",
+          "subtopics": ["Clean core levels for UI extensions", "Released APIs and services for custom apps", "Approval rules for new custom apps", "Reuse libraries and shared components", "Code review standards for UI5", "Ownership and support model", "Technical debt in UI code", "Measuring compliance"],
+          "tools": ["UI5 linter", "ABAP Test Cockpit", "Git"],
+          "lab_task": "Write governance rules for custom Fiori apps, review two custom apps against them and produce a remediation plan for the findings.",
+          "deliverable": "Governance rules, two review reports and a remediation plan",
+          "checks": [["Review the first app", "Findings are rated and linked to rules", "Review report"], ["Check service usage", "Every unreleased service is listed with a replacement", "Service list"], ["Review the plan", "Each finding has an owner and a date", "Remediation plan"]],
+          "objectives": ["Govern custom Fiori apps", "Review UI code", "Reduce UI technical debt"]
+        },
+        {
+          "topic": "UX Research, Usability Testing and Adoption Analytics",
+          "subtopics": ["User research methods", "Personas and task analysis for SAP roles", "Planning a usability test", "Running moderated tests", "Measuring task success, time and satisfaction (SUS)", "Usage analytics from the launchpad and SAP Cloud ALM", "Turning findings into backlog items", "Reporting UX results"],
+          "tools": ["Survey tool", "Screen recording tool", "SAP Cloud ALM"],
+          "lab_task": "Run a usability test of the order app with five users, measure task success, time and SUS scores, combine the results with usage data and turn them into prioritised backlog items.",
+          "deliverable": "Test plan, results, SUS scores and a prioritised backlog",
+          "checks": [["Run the five sessions", "Task success and time are recorded per task", "Results sheet"], ["Calculate the SUS score", "Score is calculated correctly", "Calculation"], ["Prioritise the findings", "Each backlog item has evidence and a priority", "Backlog"]],
+          "objectives": ["Run usability tests", "Measure UX", "Turn findings into improvements"]
+        },
+        {
+          "topic": "Localisation at Scale: Translation, Right-to-Left and Regional Formats",
+          "subtopics": ["Translation process for UI5 apps", "Text keys and translation tools", "Right-to-left languages", "Regional date, number and currency formats", "Time zones", "Layouts that survive longer texts", "Pseudo-localisation testing", "Managing translations across releases"],
+          "tools": ["SAP Business Application Studio", "Translation management tool", "Browser locale settings"],
+          "lab_task": "Prepare the tracker app for Arabic, German and Japanese: extract texts for translation, test right-to-left layout and regional formats, and run a pseudo-localisation test.",
+          "deliverable": "Translation files, test screenshots and a pseudo-localisation report",
+          "checks": [["Run the app in Arabic", "Layout is mirrored and readable", "Screenshot"], ["Show dates and amounts in German and Japanese", "Formats follow each locale", "Screenshots"], ["Run pseudo-localisation", "No truncated or hard-coded texts remain", "Report"]],
+          "objectives": ["Localise Fiori apps", "Support right-to-left languages", "Test localisation"]
+        },
+        {
+          "topic": "Monitoring and Troubleshooting Fiori Issues",
+          "subtopics": ["A method for UI incidents", "Browser console, network trace and UI5 diagnostics", "Gateway error log and traces", "Launchpad configuration errors", "Authorisation failures", "Cache and version issues", "Back-end errors behind OData calls", "Root cause and prevention notes"],
+          "tools": ["Browser developer tools", "SAP GUI /IWFND/ERROR_LOG", "SAP GUI STAUTHTRACE"],
+          "lab_task": "Solve five seeded incidents, a tile that does not open, a 403 on an OData call, a blank app after a transport, a missing annotation and a slow app, and document each root cause and fix.",
+          "deliverable": "Five incident reports with root causes, fixes and prevention notes",
+          "checks": [["Fix the tile that does not open", "Tile launches the app", "Screenshot"], ["Explain the 403", "Missing authorisation identified and fixed", "Trace"], ["Fix the blank app", "Cache or version cause identified and app loads", "Screenshot"]],
+          "objectives": ["Troubleshoot Fiori incidents", "Use the right diagnostic tools", "Prevent repeat incidents"]
+        },
+        {
+          "topic": "Enterprise Design Systems and Theming Governance",
+          "subtopics": ["A design system for SAP and non-SAP apps", "SAP Fiori design guidelines as the base", "Theme governance with the UI theme designer", "Component libraries and design tokens", "Rolling out brand changes across a landscape", "Design reviews", "Documentation for designers and developers", "Measuring consistency"],
+          "tools": ["UI theme designer", "SAP Fiori UI kit for Figma", "Storybook"],
+          "lab_task": "Define a company design system on top of the Fiori guidelines with tokens, a theme, two shared components and review rules, and apply a brand colour change across three apps.",
+          "deliverable": "Design system documentation, theme and the brand change evidence",
+          "checks": [["Apply the brand change", "All three apps show the new colour without code changes", "Screenshots"], ["Review an app against the design system", "Deviations are listed", "Review report"], ["Use a shared component in a new app", "Component looks and behaves the same", "Screenshot"]],
+          "objectives": ["Build a design system", "Govern themes", "Keep apps consistent"]
+        },
+        {
+          "topic": "Testing Strategy at Scale for Fiori Landscapes",
+          "subtopics": ["Test strategy for a Fiori programme", "Unit, integration and end-to-end test layers", "Testing standard apps after upgrades", "Test automation with wdi5 and Tricentis", "Visual regression testing", "Accessibility and performance tests in the pipeline", "Test data and environments", "Release quality gates"],
+          "tools": ["wdi5", "Tricentis Test Automation for SAP", "SAP Cloud ALM test management"],
+          "lab_task": "Write a test strategy for 40 custom and 200 standard apps, automate the top five user journeys and add accessibility and visual checks as quality gates in the pipeline.",
+          "deliverable": "Test strategy, automated journeys and pipeline gate results",
+          "checks": [["Run the automated journeys", "All five pass in the pipeline", "Pipeline log"], ["Change a theme colour by mistake", "Visual check fails the build", "Pipeline log"], ["Review the strategy", "Upgrade testing for standard apps is covered", "Strategy document"]],
+          "objectives": ["Plan Fiori testing at scale", "Automate key journeys", "Set release quality gates"]
+        },
+        {
+          "topic": "Leading Fiori Programmes: Roadmaps and Solution Reviews",
+          "subtopics": ["Assessing UX maturity", "Value drivers: adoption, task time and errors", "Roadmap from SAP GUI to role-based Fiori", "Business case and KPIs", "Team model: designers, developers and content administrators", "Solution review checklists", "Design authority and governance", "Presenting to stakeholders"],
+          "tools": ["SAP Cloud ALM", "Excel", "Presentation tool"],
+          "lab_task": "Review a Fiori programme design against a checklist, propose a three-wave roadmap with KPIs and a business case and present it to a mock steering committee.",
+          "deliverable": "Review findings, roadmap, business case and presentation",
+          "checks": [["Review the design", "Findings are rated by risk", "Review report"], ["Build the KPIs", "Each KPI has a baseline and a target", "KPI sheet"], ["Present to the steering committee", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Review Fiori solutions", "Build roadmaps and business cases", "Lead Fiori programmes"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Fiori Launchpad and App Portfolio",
+          "subtopics": ["UX strategy and launchpad architecture", "Content federation and governance", "Custom app portfolio on a clean core", "Security, performance and accessibility evidence", "Adoption and migration plan", "Board presentation and design defence"],
+          "tools": ["SAP Build Work Zone", "SAP Business Application Studio", "SAP Cloud ALM"],
+          "lab_task": "Produce an enterprise Fiori blueprint for a group with S/4HANA, BW/4HANA and BTP apps covering UX strategy, launchpad architecture, federation, content governance, custom app rules, security, performance, mobile and AI use, migration and adoption, prototype a federated site with two roles and present it to a mock board.",
+          "deliverable": "Blueprint, federated site prototype, evidence pack and a 20-minute presentation",
+          "checks": [["Log on to the prototype site with each role", "Each role sees its federated content with single sign-on", "Screenshots"], ["Present the evidence pack", "Security, performance and accessibility results meet the targets", "Evidence pack"], ["Answer board questions", "Blueprint defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one blueprint", "Prove the target design", "Lead enterprise Fiori work"]
+        }
+      ]
+    }
+  }
+}

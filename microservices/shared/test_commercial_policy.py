@@ -60,3 +60,34 @@ def test_proposal_shows_daily_and_total():
 def test_missing_duration_shows_only_known_amount(req, expected):
     from shared.commercial_policy import trainer_commercial_text
     assert trainer_commercial_text(req) == expected + ', inclusive of applicable TDS'
+
+
+def test_combined_client_budget_splits_lab_before_trainer_share():
+    from shared.commercial_policy import commercial_breakdown, trainer_offer
+    requirement = {
+        'budget_total': 100000,
+        'lab_client_price': 30000,
+        'client_budget_includes_lab': True,
+    }
+    split = commercial_breakdown(requirement)
+    assert split == {
+        'training_client_amount': 70000.0,
+        'lab_client_amount': 30000.0,
+        'total_client_amount': 100000.0,
+        'trainer_amount': 49000.0,
+        'clahan_training_margin_amount': 21000.0,
+        'budget_includes_lab': True,
+        'needs_lab_price': False,
+        'invalid': False,
+    }
+    assert trainer_offer(requirement)['total'] == 49000.0
+
+
+def test_combined_budget_waits_for_lab_workbook_price():
+    from shared.commercial_policy import commercial_breakdown
+    split = commercial_breakdown({
+        'budget_total': 100000,
+        'requirement_source_text': 'Our INR 100,000 budget includes the lab workbook too.',
+    })
+    assert split['budget_includes_lab'] is True
+    assert split['needs_lab_price'] is True

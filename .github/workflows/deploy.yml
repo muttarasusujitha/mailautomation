@@ -21,9 +21,28 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/trainersync
 
 jobs:
+  runner-workspace-repair:
+    name: Runner Workspace Permissions
+    runs-on: self-hosted
+    steps:
+      - name: Restore runner workspace ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          workspace_root="${RUNNER_WORKSPACE:?RUNNER_WORKSPACE is required}"
+          target="${workspace_root}/mailautomation"
+          case "$target" in
+            "$workspace_root"/*) ;;
+            *) echo "Refusing to repair a path outside the runner workspace." >&2; exit 1 ;;
+          esac
+          if [ -e "$target" ]; then
+            sudo chown -R "$(id -u):$(id -g)" "$target"
+          fi
+
   source-code:
     name: Stage 1 - Checkout
-    runs-on: ubuntu-latest
+    needs: runner-workspace-repair
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -34,7 +53,7 @@ jobs:
   build-test:
     name: Stage 2 - Backend Build & Test
     needs: source-code
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
@@ -85,7 +104,7 @@ jobs:
   frontend-build:
     name: Stage 2 - Frontend Build
     needs: source-code
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -128,6 +147,8 @@ jobs:
     needs:
       - build-test
       - frontend-build
+    # Image builds are disk-intensive. Keep them on GitHub-hosted runners so
+    # the production EC2 runner only pulls published images during Stage 4.
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -246,14 +267,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: docker-build-push
     runs-on: self-hosted
-    defaults:
-      run:
-        shell: bash
-        working-directory: deploy-source
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: deploy-source
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -263,7 +278,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Backend .env
-        working-directory: ${{ github.workspace }}/deploy-source/microservices
+        working-directory: ${{ github.workspace }}/microservices
+        env:
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           cp .env.example .env
           set_env() {
@@ -276,6 +295,15 @@ jobs:
             fi
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
+          set_env GEMINI_API_KEY "${{ secrets.GEMINI_API_KEY }}"
+          set_env TAVILY_API_KEY "$TAVILY_API_KEY"
+          set_env AI_PROVIDER "gemini"
+          set_env GEMINI_MODEL "gemini-2.5-flash"
+          set_env USE_LLM_FOR_EMAILS "true"
+          set_env AUTO_SEND_ENABLED "true"
+          set_env RAZORPAY_KEY_ID "$RAZORPAY_KEY_ID"
+          set_env RAZORPAY_KEY_SECRET "$RAZORPAY_KEY_SECRET"
+          set_env GMAIL_APP_PASSWORD "${{ secrets.GMAIL_APP_PASSWORD }}"
           set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
           set_env STYLE_IMAP_USER "${{ secrets.STYLE_IMAP_USER }}"
           set_env STYLE_IMAP_PASSWORD "${{ secrets.STYLE_IMAP_PASSWORD }}"
@@ -289,9 +317,16 @@ jobs:
           set_env GOOGLE_CALENDAR_ID "${{ secrets.GOOGLE_CALENDAR_ID }}"
           set_env GOOGLE_CALENDAR_TIMEZONE "${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}"
           set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
+          # LinkedIn runs in intelligence-service with a persistent account volume.
+          # Enabling the runtime does not prove that its saved login is valid.
+          set_env LINKEDIN_BOT_ENABLED "true"
+          # The dedicated Google Meet profile is persisted in meet_bot_profile.
+          # Enable the bot in production while retaining auto-admit's safe default.
+          set_env MEET_BOT_ENABLED "true"
+          set_env MEET_BOT_AUTO_ADMIT "false"
 
       - name: Create Frontend .env
-        working-directory: ${{ github.workspace }}/deploy-source
+        working-directory: ${{ github.workspace }}
         run: |
           cat > .env <<EOF
           VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
@@ -299,11 +334,16 @@ jobs:
 
       - name: Check Deployment Disk Space
         shell: bash
+        env:
+          # Stage 3 builds on hosted runners. EC2 only pulls images one at a
+          # time, so it needs a smaller, deployment-specific reserve.
+          MIN_DOCKER_FREE_GIB: "5"
         run: bash .github/scripts/check-docker-space.sh
 
       # Pull everything before changing running containers. Never prune volumes:
       # MongoDB data and the authenticated meeting-bot profile must survive.
       - name: Pull Latest Images
+        working-directory: ${{ github.workspace }}
         env:
           COMPOSE_PARALLEL_LIMIT: "1"
         run: |
@@ -311,18 +351,68 @@ jobs:
           docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml pull
           docker compose -f docker-compose.yml -f docker-compose.registry.yml pull frontend
 
-      - name: Build Meet Bot
-        run: |
-          docker compose -f microservices/docker-compose.yml build meet-bot-service
-
       - name: Start Backend
+        working-directory: ${{ github.workspace }}
         run: |
+          set -euo pipefail
           docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 180
-
       - name: Start Frontend
+        working-directory: ${{ github.workspace }}
         run: |
+          set -euo pipefail
+          frontend_image="${IMAGE_PREFIX}/frontend:latest"
+          while IFS= read -r container_id; do
+            [ -n "$container_id" ] || continue
+            running_image="$(docker inspect --format '{{.Config.Image}}' "$container_id")"
+            running_service="$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.service" }}' "$container_id")"
+            if [ "$running_image" = "$frontend_image" ] || { [ "$running_service" = "frontend" ] && [[ "$running_image" == *trainersync/frontend* ]]; }; then
+              echo "Stopping the previous TrainerSync frontend container $container_id ($running_image) to release port 5174."
+              docker stop "$container_id"
+            else
+              echo "Port 5174 is held by unrelated container $container_id ($running_image, service=$running_service); refusing to stop it."
+              exit 1
+            fi
+          done < <(docker ps --filter publish=5174 --format '{{.ID}}')
           docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 120 frontend
 
-      - name: Verify Deployment
+      - name: Verify LinkedIn Bot Deployment
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          docker exec ts-intelligence-service python -m app.linkedin_deployment
+
+      - name: Verify Meeting Bot Deployment
         run: |
           docker ps
+          docker exec -i ts-meet-bot python - <<'PY'
+          import json
+          import time
+          import urllib.request
+
+          deadline = time.monotonic() + 180
+          health = {}
+          while time.monotonic() < deadline:
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8010/health', timeout=5) as response:
+                      health = json.load(response)
+                  if health.get('status') == 'ok':
+                      break
+              except Exception:
+                  pass
+              time.sleep(5)
+
+          print(json.dumps(health, sort_keys=True))
+          if not health.get('enabled') or health.get('status') != 'ok':
+              raise SystemExit('Meet bot did not become ready and enabled.')
+          account = health.get('google_account') or {}
+          if account.get('status') != 'signed_in':
+              # The application deployment is healthy even when the persisted
+              # Google browser session expires. Surface it prominently without
+              # rolling back otherwise healthy services; the Meet bot remains
+              # unavailable until the dedicated account is signed in again.
+              print(
+                  "::warning::Meet bot Google profile is not signed in: "
+                  f"{account.get('status', 'unknown')}. "
+                  "Sign in to the dedicated Meet bot account on EC2."
+              )
+          PY

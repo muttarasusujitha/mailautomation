@@ -2,7 +2,7 @@
 import asyncio
 import sys
 from pathlib import Path
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -13,6 +13,79 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from app import config
 from app.routes import inbox_actions
+
+
+def install_fake_genai(monkeypatch, outcomes, available_models):
+    calls = []
+    list_calls = []
+
+    class FakeAioModels:
+        async def generate_content(self, model, contents, config):
+            calls.append(model)
+            result = outcomes[model]
+            if isinstance(result, Exception):
+                raise result
+            return SimpleNamespace(text=result)
+
+    class FakeModels:
+        def list(self):
+            list_calls.append(True)
+            return available_models
+
+    class FakeClient:
+        def __init__(self, api_key):
+            assert api_key == "test-gemini-key"
+            self.aio = SimpleNamespace(models=FakeAioModels())
+            self.models = FakeModels()
+
+    google_module = ModuleType("google")
+    google_module.__path__ = []
+    genai_module = ModuleType("google.genai")
+    genai_module.Client = FakeClient
+    types_module = ModuleType("google.genai.types")
+    types_module.GenerateContentConfig = lambda **kwargs: kwargs
+    google_module.genai = genai_module
+    genai_module.types = types_module
+    monkeypatch.setitem(sys.modules, "google", google_module)
+    monkeypatch.setitem(sys.modules, "google.genai", genai_module)
+    monkeypatch.setitem(sys.modules, "google.genai.types", types_module)
+    return calls, list_calls
+
+
+def test_gemini_uses_configured_model_when_available(monkeypatch):
+    calls, list_calls = install_fake_genai(
+        monkeypatch,
+        {"my-enabled-model": "Draft body"},
+        [SimpleNamespace(name="models/my-enabled-model", supported_actions=["generateContent"])],
+    )
+    cfg = SimpleNamespace(GEMINI_API_KEY="test-gemini-key", GEMINI_MODEL="my-enabled-model")
+
+    result = asyncio.run(inbox_actions._gemini_email_draft(cfg, "Prompt"))
+
+    assert result == "Draft body"
+    assert calls == ["my-enabled-model"]
+    assert list_calls == []
+
+
+def test_gemini_discovers_enabled_generation_model_after_not_found(monkeypatch):
+    class NotFoundError(Exception):
+        code = 404
+
+    calls, list_calls = install_fake_genai(
+        monkeypatch,
+        {"retired-model": NotFoundError("model not found"), "available-flash-lite": "Draft body"},
+        [
+            SimpleNamespace(name="models/embed-only", supported_actions=["embedContent"]),
+            SimpleNamespace(name="models/available-flash-lite", supported_actions=["generateContent"]),
+        ],
+    )
+    cfg = SimpleNamespace(GEMINI_API_KEY="test-gemini-key", GEMINI_MODEL="retired-model")
+
+    result = asyncio.run(inbox_actions._gemini_email_draft(cfg, "Prompt"))
+
+    assert result == "Draft body"
+    assert calls == ["retired-model", "available-flash-lite"]
+    assert list_calls == [True]
 
 
 def use_ollama(monkeypatch, draft):
@@ -52,6 +125,52 @@ def test_brief_acknowledgement_is_not_padded_with_default_template(monkeypatch):
     prompt = writer.call_args.args[1]
     assert "kindly provide the following details" not in prompt
     assert "initial trainer search" not in prompt
+
+
+def test_ai_reply_prompt_personalizes_to_stated_training_requirement(monkeypatch):
+    writer = use_ollama(monkeypatch, "Hi Mira,\n\nWe can tailor the AWS labs to your clinical analytics deployment goals.")
+    asyncio.run(inbox_actions._ai_draft_reply(
+        "DevOps ToC and lab estimate",
+        "Please share the ToC and lab estimate.",
+        workflow_context={
+            "extracted_request": {
+                "technology_needed": "AWS DevOps",
+                "delivery_mode": "online",
+                "duration_days": 3,
+                "participant_count": 12,
+            },
+        },
+        reference_reply={"body": "The DevOps and AWS ToC and lab estimate are attached."},
+        require_openai=True,
+    ))
+    prompt = writer.call_args.args[1]
+    assert "AWS DevOps" in prompt
+    assert '"participant_count":12' in prompt
+    assert "Personalize the reply to the client's stated training requirement" in prompt
+    assert "not to company research" in prompt
+
+
+def test_gemini_drafts_a_requirement_specific_reply(monkeypatch):
+    monkeypatch.setattr(config, "get_settings", lambda: SimpleNamespace(
+        USE_LLM_FOR_EMAILS=True,
+        AI_PROVIDER="gemini",
+        GEMINI_API_KEY="test-key",
+        GEMINI_MODEL="gemini-2.5-flash",
+        FROM_NAME="Clahan Technologies",
+    ))
+    writer = AsyncMock(return_value="Hi Mira,\n\nWe can arrange the three-day online AWS DevOps training for your 12 participants. Please share the preferred dates.\n\nThanks")
+    monkeypatch.setattr(inbox_actions, "_gemini_email_draft", writer)
+
+    result = asyncio.run(inbox_actions._ai_draft_reply(
+        "AWS DevOps training",
+        "We need a 3-day online AWS DevOps training for 12 people.",
+        workflow_context={"sender_name": "Mira", "extracted_request": {"technology_needed": "AWS DevOps", "duration_days": 3, "delivery_mode": "online", "participant_count": 12}},
+        require_openai=True,
+    ))
+
+    assert "three-day online AWS DevOps training" in result
+    assert "preferred dates" in result
+    assert writer.await_count == 1
 
 
 def test_large_business_context_does_not_hide_thread_or_prior_replies(monkeypatch):
@@ -306,6 +425,7 @@ def test_regenerate_never_saves_template_when_ai_is_unavailable(monkeypatch, ai_
     with pytest.raises(HTTPException) as error:
         asyncio.run(inbox_actions.regenerate_reply("test-email", inbox_actions.RegenerateRequest(), db))
     assert error.value.status_code == 502
-    assert "no template was substituted" in error.value.detail
+    assert "existing draft is unchanged" in error.value.detail
+    assert "Template mode" in error.value.detail
     records.update_one.assert_not_awaited()
     assert writer.await_count == 1

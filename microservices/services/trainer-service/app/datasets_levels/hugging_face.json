@@ -1,0 +1,573 @@
+{
+  "domain": "Hugging Face",
+  "name": "Hugging Face",
+  "category": "Data Science and Machine Learning",
+  "icon": "bot",
+  "aliases": ["Hugging Face Ecosystem", "Hugging Face Hub", "HF Hub", "HuggingFace", "Hugging Face Platform", "Hugging Face Spaces", "huggingface_hub", "Hugging Face Inference"],
+  "certifications": [],
+  "tools": ["Hugging Face Hub", "huggingface_hub", "hf CLI", "datasets", "Gradio", "Spaces", "Inference Providers", "Inference Endpoints", "Text Embeddings Inference", "smolagents", "PEFT", "TRL", "safetensors", "Trackio"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, analysts and ML newcomers who need to use the Hugging Face platform productively. Covers the Hub (models, datasets, Spaces, collections), model cards, licences and gated access, access tokens, the hf CLI and huggingface_hub library, the local cache, the datasets library, creating and versioning repositories, a first Gradio app and Space, and first calls to Inference Providers. Transformer architecture and the transformers library are covered in the separate Transformers course.",
+      "prerequisites": ["Writes basic Python scripts and uses pip and virtual environments", "Uses a terminal and git concepts such as commit, branch and tag", "Has internet access, a free Hugging Face account and a laptop that can run Python 3.10 or later"],
+      "outcomes": ["Find, evaluate and legally use models and datasets from the Hub", "Authenticate and move assets with the hf CLI and huggingface_hub, and manage the local cache", "Load and transform data with the datasets library and publish versioned repositories with proper cards", "Ship a Gradio demo as a Space and call hosted models through Inference Providers"],
+      "days": [
+        {
+          "topic": "Hub Orientation and Account Setup",
+          "subtopics": ["What the Hub hosts: models, datasets, Spaces, collections and papers", "Repositories as git repositories with a commit history", "Namespaces: user accounts compared with organisations", "Creating an account, verifying the email address and enabling two-factor authentication", "Profile, avatar and the settings pages that matter on day one", "Free, Pro, Team and Enterprise plan differences at a high level", "The huggingface.co URL scheme for models, datasets/ and spaces/", "Installing Python 3.10 or later and a virtual environment with python -m venv", "Installing huggingface_hub and checking the version", "Where the documentation, forum and Discord live"],
+          "tools": ["huggingface.co", "Python venv", "pip", "huggingface_hub", "hf CLI"],
+          "lab_task": "Create a Hub account, enable two-factor authentication, then in a fresh venv run pip install -U huggingface_hub and hf version. Open the model page openai-community/gpt2 and note the licence, file count and last-commit SHA. Record the three URL forms for a model, a dataset and a Space under your namespace.",
+          "deliverable": "Setup note with hf version output, the gpt2 commit SHA and the three URL patterns",
+          "checks": [["Run hf version in the new venv", "A version string is printed and pip show huggingface_hub reports the same version", "Terminal output"], ["Open Settings > Account > Authentication", "Two-factor authentication is shown as enabled", "Settings screenshot"], ["Compare the URLs of a model, a dataset and a Space", "Models have no prefix while datasets use /datasets/ and Spaces use /spaces/", "Written URL table"]],
+          "objectives": ["Describe the repository types the Hub hosts", "Set up an account and a clean Python environment for the course", "Read a repository URL and identify its type and namespace"]
+        },
+        {
+          "topic": "Finding Models, Datasets and Spaces",
+          "subtopics": ["Hub search box compared with the filter sidebar", "Task filters such as text-classification, feature-extraction and automatic-speech-recognition", "Library, language, licence and parameter-count filters", "Sorting by trending, most likes, most downloads and recently updated", "Inference provider filter for models that can be called without hosting", "Downloads last month: what it counts and what it does not prove", "Collections and Daily Papers as curation sources", "Searching programmatically with HfApi.list_models and list_datasets", "Evaluating a candidate: card quality, activity, licence and file formats"],
+          "tools": ["huggingface.co", "HfApi", "Python", "Jupyter"],
+          "lab_task": "Use the web filters to shortlist three text-classification models under 500M parameters with the apache-2.0 or mit licence. Then reproduce the search with HfApi().list_models(filter='text-classification', sort='downloads', limit=5) and print id, downloads and likes for each result. Score each shortlisted model on card quality, licence and recent activity.",
+          "deliverable": "Shortlist table of three models with a scoring rationale and the script that lists the top five by downloads",
+          "checks": [["Run list_models with limit=5 and sort='downloads'", "Exactly 5 model objects are returned in descending order of downloads", "Script output"], ["Apply the licence filter apache-2.0 on the Hub website", "Every listed model card shows apache-2.0 in its header", "Screenshot"], ["Open a model page with no model card text", "The page shows an empty or auto-generated card and the model is scored low on documentation", "Scoring table"]],
+          "objectives": ["Locate suitable repositories with filters and the API", "Interpret popularity metrics correctly", "Rank candidates with documented criteria"]
+        },
+        {
+          "topic": "Reading Model Cards and Repository Files",
+          "subtopics": ["The Model card tab: README.md rendered from Markdown", "YAML front matter: license, language, library_name, pipeline_tag and base_model", "Intended use, limitations, training data and evaluation sections", "Files and versions tab: config.json, tokenizer files, weight files", "Weight formats: .safetensors, .bin, .gguf and .onnx", "Reading model size from the safetensors file size and parameter count badge", "Commit history, blame-style diffs and the raw file view", "Using the Use this model button and its code snippets"],
+          "tools": ["huggingface.co", "hf CLI", "huggingface_hub", "ModelCard"],
+          "lab_task": "Pick google-bert/bert-base-uncased and answer from its page: licence, library_name, pipeline_tag and the weight formats present. Load it in code with ModelCard.load('google-bert/bert-base-uncased') and print card.data.to_dict(). Compare the parameter count shown on the page with the model.safetensors file size divided by 4 bytes.",
+          "deliverable": "One-page model audit with YAML fields, file list and the size-to-parameter calculation",
+          "checks": [["Run ModelCard.load on google-bert/bert-base-uncased and print card.data.license", "Prints apache-2.0", "Script output"], ["List the repository files with HfApi().list_repo_files", "The list includes config.json, tokenizer.json and model.safetensors", "Script output"], ["Divide the model.safetensors size in bytes by 4", "The result is within 5 percent of the 110M parameter figure on the page", "Calculation sheet"]],
+          "objectives": ["Extract structured metadata from a model card", "Identify weight and tokenizer files by name and format", "Estimate parameter count from file size"]
+        },
+        {
+          "topic": "Licences, Gated Models and Access Requests",
+          "subtopics": ["Open-source licences on the Hub: apache-2.0, mit, bsd-3-clause", "Creative Commons licences for data: cc-by-4.0, cc-by-nc-4.0, cc0-1.0", "Custom model licences: llama and gemma terms, openrail and license: other", "Non-commercial and use-restriction clauses that block production use", "Gated repositories: automatic and manual approval", "Requesting access, the form fields and the access-request status", "Reading a licence file and extra_gated_prompt before accepting", "GatedRepoError and what it means in code", "Recording licence decisions for audit"],
+          "tools": ["huggingface.co", "huggingface_hub", "hf CLI"],
+          "lab_task": "Choose one gated model and one ungated model. Request access to the gated one from its page. Before approval, run hf download <gated-repo> config.json while logged in and capture the error, then download the ungated repo's config.json. Fill in a licence register with repo id, licence id, commercial use yes or no, and the clause you relied on.",
+          "deliverable": "Licence register covering four repositories and the captured gated-access error",
+          "checks": [["Download a file from a gated repo before approval", "A GatedRepoError is raised and no file is written to the cache", "Terminal output"], ["Download config.json from an ungated apache-2.0 repo", "The file path under snapshots/ is printed", "Terminal output"], ["Review a licence: cc-by-nc-4.0", "Register marks commercial use as no with the non-commercial clause cited", "Licence register"]],
+          "objectives": ["Classify Hub licences by commercial permission", "Request and track access to a gated repository", "Record licence decisions for later review"]
+        },
+        {
+          "topic": "Access Tokens and Authentication Methods",
+          "subtopics": ["Why tokens exist: API authentication for the Hub, CLI and libraries", "Token types: read, write and fine-grained", "Creating a token under Settings > Access Tokens", "hf auth login, hf auth whoami and hf auth logout", "The HF_TOKEN environment variable and its precedence over stored tokens", "The stored token file under HF_HOME and the git credential helper", "login() and notebook_login() in Python", "Revoking a token and what happens to running jobs", "Rotating tokens after an accidental leak"],
+          "tools": ["hf CLI", "huggingface_hub", "Access Tokens page", "python-dotenv"],
+          "lab_task": "Create a read token named course-read. Run hf auth login --token <token> --add-to-git-credential false, then hf auth whoami to confirm the account. Export HF_TOKEN with a different invalid string and run hf auth whoami again to see precedence. Revoke course-read on the website and repeat the whoami call to capture the failure.",
+          "deliverable": "Authentication log with the whoami output before and after each change and a token hygiene checklist",
+          "checks": [["Run hf auth whoami after login", "The account username is printed", "Terminal output"], ["Set HF_TOKEN=invalid and run hf auth whoami", "A 401 invalid credentials error is returned because the variable overrides the stored token", "Terminal output"], ["Revoke the token on the website and call whoami with it", "The call fails with 401 Unauthorized", "Terminal output"]],
+          "objectives": ["Create and manage tokens correctly", "Explain how credentials are resolved by the CLI and library", "Respond to a leaked token"]
+        },
+        {
+          "topic": "The hf Command Line: Download, Upload and Repo Commands",
+          "subtopics": ["hf as the successor to huggingface-cli", "hf download with repo id, filenames and --repo-type", "--include and --exclude patterns and --local-dir", "--revision for branches, tags and commit SHAs", "hf upload for files and folders with --commit-message", "hf repo create with --private and --repo-type", "hf auth, hf env and hf version for diagnostics", "Exit codes and scripting hf in shell pipelines"],
+          "tools": ["hf CLI", "bash", "huggingface_hub", "jq"],
+          "lab_task": "Run hf download openai-community/gpt2 --include '*.json' --local-dir ./gpt2-json and count the files. Run hf download cornell-movie-review-data/rotten_tomatoes --repo-type dataset. Create a private repo with hf repo create <user>/cli-demo --private and upload README.md with hf upload. Print the repo URL.",
+          "deliverable": "Shell script that downloads two repos, creates a private repo and uploads a README, with captured output",
+          "checks": [["Run hf download with --include '*.json' on openai-community/gpt2", "Only .json files are written to ./gpt2-json and no weight file is present", "Directory listing"], ["Run hf env", "Output shows the huggingface_hub version, endpoint https://huggingface.co and the token state", "Terminal output"], ["Run hf download nonexistent-user/nonexistent-repo", "The command exits with a nonzero code and a repository not found message", "Exit code and output"]],
+          "objectives": ["Use hf for downloads and uploads", "Filter files with include and exclude patterns", "Script hf commands with exit-code handling"]
+        },
+        {
+          "topic": "The huggingface_hub Python Client Essentials",
+          "subtopics": ["HfApi as the single client object and its token handling", "hf_hub_download for one file and snapshot_download for a whole repository", "model_info, dataset_info and space_info return objects", "repo_exists and file_exists checks before downloads", "list_repo_files and list_repo_tree", "Typed errors: RepositoryNotFoundError, RevisionNotFoundError and GatedRepoError", "HfHubHTTPError, status codes and the X-Request-Id header", "Timeouts, proxies and the HF_ENDPOINT override"],
+          "tools": ["huggingface_hub", "Python", "HfApi", "pytest"],
+          "lab_task": "Write hub_probe.py with a function probe(repo_id, repo_type='model') that returns a dict with exists, private, gated, sha and file count using HfApi methods. Catch RepositoryNotFoundError and GatedRepoError. Run it on openai-community/gpt2, on a repo name that does not exist and on a gated model, and write three pytest cases for the three outcomes.",
+          "deliverable": "hub_probe.py with three passing pytest cases and sample output for each repository",
+          "checks": [["probe('openai-community/gpt2')", "Returns exists True and a 40-character sha", "pytest output"], ["probe('nobody-xyz/does-not-exist-123')", "Returns exists False after catching RepositoryNotFoundError", "pytest output"], ["probe on a gated repo without access", "Returns gated as auto or manual and does not raise", "pytest output"]],
+          "objectives": ["Query repository metadata with HfApi", "Handle Hub exceptions explicitly", "Write tests for Hub-dependent code"]
+        },
+        {
+          "topic": "Cache Layout, Disk Use and Offline Mode",
+          "subtopics": ["HF_HOME and HF_HUB_CACHE default locations", "Cache folders: models--org--name, datasets--org--name, spaces--org--name", "blobs, refs and snapshots directories and symlinks", "Why two revisions share unchanged blobs", "scan_cache_dir and reading CacheInfo", "Deleting revisions with delete_revisions and strategy.execute", "HF_HUB_OFFLINE=1 and local_files_only=True", "LocalEntryNotFoundError when a file is not cached", "Moving the cache to a larger disk", "Disk checks before downloading large repositories"],
+          "tools": ["huggingface_hub", "hf CLI", "du", "bash"],
+          "lab_task": "Set HF_HOME=./hfhome, download openai-community/gpt2 config.json at revision main with hf_hub_download, then inspect the folder tree under hub/models--openai-community--gpt2. Use scan_cache_dir() to print size_on_disk. Set HF_HUB_OFFLINE=1 and request the cached file again and an uncached file, then delete the revision with delete_revisions.",
+          "deliverable": "Cache report showing the folder tree, scan output and offline behaviour for cached and uncached files",
+          "checks": [["List hub/models--openai-community--gpt2 after download", "Directories blobs, refs and snapshots exist and the snapshot file is a symlink", "ls -l output"], ["With HF_HUB_OFFLINE=1 request the cached config.json", "The local path is returned with no network call", "Script output"], ["With HF_HUB_OFFLINE=1 request an uncached file", "An error is raised stating the file is not in the cache", "Exception text"]],
+          "objectives": ["Describe the cache directory structure", "Audit and reclaim disk space", "Run workloads offline safely"]
+        },
+        {
+          "topic": "Running Hub Models Locally with pipelines and GGUF Runtimes",
+          "subtopics": ["Boundary: this course uses transformers only as a consumer and teaches no architecture", "pipeline(task, model=repo_id) and what it downloads", "Pinning revision= to a commit SHA for repeatable runs", "device selection with device_map and CPU fallbacks", "First-run download time compared with cached start-up", "GGUF repositories and quantisation tags such as Q4_K_M", "llama.cpp llama-server -hf <repo>:<quant>", "ollama run hf.co/<user>/<repo>:<quant>", "Choosing between the transformers, llama.cpp and Ollama routes"],
+          "tools": ["transformers", "llama.cpp", "Ollama", "huggingface_hub", "hf CLI"],
+          "lab_task": "Run pipeline('sentiment-analysis', model='distilbert/distilbert-base-uncased-finetuned-sst-2-english', revision=<sha>) on three sentences and print label and score. Then pull a small GGUF repo through ollama run hf.co/<user>/<repo>:Q4_K_M or llama-server -hf <repo>:Q4_K_M and send one prompt. Compare download size and first-token delay for both routes.",
+          "deliverable": "Comparison sheet of pipeline and GGUF runs with sizes, timings and the pinned SHA",
+          "checks": [["Run the sentiment pipeline on 'I love this' and 'This is awful'", "Labels are POSITIVE and NEGATIVE with scores above 0.9", "Script output"], ["Print the revision used by the pipeline", "It is the 40-character SHA supplied, not the string main", "Script output"], ["Start the GGUF runtime with a :Q4_K_M tag", "The log names the Q4_K_M file and the model answers one prompt", "Runtime log"]],
+          "objectives": ["Run a Hub model locally in two ways", "Pin a model to an exact revision", "Select a quantised build for limited hardware"]
+        },
+        {
+          "topic": "Datasets Library: Loading and Inspecting Data",
+          "subtopics": ["pip install datasets and the Dataset and DatasetDict objects", "load_dataset with a Hub repo id", "Splits, num_rows, column_names and features", "ClassLabel and int2str for readable labels", "Indexing rows, slicing columns and set_format('pandas')", "Where Arrow files are cached and why memory use stays low", "Loading local csv, json and parquet with data_files", "Dataset cards and the dataset viewer as a first inspection step"],
+          "tools": ["datasets", "pandas", "Python", "Dataset viewer"],
+          "lab_task": "Run load_dataset('cornell-movie-review-data/rotten_tomatoes') and print the DatasetDict. Print features, the first training row, and ds['train'].features['label'].int2str(1). Convert the first 100 rows to pandas and print the label counts. Load a local data.csv with load_dataset('csv', data_files='data.csv') and compare row counts with wc -l.",
+          "deliverable": "Notebook that loads one Hub dataset and one local csv and prints split sizes, features and label counts",
+          "checks": [["Print the DatasetDict for rotten_tomatoes", "Splits train 8530, validation 1066 and test 1066 rows", "Notebook output"], ["Call int2str(1) on the label feature", "Returns 'pos'", "Notebook output"], ["Load data.csv of 51 lines including the header", "num_rows is 50", "Notebook output and wc -l"]],
+          "objectives": ["Load datasets from the Hub and from local files", "Inspect splits, features and rows", "Convert samples to pandas for review"]
+        },
+        {
+          "topic": "Datasets Splits, Features and Streaming",
+          "subtopics": ["Split slicing: train[:10%], train[100:200] and split concatenation", "Random subsets with shuffle(seed=42).select(range(n))", "train_test_split(test_size, seed)", "Feature types: Value, ClassLabel, Sequence, Image and Audio", "Casting columns with cast_column and Features", "streaming=True and IterableDataset", "take, skip and shuffle(buffer_size) on streams", "When to stream: size, disk space and start-up time"],
+          "tools": ["datasets", "Python", "Pillow", "psutil"],
+          "lab_task": "Load stanfordnlp/imdb with split='train[:10%]' and print its length. Load the same dataset with streaming=True, call take(5) and print the text lengths. Run train_test_split(test_size=0.2, seed=42) twice and compare the first row ids. Record peak resident memory with psutil for the streaming and non-streaming runs.",
+          "deliverable": "Notebook comparing sliced, split and streamed loading with row counts and memory figures",
+          "checks": [["Load stanfordnlp/imdb split='train[:10%]'", "len is 2500", "Notebook output"], ["Run train_test_split(test_size=0.2, seed=42) twice", "Both runs return identical first rows", "Notebook output"], ["Call take(5) on the streaming dataset", "Exactly 5 examples are yielded and no full split is written to disk", "Output and cache listing"]],
+          "objectives": ["Slice and split datasets reproducibly", "Cast and inspect feature types", "Choose between streaming and downloaded datasets"]
+        },
+        {
+          "topic": "Datasets Map, Filter and Column Operations",
+          "subtopics": ["map with a function on single examples", "batched=True with batch_size and the dict-of-lists contract", "num_proc for multiprocessing", "filter, select, rename_column and remove_columns", "add_column and with_format('torch') at usage level", "The map fingerprint cache and load_from_cache_file=False", "Why a changed function re-runs and an unchanged one does not", "Saving with save_to_disk and reloading with load_from_disk", "Common mistakes: returning lists of the wrong length"],
+          "tools": ["datasets", "Python", "pandas", "tqdm"],
+          "lab_task": "On rotten_tomatoes, add an n_words column with map(batched=True, num_proc=2), remove the 'label' column in a copy, filter reviews with n_words >= 10 and write the result with save_to_disk. Run the map twice and note that the second run loads from cache. Then return a list of the wrong length from a batched function and capture the error.",
+          "deliverable": "Transformation script with before and after row counts and the captured length error",
+          "checks": [["Run map twice with the same function", "The second run reports loading cached processed dataset files and finishes in under a second", "Console output"], ["Check column_names after the map", "n_words is present in the list of columns", "Script output"], ["Return a shorter list from a batched map function", "A ValueError states the number of rows differs from the input batch", "Traceback"]],
+          "objectives": ["Transform datasets with map and filter", "Explain the datasets cache fingerprint", "Persist processed data to disk"]
+        },
+        {
+          "topic": "Creating Repositories and Pushing Files",
+          "subtopics": ["create_repo with repo_type, private and exist_ok", "Naming rules and the namespace argument", "upload_file and upload_folder with commit_message", "create_commit with CommitOperationAdd and CommitOperationDelete", "One commit per operation compared with batching changes", "delete_file and delete_repo", "Repository visibility and changing it with update_repo_settings", "The 409 conflict for duplicate repository names", ".gitignore, .gitattributes and why the Hub adds one"],
+          "tools": ["huggingface_hub", "HfApi", "hf CLI", "Python"],
+          "lab_task": "With a write token, create the private model repo <user>/course-demo-model with create_repo. Use create_commit with two CommitOperationAdd objects (README.md and config.json) and one delete in a second commit. Print list_repo_commits ids. Call create_repo again without exist_ok and capture the conflict, then flip visibility with update_repo_settings(private=False).",
+          "deliverable": "Script that creates, commits to, publishes and inspects a repository with the commit list",
+          "checks": [["Call create_repo a second time without exist_ok", "HfHubHTTPError with status 409 is raised", "Traceback"], ["Run list_repo_commits after two commits", "Newest commit first and at least 3 commits including the initial one", "Script output"], ["Open the repo in a private browser window before and after update_repo_settings", "A 404 page is shown while private and the repo page loads once public", "Browser screenshots"]],
+          "objectives": ["Create repositories and commit to them from code", "Batch several file changes in one commit", "Change repository visibility safely"]
+        },
+        {
+          "topic": "Writing Model Cards and Dataset Cards",
+          "subtopics": ["Card structure: YAML metadata block plus Markdown body", "Model card sections: description, uses, bias and limitations, training, evaluation", "ModelCard.from_template and ModelCardData", "Dataset card sections: summary, structure, creation, licence and citation", "Valid metadata keys and the Hub validation message for invalid values", "Evaluation results through model-index and EvalResult", "metadata_update to change YAML in place", "Previewing the card and the metadata UI editor", "Documenting limitations and personal data honestly"],
+          "tools": ["huggingface_hub", "ModelCard", "DatasetCard", "Python"],
+          "lab_task": "Build a model card with ModelCardData(license='apache-2.0', language='en', library_name='transformers', pipeline_tag='text-classification', tags=['demo']) and ModelCard.from_template, fill every section, and push it with card.push_to_hub. Then try license='apache2' and capture the Hub rejection. Create a dataset card with DatasetCard.from_template and push it.",
+          "deliverable": "Pushed model card and dataset card plus the captured invalid-metadata error",
+          "checks": [["Push a card with license 'apache2'", "The push is rejected with an invalid metadata message naming the license field", "Error output"], ["Open the model page after pushing the valid card", "The header shows apache-2.0 and the text-classification tag", "Screenshot"], ["Run ModelCard.load on the repo", "card.data.pipeline_tag equals text-classification", "Script output"]],
+          "objectives": ["Write complete, valid model and dataset cards", "Use metadata so the Hub can index the repo", "Document limitations clearly"]
+        },
+        {
+          "topic": "Versioning with Branches, Tags and Revisions",
+          "subtopics": ["Commit SHAs as immutable identifiers", "main, branches and tags as moving or fixed references", "create_branch, create_tag and delete_tag", "list_repo_refs for branches, tags, converts and pull requests", "revision= in hf_hub_download, snapshot_download, load_dataset and from_pretrained", "Pinning a SHA for reproducibility compared with tracking main", "Reverting with a new commit and super_squash_history", "RevisionNotFoundError and how to diagnose it"],
+          "tools": ["huggingface_hub", "HfApi", "hf CLI", "datasets"],
+          "lab_task": "In the course-demo-model repo, push v1 content, run create_tag(tag='v1.0'), push changed config.json, then create_branch('experiment'). With hf_hub_download request config.json at revision='v1.0', 'experiment' and 'main' and compare file contents and the snapshot SHA folder names. Request revision='v9.9' and capture the error.",
+          "deliverable": "Revision matrix of three references with SHAs, file hashes and the captured error",
+          "checks": [["Download config.json at revision v1.0 and at main", "Contents differ and the snapshot directories have different 40-character SHAs", "diff and directory listing"], ["Run list_repo_refs", "Branches main and experiment and tag v1.0 are listed", "Script output"], ["Request revision v9.9", "RevisionNotFoundError (HTTP 404) is raised", "Traceback"]],
+          "objectives": ["Use tags and branches to mark releases", "Pin consumers to exact revisions", "Diagnose missing-revision errors"]
+        },
+        {
+          "topic": "Community Discussions and Pull Requests",
+          "subtopics": ["Community tab: discussions, pull requests and their statuses", "create_discussion and create_pull_request", "Opening a pull request with upload_file(create_pr=True)", "refs/pr/<n> and downloading a PR revision for testing", "Comment, change_discussion_status and merge_pull_request", "Reporting problems, licence concerns and security reports", "Contribution etiquette and the content policy", "Repository access: who can merge"],
+          "tools": ["huggingface_hub", "HfApi", "hf CLI", "huggingface.co"],
+          "lab_task": "Using a second account or a repo you do not own, open a pull request with upload_file(..., create_pr=True) that fixes a typo in README.md. Print the discussion number and the refs/pr/<n> reference. Download README.md at revision='refs/pr/<n>' and diff it against main. As the owner, call merge_pull_request and confirm main changed.",
+          "deliverable": "Pull request transcript with the diff, discussion number and merge confirmation",
+          "checks": [["Upload with create_pr=True", "A discussion object is returned with is_pull_request True and status open", "Script output"], ["Download README.md at refs/pr/<n>", "The file shows the typo fix while main still holds the old text", "diff output"], ["Call merge_pull_request as the owner", "The status becomes merged and list_repo_commits shows a new commit on main", "Script output"]],
+          "objectives": ["Propose changes to repositories through pull requests", "Test a pull request revision before merging", "Use discussions for support and reports"]
+        },
+        {
+          "topic": "Building a First Gradio Interface",
+          "subtopics": ["pip install gradio and the gradio command", "gr.Interface with fn, inputs and outputs", "Component shorthand strings and explicit components such as gr.Textbox and gr.Image", "Examples, flagging and title or description fields", "launch(), the default port 7860 and share=True links", "Type hints and return values mapped to components", "Auto-reload with gradio app.py", "Reading the Python and browser consoles when a function raises"],
+          "tools": ["Gradio", "Python", "gradio CLI", "curl"],
+          "lab_task": "Create app.py with gr.Interface wrapping a function word_count(text) that returns the number of words and a character count, with two examples and a title. Run gradio app.py, open http://127.0.0.1:7860, submit 'hello hub world', then raise a ZeroDivisionError inside the function on an empty string and observe the Error banner. Call the API once with the gradio_client Client.",
+          "deliverable": "app.py with working examples and a screenshot of the error banner",
+          "checks": [["Submit 'hello hub world'", "The output shows 3 words", "Browser screenshot"], ["Submit an empty string to the function that divides by length", "The UI shows an Error banner and the terminal prints a ZeroDivisionError traceback", "Screenshot and terminal"], ["Run Client('http://127.0.0.1:7860').predict('a b c', api_name='/predict')", "Returns the word count 3 for the same function", "Script output"]],
+          "objectives": ["Wrap a Python function as a Gradio app", "Run and reload the app locally", "Call the app through its API"]
+        },
+        {
+          "topic": "Publishing a Gradio Space",
+          "subtopics": ["Space types: Gradio, Docker and static", "create_repo(repo_type='space', space_sdk='gradio')", "Files: app.py, requirements.txt and the README.md YAML (sdk, sdk_version, app_file)", "Free cpu-basic hardware and sleep after inactivity", "Build logs, runtime logs and stage values BUILDING, RUNNING and RUNTIME_ERROR", "The public URL https://<user>-<space>.hf.space", "Embedding a Space with an iframe or the web component", "Updating a Space by pushing commits and restarting"],
+          "tools": ["Spaces", "Gradio", "huggingface_hub", "hf CLI"],
+          "lab_task": "Create the Space <user>/word-count-demo with space_sdk='gradio', upload app.py, requirements.txt and a README.md. Poll get_space_runtime until stage is RUNNING and print the .hf.space URL. Then remove a package from requirements.txt that app.py imports, push, and capture the RUNTIME_ERROR log. Restore it and confirm the Space returns to RUNNING.",
+          "deliverable": "Live Space URL, the failure log and the fixed commit",
+          "checks": [["Poll get_space_runtime after the first push", "stage changes from BUILDING to RUNNING", "Script output"], ["Push a requirements.txt missing an imported package", "The stage becomes RUNTIME_ERROR and the log shows ModuleNotFoundError", "Space logs"], ["Open https://<user>-word-count-demo.hf.space after the fix", "The interface loads and returns the right word count", "Browser screenshot"]],
+          "objectives": ["Deploy a Gradio app to a Space", "Read build and runtime logs to find faults", "Update a running Space with a new commit"]
+        },
+        {
+          "topic": "First Calls to Inference Providers",
+          "subtopics": ["What Inference Providers are: one Hub token routing to serverless partner providers", "InferenceClient and the api_key argument", "chat.completions.create with model, messages and max_tokens", "Streaming with stream=True", "The OpenAI-compatible router at https://router.huggingface.co/v1", "Free-tier credits and when requests start to bill", "Common errors: 401, 403 for token scope, 404 for unavailable models, 429 for rate limits", "Checking which models a provider serves from the model page"],
+          "tools": ["InferenceClient", "huggingface_hub", "OpenAI SDK", "curl"],
+          "lab_task": "With a token that has the Inference Providers permission, call InferenceClient(api_key=os.environ['HF_TOKEN']).chat.completions.create with a chat model that lists a provider, messages of one user turn and max_tokens=60. Print the answer and usage. Repeat with stream=True and count chunks. Make the same call using the OpenAI SDK with base_url set to the router. Then try a wrong token.",
+          "deliverable": "Three working call scripts (client, streaming, OpenAI SDK) and the 401 capture",
+          "checks": [["Call chat.completions.create with max_tokens=60", "A non-empty answer is returned and usage.completion_tokens is 60 or less", "Script output"], ["Call with stream=True", "More than one chunk arrives before the final one", "Script output"], ["Use an invalid token", "A 401 error is raised and no completion is returned", "Traceback"]],
+          "objectives": ["Call hosted models without running infrastructure", "Stream responses and read usage", "Use the OpenAI SDK against the Hugging Face router"]
+        },
+        {
+          "topic": "Capstone: Publish a Linked Model, Dataset and Demo Space",
+          "subtopics": ["Choose a small task such as review sentiment and name the three repositories consistently", "Publish a dataset with a card, licence and pinned revision tag", "Publish a model card that cites the dataset and the licence", "Build a Gradio Space that calls the model through Inference Providers or loads it with a pinned revision", "Link the repositories through metadata and a collection", "Peer review: a second account opens a pull request and the owner merges it"],
+          "tools": ["huggingface_hub", "datasets", "Gradio", "Spaces", "hf CLI"],
+          "lab_task": "Publish a dataset repo with push_to_hub and a DatasetCard, a model repo with a ModelCard whose datasets field names it, and a Gradio Space that loads the model at a pinned SHA. Tag all three v1.0, add them to a collection with add_collection_item, and have a reviewer open a pull request that is merged. Record the three URLs and SHAs.",
+          "deliverable": "Collection page with three linked repositories, v1.0 tags, a merged pull request and a review sheet",
+          "checks": [["Open the dataset, model and Space pages", "Each page loads publicly and shows a complete card with licence", "Screenshots"], ["Run list_repo_refs on each repo", "A tag v1.0 exists on all three", "Script output"], ["Run list_collections for the owner and inspect the new collection", "The collection contains exactly 3 items, one per repo type", "Script output"]],
+          "objectives": ["Publish and link the three Hub repository types", "Apply tags, cards and licences consistently", "Complete a review cycle with a pull request"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For practitioners who share assets within teams and run applications on the Hub. Covers organisations and roles, fine-grained tokens, security scanning and safetensors, gated repositories, licence lineage, Xet storage and large uploads, hf:// file access, dataset configurations and the dataset viewer API, Gradio Blocks and queues, gradio_client and MCP, Space runtimes and persistence, Inference Providers routing and structured output, Text Embeddings Inference, smolagents, and PEFT and TRL at usage level.",
+      "prerequisites": ["Has completed the beginner level or can publish a model, dataset and Space and use the hf CLI", "Writes Python with functions, classes, virtual environments and basic Docker usage", "Has an account that can create an organisation and a second account for access tests"],
+      "outcomes": ["Run an organisation workspace with least-privilege tokens, gated data and documented licences", "Build and operate Gradio Spaces with secrets, persistence, queues and MCP tools", "Use Inference Providers, TEI and smolagents to build retrieval and agent features", "Publish adapters and datasets with reproducible revisions"],
+      "days": [
+        {
+          "topic": "Organisations, Roles and Collections",
+          "subtopics": ["Creating an organisation and choosing its namespace", "Roles: read, contributor, write and admin and what each can do", "Inviting members and join requests", "Creating repositories under an organisation with create_repo('org/name')", "Moving repositories with move_repo", "Organisation profile, README card and pinned repositories", "Collections: create_collection, add_collection_item and update_collection_item", "Public and private collections and ordering notes", "Naming conventions for multi-team namespaces"],
+          "tools": ["huggingface.co", "HfApi", "Collections", "hf CLI"],
+          "lab_task": "Create an organisation <user>-lab, invite a second account as contributor, and create the private model repo <user>-lab/classifier-v1 with create_repo. Move <user>/course-demo-model into the organisation with move_repo. Build a collection 'Course assets' with create_collection and add three items with add_collection_item, each with a note. Print the collection slug and item count.",
+          "deliverable": "Organisation with two members, a moved repository and a three-item collection with a script log",
+          "checks": [["As the contributor, upload a file to a repo you do not have write access to", "A 403 Forbidden response is returned", "Terminal output"], ["Run move_repo from the user namespace to the organisation", "The old URL redirects and the repository appears under the organisation", "Browser and script output"], ["Call get_collection on the new slug", "len(collection.items) equals 3", "Script output"]],
+          "objectives": ["Set up an organisation with correct roles", "Move and create repositories in a shared namespace", "Curate assets into collections"]
+        },
+        {
+          "topic": "Fine-Grained Tokens and Least-Privilege Access",
+          "subtopics": ["Why a write token for everything is risky", "Fine-grained scopes: repository read and write, organisation access, inference calls and webhooks", "Choosing specific repositories instead of whole namespaces", "Separate tokens for CI, Spaces, notebooks and applications", "Expiry and naming conventions", "Inspecting a token with whoami and the auth section of the response", "Reading a 403 for scope failures compared with a 401 for credentials", "Auditing and revoking tokens on a schedule"],
+          "tools": ["Access Tokens page", "huggingface_hub", "HfApi", "hf CLI"],
+          "lab_task": "Create a fine-grained token that can write only to <user>/course-demo-model and nothing else. Use it to upload a file to that repo, then try upload_file to a second repo and to create_repo. Call HfApi(token=...).whoami() and print the auth.accessToken section. Write a token inventory with name, purpose, scopes, expiry and owner for four tokens.",
+          "deliverable": "Token inventory and a test log showing allowed and denied operations",
+          "checks": [["Upload a file to course-demo-model with the scoped token", "The commit succeeds and returns a commit URL", "Script output"], ["Upload a file to a different repository with the same token", "HTTP 403 Forbidden is returned", "Traceback"], ["Call create_repo with the scoped token", "The request is denied with a 403 permission error", "Traceback"]],
+          "objectives": ["Issue tokens scoped to the minimum needed", "Separate credentials by workload", "Tell scope errors from credential errors"]
+        },
+        {
+          "topic": "Security Scanning and Safetensors Inspection",
+          "subtopics": ["Hub scanning: malware scan, pickle import scan and secret detection", "Reading the safe, suspicious and unsafe indicators on the Files tab", "Why pickle-based .bin and .pt files can run code on load", "Detected pickle imports and dangerous globals such as posix.system", "The safetensors layout: 8-byte little-endian length, JSON header, raw tensor bytes", "Parsing a safetensors header with Python struct and json", "get_safetensors_metadata on a remote file without downloading it", "Converting checkpoints to safetensors and loading with weights_only=True", "Responding to a flagged repository"],
+          "tools": ["safetensors", "huggingface_hub", "Python pickletools", "numpy"],
+          "lab_task": "Save np.zeros((2,3), dtype=np.float32) with safetensors.numpy.save_file, then read the first 8 bytes with struct.unpack('<Q'), parse the JSON header and print dtype, shape and data_offsets. In a private test repo upload a harmless pickle whose __reduce__ calls print, and read the scan result on the Files tab. Disassemble it with python -m pickletools.",
+          "deliverable": "Report with the parsed header, the pickletools disassembly and a screenshot of the Hub scan result",
+          "checks": [["Parse the header of the float32 2x3 tensor", "dtype F32, shape [2, 3] and data_offsets [0, 24]", "Script output"], ["Run python -m pickletools on the test pickle", "A GLOBAL or STACK_GLOBAL opcode referencing builtins print appears", "Disassembly output"], ["Open the pickle file on the Files tab after upload", "The scan section lists the detected pickle import builtins.print", "Screenshot"]],
+          "objectives": ["Read and parse a safetensors header", "Explain why pickle checkpoints are risky", "Interpret Hub scan results"]
+        },
+        {
+          "topic": "Publishing Gated Repositories and Managing Access",
+          "subtopics": ["Deciding what to gate: model weights, datasets with personal data, licensed data", "gated: auto compared with gated: manual", "update_repo_settings(repo_id, gated='manual')", "YAML keys: extra_gated_prompt, extra_gated_fields and extra_gated_button_content", "Field types: text, select and checkbox", "Listing, accepting and rejecting requests with the API", "grant_access and cancel_access_request", "Notifications and the repository Settings page", "Download logging and the privacy of requester data"],
+          "tools": ["huggingface_hub", "HfApi", "Gated settings", "YAML"],
+          "lab_task": "Make a private dataset <user>/gated-demo-data gated with README YAML gated: manual, an extra_gated_prompt, and extra_gated_fields containing Company (text), Use case (select with 3 options) and an agreement checkbox. From a second account submit a request. As the owner call list_pending_access_requests, accept it with accept_access_request, and then confirm that the second account can download.",
+          "deliverable": "Gated repository with a processed request and the pending and accepted lists printed",
+          "checks": [["Second account downloads before approval", "GatedRepoError is raised and no file is cached", "Terminal output"], ["Call list_pending_access_requests as the owner", "The list contains one request with the username of the second account", "Script output"], ["Second account downloads after accept_access_request", "The download succeeds and the file path is returned", "Terminal output"]],
+          "objectives": ["Configure a gated repository with a request form", "Process access requests through the API", "Decide which assets need gating"]
+        },
+        {
+          "topic": "Licence Choice, Lineage and Redistribution",
+          "subtopics": ["Choosing a licence for your own model or dataset", "base_model and base_model_relation: finetune, adapter, merge and quantized", "The model tree on a model page", "Inheriting licence conditions from the base model", "Using license: other with license_name and license_link", "Attribution files such as NOTICE and USE_POLICY", "Dataset licence chains and data derived from several sources", "Redistributing quantised or merged weights", "A review checklist before publishing"],
+          "tools": ["ModelCard", "huggingface_hub", "huggingface.co", "YAML"],
+          "lab_task": "Write a card for <user>/classifier-v1 with base_model set to an apache-2.0 base model and base_model_relation: finetune, license: apache-2.0 and datasets listing the dataset repo. Push it, then open the page and confirm the model tree shows the base model. Fill a licence-lineage table of four derivative cases and mark each as allowed, allowed with attribution or blocked.",
+          "deliverable": "Card with lineage metadata and a four-row licence lineage table with justification",
+          "checks": [["Open the page of a model whose card has base_model", "The Model tree panel shows the base model and the Finetune relation", "Screenshot"], ["Read ModelCard.load(...).data.base_model_relation", "Returns finetune", "Script output"], ["Add a cc-by-nc-4.0 dataset to a model released for commercial use", "The checklist marks the release as blocked", "Lineage table"]],
+          "objectives": ["Record model lineage in card metadata", "Apply licence inheritance rules", "Run a pre-release licence review"]
+        },
+        {
+          "topic": "Large Files, Xet Storage and Upload Strategies",
+          "subtopics": ["Git history compared with large-file storage on the Hub", "Xet storage: chunk-level deduplication and the hf_xet package", "Checking that hf_xet is installed and active", "upload_file compared with upload_folder, create_commit and upload_large_folder", "hf upload-large-folder: resumable, multi-worker uploads", "The .cache/huggingface folder that records upload progress", "HF_XET_HIGH_PERFORMANCE and other tuning variables", "Download speed, partial files and resuming", "File size and repository size limits: read the current documentation"],
+          "tools": ["hf_xet", "huggingface_hub", "hf CLI", "dd"],
+          "lab_task": "Create two 200 MB files of random bytes with dd and upload the folder to a private dataset repo using upload_large_folder with num_workers=4, interrupting once with Ctrl+C and rerunning. Copy one file under a new name and upload again. Record time and bytes sent for the first run, the resumed run and the duplicate run, and confirm that hf_xet is installed with pip show hf_xet.",
+          "deliverable": "Upload log with three timings, the resume evidence and the duplicate-file result",
+          "checks": [["Rerun upload_large_folder after Ctrl+C", "The log reports files already committed and only the remainder is sent", "Console output"], ["Upload a renamed copy of an existing 200 MB file", "The upload takes under half the time of the first upload because chunks are deduplicated", "Timing table"], ["Run pip show hf_xet", "A version is printed, confirming the Xet client is installed", "Terminal output"]],
+          "objectives": ["Choose the right upload API for the data size", "Resume interrupted uploads", "Explain chunk-level deduplication"]
+        },
+        {
+          "topic": "HfFileSystem and hf:// Paths with pandas and DuckDB",
+          "subtopics": ["fsspec and the hf:// URL scheme", "HfFileSystem: ls, glob, open, info and find", "Repository type prefixes: datasets/ and spaces/", "Revision syntax with @ for branches and tags", "pandas read_parquet and read_csv from hf:// paths", "DuckDB querying hf://datasets/... directly", "Writing with fs.put and fs.rm and where the commits appear", "Listing a repository without downloading it", "Authentication and private repositories through the token"],
+          "tools": ["huggingface_hub", "pandas", "DuckDB", "pyarrow"],
+          "lab_task": "Write a 1,000-row parquet file with pandas, upload it to your dataset repo as data/sample.parquet, then list it with HfFileSystem().ls and glob. Read it with pd.read_parquet('hf://datasets/<user>/<repo>/data/sample.parquet'). Run duckdb.sql(\"SELECT count(*), avg(score) FROM 'hf://datasets/<user>/<repo>/data/sample.parquet'\") and compare the count and average with pandas.",
+          "deliverable": "Notebook with pandas and DuckDB reading the same hf:// file with matching results",
+          "checks": [["Run SELECT count(*) with DuckDB on the hf:// path", "Returns 1000", "Notebook output"], ["Compare avg(score) from DuckDB and pandas", "Both values agree to at least 6 decimal places", "Notebook output"], ["Call fs.glob('datasets/<user>/<repo>/data/*.parquet')", "Returns a list with exactly one entry ending in sample.parquet", "Script output"]],
+          "objectives": ["Read Hub files through fsspec without a download step", "Query remote parquet with DuckDB", "Use revisions inside hf:// paths"]
+        },
+        {
+          "topic": "Dataset Configs, Parquet and the Dataset Viewer API",
+          "subtopics": ["configs in the dataset card YAML: config_name, data_files and split patterns", "Multiple configurations and the default config", "Why parquet is the preferred format on the Hub", "Dataset Viewer states: viewer, preview and not available", "The datasets-server endpoints: is-valid, splits, first-rows, rows, size and parquet", "Pagination limits for the rows endpoint", "The search and filter endpoints", "Automatic parquet conversion on refs/convert/parquet", "Fixing viewer errors caused by mixed schemas"],
+          "tools": ["Dataset viewer", "curl", "datasets", "jq"],
+          "lab_task": "Add a configs block to your dataset card with two configs, small and full, each mapping train data files. Call https://datasets-server.huggingface.co/is-valid?dataset=cornell-movie-review-data/rotten_tomatoes, /size and /rows?config=default&split=train&offset=0&length=100 with curl and jq. Then request length=101 and note the response. Check your own dataset in the viewer.",
+          "deliverable": "Card YAML with two configs and a curl log of five datasets-server calls",
+          "checks": [["curl /is-valid for rotten_tomatoes", "JSON with viewer true", "curl output"], ["curl /size for rotten_tomatoes and read num_rows", "The dataset total is 10662 rows", "jq output"], ["curl /rows with length=101", "HTTP 422 with a message that length cannot exceed 100", "curl output"]],
+          "objectives": ["Define configurations and splits in YAML", "Query the dataset viewer API", "Diagnose viewer failures"]
+        },
+        {
+          "topic": "Building Datasets with push_to_hub and Revision Pinning",
+          "subtopics": ["From a DataFrame or generator to a Dataset with from_pandas and from_generator", "DatasetDict.push_to_hub and the data/ folder layout", "private=True, config_name and commit_message", "max_shard_size and num_shards", "Writing the dataset card alongside the data", "Tagging a release and loading with revision=<tag or SHA>", "Appending a new version without breaking old consumers", "Verifying a pushed dataset with load_dataset and compare row counts", "Reproducibility notes in the card"],
+          "tools": ["datasets", "huggingface_hub", "pandas", "Python"],
+          "lab_task": "Build a 5,000-row DatasetDict (train 4,000, test 1,000) from a DataFrame and push it with push_to_hub(num_shards={'train': 4, 'test': 1}). Tag the commit v1. Add 500 more training rows, push again as v2 and tag it. Load revision='v1' and revision='v2' and print the row counts, then list the files in data/.",
+          "deliverable": "Two tagged dataset versions with row counts and the shard listing",
+          "checks": [["List repository files after the first push", "Four train shards named train-0000X-of-00004.parquet and one test shard exist under data/", "Script output"], ["load_dataset(..., revision='v1')", "train has 4000 rows", "Script output"], ["load_dataset(..., revision='v2')", "train has 4500 rows", "Script output"]],
+          "objectives": ["Publish datasets with controlled shards", "Release dataset versions with tags", "Load a specific version reproducibly"]
+        },
+        {
+          "topic": "Gradio Blocks, State and Events",
+          "subtopics": ["gr.Blocks layouts: Row, Column, Tab and Accordion", "Event listeners: click, change, submit and input", "Inputs and outputs lists and multiple outputs", "gr.State for per-session values compared with global Python variables", "gr.Dataframe, gr.File and gr.JSON components", "gr.ChatInterface and gr.Chatbot with message dictionaries", "Updating components by returning gr.update or component instances", "Chaining events with .then and .success", "Loading data at page load with demo.load"],
+          "tools": ["Gradio", "Python", "gradio_client", "pytest"],
+          "lab_task": "Build a Blocks app with a counter button using gr.State, a Textbox that echoes uppercased text on submit, and a gr.Dataframe that logs each click. Open the app in two browser windows, click 3 times in the first and once in the second, then add a second counter using a global variable and observe how it differs. Chain a .then event that appends a log row.",
+          "deliverable": "Blocks app with per-session and global counters and a note explaining the difference",
+          "checks": [["Click the State counter 3 times in window one", "The window shows 3", "Screenshot"], ["Click the State counter once in window two", "Window two shows 1, independent of window one", "Screenshot"], ["Click the global-variable counter once in window two after three clicks in window one", "It shows 4 because the variable is shared by all sessions", "Screenshot"]],
+          "objectives": ["Compose multi-component interfaces with Blocks", "Keep per-user data in gr.State", "Chain events correctly"]
+        },
+        {
+          "topic": "Gradio Queueing, Concurrency and Streaming Output",
+          "subtopics": ["demo.queue and the default queue behaviour", "default_concurrency_limit and per-event concurrency_limit", "concurrency_id to share limits across events", "max_size and what clients see when the queue is full", "Generators with yield for streaming text and progress", "gr.Progress and track_tqdm", "api_name and show_api", "Measuring throughput with gradio_client submit", "Choosing limits for CPU-bound and GPU-bound functions"],
+          "tools": ["Gradio", "gradio_client", "Python", "time"],
+          "lab_task": "Create a function that sleeps 2 seconds. Launch it with concurrency_limit=1, start 4 simultaneous calls with gradio_client Client.submit and record total elapsed time. Relaunch with concurrency_limit=4 and repeat. Then convert the function to a generator that yields 5 progress messages and verify streaming in the browser.",
+          "deliverable": "Timing table for both limits and a streaming demo",
+          "checks": [["4 simultaneous calls with concurrency_limit=1", "Total elapsed time is about 8 seconds", "Timing log"], ["4 simultaneous calls with concurrency_limit=4", "Total elapsed time is about 2 seconds", "Timing log"], ["Run the generator version in the browser", "Five messages appear one after another before the final output", "Screen recording or screenshot"]],
+          "objectives": ["Tune Gradio concurrency", "Stream partial output with generators", "Measure throughput with a client"]
+        },
+        {
+          "topic": "Calling Spaces with gradio_client and Exposing MCP Tools",
+          "subtopics": ["gradio_client Client('user/space') and the view_api() listing", "predict with api_name and positional or keyword arguments", "submit, job.status and job.result", "Private Spaces and the hf_token argument", "Duplicating a Space with Client.duplicate", "Gradio as an MCP server: pip install 'gradio[mcp]' and launch(mcp_server=True)", "Tool names and descriptions built from function docstrings and type hints", "The MCP schema endpoint at /gradio_api/mcp/schema", "Connecting an MCP client and confirming a tool call"],
+          "tools": ["gradio_client", "Gradio", "MCP", "curl"],
+          "lab_task": "Run view_api() on your word-count Space and call it with Client.predict from a script. Add a typed function with a docstring to the app, relaunch with mcp_server=True, and curl http://127.0.0.1:7860/gradio_api/mcp/schema. Connect an MCP-capable client with the SSE URL and ask it to call the tool with the text 'one two three four'.",
+          "deliverable": "Client script, MCP schema output and a transcript of one successful tool call",
+          "checks": [["Run client.view_api()", "The listing shows the /predict endpoint with its parameter names and types", "Script output"], ["curl the MCP schema URL", "JSON lists the function as a tool with its docstring as the description", "curl output"], ["Call the tool from the MCP client with 'one two three four'", "The tool returns 4", "Client transcript"]],
+          "objectives": ["Call Spaces programmatically", "Expose a Gradio function as an MCP tool", "Verify tool schemas before connecting clients"]
+        },
+        {
+          "topic": "Spaces Runtime: Secrets, Variables, Hardware and Docker Spaces",
+          "subtopics": ["Secrets compared with variables and how both appear as environment variables", "add_space_secret, add_space_variable and get_space_variables", "Hardware tiers and request_space_hardware", "Free cpu-basic limits and the sleep timer", "Docker Spaces: sdk: docker, app_port and the non-root user with uid 1000", "Dockerfile layout, build caching and build-time secrets", "get_space_runtime, restart_space and pause_space", "Reading logs through the web UI and the API", "Cost awareness: paused Spaces do not bill", "Rotating a secret and confirming the restart picks it up"],
+          "tools": ["Spaces", "Docker", "FastAPI", "huggingface_hub", "uvicorn"],
+          "lab_task": "Create a Docker Space with README YAML sdk: docker and app_port: 7860, a Dockerfile that runs as user 1000 and starts uvicorn, and a FastAPI app with /health and /whoami-secret returning only whether API_KEY is set. Add API_KEY with add_space_secret and a MODE variable with add_space_variable. Print get_space_variables, restart the Space and call both endpoints.",
+          "deliverable": "Running Docker Space with a secret, a variable and a runtime status log",
+          "checks": [["GET /health after the build completes", "Returns {\"status\":\"ok\"} with HTTP 200", "curl output"], ["Call get_space_variables", "Only MODE is listed; the secret API_KEY is not returned", "Script output"], ["GET /whoami-secret", "Returns {\"api_key_set\":true} without revealing the value", "curl output"]],
+          "objectives": ["Configure secrets and variables on a Space", "Deploy a Docker Space with the right port and user", "Manage runtime state through the API"]
+        },
+        {
+          "topic": "Persistent Data from Spaces with CommitScheduler",
+          "subtopics": ["Space disk is ephemeral and resets on restart", "CommitScheduler(repo_id, repo_type, folder_path, every, path_in_repo)", "The every argument is in minutes", "Using scheduler.lock when writing files", "JSONL and parquet logging layouts", "Private dataset repos for user feedback and privacy duties", "Stopping and flushing with scheduler.trigger().result()", "Alternatives: Hub dataset write on submit and external databases", "Reading the logged data back with load_dataset"],
+          "tools": ["huggingface_hub", "Gradio", "Spaces", "datasets"],
+          "lab_task": "Add a feedback form to your Gradio Space that appends a JSON line to logs/feedback-<uuid>.jsonl under scheduler.lock. Configure CommitScheduler(repo_id='<user>/space-feedback', repo_type='dataset', folder_path='logs', every=1, private=True). Submit 5 entries, wait for the commit, restart the Space with restart_space, then compare the local folder with the dataset repo contents.",
+          "deliverable": "Space that logs feedback to a private dataset with before and after restart evidence",
+          "checks": [["Submit 5 feedback entries and wait 2 minutes", "A commit appears in the dataset repo containing 5 JSON lines", "Dataset commit page"], ["Restart the Space and list the local logs folder", "The folder is empty because Space disk is ephemeral", "Space terminal or log"], ["Run load_dataset('json', data_files='hf://datasets/<user>/space-feedback/*.jsonl')", "5 rows are returned after the restart", "Script output"]],
+          "objectives": ["Persist Space data to a dataset repository", "Protect concurrent writes with a lock", "Treat Space storage as disposable"]
+        },
+        {
+          "topic": "Inference Providers: Routing, Billing and Provider Choice",
+          "subtopics": ["Provider list: partner serverless providers and the hf-inference service", "InferenceClient(provider='auto') and the provider preference order in settings", "Explicit providers such as together, fireworks-ai, groq and cerebras", "Router model suffixes :fastest, :cheapest and :<provider-name>", "GET https://router.huggingface.co/v1/models and per-provider status and pricing", "Routed billing through your Hugging Face account and bring-your-own provider keys", "bill_to for organisations", "Monitoring spend on the billing and inference usage pages", "Provider outages and model availability changes"],
+          "tools": ["InferenceClient", "huggingface_hub", "OpenAI SDK", "curl", "jq"],
+          "lab_task": "List https://router.huggingface.co/v1/models with curl and jq, pick one chat model offered by at least two providers and write down each provider's price fields. Call it with the :fastest suffix, the :cheapest suffix and an explicit provider. Time 5 calls for each, print the provider that served each response if the response reports one, and request a provider that does not host the model to capture the error.",
+          "deliverable": "Provider comparison table with latency, price and the captured routing error",
+          "checks": [["curl the router models endpoint and filter one model id", "The entry lists at least two providers with a status field", "jq output"], ["Request the model with a provider that does not serve it", "A 4xx error is returned naming the provider or model as unavailable", "Error output"], ["Run 5 calls for each routing mode", "A table shows median latency for :fastest, :cheapest and the explicit provider", "Timing table"]],
+          "objectives": ["Choose providers by latency, cost and availability", "Use routing suffixes and explicit providers", "Attribute and monitor inference spend"]
+        },
+        {
+          "topic": "Inference Providers: Structured Output, Tool Calls and Async Use",
+          "subtopics": ["response_format with json_schema and strict mode", "Validating model output with Pydantic", "tools and tool_choice in chat.completions.create", "Reading finish_reason, tool_calls and arguments strings", "Returning tool results with role tool messages", "Multimodal messages with image_url", "Other tasks through InferenceClient: text_to_image, feature_extraction and automatic_speech_recognition", "AsyncInferenceClient with asyncio.gather", "Which providers support which features"],
+          "tools": ["InferenceClient", "AsyncInferenceClient", "Pydantic", "asyncio"],
+          "lab_task": "Define a Pydantic Invoice model, send 20 sample invoice texts with response_format json_schema and count how many validate. Add a get_weather tool, ask a question that needs it and print finish_reason and parsed arguments. Run 10 calls sequentially and with AsyncInferenceClient and asyncio.gather and compare elapsed seconds.",
+          "deliverable": "Extraction script with a validation rate, a tool-call trace and a timing comparison",
+          "checks": [["Validate the 20 structured responses with Pydantic", "At least 19 of 20 parse into the Invoice model", "Script output"], ["Ask a question that needs the get_weather tool", "finish_reason is tool_calls and arguments parse as JSON", "Script output"], ["Run 10 calls with asyncio.gather", "Elapsed time is less than half of the sequential run", "Timing table"]],
+          "objectives": ["Obtain schema-valid output from a hosted model", "Run a tool-call round trip", "Parallelise calls safely"]
+        },
+        {
+          "topic": "Text Embeddings Inference: Self-Hosting an Embedding Server",
+          "subtopics": ["What TEI serves: embedding, reranking and sequence classification models", "Official container images per hardware and the current tag from the README", "docker run with --model-id, -p 8080:80 and a mounted /data volume", "Pooling, --dtype and --revision", "POST /embed, /embed_sparse, /rerank and /predict", "The OpenAI-compatible /v1/embeddings route", "/info, /health and /metrics", "--auto-truncate, truncate in the request and input length errors", "Comparing TEI output with a local library call"],
+          "tools": ["Text Embeddings Inference", "Docker", "curl", "BAAI bge models", "jq"],
+          "lab_task": "Start TEI on CPU with BAAI/bge-small-en-v1.5 using the current cpu image tag from the repository README and a mounted ./data volume. Call /info, POST /embed with two sentences, /v1/embeddings with the OpenAI SDK and /rerank with BAAI/bge-reranker-base on a second container. Send a 2,000-word input without truncation and then with truncate true.",
+          "deliverable": "Running TEI container with logs, three working routes and the truncation test",
+          "checks": [["POST /embed with two sentences", "Returns two vectors of length 384", "curl and jq output"], ["Send a 2,000-word input without truncate", "A 4xx input-validation error says the input exceeds the model's 512-token limit", "curl output"], ["Repeat with truncate true", "One vector of length 384 is returned", "curl output"]],
+          "objectives": ["Run TEI for embeddings and reranking", "Call native and OpenAI-compatible routes", "Handle input length limits"]
+        },
+        {
+          "topic": "smolagents: CodeAgent, Tools and Models",
+          "subtopics": ["What smolagents provides: small agent loop in Python", "CodeAgent compared with ToolCallingAgent", "Model classes: InferenceClientModel, TransformersModel and LiteLLMModel", "Defining tools with the @tool decorator, type hints and Args docstrings", "max_steps, verbosity_level and reading step logs", "additional_authorized_imports and the local Python interpreter limits", "agent.run, the final answer and agent.memory.steps", "Using Hub tools with Tool.from_space and load_tool", "Sharing an agent or tool with push_to_hub"],
+          "tools": ["smolagents", "InferenceClientModel", "huggingface_hub", "Python"],
+          "lab_task": "Write a @tool called model_downloads(repo_id: str) -> int that returns HfApi().model_info(repo_id).downloads. Create a CodeAgent with InferenceClientModel and max_steps=6 and ask which of openai-community/gpt2 and google-bert/bert-base-uncased has more downloads. Then ask it to import os and list files and capture the rejection. Print the number of steps taken.",
+          "deliverable": "Agent script with step log, answer verified against the API and the import rejection",
+          "checks": [["Run the comparison question", "The final answer names the same model that HfApi reports with more downloads", "Agent output and API output"], ["Count agent.memory.steps after the run", "The count is 6 or less", "Script output"], ["Ask the agent to import os", "An InterpreterError states the import of os is not allowed", "Step log"]],
+          "objectives": ["Build a tool-using agent with smolagents", "Constrain code execution with authorised imports", "Inspect step memory to debug agents"]
+        },
+        {
+          "topic": "PEFT and TRL at Usage Level: Adapters Pushed to the Hub",
+          "subtopics": ["Boundary: usage only; training theory and tuning belong to the fine-tuning course", "LoraConfig: r, lora_alpha, target_modules, lora_dropout and task_type", "get_peft_model and print_trainable_parameters", "SFTTrainer and SFTConfig with a conversational messages dataset", "hub_model_id, push_to_hub and hub_strategy", "Adapter files: adapter_config.json and adapter_model.safetensors", "PeftModel.from_pretrained and merge_and_unload", "Model cards generated by the trainer and what to edit", "Choosing adapter or merged weights for publishing"],
+          "tools": ["PEFT", "TRL", "transformers", "huggingface_hub", "datasets"],
+          "lab_task": "Train a LoRA adapter for 30 steps on a small public chat dataset with SFTTrainer and SFTConfig(max_steps=30, push_to_hub=True, hub_model_id='<user>/smollm-lora-demo') on HuggingFaceTB/SmolLM2-135M with LoraConfig(r=8). Print trainable parameters, list the files in the pushed repo, load the adapter with PeftModel.from_pretrained and generate once.",
+          "deliverable": "Pushed adapter repository with trainable-parameter output and a generation sample",
+          "checks": [["Run print_trainable_parameters", "Trainable parameters are below 1 percent of all parameters", "Console output"], ["List the pushed repo files", "adapter_config.json and adapter_model.safetensors are present and the adapter file is under 20 MB", "Script output"], ["Read adapter_config.json", "base_model_name_or_path equals HuggingFaceTB/SmolLM2-135M", "File content"]],
+          "objectives": ["Publish a LoRA adapter with correct metadata", "Load and merge adapters from the Hub", "Separate usage-level tasks from training theory"]
+        },
+        {
+          "topic": "Capstone: Org Workspace with Gated Data, Scoped Tokens and a Provider-Backed Space",
+          "subtopics": ["Organisation structure with roles and a naming convention", "A private gated dataset with a request form and documented licence", "Fine-grained tokens for CI, the Space and a notebook user", "A Gradio Space with secrets that calls Inference Providers and logs to a dataset via CommitScheduler", "Security checks: scan results, safetensors-only weights and token inventory", "A short operations runbook with restart, rollback by revision and cost view"],
+          "tools": ["huggingface_hub", "Gradio", "Spaces", "Inference Providers", "Access Tokens page"],
+          "lab_task": "In your organisation create a gated dataset, a Space that answers questions via InferenceClient using a secret token scoped to inference only, and a feedback dataset written by CommitScheduler. Create three fine-grained tokens, approve one access request, tag the Space v1, then roll back by reverting a bad commit. Document each step in a runbook.",
+          "deliverable": "Working org workspace with a runbook, token inventory and rollback evidence",
+          "checks": [["Call the Space with a question", "A model answer is returned and one feedback row lands in the private dataset", "Space screenshot and dataset commit"], ["Use the Space's inference-only token to upload a file to a repo", "HTTP 403 is returned", "Terminal output"], ["Revert a bad commit on the Space and wait for the build", "get_space_runtime returns RUNNING and the app serves the previous behaviour", "Script output"]],
+          "objectives": ["Assemble an organisation workspace with least privilege", "Operate a Space with logging and rollback", "Document runbooks for Hub assets"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers and platform owners who run Hugging Face in production. Covers Inference Endpoints sizing, autoscaling and custom containers, endpoint security levels, TEI under load, webhooks, GitHub Actions delivery, evaluation pipelines, sandboxed smolagents, observability, Gradio authentication and OAuth, ZeroGPU, Enterprise Hub controls, supply chain governance, cost governance, resilience, migration, large-scale dataset pipelines and training handoff.",
+      "prerequisites": ["Has completed the intermediate level or operates Hub repositories, Spaces and provider calls in a team", "Understands HTTP APIs, containers, CI pipelines and basic cloud networking", "Has budget approval and an account that can create paid Inference Endpoints or Spaces hardware"],
+      "outcomes": ["Deploy and size dedicated endpoints with autoscaling, security levels and load evidence", "Automate delivery, evaluation and event-driven workflows around Hub repositories", "Apply governance for supply chain, access, cost and resilience across Hub assets", "Design, operate and recover a production platform built on Hugging Face services"],
+      "days": [
+        {
+          "topic": "Inference Endpoints: Creating and Sizing a Dedicated Endpoint",
+          "subtopics": ["Serverless Inference Providers compared with dedicated Inference Endpoints", "Endpoint anatomy: repository, revision, framework, task, vendor and region", "create_inference_endpoint and the equivalent dashboard form", "accelerator, instance_type and instance_size choices from the catalogue", "Container choice: default toolkit compared with TGI, vLLM or TEI", "endpoint.wait(), status values and endpoint.url", "Calling through endpoint.client and a plain HTTPS request", "Measuring p50 and p95 latency for sizing", "pause, resume and delete and how billing follows status"],
+          "tools": ["Inference Endpoints", "huggingface_hub", "InferenceClient", "curl"],
+          "lab_task": "Create a CPU endpoint for distilbert/distilbert-base-uncased-finetuned-sst-2-english with create_inference_endpoint(name='sst2-demo', repository=..., framework='pytorch', task='text-classification', accelerator='cpu', vendor='aws', region='us-east-1', type='protected', instance_size='x2', instance_type=<catalogue value>). Call wait(), send 100 requests, record p50 and p95, then call pause().",
+          "deliverable": "Endpoint creation script, a latency table for 100 requests and the paused status proof",
+          "checks": [["Call endpoint.wait() after creation", "endpoint.status becomes running and endpoint.url is a https URL", "Script output"], ["Send 100 sequential classification calls", "All 100 return HTTP 200 and the table lists p50 and p95 latency in milliseconds", "Latency table"], ["Call endpoint.pause() and fetch the endpoint again", "status is paused and no replica is running", "Script output"]],
+          "objectives": ["Create and size a dedicated endpoint from code", "Measure latency percentiles before choosing hardware", "Control billing through pause and delete"]
+        },
+        {
+          "topic": "Inference Endpoints: Autoscaling, Scale-to-Zero and Cold Starts",
+          "subtopics": ["min_replica, max_replica and the autoscaling trigger", "scale_to_zero_timeout in minutes and the scaledToZero status", "endpoint.scale_to_zero() and endpoint.resume()", "What a request gets while the replica is starting: 503 and the X-Scale-Up-Timeout header", "Measuring cold-start time from the first request to the first answer", "Load testing with concurrent clients and watching replica count", "Setting minimum replicas for latency-critical routes", "Cost of idle capacity compared with cold-start delay"],
+          "tools": ["Inference Endpoints", "huggingface_hub", "locust", "curl"],
+          "lab_task": "Update sst2-demo with update(min_replica=0, max_replica=3, scale_to_zero_timeout=15) and call scale_to_zero(). Send one request without extra headers and note the response, then repeat with the X-Scale-Up-Timeout: 600 header and time it. After the replica is up, run 50 concurrent clients for 2 minutes with locust or threads and record the highest replica count shown in the dashboard.",
+          "deliverable": "Cold-start timing, load-test summary and a recommended replica policy",
+          "checks": [["Request while the endpoint is scaledToZero without a timeout header", "A 503 response is returned while the replica starts", "curl output"], ["Repeat with X-Scale-Up-Timeout: 600", "The request waits and returns 200; elapsed time is recorded as the cold start", "Timing log"], ["Run 50 concurrent clients for 2 minutes", "The dashboard shows more than 1 replica at peak and the error count is 0", "Dashboard screenshot and locust report"]],
+          "objectives": ["Configure replica limits and scale-to-zero", "Measure and explain cold starts", "Choose a replica policy from load data"]
+        },
+        {
+          "topic": "Inference Endpoints with Custom Containers: vLLM, TGI and llama.cpp",
+          "subtopics": ["Engine choices: Text Generation Inference, vLLM, SGLang, llama.cpp and custom images", "Check which engines are current and maintained before standardising", "The custom_image dictionary: url, health_route, port and env", "The /repository mount and MODEL_ID conventions", "OpenAI-compatible routes /v1/chat/completions and /v1/models", "Engine flags such as max model length and GPU memory utilisation", "Reading container logs from the endpoint Logs tab", "Failed status causes: wrong port, wrong health route and out-of-memory"],
+          "tools": ["Inference Endpoints", "vLLM", "huggingface_hub", "OpenAI SDK"],
+          "lab_task": "Deploy HuggingFaceTB/SmolLM2-360M-Instruct on a small GPU endpoint with custom_image set to a pinned vLLM OpenAI image, health_route '/health', port 8000 and env MODEL_ID '/repository'. Call /v1/models and /v1/chat/completions with the OpenAI SDK. Then recreate it with health_route '/wrong' and capture the status and log lines.",
+          "deliverable": "Working vLLM endpoint plus a failure case with its log excerpt",
+          "checks": [["GET /v1/models on the endpoint URL with a token", "The response lists one model entry", "curl output"], ["Send a chat completion with max_tokens=20", "The response has finish_reason length or stop and usage.completion_tokens of 20 or less", "Script output"], ["Create the endpoint with health_route '/wrong'", "The endpoint never reaches running and the logs show failed health checks", "Dashboard status and logs"]],
+          "objectives": ["Deploy a custom engine container on Endpoints", "Use OpenAI-compatible routes", "Diagnose failed endpoint starts from logs"]
+        },
+        {
+          "topic": "Endpoint Security Levels and Private Networking",
+          "subtopics": ["Public, protected and private endpoint types", "Protected: Hub token required in the Authorization header", "Private: cloud private link connectivity from your VPC", "Token scope needed to call endpoints and to manage them", "Separate management tokens from calling tokens", "Region and vendor choice for data residency", "Request and response logging, payload privacy and what Hugging Face does not log", "Threat model: leaked token, open public endpoint and prompt injection through inputs", "Design review checklist for a private endpoint"],
+          "tools": ["Inference Endpoints", "curl", "Access Tokens page", "AWS PrivateLink"],
+          "lab_task": "Create one public and one protected CPU endpoint from the same model. Call each with curl with and without Authorization. Create a fine-grained token with no endpoint permission and call the protected URL. Write a design for a private endpoint reached from a VPC: VPC endpoint, security group rules, DNS name, token handling and monitoring, then delete the public endpoint.",
+          "deliverable": "Test matrix of calls and a one-page private endpoint design",
+          "checks": [["curl the public endpoint without Authorization", "HTTP 200 with a prediction", "curl output"], ["curl the protected endpoint without Authorization", "HTTP 401 Unauthorized", "curl output"], ["curl the protected endpoint with a token lacking endpoint permission", "HTTP 403 Forbidden", "curl output"]],
+          "objectives": ["Choose the right endpoint access level", "Scope tokens for calling versus managing endpoints", "Design private connectivity"]
+        },
+        {
+          "topic": "Text Embeddings Inference in Production: Batching, Metrics and Overload",
+          "subtopics": ["Dynamic batching with --max-batch-tokens and --max-batch-requests", "--max-concurrent-requests and the 429 overload response", "--max-client-batch-size and 422 validation errors", "--tokenization-workers and CPU tuning", "/metrics and the te_ Prometheus series such as te_request_count and te_queue_size", "Rerank after retrieve: top 20 candidates down to top 5", "Choosing embedding and reranker models by MTEB scores and licence", "Sizing hardware from tokens per second", "Running TEI as an Inference Endpoint with the TEI image"],
+          "tools": ["Text Embeddings Inference", "Docker", "Prometheus", "oha", "curl"],
+          "lab_task": "Run TEI with BAAI/bge-small-en-v1.5, --max-concurrent-requests 4 and --max-client-batch-size 8. Fire 200 requests at concurrency 50 with oha or a Python thread pool and count the 429 responses. Send a batch of 9 inputs. Scrape /metrics with curl and grep te_request_count and te_queue_size. Compare throughput at --max-batch-tokens 4096 and 16384.",
+          "deliverable": "Load-test report with status code counts, metrics excerpt and a throughput comparison",
+          "checks": [["Fire 200 requests at concurrency 50 against max-concurrent-requests 4", "Some responses are HTTP 429 and the count is recorded", "Load-test summary"], ["POST /embed with 9 inputs when the client batch limit is 8", "HTTP 422 with a batch size validation message", "curl output"], ["curl /metrics and grep for te_request_count", "At least one line starting with te_request_count appears with a nonzero value", "curl output"]],
+          "objectives": ["Tune TEI batching and concurrency", "Observe TEI through Prometheus metrics", "Combine retrieval and reranking"]
+        },
+        {
+          "topic": "Hub Webhooks and Event-Driven Automation",
+          "subtopics": ["Event types: repo, repo.content, repo.config, discussion and discussion.comment", "Actions: create, update, delete and move", "Watching users, organisations and specific repositories", "create_webhook, list_webhooks, update_webhook, disable_webhook and delete_webhook", "The X-Webhook-Secret header and verifying it", "WebhooksServer and WebhookPayload from huggingface_hub", "Receiver design: respond fast, enqueue work and deduplicate by headSha", "Retries, ordering and replay", "Typical automations: re-evaluate on update, notify on a new discussion"],
+          "tools": ["Hub Webhooks", "FastAPI", "huggingface_hub", "ngrok"],
+          "lab_task": "Run a FastAPI receiver with a /hook route that returns 403 unless X-Webhook-Secret matches. Expose it through a Space or ngrok, register it with create_webhook(url=..., watched=[{'type':'user','name':'<user>'}], domains=['repo'], secret=...), then push a commit to course-demo-model. Log the event.scope, event.action and repo.headSha, and ignore duplicate headSha values.",
+          "deliverable": "Webhook receiver, registration script and a log of three events with duplicates ignored",
+          "checks": [["POST to /hook with a wrong secret header", "HTTP 403 and the body is not processed", "curl output"], ["Push a commit to the watched repo", "The log shows scope repo.content and action update with the new headSha", "Receiver log"], ["Deliver the same payload twice", "The second delivery is logged as duplicate and triggers no job", "Receiver log"]],
+          "objectives": ["Subscribe to Hub events", "Authenticate and deduplicate deliveries", "Trigger downstream jobs from repository changes"]
+        },
+        {
+          "topic": "CI/CD for Hub Repositories with GitHub Actions",
+          "subtopics": ["Repository layout: code on GitHub, assets on the Hub", "Storing HF_TOKEN as an encrypted Actions secret", "Installing huggingface_hub and calling hf upload in a workflow", "Deploying a Space from a tag with upload_folder", "Validating cards, licences and file formats in a pre-publish job", "Concurrency groups and path filters", "Fork pull requests and why secrets are unavailable there", "Provenance: commit message with the GitHub SHA and run URL", "Rollback by redeploying an earlier tag"],
+          "tools": ["GitHub Actions", "hf CLI", "huggingface_hub", "pytest"],
+          "lab_task": "In a GitHub repository add .github/workflows/deploy.yml that on pushing a tag v* runs pytest, a Python step that loads the model card with ModelCard.load and fails if license is missing, and hf upload to your Space with --commit-message containing github.sha. Store HF_TOKEN as a secret. Push tag v0.1.0, then open a pull request from a fork.",
+          "deliverable": "Workflow file, a green tagged run and the fork pull request result",
+          "checks": [["Push tag v0.1.0", "The workflow run ends green and the Space shows a commit whose message contains the GitHub SHA", "Actions log and Space commit page"], ["Remove the license field from the card and push a tag", "The validation step fails and no upload happens", "Actions log"], ["Open a pull request from a fork", "The deploy job does not run with secrets and the token variable is empty", "Actions log"]],
+          "objectives": ["Automate Hub publishing from GitHub Actions", "Gate releases on card validation", "Keep tokens out of untrusted workflows"]
+        },
+        {
+          "topic": "Evaluation Pipelines with Hub Datasets and Providers",
+          "subtopics": ["Evaluation set as a versioned Hub dataset pinned by revision", "Running candidate models through Inference Providers with temperature 0", "Scoring: exact match, schema validity and rubric prompts", "Confidence intervals by bootstrap resampling", "Writing results back as a dataset commit under results/", "Recording scores in model-index with EvalResult and metadata_update", "Comparing two models with paired differences", "lighteval as a standard harness and when a small custom harness is enough", "Guarding against test-set contamination"],
+          "tools": ["datasets", "InferenceClient", "huggingface_hub", "lighteval", "numpy"],
+          "lab_task": "Create a 200-row evaluation dataset of questions and exact answers, tag it eval-v1, and write run_eval.py that loads it with revision='eval-v1', calls two chat models via InferenceClient at temperature 0, computes exact match with a 1,000-sample bootstrap 95 percent interval and uploads results/<model>.json to the dataset. Add one EvalResult to a model card with metadata_update.",
+          "deliverable": "Evaluation script, results files in the dataset repo and an updated model card",
+          "checks": [["Run run_eval.py twice for one model at temperature 0", "The two accuracy values differ by 2 points or less", "Result files"], ["Open the results file for a model", "It contains accuracy, ci_low, ci_high and the dataset revision eval-v1", "JSON file"], ["Open the model page after metadata_update", "The evaluation result appears in the model's evaluation widget", "Screenshot"]],
+          "objectives": ["Build a repeatable evaluation harness on the Hub", "Report scores with confidence intervals", "Publish results in model metadata"]
+        },
+        {
+          "topic": "smolagents Managed Agents and Sandboxed Executors",
+          "subtopics": ["Why the local Python interpreter is not a security boundary", "executor_type options: docker, e2b, modal, blaxel and wasm", "Running a CodeAgent inside a Docker executor", "Managed agents: name, description and a manager CodeAgent", "planning_interval and PlanningStep entries in memory", "step_callbacks and final_answer_checks", "Tools from MCP servers with ToolCollection.from_mcp and its trust requirements", "Cost and step budgets with max_steps", "Testing agents with fixed tasks and expected answers"],
+          "tools": ["smolagents", "Docker", "InferenceClientModel", "MCP", "pytest"],
+          "lab_task": "Build a manager CodeAgent with planning_interval=3 and one managed ToolCallingAgent named 'hub_searcher' with a tool wrapping HfApi().list_models. Run it once with the local executor and once with executor_type='docker'. Ask it to run code that prints the hostname and compare it with the host hostname. Write 5 pytest tasks with expected answers.",
+          "deliverable": "Agent code, hostname comparison and a five-task test report",
+          "checks": [["Print the hostname inside the docker executor", "The value differs from the host hostname", "Run output"], ["Count PlanningStep entries in agent.memory.steps with planning_interval=3 on a 9-step run", "At least 1 planning step is recorded", "Script output"], ["Run the 5 pytest tasks", "At least 4 pass and failures are logged with step traces", "pytest report"]],
+          "objectives": ["Isolate agent code execution", "Build manager and worker agents", "Test agents with fixed tasks"]
+        },
+        {
+          "topic": "Observability for Agents, Spaces and Inference Calls",
+          "subtopics": ["What to record: latency, tokens, provider, model id, errors and request ids", "OpenTelemetry traces for agent runs with openinference-instrumentation-smolagents", "Sending traces to Phoenix or another OTLP collector", "Reading usage fields from chat completion responses", "Custom spans around InferenceClient calls", "gr.Request for session and client information in Gradio", "Hub-side stats: downloads, likes and the model_info downloads field", "Alerting on error rate and cost per request", "Privacy: not storing prompts with personal data"],
+          "tools": ["OpenTelemetry", "Phoenix", "smolagents", "InferenceClient", "Python"],
+          "lab_task": "Run Phoenix locally with phoenix serve (port 6006), instrument smolagents with SmolagentsInstrumentor().instrument() and an OTLP exporter to http://127.0.0.1:6006/v1/traces, and run 10 agent tasks. Wrap InferenceClient calls in a span with attributes provider, model and total_tokens. Break the token on purpose for one run and find that trace.",
+          "deliverable": "Trace screenshots, span attribute list and a dashboard of tokens and latency for 10 runs",
+          "checks": [["Run 10 agent tasks and count traces in Phoenix", "10 root traces are listed", "Phoenix screenshot"], ["Open one LLM span", "Token count attributes and the model name are present", "Span detail"], ["Run one task with an invalid token", "A trace with error status and a 401 message exists", "Trace view"]],
+          "objectives": ["Instrument agents with OpenTelemetry", "Attach cost and token attributes to spans", "Find failures through traces"]
+        },
+        {
+          "topic": "Gradio in Production: Authentication, OAuth and Mounted Apps",
+          "subtopics": ["launch(auth=...) for simple credentials and its limits", "Sign in with Hugging Face: hf_oauth and hf_oauth_scopes in the Space README", "gr.LoginButton, gr.OAuthProfile and gr.OAuthToken", "Using the user's token for their own Hub calls", "Restricting access by organisation membership", "gr.mount_gradio_app inside FastAPI with extra routes", "The JavaScript client and custom frontends", "Request validation, max_file_size and allowed_paths", "Rate limiting per user with gr.Request"],
+          "tools": ["Gradio", "FastAPI", "Spaces", "gradio_client", "huggingface_hub"],
+          "lab_task": "Enable hf_oauth: true on your Space and write a Gradio function that takes profile: gr.OAuthProfile | None and returns Hello <username> or Please sign in. Mount the Blocks in a FastAPI app at /ui together with /health. Add a per-user limit of 5 calls per minute using a dictionary keyed by username. Test signed out, signed in and a sixth call.",
+          "deliverable": "OAuth-enabled Space with mounted routes and a per-user limiter",
+          "checks": [["Open the Space signed out and click Run", "The output reads Please sign in", "Screenshot"], ["Sign in with Hugging Face and click Run", "The output reads Hello followed by your username", "Screenshot"], ["Click Run six times within a minute while signed in", "The sixth call returns a rate limit message", "Screenshot"]],
+          "objectives": ["Add Sign in with Hugging Face to a Space", "Combine Gradio with FastAPI routes", "Limit usage per user"]
+        },
+        {
+          "topic": "ZeroGPU and GPU Spaces for Demos",
+          "subtopics": ["ZeroGPU: shared dynamically allocated GPUs for Gradio Spaces", "Who can host and who can use it: plan and quota rules", "The spaces package and the @spaces.GPU decorator", "duration argument and keeping GPU functions short", "Loading models at module level and moving tensors inside the decorated function", "Supported library versions and checking the current docs", "Quota errors and what visitors see when their quota is spent", "Dedicated GPU hardware compared with ZeroGPU for steady traffic", "Cold start and cache behaviour"],
+          "tools": ["Spaces", "ZeroGPU", "Gradio", "PyTorch", "huggingface_hub"],
+          "lab_task": "With a Pro account or a Team organisation, create a Gradio Space on ZeroGPU hardware. Add import spaces and a @spaces.GPU(duration=30) function that runs a 4096x4096 torch matmul on cuda and returns torch.cuda.get_device_name(0) and the elapsed seconds. Check get_space_runtime().hardware and call the Space from gradio_client signed in and anonymously.",
+          "deliverable": "ZeroGPU Space with a GPU name readout, hardware proof and quota observations",
+          "checks": [["Print get_space_runtime(repo_id).hardware", "The value is zero-a10g or the current ZeroGPU hardware name shown in the Space settings", "Script output"], ["Call the decorated function", "The return value contains an NVIDIA GPU name and an elapsed time under 5 seconds", "Space output"], ["Call the Space anonymously until quota is exhausted", "An error mentions GPU quota and the signed-in call still succeeds", "Client output"]],
+          "objectives": ["Run a GPU demo on ZeroGPU", "Structure code for the decorator", "Decide between ZeroGPU and dedicated GPUs"]
+        },
+        {
+          "topic": "Enterprise Hub: SSO, Resource Groups and Audit Logs",
+          "subtopics": ["Plans: Team and Enterprise Hub features at a high level and why plan details must be checked", "Single sign-on with SAML 2.0 and OIDC and role mapping", "Resource groups for repository-level access inside an organisation", "Audit logs: what is recorded and how to export it", "Organisation token policies and restricting token creation", "Default visibility and restrictions on public repositories", "Storage regions and data residency", "Private dataset viewer and analytics for organisation repositories", "Onboarding and offboarding a member"],
+          "tools": ["Enterprise Hub", "SSO", "Resource groups", "HfApi", "Audit logs"],
+          "lab_task": "Using a trial or demo Enterprise organisation, or a role-only design if none exists, create resource groups ml-platform and research, put one private repo in each and give users A and B different roles. Test with A and B that each can only write to the intended group. Draft the SSO role mapping table and an offboarding checklist. Export one day of audit logs if available.",
+          "deliverable": "Access matrix of 2 groups and 3 roles with test results, SSO mapping table and offboarding checklist",
+          "checks": [["User A with write access to ml-platform uploads to a research repo", "HTTP 403 Forbidden", "Terminal output"], ["User B with write access to research uploads to a research repo", "The commit succeeds", "Terminal output"], ["Review the exported audit log for the test day", "Entries for the two repository changes appear with actor and timestamp", "Audit log file"]],
+          "objectives": ["Plan Enterprise Hub access control", "Map identity provider groups to Hub roles", "Use audit logs for review"]
+        },
+        {
+          "topic": "Supply Chain Governance for Models and Datasets",
+          "subtopics": ["Threats: malicious pickles, remote code in repositories, typosquatted names and silent updates", "Pinning every download to a 40-character commit SHA", "Safetensors only: refusing .bin, .pt, .pkl and .ckpt", "Detecting custom code through auto_map in config.json and the trust_remote_code flag", "Licence allow-lists read from model card metadata", "Verifying file hashes from model_info(files_metadata=True)", "Organisation allow-lists and an internal mirror using HF_ENDPOINT", "Quarantine, approval and an inventory of approved assets", "Incident response when a pinned asset is later flagged"],
+          "tools": ["huggingface_hub", "safetensors", "Python", "pytest", "HF_ENDPOINT"],
+          "lab_task": "Write hub_gate.py that takes a repo id and SHA and exits 1 if the SHA is not 40 characters, if any file ends in .bin, .pt, .pkl or .ckpt, if config.json has auto_map, or if the licence is not in an allow-list. Run it against four repositories you choose, one for each rule, plus one compliant repository, and wire it into a pytest suite.",
+          "deliverable": "hub_gate.py, a pytest suite and a table of five repositories with decisions",
+          "checks": [["Run hub_gate.py on a repository with a pytorch_model.bin and no safetensors", "Exit code 1 and a message naming the pickle-format file", "Terminal output"], ["Run it on a repository whose config.json has auto_map", "Exit code 1 and a message about custom code", "Terminal output"], ["Run it on an apache-2.0 safetensors repo with a pinned SHA", "Exit code 0 and an approved line is printed", "Terminal output"]],
+          "objectives": ["Automate supply chain checks for Hub assets", "Pin and verify downloads", "Operate an approved-asset inventory"]
+        },
+        {
+          "topic": "Cost Governance Across Providers, Endpoints and Spaces",
+          "subtopics": ["Cost drivers: provider tokens, endpoint replica minutes, Space hardware and storage", "Billing pages, usage views and organisation billing", "bill_to for routed inference on organisation accounts", "Inventory with list_inference_endpoints, list_spaces and get_space_runtime", "Idle policies: pause endpoints, pause Spaces and scale to zero", "Tagging by name prefix and an exemption list", "A dry-run sweeper that reports before it changes anything", "Hourly price table maintenance and estimate accuracy", "Budgets, alerts and showback to teams"],
+          "tools": ["huggingface_hub", "Inference Endpoints", "Spaces", "pandas", "cron"],
+          "lab_task": "Write sweeper.py that lists every inference endpoint and Space in your namespace, estimates hourly cost from a price table you maintain in prices.csv, and by default only prints a report. With --apply it pauses resources that have been idle for more than 60 minutes unless their name starts with keep-. Test with three endpoints, one named keep-sst2.",
+          "deliverable": "sweeper.py, price table and before and after reports",
+          "checks": [["Run sweeper.py without --apply", "A report is printed and every resource keeps its status", "Report output"], ["Run sweeper.py --apply on idle resources", "Idle non-exempt endpoints show status paused and keep-sst2 is still running", "Status listing"], ["Compare the report's total with the sum of the row estimates", "The totals are equal to the cent", "Report output"]],
+          "objectives": ["Inventory spend-generating Hub resources", "Automate safe idle shutdown", "Report cost by owner"]
+        },
+        {
+          "topic": "Rate Limits, Retries and Hub Outage Playbooks",
+          "subtopics": ["429 and 5xx responses from the Hub and from providers", "Retry-After and RateLimit headers", "Exponential backoff with jitter using tenacity", "Timeouts: HF_HUB_DOWNLOAD_TIMEOUT and HF_HUB_ETAG_TIMEOUT", "Circuit breaker pattern and fallbacks", "Serving from a warm cache with local_files_only and HF_HUB_OFFLINE", "Provider failover chains in InferenceClient code", "The Hugging Face status page and incident communication", "Chaos tests with a mock HTTP server"],
+          "tools": ["huggingface_hub", "tenacity", "httpx", "pytest", "Python"],
+          "lab_task": "Build a local mock server that answers 429 with Retry-After: 2 twice and then 200. Write a client wrapper that honours Retry-After with jitter, stops after 5 attempts and opens a circuit after 5 consecutive failures, falling back to a cached snapshot with local_files_only=True. Test with pytest and measure attempt counts and elapsed time.",
+          "deliverable": "Client wrapper, mock server and pytest results with timings",
+          "checks": [["Call the mock server that returns 429 twice then 200", "Exactly 3 attempts are made and the elapsed time is at least 4 seconds", "pytest output"], ["Make the mock server fail 5 times in a row", "The circuit opens and the next call returns the cached fallback in under 50 ms", "pytest output"], ["Set HF_HUB_OFFLINE=1 and request a cached file", "The cached path is returned with no network call", "Script output"]],
+          "objectives": ["Handle rate limits and outages predictably", "Implement retries with backoff and a circuit breaker", "Fall back to cached assets safely"]
+        },
+        {
+          "topic": "Migrating Models and Datasets Between Hubs and Namespaces",
+          "subtopics": ["Reasons to migrate: reorganisation, a private mirror and disaster recovery", "move_repo and the redirects it creates", "Copying with snapshot_download and upload_large_folder", "Preserving history with git clone, git lfs fetch --all and push --mirror, and the Xet variant", "What changes: commit SHAs when copying files compared with mirroring history", "Recreating tags and branches with list_repo_refs and create_tag", "Verifying integrity with SHA-256 from model_info(files_metadata=True)", "Updating card links, collections and downstream revision pins", "Cutover plan and rollback"],
+          "tools": ["huggingface_hub", "git", "git-lfs", "hf CLI", "sha256sum"],
+          "lab_task": "Copy <user>/course-demo-model to <org>/course-demo-model-mirror with snapshot_download and upload_large_folder, recreate its tags from list_repo_refs, and compare SHA-256 for every file using model_info(files_metadata=True). Then run move_repo to a new name and test the old URL. Write the cutover and rollback steps.",
+          "deliverable": "Migration script, a hash comparison table and a cutover plan",
+          "checks": [["Compare file hashes for source and mirror", "All files match and the mismatch count is 0", "Comparison output"], ["Run list_repo_refs on the mirror", "Tag v1.0 exists", "Script output"], ["Request the old URL after move_repo", "The request redirects to the new repository name", "curl -I output"]],
+          "objectives": ["Copy repositories with integrity checks", "Explain which parts of history are preserved", "Plan a safe cutover"]
+        },
+        {
+          "topic": "Large-Scale Dataset Pipelines: Sharding, Streaming and Resumption",
+          "subtopics": ["Parquet shards and IterableDataset.n_shards", "shard(num_shards, index) for workers", "Streaming map and filter and shuffle(buffer_size)", "interleave_datasets with probabilities and seed", "state_dict and load_state_dict for resumable streaming", "from_generator with gen_kwargs lists and num_proc", "Writing results back in shards with push_to_hub and upload_large_folder", "DuckDB queries on hf:// for sampling and quality checks", "Throughput measurement in rows per second"],
+          "tools": ["datasets", "DuckDB", "huggingface_hub", "pyarrow", "PyTorch DataLoader"],
+          "lab_task": "Load your 4-shard dataset with streaming=True and check n_shards. Read 1,000 examples, save ds.state_dict(), create a fresh stream, call load_state_dict and read the next example. Compare it with the 1,001st example of an uninterrupted pass. Shard the stream across 4 workers with shard(num_shards=4, index=i), count rows per shard and measure rows per second.",
+          "deliverable": "Resumption test, per-shard row counts and a throughput table",
+          "checks": [["Print n_shards for the streaming dataset", "The value is 4", "Script output"], ["Resume from state_dict after 1000 examples", "The next example equals the 1001st example of an uninterrupted pass", "Script output"], ["Sum the row counts of the 4 shards", "The sum equals the 4000 training rows of the dataset", "Script output"]],
+          "objectives": ["Process Hub datasets as sharded streams", "Resume streaming jobs after interruption", "Measure and report pipeline throughput"]
+        },
+        {
+          "topic": "Training Run Handoff with TRL, Trackio and Hub Checkpoints",
+          "subtopics": ["Boundary: operational handoff, not training theory", "SFTConfig keys: save_steps, push_to_hub, hub_model_id, hub_strategy and report_to", "hub_strategy values every_save and checkpoint and the last-checkpoint folder", "resume_from_checkpoint with a snapshot_download of last-checkpoint", "Trackio for experiment tracking: report_to trackio and its dashboard Space", "Remote runs on managed compute such as Hugging Face Jobs, with flavour and image options to verify in current docs", "Tagging runs with dataset revision and code commit", "Model card sections generated by the trainer", "Handing off to evaluation and release"],
+          "tools": ["TRL", "Trackio", "huggingface_hub", "PEFT", "Jobs"],
+          "lab_task": "Run a 40-step SFTTrainer job with save_steps=10, push_to_hub=True, hub_strategy='checkpoint' and report_to='trackio'. Interrupt it after step 25. Use snapshot_download(allow_patterns='last-checkpoint/*') and resume with resume_from_checkpoint to finish at step 40. Open the Trackio dashboard and record dataset revision and code SHA in the model card.",
+          "deliverable": "Resumed training run, Trackio dashboard link and a model card with lineage",
+          "checks": [["List repo files after interruption at step 25", "A last-checkpoint folder exists and its trainer_state shows global_step 20", "Script output"], ["Resume the run", "Logging restarts at step 21 and ends at step 40", "Training log"], ["Open the Trackio dashboard", "A single loss curve spans steps 1 to 40 with no gap", "Dashboard screenshot"]],
+          "objectives": ["Run resumable training with Hub checkpoints", "Track experiments with Trackio", "Record lineage for evaluation and release"]
+        },
+        {
+          "topic": "Capstone: Governed Production Platform on Hugging Face",
+          "subtopics": ["Target architecture: organisation, resource groups, gated dataset, embedding endpoint, provider-backed Space", "Controls: pinned revisions, safetensors-only gate, scoped tokens and token inventory", "Operations: webhook-triggered evaluation, CI deploy, retries and fallbacks", "Observability and cost sweeper with a monthly budget", "Disaster recovery: mirror and rehearsed cutover", "Operations review with a runbook, risks and a rollback drill"],
+          "tools": ["huggingface_hub", "Inference Endpoints", "Gradio", "Text Embeddings Inference", "GitHub Actions", "OpenTelemetry"],
+          "lab_task": "Assemble a platform with a protected TEI embedding endpoint, a Gradio Space doing retrieve, rerank and chat through Inference Providers, a CI pipeline gated by hub_gate.py, a webhook that triggers run_eval.py on dataset updates, traces in Phoenix and the sweeper. Rehearse a rollback to a previous Space tag and a restore from the mirror.",
+          "deliverable": "Working platform, architecture diagram, runbook and a recorded rollback and restore drill",
+          "checks": [["Ask the Space a question that needs retrieval", "The answer cites at least one retrieved passage and the trace shows embed, rerank and chat spans", "Space screenshot and trace"], ["Push a dataset update", "The webhook starts run_eval.py and a new results file appears in the evaluation dataset", "Receiver log and dataset commit"], ["Roll back the Space to the previous tag", "get_space_runtime returns RUNNING and the previous behaviour is confirmed within 10 minutes", "Script output and timing log"]],
+          "objectives": ["Integrate Hub, endpoints, Spaces and providers into one governed system", "Apply security, cost and reliability controls together", "Rehearse rollback and recovery"]
+        }
+      ]
+    }
+  }
+}

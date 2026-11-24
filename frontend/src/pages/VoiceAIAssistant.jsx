@@ -444,7 +444,10 @@ export default function VoiceAIAssistant() {
                 {executionResult.requirement_id} · {executionResult.total_matched || 0} matched · {executionResult.top_trainers || 0} shortlisted
               </p>
             </div>
-            <a href={`/shortlist1?req=${executionResult.requirement_id}`} className="btn-secondary">
+            <a
+              href={`${String(executionResult.pipeline_target || executionResult.pipeline_page || executionResult.batch_flow || '').toLowerCase().includes('proposal') || executionResult.pipeline_target === 'shortlist' ? '/shortlist' : '/shortlist1'}?requirement_id=${executionResult.requirement_id}`}
+              className="btn-secondary"
+            >
               Open Pipeline
             </a>
           </div>

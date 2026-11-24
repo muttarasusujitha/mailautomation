@@ -377,6 +377,28 @@ def test_keyword_search_keeps_a_trainer_whose_card_omits_the_skill():
     assert _normalize_result({**item, 'keyword_qualified': False}, 'soft skills', 'trainer') is None
 
 
+def test_keyword_search_keeps_profile_with_name_but_no_visible_trainer_role():
+    item = {
+        'url': 'https://www.linkedin.com/in/ada-lovelace',
+        'title': 'Ada Lovelace',
+        'content': 'Ada Lovelace\nHyderabad',
+        'keyword_qualified': True,
+    }
+    lead = _normalize_result(item, 'Python', 'trainer')
+    assert lead['source_url'] == item['url']
+    assert lead['trainer_name'] == 'Ada Lovelace'
+
+
+def test_keyword_search_still_rejects_non_trainer_job_roles():
+    item = {
+        'url': 'https://www.linkedin.com/in/ada-recruiter',
+        'title': 'Ada Lovelace',
+        'content': 'Talent acquisition recruiter',
+        'keyword_qualified': True,
+    }
+    assert _normalize_result(item, 'Python', 'trainer') is None
+
+
 def test_people_page_timeout_still_reads_the_next_page():
     from app.clients.linkedin_browser import collect_trainer_profiles
     page = MagicMock()

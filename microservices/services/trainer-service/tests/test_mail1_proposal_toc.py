@@ -9,7 +9,7 @@ import pytest
 from app.routes import shortlists
 
 
-def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, existing=None):
+def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, existing=None, email_response=None):
     trainer = {"trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com"}
     shortlist = {"top_trainers": [trainer]}
     db = {
@@ -30,7 +30,7 @@ def setup_delivery(monkeypatch, requirement, document_status=200, toc=None, exis
             if status == 422:
                 return httpx.Response(422, json={"detail": "TOC requires review before export or delivery"})
             return httpx.Response(status, content=b"test-workbook")
-        return httpx.Response(200, json={"email_id": "EML-TEST"})
+        return httpx.Response(200, json=email_response or {"email_id": "EML-TEST"})
 
     monkeypatch.setattr(shortlists, "_post_with_local_fallback", post)
     result = asyncio.run(shortlists.send_shortlist_mail(
@@ -109,7 +109,32 @@ def test_mail1_attaches_labeled_draft_for_review_required_toc(monkeypatch):
     assert "draft ToC/course agenda is attached for your review" in mail["body"]
 
 
-def test_mail1_does_not_export_regeneration_required_toc_as_draft(monkeypatch):
+def test_mail1_does_not_report_sent_when_email_service_says_in_progress(monkeypatch):
+    result, _, _ = setup_delivery(
+        monkeypatch,
+        requirement(),
+        toc={"title": "DevOps"},
+        email_response={"success": False, "already_in_progress": True},
+    )
+
+    assert result["sent"] == 0
+    assert result["failed"] == 0
+    assert result["pending"] == 1
+    assert result["results"][0]["status"] == "sending"
+    assert "delivery is not confirmed" in result["results"][0]["error_message"]
+
+
+def test_mail1_blocks_when_review_gate_422_has_missing_quality_metadata(monkeypatch):
+    toc = {"title": "DevOps", "days": [{"day": 1}]}
+    result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)
+
+    assert result["sent"] == 0
+    assert result["failed"] == 1
+    assert [payload for url, payload in calls if "/documents/" in url] == [{"toc": toc}]
+    assert not any("/email/send" in url for url, _ in calls)
+
+
+def test_mail1_blocks_regeneration_required_toc_after_review_gate_422(monkeypatch):
     toc = {"title": "DevOps", "quality": {"status": "requires_regeneration", "validation_errors": ["Missing requested scope"]},
            "days": [{"day": 1}]}
     result, calls, _ = setup_delivery(monkeypatch, requirement(), document_status=422, toc=toc)

@@ -1,0 +1,573 @@
+{
+  "domain": "Playwright",
+  "name": "Playwright Test Automation",
+  "category": "Testing and QA",
+  "icon": "play-circle",
+  "aliases": ["Microsoft Playwright", "Playwright Test", "Playwright Testing", "Playwright Automation", "Playwright Automation Testing", "Playwright Test Automation", "Playwright with TypeScript", "Playwright TypeScript", "Playwright using TypeScript", "Playwright with JavaScript", "Playwright Framework"],
+  "certifications": ["No official Playwright certification; assessed by capstone projects", "ISTQB Advanced Level Test Automation Engineering (CTAL-TAE)", "ISTQB Certified Tester Foundation Level (CTFL)"],
+  "tools": ["Playwright Test", "Node.js and npm", "TypeScript", "VS Code with the Playwright extension", "Trace Viewer", "GitHub Actions"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For manual testers, Selenium users and developers starting browser automation with Playwright. Covers installing Playwright, TypeScript for testers, the Playwright Test runner, role-based locators, actions, web-first assertions and auto-waiting, hooks and tags, codegen, UI mode and the trace viewer, frames and popups, page objects, fixtures, saved login state, API tests, network mocking, cross-browser projects, reports and running tests in CI.",
+      "prerequisites": ["Knows how to test a web application by hand", "Basic programming in any language", "Can use a terminal and install Node.js"],
+      "outcomes": ["Write reliable Playwright tests with role-based locators and web-first assertions", "Organise tests with page objects, fixtures and saved login state", "Mock network calls and test APIs with Playwright", "Run tests across Chromium, Firefox and WebKit in CI with reports and traces"],
+      "days": [
+        {
+          "topic": "Playwright Overview, Installation and Project Setup",
+          "subtopics": ["What Playwright is and how it differs from Selenium and Cypress", "Browsers it drives: Chromium, Firefox and WebKit", "Supported languages: TypeScript, JavaScript, Python, Java and .NET", "Installing Node.js and creating a project with npm init playwright", "The generated folders, example tests and playwright.config.ts", "Installing browsers and system dependencies", "Running tests with npx playwright test", "Headed and headless runs", "Opening the HTML report", "The VS Code extension"],
+          "tools": ["Node.js and npm", "Playwright Test", "VS Code with the Playwright extension"],
+          "lab_task": "Create a Playwright project, install the browsers, run the example tests headed and headless in all three browsers and open the HTML report.",
+          "deliverable": "Working Playwright project with a first report",
+          "checks": [["Install", "The example tests pass in Chromium, Firefox and WebKit", "Terminal output"], ["Run headed", "Tests run with a visible browser using --headed", "Screen recording or screenshot"], ["Read the report", "The HTML report opens and shows each test result", "Report screenshot"]],
+          "objectives": ["Install Playwright", "Explain the project structure", "Run tests and read reports"]
+        },
+        {
+          "topic": "TypeScript Essentials for Testers: Types, Functions and Async Code",
+          "subtopics": ["Variables with let and const", "Basic types, arrays and objects", "Functions and arrow functions", "Imports and exports between files", "Promises, async and await", "Why every Playwright action is awaited", "Common errors from a missing await", "Type checking with the TypeScript compiler"],
+          "tools": ["TypeScript", "Node.js", "VS Code"],
+          "lab_task": "Write small TypeScript functions that build test data, export them to a test file, call an async function correctly and fix three deliberately broken examples with missing awaits.",
+          "deliverable": "TypeScript helper module and fixed examples",
+          "checks": [["Write helpers", "Helper functions compile without type errors", "tsc output"], ["Use async correctly", "Every async call in the examples is awaited", "Code review"], ["Fix errors", "All three broken examples run correctly", "Terminal output"]],
+          "objectives": ["Write TypeScript for tests", "Use async and await correctly", "Avoid common TypeScript mistakes"]
+        },
+        {
+          "topic": "Writing Tests with the Playwright Test Runner",
+          "subtopics": ["test and expect from @playwright/test", "The page fixture", "Navigating with page.goto and the baseURL setting", "Test titles that describe behaviour", "Running one file, one test or tests matching a title", "test.only and test.skip", "Test isolation with a fresh browser context per test", "Reading failure messages"],
+          "tools": ["Playwright Test", "VS Code", "Sample web application"],
+          "lab_task": "Write five tests for a sample web shop (home page, search, product page, add to cart and checkout start), run them selectively by title and read the output of a failing test.",
+          "deliverable": "Five passing tests in one spec file",
+          "checks": [["Write tests", "All five tests pass in Chromium", "Terminal output"], ["Run selectively", "Single tests run with -g and by file name", "Terminal output"], ["Read failures", "A deliberately failing test is diagnosed from its message", "Notes"]],
+          "objectives": ["Write Playwright tests", "Run tests selectively", "Understand test isolation"]
+        },
+        {
+          "topic": "Locators: getByRole, getByText, getByLabel and Test IDs",
+          "subtopics": ["Why Playwright recommends user-facing locators", "getByRole with accessible names", "getByText, getByLabel and getByPlaceholder", "getByTestId and the test ID attribute", "CSS and XPath locators when needed", "Filtering and chaining locators", "Strictness and multiple matches", "Choosing stable locators with developers"],
+          "tools": ["Playwright Test", "Browser developer tools", "Playwright Inspector"],
+          "lab_task": "Rewrite ten CSS and XPath selectors from an old suite as role, label or test ID locators, fix any strictness errors and agree two test IDs with a developer.",
+          "deliverable": "Rewritten locator set with notes on each choice",
+          "checks": [["Use user-facing locators", "At least eight of ten locators use role, text or label", "Code review"], ["Handle strictness", "No locator matches more than one element", "Test output"], ["Agree test IDs", "Two test IDs are added to the application", "Pull request or notes"]],
+          "objectives": ["Choose robust locators", "Use role-based locators", "Handle multiple matches"]
+        },
+        {
+          "topic": "Actions: Clicking, Typing, Selecting and Uploading",
+          "subtopics": ["click, dblclick and hover", "fill compared with pressSequentially", "check, uncheck and selectOption", "Keyboard presses and shortcuts", "setInputFiles for uploads", "Drag and drop", "How actionability checks work", "Forcing actions and why to avoid it"],
+          "tools": ["Playwright Test", "Sample forms application"],
+          "lab_task": "Automate a registration form with text, dropdowns, checkboxes, a date field, a file upload and a drag-and-drop step, then submit it and confirm the result page.",
+          "deliverable": "Automated form test",
+          "checks": [["Fill the form", "Every field type is filled with Playwright actions", "Test code"], ["Upload", "The uploaded file name appears on the result page", "Test output"], ["Avoid forcing", "No action uses force: true", "Code review"]],
+          "objectives": ["Perform user actions", "Upload files and drag items", "Understand actionability"]
+        },
+        {
+          "topic": "Assertions and Auto-Waiting with Web-First Assertions",
+          "subtopics": ["Web-first assertions such as toBeVisible and toHaveText", "toHaveURL, toHaveTitle and toHaveValue", "How expect retries until a timeout", "Negative assertions", "Soft assertions with expect.soft", "Polling with expect.poll", "Timeouts for tests, actions and assertions", "Why manual waits make tests slow and flaky"],
+          "tools": ["Playwright Test", "Sample web application"],
+          "lab_task": "Replace every waitForTimeout call in a flaky sample test with web-first assertions, add soft assertions for a page with several checks and run the test twenty times with --repeat-each.",
+          "deliverable": "Stable test with assertion changes explained",
+          "checks": [["Remove fixed waits", "No waitForTimeout calls remain", "Code review"], ["Stay stable", "The test passes twenty runs in a row", "Terminal output"], ["Use soft assertions", "One test reports several failures in a single run", "Report screenshot"]],
+          "objectives": ["Use web-first assertions", "Rely on auto-waiting", "Configure timeouts"]
+        },
+        {
+          "topic": "Test Hooks, Grouping and Tags",
+          "subtopics": ["test.describe for grouping", "beforeEach, afterEach, beforeAll and afterAll", "Tags in test titles and the tag option", "Running tagged tests with --grep", "test.fixme, test.fail and test.slow", "Annotations in reports", "Serial mode and when to avoid it", "Keeping hooks short"],
+          "tools": ["Playwright Test", "VS Code"],
+          "lab_task": "Group a suite with describe blocks and hooks, tag smoke and regression tests, run only the smoke tests, and annotate one known bug with test.fixme and a link.",
+          "deliverable": "Organised suite with tags and annotations",
+          "checks": [["Group tests", "Related tests share describe blocks and hooks", "Code review"], ["Run by tag", "Only smoke tests run with --grep @smoke", "Terminal output"], ["Annotate", "The known bug appears as fixme with a link in the report", "Report screenshot"]],
+          "objectives": ["Organise tests with hooks", "Tag and filter tests", "Annotate known issues"]
+        },
+        {
+          "topic": "Codegen and the Playwright Inspector",
+          "subtopics": ["Recording tests with npx playwright codegen", "What codegen produces and what it misses", "Picking locators with the Inspector", "Recording assertions", "Recording with a device or saved login state", "Cleaning up generated code", "When recording helps and when to write by hand", "Recording from the VS Code extension"],
+          "tools": ["Playwright codegen", "Playwright Inspector", "VS Code with the Playwright extension"],
+          "lab_task": "Record a checkout flow with codegen, add recorded assertions, then refactor the generated code into a clean test with clear names and no duplicate steps.",
+          "deliverable": "Recorded test and its refactored version",
+          "checks": [["Record", "The recorded test passes without edits", "Terminal output"], ["Refactor", "The refactored test has fewer lines and clear step names", "Code comparison"], ["Add assertions", "The test checks the order total and confirmation message", "Test code"]],
+          "objectives": ["Record tests with codegen", "Pick locators with the Inspector", "Turn recordings into maintainable tests"]
+        },
+        {
+          "topic": "Debugging with UI Mode and the Trace Viewer",
+          "subtopics": ["Running tests in UI mode", "Watch mode and time-travel through steps", "Debug mode and page.pause", "Recording traces on first retry", "Reading the trace: actions, DOM snapshots, network and console", "Opening traces from CI with show-trace", "Logs and test.step for readable reports", "A routine for diagnosing failures"],
+          "tools": ["Playwright UI mode", "Trace Viewer", "VS Code debugger"],
+          "lab_task": "Diagnose three broken tests using UI mode, the debugger and recorded traces, write down the cause of each and fix them.",
+          "deliverable": "Diagnosis notes and fixed tests",
+          "checks": [["Use traces", "Each diagnosis cites evidence from the trace", "Diagnosis notes"], ["Fix", "All three tests pass after the fixes", "Terminal output"], ["Add steps", "Tests use test.step so reports show readable steps", "Report screenshot"]],
+          "objectives": ["Debug tests in UI mode", "Read traces", "Diagnose failures quickly"]
+        },
+        {
+          "topic": "Handling Frames, Dialogs, Popups and New Tabs",
+          "subtopics": ["frameLocator and nested frames", "Alerts, confirms and prompts with page.on dialog", "Popups and new tabs with waitForEvent", "Working with several pages in one context", "Downloads and the download event", "Hover menus and tooltips", "Shadow DOM support in locators", "Closing pages cleanly"],
+          "tools": ["Playwright Test", "Sample application with frames and popups"],
+          "lab_task": "Automate a payment page inside an iframe, accept a confirm dialog, follow a link that opens a new tab and save a downloaded receipt.",
+          "deliverable": "Tests covering frames, dialogs, tabs and downloads",
+          "checks": [["Use frames", "The iframe form is filled with frameLocator", "Test code"], ["Handle tabs", "The new tab is captured and checked", "Test output"], ["Save downloads", "The receipt file is saved and its name checked", "Test output"]],
+          "objectives": ["Work with frames and dialogs", "Handle new tabs", "Manage downloads"]
+        },
+        {
+          "topic": "Page Object Model in Playwright",
+          "subtopics": ["Why page objects help", "Page classes with locators and actions", "Keeping assertions in tests or in pages", "Components inside pages", "Passing the page into page objects", "Avoiding giant page classes", "Naming and folder structure", "Refactoring tests to use page objects"],
+          "tools": ["Playwright Test", "TypeScript", "VS Code"],
+          "lab_task": "Refactor the web shop tests into page objects for home, search, product and cart pages, and show that a locator change now needs one edit.",
+          "deliverable": "Page object classes and refactored tests",
+          "checks": [["Create pages", "Each page has its own class with locators and actions", "Code review"], ["Reduce duplication", "No locator is defined in more than one place", "Code search"], ["Prove the benefit", "A changed locator is fixed by one edit", "Commit diff"]],
+          "objectives": ["Design page objects", "Refactor tests", "Reduce maintenance"]
+        },
+        {
+          "topic": "Fixtures: Built-In and Custom Fixtures",
+          "subtopics": ["Built-in fixtures: page, context, browser and request", "Creating custom fixtures with test.extend", "Fixtures that provide page objects", "Setup and teardown inside fixtures", "Fixture options set in the config", "Automatic fixtures", "Fixtures compared with hooks", "Sharing fixtures across files"],
+          "tools": ["Playwright Test", "TypeScript"],
+          "lab_task": "Create fixtures that provide page objects and a test user created through the API, use them in the tests and remove the beforeEach hooks they replace.",
+          "deliverable": "Fixture file and simplified tests",
+          "checks": [["Provide page objects", "Tests receive page objects as fixtures", "Code review"], ["Clean up", "Test users created by a fixture are deleted after the test", "Application data or logs"], ["Simplify", "The replaced beforeEach hooks are removed", "Commit diff"]],
+          "objectives": ["Use built-in fixtures", "Write custom fixtures", "Replace hooks with fixtures"]
+        },
+        {
+          "topic": "Authentication and Saved Login State",
+          "subtopics": ["Why logging in through the UI in every test is slow", "Setup projects and project dependencies", "Saving storageState after login", "Reusing login state across tests", "Different roles with different state files", "Login through the API instead of the UI", "Keeping credentials out of the code", "Refreshing expired sessions"],
+          "tools": ["Playwright Test", "Environment variables", "Sample application with login"],
+          "lab_task": "Add a setup project that logs in once and saves the state for an admin and a normal user, use the right state in each test and compare suite time before and after.",
+          "deliverable": "Auth setup project with timing comparison",
+          "checks": [["Save state", "Each role has its own storage state file", "Files and config"], ["Reuse state", "Tests start already logged in", "Test output"], ["Save time", "Suite time drops compared with logging in every test", "Timing comparison"]],
+          "objectives": ["Reuse login state", "Test several roles", "Keep credentials safe"]
+        },
+        {
+          "topic": "API Testing with the Request Fixture",
+          "subtopics": ["The request fixture and APIRequestContext", "GET, POST, PUT and DELETE calls", "Checking status, headers and JSON bodies", "Authentication headers and tokens", "Setting up data through the API before UI tests", "Cleaning up data after tests", "API-only test projects", "When to use API tests instead of UI tests"],
+          "tools": ["Playwright Test", "Sample REST API"],
+          "lab_task": "Write API tests for a product API covering create, read, update and delete, then use the API to create test data for a UI test and delete it afterwards.",
+          "deliverable": "API test file and an API-backed UI test",
+          "checks": [["Test the API", "All four operations are tested with status and body checks", "Test output"], ["Prepare data", "The UI test uses data created through the API", "Test code"], ["Clean up", "Created data is deleted after each test", "Application data or logs"]],
+          "objectives": ["Write API tests in Playwright", "Use the API to prepare UI tests", "Choose between API and UI tests"]
+        },
+        {
+          "topic": "Network Interception and Mocking with page.route",
+          "subtopics": ["Listening to requests and responses", "waitForResponse for back-end calls", "page.route to fulfil, modify or abort requests", "Mocking API responses for edge cases", "Simulating slow and failed responses", "Blocking third-party scripts and images", "Recording and replaying HAR files", "Keeping mocks in sync with the real API"],
+          "tools": ["Playwright Test", "Sample application with an API"],
+          "lab_task": "Mock the product API to show an empty list, a server error and a slow response, check how the page handles each, and block analytics scripts in all tests.",
+          "deliverable": "Mocked edge-case tests",
+          "checks": [["Mock responses", "Empty, error and slow cases are each tested", "Test output"], ["Wait for calls", "Tests wait for responses instead of fixed delays", "Code review"], ["Block third parties", "Analytics requests are aborted", "Network log in the trace"]],
+          "objectives": ["Intercept network traffic", "Mock API responses", "Test error and slow cases"]
+        },
+        {
+          "topic": "Cross-Browser Testing with Projects: Chromium, Firefox and WebKit",
+          "subtopics": ["Projects in playwright.config.ts", "Desktop browser projects", "Branded Chrome and Edge channels", "Mobile device emulation from the devices list", "Viewport, locale and timezone settings", "Running a single project", "Browser-specific failures and how to handle them", "Choosing which browsers to run in CI"],
+          "tools": ["Playwright Test", "playwright.config.ts"],
+          "lab_task": "Configure projects for Chromium, Firefox, WebKit and an emulated phone, run the suite on each, investigate one browser-specific failure and record the browser policy for CI.",
+          "deliverable": "Multi-project config and browser policy",
+          "checks": [["Configure projects", "Four projects run from one config", "Config and output"], ["Investigate", "The browser-specific failure has a recorded cause", "Notes"], ["Set policy", "The policy says which projects run on each pipeline stage", "Policy note"]],
+          "objectives": ["Run tests across browsers", "Emulate mobile devices", "Set a browser policy"]
+        },
+        {
+          "topic": "Screenshots, Videos and HTML Reports",
+          "subtopics": ["Screenshots on failure", "Full-page and element screenshots", "Video recording settings", "The HTML reporter", "List, dot, line and JUnit reporters", "Attaching files to test results", "Using several reporters at once", "Keeping artefacts small in CI"],
+          "tools": ["Playwright Test", "HTML reporter", "JUnit reporter"],
+          "lab_task": "Configure screenshots and video on failure, add the JUnit reporter next to HTML, attach a log file to one test and check the size of the artefacts produced.",
+          "deliverable": "Reporting configuration with sample reports",
+          "checks": [["Capture failures", "Failed tests have screenshots and videos", "HTML report"], ["Export JUnit", "A JUnit XML file is produced", "Output folder"], ["Attach files", "The attached log opens from the report", "Report screenshot"]],
+          "objectives": ["Configure screenshots and videos", "Use several reporters", "Attach evidence to tests"]
+        },
+        {
+          "topic": "Running Playwright in CI with GitHub Actions",
+          "subtopics": ["The workflow created by npm init playwright", "Installing browsers in CI", "Caching dependencies", "Running on pull requests", "Uploading reports and traces as artefacts", "Retries and workers in CI", "Environment variables and secrets", "Reading CI failures"],
+          "tools": ["GitHub Actions", "Playwright Test", "GitHub repository"],
+          "lab_task": "Push the project to GitHub, run the suite on every pull request with retries and traces, upload the report as an artefact and fix a CI-only failure from its trace.",
+          "deliverable": "Working CI workflow with artefacts",
+          "checks": [["Run on PRs", "The workflow runs on a pull request", "Workflow run"], ["Keep evidence", "The HTML report and traces are downloadable", "Artefact list"], ["Fix CI failures", "A CI-only failure is fixed using its trace", "Commit and notes"]],
+          "objectives": ["Run Playwright in CI", "Publish reports", "Debug CI failures"]
+        },
+        {
+          "topic": "Test Data and Environment Configuration",
+          "subtopics": ["baseURL and environment-specific config", "Environment variables with dotenv", "Test data builders", "Unique data per test run", "Data cleanup strategies", "Secrets management", "Running against local, test and staging environments", "Avoiding shared mutable data"],
+          "tools": ["Playwright Test", "dotenv", "TypeScript"],
+          "lab_task": "Make the suite run against two environments from environment variables, add a builder that creates unique test data and show two parallel runs do not collide.",
+          "deliverable": "Environment-aware suite with a data builder",
+          "checks": [["Switch environments", "The same suite runs against two environments", "Terminal output"], ["Create unique data", "Each run creates different users and orders", "Application data"], ["Avoid collisions", "Two parallel runs pass together", "Terminal output"]],
+          "objectives": ["Configure environments", "Build unique test data", "Avoid shared data problems"]
+        },
+        {
+          "topic": "Beginner Capstone: End-to-End Suite for a Web Shop",
+          "subtopics": ["Choosing the critical user journeys", "Page objects and fixtures", "Saved login state", "API setup and mocks", "Cross-browser runs", "CI pipeline with reports"],
+          "tools": ["Playwright Test", "TypeScript", "GitHub Actions", "Trace Viewer"],
+          "lab_task": "Build an end-to-end suite for a web shop covering search, cart, checkout and account pages with page objects, fixtures, saved login, API setup and one mocked error case, running in three browsers in CI.",
+          "deliverable": "Complete Playwright suite with CI and reports",
+          "checks": [["Cover journeys", "The critical journeys each have passing tests", "Report"], ["Structure well", "Page objects, fixtures and saved login are used", "Code review"], ["Run in CI", "The suite runs in three browsers on pull requests", "Workflow run"]],
+          "objectives": ["Combine beginner Playwright skills", "Build a maintainable suite", "Run it in CI"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For testers and developers who write Playwright tests and now build and run a team framework. Covers framework structure, worker-scoped and composed fixtures, parallelism and sharding, visual comparisons, ARIA snapshots and accessibility checks, combined API and UI testing, component testing, device and permission emulation, clock control, flaky tests, multi-user scenarios, files and emails, parameterised tests, custom reporting, Docker and Jenkins, Playwright in other languages, migration from Selenium or Cypress, SSO and MFA flows and browser performance signals.",
+      "prerequisites": ["Writes Playwright tests with locators, assertions and page objects", "Comfortable with TypeScript and Git", "Has run a test suite in CI"],
+      "outcomes": ["Design a Playwright framework that a team can extend safely", "Run large suites fast with parallel workers and sharding", "Add visual, accessibility and component tests to a suite", "Reduce flakiness and handle complex flows such as SSO, multiple users and files"],
+      "days": [
+        {
+          "topic": "Framework Design for Playwright Projects: Folders, Config and Conventions",
+          "subtopics": ["Folder layout for tests, pages, fixtures and data", "One config with several projects", "Shared helpers compared with fixtures", "Naming conventions for tests and files", "Linting with ESLint and the Playwright plugin", "Type checking in CI", "Code review rules for tests", "Documenting the framework for new team members"],
+          "tools": ["Playwright Test", "ESLint", "TypeScript", "GitHub"],
+          "lab_task": "Restructure a messy suite into an agreed folder layout with lint and type checks, write a contributor guide and have a colleague add a test using only the guide.",
+          "deliverable": "Restructured framework and contributor guide",
+          "checks": [["Structure", "Tests, pages, fixtures and data each have a clear place", "Repository tree"], ["Enforce rules", "Lint and type checks run in CI and pass", "Workflow run"], ["Onboard", "A colleague adds a passing test using only the guide", "Pull request"]],
+          "objectives": ["Structure Playwright frameworks", "Enforce conventions", "Make frameworks easy to join"]
+        },
+        {
+          "topic": "Advanced Fixtures: Worker Scope, Overrides and Composition",
+          "subtopics": ["Test-scoped and worker-scoped fixtures", "Expensive setup once per worker", "Overriding fixtures per project or file", "Composing fixtures from several files", "Fixture options and typed configuration", "Fixtures that depend on other fixtures", "Debugging fixture order", "Avoiding hidden global state"],
+          "tools": ["Playwright Test", "TypeScript"],
+          "lab_task": "Move a slow database seed into a worker-scoped fixture, override the base URL fixture for one project, merge fixtures from two modules and measure the time saved.",
+          "deliverable": "Fixture modules with timing comparison",
+          "checks": [["Scope correctly", "The seed runs once per worker", "Logs"], ["Override", "One project uses an overridden fixture value", "Config and output"], ["Save time", "Suite time drops after the change", "Timing comparison"]],
+          "objectives": ["Use worker-scoped fixtures", "Override and compose fixtures", "Avoid hidden state"]
+        },
+        {
+          "topic": "Parallelism, Sharding and Test Isolation",
+          "subtopics": ["Workers and fullyParallel mode", "What makes tests safe to run in parallel", "Serial groups and their costs", "Sharding across CI machines", "The blob reporter and merging shard reports", "Choosing worker counts", "Isolating data between workers", "Measuring the gain"],
+          "tools": ["Playwright Test", "GitHub Actions matrix", "Blob reporter"],
+          "lab_task": "Make a suite fully parallel, fix two tests that share data, split it across four CI shards and merge the shard reports into one HTML report.",
+          "deliverable": "Sharded pipeline with a merged report",
+          "checks": [["Run in parallel", "The suite passes with fullyParallel enabled", "Terminal output"], ["Shard", "Four shards run in CI and finish faster than one machine", "Workflow timings"], ["Merge reports", "One HTML report shows all shard results", "Merged report"]],
+          "objectives": ["Run tests in parallel", "Shard across machines", "Merge reports"]
+        },
+        {
+          "topic": "Visual Comparisons with toHaveScreenshot",
+          "subtopics": ["How screenshot comparison works", "Creating and updating baselines", "Thresholds and pixel differences", "Masking dynamic content", "Stable fonts, animations and rendering", "Baselines per browser and operating system", "Reviewing visual changes in pull requests", "When visual tests are worth it"],
+          "tools": ["Playwright Test", "Docker", "GitHub Actions"],
+          "lab_task": "Add visual tests for five key pages, mask dynamic areas, generate baselines inside Docker so CI matches and review an intended design change through updated snapshots.",
+          "deliverable": "Visual test set with baselines and a reviewed change",
+          "checks": [["Create baselines", "Baselines exist for all five pages", "Snapshot folder"], ["Stay stable", "Visual tests pass in CI without false failures", "Workflow run"], ["Review changes", "The intended change is approved with updated snapshots", "Pull request"]],
+          "objectives": ["Write visual tests", "Keep baselines stable", "Review visual changes"]
+        },
+        {
+          "topic": "ARIA Snapshots and Accessibility Checks with axe",
+          "subtopics": ["The accessibility tree in Playwright", "toMatchAriaSnapshot for page structure", "Adding @axe-core/playwright", "Scanning pages and filtering rules", "Accessibility checks in CI", "Keyboard-only navigation tests", "Reporting issues to developers", "Limits of automated accessibility testing"],
+          "tools": ["Playwright Test", "@axe-core/playwright", "Screen reader for spot checks"],
+          "lab_task": "Add axe scans to five pages, write ARIA snapshot tests for the navigation and a form, add a keyboard-only checkout test and report the top issues found.",
+          "deliverable": "Accessibility tests and an issue report",
+          "checks": [["Scan pages", "Axe results are produced for all five pages", "Test output"], ["Check structure", "ARIA snapshots cover navigation and the form", "Test code"], ["Report issues", "The top issues are reported with WCAG references", "Issue report"]],
+          "objectives": ["Automate accessibility checks", "Use ARIA snapshots", "Test keyboard navigation"]
+        },
+        {
+          "topic": "Combining API and UI Tests to Speed Up Test Preparation",
+          "subtopics": ["The cost of UI-only setup", "Creating state through the API", "Checking UI changes through the API", "Shared authentication between API and browser", "Hybrid tests across both layers", "Keeping API helpers typed", "Deciding which layer tests what", "Measuring time saved"],
+          "tools": ["Playwright Test", "APIRequestContext", "TypeScript"],
+          "lab_task": "Rewrite five slow UI tests so setup and verification happen through the API while the behaviour under test stays in the UI, and compare duration and stability.",
+          "deliverable": "Hybrid tests with a duration and stability comparison",
+          "checks": [["Move setup", "Setup uses API calls instead of UI steps", "Code review"], ["Verify through the API", "At least two tests check results through the API", "Test code"], ["Save time", "Total duration drops for the five tests", "Timing comparison"]],
+          "objectives": ["Combine API and UI testing", "Speed up tests", "Choose the right test layer"]
+        },
+        {
+          "topic": "Component Testing with Playwright",
+          "subtopics": ["What component tests cover", "Playwright component testing packages", "Mounting React or Vue components", "Props, events and slots", "Mocking modules and network in component tests", "Component tests compared with unit and end-to-end tests", "Running component tests in CI", "Current limits of component testing"],
+          "tools": ["Playwright component testing", "React or Vue", "Vite"],
+          "lab_task": "Set up component testing for a React or Vue component library, test a button, a form field and a data table with props and events, and run them in CI.",
+          "deliverable": "Component test suite in CI",
+          "checks": [["Mount components", "Three components are mounted and tested", "Test output"], ["Test behaviour", "Props and events are checked in each test", "Test code"], ["Run in CI", "Component tests run in the pipeline", "Workflow run"]],
+          "objectives": ["Write component tests", "Test props and events", "Place component tests in the test strategy"]
+        },
+        {
+          "topic": "Mobile Emulation, Geolocation and Permissions",
+          "subtopics": ["Device descriptors and viewports", "Touch events and tap", "Geolocation and timezone", "Permissions such as camera, clipboard and notifications", "Colour scheme and reduced motion", "Offline mode", "Emulation compared with real devices", "When to add a real device cloud"],
+          "tools": ["Playwright Test", "Device descriptors", "Sample location-based application"],
+          "lab_task": "Test a store locator on an emulated phone with set geolocation and permissions, check dark mode and offline behaviour, and list what still needs real-device testing.",
+          "deliverable": "Emulation tests and a real-device gap list",
+          "checks": [["Emulate devices", "Tests run with a phone descriptor and touch", "Test output"], ["Set location", "The locator shows stores near the set coordinates", "Test output"], ["Name gaps", "The gap list explains what emulation cannot cover", "Gap list"]],
+          "objectives": ["Emulate mobile devices", "Control location and permissions", "Know the limits of emulation"]
+        },
+        {
+          "topic": "Time and Clock Control in Tests",
+          "subtopics": ["Why time makes tests flaky", "The page.clock API", "Installing a fixed time", "Fast-forwarding timers", "Testing session timeouts and countdowns", "Dates, timezones and daylight saving", "Mocking time on the server side", "Avoiding real waiting for timers"],
+          "tools": ["Playwright Test", "page.clock", "Sample application with timers"],
+          "lab_task": "Test a session timeout warning, a countdown offer and a date-dependent banner by controlling the clock, without any real waiting.",
+          "deliverable": "Clock-controlled tests",
+          "checks": [["Fix time", "Tests install a fixed date and time", "Test code"], ["Skip waiting", "No test waits in real time for a timer", "Code review"], ["Cover time cases", "Timeout, countdown and banner behaviours are checked", "Test output"]],
+          "objectives": ["Control time in tests", "Test timers and timeouts", "Remove time-based flakiness"]
+        },
+        {
+          "topic": "Handling Flaky Tests: Retries, Diagnosis and Fixes",
+          "subtopics": ["What makes a test flaky", "Detecting flakiness with --repeat-each", "Retries and the flaky status in reports", "Traces on retry for diagnosis", "Common causes: timing, data, order and environment", "Fixing compared with quarantining", "Tracking flaky tests over time", "Agreeing a flakiness policy"],
+          "tools": ["Playwright Test", "Trace Viewer", "Issue tracker"],
+          "lab_task": "Run a suite with --repeat-each to find flaky tests, diagnose three with traces, fix them, and write a team policy for retries and quarantine.",
+          "deliverable": "Flaky test report, fixes and a policy",
+          "checks": [["Detect", "Flaky tests are found and listed with failure rates", "Flaky test report"], ["Fix", "Three tests pass fifty repeated runs after fixes", "Terminal output"], ["Set policy", "The policy covers retries, quarantine and ownership", "Policy document"]],
+          "objectives": ["Find flaky tests", "Diagnose and fix causes", "Manage flakiness as a team"]
+        },
+        {
+          "topic": "Multi-User and Multi-Role Scenarios",
+          "subtopics": ["Several browser contexts in one test", "Different roles in parallel contexts", "Chat, approvals and other two-user flows", "Real-time updates between users", "Separate storage state for each role", "Synchronising steps between users", "Cleaning up all users' data", "Reporting multi-user failures clearly"],
+          "tools": ["Playwright Test", "Browser contexts", "Sample collaboration application"],
+          "lab_task": "Test an approval workflow where an employee submits a request and a manager approves it in a second context, and a chat where both users see each other's messages.",
+          "deliverable": "Multi-user workflow tests",
+          "checks": [["Use two contexts", "Each user runs in their own context with their own state", "Test code"], ["Synchronise", "The manager step waits for the employee's request to appear", "Test output"], ["Clean up", "Data for both users is removed after the test", "Application data or logs"]],
+          "objectives": ["Test multi-user flows", "Use several contexts", "Synchronise steps between users"]
+        },
+        {
+          "topic": "File Downloads, PDFs and Email Flows",
+          "subtopics": ["Capturing downloads", "Checking file names and contents", "Reading PDF text in tests", "Testing emails with a mail catcher", "Following links from emails", "One-time passwords from email or SMS test services", "Cleaning up files", "Keeping file tests fast"],
+          "tools": ["Playwright Test", "Mailpit or MailHog", "PDF parsing library"],
+          "lab_task": "Test an invoice download and check its PDF text, then test a sign-up flow that reads the confirmation email from a mail catcher and follows its link.",
+          "deliverable": "Download and email flow tests",
+          "checks": [["Check downloads", "The PDF contains the order number and total", "Test output"], ["Read emails", "The confirmation email is found and its link opened", "Test output"], ["Clean up", "Downloaded files and emails are removed after tests", "Test code"]],
+          "objectives": ["Test file downloads", "Verify PDF content", "Test email flows"]
+        },
+        {
+          "topic": "Data-Driven and Parameterised Tests",
+          "subtopics": ["Generating tests from arrays", "Reading data from JSON and CSV", "Parameterised projects", "Naming generated tests clearly", "Boundary and negative data sets", "Keeping data next to tests or in files", "Combining data with fixtures", "Avoiding huge data-driven suites"],
+          "tools": ["Playwright Test", "JSON and CSV files", "TypeScript"],
+          "lab_task": "Turn a login and search test into data-driven tests from a CSV file with valid, boundary and invalid data, with clear generated test names.",
+          "deliverable": "Data-driven tests and data files",
+          "checks": [["Generate tests", "Each data row becomes a named test", "Report"], ["Cover edges", "Boundary and invalid rows are included", "Data file"], ["Name clearly", "Failing rows can be identified from the report alone", "Report screenshot"]],
+          "objectives": ["Write data-driven tests", "Use external data files", "Keep generated tests readable"]
+        },
+        {
+          "topic": "Reporting with Allure and Custom Reporters",
+          "subtopics": ["Built-in reporters compared", "Allure for Playwright", "Steps, attachments and categories in Allure", "Writing a custom reporter", "Sending results to chat or dashboards", "Trend reports across runs", "Linking tests to requirements or tickets", "Choosing reports for different readers"],
+          "tools": ["Allure Playwright", "Playwright reporter API", "Slack or Microsoft Teams webhook"],
+          "lab_task": "Add Allure reporting with steps and attachments, write a small custom reporter that posts a summary to a chat webhook and link tests to ticket IDs.",
+          "deliverable": "Allure report and a custom reporter",
+          "checks": [["Produce Allure", "Allure shows steps and attachments for each test", "Allure report"], ["Post summaries", "The custom reporter posts pass, fail and flaky counts", "Chat message"], ["Link tickets", "Tests show their ticket IDs in reports", "Report screenshot"]],
+          "objectives": ["Use Allure with Playwright", "Write custom reporters", "Report to different audiences"]
+        },
+        {
+          "topic": "Running Playwright in Docker and Jenkins",
+          "subtopics": ["The official Playwright Docker image", "Matching image and package versions", "Running tests in containers locally", "Jenkins pipelines for Playwright", "Publishing HTML reports in Jenkins", "Parallel stages and agents", "Resource limits and shared memory", "Troubleshooting container runs"],
+          "tools": ["Docker", "Jenkins", "Playwright Docker image"],
+          "lab_task": "Run the suite in the official Docker image, build a Jenkins pipeline that runs it in parallel stages and publishes the HTML report, and fix one container-only failure.",
+          "deliverable": "Dockerised suite and Jenkins pipeline",
+          "checks": [["Run in Docker", "The suite passes in the Playwright image", "Terminal output"], ["Build the pipeline", "Jenkins runs the suite and publishes the report", "Jenkins build page"], ["Fix container issues", "The container-only failure has a fix and cause", "Notes and commit"]],
+          "objectives": ["Run Playwright in containers", "Build Jenkins pipelines", "Fix container-specific failures"]
+        },
+        {
+          "topic": "Playwright in Python, Java and .NET: Differences for Teams",
+          "subtopics": ["What is the same across language bindings", "pytest-playwright for Python teams", "Playwright for Java with JUnit or TestNG", "Playwright for .NET with NUnit or MSTest", "Test runner features that only exist in Playwright Test", "Choosing a language for a team", "Sharing practices across language teams", "Mixed-language organisations"],
+          "tools": ["Playwright for Python", "Playwright for Java", "Playwright for .NET"],
+          "lab_task": "Port one TypeScript test to Python and Java, list the runner features that differ, and recommend a language for a team that writes Java services and Python data jobs.",
+          "deliverable": "Ported tests, differences list and recommendation",
+          "checks": [["Port tests", "Both ported tests pass", "Terminal output"], ["Compare runners", "The list names features missing outside Playwright Test", "Differences list"], ["Recommend", "The recommendation explains the trade-offs for the team", "Recommendation note"]],
+          "objectives": ["Compare language bindings", "Port tests between languages", "Choose a language for a team"]
+        },
+        {
+          "topic": "Migrating Tests from Selenium or Cypress to Playwright",
+          "subtopics": ["Reasons to migrate and reasons not to", "Mapping Selenium waits and locators to Playwright", "Mapping Cypress commands and intercepts to Playwright", "Migrating page objects", "Running old and new suites side by side", "Prioritising which tests to move first", "Measuring stability and speed after migration", "Retiring the old suite"],
+          "tools": ["Playwright Test", "Existing Selenium or Cypress suite", "Migration tracker"],
+          "lab_task": "Migrate ten tests from a Selenium or Cypress suite to Playwright, run both suites side by side for a week of builds and compare stability and duration.",
+          "deliverable": "Migrated tests, comparison and migration plan",
+          "checks": [["Migrate", "Ten tests pass in Playwright", "Terminal output"], ["Compare", "Stability and duration are compared for both suites", "Comparison table"], ["Plan", "The plan orders remaining tests by value and risk", "Migration plan"]],
+          "objectives": ["Plan a migration", "Map concepts from other tools", "Measure migration benefits"]
+        },
+        {
+          "topic": "Testing Authentication Flows: SSO, OAuth and MFA",
+          "subtopics": ["Login flows in modern applications", "Single sign-on redirects", "OAuth and OpenID Connect in tests", "Multi-factor authentication with test secrets", "Generating one-time codes from a TOTP secret", "Test identity providers and test tenants", "Avoiding production identity systems in tests", "Security of test credentials"],
+          "tools": ["Playwright Test", "TOTP library", "Test identity provider"],
+          "lab_task": "Automate login through a test identity provider with SSO redirect and TOTP-based MFA, save the resulting state and document how test credentials are protected.",
+          "deliverable": "SSO and MFA login tests with a credential note",
+          "checks": [["Follow SSO", "The test follows the redirect and returns logged in", "Test output"], ["Pass MFA", "The one-time code is generated from the test secret", "Test code"], ["Protect secrets", "Credentials come from CI secrets, not code", "Code review and pipeline config"]],
+          "objectives": ["Test SSO logins", "Handle MFA in tests", "Protect test credentials"]
+        },
+        {
+          "topic": "Performance Signals in Browser Tests: Web Vitals and Network Timing",
+          "subtopics": ["What functional tests can tell about performance", "Navigation and resource timing", "Measuring Largest Contentful Paint and layout shift", "Network throttling with CDP in Chromium", "Budgets and soft failures", "Trends across builds", "Lighthouse alongside Playwright", "Limits compared with load testing tools"],
+          "tools": ["Playwright Test", "Chrome DevTools Protocol", "Lighthouse"],
+          "lab_task": "Collect navigation timing and Largest Contentful Paint for three pages in tests, set soft budgets, throttle the network for one test and track results across five builds.",
+          "deliverable": "Performance signal tests and a trend table",
+          "checks": [["Measure", "Timing values are recorded for three pages", "Test output"], ["Set budgets", "Exceeding a budget marks a soft failure", "Report"], ["Track trends", "Results from five builds are compared", "Trend table"]],
+          "objectives": ["Collect browser performance signals", "Set performance budgets", "Know when to use load testing tools"]
+        },
+        {
+          "topic": "Intermediate Capstone: Parallel Playwright Framework in CI with Reports",
+          "subtopics": ["Framework structure and conventions", "Fixtures and data", "Visual and accessibility checks", "Parallel and sharded runs", "Flakiness policy", "Reporting for the team"],
+          "tools": ["Playwright Test", "GitHub Actions or Jenkins", "Allure", "@axe-core/playwright"],
+          "lab_task": "Build a team-ready Playwright framework for a sample application with fixtures, API setup, visual and accessibility checks, sharded CI runs, a flakiness policy and Allure reports, and hand it to another team member to extend.",
+          "deliverable": "Team framework, pipeline and handover notes",
+          "checks": [["Build the framework", "Structure, fixtures and checks follow the agreed design", "Code review"], ["Run fast", "Sharded CI runs finish within the agreed time", "Workflow timings"], ["Hand over", "Another team member adds a test without help", "Pull request"]],
+          "objectives": ["Combine intermediate Playwright skills", "Build a team framework", "Run and report at scale"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For automation leads, SDETs and quality engineers who run Playwright for several teams. Covers framework architecture for monorepos, global setup and project dependencies, suite performance and test impact analysis, cloud and Kubernetes browser grids, HAR replay and service virtualisation, security checks, AI agents and generated tests, complex front ends, observability for test runs, contract tests, ephemeral environments, extending Playwright, accessibility and visual programmes, flakiness programmes, governance, strategy, migrations and troubleshooting.",
+      "prerequisites": ["Has built and maintained a Playwright framework used by a team", "Strong TypeScript and CI skills", "Understands test strategy and the test pyramid"],
+      "outcomes": ["Design Playwright architecture shared by many teams", "Keep large suites fast, stable and trusted", "Extend Playwright with plugins, reporters and AI-assisted workflows", "Lead automation strategy, governance and migrations"],
+      "days": [
+        {
+          "topic": "Playwright Architecture at Scale: Monorepos, Shared Libraries and Ownership",
+          "subtopics": ["One framework for many teams", "Shared libraries for fixtures and page components", "Versioning and publishing internal packages", "Ownership of tests and shared code", "Configuration inheritance across projects", "Keeping teams independent"],
+          "tools": ["Playwright Test", "npm workspaces or pnpm", "Internal package registry"],
+          "lab_task": "Split a large suite into a monorepo with a shared fixtures package and two team packages, publish the shared package internally and upgrade one team without breaking the other.",
+          "deliverable": "Monorepo layout, shared package and upgrade record",
+          "checks": [["Share code", "Both teams import fixtures from the shared package", "Package files"], ["Version safely", "Upgrading one team does not break the other", "CI runs"], ["Assign ownership", "Every folder has an owner in CODEOWNERS", "CODEOWNERS file"]],
+          "objectives": ["Architect Playwright for many teams", "Share code safely", "Assign ownership"]
+        },
+        {
+          "topic": "Project Dependencies, Global Hooks and Teardown for Large Suites",
+          "subtopics": ["globalSetup and globalTeardown", "Setup projects and dependency chains", "Seeding databases before suites", "Starting services with webServer", "Cleaning environments after runs", "Ordering setup for several roles and tenants", "Failing fast when setup breaks", "Visibility of setup in reports and traces"],
+          "tools": ["Playwright Test", "webServer config", "Database seed scripts"],
+          "lab_task": "Replace a fragile globalSetup script with setup projects that seed data, start the application with webServer and log in three roles, with traces visible in the report.",
+          "deliverable": "Setup project chain with traces",
+          "checks": [["Chain setup", "Setup projects run in the right order before tests", "Report"], ["Start services", "The application starts automatically with webServer", "Terminal output"], ["Fail fast", "A broken seed stops the run with a clear error", "Test output"]],
+          "objectives": ["Design suite setup", "Use project dependencies", "Make setup visible and reliable"]
+        },
+        {
+          "topic": "Large Suite Performance: Sharding Strategy and Test Impact Analysis",
+          "subtopics": ["Where suite time goes", "Balancing shards by duration", "Running only tests affected by a change", "Tags for smoke, regression and nightly", "The --only-changed option and its limits", "Caching browsers and dependencies", "Cost of CI minutes", "Targets for feedback time"],
+          "tools": ["Playwright Test", "CI matrix", "Test duration data"],
+          "lab_task": "Analyse a slow suite's durations, rebalance shards, add change-based test selection for pull requests and nightly full runs, and report the new feedback time and CI cost.",
+          "deliverable": "Performance analysis and new pipeline design",
+          "checks": [["Analyse", "The slowest tests and shard imbalance are identified", "Duration analysis"], ["Select tests", "Pull requests run only affected tests plus smoke", "Pipeline config"], ["Report gains", "Feedback time and CI cost are compared before and after", "Report"]],
+          "objectives": ["Speed up large suites", "Select tests by change", "Balance cost and feedback"]
+        },
+        {
+          "topic": "Playwright on Kubernetes and Cloud Browsers",
+          "subtopics": ["Running Playwright workers on Kubernetes", "Connecting to remote browsers", "Browser server and connect options", "Cloud browser services", "Scaling for peak runs", "Security of remote browsers", "Costs and limits", "Choosing self-hosted or cloud"],
+          "tools": ["Kubernetes", "Playwright Docker image", "Cloud browser service"],
+          "lab_task": "Run sharded Playwright jobs on a Kubernetes cluster, try one cloud browser service with the same suite and compare speed, reliability and cost.",
+          "deliverable": "Kubernetes job setup and a comparison report",
+          "checks": [["Run on Kubernetes", "Sharded jobs complete on the cluster", "Job logs"], ["Try cloud browsers", "The suite runs against the cloud service", "Run report"], ["Compare", "Speed, reliability and cost are compared", "Comparison report"]],
+          "objectives": ["Run Playwright at scale", "Use remote browsers", "Choose infrastructure on evidence"]
+        },
+        {
+          "topic": "Network-Level Testing: HAR Recording, Replay and Service Virtualisation",
+          "subtopics": ["Recording HAR files", "Replaying with routeFromHAR", "Updating recordings safely", "Service virtualisation for unstable dependencies", "Mock servers shared with developers", "Testing third-party failures", "Keeping mocks honest with contract checks", "Data privacy in recordings"],
+          "tools": ["Playwright Test", "HAR files", "Mock server such as WireMock or Mockoon"],
+          "lab_task": "Record HAR files for a page that depends on three back-end services, replay them in CI, add a shared mock server for one unstable dependency and remove personal data from recordings.",
+          "deliverable": "HAR-based tests, mock server and privacy notes",
+          "checks": [["Replay", "Tests pass offline using HAR replay", "Test output"], ["Virtualise", "The unstable dependency is served by the mock server", "Configuration"], ["Protect data", "Recordings contain no personal data", "Review notes"]],
+          "objectives": ["Record and replay traffic", "Virtualise services", "Keep recordings safe"]
+        },
+        {
+          "topic": "Security Checks in End-to-End Suites",
+          "subtopics": ["What end-to-end tests can check for security", "Security headers and cookies", "Access control tests across roles", "Input handling and basic injection checks", "Running OWASP ZAP alongside Playwright", "Keeping security checks fast"],
+          "tools": ["Playwright Test", "OWASP ZAP", "Security headers checklist"],
+          "lab_task": "Add tests that check security headers, cookie flags and role-based access for five pages, proxy a run through OWASP ZAP and triage its findings with developers.",
+          "deliverable": "Security checks and a triaged findings list",
+          "checks": [["Check headers", "Missing or weak headers fail a test", "Test output"], ["Test access", "A normal user cannot open admin pages", "Test output"], ["Triage", "ZAP findings are triaged with owners", "Findings list"]],
+          "objectives": ["Add security checks to suites", "Test access control", "Work with security tools"]
+        },
+        {
+          "topic": "AI-Assisted Playwright: Agents, MCP and Generated Tests",
+          "subtopics": ["AI tools that generate Playwright tests", "The Playwright MCP server for AI assistants", "Agents that plan, generate and repair tests", "Reviewing generated tests for value and stability", "Prompting with accessibility snapshots", "Risks: wrong assertions and false confidence", "Team rules for AI-generated tests", "Measuring the effect on effort and quality"],
+          "tools": ["Playwright MCP server", "AI coding assistant", "Playwright Test"],
+          "lab_task": "Use an AI assistant with the Playwright MCP server to plan and generate tests for a new feature, review and fix the output, and record time spent and defects in the generated code.",
+          "deliverable": "Generated and reviewed tests with an effort and quality record",
+          "checks": [["Generate", "The assistant produces runnable tests for the feature", "Test files"], ["Review", "Weak or wrong assertions are found and fixed", "Review notes"], ["Measure", "Time saved and defects found are recorded", "Effort record"]],
+          "objectives": ["Use AI tools with Playwright", "Review generated tests", "Set rules for AI use"]
+        },
+        {
+          "topic": "Testing Complex Front Ends: Canvas, WebSockets and Shadow DOM",
+          "subtopics": ["Shadow DOM and web components", "Canvas and charts", "WebSocket messages", "Drag-heavy interfaces", "Virtualised lists and infinite scroll", "Rich text editors", "Maps and third-party widgets", "Choosing what to test below the UI"],
+          "tools": ["Playwright Test", "WebSocket inspection", "Sample complex front end"],
+          "lab_task": "Test a dashboard with a canvas chart, a live WebSocket feed, a virtualised table and a rich text editor, choosing for each whether to test in the UI or below it.",
+          "deliverable": "Complex UI tests with layer decisions",
+          "checks": [["Test live data", "WebSocket messages are observed and checked", "Test output"], ["Handle virtual lists", "A row far down the table is found and checked", "Test output"], ["Decide layers", "Each component has a recorded testing layer decision", "Decision notes"]],
+          "objectives": ["Test complex front ends", "Handle live and virtual content", "Choose the right test layer"]
+        },
+        {
+          "topic": "Observability for Test Runs: Traces, Metrics and Dashboards",
+          "subtopics": ["Test results as data", "Exporting results to a database", "Dashboards for pass rate, duration and flakiness", "Linking failures to commits and services", "OpenTelemetry for test runs", "Alerts on quality trends", "Using traces in incident reviews", "Data retention for test artefacts"],
+          "tools": ["Playwright reporter API", "Grafana or a BI tool", "OpenTelemetry"],
+          "lab_task": "Export test results from CI to a database with a custom reporter, build a dashboard for pass rate, duration and flakiness, and set an alert when the flaky rate rises.",
+          "deliverable": "Results pipeline, dashboard and alert",
+          "checks": [["Export", "Every CI run writes results to the database", "Database records"], ["Visualise", "The dashboard shows trends for three metrics", "Dashboard"], ["Alert", "A rising flaky rate triggers the alert", "Alert test"]],
+          "objectives": ["Treat test results as data", "Build quality dashboards", "Alert on trends"]
+        },
+        {
+          "topic": "Contract and Integration Testing Alongside Playwright",
+          "subtopics": ["Why end-to-end tests are a poor place for every check", "Consumer-driven contracts with Pact", "API schema checks in CI", "Integration tests below the UI", "Reducing end-to-end tests with lower-level coverage", "Mapping coverage across layers", "Agreeing ownership with service teams", "Measuring the effect on suite size"],
+          "tools": ["Pact", "OpenAPI validator", "Playwright Test"],
+          "lab_task": "Replace six end-to-end checks that only verify API data with contract tests between the front end and two services, and show the coverage map before and after.",
+          "deliverable": "Contract tests and coverage map",
+          "checks": [["Add contracts", "Contract tests run for both services", "CI runs"], ["Remove duplicates", "Six end-to-end checks are removed or simplified", "Commit diff"], ["Map coverage", "The map shows each behaviour covered at one main layer", "Coverage map"]],
+          "objectives": ["Use contract tests with Playwright", "Balance test layers", "Reduce end-to-end suite size"]
+        },
+        {
+          "topic": "Test Environments: Ephemeral Previews and Seeded Data",
+          "subtopics": ["Preview environments per pull request", "Running Playwright against previews", "Seeding data for each environment", "Environment readiness checks", "Secrets for temporary environments", "Cleaning up environments", "Cost control", "When shared environments are still needed"],
+          "tools": ["Preview environment platform", "Playwright Test", "Seed scripts"],
+          "lab_task": "Run the suite against a preview environment created for each pull request, seed its data, add a readiness check and tear it down after the run.",
+          "deliverable": "Preview environment pipeline",
+          "checks": [["Create previews", "Each pull request gets its own environment", "Pipeline log"], ["Seed and check", "Tests start only after the readiness check passes", "Pipeline log"], ["Clean up", "Environments are removed after runs", "Platform dashboard"]],
+          "objectives": ["Test against ephemeral environments", "Seed data reliably", "Control environment cost"]
+        },
+        {
+          "topic": "Extending Playwright: Custom Matchers, Reporters and Plugins",
+          "subtopics": ["Custom expect matchers", "Typed matcher declarations", "Custom reporters for organisation needs", "Shared helpers as packages", "Writing a small plugin for a common task", "Documenting extensions", "Testing your extensions", "Upgrading extensions with Playwright releases"],
+          "tools": ["Playwright Test", "TypeScript", "Internal package registry"],
+          "lab_task": "Write two custom matchers for domain rules, a reporter that writes results to the team's format and a helper package with tests, and publish them for other teams.",
+          "deliverable": "Published extension package with tests and documentation",
+          "checks": [["Write matchers", "Custom matchers give clear failure messages", "Test output"], ["Test extensions", "The package has its own passing tests", "CI run"], ["Document", "Usage is documented with examples", "README"]],
+          "objectives": ["Extend Playwright", "Build reusable packages", "Maintain extensions over upgrades"]
+        },
+        {
+          "topic": "Accessibility Testing Programmes with Playwright",
+          "subtopics": ["Accessibility goals and WCAG 2.2 levels", "Automated scans across all key pages", "Component-level accessibility tests", "Tracking issues by severity", "Manual and assistive technology checks alongside automation", "Accessibility gates in pipelines", "Reporting progress to leadership", "Training teams to fix issues early"],
+          "tools": ["@axe-core/playwright", "Issue tracker", "Dashboard tool"],
+          "lab_task": "Design an accessibility testing programme for a product with automated scans, component tests, a pipeline gate for critical issues and a progress report.",
+          "deliverable": "Accessibility programme plan and first progress report",
+          "checks": [["Cover pages", "Scans run on every key page", "Test output"], ["Gate releases", "Critical issues block the pipeline", "Pipeline config"], ["Report", "The progress report shows issues by severity over time", "Report"]],
+          "objectives": ["Run accessibility programmes", "Gate on critical issues", "Report accessibility progress"]
+        },
+        {
+          "topic": "Visual Testing at Scale: Baselines, Review Workflows and Cloud Services",
+          "subtopics": ["Visual testing across many pages and components", "Baseline storage and versioning", "Review workflows for visual changes", "Cloud visual testing services", "Cross-browser rendering differences", "Reducing noise", "Cost of visual testing", "Ownership of baselines"],
+          "tools": ["Playwright toHaveScreenshot", "Cloud visual testing service", "Git LFS"],
+          "lab_task": "Scale visual tests to fifty components, store baselines with Git LFS, trial a cloud review workflow and compare noise and review time with built-in snapshots.",
+          "deliverable": "Scaled visual suite and a comparison report",
+          "checks": [["Scale", "Fifty components have visual tests", "Test output"], ["Review", "Visual changes are approved through a defined workflow", "Review records"], ["Compare", "Noise and review time are compared for both approaches", "Comparison report"]],
+          "objectives": ["Scale visual testing", "Manage baselines", "Choose visual testing tools"]
+        },
+        {
+          "topic": "Flaky Test Management Programme: Quarantine, Ownership and Metrics",
+          "subtopics": ["Flakiness as an organisation problem", "Detecting flakes automatically", "Quarantine rules and expiry", "Ownership and service levels for fixing", "Flake budgets per team", "Root cause categories", "Reporting flakiness trends", "Preventing new flaky tests"],
+          "tools": ["Test results database", "Issue tracker", "Dashboard tool"],
+          "lab_task": "Set up automatic flake detection from CI results, a quarantine process with expiry and owners, and a monthly report of flake causes and fix times.",
+          "deliverable": "Flake management process and first monthly report",
+          "checks": [["Detect", "Flakes are found automatically from CI data", "Detection output"], ["Quarantine", "Quarantined tests have owners and expiry dates", "Quarantine list"], ["Report", "The report shows causes and fix times", "Monthly report"]],
+          "objectives": ["Manage flakiness at scale", "Assign ownership", "Reduce flakiness over time"]
+        },
+        {
+          "topic": "Governance for Test Automation: Standards, Reviews and Code Quality",
+          "subtopics": ["Coding standards for test code", "Review checklists for tests", "Static analysis and lint rules", "Test naming and tagging standards", "Dependency and upgrade policy", "Deleting low-value tests", "Measuring test code quality", "Balancing standards and speed"],
+          "tools": ["ESLint", "Code review tools", "Test inventory"],
+          "lab_task": "Write coding standards and a review checklist for Playwright code, apply them to twenty existing tests, and delete or rewrite those that add no value.",
+          "deliverable": "Standards, checklist and cleanup record",
+          "checks": [["Set standards", "Standards cover naming, locators, assertions and data", "Standards document"], ["Review", "Twenty tests are reviewed against the checklist", "Review records"], ["Clean up", "Low-value tests are removed or rewritten with reasons", "Cleanup record"]],
+          "objectives": ["Govern automation code", "Review tests consistently", "Remove low-value tests"]
+        },
+        {
+          "topic": "Automation Strategy: The Test Pyramid and Where Playwright Fits",
+          "subtopics": ["Test pyramid, trophy and other models", "Which risks Playwright should cover", "Balancing unit, API, component and end-to-end tests", "Automation for different products", "Manual and exploratory testing alongside automation", "Return on investment for automation", "Communicating strategy to engineering leaders", "Reviewing the strategy each year"],
+          "tools": ["Test inventory", "Risk map", "Strategy template"],
+          "lab_task": "Analyse a product's current tests by layer and risk, write an automation strategy that defines Playwright's role and present it to role-played engineering leaders.",
+          "deliverable": "Test inventory analysis and automation strategy",
+          "checks": [["Analyse", "The inventory shows tests by layer and risk", "Analysis"], ["Define Playwright's role", "The strategy states which risks end-to-end tests cover", "Strategy"], ["Present", "Leaders approve the strategy or set conditions", "Presentation notes"]],
+          "objectives": ["Set automation strategy", "Balance test layers", "Explain strategy to leaders"]
+        },
+        {
+          "topic": "Leading a Playwright Migration Programme",
+          "subtopics": ["Building the case for migration", "Pilots and success criteria", "Training and enabling teams", "Migration waves and tracking", "Running old and new tools together", "Handling resistance", "Measuring results", "Decommissioning old tools"],
+          "tools": ["Migration tracker", "Training plan", "Dashboard tool"],
+          "lab_task": "Plan a migration of five teams to Playwright with a pilot, success criteria, training, waves and decommissioning, and present the business case.",
+          "deliverable": "Migration programme plan and business case",
+          "checks": [["Pilot", "Pilot success criteria are measurable", "Programme plan"], ["Plan waves", "Each team has a wave, training and support", "Programme plan"], ["Justify", "The business case compares costs and benefits", "Business case"]],
+          "objectives": ["Lead tool migrations", "Enable teams", "Measure migration success"]
+        },
+        {
+          "topic": "Troubleshooting CI-Only Failures in Large Playwright Suites",
+          "subtopics": ["Failures that only happen in CI", "Resource limits and parallel load", "Environment and data differences", "Browser version differences", "Reading traces, logs and videos together", "Reproducing CI conditions locally"],
+          "tools": ["Trace Viewer", "Docker", "CI logs"],
+          "lab_task": "Diagnose four CI-only failures from a large suite using traces, logs and a local reproduction in the CI container, and write a troubleshooting guide for the team.",
+          "deliverable": "Diagnoses, fixes and a troubleshooting guide",
+          "checks": [["Diagnose", "Each failure has a confirmed cause", "Diagnosis notes"], ["Reproduce", "At least two failures are reproduced locally in the container", "Terminal output"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot CI-only failures", "Reproduce CI conditions", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Playwright Platform for Multiple Teams",
+          "subtopics": ["Shared architecture and packages", "Fast pipelines with test selection", "Observability and flake management", "Accessibility and visual programmes", "Governance and standards", "Strategy presentation"],
+          "tools": ["Playwright Test", "Kubernetes or cloud browsers", "Dashboard tool", "Internal package registry"],
+          "lab_task": "Design and build an enterprise Playwright platform for three teams with shared packages, change-based test selection, results dashboards, flake management and governance, and present it to engineering leadership.",
+          "deliverable": "Platform, dashboards and strategy presentation",
+          "checks": [["Share", "All three teams use the shared packages", "Repository and CI"], ["Run fast and stable", "Pull request feedback and flake rates meet targets", "Dashboard"], ["Win support", "Leadership approves the platform plan", "Presentation notes"]],
+          "objectives": ["Combine advanced Playwright skills", "Build a platform for many teams", "Lead automation at scale"]
+        }
+      ]
+    }
+  }
+}

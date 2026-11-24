@@ -1,0 +1,573 @@
+{
+  "domain": "Load Balancing",
+  "name": "Load Balancing",
+  "category": "Networking",
+  "icon": "network",
+  "aliases": ["Application Load Balancing", "Traffic Distribution", "Load Balancer", "Load Balancers", "Server Load Balancing", "Global Server Load Balancing", "Application Delivery Controller", "L4 and L7 Load Balancing"],
+  "certifications": ["AWS Certified Advanced Networking - Specialty (ANS-C01)", "Microsoft Certified: Azure Network Engineer Associate (AZ-700)", "Google Cloud Certified Professional Cloud Network Engineer", "Certified Kubernetes Administrator (CKA)"],
+  "tools": ["HAProxy", "Envoy Proxy", "Nginx", "Keepalived", "AWS Elastic Load Balancing (ALB, NLB, GWLB)", "Azure Load Balancer and Application Gateway", "Google Cloud Load Balancing", "Kubernetes Gateway API", "MetalLB", "Cilium", "Prometheus and Grafana", "k6", "curl and tcpdump", "Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators, developers and junior cloud or network engineers who run web applications but have not designed load balancing themselves. Covers what a load balancer does at Layer 4 and Layer 7, balancing algorithms, active and passive health checks, session persistence, TLS termination and passthrough, client IP preservation, timeouts and retries, connection draining, an HAProxy pair made highly available with Keepalived, a first look at AWS, Azure and Google Cloud load balancers and Kubernetes Services, and reading load balancer logs and 5xx errors, ending with a highly available web tier capstone.",
+      "prerequisites": ["Explains IP addresses, ports, TCP and the basic HTTP request and response cycle", "Works on a Linux command line: editing files, systemctl, curl and reading logs under /var/log", "Has a laptop with Docker and Docker Compose able to run six or more small containers, plus a free-tier account on at least one public cloud"],
+      "outcomes": ["Choose between a Layer 4 and a Layer 7 load balancer and a suitable algorithm for a given workload", "Configure HAProxy with health checks, cookie persistence, TLS termination and graceful server draining", "Build a two-node HAProxy pair with a Keepalived virtual IP that survives the loss of either node", "Diagnose 502, 503 and 504 responses from load balancer logs and map each to its likely cause"],
+      "days": [
+        {
+          "topic": "Load Balancing Fundamentals: Why, Where and What Gets Balanced",
+          "subtopics": ["Goals of load balancing: scale-out, availability and maintenance without downtime", "Vocabulary: virtual IP, listener, frontend, backend pool, target and upstream", "Where balancers sit: edge, internal service tier, database proxy and client-side", "Hardware appliances, software proxies, cloud-managed services and service meshes", "Reverse proxy compared with forward proxy and NAT gateway", "What gets balanced: TCP connections, UDP flows, HTTP requests and gRPC streams", "Stateful and stateless balancer tiers", "The balancer as a single point of failure and how it is avoided", "Failure modes: overload, uneven spread, stale health and retry storms", "Reading a reference diagram of a three-tier web application"],
+          "tools": ["draw.io", "curl", "Docker"],
+          "lab_task": "Draw the request path for a three-tier shop (browser, DNS, edge balancer, web tier, internal API balancer, database) and label every listener, pool and health check. Then run three containers of traefik/whoami on ports 8081-8083 with docker run and call each with curl to record the Hostname field that identifies the instance.",
+          "deliverable": "Annotated architecture diagram and a table of the three backends with their hostnames",
+          "checks": [["Call each whoami container with curl http://localhost:8081 to 8083", "Three different Hostname values are returned", "Terminal output"], ["Review the diagram against the trainer checklist", "Every balancer shows a listener, a pool and a health check", "Diagram file"], ["Ask the learner to name the single point of failure in the diagram", "The single edge balancer is identified with a proposed redundancy method", "Written answer"]],
+          "objectives": ["Explain why and where load balancers are placed", "Use the standard vocabulary for balancer components", "Identify failure modes a balancer introduces"]
+        },
+        {
+          "topic": "The Request Path: TCP Handshakes, NAT and Connection Tracking",
+          "subtopics": ["The TCP three-way handshake and what a SYN, SYN-ACK and ACK look like in tcpdump", "Four-tuples and five-tuples as flow identifiers", "Destination NAT, source NAT and full proxy behaviour", "Linux conntrack and the nf_conntrack table", "Connection reuse and HTTP keep-alive between client, balancer and backend", "TIME_WAIT, ephemeral ports and their link to connection churn", "UDP flows and why they need idle timers", "MTU, MSS and fragmentation through tunnels"],
+          "tools": ["tcpdump", "Wireshark", "ss", "conntrack"],
+          "lab_task": "Put an HAProxy container in front of one whoami backend, run tcpdump -i any -nn 'tcp port 80 or tcp port 8080' -w path.pcap while sending one curl request, and open the capture in Wireshark. Show the two separate TCP connections (client to proxy and proxy to backend) and list their four-tuples. Then run ss -tan state time-wait | wc -l after 200 requests.",
+          "deliverable": "Packet capture with both handshakes annotated and a note on the TIME_WAIT count",
+          "checks": [["Filter the capture with tcp.flags.syn==1 && tcp.flags.ack==0", "Two SYN packets appear for one request, one per connection leg", "Wireshark screenshot"], ["Compare source addresses seen by the backend and by the proxy", "The backend sees the proxy's address as the client", "Annotated capture"], ["Run ss -tan state time-wait | wc -l after the 200-request loop", "A non-zero TIME_WAIT count is reported and explained", "Terminal output"]],
+          "objectives": ["Trace a request through a full proxy at packet level", "Explain NAT and connection tracking on a balancer", "Relate connection churn to TIME_WAIT and port use"]
+        },
+        {
+          "topic": "Layer 4 versus Layer 7 Load Balancers",
+          "subtopics": ["What a Layer 4 balancer sees: addresses, ports and protocol", "What a Layer 7 balancer sees: host, path, headers, cookies and methods", "HAProxy mode tcp compared with mode http", "Per-connection balancing and its effect on HTTP/2 and gRPC", "Per-request balancing and connection multiplexing", "Latency and CPU cost of parsing at Layer 7", "Features only possible at Layer 7: routing, header rewrite and WAF", "Choosing L4, L7 or a two-tier L4-then-L7 design"],
+          "tools": ["HAProxy", "curl", "h2load", "Docker Compose"],
+          "lab_task": "Run HAProxy twice against three whoami backends: once with mode tcp and once with mode http, both with balance roundrobin. Send 300 requests with curl over a single keep-alive connection (curl --http1.1 with multiple URLs) and 300 with new connections. Count hits per backend in each case and explain why mode tcp sends a single keep-alive connection's requests to one backend.",
+          "deliverable": "Results table of hits per backend for both modes and both client patterns",
+          "checks": [["Send 300 requests over one keep-alive connection through mode tcp", "All 300 requests reach the same backend", "Hit-count table"], ["Send the same 300 requests through mode http", "Each backend receives about 100 requests", "Hit-count table"], ["Add an ACL on path /api in mode tcp and run haproxy -c -f haproxy.cfg", "A warning or error shows the HTTP sample fetch cannot be used in a TCP frontend", "Validation output"]],
+          "objectives": ["Distinguish Layer 4 from Layer 7 balancing behaviour", "Predict request spread for keep-alive and multiplexed clients", "Select the right layer for a workload"]
+        },
+        {
+          "topic": "Lab Setup: Backend Fleet with Docker Compose and Echo Servers",
+          "subtopics": ["Course lab layout: one network, six backends, one or two balancers and a client", "Writing compose.yaml with named services and a user-defined bridge network", "Echo servers that report hostname, headers and client address", "Adding artificial latency and error injection to backends", "Health endpoints that can be toggled to fail on demand", "Scaling backends with docker compose up --scale", "Container DNS names and how balancers resolve them", "Collecting logs with docker compose logs -f", "Resetting the lab cleanly with docker compose down -v", "Version-pinning images for repeatable results"],
+          "tools": ["Docker Compose", "traefik/whoami", "HAProxy", "curl", "jq"],
+          "lab_task": "Create compose.yaml with six backend services (a small HTTP app exposing /, /healthz and /fail toggles), one haproxy:lts service and a client container with curl and jq. Run docker compose up -d, confirm all eight containers are healthy, then flip one backend's /healthz to return 503 and confirm with curl -s -o /dev/null -w '%{http_code}'.",
+          "deliverable": "compose.yaml, backend source and a README with start, reset and fault-injection commands",
+          "checks": [["Run docker compose ps after startup", "Eight containers show state running", "Terminal output"], ["Toggle backend 3's health to fail and call its /healthz", "The endpoint returns HTTP 503", "curl output"], ["Run docker compose down -v and then up -d again", "The lab returns to six healthy backends with no leftover state", "Terminal output"]],
+          "objectives": ["Build a reproducible load balancing lab", "Inject failures and latency into backends on demand", "Reset the environment between exercises"]
+        },
+        {
+          "topic": "Static Algorithms: Round Robin, Weighted Round Robin and Random",
+          "subtopics": ["Round robin and its assumption of equal servers and equal requests", "Weighted round robin for mixed instance sizes", "Smooth weighted round robin versus naive interleaving", "Random selection and its statistical spread", "HAProxy balance roundrobin, static-rr and random", "Slow start for servers returning to the pool", "Why static algorithms fail with uneven request cost", "Measuring spread with a chi-squared style comparison"],
+          "tools": ["HAProxy", "curl", "jq", "Python"],
+          "lab_task": "Configure HAProxy with balance roundrobin and weights 3, 1 and 1 on three backends, send 1,000 requests, and count hits per backend from the whoami Hostname field. Repeat with balance random and with static-rr. Then add slowstart 30s to one server, re-enable it after maintenance, and record its hit share in each 10-second window.",
+          "deliverable": "Spread table for each algorithm and a slow-start ramp chart",
+          "checks": [["Send 1,000 requests with weights 3, 1 and 1", "Hits are close to 600, 200 and 200", "Hit-count table"], ["Send 1,000 requests with balance random and equal weights", "Each backend gets roughly one third with visible random variance", "Hit-count table"], ["Re-enable a server with slowstart 30s", "Its share rises over about 30 seconds instead of jumping to full", "Ramp chart"]],
+          "objectives": ["Configure static balancing algorithms and weights", "Measure request spread across backends", "Use slow start to protect recovering servers"]
+        },
+        {
+          "topic": "Dynamic Algorithms: Least Connections, Least Request and Power of Two Choices",
+          "subtopics": ["Least connections for long or uneven sessions", "Least outstanding requests at Layer 7", "Power of two random choices and why it avoids herding", "Peak EWMA and latency-aware selection", "HAProxy balance leastconn and random(2)", "Envoy LEAST_REQUEST and AWS ALB least_outstanding_requests", "Interaction of dynamic algorithms with multiple balancer instances", "When dynamic algorithms make things worse: fast-failing servers"],
+          "tools": ["HAProxy", "k6", "Docker Compose", "Grafana"],
+          "lab_task": "Make backend 1 add 400 ms latency while backends 2 and 3 answer in 20 ms. Run k6 with 50 virtual users for 2 minutes through HAProxy using roundrobin, leastconn and random(2) in turn. Record p95 latency and hits per backend for each. Then make backend 2 return 500 instantly and show leastconn sending it more traffic.",
+          "deliverable": "Comparison table of p95 latency and hit spread per algorithm, plus the fast-fail observation",
+          "checks": [["Compare p95 latency for roundrobin and leastconn with one slow backend", "leastconn shows a lower p95 than roundrobin", "k6 summary output"], ["Count hits on the slow backend under leastconn", "The slow backend receives a clearly smaller share than the fast ones", "Hit-count table"], ["Make backend 2 fail instantly with 500 under leastconn", "Backend 2 attracts more requests than the healthy backends", "HAProxy stats or log counts"]],
+          "objectives": ["Select dynamic algorithms for uneven workloads", "Explain power of two choices", "Recognise the fast-failure trap in least-connections balancing"]
+        },
+        {
+          "topic": "Hash-Based Distribution: Source IP, URI and Consistent Hashing",
+          "subtopics": ["Modulo hashing and the reshuffle when a server is added", "Consistent hashing rings and virtual nodes", "Jump hash, rendezvous hashing and Maglev tables compared", "HAProxy balance source, uri, hdr() and hash-type consistent", "Bounded-load consistent hashing", "Cache locality as the main reason to hash on URI", "Hot keys and uneven traffic under hashing", "Hashing behind NAT: many users sharing one source IP"],
+          "tools": ["HAProxy", "Python", "curl"],
+          "lab_task": "Configure balance uri with hash-type map-based on four cache backends, request 1,000 distinct URLs and record which backend served each. Add a fifth backend and measure the percentage of URLs that moved. Repeat with hash-type consistent. Write a 30-line Python script that computes the expected movement for both methods and compare it with the measurement.",
+          "deliverable": "Remap percentage table for map-based and consistent hashing, with the Python model",
+          "checks": [["Add a fifth backend with hash-type map-based", "Roughly 80 percent of URLs move to a different backend", "Remap table"], ["Add a fifth backend with hash-type consistent", "Roughly 20 percent of URLs move", "Remap table"], ["Request the same URL 50 times", "All 50 requests are served by one backend", "Log extract"]],
+          "objectives": ["Configure hash-based balancing for cache affinity", "Quantify key movement when the pool changes", "Explain consistent hashing and its variants"]
+        },
+        {
+          "topic": "Health Checks: Active Probes, Passive Detection and Thresholds",
+          "subtopics": ["Active TCP, HTTP and gRPC health probes", "Interval, timeout, rise and fall thresholds", "Liveness versus readiness and deep versus shallow checks", "HAProxy option httpchk, http-check expect and check inter fall rise", "Passive detection from real traffic: observe layer7 and error limits", "Agent checks that report weight or drain state", "Health-check storms and dependency cascades", "Fail-open behaviour when every backend is unhealthy"],
+          "tools": ["HAProxy", "Docker Compose", "socat", "curl"],
+          "lab_task": "Add option httpchk GET /healthz, http-check expect status 200 and check inter 2s fall 3 rise 2 to three backends. Make one backend fail its health endpoint and time how long until HAProxy marks it DOWN; restore it and time the return to UP. Query the state with echo 'show servers state' | socat stdio /run/haproxy/admin.sock. Then fail all three and record the client response.",
+          "deliverable": "Detection timing table, runtime API output and a note on the all-down behaviour",
+          "checks": [["Fail one backend's /healthz with inter 2s fall 3", "It is marked DOWN after about 6 seconds", "HAProxy log line with timestamp"], ["Restore the backend with rise 2", "It returns to UP after about 4 seconds", "HAProxy log line with timestamp"], ["Fail health on all three backends and curl the frontend", "The client receives 503 Service Unavailable", "curl output"]],
+          "objectives": ["Configure active health checks with sensible thresholds", "Calculate failure detection and recovery time", "Design health endpoints that avoid cascading failure"]
+        },
+        {
+          "topic": "HAProxy First Steps: Frontends, Backends and the Runtime API",
+          "subtopics": ["Configuration sections: global, defaults, frontend, backend and listen", "bind lines, default_backend and use_backend", "server lines and their options: check, weight, maxconn and backup", "Validating with haproxy -c -f and reloading with systemctl reload", "The built-in stats page with stats uri and stats auth", "The runtime API over a UNIX socket with socat", "show stat, show info, disable server and enable server", "Logging to stdout in containers and to syslog on hosts"],
+          "tools": ["HAProxy", "socat", "systemd", "curl"],
+          "lab_task": "Write haproxy.cfg with a frontend on :80, a backend of three servers with check, and a stats page on :8404 at /stats. Validate with haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg. Using the runtime API, disable server web/web2, send 30 requests, enable it again, and capture show stat output filtered with cut -d, -f1,2,18 to show each server's status.",
+          "deliverable": "Validated haproxy.cfg, stats page screenshot and runtime API session transcript",
+          "checks": [["Run haproxy -c -f on the finished file", "Output reports Configuration file is valid", "Terminal output"], ["Send 30 requests after disable server web/web2", "web2 receives none of the 30 requests", "Hit-count table"], ["Open the stats page during the exercise", "web2 is shown in MAINT state", "Stats page screenshot"]],
+          "objectives": ["Write and validate a basic HAProxy configuration", "Operate servers live through the runtime API", "Read HAProxy statistics"]
+        },
+        {
+          "topic": "HTTP Routing at Layer 7: Host, Path and Header Rules",
+          "subtopics": ["Host-based routing for several sites on one address", "Path prefix routing to separate services", "Header and query parameter matching", "HAProxy ACLs with hdr(host), path_beg and req.hdr", "Rule order and first-match semantics", "Rewriting paths and headers before forwarding", "Default routes and explicit 404 handling", "Equivalent rule models in cloud balancers and Gateway API"],
+          "tools": ["HAProxy", "curl", "Docker Compose"],
+          "lab_task": "Route shop.example.test to a web pool, path /api/ to an api pool and requests with header X-Beta: 1 to a beta pool, with everything else answered by http-request return status 404. Strip the /api prefix with http-request replace-path. Test 8 curl calls using --resolve so each rule is hit, and record which pool answered each.",
+          "deliverable": "HAProxy routing configuration and a test matrix of 8 requests with the pool that served each",
+          "checks": [["curl --resolve shop.example.test:80:127.0.0.1 http://shop.example.test/api/orders", "The api pool answers and its log shows path /orders", "curl output and backend log"], ["Send a request with header X-Beta: 1", "The beta pool answers", "curl output"], ["Request an unknown host", "HAProxy returns 404 without contacting any backend", "curl output and HAProxy log"]],
+          "objectives": ["Route requests by host, path and header", "Rewrite requests safely at the balancer", "Order rules to avoid shadowing"]
+        },
+        {
+          "topic": "Session Persistence: Cookies, Source Affinity and Their Costs",
+          "subtopics": ["Why legacy applications need sticky sessions", "Inserted cookies, prefixed cookies and application cookies", "HAProxy cookie SERVERID insert indirect nocache", "Source-IP affinity and its problems behind NAT and mobile networks", "Cloud stickiness: AWS ALB lb_cookie and app_cookie, Azure cookie-based affinity", "Persistence versus even load and failover", "What happens to a sticky user when the server fails", "Moving session state out of the server to remove the need for stickiness"],
+          "tools": ["HAProxy", "curl", "k6"],
+          "lab_task": "Enable cookie SERVERID insert indirect nocache with cookie web1, web2 and web3 on each server. Use curl -c jar.txt -b jar.txt for 20 requests and confirm one backend served all. Disable that server through the runtime API and send one more request. Then switch to balance source and send traffic from 200 k6 virtual users sharing one IP to show the imbalance.",
+          "deliverable": "Persistence test log, failover observation and an imbalance chart for source affinity",
+          "checks": [["Send 20 requests with the same cookie jar", "All 20 requests are served by the same backend", "curl output"], ["Disable the pinned server and send another request", "A different backend answers and a new SERVERID cookie is set", "curl -v output"], ["Run 200 users from one IP with balance source", "One backend receives all traffic", "HAProxy stats"]],
+          "objectives": ["Configure cookie-based persistence", "Explain the failover and balance costs of stickiness", "Recommend removing session state from servers"]
+        },
+        {
+          "topic": "TLS Termination, Passthrough and Re-Encryption",
+          "subtopics": ["Termination at the balancer and what it allows: routing, headers and WAF", "Passthrough with SNI-based routing in TCP mode", "Re-encryption to the backend and certificate verification", "Certificate and key files, chains and the crt directive in HAProxy", "SNI and serving several certificates on one listener", "ALPN for HTTP/2 negotiation", "Protocol and cipher policies, TLS 1.2 and 1.3", "Redirecting HTTP to HTTPS and HSTS at the balancer"],
+          "tools": ["HAProxy", "OpenSSL", "curl", "testssl.sh"],
+          "lab_task": "Create a local CA with openssl and certificates for a.example.test and b.example.test. Configure HAProxy to terminate TLS with bind :443 ssl crt /certs/ alpn h2,http/1.1, and separately a mode tcp frontend that routes by req.ssl_sni to backends holding their own certificates. Verify each with openssl s_client -connect localhost:443 -servername a.example.test.",
+          "deliverable": "Configurations for termination and passthrough, with s_client output showing which certificate is served",
+          "checks": [["openssl s_client -servername b.example.test against the termination listener", "The certificate subject is CN=b.example.test issued by the lab CA", "s_client output"], ["Connect to the passthrough listener", "The certificate presented is the backend's own certificate", "s_client output"], ["curl --http2 -v against the termination listener", "The ALPN line shows h2 was negotiated", "curl -v output"]],
+          "objectives": ["Terminate TLS with several certificates using SNI", "Route encrypted traffic without terminating it", "Choose between termination, passthrough and re-encryption"]
+        },
+        {
+          "topic": "Preserving Client Identity Through the Balancer: Forwarded Headers and PROXY Protocol v2",
+          "subtopics": ["Why backends lose the client IP behind a full proxy", "X-Forwarded-For, X-Forwarded-Proto and the standard Forwarded header", "Appending versus overwriting forwarded headers and spoofing risks", "HAProxy option forwardfor and http-request set-header", "PROXY protocol v1 and v2 for TCP services", "send-proxy-v2 on servers and accept-proxy on binds", "AWS NLB client IP preservation and proxy_protocol_v2.enabled", "Trusting only known proxy hops on the backend"],
+          "tools": ["HAProxy", "tcpdump", "curl"],
+          "lab_task": "Chain two HAProxy instances. Enable option forwardfor on the first and show the backend sees the real client in X-Forwarded-For. Send a forged X-Forwarded-For: 1.2.3.4 and fix the configuration with http-request del-header so it cannot spoof. Then switch the inner hop to TCP with send-proxy-v2 and accept-proxy, and confirm the client address in the backend log.",
+          "deliverable": "Two-hop configuration and before-and-after evidence of the spoofing fix",
+          "checks": [["Send a request with forged X-Forwarded-For: 1.2.3.4 before the fix", "The backend logs 1.2.3.4 as the client", "Backend log"], ["Repeat after deleting the inbound header at the edge", "Only the true client address appears", "Backend log"], ["Point a non-PROXY client at the accept-proxy bind", "The connection is rejected and HAProxy logs a PROXY protocol error", "HAProxy log"]],
+          "objectives": ["Pass client identity to backends at Layer 7 and Layer 4", "Prevent forwarded-header spoofing", "Configure PROXY protocol v2 end to end"]
+        },
+        {
+          "topic": "Timeouts, Retries and Idempotency Across the Proxy",
+          "subtopics": ["Client, connect, server, queue and tunnel timeouts", "HAProxy timeout connect, client, server, http-request and http-keep-alive", "Idle timeouts in cloud balancers and the keep-alive mismatch that causes 502s", "Retries on connection failure versus retries on response", "HAProxy retries, option redispatch and retry-on", "Idempotent methods and why POST must not be retried blindly", "Retry amplification across layered proxies", "Setting timeouts from measured latency percentiles"],
+          "tools": ["HAProxy", "curl", "k6"],
+          "lab_task": "Set timeout server 2s and make one backend answer in 3 s; observe the 504. Configure retries 2, option redispatch and retry-on conn-failure 503, kill one backend, and show GET requests still succeed. Then make a backend's keep-alive timeout 5 s while HAProxy's http-reuse keeps connections for longer, and reproduce intermittent 502s under k6 load before fixing the ordering.",
+          "deliverable": "Timeout and retry configuration with evidence of the 504, the successful retries and the 502 fix",
+          "checks": [["Request the 3-second endpoint with timeout server 2s", "HAProxy returns 504 Gateway Timeout after about 2 seconds", "curl -w time_total output"], ["Stop one backend and send 100 GET requests with retries enabled", "All 100 requests succeed", "k6 or curl summary"], ["Run k6 for 2 minutes after aligning the backend keep-alive above the proxy idle time", "The intermittent 502 count drops to zero", "k6 summary before and after"]],
+          "objectives": ["Set timeouts at every proxy hop", "Configure safe retries for idempotent requests", "Fix keep-alive timeout mismatches"]
+        },
+        {
+          "topic": "Connection Draining and Graceful Backend Removal",
+          "subtopics": ["Draining: stop new sessions, let existing ones finish", "HAProxy set server state drain and maint", "AWS deregistration delay and the default of 300 seconds", "Kubernetes terminating endpoints, preStop hooks and terminationGracePeriodSeconds", "Long-lived connections: WebSockets and streaming that never finish", "Graceful shutdown in the application: SIGTERM handling and Connection: close", "Rolling deployments with zero failed requests", "Measuring errors during a deploy"],
+          "tools": ["HAProxy", "socat", "k6", "AWS CLI"],
+          "lab_task": "Run k6 at 100 requests per second through HAProxy. Drain web1 with echo 'set server web/web1 state drain' | socat stdio /run/haproxy/admin.sock, wait for its current sessions to reach 0 in show stat, stop the container and bring it back. Repeat by simply stopping a container without draining. Compare failed request counts and, in AWS, set deregistration_delay.timeout_seconds to 30 on a target group.",
+          "deliverable": "Runbook for graceful removal and a comparison of failed requests with and without draining",
+          "checks": [["Drain then stop web1 under 100 requests per second", "k6 reports 0 failed requests", "k6 summary"], ["Stop a backend without draining under the same load", "k6 reports a non-zero number of failed requests", "k6 summary"], ["aws elbv2 describe-target-group-attributes after the change", "deregistration_delay.timeout_seconds shows 30", "CLI output"]],
+          "objectives": ["Drain backends without dropping requests", "Configure draining in HAProxy, AWS and Kubernetes", "Write a zero-downtime maintenance runbook"]
+        },
+        {
+          "topic": "High Availability Pairs with Keepalived and VRRP",
+          "subtopics": ["Active-passive and active-active balancer pairs", "VRRP, virtual router IDs, priorities and advertisements", "keepalived.conf: vrrp_instance, virtual_ipaddress and authentication", "track_script to fail over when HAProxy dies", "Gratuitous ARP and switch cache updates", "Split brain and how it is detected", "Why VRRP does not work in most public clouds", "Failover time and session loss during takeover"],
+          "tools": ["Keepalived", "HAProxy", "ip", "tcpdump"],
+          "lab_task": "On two Linux VMs, install HAProxy and Keepalived, configure a vrrp_instance with virtual_router_id 51, priorities 150 and 100, and a track_script that runs pidof haproxy every 2 s. Run a curl loop against the virtual IP once per 100 ms, stop HAProxy on the master, and measure the gap. Confirm with ip addr show which node holds the VIP and capture VRRP adverts with tcpdump -n vrrp.",
+          "deliverable": "Keepalived configurations for both nodes and a failover timing report",
+          "checks": [["Stop HAProxy on the master node", "The VIP moves to the backup within 3 seconds", "ip addr output and curl loop timestamps"], ["Run tcpdump -n vrrp on the backup", "Advertisements from the master show priority 150 at 1-second intervals", "tcpdump output"], ["Restart HAProxy on the original master", "The VIP moves back because the master has higher priority", "Keepalived log"]],
+          "objectives": ["Make a software balancer highly available with VRRP", "Measure failover time", "Explain why cloud deployments use managed balancers or anycast instead"]
+        },
+        {
+          "topic": "Cloud Load Balancer Tour: AWS, Azure and Google Cloud",
+          "subtopics": ["AWS Elastic Load Balancing family: ALB, NLB and Gateway Load Balancer", "Azure Load Balancer, Application Gateway, Front Door and Traffic Manager", "Google Cloud Application Load Balancers and Network Load Balancers, global and regional", "Regional versus global, internal versus external", "Proxy-based versus passthrough cloud balancers", "Pricing units: LCUs, rules, data processed and capacity units", "Health checks and target registration in each provider", "Mapping HAProxy concepts to cloud resources"],
+          "tools": ["AWS CLI", "Azure CLI", "gcloud CLI", "curl"],
+          "lab_task": "In one provider of choice, create the smallest external HTTP load balancer in front of two instances or containers serving the lab echo app, using the CLI only. Record each resource created (for AWS: load balancer, target group, listener; for Azure: frontend, backend pool, probe, rule; for Google Cloud: backend service, URL map, proxy, forwarding rule). Send 100 requests, record the spread, and delete everything.",
+          "deliverable": "Resource map from HAProxy terms to the chosen provider, CLI transcript and spread result",
+          "checks": [["Send 100 requests to the cloud balancer address", "Both instances appear in the responses", "curl output"], ["Show health with the provider command (aws elbv2 describe-target-health, az network lb show or gcloud compute backend-services get-health)", "Both targets report healthy", "CLI output"], ["List load balancer resources after cleanup", "No load balancer resources remain in the account", "CLI output"]],
+          "objectives": ["Name the load balancer products of the three major clouds", "Build a basic cloud load balancer from the CLI", "Map vendor-neutral concepts to cloud resources"]
+        },
+        {
+          "topic": "Kubernetes Service Types: ClusterIP, NodePort and LoadBalancer",
+          "subtopics": ["Services, selectors and EndpointSlices", "ClusterIP and the virtual IP implemented by kube-proxy", "kube-proxy modes: iptables, IPVS and nftables", "NodePort ranges and when to use them", "type LoadBalancer and the cloud controller", "Headless Services and client-side discovery", "Readiness probes removing pods from EndpointSlices", "sessionAffinity: ClientIP"],
+          "tools": ["kind", "kubectl", "MetalLB", "curl"],
+          "lab_task": "Create a kind cluster, deploy the echo app with 3 replicas and expose it as ClusterIP, NodePort and LoadBalancer (with MetalLB in L2 mode supplying the address). Run kubectl get endpointslices -l kubernetes.io/service-name=echo, call each Service type 90 times and count pods hit. Fail one pod's readiness probe and show it leaves the EndpointSlice.",
+          "deliverable": "Service manifests, EndpointSlice outputs and a hit table for each Service type",
+          "checks": [["kubectl get svc echo-lb after MetalLB is installed", "EXTERNAL-IP shows an address from the MetalLB pool instead of pending", "kubectl output"], ["Fail one pod's readiness probe and list EndpointSlices", "That pod's endpoint shows ready: false and stops receiving traffic", "kubectl get endpointslices -o yaml"], ["Call the ClusterIP Service 90 times from a client pod", "All three pods appear in the responses", "Hit-count table"]],
+          "objectives": ["Expose workloads with each Kubernetes Service type", "Explain how kube-proxy implements Service virtual IPs", "Link readiness probes to load balancing"]
+        },
+        {
+          "topic": "Reading Load Balancer Logs and Status Codes: 502, 503 and 504",
+          "subtopics": ["Who generated the error: balancer or backend", "502 Bad Gateway: refused connections, resets and invalid responses", "503 Service Unavailable: no healthy backend or queue full", "504 Gateway Timeout: backend too slow", "HAProxy log format, timers Tq/Tw/Tc/Tr/Ta and termination state codes", "AWS ALB access log fields: elb_status_code, target_status_code and processing times", "Correlating with request IDs", "A triage flowchart for 5xx alerts"],
+          "tools": ["HAProxy", "AWS ALB access logs", "jq", "awk"],
+          "lab_task": "Using the lab, cause each error on purpose: stop all backends (503), make a backend close the connection mid-response (502), and make a backend sleep beyond timeout server (504). Capture the HAProxy log line for each and decode the timers and the two-letter termination state. Then classify 20 sample ALB access log lines supplied by the trainer by root cause.",
+          "deliverable": "Annotated log lines for each error and a classification sheet for the 20 ALB lines",
+          "checks": [["Decode the HAProxy log line for the 504 case", "The termination state starts with sH (server timeout during headers)", "Annotated log line"], ["Decode the 503 case with no servers available", "The termination state is SC and the server field shows <NOSRV>", "Annotated log line"], ["Classify the 20 ALB lines", "At least 18 of 20 match the trainer's root-cause key", "Classification sheet"]],
+          "objectives": ["Identify which hop produced a 5xx error", "Decode HAProxy and ALB log fields", "Apply a triage flow to 5xx alerts"]
+        },
+        {
+          "topic": "Beginner Capstone: Highly Available Web Tier with HAProxy and Keepalived",
+          "subtopics": ["Design: VIP, two HAProxy nodes, four web backends and a health endpoint", "TLS termination with SNI for two hostnames and HTTP-to-HTTPS redirect", "Algorithm, health check, persistence and timeout choices with reasons", "Draining runbook and a rolling update of all four backends", "Failure demonstration: lose a backend, lose a balancer node", "Log-based report of errors during the demonstration"],
+          "tools": ["HAProxy", "Keepalived", "OpenSSL", "k6", "socat"],
+          "lab_task": "Build a two-node HAProxy pair with a Keepalived VIP in front of four backends serving two HTTPS hostnames. Run k6 at 50 requests per second for 10 minutes while you: roll all four backends one by one using drain, kill one backend without warning, and stop HAProxy on the master. Keep failed requests under 0.5 percent and explain every failure from the logs.",
+          "deliverable": "Configuration repository, design note, k6 report and log-based incident summary",
+          "checks": [["Run the 10-minute k6 test with all planned disruptions", "Failed requests are below 0.5 percent", "k6 summary"], ["Roll all four backends using the draining runbook", "No failed requests are attributed to the rolling update", "k6 timeline and HAProxy logs"], ["Stop HAProxy on the master during the test", "Traffic continues through the backup within 3 seconds", "Curl loop timestamps and Keepalived log"]],
+          "objectives": ["Combine algorithms, health checks, TLS and draining into one service", "Demonstrate resilience to backend and balancer failure", "Explain failures using balancer logs"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who already run a basic load balancer and now operate production traffic. Covers HAProxy in depth (ACLs, maps, stick tables, observability and runtime operations), Envoy listeners, clusters, outlier detection, circuit breakers and retry budgets, AWS Application and Network Load Balancers, Azure Load Balancer and Application Gateway, Google Cloud Application Load Balancers, Terraform for balancer infrastructure, Kubernetes Ingress and Gateway API, canary traffic splitting, rate limiting algorithms, long-lived gRPC and WebSocket traffic, backend mTLS and load testing, ending with an edge capstone.",
+      "prerequisites": ["Completed the beginner level or can configure HAProxy health checks, persistence and TLS termination unaided", "Reads and writes YAML and has run workloads on Kubernetes with kubectl", "Has an AWS, Azure or Google Cloud account where load balancers and small instances may be created and deleted"],
+      "outcomes": ["Operate HAProxy and Envoy in production with stick tables, outlier detection, circuit breakers and retry budgets", "Build and automate AWS, Azure and Google Cloud load balancers with the CLI and Terraform", "Route Kubernetes traffic with Ingress and Gateway API, including weighted canary releases", "Apply rate limits and validate balancer capacity with repeatable load tests"],
+      "days": [
+        {
+          "topic": "HAProxy Configuration in Depth: ACLs, Maps and Sample Fetches",
+          "subtopics": ["Sample fetches: src, req.hdr, path, url_param, ssl_fc and req.cook", "Converters: lower, map, map_beg, regsub and hex", "Named ACLs, anonymous ACLs and combining with || and !", "Map files for host-to-backend routing at scale", "Updating maps live with add map, set map and del map", "http-request and http-response rule chains", "Variables with set-var and scopes txn, req and sess", "Keeping large configurations readable with defaults sections"],
+          "tools": ["HAProxy", "socat", "curl"],
+          "lab_task": "Replace 12 host-based use_backend lines with use_backend %[req.hdr(host),lower,map(/etc/haproxy/hosts.map,web)] and a 12-line map file. Add a new host at runtime with echo 'add map /etc/haproxy/hosts.map new.example.test api' | socat stdio /run/haproxy/admin.sock and prove it routes without a reload. Store the request path length in txn.plen with set-var and log it.",
+          "deliverable": "Refactored configuration, map file and a runtime update transcript",
+          "checks": [["Send requests for all 12 hosts after the refactor", "Each host reaches the same backend as before the refactor", "Test matrix"], ["Add new.example.test with add map and curl it", "The api backend answers with no reload in the HAProxy log", "curl output and HAProxy log"], ["Inspect a log line after adding the variable", "The path length appears in the custom log field", "Log line"]],
+          "objectives": ["Use sample fetches, converters and ACLs fluently", "Route at scale with map files", "Change routing live through the runtime API"]
+        },
+        {
+          "topic": "HAProxy Stick Tables for Tracking and Abuse Control",
+          "subtopics": ["stick-table type ip, string and integer with size and expire", "Stored counters: http_req_rate, conn_cur, http_err_rate and gpc0", "Tracking with http-request track-sc0 src", "Denying with http-request deny deny_status 429 if { sc_http_req_rate(0) gt N }", "Tarpit and silent-drop responses", "Peers sections to share tables between nodes", "Inspecting tables with show table and clear table", "Persistence with stick on src as an alternative to cookies"],
+          "tools": ["HAProxy", "socat", "k6", "vegeta"],
+          "lab_task": "Add stick-table type ip size 100k expire 30s store http_req_rate(10s),http_err_rate(10s) and deny with 429 when a client exceeds 20 requests per 10 seconds. Send 50 requests in 5 seconds with vegeta attack -rate=10 -duration=5s and count 429s. Inspect with show table. Then configure a peers section on two HAProxy nodes and show the counter replicated.",
+          "deliverable": "Stick table configuration, vegeta report and show table output from both peers",
+          "checks": [["Send 50 requests in 5 seconds from one IP", "About 30 responses are 429 Too Many Requests", "vegeta report status codes"], ["Run show table on the frontend", "The client IP entry shows http_req_rate above 20", "Runtime API output"], ["Run show table on the second peer", "The same client entry appears with a matching counter", "Runtime API output"]],
+          "objectives": ["Track client behaviour with stick tables", "Enforce request-rate limits in HAProxy", "Share tracking state across a balancer cluster"]
+        },
+        {
+          "topic": "HAProxy Observability: Stats, Prometheus Metrics and Custom Log Formats",
+          "subtopics": ["The stats page fields: scur, smax, qcur, rate and status", "The built-in Prometheus exporter via http-request use-service prometheus-exporter", "Key metrics: haproxy_backend_http_responses_total, haproxy_server_check_status and queue time", "log-format and the %ID unique request ID", "JSON log output for log pipelines", "Capturing request and response headers", "Grafana dashboards for frontends, backends and servers", "Alerts on backend down, queue growth and 5xx ratio"],
+          "tools": ["HAProxy", "Prometheus", "Grafana", "Loki"],
+          "lab_task": "Expose metrics with a frontend on :8405 that runs http-request use-service prometheus-exporter if { path /metrics }, scrape it with Prometheus every 15 s, and build a Grafana panel of 5xx ratio per backend using rate(haproxy_backend_http_responses_total{code=\"5xx\"}[5m]). Add unique-id-format with a request ID header and log in JSON. Fail one backend and confirm the panel and alert react.",
+          "deliverable": "Prometheus configuration, Grafana dashboard JSON and an alert rule file",
+          "checks": [["Query up{job=\"haproxy\"} in Prometheus", "The value is 1 for the HAProxy target", "Prometheus query result"], ["Make one backend return 500 for 5 minutes", "The 5xx ratio panel rises and the alert moves to firing", "Grafana and Alertmanager screenshots"], ["Compare the request ID in the client response with the log", "The same ID appears in the JSON log line", "curl -v output and log line"]],
+          "objectives": ["Expose and scrape HAProxy metrics", "Build useful balancer dashboards and alerts", "Correlate requests with unique IDs"]
+        },
+        {
+          "topic": "HAProxy Runtime Operations: Weights, Hitless Reloads and Upgrades",
+          "subtopics": ["Master-worker mode and the master CLI", "Seamless reloads with expose-fd listeners", "Old worker processes, hard-stop-after and long connections", "Changing weights live with set server weight", "Adding and deleting servers at runtime with add server and del server", "server-template and DNS service discovery with resolvers", "Configuration rollout with validation and automatic rollback", "Upgrading HAProxy versions with LTS branch planning"],
+          "tools": ["HAProxy", "socat", "k6", "systemd"],
+          "lab_task": "Enable master-worker mode with a stats socket using expose-fd listeners. Run k6 at 300 requests per second and reload the configuration 20 times in a loop with systemctl reload haproxy; record any errors. Then add a server with add server web/web7 10.0.0.17:8080 check, enable it, shift its weight from 10 to 100 in steps, and remove it with del server after draining.",
+          "deliverable": "Reload test report and a runtime server lifecycle transcript",
+          "checks": [["Reload 20 times under 300 requests per second", "k6 reports 0 connection errors", "k6 summary"], ["Run add server and enable server for web7", "show servers state lists web7 receiving traffic", "Runtime API output"], ["Try del server on web7 before it is drained", "The command is refused until the server is in maintenance with no connections", "Runtime API output"]],
+          "objectives": ["Reload HAProxy without dropping connections", "Manage servers and weights at runtime", "Plan safe HAProxy upgrades"]
+        },
+        {
+          "topic": "Envoy Fundamentals: Listeners, Filter Chains, Clusters and Routes",
+          "subtopics": ["Envoy's architecture: main thread, worker threads and hot restart", "Static bootstrap configuration in YAML", "Listeners and filter chains", "The HTTP connection manager network filter", "Route configuration: virtual hosts, routes and matches", "Clusters, endpoints and discovery types STATIC, STRICT_DNS and EDS", "The admin interface: /clusters, /stats, /config_dump and /ready", "Access logs and response flags", "Validating configuration with envoy --mode validate", "Envoy versus HAProxy: when each is chosen"],
+          "tools": ["Envoy Proxy", "curl", "Docker Compose", "jq"],
+          "lab_task": "Write an envoy.yaml with one listener on :10000, an HTTP connection manager, a virtual host routing /api to an api cluster and / to a web cluster, both using STRICT_DNS to the lab backends. Validate with envoy --mode validate -c envoy.yaml, run it in Docker, and use curl localhost:9901/clusters to confirm membership and health. Add a JSON access log with %RESPONSE_FLAGS%.",
+          "deliverable": "Working envoy.yaml, validation output and admin interface evidence",
+          "checks": [["Run envoy --mode validate -c envoy.yaml", "The command prints OK and exits with status 0", "Terminal output"], ["curl localhost:9901/clusters", "Both clusters list their endpoints with health_flags::healthy", "Admin output"], ["Stop all web backends and request /", "The access log shows 503 with response flag UH", "Access log line"]],
+          "objectives": ["Explain Envoy's listener, route and cluster model", "Write and validate a static Envoy configuration", "Use the admin interface to inspect state"]
+        },
+        {
+          "topic": "Envoy Load Balancing Policies, Outlier Detection and Circuit Breakers",
+          "subtopics": ["lb_policy options: ROUND_ROBIN, LEAST_REQUEST, RANDOM, RING_HASH and MAGLEV", "LEAST_REQUEST choice_count and active request bias", "Active health checking in Envoy clusters", "Outlier detection: consecutive_5xx, interval, base_ejection_time and max_ejection_percent", "Panic threshold and what happens when too many hosts are ejected", "Circuit breakers: max_connections, max_pending_requests, max_requests and max_retries", "Stats: outlier_detection.ejections_active and upstream_rq_pending_overflow", "Response flag UO and how clients see overflow"],
+          "tools": ["Envoy Proxy", "k6", "Docker Compose", "Prometheus"],
+          "lab_task": "Configure outlier_detection with consecutive_5xx: 5, interval: 10s, base_ejection_time: 30s and max_ejection_percent: 50 on a three-host cluster. Make one host return 500 and show it ejected via /stats. Then set circuit_breakers max_pending_requests: 10 and max_requests: 20, run k6 with 200 virtual users against a slow backend, and count 503 responses with flag UO.",
+          "deliverable": "Cluster configuration with outlier detection and circuit breakers, plus stats evidence",
+          "checks": [["Make one host return 500 under steady traffic", "outlier_detection.ejections_active becomes 1", "/stats output"], ["Run 200 virtual users against the slow backend", "upstream_rq_pending_overflow increases and clients see 503 with flag UO", "/stats output and access log"], ["Make all three hosts fail", "No more than one host is ejected because of max_ejection_percent 50", "/clusters output"]],
+          "objectives": ["Select Envoy load balancing policies", "Eject failing hosts with outlier detection", "Protect backends with circuit breakers"]
+        },
+        {
+          "topic": "Envoy Retries, Timeouts and Retry Budgets",
+          "subtopics": ["Route timeout and per_try_timeout", "retry_on conditions: 5xx, gateway-error, reset, connect-failure and retriable-status-codes", "num_retries and exponential back-off with jitter", "Retry budgets with budget_percent and min_retry_concurrency", "Hedged requests and when they are justified", "x-envoy-max-retries and x-envoy-upstream-rq-timeout-ms headers", "Stats: upstream_rq_retry, upstream_rq_retry_success and upstream_rq_retry_overflow", "Preventing retry storms across service layers"],
+          "tools": ["Envoy Proxy", "k6", "Prometheus", "Toxiproxy"],
+          "lab_task": "Make one of three hosts fail 30 percent of requests. Add retry_policy retry_on: 5xx,reset,connect-failure with num_retries: 2 and per_try_timeout: 1s and show client success above 99 percent. Then fail all hosts at 60 percent, add a retry budget of budget_percent 20, and compare upstream request volume with and without the budget using upstream_rq_retry and upstream_rq_retry_overflow.",
+          "deliverable": "Retry policy configuration and a comparison of success rate and upstream load",
+          "checks": [["Run k6 with one host failing 30 percent of requests", "Client success rate is above 99 percent", "k6 summary"], ["Fail all hosts at 60 percent with the retry budget", "upstream_rq_retry_overflow is greater than zero", "/stats output"], ["Compare upstream requests per second with and without the budget", "Upstream load is at least 30 percent lower with the budget", "Prometheus graph"]],
+          "objectives": ["Configure retries and timeouts in Envoy", "Cap retry amplification with budgets", "Measure the effect of retries on upstream load"]
+        },
+        {
+          "topic": "AWS Application Load Balancer: Listeners, Rules and Target Groups",
+          "subtopics": ["ALB components: load balancer, listeners, rules, actions and target groups", "Target types: instance, ip and lambda", "Rule conditions: host-header, path-pattern, http-header, query-string and source-ip", "Actions: forward with weighted target groups, redirect, fixed-response and authenticate-oidc", "Health check settings and target health states", "Algorithms: round_robin, least_outstanding_requests and weighted_random", "Security policies, ACM certificates and SNI", "Access logs to S3 and key CloudWatch metrics"],
+          "tools": ["AWS CLI", "Amazon EC2", "AWS Certificate Manager", "Amazon CloudWatch"],
+          "lab_task": "With the AWS CLI, create an ALB in two subnets, two target groups (web and api), and an HTTPS listener using an ACM certificate. Add a rule with aws elbv2 create-rule for path-pattern /api/* forwarding to api, and a fixed-response 404 default for unknown hosts. Enable access logs to S3, send 200 requests, and check aws elbv2 describe-target-health for both groups.",
+          "deliverable": "CLI script that builds the ALB, rule listing and an access log sample",
+          "checks": [["aws elbv2 describe-rules on the HTTPS listener", "The /api/* rule appears with a priority and the default action is fixed-response 404", "CLI output"], ["aws elbv2 describe-target-health for the api group", "All targets show State healthy", "CLI output"], ["Stop the api instances and request /api/x", "The ALB returns 503", "curl output and access log line"]],
+          "objectives": ["Build an ALB with host and path rules", "Configure target groups, health checks and HTTPS", "Read ALB health and access logs"]
+        },
+        {
+          "topic": "AWS Network Load Balancer: Static IPs, TLS Listeners and Client IP Preservation",
+          "subtopics": ["NLB as a Layer 4 balancer for TCP, UDP and TLS", "One static IP per Availability Zone and Elastic IP allocation", "Client IP preservation by target type and the preserve_client_ip.enabled attribute", "TLS listeners with ACM certificates and ALPN policies", "Proxy protocol v2 on target groups", "Cross-zone load balancing and its default for NLB", "Security groups on NLB and target security group rules", "NLB health checks and target failover behaviour"],
+          "tools": ["AWS CLI", "Amazon EC2", "AWS Certificate Manager", "tcpdump"],
+          "lab_task": "Create an internet-facing NLB with an Elastic IP in each of two subnets and a TCP listener on 443 that passes through to instance targets running the lab TLS server. Show the real client address in the instance logs. Add a second TLS listener on 8443 terminating with ACM, switch the target group to ip type, enable proxy_protocol_v2.enabled and confirm the PROXY header with tcpdump on the target.",
+          "deliverable": "NLB build script, client IP evidence and a PROXY protocol capture",
+          "checks": [["dig the NLB DNS name", "It resolves to the two allocated Elastic IPs", "dig output"], ["Check the instance access log on the passthrough listener", "The client's public IP appears as the source", "Instance log"], ["Capture the first bytes on the target with proxy protocol v2 enabled", "The PROXY v2 signature bytes appear before the TLS data", "tcpdump -X output"]],
+          "objectives": ["Deploy an NLB with static addresses", "Preserve client IP at Layer 4", "Choose between passthrough and TLS listeners"]
+        },
+        {
+          "topic": "Azure Load Balancer and Application Gateway with WAF",
+          "subtopics": ["Azure Load Balancer Standard SKU: frontend IP, backend pool, health probe and rule", "Distribution modes: five-tuple hash, client IP and client IP and protocol", "HA ports and outbound rules for SNAT", "Application Gateway v2 components: listeners, rules, backend settings and probes", "Path-based and multi-site routing in Application Gateway", "WAF policy with managed rule sets, detection and prevention modes", "Autoscaling and zone redundancy in v2", "Backend health troubleshooting with show-backend-health"],
+          "tools": ["Azure CLI", "Azure Load Balancer", "Azure Application Gateway", "Azure Monitor"],
+          "lab_task": "Create a Standard Azure Load Balancer with az network lb create --sku Standard, a TCP probe and a rule for port 80 over two VMs. Then deploy an Application Gateway WAF_v2 with two path rules and a WAF policy in Prevention mode. Send a request with ?id=1' OR '1'='1 and confirm the block. Run az network application-gateway show-backend-health and fix a deliberately wrong probe path.",
+          "deliverable": "CLI scripts for both services, WAF test results and before-and-after backend health output",
+          "checks": [["Send the SQL injection test string through Application Gateway", "The response is 403 Forbidden from the WAF", "curl output and WAF log entry"], ["Run show-backend-health with the wrong probe path", "Backends show Unhealthy with a probe status code mismatch", "CLI output"], ["Fix the probe path and rerun show-backend-health", "Backends show Healthy", "CLI output"]],
+          "objectives": ["Build Azure Layer 4 and Layer 7 balancers", "Apply a WAF policy at the balancer", "Diagnose unhealthy Application Gateway backends"]
+        },
+        {
+          "topic": "Google Cloud Load Balancing: Global External Application Load Balancer and Backend Services",
+          "subtopics": ["Google Cloud load balancer families: Application, proxy Network and passthrough Network", "Global external Application Load Balancer resources: forwarding rule, target proxy, URL map and backend service", "Backends: managed instance groups and network endpoint groups", "Balancing modes UTILIZATION and RATE with capacity scaler", "Health checks and firewall rules for probe ranges 35.191.0.0/16 and 130.211.0.0/22", "Google-managed certificates and Certificate Manager", "Cloud Armor security policies", "Cloud CDN and Cloud Logging on the backend service"],
+          "tools": ["gcloud CLI", "Compute Engine", "Cloud Armor", "Cloud Logging"],
+          "lab_task": "Create two managed instance groups in different regions, a health check, and a global backend service with --load-balancing-scheme=EXTERNAL_MANAGED. Add a URL map, a target HTTP proxy and a global forwarding rule. Run gcloud compute backend-services get-health, then send requests from two regions and show each reaches its nearest group. Attach a Cloud Armor rule blocking one test IP.",
+          "deliverable": "gcloud build script, health output and a region-to-backend result table",
+          "checks": [["Run gcloud compute backend-services get-health", "All instances report healthState HEALTHY", "CLI output"], ["Send requests from clients in two regions", "Each client is served by the instance group in its nearest region", "Response hostname table"], ["Request from the blocked test IP", "Cloud Armor returns 403", "curl output and Cloud Logging entry"]],
+          "objectives": ["Assemble a global Application Load Balancer from its resources", "Use balancing modes and health checks correctly", "Protect a backend service with Cloud Armor"]
+        },
+        {
+          "topic": "Load Balancers as Code with Terraform",
+          "subtopics": ["Provider resources: aws_lb, aws_lb_target_group and aws_lb_listener_rule", "Equivalent Azure and Google Cloud resources", "Modules for a reusable balancer pattern", "Lifecycle settings to avoid replacement and downtime", "Importing existing load balancers into state", "Plan review: spotting destroy-and-recreate on listeners and target groups", "Policy checks for TLS policies and public exposure", "Drift detection between console changes and code"],
+          "tools": ["Terraform", "AWS CLI", "tflint", "Checkov"],
+          "lab_task": "Write a Terraform module that creates an ALB, two target groups, an HTTPS listener and path rules from a variable map. Apply it, then change a target group port and read terraform plan to spot the forced replacement; fix it with create_before_destroy and a name_prefix. Import a manually created listener rule with terraform import and run checkov to flag any listener using an old TLS policy.",
+          "deliverable": "Terraform module, plan excerpts before and after the fix, and the Checkov report",
+          "checks": [["Run terraform plan after changing the target group port", "The plan shows the target group must be replaced", "Plan output"], ["Run terraform apply with create_before_destroy", "The new target group is attached before the old one is destroyed with no failed requests", "Apply output and curl loop"], ["Run checkov on the module with an outdated TLS policy", "Checkov reports a failed check for the listener", "Checkov output"]],
+          "objectives": ["Manage load balancers with infrastructure as code", "Avoid disruptive replacements in plans", "Enforce balancer security with policy checks"]
+        },
+        {
+          "topic": "Kubernetes Ingress Controllers and Ingress Resources",
+          "subtopics": ["The Ingress resource: rules, paths, pathType and TLS", "IngressClass and the controller that implements it", "Controller options: HAProxy, Traefik, Envoy-based, cloud controllers and Nginx-based", "The community ingress-nginx project's retirement and migration planning", "Annotations and their non-portability", "AWS Load Balancer Controller provisioning ALBs from Ingress", "TLS secrets and cert-manager", "Limits of Ingress that led to Gateway API"],
+          "tools": ["kubectl", "kind", "HAProxy Kubernetes Ingress Controller", "cert-manager", "Helm"],
+          "lab_task": "Install the HAProxy Kubernetes Ingress Controller with Helm in kind, create an IngressClass and an Ingress routing app.example.test/ to web and /api to api with pathType Prefix, and add TLS via a cert-manager self-signed Issuer. Verify with curl --resolve. Then list every annotation you used and mark which would not carry over to another controller.",
+          "deliverable": "Ingress manifests, test results and an annotation portability table",
+          "checks": [["kubectl get ingress", "The Ingress shows an ADDRESS and the correct class", "kubectl output"], ["curl -k --resolve app.example.test:443:<ip> https://app.example.test/api/", "The api service answers over TLS", "curl output"], ["kubectl get certificate", "The certificate shows READY True", "kubectl output"]],
+          "objectives": ["Route cluster traffic with Ingress", "Choose and install an Ingress controller", "Recognise Ingress portability limits"]
+        },
+        {
+          "topic": "Gateway API: GatewayClass, Gateway and HTTPRoute",
+          "subtopics": ["Role model: infrastructure provider, cluster operator and application developer", "GatewayClass, Gateway listeners and allowedRoutes", "HTTPRoute matches on path, header, query and method", "Filters: RequestHeaderModifier, RequestRedirect and URLRewrite", "backendRefs with weights", "Status conditions: Accepted, Programmed and ResolvedRefs", "Implementations: Envoy Gateway, Cilium, Istio and others", "Migrating from Ingress with ingress2gateway"],
+          "tools": ["kubectl", "Envoy Gateway", "kind", "ingress2gateway"],
+          "lab_task": "Install Envoy Gateway in kind, create a GatewayClass and a Gateway with an HTTP listener that allows routes from namespaces labelled shared-gateway-access=true. In an app namespace, create an HTTPRoute with a path match and a RequestHeaderModifier filter. Check kubectl get gateway and the route status. Convert yesterday's Ingress with ingress2gateway print and diff the output.",
+          "deliverable": "Gateway and HTTPRoute manifests, status output and the converted Ingress",
+          "checks": [["kubectl get gateway eg", "PROGRAMMED shows True and an address is assigned", "kubectl output"], ["Create an HTTPRoute in a namespace without the label", "The route status shows it is not accepted by the Gateway", "kubectl describe httproute"], ["curl a path matched by the header filter route", "The backend echoes the added request header", "curl output"]],
+          "objectives": ["Deploy Gateway API resources with clear role separation", "Write HTTPRoutes with matches and filters", "Read Gateway API status conditions"]
+        },
+        {
+          "topic": "Traffic Splitting for Canary and Blue-Green Releases",
+          "subtopics": ["Weighted splitting at the balancer compared with replica-count canaries", "Blue-green cutover and instant rollback", "Header and cookie based canaries for internal testers", "HAProxy weights, Envoy weighted_clusters and Gateway API backendRefs weights", "AWS ALB weighted target groups with group stickiness", "Automated analysis on error rate and latency", "Progressive delivery controllers: Argo Rollouts and Flagger", "Database and session compatibility during canaries"],
+          "tools": ["Envoy Gateway", "kubectl", "k6", "Prometheus", "Argo Rollouts"],
+          "lab_task": "Deploy v1 and v2 of the echo app and an HTTPRoute with backendRefs weights 95 and 5. Send 2,000 requests and count versions. Add a header match so requests with x-canary: always reach v2. Shift weights to 50/50 and then 0/100. Finally make v2 return 5 percent errors and write a Prometheus query that would stop the rollout.",
+          "deliverable": "Route manifests for each stage, version counts and the rollback query",
+          "checks": [["Send 2,000 requests at weights 95 and 5", "v2 receives between 70 and 130 requests", "Version count table"], ["Send 20 requests with header x-canary: always", "All 20 reach v2", "curl output"], ["Evaluate the error-rate query while v2 returns 5 percent errors", "The query returns a value above the 1 percent threshold", "Prometheus query result"]],
+          "objectives": ["Split traffic by weight and by header", "Run blue-green and canary releases at the balancer", "Define automated rollback criteria"]
+        },
+        {
+          "topic": "Rate Limiting Algorithms: Token Bucket, Leaky Bucket and Sliding Window",
+          "subtopics": ["Fixed window counters and the boundary burst problem", "Sliding window log and sliding window counter", "Token bucket with rate and burst", "Leaky bucket and GCRA", "Local versus distributed limits and their accuracy", "Keys: client IP, API key, user and route", "429 responses, Retry-After and RateLimit header fields", "Rate limits versus concurrency limits"],
+          "tools": ["Python", "HAProxy", "Envoy Proxy", "vegeta"],
+          "lab_task": "Implement fixed window, sliding window counter and token bucket limiters in Python (under 120 lines total) and replay the same bursty trace of 1,000 timestamps through each with a limit of 10 per second. Count accepted requests and the largest one-second burst admitted. Then configure Envoy's local_ratelimit filter with max_tokens 10 and tokens_per_fill 10 per second and compare with vegeta.",
+          "deliverable": "Limiter code, comparison table and Envoy local rate limit configuration",
+          "checks": [["Replay the trace through the fixed window limiter", "The largest admitted one-second burst is about 20, twice the limit", "Comparison table"], ["Replay the trace through the token bucket", "No one-second interval admits more than max_tokens plus refill", "Comparison table"], ["vegeta attack -rate=30 -duration=10s against Envoy", "About two thirds of responses are 429", "vegeta report"]],
+          "objectives": ["Compare rate limiting algorithms", "Choose limit keys and response headers", "Configure local rate limiting in a proxy"]
+        },
+        {
+          "topic": "Balancing gRPC, WebSocket and HTTP/2 Long-Lived Connections",
+          "subtopics": ["Why connection-level balancing pins gRPC clients to one backend", "HTTP/2 stream multiplexing and per-request balancing in L7 proxies", "Client-side gRPC load balancing with round_robin and xDS", "Max connection age to rebalance long-lived connections", "WebSocket upgrade handling and timeout tunnel", "Draining long-lived connections with GOAWAY", "gRPC health checking protocol", "Cloud support for gRPC and WebSocket on ALB and Application Load Balancers"],
+          "tools": ["grpcurl", "ghz", "Envoy Proxy", "HAProxy", "websocat"],
+          "lab_task": "Run three gRPC backends. Load test with ghz --insecure -c 10 -n 30000 first through an L4 passthrough and then through Envoy with http2_protocol_options. Count requests per backend in each case. Scale to four backends and show the L4 case never uses the new one until max_connection_age on the server forces reconnects. Proxy a WebSocket through HAProxy with timeout tunnel 1h.",
+          "deliverable": "Per-backend request counts for both designs and a WebSocket test transcript",
+          "checks": [["Run ghz through the L4 passthrough", "Traffic is spread unevenly with each client connection stuck to one backend", "Per-backend counts"], ["Run ghz through Envoy", "Each backend receives about one third of requests", "Per-backend counts"], ["Keep a websocat session idle for 10 minutes through HAProxy", "The session stays open and still echoes messages", "websocat transcript"]],
+          "objectives": ["Balance gRPC per request instead of per connection", "Rebalance long-lived connections", "Proxy WebSockets with correct timeouts"]
+        },
+        {
+          "topic": "Mutual TLS Between Load Balancer and Backends",
+          "subtopics": ["Why encrypt the balancer-to-backend hop", "Server certificate verification with ca-file and verify required", "Client certificates presented by the balancer", "Envoy UpstreamTlsContext and SNI to upstream", "Gateway API BackendTLSPolicy", "Certificate rotation without reload", "Performance cost of re-encryption and session reuse", "Common errors: unknown CA, hostname mismatch and expired certificates"],
+          "tools": ["HAProxy", "Envoy Proxy", "OpenSSL", "step CLI"],
+          "lab_task": "Issue a backend CA and certificates with step certificate create. Configure HAProxy server lines with ssl verify required ca-file /certs/ca.pem crt /certs/lb-client.pem sni str(api.internal), and make the backend require client certificates. Prove a request succeeds, then swap in a certificate from another CA and an expired certificate, and capture the exact errors at both ends.",
+          "deliverable": "HAProxy and backend TLS configurations, success evidence and an error catalogue",
+          "checks": [["Send a request with valid certificates on both sides", "The request succeeds with HTTP 200", "curl output"], ["Use a backend certificate from an unknown CA", "HAProxy marks the server DOWN with an SSL handshake failure in the health check", "HAProxy log"], ["Remove the balancer client certificate", "The backend rejects the handshake with a certificate required alert", "Backend log"]],
+          "objectives": ["Encrypt and authenticate the balancer-to-backend hop", "Configure upstream TLS in HAProxy and Envoy", "Diagnose upstream TLS errors"]
+        },
+        {
+          "topic": "Load Testing a Load Balancer with k6, wrk2 and vegeta",
+          "subtopics": ["Open and closed workload models", "Coordinated omission and why wrk2 uses a constant rate", "k6 scenarios, constant-arrival-rate and thresholds", "Separating balancer limits from backend limits", "Connection reuse versus new-connection tests and TLS handshake cost", "Generating load from several machines", "Warming up cloud balancers before tests", "Reading saturation: CPU, queue depth and latency knee"],
+          "tools": ["k6", "wrk2", "vegeta", "Prometheus", "Grafana"],
+          "lab_task": "Write a k6 script using the constant-arrival-rate executor that steps from 500 to 5,000 requests per second in 500-step increments against HAProxy with thresholds http_req_failed rate<0.01 and p(95)<200. Run it twice: with keep-alive and with noConnectionReuse: true. Record HAProxy CPU and the knee point for each, and confirm one point with wrk2 -R.",
+          "deliverable": "k6 script, results with the knee point for both modes and the wrk2 confirmation",
+          "checks": [["Run the stepped test with keep-alive", "A knee point is identified where p95 crosses 200 ms", "k6 output and Grafana chart"], ["Run the same test with noConnectionReuse: true", "The knee arrives at a lower request rate than with keep-alive", "Comparison table"], ["Run wrk2 -R at the knee rate", "wrk2 latency percentiles agree with k6 within 20 percent", "wrk2 output"]],
+          "objectives": ["Design load tests that find balancer limits", "Avoid coordinated omission", "Separate TLS and connection costs from request costs"]
+        },
+        {
+          "topic": "Intermediate Capstone: Envoy and HAProxy Edge with Canary Routing and Rate Limits",
+          "subtopics": ["Design: cloud L4 balancer, HAProxy tier with stick tables, Envoy Gateway in Kubernetes", "Terraform for the cloud balancer and Helm for the in-cluster gateway", "Canary release with weighted HTTPRoute and automated rollback query", "Rate limits per API key and per IP with 429 and Retry-After", "Outlier detection, circuit breakers and retry budget settings", "Dashboards, alerts and a load test report"],
+          "tools": ["Terraform", "HAProxy", "Envoy Gateway", "k6", "Prometheus", "Grafana"],
+          "lab_task": "Deploy an NLB or equivalent with Terraform in front of two HAProxy nodes that apply per-IP stick table limits and forward to Envoy Gateway in Kubernetes. Release v2 of an API as a 10 percent canary, run k6 at 1,000 requests per second for 15 minutes, inject 10 percent errors into v2 and roll back using the alert. Keep the stable path's error rate below 0.1 percent.",
+          "deliverable": "Repository with Terraform, Helm values, manifests, dashboards and a release report",
+          "checks": [["Run the 15-minute load test with the canary at 10 percent", "The stable path's error rate stays below 0.1 percent", "k6 summary and Grafana panel"], ["Inject 10 percent errors into v2", "The alert fires and v2 weight returns to 0 within 5 minutes", "Alert timeline and HTTPRoute history"], ["Exceed the per-IP limit from one client", "That client receives 429 with Retry-After while others are unaffected", "curl output and k6 tags"]],
+          "objectives": ["Integrate cloud, HAProxy and Envoy tiers", "Release safely with canary routing and rollback", "Prove limits and resilience under load"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior network, platform and site reliability engineers who design and run load balancing for large or multi-region services. Covers tiered and ECMP designs with Maglev-style consistent hashing, anycast with BGP, DNS-based global server load balancing, direct server return with IPVS, eBPF and XDP balancers, Envoy xDS control planes and global rate limiting, AWS Gateway Load Balancer, cross-region failover on all three clouds, advanced Kubernetes traffic policies and Gateway API routes, zone-aware balancing, overload protection, DDoS resilience, SLO-based observability, capacity planning for ports and SNAT, chaos testing, TLS operations at scale and incident troubleshooting, ending with a multi-region active-active capstone.",
+      "prerequisites": ["Completed the intermediate level or operates HAProxy or Envoy and a cloud load balancer in production", "Understands IP routing, BGP basics, DNS resolution and Linux networking tools such as ip, ss and tcpdump", "Has access to two cloud regions or a lab host able to run containerlab with several routers and Kubernetes nodes"],
+      "outcomes": ["Design multi-tier and multi-region load balancing with ECMP, anycast and DNS-based global balancing", "Run dynamic Envoy fleets through xDS with global rate limiting, zone awareness and overload protection", "Plan capacity for connections, ephemeral ports and SNAT, and prove resilience with failure experiments", "Lead load balancer incident investigations using packet captures, metrics, logs and traces"],
+      "days": [
+        {
+          "topic": "Load Balancer Architecture at Scale: ECMP, Maglev Hashing and Tiered Designs",
+          "subtopics": ["Router ECMP across a fleet of stateless L4 balancers", "Maglev consistent hashing tables and minimal disruption on change", "Connection tracking versus pure hashing at the L4 tier", "Tiered designs: L4 fleet in front of L7 proxies in front of services", "Encapsulation to the L7 tier: IP-in-IP, GUE and GENEVE", "Failure domains and blast radius per tier"],
+          "tools": ["Python", "containerlab", "FRRouting", "draw.io"],
+          "lab_task": "Implement Maglev table population in Python with a table size of 65537 and seven backends, then remove one backend and measure the share of table entries that changed. Compare with modulo hashing. In containerlab, give a router four equal-cost routes to one VIP via four Linux balancer nodes and confirm flows spread with ip route show and per-node packet counters.",
+          "deliverable": "Maglev implementation with disruption figures and the ECMP lab topology with flow counts",
+          "checks": [["Remove one of seven backends from the Maglev table", "Close to one seventh of entries change, mostly those of the removed backend", "Script output"], ["Remove one backend under modulo hashing", "Most entries change", "Script output"], ["Run 400 flows through the ECMP router", "Each of the four balancer nodes receives roughly 100 flows", "Interface counters"]],
+          "objectives": ["Design a tiered balancing architecture", "Explain Maglev hashing and ECMP", "Define failure domains per tier"]
+        },
+        {
+          "topic": "Anycast with BGP: Announcing Service IPs from Multiple Sites",
+          "subtopics": ["Anycast: one address announced from several locations", "BGP basics for service operators: prefixes, AS paths and communities", "Announcing a /32 or /128 internally and a /24 or /48 to the internet", "Health-driven announcement and withdrawal with BIRD, FRR or ExaBGP", "Convergence time and what happens to in-flight TCP", "Anycast for DNS and UDP versus long-lived TCP", "Traffic engineering with prepending and communities", "Cloud equivalents: AWS Global Accelerator and Google Cloud global addresses"],
+          "tools": ["containerlab", "BIRD", "FRRouting", "ExaBGP", "tcpdump"],
+          "lab_task": "Build a containerlab topology with two sites announcing 192.0.2.10/32 via BIRD to a client router. Use a health script that withdraws the route when the local HAProxy health check fails. Run a curl loop from the client, stop HAProxy at the nearest site, and measure the outage from withdrawal to traffic arriving at the other site. Check with birdc show route and vtysh -c 'show ip bgp'.",
+          "deliverable": "Topology file, BIRD and health script configuration and a convergence measurement",
+          "checks": [["Run vtysh -c 'show ip bgp 192.0.2.10/32' on the client router", "Two paths are listed with the nearest site selected as best", "Router output"], ["Stop HAProxy at the nearest site", "The route is withdrawn and traffic reaches the second site within 5 seconds", "curl loop timestamps and BGP log"], ["Keep a long TCP download open during withdrawal", "The download is reset because the new site has no state for it", "Client error output"]],
+          "objectives": ["Announce services by anycast with health-driven withdrawal", "Measure BGP convergence for service failover", "Explain anycast limits for stateful TCP"]
+        },
+        {
+          "topic": "Global Server Load Balancing with DNS: Latency, Geolocation and Failover Policies",
+          "subtopics": ["How DNS-based GSLB steers clients and its dependence on resolver location", "EDNS Client Subnet and its privacy trade-offs", "TTL choice versus failover speed and resolver caching that ignores TTL", "Amazon Route 53 routing policies: latency, geolocation, geoproximity, weighted and failover", "Azure Traffic Manager routing methods: priority, weighted, performance and geographic", "Health checks that drive DNS answers", "DNS GSLB compared with anycast and global proxies", "Testing from many vantage points"],
+          "tools": ["Amazon Route 53", "Azure Traffic Manager", "dig", "AWS CLI"],
+          "lab_task": "In Route 53, create latency records for api.example.test pointing to load balancers in two regions, each tied to a health check, plus a failover secondary. Query with dig +short from clients in both regions and through dig @8.8.8.8 +subnet=<prefix>. Fail one region's health check and record how long resolvers take to return the other answer at TTL 60.",
+          "deliverable": "Record set configuration, dig results per vantage point and a failover timing table",
+          "checks": [["dig +short api.example.test from each region's client", "Each client receives its own region's address", "dig output"], ["Fail the first region's health check", "Route 53 reports the health check as unhealthy in aws route53 get-health-check-status", "CLI output"], ["Query repeatedly after the failure with TTL 60", "Answers switch to the healthy region within about 2 minutes", "Timestamped dig log"]],
+          "objectives": ["Configure DNS-based global load balancing", "Choose TTLs with failover speed in mind", "Compare GSLB with anycast"]
+        },
+        {
+          "topic": "Direct Server Return and IPVS",
+          "subtopics": ["Packet flow in NAT mode, DSR (gatewaying) and IP tunnelling", "Why DSR saves balancer bandwidth for large responses", "ipvsadm: -A virtual services, -a real servers, -s schedulers, -g, -m and -i", "VIP on loopback with arp_ignore=1 and arp_announce=2", "IPVS schedulers: rr, wrr, lc, wlc, sh, mh", "Health checking IPVS with Keepalived virtual_server", "DSR limitations: no L7 features and asymmetric paths through firewalls", "kube-proxy IPVS mode and its status"],
+          "tools": ["ipvsadm", "Keepalived", "tcpdump", "iperf3"],
+          "lab_task": "On three Linux VMs, configure IPVS with ipvsadm -A -t 10.0.0.100:80 -s wlc and two real servers added with -g. Put the VIP on lo on each real server and set arp_ignore and arp_announce. Download a 1 GB file and show with tcpdump that responses bypass the director. Compare director throughput with NAT mode (-m) and add Keepalived virtual_server health checks.",
+          "deliverable": "IPVS configuration, packet evidence of DSR and a NAT versus DSR throughput table",
+          "checks": [["Run ipvsadm -Ln on the director", "The service lists two real servers with forward method Route", "ipvsadm output"], ["Capture on the director during a 1 GB download in DSR mode", "Only client-to-server packets appear on the director", "tcpdump output"], ["Download the same file in NAT mode", "Director transmit traffic rises to roughly the download size", "Interface counters"]],
+          "objectives": ["Configure Linux IPVS in NAT and DSR modes", "Explain DSR's packet path and limits", "Health check IPVS real servers"]
+        },
+        {
+          "topic": "eBPF and XDP Load Balancing with Cilium and Katran",
+          "subtopics": ["XDP and tc hooks and where packets are processed", "Katran's design: XDP, Maglev hashing and IP-in-IP to backends", "Cilium kube-proxy replacement and socket-level load balancing", "Cilium Maglev and DSR modes for Services", "BPF maps for services and backends", "Inspecting with cilium service list and bpftool", "Performance compared with iptables and IPVS", "Operational concerns: kernel versions and debuggability"],
+          "tools": ["Cilium", "kind", "bpftool", "Hubble", "kubectl"],
+          "lab_task": "Install Cilium in a kind cluster with kubeProxyReplacement=true, loadBalancer.algorithm=maglev and a NodePort Service. Confirm with cilium status that kube-proxy replacement is active and list the Service with cilium service list. Scale the backend from 3 to 4 pods and record how many existing client flows moved. Watch drops with hubble observe --verdict DROPPED during the change.",
+          "deliverable": "Helm values, cilium status output, service map and a flow movement report",
+          "checks": [["Run cilium status", "KubeProxyReplacement reports True", "Command output"], ["Run cilium service list for the NodePort Service", "The frontend lists all current backend pod addresses", "Command output"], ["Scale backends from 3 to 4 during steady traffic", "Hubble shows no dropped flows for existing connections", "hubble observe output"]],
+          "objectives": ["Explain kernel-bypass and eBPF balancing", "Run Cilium as a kube-proxy replacement with Maglev", "Inspect eBPF service state"]
+        },
+        {
+          "topic": "Envoy Dynamic Configuration with xDS and a Control Plane",
+          "subtopics": ["The xDS APIs: LDS, RDS, CDS, EDS and SDS", "State-of-the-world versus delta xDS and ADS", "Version info, nonces, ACK and NACK", "Building a control plane with go-control-plane", "Warming clusters and listeners", "Rejected configuration and update_rejected stats", "Scaling xDS to thousands of proxies", "Fail-static behaviour when the control plane is unavailable"],
+          "tools": ["Envoy Proxy", "go-control-plane", "Go", "grpcurl"],
+          "lab_task": "Run a go-control-plane xDS server that serves one listener, one route and an EDS cluster over ADS to two Envoy instances. Add and remove endpoints through a small HTTP API on the control plane and confirm via /config_dump that both proxies show the new version_info within 2 seconds. Push an invalid route and show the NACK. Stop the control plane and show traffic continues.",
+          "deliverable": "Control plane source, config_dump excerpts and evidence of ACK, NACK and fail-static",
+          "checks": [["Add an endpoint through the control plane API", "Both Envoys report the new endpoint in /clusters within 2 seconds", "Admin output"], ["Push a route referencing an unknown cluster with validation enabled", "Envoy NACKs and the rds update_rejected stat increases", "/stats output and control plane log"], ["Stop the control plane process", "Requests keep succeeding with the last accepted configuration", "k6 or curl loop output"]],
+          "objectives": ["Explain xDS resource types and ACK/NACK flow", "Build a minimal control plane", "Operate Envoy safely when the control plane fails"]
+        },
+        {
+          "topic": "Fleet-Wide Quotas: Descriptor-Based Global Rate Limits for Envoy",
+          "subtopics": ["Local versus global rate limiting in Envoy", "The envoyproxy/ratelimit service and its Redis backend", "Descriptors and actions: remote_address, request_headers and generic_key", "Nested descriptors for per-tenant, per-route limits", "failure_mode_deny and behaviour when the service is down", "Shadow mode for safe rollout", "Latency cost of the rate limit call", "Combining global quotas with local token buckets"],
+          "tools": ["Envoy Proxy", "envoyproxy/ratelimit", "Redis", "vegeta"],
+          "lab_task": "Deploy envoyproxy/ratelimit with Redis and configure descriptors for x-api-key with a limit of 100 requests per minute, and a nested limit of 10 per minute for POST /orders. Run three Envoy replicas and send traffic from vegeta across all three for one key. Show the total admitted stays near 100 per minute. Stop Redis and record behaviour with failure_mode_deny false and true.",
+          "deliverable": "Rate limit service configuration, admission figures and failure-mode results",
+          "checks": [["Send 300 requests in one minute for one key across three Envoys", "About 100 are admitted and the rest receive 429", "vegeta report"], ["Stop the rate limit dependency with failure_mode_deny: false", "All requests are admitted", "vegeta report"], ["Stop it with failure_mode_deny: true", "Requests fail with a 5xx status instead of reaching the backend", "vegeta report and access log"]],
+          "objectives": ["Configure global rate limits in Envoy", "Design descriptor hierarchies for tenants and routes", "Choose a failure mode for the rate limiter"]
+        },
+        {
+          "topic": "AWS Gateway Load Balancer and Inline Security Appliances",
+          "subtopics": ["Gateway Load Balancer for transparent insertion of firewalls and inspection", "GENEVE encapsulation on UDP port 6081", "Gateway Load Balancer endpoints and route table design", "Ingress and egress inspection VPC patterns", "Flow stickiness: 5-tuple, 3-tuple and 2-tuple", "Appliance health checks and failure handling", "Centralised inspection with AWS Transit Gateway appliance mode", "Comparison with Azure Gateway Load Balancer"],
+          "tools": ["AWS CLI", "Amazon VPC", "Linux iptables", "tcpdump"],
+          "lab_task": "Create a GWLB with --type gateway, a GENEVE target group on port 6081 and two Linux appliances that decapsulate, log and return traffic. Publish it as an endpoint service, create a GWLB endpoint in an application VPC, and set the internet gateway edge route table to send traffic for the app subnet through the endpoint. Show captured GENEVE packets and block one test port on the appliances.",
+          "deliverable": "GWLB build script, route table design and appliance capture evidence",
+          "checks": [["Capture on an appliance while browsing the app", "Packets arrive as GENEVE on UDP 6081", "tcpdump output"], ["Block port 8080 on both appliances", "Requests to the app on 8080 time out while port 443 works", "curl output"], ["Stop one appliance", "New flows use the remaining appliance after its health check marks the other unhealthy", "describe-target-health output"]],
+          "objectives": ["Insert inspection appliances with GWLB", "Design route tables for transparent inspection", "Explain GWLB flow stickiness and failover"]
+        },
+        {
+          "topic": "Cross-Region Failover with Route 53, Azure Front Door and Google Cloud Global Load Balancing",
+          "subtopics": ["Active-active and active-passive multi-region patterns", "DNS failover with Route 53 and health checks", "Azure Front Door origin groups, priorities, weights and health probes", "Google Cloud global backend services with failover across regions", "Data tier constraints: replication lag and write location", "Pre-scaling the passive region and warm standby", "Failback and avoiding flapping", "Game days for regional evacuation"],
+          "tools": ["Amazon Route 53", "Azure Front Door", "Google Cloud Load Balancing", "k6"],
+          "lab_task": "Choose one provider and build a two-region deployment behind its global entry point (Route 53 failover records, Azure Front Door origin group with priorities 1 and 2, or a Google Cloud global backend service with two regional groups). Run k6 at 200 requests per second, evacuate the primary region by failing its health endpoint, and record the error window, then fail back.",
+          "deliverable": "Two-region design, configuration export and an evacuation timeline",
+          "checks": [["Fail the primary region's health endpoint under load", "Traffic shifts to the secondary region with a measured error window", "k6 timeline"], ["Record the provider's health view during evacuation", "The primary origin or record shows unhealthy", "Console or CLI output"], ["Restore the primary region", "Traffic returns to the primary without repeated switching", "k6 timeline and health history"]],
+          "objectives": ["Design multi-region failover on a public cloud", "Measure regional evacuation impact", "Plan safe failback"]
+        },
+        {
+          "topic": "Advanced Kubernetes Service Traffic: externalTrafficPolicy, Topology-Aware Routing and MetalLB BGP",
+          "subtopics": ["externalTrafficPolicy Local, healthCheckNodePort and client IP preservation", "internalTrafficPolicy Local for node-local services", "Topology-aware routing and the trafficDistribution field", "MetalLB BGP mode with BGPPeer, IPAddressPool and BGPAdvertisement", "Cloud controller annotations for NLB IP targets and internal schemes", "Pod readiness gates with cloud load balancers"],
+          "tools": ["kubectl", "MetalLB", "FRRouting", "AWS Load Balancer Controller"],
+          "lab_task": "In a lab cluster, set externalTrafficPolicy: Local on a LoadBalancer Service, place pods on two of four nodes, and show with curl http://<node>:<healthCheckNodePort>/healthz that only those nodes report local endpoints. Switch MetalLB to BGP mode peering with an FRR router and confirm ECMP routes. Add trafficDistribution: PreferClose and show zone-local endpoint selection in EndpointSlice hints.",
+          "deliverable": "Service manifests, MetalLB configuration and evidence for each traffic policy",
+          "checks": [["curl the healthCheckNodePort on a node with no backend pods", "The node returns 503 with localEndpoints 0", "curl output"], ["Show routes on the FRR router", "The Service IP has ECMP next hops for the nodes running pods", "vtysh show ip route output"], ["Inspect EndpointSlices after enabling PreferClose", "Endpoints carry zone hints matching their zones", "kubectl get endpointslices -o yaml"]],
+          "objectives": ["Preserve client IP and avoid extra hops in Kubernetes", "Advertise Services by BGP", "Keep traffic within a zone"]
+        },
+        {
+          "topic": "Gateway API Advanced Routing: GRPCRoute, TLSRoute, ReferenceGrant and Policy Attachment",
+          "subtopics": ["GRPCRoute matching on service and method", "TLSRoute for SNI passthrough", "ReferenceGrant for cross-namespace backends and secrets", "Policy attachment for timeouts, retries and rate limits", "Multiple Gateways and shared Gateways per team", "Conformance profiles and choosing an implementation"],
+          "tools": ["Envoy Gateway", "kubectl", "grpcurl", "OpenSSL"],
+          "lab_task": "Create a GRPCRoute that sends the method orders.v1.Orders/Create to orders-v2 and other methods to orders-v1, and a TLSRoute that passes example-db.test through by SNI. Reference a Service in another namespace and show it fails until you add a ReferenceGrant. Attach an implementation timeout or retry policy and confirm it with a delayed backend.",
+          "deliverable": "Route and ReferenceGrant manifests and a test log for each route type",
+          "checks": [["grpcurl orders.v1.Orders/Create through the Gateway", "The response comes from orders-v2", "grpcurl output"], ["Reference a backend in another namespace without a ReferenceGrant", "Route status shows ResolvedRefs False with reason RefNotPermitted", "kubectl describe output"], ["openssl s_client -servername example-db.test to the TLS listener", "The backend's own certificate is presented", "s_client output"]],
+          "objectives": ["Route gRPC and passthrough TLS with Gateway API", "Control cross-namespace references", "Apply implementation policies to routes"]
+        },
+        {
+          "topic": "Zone-Aware Load Balancing and Locality Failover",
+          "subtopics": ["Why cross-zone traffic costs money and latency", "AWS cross-zone load balancing defaults for ALB and NLB", "Envoy locality weighted load balancing and zone-aware routing", "Priority levels and the overprovisioning factor", "Spill-over when a zone is degraded", "Uneven zone capacity and hot zones", "Zonal shift and zone evacuation in AWS", "Measuring cross-zone bytes and cost"],
+          "tools": ["Envoy Proxy", "AWS CLI", "Prometheus", "k6"],
+          "lab_task": "Configure an Envoy cluster with endpoints in zones a, b and c, priority 0 for the local zone and priority 1 for others, using the default overprovisioning factor of 140. Fail endpoints in the local zone one by one and record the share of traffic that spills to priority 1 at each step. On an NLB, toggle load_balancing.cross_zone.enabled and compare target request counts.",
+          "deliverable": "Envoy cluster configuration, spill-over table and NLB comparison",
+          "checks": [["Run steady traffic with all local endpoints healthy", "All traffic stays in the local zone", "Envoy stats per locality"], ["Mark half the local endpoints unhealthy", "Some traffic spills to priority 1, since 50 percent healthy times 1.4 is below 100", "Spill-over table"], ["Enable cross-zone on the NLB with uneven targets per zone", "Requests per target become even across zones", "CloudWatch target metrics"]],
+          "objectives": ["Keep traffic zone-local where possible", "Configure priority failover in Envoy", "Explain cloud cross-zone settings"]
+        },
+        {
+          "topic": "Overload Protection: Adaptive Concurrency, Load Shedding and Queueing",
+          "subtopics": ["Little's law and concurrency limits", "Queueing at the balancer: HAProxy maxconn per server and timeout queue", "Envoy adaptive concurrency filter with the gradient controller", "Envoy overload manager actions", "Priority-based shedding for critical traffic", "Brownout: degrading features instead of failing", "Client back-off and retry behaviour during overload", "Metastable failures and recovery"],
+          "tools": ["HAProxy", "Envoy Proxy", "k6", "Grafana"],
+          "lab_task": "Give a backend a capacity of 200 requests per second. Set maxconn 20 per server and timeout queue 2s in HAProxy, then push 400 requests per second with k6 and record p99 latency and errors. Repeat without maxconn. Then configure Envoy's adaptive concurrency filter in front of the same backend and compare goodput, p99 and shed requests across all three runs.",
+          "deliverable": "Comparison table of goodput, p99 latency and shed requests for the three designs",
+          "checks": [["Push 400 requests per second without maxconn", "Backend latency climbs steadily and goodput falls below capacity", "k6 and Grafana output"], ["Push the same load with maxconn 20 and timeout queue 2s", "Excess requests get 503 after the queue timeout while goodput stays near capacity", "k6 summary and HAProxy log"], ["Run the same load through Envoy adaptive concurrency", "Shed requests return 503 and p99 of admitted requests stays bounded", "Envoy stats and k6 output"]],
+          "objectives": ["Apply concurrency limits and queues at the balancer", "Shed load by priority", "Avoid metastable overload failures"]
+        },
+        {
+          "topic": "DDoS Resilience at the Load Balancing Tier",
+          "subtopics": ["Volumetric, protocol and application-layer attacks", "SYN floods, SYN cookies and net.ipv4.tcp_syncookies", "Slowloris and slow POST: HAProxy timeout http-request and Envoy request_headers_timeout", "HTTP/2 rapid reset and stream limits", "Managed protection: AWS Shield, Azure DDoS Protection and Cloud Armor Adaptive Protection", "Absorbing at the edge: anycast and CDNs", "Rate limits and challenge pages for bots", "Attack runbooks and communication"],
+          "tools": ["HAProxy", "hping3", "slowhttptest", "Cloud Armor"],
+          "lab_task": "In an isolated lab only, run slowhttptest -c 1000 -H -l 120 against HAProxy with timeout http-request 60s and record available connections, then set it to 5s and repeat. Run hping3 -S --flood against a lab VM with tcp_syncookies disabled and then enabled, measuring legitimate curl success. Write a one-page runbook for an application-layer flood.",
+          "deliverable": "Before-and-after results for both attacks and the attack runbook",
+          "checks": [["Run slowhttptest with timeout http-request 60s", "The service becomes unavailable to normal clients during the test", "slowhttptest report"], ["Rerun with timeout http-request 5s", "Normal clients keep getting responses during the test", "slowhttptest report and curl loop"], ["Run the SYN flood with tcp_syncookies enabled", "Legitimate curl requests keep succeeding", "curl loop output and nstat counters"]],
+          "objectives": ["Classify DDoS attacks by layer", "Harden balancer timeouts and TCP settings", "Use managed DDoS protection and runbooks"]
+        },
+        {
+          "topic": "Load Balancer SLOs: RED Metrics, Distributed Tracing and Error Budgets",
+          "subtopics": ["Rate, errors and duration measured at the balancer", "Balancer-added latency versus backend latency", "Envoy and HAProxy tracing headers with OpenTelemetry", "SLIs from balancer logs and metrics: availability and latency", "Multi-window, multi-burn-rate alerts", "Cloud metrics: HTTPCode_ELB_5XX_Count, TargetResponseTime and UnHealthyHostCount", "Synthetic probes from outside the network", "Dashboards that separate edge, balancer and service faults"],
+          "tools": ["Prometheus", "Grafana", "OpenTelemetry Collector", "Envoy Proxy", "Jaeger"],
+          "lab_task": "Define an availability SLO of 99.9 percent over 30 days for an API behind Envoy. Write recording rules for the error ratio from envoy_cluster_upstream_rq_xx, and 1-hour and 6-hour burn-rate alerts. Enable Envoy OpenTelemetry tracing to a Collector and Jaeger, and show a trace where the balancer span and backend span reveal where 300 ms of added latency sits.",
+          "deliverable": "SLO document, recording and alert rules, and an annotated trace",
+          "checks": [["Inject 2 percent errors for 10 minutes", "The fast burn-rate alert fires", "Alertmanager notification"], ["Inject 0.05 percent errors", "No burn-rate alert fires", "Alert rule evaluation"], ["Open the trace for a slow request", "The trace shows the 300 ms in the backend span, not the proxy span", "Jaeger screenshot"]],
+          "objectives": ["Define SLIs and SLOs at the balancer", "Alert on error budget burn", "Separate balancer latency from backend latency with traces"]
+        },
+        {
+          "topic": "Capacity Planning: Connection Limits, Ephemeral Ports and SNAT Exhaustion",
+          "subtopics": ["Per-process limits: ulimit -n, maxconn and Envoy connection limits", "Ephemeral port range and the four-tuple limit per backend", "TIME_WAIT accumulation and tcp_tw_reuse", "Using several source addresses to the same backend", "Azure SNAT port allocation and outbound rules", "AWS NAT gateway connection limits per destination", "Memory per connection and TLS session costs", "Headroom rules for zone and region loss"],
+          "tools": ["ss", "sysctl", "HAProxy", "Azure CLI", "k6"],
+          "lab_task": "Shrink net.ipv4.ip_local_port_range to 40000 40999 on an HAProxy host, disable connection reuse to a single backend IP and port, and drive new connections with k6 until errors appear. Capture ss -s and the HAProxy error. Fix it with http-reuse, then with two source addresses. Calculate the maximum new connections per second per backend for the default range with a 60-second TIME_WAIT.",
+          "deliverable": "Exhaustion reproduction, fixes and a capacity worksheet",
+          "checks": [["Drive new connections with the shrunk port range", "HAProxy logs connection errors once about 1,000 ports are in use", "HAProxy log and ss -s"], ["Enable http-reuse always and rerun", "The error count drops to zero", "k6 summary"], ["Calculate the rate for the default range 32768-60999 and 60 s TIME_WAIT", "The worksheet shows about 470 new connections per second per backend four-tuple", "Capacity worksheet"]],
+          "objectives": ["Plan connection and port capacity", "Diagnose and fix ephemeral port and SNAT exhaustion", "Size headroom for failure scenarios"]
+        },
+        {
+          "topic": "Failure Testing: Chaos Experiments on Backends, Zones and Balancers",
+          "subtopics": ["Hypothesis-driven experiments and steady-state metrics", "Fault types: kill, latency, packet loss, DNS failure and certificate expiry", "Linux tc netem for latency and loss", "Toxiproxy and Chaos Mesh for application and Kubernetes faults", "AWS Fault Injection Service and AZ availability scenarios", "Blast radius control and abort conditions", "Testing health check correctness, not just presence", "Turning findings into fixes and regression tests"],
+          "tools": ["Chaos Mesh", "Toxiproxy", "tc netem", "AWS Fault Injection Service", "k6"],
+          "lab_task": "Write three experiment cards with hypothesis, steady state and abort condition. Run them: add 500 ms latency with tc qdisc add dev eth0 root netem delay 500ms to one backend, drop 10 percent of packets to another, and kill all pods in one zone with Chaos Mesh. Measure error rate and p99 during each, then state whether the hypothesis held and what to change.",
+          "deliverable": "Three experiment cards with results, findings and follow-up actions",
+          "checks": [["Add 500 ms latency to one backend", "Outlier detection or least-request reduces that backend's traffic share", "Per-backend metrics"], ["Kill all pods in one zone", "Error rate stays inside the SLO error budget for the experiment window", "Grafana panel"], ["Trigger the abort condition deliberately", "The experiment stops and faults are removed automatically", "Chaos tool event log"]],
+          "objectives": ["Design safe chaos experiments for load balancing", "Verify health checks and failover under real faults", "Turn experiment findings into fixes"]
+        },
+        {
+          "topic": "TLS Operations at the Edge: Certificate Automation, Resumption and Key Rotation",
+          "subtopics": ["Certificate lifetimes getting shorter and why automation is mandatory", "ACME with cert-manager and cloud certificate managers", "Hot certificate reload in HAProxy (set ssl cert) and Envoy SDS", "Session resumption: session IDs, tickets and ticket key rotation", "OCSP status and the move away from OCSP stapling by public CAs", "ECDSA and RSA dual certificates", "TLS handshake cost and CPU sizing", "Expiry monitoring and alerting"],
+          "tools": ["cert-manager", "HAProxy", "Envoy Proxy", "OpenSSL", "Prometheus"],
+          "lab_task": "Serve both ECDSA and RSA certificates for one hostname from HAProxy and show which one each client gets with openssl s_client -sigalgs. Replace a certificate live with set ssl cert and commit ssl cert on the runtime API with no reload. Measure handshakes per second with and without session resumption using openssl s_time, and alert when any certificate expires within 14 days.",
+          "deliverable": "Certificate configuration, runtime rotation transcript, resumption benchmark and expiry alert",
+          "checks": [["Run set ssl cert and commit ssl cert with a new certificate", "openssl s_client shows the new serial number with no reload in the log", "s_client output and HAProxy log"], ["Run openssl s_time with -reuse and without it", "Resumed connections per second are clearly higher than full handshakes", "s_time output"], ["Load a certificate expiring in 10 days", "The expiry alert fires", "Alertmanager notification"]],
+          "objectives": ["Automate certificate issuance and rotation at the edge", "Tune session resumption safely", "Monitor certificate expiry"]
+        },
+        {
+          "topic": "Troubleshooting Load Balancer Incidents: Packet Captures, Timelines and Postmortems",
+          "subtopics": ["A triage order: scope, recent changes, health, saturation and dependencies", "Capturing on both sides of the balancer and aligning timestamps", "Reading resets, retransmissions and zero windows in Wireshark", "Correlating HAProxy termination states and Envoy response flags with captures", "Building an incident timeline from logs, metrics and deploy events", "Blameless postmortems with contributing factors and actions"],
+          "tools": ["tcpdump", "Wireshark", "HAProxy", "Envoy Proxy", "Grafana"],
+          "lab_task": "Work through three trainer-injected incidents without being told the cause: an idle timeout mismatch causing sporadic 502s, an MTU black hole after a tunnel change, and a health check passing while the app fails. For each, capture on both sides of the balancer, build a timeline with timestamps, identify the root cause and the fix, and write a one-page postmortem.",
+          "deliverable": "Three incident timelines with captures and three postmortems",
+          "checks": [["Investigate the sporadic 502 incident", "The root cause is identified as a backend closing idle connections before the proxy", "Annotated capture showing the FIN before reuse"], ["Investigate the MTU incident", "Large responses are shown stalling with retransmissions while small ones succeed", "Wireshark analysis"], ["Review the three postmortems", "Each lists root cause, detection gap and at least two actions with owners", "Postmortem documents"]],
+          "objectives": ["Triage load balancer incidents systematically", "Use two-sided packet captures to find root cause", "Write actionable postmortems"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Region Active-Active Platform with Anycast and Failure Drills",
+          "subtopics": ["Design: anycast or global entry, regional L4 tier, Envoy L7 tier, Kubernetes Gateways", "xDS-driven configuration with global rate limits and zone-aware routing", "Capacity plan covering zone and region loss, ports and certificates", "SLOs, burn-rate alerts and traces across tiers", "Failure drills: zone loss, region evacuation, control plane loss and overload", "Design review and postmortem from the drills"],
+          "tools": ["containerlab", "BIRD", "Envoy Proxy", "Cilium", "k6", "Grafana"],
+          "lab_task": "Build two sites that announce one service address by anycast (or a cloud global balancer) to an L4 tier and an xDS-managed Envoy tier in front of Kubernetes services. Run k6 at 2,000 requests per second for 30 minutes while you drop a zone, evacuate a site, stop the control plane and double the load. Keep availability at or above 99.9 percent and explain every error.",
+          "deliverable": "Architecture and capacity documents, configuration repository, drill report and postmortem",
+          "checks": [["Run the 30-minute test with all four drills", "Measured availability is at or above 99.9 percent", "k6 summary and SLO dashboard"], ["Evacuate one site during the test", "Traffic moves to the other site within 10 seconds", "BGP log and per-site request graph"], ["Double the load during the test", "Excess load is shed with 429 or 503 while admitted p99 stays under the SLO threshold", "k6 tags and Envoy stats"]],
+          "objectives": ["Design and build a multi-region load balancing platform", "Prove resilience through planned failure drills", "Defend design decisions in a review"]
+        }
+      ]
+    }
+  }
+}
