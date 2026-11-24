@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
@@ -6,15 +6,8 @@ import {
   Save, Search, Send, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import Pager from '../components/Pager'
-import SearchSourceReport from '../components/SearchSourceReport'
-import { LEAD_PAGE_SIZE, leadListParams, listPage, pageToReload, statusTotal } from '../utils/leadPaging'
-import { newSearchRef } from '../utils/leadSearchFeedback'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
-// Trainer leads use more status names: a profile from a public search starts as "found", and a
-// Pipeline mail marks it "outreach_sent". These tabs and cards list them with New and Contacted.
-const TRAINER_TAB_STATUSES = { new: ['new', 'found'], contacted: ['contacted', 'outreach_sent'] }
 const STATUS_LABELS = {
   all: 'All',
   new: 'New',
@@ -61,15 +54,9 @@ function relativeTime(value) {
 
 export default function ClientLeads() {
   const [leads, setLeads] = useState([])
-  const [list, setList] = useState(listPage())
-  const [page, setPage] = useState(1)
-  const [searchReport, setSearchReport] = useState(null)
+  const [stats, setStats] = useState({})
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
-  // The search text last submitted with Search or Enter; typing alone does not filter.
-  const [appliedQ, setAppliedQ] = useState('')
-  const [reloadKey, setReloadKey] = useState(0)
-  const loadSeq = useRef(0)
   const [form, setForm] = useState(emptyForm)
   const [analysis, setAnalysis] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -84,41 +71,20 @@ export default function ClientLeads() {
   const [searchDomains, setSearchDomains] = useState('DevOps, AWS, Azure, Full Stack, Power BI, Python, Java, SAP')
 
   const load = async () => {
-    // Only the latest request updates the list, whatever order the responses arrive in.
-    const seq = ++loadSeq.current
     setLoading(true)
     try {
       const endpoint = leadMode === 'trainer' ? '/trainer-profile-leads' : '/client-leads'
-      // The open tab goes in status (a list for trainer New and Contacted), which the cards' counts leave out.
-      const tabStatuses = leadMode === 'trainer' ? TRAINER_TAB_STATUSES[filter] : null
-      const params = leadListParams({ status: tabStatuses ? tabStatuses.join(',') : filter, q: appliedQ, page })
-      const res = await api.get(endpoint, { params })
-      if (seq !== loadSeq.current) return
-      const reload = pageToReload(res.data, page)
-      if (reload) {
-        setPage(reload)
-        return
-      }
+      const res = await api.get(endpoint, { params: { status: filter, q, limit: 150 } })
       setLeads(res.data.leads || [])
-      setList(listPage(res.data))
+      setStats(res.data.stats || {})
     } catch (e) {
-      if (seq === loadSeq.current) toast.error(e.message)
+      toast.error(e.message)
     } finally {
-      if (seq === loadSeq.current) setLoading(false)
+      setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [filter, leadMode, page, appliedQ, reloadKey])
-
-  // Reloads with the filters as they are when the reload runs, not when an action started.
-  const refresh = () => setReloadKey(key => key + 1)
-
-  // A new search text starts again at page 1.
-  const reloadFirstPage = () => {
-    setAppliedQ(q.trim())
-    setPage(1)
-    refresh()
-  }
+  useEffect(() => { load() }, [filter, leadMode])
 
   useEffect(() => {
     api.get('/client-leads/outreach-profile').then(res => {
@@ -144,7 +110,7 @@ export default function ClientLeads() {
       if (input) await api.patch(`/client-leads/${lead.lead_id}`, input)
       await api.post(`/client-leads/${lead.lead_id}/regenerate-draft`, {})
       toast.success('Personalized draft ready to review')
-      refresh()
+      await load()
     } catch (e) { toast.error(e.message) }
     finally { setDrafting('') }
   }
@@ -160,7 +126,7 @@ export default function ClientLeads() {
       await api.put(`/client-leads/${lead.lead_id}/draft`, draft)
       toast.success('Draft saved for review')
       setEditingDraft(prev => { const next = { ...prev }; delete next[lead.lead_id]; return next })
-      refresh()
+      await load()
     } catch (e) { toast.error(e.message) }
   }
 
@@ -183,7 +149,7 @@ export default function ClientLeads() {
       toast.success('Client lead saved')
       setForm(emptyForm)
       setAnalysis(null)
-      refresh()
+      await load()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -195,7 +161,7 @@ export default function ClientLeads() {
     try {
       const endpoint = leadMode === 'trainer' ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.patch(endpoint, payload)
-      refresh()
+      await load()
     } catch (e) {
       toast.error(e.message)
     }
@@ -206,7 +172,7 @@ export default function ClientLeads() {
       const res = await api.post(`/client-leads/${lead.lead_id}/send-email`, {})
       if (res.data.success) toast.success('Approach mail sent from Clahan')
       else toast.error(res.data.error || 'Mail failed')
-      refresh()
+      await load()
     } catch (e) {
       toast.error(e.message)
     }
@@ -217,7 +183,7 @@ export default function ClientLeads() {
       const endpoint = leadMode === 'trainer' ? `/trainer-profile-leads/${lead.lead_id}` : `/client-leads/${lead.lead_id}`
       await api.delete(endpoint)
       toast.success('Lead removed')
-      refresh()
+      await load()
     } catch (e) {
       toast.error(e.message)
     }
@@ -225,42 +191,29 @@ export default function ClientLeads() {
 
   const findPublicLeads = async () => {
     setSearchingPublic(true)
-    setSearchReport(null)
-    const searchRef = newSearchRef()
-    const trainerSearch = leadMode === 'trainer'
     try {
       const domains = searchDomains.split(',').map(item => item.trim()).filter(Boolean)
-      const endpoint = trainerSearch ? '/trainer-profile-leads/search-public' : '/client-leads/search-public'
+      const endpoint = leadMode === 'trainer' ? '/trainer-profile-leads/search-public' : '/client-leads/search-public'
       const res = await api.post(endpoint, {
         domains,
         max_results: 50,
-        max_queries: trainerSearch ? 20 : 12,
-        search_ref: searchRef,
+        max_queries: leadMode === 'trainer' ? 20 : 12,
       })
-      setSearchReport(res.data)
-      if (res.data.success === false) toast.error(res.data.search_error || 'No search source gave an answer')
-      else toast.success(`Public search saved ${res.data.saved_count || 0} lead(s)`)
-      setPage(1)
-      refresh()
+      toast.success(`Public search saved ${res.data.saved_count || 0} lead(s)`)
+      await load()
     } catch (e) {
-      setSearchReport({ requestFailed: true, searchRef, search_error: e.message })
       toast.error(e.message)
     } finally {
       setSearchingPublic(false)
     }
   }
 
-  // Totals over every page and status for the search text; trainer leads use their own status names.
-  const cards = useMemo(() => {
-    const byStatus = list.counts?.by_status || {}
-    const trainer = leadMode === 'trainer'
-    return [
-      [trainer ? 'Trainer Profiles' : 'Total Leads', statusTotal(list.counts), trainer ? Users : BriefcaseBusiness, 'text-slate-700'],
-      [trainer ? 'New Profiles' : 'New Leads', (byStatus.new || 0) + (trainer ? byStatus.found || 0 : 0), Target, 'text-amber-700'],
-      ['Contacted', (byStatus.contacted || 0) + (trainer ? byStatus.outreach_sent || 0 : 0), Send, 'text-blue-700'],
-      ['Converted', byStatus.converted || 0, CheckCircle2, 'text-emerald-700'],
-    ]
-  }, [list, leadMode])
+  const cards = useMemo(() => [
+    [leadMode === 'trainer' ? 'Trainer Profiles' : 'Total Leads', stats.total || 0, leadMode === 'trainer' ? Users : BriefcaseBusiness, 'text-slate-700'],
+    [leadMode === 'trainer' ? 'New Profiles' : 'New Leads', stats.new || 0, Target, 'text-amber-700'],
+    ['Contacted', stats.contacted || 0, Send, 'text-blue-700'],
+    ['Converted', stats.converted || 0, CheckCircle2, 'text-emerald-700'],
+  ], [stats, leadMode])
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -274,21 +227,21 @@ export default function ClientLeads() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && reloadFirstPage()} placeholder="Search leads" className="input pl-9" />
+            <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()} placeholder="Search leads" className="input pl-9" />
           </div>
-          <button onClick={reloadFirstPage} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Search</button>
+          <button onClick={load} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Search</button>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
         <button
-          onClick={() => { setLeadMode('client'); setPage(1); setSearchReport(null) }}
+          onClick={() => setLeadMode('client')}
           className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', leadMode === 'client' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}
         >
           <BriefcaseBusiness className="h-4 w-4" /> Client Requirement Posts
         </button>
         <button
-          onClick={() => { setLeadMode('trainer'); setPage(1); setSearchReport(null) }}
+          onClick={() => setLeadMode('trainer')}
           className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', leadMode === 'trainer' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}
         >
           <Users className="h-4 w-4" /> Trainer Profiles
@@ -341,10 +294,9 @@ export default function ClientLeads() {
               {leadMode === 'trainer' ? 'Find Trainer Profiles' : 'Find Leads Now'}
               </button>
               <span className="rounded-lg border border-blue-200 bg-white/70 px-3 py-2 text-xs font-semibold text-blue-700">
-                Uses Tavily when TAVILY_API_KEY is set, otherwise key-free search engines
+                Requires TAVILY_API_KEY
               </span>
             </div>
-            <SearchSourceReport report={searchReport} noun="leads" />
           </div>
         </div>
 
@@ -380,7 +332,7 @@ export default function ClientLeads() {
 
       <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
         {STATUS.map(item => (
-          <button key={item} onClick={() => { setFilter(item); setPage(1) }} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', filter === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
+          <button key={item} onClick={() => setFilter(item)} className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', filter === item ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
             {STATUS_LABELS[item]}
           </button>
         ))}
@@ -490,8 +442,6 @@ export default function ClientLeads() {
           <p>No {leadMode === 'trainer' ? 'trainer profile leads' : 'client leads'} in this view.</p>
         </div>
       )}
-
-      <Pager page={list.page} pages={list.pages} total={list.total} pageSize={LEAD_PAGE_SIZE} loading={loading} onPage={setPage} noun="leads" />
     </div>
   )
 }

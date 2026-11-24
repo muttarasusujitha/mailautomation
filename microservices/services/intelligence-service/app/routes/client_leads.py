@@ -11,8 +11,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, Field
 
-from app.clients.lead_queries import NO_DOMAIN, client_query, lead_counts
-from app.clients.search_runs import failure_summary, merge_sources, outcome_status, record_search_run, search_succeeded
 from shared.database.service import get_db
 
 router = APIRouter()
@@ -191,8 +189,6 @@ class SearchPublicRequest(BaseModel):
     location: Optional[str] = ""
     max_results: int = 50
     max_queries: Optional[int] = None
-    # An ID from the page, saved with the run report (GET /linkedin-leads/search-runs?search_ref=...).
-    search_ref: Optional[str] = ""
 
 
 @router.get("")
@@ -203,29 +199,32 @@ async def list_client_leads(
     status: Optional[str] = None,
     domain: Optional[str] = None,
     q: Optional[str] = None,
-    statuses: Optional[str] = None,
-    topic: Optional[str] = None,
-    domain_exact: Optional[str] = None,
-    include_counts: bool = False,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Saved client leads, newest first. Filters and counts work as on GET /trainer-profile-leads."""
-    filters = dict(status=status, statuses=statuses, domain=domain, domain_value=domain_exact, q=q, topic=topic)
-    query = client_query(**filters)
-    table = db["client_leads"]
-    total = await table.count_documents(query)
+    query: Dict[str, Any] = {}
+    if status and status.lower() != "all":
+        query["status"] = status
+    if domain:
+        query['$and'] = [{'$or': [
+            {field: {'$regex': re.escape(domain), '$options': 'i'}}
+            for field in ('domain', 'matched_domains')]}]
+    if q:
+        query["$or"] = [
+            {"company_name": {"$regex": q, "$options": "i"}},
+            {"contact_name": {"$regex": q, "$options": "i"}},
+            {"domain": {"$regex": q, "$options": "i"}},
+            {"matched_domains": {"$regex": q, "$options": "i"}},
+            {"notes": {"$regex": q, "$options": "i"}},
+            {"source_url": {"$regex": q, "$options": "i"}},
+        ]
+    total = await db["client_leads"].count_documents(query)
     if limit is not None:
         page_size = limit
     skip = (page - 1) * page_size
-    # _id breaks ties between leads saved with the same created_at, so pages do not overlap.
-    cursor = table.find(query, {"_id": 0}).sort([("created_at", -1), ("_id", -1)]).skip(skip).limit(page_size)
+    cursor = db["client_leads"].find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(page_size)
     items = [d async for d in cursor]
-    result = {"success": True, "total": total, "page": page, "page_size": page_size,
-              "pages": max(1, (total + page_size - 1) // page_size), "leads": items}
-    if include_counts:
-        result["counts"] = await lead_counts(
-            table, client_query(**filters, skip_status=True), client_query(**filters, skip_domain=True), query)
-    return result
+    return {"success": True, "total": total, "page": page, "page_size": page_size,
+            "pages": max(1, (total + page_size - 1) // page_size), "leads": items}
 
 
 @router.post("")
@@ -306,30 +305,21 @@ async def enrich_client_lead_from_text(
     return {"success": True, "lead": doc, **contact}
 
 
-# Declared before "/{lead_id}": routes match in order, and "/{lead_id}" would take "by-domain" as an ID.
-@router.delete("/by-domain")
-async def delete_client_leads_by_domain(
-    domain: str = Query(...),
-    status: Optional[str] = None,
-    statuses: Optional[str] = None,
-    q: Optional[str] = None,
-    db: AsyncIOMotorDatabase = Depends(get_db),
-):
-    """Delete the leads of one saved domain (__none__: no domain), within the same filters as the list."""
-    domain = (domain or "").strip()
-    if not domain:
-        raise HTTPException(400, f"domain is required; use {NO_DOMAIN} for leads without a domain")
-    query = client_query(status=status, statuses=statuses, q=q, domain_value=domain)
-    result = await db["client_leads"].delete_many(query)
-    return {"success": True, "domain": domain, "deleted_count": result.deleted_count}
-
-
 @router.delete("/{lead_id}")
 async def delete_client_lead(lead_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     result = await db["client_leads"].delete_one({"lead_id": lead_id})
     if result.deleted_count == 0:
         raise HTTPException(404, "Client lead not found")
     return {"success": True, "deleted": lead_id}
+
+
+@router.delete("/by-domain")
+async def delete_client_leads_by_domain(
+    domain: str = Query(...),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    result = await db["client_leads"].delete_many({"domain": {"$regex": f"^{domain}$", "$options": "i"}})
+    return {"success": True, "domain": domain, "deleted_count": result.deleted_count}
 
 
 @router.post("/analyze")
@@ -349,51 +339,6 @@ async def analyze_lead(payload: AnalyzeLeadRequest, db: AsyncIOMotorDatabase = D
     return {"success": True, "company": payload.company_name, "intent_score": score, "signals": signals}
 
 
-_PUBLIC_SEARCH_TIMEOUT = 20
-
-
-def _term_outcome(term: str, target: int, matched: int, sources: List[Dict[str, Any]],
-                  status: str = "", reason: str = "") -> Dict[str, Any]:
-    return {"domain": term, "target": target, "matched": matched, "target_met": bool(target) and matched >= target,
-            "status": status or outcome_status(matched, target, sources), "limit_reason": reason, "sources": sources}
-
-
-def _search_service_error(exc: Exception) -> Dict[str, Any]:
-    if isinstance(exc, httpx.TimeoutException):
-        reason = f"The search service did not answer within {_PUBLIC_SEARCH_TIMEOUT} seconds."
-    else:
-        reason = f"Could not reach the search service: {str(exc) or type(exc).__name__}"[:300]
-    return {"source": "trainer_search", "label": "Search service", "status": "error", "found": 0, "qualified": 0,
-            "reason": reason}
-
-
-async def _save_public_client_lead(db: AsyncIOMotorDatabase, lead: Dict[str, Any], now: datetime) -> bool:
-    """Save one search result unless it is saved already, under any URL variant of the same LinkedIn page.
-
-    A lead saved before is left as it is, so a search never overwrites reviewed or edited leads.
-    """
-    from pymongo.errors import DuplicateKeyError
-    from app.clients.client_post_identity import post_identity, post_lookup
-    try:
-        key = post_identity(lead["source_url"])
-        lookup = post_lookup(lead["source_url"])
-    except ValueError:
-        # Not a LinkedIn page, for example a Naukri page: the exact URL identifies it, as before.
-        key, lookup = None, {"source_url": lead["source_url"]}
-    record = {**lead, "created_at": now, "updated_at": now}
-    if key:
-        record["post_key"] = key
-    try:
-        result = await db["client_leads"].update_one(lookup, {"$setOnInsert": record}, upsert=True)
-    except DuplicateKeyError:
-        # Another search saved it after the lookup.
-        return False
-    if result.upserted_id is None:
-        return False
-    queue_auto_personalization(lead["lead_id"], db)
-    return True
-
-
 @router.post("/search-public")
 async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Search for client companies using public web signals."""
@@ -408,56 +353,40 @@ async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorData
             search_terms.append(term)
     search_terms = list(dict.fromkeys(search_terms))[: payload.max_queries or len(search_terms)]
     if not search_terms:
-        return {"success": False, "error": "query or domain is required", "results": [], "saved_count": 0,
-                "sources": []}
+        return {"success": False, "error": "query or domain is required", "results": [], "saved_count": 0}
 
-    started_at = datetime.utcnow()
     results = []
     saved_count = 0
     skipped_count = 0
-    search_error = ""
-    outcomes: List[Dict[str, Any]] = []
     now = datetime.utcnow()
-    target = max(payload.max_results, 50)
     try:
         import httpx as _httpx
-        async with _httpx.AsyncClient(timeout=_PUBLIC_SEARCH_TIMEOUT) as client:
-            for index, term in enumerate(search_terms):
-                try:
-                    r = await client.post(
-                        "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
-                        json={
-                            "query": f"{term} trainer requirement corporate training client hiring",
-                            "domain": term,
-                            "location": payload.location or "",
-                            "max_results": target,
-                        },
-                    )
-                except _httpx.HTTPError as exc:
-                    failure = _search_service_error(exc)
-                    search_error = failure["reason"]
-                    outcomes.append(_term_outcome(term, target, 0, [failure]))
-                    # The next request would wait just as long, so the rest are reported as not searched.
-                    outcomes.extend(_term_outcome(rest, 0, 0, [], "not_run",
-                                                  "Not searched: the search service stopped answering.")
-                                    for rest in search_terms[index + 1:])
-                    break
+        async with _httpx.AsyncClient(timeout=20) as client:
+            for term in search_terms:
+                r = await client.post(
+                    "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                    json={
+                        "query": f"{term} trainer requirement corporate training client hiring",
+                        "domain": term,
+                        "location": payload.location or "",
+                        "max_results": max(payload.max_results, 50),
+                    },
+                )
                 if r.status_code >= 400:
-                    search_error = search_error or f"The search service returned HTTP {r.status_code}."
-                    outcomes.append(_term_outcome(term, target, 0, [{
-                        "source": "trainer_search", "label": "Search service", "status": "error",
-                        "found": 0, "qualified": 0, "reason": f"HTTP {r.status_code}: {r.text[:200]}"}]))
                     continue
-                data = r.json()
-                profiles = data.get("profiles", [])
-                for item in profiles:
+                for item in r.json().get("profiles", []):
                     source_url = item.get("source_url", "")
                     if not source_url:
                         skipped_count += 1
                         continue
                     results.append(item)
-                    lead = {
-                        "lead_id": f"CL-{uuid.uuid4().hex[:10].upper()}",
+                    exists = await db["client_leads"].find_one({"source_url": source_url}, {"_id": 1})
+                    if exists:
+                        skipped_count += 1
+                        continue
+                    lead_id = f"CL-{uuid.uuid4().hex[:10].upper()}"
+                    await db["client_leads"].insert_one({
+                        "lead_id": lead_id,
                         "company_name": item.get("title") or "Public training lead",
                         "contact_name": "",
                         "email": "",
@@ -468,34 +397,21 @@ async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorData
                         "linkedin_url": source_url if item.get("source") == "linkedin" else "",
                         "notes": item.get("snippet", ""),
                         "status": "new",
-                    }
-                    if await _save_public_client_lead(db, lead, now):
-                        saved_count += 1
-                    else:
-                        skipped_count += 1
-                outcomes.append(_term_outcome(term, target, len(profiles), data.get("sources") or []))
+                        "created_at": now,
+                        "updated_at": now,
+                    })
+                    queue_auto_personalization(lead_id, db)
+                    saved_count += 1
     except Exception as exc:
         logger.warning("Public search failed: %s", exc)
-        search_error = search_error or str(exc) or type(exc).__name__
-    sources = merge_sources(outcome.get("sources") for outcome in outcomes)
-    if not results and not search_error:
-        search_error = failure_summary(sources)
-    result = {
-        "success": search_succeeded(len(results), sources),
+    return {
+        "success": True,
         "query": payload.query or ", ".join(search_terms),
         "results": results,
-        "found": len(results),
         "saved_count": saved_count,
         "new_stored": saved_count,
         "skipped_count": skipped_count,
-        "search_error": search_error,
-        "sources": sources,
-        "domain_outcomes": outcomes,
     }
-    result["run_id"] = await record_search_run(db, "client_search_public", {
-        "domains": search_terms, "location": payload.location or "", "max_results": payload.max_results,
-    }, result, started_at, payload.search_ref)
-    return result
 
 
 @router.post("/auto-discover-now")

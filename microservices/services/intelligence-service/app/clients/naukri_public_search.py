@@ -6,7 +6,7 @@ pages, log in, access the private resume database, or bypass access checks.
 import re
 from urllib.parse import urlsplit, urlunsplit
 
-from app.clients.public_search import engine_sources, search_public_many
+from app.clients.public_search import search_public_many
 from app.clients.search_accuracy import matches_requested_skill
 
 _NAUKRI_HOST = re.compile(r"(^|\.)naukri\.com$", re.IGNORECASE)
@@ -56,30 +56,20 @@ def public_profile_queries(skill, location=""):
     ]
 
 
-async def search_public_naukri_profiles(skill, location="", limit=20, report=None):
-    """Return public Naukri profile links surfaced by public search indexes.
-
-    When report is a dict, report["sources"] receives one status entry per search engine.
-    """
+async def search_public_naukri_profiles(skill, location="", limit=20):
+    """Return public Naukri profile links surfaced by public search indexes."""
     target = min(max(int(limit or 1), 1), 30)
     queries = public_profile_queries(skill, location)
     if not queries:
         return []
-    engines = {}
-    rows, _attempts = await search_public_many(queries, target * 2, ["naukri.com"], report=engines)
+    rows, _attempts = await search_public_many(queries, target * 2, ["naukri.com"])
     profiles = []
     seen = set()
-    # Every matching row credits its engine, including rows past the requested count.
-    kept_rows = []
     for row in rows:
-        raw_url = row.get("url") or row.get("source_url") or row.get("link")
-        url = public_profile_url(raw_url)
+        url = public_profile_url(row.get("url") or row.get("source_url") or row.get("link"))
         if not url or url in seen or not matches_requested_skill(row, skill):
             continue
         seen.add(url)
-        kept_rows.append(raw_url)
-        if len(profiles) >= target:
-            continue
         path_slug = re.sub(r"[^a-zA-Z0-9]+", "-", urlsplit(url).path).strip("-")[:80]
         profiles.append({
             "source_url": url,
@@ -88,6 +78,6 @@ async def search_public_naukri_profiles(skill, location="", limit=20, report=Non
             "title": str(row.get("title") or "Naukri job seeker")[:160],
             "snippet": str(row.get("content") or row.get("snippet") or "")[:300],
         })
-    if report is not None:
-        report["sources"] = engine_sources(engines, kept_rows, noun="Naukri profile links")
+        if len(profiles) >= target:
+            break
     return profiles

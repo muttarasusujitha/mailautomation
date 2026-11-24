@@ -61,44 +61,11 @@ def _normalize_tavily_profiles(results: Any) -> List[Dict[str, Any]]:
         profile = _profile_from_url(url, snippet=snippet, title=title)
         if profile and profile["source_url"] not in seen:
             seen.add(profile["source_url"])
-            # The engine's own URL, so each engine can be credited with the profiles that were kept.
-            profile["result_url"] = url
             profiles.append(profile)
     return profiles
 
 
-def _search_sources(reports: List[Dict[str, Any]], profiles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Per-source status for one trainer search: Tavily, or the key-free engines used without a key."""
-    from app.clients.public_search import engine_sources, merge_engine_reports
-
-    calls = [report["tavily"] for report in reports if report.get("tavily")]
-    if any(call.get("configured") for call in calls):
-        found = sum(int(call.get("rows") or 0) for call in calls)
-        errors = [call for call in calls if call.get("error")]
-        if found:
-            status = "ok" if profiles else "filtered"
-            reason = "" if profiles else f"Tavily returned {found} link(s), but none passed the skill and date checks."
-        elif errors and len(errors) == len(calls):
-            limited = any(call.get("http_status") == 429 for call in errors)
-            status = "blocked" if limited else "error"
-            reason = f"Tavily failed on all {len(calls)} searches: {errors[0]['error']}"
-        else:
-            status = "no_results"
-            reason = "Tavily returned no LinkedIn or Naukri profiles for these searches."
-        if errors and status in ("ok", "filtered", "no_results"):
-            reason = (reason + " " if reason else "") + f"{len(errors)} of {len(calls)} Tavily searches failed: {errors[0]['error']}"
-        return [{"source": "tavily", "label": "Tavily", "status": status, "found": found,
-                 "qualified": len(profiles), "reason": reason}]
-    engines = merge_engine_reports(report.get("engines") for report in reports)
-    kept = [profile["result_url"] for profile in profiles if profile.get("result_url")]
-    return [
-        {"source": "tavily", "label": "Tavily", "status": "not_configured", "found": 0, "qualified": 0,
-         "reason": "TAVILY_API_KEY is not set, so the key-free engines were used instead."},
-        *engine_sources(engines, kept),
-    ]
-
-
-async def _tavily_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "", include_domains: Optional[List[str]] = None, report: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+async def _tavily_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "", include_domains: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     current_year = datetime.utcnow().year
     domains = include_domains or ["linkedin.com", "naukri.com"]
     naukri_only = domains == ["naukri.com"]
@@ -111,16 +78,12 @@ async def _tavily_trainer_search(search_text: str, location: str, max_results: i
         query += f" {location}"
     query += " " + " OR ".join(f"site:{domain}" for domain in domains)
 
-    report = report if report is not None else {}
     settings = get_settings()
     if not settings.TAVILY_API_KEY:
         from app.clients.public_search import search_public_many
-        engines: Dict[str, Any] = {}
-        batch = await search_public_many([query], max_results, allowed_domains=domains, report=engines)
+        batch = await search_public_many([query], max_results, allowed_domains=domains)
         rows, attempts = batch
         logger.info("Public trainer search fallback: domains=%s attempts=%s results=%s", domains, attempts, len(rows))
-        report["tavily"] = {"configured": False}
-        report["engines"] = engines
         return _normalize_tavily_profiles(rows)
 
     payload = {
@@ -134,27 +97,15 @@ async def _tavily_trainer_search(search_text: str, location: str, max_results: i
         "Authorization": f"Bearer {settings.TAVILY_API_KEY}",
         "Content-Type": "application/json",
     }
-    call: Dict[str, Any] = {"configured": True, "rows": 0, "error": "", "http_status": None}
-    report["tavily"] = call
     try:
         async with httpx.AsyncClient(timeout=25) as client:
             resp = await client.post(f"{settings.TAVILY_API_URL.rstrip('/')}/search", json=payload, headers=headers)
             if resp.status_code == 404 and "api.tavily.dev" in settings.TAVILY_API_URL:
                 resp = await client.post("https://api.tavily.com/search", json=payload, headers=headers)
             resp.raise_for_status()
-            profiles = _normalize_tavily_profiles(resp.json().get("results", []))
-            call["rows"] = len(profiles)
-            return profiles
+            return _normalize_tavily_profiles(resp.json().get("results", []))
     except Exception as exc:
         logger.warning("Tavily trainer search failed: %s", exc)
-        response = getattr(exc, "response", None)
-        call["http_status"] = getattr(response, "status_code", None)
-        if isinstance(exc, httpx.TimeoutException):
-            call["error"] = "Tavily did not answer in time."
-        elif call["http_status"]:
-            call["error"] = f"Tavily returned HTTP {call['http_status']}."
-        else:
-            call["error"] = (str(exc) or type(exc).__name__)[:200]
     return []
 
 
@@ -206,10 +157,9 @@ async def free_search_trainers(
     ]
     if naukri_only:
         query_suffixes = ["", '"trainer"', '"instructor"']
-    reports: List[Dict[str, Any]] = [{} for _ in query_suffixes]
     results = await asyncio.gather(*[
-        _tavily_trainer_search(search_text, payload.location or "", per_query, suffix, allowed_domains, report=report)
-        for suffix, report in zip(query_suffixes, reports)
+        _tavily_trainer_search(search_text, payload.location or "", per_query, suffix, allowed_domains)
+        for suffix in query_suffixes
     ])
 
     for batch in results:
@@ -226,11 +176,6 @@ async def free_search_trainers(
                 all_profiles.append(p)
 
     profiles = all_profiles[:requested]
-    # Every profile that passed the checks credits its engine, including those past the requested count.
-    sources = _search_sources(reports, all_profiles)
-    for batch in results:
-        for p in batch:
-            p.pop("result_url", None)
 
     search_error = ""
     if naukri_only and not profiles:
@@ -251,14 +196,11 @@ async def free_search_trainers(
                 upsert=True,
             )
 
-    from app.clients.search_runs import search_succeeded
     return {
-        "success": search_succeeded(len(profiles), sources),
         "domain": payload.domain or search_text,
         "query": payload.query or search_text,
         "location": payload.location,
         "found": len(profiles),
         "profiles": profiles,
         "search_error": search_error,
-        "sources": sources,
     }

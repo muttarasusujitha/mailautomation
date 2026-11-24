@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 import asyncio
-import logging
 from contextlib import suppress
 from app.routes import lead_bot
 from fastapi import FastAPI
@@ -21,7 +20,6 @@ from app.routes import (
 )
 
 settings = get_settings()
-logger = logging.getLogger(__name__)
 
 
 def _ignore_closed_browser_noise(loop, context):
@@ -33,24 +31,6 @@ def _ignore_closed_browser_noise(loop, context):
     loop.default_exception_handler(context)
 
 
-async def _create_lead_indexes(db):
-    """One saved trainer lead per profile, and newest-first search run reports.
-
-    A failure is logged instead of stopping the service: saves still find the saved lead
-    first, and only two searches saving the same new profile at the same moment could
-    then both insert it. python -m app.merge_duplicate_leads merges copies already saved.
-    """
-    try:
-        await db['trainer_profile_leads'].create_index(
-            'profile_key', unique=True, partialFilterExpression={'profile_key': {'$type': 'string'}})
-    except Exception:
-        logger.exception('Could not create the unique trainer_profile_leads.profile_key index')
-    try:
-        await db['lead_search_runs'].create_index([('started_at', -1)])
-    except Exception:
-        logger.exception('Could not create the lead_search_runs.started_at index')
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     asyncio.get_running_loop().set_exception_handler(_ignore_closed_browser_noise)
@@ -58,7 +38,6 @@ async def lifespan(app: FastAPI):
     db = await get_db()
     await db['client_leads'].create_index('post_key', unique=True,
         partialFilterExpression={'post_key': {'$type': 'string'}})
-    await _create_lead_indexes(db)
     bot_task = asyncio.create_task(lead_bot.run_loop())
     try:
         yield

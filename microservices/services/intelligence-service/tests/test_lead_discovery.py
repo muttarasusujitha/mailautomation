@@ -1,7 +1,7 @@
 import asyncio
 from unittest.mock import AsyncMock, patch
 from app.clients.lead_discovery import discover, public_queries
-from app.routes.linkedin_leads import LinkedInLeadSearchRequest, _normalize_result, search_linkedin_leads
+from app.routes.linkedin_leads import LinkedInLeadSearchRequest, search_linkedin_leads
 from app.clients.linkedin_session import LinkedInAuthenticationRequired, RECONNECT_MESSAGE
 
 
@@ -79,27 +79,6 @@ def test_paused_login_is_the_only_discovery_error():
     assert len(outcome['warnings']) == 1
     assert outcome['matched'] == 0
     assert result['saved_count'] == 0
-
-
-def test_keyword_qualified_trainer_is_saved_when_the_headline_omits_the_skill():
-    db = {'trainer_profile_leads': AsyncMock(), 'client_leads': AsyncMock()}
-    db['trainer_profile_leads'].find_one.return_value = None
-    row = {
-        'url': 'https://www.linkedin.com/in/asha',
-        'title': 'Asha',
-        'content': 'Asha\nCorporate trainer\nHyderabad',
-        'keyword_qualified': True,
-    }
-    with patch('app.clients.public_search.search_public_many', AsyncMock(return_value=([], 1))), \
-            patch('app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[row])):
-        result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(
-            domain='soft skills', search_provider='auto', max_results=20), db))
-    assert result['found'] == 1
-    assert result['saved_count'] == 1
-    saved = db['trainer_profile_leads'].insert_one.await_args.args[0]
-    assert saved['domain'] == 'soft skills'
-    assert saved['source_url'] == 'https://www.linkedin.com/in/asha'
-    assert _normalize_result({**row, 'keyword_qualified': False}, 'soft skills', 'trainer') is None
 
 
 def test_cancelled_account_search_keeps_profiles_already_collected():

@@ -125,8 +125,8 @@ async def collect_due(db, mode):
             {'$or': [{'next_run': {'$lte': now}}, {'next_run': {'$exists': False}}]},
             {'$or': [{'lease_until': {'$lte': now}}, {'lease_until': {'$exists': False}}]},
         ],
-    }, {'$set': {'lease_until': now + timedelta(minutes=25 if mode == 'trainer' else 20),
-                 'lease_token': token, 'status': 'running', 'last_started': now}})
+    }, {'$set': {'lease_until': now + timedelta(minutes=20), 'lease_token': token,
+                 'status': 'running', 'last_started': now}})
     if not config:
         return
     pause = _cooldown_state()
@@ -160,7 +160,7 @@ async def collect_due(db, mode):
         else:
             result = await asyncio.wait_for(search_linkedin_leads(LinkedInLeadSearchRequest(
                 mode=mode, domains=domains, search_provider='auto',
-                save=True, max_results=60, max_queries=2), db), timeout=1180)
+                save=True, max_results=60, max_queries=2), db), timeout=800)
         error = result.get('error') or result.get('search_error') or ''
         outcome = {'status': 'error' if error else 'completed' if result.get('found') else 'no_results',
                    'last_error': str(error)[:500], 'found': result.get('found', 0),
