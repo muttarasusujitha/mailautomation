@@ -39,7 +39,10 @@ def canonical_url(value):
     host = (parts.hostname or '').lower()
     if parts.scheme != 'https' or not (host == 'linkedin.com' or host.endswith('.linkedin.com')):
         return ''
-    if not parts.path.startswith(('/in/', '/posts/', '/feed/update/')):
+    profile_match = re.match(r'^/in/([^/]+)', parts.path)
+    if profile_match and profile_match.group(1).strip():
+        return urlunsplit(('https', 'www.linkedin.com', f'/in/{profile_match.group(1).strip()}', '', ''))
+    if not parts.path.startswith(('/posts/', '/feed/update/')):
         return ''
     return urlunsplit(('https', 'www.linkedin.com', parts.path.rstrip('/'), '', ''))
 
@@ -62,6 +65,12 @@ def search_url(domain, mode, location='', page=1):
     if mode == 'client':
         params['sortBy'] = '"date_posted"'
     return f'https://www.linkedin.com/search/results/{kind}/?{urlencode(params)}'
+
+
+def _people_search_url(keywords, page_number):
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({
+        'keywords': keywords, 'origin': 'GLOBAL_SEARCH_HEADER', 'page': page_number,
+    })
 
 
 async def require_session(page):
@@ -110,7 +119,12 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
     """Read current visible post cards and copy their public permalink."""
     await context.grant_permissions(['clipboard-read', 'clipboard-write'], origin='https://www.linkedin.com')
     cards = page.locator('[role="listitem"][componentkey^="update-card-focus"]')
-    await cards.first.wait_for(timeout=15000)
+    try:
+        await cards.first.wait_for(timeout=8000)
+    except Exception:
+        # LinkedIn sometimes omits that card key. Activity cards still carry the post.
+        cards = page.locator('[data-urn^="urn:li:activity"]')
+        await cards.first.wait_for(timeout=7000)
     if mode == 'trainer':
         for _ in range(4):
             await page.mouse.wheel(0, 1800)
@@ -135,16 +149,37 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
                 results.append({'url': canonical_url(author['url']), 'title': author_name, 'content': headline})
             processed.add(fingerprint)
             continue
+        visible = _visible_post_url(data['links'])
         menu = card.locator('button[aria-label^="Open control menu for post"]')
         if not await menu.count():
-            raise ValueError('Post card has no source-link menu')
+            # A missing menu used to abort the whole client scan. The activity
+            # link already on the card is enough to save the post.
+            if not visible:
+                processed.add(fingerprint)
+                continue
+            results.append({'url': visible, 'title': title, 'content': data['content'],
+                            'contact_name': author_name,
+                            'contact_linkedin_url': canonical_url(author.get('url', ''))})
+            processed.add(fingerprint)
+            if len(results) >= limit:
+                break
+            continue
         await menu.click()
         copy = page.get_by_text('Copy link to post', exact=True)
         try:
             await copy.wait_for(timeout=3000)
-        except Exception as exc:
+        except Exception:
             await page.keyboard.press('Escape')
-            raise ValueError(f'Post copy-link menu unavailable: {exc}') from exc
+            if not visible:
+                processed.add(fingerprint)
+                continue
+            results.append({'url': visible, 'title': title, 'content': data['content'],
+                            'contact_name': author_name,
+                            'contact_linkedin_url': canonical_url(author.get('url', ''))})
+            processed.add(fingerprint)
+            if len(results) >= limit:
+                break
+            continue
         # Capture only the URL written by this explicit Copy link action. Reading
         # the OS clipboard is unreliable when a headless tab loses focus.
         await page.evaluate('''() => {
@@ -179,7 +214,16 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
             if len(results) >= limit:
                 break
         else:
-            raise ValueError(f'Post link did not resolve: {urlsplit(copied).hostname} {urlsplit(copied).path}; resolved {url}')
+            if not visible:
+                processed.add(fingerprint)
+                continue
+            url = visible
+            results.append({'url': url, 'title': title, 'content': data['content'],
+                            'contact_name': author_name,
+                            'contact_linkedin_url': canonical_url(author.get('url', ''))})
+            processed.add(fingerprint)
+            if len(results) >= limit:
+                break
     return results
 
 
@@ -277,7 +321,7 @@ from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
-    """Page through people search until the qualified target or the scan limit is met."""
+    """Page through people search and keep every qualified profile already read."""
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
@@ -329,12 +373,17 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         for url, text in prepared:
             if not url or url in visited or len(visited) >= scan_limit:
                 continue
+            if not text.strip():
+                continue
+            # A name-only first paint has no headline yet. Leave it unread so
+            # the next pass can qualify the same person.
+            if not finalize_thin and '\n' not in text and len(text) < 80:
+                continue
             visited.add(url)
             new_urls += 1
             if url in seen or not str(text or '').strip():
                 continue
             candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000]}
-            # The save path uses this same check, so rejected cards are not reported as found.
             if _normalize_result(candidate, domain, 'trainer'):
                 seen.add(url)
                 results.append(candidate)
@@ -365,6 +414,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         for keywords in queries:
             if len(results) >= limit or len(visited) >= scan_limit or timed_out() or stop_people:
                 break
+            plain_pages = 0
             for page_number in range(1, page_cap + 1):
                 if (len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap
                         or timed_out() or failed_opens >= 2 or plain_pages >= 3):
@@ -418,13 +468,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception:
-        # People layouts vary; continue with the content search below.
-        if results:
-            return results
-    if results:
+        logger.warning('People search layout failed for %s; trying post search.', domain)
+    if results or timed_out():
+        # Posts are only a fallback when people search contributed nothing.
+        # Running them after a partial people result is what exhausted the time budget.
         return results
-    if timed_out():
-        raise PartialSearchError('Trainer search reached its time limit.', results)
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')
@@ -533,7 +581,14 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
         ensure_session_not_blocked(profile_path())
         async with async_playwright() as playwright:
             context = await playwright.chromium.launch_persistent_context(
-                profile_path(), headless=True, accept_downloads=False)
+                profile_path(), headless=True, accept_downloads=False,
+                user_agent=(
+                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+                    '(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+                ),
+                viewport={'width': 1366, 'height': 900},
+                args=['--disable-blink-features=AutomationControlled'],
+            )
             page = None
             try:
                 from app.clients.linkedin_session import load_session

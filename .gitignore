@@ -71,6 +71,7 @@ Thumbs.db
 !/frontend/src/utils/pipelineRecords.js
 !/frontend/src/utils/pipelineRecords.test.js
 !/frontend/src/utils/usePipelineRecords.js
+!/frontend/src/utils/requestPolicy.js
 !/frontend/src/components/
 /frontend/src/components/*
 !/frontend/src/components/ClientHandoffReview.jsx

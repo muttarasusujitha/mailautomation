@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from shared.database.service import get_db
+from shared.generation_mode import application_ai_enabled
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -192,6 +193,15 @@ async def send_invoice(
                 # email-service stores this key uniquely, protecting the
                 # invoice against concurrent send requests as well.
                 "idempotency_key": f"invoice:{invoice_id}:{to_email.strip().lower()}",
+                "ai_generate": await application_ai_enabled(db),
+                "ai_context": {
+                    "workflow": "invoice",
+                    "requirement_id": doc.get("requirement_id") or "",
+                    "invoice_number": invoice_number,
+                    "client_name": doc.get("client_name") or "",
+                    "commercial": doc.get("balance_due") or doc.get("total_amount") or "",
+                    "requested_action": "review the attached invoice",
+                },
             }
             if attachment_payload:
                 email_json["attachments"] = attachment_payload
