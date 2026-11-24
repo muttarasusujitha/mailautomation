@@ -239,12 +239,19 @@ async def _copy_post_link(page, context, card):
 
 
 # Result-card text, not the name link alone. Header/profile-menu links stay out.
+# LinkedIn often renders the headline a few levels above the name link, including
+# inside a shadow root where closest() cannot see the old result-card selectors.
 PEOPLE_CARDS = """els => els.flatMap(a => {
-  if (a.closest('header, nav, [role="banner"], [role="navigation"]')) return [];
-  const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
-    || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
-  if (!card) return [];
-  const text = (card.innerText || a.innerText || '').trim();
+  if (a.closest('header, nav, footer, [role="banner"], [role="navigation"]')) return [];
+  let node = a;
+  let text = (a.innerText || '').trim();
+  for (let step = 0; step < 8 && node.parentElement; step += 1) {
+    node = node.parentElement;
+    if (node.matches && node.matches('main, body, [role="main"], header, nav')) break;
+    const sample = (node.innerText || '').trim();
+    if (sample.length > 1800) break;
+    if (sample.length > text.length) text = sample;
+  }
   if (!text) return [];
   return [{url: a.href, text: text.slice(0, 4000)}];
 })"""
@@ -287,7 +294,23 @@ def _people_search_url(keywords, page_number):
     return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
 
 
-from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
+from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_SCAN_LIMIT
+
+
+def trainer_scan_budget(limit):
+    """How far one trainer search may page before it keeps what it already found.
+
+    Find Profiles and the hourly bot ask for at least 60 profiles. Capping that
+    request at 50 used to miss this line and stop the browser after 65 seconds,
+    which is the "Trainer search reached its time limit" result with 0 or 1 profiles.
+    """
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
+    full_scan = limit >= 20
+    scan_limit = TRAINER_SCAN_LIMIT if full_scan else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    # LinkedIn shows about ten people per page. A full scan reads 24 pages, then stops.
+    page_cap = max(1, (scan_limit + 9) // 10) if full_scan else min(20, max(limit, 2))
+    seconds = 160 if full_scan else 65
+    return limit, scan_limit, page_cap, seconds
 
 
 
@@ -319,19 +342,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
-    excluded = {url.lower() for url in (excluded_urls or [])}
-    restriction = ''
-    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
-    scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
-    # LinkedIn shows about ten people per page. A 60-profile fetch can read 24 pages, then stops.
-    page_cap = max(1, (scan_limit + 9) // 10) if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
-    started = asyncio.get_running_loop().time()
-    # People pages and the content fallback have separate budgets, so a slow
-    # page cannot consume the fallback or raise a time limit before it runs.
-    people_budget = 180 if limit >= 20 else 45
-    content_budget = 40 if limit >= 20 else 20
-    people_deadline = started + people_budget
-    deadline = started + people_budget + content_budget
+    limit, scan_limit, page_cap, seconds = trainer_scan_budget(limit)
+    full_scan = seconds > 65
+    deadline = asyncio.get_running_loop().time() + seconds
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -383,9 +396,15 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     async def open_people_page(keywords, page_number):
         """Open one numbered people-search page. The page URL is the scan position."""
         try:
-            return await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000), True
+            # commit fires before the result list exists, so a full scan waits for
+            # the document and still reads the page if that wait runs long.
+            return await page.goto(
+                _people_search_url(keywords, page_number),
+                wait_until='domcontentloaded' if full_scan else 'commit',
+                timeout=15000 if full_scan else 12000,
+            ), True
         except Exception:
-            return None, False
+            return None, full_scan
 
     skill = re.sub(r'\b(?:corporate|freelance|technical|trainer|training|instructor)\b', '', domain, flags=re.I).strip() or domain
     queries = list(dict.fromkeys([
@@ -423,46 +442,23 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                     await _pace(page, page_delay)
                 page_loads += 1
                 try:
-                    async with asyncio.timeout(18):
-                        response, opened = await open_people_page(keywords, page_number)
-                        if not opened:
-                            repeated_pages += 1
-                            if repeated_pages >= 2:
-                                break
-                            continue
-                        if response and response.status in (403, 429):
-                            raise LinkedInRateLimited(RATE_LIMITED_MESSAGE)
+                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=12000 if full_scan else 8000)
+                except Exception:
+                    pass
+                await require_session(page)
+                new_urls, raw_count = await read_people()
+                if new_urls == 0 and raw_count == 0:
+                    # The result list often paints after the first lookup.
+                    for _ in range(3 if full_scan else 1):
                         try:
-                            await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                            await page.mouse.wheel(0, 1600)
+                            await page.wait_for_timeout(700)
                         except Exception:
                             pass
-                        await require_session(page)
                         new_urls, raw_count = await read_people()
-                        if new_urls == 0 and raw_count == 0:
-                            # The result list often paints after the first lookup.
-                            try:
-                                await page.mouse.wheel(0, 1600)
-                                await page.wait_for_timeout(500)
-                            except Exception:
-                                pass
-                            new_urls, raw_count = await read_people()
-                except PeopleIdentitiesHidden:
-                    raise
-                except LinkedInRateLimited as exc:
-                    # Keep the profiles already read; the caller pauses account searches.
-                    raise PartialSearchError(str(exc), results) from exc
-                except ValueError:
-                    raise
-                except Exception:
-                    # A timeout on one page continues. It must not skip the content fallback.
-                    repeated_pages += 1
-                    if repeated_pages >= 2:
-                        break
-                    continue
-                repeated_pages = repeated_pages + 1 if new_urls == 0 else 0
-                if raw_count == 0 or repeated_pages >= 2:
-                    # This query has no more results. Start it from page 1 next time.
-                    next_pages[keywords] = 1
+                        if new_urls or raw_count:
+                            break
+                if new_urls == 0:
                     break
                 next_pages[keywords] = page_number + 1 if page_number < _MAX_PEOPLE_PAGE else 1
                 if len(results) >= limit or len(visited) >= scan_limit:
@@ -628,10 +624,10 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                     await context.add_cookies(saved)
                 page = await context.new_page()
                 if mode == 'trainer':
-                    return await collect_trainer_profiles(
-                        page, domain, location, min(max(limit, 1), TRAINER_RESULT_CEILING), collected,
-                        cursor=cursor, page_delay=page_delay_seconds(),
-                        **({"excluded_urls": excluded_urls} if excluded_urls else {}))
+                    # Keep the caller's 60-profile target. A 50 cap made every
+                    # automatic and Find Profiles search use the short 65-second budget.
+                    fetch_limit, _, _, _ = trainer_scan_budget(limit)
+                    return await collect_trainer_profiles(page, domain, location, fetch_limit, collected)
                 if mode == 'client':
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:

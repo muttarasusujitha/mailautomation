@@ -82,7 +82,11 @@ def matches_requested_skill(profile, search_text) -> bool:
 
 
 def is_current_year_result(profile) -> bool:
-    """Keep a current role. A year two or more years ago, with no Present, is stale."""
+    """Reject a result that only advertises an older year.
+
+    A headline such as "DevOps Trainer · 2016 - Present" is a current profile.
+    A snippet that only mentions a year two or more years ago is stale.
+    """
     current_year = datetime.utcnow().year
     haystack = " ".join([
         str(profile.get("title") or ""),
@@ -92,9 +96,7 @@ def is_current_year_result(profile) -> bool:
     if re.search(r"\b(?:present|current)\b", haystack, re.IGNORECASE):
         return True
     years = [int(year) for year in re.findall(r"\b20\d{2}\b", haystack)]
-    if not years:
-        return True
-    return max(years) >= current_year - 1
+    return not years or max(years) >= current_year - 1
 
 
 def has_trainer_language(profile) -> bool:

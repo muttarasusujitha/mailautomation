@@ -174,7 +174,10 @@ async def discover_with_trainer_finder(domain, target, location, db, account_row
         exclude.update(str(row.get('url') or '') if mode == 'client' else str(row.get('url') or '').lower()
                        for row in account_rows)
         try:
-            rows, report = await find_leads(domain, needed, location, mode=mode, exclude=exclude, budget=budget)
+            # People search paginates inside this budget. Keep every profile
+            # appended before a timeout, including when the browser is cancelled.
+            accept(await asyncio.wait_for(
+                search_linkedin_account(domain, mode, target, location, collected), timeout=210), 'linkedin_account')
         except Exception as exc:
             rows, report = [], {'sources': [], 'status': 'blocked',
                                 'limit_reason': f'The web engine search failed: {str(exc)[:200] or type(exc).__name__}'}
