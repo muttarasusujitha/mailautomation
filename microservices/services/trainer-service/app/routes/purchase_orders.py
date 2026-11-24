@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from app.config import get_settings
 from shared.database.service import get_db
 from shared.generation_mode import application_ai_enabled
-from shared.document_amounts import calculate_document, offline_expense_items
+from shared.document_amounts import calculate_document
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -338,10 +338,6 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
             duration=po.get('duration'), day_rate=po.get('day_rate'))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
-    requirement = await db["requirements"].find_one({"requirement_id": po.get("requirement_id")}, {"offline_logistics": 1})
-    expenses = offline_expense_items(requirement)
-    if expenses:
-        totals = calculate_document(totals["items"] + expenses, 0, totals["gst_rate"])
     items = totals['items']
     subtotal = totals['subtotal']
     def issuer_value(key: str) -> str:
