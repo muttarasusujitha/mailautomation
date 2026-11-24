@@ -1,6 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { linkedInSearchPayload, mergeSearchLeads, searchResultLeads } from './leadSearchFeedback.js'
+import {
+  leadSourceLabel,
+  linkedInSearchPayload,
+  mergeSearchLeads,
+  newSearchRef,
+  searchReportGroups,
+  searchResultLeads,
+  sourceReportLines,
+  visibleSearchLeads,
+} from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')

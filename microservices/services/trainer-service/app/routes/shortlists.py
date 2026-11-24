@@ -874,6 +874,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
             "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+            "Format only. Replace each placeholder with your own availability. These are not the client's dates:\n"
             "Example:\n"
             "- [Your available date 1], [time], [time zone]\n"
             "- [Your available date 2], [time], [time zone]\n"
