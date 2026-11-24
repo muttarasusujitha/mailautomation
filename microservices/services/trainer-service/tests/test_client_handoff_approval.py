@@ -59,15 +59,15 @@ def test_repeat_preparation_reuses_saved_snapshot(monkeypatch):
     assert requests == []
 
 
-def test_lab_document_is_optional_when_not_requested(monkeypatch):
-    db, requests = prepare(monkeypatch, failure='lab', requirement_overrides={'lab_cost_requested': False})
+def test_lab_document_is_always_included_in_trainer_handoff(monkeypatch):
+    db, requests = prepare(monkeypatch, requirement_overrides={'lab_cost_requested': False})
     result = asyncio.run(prepare_package(db))
     assert result['success']
-    assert not any(path.endswith('/lab-cost') for path, _ in requests)
+    assert any(path.endswith('/lab-cost') for path, _ in requests)
     review = asyncio.run(shortlists.review_client_handoff('REQ-TEST', 'T-TEST', db))
-    assert len(review['attachments']) == 2
-    assert review['lab_cost_requested'] is False
-    assert review['lab_cost_attached'] is False
+    assert len(review['attachments']) == 3
+    assert review['lab_cost_requested'] is True
+    assert review['lab_cost_attached'] is True
     assert 'Commercials for your review' in review['body']
     assert 'smtp_config' not in review
 

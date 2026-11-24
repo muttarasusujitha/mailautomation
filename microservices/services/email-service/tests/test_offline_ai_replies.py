@@ -337,7 +337,11 @@ def test_regenerate_with_ai_off_saves_a_client_reply_without_calling_a_model(mon
 
     assert result["generation_source"] == "template"
     assert result["reply"].strip()
-    assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", result["reply"])
+    # A first requirement mail regenerates with the same templates as the automatic reply.
+    assert result["reply"].startswith("Hello Asha,\n\nThank you for ")
+    assert "DevOps training requirement" in result["reply"]
+    assert "We are identifying a suitable DevOps trainer" in result["reply"]
+    assert "28000" not in result["reply"] and "28,000" not in result["reply"]
     _assert_no_secrets(result["reply"])
     writer.assert_not_awaited()
     saved = records.update_one.await_args.args[1]["$set"]
@@ -408,3 +412,25 @@ def test_clean_acknowledgement_is_unchanged_by_the_client_guard():
     }
     body = inbox._client_short_requirement_ack(payload)["body"]
     assert offline_replies.guard_client_body(body, "Please share the DevOps requirement.", payload) == body
+
+
+def test_regenerate_with_ai_off_keeps_thread_template_for_later_replies(monkeypatch):
+    """Only a first requirement mail uses the engine; a reply in a thread keeps the thread template."""
+    from app.agents import offline_replies
+
+    message = {
+        "email_id": "client-reply",
+        "subject": "Re: DevOps Trainer Requirement",
+        "body": "We need DevOps for 7 offline days. Please share the trainer profile.",
+        "from_name": "Asha",
+        "from_email": CLIENT_EMAIL,
+        "email_classification": {"person_type": "corporate_client"},
+    }
+
+    async def no_history(*args, **kwargs):
+        return []
+
+    import app.routes.inbox as inbox_module
+    monkeypatch.setattr(inbox_module, "_verified_question_history", no_history)
+    reply = asyncio.run(offline_replies.reply_for_stored_message({}, message))
+    assert reply.get("template_key") != "personalization_engine"

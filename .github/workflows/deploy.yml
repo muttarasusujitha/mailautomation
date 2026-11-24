@@ -282,6 +282,7 @@ jobs:
         env:
           RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
           RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           cp .env.example .env
           set_env() {
@@ -295,6 +296,7 @@ jobs:
           }
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
           set_env GEMINI_API_KEY "${{ secrets.GEMINI_API_KEY }}"
+          set_env TAVILY_API_KEY "$TAVILY_API_KEY"
           set_env AI_PROVIDER "gemini"
           set_env GEMINI_MODEL "gemini-2.5-flash"
           set_env USE_LLM_FOR_EMAILS "true"
@@ -332,6 +334,10 @@ jobs:
 
       - name: Check Deployment Disk Space
         shell: bash
+        env:
+          # Stage 3 builds on hosted runners. EC2 only pulls images one at a
+          # time, so it needs a smaller, deployment-specific reserve.
+          MIN_DOCKER_FREE_GIB: "5"
         run: bash .github/scripts/check-docker-space.sh
 
       # Pull everything before changing running containers. Never prune volumes:
@@ -345,17 +351,11 @@ jobs:
           docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml pull
           docker compose -f docker-compose.yml -f docker-compose.registry.yml pull frontend
 
-      - name: Build Meet Bot
-        working-directory: ${{ github.workspace }}
-        run: |
-          set -euo pipefail
-          docker compose -f microservices/docker-compose.yml build meet-bot-service
-
       - name: Start Backend
         working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
-          docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never
+          docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 180
       - name: Start Frontend
         working-directory: ${{ github.workspace }}
         run: |

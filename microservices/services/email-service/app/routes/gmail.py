@@ -630,7 +630,7 @@ async def gmail_disconnect(db: AsyncIOMotorDatabase = Depends(get_db)):
 async def gmail_sync_now(
     background_tasks: BackgroundTasks,
     limit: int = Query(100, ge=1, le=500),
-    since_days: int = Query(3, ge=1, le=30),
+    since_days: int = Query(30, ge=1, le=30),
     search_query: str = Query(""),
     process: bool = Query(True),
     db: AsyncIOMotorDatabase = Depends(get_db),

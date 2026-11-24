@@ -1,0 +1,573 @@
+{
+  "domain": "OWASP",
+  "name": "OWASP",
+  "category": "Cybersecurity and Identity",
+  "icon": "shield",
+  "aliases": ["OWASP Application Security", "Web Security", "OWASP Top 10", "OWASP Top 10 2025", "OWASP AppSec", "OWASP Secure Coding", "OWASP ASVS", "OWASP Training"],
+  "certifications": ["ISC2 Certified Secure Software Lifecycle Professional (CSSLP)", "GIAC Certified Web Application Defender (GWEB)", "GIAC Web Application Penetration Tester (GWAPT)", "Burp Suite Certified Practitioner"],
+  "tools": ["ZAP", "OWASP Juice Shop", "OWASP WebGoat", "OWASP Dependency-Check", "CycloneDX", "OWASP Dependency-Track", "OWASP Threat Dragon", "OWASP CRS", "ModSecurity", "OWASP Coraza", "OWASP DefectDojo", "OWASP MASTG", "Semgrep", "Burp Suite Community"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, testers and new application security staff who build or test web applications and have not yet worked with OWASP material in depth. Covers how OWASP projects are organised, a private practice lab with OWASP Juice Shop, WebGoat and ZAP, every category of the OWASP Top 10:2025 with the vulnerable pattern and the secure coding fix, the OWASP Cheat Sheet Series, first ZAP scans and alert triage, a first OWASP Dependency-Check scan, and a capstone findings-and-fixes report. All attack practice happens only against lab applications the learner runs themselves.",
+      "prerequisites": ["Writes and runs a small web application in at least one language such as JavaScript/Node.js, Python, Java or C#", "Understands HTTP requests and responses, HTML forms, cookies and a relational database at the level of writing a SELECT with a WHERE clause", "Has a laptop with Docker Desktop or Docker Engine, 8 GB of RAM free for containers and rights to install a desktop proxy tool"],
+      "outcomes": ["Name each OWASP Top 10:2025 category, the main CWEs behind it and one realistic example in a web application", "Reproduce Top 10 weaknesses in a private Juice Shop or WebGoat lab and write the code-level fix using the matching OWASP Cheat Sheet", "Run ZAP spider and passive scans against a lab target and triage alerts by risk, confidence and CWE, including false positives", "Scan a project's dependencies with OWASP Dependency-Check and explain which findings need an upgrade, a suppression or no action"],
+      "days": [
+        {
+          "topic": "OWASP Project Map and the Top 10:2025 Ranking Method",
+          "subtopics": ["OWASP as an open community: projects, chapters and the Incubator, Lab and Flagship maturity levels", "Documentation projects versus tool projects: Top 10, ASVS, Cheat Sheets compared with ZAP and Dependency-Track", "How the Top 10:2025 was built: contributed test data plus a community survey", "Mapping CWEs to categories and why the 2025 list groups 248 CWEs into ten risks", "The 2025 list in order, from A01 Broken Access Control to A10 Mishandling of Exceptional Conditions", "What changed from 2021: SSRF folded into A01, Software Supply Chain Failures and Mishandling of Exceptional Conditions added", "The Top 10 as an awareness document and why it is not a testing standard (that role belongs to ASVS)", "Licensing of OWASP material (Creative Commons BY-SA) and how to cite a category such as A05:2025"],
+          "tools": ["OWASP Top 10:2025", "MITRE CWE", "OWASP Cheat Sheet Series"],
+          "lab_task": "Open owasp.org/Top10/2025 and build a table of all ten categories with their 2021 position (or 'new'), two CWE IDs each and one example from an application you know. Mark which 2021 category disappeared as a separate entry (A10:2021 SSRF) and where it went. Finish with a 5-line note explaining why ASVS, not the Top 10, should be used as a test checklist.",
+          "deliverable": "Top 10:2025 mapping table with CWE IDs, 2021 positions and the ASVS-versus-Top 10 note",
+          "checks": [["Count the rows in the mapping table", "Exactly 10 categories, A01 to A10, in the 2025 order", "Mapping table"], ["Look up where CWE-918 (SSRF) sits in the 2025 list", "It is listed under A01:2025 Broken Access Control", "Table row with CWE-918"], ["Mark the categories new in 2025", "A03 Software Supply Chain Failures and A10 Mishandling of Exceptional Conditions are marked new", "Highlighted table rows"]],
+          "objectives": ["Explain how OWASP projects are organised and rated", "List the Top 10:2025 categories and their main changes from 2021", "Distinguish an awareness document from a verification standard"]
+        },
+        {
+          "topic": "Private Practice Lab with Juice Shop, WebGoat and ZAP",
+          "subtopics": ["Rules of engagement: test only applications you run yourself, never third-party or production systems", "Running OWASP Juice Shop with docker run -p 127.0.0.1:3000:3000 bkimminich/juice-shop", "Running WebGoat and WebWolf with docker run -p 127.0.0.1:8080:8080 -p 127.0.0.1:9090:9090 webgoat/webgoat", "Binding containers to 127.0.0.1 so the vulnerable apps are not reachable from the network", "Installing ZAP desktop and the ghcr.io/zaproxy/zaproxy:stable container image", "Proxying a browser through ZAP on localhost:8080 and avoiding the WebGoat port clash by moving ZAP to 8090", "Importing the ZAP root CA certificate so HTTPS traffic can be inspected", "Resetting lab state: restarting containers and the Juice Shop score board progress"],
+          "tools": ["OWASP Juice Shop", "OWASP WebGoat", "ZAP", "Docker", "Firefox"],
+          "lab_task": "Start Juice Shop and WebGoat bound to 127.0.0.1 only, then run ss -tlnp (or netstat -an) and confirm ports 3000, 8080 and 9090 listen on 127.0.0.1. Start ZAP on port 8090 (Tools > Options > Network > Local Servers), point Firefox at it, browse Juice Shop and confirm requests appear in the ZAP History tab. Register a WebGoat user and open the first lesson. Record container IDs and image digests.",
+          "deliverable": "Lab sheet with docker ps output, listening-port evidence, ZAP History screenshot and a signed rules-of-engagement note",
+          "checks": [["Run docker ps after starting both apps", "Two running containers with ports mapped to 127.0.0.1 only", "docker ps output"], ["Browse http://127.0.0.1:3000 through the ZAP proxy", "GET requests to /rest/products and /api/Quantitys appear in ZAP History", "ZAP History screenshot"], ["Open http://127.0.0.1:8080/WebGoat", "WebGoat login page loads and a new lab user can sign in", "Browser screenshot"]],
+          "objectives": ["Build an isolated lab with intentionally vulnerable OWASP applications", "Route browser traffic through ZAP for inspection", "Apply the own-lab-only rule to every exercise"]
+        },
+        {
+          "topic": "HTTP Through an Intercepting Proxy: Requests, Cookies and Headers in ZAP",
+          "subtopics": ["Request line, headers and body as seen in the ZAP Request and Response tabs", "Cookies and their attributes: Secure, HttpOnly, SameSite and Path", "Bearer tokens in the Authorization header and where Juice Shop stores its JWT", "Setting breakpoints in ZAP to pause and edit a request", "Replaying a request with the Requester add-on and comparing responses", "Status codes that matter in testing: 200, 302, 401, 403, 404 and 500", "Encoding and decoding with the ZAP Encode/Decode/Hash dialog (Base64, URL, JWT parts)", "Sites tree, scope and contexts so tools touch only the lab host"],
+          "tools": ["ZAP", "OWASP Juice Shop", "Firefox", "curl"],
+          "lab_task": "Log in to Juice Shop through ZAP and locate the POST /rest/user/login request. Decode the returned JWT in the Encode/Decode dialog and list its header and payload claims. Set a breakpoint on GET /rest/basket/*, change nothing, then release it. Replay the basket request in Requester without the Authorization header and record the status code. Add 127.0.0.1:3000 to a context and set ZAP to in-scope only.",
+          "deliverable": "Annotated request/response capture with decoded JWT claims and the status code table",
+          "checks": [["Decode the JWT from the login response", "Payload shows a data object with the user's email and an iat claim", "Decoded JWT screenshot"], ["Replay GET /rest/basket/1 without Authorization", "Response is 401 Unauthorized", "Requester response"], ["Enable 'Show only URLs in scope' in the Sites tree", "Only the 127.0.0.1:3000 site is listed", "Sites tree screenshot"]],
+          "objectives": ["Read and modify HTTP traffic with an intercepting proxy", "Identify where session state lives in a modern web app", "Limit tool activity to an in-scope lab context"]
+        },
+        {
+          "topic": "A01 Broken Access Control: IDOR, Forced Browsing and Deny-by-Default Fixes",
+          "subtopics": ["What the 2025 category covers: CWE-639 IDOR, CWE-285, CWE-862 missing authorization and CWE-352 CSRF", "Horizontal and vertical privilege escalation", "Insecure direct object references in REST paths and query parameters", "Forced browsing to unlinked admin pages", "Deny by default and server-side enforcement on every request", "Ownership checks in the data access layer (WHERE owner_id = :current_user)", "CORS misconfiguration as an access control failure", "OWASP Authorization Cheat Sheet patterns and unit tests for authorization rules"],
+          "tools": ["OWASP Juice Shop", "ZAP", "OWASP Authorization Cheat Sheet", "Node.js"],
+          "lab_task": "In Juice Shop, log in as a new user, capture GET /rest/basket/{id} in ZAP and change the ID to another basket; record the response (score board challenge 'View Basket'). Browse to /#/administration and note what loads. Then write a small Express route GET /baskets/:id that returns 404 unless basket.userId equals req.user.id, add a Jest test for another user's ID and show it passing.",
+          "deliverable": "IDOR reproduction evidence plus the fixed route and its passing authorization test",
+          "checks": [["Change the basket ID in the captured request in the lab", "Juice Shop returns another user's basket and marks the challenge solved", "ZAP response and score board"], ["Call the fixed route with another user's basket ID", "Route returns 404 and no basket data", "Jest test output"], ["Call the fixed route with the owner's basket ID", "Route returns 200 with that basket only", "Jest test output"]],
+          "objectives": ["Recognise IDOR, forced browsing and privilege escalation", "Implement deny-by-default ownership checks on the server", "Write tests that prove authorization rules hold"]
+        },
+        {
+          "topic": "SSRF Inside A01:2025: Allow-Lists and Metadata Endpoint Protection",
+          "subtopics": ["Why the 2025 edition merges CWE-918 SSRF into Broken Access Control", "Typical SSRF features: URL preview, webhooks, PDF renderers and image fetchers", "Internal targets: 127.0.0.1, RFC 1918 ranges and cloud metadata at 169.254.169.254", "Bypass tricks: decimal IPs, DNS rebinding, redirects and IPv6 forms", "Allow-list of hosts and schemes instead of block-lists", "Resolving the hostname once and checking the IP before connecting", "Disabling redirects and limiting response size and timeouts", "IMDSv2 and network egress rules as defence in depth, per the OWASP SSRF Prevention Cheat Sheet"],
+          "tools": ["Python", "requests", "pytest", "OWASP SSRF Prevention Cheat Sheet"],
+          "lab_task": "Write a Python fetch_preview(url) function that is vulnerable, call it with http://127.0.0.1:8000/admin against a local http.server and show it returns internal content. Rewrite it per the SSRF Prevention Cheat Sheet: https only, host allow-list, resolve with socket.getaddrinfo and reject private, loopback and link-local IPs via ipaddress, allow_redirects=False, timeout=3. Add pytest cases for 5 blocked URLs.",
+          "deliverable": "Vulnerable and fixed fetch function with a pytest file covering five SSRF payloads",
+          "checks": [["Call the fixed function with http://169.254.169.254/latest/meta-data/", "Raises a blocked-URL error before any connection is made", "pytest output"], ["Call it with http://2130706433/ (decimal 127.0.0.1)", "Rejected as a loopback address", "pytest output"], ["Call it with an allow-listed https host", "Returns the response body with status 200", "pytest output"]],
+          "objectives": ["Explain why SSRF is now an access control risk", "Implement allow-list and IP validation for outbound requests", "Test SSRF defences against common bypasses"]
+        },
+        {
+          "topic": "A02 Security Misconfiguration: Headers, Defaults and Verbose Errors",
+          "subtopics": ["Why misconfiguration rose to A02 in 2025 and CWEs such as CWE-16 and CWE-611 XXE", "Default accounts, sample apps and directory listing", "Verbose stack traces and framework banners such as X-Powered-By", "Security headers: Content-Security-Policy, Strict-Transport-Security, X-Content-Type-Options, frame-ancestors", "OWASP Secure Headers Project recommended values", "Exposed files: .git, .env, backup files and Juice Shop's /ftp directory", "XML parsers with external entities enabled", "Repeatable hardening through configuration as code and environment parity"],
+          "tools": ["OWASP Juice Shop", "ZAP", "curl", "OWASP Secure Headers Project", "helmet"],
+          "lab_task": "Run curl -I http://127.0.0.1:3000 and list missing security headers. Browse /ftp in Juice Shop and note exposed files (challenge 'Confidential Document'). Then add helmet to a sample Express app with a CSP of default-src 'self', remove X-Powered-By, and serve a generic error page instead of stack traces. Re-run curl -I and compare headers before and after.",
+          "deliverable": "Header comparison table before and after hardening plus the exposed-file evidence from the lab",
+          "checks": [["Run curl -I against the hardened Express app", "Content-Security-Policy and X-Content-Type-Options: nosniff are present and X-Powered-By is absent", "curl output"], ["Trigger an unhandled exception in the hardened app", "Response is 500 with a generic message and no stack trace", "HTTP response"], ["Request /ftp on the lab Juice Shop", "A directory listing including acquisitions.md is returned", "Browser screenshot"]],
+          "objectives": ["Spot common misconfigurations in a running web app", "Apply secure header values from the OWASP Secure Headers Project", "Remove verbose error output and default content"]
+        },
+        {
+          "topic": "A03 Software Supply Chain Failures: Lockfiles, Provenance and Dependency Hygiene",
+          "subtopics": ["Scope of the new category: vulnerable, malicious and unmaintained components plus build and distribution compromise", "How it extends A06:2021 Vulnerable and Outdated Components", "Direct versus transitive dependencies and the dependency tree", "Lockfiles: package-lock.json, poetry.lock and Maven dependency versions", "Typosquatting, dependency confusion and compromised maintainer accounts", "npm ci versus npm install and reproducible installs", "npm audit and pip-audit as quick checks before OWASP tooling", "Software Bills of Materials and why CycloneDX matters later in the course"],
+          "tools": ["npm", "pip-audit", "OWASP Dependency-Check", "CycloneDX"],
+          "lab_task": "Clone a small Node.js sample, run npm ls --all | wc -l to count installed packages and compare with the direct dependencies in package.json. Run npm audit --json and record counts by severity. Delete node_modules, run npm ci and confirm the lockfile is unchanged with git diff --stat. Write a short policy: lockfiles committed, npm ci in CI, new packages reviewed for maintainer and download history.",
+          "deliverable": "Dependency inventory with direct and transitive counts, npm audit severity table and a one-page dependency policy",
+          "checks": [["Compare direct dependencies with npm ls --all output", "Transitive packages outnumber direct dependencies by at least 5 to 1", "Inventory table"], ["Run npm audit --json", "metadata.vulnerabilities shows counts for low, moderate, high and critical", "Saved JSON report"], ["Run npm ci then check the lockfile", "package-lock.json shows no changes", "Terminal output"]],
+          "objectives": ["Describe the scope of A03:2025", "Measure the size of a dependency tree", "Apply basic dependency hygiene controls"]
+        },
+        {
+          "topic": "A04 Cryptographic Failures: TLS, Password Hashing and Key Handling",
+          "subtopics": ["Data in transit and at rest: what must be encrypted", "CWE-327 broken algorithms, CWE-328 weak hashes and CWE-321 hard-coded keys", "TLS 1.2 and 1.3 only, HSTS and redirecting HTTP to HTTPS", "Password storage per the OWASP Password Storage Cheat Sheet: Argon2id, scrypt, bcrypt", "Why MD5 and unsalted SHA-256 are unacceptable for passwords", "Authenticated encryption with AES-GCM and nonce uniqueness", "Random values from a CSPRNG for tokens and reset links", "Keys and secrets in a vault or environment variables, never in source"],
+          "tools": ["Python", "argon2-cffi", "cryptography", "openssl", "OWASP Password Storage Cheat Sheet"],
+          "lab_task": "Hash the password 'Winter2026!' with hashlib.md5 and with argon2-cffi PasswordHasher() and compare output formats. Time 100 MD5 hashes against 10 Argon2id hashes with timeit. Encrypt a string with AESGCM from the cryptography package using os.urandom(12) nonces, then tamper with one ciphertext byte and show decryption fails. Finally run openssl s_client -connect localhost:8443 -tls1_1 against a lab server and record the result.",
+          "deliverable": "Notebook or script comparing MD5 and Argon2id, an AES-GCM tamper test and the TLS version probe result",
+          "checks": [["Print the Argon2id hash", "Output starts with $argon2id$v=19$ and includes m, t and p parameters", "Script output"], ["Flip one byte of the AES-GCM ciphertext and decrypt", "cryptography raises InvalidTag", "Traceback"], ["Connect with -tls1_1 to a server configured for TLS 1.2+", "Handshake fails with a protocol version alert", "openssl output"]],
+          "objectives": ["Choose correct algorithms for passwords, encryption and transport", "Implement Argon2id password hashing", "Detect weak TLS and hard-coded keys"]
+        },
+        {
+          "topic": "A05 Injection: SQL Injection and Parameterized Queries",
+          "subtopics": ["Injection as untrusted data reaching an interpreter: SQL, NoSQL, OS command and LDAP", "CWE-89 SQL injection and the classic ' OR 1=1-- payload", "Error-based, union-based and blind SQL injection at awareness level", "Juice Shop login and product search endpoints as lab targets", "Parameterized queries and prepared statements in Node.js, Python and Java", "ORMs and when raw queries still leak in", "Allow-list validation for identifiers such as sort columns", "Least-privilege database accounts per the SQL Injection Prevention Cheat Sheet"],
+          "tools": ["OWASP Juice Shop", "ZAP", "sqlite3", "Python", "OWASP SQL Injection Prevention Cheat Sheet"],
+          "lab_task": "In the lab Juice Shop, log in with email ' OR 1=1-- and any password and record which account you get (challenge 'Login Admin'). Then build a Python sqlite3 login function using string formatting, show the same payload bypasses it, and fix it with cursor.execute('SELECT id FROM users WHERE email = ? AND pw_hash = ?', (email, h)). Add an allow-list for an ORDER BY parameter and test both fixes.",
+          "deliverable": "Lab evidence of the injection, the vulnerable and fixed login functions and tests for both fixes",
+          "checks": [["Submit ' OR 1=1-- as the lab Juice Shop email", "Logged in as admin@juice-sh.op and challenge marked solved", "Score board screenshot"], ["Call the parameterized login with the same payload", "Returns no user and authentication fails", "Test output"], ["Pass sort=name;DROP TABLE users to the allow-listed ORDER BY", "Request rejected with a validation error", "Test output"]],
+          "objectives": ["Explain how injection reaches an interpreter", "Fix SQL injection with parameterized queries", "Use allow-lists where parameters cannot be bound"]
+        },
+        {
+          "topic": "A05 Injection: Cross-Site Scripting and Output Encoding",
+          "subtopics": ["XSS as injection into the browser: reflected, stored and DOM-based (CWE-79)", "Sources and sinks: location.hash, innerHTML, document.write", "Juice Shop search box and DOM XSS lab challenge", "Context-aware output encoding: HTML body, attribute, JavaScript and URL", "Framework auto-escaping in React, Angular and template engines and the escape hatches that bypass it", "Sanitising rich HTML with DOMPurify", "Content-Security-Policy as a second layer, including nonces", "OWASP Cross Site Scripting Prevention and DOM-based XSS Prevention Cheat Sheets"],
+          "tools": ["OWASP Juice Shop", "ZAP", "DOMPurify", "Node.js", "OWASP XSS Prevention Cheat Sheet"],
+          "lab_task": "In the lab Juice Shop search field enter <iframe src=\"javascript:alert(`xss`)\"> and confirm the alert (challenge 'DOM XSS'). Then build a page that renders a query parameter with innerHTML, show the same payload fires, and fix it twice: once with textContent and once with DOMPurify.sanitize for allowed rich text. Add a CSP header script-src 'self' and show an inline script is blocked in the console.",
+          "deliverable": "XSS reproduction evidence, the vulnerable page, two fixed versions and the CSP console log",
+          "checks": [["Load the textContent version with the iframe payload", "Payload is shown as literal text and no alert fires", "Browser screenshot"], ["Run DOMPurify.sanitize on the payload", "Returned string contains no javascript: URL", "Console output"], ["Load a page with an inline script under script-src 'self'", "Browser console reports a CSP violation and the script does not run", "DevTools console"]],
+          "objectives": ["Classify reflected, stored and DOM XSS", "Apply context-aware encoding and sanitisation", "Add CSP as defence in depth"]
+        },
+        {
+          "topic": "A06 Insecure Design: Abuse Cases and Business-Logic Flaws",
+          "subtopics": ["Insecure design versus insecure implementation", "CWE-840 business logic errors and CWE-841 workflow enforcement", "Abuse cases and misuse stories next to user stories", "Juice Shop examples: negative quantities, coupon reuse and zero-star feedback", "Secure design patterns: server-side price calculation, rate limits and idempotency keys", "Reference architectures and paved roads", "Lightweight threat modelling questions: what are we building, what can go wrong", "The OWASP SAMM Design function as a preview of later levels"],
+          "tools": ["OWASP Juice Shop", "ZAP", "OWASP Threat Modeling Cheat Sheet"],
+          "lab_task": "In the lab Juice Shop add an item to your basket, intercept PUT /api/BasketItems/{id} in ZAP and set quantity to -100, then check out and record the total (challenge 'Payback Time'). Write three abuse cases for a checkout feature in 'As an attacker I want... so that...' form, and for each define the design control (server-side validation, price recalculation, order limits) and one acceptance test.",
+          "deliverable": "Lab evidence of the business-logic flaw and three abuse cases with design controls and acceptance tests",
+          "checks": [["Submit quantity -100 in the lab basket", "Order total becomes negative and the challenge is marked solved", "Order confirmation and score board"], ["Review the three abuse cases", "Each has an attacker goal, a design control and an acceptance test", "Abuse case document"], ["Apply the acceptance test to a fixed checkout design", "Quantities below 1 are rejected with HTTP 400", "Test description or output"]],
+          "objectives": ["Distinguish design flaws from coding bugs", "Write abuse cases for a feature", "Choose design controls for business-logic risks"]
+        },
+        {
+          "topic": "A07 Authentication Failures: Credential Stuffing, MFA and Session Handling",
+          "subtopics": ["CWE-287, CWE-384 session fixation and CWE-798 hard-coded credentials", "Credential stuffing and brute force, and why rate limiting alone is not enough", "Password rules from NIST SP 800-63B as cited in the OWASP Authentication Cheat Sheet", "Checking new passwords against breached-password lists", "Multi-factor authentication and phishing-resistant passkeys at awareness level", "Generic login failure messages to avoid account enumeration", "Session ID rotation on login, idle and absolute timeouts, secure logout", "Password reset flows with single-use, short-lived tokens"],
+          "tools": ["OWASP Juice Shop", "ZAP", "Node.js", "express-rate-limit", "OWASP Authentication Cheat Sheet"],
+          "lab_task": "In the lab Juice Shop, compare responses for a login with an unknown email and a known email with a wrong password and note any difference. Use ZAP Fuzzer with a 20-word list against the lab login only. Then harden an Express login: identical 'Invalid email or password' message, express-rate-limit of 5 attempts per 15 minutes per IP and account, and req.session.regenerate() after success. Test each control.",
+          "deliverable": "Enumeration and fuzzing evidence from the lab plus the hardened login with tests",
+          "checks": [["Send 6 failed logins to the hardened app within 15 minutes", "Sixth request returns 429 Too Many Requests", "Test output"], ["Compare session cookie values before and after login", "The session ID changes after successful login", "Cookie values"], ["Log in with an unknown email and with a wrong password", "Both return the same message and status code", "HTTP responses"]],
+          "objectives": ["Identify common authentication weaknesses", "Implement rate limiting and enumeration-safe messages", "Rotate and expire sessions correctly"]
+        },
+        {
+          "topic": "A08 Software or Data Integrity Failures: Deserialization and Unsigned Updates",
+          "subtopics": ["CWE-502 deserialization of untrusted data", "Why pickle, Java native serialization and YAML full loaders are dangerous", "Integrity of updates, plugins and CDN scripts", "Subresource Integrity (integrity= attribute) for third-party scripts", "Signing and verifying artefacts with checksums and signatures", "CI/CD pipeline integrity: who can change the build", "Safe data formats: JSON with schema validation", "OWASP Deserialization Cheat Sheet guidance per language"],
+          "tools": ["Python", "PyYAML", "openssl", "OWASP Deserialization Cheat Sheet"],
+          "lab_task": "In Python, create a pickle payload whose __reduce__ calls os.system('id') and show pickle.loads runs it in a throwaway container. Show yaml.load with yaml.UnsafeLoader runs a similar payload and yaml.safe_load rejects it. Replace pickle with json plus a jsonschema check. Finally add an SRI hash to a script tag using openssl dgst -sha384 -binary file.js | openssl base64 -A and show a tampered file is blocked.",
+          "deliverable": "Deserialization demo with safe replacements and an SRI-protected HTML page",
+          "checks": [["Call yaml.safe_load on the malicious document", "Raises yaml.constructor.ConstructorError and runs nothing", "Traceback"], ["Validate a JSON body with an extra field against the schema", "jsonschema raises ValidationError", "Test output"], ["Load the page after editing file.js", "Browser blocks the script with an integrity mismatch error", "DevTools console"]],
+          "objectives": ["Explain why deserializing untrusted data is dangerous", "Replace unsafe loaders with safe formats", "Use integrity checks for scripts and artefacts"]
+        },
+        {
+          "topic": "A09 Security Logging and Alerting Failures: What to Log and Alert On",
+          "subtopics": ["Why the 2025 name adds alerting: logs nobody watches do not stop attacks", "Security events to record: logins, access denials, input validation failures, admin actions", "Fields per the OWASP Logging Cheat Sheet: when, where, who, what", "What never to log: passwords, session IDs, full card numbers, tokens", "CWE-117 log injection and encoding newlines", "Structured JSON logs and correlation IDs", "Alert thresholds, for example 10 failed logins per account in 5 minutes", "Retention, integrity and time synchronisation"],
+          "tools": ["Python", "structlog", "jq", "OWASP Logging Cheat Sheet"],
+          "lab_task": "Add structlog JSON logging to a small Flask login app that records event, user, source IP, outcome and request_id for every login and every 403. Send a username containing \\n to show log injection, then encode control characters. Write a jq or Python rule that prints an alert when one account has 10 failures within 5 minutes and replay 12 failures to trigger it. Confirm no password appears in the log.",
+          "deliverable": "Logging implementation, sample JSON log lines and the alert rule with its triggered output",
+          "checks": [["grep the log file for the test password", "No matches are found", "grep output"], ["Replay 12 failed logins for one account", "The alert rule prints exactly one alert for that account", "Alert output"], ["Log a username containing a newline", "Log line shows an encoded \\n and stays on one line", "Log excerpt"]],
+          "objectives": ["Choose security events and fields to log", "Prevent sensitive data and injection in logs", "Write a simple alert rule for an attack pattern"]
+        },
+        {
+          "topic": "A10 Mishandling of Exceptional Conditions: Fail-Closed Error Handling",
+          "subtopics": ["What the new category covers: CWE-209 error message exposure, CWE-636 failing open, CWE-755 improper exception handling", "Fail open versus fail closed in authorization and payment checks", "Unchecked return values and swallowed exceptions", "Resource exhaustion on unexpected input such as huge uploads", "Global exception handlers and generic client messages with a correlation ID", "Transaction rollback on partial failure", "Timeouts and circuit breakers when dependencies fail", "Testing negative paths: nulls, wrong types, oversized and missing fields"],
+          "tools": ["Python", "Flask", "pytest", "OWASP Error Handling Cheat Sheet"],
+          "lab_task": "Write a Flask route that calls an authorization service and returns data if the call raises an exception (fail open). Show a test where the service is down and data is returned. Fix it to deny with 503 on error, add a global error handler that returns {\"error\": \"internal\", \"id\": <uuid>} and logs the stack trace server-side, and set MAX_CONTENT_LENGTH to 1 MB. Test all three behaviours with pytest.",
+          "deliverable": "Before-and-after route code with pytest cases for fail-closed, generic errors and size limits",
+          "checks": [["Simulate the authorization service timing out", "Fixed route returns 503 and no data", "pytest output"], ["Trigger an unexpected exception", "Client receives a JSON error with an id and no stack trace", "HTTP response"], ["POST a 2 MB body", "Flask returns 413 Request Entity Too Large", "pytest output"]],
+          "objectives": ["Describe the new A10:2025 category", "Implement fail-closed handling for security decisions", "Test exceptional paths systematically"]
+        },
+        {
+          "topic": "Writing Fixes from the OWASP Cheat Sheet Series",
+          "subtopics": ["How the Cheat Sheet Series is organised and the index by Top 10 and ASVS", "Reading a cheat sheet: context, rules, language-specific examples", "Input Validation Cheat Sheet: allow-lists, syntactic and semantic validation", "File Upload Cheat Sheet: extension allow-list, content-type checks, storage outside web root", "Cross-Site Request Forgery Prevention Cheat Sheet: SameSite and synchronizer tokens", "Secrets Management Cheat Sheet basics", "Turning cheat sheet rules into code review checklist items", "Contributing corrections to the cheat sheets on GitHub"],
+          "tools": ["OWASP Cheat Sheet Series", "Node.js", "multer", "Python"],
+          "lab_task": "Take a vulnerable Express upload route that saves req.file to public/ with the original name. Using the File Upload Cheat Sheet, fix it: allow only .png and .jpg, check magic bytes with file-type, limit size to 2 MB, generate a UUID filename and store outside the web root. Write tests for a .php file, a renamed .exe and a 3 MB image. List the cheat sheet rule each fix implements.",
+          "deliverable": "Fixed upload route, three tests and a rule-to-code traceability list",
+          "checks": [["Upload shell.php", "Rejected with 400 and nothing written to disk", "Test output"], ["Upload an .exe renamed to photo.png", "Rejected because magic bytes do not match an image", "Test output"], ["Upload a valid 1 MB PNG", "Stored with a UUID name outside public/", "Directory listing"]],
+          "objectives": ["Navigate the OWASP Cheat Sheet Series", "Translate cheat sheet rules into working code", "Trace each fix back to a documented rule"]
+        },
+        {
+          "topic": "ZAP Spider and Passive Scanning of Juice Shop",
+          "subtopics": ["Passive scanning: rules that inspect traffic without sending attacks", "Traditional spider versus AJAX spider for single-page apps", "Setting scope and context before any scan", "Automated Scan quick start versus manual explore", "Passive scan queue and waiting for it to finish", "Generating HTML and JSON reports", "The zap-baseline.py packaged scan in Docker", "Baseline exit codes: 0 pass, 1 fail, 2 warnings"],
+          "tools": ["ZAP", "OWASP Juice Shop", "Docker", "Firefox"],
+          "lab_task": "In ZAP desktop, add the lab Juice Shop to a context, run the traditional spider, then the AJAX spider with Firefox headless, and record URLs found by each. Wait for the passive scan queue to reach 0 and export an HTML report. Then run docker run --network host -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://127.0.0.1:3000 -r baseline.html and record the exit code and the WARN count.",
+          "deliverable": "Spider comparison table, ZAP HTML report and the baseline scan summary with exit code",
+          "checks": [["Compare URL counts from both spiders", "The AJAX spider finds Angular routes such as /#/login that the traditional spider misses", "URL comparison table"], ["Read the baseline scan summary line", "Shows FAIL-NEW, WARN-NEW and PASS counts", "Console output"], ["Check the baseline exit code with echo $?", "Exit code is 2 when only warnings are raised", "Terminal output"]],
+          "objectives": ["Run passive ZAP scans safely against a lab app", "Choose the right spider for a single-page app", "Use the ZAP baseline scan from Docker"]
+        },
+        {
+          "topic": "Reading ZAP Alerts: Risk, Confidence, CWE and False Positives",
+          "subtopics": ["Alert fields: name, risk, confidence, CWE ID, WASC ID, evidence and solution", "Risk levels High, Medium, Low and Informational", "Confidence levels and the False Positive state", "Common Juice Shop alerts: Content Security Policy Header Not Set (10038), Cross-Domain Misconfiguration, Timestamp Disclosure", "Mapping alert CWEs to Top 10:2025 categories", "Marking false positives and alert filters", "Baseline rules file with IGNORE, WARN and FAIL actions", "Writing a finding: evidence, impact, fix and verification steps"],
+          "tools": ["ZAP", "OWASP Juice Shop", "OWASP Top 10:2025"],
+          "lab_task": "Open the alerts from yesterday's Juice Shop scan. For the five highest-risk alerts, record plugin ID, risk, confidence, CWE and the Top 10:2025 category it maps to. Reproduce each in the browser or Requester and decide true or false positive. Mark one false positive in ZAP, generate a baseline config with zap-baseline.py -g gen.conf, set one rule to FAIL and rerun to show a non-zero exit.",
+          "deliverable": "Triage sheet for five alerts with Top 10 mapping and the edited baseline rules file",
+          "checks": [["Review the triage sheet", "Each alert has plugin ID, CWE and a Top 10:2025 category", "Triage sheet"], ["Mark an alert as False Positive and regenerate the report", "The alert no longer appears in the report", "Before and after reports"], ["Set rule 10038 to FAIL in gen.conf and rerun the baseline", "Scan exits with code 1 and lists 10038 under FAIL", "Console output"]],
+          "objectives": ["Interpret ZAP alert fields", "Separate true and false positives with evidence", "Control scan outcomes with a rules file"]
+        },
+        {
+          "topic": "First OWASP Dependency-Check Scan of a Vulnerable Project",
+          "subtopics": ["How Dependency-Check works: analysers, evidence and CPE matching", "NVD data feed and why an NVD API key speeds up updates", "CLI, Maven, Gradle and Docker distributions", "Running dependency-check.sh --scan . --format HTML --format JSON", "Reading the report: dependency, CPE, CVE, CVSS score and evidence", "False positives from CPE mismatches", "Suppression files with notes and expiry", "Failing the build with --failOnCVSS"],
+          "tools": ["OWASP Dependency-Check", "Docker", "Maven", "Node.js"],
+          "lab_task": "Run the owasp/dependency-check Docker image against a sample project with an old dependency such as lodash 4.17.15 or a Java app with log4j-core 2.14.1: --scan /src --format HTML --format JSON --out /report --nvdApiKey $NVD_API_KEY. Record the number of vulnerable dependencies and the highest CVSS score. Suppress one confirmed false positive with a suppression.xml entry and rerun with --failOnCVSS 7.",
+          "deliverable": "Dependency-Check HTML and JSON reports, a suppression file with justification and the failing-build evidence",
+          "checks": [["Scan a project containing log4j-core 2.14.1", "Report lists CVE-2021-44228 with CVSS 10.0", "HTML report"], ["Rerun with the suppression file", "The suppressed finding moves to the Suppressed section", "HTML report"], ["Rerun with --failOnCVSS 7", "Command exits non-zero and names the failing dependency", "Terminal output"]],
+          "objectives": ["Run Dependency-Check and read its report", "Handle false positives with documented suppressions", "Gate a build on CVSS score"]
+        },
+        {
+          "topic": "Capstone: Top 10:2025 Findings-and-Fixes Report for Juice Shop",
+          "subtopics": ["Scoping and rules of engagement for the learner's own Juice Shop instance", "Evidence for at least six Top 10:2025 categories", "ZAP passive and baseline output as supporting evidence", "A code-level fix per finding referencing an OWASP Cheat Sheet", "Dependency-Check results for a sample project as the A03 evidence", "Presenting findings by risk with clear retest steps"],
+          "tools": ["OWASP Juice Shop", "ZAP", "OWASP Dependency-Check", "OWASP Cheat Sheet Series", "Docker"],
+          "lab_task": "Against your own local Juice Shop, produce a report covering at least six Top 10:2025 categories. For each finding give the category, CWE, request/response evidence from ZAP, score board challenge solved, impact, the code-level fix with the cheat sheet reference and a retest step. Attach a ZAP baseline report and a Dependency-Check report. Present in 10 minutes and answer two reviewer questions.",
+          "deliverable": "Findings-and-fixes report with ZAP and Dependency-Check appendices and a 10-minute presentation",
+          "checks": [["Count distinct Top 10:2025 categories in the report", "At least six categories are covered with evidence", "Report index"], ["Pick one finding and follow its retest step on a fixed sample", "The retest shows the issue no longer reproduces", "Retest screenshot"], ["Check every fix for a cheat sheet reference", "Each fix cites a named OWASP Cheat Sheet", "Report fix sections"]],
+          "objectives": ["Assemble evidence-based findings mapped to the Top 10:2025", "Recommend code-level fixes backed by OWASP guidance", "Communicate risk and retest steps clearly"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers, QA engineers and application security analysts who know the OWASP Top 10 and want to verify and test applications against OWASP standards. Covers the OWASP API Security Top 10 2023, authenticated and API scanning with ZAP and its Automation Framework, ASVS 5.0 levels and requirements, threat modelling in OWASP Threat Dragon, CycloneDX SBOMs, OWASP Dependency-Track and Dependency-Check in builds, mobile verification with MASVS and MASTG, guided WebGoat and Juice Shop exercises, the OWASP CRS on ModSecurity with false-positive tuning, and secure code review against ASVS, ending with an ASVS Level 2 verification capstone.",
+      "prerequisites": ["Completed the beginner level or can explain all ten OWASP Top 10:2025 categories with a fix for each", "Uses ZAP as an intercepting proxy and has run spider and passive scans against a lab application", "Can read and write a REST API with JSON, an OpenAPI description and a Docker Compose file"],
+      "outcomes": ["Test a REST or GraphQL API for the OWASP API Security Top 10 2023 risks with ZAP, including authenticated and API-definition scans", "Select an ASVS 5.0 level for an application and turn its requirements into user stories, test cases and a verification report", "Build a threat model in OWASP Threat Dragon and manage component risk with CycloneDX SBOMs, Dependency-Track and Dependency-Check", "Deploy the OWASP CRS on ModSecurity in front of a lab app, measure detection and tune false positives with rule exclusions"],
+      "days": [
+        {
+          "topic": "API Security Top 10 2023: BOLA, BOPLA and BFLA",
+          "subtopics": ["Why APIs have their own OWASP list and the 2023 edition structure", "API1 Broken Object Level Authorization and object IDs in paths", "API2 Broken Authentication for tokens, API keys and password reset endpoints", "API3 Broken Object Property Level Authorization: excessive data exposure and mass assignment", "API5 Broken Function Level Authorization and hidden admin endpoints", "Juice Shop REST endpoints /api/Users, /rest/basket and /api/Feedbacks as lab targets", "Fixes: per-object policy checks, response DTOs and property allow-lists", "Authorization tests with two users and two roles"],
+          "tools": ["OWASP Juice Shop", "ZAP", "Postman", "OWASP API Security Top 10"],
+          "lab_task": "In the lab Juice Shop, use ZAP Requester to POST /api/Users with email, password and an extra \"role\":\"admin\" property and check the role in the response (API3 mass assignment, challenge 'Admin Registration'). Then write an Express handler that copies only email and password from the body, plus a response DTO that omits password and role, and a Jest test proving role is ignored and never returned.",
+          "deliverable": "API test log for the lab mass-assignment case and a fixed handler with tests",
+          "checks": [["POST /api/Users with role admin to the lab Juice Shop", "Response shows role admin and the score board marks 'Admin Registration' solved", "ZAP response and score board"], ["POST the same body to the fixed handler", "Created user has role customer", "Jest output"], ["GET the created user from the fixed API", "Response JSON has no password or role field", "Jest output"]],
+          "objectives": ["Explain API1, API2, API3 and API5 with examples", "Fix mass assignment with property allow-lists", "Prevent excessive data exposure with response DTOs"]
+        },
+        {
+          "topic": "API4 Resource Consumption and API6 Sensitive Business Flows",
+          "subtopics": ["API4 Unrestricted Resource Consumption: rate, size, pagination and cost limits", "Paid third-party calls such as SMS and email as a cost-exhaustion target", "GraphQL depth and alias abuse as a resource problem", "API6 Unrestricted Access to Sensitive Business Flows: scalping, referral abuse, comment spam", "Telling legitimate clients from automation: device fingerprints, CAPTCHAs and behaviour", "Rate limits per user, per IP and per business action", "Pagination caps with a maximum limit parameter", "Response headers RateLimit-Limit, RateLimit-Remaining and Retry-After"],
+          "tools": ["Node.js", "express-rate-limit", "k6", "OWASP API Security Top 10"],
+          "lab_task": "Build an Express endpoint GET /products?limit=n that returns n rows. Show limit=100000 returns everything. Fix it with a maximum of 100, add express-rate-limit at 60 requests per minute per API key with standard headers, and add a per-user limit of 3 calls per hour on POST /otp/send. Run k6 run with 20 virtual users for 30 seconds and record the 200 and 429 counts.",
+          "deliverable": "Hardened endpoints and a k6 summary showing the rate limit working",
+          "checks": [["Request /products?limit=100000 after the fix", "Response contains at most 100 items", "HTTP response"], ["Run the k6 script against /products", "Summary shows 429 responses once 60 requests per minute is exceeded", "k6 summary"], ["Call POST /otp/send four times in an hour as one user", "Fourth call returns 429 with a Retry-After header", "HTTP responses"]],
+          "objectives": ["Explain API4 and API6 and how they differ", "Implement size, rate and business-flow limits", "Measure limits under load"]
+        },
+        {
+          "topic": "API7 to API10: SSRF, Misconfiguration, Inventory and Unsafe Consumption",
+          "subtopics": ["API7 Server Side Request Forgery in webhook and import endpoints", "API8 Security Misconfiguration: CORS, verbose errors, missing TLS and unneeded HTTP methods", "API9 Improper Inventory Management: old versions, shadow and debug endpoints", "Keeping an API inventory from OpenAPI files and gateway logs", "API10 Unsafe Consumption of APIs: trusting third-party responses", "Validating and limiting data received from upstream APIs", "Version retirement and returning 410 Gone", "Mapping each API risk to ASVS 5.0 chapter V4 API and Web Service requirements"],
+          "tools": ["ZAP", "curl", "OpenAPI", "OWASP API Security Top 10", "OWASP ASVS"],
+          "lab_task": "For a lab API with /v1 and /v2 paths, run curl -X OPTIONS -i and record allowed methods, then send Origin: https://evil.example and check Access-Control-Allow-Origin. Write an inventory listing every path in the OpenAPI file plus any found by ZAP spider that is missing from it. Fix CORS to an explicit allow-list, retire /v1 with 410 Gone, and validate an upstream JSON response with a schema before use.",
+          "deliverable": "API inventory with undocumented endpoints flagged, CORS before and after, and the upstream validation code",
+          "checks": [["Send Origin: https://evil.example after the fix", "No Access-Control-Allow-Origin header is returned", "curl output"], ["Call a retired /v1 endpoint", "Returns 410 Gone", "curl output"], ["Feed an upstream response with an unexpected field type", "Schema validation rejects it and the API returns 502", "Test output"]],
+          "objectives": ["Explain API7 to API10 with examples", "Build and maintain an API inventory", "Validate third-party API data before use"]
+        },
+        {
+          "topic": "ZAP API Scans from OpenAPI and GraphQL Definitions",
+          "subtopics": ["Importing an OpenAPI definition from a URL or file", "GraphQL add-on: introspection import and query generation", "zap-api-scan.py with -f openapi, -f graphql or -f soap", "Active scan policy and the API-Minimal policy", "Supplying values for path and body parameters", "Adding an Authorization header with ZAP_AUTH_HEADER environment variables", "Scan duration, threads and how to avoid overloading a lab API", "Reading API-specific alerts and HTTP 500 responses"],
+          "tools": ["ZAP", "Docker", "OpenAPI", "GraphQL", "OWASP crAPI"],
+          "lab_task": "Run OWASP crAPI or another lab API locally. Run docker run --network host -v $(pwd):/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-api-scan.py -t http://127.0.0.1:8888/openapi.json -f openapi -r api.html -J api.json with ZAP_AUTH_HEADER_VALUE set to a lab bearer token. Count requests sent, alerts by risk and endpoints returning 500. Repeat for a lab GraphQL endpoint with -f graphql.",
+          "deliverable": "OpenAPI and GraphQL scan reports with request counts, alert counts by risk and the list of 500 responses",
+          "checks": [["Open api.json after the OpenAPI scan", "site[0].alerts lists alerts with riskcode values 0 to 3", "JSON report"], ["Check the ZAP history for the auth header", "Every request carries the Authorization header from ZAP_AUTH_HEADER_VALUE", "Request sample"], ["Run the GraphQL scan against an endpoint with introspection enabled", "ZAP imports the schema and generates queries for each top-level field", "Scan log"]],
+          "objectives": ["Scan APIs from their definitions with ZAP", "Pass authentication to packaged scans", "Interpret API scan results"]
+        },
+        {
+          "topic": "ZAP Authenticated Scanning: Contexts, Users and Session Management",
+          "subtopics": ["Why unauthenticated scans miss most of an application", "Contexts with include and exclude regexes", "Authentication methods: form-based, JSON-based, script-based and browser-based", "Logged-in and logged-out indicators", "Session management: cookie-based, HTTP auth and header-based", "Users and forced user mode", "Excluding logout and destructive URLs", "Checking authentication with the Authentication Tester dialog"],
+          "tools": ["ZAP", "OWASP Juice Shop", "OWASP WebGoat"],
+          "lab_task": "In ZAP, create a context for the lab Juice Shop with JSON-based authentication on POST /rest/user/login, a logged-out indicator matching 401 responses and header-based session management using the token. Add two users, exclude logout, and enable forced user. Spider as each user and compare URL counts with an unauthenticated spider. Repeat for WebGoat with form-based login.",
+          "deliverable": "ZAP context file export and a comparison of URL counts for unauthenticated and authenticated spiders",
+          "checks": [["Run the Authentication Tester for the Juice Shop context", "Login succeeds and the logged-in state is detected", "Tester result screenshot"], ["Compare unauthenticated and authenticated spider results", "The authenticated spider reaches more URLs, including /rest/basket paths", "URL count table"], ["Check history during the authenticated spider", "No request to the logout URL is sent", "History filter screenshot"]],
+          "objectives": ["Configure ZAP to scan as a logged-in user", "Choose the right authentication and session methods", "Protect scans from logging themselves out"]
+        },
+        {
+          "topic": "ZAP Automation Framework Plans in YAML",
+          "subtopics": ["Why the Automation Framework replaces hand-built scripts", "Plan structure: env with contexts and parameters, then a list of jobs", "Jobs: openapi, spider, spiderAjax, passiveScan-wait, activeScan and report", "Running a plan with zap.sh -cmd -autorun plan.yaml", "Exporting a plan from the desktop Automation tab", "Environment variables in plans for secrets", "The exitStatus job and alert thresholds", "Storing plans in the repository next to the code"],
+          "tools": ["ZAP", "Docker", "YAML", "OWASP Juice Shop"],
+          "lab_task": "Write plan.yaml with an env context for the lab Juice Shop, jobs spider (maxDuration 2), spiderAjax (maxDuration 3), passiveScan-wait, activeScan with a policy limited to SQL injection and XSS rules, and a report job writing traditional-json. Run it in the ZAP container with zap.sh -cmd -autorun /zap/wrk/plan.yaml. Add an exitStatus job with errorLevel High and record the exit code.",
+          "deliverable": "Version-controlled plan.yaml, the JSON report and the exit code evidence",
+          "checks": [["Run the plan in Docker", "Log shows each job starting and finishing in plan order", "Container log"], ["Read the JSON report", "Alerts include SQL Injection (40018) against /rest/products/search", "JSON report"], ["Check the exit code with exitStatus errorLevel High", "Exit code is non-zero because a High alert was raised", "Terminal output"]],
+          "objectives": ["Write repeatable ZAP scans as YAML plans", "Limit active scan rules to the risks being tested", "Control pass or fail with the exitStatus job"]
+        },
+        {
+          "topic": "ASVS 5.0 Levels, Chapters and Requirement IDs",
+          "subtopics": ["What ASVS is for: a verification standard for design, build and test", "Levels 1, 2 and 3 and how to pick one by risk", "The 17 chapters of version 5.0, from V1 Encoding and Sanitization to V17 WebRTC", "Requirement identifiers such as v5.0.0-6.2.1 and why the version prefix matters", "What moved in 5.0 compared with 4.0.3, including new chapters for self-contained tokens and OAuth/OIDC", "Mapping ASVS to CWE and to Top 10:2025 categories", "Downloading ASVS as CSV or JSON for tooling", "Scoping: which chapters apply to an API-only service"],
+          "tools": ["OWASP ASVS", "Python", "pandas", "OWASP Top 10:2025"],
+          "lab_task": "Download the ASVS 5.0.0 CSV or JSON from the OWASP ASVS GitHub repository. With pandas, count requirements per chapter and per level and save a table. Choose a level for a sample online shop and justify it in 5 lines. Filter the requirements that apply to an API-only service by excluding V3 Web Frontend Security and V17 WebRTC and record the remaining count.",
+          "deliverable": "Requirement count table per chapter and level, the level decision note and the API-only scoped list",
+          "checks": [["Count chapters in the dataset", "17 chapters, V1 to V17", "pandas output"], ["Count requirements tagged Level 1", "L1 count is smaller than the L2 count, which is smaller than L3", "pandas output"], ["Look up one requirement by its full ID", "Requirement text is found with the v5.0.0- prefix", "Search result"]],
+          "objectives": ["Explain the purpose and levels of ASVS 5.0", "Navigate ASVS chapters and requirement IDs", "Scope ASVS for a specific application"]
+        },
+        {
+          "topic": "Turning ASVS Requirements into User Stories and Test Cases",
+          "subtopics": ["Security requirements as acceptance criteria", "Writing a user story from an ASVS requirement", "Positive and negative test cases per requirement", "Automating checks with unit, integration and ZAP tests", "Requirements that need manual review or design evidence", "Traceability matrix from requirement to story to test to result", "Status values: pass, fail, not applicable, not tested", "Keeping the matrix current between releases"],
+          "tools": ["OWASP ASVS", "Jira", "pytest", "ZAP"],
+          "lab_task": "Pick ten ASVS 5.0 Level 2 requirements from V6 Authentication, V7 Session Management and V8 Authorization. For each write a user story with acceptance criteria, one negative test and the test type (unit, integration, ZAP or manual). Automate at least four of them with pytest against a sample Flask app, run them and fill a traceability matrix with the results.",
+          "deliverable": "Traceability matrix for ten requirements with four automated tests and their results",
+          "checks": [["Review the matrix", "All ten rows have requirement ID, story, test and status", "Traceability matrix"], ["Run the automated tests with pytest -v", "At least four tests run and each maps to a requirement ID in its name", "pytest output"], ["Break one control in the sample app and rerun", "The matching test fails and the matrix row changes to fail", "pytest output"]],
+          "objectives": ["Convert ASVS requirements into testable stories", "Automate verification where possible", "Maintain requirement-to-test traceability"]
+        },
+        {
+          "topic": "Threat Modelling with OWASP Threat Dragon and STRIDE",
+          "subtopics": ["The four questions of the Threat Modeling Manifesto", "STRIDE: spoofing, tampering, repudiation, information disclosure, denial of service, elevation of privilege", "Running Threat Dragon as a desktop app or the owasp/threat-dragon container", "Creating a model and a STRIDE diagram", "Diagram elements: actor, process, store, data flow and trust boundary", "Adding threats manually and with suggested threats per element", "Threat fields: title, type, status, severity and mitigation", "Saving the model as JSON and exporting a PDF report"],
+          "tools": ["OWASP Threat Dragon", "Docker", "OWASP Threat Modeling Cheat Sheet"],
+          "lab_task": "Run OWASP Threat Dragon locally. Model a login and checkout flow with a browser actor, web app and payment API processes, a database store and a trust boundary between internet and internal network. Add at least two STRIDE threats per process, each with severity and a mitigation linked to an ASVS requirement ID. Save the model JSON and export the PDF report.",
+          "deliverable": "Threat Dragon model JSON and PDF report for the checkout flow",
+          "checks": [["Open the saved model JSON", "Contains a STRIDE diagram with actor, process, store, flow and boundary cells", "Model JSON"], ["Count threats per process", "Each process has at least two threats with severity and mitigation", "PDF report"], ["Check data flows crossing the trust boundary", "Every crossing flow has at least one threat recorded", "Diagram screenshot"]],
+          "objectives": ["Apply STRIDE to a data-flow diagram", "Build and save a model in Threat Dragon", "Link threat mitigations to ASVS requirements"]
+        },
+        {
+          "topic": "Trust Boundaries, Mitigation Status and Model Review in Threat Dragon",
+          "subtopics": ["Choosing where trust boundaries sit in cloud and microservice designs", "Diagram types besides STRIDE: LINDDUN for privacy, CIA and PLOT4ai", "Threat status Open, Mitigated and Not Applicable", "Out-of-scope elements and the reason field", "Keeping models in Git with the code", "Reviewing a model in a team session", "Turning open threats into backlog items", "Updating the model when the design changes"],
+          "tools": ["OWASP Threat Dragon", "Git", "Jira"],
+          "lab_task": "Extend yesterday's model with a LINDDUN diagram for the customer data flow and add three privacy threats. Mark mitigated threats with the control that addresses them, set out-of-scope elements with a reason, and turn every remaining Open threat into a backlog ticket whose key you record in the threat description. Add a new third-party email service to the design and update both diagrams.",
+          "deliverable": "Updated model with STRIDE and LINDDUN diagrams, threat status summary and linked backlog tickets",
+          "checks": [["Count threats by status in the report", "Open, Mitigated and Not Applicable totals add up to all threats", "PDF report"], ["Check each Open threat", "Each references a backlog ticket key", "Model JSON"], ["Review the new email service element", "It has data flows, a trust boundary crossing and at least one threat", "Diagram screenshot"]],
+          "objectives": ["Use STRIDE and LINDDUN diagrams together", "Track threat status through to backlog items", "Keep a threat model current as designs change"]
+        },
+        {
+          "topic": "CycloneDX SBOM Generation for npm, Python and Java Builds",
+          "subtopics": ["What a Software Bill of Materials records: components, versions, purls, hashes and licences", "CycloneDX as an OWASP standard, also published as ECMA-424", "@cyclonedx/cyclonedx-npm for Node.js projects", "cyclonedx-py for environments, requirements and Poetry", "cyclonedx-maven-plugin makeAggregateBom for Maven", "Package URLs (purl) such as pkg:npm/lodash@4.17.21", "Dependency graphs in the dependencies section", "Validating SBOMs with cyclonedx-cli validate"],
+          "tools": ["CycloneDX", "cyclonedx-npm", "cyclonedx-py", "cyclonedx-maven-plugin", "cyclonedx-cli", "jq"],
+          "lab_task": "Generate SBOMs for three sample projects: npx @cyclonedx/cyclonedx-npm --output-file bom-node.json, cyclonedx-py requirements requirements.txt -o bom-py.json, and mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom. Validate each with cyclonedx validate --input-file. Use jq '.components | length' to count components and check each one has a purl.",
+          "deliverable": "Three validated CycloneDX SBOMs with component counts and a purl coverage check",
+          "checks": [["Run cyclonedx validate on each SBOM", "Each file reports as valid against its spec version", "cyclonedx-cli output"], ["Run jq '[.components[] | select(.purl == null)] | length'", "Result is 0 for every SBOM", "jq output"], ["Compare npm SBOM component count with npm ls --all", "Counts match within dev-dependency differences that are documented", "Comparison note"]],
+          "objectives": ["Generate CycloneDX SBOMs across ecosystems", "Validate SBOM structure and content", "Explain purls and dependency graphs"]
+        },
+        {
+          "topic": "Dependency-Track Portfolio: BOM Upload, Policies and Vulnerability Audit",
+          "subtopics": ["Dependency-Track as an SBOM analysis platform: API server and frontend", "Running it with the official Docker Compose file and changing the default admin password", "Projects, versions and the portfolio view", "Uploading a BOM through the UI and POST /api/v1/bom", "Vulnerability sources: NVD, GitHub Advisories, OSV and OSS Index", "Policies for licence, severity and component age", "Audit states: In Triage, Exploitable, False Positive, Not Affected, Resolved", "Portfolio metrics and inherited risk score"],
+          "tools": ["OWASP Dependency-Track", "Docker Compose", "CycloneDX", "curl"],
+          "lab_task": "Start Dependency-Track with Docker Compose, log in as admin and change the password. Create a team API key with BOM_UPLOAD and PROJECT_CREATION_UPLOAD. Upload bom-node.json with curl -X POST http://localhost:8081/api/v1/bom -H \"X-Api-Key: $KEY\" -F autoCreate=true -F projectName=shop -F projectVersion=1.0 -F bom=@bom-node.json. Create a policy failing on Critical severity, audit two findings and record the risk score.",
+          "deliverable": "Dependency-Track project with uploaded BOM, policy violations and two audited findings",
+          "checks": [["Send the BOM upload request", "Response JSON contains a token value", "curl output"], ["Open the project after analysis", "Components tab count matches the SBOM component count", "UI screenshot"], ["Mark a finding Not Affected with a justification", "Finding moves out of the active count and the audit trail records the change", "Audit history"]],
+          "objectives": ["Deploy and secure a Dependency-Track instance", "Upload SBOMs by UI and API", "Audit findings and enforce component policies"]
+        },
+        {
+          "topic": "Dependency-Check in Build Pipelines: Suppressions and CVSS Gates",
+          "subtopics": ["Maven dependency-check-maven and Gradle dependencyCheckAnalyze plugins", "Caching the NVD data between builds", "NVD API key as a secret, never in the POM", "failBuildOnCVSS and failOnCVSS thresholds", "Suppression XML with notes, CVE, packageUrl regex and until expiry dates", "Generating suppressions from the HTML report", "Choosing between Dependency-Check and Dependency-Track for a team", "Publishing reports as build artefacts"],
+          "tools": ["OWASP Dependency-Check", "Maven", "Gradle", "GitHub Actions"],
+          "lab_task": "Add org.owasp:dependency-check-maven to a sample Java project with failBuildOnCVSS set to 7 and run mvn verify with -DnvdApiKey from an environment variable. Confirm the build fails on log4j-core 2.14.1. Upgrade the dependency, rerun, then add a suppression with an until date for a confirmed false positive. Cache the data directory in a GitHub Actions workflow and compare run times.",
+          "deliverable": "POM changes, suppression file, failing and passing build logs and a cache timing comparison",
+          "checks": [["Run mvn verify with log4j-core 2.14.1", "Build fails and names CVE-2021-44228", "Maven log"], ["Rerun after upgrading log4j-core", "Build passes the dependency-check gate", "Maven log"], ["Run the workflow twice with caching", "Second run's dependency-check step is faster than the first", "Workflow timing"]],
+          "objectives": ["Gate builds on dependency vulnerability scores", "Manage suppressions with justification and expiry", "Run Dependency-Check efficiently in CI"]
+        },
+        {
+          "topic": "Mobile App Verification with MASVS and MASTG",
+          "subtopics": ["The OWASP Mobile Application Security project: MASVS, MASTG and MASWE", "MASVS v2 control groups: STORAGE, CRYPTO, AUTH, NETWORK, PLATFORM, CODE, RESILIENCE and PRIVACY", "MAS testing profiles and choosing scope", "MASTG tests and techniques for Android and iOS", "Static checks with MobSF on an APK", "Insecure data storage in SharedPreferences and logs", "Network security config and certificate pinning at awareness level", "OWASP intentionally vulnerable practice apps such as MASTG crackmes and the MAS hacking playground"],
+          "tools": ["OWASP MASVS", "OWASP MASTG", "MobSF", "Android Studio", "adb"],
+          "lab_task": "Run MobSF in Docker and upload a deliberately vulnerable practice APK you are allowed to test. Map at least six findings to MASVS control groups such as MASVS-STORAGE and MASVS-NETWORK. On an emulator, use adb shell run-as and cat to inspect shared_prefs for stored secrets. For each confirmed finding cite the MASTG test ID and write a fix.",
+          "deliverable": "MASVS mapping table with MASTG test references, emulator evidence and fixes",
+          "checks": [["Review the MobSF report", "Findings are listed with severity and file locations", "MobSF report"], ["Inspect shared_prefs on the emulator", "A plaintext secret is visible in the XML file", "adb output"], ["Check the mapping table", "Every finding maps to one MASVS group and a MASTG test ID", "Mapping table"]],
+          "objectives": ["Explain the MASVS control groups", "Use MASTG tests to verify mobile apps", "Map mobile findings to MASVS and fixes"]
+        },
+        {
+          "topic": "WebGoat Guided Lessons: Path Traversal, XXE and JWT Flaws",
+          "subtopics": ["How WebGoat lessons are structured: explanation pages, assignments and hints", "Path traversal in file upload and retrieval lessons", "XML External Entity injection and disabling DTDs", "JWT lessons: none algorithm, weak secrets and key confusion", "Using WebWolf to receive callbacks in lessons", "Insecure deserialization lesson at awareness level", "Mapping each lesson to Top 10:2025 and ASVS chapters", "Fix patterns in Java: DocumentBuilderFactory features and Path normalize checks"],
+          "tools": ["OWASP WebGoat", "WebWolf", "ZAP", "Java"],
+          "lab_task": "In your local WebGoat, complete the Path Traversal, XXE and JWT lessons, recording the request that solved each assignment from ZAP history. For XXE, write the Java fix: dbf.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true). For path traversal, normalise the path and reject results outside the upload directory. Map each lesson to its Top 10:2025 category and ASVS chapter.",
+          "deliverable": "Lesson completion evidence, Java fixes and a lesson-to-standard mapping",
+          "checks": [["Open WebGoat lesson overview", "Path Traversal, XXE and JWT lessons show completed assignments", "WebGoat screenshot"], ["Parse an XXE payload with the fixed parser", "A SAXParseException about DOCTYPE is thrown", "Test output"], ["Request ../../etc/passwd through the fixed file handler", "Request is rejected and no file outside the directory is read", "Test output"]],
+          "objectives": ["Exploit path traversal, XXE and JWT flaws in a safe lab", "Write Java fixes for each flaw", "Map lessons to OWASP standards"]
+        },
+        {
+          "topic": "Juice Shop Score Board, Hacking Instructor and CTF Mode",
+          "subtopics": ["Finding and using the Score Board", "Challenge difficulty from one to six stars and categories", "Hacking Instructor tutorials for guided learning", "Configuring Juice Shop with NODE_ENV and YAML config files", "CTF mode with flag codes and the juice-shop-ctf-cli", "Running a private team event on a local network", "Progress backup and restore", "Turning solved challenges into training write-ups"],
+          "tools": ["OWASP Juice Shop", "juice-shop-ctf-cli", "CTFd", "ZAP", "Docker"],
+          "lab_task": "Start Juice Shop with -e NODE_ENV=ctf and a CTF key. Run npx juice-shop-ctf-cli to generate a CTFd import file for a private team event. Solve five challenges of two stars or more without using published solutions, recording the request for each in ZAP. Export your progress with the score board backup, restart the container and restore it. Write one write-up per challenge with fix advice.",
+          "deliverable": "CTFd import file, five challenge write-ups with fixes and the progress restore evidence",
+          "checks": [["Solve a challenge in CTF mode", "A flag code is shown in the solved notification", "Screenshot"], ["Restore progress after a container restart", "Score board shows the same five solved challenges", "Score board screenshot"], ["Review the write-ups", "Each has the request, root cause and a code-level fix", "Write-ups"]],
+          "objectives": ["Use Juice Shop for structured training", "Run a private CTF event", "Turn exercises into reusable write-ups"]
+        },
+        {
+          "topic": "OWASP CRS on ModSecurity v3 with NGINX: Paranoia Levels and Anomaly Scoring",
+          "subtopics": ["ModSecurity history and its move to OWASP stewardship; libmodsecurity v3 with the NGINX connector", "The owasp/modsecurity-crs:nginx Docker image and the BACKEND variable", "SecRuleEngine DetectionOnly versus On", "CRS rule file families: 920 protocol, 930 LFI, 932 RCE, 941 XSS, 942 SQLi", "Anomaly scoring: critical worth 5 points and the inbound threshold of 5", "Paranoia levels 1 to 4 with tx.blocking_paranoia_level", "Rule 949110 inbound anomaly score exceeded and the audit log", "Reading the JSON audit log for rule IDs and matched data"],
+          "tools": ["OWASP CRS", "ModSecurity", "NGINX", "Docker", "curl"],
+          "lab_task": "Run owasp/modsecurity-crs:nginx with BACKEND=http://juice:3000 on a Docker network with Juice Shop. Send curl \"http://localhost:8080/?q=<script>alert(1)</script>\" and \"/?id=1' OR '1'='1\" and record status codes and rule IDs from the audit log. Switch to DetectionOnly and repeat. Raise PARANOIA to 2 and count how many extra rules fire on normal Juice Shop browsing.",
+          "deliverable": "CRS deployment notes with attack and normal traffic results at paranoia levels 1 and 2",
+          "checks": [["Send the XSS payload with SecRuleEngine On", "Response is 403 and the audit log shows rule 941100 and 949110", "curl output and audit log"], ["Send the same payload in DetectionOnly", "Response is passed to Juice Shop and the rules are still logged", "Audit log"], ["Browse normally at paranoia level 2", "More rule matches are logged than at level 1", "Rule hit count table"]],
+          "objectives": ["Deploy the OWASP CRS with ModSecurity in front of an app", "Explain anomaly scoring and paranoia levels", "Read CRS audit logs"]
+        },
+        {
+          "topic": "CRS False-Positive Tuning with Rule Exclusions",
+          "subtopics": ["Why false positives appear: rich text, JSON bodies, search fields", "Finding the rule ID and target from the audit log", "Exclusion files: REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf and RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf", "Runtime exclusions with ctl:ruleRemoveTargetById scoped by URI", "Configure-time exclusions with SecRuleUpdateTargetById", "Why disabling whole rules or lowering paranoia is the last resort", "CRS application exclusion plugins such as WordPress and Nextcloud", "Documenting every exclusion with owner and reason"],
+          "tools": ["OWASP CRS", "ModSecurity", "NGINX", "Docker"],
+          "lab_task": "Post a product review containing \"select the best option from the menu\" to the lab Juice Shop behind CRS at paranoia level 2 and confirm it is blocked. Find the rule and target in the audit log. Add a rule in REQUEST-900 with id:10001, phase:1, matching REQUEST_FILENAME @beginsWith /rest/products/ and ctl:ruleRemoveTargetById for that rule on the message argument only. Resend and confirm a real SQLi payload is still blocked.",
+          "deliverable": "Exclusion rule with comment, before and after audit log entries and the attack retest",
+          "checks": [["Resend the review after the exclusion", "Request returns 201 and no CRS block is logged", "HTTP response"], ["Send a real SQL injection payload to the same field", "Still blocked by another rule or another target", "Audit log"], ["Send the review text to a different path", "Still blocked, showing the exclusion is scoped", "HTTP response"]],
+          "objectives": ["Diagnose CRS false positives from audit logs", "Write narrowly scoped rule exclusions", "Keep protection in place while tuning"]
+        },
+        {
+          "topic": "Secure Code Review Against ASVS with Semgrep Rules",
+          "subtopics": ["Manual review versus SAST tools and the OWASP Code Review Guide", "Reviewing for sources, sinks and missing controls", "Semgrep rule syntax: patterns, pattern-not and metavariables", "Using community rulesets such as p/owasp-top-ten", "Writing a custom rule for a team-specific unsafe pattern", "Linking each rule to an ASVS requirement and CWE", "Triage and baseline: reporting only new findings", "Review checklists in pull requests"],
+          "tools": ["Semgrep", "OWASP Code Review Guide", "OWASP ASVS", "Git"],
+          "lab_task": "Run semgrep --config p/owasp-top-ten on a sample Node.js or Python repository and record findings per rule. Write a custom rule that flags cursor.execute with an f-string or + concatenation and add an ASVS requirement ID and CWE-89 to its metadata. Run it with --config rules/ --json, fix two true positives and rerun with --baseline-commit to show only new issues.",
+          "deliverable": "Semgrep findings summary, a custom rule with ASVS and CWE metadata and the fixed code",
+          "checks": [["Run the custom rule on code with an f-string query", "Rule reports the line with the custom message", "Semgrep output"], ["Run the rule on a parameterized query", "No finding is reported", "Semgrep output"], ["Run with --baseline-commit after the fixes", "Only findings introduced after the baseline are shown", "Semgrep output"]],
+          "objectives": ["Review code for OWASP risks systematically", "Write custom SAST rules tied to ASVS", "Report only new findings in pull requests"]
+        },
+        {
+          "topic": "Capstone: ASVS Level 2 Verification Project for a REST API",
+          "subtopics": ["Scoping ASVS 5.0 Level 2 chapters for an API-only service", "Threat Dragon model as design evidence", "ZAP Automation Framework plan with authenticated API scanning", "CycloneDX SBOM analysed in Dependency-Track", "CRS in front of the API with any exclusions documented", "Verification report with pass, fail and not-applicable per requirement"],
+          "tools": ["OWASP ASVS", "ZAP", "OWASP Threat Dragon", "OWASP Dependency-Track", "OWASP CRS", "CycloneDX"],
+          "lab_task": "For a lab REST API you control, verify a scoped set of at least 40 ASVS 5.0 Level 2 requirements. Provide a Threat Dragon model, a ZAP plan.yaml run with authentication, a CycloneDX SBOM uploaded to Dependency-Track with findings audited, and CRS results. Record each requirement as pass, fail or not applicable with evidence, and write fixes for every fail. Present in 15 minutes.",
+          "deliverable": "ASVS Level 2 verification report with traceability, all tool evidence and a remediation plan",
+          "checks": [["Count verified requirements", "At least 40 requirements have a status and evidence link", "Verification report"], ["Rerun the ZAP plan after fixes", "No High alerts remain and the exit status is 0", "ZAP log"], ["Check Dependency-Track for the project", "No unaudited Critical findings remain", "Dependency-Track screenshot"]],
+          "objectives": ["Plan and run an ASVS verification", "Combine OWASP tools into one evidence set", "Report results with clear remediation"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For application security engineers, security champions leads and DevSecOps engineers who run OWASP standards and tools across many teams. Covers OWASP SAMM assessments and roadmaps, a DevSecOps pipeline built from OWASP tooling, ZAP in CI, Dependency-Track automation with VEX, the Software Component Verification Standard, OWASP Coraza on Caddy and Envoy, CRS regression testing and custom rules, ZAP scripting, the OWASP Top 10 for LLM Applications 2025 at awareness level, threat models as code, ASVS Level 3 and MASVS resilience and privacy, multi-tenant authorization testing, OWASP DefectDojo for vulnerability management, a security champions programme, and a capstone that delivers an end-to-end OWASP-based programme for one product team.",
+      "prerequisites": ["Completed the intermediate level or has run ZAP Automation Framework plans, ASVS verification and Dependency-Track in a project", "Writes CI pipelines in GitHub Actions or GitLab CI and manages Docker Compose or Kubernetes deployments", "Has led or taken part in security reviews and can explain risk ratings to engineering managers"],
+      "outcomes": ["Assess a software organisation with OWASP SAMM and produce a scored, phased improvement roadmap", "Build a CI/CD pipeline that runs ZAP, CycloneDX, Dependency-Track and Semgrep with agreed gates and feeds findings into DefectDojo", "Run OWASP Coraza or ModSecurity with the CRS in production-like setups, with regression tests and custom rules", "Apply ASVS Level 3, MASVS resilience and the OWASP Top 10 for LLM Applications to high-assurance and AI-enabled products"],
+      "days": [
+        {
+          "topic": "OWASP SAMM Assessment: Business Functions, Practices and Maturity Scores",
+          "subtopics": ["SAMM v2 model: five business functions and 15 security practices", "Governance, Design, Implementation, Verification and Operations functions", "Two streams per practice and maturity levels 0 to 3", "Assessment questions and the coverage and quality criteria behind each answer", "The SAMM Toolbox spreadsheet and the online assessment tool", "Interviewing teams and collecting evidence rather than opinions", "Scoring scope: one team, one product line or the whole organisation", "Presenting the SAMM scorecard and spider chart"],
+          "tools": ["OWASP SAMM", "SAMM Toolbox", "Spreadsheet"],
+          "lab_task": "Using the SAMM v2 Toolbox, assess a real or case-study product team. Run a 60-minute interview covering all 15 practices, record the answer to every question with one piece of evidence each, and let the Toolbox calculate scores. Export the scorecard with the five business function scores and the per-practice chart. Highlight the three lowest-scoring practices with the evidence that drove each score.",
+          "deliverable": "Completed SAMM Toolbox, scorecard export and a one-page summary of the three weakest practices",
+          "checks": [["Review the completed Toolbox", "All questions for 15 practices are answered", "Toolbox file"], ["Read the scorecard", "Each business function has a score between 0 and 3", "Scorecard export"], ["Check the weakest practices", "Each low score is backed by named evidence or an explicit gap", "Summary page"]],
+          "objectives": ["Explain the structure of OWASP SAMM v2", "Run an evidence-based SAMM assessment", "Present maturity results clearly"]
+        },
+        {
+          "topic": "SAMM Target Maturity and Phased Improvement Roadmap",
+          "subtopics": ["Setting target maturity per practice by risk and business goals", "The SAMM roadmap worksheet and phases", "Effort, cost and dependency between practices", "Quick wins versus structural changes", "Linking roadmap items to ASVS, Threat Dragon, ZAP and Dependency-Track adoption", "Metrics for each phase and SAMM Strategy and Metrics practice", "Getting management sign-off", "Reassessment cadence and showing progress"],
+          "tools": ["OWASP SAMM", "SAMM Toolbox", "Jira"],
+          "lab_task": "From yesterday's assessment, set target maturity for every practice and build a three-phase roadmap of six months each in the SAMM roadmap worksheet. For each phase list activities, owner, effort in person-days and one measurable metric. Ensure Threat Assessment, Security Testing and Defect Management each rise at least one level. Present the roadmap in 10 minutes to a mock engineering director.",
+          "deliverable": "SAMM roadmap worksheet with targets, three phases, owners, effort and metrics",
+          "checks": [["Compare current and target scores", "Every target is greater than or equal to the current score", "Roadmap worksheet"], ["Check the three named practices", "Threat Assessment, Security Testing and Defect Management each rise at least one level", "Roadmap worksheet"], ["Review phase metrics", "Each phase has at least one numeric metric with a baseline", "Roadmap document"]],
+          "objectives": ["Set target maturity from risk", "Plan phased SAMM improvements with owners and effort", "Define metrics that show progress"]
+        },
+        {
+          "topic": "DevSecOps Pipeline Architecture with OWASP Tooling",
+          "subtopics": ["Pipeline stages and where each OWASP tool fits: pre-commit, build, test, deploy, run", "Fast feedback versus deep scans: baseline on every PR, full scans nightly", "Gate design: what blocks a merge and what only reports", "Secrets for tool tokens in CI", "Ephemeral test environments for DAST", "Mapping pipeline controls to SAMM Implementation and Verification practices"],
+          "tools": ["GitHub Actions", "GitLab CI", "ZAP", "OWASP Dependency-Track", "CycloneDX", "Semgrep"],
+          "lab_task": "Draw the target pipeline for a sample service showing Semgrep and secret scanning on PR, CycloneDX SBOM and Dependency-Track upload on build, ZAP baseline against an ephemeral environment on PR and a ZAP full scan nightly. For each stage write the gate rule, the maximum run time and the SAMM practice it supports. Estimate pipeline time added per PR and keep it under 10 minutes.",
+          "deliverable": "Pipeline architecture diagram with gate rules, time budget and SAMM mapping",
+          "checks": [["Review the gate table", "Every stage has a blocking or reporting decision with a reason", "Gate table"], ["Add up PR stage time budgets", "Total added time per PR is 10 minutes or less", "Time budget table"], ["Check SAMM mapping", "Each stage maps to a named SAMM practice", "Architecture document"]],
+          "objectives": ["Design a DevSecOps pipeline around OWASP tools", "Choose blocking and reporting gates deliberately", "Keep security feedback fast"]
+        },
+        {
+          "topic": "ZAP in GitHub Actions and GitLab CI: Baseline, Full and API Scans",
+          "subtopics": ["zaproxy/action-baseline, action-full-scan and action-api-scan", "Rules files in the repository to control WARN, FAIL and IGNORE", "Running the target as a service container", "Automation Framework plans in CI with the ZAP container", "Uploading reports as artefacts and creating issues", "GitLab CI job with ghcr.io/zaproxy/zaproxy:stable", "Keeping full active scans out of shared or production environments", "Run time limits with -m and maxDuration"],
+          "tools": ["ZAP", "GitHub Actions", "GitLab CI", "Docker", "OWASP Juice Shop"],
+          "lab_task": "Create a GitHub Actions workflow that starts Juice Shop as a service on localhost:3000, runs zaproxy/action-baseline with rules_file_name: .zap/rules.tsv and fail_action: true, and uploads the HTML report. Add a nightly job running your Automation Framework plan in the ZAP container. Set rule 10038 to FAIL, push, and confirm the workflow fails; then set it to WARN and confirm it passes.",
+          "deliverable": "Workflow files, rules.tsv and run links for a failing and a passing baseline",
+          "checks": [["Run the workflow with 10038 set to FAIL", "Job fails and the summary lists Content Security Policy Header Not Set", "Workflow run log"], ["Change 10038 to WARN and rerun", "Job passes with the alert listed as a warning", "Workflow run log"], ["Open the run artefacts", "An HTML ZAP report is attached", "Artefact list"]],
+          "objectives": ["Run ZAP scans in CI with repository-controlled rules", "Separate PR scans from nightly deep scans", "Publish scan evidence from pipelines"]
+        },
+        {
+          "topic": "Dependency-Track Automation: CI Uploads, Policy Gates and Notifications",
+          "subtopics": ["Automation team API key with least privilege", "Uploading BOMs from CI and polling /api/v1/bom/token/{token}", "Fetching policy violations and findings by project UUID", "Failing a build on policy violation state FAIL", "Project version strategy: per release, per branch and the latest flag", "Notification rules to Slack, Microsoft Teams, email and webhooks", "Project tags and collection projects for portfolio views", "Retiring old versions to keep metrics accurate"],
+          "tools": ["OWASP Dependency-Track", "CycloneDX", "GitHub Actions", "curl", "jq"],
+          "lab_task": "In CI, generate a CycloneDX SBOM, upload it to Dependency-Track with the Automation key, poll GET /api/v1/bom/token/{token} until processing is false, then call GET /api/v1/violation/project/{uuid} and fail the job if any violation has state FAIL. Configure a webhook notification for NEW_VULNERABILITY on the project and trigger it by uploading a BOM with a known vulnerable component.",
+          "deliverable": "CI script for upload, poll and gate, plus webhook notification evidence",
+          "checks": [["Poll the BOM token after upload", "processing becomes false within the job timeout", "CI log"], ["Upload a BOM with a component violating the Critical policy", "The CI job fails and prints the violation", "CI log"], ["Trigger NEW_VULNERABILITY", "The webhook receiver logs a JSON notification for the project", "Receiver log"]],
+          "objectives": ["Automate SBOM analysis with the Dependency-Track API", "Gate builds on policy violations", "Route new vulnerability alerts to teams"]
+        },
+        {
+          "topic": "VEX and Exploitability Statements in CycloneDX",
+          "subtopics": ["Why most reported component CVEs do not affect a given product", "Vulnerability Exploitability eXchange in CycloneDX: analysis state, justification and response", "States such as not_affected, exploitable, in_triage and resolved", "Justifications such as code_not_reachable and requires_configuration", "Producing VEX from Dependency-Track audit decisions", "Consuming supplier VEX to cut triage work", "Reachability evidence to support not_affected", "Publishing VEX alongside releases"],
+          "tools": ["CycloneDX", "OWASP Dependency-Track", "cyclonedx-cli", "jq"],
+          "lab_task": "In Dependency-Track, audit three findings on a project: one Not Affected with justification Code Not Reachable, one Exploitable with response Update, one In Triage. Export the CycloneDX VEX for the project via the UI or /api/v1/vex/cyclonedx/project/{uuid}. Validate it with cyclonedx validate. Import it into a second copy of the project and confirm the audit decisions are applied automatically.",
+          "deliverable": "Exported and validated VEX document and evidence that a second project inherited the decisions",
+          "checks": [["Validate the exported VEX", "cyclonedx-cli reports the document as valid", "Validation output"], ["Read the not_affected entry with jq", "analysis.state is not_affected and analysis.justification is code_not_reachable", "jq output"], ["Import the VEX into the second project", "Its three findings show the same analysis states", "Dependency-Track screenshot"]],
+          "objectives": ["Explain VEX and its states", "Produce VEX from audit decisions", "Reuse exploitability analysis across projects"]
+        },
+        {
+          "topic": "OWASP SCVS Levels for Third-Party Component Assurance",
+          "subtopics": ["The Software Component Verification Standard and its three levels", "Control families: inventory, SBOM, build environment, package management, component analysis, pedigree and provenance", "Comparing SCVS with the A03:2025 Software Supply Chain Failures category", "Private package registries and proxying public ones", "Signed artefacts and provenance attestations at awareness level", "Build environment isolation and ephemeral runners", "Component pedigree for forked or patched libraries", "Running an SCVS gap assessment"],
+          "tools": ["OWASP SCVS", "CycloneDX", "OWASP Dependency-Track", "npm", "Maven"],
+          "lab_task": "Assess one product's build against SCVS Level 2. For each control family record compliant, partial or missing with evidence such as lockfile presence, SBOM generation step, registry configuration (.npmrc or settings.xml) and runner type. Add CycloneDX pedigree data for one patched library and validate the SBOM. Produce a gap list with three fixes ordered by risk reduction.",
+          "deliverable": "SCVS Level 2 gap assessment, an SBOM with pedigree data and a prioritised fix list",
+          "checks": [["Review the assessment", "Every SCVS control family has a status and evidence", "Assessment sheet"], ["Validate the SBOM with pedigree", "cyclonedx validate passes and the component shows pedigree.patches", "Validation output and jq output"], ["Check the fix list", "Three fixes are ranked with the control each closes", "Fix list"]],
+          "objectives": ["Use SCVS to assess component assurance", "Record pedigree in CycloneDX", "Prioritise supply chain fixes"]
+        },
+        {
+          "topic": "OWASP Coraza WAF with Caddy and Envoy proxy-wasm",
+          "subtopics": ["Coraza as an OWASP Go WAF engine compatible with SecLang and the CRS", "Building Caddy with xcaddy and the coraza-caddy module", "Caddyfile directives: order coraza_waf first and load_owasp_crs", "Including @coraza.conf-recommended, @crs-setup.conf.example and @owasp_crs/*.conf", "coraza-proxy-wasm as an Envoy HTTP filter", "Performance considerations and body inspection limits", "Choosing between ModSecurity and Coraza", "Logging formats and shipping audit logs"],
+          "tools": ["OWASP Coraza", "Caddy", "xcaddy", "Envoy", "OWASP CRS", "curl"],
+          "lab_task": "Build Caddy with xcaddy build --with github.com/corazawaf/coraza-caddy/v2. Write a Caddyfile with order coraza_waf first, a coraza_waf block using load_owasp_crs and directives that include the recommended config, CRS setup and rules with SecRuleEngine On, and reverse_proxy to the lab Juice Shop. Send the same XSS and SQLi payloads as with ModSecurity and compare rule IDs and latency over 1,000 requests.",
+          "deliverable": "Caddyfile, Coraza attack test results and a ModSecurity versus Coraza comparison table",
+          "checks": [["Send the XSS payload through Caddy", "Response is 403 and the log shows rule 941100", "curl output and log"], ["Send normal requests through Caddy", "Juice Shop pages load with status 200", "curl output"], ["Compare rule IDs with the ModSecurity results", "The same CRS rule IDs fire for the same payloads", "Comparison table"]],
+          "objectives": ["Deploy OWASP Coraza with the CRS", "Run Coraza in Caddy and Envoy", "Compare WAF engines on detection and latency"]
+        },
+        {
+          "topic": "CRS Regression Testing with go-ftw",
+          "subtopics": ["Why rule changes and exclusions need regression tests", "go-ftw test format: YAML with stages, input and output", "Expected outputs: status, log contains and no log contains", "Running the CRS regression test suite", "Writing tests for your own exclusions", "Running go-ftw in CI against a container", "Measuring false-positive rate with replayed normal traffic", "Upgrading CRS versions safely"],
+          "tools": ["go-ftw", "OWASP CRS", "ModSecurity", "OWASP Coraza", "Docker"],
+          "lab_task": "Write a go-ftw YAML test file for your exclusion from the intermediate level: one test that the allowed review text is not logged by the excluded rule and one test that a real SQLi in the same field is still logged with id 942100. Run go-ftw run -d tests/ against the CRS container, then add the run to CI. Intentionally break the exclusion scope and show a test fails.",
+          "deliverable": "go-ftw tests for custom exclusions, passing and failing run output and the CI job",
+          "checks": [["Run go-ftw against the correct configuration", "All tests pass", "go-ftw output"], ["Widen the exclusion to remove rule 942100 entirely", "The SQLi test fails", "go-ftw output"], ["Run the CI job", "go-ftw runs in CI and the job status matches the local result", "CI log"]],
+          "objectives": ["Write CRS regression tests", "Protect exclusions from scope creep", "Run WAF tests in CI"]
+        },
+        {
+          "topic": "Custom SecRules and CRS Plugins",
+          "subtopics": ["SecRule anatomy: variables, operators, transformations and actions", "Phases 1 to 5 and where to inspect requests and responses", "Rule ID ranges reserved for local rules", "Anomaly scoring from custom rules with setvar:tx.inbound_anomaly_score_pl1", "Virtual patching for a known vulnerable endpoint", "The CRS plugin structure: before, config and after files", "Writing a plugin for an in-house application", "Testing custom rules with go-ftw"],
+          "tools": ["ModSecurity", "OWASP CRS", "OWASP Coraza", "go-ftw"],
+          "lab_task": "Write a virtual patch rule that blocks requests to /rest/products/search where ARGS:q matches the regex [')]; with transformations t:urlDecodeUni,t:lowercase and adds critical anomaly score. Package it as a CRS plugin with -before, -config and -after files. Test it with go-ftw: blocked payload, allowed normal query, and confirm it works unchanged on both ModSecurity and Coraza.",
+          "deliverable": "CRS plugin files, go-ftw tests and results on two engines",
+          "checks": [["Send the blocked payload on ModSecurity", "Request returns 403 and the audit log shows the custom rule ID", "Audit log"], ["Send q=apple on both engines", "Request returns 200 with no custom rule match", "curl output"], ["Run go-ftw against Coraza", "All plugin tests pass", "go-ftw output"]],
+          "objectives": ["Write SecLang rules that contribute to anomaly scoring", "Package rules as a CRS plugin", "Use virtual patches while code fixes are pending"]
+        },
+        {
+          "topic": "ZAP Scripting, Add-ons and Custom Scan Rules",
+          "subtopics": ["Script types: active rules, passive rules, HTTP sender, authentication and standalone", "Script engines: JavaScript (Graal.js) and Python (Jython)", "Writing a passive rule that raises an alert with CWE metadata", "Writing an active rule that sends a test payload", "Loading scripts in the Automation Framework with the script job", "Marketplace add-ons and keeping them updated", "ZAP API and the Python client zaproxy", "Sharing scripts in the community-scripts repository"],
+          "tools": ["ZAP", "Graal.js", "zaproxy Python client", "Docker"],
+          "lab_task": "Write a ZAP passive scan script in JavaScript that raises a Medium alert with CWE-200 when a response contains an internal hostname pattern such as .corp.internal. Write an HTTP sender script that adds an X-Test-Run header to every request. Load both in an Automation Framework plan with the script job, run it against a lab app that leaks such a hostname, and query alerts with the Python zaproxy client.",
+          "deliverable": "Two ZAP scripts, the plan that loads them and the alert query output",
+          "checks": [["Run the plan against the leaking lab page", "A Medium alert with CWE 200 appears for that URL", "ZAP report"], ["Inspect sent requests", "Every request contains the X-Test-Run header", "History sample"], ["Call zap.alert.alerts() from Python", "The custom alert is returned with the script's name", "Python output"]],
+          "objectives": ["Extend ZAP with scripts", "Run custom rules in automation", "Query ZAP results programmatically"]
+        },
+        {
+          "topic": "OWASP Top 10 for LLM Applications 2025 for AppSec Reviewers",
+          "subtopics": ["The OWASP GenAI Security Project and the 2025 LLM list", "LLM01 Prompt Injection and LLM07 System Prompt Leakage", "LLM02 Sensitive Information Disclosure and LLM08 Vector and Embedding Weaknesses", "LLM03 Supply Chain and LLM04 Data and Model Poisoning", "LLM05 Improper Output Handling as a classic injection sink", "LLM06 Excessive Agency and tool permissions", "LLM09 Misinformation and LLM10 Unbounded Consumption", "Where classic OWASP controls apply: output encoding, least privilege, rate limits and logging"],
+          "tools": ["OWASP Top 10 for LLM Applications", "OWASP ASVS", "OWASP Threat Dragon"],
+          "lab_task": "For a case-study support chatbot that reads tickets and can call a refund API, map each of the ten LLM risks to the design and rate it high, medium or low. For LLM05 and LLM06 write the concrete classic control: HTML encoding of model output before rendering, and a refund tool limited to 50 EUR with server-side approval. Add the chatbot to a Threat Dragon model with threats for LLM01 and LLM06.",
+          "deliverable": "LLM Top 10 risk map for the chatbot, classic controls for LLM05 and LLM06 and the updated threat model",
+          "checks": [["Review the risk map", "All ten LLM risks are rated with a reason", "Risk map"], ["Render model output containing <script> through the designed path", "The output is shown as text and the script does not run", "Test page screenshot"], ["Request a 500 EUR refund through the tool design", "The request is refused without server-side approval", "Design test case"]],
+          "objectives": ["Describe the OWASP Top 10 for LLM Applications 2025", "Apply classic AppSec controls to LLM features", "Add LLM risks to a threat model"]
+        },
+        {
+          "topic": "Threat Models as Code: Threat Dragon JSON in Repositories",
+          "subtopics": ["Storing Threat Dragon models next to the code they describe", "Reviewing model changes in pull requests", "Reading the model JSON structure for cells and threats", "Scripts that count open threats and fail when high-severity threats lack mitigation", "Linking threats to ASVS requirements and test IDs", "Updating models during design reviews and incidents", "Reporting threat model coverage across repositories", "SAMM Threat Assessment maturity evidence"],
+          "tools": ["OWASP Threat Dragon", "Git", "Python", "jq", "GitHub Actions"],
+          "lab_task": "Commit a Threat Dragon model to a repository under threatmodel/. Write a Python script that loads the JSON, counts threats by status and severity across all diagrams, and exits 1 if any High severity threat is Open without a mitigation. Run it in a GitHub Actions job on PRs that touch threatmodel/. Open a PR adding a high-severity threat without mitigation and show the check fails.",
+          "deliverable": "Threat model in the repository, the check script and a failing then passing PR check",
+          "checks": [["Run the script on a model with an unmitigated High threat", "Script prints the threat title and exits with code 1", "Terminal output"], ["Add a mitigation and rerun", "Script exits 0", "Terminal output"], ["Open a PR changing threatmodel/", "The workflow runs only for that path and reports its status", "PR checks screenshot"]],
+          "objectives": ["Version threat models with code", "Automate checks on threat model quality", "Produce SAMM evidence from repositories"]
+        },
+        {
+          "topic": "ASVS Level 3 Requirements for High-Assurance Applications",
+          "subtopics": ["When Level 3 is warranted: payments, health records, critical infrastructure", "Level 3 requirements in V11 Cryptography: inventory and post-quantum readiness awareness", "V6 Authentication at Level 3: phishing-resistant authenticators", "V16 Security Logging and Error Handling at Level 3", "V13 Configuration: secrets in vaults with rotation", "Design documentation and architecture evidence", "Testing Level 3 controls that tools cannot verify", "Writing a Level 3 verification scope for a component"],
+          "tools": ["OWASP ASVS", "HashiCorp Vault", "openssl", "Python"],
+          "lab_task": "Filter the ASVS 5.0 dataset for requirements that appear only at Level 3 and count them per chapter. Choose one payment component and select 15 Level 3 requirements from V6, V11, V13 and V16. For each record the evidence type needed (design document, configuration, test, interview). Produce a cryptographic inventory for the component listing algorithm, key length, key location and rotation period.",
+          "deliverable": "Level 3 requirement analysis, a scoped verification plan for 15 requirements and the crypto inventory",
+          "checks": [["Count Level 3-only requirements per chapter", "Table shows counts for all 17 chapters, some with zero", "pandas output"], ["Review the verification plan", "All 15 requirements name an evidence type", "Verification plan"], ["Review the crypto inventory", "Every key has an algorithm, length, location and rotation period", "Crypto inventory"]],
+          "objectives": ["Decide when ASVS Level 3 applies", "Plan evidence for controls tools cannot test", "Build a cryptographic inventory"]
+        },
+        {
+          "topic": "MASVS-RESILIENCE and MASVS-PRIVACY Verification",
+          "subtopics": ["Resilience controls: root and jailbreak detection, anti-tampering, anti-debugging and obfuscation", "Why resilience controls only raise attacker cost", "MASTG techniques for dynamic instrumentation with Frida in a lab", "MASVS-PRIVACY: data minimisation, transparency and user control", "Android and iOS privacy labels and permission reviews", "Scoping resilience by app risk profile", "Reporting results with MASTG test IDs", "Fix guidance per control"],
+          "tools": ["OWASP MASVS", "OWASP MASTG", "Frida", "adb", "MobSF"],
+          "lab_task": "Using an OWASP MASTG practice crackme on a rooted lab emulator, attach Frida with frida -U -f <package> and bypass one root-detection check with a small script, recording the MASTG technique used. Then review the app's permissions and data flows against MASVS-PRIVACY and list any data collected without need. Write a resilience recommendation sized to the app's risk.",
+          "deliverable": "Frida bypass evidence, MASVS-PRIVACY findings and a risk-based resilience recommendation",
+          "checks": [["Run the app on the rooted emulator without Frida", "The app detects root and stops", "Emulator screenshot"], ["Run it with the Frida script", "The root check is bypassed and the main screen loads", "Frida console and screenshot"], ["Review the privacy findings", "Each finding names the permission or data item and the MASVS-PRIVACY control", "Findings table"]],
+          "objectives": ["Test mobile resilience controls in a lab", "Assess mobile privacy with MASVS-PRIVACY", "Recommend resilience in proportion to risk"]
+        },
+        {
+          "topic": "Multi-Tenant Authorization Testing and Policy Engines",
+          "subtopics": ["Tenant isolation as an A01:2025 and API1 risk", "Centralised authorization with policy engines such as Open Policy Agent and Cedar", "Attribute-based and relationship-based access control", "Authorization matrix: roles by endpoint by tenant", "Automated cross-tenant tests with two tenants and three roles", "ZAP Access Control add-on for role-based testing", "Logging authorization decisions for A09", "ASVS V8 Authorization requirements at Level 2 and 3"],
+          "tools": ["Open Policy Agent", "ZAP", "pytest", "OWASP ASVS"],
+          "lab_task": "For a sample multi-tenant API, write an authorization matrix of 10 endpoints by 3 roles by 2 tenants. Move the checks into an OPA Rego policy and query it from the API. Generate pytest cases for every matrix cell (60 cases), run them, and fix any failure. Run the ZAP Access Control add-on with the same users and compare its results with the pytest results.",
+          "deliverable": "Authorization matrix, Rego policy, 60 generated tests and the ZAP Access Control report",
+          "checks": [["Run the generated pytest suite", "60 tests run and all pass after fixes", "pytest summary"], ["Request tenant B data as tenant A admin", "API returns 404 and logs a deny decision", "HTTP response and log"], ["Compare ZAP Access Control results with pytest", "No endpoint is marked as an unexpected allow", "ZAP report"]],
+          "objectives": ["Design authorization matrices for multi-tenant systems", "Centralise authorization in a policy engine", "Test every role and tenant combination"]
+        },
+        {
+          "topic": "Vulnerability Management in OWASP DefectDojo",
+          "subtopics": ["DefectDojo model: product types, products, engagements, tests and findings", "Importing ZAP, Dependency-Check, Semgrep and Dependency-Track results", "The /api/v2/import-scan/ and /api/v2/reimport-scan/ endpoints", "Deduplication by hash code and how reimport closes fixed findings", "SLA configuration by severity", "Risk acceptance with expiry", "Jira integration for findings", "Metrics: open findings by age and mean time to remediate"],
+          "tools": ["OWASP DefectDojo", "ZAP", "OWASP Dependency-Check", "Semgrep", "curl"],
+          "lab_task": "Run DefectDojo with Docker Compose. Create a product and a CI/CD engagement. From CI, import a ZAP XML report with curl -X POST /api/v2/import-scan/ -H \"Authorization: Token $DD_TOKEN\" -F scan_type=\"ZAP Scan\" -F file=@zap.xml -F engagement=1, plus Dependency-Check and Semgrep results. Fix one issue, reimport the ZAP report and confirm the finding closes. Set SLAs of 7, 30, 90 and 180 days.",
+          "deliverable": "DefectDojo product with three scan types imported, reimport closure evidence and SLA settings",
+          "checks": [["Import the ZAP report via the API", "Response is 201 with a test ID and finding count", "curl output"], ["Reimport after fixing one issue", "That finding is marked Mitigated and others stay Active", "Finding list"], ["Import the same report twice", "Duplicates are flagged and active count does not double", "Product metrics"]],
+          "objectives": ["Centralise findings from OWASP tools in DefectDojo", "Use reimport and deduplication correctly", "Track remediation against SLAs"]
+        },
+        {
+          "topic": "Security Champions Programme and Developer Training Measured with SAMM",
+          "subtopics": ["The OWASP Security Champions Guide principles", "Selecting champions and agreeing time allocation", "Champion duties: threat modelling, code review, triage", "Training paths built from Juice Shop, WebGoat and the Cheat Sheet Series", "OWASP Top 10:2025 awareness sessions for each role", "Measuring the programme against SAMM Education and Guidance", "Recognition and career paths", "Avoiding champion burnout"],
+          "tools": ["OWASP Security Champions Guide", "OWASP SAMM", "OWASP Juice Shop", "OWASP WebGoat"],
+          "lab_task": "Design a champions programme for 8 teams. Define selection criteria, a 10 percent time allocation, monthly duties and a 12-week training path using Juice Shop challenges, WebGoat lessons and Cheat Sheets. Set three metrics such as threat models per quarter, findings triaged within SLA and Juice Shop challenges solved. Show how the programme moves SAMM Education and Guidance from its current score to a target.",
+          "deliverable": "Champions programme charter with training path, metrics and SAMM impact",
+          "checks": [["Review the 12-week training path", "Each week names a specific challenge, lesson or cheat sheet", "Training plan"], ["Check metrics", "Three metrics have a baseline, target and data source", "Metrics table"], ["Check SAMM mapping", "Education and Guidance current and target scores are stated with the activities that change them", "Charter"]],
+          "objectives": ["Design a security champions programme", "Build role-based OWASP training paths", "Measure programme impact with SAMM"]
+        },
+        {
+          "topic": "Detecting Live Attacks from CRS Audit Logs and A09 Alert Rules",
+          "subtopics": ["Turning WAF and application logs into A09:2025 alerting", "CRS audit log JSON fields: transaction ID, rule IDs, anomaly scores and matched data", "Correlating WAF transaction IDs with application request IDs", "Alert rules: repeated 949110 blocks per source, scanner user agents, sudden 403 spikes", "Separating noise from targeted attacks with paranoia-level split logging", "Shipping logs to an existing SIEM or Loki without changing the CRS", "Playbooks: block, rate limit or raise paranoia for one path", "Linking alerts back to DefectDojo findings and virtual patches"],
+          "tools": ["OWASP CRS", "ModSecurity", "OWASP Coraza", "jq", "Python", "OWASP Logging Cheat Sheet"],
+          "lab_task": "Enable JSON audit logging on your CRS lab and add the application request ID as a header logged by both NGINX and the app. Replay a 10-minute traffic file mixing normal browsing with a ZAP active scan from one lab IP. Write a jq or Python rule that raises an alert when one source triggers 949110 more than 20 times in 5 minutes, and report total requests, blocks and alerts.",
+          "deliverable": "Alert rule, correlated log samples and a summary of requests, blocks and alerts for the replay",
+          "checks": [["Run the alert rule over the replay logs", "Exactly one alert is raised, for the scanning IP", "Alert output"], ["Look up one blocked transaction ID in the app logs", "The matching request ID is found or the request is shown as never reaching the app", "Log excerpts"], ["Run the rule over normal traffic only", "No alert is raised", "Alert output"]],
+          "objectives": ["Build alerting from CRS audit logs", "Correlate WAF and application events", "Choose a response playbook for detected attacks"]
+        },
+        {
+          "topic": "Capstone: End-to-End OWASP DevSecOps Programme for a Product Team",
+          "subtopics": ["SAMM baseline and target for the product team", "Pipeline with ZAP, CycloneDX, Dependency-Track and Semgrep gates", "Threat model as code with a CI check", "CRS on ModSecurity or Coraza with regression tests", "DefectDojo as the single findings view with SLAs", "LLM Top 10 review if the product has AI features, and the final presentation"],
+          "tools": ["OWASP SAMM", "ZAP", "OWASP Dependency-Track", "OWASP DefectDojo", "OWASP Coraza", "OWASP Threat Dragon"],
+          "lab_task": "For a lab product you own, deliver: a SAMM scorecard and 12-month roadmap; a working pipeline with ZAP baseline, CycloneDX upload to Dependency-Track and Semgrep, with gates; a Threat Dragon model checked in CI; CRS on Coraza or ModSecurity with go-ftw tests; all findings in DefectDojo with SLAs; and an LLM Top 10 review if AI is used. Demo one change flowing through every gate in 20 minutes.",
+          "deliverable": "Programme pack: SAMM roadmap, pipeline repository, threat model, WAF tests, DefectDojo dashboard and demo recording",
+          "checks": [["Push a commit that adds a vulnerable dependency", "Pipeline fails at the Dependency-Track policy gate", "Pipeline run log"], ["Run go-ftw in the pipeline", "All WAF regression tests pass", "CI log"], ["Open the DefectDojo product", "Findings from ZAP, Dependency-Track and Semgrep appear with SLA dates", "DefectDojo screenshot"]],
+          "objectives": ["Integrate OWASP standards and tools into one programme", "Demonstrate working gates end to end", "Present a measured improvement plan"]
+        }
+      ]
+    }
+  }
+}

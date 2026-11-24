@@ -3,7 +3,7 @@
   "name": "Oracle Database Administration",
   "category": "Databases",
   "icon": "database",
-  "aliases": ["Oracle DBA", "Oracle Database Administration", "Oracle Database Administrator", "Oracle DB", "Oracle 19c", "Oracle 23ai", "Oracle RAC", "Oracle Data Guard", "Oracle Performance Tuning", "Oracle RMAN"],
+  "aliases": ["Oracle", "Oracle Database Developer", "Oracle DBA", "Oracle Database Administration", "Oracle Database Administrator", "Oracle DB", "Oracle 19c", "Oracle 23ai", "Oracle RAC", "Oracle Data Guard", "Oracle Performance Tuning", "Oracle RMAN"],
   "certifications": ["Oracle Database Administration 2019 Certified Professional (1Z0-082 and 1Z0-083)", "Oracle Database SQL Certified Associate (1Z0-071)", "Oracle Cloud Database Services Certified Professional"],
   "tools": ["Oracle Database 19c and 23ai", "SQL*Plus", "SQL Developer", "RMAN", "Data Pump", "Oracle Enterprise Manager", "Oracle Linux"],
   "review_status": "unreviewed",

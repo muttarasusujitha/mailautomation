@@ -149,6 +149,8 @@ def _expand_day(day, course, level, position):
         ],
         **({"modules": [_expand_module(module, day, course, previous) for module in day["modules"]]}
            if day.get("modules") else {}),
+        **({"roadmap": [{"stage": step["stage"], "subtopics": list(step["subtopics"])} for step in day["roadmap"]]}
+           if day.get("roadmap") else {}),
         "learning_objectives": list(day["objectives"]),
         "prerequisites": previous,
         "preparation_requirements": list(day.get("preparation") or [
@@ -173,6 +175,8 @@ def _expand_day(day, course, level, position):
         "difficulty": LEVEL_LABELS.get(level, "Integrated"),
         "course_level": level,
         **({"shared_key": day["shared_key"]} if day.get("shared_key") else {}),
+        # Detailed module design (outcomes, timed topics, quiz, rubric) for the course workbook.
+        **({"design": day["design"]} if isinstance(day.get("design"), dict) else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
         "review_status": "unreviewed",
@@ -206,6 +210,33 @@ def validate_course(course):
                 topics.append(day["topic"].strip().lower())
     if len(topics) != len(set(topics)):
         problems.append("day topics must be unique across all three levels")
+    return problems
+
+
+# A day's roadmap groups its subtopics into ordered learning stages. Stages come
+# from this list and keep its order, so every course reads the same way.
+ROADMAP_STAGES = ("Understand", "Plan", "Set Up", "Build", "Integrate", "Secure", "Verify", "Operate",
+                  "Improve", "Present")
+
+
+def _roadmap_problems(day, label):
+    """A roadmap needs 3-5 stages in ROADMAP_STAGES order, and must hold every subtopic exactly once."""
+    roadmap = day.get("roadmap")
+    if not isinstance(roadmap, list) or not 3 <= len(roadmap) <= 5:
+        return [f"{label}: roadmap needs 3 to 5 stages"]
+    stages, items = [], []
+    for step in roadmap:
+        if not isinstance(step, dict) or step.get("stage") not in ROADMAP_STAGES \
+                or not isinstance(step.get("subtopics"), list) or not step["subtopics"]:
+            return [f"{label}: each roadmap stage needs a known stage name and subtopics"]
+        stages.append(step["stage"])
+        items += step["subtopics"]
+    problems = []
+    order = [ROADMAP_STAGES.index(stage) for stage in stages]
+    if order != sorted(set(order)):
+        problems.append(f"{label}: roadmap stages must be unique and follow {', '.join(ROADMAP_STAGES)}")
+    if sorted(items) != sorted(day.get("subtopics") or []):
+        problems.append(f"{label}: roadmap must contain each subtopic exactly once")
     return problems
 
 
@@ -246,6 +277,8 @@ def _day_problems(day, label):
     if missing:
         return [f"{label}: missing {', '.join(missing)}"]
     problems = _module_problems(day["modules"], label) if "modules" in day else []
+    if "roadmap" in day:
+        problems += _roadmap_problems(day, label)
     need = _subtopic_target(day["topic"])
     if len(day["subtopics"]) < need:
         problems.append(f"{label}: {len(day['subtopics'])} subtopics, needs {need}")
@@ -276,6 +309,9 @@ def _load_courses():
                 for level in LEVELS:
                     track = course["levels"][level]
                     track["days"] = [_expand_day(day, course, level, index) for index, day in enumerate(track["days"])]
+                    for day in track["days"]:
+                        # Detailed designs live in module_designs/ and are read only when a ToC uses this day.
+                        day["design_ref"] = {"file": path.stem, "level": level, "topic": day["topic"]}
             except (ValueError, KeyError, TypeError, AttributeError, OSError) as exc:
                 # A broken file must not stop TOC generation; that domain keeps the old dataset.
                 logger.warning("Skipping level dataset %s: %s", path.name, exc)

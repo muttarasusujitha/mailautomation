@@ -15,6 +15,7 @@ import SearchSourceReport from '../components/SearchSourceReport'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
 const STATUS = ['all', 'new', 'reviewed', 'contacted', 'converted', 'rejected']
+const MAX_VISIBLE_LEADS = 500
 const STATUS_LABELS = {
   all: 'All',
   new: 'New',
@@ -61,6 +62,7 @@ export default function LinkedInSearch() {
   const navigate = useNavigate()
   const [mode, setMode] = useState('client')
   const [leads, setLeads] = useState([])
+  const [storedTotal, setStoredTotal] = useState(0)
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('all')
@@ -136,7 +138,11 @@ export default function LinkedInSearch() {
       const skippedCount = res.data.skipped_count || 0
       const autoSentCount = res.data.auto_sent_count || 0
       const warnings = leadSearchWarnings(res.data)
-      setSearchReport({ ...res.data, warnings })
+      const queuedRetries = res.data.queued_retries || []
+      const retryMessage = queuedRetries.length
+        ? `${queuedRetries.map(item => item.domain).join(', ')} search is queued for automatic retry when a source becomes available.`
+        : ''
+      setSearchReport({ ...res.data, warnings: retryMessage ? [...warnings, retryMessage] : warnings })
       setShowSearchMatches((res.data.results || []).length > 0)
       if (!automatic && savedCount) {
         const savedText = `Saved ${savedCount} LinkedIn result${savedCount === 1 ? '' : 's'}`
@@ -207,6 +213,7 @@ export default function LinkedInSearch() {
     setSearchDomains(domains)
     setSearchReport(null)
     setShowSearchMatches(false)
+    setStoredTotal(0)
     runSearch({ domainText: domains, automatic: true, searchMode: mode })
     return () => { listToken.current += 1 }
   }, [mode])

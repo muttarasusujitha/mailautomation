@@ -44,7 +44,7 @@ class TocRequest(BaseModel):
     notes: Optional[str] = ""
     requirement_id: Optional[str] = None
     client_email: Optional[str] = None
-    excel_layout: Literal["auto", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
+    excel_layout: Literal["auto", "course_workbook", "daily_plan", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
     trainer_email: Optional[str] = None
@@ -618,9 +618,10 @@ async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
         if not str(settings.OPENAI_API_KEY or "").strip():
             return None
         from openai import AsyncOpenAI
-        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=60, max_retries=1) as client:
+        # Course outlines make each structured response longer than the old flat plan.
+        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=240, max_retries=1) as client:
             return await asyncio.wait_for(
-                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=180,
+                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=420,
             )
     except Exception:
         logger.exception("Requirement-driven TOC generation unavailable; returning a review-only draft")
@@ -747,6 +748,12 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
+        # AI-planned days get the same module detail as dataset ToCs when they teach a dataset module.
+        try:
+            from app.module_design_store import attach_to_ai_toc
+            attach_to_ai_toc(toc, payload.domain)
+        except Exception:
+            logger.exception("Could not link stored module designs to the AI ToC; keeping it without them")
     reference_unusable = False
     if toc is None:
         # Reference curricula keep their own modules. When AI is unavailable or
@@ -874,7 +881,13 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     client_email = normalize_client_email(payload.client_email)
     if not client_email and payload.requirement_id:
         client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
-    toc["excel_layout"] = await select_toc_layout(db, payload.excel_layout, client_email, payload.toc_id)
+    # The clean, single-sheet daily plan is the default client-facing workbook.
+    # The ten themed reference layouts stay available only when explicitly asked for.
+    requested_layout = (payload.excel_layout or "auto").strip().lower()
+    if requested_layout in ("", "auto"):
+        toc["excel_layout"] = "course_workbook"
+    else:
+        toc["excel_layout"] = await select_toc_layout(db, requested_layout, client_email, payload.toc_id)
 
     await db.toc_generations.insert_one({
         "toc_id": toc_id,

@@ -25,9 +25,6 @@
         "Use cases",
         "Threats or failure modes",
         "Lab setup",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
         "OWASP Top 10",
         "Broken Access Control",
         "Cryptographic Failures",
@@ -110,21 +107,7 @@
         "Addressing/identity concepts",
         "State",
         "Control plane/data plane",
-        "Common configurations",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Common configurations"
       ],
       "tools": [
         "OWASP Top 10",
@@ -196,21 +179,7 @@
         "Scalability",
         "Trust boundaries",
         "Failure domains",
-        "Cloud considerations",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Cloud considerations"
       ],
       "tools": [
         "OWASP Top 10",
@@ -282,21 +251,7 @@
         "Certificates/keys",
         "Hardening",
         "Least privilege",
-        "Logging and auditing",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Logging and auditing"
       ],
       "tools": [
         "OWASP Top 10",
@@ -368,21 +323,7 @@
         "Common faults",
         "Diagnostic commands",
         "Alerting",
-        "Incident workflow",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Incident workflow"
       ],
       "tools": [
         "OWASP Top 10",
@@ -454,21 +395,7 @@
         "Change control",
         "Versioning",
         "Testing",
-        "Operational runbooks",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Operational runbooks"
       ],
       "tools": [
         "OWASP Top 10",
@@ -540,21 +467,7 @@
         "Performance",
         "High availability",
         "Disaster recovery",
-        "Cost considerations",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Cost considerations"
       ],
       "tools": [
         "OWASP Top 10",
@@ -627,21 +540,7 @@
         "Testing",
         "Monitoring",
         "Troubleshooting",
-        "Documentation",
-        "OWASP terminology and feature mapping for this topic",
-        "OWASP configuration and implementation considerations",
-        "OWASP best practices and common mistakes for this topic",
-        "OWASP Top 10",
-        "Broken Access Control",
-        "Cryptographic Failures",
-        "Injection",
-        "Insecure Design",
-        "Security Misconfiguration",
-        "Vulnerable Components",
-        "Authentication Failures",
-        "Logging Failures",
-        "SSRF",
-        "secure SDLC"
+        "Documentation"
       ],
       "tools": [
         "OWASP Top 10",
@@ -709,5 +608,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

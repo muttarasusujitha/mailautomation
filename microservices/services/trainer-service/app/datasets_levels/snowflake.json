@@ -1,0 +1,1889 @@
+{
+  "domain": "Snowflake",
+  "name": "Snowflake Data Cloud",
+  "category": "Data & Analytics",
+  "icon": "database",
+  "aliases": [
+    "Snowflake",
+    "Snowflake Data Cloud",
+    "Snowflake Data Warehouse",
+    "Snowflake Warehouse",
+    "SnowPro",
+    "Snowflake Data Engineering",
+    "Snowflake SQL"
+  ],
+  "certifications": [
+    "SnowPro Core Certification",
+    "SnowPro Advanced: Data Engineer",
+    "SnowPro Advanced: Architect",
+    "SnowPro Advanced: Administrator"
+  ],
+  "tools": [
+    "Snowsight",
+    "SnowSQL",
+    "Snowpark for Python",
+    "Snowflake Marketplace"
+  ],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No Snowflake experience assumed. Participants learn the Snowflake architecture, warehouses, loading and querying data (including JSON), Time Travel and cloning, access control, Snowpipe, streams and tasks, sharing and cost control, and build a small analytics pipeline.",
+      "prerequisites": [
+        "Comfortable writing basic SQL (SELECT, JOIN, GROUP BY)",
+        "Understands tables, rows and columns",
+        "A Snowflake trial account or trainer-provided sandbox"
+      ],
+      "outcomes": [
+        "Explain Snowflake's architecture and run queries in Snowsight",
+        "Load, query and model structured and JSON data",
+        "Use Time Travel, cloning and role-based access control",
+        "Automate loading with Snowpipe, streams and tasks and control cost"
+      ],
+      "days": [
+        {
+          "topic": "Snowflake Architecture and Snowsight",
+          "subtopics": [
+            "Separation of storage, compute and cloud services",
+            "Snowflake editions and feature differences",
+            "Choosing a cloud provider and region",
+            "Snowsight worksheets, roles and warehouse selector",
+            "Query context: ROLE, WAREHOUSE, DATABASE, SCHEMA",
+            "Running a query and reading the result grid",
+            "Credits and the account-usage basics",
+            "Databases, schemas and object naming",
+            "Getting help and documentation in Snowsight"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Log in to Snowsight, set your role and warehouse, run three queries against SNOWFLAKE_SAMPLE_DATA, and note where storage, compute and services each do their work.",
+          "deliverable": "Worksheet with three working queries and a short note mapping each query step to a layer",
+          "checks": [
+            [
+              "Run SELECT CURRENT_WAREHOUSE(), CURRENT_ROLE()",
+              "Both return the values set in context",
+              "Query result"
+            ],
+            [
+              "Query a TPCH sample table",
+              "Rows return without creating any table",
+              "Result grid"
+            ],
+            [
+              "Ask which layer stores the data",
+              "Participant names the storage layer, separate from compute",
+              "Written answer"
+            ]
+          ],
+          "objectives": [
+            "Describe Snowflake's three-layer architecture",
+            "Navigate Snowsight and set query context",
+            "Run queries against shared sample data"
+          ]
+        },
+        {
+          "topic": "Virtual Warehouses and Compute",
+          "subtopics": [
+            "What a virtual warehouse is",
+            "Warehouse sizes and credit consumption per second",
+            "Auto-suspend and auto-resume",
+            "Scaling up versus scaling out",
+            "Separating workloads across warehouses",
+            "Monitoring warehouse load and history",
+            "Statement timeouts and query queuing",
+            "Starting, suspending and resizing a warehouse",
+            "Local data cache on a warehouse"
+          ],
+          "tools": [
+            "Snowsight",
+            "SnowSQL"
+          ],
+          "lab_task": "Create an XS warehouse with auto-suspend of 60 seconds, run the same aggregation on XS and S, and record the runtime and credits for each.",
+          "deliverable": "Table comparing XS vs S runtime and credits for the same query, with a sizing recommendation",
+          "checks": [
+            [
+              "Set auto-suspend to 60s and leave the warehouse idle",
+              "It suspends and consumes no credits while idle",
+              "Warehouse history"
+            ],
+            [
+              "Run the aggregation on XS then S",
+              "The larger size finishes faster for this query",
+              "Query history timings"
+            ],
+            [
+              "Inspect WAREHOUSE_METERING_HISTORY",
+              "Credit use matches the size and active time",
+              "Account usage query"
+            ]
+          ],
+          "objectives": [
+            "Create and configure a warehouse",
+            "Explain credit consumption and auto-suspend",
+            "Choose a size from measured evidence"
+          ]
+        },
+        {
+          "topic": "Databases, Schemas and Tables",
+          "subtopics": [
+            "Database and schema hierarchy",
+            "Permanent, transient and temporary tables",
+            "Common data types and defaults",
+            "Primary, unique and foreign key constraints (informational)",
+            "CREATE, ALTER and DROP",
+            "UNDROP and the role of Time Travel",
+            "Information Schema for metadata",
+            "Cloning versus copying",
+            "Naming conventions and object comments"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Model a small sales schema (customers, orders, order_items), create the tables with sensible types and constraints, then drop and UNDROP one table.",
+          "deliverable": "SQL script that creates the schema and demonstrates UNDROP of a table",
+          "checks": [
+            [
+              "Create the three tables",
+              "All tables exist with correct data types",
+              "SHOW TABLES output"
+            ],
+            [
+              "DROP then UNDROP ORDERS",
+              "The table and its data return",
+              "Row count before and after"
+            ],
+            [
+              "Query INFORMATION_SCHEMA.COLUMNS",
+              "Column types match the design",
+              "Metadata query result"
+            ]
+          ],
+          "objectives": [
+            "Design a schema and choose data types",
+            "Create and alter tables",
+            "Recover a dropped table with UNDROP"
+          ]
+        },
+        {
+          "topic": "Loading Data: Stages, File Formats and COPY",
+          "subtopics": [
+            "Internal and external stages",
+            "File formats: CSV, JSON, Parquet",
+            "PUT to upload local files",
+            "The COPY INTO command and options",
+            "Validation modes and ON_ERROR handling",
+            "Loading metadata and COPY_HISTORY",
+            "Handling malformed rows and rejections",
+            "Compression and file sizing for load speed",
+            "Idempotent reloads and file skipping"
+          ],
+          "tools": [
+            "SnowSQL",
+            "Snowsight"
+          ],
+          "lab_task": "Load a provided CSV of 10,000 orders through an internal stage with a defined file format, send bad rows to a rejection path, and verify the load count.",
+          "deliverable": "Loaded ORDERS table, a file format object, and a report of accepted versus rejected rows",
+          "checks": [
+            [
+              "COPY the clean file",
+              "Row count equals the file's data rows",
+              "COPY result and SELECT COUNT(*)"
+            ],
+            [
+              "COPY a file with three bad rows using ON_ERROR=CONTINUE",
+              "Good rows load, three are rejected",
+              "COPY_HISTORY and VALIDATE output"
+            ],
+            [
+              "Re-run the same COPY",
+              "Already-loaded files are skipped",
+              "Load metadata"
+            ]
+          ],
+          "objectives": [
+            "Stage files and define a file format",
+            "Load data with COPY INTO",
+            "Handle and report rejected rows"
+          ]
+        },
+        {
+          "topic": "Querying Data with SQL",
+          "subtopics": [
+            "SELECT, WHERE, GROUP BY and HAVING",
+            "Inner, outer and cross joins",
+            "Set operators: UNION, INTERSECT, EXCEPT",
+            "Window functions and framing",
+            "Common table expressions and recursion",
+            "Date, string and conditional functions",
+            "The result cache and when it applies",
+            "QUALIFY and TOP sampling",
+            "Reading the query profile basics"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Answer five business questions on the sample sales data using joins, a window function and a CTE, and show that re-running an identical query hits the result cache.",
+          "deliverable": "Worksheet with five answered questions and evidence of a cache hit",
+          "checks": [
+            [
+              "Compute each customer's running total with a window function",
+              "Running totals are correct per customer",
+              "Query result"
+            ],
+            [
+              "Re-run an identical query within the cache window",
+              "It returns from cache with near-zero compute",
+              "Query profile shows cache"
+            ],
+            [
+              "Rank the top five products per month",
+              "Results match a manual check on a sample month",
+              "Result versus manual check"
+            ]
+          ],
+          "objectives": [
+            "Write analytical SQL with joins and windows",
+            "Use CTEs for readable queries",
+            "Recognise result-cache behaviour"
+          ]
+        },
+        {
+          "topic": "Semi-Structured Data: VARIANT and JSON",
+          "subtopics": [
+            "The VARIANT, OBJECT and ARRAY types",
+            "Loading JSON into a VARIANT column",
+            "Dot and bracket path access",
+            "Casting extracted values to typed columns",
+            "FLATTEN for arrays",
+            "PARSE_JSON and TO_VARIANT",
+            "Schema-on-read trade-offs",
+            "Null and missing-field behaviour",
+            "Querying nested objects"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Load a JSON file of web events into a VARIANT column, extract user, event type and timestamp into a typed view, and flatten an array of items.",
+          "deliverable": "A typed view over the raw JSON and a flattened item-level query",
+          "checks": [
+            [
+              "Extract event_type and cast the timestamp",
+              "Values are correctly typed, not VARIANT",
+              "View definition and sample rows"
+            ],
+            [
+              "FLATTEN the items array",
+              "One row per item with the parent event id",
+              "Flattened result"
+            ],
+            [
+              "Count events by type",
+              "Counts match the source file",
+              "Query versus file check"
+            ]
+          ],
+          "objectives": [
+            "Load and query JSON with VARIANT",
+            "Extract and cast nested fields",
+            "Flatten arrays into rows"
+          ]
+        },
+        {
+          "topic": "Views and the Caching Layers",
+          "subtopics": [
+            "Standard, secure and materialised views",
+            "When to use each kind of view",
+            "The metadata cache",
+            "The result cache",
+            "The warehouse-local data cache",
+            "View dependencies and GET_DDL",
+            "Protecting logic with secure views",
+            "Column-level comments and documentation",
+            "Change management for views"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Build a reporting view over the sales schema, convert it to a secure view, and demonstrate warehouse-cache versus result-cache behaviour.",
+          "deliverable": "A reporting view, a secure variant, and notes on which cache served each query",
+          "checks": [
+            [
+              "Create the reporting view",
+              "It returns the expected joined result",
+              "View query"
+            ],
+            [
+              "Make it secure and inspect its definition as a lower-privilege role",
+              "The definition is hidden from that role",
+              "Attempted GET_DDL as that role"
+            ],
+            [
+              "Run a query cold, warm and identical",
+              "Each run uses a different cache, shown in the profile",
+              "Three query profiles"
+            ]
+          ],
+          "objectives": [
+            "Create standard and secure views",
+            "Explain Snowflake's cache layers",
+            "Protect query logic with secure views"
+          ]
+        },
+        {
+          "topic": "Time Travel and Zero-Copy Cloning",
+          "subtopics": [
+            "Time Travel retention periods",
+            "AT and BEFORE clauses (offset, timestamp, statement)",
+            "Restoring data after a mistake",
+            "Fail-safe versus Time Travel",
+            "Zero-copy cloning of tables, schemas and databases",
+            "Clones for test and dev environments",
+            "Storage of clones and changed micro-partitions",
+            "Cloning with Time Travel together",
+            "Retention and storage-cost trade-offs"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Corrupt a table with a bad UPDATE, recover it with Time Travel, then create a zero-copy clone of the schema for a test environment.",
+          "deliverable": "Recovered table and a cloned test schema, with a note on storage cost of the clone",
+          "checks": [
+            [
+              "Run a bad UPDATE then restore with AT(OFFSET)",
+              "The pre-update values return",
+              "Before and after row sample"
+            ],
+            [
+              "CLONE the schema",
+              "The clone appears instantly and shares storage",
+              "SHOW SCHEMAS and a storage note"
+            ],
+            [
+              "Change a row in the clone",
+              "Only the changed micro-partitions add storage; source is untouched",
+              "Source row unchanged"
+            ]
+          ],
+          "objectives": [
+            "Recover data with Time Travel",
+            "Explain Fail-safe",
+            "Create and use zero-copy clones"
+          ]
+        },
+        {
+          "topic": "Access Control with Roles",
+          "subtopics": [
+            "Securable objects and privileges",
+            "System roles: ACCOUNTADMIN, SYSADMIN, SECURITYADMIN, USERADMIN, PUBLIC",
+            "Creating custom roles",
+            "GRANT, REVOKE and role hierarchies",
+            "Future grants on new objects",
+            "Ownership of objects",
+            "Least privilege in practice",
+            "Granting roles to users and to other roles",
+            "Inspecting grants with SHOW GRANTS"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Create an ANALYST role that can read the sales schema only, assign it to a test user, and prove the user cannot write or see other schemas.",
+          "deliverable": "Role and grant script, assigned to a test user, with proof of least privilege",
+          "checks": [
+            [
+              "Grant SELECT on the sales schema to ANALYST",
+              "The user can read sales tables",
+              "Query as the test user"
+            ],
+            [
+              "Attempt an INSERT as the user",
+              "It is denied",
+              "Error message"
+            ],
+            [
+              "Add a future grant for new tables",
+              "A newly created table is readable without a new grant",
+              "Query on a new table"
+            ]
+          ],
+          "objectives": [
+            "Explain Snowflake's RBAC model",
+            "Create custom roles with least privilege",
+            "Use future grants"
+          ]
+        },
+        {
+          "topic": "Continuous Loading with Snowpipe",
+          "subtopics": [
+            "Batch versus continuous loading",
+            "Snowpipe and auto-ingest",
+            "Cloud storage event notifications",
+            "PIPE objects and their COPY statement",
+            "Monitoring with PIPE_USAGE_HISTORY",
+            "Error handling and reloads",
+            "Latency expectations for Snowpipe",
+            "Cost model for serverless ingestion",
+            "REST API triggering overview"
+          ],
+          "tools": [
+            "Snowsight",
+            "SnowSQL"
+          ],
+          "lab_task": "Create a Snowpipe that loads new files from an external stage, drop two files in, and confirm they load automatically within the latency window.",
+          "deliverable": "A working pipe and a monitoring query showing auto-loaded files",
+          "checks": [
+            [
+              "Create the pipe with AUTO_INGEST",
+              "The pipe exists and is running",
+              "SHOW PIPES"
+            ],
+            [
+              "Add two files to the stage",
+              "Both load without a manual COPY",
+              "COPY_HISTORY for the table"
+            ],
+            [
+              "Inspect PIPE_USAGE_HISTORY",
+              "Credits and files loaded are reported",
+              "Usage query"
+            ]
+          ],
+          "objectives": [
+            "Explain continuous ingestion",
+            "Create and monitor a Snowpipe",
+            "Troubleshoot a failed auto-load"
+          ]
+        },
+        {
+          "topic": "Automating with Streams and Tasks",
+          "subtopics": [
+            "Streams as change tracking",
+            "Standard, append-only and insert-only streams",
+            "Stream offsets and consumption",
+            "Tasks and schedules (CRON and interval)",
+            "Combining a stream with a task",
+            "Serverless versus warehouse tasks",
+            "Monitoring task runs with TASK_HISTORY",
+            "WHEN conditions to skip empty runs",
+            "Error handling in tasks"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Capture inserts to a staging table with a stream, and schedule a task that merges new rows into a target table every minute.",
+          "deliverable": "A stream, a scheduled task, and evidence that new rows flow to the target",
+          "checks": [
+            [
+              "Insert rows into the staging table",
+              "The stream shows the new rows as changes",
+              "SELECT from the stream"
+            ],
+            [
+              "Let the task run",
+              "New rows appear in the target and the stream clears",
+              "Target count and stream state"
+            ],
+            [
+              "Inspect TASK_HISTORY",
+              "The task shows successful scheduled runs",
+              "History query"
+            ]
+          ],
+          "objectives": [
+            "Track changes with streams",
+            "Schedule work with tasks",
+            "Build a simple incremental merge"
+          ]
+        },
+        {
+          "topic": "Secure Data Sharing",
+          "subtopics": [
+            "Shares and consumer accounts",
+            "Reader accounts for non-Snowflake consumers",
+            "Sharing a database with a share",
+            "The Marketplace and listings",
+            "No data movement in sharing",
+            "Secure views over shared data",
+            "Governance of shared data",
+            "Direct shares versus listings",
+            "Usage tracking for providers"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Create a share that exposes one read-only view of the sales data, and describe how a consumer account would query it without copying data.",
+          "deliverable": "A share object with one view and a one-paragraph explanation of consumer access",
+          "checks": [
+            [
+              "Create a share and add a secure view",
+              "The share lists only the intended view",
+              "SHOW SHARES and GRANTS"
+            ],
+            [
+              "Add a consumer account placeholder",
+              "The share is ready for a consumer to mount",
+              "Share definition"
+            ],
+            [
+              "Explain where the data lives",
+              "Participant states the data is not copied to the consumer",
+              "Written answer"
+            ]
+          ],
+          "objectives": [
+            "Explain Snowflake data sharing",
+            "Create a share with a secure view",
+            "Describe Marketplace listings"
+          ]
+        },
+        {
+          "topic": "Managing Cost: Credits and Resource Monitors",
+          "subtopics": [
+            "Credit model for compute and cloud services",
+            "Storage and Time-Travel cost",
+            "Resource monitors and thresholds",
+            "Suspend and notify actions",
+            "Account-usage views for spend",
+            "Warehouse right-sizing for cost",
+            "Auto-suspend tuning",
+            "Serverless feature credits",
+            "Budgets and spend alerts"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Create a resource monitor that suspends a warehouse at a monthly credit quota and alerts at 80 percent, then verify the alert and suspend actions.",
+          "deliverable": "A resource monitor with thresholds and evidence of its actions",
+          "checks": [
+            [
+              "Set a monitor at a small quota with an 80% alert",
+              "Monitor is attached to the warehouse",
+              "SHOW RESOURCE MONITORS"
+            ],
+            [
+              "Drive usage past 80%",
+              "An alert notification is recorded",
+              "Notification or monitor state"
+            ],
+            [
+              "Reach the quota",
+              "The warehouse is suspended by the monitor",
+              "Warehouse status"
+            ]
+          ],
+          "objectives": [
+            "Explain the credit and storage cost model",
+            "Create resource monitors",
+            "Find spend in account usage"
+          ]
+        },
+        {
+          "topic": "Capstone: A Small Analytics Pipeline",
+          "subtopics": [
+            "End-to-end pipeline design",
+            "Load, transform, model and serve",
+            "Applying RBAC and cost controls",
+            "Validating results against the source",
+            "Documenting the pipeline",
+            "Presenting to stakeholders",
+            "Handling a late-arriving file",
+            "A simple data-quality check"
+          ],
+          "tools": [
+            "Snowsight",
+            "SnowSQL"
+          ],
+          "lab_task": "Build a pipeline that ingests raw orders (COPY or Snowpipe), transforms them with a task, exposes a secure reporting view to an ANALYST role, and runs under a resource monitor.",
+          "deliverable": "A working end-to-end pipeline with RBAC, cost control and a short demo",
+          "checks": [
+            [
+              "Load raw data and transform it",
+              "The reporting view returns correct figures",
+              "View result versus source"
+            ],
+            [
+              "Query the view as ANALYST",
+              "The role reads the view but cannot write",
+              "Query and denied write"
+            ],
+            [
+              "Show the resource monitor",
+              "The pipeline runs within the credit quota",
+              "Monitor and metering history"
+            ]
+          ],
+          "objectives": [
+            "Assemble an end-to-end Snowflake pipeline",
+            "Apply governance and cost controls",
+            "Demonstrate and document the result"
+          ]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who have used Snowflake. Covers micro-partitions and clustering, warehouse scaling, query optimisation, advanced loading and external tables, deep semi-structured handling, streams/tasks/dynamic-table pipelines, RBAC and governance, secure sharing and Snowpark.",
+      "prerequisites": [
+        "Has loaded and queried data in Snowflake",
+        "Comfortable with SQL including window functions",
+        "Basic Python for the Snowpark day"
+      ],
+      "outcomes": [
+        "Tune queries and warehouses with the query profile and clustering",
+        "Build incremental pipelines with streams, tasks and dynamic tables",
+        "Design scalable RBAC and apply masking and row-access policies",
+        "Share governed data products and use Snowpark for Python"
+      ],
+      "days": [
+        {
+          "topic": "Micro-Partitions, Pruning and Clustering",
+          "subtopics": [
+            "How micro-partitions store data",
+            "Column metadata and min/max statistics",
+            "Metadata and partition pruning",
+            "Natural clustering from load order",
+            "Clustering keys and when they help",
+            "SYSTEM$CLUSTERING_INFORMATION",
+            "Reclustering and its credit cost",
+            "Choosing a clustering key",
+            "Monitoring clustering depth over time"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "On a large table, compare a selective query before and after adding a clustering key, using the query profile to show partitions scanned.",
+          "deliverable": "Before/after query profiles and a recommendation on whether clustering is worth it",
+          "checks": [
+            [
+              "Run a selective filter query on an unclustered large table",
+              "The profile shows many partitions scanned",
+              "Query profile"
+            ],
+            [
+              "Add a clustering key aligned to the filter",
+              "Partitions scanned drop for the same query",
+              "Clustering info and profile"
+            ],
+            [
+              "Estimate reclustering cost",
+              "A credit estimate supports the keep/drop decision",
+              "Written recommendation"
+            ]
+          ],
+          "objectives": [
+            "Explain micro-partitions and pruning",
+            "Add and assess a clustering key",
+            "Decide when clustering pays off"
+          ]
+        },
+        {
+          "topic": "Warehouse Sizing, Scaling and Multi-Cluster",
+          "subtopics": [
+            "Scale up for complex queries",
+            "Scale out with multi-cluster for concurrency",
+            "Economy versus standard scaling policy",
+            "Queuing and concurrency limits",
+            "Workload isolation by warehouse",
+            "Statement timeouts and query priority",
+            "Auto-scale min and max clusters",
+            "Reading the warehouse load chart",
+            "Right-sizing from measured evidence"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Simulate concurrent users on a single-cluster warehouse, then enable multi-cluster auto-scaling and measure queue time improvement.",
+          "deliverable": "A concurrency test with before/after queue times and a sizing decision",
+          "checks": [
+            [
+              "Run many concurrent queries on one cluster",
+              "Some queries queue",
+              "Query history queue times"
+            ],
+            [
+              "Enable multi-cluster min 1 max 3",
+              "Extra clusters start and queuing drops",
+              "Warehouse load chart"
+            ],
+            [
+              "Compare credits used",
+              "The concurrency gain justifies the credits, or does not",
+              "Metering comparison"
+            ]
+          ],
+          "objectives": [
+            "Separate scale-up from scale-out",
+            "Configure multi-cluster warehouses",
+            "Tune for concurrency with evidence"
+          ]
+        },
+        {
+          "topic": "Query Profiling and Optimization",
+          "subtopics": [
+            "Reading the query profile in detail",
+            "Spilling to local and remote storage",
+            "Join explosion and exploding GROUP BY",
+            "Pruning effectiveness and partitions scanned",
+            "Rewriting expensive queries",
+            "The Query Acceleration Service",
+            "Caching layers in the profile",
+            "Bytes scanned versus bytes spilled",
+            "Common anti-patterns"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Take three slow provided queries, diagnose each with the profile (spilling, poor pruning, bad join), and rewrite them to run faster.",
+          "deliverable": "Three optimised queries with before/after timings and the cause of each slowdown",
+          "checks": [
+            [
+              "Identify the bottleneck in each query",
+              "Each cause (spill, scan, join) is named from the profile",
+              "Annotated profiles"
+            ],
+            [
+              "Rewrite each query",
+              "Every query runs faster with the same result",
+              "Timings and result equality"
+            ],
+            [
+              "Confirm no spilling remains",
+              "Remote spill is eliminated or explained",
+              "Profile after rewrite"
+            ]
+          ],
+          "objectives": [
+            "Read a query profile in depth",
+            "Diagnose spilling and poor pruning",
+            "Rewrite queries for performance"
+          ]
+        },
+        {
+          "topic": "Advanced Loading and Unloading",
+          "subtopics": [
+            "Loading Parquet and Avro",
+            "Schema detection with INFER_SCHEMA",
+            "MATCH_BY_COLUMN_NAME",
+            "Unloading with COPY INTO stage",
+            "Partitioned unloads with PARTITION BY",
+            "Error handling at scale",
+            "Load throughput and file sizing",
+            "Transforming during load (SELECT in COPY)",
+            "Directory tables over stages"
+          ],
+          "tools": [
+            "SnowSQL",
+            "Snowsight"
+          ],
+          "lab_task": "Load a partitioned Parquet dataset using schema inference and column matching, then unload a filtered extract back to a stage as partitioned files.",
+          "deliverable": "A loaded table from Parquet and a partitioned unload to a stage",
+          "checks": [
+            [
+              "Use INFER_SCHEMA to create the table",
+              "Column names and types are detected correctly",
+              "Generated DDL"
+            ],
+            [
+              "Load with MATCH_BY_COLUMN_NAME",
+              "Rows load despite column order differences",
+              "Row count and spot check"
+            ],
+            [
+              "Unload a filtered extract partitioned by month",
+              "One file per month is produced",
+              "Stage listing"
+            ]
+          ],
+          "objectives": [
+            "Load columnar formats with schema inference",
+            "Match columns by name",
+            "Unload partitioned extracts"
+          ]
+        },
+        {
+          "topic": "External Tables and the Data Lake",
+          "subtopics": [
+            "External stages over cloud storage",
+            "External tables and partition columns",
+            "Refreshing external-table metadata",
+            "Materialised views on external tables",
+            "Iceberg tables overview",
+            "When to load versus query in place",
+            "Partition pruning on external tables",
+            "File formats for lake data",
+            "Cost of scanning external data"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Define an external table over partitioned files in cloud storage, add partition columns, and build a materialised view that speeds up a common query.",
+          "deliverable": "An external table with partitions and a materialised view over it",
+          "checks": [
+            [
+              "Create the external table with partition columns",
+              "Queries prune by partition",
+              "Query profile"
+            ],
+            [
+              "Add new files and refresh",
+              "New data appears after a metadata refresh",
+              "Row counts before/after"
+            ],
+            [
+              "Add a materialised view",
+              "The common query is faster and stays current",
+              "Timings and freshness check"
+            ]
+          ],
+          "objectives": [
+            "Query a data lake with external tables",
+            "Partition and refresh external metadata",
+            "Accelerate with materialised views"
+          ]
+        },
+        {
+          "topic": "Semi-Structured Deep Dive",
+          "subtopics": [
+            "Nested FLATTEN with LATERAL",
+            "PARSE_JSON and OBJECT/ARRAY functions",
+            "Handling ragged and missing fields",
+            "Arrays of arrays and deep nesting",
+            "Performance of VARIANT versus typed columns",
+            "Directory tables for unstructured files",
+            "Modelling events to a star schema",
+            "GET, GET_PATH and TRY_CAST",
+            "Validating semi-structured data"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Transform a deeply nested JSON event feed into a clean fact-and-dimension model, handling missing fields and arrays of arrays.",
+          "deliverable": "A star-schema model built from nested JSON with documented assumptions",
+          "checks": [
+            [
+              "Flatten nested arrays with LATERAL FLATTEN",
+              "Grain is one row per leaf item",
+              "Model query"
+            ],
+            [
+              "Handle missing fields",
+              "Nulls are produced, no query errors",
+              "Rows with missing data"
+            ],
+            [
+              "Compare VARIANT versus typed query cost",
+              "Typed columns are faster for the hot query",
+              "Two query profiles"
+            ]
+          ],
+          "objectives": [
+            "Flatten complex nested JSON",
+            "Handle ragged semi-structured data",
+            "Model events into a star schema"
+          ]
+        },
+        {
+          "topic": "Materialised Views and Search Optimization",
+          "subtopics": [
+            "Materialised view rules and limits",
+            "Automatic maintenance and its cost",
+            "The Search Optimization Service",
+            "Point-lookup and substring acceleration",
+            "Geospatial search optimization",
+            "Choosing MV vs SOS vs clustering",
+            "Monitoring maintenance spend",
+            "Staleness and transparent rewrite",
+            "Limitations and unsupported queries"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "For a point-lookup workload, compare a clustering key, a materialised view and the Search Optimization Service, and choose the best option with evidence.",
+          "deliverable": "A comparison table of the three approaches with a justified choice",
+          "checks": [
+            [
+              "Enable Search Optimization on the lookup column",
+              "Point lookups scan far fewer partitions",
+              "Profiles before/after"
+            ],
+            [
+              "Build a materialised view for the aggregate",
+              "The aggregate query is faster and auto-maintained",
+              "Timings"
+            ],
+            [
+              "Compare maintenance credits",
+              "The choice is justified by speed per credit",
+              "Metering and recommendation"
+            ]
+          ],
+          "objectives": [
+            "Use materialised views correctly",
+            "Apply the Search Optimization Service",
+            "Choose the right acceleration feature"
+          ]
+        },
+        {
+          "topic": "Streams and Change Data Capture",
+          "subtopics": [
+            "Stream internals and offsets",
+            "CDC patterns with MERGE",
+            "Append-only versus standard streams",
+            "Insert-only streams on external tables",
+            "Multiple consumers of a stream",
+            "Handling late and out-of-order data",
+            "Stream staleness and retention",
+            "Combining streams with tasks",
+            "Verifying exactly-once application"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Build a CDC flow that captures inserts, updates and deletes from a source table and applies them to a slowly changing dimension with MERGE.",
+          "deliverable": "A working CDC-to-SCD pipeline with correctness checks",
+          "checks": [
+            [
+              "Apply inserts, updates and deletes upstream",
+              "The stream reports all three change types",
+              "Stream contents"
+            ],
+            [
+              "Run the MERGE",
+              "The dimension reflects all changes exactly once",
+              "Target versus expected"
+            ],
+            [
+              "Let the stream go stale past retention",
+              "The failure mode is detected and explained",
+              "Error and written note"
+            ]
+          ],
+          "objectives": [
+            "Explain stream offsets and types",
+            "Build CDC with MERGE",
+            "Handle stream staleness safely"
+          ]
+        },
+        {
+          "topic": "Tasks, Task Graphs and Orchestration",
+          "subtopics": [
+            "Root tasks and child tasks (DAGs)",
+            "Serverless versus warehouse tasks",
+            "Conditional execution with WHEN",
+            "Error handling and retries",
+            "Overlap prevention and ALLOW_OVERLAPPING_EXECUTION",
+            "Monitoring with TASK_HISTORY",
+            "Alerts on task failure",
+            "Scheduling with CRON and time zones",
+            "Resuming and suspending a task graph"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Build a three-step task graph (ingest, transform, publish) with a WHEN condition on the stream, and add failure alerting.",
+          "deliverable": "A task DAG with conditional execution and an alert on failure",
+          "checks": [
+            [
+              "Create the DAG with dependencies",
+              "Children run only after the parent succeeds",
+              "TASK_HISTORY order"
+            ],
+            [
+              "Add WHEN SYSTEM$STREAM_HAS_DATA",
+              "Steps skip cleanly when there is no new data",
+              "Skipped-run history"
+            ],
+            [
+              "Force a failure",
+              "An alert fires and the run is marked failed",
+              "Alert and history"
+            ]
+          ],
+          "objectives": [
+            "Build task DAGs",
+            "Run tasks conditionally on streams",
+            "Add retries and failure alerts"
+          ]
+        },
+        {
+          "topic": "Dynamic Tables for Declarative Pipelines",
+          "subtopics": [
+            "Dynamic tables versus streams-and-tasks",
+            "TARGET_LAG and refresh modes",
+            "Incremental versus full refresh",
+            "Chaining dynamic tables",
+            "Monitoring refresh history",
+            "Cost of continuous refresh",
+            "Dependencies and the refresh graph",
+            "Handling non-incremental expressions",
+            "Choosing declarative versus imperative"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Rebuild yesterday's streams-and-tasks pipeline as a chain of dynamic tables with a one-minute target lag, and compare effort and cost.",
+          "deliverable": "A dynamic-table pipeline with a comparison to the imperative version",
+          "checks": [
+            [
+              "Define the dynamic tables with TARGET_LAG",
+              "Downstream tables stay within the lag",
+              "Refresh history"
+            ],
+            [
+              "Insert new source rows",
+              "Results propagate within the target lag",
+              "Freshness check"
+            ],
+            [
+              "Compare to streams-and-tasks",
+              "Trade-offs in control versus simplicity are stated",
+              "Written comparison"
+            ]
+          ],
+          "objectives": [
+            "Build pipelines with dynamic tables",
+            "Set and verify target lag",
+            "Choose declarative versus imperative pipelines"
+          ]
+        },
+        {
+          "topic": "RBAC Design and Access Management",
+          "subtopics": [
+            "Functional versus access roles",
+            "Role hierarchies that scale",
+            "Managed access schemas",
+            "Future grants and ownership",
+            "SCIM and SSO overview",
+            "Access reviews with ACCOUNT_USAGE.GRANTS",
+            "Service accounts and key-pair users",
+            "Separation of duties",
+            "Role recommendations and cleanup"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Design a role model (access roles per schema, functional roles per team), implement it, and run an access review that proves least privilege.",
+          "deliverable": "A documented role model with scripts and an access-review query",
+          "checks": [
+            [
+              "Implement access and functional roles",
+              "Teams inherit only intended access",
+              "GRANTS review query"
+            ],
+            [
+              "Use a managed access schema",
+              "Only the schema owner can grant on its objects",
+              "Attempted grant by another role"
+            ],
+            [
+              "Run the access review",
+              "No role has more than its intended privileges",
+              "Review output"
+            ]
+          ],
+          "objectives": [
+            "Design scalable RBAC",
+            "Use managed access schemas and future grants",
+            "Audit access with account usage"
+          ]
+        },
+        {
+          "topic": "Governance: Masking and Row Access Policies",
+          "subtopics": [
+            "Dynamic data masking policies",
+            "Conditional masking by role",
+            "Row access policies",
+            "Object tagging",
+            "Tag-based masking",
+            "Access history and policy auditing",
+            "Mapping tables for row policies",
+            "Policy assignment and inheritance",
+            "Testing policies per role"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Protect a customer table with a masking policy on email and a row access policy that limits rows by region, driven by the querying role.",
+          "deliverable": "A protected table with masking and row policies and proof they work per role",
+          "checks": [
+            [
+              "Apply the email masking policy",
+              "Low-privilege roles see masked emails; admins see raw",
+              "Query results by role"
+            ],
+            [
+              "Apply the row access policy by region",
+              "Each regional role sees only its rows",
+              "Row counts by role"
+            ],
+            [
+              "Tag the PII columns and audit",
+              "Tagged columns and policy use appear in account usage",
+              "Tag and access-history query"
+            ]
+          ],
+          "objectives": [
+            "Apply dynamic masking",
+            "Enforce row-level security",
+            "Govern PII with tags and auditing"
+          ]
+        },
+        {
+          "topic": "Secure Views, Sharing and the Marketplace",
+          "subtopics": [
+            "Secure views for sharing",
+            "Shares versus listings",
+            "Provider and consumer roles",
+            "Reader accounts for non-Snowflake consumers",
+            "Usage tracking for shared data",
+            "Listing data products",
+            "Cross-region and cross-cloud auto-fulfilment",
+            "Masking through a share",
+            "Terms and access requests"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Package a governed data product: a secure view with masking, shared through a listing, with a usage query the provider can run.",
+          "deliverable": "A share/listing exposing one governed secure view and a provider usage query",
+          "checks": [
+            [
+              "Expose only the secure view in the share",
+              "Base tables are not visible to consumers",
+              "Share grants"
+            ],
+            [
+              "Confirm masking still applies through the share",
+              "Consumers see masked PII",
+              "Consumer-side query"
+            ],
+            [
+              "Track consumer usage",
+              "Provider can see queries against the share",
+              "Usage query"
+            ]
+          ],
+          "objectives": [
+            "Build governed data products",
+            "Share via secure views and listings",
+            "Track shared-data usage"
+          ]
+        },
+        {
+          "topic": "Snowpark for Data Engineering",
+          "subtopics": [
+            "Snowpark DataFrame API in Python",
+            "Pushdown to Snowflake compute",
+            "Scalar and vectorised UDFs",
+            "Stored procedures in Python",
+            "Packages and the Anaconda channel",
+            "Sessions and configuration",
+            "When to use Snowpark versus SQL",
+            "Reading the generated SQL",
+            "Testing Snowpark transformations"
+          ],
+          "tools": [
+            "Snowpark for Python",
+            "Snowsight"
+          ],
+          "lab_task": "Rewrite a multi-step SQL transformation as a Snowpark Python job with a Python UDF for a custom rule, and confirm it pushes down to Snowflake.",
+          "deliverable": "A Snowpark transformation with a UDF and evidence of pushdown",
+          "checks": [
+            [
+              "Build the transformation with the DataFrame API",
+              "Output matches the SQL version",
+              "Result comparison"
+            ],
+            [
+              "Register and use a Python UDF",
+              "The custom rule is applied in-database",
+              "Query history shows the UDF"
+            ],
+            [
+              "Inspect the generated SQL",
+              "Work runs on Snowflake compute, not the client",
+              "Query profile"
+            ]
+          ],
+          "objectives": [
+            "Use the Snowpark DataFrame API",
+            "Write Python UDFs and procedures",
+            "Confirm server-side pushdown"
+          ]
+        },
+        {
+          "topic": "Capstone: Governed Near-Real-Time Pipeline",
+          "subtopics": [
+            "End-to-end incremental pipeline",
+            "Dynamic tables or streams-and-tasks",
+            "Governance and cost controls",
+            "Performance validation",
+            "Operational monitoring",
+            "Stakeholder demo",
+            "Freshness and target lag",
+            "Failure handling and replay"
+          ],
+          "tools": [
+            "Snowsight",
+            "Snowpark for Python"
+          ],
+          "lab_task": "Deliver a governed near-real-time pipeline: ingest with Snowpipe, transform with dynamic tables, protect with masking and row policies, and expose a shared secure view within a credit budget.",
+          "deliverable": "A complete governed pipeline with monitoring and a demo",
+          "checks": [
+            [
+              "Show end-to-end freshness",
+              "New data reaches the view within the target lag",
+              "Freshness check"
+            ],
+            [
+              "Prove governance",
+              "Masking and row policies hold through the shared view",
+              "Role-based queries"
+            ],
+            [
+              "Show cost control",
+              "The pipeline stays within the resource-monitor budget",
+              "Metering and monitor"
+            ]
+          ],
+          "objectives": [
+            "Assemble a governed streaming pipeline",
+            "Validate performance and freshness",
+            "Operate within a budget and demo"
+          ]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Snowflake engineers and architects. Covers performance and workload isolation at scale, FinOps, advanced governance and classification, replication and failover, clean rooms, Snowpark UDFs/procedures, Streamlit and Native Apps, large-scale pipelines, acceleration services, data quality, migration, security architecture and account reviews.",
+      "prerequisites": [
+        "One or more years working with Snowflake in production",
+        "Comfortable with RBAC, pipelines and the query profile",
+        "Python experience for Snowpark and app days"
+      ],
+      "outcomes": [
+        "Architect isolated, high-performance, cost-governed Snowflake platforms",
+        "Run governance, privacy, continuity and security programmes",
+        "Build Snowpark, Streamlit and Native App data products",
+        "Lead migrations and platform architecture reviews"
+      ],
+      "days": [
+        {
+          "topic": "Performance Tuning and Workload Isolation at Scale",
+          "subtopics": [
+            "Workload-aware warehouse design",
+            "Query Acceleration Service at scale",
+            "Managing spilling on large joins",
+            "Partitioning and clustering for huge tables",
+            "Concurrency-scaling policies",
+            "Service-level objectives per workload",
+            "Result and metadata cache strategy",
+            "Priority and queuing management",
+            "Benchmarking methodology"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Design a warehouse topology for mixed ETL, BI and ad-hoc workloads on a large account, and prove each workload meets its latency target without starving others.",
+          "deliverable": "A warehouse topology with per-workload SLOs and evidence they are met",
+          "checks": [
+            [
+              "Isolate ETL, BI and ad-hoc onto separate warehouses",
+              "A heavy ETL job does not slow BI",
+              "Concurrent-run timings"
+            ],
+            [
+              "Apply query acceleration to the ad-hoc warehouse",
+              "Large scans speed up within budget",
+              "Profiles and metering"
+            ],
+            [
+              "Measure against SLOs",
+              "Each workload meets its stated latency",
+              "SLO report"
+            ]
+          ],
+          "objectives": [
+            "Design workload-isolated topologies",
+            "Apply acceleration where it pays",
+            "Hold per-workload SLOs"
+          ]
+        },
+        {
+          "topic": "Cost Optimization and FinOps",
+          "subtopics": [
+            "Credit attribution by warehouse, role and query tag",
+            "Right-sizing and auto-suspend tuning",
+            "Storage and Time-Travel cost control",
+            "Idle and runaway query detection",
+            "Budgets and chargeback",
+            "Building a cost dashboard",
+            "Serverless feature spend",
+            "Reader-account and sharing costs",
+            "Savings backlog and tracking"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Build a cost dashboard from ACCOUNT_USAGE, attribute spend with query tags, and deliver three changes that cut credits without hurting SLOs.",
+          "deliverable": "A cost dashboard and three implemented savings with measured impact",
+          "checks": [
+            [
+              "Attribute spend by query tag and warehouse",
+              "Top cost drivers are identified",
+              "Dashboard"
+            ],
+            [
+              "Implement three savings (sizing, suspend, retention)",
+              "Credits drop measurably",
+              "Before/after metering"
+            ],
+            [
+              "Confirm SLOs still hold",
+              "No workload breaches its latency target after changes",
+              "SLO report"
+            ]
+          ],
+          "objectives": [
+            "Attribute and analyse spend",
+            "Implement FinOps savings",
+            "Protect SLOs while cutting cost"
+          ]
+        },
+        {
+          "topic": "Advanced Governance and Access History",
+          "subtopics": [
+            "Tag-based masking at scale",
+            "Policy inheritance and tagging strategy",
+            "ACCESS_HISTORY for lineage",
+            "Column and row policy auditing",
+            "Aggregation and projection policies",
+            "Governance as code",
+            "Object tagging taxonomy",
+            "Policy change management",
+            "Automated policy assignment"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Implement tag-based masking across a database so new PII columns are protected automatically, and use ACCESS_HISTORY to produce a column-lineage report.",
+          "deliverable": "Tag-driven governance plus a lineage/access report",
+          "checks": [
+            [
+              "Attach masking to a PII tag",
+              "A newly tagged column is masked without new policy work",
+              "New-column query by role"
+            ],
+            [
+              "Add an aggregation policy",
+              "Only aggregated results are allowed for a sensitive table",
+              "Denied detail query"
+            ],
+            [
+              "Build a lineage report from ACCESS_HISTORY",
+              "It shows which queries read which PII columns",
+              "Report output"
+            ]
+          ],
+          "objectives": [
+            "Govern with tag-based policies",
+            "Apply aggregation/projection policies",
+            "Trace access and lineage"
+          ]
+        },
+        {
+          "topic": "Data Classification and Privacy",
+          "subtopics": [
+            "Automatic data classification",
+            "System tags for PII categories",
+            "Differential privacy overview",
+            "Masking strategies for analytics",
+            "Retention and right-to-erasure patterns",
+            "Compliance reporting",
+            "Semantic categories and custom classifiers",
+            "Privacy policies on shared data",
+            "Audit evidence for regulators"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Run classification on a new dataset, apply masking from the detected categories, and implement a right-to-erasure request across dependent objects.",
+          "deliverable": "A classified, masked dataset and a documented erasure procedure",
+          "checks": [
+            [
+              "Classify the dataset",
+              "PII categories are detected and tagged",
+              "Classification output"
+            ],
+            [
+              "Mask from detected tags",
+              "Detected PII is masked for analysts",
+              "Role-based queries"
+            ],
+            [
+              "Execute an erasure request",
+              "The subject's data is removed from all dependent objects",
+              "Before/after checks"
+            ]
+          ],
+          "objectives": [
+            "Classify and tag sensitive data",
+            "Mask from classification",
+            "Implement erasure and compliance reporting"
+          ]
+        },
+        {
+          "topic": "Replication, Failover and Business Continuity",
+          "subtopics": [
+            "Database and account replication",
+            "Failover groups and replication groups",
+            "Client redirect",
+            "RPO and RTO targets",
+            "Replicating policies and governance",
+            "Testing a failover and failback",
+            "Cross-cloud replication",
+            "Cost of replication",
+            "Runbook and ownership"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Configure a failover group to a second region, set RPO/RTO targets, and run a tested failover and failback with the client redirect.",
+          "deliverable": "A replication/failover setup with a timed, tested failover",
+          "checks": [
+            [
+              "Create a failover group and replicate",
+              "Objects and policies appear in the target region",
+              "SHOW REPLICATION GROUPS"
+            ],
+            [
+              "Run a failover with client redirect",
+              "Clients connect to the secondary without code change",
+              "Connection test"
+            ],
+            [
+              "Measure RPO and RTO",
+              "Both meet the stated targets",
+              "Timed failover report"
+            ]
+          ],
+          "objectives": [
+            "Configure cross-region replication",
+            "Operate failover groups and client redirect",
+            "Meet RPO/RTO with evidence"
+          ]
+        },
+        {
+          "topic": "Clean Rooms and Advanced Sharing",
+          "subtopics": [
+            "Data Clean Rooms concepts",
+            "Privacy-preserving joins",
+            "Provider and consumer controls",
+            "Cross-cloud and cross-region auto-fulfilment",
+            "Listings with usage-based access",
+            "Monetising data products",
+            "Approved query templates",
+            "Row and aggregation limits",
+            "Auditing consumer queries"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Build a privacy-preserving overlap analysis between two parties using a clean-room pattern, so neither sees the other's raw rows.",
+          "deliverable": "A clean-room overlap analysis with proof that raw rows stay private",
+          "checks": [
+            [
+              "Expose only approved aggregate queries",
+              "Consumers cannot select raw rows",
+              "Denied raw query"
+            ],
+            [
+              "Run the overlap join",
+              "The overlap count is correct",
+              "Result versus known answer"
+            ],
+            [
+              "Audit what the consumer ran",
+              "Only approved templates executed",
+              "Usage/audit query"
+            ]
+          ],
+          "objectives": [
+            "Design clean-room sharing",
+            "Enforce privacy-preserving access",
+            "Share across clouds and regions"
+          ]
+        },
+        {
+          "topic": "Snowpark: UDFs, UDTFs and Stored Procedures",
+          "subtopics": [
+            "Scalar, vectorised and table UDFs",
+            "Python stored procedures and sessions",
+            "Packaging with the Anaconda channel",
+            "External network access from Snowpark",
+            "Performance and memory limits",
+            "Unit testing Snowpark code",
+            "UDTFs for row expansion",
+            "Secure UDFs and sharing",
+            "Deployment and versioning"
+          ],
+          "tools": [
+            "Snowpark for Python",
+            "Snowsight"
+          ],
+          "lab_task": "Build a Python UDTF that expands a document into scored sentences and a stored procedure that orchestrates it, with unit tests.",
+          "deliverable": "A tested UDTF and orchestration procedure deployed to Snowflake",
+          "checks": [
+            [
+              "Deploy the UDTF",
+              "It returns one scored row per sentence",
+              "Query result"
+            ],
+            [
+              "Run the orchestration procedure",
+              "It processes a batch and writes results",
+              "Target table"
+            ],
+            [
+              "Run the unit tests",
+              "All tests pass against expected outputs",
+              "Test report"
+            ]
+          ],
+          "objectives": [
+            "Write scalar and table UDFs",
+            "Build Python stored procedures",
+            "Test and deploy Snowpark code"
+          ]
+        },
+        {
+          "topic": "Streamlit in Snowflake and Data Apps",
+          "subtopics": [
+            "Streamlit in Snowflake architecture",
+            "Session and Snowpark integration",
+            "Secrets and external access",
+            "Caching and performance",
+            "RBAC for apps",
+            "Packaging and sharing an app",
+            "State and interactivity",
+            "Governance within apps",
+            "Deployment lifecycle"
+          ],
+          "tools": [
+            "Snowsight",
+            "Snowpark for Python"
+          ],
+          "lab_task": "Build a Streamlit-in-Snowflake app that lets an analyst explore the governed sales data under their own role, respecting masking and row policies.",
+          "deliverable": "A deployed data app that honours the caller's governance",
+          "checks": [
+            [
+              "Run the app as two different roles",
+              "Each sees only its permitted, masked data",
+              "Side-by-side screenshots"
+            ],
+            [
+              "Cache an expensive query",
+              "Repeat interactions are fast",
+              "Timing note"
+            ],
+            [
+              "Share the app with a role",
+              "Only granted roles can open it",
+              "Access test"
+            ]
+          ],
+          "objectives": [
+            "Build Streamlit-in-Snowflake apps",
+            "Integrate Snowpark and governance",
+            "Share apps with RBAC"
+          ]
+        },
+        {
+          "topic": "Native Apps and the Marketplace",
+          "subtopics": [
+            "Native App Framework",
+            "Application packages and versions",
+            "Setup scripts and consumer install",
+            "Monetised listings",
+            "Telemetry and support",
+            "Security review for apps",
+            "Versioning and upgrades",
+            "Consumer-side objects and grants",
+            "Release management"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Package a simple analytics capability as a Native App with a setup script and a versioned release, and install it as a consumer in a test account pattern.",
+          "deliverable": "A versioned native app package with a working install flow",
+          "checks": [
+            [
+              "Build the application package and version",
+              "The version is listed and installable",
+              "SHOW VERSIONS"
+            ],
+            [
+              "Install as a consumer",
+              "The setup script provisions objects in the consumer",
+              "Installed objects"
+            ],
+            [
+              "Upgrade to a new version",
+              "The consumer upgrades without data loss",
+              "Before/after check"
+            ]
+          ],
+          "objectives": [
+            "Build Native App packages",
+            "Version and release apps",
+            "Install and upgrade as a consumer"
+          ]
+        },
+        {
+          "topic": "Large-Scale Pipelines",
+          "subtopics": [
+            "Pattern selection (streams/tasks/dynamic tables)",
+            "Backfill and reprocessing",
+            "Idempotency and exactly-once",
+            "Partitioning and pruning for pipeline tables",
+            "Error quarantine and replay",
+            "Observability for pipelines",
+            "Throughput and concurrency",
+            "Schema evolution handling",
+            "SLA and error budgets"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Design a high-volume ingestion pipeline with a backfill path, idempotent merges, a quarantine for bad records and a replay procedure.",
+          "deliverable": "A scalable pipeline design with backfill, quarantine and replay, implemented on a sample",
+          "checks": [
+            [
+              "Run a backfill alongside live ingest",
+              "Backfill does not double-count live data",
+              "Row reconciliation"
+            ],
+            [
+              "Send malformed records",
+              "They land in quarantine, not the target",
+              "Quarantine table"
+            ],
+            [
+              "Replay quarantined records after a fix",
+              "They load exactly once",
+              "Target counts"
+            ]
+          ],
+          "objectives": [
+            "Choose pipeline patterns at scale",
+            "Guarantee idempotent processing",
+            "Operate quarantine and replay"
+          ]
+        },
+        {
+          "topic": "Acceleration Services at Scale",
+          "subtopics": [
+            "Query Acceleration Service economics",
+            "Search Optimization for lookups, substring and geospatial",
+            "Materialised-view maintenance at scale",
+            "Clustering very large tables",
+            "Deciding per workload",
+            "Monitoring serverless feature credits",
+            "Transparent query rewrite",
+            "Speed-per-credit analysis",
+            "Feature limitations"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "For a large multi-tenant workload, decide per query pattern between QAS, SOS, materialised views and clustering, and prove the spend is justified.",
+          "deliverable": "A per-pattern acceleration plan with measured speed-per-credit",
+          "checks": [
+            [
+              "Enable the right feature per pattern",
+              "Each hot pattern meets its latency target",
+              "Profiles"
+            ],
+            [
+              "Measure serverless credits",
+              "Feature spend is attributed and bounded",
+              "Metering by feature"
+            ],
+            [
+              "Justify each choice",
+              "Speed-per-credit supports every decision",
+              "Decision table"
+            ]
+          ],
+          "objectives": [
+            "Select acceleration features at scale",
+            "Attribute serverless feature credits",
+            "Justify spend with evidence"
+          ]
+        },
+        {
+          "topic": "Data Quality and Observability",
+          "subtopics": [
+            "Data metric functions",
+            "Freshness, volume and schema checks",
+            "Alerting on anomalies",
+            "Pipeline SLAs and error budgets",
+            "Lineage for impact analysis",
+            "Dashboards for data health",
+            "Null-rate and distribution checks",
+            "Reconciliation against sources",
+            "Incident response for data"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Add data-quality checks (freshness, null rate, row-count drift) to a pipeline with alerts, and build a data-health dashboard the team can watch.",
+          "deliverable": "Quality checks with alerts and a data-health dashboard",
+          "checks": [
+            [
+              "Define freshness and null-rate checks",
+              "Breaches raise alerts",
+              "Triggered alert"
+            ],
+            [
+              "Inject a volume anomaly",
+              "A row-count drift alert fires",
+              "Alert and metric history"
+            ],
+            [
+              "Review the dashboard",
+              "Current data health is visible at a glance",
+              "Dashboard"
+            ]
+          ],
+          "objectives": [
+            "Implement data-quality checks",
+            "Alert on data anomalies",
+            "Operate a data-health dashboard"
+          ]
+        },
+        {
+          "topic": "Migration to Snowflake",
+          "subtopics": [
+            "Assessment and inventory",
+            "Schema and code conversion",
+            "Data transfer strategies",
+            "Reconciliation and parallel run",
+            "Cutover and rollback",
+            "Decommissioning the legacy system",
+            "SQL dialect differences",
+            "Workload and cost mapping",
+            "Stakeholder sign-off"
+          ],
+          "tools": [
+            "SnowSQL",
+            "Snowsight"
+          ],
+          "lab_task": "Plan and execute a sample migration from a legacy warehouse: convert schema and one ETL job, transfer data, and reconcile row and sum checks before cutover.",
+          "deliverable": "A migration runbook with a reconciled sample migration",
+          "checks": [
+            [
+              "Convert the schema and one ETL job",
+              "The job produces the same output on Snowflake",
+              "Output comparison"
+            ],
+            [
+              "Reconcile row counts and key sums",
+              "Source and target match within tolerance",
+              "Reconciliation report"
+            ],
+            [
+              "Document cutover and rollback",
+              "The runbook has a tested rollback path",
+              "Runbook"
+            ]
+          ],
+          "objectives": [
+            "Assess and plan a migration",
+            "Convert schema and ETL",
+            "Reconcile and cut over safely"
+          ]
+        },
+        {
+          "topic": "Security Architecture and Network Policies",
+          "subtopics": [
+            "Network policies and allowed IP lists",
+            "Private connectivity (PrivateLink) overview",
+            "SSO and SCIM provisioning",
+            "Key-pair and OAuth authentication",
+            "Session and MFA policies",
+            "Periodic access certification",
+            "Encryption and key management",
+            "Tri-Secret Secure overview",
+            "Security monitoring and alerts"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Harden an account: enforce a network policy, key-pair auth for a service user, an MFA/session policy, and a quarterly access-certification query.",
+          "deliverable": "A hardened account configuration with an access-certification report",
+          "checks": [
+            [
+              "Apply a network policy",
+              "Connections from outside the allowed list are blocked",
+              "Blocked-connection test"
+            ],
+            [
+              "Set up key-pair auth for a service user",
+              "The service connects without a password",
+              "Connection test"
+            ],
+            [
+              "Run access certification",
+              "Over-privileged or stale grants are flagged",
+              "Certification report"
+            ]
+          ],
+          "objectives": [
+            "Enforce network and authentication policies",
+            "Provision access securely",
+            "Certify access periodically"
+          ]
+        },
+        {
+          "topic": "Capstone: Platform Architecture Review",
+          "subtopics": [
+            "Reviewing an account against best practice",
+            "Performance, cost, governance and continuity",
+            "Findings and prioritised remediation",
+            "Reference architecture",
+            "Operating model and ownership",
+            "Executive-ready presentation",
+            "Risk and trade-off analysis",
+            "Remediation roadmap"
+          ],
+          "tools": [
+            "Snowsight"
+          ],
+          "lab_task": "Review a provided Snowflake account across performance, cost, governance and continuity, and present prioritised findings with a remediation roadmap.",
+          "deliverable": "An architecture-review report with prioritised findings and a roadmap",
+          "checks": [
+            [
+              "Assess the four pillars with evidence",
+              "Each finding cites a metric or query",
+              "Findings with evidence"
+            ],
+            [
+              "Prioritise remediation",
+              "Items are ranked by impact and effort",
+              "Prioritised backlog"
+            ],
+            [
+              "Present to stakeholders",
+              "Trade-offs and next steps are clear to a decision-maker",
+              "Presentation"
+            ]
+          ],
+          "objectives": [
+            "Review an account against best practice",
+            "Prioritise remediation by impact",
+            "Present an architecture roadmap"
+          ]
+        }
+      ]
+    }
+  }
+}

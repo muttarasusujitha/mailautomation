@@ -1,0 +1,573 @@
+{
+  "domain": "Supabase",
+  "name": "Supabase",
+  "category": "Backend, APIs and Web Servers",
+  "icon": "database",
+  "aliases": ["Supabase Backend", "Open-Source Firebase Alternative", "Supabase Postgres", "Supabase Auth and Edge Functions", "Supabase Developer", "Backend as a Service with Supabase", "Supabase Self-Hosting", "Supabase RLS"],
+  "certifications": [],
+  "tools": ["Supabase Dashboard", "Supabase CLI", "supabase-js", "PostgREST", "Supabase Auth", "Edge Functions (Deno)", "Supabase Storage", "Supabase Realtime", "pgvector", "pg_cron", "pgmq", "Docker Compose", "pgTAP", "Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know basic SQL and JavaScript or TypeScript and are new to Supabase. Covers creating a project, the dashboard, the auto-generated Data API, supabase-js, Supabase Auth with email and OAuth, JWTs and sessions, Row Level Security with the anon, authenticated and service_role roles, the profiles-on-signup trigger, embedded resources, Storage buckets and policies, Realtime Postgres Changes, local development and migrations with the Supabase CLI, generated types, database functions through rpc, server-side auth in Next.js, and a task-tracker capstone.",
+      "prerequisites": ["Writes basic SQL: CREATE TABLE, INSERT, SELECT with WHERE and JOIN", "Reads and writes JavaScript or TypeScript with async/await and can run npm commands", "Has a laptop with Node.js (current LTS), Git, a browser, a free Supabase account and, for local work, Docker Desktop or another Docker-compatible runtime"],
+      "outcomes": ["Create and configure a Supabase project, design tables and call them through the Data API and supabase-js", "Sign users in with Supabase Auth and protect every table with correct Row Level Security policies", "Store files in Storage buckets and push live changes to clients with Realtime", "Develop locally with the Supabase CLI, commit migrations and ship a working application with server-side auth"],
+      "days": [
+        {
+          "topic": "Creating a Supabase Project and Touring the Dashboard",
+          "subtopics": ["What Supabase provides: Postgres, Auth, Storage, Realtime, Edge Functions and the Data API", "Organisations, projects, regions and plans", "Project URL, project ref and the database password", "Publishable (anon) and secret (service_role) API keys and where each may be used", "Table Editor, SQL Editor and Database pages", "Authentication, Storage and Logs sections of the dashboard", "Project Settings: API, Database and Infrastructure tabs", "Pausing, restoring and deleting a project"],
+          "tools": ["Supabase Dashboard", "psql", "curl", "Git"],
+          "lab_task": "Create a project in the region closest to you, save the project URL and anon key to a .env file, then in the SQL Editor run select version(); and select current_user;. From a terminal call curl \"$SUPABASE_URL/rest/v1/\" -H \"apikey: $SUPABASE_ANON_KEY\" and note the response. Record the project ref and region.",
+          "deliverable": "Project fact sheet with ref, region, URL, key types and the curl output",
+          "checks": [["Run select version(); in the SQL Editor", "The result starts with PostgreSQL and shows the major version of the project", "Screenshot of the result"], ["Call the /rest/v1/ endpoint with the anon key", "HTTP 200 with an OpenAPI JSON document listing the exposed tables", "curl output"], ["Call the same endpoint with no apikey header", "HTTP 401 with a message that no API key was found", "curl output"]],
+          "objectives": ["Explain which Supabase services are separate components and which are plain Postgres", "Locate the URL, project ref and API keys and state which one must never reach a browser", "Run SQL and a REST call against a new project"]
+        },
+        {
+          "topic": "Table Editor, SQL Editor and Schema Design in Supabase",
+          "subtopics": ["Creating tables in the Table Editor versus SQL", "Primary keys with uuid default gen_random_uuid() and identity columns", "timestamptz columns with default now()", "Foreign keys to auth.users and on delete cascade", "The public schema and why the Data API exposes it", "Saving and organising snippets in the SQL Editor", "Enabling RLS when creating a table in the dashboard", "Reading the Schema Visualizer"],
+          "tools": ["SQL Editor", "Table Editor", "Schema Visualizer"],
+          "lab_task": "In the SQL Editor create tables projects (id uuid pk, name text not null, owner_id uuid references auth.users on delete cascade, created_at timestamptz default now()) and tasks (id bigint generated always as identity, project_id uuid references projects, title text, done boolean default false). Run alter table ... enable row level security on both, insert three rows with the Table Editor and open the Schema Visualizer.",
+          "deliverable": "SQL script for both tables plus a Schema Visualizer screenshot",
+          "checks": [["Insert a task with a project_id that does not exist", "Error 23503 foreign key violation", "SQL Editor error text"], ["Run select relname, relrowsecurity from pg_class where relname in ('projects','tasks')", "Both rows show relrowsecurity = t", "Query result"], ["Delete a project that has tasks", "Rejected with 23503 unless on delete cascade was declared, in which case the tasks disappear", "Row counts before and after"]],
+          "objectives": ["Create related tables with keys and defaults in the Supabase dashboard", "Enable RLS at table creation time as a habit", "Read the schema diagram to confirm relationships"]
+        },
+        {
+          "topic": "The Auto-Generated REST API with PostgREST",
+          "subtopics": ["How PostgREST turns tables and views into /rest/v1 endpoints", "apikey and Authorization: Bearer headers", "GET with select, eq, order, limit and offset", "POST, PATCH and DELETE with Prefer: return=representation", "Range and count headers: Prefer: count=exact", "Reading the OpenAPI document", "Error shape: code, message, details and hint", "Why an empty array often means RLS, not a bug"],
+          "tools": ["curl", "Postman", "PostgREST", "jq"],
+          "lab_task": "With RLS enabled and no policies, call GET /rest/v1/tasks?select=* with the anon key and record the result. Then in the SQL Editor add a temporary policy create policy tmp_read on tasks for select to anon using (true), repeat the call, insert one row with POST and Prefer: return=representation, filter with ?done=eq.false&order=id.desc&limit=2, then drop the policy.",
+          "deliverable": "Postman collection or curl script with the recorded responses before and after the policy",
+          "checks": [["GET /rest/v1/tasks with RLS on and no policy", "HTTP 200 with an empty array []", "curl output"], ["Repeat after creating the select policy for anon", "HTTP 200 with the inserted rows in the array", "curl output"], ["POST a row with a null title where title is not null", "HTTP 400 with code 23502", "Response body"]],
+          "objectives": ["Call tables through the REST API with filters, ordering and paging", "Interpret PostgREST errors and empty results correctly", "Explain how apikey and bearer tokens map to database roles"]
+        },
+        {
+          "topic": "The supabase-js Client: Queries, Filters and Mutations",
+          "subtopics": ["Installing @supabase/supabase-js and createClient(url, key)", "select with column lists and .eq, .in, .ilike, .gte filters", "insert, update, upsert and delete", ".select() after a write to return rows", ".single() versus .maybeSingle()", "The { data, error } return pattern", "Pagination with .range(from, to)", "Counting rows with { count: 'exact', head: true }"],
+          "tools": ["supabase-js", "Node.js", "TypeScript", "VS Code"],
+          "lab_task": "Create a Node script with npm i @supabase/supabase-js that connects with the project URL and anon key, inserts three tasks, selects done = false rows ordered by id, upserts on a unique title, updates one row to done = true, and prints the count with head: true. Log error.code and error.message for a deliberate failure.",
+          "deliverable": "Working script with output log and a note on every error code observed",
+          "checks": [["Run the script with RLS policies allowing anon access", "The script prints three inserted rows and a count of 3", "Terminal output"], ["Call .single() on a query that matches two rows", "error.code is PGRST116 and data is null", "Printed error"], ["Use a wrong anon key", "error message contains Invalid API key and no rows are returned", "Printed error"]],
+          "objectives": ["Read and write data with supabase-js using filters and paging", "Always inspect the error field before using data", "Choose between single, maybeSingle and array results"]
+        },
+        {
+          "topic": "Supabase Auth: Email, Password and Magic Links",
+          "subtopics": ["Auth service (GoTrue) and the auth schema", "signUp, signInWithPassword and signOut", "Email confirmation and the Confirm signup template", "Magic links and one-time passwords with signInWithOtp", "Password reset with resetPasswordForEmail and updateUser", "Site URL and Redirect URLs allow-list", "Default SMTP limits and custom SMTP for production", "Reading users in Authentication > Users"],
+          "tools": ["Supabase Auth", "supabase-js", "Mailpit", "Dashboard"],
+          "lab_task": "In Authentication > Providers keep Email on and Confirm email on. From a Node script call supabase.auth.signUp for test+1@example.com, confirm the user appears in Authentication > Users as unconfirmed, confirm through the email link, then call signInWithPassword and print session.access_token length and user.id. Add http://localhost:3000/** to Redirect URLs.",
+          "deliverable": "Sign-up and sign-in script plus a screenshot of the user row before and after confirmation",
+          "checks": [["Sign in before confirming the email", "Error with code email_not_confirmed", "Printed AuthApiError"], ["Sign in after confirmation with the correct password", "A session with an access_token and refresh_token is returned", "Printed session fields"], ["Sign in with a wrong password", "Error code invalid_credentials and HTTP status 400", "Printed error"]],
+          "objectives": ["Register, confirm and sign in users with supabase-js", "Configure redirect URLs and understand SMTP limits", "Diagnose the common Auth error codes"]
+        },
+        {
+          "topic": "Social Login and OAuth Providers in Supabase Auth",
+          "subtopics": ["signInWithOAuth and the PKCE flow", "Registering an OAuth app with Google or GitHub", "The Supabase callback URL https://<ref>.supabase.co/auth/v1/callback", "Client ID and secret in Authentication > Providers", "Redirect URL allow-list and the redirectTo option", "Provider tokens and scopes", "Linking identities to one user", "Local config in supabase/config.toml under [auth.external.github]"],
+          "tools": ["GitHub OAuth Apps", "Google Cloud Console", "supabase-js", "Dashboard"],
+          "lab_task": "Register a GitHub OAuth App with the Supabase callback URL, paste the client id and secret into Authentication > Providers > GitHub, and add a button that calls supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: 'http://localhost:3000' } }). Sign in, then inspect the row in auth.users and auth.identities with select provider, identity_data->>'user_name' from auth.identities.",
+          "deliverable": "Working GitHub login page plus the auth.identities query result",
+          "checks": [["Complete the GitHub login flow", "Browser returns to localhost:3000 with a session and a new row in auth.users", "Screenshot and user id"], ["Query auth.identities for the user", "One row with provider = github", "SQL result"], ["Set redirectTo to a URL not in the allow-list", "User lands on the Site URL instead of the requested URL", "Browser address bar"]],
+          "objectives": ["Configure an OAuth provider end to end", "Explain the callback and redirect URL roles", "Inspect identities stored for social users"]
+        },
+        {
+          "topic": "Sessions, JWTs and the auth.users Table",
+          "subtopics": ["Access token and refresh token lifetimes (expiry default 3600 seconds)", "Decoding a JWT: sub, role, aud, exp and the session_id claim", "getSession, getUser and getClaims and why getUser verifies with the server", "onAuthStateChange events", "Automatic token refresh in supabase-js", "auth.users columns that matter: id, email, raw_user_meta_data, raw_app_meta_data", "user_metadata versus app_metadata and who can edit each", "Signing out of one or all sessions"],
+          "tools": ["jwt.io", "supabase-js", "SQL Editor", "jq"],
+          "lab_task": "Sign in and print the access token. Decode it with echo $TOKEN | cut -d. -f2 | base64 -d | jq and record sub, role, exp and the difference exp minus iat. Subscribe with onAuthStateChange and log events, wait for refresh or call refreshSession, then update user_metadata with updateUser({ data: { theme: 'dark' } }) and show it in raw_user_meta_data.",
+          "deliverable": "Annotated JWT payload and a log of auth events",
+          "checks": [["Decode the access token of a signed-in user", "role is authenticated and sub equals the id in auth.users", "Decoded payload"], ["Compute exp minus iat on a default project", "3600 seconds unless the JWT expiry was changed", "Calculated value"], ["Call signOut then onAuthStateChange", "The SIGNED_OUT event is logged", "Event log"]],
+          "objectives": ["Read the claims in a Supabase access token", "Explain refresh behaviour and auth state events", "Distinguish user-editable metadata from app_metadata"]
+        },
+        {
+          "topic": "Row Level Security Policies for Beginners",
+          "subtopics": ["What RLS does: filtering rows per query", "enable row level security and the default-deny behaviour", "create policy with for select, insert, update, delete", "using versus with check", "auth.uid() and comparing it to owner columns", "Policies combine with OR when permissive", "Viewing policies in Authentication > Policies and pg_policies", "Testing as a user in the SQL Editor with set local role and request.jwt.claims"],
+          "tools": ["SQL Editor", "pg_policies", "supabase-js", "psql"],
+          "lab_task": "Add owner_id uuid default auth.uid() to tasks. Create policies so authenticated users can select, insert, update and delete only rows where owner_id = (select auth.uid()). Sign in as two users with supabase-js, insert one task each, and show that each user selects only their own row. Query pg_policies for the policy list.",
+          "deliverable": "SQL file with four policies and a two-user test transcript",
+          "checks": [["User A selects from tasks after both users inserted rows", "Only User A's row is returned", "Printed rows"], ["User A updates User B's task id", "Zero rows updated and no error", "Response with empty data"], ["User A inserts a row with owner_id set to User B", "Error 42501 new row violates row-level security policy", "Printed error"]],
+          "objectives": ["Write per-command RLS policies using auth.uid()", "Tell using and with check apart", "Prove isolation between two real users"]
+        },
+        {
+          "topic": "Policies by Role: anon, authenticated and service_role",
+          "subtopics": ["Postgres roles anon, authenticated, authenticator and service_role", "How the API key and JWT choose the role", "to anon and to authenticated clauses", "service_role bypasses RLS and must stay on the server", "Public read, private write policy pattern", "Views and the security_invoker option for RLS-aware views", "Grants versus policies: both are required", "Spotting accidentally exposed tables"],
+          "tools": ["SQL Editor", "supabase-js", "curl", "Security Advisor"],
+          "lab_task": "Make a public_posts table readable by anon, writable only by authenticated owners. Test with the anon key, a signed-in user's token and the service_role key from a server-side script only. Create view my_open_tasks with (security_invoker = true) over tasks and confirm it respects RLS. Run the Security Advisor and read the findings.",
+          "deliverable": "Policy matrix of role by operation with test evidence",
+          "checks": [["Select public_posts with the anon key", "Rows are returned", "curl output"], ["Insert into public_posts with the anon key", "HTTP 401 or 403 with code 42501", "curl output"], ["Select tasks with the service_role key", "All rows are returned regardless of owner", "Server script output"]],
+          "objectives": ["Map API keys and tokens to Postgres roles", "Design policies for public, private and server-only access", "Keep the service_role key out of client code"]
+        },
+        {
+          "topic": "Profiles Table and the Signup Trigger Pattern",
+          "subtopics": ["Why public.profiles mirrors auth.users", "A profiles table keyed by auth.users id", "handle_new_user function in plpgsql", "security definer with set search_path = ''", "Trigger after insert on auth.users", "Copying raw_user_meta_data fields into profiles", "RLS: public read, owner-only update", "Backfilling profiles for existing users"],
+          "tools": ["SQL Editor", "plpgsql", "supabase-js", "Dashboard"],
+          "lab_task": "Create public.profiles (id uuid primary key references auth.users on delete cascade, username text unique, avatar_url text). Write public.handle_new_user() as security definer with set search_path = '' that inserts id and raw_user_meta_data->>'username', and attach create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user(). Sign up two users and verify.",
+          "deliverable": "SQL migration for the table, function, trigger and policies with sign-up evidence",
+          "checks": [["Sign up a new user with metadata username = ada", "A profiles row exists with username = ada and the same id", "select * from profiles"], ["Sign up another user with username = ada", "Sign up fails with a database error saving new user", "Auth error message"], ["Delete the user from auth.users", "The profile row is deleted by cascade", "Row count 0"]],
+          "objectives": ["Create a database trigger on the auth schema", "Apply security definer safely with an empty search_path", "Keep profile data in sync with signups"]
+        },
+        {
+          "topic": "Relationships and Embedded Resources in the Data API",
+          "subtopics": ["Foreign keys drive embedding in PostgREST", "select('*, tasks(*)') one-to-many embeds", "Many-to-one and many-to-many through a join table", "Filtering on embedded tables and !inner joins", "Disambiguating with the fkey name: tasks!tasks_project_id_fkey", "Ordering and limiting inside an embed", "RLS applies to each embedded table", "Reloading the schema cache after DDL: notify pgrst, 'reload schema'"],
+          "tools": ["supabase-js", "SQL Editor", "PostgREST", "Postman"],
+          "lab_task": "Add a project_members join table (project_id, user_id) and run supabase.from('projects').select('id, name, tasks(id, title, done), project_members(profiles(username))'). Add .eq('tasks.done', false) and compare it with tasks!inner. Create a second foreign key to the same table to trigger an ambiguity error, then fix it with the fkey hint.",
+          "deliverable": "Query script with outputs for embed, !inner and the ambiguity error and fix",
+          "checks": [["Select projects with nested tasks", "Each project has a tasks array whose length equals its task count", "Printed JSON"], ["Filter tasks with !inner and tasks.done = true", "Only projects having at least one finished task are returned", "Row count compared with the plain embed"], ["Embed with two foreign keys to the same table", "Error PGRST201 about more than one relationship", "Printed error"]],
+          "objectives": ["Fetch related rows in one request with embedded resources", "Resolve ambiguous relationships with hints", "Explain how RLS acts on nested tables"]
+        },
+        {
+          "topic": "Supabase Storage Buckets and File Uploads",
+          "subtopics": ["Buckets, objects and the storage schema tables storage.buckets and storage.objects", "Public versus private buckets", "Creating a bucket with file size limit and allowed MIME types", "upload, download, list, move and remove in supabase-js", "Upload options: upsert, contentType and cacheControl", "getPublicUrl for public buckets", "Folder structure convention with user id as the first path segment", "Size limits per plan and the global file limit"],
+          "tools": ["Supabase Storage", "supabase-js", "Dashboard", "curl"],
+          "lab_task": "Create a private bucket avatars with a 2 MB limit and allowed types image/png and image/jpeg and a public bucket docs. Upload avatar.png to avatars/<user-id>/avatar.png with supabase.storage.from('avatars').upload, list the folder, then try uploading a 5 MB file and a .txt file and record the errors. Read the rows in storage.objects.",
+          "deliverable": "Upload script, error log and the storage.objects query",
+          "checks": [["Upload a PNG under 2 MB to the avatars bucket", "Upload returns a path and a row appears in storage.objects", "Printed data and SQL result"], ["Upload a 5 MB file", "Error with statusCode 413 for exceeding the maximum size", "Printed error"], ["Upload a text file to the avatars bucket", "Error that the MIME type is not supported", "Printed error"]],
+          "objectives": ["Create buckets with limits and MIME restrictions", "Upload, list and delete objects through supabase-js", "Use the user id folder convention for private files"]
+        },
+        {
+          "topic": "Storage Access Policies and Signed URLs",
+          "subtopics": ["Storage uses RLS on storage.objects", "storage.foldername(name) and (storage.foldername(name))[1]", "Policy for owners to upload into their own folder", "Policy for reading own files only", "createSignedUrl(path, expiresIn) and its expiry", "createSignedUploadUrl for one-off uploads", "Public bucket downloads bypass policies", "Cleaning up orphan files after row deletion"],
+          "tools": ["Supabase Storage", "SQL Editor", "supabase-js", "curl"],
+          "lab_task": "Add policies on storage.objects for bucket_id = 'avatars' so authenticated users can insert, select and delete only where (storage.foldername(name))[1] = (select auth.uid())::text. Test uploads by two users, then createSignedUrl('<user>/avatar.png', 60) and fetch it with curl before and after 60 seconds.",
+          "deliverable": "Storage policy SQL and a test transcript with the signed URL timeline",
+          "checks": [["User A uploads into the folder of User B", "Error 403 new row violates row-level security policy", "Printed error"], ["curl the signed URL within 60 seconds", "HTTP 200 with the image bytes", "curl -I output"], ["curl the signed URL after it expires", "HTTP 400 with an invalid or expired token error", "curl output"]],
+          "objectives": ["Secure Storage with folder-based policies", "Share private files with expiring signed URLs", "Explain why public buckets skip policies on read"]
+        },
+        {
+          "topic": "Realtime Postgres Changes in the Browser",
+          "subtopics": ["Realtime service and the supabase_realtime publication", "alter publication supabase_realtime add table tasks", "channel().on('postgres_changes', { event, schema, table, filter })", "INSERT, UPDATE and DELETE payload fields new and old", "replica identity full for old values on update and delete", "Filters such as project_id=eq.1", "RLS and Realtime: clients receive only rows they may select", "subscribe status values and unsubscribing"],
+          "tools": ["Supabase Realtime", "supabase-js", "SQL Editor", "Browser DevTools"],
+          "lab_task": "Run alter publication supabase_realtime add table tasks; and build a page that subscribes with supabase.channel('tasks').on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, console.log).subscribe(). Insert, update and delete rows from the SQL Editor, record the payloads, then run alter table tasks replica identity full and compare the old field on update.",
+          "deliverable": "Subscriber page with captured INSERT, UPDATE and DELETE payloads",
+          "checks": [["Insert a row from the SQL Editor", "The browser logs eventType INSERT with the new row in payload.new", "Console log"], ["Update a row before and after replica identity full", "payload.old holds only the primary key before and all columns after", "Two console logs"], ["Subscribe as a user who may not select the row", "No event is delivered for that row", "Empty console"]],
+          "objectives": ["Enable tables for Realtime and subscribe to changes", "Read change payloads and replica identity effects", "Explain how RLS filters Realtime events"]
+        },
+        {
+          "topic": "Local Development with the Supabase CLI",
+          "subtopics": ["Installing the CLI with npm, Homebrew or Scoop", "supabase init and the supabase folder", "supabase start and the local stack containers", "supabase status output: API URL, DB URL, Studio URL and keys", "Default local ports 54321 for the API, 54322 for Postgres, 54323 for Studio", "Mailpit inbox for local auth emails", "supabase stop and --no-backup", "Editing supabase/config.toml"],
+          "tools": ["Supabase CLI", "Docker", "psql", "Mailpit"],
+          "lab_task": "Install the CLI, run supabase init, supabase start and supabase status. Open Studio at http://127.0.0.1:54323, connect with psql postgresql://postgres:postgres@127.0.0.1:54322/postgres, sign up a user in a local app, and read the confirmation email in Mailpit. Change [api] port in config.toml, restart and confirm the new port.",
+          "deliverable": "Local stack running with a status printout and a note of all ports",
+          "checks": [["Run supabase status after start", "Prints API URL http://127.0.0.1:54321 and DB URL on port 54322", "Terminal output"], ["Connect with psql to the local database", "select current_database(); returns postgres", "psql output"], ["Sign up a user against the local stack", "The confirmation message appears in Mailpit", "Mailpit screenshot"]],
+          "objectives": ["Run the full Supabase stack locally with the CLI", "Locate local URLs, ports and keys", "Use local email testing instead of real SMTP"]
+        },
+        {
+          "topic": "Migrations and Seed Data with supabase db",
+          "subtopics": ["supabase migration new and timestamped files", "supabase db reset and what it replays", "supabase/seed.sql and [db.seed] in config.toml", "supabase db diff -f to capture dashboard changes", "supabase link --project-ref and supabase db push", "supabase db pull for existing projects", "supabase migration list for local and remote status", "Never editing an applied migration"],
+          "tools": ["Supabase CLI", "Git", "psql", "SQL Editor"],
+          "lab_task": "Run supabase migration new create_tasks, paste the tables and policies from earlier days, add three rows in supabase/seed.sql and run supabase db reset. Change a column in Studio, capture it with supabase db diff -f add_priority, then supabase link --project-ref <ref> and supabase db push --dry-run followed by a real push. Commit the folder.",
+          "deliverable": "Git repository with two migrations, a seed file and migration list output",
+          "checks": [["Run supabase db reset", "Migrations apply in order and the seed rows exist in tasks", "Terminal output and select count(*)"], ["Run supabase db diff -f add_priority after a Studio change", "A new migration file contains the alter table statement", "File contents"], ["Run supabase migration list after push", "Local and Remote columns show the same versions", "Terminal output"]],
+          "objectives": ["Version-control the schema with migrations", "Capture dashboard changes as code", "Push local migrations to a hosted project"]
+        },
+        {
+          "topic": "Generating TypeScript Types from the Schema",
+          "subtopics": ["supabase gen types typescript --local > database.types.ts", "Generating from a linked project with --project-id or --linked", "createClient<Database>()", "Tables, Row, Insert and Update helper types", "Tables<'tasks'> and TablesInsert<'tasks'> helpers", "Typed select results with embedded relations", "Regenerating in CI to detect drift", "Enums, composite types and rpc argument types"],
+          "tools": ["Supabase CLI", "TypeScript", "VS Code", "GitHub Actions"],
+          "lab_task": "Run supabase gen types typescript --local > src/database.types.ts, pass Database to createClient, and write a function addTask(t: TablesInsert<'tasks'>). Compile with npx tsc --noEmit, rename a column in a new migration, regenerate and watch the compiler flag the broken call. Add a CI step that fails on git diff --exit-code src/database.types.ts.",
+          "deliverable": "Typed client code, the failing compile and the CI step",
+          "checks": [["Compile after generating types", "tsc exits 0 and autocompletion lists the task columns", "Terminal output"], ["Rename a column and recompile without regenerating", "No error because the types are stale", "tsc output"], ["Regenerate and recompile after the rename", "tsc reports a type error on the old column name", "tsc error text"]],
+          "objectives": ["Generate and use typed database definitions", "Catch schema drift at compile time", "Automate type generation in CI"]
+        },
+        {
+          "topic": "Database Functions and supabase.rpc",
+          "subtopics": ["Writing sql and plpgsql functions in the public schema", "Calling with supabase.rpc('name', { args })", "Returning scalars, rows and setof tables", "security invoker versus security definer", "Always setting search_path in definer functions", "Restricting execution: revoke execute ... from public, grant to authenticated", "Calling functions with filters on returned sets", "Atomic multi-statement work in one request"],
+          "tools": ["SQL Editor", "supabase-js", "plpgsql", "psql"],
+          "lab_task": "Write function public.complete_project_tasks(p_project uuid) returns integer language plpgsql security invoker set search_path = '' that sets done = true on all tasks of the project and returns the number changed. Call it with supabase.rpc('complete_project_tasks', { p_project }), revoke execute from public and grant it to authenticated, then call it as anon.",
+          "deliverable": "Function SQL, grants and a script showing allowed and denied calls",
+          "checks": [["Call the function as the project owner with 5 open tasks", "Returns 5 and select count(*) where done shows 5", "Printed data and SQL result"], ["Call it as another authenticated user", "Returns 0 because RLS hides the rows", "Printed data"], ["Call it with the anon key after the revoke", "Error 42501 permission denied for function", "Printed error"]],
+          "objectives": ["Expose database logic through rpc", "Choose invoker or definer deliberately", "Restrict who can execute a function"]
+        },
+        {
+          "topic": "Server-Side Auth in Next.js with @supabase/ssr",
+          "subtopics": ["Why cookies replace localStorage for server rendering", "npm i @supabase/supabase-js @supabase/ssr", "createBrowserClient and createServerClient", "Cookie handling with getAll and setAll", "Middleware that refreshes the session", "Protecting routes with getUser on the server", "Server Actions for sign in and sign out", "The email confirmation route handler with verifyOtp"],
+          "tools": ["Next.js", "@supabase/ssr", "supabase-js", "Browser DevTools"],
+          "lab_task": "Create a Next.js app, add utils/supabase/client.ts, server.ts and a middleware.ts that calls supabase.auth.getUser(). Build /login with a Server Action, a protected /dashboard that redirects to /login when getUser returns no user, and a sign-out action. Check the sb-<ref>-auth-token cookies in DevTools.",
+          "deliverable": "Next.js app with login, protected page and sign-out",
+          "checks": [["Open /dashboard while signed out", "Redirected to /login with HTTP 307", "DevTools network tab"], ["Sign in and reload /dashboard", "Page renders the user's email from the server", "Screenshot"], ["Sign out", "Auth cookies are removed and /dashboard redirects again", "DevTools cookies panel"]],
+          "objectives": ["Build cookie-based auth for server-rendered apps", "Protect routes with a verified user check", "Keep sessions fresh through middleware"]
+        },
+        {
+          "topic": "Beginner Capstone: Team Task Tracker on Supabase",
+          "subtopics": ["Requirements and schema for projects, tasks and members", "Auth with email and one OAuth provider and a profile trigger", "RLS policies for membership-based access", "Storage bucket for task attachments with policies", "Realtime updates for the task list", "Migrations, seed data and generated types in Git"],
+          "tools": ["Supabase", "Supabase CLI", "Next.js", "supabase-js", "Git"],
+          "lab_task": "Build a task tracker where members of a project read and write its tasks, owners add members, attachments go to a private bucket and the list updates live. Develop with supabase start, commit migrations and seed.sql, regenerate types, push to a hosted project with supabase db push and demonstrate two browsers with different users.",
+          "deliverable": "Git repository, hosted demo and a five-minute walkthrough with RLS test evidence",
+          "checks": [["Non-member requests tasks of a project via the API", "Empty array, with no error", "curl output"], ["Member adds a task in one browser", "Second member's browser shows it within 2 seconds", "Screen recording"], ["Run supabase db reset on a clean clone", "All migrations and the seed apply with no errors", "Terminal output"]],
+          "objectives": ["Combine Auth, RLS, Storage and Realtime in one application", "Deliver the project as reproducible migrations", "Demonstrate isolation between members and outsiders"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have shipped a basic Supabase app and now build production features. Covers custom claims and Auth Hooks, multi-tenant RLS and its performance, pgTAP policy tests, Edge Functions on Deno with secrets, CORS and JWT checks, database webhooks with pg_net, pg_cron, Realtime Broadcast, Presence and private channels, image transformations, resumable and S3-protocol uploads, MFA and SSO, Supavisor connections, pgvector embeddings, queues, branching and CI/CD, ending in a multi-tenant SaaS backend capstone.",
+      "prerequisites": ["Has completed a beginner Supabase course or built an app with Auth, RLS, Storage and the CLI", "Writes TypeScript and understands HTTP, JWTs and environment variables", "Has a Supabase project on a plan that includes the features used (branching and SSO need a paid plan), Docker for local work and a GitHub repository"],
+      "outcomes": ["Implement role-based and tenant-based access with custom claims, Auth Hooks and fast, tested RLS policies", "Build, secure, schedule and trigger Edge Functions and queue background work inside Postgres", "Run Realtime Broadcast, Presence and private channels, and handle large uploads and image delivery in Storage", "Deliver changes through branches and CI/CD and store and query embeddings with pgvector"],
+      "days": [
+        {
+          "topic": "Custom Claims, Auth Hooks and Role-Based Access",
+          "subtopics": ["Custom Access Token Hook as a Postgres function", "The event argument with user_id and claims", "Adding a user_role claim from a user_roles table", "grant execute to supabase_auth_admin and revoke from others", "Enabling the hook in Authentication > Hooks or config.toml [auth.hook.custom_access_token]", "Reading claims in policies with auth.jwt() ->> 'user_role'", "Claim freshness: a new token is needed after a role change", "Other hooks: send email, MFA verification and before-user-created"],
+          "tools": ["Auth Hooks", "SQL Editor", "supabase-js", "jwt.io"],
+          "lab_task": "Create table public.user_roles (user_id, role app_role) and function public.custom_access_token_hook(event jsonb) returning jsonb that sets claims.user_role. Grant execute to supabase_auth_admin only, enable the hook, sign in and decode the token, then write a policy allowing delete on tasks when (auth.jwt() ->> 'user_role') = 'admin'. Change the role and compare tokens.",
+          "deliverable": "Hook function, policy and decoded tokens before and after a role change",
+          "checks": [["Decode a token of a user listed as admin", "Payload contains user_role = admin", "Decoded JWT"], ["Delete a task as a non-admin", "Zero rows deleted and the row remains", "Response and row count"], ["Change the role in user_roles and reuse the old token", "Old token still carries the old role until refresh", "Two decoded tokens"]],
+          "objectives": ["Add custom claims to access tokens with a hook", "Use claims in RLS policies", "Explain token staleness after role changes"]
+        },
+        {
+          "topic": "Multi-Tenant RLS with Organisation Membership",
+          "subtopics": ["organisations, memberships and tenant_id on every table", "Membership check in a policy with exists or in (select ...)", "A security definer helper such as private.is_member(org uuid)", "Keeping helpers out of exposed schemas", "Role levels: owner, admin and member policies", "Invitations and accepting them with an rpc", "Preventing tenant_id changes with a with check clause", "Cross-tenant leak tests"],
+          "tools": ["SQL Editor", "supabase-js", "pgTAP", "psql"],
+          "lab_task": "Create organisations, memberships (org_id, user_id, role) and notes (org_id, body). Add private.is_member(p_org uuid) as security definer with set search_path = '' and policies on notes using it. Insert two orgs with two users each, then try select, insert into the other org and an update that moves a note to another org_id.",
+          "deliverable": "Schema and policies with a leak-test script and its results",
+          "checks": [["Member of org A selects notes", "Only org A notes are returned", "Query result"], ["Member of org A inserts a note with org B's id", "Error 42501 row-level security violation", "Printed error"], ["Update a note to set org_id to org B", "Rejected by with check with error 42501", "Printed error"]],
+          "objectives": ["Model tenants and memberships for RLS", "Use helper functions without exposing them", "Prove no cross-tenant access"]
+        },
+        {
+          "topic": "RLS Performance: Initplan Wrapping and Indexing Policies",
+          "subtopics": ["Why auth.uid() runs per row when unwrapped", "Wrapping as (select auth.uid()) to create an initPlan", "Same wrapping for auth.jwt() and helper function calls", "Indexing columns used in policies", "Specifying the role with to authenticated to skip work for anon", "Adding explicit filters in client queries alongside RLS", "Reading explain (analyze) with RLS applied", "Performance Advisor lint for auth_rls_initplan"],
+          "tools": ["EXPLAIN ANALYZE", "Performance Advisor", "SQL Editor", "pg_stat_statements"],
+          "lab_task": "Fill tasks with 1,000,000 rows using generate_series. Time select count(*) from tasks as an authenticated user with a policy using auth.uid() = owner_id, record the plan and time, rewrite it as (select auth.uid()) = owner_id, add an index on owner_id and measure again. Run the Performance Advisor.",
+          "deliverable": "Before and after timings, both plans and the index definition",
+          "checks": [["Run explain analyze with the unwrapped policy", "Plan shows the function evaluated per row with a longer execution time", "Plan text"], ["Run it with the wrapped call", "Plan shows an InitPlan node and a shorter execution time", "Plan text"], ["Add the owner_id index and rerun", "Plan uses an Index Scan or Bitmap Index Scan on it", "Plan text"]],
+          "objectives": ["Rewrite policies to avoid per-row function calls", "Index policy columns", "Verify improvements from query plans"]
+        },
+        {
+          "topic": "Testing RLS with pgTAP and supabase test db",
+          "subtopics": ["pgTAP in the Supabase local stack", "supabase test new and supabase/tests/database/*.test.sql", "plan(n), ok, is, results_eq and throws_ok", "Impersonating users with set local role authenticated and request.jwt.claims", "The supabase_test_helpers extension: tests.create_supabase_user and tests.authenticate_as", "rls_enabled and policies_are assertions", "Running supabase test db in CI", "Rolling back inside begin ... rollback"],
+          "tools": ["pgTAP", "Supabase CLI", "GitHub Actions", "psql"],
+          "lab_task": "Run supabase test new tasks_rls and write a test with plan(4) that creates two users, authenticates as each, asserts each sees only own rows, that cross-owner insert throws 42501, and that rls_enabled('public','tasks') is true. Run supabase test db, then comment out a policy and show the failure.",
+          "deliverable": "pgTAP test file and passing and failing run output",
+          "checks": [["Run supabase test db with all policies present", "Output ends with Result: PASS and 4 tests", "Terminal output"], ["Drop one select policy and rerun", "Result: FAIL with the failing test number", "Terminal output"], ["Call rls_enabled on a table without RLS", "The assertion fails and names the table", "Test output"]],
+          "objectives": ["Write database tests for RLS", "Impersonate users in tests", "Run policy tests in CI"]
+        },
+        {
+          "topic": "Edge Functions with Deno: Writing and Invoking Functions",
+          "subtopics": ["Edge Functions as Deno-based TypeScript functions on the edge", "supabase functions new hello-world", "Deno.serve and the Request and Response objects", "supabase functions serve for local runs", "Invoking with supabase.functions.invoke and with curl", "supabase functions deploy and listing functions", "deno.json imports and npm: specifiers", "Function URL https://<ref>.supabase.co/functions/v1/<name>"],
+          "tools": ["Supabase CLI", "Deno", "curl", "supabase-js"],
+          "lab_task": "Run supabase functions new hello-world, return JSON { message: `Hello ${name}` } from Deno.serve, serve it with supabase functions serve, call it with curl using the anon key, deploy with supabase functions deploy hello-world --project-ref <ref> and call the hosted URL. Invoke it from supabase-js with functions.invoke('hello-world', { body: { name: 'Ada' } }).",
+          "deliverable": "Deployed function with local and hosted call transcripts",
+          "checks": [["curl the local function with { name: Ada }", "HTTP 200 and body {\"message\":\"Hello Ada\"}", "curl output"], ["Call the hosted function with no Authorization header", "HTTP 401 Missing authorization header", "curl output"], ["Run supabase functions list", "hello-world shows status ACTIVE with a version number", "Terminal output"]],
+          "objectives": ["Create, run locally and deploy an Edge Function", "Invoke functions from curl and supabase-js", "Explain the function URL and JWT default"]
+        },
+        {
+          "topic": "Edge Functions: Secrets, CORS and User Authentication",
+          "subtopics": ["supabase secrets set KEY=value and --env-file", "Default environment variables SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY", "CORS preflight handling for OPTIONS and corsHeaders", "verify_jwt = true or false per function in config.toml", "Creating a user-scoped client with the caller's Authorization header", "Reading the user with supabase.auth.getUser()", "When to use the service-role client and why it bypasses RLS", "Returning correct status codes and errors"],
+          "tools": ["Supabase CLI", "Deno", "supabase-js", "Browser DevTools"],
+          "lab_task": "Write function whoami that builds createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { headers: { Authorization: req.headers.get('Authorization')! } } }), returns the user's id and the count of tasks they can see, and answers OPTIONS with CORS headers. Store a third-party key with supabase secrets set EXTERNAL_KEY=... and call whoami from a browser page.",
+          "deliverable": "Function source, secrets list and a browser call with CORS working",
+          "checks": [["Browser calls whoami with a signed-in user's session", "Returns the user's id and only their task count", "Response JSON"], ["Call whoami with only the anon key as bearer", "HTTP 401 from getUser", "curl output"], ["Remove the OPTIONS handler and call from the browser", "Preflight fails with a CORS error in the console", "DevTools console"]],
+          "objectives": ["Handle secrets and CORS correctly", "Act as the calling user so RLS still applies", "Choose when the service role is justified"]
+        },
+        {
+          "topic": "Database Webhooks and pg_net Triggers to Edge Functions",
+          "subtopics": ["Database Webhooks in Database > Webhooks", "Triggers calling supabase_functions.http_request", "The pg_net extension and net.http_post", "Payload shape: type, table, record and old_record", "Authorization headers and a shared secret", "Asynchronous delivery and the net._http_response table", "Retries are not automatic: idempotency keys", "Verifying signatures in the function"],
+          "tools": ["pg_net", "Database Webhooks", "Edge Functions", "SQL Editor"],
+          "lab_task": "Create function notify-new-task that logs the webhook body and checks a header x-webhook-secret. Add a Database Webhook on tasks insert pointing at it. Insert a row, read the function logs in the dashboard, query select status_code, content from net._http_response order by id desc limit 5 and then send a request with a wrong secret.",
+          "deliverable": "Webhook config, function code and the net._http_response evidence",
+          "checks": [["Insert a row into tasks", "Function log shows type INSERT and the new record within 5 seconds", "Function logs"], ["Query net._http_response", "A row with status_code 200 exists for the call", "Query result"], ["Send the payload with a wrong secret", "Function returns 401 and does no work", "curl output"]],
+          "objectives": ["Trigger Edge Functions from row changes", "Inspect asynchronous HTTP results", "Authenticate webhooks and make handlers idempotent"]
+        },
+        {
+          "topic": "Scheduled Jobs with pg_cron and Edge Functions",
+          "subtopics": ["Enabling the pg_cron extension", "cron.schedule(name, '*/5 * * * *', command)", "Running SQL directly versus calling an Edge Function with net.http_post", "Storing secrets in Vault: vault.create_secret and vault.decrypted_secrets", "cron.job and cron.job_run_details", "cron.unschedule", "Time zone behaviour (UTC) and sub-minute schedules", "Overlap and long-running jobs"],
+          "tools": ["pg_cron", "Supabase Vault", "pg_net", "Edge Functions"],
+          "lab_task": "Enable pg_cron and pg_net, store the project URL and anon key in Vault, schedule select cron.schedule('purge-done', '0 3 * * *', $$ delete from tasks where done and created_at < now() - interval '30 days' $$), and a second job every minute calling an Edge Function via net.http_post. Read cron.job_run_details and then unschedule both.",
+          "deliverable": "Job definitions with run history screenshots",
+          "checks": [["Query cron.job after scheduling", "Two jobs listed with the given schedules and active = true", "Query result"], ["Wait two minutes and read cron.job_run_details", "At least two rows for the minute job with status succeeded", "Query result"], ["Run cron.unschedule('purge-done')", "Returns true and the job is gone from cron.job", "Query result"]],
+          "objectives": ["Schedule SQL and function calls inside Postgres", "Keep secrets in Vault", "Monitor job runs and remove jobs"]
+        },
+        {
+          "topic": "Realtime Broadcast and Presence",
+          "subtopics": ["Three Realtime features: Postgres Changes, Broadcast and Presence", "channel(name).on('broadcast', { event }, cb)", "send and the self and ack config options", "Presence track, untrack and the sync, join and leave events", "presenceState structure and keys", "Broadcast from the database with realtime.send and realtime.broadcast_changes", "Cursor and typing indicator example", "Message size and rate limits by plan"],
+          "tools": ["Supabase Realtime", "supabase-js", "Browser DevTools", "SQL Editor"],
+          "lab_task": "Build a room page where each tab joins channel('room:1'), calls track({ user: name, online_at }) and sends cursor positions with send({ type: 'broadcast', event: 'cursor', payload }). Open three tabs, log presenceState(), close one tab and log the leave event. From SQL run select realtime.send('{\"hello\":1}'::jsonb, 'ping', 'room:1', false).",
+          "deliverable": "Room page and logs showing sync, join, leave and a database-originated message",
+          "checks": [["Open three tabs in the same room", "presenceState lists three keys in every tab", "Console logs"], ["Close one tab", "A leave event fires in the other two and the count drops to 2", "Console logs"], ["Run realtime.send from SQL", "Subscribed tabs receive event ping with payload hello = 1", "Console logs"]],
+          "objectives": ["Use Broadcast for low-latency messages", "Track online users with Presence", "Publish messages from the database"]
+        },
+        {
+          "topic": "Realtime Authorization and Private Channels",
+          "subtopics": ["Public versus private channels: config: { private: true }", "RLS policies on realtime.messages", "realtime.topic() inside policies", "extension = 'broadcast' and 'presence' in policies", "Granting select for receive and insert for send", "Setting the auth token with realtime.setAuth", "Per-room membership checks", "Testing denied joins and reading the error"],
+          "tools": ["Supabase Realtime", "SQL Editor", "supabase-js", "pgTAP"],
+          "lab_task": "Create policies on realtime.messages so authenticated users may select and insert only where realtime.topic() = 'room:' || room_id for rooms they belong to, joining by is_member(). Subscribe with channel('room:1', { config: { private: true } }) as a member and a non-member and compare the subscribe status and message delivery.",
+          "deliverable": "Policies and two subscriber logs",
+          "checks": [["Member subscribes to a private room", "Status SUBSCRIBED and broadcasts are received", "Console log"], ["Non-member subscribes to the same room", "Status CHANNEL_ERROR and no messages arrive", "Console log"], ["Drop the insert policy and member sends", "Send fails or is not delivered to other clients", "Console log"]],
+          "objectives": ["Secure Broadcast and Presence with RLS", "Use topic names for authorisation", "Test denied and allowed joins"]
+        },
+        {
+          "topic": "Storage Image Transformations and CDN Caching",
+          "subtopics": ["On-the-fly transformations with getPublicUrl and transform options", "width, height, resize (cover, contain, fill), quality and format", "Render image endpoint /render/image/public/", "Signed URLs with transform", "Smart CDN and cache-control on objects", "cacheControl upload option and cache busting", "Supported input formats and size limits", "Plan limits on transformations"],
+          "tools": ["Supabase Storage", "supabase-js", "curl", "Browser DevTools"],
+          "lab_task": "Upload a 4000x3000 JPEG, then request getPublicUrl with transform { width: 400, height: 300, resize: 'cover', quality: 70 } and format 'origin'. Compare byte sizes with curl -s -o /dev/null -w '%{size_download}', check cache-control and cf-cache-status headers on repeated requests and re-upload with upsert to see how long the old image is served.",
+          "deliverable": "Size comparison table and header captures",
+          "checks": [["Fetch the 400x300 transformed URL", "Downloaded size is below 15 percent of the original", "curl size output"], ["Fetch it twice", "Second response shows a cache hit header", "curl -I output"], ["Set quality=30 versus quality=90", "Lower quality returns fewer bytes", "Two byte counts"]],
+          "objectives": ["Serve resized images without extra services", "Understand CDN caching and invalidation", "Measure transfer savings"]
+        },
+        {
+          "topic": "Resumable Uploads with TUS and the S3 Protocol",
+          "subtopics": ["Standard upload versus resumable uploads for files above 6 MB", "TUS endpoint https://<ref>.storage.supabase.co/storage/v1/upload/resumable", "tus-js-client options: chunkSize 6 MB, retryDelays and metadata", "Required metadata: bucketName, objectName, contentType", "S3-compatible endpoint and access keys in Storage settings", "AWS CLI with --endpoint-url and region", "Multipart uploads", "Upload resume after a network drop"],
+          "tools": ["tus-js-client", "AWS CLI", "Supabase Storage", "curl"],
+          "lab_task": "Upload a 200 MB file with tus-js-client using a 6 MB chunk size, kill the network at about 40 percent, and resume. Then generate S3 access keys in Storage settings, configure aws configure with the project region and run aws s3 cp big.bin s3://docs/big.bin --endpoint-url https://<ref>.storage.supabase.co/storage/v1/s3 and aws s3 ls.",
+          "deliverable": "Upload scripts, resume log and S3 CLI transcript",
+          "checks": [["Interrupt the TUS upload at 40 percent and restart", "Upload resumes from the stored offset and finishes", "Client progress log"], ["List the bucket with aws s3 ls", "big.bin appears with the exact byte size of the file", "CLI output"], ["Compare the checksum of the downloaded file", "sha256 matches the original", "Checksum output"]],
+          "objectives": ["Upload large files reliably with TUS", "Use S3 tooling against Supabase Storage", "Verify integrity after resume"]
+        },
+        {
+          "topic": "Branching: Preview Environments for Pull Requests",
+          "subtopics": ["Supabase Branching and the GitHub integration", "Preview branches created per pull request", "Persistent branches versus preview branches", "Migrations in supabase/migrations run on branch creation", "seed.sql and [remotes.<branch>] config overrides", "supabase branches create, list and get with --experimental where required", "Branch credentials and API URLs", "Merging: migrations deploy to production on merge"],
+          "tools": ["Supabase Branching", "GitHub", "Supabase CLI", "Dashboard"],
+          "lab_task": "Connect the GitHub repository in Project Settings > Integrations with the supabase directory, open a pull request that adds a migration for tasks.priority, wait for the Supabase check to pass, open the preview branch URL in the dashboard and test the new column. Merge, then confirm the migration runs on production with supabase migration list.",
+          "deliverable": "Pull request with a passing Supabase check and the production migration list",
+          "checks": [["Open a pull request with a new migration", "A preview branch is created and the Supabase check shows success", "PR checks screenshot"], ["Query the preview branch for the new column", "Column priority exists on the branch and not on production", "Two query results"], ["Merge the pull request", "The migration is applied to production and listed in migration list", "Terminal output"]],
+          "objectives": ["Create a preview database per pull request", "Understand how migrations flow on merge", "Keep branch data and production isolated"]
+        },
+        {
+          "topic": "CI/CD with GitHub Actions and the Supabase CLI",
+          "subtopics": ["supabase/setup-cli action", "SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD and project ref secrets", "supabase db push in a deploy job", "supabase functions deploy in CI", "supabase start and supabase test db on every pull request", "Type generation drift check", "supabase db lint --fail-on error", "Separate staging and production projects"],
+          "tools": ["GitHub Actions", "Supabase CLI", "setup-cli", "pgTAP"],
+          "lab_task": "Write .github/workflows/ci.yml that on pull request runs supabase start, supabase db lint, supabase test db and a types diff, and a deploy.yml on push to main that runs supabase link, supabase db push and supabase functions deploy using repository secrets. Push a deliberately failing test and a passing fix.",
+          "deliverable": "Two workflows with a red run and a green run",
+          "checks": [["Open a PR with a failing pgTAP test", "CI job fails at supabase test db", "Actions run log"], ["Push the fix", "All steps pass and the check turns green", "Actions run log"], ["Merge to main", "The deploy job applies the migration and deploys functions", "Deploy log"]],
+          "objectives": ["Automate tests and deploys for Supabase", "Handle access tokens and DB passwords as secrets", "Separate staging from production"]
+        },
+        {
+          "topic": "MFA, SAML SSO and Enterprise Auth in Supabase",
+          "subtopics": ["TOTP MFA with mfa.enroll, challenge and verify", "Authenticator Assurance Levels aal1 and aal2", "Requiring aal2 in RLS with auth.jwt() ->> 'aal'", "Phone MFA and recovery considerations", "SAML 2.0 SSO setup with supabase sso add (paid plans)", "Attribute mapping and domains", "Enforcing MFA for sensitive tables", "Auth rate limits and CAPTCHA protection"],
+          "tools": ["Supabase Auth", "supabase-js", "Authenticator app", "Supabase CLI"],
+          "lab_task": "Enable MFA in Authentication settings, enroll a TOTP factor with supabase.auth.mfa.enroll({ factorType: 'totp' }), scan the QR, call challenge and verify, then confirm the token has aal = aal2. Add a restrictive policy on payments requiring (auth.jwt() ->> 'aal') = 'aal2' and compare access at aal1 and aal2.",
+          "deliverable": "MFA enrolment script and policy test results",
+          "checks": [["Decode the token after password login only", "Claim aal = aal1", "Decoded JWT"], ["Select from payments at aal1", "Zero rows returned", "Query output"], ["Verify a TOTP code and select again", "Token shows aal2 and rows are returned", "Decoded JWT and output"]],
+          "objectives": ["Add TOTP MFA and enforce aal2 in policies", "Describe SAML SSO setup and plan limits", "Protect Auth endpoints from abuse"]
+        },
+        {
+          "topic": "Connection Management: Supavisor and the Data API",
+          "subtopics": ["Direct connection, session pooler (5432) and transaction pooler (6543)", "Which to use for serverless, long-lived servers and migrations", "Supavisor connection strings and the postgres.<ref> user", "Prepared statements and the transaction pooler", "Pool size and max client connections by compute", "IPv4 and IPv6 availability of direct connections", "supabase-js uses the Data API over HTTP, not a pool", "Measuring connections with pg_stat_activity"],
+          "tools": ["Supavisor", "psql", "pgbench", "Dashboard"],
+          "lab_task": "Copy the three connection strings from Project Settings > Database. Run pgbench -c 50 -j 4 -T 30 against the transaction pooler and the direct connection, record tps, and watch select count(*) from pg_stat_activity during the run. Trigger a prepared statement error with a driver on the transaction pooler and fix it.",
+          "deliverable": "Connection matrix and pgbench results for each endpoint",
+          "checks": [["Connect on port 6543 and run select 1", "Returns 1 through the transaction pooler", "psql output"], ["Run pgbench with 50 clients on the pooler", "Run completes with 0 failed transactions and a reported tps", "pgbench output"], ["Use a driver with prepared statements on port 6543", "Error about a prepared statement not existing until the option is disabled", "Driver error"]],
+          "objectives": ["Pick the right connection endpoint for each workload", "Diagnose pooler-related errors", "Measure connections and throughput"]
+        },
+        {
+          "topic": "Embeddings and Similarity Search with pgvector in Supabase",
+          "subtopics": ["create extension vector with schema extensions", "vector(n) columns and dimensions", "Distance operators <-> L2, <#> inner product and <=> cosine", "Generating embeddings from Edge Functions with Supabase.ai.Session and gte-small (384 dimensions)", "Storing embeddings from an external model such as 1536-dimension vectors", "Match function exposed through rpc", "Similarity threshold and match_count", "RLS on the embeddings table"],
+          "tools": ["pgvector", "Edge Functions", "supabase-js", "SQL Editor"],
+          "lab_task": "Create documents (id, content, embedding vector(384)). Write an Edge Function using new Supabase.ai.Session('gte-small') with mean_pool and normalize to embed 50 sentences and insert them. Create function match_documents(query_embedding vector(384), match_threshold float, match_count int) ordered by embedding <=> query_embedding and call it with rpc.",
+          "deliverable": "Embedding function, match function and ten example queries with scores",
+          "checks": [["Insert a vector of the wrong length", "Error: expected 384 dimensions, not the given number", "Printed error"], ["Search for a sentence close to a stored one", "The stored sentence is first with similarity above 0.8", "rpc result"], ["Set match_threshold to 0.99 for an unrelated query", "Returns an empty array", "rpc result"]],
+          "objectives": ["Store embeddings and search by cosine distance", "Expose similarity search through rpc", "Secure the vector table with RLS"]
+        },
+        {
+          "topic": "Queues with pgmq and Background Processing",
+          "subtopics": ["Supabase Queues built on the pgmq extension", "pgmq.create, pgmq.send and pgmq.send_batch", "pgmq.read(queue, vt, qty) and the visibility timeout", "pgmq.delete and pgmq.archive", "Queue tables in the pgmq schema and exposing queues through the Data API", "Consumer as an Edge Function triggered by pg_cron", "Retries with read_ct and a dead-letter pattern", "At-least-once delivery and idempotent handlers"],
+          "tools": ["pgmq", "pg_cron", "Edge Functions", "SQL Editor"],
+          "lab_task": "Run select pgmq.create('emails'), send ten messages with pgmq.send, read with pgmq.read('emails', 30, 5) and show that the same call a second time returns different messages. Delete processed ones, archive one and create a consumer Edge Function that processes five messages per cron run, sending those with read_ct > 3 to a failed_emails table.",
+          "deliverable": "Queue setup, consumer function and a run log of processed and failed messages",
+          "checks": [["Read five messages twice within 30 seconds", "The second read returns the other five messages", "Query results"], ["Wait 30 seconds without deleting", "The first five become visible again with read_ct = 2", "Query result"], ["Delete a message by msg_id", "pgmq.delete returns true and the queue length drops by 1", "Query result"]],
+          "objectives": ["Process background work reliably inside Postgres", "Use visibility timeouts and retries", "Design idempotent consumers"]
+        },
+        {
+          "topic": "Exposing Schemas and Views Safely through the Data API",
+          "subtopics": ["Exposed schemas in API settings and config.toml [api] schemas", "Moving internal tables to a private schema", "Views with security_invoker and security barrier", "Column privileges with grant select (col) and revoke", "Default privileges and alter default privileges for new tables", "Extra search path and extensions schema", "Database Advisors: rls_disabled_in_public and policy_exists_rls_disabled", "Max rows and statement timeout by role"],
+          "tools": ["Security Advisor", "SQL Editor", "supabase db lint", "curl"],
+          "lab_task": "Create schema private with a table audit_log and confirm it is not reachable at /rest/v1/. Create view public.task_summaries over tasks with security_invoker = true, revoke select on tasks (email) from anon, run supabase db lint and the dashboard Security Advisor, and fix every ERROR-level finding. Set statement_timeout for authenticated with alter role.",
+          "deliverable": "Before and after Advisor findings and the hardening SQL",
+          "checks": [["Request /rest/v1/audit_log with the private schema", "HTTP 404 with code PGRST205 or schema not found", "curl output"], ["Select the revoked column as anon", "Error 42501 permission denied for column", "curl output"], ["Run supabase db lint after the fixes", "No findings at error level", "Lint output"]],
+          "objectives": ["Control exactly what the Data API exposes", "Use column privileges and invoker views", "Act on Advisor findings"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Tenant SaaS Backend with Auth, Storage and Realtime",
+          "subtopics": ["Tenant model, roles and custom claims through an Auth Hook", "Tested RLS policies with pgTAP and wrapped auth calls", "Storage for tenant files with signed URLs and Realtime private channels", "Edge Functions with webhooks, a pgmq queue and pg_cron", "Branch-based preview deployments and CI/CD", "Operational runbook and connection configuration"],
+          "tools": ["Supabase", "Supabase CLI", "pgTAP", "Edge Functions", "GitHub Actions"],
+          "lab_task": "Deliver a multi-tenant SaaS backend: organisations with owner, admin and member roles, tenant-scoped documents with files in Storage, live comments over a private channel, an invite email sent through a queue and Edge Function, and a nightly cleanup job. Include pgTAP tests, a CI pipeline with preview branches and a load test with pgbench.",
+          "deliverable": "Repository with migrations, tests, pipelines and a runbook plus a ten-minute demo",
+          "checks": [["Run supabase test db in CI", "All RLS tests pass including cross-tenant denial", "CI log"], ["Member of tenant A requests tenant B's files via signed URL creation", "Request rejected with a 4xx status", "API response"], ["Open a pull request that changes a policy", "A preview branch is built and the check passes", "PR screenshot"]],
+          "objectives": ["Integrate the platform features into one multi-tenant backend", "Prove isolation and performance with tests", "Deliver through branches and CI"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers, platform engineers and architects who run Supabase in production. Covers automated embedding pipelines, HNSW tuning and hybrid search, RAG with RLS, Edge Function and Realtime limits at scale, JWT signing keys, Advisors and audits, Storage at scale, self-hosting with Docker Compose and Kubernetes, the Management API and Terraform, compute sizing and read replicas, backups and restore drills, migration promotion, Wrappers, migrating from Firebase, observability, cost and incident handling, with an AI knowledge platform capstone.",
+      "prerequisites": ["Has run a Supabase project with RLS, Edge Functions, Storage and migrations in production or a staging equivalent", "Knows Postgres administration basics: indexes, EXPLAIN, roles, backups and replication", "Has Docker, a Kubernetes cluster or kind, Terraform and a paid Supabase organisation or a trial for the paid features used"],
+      "outcomes": ["Build and tune a retrieval pipeline on pgvector with automatic embeddings, hybrid search and row-level access control", "Operate Supabase at scale: sizing, limits, replicas, backups, observability and cost control", "Self-host Supabase with Docker Compose or Kubernetes and harden it", "Automate project provisioning, promotion and migration from other platforms with the Management API, Terraform and Wrappers"],
+      "days": [
+        {
+          "topic": "Automatic Embedding Pipelines with Triggers, Queues and Edge Functions",
+          "subtopics": ["Embedding on insert and update with a trigger that sends a pgmq message", "Embedding job queue with batching and visibility timeout", "Edge Function worker reading batches with pgmq.read", "Choosing models: built-in gte-small versus an external API", "Content hashing to skip unchanged text", "Chunking strategy and a chunks table linked to documents", "Backoff, dead-letter handling and idempotency", "Reindexing when the model changes: versioned embedding columns"],
+          "tools": ["pgmq", "pg_cron", "Edge Functions", "pgvector"],
+          "lab_task": "Create documents and document_chunks (embedding vector(384), content_hash, model). Add a trigger that enqueues changed rows with pgmq.send, a cron-driven Edge Function that reads 20 messages, embeds them and updates rows, and a dead-letter queue after 5 reads. Load 10,000 chunks and record throughput in chunks per second and failed count.",
+          "deliverable": "Pipeline migrations, worker code and a throughput report",
+          "checks": [["Insert a document of 10 chunks", "All 10 chunks have a non-null embedding within one cron cycle", "Query result"], ["Update a document with identical text", "No embedding job is enqueued because the hash matches", "Queue length unchanged"], ["Force the embedding call to fail", "After 5 reads the message appears in the dead-letter queue", "Queue contents"]],
+          "objectives": ["Automate embedding generation reliably", "Avoid redundant work with hashing and versioning", "Handle failure with retries and a dead-letter queue"]
+        },
+        {
+          "topic": "HNSW and IVFFlat Tuning with Hybrid Search",
+          "subtopics": ["Exact search versus approximate indexes", "create index using hnsw (embedding vector_cosine_ops) with m and ef_construction", "hnsw.ef_search and ivfflat.probes at query time", "Recall measurement against exact results", "Index build time, memory and maintenance_work_mem", "Full-text search with tsvector and websearch_to_tsquery", "Reciprocal rank fusion of vector and keyword results", "Filtering with RLS and iterative scans"],
+          "tools": ["pgvector", "EXPLAIN ANALYZE", "SQL Editor", "Python"],
+          "lab_task": "Load 500,000 normalised 384-dimension vectors. Measure exact top-10 queries, then build an HNSW index with m = 16, ef_construction = 64 and test hnsw.ef_search at 10, 40 and 100, computing recall against the exact set for 200 queries and the p95 latency. Add a tsvector column and implement a reciprocal-rank-fusion SQL function.",
+          "deliverable": "Recall and latency table for each ef_search and the hybrid search function",
+          "checks": [["Run explain analyze on the unindexed query", "Plan shows a sequential scan with Sort on distance", "Plan text"], ["Run the query after the HNSW index with ef_search = 40", "Plan shows Index Scan using the hnsw index", "Plan text"], ["Compare recall at ef_search 10 versus 100", "Recall at 100 is higher than at 10 with a higher p95", "Result table"]],
+          "objectives": ["Tune vector indexes for recall and latency", "Measure recall rather than assume it", "Combine keyword and vector ranking"]
+        },
+        {
+          "topic": "Retrieval-Augmented Generation on Supabase with RLS-Aware Retrieval",
+          "subtopics": ["RAG request flow: embed the question, retrieve, build a prompt and generate", "Match function in security invoker mode so RLS filters chunks", "Per-tenant and per-document-ACL policies on chunks", "Edge Function streaming responses with ReadableStream and server-sent events", "Prompt injection through retrieved text and basic mitigations", "Citing sources with chunk ids", "Evaluating with a question set and hit-rate", "Caching answers and rate limiting per user"],
+          "tools": ["Edge Functions", "pgvector", "supabase-js", "OpenAI or another LLM API"],
+          "lab_task": "Build an ask Edge Function that embeds the question, calls match_chunks through the caller's JWT (security invoker) with match_count 6, assembles a prompt with chunk ids and streams the answer. Seed documents for two tenants, test that tenant B questions never retrieve tenant A text, and score 30 questions for hit-rate at 6.",
+          "deliverable": "RAG function, isolation test and an evaluation sheet with hit-rate",
+          "checks": [["Ask tenant B a question whose answer is only in tenant A documents", "No tenant A chunk ids appear in the retrieved set", "Function log of chunk ids"], ["Run the 30-question set", "Hit-rate at 6 is recorded and is at least the agreed target", "Evaluation sheet"], ["Send 11 requests in a minute with a limit of 10", "The eleventh returns HTTP 429", "curl output"]],
+          "objectives": ["Assemble an end-to-end RAG feature on Supabase", "Enforce per-user data access during retrieval", "Evaluate retrieval quality with a fixed question set"]
+        },
+        {
+          "topic": "Edge Functions at Scale: Limits, Cold Starts and Observability",
+          "subtopics": ["Execution limits: CPU time, wall-clock time, memory and request size per plan", "Cold start versus warm start measurement", "Bundle size and lazy imports", "Background work with EdgeRuntime.waitUntil", "Regional invocation with the x-region header", "Function logs, metrics and the Logs Explorer", "Error handling and structured logging", "Shared code in supabase/functions/_shared and import maps"],
+          "tools": ["Edge Functions", "Logs Explorer", "k6", "Supabase CLI"],
+          "lab_task": "Deploy a function with a heavy import and one with lazy import, then use k6 with 50 virtual users for 2 minutes to compare p50 and p95 including cold starts. Add EdgeRuntime.waitUntil for a slow audit write, trigger a 150 second wait to see the timeout and read the matching rows in the Logs Explorer.",
+          "deliverable": "k6 results, the Logs Explorer queries and a tuning note",
+          "checks": [["Run k6 against the lazy-import function", "p95 latency is lower than the heavy-import version", "k6 summary"], ["Move the audit write to waitUntil", "Response returns before the audit row is committed and the row appears afterward", "Timestamps"], ["Exceed the wall-clock limit", "Request fails with a 546 or 504 style timeout status and a log entry", "Logs Explorer row"]],
+          "objectives": ["Measure and reduce Edge Function latency", "Use background tasks safely", "Diagnose failures from function logs"]
+        },
+        {
+          "topic": "Realtime at Scale: Quotas, Channel Design and Replication Slots",
+          "subtopics": ["Concurrent connections, messages per second and channel joins by plan", "Postgres Changes cost: one replication reader and single-threaded authorisation per change", "Broadcast from the database with realtime.broadcast_changes as the scalable path", "Topic design: per-room versus per-user topics", "The supabase_realtime replication slot and WAL retention risk", "Monitoring realtime metrics and errors such as too_many_joins", "Load testing Realtime with a WebSocket client", "Client reconnection and backoff"],
+          "tools": ["Supabase Realtime", "k6", "SQL Editor", "Dashboard Reports"],
+          "lab_task": "Replace a Postgres Changes subscription on messages with a trigger calling realtime.broadcast_changes to topic room:<id> and a private channel. Load test with 500 WebSocket clients using k6 xk6-websockets or a Node script, record delivery latency p95, and query pg_replication_slots for the Realtime slot lag before and after.",
+          "deliverable": "Both designs with latency results and slot lag numbers",
+          "checks": [["Run 500 clients on the Broadcast design", "All clients receive each of 100 messages and delivery p95 is reported", "Load test summary"], ["Query pg_replication_slots during the run", "The slot shows a small confirmed lag in bytes", "Query result"], ["Exceed the plan's channel-join rate", "Clients receive a rate-limit style error such as too_many_joins", "Client error log"]],
+          "objectives": ["Choose Broadcast or Postgres Changes for the load", "Watch replication slots tied to Realtime", "Load test and size Realtime"]
+        },
+        {
+          "topic": "JWT Signing Keys, Rotation and Token Hardening",
+          "subtopics": ["Legacy shared JWT secret versus asymmetric JWT signing keys", "Public keys at /auth/v1/.well-known/jwks.json", "Rotating signing keys and the standby, current and previously used states", "Verifying tokens in your own API with a JWKS client", "supabase.auth.getClaims for local verification", "Shortening access token expiry and refresh token reuse detection", "Revoking sessions and the auth.sessions table", "API key changes: publishable and secret keys"],
+          "tools": ["Supabase Auth", "jose", "curl", "Dashboard"],
+          "lab_task": "Fetch the JWKS with curl, write a Node service that verifies an access token with the jose library and createRemoteJWKSet, rotate the signing key from the dashboard, show tokens signed with the old key still verify until expiry, then reduce expiry to 600 seconds. Revoke a session with a delete from auth.sessions and test refresh.",
+          "deliverable": "Verifier service, rotation log and revocation test",
+          "checks": [["Verify a fresh token against the JWKS", "Verification succeeds and prints sub and role", "Service output"], ["Verify an old-key token after rotation", "Still valid until its exp because the old key stays in the JWKS", "Service output"], ["Refresh after deleting the session row", "Refresh fails with a session not found error", "Printed error"]],
+          "objectives": ["Verify Supabase JWTs outside Supabase", "Rotate signing keys without downtime", "Shorten and revoke sessions deliberately"]
+        },
+        {
+          "topic": "Security Audit with Advisors, Linting and Policy Review",
+          "subtopics": ["Security Advisor and Performance Advisor categories", "supabase db lint --level warning and --schema", "Auditing every public table for RLS and policies with pg_class and pg_policies", "Functions without search_path and definer functions in exposed schemas", "Storage buckets that are public and over-broad policies", "Network restrictions and SSL enforcement", "Audit logging with pgaudit and Logs Explorer queries", "Writing an audit report with severity and fixes"],
+          "tools": ["Security Advisor", "pgaudit", "SQL Editor", "supabase db lint"],
+          "lab_task": "Run the Advisors and supabase db lint against a deliberately flawed project containing a table without RLS, a policy using (true) for authenticated, a security definer function without search_path and a public bucket with private files. Write SQL that finds each flaw from the catalogs, fix them with a migration and re-run.",
+          "deliverable": "Audit report with the finding list, catalog queries and a fix migration",
+          "checks": [["Run the catalog query for tables without RLS in public", "Lists the flawed table and returns zero rows after the fix", "Two query results"], ["Search pg_proc for definer functions with no proconfig search_path", "Lists the flawed function and none after the fix", "Query result"], ["Re-run the Advisors", "No security finding at ERROR level remains", "Advisor screenshot"]],
+          "objectives": ["Find RLS, function and bucket flaws systematically", "Fix findings through migrations", "Produce an audit report with severity"]
+        },
+        {
+          "topic": "Storage Policies at Scale and Object Lifecycle",
+          "subtopics": ["Object counts, listing cost and the pagination of list()", "Indexing and query shape on storage.objects", "Per-tenant folders and policies that avoid slow lookups", "Orphan detection by joining storage.objects to application tables", "Deleting objects with the API, not direct SQL", "Lifecycle cleanup jobs with pg_cron and an Edge Function", "Antivirus and content-type validation in a function", "Egress, cache hit ratio and bandwidth costs"],
+          "tools": ["Supabase Storage", "pg_cron", "Edge Functions", "SQL Editor"],
+          "lab_task": "Insert 500,000 rows of metadata into a test bucket with a script, measure list() and a policy-filtered select on storage.objects using explain analyze, find orphans with a left join to attachments, and write a nightly Edge Function that deletes them through storage.from().remove() in batches of 100. Record deleted count and runtime.",
+          "deliverable": "Orphan finder, cleanup function and timing report",
+          "checks": [["Run the orphan query", "Returns the count of objects without an attachments row", "Query result"], ["Run the cleanup function", "Deleted count equals the orphan count and storage.objects shrinks by that number", "Before and after counts"], ["Delete an object with raw SQL instead of the API", "The row disappears but the file remains in the object store", "Warning note and test result"]],
+          "objectives": ["Operate Storage with many objects", "Clean orphans through the API", "Control egress and cache behaviour"]
+        },
+        {
+          "topic": "Self-Hosting Supabase with Docker Compose",
+          "subtopics": ["Self-hosted component list: Postgres, Kong, GoTrue, PostgREST, Realtime, Storage, imgproxy, Studio, Edge Runtime, Logflare and Vector", "Cloning supabase/supabase and copying docker/.env.example to .env", "Generating POSTGRES_PASSWORD, JWT_SECRET, ANON_KEY and SERVICE_ROLE_KEY", "docker compose pull and docker compose up -d", "Kong gateway on port 8000 and Studio login with DASHBOARD_USERNAME", "Volumes: db data and storage", "SMTP configuration for Auth", "Differences from the hosted platform"],
+          "tools": ["Docker Compose", "Supabase self-hosted", "psql", "curl"],
+          "lab_task": "Clone the supabase repo, copy the docker directory, create .env with newly generated secrets (never the defaults), run docker compose up -d and wait until docker compose ps shows all services healthy. Open Studio on port 8000, create a table, call /rest/v1/ with the generated anon key and restart the stack to confirm data persists.",
+          "deliverable": "Running stack, filled .env without secrets committed, and a persistence test",
+          "checks": [["Run docker compose ps after start", "All services show healthy or running with no restarts", "Terminal output"], ["curl http://localhost:8000/rest/v1/ with the anon key", "HTTP 200 with the OpenAPI document", "curl output"], ["docker compose down then up -d without removing volumes", "The created table and rows are still present", "Query result"]],
+          "objectives": ["Run the full Supabase stack on your own infrastructure", "Generate and manage secrets and keys correctly", "Compare self-hosted limits with the platform"]
+        },
+        {
+          "topic": "Self-Hosting Hardening: Secrets, TLS, Backups and Upgrades",
+          "subtopics": ["Rotating default secrets and re-signing JWT keys consistently across services", "Reverse proxy with TLS in front of Kong using Caddy or Nginx", "Closing database and internal ports in the compose file", "Restricting Studio access", "pg_dump and volume backups with a tested restore", "Upgrade procedure: read release notes, pin image tags, pull and recreate", "Resource limits and health checks", "Monitoring with the bundled analytics or Prometheus"],
+          "tools": ["Docker Compose", "Caddy", "pg_dump", "Prometheus"],
+          "lab_task": "Put Caddy with automatic HTTPS in front of Kong, bind Postgres to 127.0.0.1 only, pin every image tag, run a nightly pg_dump -Fc and the storage volume backup, then destroy and restore the stack on a second host. Verify with an nmap scan from outside that only 80 and 443 are open, and perform one minor image upgrade.",
+          "deliverable": "Hardened compose files, backup scripts and a restore test report",
+          "checks": [["Run nmap against the public IP", "Only ports 80 and 443 are open", "nmap output"], ["Restore the dump on a fresh host", "Row counts of key tables match the source", "Count comparison"], ["Upgrade one pinned image tag", "Services return healthy and the API still answers", "Compose status and curl"]],
+          "objectives": ["Harden a self-hosted deployment", "Back up and restore the whole stack", "Upgrade components in a controlled way"]
+        },
+        {
+          "topic": "Self-Hosting on Kubernetes with Helm",
+          "subtopics": ["Community Helm charts for Supabase and what they cover", "Namespaces, values.yaml and Secrets for JWT and database credentials", "Using an external managed Postgres or CloudNativePG instead of the bundled database", "Ingress for the Kong service and TLS with cert-manager", "PersistentVolumeClaims for Storage files or S3 backend configuration", "Readiness and liveness probes", "Horizontal scaling of stateless services", "Operational limits compared to the hosted platform"],
+          "tools": ["Helm", "kubectl", "kind", "cert-manager"],
+          "lab_task": "On a kind cluster install a community Supabase Helm chart with helm install supabase ./chart -f values.yaml -n supabase using Secrets you generate, point it to an external Postgres, expose Kong through an Ingress and verify with curl. Scale PostgREST to 3 replicas with kubectl scale and delete one pod to confirm requests still succeed.",
+          "deliverable": "Values file without secrets, deployment evidence and a scaling test",
+          "checks": [["Run kubectl get pods -n supabase", "All pods are Running and Ready", "kubectl output"], ["curl the ingress /auth/v1/health", "HTTP 200 with a version field", "curl output"], ["Delete one PostgREST pod during a request loop", "No more than one failed request and the pod is recreated", "Loop log"]],
+          "objectives": ["Deploy Supabase components onto Kubernetes", "Use external Postgres and managed secrets", "Understand support and maintenance trade-offs"]
+        },
+        {
+          "topic": "Management API, Terraform and Project Automation",
+          "subtopics": ["Personal access tokens and the Management API at https://api.supabase.com/v1", "Listing and creating projects, organisations and branches", "Updating Auth config and Postgres config through the API", "The supabase Terraform provider and supabase_project resource", "Managing settings as code and importing existing projects", "Secrets for tokens and database passwords", "Environment promotion with workspaces", "Drift detection with terraform plan"],
+          "tools": ["Terraform", "Supabase Management API", "curl", "Supabase CLI"],
+          "lab_task": "Create an access token, call GET /v1/projects with curl, then write Terraform with the supabase provider to create a staging project and manage its auth settings. Run terraform plan and apply, change a setting in the dashboard to cause drift, run terraform plan again to see it and apply to restore. Store the token in an environment variable.",
+          "deliverable": "Terraform module, plan outputs and a drift demonstration",
+          "checks": [["Call GET /v1/projects with the token", "HTTP 200 with a JSON array that includes the project ref", "curl output"], ["Run terraform apply", "Plan reports the resources added and the staging project appears", "Terraform output"], ["Change a setting in the dashboard and run terraform plan", "Plan shows the drifted attribute to be changed", "Plan output"]],
+          "objectives": ["Provision Supabase projects as code", "Call the Management API securely", "Detect configuration drift"]
+        },
+        {
+          "topic": "Compute Sizing, Read Replicas and Regional Strategy",
+          "subtopics": ["Compute add-on sizes, CPU, memory and connection limits", "Disk size, IOPS and throughput settings and auto-scaling behaviour", "Read replicas and the read-only API endpoint", "Routing reads with supabase-js and a replica client", "Replication lag and what it means for read-your-writes", "Region choice and latency to Edge Functions", "Load testing before resizing", "Reading Reports: CPU, memory, disk IO budget and connections"],
+          "tools": ["Dashboard Reports", "pgbench", "k6", "supabase-js"],
+          "lab_task": "Run a 10-minute k6 test of read-heavy API calls against the primary and record CPU and disk IO in Reports. Add a read replica, create a second client with the replica URL for reporting queries, repeat the test and compare. Measure replication lag with select now() - pg_last_xact_replay_timestamp() on the replica during a write burst.",
+          "deliverable": "Sizing recommendation with before and after metrics and a lag measurement",
+          "checks": [["Run the read test against the primary only", "CPU and p95 latency are recorded as the baseline", "k6 summary and Reports screenshot"], ["Route reporting reads to the replica and rerun", "Primary CPU drops and p95 stays within target", "Two summaries"], ["Check lag during a write burst", "The lag value is reported in seconds and is returned to near zero after", "Query output"]],
+          "objectives": ["Size compute and disk from data", "Use read replicas correctly", "Handle replica lag in application design"]
+        },
+        {
+          "topic": "Backups, Point-in-Time Recovery and Restore Drills",
+          "subtopics": ["Daily backups versus the PITR add-on", "What backups include and exclude: Storage objects, Edge Function code and secrets", "Restoring a backup to a new project", "PITR window and recovery time targets", "Logical backups with supabase db dump and pg_dump", "Database size limits for dumps and role handling", "Writing a restore runbook", "Quarterly drill and measured RTO and RPO"],
+          "tools": ["Supabase Backups", "Supabase CLI", "pg_dump", "psql"],
+          "lab_task": "Take a logical backup with supabase db dump -f roles.sql --role-only, supabase db dump -f schema.sql and supabase db dump -f data.sql --data-only, restore all three into a new project with psql, delete 100 rows by mistake in staging and perform a restore drill, recording elapsed time against a stated RTO. Compare table counts after restore.",
+          "deliverable": "Backup scripts, a restore runbook and a drill report with RTO and RPO",
+          "checks": [["Restore the dumps into a new project", "Row counts for every table match the source", "Count comparison"], ["Measure the whole restore from start to usable API", "Elapsed time is recorded and compared with the RTO target", "Drill timeline"], ["Check Storage objects after a database-only restore", "The objects are not restored by the database backup, confirming a separate plan is needed", "Storage listing"]],
+          "objectives": ["Take and test logical and managed backups", "Know what a database restore does not recover", "Run and document a restore drill"]
+        },
+        {
+          "topic": "Schema Drift, Migration Squashing and Release Promotion",
+          "subtopics": ["Preventing dashboard edits on production: supabase db diff drift checks", "supabase db pull and repairing history with supabase migration repair", "Squashing old migrations with supabase migration squash", "Backward-compatible migrations: add, backfill, switch, drop", "Locking risk: create index concurrently and lock_timeout", "Promotion order: branch, staging and production", "Rolling back with a forward-fix migration", "Feature flags for schema changes"],
+          "tools": ["Supabase CLI", "GitHub Actions", "psql", "Branching"],
+          "lab_task": "Introduce drift by adding a column in the production dashboard, detect it with supabase db diff --linked, capture it with supabase db pull and repair history with supabase migration repair --status applied. Write a four-step zero-downtime rename of a column, squash the first 30 migrations and verify supabase db reset yields an identical schema using a diff of pg_dump --schema-only.",
+          "deliverable": "Drift report, the four migrations and a schema-identity proof",
+          "checks": [["Run supabase db diff --linked after the dashboard edit", "Output contains the unexpected alter table statement", "Terminal output"], ["Squash migrations and reset a local database", "pg_dump --schema-only of before and after is identical", "diff output with no changes"], ["Run the rename migrations while a load loop writes", "No failed requests during the change", "Loop error count 0"]],
+          "objectives": ["Detect and repair schema drift", "Ship backward-compatible changes safely", "Squash history without changing the schema"]
+        },
+        {
+          "topic": "Supabase Wrappers: Querying Stripe, S3 and Other Systems",
+          "subtopics": ["Foreign data wrappers and the Wrappers framework", "create foreign data wrapper, server and foreign table", "Stripe, Firebase, S3 and BigQuery wrappers", "Storing credentials in Vault with vault.create_secret", "Pushdown of filters and limits and its limits", "Using foreign tables in views and joins", "RLS does not apply to foreign tables: controlling access", "Caching with materialised views"],
+          "tools": ["Supabase Wrappers", "Supabase Vault", "Stripe", "SQL Editor"],
+          "lab_task": "Enable the wrappers extension, store a Stripe test key with vault.create_secret, create the foreign server and foreign table stripe.customers, then run select id, email from stripe.customers limit 5. Join it with profiles by email, build a materialised view refreshed by pg_cron every 15 minutes, and restrict access by revoking select from anon and authenticated.",
+          "deliverable": "Wrapper setup SQL, joined query and a materialised view with a refresh job",
+          "checks": [["Select from the foreign table with limit 5", "Five customers from the Stripe test account are returned", "Query result"], ["Select the foreign table as anon", "Error 42501 permission denied", "Printed error"], ["Query the materialised view after a refresh", "Row count equals the source count at the refresh time", "Count comparison"]],
+          "objectives": ["Query external systems from Postgres", "Protect credentials and foreign data", "Cache remote data safely"]
+        },
+        {
+          "topic": "Migrating from Firebase and Other Auth Providers to Supabase",
+          "subtopics": ["Mapping Firestore documents to relational tables", "Firebase Auth user export and the supabase migration tooling for users", "Importing bcrypt or scrypt password hashes where supported", "Social identities and the need for users to re-link where not importable", "Migrating Firebase Storage files to Storage buckets", "Replacing security rules with RLS policies", "Replacing Cloud Functions with Edge Functions", "Cutover, dual running and rollback plan"],
+          "tools": ["Firebase export", "Supabase CLI", "Node.js", "Supabase Storage"],
+          "lab_task": "Export a sample Firestore collection of 5,000 documents to JSON, design relational tables, write a Node script that loads them in batches of 500 and validates counts, import 100 exported auth users with the Supabase Auth admin API including their password hashes where available, and translate three Firestore security rules into RLS policies with tests.",
+          "deliverable": "Migration scripts, a mapping document and a validation report",
+          "checks": [["Compare source and target document counts", "5,000 source documents equal 5,000 inserted rows or documented exceptions", "Validation report"], ["Sign in an imported user with the original password", "Sign in succeeds with no password reset", "Printed session"], ["Run translated policy tests", "All three policy tests pass in supabase test db", "Test output"]],
+          "objectives": ["Plan and execute a Firebase to Supabase migration", "Translate security rules into RLS", "Validate data and users after cutover"]
+        },
+        {
+          "topic": "Observability: Logs, Log Drains and Metrics",
+          "subtopics": ["Logs Explorer sources: edge_logs, postgres_logs, auth_logs, function_edge_logs and realtime_logs", "Writing log queries in the Logs Explorer SQL dialect", "Log Drains to Datadog, Loki or other destinations", "The Prometheus-compatible metrics endpoint and its authentication", "Grafana dashboards for connections, CPU and cache hit ratio", "pg_stat_statements and the Query Performance report", "Alert rules for error rate and replication slot lag", "Retention by plan"],
+          "tools": ["Logs Explorer", "Prometheus", "Grafana", "pg_stat_statements"],
+          "lab_task": "Write three Logs Explorer queries: 5xx rate from edge_logs by minute, slowest Postgres statements from postgres_logs and failed logins from auth_logs. Scrape the metrics endpoint into Prometheus using the service role as basic auth, build a Grafana panel for connections and cache hit ratio, and alert when 5xx exceeds 2 percent for 5 minutes.",
+          "deliverable": "Saved queries, scrape config, Grafana dashboard JSON and an alert rule",
+          "checks": [["Run the 5xx query after generating failing requests", "The failing minute shows the expected count", "Query result"], ["Open Prometheus targets", "The Supabase target is UP", "Targets page"], ["Generate a burst of errors above 2 percent", "The alert enters firing state", "Alert screenshot"]],
+          "objectives": ["Query platform logs for diagnosis", "Export metrics to your monitoring stack", "Alert on error rate and resource limits"]
+        },
+        {
+          "topic": "Cost Control, Quotas and Incident Playbooks",
+          "subtopics": ["Pricing dimensions: compute, disk, egress, MAUs, storage and function invocations", "Spend cap and its effect on the Pro plan", "Usage page and per-project cost breakdown", "Common cost spikes: egress, realtime messages, large auth user counts and idle large compute", "Rate limiting and abuse controls for Auth endpoints", "Incident roles and the status page", "Playbooks: exhausted connections, full disk, runaway query and leaked service key", "Post-incident review template"],
+          "tools": ["Usage Dashboard", "Logs Explorer", "pg_stat_activity", "Supabase Support"],
+          "lab_task": "Review the organisation's usage page, build a cost model for three traffic scenarios and identify the top two cost drivers. Write playbooks for a leaked service_role key (rotate keys, review auth.audit_log_entries, check access logs) and for a disk-full event (find large tables with pg_total_relation_size, vacuum, resize). Run a game day on the leaked-key playbook.",
+          "deliverable": "Cost model, two playbooks and a game-day report with times",
+          "checks": [["Run the table-size query on a test project", "The largest tables are listed in descending bytes", "Query result"], ["Rotate keys in the game day", "The old key returns 401 and the new key works within the target time", "curl outputs and timeline"], ["Review the playbook with a colleague", "Every step has an owner and a verification command", "Signed-off playbook"]],
+          "objectives": ["Model and control Supabase spend", "Respond to leaked keys and resource exhaustion", "Run a game day and review the incident"]
+        },
+        {
+          "topic": "Advanced Capstone: Production AI Knowledge Platform on Supabase",
+          "subtopics": ["Architecture decision record covering tenancy, retrieval and hosting choices", "Embedding pipeline, hybrid search and RLS-aware RAG with an evaluation set", "Auth hardening: MFA, signing keys and custom claims", "Infrastructure as code with Terraform, branching and CI/CD", "Observability, load test and cost model", "Backup, restore drill and a self-hosted failover proof of concept"],
+          "tools": ["Supabase", "pgvector", "Terraform", "Edge Functions", "GitHub Actions", "k6"],
+          "lab_task": "Deliver a multi-tenant knowledge platform: ingestion through Storage and an embedding queue, hybrid search with HNSW, a streaming RAG endpoint using caller RLS, MFA for admins, Terraform-managed projects, preview branches, a k6 test at 100 requests per second with a p95 target, a restore drill and a docker compose self-hosted copy restored from a dump.",
+          "deliverable": "Repository, ADR, evaluation and load reports, restore evidence and a 20-minute review with the architecture board",
+          "checks": [["Run the k6 test at 100 requests per second for 10 minutes", "p95 latency is below the stated target with under 1 percent errors", "k6 summary"], ["Ask a tenant B user for tenant A content", "No tenant A chunk is retrieved or cited", "Function logs"], ["Restore the dump into the self-hosted stack", "Row counts match and the RAG endpoint answers a test question", "Count comparison and response"]],
+          "objectives": ["Combine retrieval, security, operations and automation into one platform", "Prove performance, isolation and recoverability", "Defend the design to technical leadership"]
+        }
+      ]
+    }
+  }
+}

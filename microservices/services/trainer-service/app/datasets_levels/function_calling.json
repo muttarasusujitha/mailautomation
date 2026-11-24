@@ -1,0 +1,573 @@
+{
+  "domain": "Function Calling",
+  "name": "Function Calling",
+  "category": "Generative AI and Agents",
+  "icon": "workflow",
+  "aliases": ["LLM Function Calling", "OpenAI Function Calling", "Function Calling APIs", "Structured Outputs", "LLM Structured Output", "JSON Schema Function Calling", "Function Calling with LLMs", "Function Calling Developer"],
+  "certifications": [],
+  "tools": ["OpenAI Responses and Chat Completions APIs", "Anthropic Messages API", "Google Gemini API", "Amazon Bedrock Converse API", "vLLM", "Ollama", "JSON Schema", "Pydantic", "jsonschema", "LiteLLM", "pytest", "BFCL (bfcl-eval)", "OpenTelemetry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who can write Python or JavaScript and call REST APIs but have never wired a language model to their own code. Covers what a function call really is (the model emits a name and JSON arguments, your code runs them), JSON Schema parameter definitions, naming and descriptions, reading and parsing responses, argument validation, returning results, tool_choice modes, parallel calls, error results, message history rules, first calls on Anthropic, Gemini, Bedrock Converse and Ollama, schema-constrained output, logging and a tested single-turn client capstone.",
+      "prerequisites": ["Writes working Python 3.11+ or Node.js 20+ code and calls an HTTP API with curl or a client library", "Reads and writes JSON and knows the difference between a JSON string and a parsed object", "Has an API key (or credits) for at least one hosted model provider, or a laptop able to run Ollama with a small model"],
+      "outcomes": ["Define functions with correct JSON Schema and descriptions, and explain what the model returns and what your code must do next", "Run a complete request, execute, result, final-answer loop on OpenAI, then repeat it on Anthropic, Gemini, Bedrock Converse or Ollama", "Validate every argument set with jsonschema or Pydantic, return errors and empty results in the shape each provider expects, and keep message history valid", "Ship a tested single-turn client that logs every call and measures selection accuracy against a labelled prompt set"],
+      "days": [
+        {
+          "topic": "What a Function Call Is: Model Output Versus Code Execution",
+          "subtopics": ["The model never runs code: it returns a function name plus JSON arguments", "The four-step lifecycle: send definitions, receive a call, run it, send the result back", "finish_reason tool_calls (Chat Completions) and stop_reason tool_use (Anthropic)", "Why arguments arrive as a JSON string on OpenAI and as an object on Anthropic and Ollama", "Function calling compared with prompting for JSON and with JSON mode", "Message roles involved: user, assistant, and the role that carries results", "Definitions count as input tokens on every request", "When a plain prompt is better than a function definition"],
+          "tools": ["Python 3.12", "OpenAI Python SDK", "Chat Completions API", "curl", "jq"],
+          "lab_task": "Send one Chat Completions request with a get_weather definition (parameters city and unit) and the prompt 'Weather in Lisbon?'. Print finish_reason and choices[0].message.tool_calls[0].function.arguments, confirm its Python type is str, parse it with json.loads, and confirm that no weather function was executed.",
+          "deliverable": "Script plus a one-page annotated copy of the raw response marking id, name, arguments and finish_reason",
+          "checks": [["Run the script with the get_weather definition and the Lisbon prompt", "finish_reason is tool_calls and the message content is null or empty", "Printed response"], ["Print type(arguments) before json.loads", "Type is str, and json.loads gives a dict with key city", "Terminal output"], ["Resend the same prompt with an empty tools list", "finish_reason is stop and the reply is plain text with no tool_calls", "Printed response"]],
+          "objectives": ["Explain that the model proposes calls and the application executes them", "Identify id, name and arguments in a raw response", "Distinguish function calling from JSON-only prompting"]
+        },
+        {
+          "topic": "Environment, API Keys and Raw HTTP Requests for Function Calling",
+          "subtopics": ["Storing OPENAI_API_KEY in an environment variable and a .env file kept out of git", "A minimal POST to /v1/chat/completions with curl and jq", "Request body fields: model, messages, tools, tool_choice", "Reading usage.prompt_tokens and usage.completion_tokens", "401 invalid key versus 400 invalid_request_error on a malformed schema", "429 rate limit headers and retry-after", "The x-request-id response header for support tickets", "SDK call versus raw HTTP: same body, same response"],
+          "tools": ["curl", "jq", "OpenAI Python SDK", "python-dotenv", "Postman"],
+          "lab_task": "Call POST /v1/chat/completions with curl using a get_weather definition and capture the JSON with jq. Repeat with the Python SDK and compare usage.prompt_tokens. Then send a definition whose type is 'strng' and record the HTTP status and error message, and send a bad key to record the 401.",
+          "deliverable": "Request and response samples for the success, 400 and 401 cases with the x-request-id of each",
+          "checks": [["curl with a valid key and a valid definition", "HTTP 200 with choices[0].message.tool_calls present", "curl -i output"], ["Set the parameter type to 'strng'", "HTTP 400 invalid_request_error naming the invalid schema", "Error body"], ["Run with OPENAI_API_KEY set to an invalid value", "HTTP 401 with code invalid_api_key", "Error body"]],
+          "objectives": ["Send a function-calling request without an SDK", "Read usage and request-id fields", "Separate authentication errors from schema errors"]
+        },
+        {
+          "topic": "Writing JSON Schema for Function Parameters",
+          "subtopics": ["type object with properties and required", "string, integer, number, boolean, array and null", "enum for closed value sets", "minimum, maximum, minLength and maxLength", "pattern and format such as date-time and email", "items for arrays and minItems", "description on every property", "additionalProperties false and why it matters"],
+          "tools": ["jsonschema (Python)", "JSON Schema 2020-12", "VS Code", "Python 3.12"],
+          "lab_task": "Write a JSON Schema for create_calendar_event with title, start (date-time), duration_minutes (15 to 480), attendees (array of emails) and visibility (enum). Validate 5 valid and 5 invalid payloads with jsonschema.Draft202012Validator, and print the error path for each invalid one.",
+          "deliverable": "Schema file, 10 test payloads and the validator output",
+          "checks": [["Validate the five valid payloads", "All five pass with zero errors", "Validator output"], ["Validate duration_minutes 600 and a visibility value not in the enum", "Two payloads fail with 'is greater than the maximum' and 'is not one of' messages", "Error list"], ["Validate a payload with an extra key and additionalProperties false", "Error 'Additional properties are not allowed' naming the key", "Error list"]],
+          "objectives": ["Write schemas with required fields, enums and ranges", "Validate payloads against a schema in code", "Explain what additionalProperties false enforces"]
+        },
+        {
+          "topic": "Naming and Describing Functions for Reliable Selection",
+          "subtopics": ["Name pattern limits: letters, digits, underscores and hyphens, up to 64 characters", "Verb_noun names such as get_order_status", "What a good description contains: purpose, when to use it, when not to", "Parameter descriptions with an example value", "Enums and formats instead of free text", "Overlapping functions and why the model picks the wrong one", "Description length as input-token cost", "Measuring selection with a labelled prompt set"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "pytest", "tiktoken"],
+          "lab_task": "Define three overlapping functions (search_orders, find_orders, lookup_order) with one-line descriptions. Run 20 labelled prompts and record correct selection. Rewrite the descriptions with when-to-use and when-not-to rules, rerun the same 20 prompts at temperature 0, and report both rates plus the token change from tiktoken.",
+          "deliverable": "Before and after description files with a selection-accuracy table and token counts",
+          "checks": [["Run 20 prompts against the vague descriptions", "Baseline selection rate is recorded as n/20", "Result table"], ["Run the same 20 prompts after rewriting descriptions", "Rate is equal to or higher than baseline, with misses listed by prompt", "Result table"], ["Count description tokens before and after", "Both token counts are reported and the rewrite stays under 150 tokens per function", "tiktoken output"]],
+          "objectives": ["Write names and descriptions that separate similar functions", "Measure selection accuracy on a labelled set", "Weigh description detail against token cost"]
+        },
+        {
+          "topic": "Reading Function Call Responses in Chat Completions and Responses APIs",
+          "subtopics": ["Chat Completions: message.tool_calls[] with id and function.arguments", "Responses API: output items of type function_call with call_id, name and arguments", "A message that has both text and calls", "Iterating over several calls in one response", "finish_reason versus checking the output list directly", "SDK objects versus raw dicts with model_dump()", "The id you must echo back when returning the result", "A normalize() helper that hides API differences"],
+          "tools": ["OpenAI Python SDK", "Chat Completions API", "Responses API", "Python 3.12"],
+          "lab_task": "Send the same prompt and equivalent definitions through client.chat.completions.create and client.responses.create. Write normalize(response) returning a list of (call_id, name, args_dict) for each API and assert both lists match for three prompts, one of which triggers two calls.",
+          "deliverable": "normalize() module with three passing assertions and the two raw responses saved as JSON",
+          "checks": [["Run the single-call prompt through both APIs", "normalize() returns one identical tuple of name and args from each", "Assertion output"], ["Run the two-call prompt through both APIs", "Each returns two calls with distinct ids", "Printed lists"], ["Check the id field name in each raw response", "Chat Completions uses tool_calls[].id and Responses uses call_id", "Saved JSON"]],
+          "objectives": ["Read calls from both OpenAI APIs", "Extract the id needed for results", "Write a normalizer shared by both formats"]
+        },
+        {
+          "topic": "Parsing Arguments and Handling Malformed JSON",
+          "subtopics": ["json.loads on the arguments string", "JSONDecodeError and what it reports", "Truncation when finish_reason is length", "Raising max_tokens and retrying", "Trailing commas, single quotes and other near-JSON", "Repair libraries versus retry: when each is acceptable", "Empty argument strings for functions with no parameters", "Logging the raw string before parsing"],
+          "tools": ["Python 3.12", "OpenAI Python SDK", "json-repair", "pytest"],
+          "lab_task": "Request a function call with max_tokens=20 so the arguments are cut off. Catch json.JSONDecodeError, assert finish_reason == 'length', then retry with max_tokens=400 and parse successfully. Write parse_args(raw) that returns {} for an empty string and raises ArgumentParseError otherwise, with four pytest cases.",
+          "deliverable": "parse_args module, four passing pytest cases and the logged truncated payload",
+          "checks": [["Request with max_tokens=20 on a long-argument prompt", "finish_reason is length and json.loads raises JSONDecodeError", "Terminal output"], ["Retry with max_tokens=400", "Arguments parse into a dict and finish_reason is tool_calls", "Terminal output"], ["Call parse_args('') and parse_args('{\"a\":')", "First returns {} and second raises ArgumentParseError", "pytest report"]],
+          "objectives": ["Detect truncated arguments from finish_reason", "Parse argument strings safely", "Decide when to retry instead of repairing"]
+        },
+        {
+          "topic": "Validating Arguments with jsonschema and Pydantic",
+          "subtopics": ["Validating against the same schema you sent", "Pydantic v2 BaseModel and model_validate_json", "model_json_schema() as the single source of truth", "ValidationError.errors() fields: type, loc, msg", "Lax versus strict coercion of '5' to 5", "Rejecting unknown keys with extra='forbid'", "Semantic checks the schema cannot express, such as a date in the past", "Turning errors into a short message for the model"],
+          "tools": ["Pydantic v2", "jsonschema (Python)", "Python 3.12", "pytest"],
+          "lab_task": "Define a BookFlight Pydantic model (origin, destination, depart_date, passengers 1 to 9) with extra='forbid'. Send its model_json_schema() as the definition, run 20 prompts, validate every call with model_validate_json, and tally ValidationError.errors()[i]['type'] counts. Add a validator rejecting past dates.",
+          "deliverable": "Model, test runner and a tally table of validation outcomes for 20 prompts",
+          "checks": [["Run 20 prompts and validate each call", "Every prompt logs pass or fail, and failures list error types", "Tally table"], ["Pass passengers=12 directly to the model", "Validation fails with type less_than_equal and loc ('passengers',)", "pytest output"], ["Pass depart_date in the past", "Custom validator rejects it with the message 'must be in the future'", "pytest output"]],
+          "objectives": ["Generate a definition from a Pydantic model", "Validate and classify argument errors", "Add semantic validation beyond the schema"]
+        },
+        {
+          "topic": "Executing the Function and Returning Results to the Model",
+          "subtopics": ["Append the assistant message that contains tool_calls unchanged", "Result message with role tool and tool_call_id", "Responses API: function_call_output with call_id", "Results must be strings: json.dumps of the return value", "A dispatch dictionary from name to Python callable", "Second request and the final natural-language answer", "Request count for a one-call turn", "What happens if you skip the assistant message"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "Chat Completions API", "Responses API"],
+          "lab_task": "Implement get_weather as a stub returning {'city': 'Lisbon', 'temp_c': 21}. Run the full loop on Chat Completions: request, execute via a dispatch dict, append the assistant message and the role tool result, request again. Count requests, and confirm the final text contains '21'. Repeat with function_call_output on Responses.",
+          "deliverable": "Working two-request loop for both APIs with logged request counts",
+          "checks": [["Run the Lisbon prompt through the loop", "Exactly 2 requests are made and the final reply mentions 21", "Request log"], ["Omit the assistant message with tool_calls before the tool message", "API returns 400 stating a tool message must follow tool_calls", "Error body"], ["Run the Responses version", "function_call_output with the same call_id yields a final text answer", "Printed output"]],
+          "objectives": ["Run a complete call and result loop", "Map names to callables safely", "Echo ids correctly on both OpenAI APIs"]
+        },
+        {
+          "topic": "Controlling Selection with tool_choice: auto, none, required and Forced Names",
+          "subtopics": ["auto: the model decides", "none: definitions are visible but no call is allowed", "required: at least one call must be made", "Forcing one named function with {type: function, function: {name}}", "Anthropic equivalents: auto, any, tool and none", "Gemini function_calling_config modes AUTO, ANY and NONE with allowed_function_names", "Bedrock Converse toolChoice auto, any and tool", "Forced choice and reasoning or thinking modes: documented restrictions"],
+          "tools": ["OpenAI Python SDK", "Anthropic Messages API", "Google Gemini API", "Amazon Bedrock Converse API", "Python 3.12"],
+          "lab_task": "Run 10 prompts (5 that need a function, 5 that do not) under auto, none, required and a forced get_weather choice on OpenAI. Tabulate the share of responses containing a call per mode. Then send the forced prompt to Anthropic with tool_choice {'type': 'tool', 'name': 'get_weather'} and record the result.",
+          "deliverable": "Table of call rates for four modes plus the Anthropic forced-call transcript",
+          "checks": [["Run all 10 prompts with tool_choice none", "0 of 10 responses contain a call", "Result table"], ["Run all 10 prompts with a forced get_weather", "10 of 10 responses call get_weather, even for prompts that do not need it", "Result table"], ["Run the 5 non-function prompts with required", "5 of 5 contain a call, showing required overrides relevance", "Result table"]],
+          "objectives": ["Choose the right tool_choice mode for a task", "Map the modes across four providers", "Predict side effects of forcing a call"]
+        },
+        {
+          "topic": "Handling Missing Parameters, Ambiguity and Clarifying Questions",
+          "subtopics": ["Required versus optional parameters", "Models inventing values for missing required fields", "Nullable parameters with a union type", "System instructions: ask, do not guess", "Relevance detection: no function should be called", "Measuring invented-argument rate", "Clarifying question as a normal text turn", "Defaults applied in code, not by the model"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "pytest", "Pydantic v2"],
+          "lab_task": "Build 15 prompts for book_table (restaurant, time, party_size) where one required value is missing, for example 'Book Nobu tonight'. Count how often the model asks versus invents party_size. Add a system instruction to ask before guessing, rerun, and report both invented-argument rates.",
+          "deliverable": "15-prompt dataset with invented-argument rate before and after the instruction",
+          "checks": [["Run 15 missing-value prompts without a system instruction", "Invented-argument rate is recorded as n/15", "Result table"], ["Rerun with 'ask if a required value is missing'", "Invented-argument rate does not rise and is reported, with remaining invented cases listed", "Result table"], ["Send a prompt that needs no function, such as 'Tell me a joke'", "Reply is text with no tool_calls", "Printed response"]],
+          "objectives": ["Detect invented arguments", "Prompt for clarifying questions", "Keep defaults in application code"]
+        },
+        {
+          "topic": "Choosing Among Many Functions and Rejecting Unknown Names",
+          "subtopics": ["Registry of functions with name, schema and callable", "Selection accuracy as the number of functions grows", "Order of definitions and position effects", "Hallucinated function names and how to detect them", "Returning an error result for an unknown name", "Confusion matrix of expected versus chosen function", "Grouping functions by prompt intent", "Token cost of ten definitions"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "pandas", "tiktoken"],
+          "lab_task": "Register 10 functions and write 30 prompts, each labelled with the expected function. Run them at temperature 0, build a confusion matrix with pandas.crosstab, and list the top two confusions. Add a guard so any name outside the registry returns {'error': 'unknown_function'} and test it with a fake call.",
+          "deliverable": "Registry module, labelled prompt file and confusion matrix",
+          "checks": [["Run 30 labelled prompts", "A 10x10 confusion matrix is saved and overall accuracy printed as n/30", "pandas output"], ["Feed a fake call named delete_everything to the dispatcher", "Returns {'error': 'unknown_function'} and nothing is executed", "pytest output"], ["Count tokens for 10 definitions", "Total prompt tokens for definitions are reported and compared with 3 definitions", "tiktoken output"]],
+          "objectives": ["Maintain a function registry", "Evaluate selection with a confusion matrix", "Reject names the model invented"]
+        },
+        {
+          "topic": "Parallel Function Calls and Result Ordering",
+          "subtopics": ["Several tool_calls in one assistant message", "One result message per call id", "Matching by id rather than by position", "asyncio.gather to run independent calls together", "parallel_tool_calls=false on OpenAI", "disable_parallel_tool_use on Anthropic", "All Anthropic tool_result blocks in a single user message", "Latency saved by running calls concurrently"],
+          "tools": ["OpenAI Python SDK", "asyncio", "Python 3.12", "Anthropic Messages API"],
+          "lab_task": "Ask 'Weather in Paris, Tokyo and Lima?' with a get_weather stub that sleeps 1 second. Confirm 3 calls come back, run them sequentially and then with asyncio.gather, and record wall times. Set parallel_tool_calls=false and count the round trips needed to finish the same question.",
+          "deliverable": "Timing table for sequential, concurrent and parallel-disabled runs",
+          "checks": [["Send the three-city prompt with default settings", "Response contains 3 tool_calls with 3 distinct ids", "Printed ids"], ["Run the 3 stubs sequentially and then with gather", "Sequential takes about 3 s and gather about 1 s", "Timing output"], ["Set parallel_tool_calls to false", "Each response holds at most 1 call and the question needs 3 round trips", "Request log"]],
+          "objectives": ["Process several calls from a single response", "Match results to ids", "Turn parallel calls on or off"]
+        },
+        {
+          "topic": "Returning Errors and Empty Results to the Model",
+          "subtopics": ["Error as a result, not an exception that ends the run", "Machine-readable error body: code, message, retryable", "Anthropic is_error true on tool_result", "Bedrock toolResult status error", "Gemini function_response with an error key", "Empty result versus error result", "Never leaking stack traces or secrets into a result", "Observing how the model recovers"],
+          "tools": ["OpenAI Python SDK", "Anthropic Messages API", "Python 3.12", "pytest"],
+          "lab_task": "Make get_weather return {'error': 'city_not_found', 'retryable': false} for 'Atlantis' and {'results': []} for a city with no data. Run 10 prompts that include misspelled cities, record whether the model retries with a corrected name, apologizes, or invents data, and tally the three outcomes.",
+          "deliverable": "Error-result schema plus a tally of ten recovery outcomes",
+          "checks": [["Call get_weather for 'Atlantis'", "Result carries error city_not_found and the model reports it is unavailable", "Transcript"], ["Return an empty results list", "Model says no data was found instead of inventing numbers", "Transcript"], ["Search all results for 'Traceback'", "Zero stack traces appear in any result sent to the model", "grep output"]],
+          "objectives": ["Return errors in a form the model can act on", "Differentiate empty from failed", "Keep internals out of results"]
+        },
+        {
+          "topic": "Conversation State and Message History Rules",
+          "subtopics": ["Messages list as the only state on Chat Completions", "Every tool_call needs a matching result", "Error text when a result is missing", "Responses API previous_response_id and the store setting", "Truncating old turns without splitting a call from its result", "Token growth per turn", "System message placement", "A pairing validator run before each request"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "pytest", "tiktoken"],
+          "lab_task": "Build a 3-turn chat that uses get_weather twice. Delete one role tool message from the history, send it, and capture the 400 error text. Write validate_history(messages) that fails when any tool_call id lacks a result, and a trim_history() that drops oldest turns whole. Report tokens before and after trimming.",
+          "deliverable": "validate_history and trim_history with tests and the captured 400 body",
+          "checks": [["Send history with one tool result removed", "API returns 400 invalid_request_error mentioning the missing tool_call_id", "Error body"], ["Run validate_history on the broken list", "Raises HistoryError naming the unmatched id", "pytest output"], ["Trim a 3-turn history to its last turn", "Remaining list still passes validate_history and uses fewer tokens", "Token counts"]],
+          "objectives": ["Keep message history valid", "Trim without orphaning results", "Choose between manual state and previous_response_id"]
+        },
+        {
+          "topic": "First Calls with the Anthropic Messages API: tool_use and tool_result",
+          "subtopics": ["tools array with name, description and input_schema", "Response content blocks: text and tool_use", "tool_use fields id, name and input as an object", "stop_reason tool_use", "Result as a user message with a tool_result block and tool_use_id", "tool_result blocks must precede any text in that user message", "is_error true for failures", "system as a top-level field, not a message"],
+          "tools": ["Anthropic Messages API", "Anthropic Python SDK", "Python 3.12", "curl"],
+          "lab_task": "Port the get_weather loop to POST /v1/messages with input_schema. Print stop_reason, confirm tool_use.input is a dict (not a string), send the tool_result in a user message, and read the final text. Produce a table of eight field-name differences from the OpenAI version.",
+          "deliverable": "Working Anthropic loop and an eight-row field mapping table",
+          "checks": [["Send the Lisbon prompt", "stop_reason is tool_use and a block with type tool_use is present", "Printed response"], ["Inspect block.input", "It is a dict, not a JSON string", "Terminal output"], ["Return the result with the wrong tool_use_id", "API returns 400 invalid_request_error about a missing tool_result", "Error body"]],
+          "objectives": ["Run a full loop on the Anthropic Messages API", "Map OpenAI fields to Anthropic fields", "Return results and errors in tool_result blocks"]
+        },
+        {
+          "topic": "First Calls with Gemini function_declarations and Bedrock Converse toolSpec",
+          "subtopics": ["Gemini tools with function_declarations and its OpenAPI-style schema subset", "function_call part with name and args", "function_response part sent back in the next turn", "Gemini function_calling_config mode and allowed_function_names", "Bedrock Converse toolConfig.tools[].toolSpec.inputSchema.json", "toolUse block with toolUseId, name and input; stopReason tool_use", "toolResult with toolUseId, content and status", "Per-model support for toolChoice in Bedrock"],
+          "tools": ["Google Gen AI SDK", "boto3", "Amazon Bedrock Converse API", "Python 3.12"],
+          "lab_task": "Implement the get_weather loop once against Gemini with function_declarations and once against bedrock-runtime converse with toolSpec. Print each provider's raw call object, run the stub, return the result in the provider's format, and build a three-column table of OpenAI, Gemini and Bedrock field names.",
+          "deliverable": "Two working loops and a three-way field-name table",
+          "checks": [["Send the Lisbon prompt to Gemini", "Response part contains function_call with name get_weather and args city Lisbon", "Printed part"], ["Send it to Bedrock Converse", "stopReason is tool_use and content has a toolUse block with a toolUseId", "Printed response"], ["Return results on both providers", "Each provider produces a final text mentioning the stub temperature", "Transcripts"]],
+          "objectives": ["Define functions for Gemini and Bedrock Converse", "Return results in each provider's format", "Compare the three provider shapes"]
+        },
+        {
+          "topic": "Local Function Calling with Ollama",
+          "subtopics": ["ollama pull for a model that lists the tools capability", "ollama show to confirm capabilities", "POST /api/chat with a tools array", "message.tool_calls[].function.arguments as an object", "Result message with role tool", "The OpenAI-compatible endpoint at /v1", "stream true behavior with calls", "Accuracy gap between small local models and hosted models"],
+          "tools": ["Ollama", "curl", "Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Pull a tool-capable model with ollama pull, verify with ollama show that the capabilities list includes tools, and call /api/chat with get_weather. Run 10 prompts and count valid calls, then point the OpenAI SDK at http://localhost:11434/v1 and compare the success counts.",
+          "deliverable": "Local setup notes and a success-rate comparison for /api/chat versus /v1",
+          "checks": [["Run ollama show on the chosen model", "Capabilities section lists tools", "Command output"], ["POST to /api/chat with the Lisbon prompt", "message.tool_calls[0].function.arguments is an object with city", "curl output"], ["Run 10 prompts through /v1 and /api/chat", "Both success counts are reported as n/10 with failures categorized", "Result table"]],
+          "objectives": ["Run function calling on a local model", "Check model capability before use", "Compare local with hosted behavior"]
+        },
+        {
+          "topic": "Structured Output: JSON Mode versus Schema-Constrained Responses",
+          "subtopics": ["response_format json_object guarantees syntax, not shape", "response_format json_schema with strict true", "Responses API text.format", "The refusal field in a structured response", "Gemini response_schema and Ollama format parameter", "When to return a function call and when to constrain the reply", "Parsing with Pydantic .parse helpers in the SDK", "Schema limits that strict mode enforces"],
+          "tools": ["OpenAI Python SDK", "Pydantic v2", "Gemini API", "Ollama", "Python 3.12"],
+          "lab_task": "Extract vendor, total and currency from 50 short invoice texts twice: with response_format json_object and with json_schema strict true. Validate each reply with Pydantic and report the schema-valid count for both. Send one unsafe request and capture the refusal field.",
+          "deliverable": "Extraction script and a table of valid counts for both modes",
+          "checks": [["Validate 50 replies from json_object mode", "Count of schema-valid replies is reported and is below 50 or equal with misses listed", "Result table"], ["Validate 50 replies from strict json_schema", "50 of 50 replies pass Pydantic validation", "Result table"], ["Send a request the model declines", "message.refusal is non-empty and content is null", "Printed response"]],
+          "objectives": ["Choose between function calls and constrained replies", "Use strict json_schema", "Handle refusals"]
+        },
+        {
+          "topic": "Logging and Tracing Every Function Call",
+          "subtopics": ["One JSONL record per model request", "Fields: request id, model, latency, token usage, function names", "Hashing arguments instead of storing raw personal data", "Redacting emails and phone numbers", "OpenTelemetry gen_ai span attributes", "Correlating a request with the x-request-id header", "Querying logs with jq", "Replaying a logged request"],
+          "tools": ["Python 3.12", "OpenTelemetry", "jq", "OpenAI Python SDK"],
+          "lab_task": "Wrap the client in a logger that writes one JSONL line per request containing request id, model, latency_ms, prompt_tokens, completion_tokens and function names. Run 20 prompts, then use jq to find the most-called function, the p95 latency and the count of requests with no call.",
+          "deliverable": "Logging wrapper and the three jq queries with their output",
+          "checks": [["Run 20 prompts through the wrapper", "metrics.jsonl has exactly 20 lines with all six fields", "wc -l and head output"], ["Run the jq group-by query", "Most-called function name and its count are printed", "jq output"], ["Include an email in a prompt", "Stored record contains a redacted token and not the address", "grep output"]],
+          "objectives": ["Log each model request in a structured form", "Redact personal data", "Query logs for operational answers"]
+        },
+        {
+          "topic": "Capstone: Tested Single-Turn Function Calling Client",
+          "subtopics": ["Three functions with Pydantic-generated definitions", "Dispatcher with validation, unknown-name guard and error results", "Logging and history validation wired in", "pytest suite with recorded responses and an accuracy report"],
+          "tools": ["OpenAI Python SDK", "Pydantic v2", "pytest", "Python 3.12", "jq"],
+          "lab_task": "Build a CLI with three functions. Generate definitions from Pydantic, validate every call, return errors as results, log to JSONL and validate history. Write 15 pytest tests using recorded responses and a 30-prompt labelled set; run pytest -q and report selection accuracy and argument validity.",
+          "deliverable": "Repository with CLI, 15 passing tests, labelled set and a README accuracy table",
+          "checks": [["Run pytest -q", "15 tests pass with no network access", "pytest summary"], ["Run the 30-prompt labelled set", "Selection accuracy and argument validity are printed as n/30", "Evaluation report"], ["Send a prompt for an unknown function and a malformed argument", "Dispatcher returns unknown_function and a validation error without crashing", "Log lines"]],
+          "objectives": ["Assemble a validated single-turn client", "Test it offline and against a labelled set", "Report accuracy honestly"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who have built a basic call-and-result loop and now need production-grade behavior. Covers strict mode and structured outputs, schema patterns with unions and recursion, coercion and semantic validation, repair loops, multi-turn and dependent calls, streaming on OpenAI, Anthropic and Bedrock, reasoning-model state, a provider adapter layer, document and image data extraction, wrapping REST APIs from OpenAPI, rate limits and idempotency, concurrent fan-out, large results, and offline testing.",
+      "prerequisites": ["Has completed a working call, execute, result loop on at least one provider and validates arguments with Pydantic or jsonschema", "Writes asynchronous Python (asyncio, httpx) or equivalent async JavaScript", "Has API access to OpenAI plus one of Anthropic, Gemini or Bedrock, and can run pytest in a CI-style environment"],
+      "outcomes": ["Design strict-mode schemas with unions, nested objects and nullable fields, and drive schema violations to zero", "Implement multi-turn loops with iteration caps, dependent calls, repair loops and streaming accumulators on three providers", "Build a provider adapter and extraction pipelines that turn documents and images into validated records with measured field accuracy", "Orchestrate REST APIs with retries, idempotency keys, concurrency limits and pagination, and test everything offline with recorded fixtures"],
+      "days": [
+        {
+          "topic": "Strict Mode and Structured Outputs for Function Arguments",
+          "subtopics": ["strict true on a function definition", "Strict requirements: additionalProperties false and every property listed in required", "Expressing optional fields as a union with null", "Keywords outside the supported subset and how the API reports them", "First-request schema processing latency and caching of the compiled schema", "Refusals when the model declines to call", "SDK helpers that convert Pydantic models into strict schemas", "Measuring violations with and without strict"],
+          "tools": ["OpenAI Python SDK", "Pydantic v2", "jsonschema (Python)", "Python 3.12"],
+          "lab_task": "Take the BookFlight schema from the beginner level and send 100 prompts without strict, validating each call with jsonschema. Convert it to strict (additionalProperties false, all fields required, optional fields as ['string','null']), rerun the same 100 prompts, and report violations for both runs plus the first-request latency versus the second.",
+          "deliverable": "Strict and non-strict schemas with a violation comparison over 100 prompts",
+          "checks": [["Validate 100 calls from the non-strict schema", "Violation count is recorded as n/100 with error types", "Result table"], ["Validate 100 calls from the strict schema", "0 of 100 violate the schema", "Result table"], ["Add an unsupported keyword to the strict schema", "API returns 400 identifying the unsupported schema keyword", "Error body"]],
+          "objectives": ["Convert a schema to strict form", "Model optional fields with null unions", "Quantify the reduction in violations"]
+        },
+        {
+          "topic": "Schema Patterns: Enums, Unions, Nested Objects and Recursion",
+          "subtopics": ["anyOf for alternatives and why oneOf is often unsupported", "Discriminated unions with a const type field", "$defs and $ref for reuse", "Arrays of objects with minItems", "Nullable nested objects", "Recursive schemas such as a category tree", "Flat versus deeply nested schemas and accuracy", "Documented limits on nesting depth and property count"],
+          "tools": ["Pydantic v2", "OpenAI Python SDK", "jsonschema (Python)", "Python 3.12"],
+          "lab_task": "Model an order with line_items (array of objects), a payment field as a discriminated union of card, bank_transfer and invoice, and a recursive category path. Generate the strict schema from Pydantic, run 30 prompts, and validate each call. Then flatten the schema and compare accuracy on the same prompts.",
+          "deliverable": "Nested and flattened schemas with an accuracy comparison for 30 prompts",
+          "checks": [["Generate the schema with model_json_schema()", "Output contains $defs and an anyOf with three payment variants", "Printed schema"], ["Run 30 prompts against the nested strict schema", "All 30 validate; the count of correct payment variants is reported", "Result table"], ["Run the flattened version on the same prompts", "Field-level accuracy for both versions is shown side by side", "Comparison table"]],
+          "objectives": ["Build unions and nested schemas that stay valid", "Reuse definitions with $defs", "Judge when to flatten"]
+        },
+        {
+          "topic": "Argument Coercion, Normalization and Semantic Validation",
+          "subtopics": ["ISO 8601 dates and datetimes in arguments", "Relative phrases such as next Friday resolved with today's date in the system message", "Time zones and offsets", "Currency in minor units and decimal strings", "Unit normalization such as km to metres", "Entity resolution: name to id with fuzzy matching", "Enum synonyms mapped in code", "Rejecting versus silently correcting values"],
+          "tools": ["Python 3.12", "pydantic", "python-dateutil", "rapidfuzz"],
+          "lab_task": "Create 30 prompts with relative dates ('next Friday', 'in 10 days', 'end of month') and put today's date in the system message. Parse each date argument with Pydantic, compare with an expected-date file, and report exact-match accuracy. Add rapidfuzz matching that maps 'Jon Smyth' to customer id C-102 with a score threshold of 90.",
+          "deliverable": "Normalization module and an accuracy report on 30 relative-date prompts",
+          "checks": [["Run 30 relative-date prompts with today's date injected", "At least 27 of 30 dates match the expected file", "Accuracy report"], ["Run the same prompts without injecting today's date", "Accuracy drops and the count is reported as n/30", "Accuracy report"], ["Resolve 'Jon Smyth' with rapidfuzz", "Returns C-102 at score 90 or higher, and 'Zed Q' returns no match", "pytest output"]],
+          "objectives": ["Normalize dates, units and currencies", "Resolve names to identifiers", "Decide when to reject instead of correct"]
+        },
+        {
+          "topic": "Repair Loops: Feeding Validation Errors Back to the Model",
+          "subtopics": ["Structured error message: field path, rule and received value", "Returning the error as the function result and letting the model retry", "Maximum attempts and a hard stop", "Extra token cost per retry", "Instructor-style retry patterns", "First-pass versus final-pass success", "When repair loops hide a schema design problem", "Logging each attempt"],
+          "tools": ["Pydantic v2", "Instructor", "OpenAI Python SDK", "Python 3.12"],
+          "lab_task": "Wrap a non-strict extraction call in a repair loop with at most 3 attempts. On ValidationError, return a compact message such as 'passengers: must be <= 9, got 12' as the result. Run 50 prompts and report first-pass success, final success, average attempts and extra tokens per task.",
+          "deliverable": "Repair loop code with first-pass and final-pass success rates over 50 prompts",
+          "checks": [["Run 50 prompts through the loop", "First-pass and final success counts are reported as n/50", "Result table"], ["Check the maximum attempts", "No prompt uses more than 3 attempts and failures after 3 are logged as unrecovered", "Log summary"], ["Compare tokens with a no-repair baseline", "Average extra tokens per recovered task is reported", "Usage table"]],
+          "objectives": ["Implement bounded repair loops", "Write error messages the model can act on", "Measure the cost of repairs"]
+        },
+        {
+          "topic": "Multi-Turn Call and Result Loops with Stop Conditions",
+          "subtopics": ["while loop that continues while finish_reason is tool_calls", "A max_iterations cap", "Detecting a repeated identical call", "Handling text and calls in the same message", "Responses API loops with previous_response_id", "Returning a controlled message when the cap is reached", "Per-iteration token and latency logging", "Final answer detection"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "pytest", "Responses API"],
+          "lab_task": "Write run_loop(messages, max_iterations=5) and a task needing three sequential calls (search_flights, get_price, hold_seat). Log iterations, tokens and latency per round. Then make hold_seat always return an error and show the loop stopping at the cap or on a repeated identical call, with a final message to the user.",
+          "deliverable": "Loop implementation with iteration logs and a guard test",
+          "checks": [["Run the 3-step task", "Loop finishes in 3 or 4 iterations with a text final answer", "Iteration log"], ["Force hold_seat to always fail", "Loop stops by iteration 5 with a controlled message", "Log and transcript"], ["Make the model repeat the same call with identical arguments", "Duplicate-call detector fires and stops the loop", "pytest output"]],
+          "objectives": ["Write a bounded multi-turn loop", "Detect repeated calls", "Record cost per iteration"]
+        },
+        {
+          "topic": "Dependent Calls and Passing Identifiers Between Steps",
+          "subtopics": ["Output of one call as input to the next", "Models inventing identifiers instead of reading them from results", "Returning ids prominently in results", "Verifying that an argument id appeared in an earlier result", "Two-step lookup then action patterns", "Parallel lookup followed by a single action", "Handling not-found in the middle of a chain", "Idempotent final actions"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "pytest", "pandas"],
+          "lab_task": "Implement lookup_customer, list_orders and refund_order over an in-memory store. Run 20 prompts like 'Refund Maria's latest order' and check that every refund_order order_id appeared in an earlier list_orders result. Report the invented-id count and add a guard that blocks any id not seen in prior results.",
+          "deliverable": "Chain test harness with an invented-id report before and after the guard",
+          "checks": [["Run 20 chained prompts", "Invented-id count is reported as n/20", "Result table"], ["Enable the seen-id guard", "Any refund with an unseen id is blocked and returns an error result", "Log lines"], ["Ask for a customer that does not exist", "Chain stops after lookup with a not-found answer and no refund call", "Transcript"]],
+          "objectives": ["Chain dependent calls reliably", "Prevent invented identifiers", "Stop chains cleanly on failure"]
+        },
+        {
+          "topic": "Streaming Function Calls in Chat Completions and Responses APIs",
+          "subtopics": ["stream true and the delta.tool_calls structure", "index, id and name arrive first; arguments arrive in fragments", "Accumulating fragments per index", "finish_reason in the last chunk", "stream_options include_usage for token counts", "Responses events: output_item.added and function_call_arguments.delta and .done", "Comparing streamed and non-streamed results", "Time to first token versus time to complete arguments"],
+          "tools": ["OpenAI Python SDK", "Python 3.12", "Responses API", "pytest"],
+          "lab_task": "Stream a prompt that triggers two parallel calls. Accumulate delta.tool_calls by index into complete calls, assert they equal the non-streaming result for 20 prompts, then repeat on the Responses API using function_call_arguments events. Record time to first chunk and time to complete JSON for each run.",
+          "deliverable": "Streaming accumulators for both APIs with an equality test over 20 prompts",
+          "checks": [["Stream 20 prompts and accumulate by index", "20 of 20 accumulated calls equal the non-streamed calls", "pytest output"], ["Inspect the first chunk of a call", "It carries id and function name with empty or partial arguments", "Chunk dump"], ["Request include_usage", "Final chunk reports prompt and completion token counts", "Chunk dump"]],
+          "objectives": ["Accumulate streamed calls correctly", "Handle two index values in one stream", "Measure streaming latency"]
+        },
+        {
+          "topic": "Streaming Function Calls with Anthropic and Bedrock Event Streams",
+          "subtopics": ["Anthropic events: content_block_start, content_block_delta, content_block_stop, message_delta", "input_json_delta with partial_json fragments", "Concatenating fragments, then parsing once at content_block_stop", "stop_reason in message_delta", "ConverseStream: contentBlockStart with toolUse, contentBlockDelta with toolUse input fragments, messageStop", "Gemini streamed function_call parts", "Max_tokens cutting a streamed call", "Unified accumulator interface"],
+          "tools": ["Anthropic Python SDK", "boto3", "Google Gen AI SDK", "Python 3.12"],
+          "lab_task": "Stream a get_weather prompt through Anthropic messages.stream and Bedrock converse_stream. Concatenate input_json_delta and toolUse fragments, parse at block end, and assert both equal their non-streamed results across 10 prompts. Set max_tokens=15 to force a truncated call and record the stop reason from each.",
+          "deliverable": "Two accumulators with equality tests and a truncation case record",
+          "checks": [["Stream 10 prompts through each provider", "Parsed streamed input equals non-streamed input for 10 of 10", "Test output"], ["Print event types in order for one Anthropic call", "content_block_start, content_block_delta (input_json_delta), content_block_stop appear in sequence", "Event log"], ["Set max_tokens to 15", "Anthropic stop_reason is max_tokens and the partial JSON fails to parse", "Printed result"]],
+          "objectives": ["Accumulate partial JSON from event streams", "Parse only at block end", "Detect truncated streamed calls"]
+        },
+        {
+          "topic": "Incremental Execution and Partial JSON Parsing While Streaming",
+          "subtopics": ["When arguments are complete enough to run", "Detecting a closed top-level JSON object", "Partial JSON parsers for progress display", "Starting the first call while the second still streams", "Cancelling a stream after a validation failure", "Showing a pending-action label in a UI", "Rollback if later arguments contradict earlier ones", "Measuring time saved"],
+          "tools": ["Python 3.12", "asyncio", "partial-json-parser", "OpenAI Python SDK"],
+          "lab_task": "Stream a response with two calls whose stubs take 800 ms each. Start the first stub as soon as its JSON object closes while the second is still streaming. Measure end-to-end time against waiting for the full response, and cancel the stream when the first call fails validation.",
+          "deliverable": "Incremental executor with before and after timing for 20 runs",
+          "checks": [["Run 20 two-call prompts with incremental execution", "Median end-to-end time is lower than waiting for the full response, with milliseconds saved reported", "Timing table"], ["Send a call with an invalid argument as the first call", "Stream is cancelled and the second call never executes", "Log lines"], ["Feed the parser a half-complete object", "Partial parser returns a partial dict and the executor does not start", "pytest output"]],
+          "objectives": ["Run calls before the stream ends", "Cancel streams safely", "Quantify the latency gain"]
+        },
+        {
+          "topic": "Reasoning Models and Function Calls: Preserving Thinking State",
+          "subtopics": ["Reasoning items in the Responses API and passing them back with calls", "Anthropic thinking blocks with signatures in tool turns", "Gemini thought signatures returned unchanged", "Interleaved thinking between calls", "tool_choice restrictions when thinking is on", "What breaks when reasoning content is dropped", "Reasoning tokens in usage", "Store and encrypted reasoning options"],
+          "tools": ["OpenAI Python SDK", "Anthropic Python SDK", "Google Gen AI SDK", "Python 3.12"],
+          "lab_task": "Run a two-step call loop on a reasoning model with the Responses API twice: once appending the entire response.output (including reasoning items) and once filtering them out. Compare errors and accuracy over 15 prompts. On Anthropic, enable thinking and verify tool_choice any is rejected or restricted as documented.",
+          "deliverable": "Comparison of kept versus dropped reasoning state over 15 prompts",
+          "checks": [["Loop with full response.output appended", "Completes for 15 of 15 prompts with a reasoning-token count logged", "Result table"], ["Loop with reasoning items removed", "Either an API error or lower accuracy is recorded with the exact message", "Result table"], ["Set Anthropic thinking with a forced tool_choice", "API rejects it or the docs restriction is reproduced and quoted", "Error body"]],
+          "objectives": ["Preserve reasoning state across calls", "Explain provider-specific requirements", "Identify unsupported combinations"]
+        },
+        {
+          "topic": "Provider Adapter Layer for OpenAI, Anthropic, Gemini and Bedrock",
+          "subtopics": ["Canonical types: FunctionSpec, CallRequest and CallResult", "Schema translation to input_schema, function_declarations and toolSpec.inputSchema.json", "Role and block mapping for results", "Stop reason mapping to one enum", "Streaming events to canonical chunks", "Id handling when a provider omits ids", "Capability flags: parallel, strict, forced choice", "Contract tests with recorded fixtures per provider"],
+          "tools": ["Python 3.12", "OpenAI Python SDK", "Anthropic Python SDK", "boto3", "pytest"],
+          "lab_task": "Write adapters that take one FunctionSpec list and one message history and return canonical CallRequests for OpenAI, Anthropic, Gemini and Bedrock. Record fixtures for each provider and write contract tests for 10 scenarios (single, parallel, error, forced). Run pytest and report the pass count per provider.",
+          "deliverable": "Adapter package and a 4-provider by 10-scenario contract test matrix",
+          "checks": [["Run the contract suite", "40 of 40 provider-scenario tests pass offline from fixtures", "pytest summary"], ["Translate one spec for all four providers", "Four distinct payload shapes are printed with the same function name", "Printed payloads"], ["Map stop reasons", "tool_calls, tool_use and toolUse all map to the canonical CALLS state", "pytest output"]],
+          "objectives": ["Define canonical call and result types", "Translate schemas per provider", "Test adapters from recorded fixtures"]
+        },
+        {
+          "topic": "Structured Data Extraction from Documents with Schemas",
+          "subtopics": ["An extraction function whose arguments are the record", "Null for absent fields instead of guesses", "Evidence quotes and character offsets per field", "Enums for categories and currencies", "Pydantic models for invoices and contracts", "Field-level precision, recall and F1", "Prompt wording for extraction", "Strict mode for extraction schemas"],
+          "tools": ["Pydantic v2", "OpenAI Python SDK", "scikit-learn", "Python 3.12"],
+          "lab_task": "Use 25 invoice texts with a hand-labelled gold file (vendor, invoice_number, date, total, currency, line_items). Extract each into a strict Invoice model with an evidence quote per field, then compute per-field precision, recall and F1 against the gold file and list the three weakest fields.",
+          "deliverable": "Extraction pipeline, gold file and a per-field F1 table",
+          "checks": [["Extract all 25 invoices", "25 of 25 outputs validate against the Invoice schema", "Validation log"], ["Score against the gold file", "Per-field precision, recall and F1 table is produced", "Evaluation report"], ["Feed an invoice with no tax number", "tax_id is null and no value is invented", "Output JSON"]],
+          "objectives": ["Design extraction schemas with nulls and evidence", "Score extraction per field", "Find systematic weak fields"]
+        },
+        {
+          "topic": "Extraction Reliability: Long Documents, Chunking, Merging and Confidence",
+          "subtopics": ["Context limits and when to chunk", "Overlapping chunks and chunk boundaries", "Per-chunk extraction with the same schema", "Merging conflicts: first, majority or highest evidence", "Self-reported confidence versus calibration", "Abstaining when evidence is missing", "Page references for audit", "Single pass versus chunked recall"],
+          "tools": ["Python 3.12", "Pydantic v2", "OpenAI Python SDK", "tiktoken"],
+          "lab_task": "Take a 40-page contract text with 12 labelled clauses to find (term, renewal, liability cap, governing law and so on). Extract in one pass and in 8k-token overlapping chunks with a merge step. Compare recall and wrong-value rate, and bin confidence scores into three buckets to check calibration.",
+          "deliverable": "Single-pass and chunked pipelines with a recall comparison on 12 clauses",
+          "checks": [["Run single-pass extraction", "Recall over 12 labelled clauses is reported as n/12", "Result table"], ["Run chunked extraction with merging", "Recall is reported and conflicting values are logged with page numbers", "Result table"], ["Bucket confidence into low, mid and high", "Accuracy per bucket is shown, and high-bucket accuracy exceeds low-bucket accuracy or the miscalibration is noted", "Calibration table"]],
+          "objectives": ["Chunk and merge extractions", "Check confidence calibration", "Cite pages for each value"]
+        },
+        {
+          "topic": "Extracting from Images and PDFs with Multimodal Inputs",
+          "subtopics": ["Image content parts and base64 versus URL", "PDF input support and per-page cost", "Native vision versus OCR text plus model", "Image resolution and detail settings", "Handwriting, stamps and tables as failure areas", "Schema-constrained output over images", "Token cost per page", "Accuracy versus cost trade-off"],
+          "tools": ["OpenAI Python SDK", "Anthropic Python SDK", "Tesseract", "Pydantic v2"],
+          "lab_task": "Extract merchant, date and total from 10 scanned receipts in three ways: image input only, Tesseract OCR text only, and image plus OCR text. Record field accuracy against a gold file, prompt tokens per receipt and cost per receipt using prices from environment variables.",
+          "deliverable": "Three-way comparison of accuracy and cost over 10 receipts",
+          "checks": [["Run the three extraction modes on 10 receipts", "Accuracy per mode is reported against the gold file", "Result table"], ["Read usage for each mode", "Prompt tokens per receipt are listed and image input uses more than text-only", "Usage table"], ["Process one blurred receipt", "Fields it cannot read are null, not guessed", "Output JSON"]],
+          "objectives": ["Send images and PDFs with a schema", "Compare OCR and native vision", "Trade accuracy against cost"]
+        },
+        {
+          "topic": "Wrapping REST APIs as Callable Functions from OpenAPI Specs",
+          "subtopics": ["Reading an OpenAPI 3.1 document with operationId and parameters", "Mapping path, query, header and body parameters into one schema", "Flattening request bodies", "Generating names from operationId", "Trimming descriptions to control tokens", "Excluding dangerous or unused operations", "Calling the real API from validated arguments", "Checking the HTTP method and path of each call"],
+          "tools": ["OpenAPI 3.1", "httpx", "Python 3.12", "OpenAI Python SDK"],
+          "lab_task": "Convert eight operations of an OpenAPI spec (such as a pet store or your own) into function definitions with a script. Run 10 prompts, and for each call assert the method, path and parameters sent to the mock server match the expected request in a table. Report how many of 10 are fully correct.",
+          "deliverable": "Converter script and a 10-prompt request-correctness table",
+          "checks": [["Convert the spec", "8 definitions are produced with unique names equal to operationIds", "Generated JSON"], ["Run 10 prompts against a mock server", "At least 8 of 10 requests match expected method, path and parameters", "Mock server log"], ["Remove the descriptions from the definitions", "Correctness drops or the unchanged score is reported with token savings", "Comparison table"]],
+          "objectives": ["Generate definitions from OpenAPI", "Map parameters into one schema", "Verify real HTTP requests"]
+        },
+        {
+          "topic": "API Orchestration: Rate Limits, Retries, Timeouts and Idempotency Keys",
+          "subtopics": ["429 and the Retry-After header", "Exponential backoff with jitter", "Connect and read timeouts", "Idempotency-Key headers on POST", "De-duplicating when the model repeats a call id", "Retry only on retryable statuses", "Circuit breaker around a failing downstream API", "Surfacing retry exhaustion to the model"],
+          "tools": ["httpx", "tenacity", "Python 3.12", "pytest"],
+          "lab_task": "Build a mock payments API that returns 429 twice, then 201. Call it through a retry wrapper with backoff and jitter and an Idempotency-Key, confirm 3 attempts, and make the model-issued call arrive twice to show exactly one charge is created. Add a read timeout of 2 s and test it.",
+          "deliverable": "Retry wrapper with a mock API test showing three attempts and one side effect",
+          "checks": [["Call the mock API that returns 429 twice", "Three attempts are logged and the third returns 201", "Mock server log"], ["Send the same call twice with one Idempotency-Key", "Exactly 1 charge exists and the second response is a replay", "Database count"], ["Make the API sleep 5 s with a 2 s timeout", "ReadTimeout is raised and a retryable error result is returned to the model", "pytest output"]],
+          "objectives": ["Retry safely with backoff", "Prevent duplicate side effects", "Report failures back to the model"]
+        },
+        {
+          "topic": "Fan-Out and Fan-In: Concurrent API Orchestration with asyncio",
+          "subtopics": ["Running calls from one response concurrently", "asyncio.Semaphore to cap concurrency", "Per-call timeouts with asyncio.timeout", "Collecting partial failures without losing successes", "Keeping result order tied to call ids", "Budgeting total wall time", "Cancelling siblings when a critical call fails", "Backpressure toward downstream rate limits"],
+          "tools": ["asyncio", "httpx", "Python 3.12", "pytest-asyncio"],
+          "lab_task": "Make a stub API with 500 ms latency and run 12 calls with Semaphore(4). Verify wall time is about 1.5 s (three waves), then make 2 of the 12 fail and confirm the other 10 results are still returned in id order with error results for the failures.",
+          "deliverable": "Fan-out runner with timing and partial-failure tests",
+          "checks": [["Run 12 calls with Semaphore(4) and 500 ms latency", "Wall time is between 1.4 s and 1.9 s", "Timing output"], ["Fail two of the twelve calls", "10 successes and 2 error results are returned in call-id order", "Test output"], ["Set a total budget of 1 s", "Runner returns timeout error results for unfinished calls without hanging", "Test output"]],
+          "objectives": ["Run concurrent calls under a cap", "Return partial results", "Honor wall-time budgets"]
+        },
+        {
+          "topic": "Handling Large Results: Pagination, Truncation and Summarization",
+          "subtopics": ["Token cost of result payloads", "Returning the top N rows plus a cursor", "Truncation markers the model can understand", "A fetch_next_page function using the cursor", "Field projection: return only requested columns", "Summarizing with a cheaper model before returning", "Context window limits and errors", "Measuring accuracy with trimmed results"],
+          "tools": ["Python 3.12", "tiktoken", "OpenAI Python SDK", "pandas"],
+          "lab_task": "Build a function over a 5,000-row table. Return everything and record tokens, then return 20 rows plus total_count and next_cursor, then add column projection. Ask 10 questions and compare answer accuracy and prompt tokens across the three designs.",
+          "deliverable": "Three result designs with a token and accuracy table over 10 questions",
+          "checks": [["Return all 5,000 rows", "Request fails with a context-length error or consumes a very large token count that is recorded", "Error or usage"], ["Return 20 rows plus total_count and next_cursor", "Prompt tokens fall by over 90 percent versus the full dump", "Usage table"], ["Ask a question needing page 2", "Model calls fetch_next_page with the cursor from the previous result", "Transcript"]],
+          "objectives": ["Shrink results without losing answerability", "Use cursors for pagination", "Compare designs by tokens and accuracy"]
+        },
+        {
+          "topic": "Testing Function Calls with Mocks, Recorded Fixtures and Golden Files",
+          "subtopics": ["Mocking the provider client versus recording HTTP", "VCR.py and respx cassettes", "Redacting keys in recordings", "Golden files for expected calls", "Temperature 0 and seed limits on determinism", "Assertions on name, arguments and order", "Schema-change tests that must fail", "Running the suite offline in CI"],
+          "tools": ["pytest", "VCR.py", "respx", "Python 3.12", "GitHub Actions"],
+          "lab_task": "Record 10 provider interactions with VCR.py, redact the Authorization header, and replay them with network disabled. Write golden files for expected call names and arguments, then change one parameter name in a schema and confirm exactly one test fails. Add the suite to a GitHub Actions workflow.",
+          "deliverable": "Recorded test suite, golden files and a CI workflow file",
+          "checks": [["Run pytest with the network blocked", "10 of 10 tests pass from cassettes", "pytest summary"], ["Search the cassettes for the key prefix", "Zero occurrences of the real key remain", "grep output"], ["Rename one schema parameter", "Exactly 1 golden-file test fails with a diff of the argument name", "pytest diff"]],
+          "objectives": ["Record and replay provider traffic", "Protect secrets in fixtures", "Detect schema regressions in CI"]
+        },
+        {
+          "topic": "Capstone: Multi-Provider Extraction and Orchestration Service",
+          "subtopics": ["FastAPI service exposing extraction and orchestration endpoints", "Provider adapters behind one interface with strict schemas", "Retries, idempotency, concurrency caps and pagination", "Offline contract tests plus a field-level F1 report"],
+          "tools": ["FastAPI", "Pydantic v2", "httpx", "pytest", "Docker"],
+          "lab_task": "Build a FastAPI service with POST /extract (invoice to validated JSON) and POST /orchestrate (a question answered by 2 to 4 API calls). Use the adapter layer for two providers, retries with idempotency keys, a concurrency cap of 4, and contract tests. Report F1 on 25 invoices and p95 latency over 50 orchestration requests.",
+          "deliverable": "Running service with tests, F1 report and latency report",
+          "checks": [["Run pytest -q", "All contract tests pass offline for both providers", "pytest summary"], ["Run the 25-invoice evaluation", "Per-field F1 report is printed and macro F1 recorded", "Evaluation report"], ["Fire 50 orchestration requests", "p95 latency and error count are printed with zero duplicate side effects", "Load output"]],
+          "objectives": ["Combine adapters, extraction and orchestration", "Prove behavior with offline tests", "Report accuracy and latency"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For engineers who run function calling in production or plan to. Covers accuracy measurement (metrics, Berkeley Function Calling Leaderboard, custom harnesses with regression gates), prompt and schema experiments, cost modeling, prompt caching, latency engineering, large catalogs, constrained decoding internals, open-weight serving with vLLM and Ollama, fine-tuning data, provider-specific behavior on Gemini, Bedrock, Anthropic and OpenAI, failure taxonomies, argument hardening, batch workloads, and operations with fallbacks and migrations.",
+      "prerequisites": ["Has built a multi-provider function calling client with strict schemas, streaming and offline tests", "Comfortable with statistics basics: proportions, confidence intervals and significance tests", "Has access to a GPU or a hosted endpoint for an open-weight model, plus API keys for at least two hosted providers"],
+      "outcomes": ["Measure selection, argument and abstention accuracy with confidence intervals, run BFCL and gate releases on regression tests", "Model and cut cost and latency using prompt caching, fewer round trips, concurrency and catalog retrieval", "Serve open-weight models with vLLM or Ollama, explain chat templates and parsers, and prepare fine-tuning data for calls", "Operate function calling in production with failure taxonomies, argument hardening, batch jobs, fallbacks and canary model migrations"],
+      "days": [
+        {
+          "topic": "Measuring Call Accuracy: Metrics for Selection, Arguments and Abstention",
+          "subtopics": ["Function-name accuracy", "Exact-match versus AST-style argument comparison", "Parameter-level precision, recall and F1", "Irrelevance detection: no call when none applies", "Parallel-call set matching ignoring order", "Wilson confidence interval for a proportion", "Dataset design: balance, hard negatives, held-out split", "Reporting per category instead of one number"],
+          "tools": ["Python 3.12", "scipy", "pandas", "pytest"],
+          "lab_task": "Build a 100-case labelled set (60 single calls, 20 parallel, 20 should-not-call). Write a scorer for name accuracy, argument exact match, parameter F1 and abstention rate, with a Wilson 95 percent interval. Run it on one model and print a per-category table.",
+          "deliverable": "Scorer, 100-case dataset and a per-category result table with intervals",
+          "checks": [["Run the scorer on 100 cases", "Per-category name accuracy, argument match and abstention rate are printed", "Result table"], ["Compute the interval for 85 of 100", "Wilson 95 percent interval is about 0.77 to 0.91", "Script output"], ["Present two parallel calls in swapped order", "Set-based scorer counts it correct while a list comparison would fail", "pytest output"]],
+          "objectives": ["Define metrics for calls", "Report uncertainty", "Score parallel and abstention cases"]
+        },
+        {
+          "topic": "Berkeley Function Calling Leaderboard: Categories and Evaluation Methods",
+          "subtopics": ["Origin in the Gorilla project at UC Berkeley", "Category families: simple, multiple, parallel, parallel multiple and irrelevance", "Live categories built from real user requests", "Multi-turn and agentic categories added in later versions", "AST evaluation versus executable evaluation", "Installing the bfcl-eval package", "bfcl generate and bfcl evaluate commands", "Reading the score files per category"],
+          "tools": ["bfcl-eval", "Python 3.12", "Gorilla repository", "pandas"],
+          "lab_task": "Install bfcl-eval in a clean virtualenv and read the current README for flags. Run bfcl generate and bfcl evaluate for the simple_python category on one hosted model with a limited sample, then print the accuracy and compare it with the published leaderboard value for that model, noting any gap.",
+          "deliverable": "BFCL run log, score file and a note comparing your score with the leaderboard",
+          "checks": [["Run bfcl generate on simple_python", "Result files are written under the configured result directory", "Directory listing"], ["Run bfcl evaluate for the same model", "Per-category accuracy is printed or saved in the score file", "Score CSV"], ["Compare with the leaderboard row", "Gap in percentage points is reported with the BFCL version and date used", "Comparison note"]],
+          "objectives": ["Explain BFCL categories and evaluation types", "Run BFCL end to end", "Compare local and published results"]
+        },
+        {
+          "topic": "Running BFCL Against Your Own Endpoints and Reading Failure Reports",
+          "subtopics": ["Pointing the harness at an OpenAI-compatible endpoint", "Registering a custom model or handler", "Prompt mode versus native function-calling mode", "Concurrency and rate limits during generation", "Locating per-example error files", "Classifying failures: wrong name, wrong value, missing parameter, format error", "Language-specific categories", "Reproducibility across runs"],
+          "tools": ["bfcl-eval", "vLLM", "Python 3.12", "jq"],
+          "lab_task": "Serve an open-weight model on an OpenAI-compatible endpoint, configure BFCL to use it, and run the simple, multiple and parallel categories. Open the per-example failure files, classify the first 20 failures into four buckets, and give the count for each bucket.",
+          "deliverable": "Run log, score file and a 20-failure classification table",
+          "checks": [["Run three categories against the local endpoint", "Accuracy is produced for simple, multiple and parallel", "Score file"], ["Classify 20 failures", "Four-bucket counts sum to 20", "Classification table"], ["Rerun one category with the same settings", "Score difference between runs is reported in points", "Two score files"]],
+          "objectives": ["Evaluate a custom endpoint with BFCL", "Categorize failures", "Check repeatability"]
+        },
+        {
+          "topic": "Custom Evaluation Harnesses with Regression Gates",
+          "subtopics": ["Versioned datasets and frozen model identifiers", "Repeating each case n times to expose variance", "Bootstrap and McNemar tests for paired comparisons", "Gate thresholds: absolute floor and maximum drop", "CI job output as a pull-request comment", "Cost cap per evaluation run", "Storing results for trend charts", "Quarantining flaky cases"],
+          "tools": ["pytest", "scipy", "GitHub Actions", "Python 3.12"],
+          "lab_task": "Create an eval job that runs 100 cases 3 times per candidate change and compares with the stored baseline using McNemar's test. Fail the job if accuracy falls by more than 2 points with p below 0.05. Demonstrate one passing and one failing change by degrading a function description.",
+          "deliverable": "Eval job, baseline file and logs of one pass and one fail",
+          "checks": [["Run the job on an unchanged branch", "Exit code 0 and p-value above 0.05 reported", "CI log"], ["Run it with a deliberately vague description", "Exit code 1 with accuracy drop and p-value printed", "CI log"], ["Check run cost", "Total token cost of one run is printed and below the configured cap", "CI log"]],
+          "objectives": ["Gate releases on call accuracy", "Compare paired runs statistically", "Control evaluation cost"]
+        },
+        {
+          "topic": "Prompt and Schema Optimization Experiments",
+          "subtopics": ["One-variable-at-a-time experiments", "Description variants: terse, rule-based and example-bearing", "Parameter naming and order effects", "Few-shot examples inside descriptions", "Enum value ordering", "System message wording", "Accuracy versus token trade-off", "Avoiding overfitting to the eval set"],
+          "tools": ["Python 3.12", "pandas", "OpenAI Python SDK", "scipy"],
+          "lab_task": "Test four description variants on 100 cases with a 70/30 tune and held-out split: terse, rule-based, with one example, and with three examples. Report accuracy, tokens per request and tokens per correct call, and confirm the winner on the held-out 30 cases only once.",
+          "deliverable": "Variant results table with a held-out confirmation",
+          "checks": [["Run four variants on the 70 tuning cases", "Accuracy and prompt tokens per variant are tabulated", "Result table"], ["Compute tokens per correct call", "Variant with best accuracy is compared with the cheapest per correct call", "Result table"], ["Run the winner on the 30 held-out cases", "Held-out accuracy is reported once, and a drop from tuning accuracy is noted", "Result table"]],
+          "objectives": ["Run controlled prompt experiments", "Weigh accuracy against tokens", "Protect a held-out set"]
+        },
+        {
+          "topic": "Cost Modeling for Function Calling Workloads",
+          "subtopics": ["Cost terms: definition tokens, history resend, argument output, result tokens", "Why each loop iteration resends the whole history", "Cost per successful task, not per request", "Cached input pricing and batch discounts", "Prices held in configuration, not hardcoded", "Sensitivity to catalog size and result size", "Reasoning-token cost", "Budget alerts"],
+          "tools": ["Python 3.12", "pandas", "OpenAI Python SDK", "matplotlib"],
+          "lab_task": "Instrument usage on 100 tasks and compute cost per task from price values in environment variables. Compare three designs: all 30 functions always sent, 8 retrieved functions, and 8 functions with trimmed results. Output cost per successful task for each and a sensitivity plot against catalog size.",
+          "deliverable": "Cost model script, three-design comparison and a sensitivity plot",
+          "checks": [["Run 100 tasks per design", "Cost per task and per successful task are printed for three designs", "Result table"], ["Change the prompt price variable by 2x", "Reported costs scale accordingly without code changes", "Two outputs"], ["Plot catalog size 10 to 100", "Cost rises with catalog size and the slope is stated", "Plot file"]],
+          "objectives": ["Break a loop's cost into its parts", "Compare designs on cost per success", "Parameterize prices"]
+        },
+        {
+          "topic": "Prompt Caching for Function Definitions and Stable Prefixes",
+          "subtopics": ["OpenAI automatic prefix caching and the minimum prompt length", "cached_tokens in prompt_tokens_details", "Anthropic cache_control breakpoints and cache_read_input_tokens", "Gemini implicit and explicit caching", "Bedrock cachePoint blocks where supported", "Deterministic definition order and stable JSON key order", "What invalidates a cache: changing a definition or reordering", "Time-to-live and hit-rate monitoring"],
+          "tools": ["OpenAI Python SDK", "Anthropic Python SDK", "Python 3.12", "pandas"],
+          "lab_task": "Send 20 sequential requests with a 3,000-token definition set and record cached tokens from usage. Then shuffle the definition order each request and record the hit rate again. On Anthropic, place cache_control on the last definition and confirm cache_read_input_tokens is above 0 from the second call.",
+          "deliverable": "Hit-rate table for stable and shuffled definitions on two providers",
+          "checks": [["Send 20 requests with a stable definition order", "Cached tokens are greater than 0 from about the second request", "Usage log"], ["Shuffle the definition order on each request", "Cached tokens drop to 0 or near 0 for most requests", "Usage log"], ["Use Anthropic cache_control on the last definition", "cache_read_input_tokens is above 0 from the second call", "Usage log"]],
+          "objectives": ["Structure requests for cache hits", "Read cache fields per provider", "Find what breaks caching"]
+        },
+        {
+          "topic": "Latency Engineering: Round Trips, Streaming and Parallelism",
+          "subtopics": ["Timeline of a call loop: model, network, function, model", "Time to first token and argument generation speed", "Cutting round trips with combined functions", "Parallel calls and concurrent execution", "Connection reuse and HTTP/2", "Smaller models for routing steps", "Speculative execution of likely calls", "p50 and p95 reporting"],
+          "tools": ["Python 3.12", "httpx", "OpenAI Python SDK", "OpenTelemetry"],
+          "lab_task": "Trace 50 runs of a three-step task and break latency into model time, network and function time. Apply two changes (merge two functions into one, run independent calls concurrently), rerun 50 times, and report p50 and p95 before and after with a target of at least 30 percent lower p50.",
+          "deliverable": "Trace breakdown and a before and after p50 and p95 table",
+          "checks": [["Trace 50 baseline runs", "A stacked breakdown of model, network and function time is produced", "Trace export"], ["Apply merge and concurrency changes", "Round trips per task fall from 4 to 2 or 3, recorded", "Request log"], ["Rerun 50 times", "p50 falls by at least 30 percent or the missed target is explained", "Latency table"]],
+          "objectives": ["Break down loop latency", "Remove round trips", "Report percentiles"]
+        },
+        {
+          "topic": "Scaling to Large Function Catalogs: Retrieval and Dynamic Selection",
+          "subtopics": ["Accuracy decay as definitions grow past 50", "Embedding each definition and retrieving top k", "Two-stage routing with a small model", "Always-include sets and fallbacks", "Provider features that defer loading of definitions, where offered", "Recall at k as the key retrieval metric", "Cache interaction with changing definition sets", "Re-retrieval when the model asks for something missing"],
+          "tools": ["Python 3.12", "OpenAI embeddings API", "FAISS", "pandas"],
+          "lab_task": "Create 200 function definitions across 10 domains and 100 labelled prompts. Embed definitions, retrieve top 8, and compare recall at 8 and end-to-end call accuracy against sending all 200. Report prompt tokens per request for both and run one re-retrieval case where the first set lacks the needed function.",
+          "deliverable": "Retrieval pipeline with recall, accuracy and token comparison against all 200 definitions",
+          "checks": [["Compute recall at 8 for 100 prompts", "Recall@8 is reported as a percentage", "Evaluation report"], ["Compare end-to-end accuracy", "Retrieved set versus all 200 accuracy are shown side by side", "Result table"], ["Compare prompt tokens", "Retrieved set uses under 10 percent of the tokens of the full catalog", "Usage table"]],
+          "objectives": ["Retrieve definitions per request", "Measure recall and accuracy together", "Handle a missing function with re-retrieval"]
+        },
+        {
+          "topic": "Constrained Decoding Internals: Grammars, Automata and Structured Output Engines",
+          "subtopics": ["Token masking at each decoding step", "Compiling JSON Schema into a finite-state machine or grammar", "Engines: xgrammar, outlines, llguidance and provider implementations", "Why strict schemas need all fields required", "Compile-time cost and caching", "Constraining can lower answer quality: key order and early truncation", "Tokenizer boundary issues", "Validity versus correctness"],
+          "tools": ["vLLM", "Outlines", "xgrammar", "Python 3.12"],
+          "lab_task": "Using an open-weight model, generate 200 extractions unconstrained and then with schema-constrained decoding through vLLM structured outputs or Outlines. Report the schema-valid rate, the correct-value rate and the added latency per request, and show one output that is valid but wrong.",
+          "deliverable": "Comparison of validity, correctness and latency for 200 extractions",
+          "checks": [["Validate 200 unconstrained outputs", "Schema-valid count is reported and is below 200 or equals 200 with notes", "Result table"], ["Validate 200 constrained outputs", "200 of 200 are schema-valid", "Result table"], ["Inspect the valid outputs against gold", "At least one valid-but-wrong output is shown", "Output sample"]],
+          "objectives": ["Explain how constrained decoding works", "Compare validity with correctness", "Measure its latency cost"]
+        },
+        {
+          "topic": "Serving Open-Weight Models with vLLM for Function Calls",
+          "subtopics": ["vllm serve with --enable-auto-tool-choice", "--tool-call-parser options such as hermes, llama3_json and mistral", "--chat-template for a model whose default template lacks support", "tool_choice required and named choice via guided decoding", "Streaming call parsing", "GPU memory settings: --max-model-len and --gpu-memory-utilization", "Using the OpenAI SDK with base_url", "Parser failures when the model deviates from its format"],
+          "tools": ["vLLM", "Python 3.12", "OpenAI Python SDK", "nvidia-smi"],
+          "lab_task": "Start vllm serve with --enable-auto-tool-choice and the parser that matches the chosen model. Send 50 prompts through the OpenAI SDK pointed at the server, count responses where the call text leaks into content instead of tool_calls, and test tool_choice required and a named choice.",
+          "deliverable": "Server command, a parse-failure count over 50 prompts and notes on required and named modes",
+          "checks": [["Start the server with the matching parser", "Server logs show the parser loaded and /v1/models responds", "Server log"], ["Run 50 prompts", "Count of parse failures (call text in content) is reported as n/50", "Result table"], ["Send tool_choice required", "Every response contains a parsed call, including prompts that need none", "Printed responses"]],
+          "objectives": ["Serve a model with function calling on vLLM", "Select the right parser", "Diagnose call-format leaks"]
+        },
+        {
+          "topic": "Open-Weight Model Differences: Chat Templates, Call Formats and Parser Failures",
+          "subtopics": ["Hermes-style tagged JSON calls", "Llama-style JSON calls", "Mistral special call tokens", "Pythonic call syntax", "tokenizer.apply_chat_template with tools", "Result roles per template", "Template bugs that silently drop definitions", "Writing a custom parser for a deviant model"],
+          "tools": ["Hugging Face Transformers", "Jinja2", "vLLM", "Python 3.12"],
+          "lab_task": "For three open-weight models, render the same message list and definitions with tokenizer.apply_chat_template(messages, tools=defs, tokenize=False). Diff the three prompts, identify each call format from sample outputs, and write one parser that handles two of the formats with 10 unit tests.",
+          "deliverable": "Rendered prompts, a format comparison table and a parser with 10 passing tests",
+          "checks": [["Render prompts for the three models", "Three different prompts print with different call-format instructions", "Rendered text"], ["Run the parser tests", "10 of 10 tests pass across the two formats", "pytest summary"], ["Feed a malformed call", "Parser raises a typed error instead of returning a partial call", "pytest output"]],
+          "objectives": ["Read chat templates for call formats", "Write a defensive parser", "Spot templates that drop definitions"]
+        },
+        {
+          "topic": "Fine-Tuning and Distilling Models for Function Calling",
+          "subtopics": ["Dataset record format: messages, definitions and call turns", "Loss masking so training focuses on call tokens", "Synthetic data from a stronger model with validation", "Negative examples that should not call", "Dataset lint: schema validity of every argument", "LoRA adapters and smoke-test runs", "Evaluating before and after with a held-out set", "Overfitting to specific schemas"],
+          "tools": ["Hugging Face TRL", "PEFT", "Python 3.12", "jsonschema (Python)"],
+          "lab_task": "Generate 300 training records with a stronger model across 20 schemas, with 15 percent should-not-call negatives. Lint them so 100 percent of arguments pass their schema, hold out 50 records, and report the baseline score of the base model on the held-out set. If a GPU is available, run a short LoRA smoke test.",
+          "deliverable": "Linted 300-record JSONL, a held-out baseline score and a smoke-test log if a GPU is available",
+          "checks": [["Lint the dataset", "300 of 300 records pass JSON and schema validation", "Lint output"], ["Count negatives", "Between 40 and 50 records (about 15 percent) are should-not-call", "Count output"], ["Score the base model on 50 held-out records", "Baseline call accuracy is recorded with its interval", "Result table"]],
+          "objectives": ["Prepare call-focused training data", "Validate datasets automatically", "Evaluate before and after training"]
+        },
+        {
+          "topic": "Gemini and Bedrock Provider Specifics: Modes, Thought Signatures and Model Support",
+          "subtopics": ["Gemini ANY mode with allowed_function_names", "Automatic function calling from Python callables", "Thought signatures returned unchanged when provided", "Gemini schema subset and unsupported keywords", "Bedrock toolChoice support differing by model", "additionalModelRequestFields for model-specific options", "ConverseStream metadata and usage", "ValidationException messages and their meanings"],
+          "tools": ["Google Gen AI SDK", "boto3", "Amazon Bedrock Converse API", "Python 3.12"],
+          "lab_task": "On Gemini, run ANY mode with allowed_function_names for two functions and test a prompt that matches neither. On Bedrock, send toolChoice any and tool to three models and record which are rejected with a ValidationException and the exact messages. Build a support matrix of mode by model.",
+          "deliverable": "Support matrix of mode by model with captured error messages",
+          "checks": [["Gemini ANY mode with two allowed names", "Response always contains a call to one of the two names", "Printed responses"], ["Bedrock toolChoice on three models", "Each model is marked accepted or rejected, with the ValidationException text for rejected ones", "Support matrix"], ["Replay a Gemini turn without the thought signature", "Request errors or degrades as documented, and the outcome is recorded", "Error or transcript"]],
+          "objectives": ["Use Gemini function calling modes", "Map Bedrock model-level differences", "Preserve provider state"]
+        },
+        {
+          "topic": "Anthropic and OpenAI Specifics: Freeform Calls, Cache Breakpoints and Stop Reasons",
+          "subtopics": ["OpenAI custom freeform calls with context-free grammars where offered", "allowed_tools subsets in tool_choice", "Responses API state with store and previous_response_id", "Anthropic disable_parallel_tool_use and tool_choice any", "Fine-grained streaming of input and its risk of invalid JSON", "stop_reason max_tokens inside a tool_use block", "Interleaved thinking between calls", "Versioning provider features in the adapter"],
+          "tools": ["OpenAI Python SDK", "Anthropic Python SDK", "Python 3.12", "pytest"],
+          "lab_task": "Implement a freeform call that returns raw SQL checked against a grammar on OpenAI, and restrict a request to two functions with allowed_tools. On Anthropic, force max_tokens low during a call, handle stop_reason max_tokens by retrying with a larger limit, and add capability flags for each feature to the adapter.",
+          "deliverable": "Working examples for both providers with tests for the max_tokens recovery path",
+          "checks": [["Send a freeform SQL request with the grammar", "Output matches the grammar and parses with a SQL parser", "Parser output"], ["Restrict to two functions with allowed_tools", "No other function name appears in 20 prompts", "Count output"], ["Set Anthropic max_tokens very low", "stop_reason is max_tokens, partial input is discarded and the retry succeeds", "Log lines"]],
+          "objectives": ["Use provider-specific modes safely", "Recover from max_tokens", "Gate features behind capability flags"]
+        },
+        {
+          "topic": "Failure Taxonomy: Hallucinated Names, Wrong Arguments and Looping Calls",
+          "subtopics": ["Unknown function names", "Valid name with wrong argument values", "Missing or extra parameters", "Calls where none were needed", "Repeated identical calls and ping-pong loops", "Truncated or malformed JSON", "Orphaned results in history", "Detectors and counters for each class"],
+          "tools": ["Python 3.12", "pytest", "OpenTelemetry", "Prometheus client"],
+          "lab_task": "Create a replay harness that injects six fault types into recorded responses: unknown name, extra parameter, missing parameter, truncated JSON, repeated call and orphaned result. Show that your handler classifies each one with a distinct counter and recovers or stops safely, with a test per fault.",
+          "deliverable": "Fault-injection harness with six passing tests and counters per class",
+          "checks": [["Inject all six faults", "Six distinct counters increment exactly once each", "Metrics output"], ["Inject the repeated-call fault", "Loop stops after the configured repeat limit", "Log lines"], ["Inject the orphaned-result fault", "History validator rejects the request before it reaches the API", "pytest output"]],
+          "objectives": ["Classify call failures", "Detect each class in code", "Recover or stop safely"]
+        },
+        {
+          "topic": "Argument Hardening at the Model Boundary: Injection, Allow-Lists and Authorization Checks",
+          "subtopics": ["Arguments are untrusted input even when a model wrote them", "Parameterized SQL instead of string building", "Path arguments and traversal checks", "User and tenant identifiers taken from the session, never from arguments", "Allow-lists for enums, hosts and file types", "Injected instructions in retrieved text that become arguments", "Length and rate limits per argument", "Rejection messages that do not leak internals"],
+          "tools": ["Python 3.12", "SQLite", "pytest", "Pydantic v2"],
+          "lab_task": "Expose search_orders(customer_id, query) and read_file(path). Send 10 adversarial prompts (SQL fragment in query, ../ in path, another customer's id). Fix the code so customer_id comes from the session, SQL is parameterized and paths resolve inside a base directory, then show all 10 attempts rejected or neutralized.",
+          "deliverable": "Hardened functions with 10 adversarial test cases and results",
+          "checks": [["Send a SQL fragment in query", "Query is treated as a parameter and returns no extra rows", "Test output"], ["Send path ../../etc/passwd", "Request is rejected with a path_not_allowed error", "Test output"], ["Ask for another customer's orders", "Session customer id is used and the other customer's data is not returned", "Test output"]],
+          "objectives": ["Treat model arguments as untrusted", "Derive identity from the session", "Reject without leaking details"]
+        },
+        {
+          "topic": "Batch and Asynchronous Function Calling Workloads",
+          "subtopics": ["Batch endpoints: OpenAI Batch API with JSONL and custom_id, Anthropic Message Batches, Bedrock batch inference", "Discounted pricing and completion windows: confirm current terms", "Building request files with function definitions", "Reconciling results by custom_id", "Multi-round batches when calls need results", "Partial failures and retry batches", "Cost comparison with synchronous runs", "Polling and webhooks"],
+          "tools": ["OpenAI Batch API", "Anthropic Message Batches", "Python 3.12", "jq"],
+          "lab_task": "Create a batch file of 200 extraction requests with custom_id values and submit it. When complete, reconcile outputs by custom_id, validate each against the schema, resubmit failures in a second batch, and report total cost versus the same 200 synchronous requests using prices from configuration.",
+          "deliverable": "Batch builder, reconciliation report and a cost comparison for 200 requests",
+          "checks": [["Submit the batch and wait for completion", "Batch status completed with 200 request counts accounted for", "Batch status JSON"], ["Reconcile by custom_id", "200 of 200 ids match with no duplicates or missing ids", "Reconcile report"], ["Compare cost with synchronous", "Batch cost is lower by the documented discount, stated with the date checked", "Cost table"]],
+          "objectives": ["Submit and reconcile batches", "Rerun failures", "Compare batch and synchronous cost"]
+        },
+        {
+          "topic": "Production Operations: Monitoring, Fallbacks and Model Migration",
+          "subtopics": ["Metrics: schema-valid rate, unknown-function rate, loop depth, retry rate, cost per success", "Prometheus counters and histograms", "Provider fallback on 429, 503 or 529 using LiteLLM or custom routing", "Canary traffic for a new model version", "Eval gate before switching", "Deprecation notices and pinned model identifiers", "Alert thresholds", "Rollback in one configuration change"],
+          "tools": ["Prometheus", "Grafana", "LiteLLM", "Python 3.12", "Docker Compose"],
+          "lab_task": "Expose five metrics from the client with prometheus_client and chart them in Grafana. Configure a fallback so a simulated 503 on the primary provider is served by the secondary within one retry. Run a 10 percent canary of a new model and show the eval gate blocking it when accuracy drops 3 points.",
+          "deliverable": "Dashboard export, fallback test and a canary decision log",
+          "checks": [["Simulate a 503 on the primary provider", "Request succeeds on the secondary and a fallback counter increments by 1", "Metrics output"], ["Scrape /metrics", "Five named metrics appear with non-zero values after a run", "Metrics page"], ["Run the canary with a degraded model", "Eval gate blocks the rollout and the log states the accuracy drop", "Decision log"]],
+          "objectives": ["Monitor function calling health", "Fail over between providers", "Migrate models behind an eval gate"]
+        },
+        {
+          "topic": "Capstone: Benchmarked Multi-Provider Function Calling Platform",
+          "subtopics": ["Gateway with adapters, strict schemas, caching and fallbacks", "Evaluation suite with BFCL subset, custom cases and a regression gate", "Cost and latency report per provider and model", "Hardening, fault-injection and batch paths documented in a runbook"],
+          "tools": ["FastAPI", "LiteLLM", "pytest", "Prometheus", "bfcl-eval"],
+          "lab_task": "Assemble a gateway that routes calls to two hosted providers and one vLLM model. Run a BFCL subset plus 100 custom cases against each, with a CI regression gate. Publish a report with accuracy and interval, cost per successful task, p50 and p95 latency, and cache hit rate, and recommend a primary and a fallback.",
+          "deliverable": "Platform repository, evaluation report and a recommendation memo",
+          "checks": [["Run the evaluation suite on all three backends", "Accuracy with 95 percent interval is reported per backend and category", "Evaluation report"], ["Trigger the regression gate with a degraded description", "CI fails with the accuracy drop and p-value shown", "CI log"], ["Read the cost and latency report", "Cost per successful task, p50, p95 and cache hit rate appear for each backend", "Report file"]],
+          "objectives": ["Integrate evaluation, caching and fallbacks", "Report cost, latency and accuracy together", "Make an evidence-based provider recommendation"]
+        }
+      ]
+    }
+  }
+}

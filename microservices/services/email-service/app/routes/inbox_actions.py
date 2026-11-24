@@ -9,7 +9,7 @@ import re
 import uuid
 from datetime import datetime, time, timedelta
 from email.utils import parseaddr
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -653,6 +653,7 @@ async def approve_inbox_reply(
         "email_id": email_id,
         "status": update["status"],
         "reply_status": update["reply_status"],
+        "error": update.get("reply_error", ""),
         "trainer_automation_status": update.get("trainer_automation_status"),
         "mail_automation": update.get("mail_automation"),
     }
@@ -678,6 +679,29 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
     attachments = request.get("pending_attachments") or []
     if not any(str(item.get("subtype") or "").endswith("spreadsheetml.sheet") and item.get("content_base64") for item in attachments):
         raise HTTPException(422, "The pending request has no workbook to send")
+    from shared.lab_cost_inputs import quote_expiry
+    lab_file = next((item for item in attachments if "lab cost" in item.get("filename", "").lower()), {})
+    try:
+        quote_expiry(lab_file.get("quote_valid_until"))
+    except ValueError:
+        from app.routes.inbox import _create_revised_lab_cost_attachment, _create_standalone_toc_attachments
+        agenda = {"toc": request.get("quote_toc")}
+        fresh = await _create_revised_lab_cost_attachment(db, request, request.get("lab_context") or {}, source_agenda=agenda)
+        if not fresh:
+            raise HTTPException(503, "Could not refresh the expired lab estimate. Approval is still pending.")
+        replacements = [fresh]
+        if request.get("toc_requested"):
+            toc_files = await _create_standalone_toc_attachments(
+                technology=request.get("technology_needed"), duration_days=request.get("duration_days"),
+                toc_data=agenda["toc"])
+            if not toc_files:
+                raise HTTPException(503, "Could not render the agenda for the refreshed estimate.")
+            replacements.extend(toc_files)
+        await db["lab_cost_requests"].update_one(
+            {"requirement_id": requirement_id, "status": "awaiting_review", "pending_attachments": attachments},
+            {"$set": {"pending_attachments": replacements, "quote_toc": agenda["toc"],
+                      "rate_change_summary": fresh["pricing_review_reasons"], "updated_at": datetime.utcnow()}})
+        raise HTTPException(409, "Pricing was refreshed. Review the updated workbook before approving.")
     reply = request.get("pending_reply") or {}
     subject = str(reply.get("subject") or (source or {}).get("subject") or "Lab Cost Estimate")
     if not subject.lower().startswith("re:"):
@@ -693,7 +717,7 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
         raise HTTPException(422, "A saved attachment is invalid") from exc
     now = datetime.utcnow()
     claim = await db["lab_cost_requests"].update_one(
-        {"requirement_id": requirement_id, "status": "awaiting_review"},
+        {"requirement_id": requirement_id, "status": "awaiting_review", "pending_attachments": attachments},
         {"$set": {"status": "sending_approved", "approved_at": now, "updated_at": now}},
     )
     if not claim.modified_count:
@@ -720,7 +744,8 @@ async def approve_lab_cost_request(requirement_id: str, db: AsyncIOMotorDatabase
     })
     await db["lab_cost_requests"].update_one(
         {"requirement_id": requirement_id},
-        {"$set": {"status": "toc_and_lab_sent" if request.get("toc_requested") else "estimate_sent", "sent_at": now, "updated_at": now},
+        {"$set": {"status": "toc_and_lab_sent" if request.get("toc_requested") else "estimate_sent", "sent_at": now,
+                  "lab_client_price": float(lab_file.get("client_lab_amount") or 0), "updated_at": now},
          "$unset": {"pending_attachments": "", "pending_reply": "", "send_error": ""}},
     )
     if source_id:
@@ -745,6 +770,15 @@ async def reject_inbox_reply(
     if result.matched_count == 0:
         raise HTTPException(404, "Inbox email not found")
     return {"success": True, "email_id": email_id, "reply_status": "rejected"}
+
+
+async def _send_regenerated_reply_if_enabled(email_id: str, db: AsyncIOMotorDatabase) -> Dict[str, Any]:
+    """Send a newly generated reply when the deployment has auto-send enabled."""
+    from app.config import get_settings
+
+    if not get_settings().AUTO_SEND_ENABLED:
+        return {"status": "pending_approval", "reply_status": "pending_review", "error": ""}
+    return await approve_inbox_reply(email_id, ApproveRequest(send_now=True), db)
 
 
 @router.post("/{email_id}/regenerate-reply")
@@ -792,12 +826,16 @@ async def regenerate_reply(
                 "generation_source": "template",
             }},
         )
+        send_result = await _send_regenerated_reply_if_enabled(email_id, db)
         return {
             "success": True,
             "email_id": email_id,
             "reply": new_reply,
             "generated_reply": generated_reply,
             "generation_source": "template",
+            "status": send_result.get("status"),
+            "reply_status": send_result.get("reply_status"),
+            "error": send_result.get("error", ""),
         }
 
     body = _clean_incoming_email(doc.get("clean_body") or doc.get("body") or doc.get("raw_body") or "")
@@ -867,8 +905,12 @@ async def regenerate_reply(
             "updated_at": now,
         }},
     )
+    send_result = await _send_regenerated_reply_if_enabled(email_id, db)
     return {"success": True, "email_id": email_id, "reply": new_reply, "generated_reply": generated_reply,
-            "reply_analysis": reply_analysis}
+            "reply_analysis": reply_analysis,
+            "status": send_result.get("status"),
+            "reply_status": send_result.get("reply_status"),
+            "error": send_result.get("error", "")}
 
 
 def _clean_incoming_email(value: Any) -> str:
@@ -973,9 +1015,10 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
     if cluster_count_match:
         known_inputs["cluster_count"] = int(cluster_count_match.group(1))
 
-    # Participant count changes the quote materially, so it must come from the
-    # client instead of being silently replaced by a costing default.
-    if known_inputs.get("participant_count"):
+    if known_inputs.get("participant_count") in (None, ""):
+        known_inputs["participant_count"] = 1
+        known_inputs["participant_count_source"] = "default"
+    else:
         known_inputs["participant_count_source"] = "client"
     # Use the agreed standard lab-access window when the client has not
     # specified one. A later client reply always replaces this baseline.
@@ -1161,7 +1204,7 @@ async def _load_reply_workflow_context(
             sort=[("created_at", -1)],
         ) or {}
         purchase_order = await db["purchase_orders"].find_one(
-            {"requirement_id": requirement_id},
+            {"requirement_id": requirement_id, "po_id": {"$not": {"$regex": "^TPO-"}}},
             {"_id": 0},
             sort=[("created_at", -1)],
         ) or {}
@@ -1482,7 +1525,8 @@ async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA) -> Dict[
     return {"reply_body": reply_body, "analysis": analysis}
 
 
-async def _gemini_email_draft(cfg, prompt: str) -> str:
+async def _gemini_email_draft(cfg, prompt: str, temperature: float = 0.35, max_output_tokens: int = 600,
+                              json_output: bool = False) -> str:
     """Use the configured Gemini model, then discover a generateContent model if it is unavailable."""
     from google import genai
     from google.genai import types
@@ -1499,7 +1543,10 @@ async def _gemini_email_draft(cfg, prompt: str) -> str:
         response = await client.aio.models.generate_content(
             model=model_name,
             contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=600),
+            config=types.GenerateContentConfig(
+                temperature=temperature, max_output_tokens=max_output_tokens,
+                **({"response_mime_type": "application/json"} if json_output else {}),
+            ),
         )
         return str(getattr(response, "text", "") or "").strip()
 
@@ -1562,6 +1609,85 @@ async def _gemini_email_draft(cfg, prompt: str) -> str:
     if last_not_found:
         raise last_not_found
     raise RuntimeError("Gemini returned no usable draft from the available models.")
+
+
+async def _llm_json(system: str, prompt: str, schema: Dict[str, Any]) -> Tuple[str, str]:
+    """One structured-output call to the configured provider. Returns (raw_text, provider)."""
+    from app.config import get_settings
+    cfg = get_settings()
+    provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    schema_text = json.dumps(schema, separators=(",", ":"))
+
+    if provider == "ollama":
+        endpoint = str(getattr(cfg, "OLLAMA_URL", "") or "").strip().rstrip("/")
+        if not endpoint:
+            raise ValueError("OLLAMA_URL is not configured")
+        if endpoint.endswith("/api/chat"):
+            endpoint = endpoint[:-len("/api/chat")] + "/api/generate"
+        elif not endpoint.endswith("/api/generate"):
+            endpoint += "/api/generate"
+        import httpx
+
+        request_body = {
+            "model": str(getattr(cfg, "OLLAMA_MODEL", "qwen3:8b") or "qwen3:8b"),
+            "system": system, "prompt": prompt, "format": schema, "think": False, "stream": False,
+            "options": {"temperature": 0, "num_predict": 1500},
+        }
+        timeout = max(30, int(getattr(cfg, "OLLAMA_EMAIL_TIMEOUT_SECONDS", 300)))
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(endpoint, json=request_body)
+            response.raise_for_status()
+            return str(response.json().get("response") or ""), "ollama"
+
+    if provider == "gemini" and str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip():
+        text = await _gemini_email_draft(
+            cfg, f"{system}\n\nJSON schema:\n{schema_text}\n\n{prompt}",
+            temperature=0, max_output_tokens=2000, json_output=True,
+        )
+        return text, "gemini"
+
+    if provider == "anthropic" or (provider != "openai" and str(getattr(cfg, "ANTHROPIC_API_KEY", "") or "").strip()):
+        import anthropic
+
+        client = anthropic.AsyncAnthropic(api_key=cfg.ANTHROPIC_API_KEY)
+        message = await client.messages.create(
+            model=getattr(cfg, "ANTHROPIC_MODEL", "claude-haiku-4-20250514") or "claude-haiku-4-20250514",
+            max_tokens=2000, temperature=0, system=system,
+            messages=[{"role": "user", "content": f"JSON schema:\n{schema_text}\n\n{prompt}"}],
+        )
+        return "".join(b.text for b in message.content if getattr(b, "type", "") == "text"), "anthropic"
+
+    openai_key = str(getattr(cfg, "OPENAI_API_KEY", "") or "").strip()
+    if not openai_key:
+        raise ValueError(f"No API key is configured for AI provider '{provider}'")
+    from openai import AsyncOpenAI
+
+    base_url = str(getattr(cfg, "OPENAI_API_BASE", "") or "").strip() or None
+    client = AsyncOpenAI(api_key=openai_key, base_url=base_url)
+    response = await client.responses.create(
+        model=cfg.OPENAI_MODEL or "gpt-5.5",
+        reasoning={"effort": "low"},
+        instructions=f"{system}\n\nJSON schema:\n{schema_text}",
+        input=prompt,
+    )
+    return str(getattr(response, "output_text", "") or ""), "openai"
+
+
+async def _understand_requirement(subject: str, body: str) -> Tuple[Optional[Dict[str, Any]], str, str]:
+    """Return (verified understanding or None, provider, failure reason)."""
+    from app.agents.requirement_understanding import (
+        SYSTEM, UNDERSTANDING_SCHEMA, ground_understanding, parse_understanding, understanding_prompt,
+    )
+
+    try:
+        raw, provider = await _llm_json(SYSTEM, understanding_prompt(subject, body), UNDERSTANDING_SCHEMA)
+    except Exception as exc:
+        logger.warning("Requirement understanding call failed: %s", exc)
+        return None, "", f"llm_error:{type(exc).__name__}"
+    parsed = parse_understanding(raw)
+    if not parsed:
+        return None, provider, "invalid_json"
+    return ground_understanding(parsed, subject, body), provider, ""
 
 
 async def _ai_draft_reply(
@@ -1654,7 +1780,30 @@ async def _ai_draft_reply(
             require_openai=require_openai, _variation_retry=True,
         )
 
-    if str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower() == "ollama":
+    provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    if provider == "gemini":
+        gemini_key = str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip()
+        if not gemini_key:
+            failure = "AI mode is selected, but GEMINI_API_KEY is not configured for the Gemini provider."
+            logger.error("%s", failure)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = failure
+            return "" if require_openai else grounded_reference
+        try:
+            generated = await _gemini_email_draft(cfg, prompt)
+            drafted = await finish(generated)
+            if drafted:
+                return drafted
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = "Gemini returned no usable draft."
+            logger.warning("Gemini returned an empty or rejected mail draft")
+        except Exception as exc:
+            logger.warning("Gemini mail generation failed: %s", exc)
+            if workflow_context is not None:
+                workflow_context["generation_failure"] = f"Gemini draft generation failed ({type(exc).__name__})."
+        return "" if require_openai else grounded_reference
+
+    if provider == "ollama":
         try:
             result = await _ollama_email_draft(cfg, prompt, voice)
             result["analysis"].update({
@@ -1816,3 +1965,87 @@ async def _ai_draft_reply(
 
     # Fallback template
     return grounded_reference
+
+
+async def _gemini_email_draft(cfg, prompt: str) -> str:
+    """Use the configured Gemini model, then discover a generateContent model if it is unavailable."""
+    from google import genai
+    from google.genai import types
+
+    api_key = str(getattr(cfg, "GEMINI_API_KEY", "") or "").strip()
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY is not configured")
+
+    configured_model = str(getattr(cfg, "GEMINI_MODEL", "") or "").strip() or "gemini-3.5-flash-lite"
+    configured_model = configured_model.removeprefix("models/")
+    client = genai.Client(api_key=api_key)
+
+    async def generate(model_name: str) -> str:
+        response = await client.aio.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(temperature=0.35, max_output_tokens=600),
+        )
+        return str(getattr(response, "text", "") or "").strip()
+
+    try:
+        draft = await generate(configured_model)
+        logger.info("Gemini email draft generated with configured model %s", configured_model)
+        return draft
+    except Exception as configured_error:
+        is_not_found = (
+            getattr(configured_error, "code", None) == 404
+            or getattr(configured_error, "status_code", None) == 404
+            or "not found" in str(configured_error).lower()
+        )
+        if not is_not_found:
+            raise
+
+    def list_generation_models() -> List[str]:
+        found = []
+        for model in client.models.list():
+            actions = getattr(model, "supported_actions", None) or []
+            if "generateContent" not in actions:
+                continue
+            name = str(getattr(model, "name", "") or "").removeprefix("models/").strip()
+            if name and name != configured_model:
+                found.append(name)
+        # Prefer inexpensive text models, while retaining other generation models
+        # in case this key has no Flash model enabled.
+        return sorted(
+            set(found),
+            key=lambda name: (
+                0 if "flash-lite" in name.lower() else
+                1 if "flash" in name.lower() else
+                2,
+                "preview" in name.lower(),
+                name,
+            ),
+        )
+
+    available_models = await asyncio.to_thread(list_generation_models)
+    if not available_models:
+        raise RuntimeError(
+            "Gemini could not find any models enabled for generateContent on this API key."
+        )
+
+    last_not_found = None
+    for model_name in available_models:
+        try:
+            draft = await generate(model_name)
+            logger.info("Gemini email draft generated with discovered available model %s", model_name)
+            return draft
+        except Exception as exc:
+            is_not_found = (
+                getattr(exc, "code", None) == 404
+                or getattr(exc, "status_code", None) == 404
+                or "not found" in str(exc).lower()
+            )
+            if not is_not_found:
+                raise
+            last_not_found = exc
+            logger.warning("Gemini model %s was listed but returned NotFound; trying the next available model", model_name)
+
+    if last_not_found:
+        raise last_not_found
+    raise RuntimeError("Gemini returned no usable draft from the available models.")

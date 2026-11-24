@@ -54,6 +54,7 @@ const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedule
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const PurchaseOrders = lazyWithRetry(() => import('./pages/PurchaseOrders'))
 const FinanceApprovals = lazyWithRetry(() => import('./pages/FinanceApprovals'))
+const TravelBookings = lazyWithRetry(() => import('./pages/TravelBookings'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
@@ -90,8 +91,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
   const [authReady, setAuthReady] = useState(() => {
-    // Keep the sign-in UI available while session restoration is checked.
-    // A slow or unreachable auth service should not leave login as a grey loader.
+    // Keep public auth routes available while session restoration is checked.
     return !['/login', '/admin-login', '/trainer-login', '/client-login', '/reset-password']
       .includes(window.location.pathname)
   })
@@ -186,6 +186,7 @@ export default function App() {
             <Route path="invoices" element={<Invoices />} />
             <Route path="purchase-orders" element={<PurchaseOrders />} />
             <Route path="finance-approvals" element={<FinanceApprovals />} />
+            <Route path="travel-bookings" element={<TravelBookings />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<PrivateRoute isLoggedIn={isLoggedIn} user={user} adminOnly><Admin /></PrivateRoute>} />
