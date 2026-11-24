@@ -1,6 +1,7 @@
 """Shortlist management — send mail, send interview link, send client slots."""
 import asyncio
 import base64
+import json
 from html import escape
 import logging
 import math
@@ -496,6 +497,17 @@ def _ensure_trainer_mail1_commercial_section(body: str, requirement: Dict[str, A
     return _strip_confirmed_trainer_offer_confirmation(text, requirement)
 
 
+def _append_missing_offer_confirmation(body: str, requirement: Dict[str, Any], trainer=None) -> str:
+    """Ask once, and only when an offer amount is actually in the mail."""
+    if not _is_proposal_requirement(requirement):
+        return body
+    if not _trainer_mail1_commercial_section(requirement, trainer):
+        return body
+    if re.search(r"please confirm the offered (?:trainer )?commercials?", body or "", flags=re.IGNORECASE):
+        return body
+    return (body or "").rstrip() + "\n\nPlease confirm the offered commercials and your availability."
+
+
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
     commercial_text = _trainer_mail1_commercial_text(requirement)
     if not commercial_text:
@@ -632,6 +644,34 @@ def _proposal_slot_request_flow(requirement: Dict[str, Any]) -> bool:
         or requirement.get("requirement_type")
     ).lower()
     return "proposal" in flow_value or _is_proposal_requirement(requirement)
+
+
+def _stored_commercial_only_reply(trainer: Dict[str, Any]) -> bool:
+    """A bare commercial confirmation does not provide availability or dated slots."""
+    texts = [
+        _clean(trainer.get(key))
+        for key in ("availability", "available_dates", "availability_text", "reply_text", "last_reply_snippet", "slot_reply_text")
+        if _clean(trainer.get(key))
+    ]
+    if not texts:
+        return False
+    blob = " ".join(texts).lower()
+    if re.search(r"\b(?:available|availability|cv|resume|linkedin|certification|experience)\b", blob):
+        return False
+    if re.search(r"\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)", blob):
+        return False
+
+    def is_confirmation(text: str) -> bool:
+        lower = text.lower()
+        if re.fullmatch(r"(?:yes|ok|okay|sure|confirmed|fine|i confirm)[.!]?", lower):
+            return True
+        return bool(
+            len(lower) <= 240
+            and re.search(r"\b(?:yes|ok|okay|sure|confirm(?:ed)?|accept(?:ed)?|fine)\b", lower)
+            and re.search(r"\b(?:commercials?|rate|offer(?:ed)?)\b", lower)
+        )
+
+    return all(is_confirmation(text) for text in texts)
 
 
 def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> List[str]:
@@ -2626,7 +2666,12 @@ def _confirmed_training_dates(requirement: Dict[str, Any]) -> str:
     return ""
 
 
-async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
+async def _build_toc(
+    requirement: Dict[str, Any],
+    trainer: Dict[str, Any],
+    db: AsyncIOMotorDatabase,
+    quality_feedback: str = "",
+) -> Optional[Dict[str, Any]]:
     try:
         from app.routes.toc import TocRequest, generate_toc, _required_technologies
         mode_setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
@@ -2699,7 +2744,13 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         if client_brief:
             personalization_lines.append("Original client brief (scope evidence): " + client_brief[:5000])
         personalization_lines = list(dict.fromkeys(personalization_lines))
-        client_notes = "\n".join(personalization_lines)[:8000]
+        client_notes = "\n".join(personalization_lines)[:6000]
+        if quality_feedback:
+            client_notes = (
+                client_notes
+                + "\n\nAutomatic ToC quality repair. Correct these generated issues while preserving the client scope:\n"
+                + quality_feedback[:1800]
+            )[:8000]
         toc_req = TocRequest(
             domain=domain,
             duration_days=duration,
@@ -2724,7 +2775,7 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             client_notes=client_notes or _clean(requirement.get("notes") or requirement.get("description")),
         )
         saved = None
-        if toc_req.requirement_id and not _has_client_supplied_toc(requirement):
+        if toc_req.requirement_id and not _has_client_supplied_toc(requirement) and not quality_feedback:
             from shared.lab_cost_inputs import saved_lab_agenda
             saved = await saved_lab_agenda(db, requirement, duration)
         toc_data = (saved or {}).get("toc")
@@ -2775,6 +2826,50 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
     except Exception:
         logger.exception("Failed to build TOC")
         return None
+
+
+def _toc_quality_feedback(toc: Dict[str, Any]) -> str:
+    quality = toc.get("quality") or {}
+    evaluation = quality.get("content_evaluation") or {}
+    items = [
+        *(quality.get("validation_errors") or []),
+        *(evaluation.get("blocking_issues") or []),
+        *(evaluation.get("issues") or []),
+        *(quality.get("review_warnings") or []),
+        *(quality.get("missing_requested_topics") or []),
+    ]
+    feedback = list(dict.fromkeys(_clean(item) for item in items if _clean(item)))
+    if not feedback:
+        feedback.append("Improve the curriculum until the quality evaluation passes without warnings.")
+    return "\n".join(f"- {item}" for item in feedback[:20])
+
+
+def _toc_curriculum_signature(toc: Dict[str, Any]) -> str:
+    quality = toc.get("quality") or {}
+    return json.dumps(
+        {"days": toc.get("days") or [], "quality": quality},
+        sort_keys=True,
+        ensure_ascii=False,
+        default=str,
+    )
+
+
+def _auto_approve_reviewable_toc(toc: Dict[str, Any]) -> bool:
+    quality = toc.get("quality") or {}
+    evaluation = quality.get("content_evaluation") or {}
+    score = evaluation.get("score")
+    if (
+        quality.get("status") == "requires_review"
+        and not quality.get("validation_errors")
+        and not evaluation.get("blocking_issues")
+        and evaluation.get("status") != "fail"
+        and isinstance(score, (int, float))
+        and score >= 85
+    ):
+        quality.update({"automatic_review": True, "reviewed_by": "automatic_quality_review"})
+        toc["quality"] = quality
+    from shared.toc_quality import toc_delivery_error
+    return not bool(toc_delivery_error(toc))
 
 
 async def _generate_toc_pdf(toc: Dict[str, Any]) -> Optional[bytes]:
@@ -4213,6 +4308,29 @@ async def send_shortlist_mail(
                         # A proposed scope can only be generated after the client
                         # has stated its duration. Do not send a guessed agenda.
                         generated_toc = await _build_toc(requirement, t, db)
+                        # Use quality findings as generation feedback before
+                        # blocking the required Mail 1 attachment. Saved
+                        # agendas are skipped on these repair attempts.
+                        for _quality_attempt in range(2):
+                            if not generated_toc or _auto_approve_reviewable_toc(generated_toc):
+                                break
+                            if (generated_toc.get("quality") or {}).get("status") not in {
+                                "requires_review", "requires_regeneration",
+                            }:
+                                break
+                            prior_signature = _toc_curriculum_signature(generated_toc)
+                            repaired_toc = await _build_toc(
+                                requirement,
+                                t,
+                                db,
+                                quality_feedback=_toc_quality_feedback(generated_toc),
+                            )
+                            if (
+                                not repaired_toc
+                                or _toc_curriculum_signature(repaired_toc) == prior_signature
+                            ):
+                                break
+                            generated_toc = repaired_toc
                         if generated_toc:
                             try:
                                 toc_url = f"{DOC_SVC}/api/v1/documents/excel/toc"
@@ -4221,23 +4339,7 @@ async def send_shortlist_mail(
                                     toc_url,
                                     json={"toc": generated_toc},
                                 )
-                                toc_quality = generated_toc.get("quality") or {}
-                                reviewable_draft = (
-                                    toc_quality.get("status") == "requires_review"
-                                    and not toc_quality.get("validation_errors")
-                                    and (toc_quality.get("content_evaluation") or {}).get("status") != "fail"
-                                )
                                 is_draft_toc = False
-                                if toc_response.status_code == 422 and reviewable_draft:
-                                    # Mail 1 goes to the trainer for feasibility review.
-                                    # Export a clearly labeled draft for that review;
-                                    # never turn regeneration failures into delivery.
-                                    toc_response = await _post_with_local_fallback(
-                                        client,
-                                        f"{DOC_SVC}/api/v1/documents/excel/toc",
-                                        json={"toc": generated_toc, "draft": True},
-                                    )
-                                    is_draft_toc = True
                                 quality_review_rejected = False
                                 if toc_response.status_code == 422:
                                     try:
@@ -4247,9 +4349,25 @@ async def send_shortlist_mail(
                                     quality_review_rejected = (
                                         "TOC requires review before export or delivery" in str(export_detail)
                                     )
+                                    if (
+                                        toc_response.status_code == 422
+                                        and quality_review_rejected
+                                        and generated_toc.get("days")
+                                    ):
+                                        # Mail 1 goes to the trainer, not the client. After bounded
+                                        # repairs, attach a clearly labeled review draft so the trainer
+                                        # can resolve the findings. Client delivery still uses the
+                                        # normal approved-TOC gate.
+                                        toc_response = await _post_with_local_fallback(
+                                            client,
+                                            f"{DOC_SVC}/api/v1/documents/excel/toc",
+                                            json={"toc": generated_toc, "draft": True},
+                                        )
+                                        is_draft_toc = toc_response.status_code == 200
                                 if toc_response.status_code == 422 and quality_review_rejected:
                                     logger.warning(
-                                        "Blocking Mail 1 to %s because its ToC requires regeneration: %s",
+                                            "Blocking Mail 1 to %s because its ToC could not be exported, "
+                                            "including as a review draft: %s",
                                         trainer_email, export_detail,
                                     )
                                     raise RuntimeError(
