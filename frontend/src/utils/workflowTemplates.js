@@ -87,19 +87,6 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
     'Please identify any scope changes or lab prerequisites needed for delivery. Clahan will coordinate the ToC and any requested lab estimate for review.',
   ])
 }
-function clientCommercial(req = {}) {
-  const perDay = number(req.client_budget_per_day || req.budget_per_day)
-  const total = number(req.budget_total)
-  if (perDay) {
-    if (perDay < 10000) {
-      const amount = total || perDay
-      return `INR ${Math.round(amount).toLocaleString('en-IN')} total-course commercial`
-    }
-    return `INR ${Math.round(perDay).toLocaleString('en-IN')} per day/session`
-  }
-  if (total) return `INR ${Math.round(total).toLocaleString('en-IN')} total-course commercial`
-  return text(req.budget_range)
-}
 export function mail2FollowupTemplate(trainer, req, missingItems = null) {
   const items = (Array.isArray(missingItems) ? missingItems : missingProfile(trainer))
     .filter(item => !/\b(toc|agenda|commercials?|lab cost|lab support)\b/i.test(item))
