@@ -573,9 +573,22 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
         + _as_list(requirement.get("custom_topics"))
     ))
     preferred_skills = _as_list(requirement.get("preferred_skills"))
+    required_certifications = _as_list(requirement.get("required_certifications"))
     required_terms = [term for term in [technology, *required_skills] if term]
 
     profile = _profile_text(trainer)
+    matched_certifications: List[str] = []
+    if required_certifications:
+        certification_evidence = _norm([
+            trainer.get("certifications"),
+            trainer.get("certification"),
+            trainer.get("certificates"),
+            trainer.get("licenses"),
+            trainer.get("summary"),
+            trainer.get("combined_text", "")[:8000] if isinstance(trainer.get("combined_text"), str) else "",
+            trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
+        ])
+        matched_certifications = _term_matches(required_certifications, certification_evidence)
     category = _category_text(trainer)
     score = 0.0
     breakdown: Dict[str, Any] = {}
@@ -609,6 +622,7 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     breakdown["skills"] = round(skill_score, 2)
     breakdown["matched_required_skills"] = required_matches
     breakdown["matched_preferred_skills"] = preferred_matches
+    breakdown["matched_required_certifications"] = matched_certifications
 
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
@@ -620,6 +634,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     if technology and not topic_is_covered(technology, profile):
         return None
     if len(required_matches) != len(required_skills):
+        return None
+    if len(matched_certifications) != len(required_certifications):
         return None
     if min_exp > 0:
         exp_score = 15.0 if exp >= min_exp else 10.0 * (exp / max(min_exp, 1.0))
