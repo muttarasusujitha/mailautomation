@@ -12,6 +12,21 @@
       "summary": "For support engineers, developers and new administrators. Covers installing Linux, the shell, files and directories, editors, permissions, users and groups, processes, packages, systemd services, logs, file systems, LVM, networking, SSH, text processing, Bash scripting, scheduled jobs, archives and backups, and the host firewall, on RHEL-family and Ubuntu servers.",
       "prerequisites": ["Comfortable using a computer and installing software", "Knows what an IP address is", "No previous Linux experience needed"],
       "outcomes": ["Work confidently at the Linux command line", "Manage users, permissions, packages, services, storage and networking", "Write Bash scripts and schedule jobs", "Keep a server secured, logged and backed up"],
+      "course_outcomes": [
+        {"outcome": "Set up a Linux lab and move around the file system from the shell", "topics": ["Linux Overview, Distributions and Lab Setup", "The Shell and Moving Around the File System"]},
+        {"outcome": "Manage files and directories and edit text with vim and nano", "topics": ["Working with Files and Directories", "Editing Text with vim and nano"]},
+        {"outcome": "Set file permissions, ownership, users, groups and sudo", "topics": ["File Permissions and Ownership", "Users, Groups and sudo"]},
+        {"outcome": "Manage processes, jobs and signals", "topics": ["Processes, Jobs and Signals"]},
+        {"outcome": "Install software with dnf and apt", "topics": ["Installing Software with dnf and apt"]},
+        {"outcome": "Manage services with systemd and read system logs", "topics": ["Managing Services with systemd", "System Logs with journald and rsyslog"]},
+        {"outcome": "Create partitions, file systems and logical volumes", "topics": ["Disks, Partitions and File Systems", "Logical Volume Management"]},
+        {"outcome": "Configure and troubleshoot networking and log in securely with SSH", "topics": ["Network Configuration and Troubleshooting", "Secure Remote Access with SSH"]},
+        {"outcome": "Process text with grep, sed and awk", "topics": ["Text Processing with grep, sed and awk"]},
+        {"outcome": "Automate tasks with Bash scripts and schedule them with cron and systemd timers", "topics": ["Bash Scripting for Administrators", "Scheduling Jobs with cron and systemd Timers"]},
+        {"outcome": "Back up files with archives and compression", "topics": ["Archives, Compression and Backups"]},
+        {"outcome": "Secure a server with a host firewall", "topics": ["Host Firewalls and Basic Server Security"]},
+        {"outcome": "Build and run a web server", "topics": ["Beginner Capstone: Building and Running a Web Server"]}
+      ],
       "days": [
         {
           "topic": "Linux Overview, Distributions and Lab Setup",
@@ -199,6 +214,22 @@
       "summary": "For administrators who run Linux servers. Covers advanced Bash, SELinux, performance monitoring, the boot process, kernel tuning, RAID and storage, NFS and Samba, DNS and DHCP servers, Apache and Nginx, central authentication, sudo and PAM, hardening and auditing, Podman, Ansible, patching, backup and recovery, central logging, KVM and RHCSA preparation.",
       "prerequisites": ["Manages users, packages, services and storage on Linux", "Writes simple Bash scripts", "Configures networking and SSH"],
       "outcomes": ["Secure servers with SELinux, PAM, auditing and hardening standards", "Diagnose performance and boot problems", "Run network services, containers and virtual machines", "Automate administration with Ansible and pass RHCSA"],
+      "course_outcomes": [
+        {"outcome": "Automate administration with advanced Bash scripts", "topics": ["Advanced Bash Scripting and Automation"]},
+        {"outcome": "Run SELinux in enforcing mode and fix denials", "topics": ["SELinux in Practice"]},
+        {"outcome": "Monitor and tune performance, kernel modules and sysctl settings", "topics": ["Performance Monitoring and Tuning", "Kernel Modules and System Tuning with sysctl"]},
+        {"outcome": "Recover systems that do not boot", "topics": ["The Boot Process and Recovering Unbootable Systems"]},
+        {"outcome": "Configure RAID, Stratis and file system tuning", "topics": ["Storage: RAID, Stratis and File System Tuning"]},
+        {"outcome": "Share files with NFS and Samba and run DNS and DHCP servers", "topics": ["File Sharing with NFS and Samba", "DNS and DHCP Servers"]},
+        {"outcome": "Run Apache and Nginx web servers", "topics": ["Web Servers: Apache and Nginx"]},
+        {"outcome": "Centralise authentication with FreeIPA or Active Directory and control logins with sudo policy and PAM", "topics": ["Central Authentication with FreeIPA and Active Directory", "sudo Policy, PAM and Login Controls"]},
+        {"outcome": "Harden and audit servers", "topics": ["Server Hardening and Auditing"]},
+        {"outcome": "Run containers with Podman, manage many servers with Ansible playbooks and patch them from local repositories", "topics": ["Containers with Podman", "Managing Many Servers with Ansible Playbooks", "Patch Management and Local Repositories"]},
+        {"outcome": "Back up and recover Linux servers and centralise and analyse their logs", "topics": ["Backup and Disaster Recovery for Linux Servers", "Central Logging and Log Analysis"]},
+        {"outcome": "Run virtual machines with KVM and libvirt", "topics": ["Virtualisation with KVM and libvirt"]},
+        {"outcome": "Answer RHCSA practice tasks", "topics": ["RHCSA Certification Preparation"]},
+        {"outcome": "Deliver a secure multi-server environment", "topics": ["Intermediate Capstone: Secure Multi-Server Environment"]}
+      ],
       "days": [
         {
           "topic": "Advanced Bash Scripting and Automation",
@@ -386,6 +417,22 @@
       "summary": "For senior administrators, SREs and platform engineers. Covers kernel and system call tracing, performance engineering, eBPF, high availability clusters, advanced networking, container internals, crash dumps, golden images, identity at scale, compliance automation, live patching and fleet patching, Linux in the cloud, enterprise storage, systemd resource control, distribution upgrades, incident response, fleet monitoring, production troubleshooting and RHCE preparation.",
       "prerequisites": ["Administers production Linux servers", "Uses Ansible, SELinux and performance tools", "Comfortable reading logs and kernel messages"],
       "outcomes": ["Diagnose hard performance and kernel problems with tracing tools", "Build highly available, compliant and patched Linux fleets", "Run Linux well in clouds and containers", "Respond to incidents and lead Linux platform work"],
+      "course_outcomes": [
+        {"outcome": "Trace system calls and engineer CPU, memory and I/O performance with eBPF tools", "topics": ["Tracing System Calls and Kernel Behaviour", "Linux Performance Engineering: CPU, Memory and I/O", "eBPF Observability with bpftrace and BCC"]},
+        {"outcome": "Build high availability clusters with Pacemaker and Corosync", "topics": ["High Availability Clusters with Pacemaker and Corosync"]},
+        {"outcome": "Configure bonding, VLANs, bridges and nftables", "topics": ["Advanced Networking: Bonding, VLANs, Bridges and nftables"]},
+        {"outcome": "Explain container internals with namespaces and cgroups v2 and analyse kernel crash dumps", "topics": ["Container Internals: Namespaces and cgroups v2", "Kernel Crash Dumps and Analysis"]},
+        {"outcome": "Build golden images and manage identity across a fleet", "topics": ["Golden Images and Immutable Builds", "Identity and Access at Fleet Scale"]},
+        {"outcome": "Automate compliance and live-patch a fleet", "topics": ["Compliance Automation at Scale", "Live Patching and Fleet Patching Strategy"]},
+        {"outcome": "Run Linux on AWS and Azure", "topics": ["Linux in the Cloud: AWS and Azure"]},
+        {"outcome": "Attach enterprise storage with iSCSI, multipath and Ceph clients", "topics": ["Enterprise Storage: iSCSI, Multipath and Ceph Clients"]},
+        {"outcome": "Control resources and sandbox services with systemd", "topics": ["systemd in Depth: Resource Control and Sandboxing"]},
+        {"outcome": "Plan distribution upgrades and migrations", "topics": ["Distribution Upgrades and Migrations"]},
+        {"outcome": "Respond to security incidents on Linux", "topics": ["Security Incident Response on Linux"]},
+        {"outcome": "Monitor Linux fleets and troubleshoot production incidents", "topics": ["Monitoring Linux Fleets", "Troubleshooting Production Linux Incidents"]},
+        {"outcome": "Answer RHCE practice tasks", "topics": ["RHCE Certification Preparation"]},
+        {"outcome": "Deliver a production Linux platform", "topics": ["Advanced Capstone: Production Linux Platform"]}
+      ],
       "days": [
         {
           "topic": "Tracing System Calls and Kernel Behaviour",

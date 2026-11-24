@@ -22,9 +22,14 @@ TOP_COURSES = ("generative_ai", "azure", "testing_qa", "sap", "devops", "csharp"
                "react", "oracle_database", "data_engineering", "sre", "python", "salesforce")
 
 
-def test_top_courses_map_their_course_outcomes_to_every_day():
-    for name in TOP_COURSES:
-        course = json.loads((LEVELS / f"{name}.json").read_text(encoding="utf-8-sig"))
+def test_course_outcomes_map_to_every_day_of_their_level():
+    mapped_courses = []
+    for path in sorted(LEVELS.glob("*.json")):
+        course = json.loads(path.read_text(encoding="utf-8-sig"))
+        if not any("course_outcomes" in track for track in (course.get("levels") or {}).values()):
+            continue
+        name = path.stem
+        mapped_courses.append(name)
         for level, track in course["levels"].items():
             topics = [day["topic"] for day in track["days"]]
             items = track["course_outcomes"]
@@ -33,6 +38,7 @@ def test_top_courses_map_their_course_outcomes_to_every_day():
             assert set(mapped) <= set(topics), (name, level)  # every mapping names a real day
             assert set(topics) <= set(mapped), (name, level)  # every day delivers an outcome
             assert not any(re.match(r"(?i)^(understand|know|learn)\b", item["outcome"]) for item in items)
+    assert set(TOP_COURSES) <= set(mapped_courses)
 
 
 def test_a_toc_only_promises_outcomes_its_days_teach():

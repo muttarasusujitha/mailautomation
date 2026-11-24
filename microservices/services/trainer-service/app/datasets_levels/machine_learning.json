@@ -12,6 +12,21 @@
       "summary": "For analysts and developers new to machine learning. Covers the ML workflow, Python data tools, exploring data, regression and classification, evaluation and validation, trees and ensembles, feature engineering, clustering and dimensionality reduction, and saving and serving a first model.",
       "prerequisites": ["Writes basic Python: variables, functions, lists and loops", "School-level maths: averages, percentages and graphs", "Has used Excel or SQL to work with data"],
       "outcomes": ["Explain how machine learning works and when to use it", "Prepare data and build regression, classification and clustering models with scikit-learn", "Evaluate models honestly with validation and the right metrics", "Save a trained model and serve predictions"],
+      "course_outcomes": [
+        {"outcome": "Set up a machine learning environment and prepare data with NumPy and pandas", "topics": ["Machine Learning Overview and Environment Setup", "NumPy and pandas for Machine Learning"]},
+        {"outcome": "Explore data with statistics and visualisation", "topics": ["Exploratory Data Analysis and Visualisation", "Statistics for Machine Learning"]},
+        {"outcome": "Build linear and logistic regression models", "topics": ["Linear Regression", "Logistic Regression and Classification"]},
+        {"outcome": "Evaluate models with the right metrics, train-test splits and cross-validation", "topics": ["Model Evaluation: Metrics, Train-Test Split and Cross-Validation"]},
+        {"outcome": "Build decision trees, random forests and other classic models", "topics": ["Decision Trees", "Ensemble Methods: Random Forests and a First Look at Boosting", "Other Classic Algorithms: k-Nearest Neighbours, SVM and Naive Bayes"]},
+        {"outcome": "Engineer features and build scikit-learn preprocessing pipelines", "topics": ["Feature Engineering", "Preprocessing Pipelines in scikit-learn"]},
+        {"outcome": "Segment customers with clustering and reduce dimensions with PCA", "topics": ["Clustering and Customer Segmentation", "Dimensionality Reduction with PCA"]},
+        {"outcome": "Handle imbalanced data", "topics": ["Imbalanced Data"]},
+        {"outcome": "Tune hyperparameters and select a model", "topics": ["Hyperparameter Tuning and Model Selection"]},
+        {"outcome": "Save, load and serve a model", "topics": ["Saving, Loading and Serving a Model"]},
+        {"outcome": "Explain model predictions", "topics": ["Interpreting and Explaining Models"]},
+        {"outcome": "Check models for bias, fairness and privacy problems", "topics": ["Responsible Machine Learning: Bias, Fairness and Privacy"]},
+        {"outcome": "Deliver a customer churn prediction end to end", "topics": ["Beginner Capstone: Customer Churn Prediction End to End"]}
+      ],
       "days": [
         {
           "topic": "Machine Learning Overview and Environment Setup",
@@ -199,6 +214,23 @@
       "summary": "For practitioners who build models with scikit-learn. Covers gradient boosting, time series forecasting, text and image models, recommender systems, anomaly detection, deep learning with PyTorch, explainability, experiment tracking, reproducible pipelines, deployment, monitoring and ML on cloud platforms.",
       "prerequisites": ["Builds and evaluates scikit-learn pipelines", "Understands cross-validation, metrics and feature engineering", "Writes Python confidently and uses Git"],
       "outcomes": ["Build strong models with boosting, deep learning and specialised methods", "Track experiments and build reproducible ML pipelines", "Deploy, monitor and retrain models", "Use a cloud ML platform end to end"],
+      "course_outcomes": [
+        {"outcome": "Train gradient boosting models with XGBoost, LightGBM and CatBoost", "topics": ["Gradient Boosting with XGBoost, LightGBM and CatBoost"]},
+        {"outcome": "Engineer advanced features", "topics": ["Advanced Feature Engineering and Feature Stores in Brief"]},
+        {"outcome": "Forecast time series", "topics": ["Time Series Forecasting"]},
+        {"outcome": "Build models for text", "topics": ["Machine Learning for Text"]},
+        {"outcome": "Train neural networks with PyTorch and apply transfer learning to images", "topics": ["Deep Learning with PyTorch: Networks and Training Loops", "Computer Vision with Convolutional Networks and Transfer Learning"]},
+        {"outcome": "Build recommender and anomaly detection systems", "topics": ["Recommender Systems", "Anomaly Detection"]},
+        {"outcome": "Explain models with SHAP and LIME", "topics": ["Explainable AI with SHAP and LIME"]},
+        {"outcome": "Label data with active learning and weak supervision", "topics": ["Data Labelling, Active Learning and Weak Supervision"]},
+        {"outcome": "Track experiments with MLflow and optimise hyperparameters with Optuna", "topics": ["Experiment Tracking with MLflow", "Hyperparameter Optimisation with Optuna"]},
+        {"outcome": "Build reproducible pipelines with data versioning", "topics": ["Reproducible ML Pipelines and Data Versioning"]},
+        {"outcome": "Deploy models as services and monitor and retrain them", "topics": ["Deploying Models as Services", "Model Monitoring and Retraining"]},
+        {"outcome": "Use cloud ML platforms and AutoML baselines", "topics": ["Machine Learning on Cloud Platforms", "AutoML and Baseline Building"]},
+        {"outcome": "Test model impact with A/B tests and causal thinking", "topics": ["Causal Thinking and A/B Testing for ML"]},
+        {"outcome": "Deliver ML projects and communicate results to stakeholders", "topics": ["ML Project Delivery and Stakeholder Communication"]},
+        {"outcome": "Deliver a production credit risk model", "topics": ["Intermediate Capstone: Production Credit Risk Model"]}
+      ],
       "days": [
         {
           "topic": "Gradient Boosting with XGBoost, LightGBM and CatBoost",
@@ -386,6 +418,23 @@
       "summary": "For ML engineers and senior data scientists. Covers ML system design, distributed training, transformers and fine-tuning, feature stores and MLOps at scale, low-latency serving and model compression, causal inference, advanced forecasting, graph and reinforcement learning, monitoring, security, governance and ML strategy.",
       "prerequisites": ["Has deployed and monitored ML models in production", "Works with PyTorch and gradient boosting", "Uses experiment tracking and CI for ML"],
       "outcomes": ["Design ML systems for scale, latency and reliability", "Train, fine-tune and serve large models efficiently", "Apply causal, graph and reinforcement learning where they fit", "Run governed, secure ML platforms"],
+      "course_outcomes": [
+        {"outcome": "Design machine learning systems", "topics": ["Machine Learning System Design"]},
+        {"outcome": "Run distributed training efficiently on GPUs", "topics": ["Distributed Training and GPU Efficiency"]},
+        {"outcome": "Fine-tune pretrained transformer models", "topics": ["Transformers and Fine-Tuning Pretrained Models"]},
+        {"outcome": "Build feature platforms and MLOps pipelines at scale", "topics": ["Feature Stores and Feature Platforms", "MLOps at Scale: CI/CD, Pipelines and Platforms"]},
+        {"outcome": "Serve models at low latency and compress them", "topics": ["Low-Latency Model Serving at Scale", "Model Compression: Quantisation, Pruning and Distillation"]},
+        {"outcome": "Estimate causal and uplift effects", "topics": ["Causal Inference and Uplift Modelling"]},
+        {"outcome": "Build probabilistic forecasts and graph models", "topics": ["Advanced Time Series and Probabilistic Forecasting", "Graph Machine Learning"]},
+        {"outcome": "Optimise decisions with reinforcement learning and bandits", "topics": ["Reinforcement Learning and Bandits for Decisions"]},
+        {"outcome": "Monitor drift and model health at scale", "topics": ["Monitoring, Drift and Model Health at Scale"]},
+        {"outcome": "Secure ML systems and apply privacy-preserving methods", "topics": ["Security of Machine Learning Systems", "Privacy-Preserving Machine Learning: Federated Learning and Differential Privacy"]},
+        {"outcome": "Govern ML risk and meet regulation", "topics": ["ML Governance, Risk and Regulation"]},
+        {"outcome": "Combine large language models with machine learning", "topics": ["Machine Learning with Large Language Models"]},
+        {"outcome": "Optimise business decisions with ML and troubleshoot production models", "topics": ["Optimising Business Decisions with ML", "Troubleshooting ML in Production"]},
+        {"outcome": "Set an ML strategy and team structure", "topics": ["ML Strategy, Team Structure and Value"]},
+        {"outcome": "Deliver a real-time ML platform", "topics": ["Advanced Capstone: Real-Time ML Platform"]}
+      ],
       "days": [
         {
           "topic": "Machine Learning System Design",

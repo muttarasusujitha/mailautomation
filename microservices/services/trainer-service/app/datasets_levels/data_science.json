@@ -12,6 +12,22 @@
       "summary": "For graduates, analysts and developers starting in data science. Covers the data science process, Python, NumPy and pandas, cleaning and exploring data, visualisation, probability, distributions, sampling, confidence intervals, hypothesis tests, regression, SQL, feature preparation, predictive models with scikit-learn, evaluation, clustering and PCA, and presenting results.",
       "prerequisites": ["Basic programming in any language", "School-level algebra", "Comfortable with spreadsheets"],
       "outcomes": ["Clean, explore and visualise data in Python", "Apply probability and statistical inference correctly", "Build and evaluate simple predictive and clustering models", "Present results and their uncertainty clearly"],
+      "course_outcomes": [
+        {"outcome": "Set up a data science environment and write Python for analysis", "topics": ["Data Science Overview and Environment Setup", "Python Essentials for Data Science"]},
+        {"outcome": "Compute with NumPy and wrangle data with pandas", "topics": ["Numerical Computing with NumPy", "Data Wrangling with pandas"]},
+        {"outcome": "Clean data and handle missing values", "topics": ["Cleaning Data and Handling Missing Values"]},
+        {"outcome": "Explore data and visualise it for analysis and explanation", "topics": ["Exploratory Data Analysis", "Data Visualisation for Exploration and Explanation"]},
+        {"outcome": "Apply probability and probability distributions", "topics": ["Probability for Data Science", "Probability Distributions"]},
+        {"outcome": "Estimate with sampling, the central limit theorem and confidence intervals", "topics": ["Sampling and the Central Limit Theorem", "Confidence Intervals and Estimation"]},
+        {"outcome": "Run hypothesis tests", "topics": ["Hypothesis Testing"]},
+        {"outcome": "Measure correlation and fit linear regressions", "topics": ["Correlation and Linear Regression"]},
+        {"outcome": "Query data with SQL", "topics": ["SQL for Data Scientists"]},
+        {"outcome": "Prepare features and build predictive models with scikit-learn", "topics": ["Preparing Features for Modelling", "Building Predictive Models with scikit-learn"]},
+        {"outcome": "Evaluate and validate models", "topics": ["Evaluating and Validating Models"]},
+        {"outcome": "Find groups with clustering and reduce dimensions", "topics": ["Clustering and Dimensionality Reduction"]},
+        {"outcome": "Communicate data science results", "topics": ["Communicating Data Science Results"]},
+        {"outcome": "Deliver an end-to-end data science project", "topics": ["Beginner Capstone: End-to-End Data Science Project"]}
+      ],
       "days": [
         {
           "topic": "Data Science Overview and Environment Setup",
@@ -199,6 +215,23 @@
       "summary": "For working data scientists and analysts moving into modelling. Covers multiple regression and GLMs, regularisation, tree-based models, model selection, experiment design, Bayesian analysis, forecasting, survival analysis, text data, recommendations, anomaly detection, imbalanced data, interpretation, reproducible workflows, PySpark, neural networks, serving models, problem framing and responsible data science.",
       "prerequisites": ["Uses pandas and scikit-learn for modelling", "Understands hypothesis tests, confidence intervals and regression", "Has completed at least one modelling project"],
       "outcomes": ["Choose and fit suitable statistical and machine learning models", "Design experiments and use Bayesian methods", "Model time, survival, text and behaviour data", "Deliver reproducible, explainable and responsible data science work"],
+      "course_outcomes": [
+        {"outcome": "Fit multiple regressions, generalised linear models and regularised models", "topics": ["Multiple Regression and Generalised Linear Models", "Regularisation: Ridge, Lasso and Elastic Net"]},
+        {"outcome": "Build tree-based models for tabular data", "topics": ["Tree-Based Models for Tabular Data"]},
+        {"outcome": "Choose a validation strategy and tune models", "topics": ["Model Selection, Tuning and Validation Strategy"]},
+        {"outcome": "Design experiments with power analysis", "topics": ["Designing Experiments and Power Analysis"]},
+        {"outcome": "Analyse data with Bayesian methods", "topics": ["Bayesian Data Analysis"]},
+        {"outcome": "Forecast with ARIMA, ETS and gradient boosting", "topics": ["Forecasting with ARIMA, ETS and Gradient Boosting"]},
+        {"outcome": "Model time to event with survival analysis", "topics": ["Survival Analysis and Time-to-Event Models"]},
+        {"outcome": "Analyse text data", "topics": ["Working with Text Data"]},
+        {"outcome": "Build recommendation and anomaly detection models", "topics": ["Recommendation Systems", "Anomaly and Outlier Detection"]},
+        {"outcome": "Make cost-sensitive decisions with imbalanced data", "topics": ["Imbalanced Data and Cost-Sensitive Decisions"]},
+        {"outcome": "Explain models to stakeholders", "topics": ["Interpreting and Explaining Models for Stakeholders"]},
+        {"outcome": "Build reproducible workflows and scale work with PySpark", "topics": ["Reproducible Data Science Workflows", "Large-Scale Data Science with PySpark"]},
+        {"outcome": "Build neural networks with PyTorch and serve models as APIs", "topics": ["Neural Networks with PyTorch for Tabular, Text and Images", "Packaging and Serving Models as APIs"]},
+        {"outcome": "Frame problems with stakeholders and apply responsible data science", "topics": ["Framing Problems with Stakeholders", "Responsible and Ethical Data Science"]},
+        {"outcome": "Deliver a customer lifetime and retention model", "topics": ["Intermediate Capstone: Customer Lifetime and Retention Modelling"]}
+      ],
       "days": [
         {
           "topic": "Multiple Regression and Generalised Linear Models",
@@ -386,6 +419,23 @@
       "summary": "For senior and lead data scientists. Covers causal machine learning, hierarchical Bayesian models, adaptive experiments and bandits, optimisation, simulation, LLMs in data science, graph and spatial data, observational data correction, MLOps for data scientists, scaling with Spark and Ray, system design, model risk, privacy-preserving analysis, global forecasting models, research methods, business value, failing models and leading data science teams.",
       "prerequisites": ["Several years of modelling experience in production or research", "Confident with statistics, Bayesian methods and machine learning", "Has delivered models used for real decisions"],
       "outcomes": ["Estimate causal effects and run adaptive experiments", "Build decision models with optimisation, simulation and Bayesian methods", "Run data science reliably at scale under model risk rules", "Lead data science work that creates measured business value"],
+      "course_outcomes": [
+        {"outcome": "Estimate causal effects with double machine learning", "topics": ["Causal Machine Learning: Double ML and Heterogeneous Effects"]},
+        {"outcome": "Build hierarchical Bayesian models", "topics": ["Hierarchical Bayesian Models"]},
+        {"outcome": "Run adaptive experiments with multi-armed bandits", "topics": ["Adaptive Experiments and Multi-Armed Bandits"]},
+        {"outcome": "Solve optimisation problems and simulate decisions with Monte Carlo methods", "topics": ["Optimisation and Operations Research for Data Scientists", "Simulation and Monte Carlo Methods for Decisions"]},
+        {"outcome": "Use large language models in data science work", "topics": ["Large Language Models in Data Science Work"]},
+        {"outcome": "Analyse network and spatial data", "topics": ["Graph Data and Network Analysis", "Spatial Statistics and Location Modelling"]},
+        {"outcome": "Correct bias in observational and survey data", "topics": ["Observational and Survey Data: Weighting and Bias Correction"]},
+        {"outcome": "Take models from notebook to production and scale them with Spark and Ray", "topics": ["MLOps for Data Scientists: From Notebook to Production", "Scaling Data Science with Spark and Ray"]},
+        {"outcome": "Design data science systems", "topics": ["Data Science System Design"]},
+        {"outcome": "Validate models under model risk management", "topics": ["Model Risk Management and Validation"]},
+        {"outcome": "Analyse data with privacy-preserving methods and synthetic data", "topics": ["Privacy-Preserving Analysis and Synthetic Data"]},
+        {"outcome": "Forecast demand at scale with global models and apply research methods from the literature", "topics": ["Demand Forecasting at Scale with Global Models", "Research Methods and Reading the Literature"]},
+        {"outcome": "Turn models into business value and diagnose failing models", "topics": ["Translating Models into Business Value", "Diagnosing Failing Models and Data Problems"]},
+        {"outcome": "Lead data science teams and strategy", "topics": ["Leading Data Science Teams and Strategy"]},
+        {"outcome": "Deliver a decision science programme", "topics": ["Advanced Capstone: Decision Science Programme"]}
+      ],
       "days": [
         {
           "topic": "Causal Machine Learning: Double ML and Heterogeneous Effects",
