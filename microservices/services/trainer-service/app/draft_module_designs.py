@@ -47,7 +47,8 @@ DESIGN_DIR = module_design_store.DIR
 SPECIAL_FILES = {"categories.json", "combined.json"}
 _GENERIC_END = re.compile(r"\b(concepts|configuration|hands-on workflow|troubleshooting|best practices|validation)$", re.I)
 # The 15 most-requested courses in the mailbox archive (by dataset file).
-DEFAULT_COURSES = ("generative_ai", "azure", "testing_qa", "sap", "devops_30", "devops_60", "csharp", "java",
+# DevOps ToCs come from the DevOps level course (devops.json) since Nov 23, not devops_30/devops_60.
+DEFAULT_COURSES = ("generative_ai", "azure", "testing_qa", "sap", "devops", "csharp", "java",
                    "cybersecurity", "aws", "react", "oracle_database", "data_engineering", "sre", "python",
                    "salesforce")
 _PRICE_RE = re.compile(r"[$\u20b9\u20ac\u00a3]\s?\d|\b\d[\d,.]*\s?(usd|inr|eur|gbp|dollars?|rupees?)\b|\bper (hour|month)\b", re.I)
@@ -94,10 +95,21 @@ def _strings(value):
 
 
 def all_courses():
-    """Every level and compact course file the ToC generator loads, by file name."""
-    names = [path.stem for path in sorted(LEVEL_DIR.glob("*.json")) if path.name not in SPECIAL_FILES
-             and "levels" in json.loads(path.read_text(encoding="utf-8-sig"))]
-    return names + [path.stem for path in sorted(COMPACT_DIR.glob("*.json"))]
+    """Every level and compact course file the ToC generator loads, by file name, in drafting order.
+
+    Drafting follows the order ToCs use the files: the most-requested level courses, then the
+    other level courses (every ToC up to 45 days comes from these), then compact files, which
+    only fill the extra days of 60-day ToCs. A ``<name>_source`` file comes last when a
+    ``<name>`` level course exists, because the level course always serves that domain first.
+    """
+    levels = [path.stem for path in sorted(LEVEL_DIR.glob("*.json")) if path.name not in SPECIAL_FILES
+              and "levels" in json.loads(path.read_text(encoding="utf-8-sig"))]
+    compact = [path.stem for path in sorted(COMPACT_DIR.glob("*.json"))]
+    level_set = set(levels)
+    first = [name for name in DEFAULT_COURSES if name in level_set]
+    shadowed = [name for name in compact if name.endswith("_source") and name[:-len("_source")] in level_set]
+    return (first + [name for name in levels if name not in first]
+            + [name for name in compact if name not in shadowed] + shadowed)
 
 
 def select_courses(selection, explicit=()):

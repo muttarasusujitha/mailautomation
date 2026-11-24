@@ -300,6 +300,16 @@ def test_a_per_minute_limit_while_probing_waits_and_tries_the_model_again(monkey
     assert "high demand" in asyncio.run(drafts._probe(Client([busy, busy]), settings, "gemini-3.6-flash"))
 
 
+def test_drafting_order_follows_the_files_tocs_use():
+    every = drafts.all_courses()
+    levels = {path.stem for path in drafts.LEVEL_DIR.glob("*.json")}
+    assert every[:len(drafts.DEFAULT_COURSES)] == [name for name in drafts.DEFAULT_COURSES if name in levels]
+    first_compact = next(index for index, name in enumerate(every) if name not in levels)
+    assert all(name in levels for name in every[:first_compact])  # every level course before any compact file
+    shadowed = [index for index, name in enumerate(every) if name.endswith("_source") and name[:-7] in levels]
+    assert shadowed and shadowed == list(range(len(every) - len(shadowed), len(every)))  # those come last
+
+
 def test_course_selection_covers_every_course_once():
     every = drafts.select_courses("all")
     assert set(drafts.DEFAULT_COURSES) <= set(every)
