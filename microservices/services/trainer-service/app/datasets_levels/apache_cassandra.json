@@ -12,6 +12,23 @@
       "summary": "For developers, analysts and administrators who know SQL or another database and are new to Apache Cassandra. Covers running Cassandra 5.0 in Docker, the ring and gossip, keyspaces and replication, CQL types and primary keys, writes, reads and tombstones, query-first data modeling, tunable consistency, batches, lightweight transactions and counters, driver connections from Java and Python, Storage-Attached Indexes, nodetool health checks, bulk data loading, and a three-node order tracking capstone.",
       "prerequisites": ["Knows basic SQL: tables, primary keys, SELECT, INSERT and UPDATE", "Uses a terminal and Docker Desktop or Docker Engine, with at least 8 GB of RAM free for a three-node lab", "Reads simple Python or Java code and can run a script from the command line"],
       "outcomes": ["Run a Cassandra 5.0 cluster in Docker and operate it with cqlsh and nodetool", "Design query-first tables with correct partition keys and clustering columns", "Explain the write path, read path, tombstones and consistency levels with evidence from traces and nodetool", "Build and test a small Cassandra-backed service that survives one node failure"],
+      "course_outcomes": [
+        {"outcome": "Run a Cassandra 5.0 cluster in Docker and explain the ring, tokens and gossip", "topics": ["Cassandra 5.0 Orientation and Docker Cluster Setup", "Ring Topology, Tokens and Gossip"]},
+        {"outcome": "Create keyspaces with replication settings in cqlsh", "topics": ["Keyspaces, Replication Settings and cqlsh Sessions"]},
+        {"outcome": "Create tables with CQL data types, partition keys and clustering columns", "topics": ["CQL Data Types and Table Creation", "Partition Keys, Clustering Columns and Primary Keys"]},
+        {"outcome": "Write and query data within CQL query restrictions", "topics": ["Inserts, Updates, Deletes and Upserts", "SELECT Queries and Query Restrictions"]},
+        {"outcome": "Model data with collections, user-defined types and static columns", "topics": ["Collections, User-Defined Types and Static Columns"]},
+        {"outcome": "Design tables query-first with denormalised and time-series patterns", "topics": ["Query-First Data Modeling", "Denormalization and Time-Series Table Patterns"]},
+        {"outcome": "Trace the write and read paths", "topics": ["Write Path: Commit Log, Memtables and SSTables", "Read Path: Bloom Filters, Caches and Merging"]},
+        {"outcome": "Manage tombstones, TTL and gc_grace_seconds", "topics": ["Tombstones, TTL and gc_grace_seconds"]},
+        {"outcome": "Choose consistency levels for reads and writes", "topics": ["Tunable Consistency Levels"]},
+        {"outcome": "Use batches, lightweight transactions and counters correctly", "topics": ["Batches, Lightweight Transactions and Counters"]},
+        {"outcome": "Connect Java and Python applications to Cassandra", "topics": ["Connecting from Java and Python Applications"]},
+        {"outcome": "Query with Storage-Attached Indexes", "topics": ["Querying with Storage-Attached Indexes"]},
+        {"outcome": "Check cluster health with nodetool", "topics": ["nodetool Status, Ring and Health Commands"]},
+        {"outcome": "Load and export data with COPY and DSBulk", "topics": ["Loading, Exporting and Importing Data with COPY and DSBulk"]},
+        {"outcome": "Deliver an order tracking service on a three-node cluster", "topics": ["Beginner Capstone: Order Tracking Service on a Three-Node Cluster"]}
+      ],
       "days": [
         {
           "topic": "Cassandra 5.0 Orientation and Docker Cluster Setup",
@@ -199,6 +216,23 @@
       "summary": "For developers and database administrators who can model and query Cassandra tables and now need to configure, secure, monitor and tune multi-node clusters. Covers cassandra.yaml, snitches and datacenters, repair and hints, vector search with SAI, partition sizing, compaction strategies including Unified Compaction Strategy, trie memtables and the BTI format, node lifecycle, backups, roles, TLS, metrics, audit and full query logging, stress testing, guardrails, driver resilience, and a secured multi-datacenter capstone.",
       "prerequisites": ["Completed the beginner level or can create tables, run CQL queries and use nodetool status", "Can read Linux logs and edit YAML configuration files", "Has Docker Compose or a lab of at least three Linux VMs available"],
       "outcomes": ["Configure and operate a secured multi-node, multi-datacenter Cassandra 5.0 cluster", "Choose and tune compaction strategies and run repairs, backups and node changes", "Build dashboards, alerts and load tests that give a measurable performance baseline", "Use SAI, vector search and guardrails correctly in application designs"],
+      "course_outcomes": [
+        {"outcome": "Configure a multi-node cluster with cassandra.yaml", "topics": ["Multi-Node Cluster Configuration with cassandra.yaml"]},
+        {"outcome": "Place replicas across datacenters and racks with snitches and NetworkTopologyStrategy", "topics": ["Snitches, Datacenters and Racks with NetworkTopologyStrategy"]},
+        {"outcome": "Keep replicas consistent with read repair and hinted handoff", "topics": ["Replication, Read Repair and Hinted Handoff"]},
+        {"outcome": "Run vector search with the VECTOR type and ANN queries", "topics": ["Vector Search with the VECTOR Type and ANN Queries"]},
+        {"outcome": "Size partitions and bucket wide partitions", "topics": ["Partition Sizing, Wide Partitions and Bucketing Strategies"]},
+        {"outcome": "Choose between materialized views, SAI and other query options", "topics": ["Materialized Views, SAI and Query Alternatives Compared"]},
+        {"outcome": "Choose a compaction strategy, including UCS, and configure trie memtables and BTI SSTables", "topics": ["Compaction Strategies: STCS, LCS and TWCS", "Unified Compaction Strategy in Cassandra 5.0", "Trie Memtables and the BTI SSTable Format"]},
+        {"outcome": "Run full, incremental and subrange repairs", "topics": ["Repair: Full, Incremental and Subrange"]},
+        {"outcome": "Add, remove and replace nodes", "topics": ["Adding, Removing and Replacing Nodes"]},
+        {"outcome": "Back up and restore with snapshots and incremental backups", "topics": ["Snapshots, Incremental Backups and Restore"]},
+        {"outcome": "Secure clusters with roles, authentication, TLS and mutual TLS", "topics": ["Roles, Authentication and Authorization", "TLS Encryption and Mutual TLS Authentication"]},
+        {"outcome": "Monitor with JMX metrics, Prometheus, Grafana, audit logs and full query logging", "topics": ["JMX Metrics, Prometheus and Grafana Dashboards", "Logging, Audit Logs and Full Query Logging"]},
+        {"outcome": "Baseline load with cassandra-stress and set guardrails for production", "topics": ["Load Generation and Baselines with cassandra-stress", "Guardrails and Production Limits"]},
+        {"outcome": "Configure driver paging, retries, idempotence and timeouts", "topics": ["Paging, Retries, Idempotence and Timeouts in Drivers"]},
+        {"outcome": "Deliver a multi-datacenter cluster with backup, security and monitoring", "topics": ["Intermediate Capstone: Multi-Datacenter Cluster with Backup, Security and Monitoring"]}
+      ],
       "days": [
         {
           "topic": "Multi-Node Cluster Configuration with cassandra.yaml",
@@ -386,6 +420,23 @@
       "summary": "For senior engineers, SREs and database architects who run Cassandra in production. Covers gossip and failure detection internals, token allocation, SSTable inspection, compaction backlog control, migration to UCS, JVM tuning, latency and tombstone diagnosis, Reaper-driven repair, Paxos v2 lightweight transactions, multi-datacenter failover, dynamic data masking, CIDR authorization and mutual TLS, Kubernetes operations, Medusa point-in-time recovery, CDC and Spark pipelines, 4.x to 5.0 rolling upgrades, capacity planning, failure drills and a production readiness capstone.",
       "prerequisites": ["Completed the intermediate level or has run a multi-node Cassandra cluster in production", "Comfortable reading JVM GC logs, Linux I/O statistics and Kubernetes manifests", "Has a six-node lab (containers, VMs or a Kubernetes cluster) with enough capacity for load tests"],
       "outcomes": ["Diagnose latency, tombstone, compaction and repair problems using traces, metrics and SSTable tools", "Plan and execute rolling upgrades, UCS migrations and datacenter changes with tested rollbacks", "Apply 5.0 security features such as data masking, CIDR authorization and mutual TLS", "Size a cluster from measurements and prove readiness with failure drills and restore tests"],
+      "course_outcomes": [
+        {"outcome": "Diagnose gossip, failure detection and hints and balance the ring with token allocation", "topics": ["Gossip, Failure Detection and Hint Internals", "Token Allocation, Virtual Nodes and Ring Balance"]},
+        {"outcome": "Inspect SSTables and storage engine internals", "topics": ["Storage Engine Internals and SSTable Inspection"]},
+        {"outcome": "Control compaction throughput and migrate tables to UCS at scale", "topics": ["Compaction Throughput, Concurrency and Backlog Control", "Migrating Tables to UCS at Scale"]},
+        {"outcome": "Tune the JVM heap, garbage collection and native memory", "topics": ["JVM Tuning: Heap, Garbage Collection and Native Memory"]},
+        {"outcome": "Diagnose read latency, tombstone failures and wide partitions", "topics": ["Read Latency Diagnosis with Tracing and Metrics", "Tombstone Failures and Wide-Partition Troubleshooting"]},
+        {"outcome": "Run repairs at scale with Reaper and preview repair", "topics": ["Repair Operations at Scale with Reaper and Preview Repair"]},
+        {"outcome": "Use lightweight transactions with Paxos v2", "topics": ["Lightweight Transactions and Paxos v2"]},
+        {"outcome": "Design multi-datacenter topology and failover", "topics": ["Multi-Datacenter Topology Design and Failover"]},
+        {"outcome": "Protect sensitive data with dynamic data masking, CIDR authorization and mutual TLS", "topics": ["Dynamic Data Masking and Sensitive Data Controls", "CIDR Authorization, Mutual TLS and Network Hardening"]},
+        {"outcome": "Run Cassandra on Kubernetes with K8ssandra and cass-operator", "topics": ["Kubernetes Operations with K8ssandra and cass-operator"]},
+        {"outcome": "Recover with Medusa backups and run disaster recovery drills", "topics": ["Medusa Backups and Point-in-Time Recovery", "Failure Injection and Disaster Recovery Drills"]},
+        {"outcome": "Stream changes with CDC and the Spark connector", "topics": ["Change Data Capture and Spark Connector Pipelines"]},
+        {"outcome": "Upgrade clusters from 4.x to 5.0 with rolling upgrades", "topics": ["Rolling Upgrades from 4.x to 5.0"]},
+        {"outcome": "Plan capacity and data density", "topics": ["Capacity Planning and Data Density"]},
+        {"outcome": "Deliver a production readiness review and runbook for a multi-region cluster", "topics": ["Advanced Capstone: Production Readiness Review and Runbook for a Multi-Region Cluster"]}
+      ],
       "days": [
         {
           "topic": "Gossip, Failure Detection and Hint Internals",

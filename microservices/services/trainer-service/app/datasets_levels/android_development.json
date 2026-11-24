@@ -12,6 +12,23 @@
       "summary": "For developers and freshers building their first Android apps. Covers Android Studio and the emulator, Kotlin for Android, null safety, classes and collections, Jetpack Compose layouts and state, Material 3, lazy lists, navigation, ViewModels and lifecycle, coroutines and Flow, Retrofit, Room, DataStore, image loading, permissions and device features, Hilt, testing, notifications and WorkManager, and publishing to Google Play.",
       "prerequisites": ["Knows programming basics in any language", "Comfortable with variables, functions and loops", "A laptop with 16 GB RAM for Android Studio and the emulator"],
       "outcomes": ["Build Android apps in Kotlin with Jetpack Compose", "Structure apps with ViewModels, coroutines, Room and Retrofit", "Use device features, notifications and background work safely", "Test, sign and publish an app on Google Play"],
+      "course_outcomes": [
+        {"outcome": "Set up Android Studio and run a first app", "topics": ["Android Development Overview and Android Studio Setup"]},
+        {"outcome": "Write Kotlin app code with null safety, classes and collections", "topics": ["Kotlin Essentials for Android Developers", "Kotlin Null Safety, Classes and Collections in App Code"]},
+        {"outcome": "Build Compose layouts and manage UI state", "topics": ["Jetpack Compose: Composables and Layouts", "State in Compose"]},
+        {"outcome": "Apply Material 3 theming and components", "topics": ["Material 3 Theming and Components"]},
+        {"outcome": "Display lists with LazyColumn and LazyGrid", "topics": ["Lists with LazyColumn and LazyGrid"]},
+        {"outcome": "Navigate between screens in Compose", "topics": ["Navigation in Compose"]},
+        {"outcome": "Hold screen state in ViewModels across the activity lifecycle", "topics": ["ViewModels and the Activity Lifecycle"]},
+        {"outcome": "Run asynchronous work with coroutines and Flows", "topics": ["Coroutines and Flows for App Work"]},
+        {"outcome": "Call REST APIs with Retrofit and Kotlin Serialization", "topics": ["Calling REST APIs with Retrofit and Kotlin Serialization"]},
+        {"outcome": "Store data locally with Room and DataStore", "topics": ["Local Data with Room", "Preferences with DataStore"]},
+        {"outcome": "Load images with Coil and request camera and location permissions", "topics": ["Images with Coil", "Permissions, Camera and Location"]},
+        {"outcome": "Inject dependencies with Hilt and test ViewModels and Compose UI", "topics": ["Dependency Injection with Hilt", "Testing ViewModels and Compose UI"]},
+        {"outcome": "Schedule notifications and background tasks with WorkManager", "topics": ["Notifications and WorkManager"]},
+        {"outcome": "Build, sign and publish an app to Google Play", "topics": ["Building, Signing and Publishing to Google Play"]},
+        {"outcome": "Deliver an expense tracker app", "topics": ["Beginner Capstone: Expense Tracker App"]}
+      ],
       "days": [
         {
           "topic": "Android Development Overview and Android Studio Setup",
@@ -199,6 +216,23 @@
       "summary": "For Android developers who have shipped an app. Covers layered architecture, offline-first apps with Room and sync, advanced Compose, Paging 3, advanced coroutines and Flow, modularisation and version catalogs, Credential Manager and passkeys, push with Firebase Cloud Messaging, WorkManager and foreground services, Media3, maps, accessibility, adaptive layouts, Compose animation, app security, instrumented and screenshot tests, CI/CD with Fastlane, baseline profiles and Firebase analytics, Crashlytics and Remote Config.",
       "prerequisites": ["Has built and released an Android app with Kotlin and Compose", "Comfortable with ViewModels, coroutines, Room and Retrofit", "Uses Git daily"],
       "outcomes": ["Architect maintainable, offline-first Android apps", "Add authentication, push, media, maps and background features", "Make apps accessible, adaptive, secure and fast", "Test and deliver apps through CI/CD with monitoring"],
+      "course_outcomes": [
+        {"outcome": "Structure an app into UI, domain and data layers", "topics": ["App Architecture: UI, Domain and Data Layers"]},
+        {"outcome": "Build offline-first features with Room and sync", "topics": ["Offline-First Apps with Room and Sync"]},
+        {"outcome": "Use Compose side effects and custom layouts and fix performance problems", "topics": ["Advanced Compose: Side Effects, Performance and Custom Layouts"]},
+        {"outcome": "Page large lists with Paging 3", "topics": ["Paging 3 for Large Lists"]},
+        {"outcome": "Combine data streams with advanced coroutines and Flow operators", "topics": ["Advanced Coroutines and Flow Operators"]},
+        {"outcome": "Split an app into modules with Gradle version catalogs", "topics": ["Modularisation and Gradle Version Catalogs"]},
+        {"outcome": "Sign users in with Credential Manager, passkeys and OAuth", "topics": ["Authentication: Credential Manager, Passkeys and OAuth"]},
+        {"outcome": "Send push notifications with Firebase Cloud Messaging and run work with WorkManager and foreground services", "topics": ["Push Notifications with Firebase Cloud Messaging", "Background Work with WorkManager and Foreground Services"]},
+        {"outcome": "Play media with Media3 and ExoPlayer and add maps and location", "topics": ["Media: Playback with Media3 and ExoPlayer", "Maps and Location Services"]},
+        {"outcome": "Make apps accessible and adapt layouts to tablets, foldables and large screens", "topics": ["Accessibility in Android Apps", "Adaptive Layouts for Tablets, Foldables and Large Screens"]},
+        {"outcome": "Animate Compose user interfaces", "topics": ["Animations in Compose"]},
+        {"outcome": "Secure app data with the Keystore, encryption and network security settings", "topics": ["App Security: Keystore, Encryption and Network Security"]},
+        {"outcome": "Write instrumented and screenshot tests and automate builds with GitHub Actions and Fastlane", "topics": ["Instrumented Testing, Screenshot Tests and Test Doubles", "CI/CD for Android with GitHub Actions and Fastlane"]},
+        {"outcome": "Speed up startup with Baseline Profiles and track apps with Firebase analytics, crash reporting and Remote Config", "topics": ["Performance: Baseline Profiles, Startup and Jank", "Analytics, Crash Reporting and Remote Config with Firebase"]},
+        {"outcome": "Deliver an offline-first delivery tracking app", "topics": ["Intermediate Capstone: Offline-First Delivery Tracking App"]}
+      ],
       "days": [
         {
           "topic": "App Architecture: UI, Domain and Data Layers",
@@ -386,6 +420,23 @@
       "summary": "For senior Android engineers and mobile leads. Covers large-scale architecture, Gradle build performance, Kotlin Multiplatform, Compose internals, memory, rendering and battery performance, security hardening and Play Integrity, feature delivery, design systems, testing strategy, release engineering, on-device AI, Wear OS, TV and Auto, privacy and compliance, real-time features, mobile observability, migration from Views and Java, target SDK upgrades, mobile back-end design and production troubleshooting.",
       "prerequisites": ["Several years building production Android apps", "Strong Kotlin, Compose and architecture skills", "Has released apps to large audiences"],
       "outcomes": ["Architect and scale large Android codebases and teams", "Engineer performance, security and reliability for large audiences", "Share code across platforms and adopt on-device AI", "Lead releases, migrations and production troubleshooting"],
+      "course_outcomes": [
+        {"outcome": "Design the architecture of a large Android app", "topics": ["Large-Scale Android Architecture"]},
+        {"outcome": "Speed up Gradle builds at scale", "topics": ["Build Performance and Gradle at Scale"]},
+        {"outcome": "Share business logic with Kotlin Multiplatform", "topics": ["Kotlin Multiplatform for Shared Business Logic"]},
+        {"outcome": "Analyse recomposition with Compose internals and tune memory, rendering and battery use", "topics": ["Compose Internals: Composition, Recomposition and Snapshots", "Advanced Performance: Memory, Rendering and Battery"]},
+        {"outcome": "Harden app security with Play Integrity and meet privacy and compliance requirements", "topics": ["Security Hardening and Play Integrity", "Privacy and Compliance on Android"]},
+        {"outcome": "Deliver features as modules and dynamic features", "topics": ["Modular Feature Delivery and Dynamic Features"]},
+        {"outcome": "Build a design system for Android teams", "topics": ["Design Systems for Android Teams"]},
+        {"outcome": "Set a testing strategy for large apps and release with staged rollouts, feature flags and rollbacks", "topics": ["Advanced Testing Strategy for Large Apps", "Release Engineering: Staged Rollouts, Feature Flags and Rollbacks"]},
+        {"outcome": "Add on-device AI with Gemini Nano, ML Kit and LiteRT", "topics": ["On-Device AI with Gemini Nano, ML Kit and LiteRT"]},
+        {"outcome": "Extend apps to Wear OS, Android TV and Android Auto", "topics": ["Wear OS, Android TV and Android Auto"]},
+        {"outcome": "Build real-time features with WebSockets and live updates", "topics": ["Real-Time Features: WebSockets and Live Updates"]},
+        {"outcome": "Observe mobile apps and troubleshoot ANRs, crashes and Android vitals", "topics": ["Observability for Mobile Apps", "Troubleshooting Production Android Issues: ANRs, Crashes and Vitals"]},
+        {"outcome": "Migrate legacy Views and Java code to Compose and Kotlin and handle target SDK upgrades", "topics": ["Migrating Legacy Views and Java Code to Compose and Kotlin", "Android Platform Changes and Target SDK Upgrades"]},
+        {"outcome": "Design back ends for mobile apps", "topics": ["Mobile Back-End Design: BFFs and APIs for Apps"]},
+        {"outcome": "Deliver a multi-module super app", "topics": ["Advanced Capstone: Multi-Module Super App"]}
+      ],
       "days": [
         {
           "topic": "Large-Scale Android Architecture",

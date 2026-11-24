@@ -12,6 +12,23 @@
       "summary": "No automation experience assumed. Participants automate Linux servers with inventories, ad hoc commands, playbooks, templates, handlers, roles and Vault.",
       "prerequisites": ["Basic Linux administration (packages, services, files)", "Comfortable with SSH and a text editor", "Laptop able to run three small Linux VMs or containers"],
       "outcomes": ["Explain agentless configuration management", "Write idempotent playbooks with templates and handlers", "Organise automation into roles and inventories", "Protect secrets with Ansible Vault"],
+      "course_outcomes": [
+        {"outcome": "Explain configuration management and set up Ansible", "topics": ["Configuration Management Concepts and Ansible Setup"]},
+        {"outcome": "Run ad hoc commands with core modules", "topics": ["Ad Hoc Commands and Core Modules"]},
+        {"outcome": "Write playbooks against grouped inventories with host and group settings", "topics": ["Writing Your First Playbooks", "Inventory Groups, Host Settings and Group Settings"]},
+        {"outcome": "Use facts, registered results, conditionals and loops in playbooks", "topics": ["Facts, Registered Results and Conditionals", "Loops and Data Structures in Playbooks"]},
+        {"outcome": "Generate configuration files with Jinja2 templates", "topics": ["Jinja2 Templates"]},
+        {"outcome": "Restart services with handlers", "topics": ["Handlers and Service Management"]},
+        {"outcome": "Organise projects into roles and reuse Galaxy collections", "topics": ["Roles and Project Structure", "Ansible Galaxy and Collections"]},
+        {"outcome": "Protect secrets with Ansible Vault", "topics": ["Protecting Secrets with Ansible Vault"]},
+        {"outcome": "Manage files, packages and services at scale and deploy applications", "topics": ["Managing Files, Packages and Services at Scale", "Deploying Applications with Ansible"]},
+        {"outcome": "Handle errors and debug playbooks", "topics": ["Error Handling and Debugging Playbooks"]},
+        {"outcome": "Test roles with Molecule", "topics": ["Testing Roles with Molecule"]},
+        {"outcome": "Build dynamic inventories for cloud servers", "topics": ["Dynamic Inventory for Cloud Servers"]},
+        {"outcome": "Automate Windows servers and network devices", "topics": ["Automating Windows Servers", "Network Device Automation"]},
+        {"outcome": "Run Ansible from CI/CD pipelines", "topics": ["Running Ansible from CI/CD"]},
+        {"outcome": "Deliver an automated web platform with Ansible", "topics": ["Beginner Capstone: Automated Web Platform with Ansible"]}
+      ],
       "days": [
         {
           "topic": "Configuration Management Concepts and Ansible Setup",
@@ -199,6 +216,23 @@
       "summary": "For people who write Ansible roles. Covers advanced playbook design, collection development, execution environments, Ansible Automation Platform, event-driven automation, security and scale.",
       "prerequisites": ["Writes roles and playbooks with templates, handlers and Vault", "Comfortable with Linux administration and Git", "Has run Ansible against more than a few servers"],
       "outcomes": ["Design maintainable automation for large estates", "Build and test collections and execution environments", "Run automation through Ansible Automation Platform with RBAC", "Use event-driven automation and integrate with other tools"],
+      "course_outcomes": [
+        {"outcome": "Design playbooks with variable precedence rules in mind", "topics": ["Advanced Playbook Design and Precedence Rules"]},
+        {"outcome": "Write custom modules and plugins and publish them in collections", "topics": ["Writing Custom Modules and Plugins", "Building and Publishing Collections"]},
+        {"outcome": "Build execution environments with ansible-builder", "topics": ["Execution Environments and ansible-builder"]},
+        {"outcome": "Run automation from controller projects, inventories and job templates", "topics": ["Ansible Automation Platform: Controller Projects, Inventories and Job Templates"]},
+        {"outcome": "Chain jobs into workflows with approvals", "topics": ["Workflows and Approvals in Automation Controller"]},
+        {"outcome": "Manage the Automation Platform as code", "topics": ["Configuration as Code for the Automation Platform"]},
+        {"outcome": "Respond to events with Event-Driven Ansible", "topics": ["Event-Driven Ansible"]},
+        {"outcome": "Automate security and compliance checks", "topics": ["Security Automation and Compliance"]},
+        {"outcome": "Tune Ansible for large inventories and organise content at scale", "topics": ["Performance and Scale for Large Inventories", "Large-Scale Inventory and Content Organisation"]},
+        {"outcome": "Combine Ansible with Terraform for cloud provisioning and automate containers and Kubernetes", "topics": ["Ansible with Terraform and Cloud Provisioning", "Container and Kubernetes Automation"]},
+        {"outcome": "Set a testing strategy for automation code", "topics": ["Testing Strategy for Automation Code"]},
+        {"outcome": "Automate patching windows and connect Ansible to ITSM and ChatOps", "topics": ["Automating Patching and Maintenance Windows", "Integrating Ansible with ITSM and ChatOps"]},
+        {"outcome": "Report on automation and run the platform with high availability and upgrades", "topics": ["Monitoring and Reporting on Automation", "Automation Platform Operations: High Availability and Upgrades"]},
+        {"outcome": "Migrate scripts and legacy automation to Ansible", "topics": ["Migrating Scripts and Legacy Automation to Ansible"]},
+        {"outcome": "Deliver an automation platform for an operations team", "topics": ["Intermediate Capstone: Automation Platform for an Operations Team"]}
+      ],
       "days": [
         {
           "topic": "Advanced Playbook Design and Precedence Rules",
@@ -386,6 +420,23 @@
       "summary": "For engineers who lead automation programmes. Covers automation architecture, platform engineering, self-healing infrastructure, governance, security, performance at extreme scale and automation strategy.",
       "prerequisites": ["Has built collections and run Ansible Automation Platform or AWX", "Comfortable with Python, CI/CD and cloud provisioning", "RHCE level knowledge or equivalent experience"],
       "outcomes": ["Design enterprise automation architectures and operating models", "Build self-healing and event-driven operations with safe guardrails", "Govern and secure automation at scale", "Lead automation strategy with measured business value"],
+      "course_outcomes": [
+        {"outcome": "Design an enterprise automation architecture", "topics": ["Enterprise Automation Architecture"]},
+        {"outcome": "Set up an automation operating model and centre of excellence", "topics": ["Automation Operating Model and Centre of Excellence"]},
+        {"outcome": "Build self-healing infrastructure with event-driven automation", "topics": ["Self-Healing Infrastructure with Event-Driven Automation"]},
+        {"outcome": "Secure the content supply chain with signing and design credential architecture for privileged access", "topics": ["Automation Content Supply Chain and Signing", "Credential Architecture and Privileged Access"]},
+        {"outcome": "Run automation at extreme scale", "topics": ["Automation at Extreme Scale"]},
+        {"outcome": "Run network and security operations automation programmes", "topics": ["Network Automation Programmes", "Security Operations Automation"]},
+        {"outcome": "Govern automation for risk and compliance", "topics": ["Governance, Risk and Compliance for Automation"]},
+        {"outcome": "Automate hybrid cloud and edge sites", "topics": ["Automation for Hybrid Cloud and Edge Sites"]},
+        {"outcome": "Engineer testing and quality for automation and observe automation programmes", "topics": ["Advanced Testing and Quality Engineering for Automation", "Observability of Automation Programmes"]},
+        {"outcome": "Develop automation with AI assistance", "topics": ["AI-Assisted Automation Development"]},
+        {"outcome": "Migrate between automation platforms and tools", "topics": ["Migrating Between Automation Platforms and Tools"]},
+        {"outcome": "Build the automation business case and set the strategy and roadmap", "topics": ["Automation Business Case and Value Realisation", "Automation Strategy and Roadmap"]},
+        {"outcome": "Offer self-service automation through platform engineering and portals", "topics": ["Platform Engineering with Ansible and Self-Service Portals"]},
+        {"outcome": "Troubleshoot automation platforms and run architecture reviews", "topics": ["Advanced Troubleshooting of Automation Platforms", "Automation Architecture Reviews"]},
+        {"outcome": "Deliver an enterprise automation platform and programme", "topics": ["Advanced Capstone: Enterprise Automation Platform and Programme"]}
+      ],
       "days": [
         {
           "topic": "Enterprise Automation Architecture",
