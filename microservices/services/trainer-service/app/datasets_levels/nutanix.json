@@ -1,0 +1,573 @@
+{
+  "domain": "Nutanix",
+  "name": "Nutanix Cloud Platform",
+  "category": "Infrastructure and Virtualisation",
+  "icon": "server-cog",
+  "aliases": ["Nutanix AHV", "Nutanix AOS", "Nutanix Prism", "Prism Central", "Nutanix Cloud Infrastructure", "Nutanix Cloud Platform", "Nutanix HCI", "Nutanix Administration", "Nutanix Administrator", "Nutanix Training", "NCP-MCI", "Nutanix Certified Associate", "Nutanix Move", "Nutanix Kubernetes Platform", "Nutanix Unified Storage", "Nutanix Cloud Clusters"],
+  "certifications": ["Nutanix Certified Associate (NCA) 7.5", "Nutanix Certified Professional: Multicloud Infrastructure (NCP-MCI) 7.5", "Nutanix Certified Master: Multicloud Infrastructure (NCM-MCI)", "NCP Unified Storage, Cloud Native and Database tracks"],
+  "tools": ["Nutanix AOS and AHV", "Prism Element and Prism Central", "Nutanix Community Edition", "Nutanix Move", "Flow Virtual Networking and Flow Network Security", "Nutanix Unified Storage", "Nutanix v4 APIs and Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For virtualisation and infrastructure administrators who are starting with Nutanix. Covers hyperconverged infrastructure, a Community Edition lab, cluster architecture and the Distributed Storage Fabric, Prism Element and Prism Central, AHV virtual machines and networking, storage containers and data efficiency, images and guest tools, snapshots and protection policies, disaster recovery, Volumes, Files and Objects, Life Cycle Manager, access control, alerts and NCC health checks, capacity planning, migration from VMware with Nutanix Move, the CLI and APIs and troubleshooting. Covers the NCA 7.5 topics.",
+      "prerequisites": ["Has administered virtual machines on VMware, Hyper-V or another hypervisor", "Understands IP networking, VLANs and storage basics", "Comfortable with a command line"],
+      "outcomes": ["Explain Nutanix architecture and manage clusters with Prism Element and Prism Central", "Run AHV virtual machines, networks and storage containers", "Protect, replicate and recover workloads and run file, block and object storage", "Migrate VMs from VMware, upgrade with LCM, monitor and troubleshoot clusters"],
+      "days": [
+        {
+          "topic": "Nutanix Overview: Hyperconverged Infrastructure and the Nutanix Cloud Platform",
+          "subtopics": ["From three-tier infrastructure to hyperconverged", "What the Nutanix Cloud Platform includes", "AOS, AHV and Prism", "Nutanix Unified Storage, Kubernetes and database services", "Nutanix on premises and in public clouds", "Nutanix as an alternative to VMware", "Licensing in brief", "Hardware partners", "Nutanix certification paths", "Course project overview: moving a VMware estate to Nutanix"],
+          "tools": ["Nutanix documentation", "Nutanix Test Drive", "Course estate inventory"],
+          "lab_task": "Explore a Nutanix environment in Test Drive or the lab, find a VM, a storage container and a protection policy, and map the course estate to Nutanix products.",
+          "deliverable": "Product map for the course estate",
+          "checks": [["Find", "A VM, a container and a policy are located", "Screenshots"], ["Map", "Course workloads map to Nutanix products", "Product map"], ["Explain", "Hyperconverged infrastructure is explained correctly", "Notes"]],
+          "objectives": ["Describe the Nutanix platform", "Navigate Prism", "Map workloads to products"]
+        },
+        {
+          "topic": "Lab Setup: Nutanix Community Edition, Prism Element and Prism Central",
+          "subtopics": ["Community Edition hardware and nested options", "Installing a Community Edition cluster", "Cluster creation and the first login", "Deploying Prism Central", "Registering the cluster with Prism Central", "Lab networking", "NTP and DNS settings", "Lab passwords and accounts", "Saving the lab state", "Checking the lab is ready"],
+          "tools": ["Nutanix Community Edition", "Prism Element", "Prism Central"],
+          "lab_task": "Install a Community Edition cluster, set DNS and NTP, deploy Prism Central, register the cluster and confirm both consoles are healthy.",
+          "deliverable": "Ready Nutanix lab with Prism Central",
+          "checks": [["Install", "The cluster is up and healthy", "Prism Element dashboard"], ["Register", "The cluster appears in Prism Central", "Cluster list"], ["Sync", "DNS and NTP are correct", "Cluster settings"]],
+          "objectives": ["Build a Nutanix lab", "Deploy Prism Central", "Register clusters"]
+        },
+        {
+          "topic": "Cluster Architecture: Nodes, Controller VMs and the Distributed Storage Fabric",
+          "subtopics": ["Nodes and blocks", "The Controller VM on every node", "The Distributed Storage Fabric", "Data locality", "Replication factor", "The OpLog and extent store", "Cluster services", "Failure handling"],
+          "tools": ["Prism Element", "Cluster health views", "Nutanix Bible"],
+          "lab_task": "Trace a VM write through the Controller VM and replication factor, power off a node in the lab and watch data rebuild and the VM restart.",
+          "deliverable": "Architecture notes with a node failure test",
+          "checks": [["Trace", "The write path is drawn correctly", "Diagram"], ["Fail", "The VM restarts after the node fails", "Event log"], ["Rebuild", "Data protection returns to normal", "Data resiliency view"]],
+          "objectives": ["Explain Nutanix architecture", "Understand replication factor", "Observe failure handling"]
+        },
+        {
+          "topic": "Prism Element and Prism Central: Management Planes and Dashboards",
+          "subtopics": ["Prism Element for one cluster", "Prism Central for many clusters", "Dashboards and widgets", "Categories for organising entities", "Reports", "Search", "Tasks and audit", "Choosing where to work"],
+          "tools": ["Prism Element", "Prism Central", "Categories"],
+          "lab_task": "Create categories for environments and teams, tag VMs, build a Prism Central dashboard and schedule a weekly report.",
+          "deliverable": "Categories, dashboard and report",
+          "checks": [["Tag", "VMs carry environment and team categories", "VM list"], ["Show", "The dashboard shows health and capacity", "Dashboard"], ["Report", "The weekly report is delivered", "Report history"]],
+          "objectives": ["Use Prism Element and Prism Central", "Organise with categories", "Report on clusters"]
+        },
+        {
+          "topic": "AHV Virtual Machines: Creating, Cloning and Managing VMs",
+          "subtopics": ["AHV hypervisor basics", "Creating VMs", "vCPU, memory and disk settings", "Cloning VMs", "Live migration between hosts", "VM high availability", "Console access", "VM lifecycle tasks"],
+          "tools": ["Prism Central", "AHV", "acli"],
+          "lab_task": "Create Linux and Windows VMs, clone one, live migrate it between hosts and change its resources while it runs where supported.",
+          "deliverable": "Managed VMs with migration record",
+          "checks": [["Create", "Both VMs run with the planned settings", "VM details"], ["Clone", "The clone runs independently", "VM list"], ["Migrate", "Live migration completes without downtime", "Task log"]],
+          "objectives": ["Run AHV VMs", "Clone VMs", "Live migrate VMs"]
+        },
+        {
+          "topic": "AHV Networking: Virtual Switches, VLANs and IP Address Management",
+          "subtopics": ["Open vSwitch in AHV", "Virtual switches and bonds", "VLAN-backed subnets", "Nutanix IP address management", "Uplink configuration", "Network visualisation", "Load balancing on bonds", "Network changes without outages"],
+          "tools": ["Prism Central networking", "Network visualisation", "acli"],
+          "lab_task": "Create VLAN subnets with Nutanix IPAM, connect VMs, view the network path in network visualisation and change bond settings safely.",
+          "deliverable": "Network configuration with tests",
+          "checks": [["Connect", "VMs on each subnet get addresses and reach their gateway", "Ping tests"], ["View", "Network visualisation shows the path", "Screenshot"], ["Change", "The bond change causes no outage", "Continuous ping log"]],
+          "objectives": ["Configure AHV networking", "Use Nutanix IPAM", "Change networks safely"]
+        },
+        {
+          "topic": "Storage Containers, Compression, Deduplication and Erasure Coding",
+          "subtopics": ["Storage pools and containers", "Container settings", "Inline and post-process compression", "Deduplication", "Erasure coding", "Reservations and advertised capacity", "Data efficiency reports", "Choosing settings by workload"],
+          "tools": ["Prism Element storage", "Storage containers", "Capacity reports"],
+          "lab_task": "Create containers for VDI, databases and backups with suitable efficiency settings, load sample data and compare the savings.",
+          "deliverable": "Container design with savings report",
+          "checks": [["Create", "Each container has settings for its workload", "Container settings"], ["Save", "Savings are measured for each container", "Efficiency report"], ["Justify", "Settings are justified by workload", "Notes"]],
+          "objectives": ["Configure storage containers", "Use data efficiency features", "Match settings to workloads"]
+        },
+        {
+          "topic": "Images, Templates and Guest Tools",
+          "subtopics": ["The image service", "Uploading ISO and disk images", "VM templates", "Nutanix Guest Tools", "VirtIO drivers", "Sysprep and cloud-init", "Image placement across clusters", "Keeping templates current"],
+          "tools": ["Image service", "VM templates", "Nutanix Guest Tools"],
+          "lab_task": "Upload images, build Windows and Linux templates with guest tools and VirtIO drivers, and deploy VMs with Sysprep and cloud-init customisation.",
+          "deliverable": "Templates and customised VMs",
+          "checks": [["Upload", "Images are available on the cluster", "Image list"], ["Template", "Templates include guest tools", "VM details"], ["Customise", "Deployed VMs get their names and settings", "VM consoles"]],
+          "objectives": ["Manage images", "Build templates", "Customise VM deployments"]
+        },
+        {
+          "topic": "Data Protection: Snapshots, Protection Policies and Recovery Points",
+          "subtopics": ["Snapshots on Nutanix", "Protection policies", "Recovery points", "Application-consistent snapshots", "Retention schedules", "Restoring VMs and files", "Self-service restore", "Protection reports"],
+          "tools": ["Prism Central data protection", "Protection policies", "Nutanix Guest Tools"],
+          "lab_task": "Protect VMs by category with a policy, take application-consistent recovery points, restore a VM and recover a single file.",
+          "deliverable": "Protection policy with restore tests",
+          "checks": [["Protect", "Categorised VMs follow the policy", "Recovery point list"], ["Restore", "A VM is restored from a recovery point", "Restore task"], ["Recover", "A single file is recovered", "File check"]],
+          "objectives": ["Protect VMs", "Use protection policies", "Restore VMs and files"]
+        },
+        {
+          "topic": "Disaster Recovery with Nutanix Disaster Recovery: Recovery Plans and Failover",
+          "subtopics": ["Disaster recovery concepts", "Availability zones and paired clusters", "Replication schedules", "Recovery plans", "Test failover", "Planned and unplanned failover", "Network mapping in recovery", "Failback"],
+          "tools": ["Nutanix Disaster Recovery", "Recovery plans", "Prism Central"],
+          "lab_task": "Replicate VMs to a second lab cluster, build a recovery plan with network mapping, run a test failover and a planned failover and fail back.",
+          "deliverable": "Recovery plan with test results",
+          "checks": [["Replicate", "Recovery points arrive at the second cluster", "Replication status"], ["Test", "The test failover runs without affecting production", "Test report"], ["Fail back", "VMs return to the primary site", "Task log"]],
+          "objectives": ["Plan disaster recovery", "Test failover", "Fail back safely"]
+        },
+        {
+          "topic": "Volumes and Files: Block and File Services with Nutanix Unified Storage",
+          "subtopics": ["Nutanix Volumes for iSCSI block storage", "Volume groups", "Nutanix Files architecture", "SMB and NFS shares", "File server VMs", "Quotas", "Self-service restore for files", "File analytics"],
+          "tools": ["Nutanix Volumes", "Nutanix Files", "File analytics"],
+          "lab_task": "Present a volume group to a database VM over iSCSI, deploy a file server with SMB and NFS shares, set quotas and restore a deleted file.",
+          "deliverable": "Block and file services with tests",
+          "checks": [["Attach", "The database VM uses the volume group", "Disk listing"], ["Share", "Users reach SMB and NFS shares", "Access tests"], ["Restore", "A user restores a deleted file", "Restore record"]],
+          "objectives": ["Provide block storage", "Run file services", "Restore files"]
+        },
+        {
+          "topic": "Nutanix Objects: S3-Compatible Object Storage",
+          "subtopics": ["Object storage concepts", "Deploying an object store", "Buckets and access keys", "S3 API compatibility", "Versioning and lifecycle rules", "WORM and object lock", "Objects for backup targets", "Monitoring object stores"],
+          "tools": ["Nutanix Objects", "S3 clients", "Prism Central"],
+          "lab_task": "Deploy an object store, create a bucket with versioning and object lock, write data with an S3 client and use it as a backup target.",
+          "deliverable": "Object store with locked bucket",
+          "checks": [["Deploy", "The object store is healthy", "Objects dashboard"], ["Write", "The S3 client writes and reads objects", "Client output"], ["Lock", "Locked objects cannot be deleted", "Delete test"]],
+          "objectives": ["Run object storage", "Use S3 features", "Protect backups with object lock"]
+        },
+        {
+          "topic": "Life Cycle Manager: Firmware and Software Upgrades",
+          "subtopics": ["What Life Cycle Manager manages", "Inventory scans", "Upgrade plans and dependencies", "Rolling upgrades", "Dark site upgrades", "Pre-upgrade checks", "Upgrade order across Prism Central and clusters", "Troubleshooting upgrades"],
+          "tools": ["Life Cycle Manager", "Prism Central", "Pre-upgrade checks"],
+          "lab_task": "Run an LCM inventory, plan upgrades with dependencies, run pre-upgrade checks and upgrade one component in a rolling fashion.",
+          "deliverable": "Upgrade plan and record",
+          "checks": [["Inventory", "LCM lists available updates", "Inventory results"], ["Check", "Pre-upgrade checks pass or issues are fixed", "Check results"], ["Upgrade", "The component upgrades without downtime", "Upgrade log"]],
+          "objectives": ["Use Life Cycle Manager", "Plan upgrades", "Upgrade without downtime"]
+        },
+        {
+          "topic": "Users, Roles and Authentication in Prism Central",
+          "subtopics": ["Local users and directory services", "Role-based access control", "Custom roles", "Projects for teams", "Single sign-on with SAML", "Multi-factor authentication", "Audit trails", "Access reviews"],
+          "tools": ["Prism Central IAM", "Directory services", "Audit trail"],
+          "lab_task": "Connect Active Directory, create a custom role for VM operators, scope it with a project and review audit entries for their actions.",
+          "deliverable": "Access model with audit evidence",
+          "checks": [["Connect", "Directory users can log on", "Login test"], ["Scope", "Operators manage only their project's VMs", "Access test"], ["Audit", "Operator actions appear in the audit trail", "Audit entries"]],
+          "objectives": ["Control access to Prism Central", "Use custom roles and projects", "Audit actions"]
+        },
+        {
+          "topic": "Monitoring: Alerts, Health Checks and Nutanix Cluster Check",
+          "subtopics": ["Alerts and alert policies", "Health dashboard", "Nutanix Cluster Check", "Pulse and support integration", "Email and SNMP alerts", "Syslog forwarding", "Alert tuning", "Health check schedules"],
+          "tools": ["Prism alerts", "Nutanix Cluster Check", "Syslog"],
+          "lab_task": "Run NCC, fix two findings, configure email and syslog alerts and tune one noisy alert.",
+          "deliverable": "Health checks and alert configuration",
+          "checks": [["Check", "NCC findings are reviewed and two are fixed", "NCC report"], ["Alert", "Alerts reach email and syslog", "Alert records"], ["Tune", "The noisy alert is tuned", "Alert policy"]],
+          "objectives": ["Monitor clusters", "Run health checks", "Tune alerts"]
+        },
+        {
+          "topic": "Capacity Planning with Intelligent Operations",
+          "subtopics": ["Capacity runway", "Scenarios for new workloads", "Rightsizing VMs", "Inactive and constrained VMs", "Planning hardware additions", "Reports for capacity", "Anomaly detection", "Capacity reviews"],
+          "tools": ["Intelligent Operations", "Capacity planning", "Reports"],
+          "lab_task": "Read the capacity runway, model a scenario for fifty new VMs, rightsize over-provisioned VMs and recommend a hardware purchase.",
+          "deliverable": "Capacity scenario and recommendation",
+          "checks": [["Read", "Runway is reported for CPU, memory and storage", "Capacity view"], ["Model", "The scenario shows the effect of new VMs", "Scenario report"], ["Rightsize", "Rightsizing recovers resources", "Before-and-after report"]],
+          "objectives": ["Plan capacity", "Model scenarios", "Rightsize VMs"]
+        },
+        {
+          "topic": "Migrating VMs from VMware with Nutanix Move",
+          "subtopics": ["Nutanix Move overview of features and sources", "Planning migration waves", "Source and target environments", "Migration plans and data seeding", "Cutover with minimal downtime", "Guest preparation", "DirectPath migration without VDDK", "Post-migration checks"],
+          "tools": ["Nutanix Move", "VMware vSphere", "Prism Central"],
+          "lab_task": "Add vSphere as a source in Move, migrate two VMs with data seeding and scheduled cutover, and check them after migration.",
+          "deliverable": "Migrated VMs with checks",
+          "checks": [["Plan", "The migration plan covers both VMs", "Move plan"], ["Cut over", "VMs cut over with short downtime", "Migration report"], ["Verify", "Applications work after migration", "Checklist"]],
+          "objectives": ["Migrate VMs with Move", "Plan cutovers", "Verify migrated workloads"]
+        },
+        {
+          "topic": "Nutanix CLI and REST APIs: ncli, acli and Prism APIs",
+          "subtopics": ["ncli for cluster tasks", "acli for AHV tasks", "Prism Central REST APIs", "The v4 API families", "API authentication", "Scripting with Python or PowerShell", "Automation safety", "Choosing CLI or API"],
+          "tools": ["ncli", "acli", "Nutanix v4 APIs", "Python or PowerShell"],
+          "lab_task": "List VMs and storage with ncli and acli, create a VM through the v4 API with a script and report cluster capacity by API.",
+          "deliverable": "CLI commands and API scripts",
+          "checks": [["List", "CLI commands return VMs and containers", "CLI output"], ["Create", "The script creates a VM", "API response and VM list"], ["Report", "Capacity is reported through the API", "Script output"]],
+          "objectives": ["Use Nutanix CLIs", "Call the v4 APIs", "Automate routine tasks"]
+        },
+        {
+          "topic": "Troubleshooting Common Nutanix Problems",
+          "subtopics": ["A method for Nutanix problems", "VM performance complaints", "Network connectivity problems", "Storage capacity alerts", "Failed upgrades", "Replication failures", "Logs and log collection", "Working with Nutanix support"],
+          "tools": ["Prism", "NCC", "Log collector"],
+          "lab_task": "Diagnose four seeded problems, a slow VM, a VLAN mistake, a full container and a failed replication, fix them and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Each problem is resolved", "Before-and-after evidence"], ["Prove", "Logs or checks back each diagnosis", "Log extracts"]],
+          "objectives": ["Troubleshoot Nutanix", "Use logs and checks", "Document fixes"]
+        },
+        {
+          "topic": "Beginner Capstone: Running a Branch Workload Cluster on Nutanix",
+          "subtopics": ["VMs, networks and storage", "Protection and disaster recovery", "File services", "Migration and monitoring"],
+          "tools": ["Nutanix AHV", "Prism Central", "Nutanix Move", "Nutanix Files"],
+          "lab_task": "Run the branch workloads on a lab cluster with networks, containers, templates, protection policies, a recovery plan, file shares, two migrated VMs and monitoring.",
+          "deliverable": "Working branch cluster with a demo",
+          "checks": [["Run", "Workloads run with the planned networks and storage", "Demo recording"], ["Recover", "The recovery plan passes a test failover", "Test report"], ["Watch", "Alerts and health checks are in place", "Alert configuration"]],
+          "objectives": ["Combine beginner Nutanix skills", "Run workloads on Nutanix", "Prove protection"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Nutanix administrators and engineers who run several clusters, aligned with NCP-MCI 7.5. Covers cluster design and sizing, AHV high availability and scheduling, Flow Virtual Networking, Flow Network Security, storage performance, multi-site replication with NearSync and synchronous options, Metro Availability, backup integration, Nutanix Files at scale, Self-Service blueprints, Terraform, Ansible and the v4 APIs, security hardening and encryption, Nutanix Kubernetes Platform, Nutanix Database Service, Nutanix Cloud Clusters, large VMware migrations, performance troubleshooting, upgrades at scale and exam preparation.",
+      "prerequisites": ["Runs AHV VMs, storage and protection on Nutanix", "Understands networking, storage and disaster recovery concepts", "Comfortable with scripting or infrastructure as code"],
+      "outcomes": ["Design and size clusters with suitable failure tolerance", "Run overlay networks, microsegmentation, multi-site replication and Metro Availability", "Automate with Self-Service, Terraform and the v4 APIs", "Run Kubernetes, databases and cloud clusters on Nutanix and prepare for NCP-MCI"],
+      "days": [
+        {
+          "topic": "Cluster Design: Node Types, Sizing and Failure Tolerance",
+          "subtopics": ["Workload requirements", "Node types and configurations", "Sizing with Nutanix Sizer", "Failure tolerance and replication factor", "Mixed clusters", "Rack and block awareness", "Cluster size limits", "Design documents"],
+          "tools": ["Nutanix Sizer", "Design template", "Workload data"],
+          "lab_task": "Size clusters for the course estate with Sizer, choose failure tolerance and awareness settings and write the design document.",
+          "deliverable": "Cluster design document",
+          "checks": [["Size", "Clusters meet CPU, memory and storage needs with headroom", "Sizer output"], ["Protect", "Failure tolerance matches the requirements", "Design document"], ["Review", "A peer accepts the design", "Review notes"]],
+          "objectives": ["Design Nutanix clusters", "Size with Sizer", "Choose failure tolerance"]
+        },
+        {
+          "topic": "AHV High Availability, Affinity Rules and Acropolis Dynamic Scheduling",
+          "subtopics": ["VM high availability settings", "Memory reservation for failover", "VM-host and VM-VM affinity", "Acropolis Dynamic Scheduling", "Maintenance mode", "Host failure behaviour", "Licensing-related affinity", "Testing scheduling rules"],
+          "tools": ["AHV", "Prism Central", "acli"],
+          "lab_task": "Reserve memory for HA, keep two database VMs apart with anti-affinity, pin a licensed VM to its hosts and test host failure and maintenance mode.",
+          "deliverable": "Scheduling rules with tests",
+          "checks": [["Separate", "Anti-affinity keeps the database VMs apart", "Placement view"], ["Pin", "The licensed VM stays on its hosts", "Migration test"], ["Fail", "VMs restart after a host failure", "Event log"]],
+          "objectives": ["Configure AHV high availability", "Use affinity rules", "Test scheduling"]
+        },
+        {
+          "topic": "Flow Virtual Networking: VPCs, Overlay Subnets and Subnet Extension",
+          "subtopics": ["Overlay networking concepts", "Virtual private clouds", "Overlay subnets", "External networks and NAT", "Routing policies", "VPN and BGP gateways", "Layer 2 subnet extension for migrations", "Network controller operations"],
+          "tools": ["Flow Virtual Networking", "Prism Central", "Network gateways"],
+          "lab_task": "Create two VPCs with overlay subnets, connect one to an external network, extend a VLAN for a migration and apply a routing policy.",
+          "deliverable": "VPC design with tests",
+          "checks": [["Isolate", "VPCs are isolated by default", "Reachability tests"], ["Connect", "The VPC reaches outside through NAT", "Connection test"], ["Extend", "VMs keep their addresses across the extension", "Migration test"]],
+          "objectives": ["Build overlay networks", "Use VPCs", "Extend subnets for migrations"]
+        },
+        {
+          "topic": "Flow Network Security: Microsegmentation and Security Policies",
+          "subtopics": ["Microsegmentation concepts", "Categories in security policies", "Application policies", "Isolation and quarantine policies", "Monitor and enforce modes", "Policy visualisation", "Logging policy hits", "Rolling out policies safely"],
+          "tools": ["Flow Network Security", "Categories", "Policy visualisation"],
+          "lab_task": "Write an application policy for a three-tier app in monitor mode, review flows, enforce it and quarantine an infected VM.",
+          "deliverable": "Enforced microsegmentation policy",
+          "checks": [["Monitor", "Flows are reviewed before enforcement", "Policy visualisation"], ["Enforce", "Only allowed flows pass", "Connection tests"], ["Quarantine", "The quarantined VM is isolated", "Connection tests"]],
+          "objectives": ["Microsegment applications", "Use monitor mode", "Quarantine VMs"]
+        },
+        {
+          "topic": "Storage Performance: Data Locality, Tiering and Workload Placement",
+          "subtopics": ["How data locality affects performance", "Tiering between flash and disk", "All-flash clusters", "Workload placement", "Storage policies", "Performance metrics", "Noisy neighbours", "Tuning for databases and VDI"],
+          "tools": ["Prism analysis", "Storage policies", "Load generator"],
+          "lab_task": "Measure latency for a database VM, show the effect of data locality after migration, apply a storage policy and handle a noisy neighbour.",
+          "deliverable": "Storage performance analysis",
+          "checks": [["Measure", "Latency and IOPS are recorded", "Analysis charts"], ["Localise", "Locality recovers after migration", "Metrics over time"], ["Contain", "The noisy neighbour no longer hurts the database", "Before-and-after metrics"]],
+          "objectives": ["Analyse storage performance", "Use data locality", "Place workloads well"]
+        },
+        {
+          "topic": "Multi-Site Replication: Asynchronous, NearSync and Synchronous Protection",
+          "subtopics": ["Recovery point objectives by method", "Asynchronous replication", "NearSync replication", "Synchronous replication", "Bandwidth planning", "Multi-site topologies", "Replication monitoring", "Choosing a method per workload"],
+          "tools": ["Nutanix Disaster Recovery", "Protection policies", "Bandwidth reports"],
+          "lab_task": "Protect three workload tiers with asynchronous, NearSync and synchronous replication, measure achieved RPO and bandwidth, and recommend methods.",
+          "deliverable": "Replication design with measurements",
+          "checks": [["Protect", "Each tier uses its method", "Policy settings"], ["Measure", "Achieved RPO and bandwidth are recorded", "Replication reports"], ["Recommend", "Methods are chosen by workload", "Recommendation"]],
+          "objectives": ["Choose replication methods", "Measure RPO", "Plan bandwidth"]
+        },
+        {
+          "topic": "Metro Availability and Witness",
+          "subtopics": ["Metro Availability concepts", "Latency limits", "The witness VM", "Automatic and manual failover modes", "Split-brain prevention", "Metro and disaster recovery together", "Testing metro failover", "Operations for metro clusters"],
+          "tools": ["Metro Availability", "Witness VM", "Prism Central"],
+          "lab_task": "Set up synchronous metro protection with a witness, fail one site and confirm automatic failover with zero data loss.",
+          "deliverable": "Metro setup with failover evidence",
+          "checks": [["Protect", "Metro replication is active", "Protection status"], ["Fail", "Workloads fail over automatically", "Event log"], ["Verify", "No data is lost", "Data check"]],
+          "objectives": ["Configure Metro Availability", "Use a witness", "Test zero data loss failover"]
+        },
+        {
+          "topic": "Backup Integration: Third-Party Backup, APIs and Immutable Snapshots",
+          "subtopics": ["Backup and snapshots compared", "Third-party backup integration", "Changed region tracking", "Backup to Nutanix Objects", "Immutable snapshots", "Backup testing", "Retention planning", "Recovery time testing"],
+          "tools": ["Backup software", "Nutanix Objects", "Immutable snapshots"],
+          "lab_task": "Back up VMs with a supported backup product to Nutanix Objects with object lock, make snapshots immutable and time a full VM restore.",
+          "deliverable": "Backup design with restore timing",
+          "checks": [["Back up", "Backups land in the locked bucket", "Backup job report"], ["Lock", "Immutable snapshots cannot be deleted", "Delete test"], ["Time", "Restore time is measured", "Restore report"]],
+          "objectives": ["Integrate backup", "Protect backups from deletion", "Measure restore time"]
+        },
+        {
+          "topic": "Nutanix Files at Scale: Shares, Data Lens and Ransomware Protection",
+          "subtopics": ["Scaling file servers", "Distributed and standard shares", "Multi-protocol access", "Smart DR for files", "Nutanix Data Lens", "Ransomware detection and blocking", "Tiering file data to object storage", "File server upgrades"],
+          "tools": ["Nutanix Files", "Nutanix Data Lens", "Smart DR"],
+          "lab_task": "Scale out a file server, replicate shares with Smart DR, use Data Lens to detect a simulated ransomware pattern and block the user.",
+          "deliverable": "Protected file services",
+          "checks": [["Scale", "The file server handles more load after scale-out", "Performance metrics"], ["Replicate", "Shares replicate to the second site", "Smart DR status"], ["Block", "The simulated attack is detected and the user blocked", "Data Lens alert"]],
+          "objectives": ["Run Files at scale", "Replicate shares", "Detect ransomware"]
+        },
+        {
+          "topic": "Nutanix Self-Service: Blueprints, Runbooks and Marketplace",
+          "subtopics": ["Self-Service concepts", "Projects and environments", "Blueprints for multi-VM apps", "Runbooks for operations", "Marketplace publishing", "Approvals and quotas", "Day-two actions", "Cost visibility"],
+          "tools": ["Nutanix Self-Service", "Blueprints", "Runbooks"],
+          "lab_task": "Build a blueprint for a two-tier app, publish it to the marketplace with quotas and approval, and add a day-two scale-out action.",
+          "deliverable": "Self-service app with operations",
+          "checks": [["Deploy", "Users deploy the app from the marketplace", "Application list"], ["Approve", "Requests above quota need approval", "Approval record"], ["Scale", "The day-two action adds a node", "Action log"]],
+          "objectives": ["Offer self-service apps", "Use blueprints and runbooks", "Control quotas"]
+        },
+        {
+          "topic": "Infrastructure as Code: Terraform, Ansible and the v4 APIs",
+          "subtopics": ["The Nutanix Terraform provider", "Ansible collections for Nutanix", "v4 API structure", "Building VMs and networks as code", "State and drift", "Pipelines for infrastructure changes", "Secrets for automation", "Testing automation"],
+          "tools": ["Terraform", "Ansible", "Nutanix v4 APIs", "CI pipeline"],
+          "lab_task": "Define a subnet, categories and VMs in Terraform, configure the VMs with Ansible and run both from a pipeline with a plan review.",
+          "deliverable": "Infrastructure code with a pipeline",
+          "checks": [["Build", "Terraform creates the subnet and VMs", "Apply output"], ["Configure", "Ansible configures the VMs", "Playbook output"], ["Review", "Changes are reviewed before apply", "Pipeline record"]],
+          "objectives": ["Manage Nutanix as code", "Combine Terraform and Ansible", "Review changes"]
+        },
+        {
+          "topic": "Security Hardening: STIGs, Encryption at Rest and Key Management",
+          "subtopics": ["Security configuration management", "STIG and CIS hardening", "Encryption at rest", "Native and external key managers", "Secure boot and TPM", "Certificate management", "Log forwarding for security", "Security reports"],
+          "tools": ["Security configuration", "Key management", "Prism Central"],
+          "lab_task": "Apply hardening settings, turn on software encryption with a key manager, replace the default certificate and forward security logs.",
+          "deliverable": "Hardened and encrypted cluster",
+          "checks": [["Harden", "Hardening checks pass", "Security report"], ["Encrypt", "Data at rest is encrypted", "Encryption status"], ["Forward", "Security logs reach the collector", "Syslog entries"]],
+          "objectives": ["Harden Nutanix", "Encrypt data at rest", "Manage keys and certificates"]
+        },
+        {
+          "topic": "Nutanix Kubernetes Platform: Clusters, Add-Ons and Fleet Management",
+          "subtopics": ["Nutanix Kubernetes Platform concepts", "Creating Kubernetes clusters on AHV", "Storage with the Nutanix CSI driver", "Platform add-ons", "Workspaces and fleet management", "Upgrades for Kubernetes clusters", "Kubernetes on other clouds from NKP", "Monitoring Kubernetes clusters"],
+          "tools": ["Nutanix Kubernetes Platform", "Nutanix CSI driver", "kubectl"],
+          "lab_task": "Create a Kubernetes cluster with NKP, run a stateful app with Nutanix volumes, add a monitoring add-on and upgrade the cluster.",
+          "deliverable": "Kubernetes cluster with a stateful app",
+          "checks": [["Create", "The cluster runs on AHV", "kubectl output"], ["Store", "The stateful app keeps data on Nutanix volumes", "PVC status"], ["Upgrade", "The upgrade completes with the app running", "Upgrade log"]],
+          "objectives": ["Run Kubernetes on Nutanix", "Use Nutanix storage for pods", "Manage cluster fleets"]
+        },
+        {
+          "topic": "Nutanix Database Service: Provisioning, Cloning and Patching Databases",
+          "subtopics": ["Database service concepts", "Supported database engines", "Provisioning databases", "Time machines for database protection", "Cloning databases for testing", "Patching databases", "Self-service for developers", "Database service operations"],
+          "tools": ["Nutanix Database Service", "PostgreSQL or SQL Server", "Time machines"],
+          "lab_task": "Provision a PostgreSQL database, protect it with a time machine, clone it to a test copy at a point in time and patch it.",
+          "deliverable": "Managed database with clone and patch records",
+          "checks": [["Provision", "The database is created by the service", "Database list"], ["Clone", "The test clone matches the chosen point in time", "Data check"], ["Patch", "The database is patched", "Patch history"]],
+          "objectives": ["Run databases with Nutanix Database Service", "Clone databases", "Patch databases"]
+        },
+        {
+          "topic": "Nutanix Cloud Clusters on AWS and Azure",
+          "subtopics": ["Nutanix Cloud Clusters concepts", "Deploying on AWS and Azure", "Networking with the cloud", "Moving VMs to the cloud cluster", "Disaster recovery to the cloud", "Hibernating clusters to save cost", "Licensing and billing", "Operating cloud clusters"],
+          "tools": ["Nutanix Cloud Clusters", "AWS or Azure", "Prism Central"],
+          "lab_task": "Plan a cloud cluster for disaster recovery, connect it to the lab through Prism Central, replicate VMs and run a test failover to the cloud.",
+          "deliverable": "Cloud disaster recovery design with a test",
+          "checks": [["Plan", "The cloud cluster design fits the workloads", "Design document"], ["Replicate", "VMs replicate to the cloud cluster", "Replication status"], ["Test", "The test failover runs in the cloud", "Test report"]],
+          "objectives": ["Use Nutanix Cloud Clusters", "Plan cloud disaster recovery", "Move VMs to the cloud"]
+        },
+        {
+          "topic": "Large-Scale VMware Migration with Move DirectPath and Subnet Extension",
+          "subtopics": ["Discovery of the VMware estate", "Migration waves by application", "Move DirectPath migrations", "Subnet extension to keep IP addresses", "Converting VMware Tools and drivers", "Handling special VMs", "Cutover runbooks", "Decommissioning vSphere hosts"],
+          "tools": ["Nutanix Move", "Flow Virtual Networking", "Wave plan"],
+          "lab_task": "Plan three migration waves, migrate a multi-VM application with DirectPath while keeping its addresses through subnet extension and run the cutover runbook.",
+          "deliverable": "Migration wave plan and migrated application",
+          "checks": [["Plan", "Waves group VMs by application", "Wave plan"], ["Migrate", "The application moves with its addresses kept", "Migration report"], ["Verify", "The application passes its checks after cutover", "Checklist"]],
+          "objectives": ["Run large migrations", "Keep IP addresses during moves", "Cut over by application"]
+        },
+        {
+          "topic": "Performance Troubleshooting: Latency, Hot Spots and the Analysis Dashboard",
+          "subtopics": ["Performance methodology", "The analysis dashboard", "CPU ready and contention", "Memory pressure", "Storage latency sources", "Network latency", "Controller VM resources", "Writing up findings"],
+          "tools": ["Prism analysis", "Controller VM metrics", "Load generator"],
+          "lab_task": "Diagnose a seeded slow application with the analysis dashboard, find the contended resource, fix it and show the improvement.",
+          "deliverable": "Performance diagnosis and fix",
+          "checks": [["Diagnose", "The contended resource is identified", "Analysis charts"], ["Fix", "Application response improves", "Before-and-after metrics"], ["Report", "Findings are written up", "Report"]],
+          "objectives": ["Troubleshoot performance", "Use the analysis dashboard", "Fix contention"]
+        },
+        {
+          "topic": "Upgrades at Scale: AOS, AHV and Prism Central Lifecycle",
+          "subtopics": ["Release types and support", "Compatibility matrices", "Upgrade order", "Rolling upgrades across many clusters", "Dark site upgrades", "Maintenance windows", "Rollback considerations", "Upgrade reporting"],
+          "tools": ["Life Cycle Manager", "Compatibility matrix", "Prism Central"],
+          "lab_task": "Plan upgrades for three clusters and Prism Central with the compatibility matrix, run them in order and report results.",
+          "deliverable": "Fleet upgrade plan and report",
+          "checks": [["Plan", "Versions and order follow the compatibility matrix", "Upgrade plan"], ["Upgrade", "Clusters upgrade without workload downtime", "Upgrade logs"], ["Report", "Results are reported", "Upgrade report"]],
+          "objectives": ["Plan Nutanix upgrades", "Upgrade fleets", "Report results"]
+        },
+        {
+          "topic": "NCP-MCI 7.5 Exam Preparation",
+          "subtopics": ["NCP-MCI 7.5 exam scope", "Deploying and configuring topics", "Migrating and expanding topics", "Troubleshooting topics", "Managing and monitoring topics", "Practice questions", "Lab practice", "Review plan for weak areas"],
+          "tools": ["Nutanix University", "Practice questions", "Course labs"],
+          "lab_task": "Take a timed NCP-MCI practice set, map every miss to a course day and repeat the weakest lab tasks.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "A timed practice set is completed", "Score sheet"], ["Map", "Each miss is mapped to a course day", "Error log"], ["Repeat", "The weakest lab tasks are repeated", "Lab log"]],
+          "objectives": ["Prepare for NCP-MCI", "Find weak areas", "Practise weak tasks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Multi-Site Nutanix Platform with DR and Self-Service",
+          "subtopics": ["Cluster design and scheduling", "Overlay networks and microsegmentation", "Replication, metro and backup", "Automation, Kubernetes and databases"],
+          "tools": ["Nutanix AHV", "Flow", "Nutanix Disaster Recovery", "Nutanix Self-Service"],
+          "lab_task": "Deliver a two-site platform with sized clusters, affinity rules, VPCs, microsegmentation, tiered replication, Metro for one app, immutable backups, self-service blueprints, a Kubernetes cluster and a managed database.",
+          "deliverable": "Platform demo with evidence",
+          "checks": [["Design", "Clusters and networks follow the design", "Design and status reports"], ["Recover", "DR and metro tests meet their targets", "Test reports"], ["Serve", "Self-service, Kubernetes and databases work for users", "Demo recording"]],
+          "objectives": ["Combine intermediate Nutanix skills", "Deliver a multi-site platform", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For infrastructure architects and platform leads. Covers enterprise platform architecture, hybrid multicloud with Nutanix Cloud Clusters, VMware exit programmes, enterprise disaster recovery, ransomware resilience, network architecture, microsegmentation programmes, storage architecture for mixed workloads, VDI on AHV, AI workloads with GPUs and Nutanix Enterprise AI, Kubernetes and database platform strategy, automation at scale, compliance, capacity, cost and licensing, operations at scale, performance engineering, edge designs and troubleshooting at scale.",
+      "prerequisites": ["Runs Nutanix clusters across several sites in production", "Holds NCP-MCI or has equivalent experience", "Responsible for platform design, migration or operations"],
+      "outcomes": ["Design enterprise and hybrid multicloud platforms on Nutanix", "Lead VMware exits, disaster recovery and ransomware resilience programmes", "Run VDI, AI, Kubernetes and database platforms on Nutanix", "Govern cost, compliance, operations and performance at scale"],
+      "days": [
+        {
+          "topic": "Nutanix Platform Architecture for Enterprises",
+          "subtopics": ["Enterprise requirements", "Cluster roles and placement", "Prism Central design and scale", "Management, workload and edge clusters", "Failure domains", "Integration with identity, backup and monitoring", "Architecture decision records", "Design reviews"],
+          "tools": ["Architecture diagram tool", "Nutanix Sizer", "Decision records"],
+          "lab_task": "Design the Nutanix platform for a company with two data centres, twenty branches and a cloud presence, and defend it in a design review.",
+          "deliverable": "Platform architecture and review record",
+          "checks": [["Design", "Clusters, management and integrations are defined", "Architecture diagram"], ["Contain", "Failure domains limit impact", "Failure analysis"], ["Defend", "The review accepts the design with actions", "Review record"]],
+          "objectives": ["Design enterprise Nutanix platforms", "Plan failure domains", "Defend architecture decisions"]
+        },
+        {
+          "topic": "Hybrid Multicloud Design with Nutanix Cloud Clusters and On-Premises Clusters",
+          "subtopics": ["Hybrid multicloud goals", "Workload placement rules", "Burst and disaster recovery to the cloud", "Network design between sites and clouds", "Data gravity and egress costs", "Licensing portability", "Operations across locations", "Exit options"],
+          "tools": ["Nutanix Cloud Clusters", "Prism Central", "Cost model"],
+          "lab_task": "Write placement rules for on-premises and cloud clusters, design disaster recovery and burst to the cloud and cost the design including egress.",
+          "deliverable": "Hybrid design with placement rules and costs",
+          "checks": [["Place", "Each workload type has a placement rule", "Rules table"], ["Design", "Burst and disaster recovery paths are designed", "Design document"], ["Cost", "The design is costed with egress", "Cost model"]],
+          "objectives": ["Design hybrid multicloud", "Set placement rules", "Cost hybrid designs"]
+        },
+        {
+          "topic": "VMware Exit Programmes: Assessment, Licensing and Migration Waves",
+          "subtopics": ["Reasons for leaving VMware", "Assessing the estate", "Licensing and contract timing", "Dependencies on VMware features", "Replacing vSphere features on Nutanix", "Migration factory approach", "Risk management", "Measuring the programme"],
+          "tools": ["Discovery tools", "Nutanix Move", "Programme plan"],
+          "lab_task": "Assess a seeded thousand-VM VMware estate, map features to Nutanix replacements, align waves with contract dates and plan a migration factory.",
+          "deliverable": "VMware exit programme plan",
+          "checks": [["Assess", "VMs and feature dependencies are assessed", "Assessment"], ["Align", "Waves fit contract and licensing dates", "Programme plan"], ["Plan", "The migration factory has roles and throughput targets", "Factory plan"]],
+          "objectives": ["Plan VMware exits", "Replace VMware features", "Run a migration factory"]
+        },
+        {
+          "topic": "Enterprise Disaster Recovery Design and Testing",
+          "subtopics": ["Business impact and recovery tiers", "Recovery objectives by tier", "Multi-site and cloud recovery", "Recovery plans for applications", "Runbook automation", "Testing without disruption", "Reporting to auditors and leadership", "Continuous improvement"],
+          "tools": ["Nutanix Disaster Recovery", "Recovery plans", "Test reports"],
+          "lab_task": "Define recovery tiers for twenty applications, build tiered recovery plans, run a non-disruptive test of the top tier and report results.",
+          "deliverable": "Tiered DR design and test report",
+          "checks": [["Tier", "Applications have tiers and objectives", "Tier table"], ["Test", "The top tier recovers within its objectives", "Test report"], ["Report", "Results are reported with gaps", "Report"]],
+          "objectives": ["Design enterprise disaster recovery", "Test recovery tiers", "Report recovery readiness"]
+        },
+        {
+          "topic": "Ransomware Resilience on Nutanix: Immutable Snapshots, Data Lens and Isolated Recovery",
+          "subtopics": ["Ransomware threats to infrastructure", "Immutable snapshots and object lock", "Detection with Data Lens", "Isolated recovery environments", "Protecting management planes", "Recovery order for applications", "Exercises", "Lessons from incidents"],
+          "tools": ["Immutable snapshots", "Nutanix Data Lens", "Isolated recovery cluster"],
+          "lab_task": "Run a ransomware exercise, detect the attack with Data Lens, recover priority applications into an isolated environment and record lessons.",
+          "deliverable": "Exercise record and improvements",
+          "checks": [["Detect", "The attack is detected quickly", "Alert record"], ["Recover", "Priority apps recover in isolation", "Recovery timeline"], ["Learn", "Lessons have owners", "Lessons list"]],
+          "objectives": ["Build ransomware resilience", "Recover in isolation", "Protect management planes"]
+        },
+        {
+          "topic": "Network Architecture: Flow Virtual Networking at Scale and Physical Fabric Design",
+          "subtopics": ["Physical fabric designs for hyperconverged clusters", "Leaf-spine and bandwidth needs", "Overlay networking at scale", "Gateways and external connectivity", "Multi-site overlay networks", "Network automation", "Monitoring network health", "Design reviews"],
+          "tools": ["Flow Virtual Networking", "Fabric design tools", "Prism Central"],
+          "lab_task": "Design the physical fabric and overlay networks for two data centres, connect VPCs across sites and test gateway failover.",
+          "deliverable": "Network architecture with failover test",
+          "checks": [["Design", "Fabric bandwidth meets cluster needs", "Design document"], ["Connect", "VPCs connect across sites", "Reachability tests"], ["Fail", "Gateway failover keeps traffic flowing", "Test record"]],
+          "objectives": ["Design networks for Nutanix", "Scale overlay networks", "Test gateway failover"]
+        },
+        {
+          "topic": "Zero Trust Microsegmentation Programmes with Flow Network Security",
+          "subtopics": ["Programme scope and goals", "Application discovery", "Policy design patterns", "Phased enforcement", "Exceptions and change control", "Monitoring policy effectiveness", "Integration with security operations", "Measuring progress"],
+          "tools": ["Flow Network Security", "Application discovery", "Policy reports"],
+          "lab_task": "Plan a microsegmentation programme for fifty applications, discover flows for five, enforce policies in phases and report coverage.",
+          "deliverable": "Microsegmentation programme with coverage report",
+          "checks": [["Plan", "Applications are prioritised", "Programme plan"], ["Enforce", "Five applications are enforced without outages", "Enforcement record"], ["Report", "Coverage is reported", "Coverage report"]],
+          "objectives": ["Run microsegmentation programmes", "Enforce in phases", "Measure coverage"]
+        },
+        {
+          "topic": "Storage Architecture for Mixed Workloads: Databases, VDI and Files",
+          "subtopics": ["Workload storage profiles", "Cluster design per workload", "Storage policies and quality of service", "Database best practices on Nutanix", "VDI storage patterns", "File and object storage placement", "Capacity and growth", "Performance testing"],
+          "tools": ["Storage policies", "Performance tests", "Nutanix Sizer"],
+          "lab_task": "Design storage for databases, VDI and files across clusters, apply policies and run performance tests that prove each workload meets its target.",
+          "deliverable": "Storage architecture with test results",
+          "checks": [["Design", "Each workload has its storage design", "Design document"], ["Apply", "Policies apply per workload", "Policy settings"], ["Prove", "Performance tests meet targets", "Test results"]],
+          "objectives": ["Design storage for mixed workloads", "Apply storage policies", "Prove performance"]
+        },
+        {
+          "topic": "VDI on Nutanix: Citrix and Omnissa Horizon on AHV",
+          "subtopics": ["VDI requirements", "Citrix on AHV", "Omnissa Horizon on AHV", "Image management for desktops", "Sizing desktop clusters", "GPU desktops", "User experience monitoring", "Boot storm and login storm planning"],
+          "tools": ["Citrix or Omnissa Horizon", "AHV", "Login simulation tools"],
+          "lab_task": "Size a desktop cluster, deploy a desktop pool on AHV, simulate a login storm and tune the cluster to meet login time targets.",
+          "deliverable": "Desktop platform with login test results",
+          "checks": [["Size", "The cluster fits the desktop count", "Sizing sheet"], ["Deploy", "The desktop pool runs on AHV", "Pool status"], ["Tune", "Login times meet the target during the storm", "Login test results"]],
+          "objectives": ["Run VDI on Nutanix", "Size desktop clusters", "Handle login storms"]
+        },
+        {
+          "topic": "AI Workloads on Nutanix: GPUs, Nutanix Enterprise AI and GPT-in-a-Box",
+          "subtopics": ["AI workload needs", "GPUs on AHV: passthrough and vGPU", "Nutanix Enterprise AI", "GPT-in-a-Box", "Storage for models and data", "Kubernetes for AI services", "Security and governance for private AI", "Sizing AI infrastructure"],
+          "tools": ["AHV with GPUs", "Nutanix Enterprise AI", "Nutanix Kubernetes Platform"],
+          "lab_task": "Deploy a private model endpoint with Nutanix Enterprise AI on GPU nodes, connect an app to it, measure throughput and apply access controls.",
+          "deliverable": "Private AI endpoint with measurements",
+          "checks": [["Deploy", "The model endpoint serves requests", "Endpoint test"], ["Measure", "Throughput and latency are recorded", "Benchmark results"], ["Control", "Only approved apps can call the endpoint", "Access test"]],
+          "objectives": ["Run AI workloads on Nutanix", "Use GPUs", "Govern private AI"]
+        },
+        {
+          "topic": "Kubernetes Platform Strategy with Nutanix Kubernetes Platform",
+          "subtopics": ["Kubernetes platform goals", "NKP at scale", "Fleet management across clouds", "Storage and networking choices", "Security and policy", "Upgrades and lifecycle", "Developer self-service", "Measuring platform adoption"],
+          "tools": ["Nutanix Kubernetes Platform", "Nutanix CSI driver", "Policy tools"],
+          "lab_task": "Design a Kubernetes platform strategy on NKP for three teams with fleet management, storage, security and upgrades, and pilot it with one team.",
+          "deliverable": "Kubernetes platform strategy with pilot",
+          "checks": [["Design", "The strategy covers fleets, storage and security", "Strategy document"], ["Pilot", "One team deploys an app on the platform", "Pilot record"], ["Measure", "Adoption measures are defined", "Measures list"]],
+          "objectives": ["Plan Kubernetes on Nutanix", "Manage fleets", "Pilot with teams"]
+        },
+        {
+          "topic": "Database Platform Strategy with Nutanix Database Service",
+          "subtopics": ["Database estate assessment", "Engines and licensing", "Standard database offerings", "Protection and recovery tiers", "Copy data management", "Developer self-service", "Patching at scale", "Measuring value"],
+          "tools": ["Nutanix Database Service", "Assessment sheet", "Self-service catalogue"],
+          "lab_task": "Assess a seeded database estate, design standard offerings with protection tiers and self-service, and plan moving twenty databases.",
+          "deliverable": "Database platform plan",
+          "checks": [["Assess", "Databases are classified by engine and tier", "Assessment"], ["Design", "Standard offerings have protection tiers", "Offering catalogue"], ["Plan", "The move plan covers twenty databases", "Move plan"]],
+          "objectives": ["Plan database platforms", "Standardise offerings", "Plan database moves"]
+        },
+        {
+          "topic": "Automation and Self-Service at Enterprise Scale",
+          "subtopics": ["Automation strategy", "Self-service catalogues", "Infrastructure as code standards", "Pipelines and approvals", "Integration with ITSM", "Policy and guardrails", "Measuring automation value", "Automation team model"],
+          "tools": ["Nutanix Self-Service", "Terraform", "ITSM integration"],
+          "lab_task": "Design an enterprise automation model with a self-service catalogue, IaC standards and ITSM approvals, and measure time to provision before and after.",
+          "deliverable": "Automation model with measurements",
+          "checks": [["Design", "Catalogue, standards and approvals are defined", "Automation model"], ["Integrate", "ITSM requests trigger provisioning", "Integration test"], ["Measure", "Time to provision falls", "Before-and-after data"]],
+          "objectives": ["Scale automation", "Offer self-service", "Measure automation value"]
+        },
+        {
+          "topic": "Compliance and Security Operations: Audit, Encryption Keys and Evidence",
+          "subtopics": ["Regulatory needs for infrastructure", "Hardening baselines and drift", "Key management at scale", "Audit logs and retention", "Access reviews", "Evidence collection", "Security monitoring integration", "Remediating findings"],
+          "tools": ["Security configuration", "Key management", "Audit logs", "SIEM"],
+          "lab_task": "Collect evidence for an infrastructure audit, review access, rotate encryption keys and remediate two seeded findings.",
+          "deliverable": "Audit evidence and remediation",
+          "checks": [["Collect", "Evidence answers the audit requests", "Evidence pack"], ["Rotate", "Keys rotate without downtime", "Key manager log"], ["Fix", "Both findings are closed", "Remediation record"]],
+          "objectives": ["Meet compliance needs", "Manage keys at scale", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Capacity, Cost and Licensing: Nutanix Licensing and Total Cost of Ownership",
+          "subtopics": ["Nutanix licensing models", "Core and capacity metrics", "Hardware refresh planning", "Cost per VM and per application", "Comparing with VMware and public cloud", "Showback for teams", "Optimising licence use", "Renewal planning"],
+          "tools": ["Cost model", "Licensing portal", "Capacity reports"],
+          "lab_task": "Build a total cost of ownership model for the Nutanix platform, compare it with VMware and cloud options and produce showback per team.",
+          "deliverable": "Cost model and showback",
+          "checks": [["Model", "Licences, hardware and operations are included", "Cost model"], ["Compare", "Alternatives are compared fairly", "Comparison"], ["Show", "Each team sees its share", "Showback report"]],
+          "objectives": ["Model Nutanix cost", "Compare platforms", "Run showback"]
+        },
+        {
+          "topic": "Operations at Scale: Fleet Management, Upgrades and Monitoring",
+          "subtopics": ["Fleet management with Prism Central", "Upgrade programmes", "Monitoring and alert routing", "Operations runbooks", "Integration with ITSM", "Capacity reviews", "Service levels", "Operations team model"],
+          "tools": ["Prism Central", "Life Cycle Manager", "ITSM"],
+          "lab_task": "Design operations for twenty clusters with upgrade programmes, alert routing to ITSM, runbooks and service levels, and report a seeded month of operations data.",
+          "deliverable": "Operations model and report",
+          "checks": [["Design", "Upgrade, alert and runbook processes are defined", "Operations model"], ["Route", "Alerts create ITSM incidents", "Integration test"], ["Report", "Operations data is reported", "Monthly report"]],
+          "objectives": ["Run Nutanix operations at scale", "Route alerts", "Measure operations"]
+        },
+        {
+          "topic": "Performance Engineering for Business-Critical Applications",
+          "subtopics": ["Requirements for critical applications", "Database performance on Nutanix", "Storage and network tuning", "VM sizing and NUMA", "Benchmarking", "Performance baselines", "Regression detection", "Reporting performance"],
+          "tools": ["Benchmark tools", "Prism analysis", "Database tools"],
+          "lab_task": "Benchmark a business-critical database on Nutanix, tune VM and storage settings, set a baseline and detect a seeded regression.",
+          "deliverable": "Performance report with baseline",
+          "checks": [["Benchmark", "Results meet the requirement", "Benchmark report"], ["Tune", "Tuning improves results", "Before-and-after data"], ["Detect", "The regression is detected against the baseline", "Alert or report"]],
+          "objectives": ["Engineer performance", "Set baselines", "Detect regressions"]
+        },
+        {
+          "topic": "Edge and Remote Office Designs: Small Clusters and Central Management",
+          "subtopics": ["Edge requirements", "One-node and two-node clusters", "Witness for small clusters", "Central management from Prism Central", "Protection to the core", "Upgrades for many sites", "Remote hands and replacement", "Edge security"],
+          "tools": ["Small clusters", "Prism Central", "Nutanix Disaster Recovery"],
+          "lab_task": "Design a two-node branch cluster with a witness, protect it to the core, plan upgrades for fifty branches and plan node replacement by remote hands.",
+          "deliverable": "Edge design and operations plan",
+          "checks": [["Design", "The branch cluster tolerates one failure", "Design document"], ["Protect", "Branch data replicates to the core", "Replication status"], ["Plan", "Upgrades and replacements are planned", "Operations plan"]],
+          "objectives": ["Design edge clusters", "Protect branch data", "Operate many sites"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Cluster Instability, Network Partitions and Support Cases",
+          "subtopics": ["Systematic troubleshooting at scale", "Cluster service instability", "Network partitions", "Metadata and storage problems", "Prism Central problems", "Log collection at scale", "Working with Nutanix support", "Incident reviews"],
+          "tools": ["NCC", "Log collector", "Prism Central"],
+          "lab_task": "Diagnose seeded problems, an unstable service, a network partition and a Prism Central fault, fix them, open a support case and write a review.",
+          "deliverable": "Diagnoses, support case and review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Escalate", "The support case has the needed logs", "Support case"], ["Review", "The review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot Nutanix at scale", "Collect evidence", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Nutanix Platform and VMware Exit Design",
+          "subtopics": ["Architecture and hybrid multicloud", "VMware exit programme", "Disaster recovery and ransomware resilience", "Platforms, cost and operations"],
+          "tools": ["Architecture documents", "Programme plan", "Cost model", "Evidence packs"],
+          "lab_task": "Present an enterprise Nutanix platform and VMware exit design to a review board with the architecture, hybrid placement, exit programme, DR and ransomware plans, VDI, AI and Kubernetes platforms, cost model and operations model.",
+          "deliverable": "Design with evidence and a board decision",
+          "checks": [["Design", "Architecture and placement pass review", "Review record"], ["Prove", "DR and resilience claims have test evidence", "Evidence pack"], ["Plan", "Exit, cost and operations plans have owners", "Plan documents"]],
+          "objectives": ["Combine advanced Nutanix skills", "Design an enterprise platform", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

@@ -3,7 +3,7 @@
   "name": "Project Management",
   "category": "Project Management",
   "icon": "clipboard-list",
-  "aliases": ["Project Management Fundamentals", "Project Management Training", "Project Manager Training", "IT Project Management", "Program Management", "Programme Management", "PMP", "PMP Exam Preparation", "PRINCE2", "Microsoft Project"],
+  "aliases": ["Project Management Fundamentals", "Project Management Training", "Project Manager Training", "IT Project Management", "Program Management", "Programme Management", "PRINCE2", "Microsoft Project"],
   "certifications": ["PMI Certified Associate in Project Management (CAPM)", "PMI Project Management Professional (PMP)", "PRINCE2 Foundation and Practitioner", "PMI Program Management Professional (PgMP)"],
   "tools": ["Microsoft Project or ProjectLibre", "Excel", "Jira", "Microsoft Teams", "Miro"],
   "review_status": "unreviewed",

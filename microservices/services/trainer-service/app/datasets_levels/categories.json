@@ -258,8 +258,7 @@
         "AppDynamics"
       ],
       "planned": [
-        "Prometheus",
-        "Grafana",
+        "Prometheus and Grafana",
         "ELK Stack",
         "Datadog",
         "Dynatrace"

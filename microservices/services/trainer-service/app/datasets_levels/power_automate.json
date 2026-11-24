@@ -1,0 +1,573 @@
+{
+  "domain": "Power Automate",
+  "name": "Power Automate",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "workflow",
+  "aliases": ["Microsoft Power Automate", "Microsoft Flow", "Power Automate Desktop", "Power Automate RPA", "Power Automate Cloud Flows", "Power Automate Developer", "Power Automate Desktop Flows", "Microsoft Power Automate RPA"],
+  "certifications": ["Microsoft Certified: Power Platform Fundamentals (PL-900)", "Microsoft Certified: Intelligent Applications Builder Associate (AB-410)"],
+  "tools": ["Power Automate portal (make.powerautomate.com)", "Power Automate for desktop", "Power Platform admin center", "Microsoft Dataverse", "AI Builder", "Power Automate Process Mining", "Microsoft 365 apps: Outlook, Teams, SharePoint, Excel and OneDrive"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For business users, team administrators and new makers who want to automate everyday Microsoft 365 work. Covers cloud flow types, triggers, actions and connectors, dynamic content and expressions, dates, conditions, loops and variables, Outlook, Teams, SharePoint, Excel and OneDrive flows, files and attachments, approvals, run history, sharing and ownership, templates and AI-assisted creation, and first desktop flows, in line with the Power Automate part of PL-900.",
+      "prerequisites": ["Uses Outlook, Teams, SharePoint, Excel and OneDrive at work", "Work or school account in a Microsoft 365 tenant (personal Microsoft accounts lost cloud flow access in July 2025)", "Windows 10 or 11 PC where Power Automate for desktop can be installed", "Power Automate Premium or trial licence for the premium connector and desktop flow labs"],
+      "outcomes": ["Build automated, instant and scheduled cloud flows with Microsoft 365 connectors", "Shape data with dynamic content, expressions, conditions, loops and variables", "Run approvals and handle email, files, attachments and Excel data in flows", "Read run history, fix failed runs, share flows safely and run a first desktop flow"],
+      "days": [
+        {
+          "topic": "Power Automate Overview and the Maker Portal",
+          "subtopics": ["What Power Automate automates: cloud flows, desktop flows, process mining and agent flows", "The portal at make.powerautomate.com: Home, Create, Templates, My flows, Approvals and Solutions", "Environments and the environment picker for makers", "Connectors: standard, premium and custom", "Licences that include Power Automate: Free, Microsoft 365, Premium and Process", "The cloud flow designer: canvas, action pane, parameters and the Test button", "Classic designer versus the current designer (the classic designer gets fixes only)", "Where flows run: the cloud service or a Windows machine", "Course lab environment: a managed developer or trial environment (new unmanaged developer environments can't be created from 15 November 2026)", "Automation candidates in a typical team: requests, reminders, reports and file handling"],
+          "tools": ["Power Automate portal (make.powerautomate.com)", "Settings > View My Licenses", "Power Automate template gallery"],
+          "lab_task": "Sign in to make.powerautomate.com with the course work account, select the lab environment, list your licences under Settings > View My Licenses, open one automated, one instant and one scheduled template and record each one's trigger, connectors and premium connectors.",
+          "deliverable": "Portal tour worksheet with the licence list, environment name and a table of three templates",
+          "checks": [["Open Settings > View My Licenses", "Assigned licences such as Microsoft 365 E3 or Power Automate Premium are listed", "Screenshot"], ["Classify the connectors of the three templates", "Each connector is marked standard or premium correctly", "Completed worksheet"], ["Switch to a second environment and back", "My flows shows only the flows of the selected environment", "Two screenshots"]],
+          "objectives": ["Explain what cloud flows, desktop flows and process mining do", "Navigate the Power Automate portal", "Identify licences and connector tiers"]
+        },
+        {
+          "topic": "Cloud Flow Types: Automated, Instant and Scheduled",
+          "subtopics": ["Automated flows started by events such as a new email or a new list item", "Instant flows: Manually trigger a flow, For a selected item and For a selected message", "Scheduled flows with the Recurrence trigger: frequency, interval, start time and time zone", "Inputs for instant flows: text, yes/no, number, date and file", "Polling triggers and webhook triggers", "Turning flows on and off, and the 90-day turn-off of flows with no trigger activity on non-premium plans", "Naming flows and writing a description", "Choosing the flow type for a business request"],
+          "tools": ["Power Automate cloud flow designer", "Recurrence trigger", "OneDrive for Business connector", "Microsoft Teams connector"],
+          "lab_task": "Build three flows: an automated flow that emails you when a file lands in the OneDrive folder 'Incoming', an instant flow with a text input and a date input that posts both values to the 'Training' Teams channel, and a scheduled flow that sends a summary email every Monday to Friday at 08:00 UK time.",
+          "deliverable": "Three working flows with one successful run each and a note on when to use each type",
+          "checks": [["Add a file to the OneDrive Incoming folder", "Automated flow runs and sends the notification email", "Run history and email"], ["Run the instant flow with a text and a date", "Teams post shows both input values", "Teams screenshot"], ["Open the Recurrence trigger of the scheduled flow", "Monday to Friday at 08:00 in the (UTC+00:00) Dublin, Edinburgh, Lisbon, London time zone is shown", "Trigger settings screenshot"]],
+          "objectives": ["Distinguish automated, instant and scheduled flows", "Configure the Recurrence trigger", "Choose a flow type for a request"]
+        },
+        {
+          "topic": "Triggers, Actions and Connectors",
+          "subtopics": ["Anatomy of a cloud flow: one trigger followed by actions", "Connections and when the designer creates them", "Built-in actions such as Compose, Delay and Terminate", "Action outputs and how later actions use them", "Microsoft Forms: When a new response is submitted and Get response details", "Office 365 Users: Get user profile (V2) and Get manager (V2)", "Connector reference pages: triggers, actions, throttling limits and known issues", "Testing a flow manually and reading the first run"],
+          "tools": ["Microsoft Forms connector", "Office 365 Users connector", "Office 365 Outlook connector", "Connector reference (learn.microsoft.com/connectors)"],
+          "lab_task": "Build a flow on a five-question Microsoft Forms 'IT help request' form: get the response details, look up the submitter's manager with Get manager (V2) and email the manager three of the answers; test it with two submissions from different users.",
+          "deliverable": "Forms-to-email flow, two successful runs and a connector notes sheet for Forms, Office 365 Users and Outlook",
+          "checks": [["Submit the form", "Run shows the response ID from the trigger and the answers from Get response details", "Run history screenshot"], ["Submit the form as a user with no manager in Microsoft Entra ID", "Get manager (V2) fails with a not found error", "Failed run screenshot"], ["Read the Office 365 Outlook connector reference", "Per-connection throttling limit is recorded on the sheet", "Notes sheet"]],
+          "objectives": ["Explain triggers, actions and connections", "Pass outputs between actions", "Use connector reference pages"]
+        },
+        {
+          "topic": "Dynamic Content and Simple Expressions",
+          "subtopics": ["The dynamic content list and how tokens are inserted", "Trigger outputs, action outputs and body tokens", "Opening the expression editor and writing an expression", "Text functions: concat, toUpper, substring and replace", "Logical functions: if, equals, and, or, contains and empty", "Handling missing values with coalesce and the ? operator", "Number functions: int, float and formatNumber", "Viewing an action's JSON in code view"],
+          "tools": ["Expression editor", "Compose action", "Code view in the cloud flow designer"],
+          "lab_task": "Extend the help-request flow: build the subject 'Ticket: <first 30 characters of the title> (<priority>)' with concat and substring, replace an empty phone answer with 'Not given' using coalesce, and set the priority to High when the description contains 'outage'.",
+          "deliverable": "Updated flow, test runs with three inputs and a sheet explaining five expressions",
+          "checks": [["Submit a request with a 50-character title", "Subject shows the first 30 characters and the priority", "Email screenshot"], ["Submit a request with no phone number", "Email shows 'Not given'", "Compose output"], ["Submit a description that contains 'outage'", "Priority in the email is High", "Run history"]],
+          "objectives": ["Use dynamic content correctly", "Write simple expressions", "Handle empty values"]
+        },
+        {
+          "topic": "Dates, Times and Time Zones in Flows",
+          "subtopics": ["Why flows work in UTC and why times can look wrong", "utcNow, addDays, addHours and startOfDay", "formatDateTime with format strings such as ddd dd MMM yyyy and HH:mm", "convertTimeZone with Windows time zone names such as GMT Standard Time", "Date Time actions: Convert time zone, Get future time and Get past time", "Recurrence time zones and daylight saving changes", "Delay and Delay until actions", "Comparing dates in conditions"],
+          "tools": ["Expression editor", "Date Time actions", "Recurrence trigger", "Office 365 Outlook connector"],
+          "lab_task": "Build a flow that runs every Monday at 07:30 UK time, works out the dates of Monday to Friday, formats them as 'Mon 16 Nov 2026', shows a 14:00 UTC call time in GMT Standard Time, India Standard Time and Eastern Standard Time, and emails the week plan.",
+          "deliverable": "Week-plan flow, one test run and a sheet of the date expressions used",
+          "checks": [["Run the flow on a test Monday", "Email lists five correctly formatted weekdays", "Email screenshot"], ["Convert 14:00 UTC to India Standard Time", "Result is 19:30", "Compose output"], ["Convert 14:00 UTC on 16 November 2026 to GMT Standard Time", "Hour is unchanged because British Summer Time has ended", "Compose output"]],
+          "objectives": ["Format and calculate dates", "Convert between time zones", "Schedule flows in local time"]
+        },
+        {
+          "topic": "Conditions and Switch Branches",
+          "subtopics": ["The Condition action with true and false branches", "Operators: is equal to, contains, starts with and is greater than", "Grouping rows with And and Or", "Case and spaces: toLower and trim before comparing", "Switch on one value with up to 25 cases and a default", "Nesting conditions and the eight-level nesting limit", "Writing conditions as expressions", "Terminate with Succeeded, Failed or Cancelled status"],
+          "tools": ["Condition action", "Switch action", "Terminate action", "Microsoft Forms connector"],
+          "lab_task": "Route help requests: a Switch on the Category answer sends Hardware, Software and Access requests to three mailboxes with a default branch for the service desk, and inside Access an Or group escalates requests that mention 'admin' or 'finance' in any letter case.",
+          "deliverable": "Routing flow with test runs that cover every branch",
+          "checks": [["Submit a Software request", "Only the Software branch runs", "Run history with the branch shown"], ["Submit a request with an unlisted category", "Default branch sends it to the service desk", "Run history"], ["Submit an Access request that mentions 'Finance'", "Escalation email is sent despite the capital letter", "Run history and email"]],
+          "objectives": ["Build conditions with grouped rules", "Route with switch cases", "Stop runs with Terminate"]
+        },
+        {
+          "topic": "Loops with Apply to Each and Do Until",
+          "subtopics": ["Apply to each over arrays returned by actions", "Loops the designer adds automatically", "The current item and the items() function", "Do until with its default limits of 60 iterations and one hour", "Ending a Do until loop when a condition becomes true", "Apply to each runs one item at a time by default", "Apply to each limits: 5,000 items on the low profile and 100,000 on others", "Avoiding loops with Filter array and first()"],
+          "tools": ["Apply to each", "Do until", "Office 365 Outlook connector (Get emails (V3))", "OneDrive for Business connector"],
+          "lab_task": "Get the last 25 emails from the training inbox with Get emails (V3), count those with attachments in a loop and email the count; then build a Do until loop that checks the OneDrive Incoming folder every minute, up to 10 times, for a file named Ready.txt.",
+          "deliverable": "Loop flow with evidence for both loops and a note on default loop limits",
+          "checks": [["Run against 25 emails of which 7 have attachments", "Summary email reports 7", "Run history and email"], ["Open one Apply to each iteration in the run", "Current item shows that email's subject and attachment flag", "Iteration screenshot"], ["Run the Do until with no Ready.txt in the folder", "Loop stops after 10 checks without failing the run", "Run history"]],
+          "objectives": ["Loop over arrays", "Wait for conditions with Do until", "Know the default loop limits"]
+        },
+        {
+          "topic": "Variables, Compose and Data Operations",
+          "subtopics": ["Initialize variable at the top level of a flow", "Variable types: string, integer, float, boolean, array and object", "Set variable, Increment variable and Append to array variable", "Why variables in parallel loops give wrong totals", "Compose as a light alternative to variables", "Select to reshape arrays", "Filter array to keep matching items", "Create HTML table and Create CSV table", "Join to turn an array into text", "The 250-variable limit and names such as varOrderTotal"],
+          "tools": ["Initialize variable", "Compose action", "Data Operation actions (Select, Filter array, Join, Create HTML table, Create CSV table)"],
+          "lab_task": "Take a trainer-supplied JSON array of 12 order lines, total the order value with an Increment variable loop, keep lines over £500 with Filter array, reshape them to three columns with Select, email them as an HTML table and save the same lines as a CSV file in OneDrive.",
+          "deliverable": "Data operations flow, the HTML email and the CSV file",
+          "checks": [["Run with the 12-line sample", "Order total matches an Excel SUM of the same lines", "Email and Excel screenshot"], ["Inspect the Filter array output", "Only lines over £500 remain", "Run output"], ["Open the CSV file in Excel", "Three columns from the Select action are shown", "File screenshot"]],
+          "objectives": ["Use variables correctly", "Shape arrays with data operations", "Produce HTML and CSV output"]
+        },
+        {
+          "topic": "Outlook Email and Calendar Automation",
+          "subtopics": ["When a new email arrives (V3): folder, sender, subject filter and attachments", "When a new email arrives in a shared mailbox (V2) and sending from a shared mailbox", "Send an email (V2): HTML body, CC, importance and attachments", "Flag, move and mark emails as read", "Send email with options for quick choices", "Create event (V4) and Get events (V4)", "Connector throttling and Exchange Online sending limits", "Avoiding loops with sender and subject checks"],
+          "tools": ["Office 365 Outlook connector", "Exchange Online shared mailbox", "Outlook on the web"],
+          "lab_task": "On the shared mailbox 'training-orders', build a flow for emails with 'PO' in the subject that replies with a confirmation from the shared mailbox, flags the email and creates a 30-minute follow-up event two working days later in the team calendar.",
+          "deliverable": "Shared mailbox flow with three processed test emails and screenshots of replies and events",
+          "checks": [["Send an email with 'PO 4471' in the subject", "Reply comes from the shared mailbox address", "Sent items screenshot"], ["Send an email without 'PO' in the subject", "Flow does not run", "Run history for that time"], ["Send a PO email on a Friday", "Follow-up event is created on the following Tuesday", "Calendar screenshot"]],
+          "objectives": ["Automate shared mailbox work", "Create calendar events from flows", "Prevent unwanted triggers"]
+        },
+        {
+          "topic": "Teams Messages, Adaptive Cards and Planner Tasks",
+          "subtopics": ["Post message in a chat or channel as the Flow bot or as the user", "Mentions with Get an @mention token for a user", "When a new channel message is added and When keywords are mentioned", "The For a selected message trigger", "Post adaptive card and wait for a response", "Designing cards in the Adaptive Card Designer", "Planner: create a task, assign it and set a due date", "The Workflows app in Teams, which replaced Office 365 connectors and incoming webhooks in May 2026"],
+          "tools": ["Microsoft Teams connector", "Adaptive Card Designer (adaptivecards.io/designer)", "Planner connector", "Workflows app in Teams"],
+          "lab_task": "Post each new help request to the 'IT Support' channel with an @mention of the on-call engineer, send that engineer an adaptive card with Accept and Reassign buttons, and on Accept create a task in the 'IT Requests' Planner plan due in two days.",
+          "deliverable": "Teams and Planner flow, the card JSON and evidence of one accepted and one reassigned request",
+          "checks": [["Submit a help request", "Channel post mentions the on-call engineer by name", "Teams screenshot"], ["Select Accept on the card", "Planner task is created and due two days later", "Planner screenshot"], ["Select Reassign on the card", "No Planner task is created and the run records Reassign", "Run history"]],
+          "objectives": ["Post messages and mentions in Teams", "Collect answers with adaptive cards", "Create Planner tasks from flows"]
+        },
+        {
+          "topic": "SharePoint Lists and Libraries in Flows",
+          "subtopics": ["When an item is created and When an item is created or modified", "Get items with OData filter queries such as Status eq 'Open'", "Create item, Update item and choice, person and lookup columns", "When a file is created in a folder and Get file properties", "Update file properties to set document metadata", "Get changes for an item or a file (properties only) to see which column changed", "Running flows from a list with For a selected item", "Stopping a flow from retriggering when it updates its own item"],
+          "tools": ["SharePoint connector", "SharePoint list 'IT Requests'", "OData filter queries"],
+          "lab_task": "Create an 'IT Requests' list with Title, Category (choice), Requester (person), Status (choice) and Due Date columns, change the Forms flow to create list items, and build a flow that emails the requester when Status changes to Completed, using Get changes for an item so that other edits send nothing.",
+          "deliverable": "List schema, two flows and test evidence for a status change and an edit of another column",
+          "checks": [["Submit the form", "New list item has category, requester and due date filled", "List screenshot"], ["Change Status to Completed", "Requester receives one completion email", "Email and run history"], ["Edit only the Title of a completed item", "No completion email is sent", "Run history with the condition false"]],
+          "objectives": ["Create and update list items", "Filter items with OData queries", "React only to changed columns"]
+        },
+        {
+          "topic": "Excel Tables in Cloud Flows",
+          "subtopics": ["Why the Excel Online (Business) connector needs data in a table", "List rows present in a table: filter query, order by and the 256-row default", "Pagination to read more rows", "Add a row into a table, Update a row and Delete a row with a key column", "Dates as serial numbers and the ISO 8601 date format option", "Run script to call Office Scripts", "File locks and edits by several flows at once", "The Automate tab in Excel and its flow templates"],
+          "tools": ["Excel Online (Business) connector", "Excel for the web Automate tab", "Office Scripts"],
+          "lab_task": "Store a 'Training Bookings' table with 300 rows in OneDrive, list it with pagination, filter bookings for 'Room B' with a filter query, add a row for each new booking from a form and run an Office Script that sorts the table by date and greys out past bookings.",
+          "deliverable": "Excel workbook, flow, Office Script and run evidence",
+          "checks": [["List rows with pagination off", "256 rows are returned", "Run output count"], ["Turn on pagination with a threshold of 5,000", "All 300 rows are returned", "Run output count"], ["Submit a booking for Room B", "New row appears in date order after the script runs", "Workbook screenshot"]],
+          "objectives": ["Read and write Excel tables", "Handle pagination and date formats", "Call Office Scripts from flows"]
+        },
+        {
+          "topic": "OneDrive Files, Attachments and PDF Conversion",
+          "subtopics": ["When a file is created in a folder and Get file content", "Saving email attachments with Create file", "File content, base64 and the contentBytes property", "Convert file to PDF with the OneDrive for Business connector", "Copying and moving files between OneDrive and SharePoint", "Unique file names with timestamps", "Message size limits: 100 MB per action and up to 1 GB with chunking", "Skipping inline images such as email signatures"],
+          "tools": ["OneDrive for Business connector", "Office 365 Outlook connector", "SharePoint connector"],
+          "lab_task": "Save attachments from emails with 'Timesheet' in the subject into OneDrive folders named by year and month, skip inline signature images, convert each Word timesheet to PDF and copy it to the 'Timesheets' SharePoint library as '2026-11 <sender name> <time>.pdf'.",
+          "deliverable": "Attachment flow, the OneDrive folder structure and three converted PDFs",
+          "checks": [["Send an email with two Word attachments and a signature image", "Two files are saved and the image is skipped", "OneDrive screenshot"], ["Open the Timesheets library", "PDFs named by month and sender are present", "Library screenshot"], ["Send the same timesheet twice", "Second PDF gets a different name and nothing is overwritten", "Library screenshot"]],
+          "objectives": ["Save and route attachments", "Convert documents to PDF", "Avoid file name collisions"]
+        },
+        {
+          "topic": "Approval Flows for Microsoft Forms Requests",
+          "subtopics": ["Start and wait for an approval with Approve/Reject - First to respond", "Approve/Reject - Everyone must approve", "Assigning the requester's manager as approver", "Approval details in Markdown with item links", "Responding in Outlook, the Approvals app in Teams and the portal", "Using the outcome and comments in later actions", "Viewing sent and received approvals in the portal", "Approving on a phone with the Teams Approvals app, since the Power Automate mobile app left the app stores on 31 August 2026"],
+          "tools": ["Approvals connector", "Microsoft Forms connector", "Approvals app in Teams", "Office 365 Users connector"],
+          "lab_task": "Build a training budget request: a Microsoft Forms request with course name, cost and dates starts an approval for the requester's manager with a Markdown table of the details, and emails the requester the outcome with the approver's comments.",
+          "deliverable": "Approval flow and evidence of one approved and one rejected request",
+          "checks": [["Submit a £1,200 course request", "Manager receives the approval in Teams and Outlook", "Approvals app screenshot"], ["Reject the request with a comment", "Requester email shows Reject and the comment", "Email screenshot"], ["Switch to Everyone must approve with two approvers and approve once", "Flow keeps waiting for the second approver", "Run history"]],
+          "objectives": ["Build single-stage approvals", "Use outcomes and comments", "Explain where approvers respond"]
+        },
+        {
+          "topic": "Run History and Fixing Failed Runs",
+          "subtopics": ["Run history: status, duration, start time and 30-day retention", "Reading inputs and outputs of a failed action", "Common errors: 400 bad request, 401 and 403 access, 404 not found and 429 throttling", "Resubmitting and cancelling runs", "Flow Checker errors and warnings", "Configure run after to send a failure notice", "Flows turned off after 14 days of continuous failures", "Testing again with a previous run's trigger"],
+          "tools": ["Power Automate run history", "Flow Checker", "Test pane", "Configure run after"],
+          "lab_task": "Repair three broken trainer flows: one points at a deleted SharePoint list, one calls Get manager (V2) for a user without a manager and one formats an empty date. Find the failing action in each run, fix it, resubmit the original run and add a 'has failed' email branch to one flow.",
+          "deliverable": "Three fixed flows, a successful resubmitted run for each and an error log table",
+          "checks": [["Open the failed SharePoint run", "Failing action shows a 404 error for the missing list", "Run screenshot"], ["Resubmit the run after the fix", "New run succeeds with the original trigger data", "Run history"], ["Send an empty date to the third flow", "Failure email from the run-after branch arrives", "Email screenshot"]],
+          "objectives": ["Read failed runs", "Fix and resubmit runs", "Notify on failure with run after"]
+        },
+        {
+          "topic": "Sharing, Ownership and Connections",
+          "subtopics": ["Co-owners: users, security groups and Microsoft 365 groups", "Run-only users for instant flows", "Embedded connections or connections provided by the run-only user", "Sharing a list-triggered instant flow with a SharePoint list", "The Connections page: status, fixing and who can use a connection", "When an owner leaves: the flow falls back to the low performance profile", "Exporting and importing a flow package (.zip)", "When to move shared flows into solutions"],
+          "tools": ["Power Automate Share pane", "Connections page", "Microsoft 365 groups"],
+          "lab_task": "Add the 'IT Automation Owners' Microsoft 365 group as co-owner of the IT Requests flows, share the 'Escalate request' instant flow with the 'IT Support' group as run-only users with their own SharePoint connection, repair a broken connection and move one flow to the test environment as a package.",
+          "deliverable": "Ownership matrix for every flow, the exported package and import screenshots",
+          "checks": [["Sign in as a member of the owners group", "Flow is listed under Shared with me and can be edited", "Screenshot"], ["Run the instant flow as a run-only user without access to the list", "Run fails because that user's connection has no access", "Run history"], ["Import the package into the test environment", "Import asks for a connection for each connector", "Import screenshot"]],
+          "objectives": ["Share flows with owners and run-only users", "Manage connections", "Plan flow ownership"]
+        },
+        {
+          "topic": "Templates and AI-Assisted Flow Creation",
+          "subtopics": ["The template gallery at make.powerautomate.com/templates", "Templates in the Excel Automate tab, the Teams Workflows app and SharePoint lists", "Reviewing a template: trigger, connections, owner and premium connectors", "Copilot in the designer and Describe it to design it retire on 30 November 2026; existing flows keep working", "The Workflows agent in Microsoft Copilot for Microsoft 365 automations (Frontier programme)", "The Microsoft Power Automate plugin for GitHub Copilot CLI and Claude Code", "Checking generated flows: connections, filters, loops and recipients", "Writing a clear automation request: trigger, data, decision, action and owner"],
+          "tools": ["Power Automate template gallery", "Excel Automate tab", "Workflows app in Teams", "Power Automate plugin for GitHub Copilot CLI (trainer demonstration)"],
+          "lab_task": "Create three flows from templates in the portal, Excel and the Teams Workflows app and note what each changes, then write a five-part request for a 'new starter checklist' flow; the trainer generates it with the Power Automate plugin in GitHub Copilot CLI and you review the result against your request.",
+          "deliverable": "Three template flows, the written request and a review sheet of the generated flow",
+          "checks": [["Open a template before creating it", "Connectors and required connections are listed", "Screenshot"], ["Compare the generated flow with the written request", "Missing or extra steps are listed", "Review sheet"], ["Open a flow that was built with Copilot before 30 November 2026", "Flow still runs and can be edited in the designer", "Run history"]],
+          "objectives": ["Start flows from templates", "Review generated flows", "Write clear automation requests"]
+        },
+        {
+          "topic": "First Desktop Flows with Power Automate for Desktop",
+          "subtopics": ["When to use desktop flows: apps and sites without connectors", "Installing Power Automate for desktop and the Edge and Chrome extensions", "The console, flow designer, actions pane and variables pane", "Recording steps with the recorder", "File and folder actions: Get files in folder, Rename files, Move files and Create folder", "Variables in desktop flows: %NewVar%, lists and datatables", "Running and debugging with breakpoints and Run from here", "Signing in with a work account so flows are stored in Dataverse"],
+          "tools": ["Power Automate for desktop (2611 release)", "Power Automate extension for Microsoft Edge", "Windows File Explorer"],
+          "lab_task": "Build a desktop flow that renames the 40 scanned PDFs in C:\\Training\\Scans to 'Scan-YYYYMMDD-NNN.pdf', moves them into one folder per day and writes a log line per file, then record a second flow that enters one record in the trainer's sample web form in Edge.",
+          "deliverable": "Two desktop flows, the renamed folder structure and the log file",
+          "checks": [["Run the rename flow on the 40 sample files", "40 files are renamed and grouped by day", "Folder screenshot and log"], ["Set a breakpoint inside the loop and run", "Flow pauses and the variables pane shows the current file", "Screenshot"], ["Run the recorded flow", "New record appears in the sample web form's list", "Screenshot"]],
+          "objectives": ["Build and run desktop flows", "Use variables and loops in desktop flows", "Record simple web steps"]
+        },
+        {
+          "topic": "Running a Desktop Flow from a Cloud Flow",
+          "subtopics": ["Registering a machine with the Power Automate machine runtime app", "The desktop flows connection: machine, user name and password", "Run a flow built with Power Automate for desktop in a cloud flow", "Attended mode and unattended mode", "Input and output variables of a desktop flow", "Sensitive inputs that are hidden in logs", "Desktop flow runs and the run queue in the portal", "Licences: Power Automate Premium for attended runs, Process licences for unattended runs"],
+          "tools": ["Power Automate machine runtime", "Desktop flows connector", "Power Automate portal Monitor > Desktop flow runs"],
+          "lab_task": "Register your lab PC, give the rename flow a folder path input and a files-processed output, and call it in attended mode from an instant cloud flow that posts the number of processed files to Teams.",
+          "deliverable": "Registered machine, desktop flows connection, cloud flow and run evidence",
+          "checks": [["Open Monitor > Machines", "Lab PC shows as connected", "Screenshot"], ["Run the instant cloud flow while signed in to the PC", "Teams post shows the number of files processed", "Teams screenshot and run history"], ["Lock the PC and run the cloud flow again", "Desktop flow run fails with an attended-session error", "Run error details"]],
+          "objectives": ["Register machines", "Start desktop flows from cloud flows", "Pass inputs and outputs"]
+        },
+        {
+          "topic": "Beginner Capstone: Equipment Request Process from Form to Weekly Report",
+          "subtopics": ["Process map and flow list for the request process", "Form, list, approval and Teams notification flows", "PDF confirmations in OneDrive", "Weekly scheduled report with an HTML table", "Desktop flow that records approved items in the sample asset app", "Run evidence, ownership and handover walkthrough"],
+          "tools": ["Power Automate portal", "Microsoft Forms", "SharePoint", "Microsoft Teams", "OneDrive for Business", "Power Automate for desktop"],
+          "lab_task": "Automate equipment requests: a Microsoft Forms request creates a SharePoint item and a manager approval, the requester is told in Teams, a PDF confirmation is saved in OneDrive, an attended desktop flow enters approved items in the trainer's asset register app, and a Friday 16:00 flow emails an HTML summary of the week.",
+          "deliverable": "Working flows, process map, ownership table and a 10-minute walkthrough",
+          "checks": [["Submit and approve a laptop request", "List item, approval, Teams post, PDF and asset record all exist", "Run histories and screenshots"], ["Submit and reject a monitor request", "Requester is told and no asset record is created", "Run history"], ["Run the weekly report flow", "Email table lists every request of the week with its outcome", "Email screenshot"]],
+          "objectives": ["Combine the beginner topics in one process", "Handle approved and rejected paths", "Hand over flows with evidence"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For makers and automation developers who already build cloud flows and want to build integrated, reliable automations. Covers workflow definition language expressions and JSON, child flows, try-catch-finally error handling, retry policies, concurrency and pagination, HTTP actions and custom connectors, Dataverse triggers and actions, business process flows, approvals in depth, solution-aware flows with environment variables and connection references, desktop flows for UI, web, Excel and SAP GUI automation, AI Builder document processing, process and task mining, and testing and monitoring, in line with the automation domain of AB-410.",
+      "prerequisites": ["Builds automated, instant and scheduled cloud flows with conditions, loops and expressions", "Has run a desktop flow from a cloud flow", "Power Automate Premium licence and maker access to a Dataverse environment", "Reads JSON and knows what a REST API request and response are"],
+      "outcomes": ["Write expressions and JSON handling that keep flows short and readable", "Build reusable flows with child flows, try-catch-finally scopes, retry policies and concurrency settings", "Integrate REST APIs, custom connectors and Dataverse in solution-aware flows", "Build reliable desktop flows for UI, web, Excel and SAP GUI and add AI Builder and process mining"],
+      "days": [
+        {
+          "topic": "Workflow Definition Language Expressions in Depth",
+          "subtopics": ["Expression structure, the @ sign and string interpolation with @{...}", "Collection functions: first, last, skip, take, union, intersection and chunk", "Sorting and reversing arrays with sort and reverse", "Object functions: addProperty, setProperty and removeProperty", "Reference functions: body, outputs, actions, items and triggerBody", "Null-safe access with ? and coalesce", "Summing numbers with xpath over an XML copy of an array", "Expression limits: 8,192 characters per expression"],
+          "tools": ["Expression editor", "Compose action", "Code view in the cloud flow designer", "Workflow expression functions reference (Azure Logic Apps documentation)"],
+          "lab_task": "Given a 200-item JSON array of orders, use only Compose actions and expressions to return the five largest orders with sort, reverse and take, total every order value with xpath, add a region property to each order with setProperty inside Select and split the array into batches of 50 with chunk.",
+          "deliverable": "Expression workbook flow with each Compose output and an annotated list of the expressions",
+          "checks": [["Run the flow on the 200-order sample", "Top-five output lists the five largest orders in descending order", "Compose output"], ["Compare the xpath total with an Excel SUM of the same data", "Totals are equal", "Run output and Excel screenshot"], ["Inspect the chunk output", "Four batches of 50 orders are returned", "Compose output"]],
+          "objectives": ["Use collection and object functions", "Aggregate arrays without loops", "Read outputs with reference functions"]
+        },
+        {
+          "topic": "JSON Handling: Parse JSON, Select and Filter Array",
+          "subtopics": ["Parse JSON schemas generated from a sample payload", "Nullable schema properties that stop 'Invalid type' errors", "When to skip Parse JSON and read values with expressions", "Select in key-value mode and in text mode", "Filter array in advanced mode with expressions", "Joining two arrays with Filter array inside Select", "Building JSON with Compose and json()", "Run time saved by data operations compared with Apply to each"],
+          "tools": ["Parse JSON action", "Select action", "Filter array action", "Compose action"],
+          "lab_task": "Take a trainer API response with 500 customers and 1,200 invoices, parse it with a nullable schema, produce the list of customers with invoices unpaid for more than 30 days and their total balance using Select and Filter array, then compare the run duration with an Apply to each version.",
+          "deliverable": "Two versions of the flow, their run durations and the result JSON",
+          "checks": [["Send a payload where one customer has a null phone number", "Parse JSON succeeds with the nullable schema", "Run history"], ["Run both versions on the same payload", "Data operations version finishes faster than the loop version", "Run duration comparison"], ["Check a customer with no unpaid invoices", "Customer is not in the result", "Output JSON"]],
+          "objectives": ["Parse JSON safely", "Reshape and filter arrays", "Replace loops with data operations"]
+        },
+        {
+          "topic": "Child Flows and Reusable Flow Design",
+          "subtopics": ["Manually trigger a flow with typed inputs as the child trigger", "Run a Child Flow, which needs both flows in a solution", "Respond to a PowerApp or flow to return outputs", "Child flow connections: set run-only users to use the flow's own connections", "Passing arrays and objects as JSON text", "How the parent sees a child failure", "Child flows do not inherit Process licence capacity from the parent's flow group", "Shared child flows for logging, lookups and notifications"],
+          "tools": ["Solutions in Power Automate", "Run a Child Flow action", "Respond to a PowerApp or flow action"],
+          "lab_task": "In a solution, build a 'Log Event' child flow that writes a row to an 'Automation Log' SharePoint list and returns its ID, and a 'Get Approver' child flow that returns the approver for a cost centre from an Excel lookup table; call both from two parent flows and make one child fail on purpose.",
+          "deliverable": "Solution with two child flows, two parent flows and run evidence",
+          "checks": [["Call Get Approver with cost centre CC-410", "Parent receives the approver defined for CC-410", "Run output"], ["Set the child's SharePoint connection to Provided by run-only user and save the parent", "Save fails with a ChildFlowUnsupportedForInvokerConnections error", "Error screenshot"], ["Force Log Event to fail", "Parent's Run a Child Flow action shows the child failure", "Run history of both flows"]],
+          "objectives": ["Build child flows with inputs and outputs", "Configure child flow connections", "Reuse logic across flows"]
+        },
+        {
+          "topic": "Scopes and Try-Catch-Finally Error Handling",
+          "subtopics": ["Scope actions to group steps", "Try, Catch and Finally scopes with Configure run after", "Run after states: is successful, has failed, is skipped and has timed out", "The result() function to find failed actions inside a scope", "Building a run link from workflow() for alert emails", "Terminate with Failed status, an error code and a message", "Logging errors to a list or a Dataverse table", "Keeping the main path readable within the eight-level nesting limit"],
+          "tools": ["Scope action", "Configure run after", "result() and workflow() expressions", "Terminate action"],
+          "lab_task": "Wrap an order-import flow in Try, Catch and Finally scopes; in Catch, use result('Try') and Filter array to email the failed action's name and error with a link to the run, log it to an 'Automation Errors' list and end with Terminate Failed; Finally writes the run duration for every run.",
+          "deliverable": "Error-handled flow, the error list and one successful and one failed run",
+          "checks": [["Break the SharePoint step and run", "Alert email names the failed action and links to the run", "Email and run history"], ["Run with valid data", "Catch is skipped and Finally still writes the duration", "Run history"], ["Check the failed run in the run list", "Run shows Failed with the custom error message", "Run list screenshot"]],
+          "objectives": ["Build try-catch-finally patterns", "Report failures with context", "End runs with the right status"]
+        },
+        {
+          "topic": "Retry Policies, Timeouts and Idempotent Actions",
+          "subtopics": ["Default retry policy: up to 12 exponential retries on medium and high profiles, two on low", "Retry policy types: none, fixed interval and exponential interval", "Retry limits: up to 90 attempts and a one-day maximum delay", "Responses that are retried: 408, 429 and 5xx", "Action timeouts and the 120-second limit for synchronous requests", "The asynchronous pattern with 202 Accepted and a location header", "Idempotent design: look up before you create and use external keys", "Retry-After headers from throttled APIs"],
+          "tools": ["Action settings: Retry policy and Timeout", "HTTP action", "Trainer mock API that returns 429 and 503"],
+          "lab_task": "Call the trainer's mock API that returns 503 twice before succeeding and 429 with a Retry-After header, compare the default retry policy with a fixed policy of 3 retries every 20 seconds, set a PT1M timeout on a 90-second endpoint and make the create-customer step look up the external ID before it creates.",
+          "deliverable": "Flow with retry and timeout settings, retry evidence and an idempotency test",
+          "checks": [["Call the endpoint that fails twice with 503", "Action succeeds and the run shows the retries", "Run details"], ["Call the 90-second endpoint with a PT1M timeout", "Action ends with a timed-out status after one minute", "Run history"], ["Resubmit a run that already created customer EXT-1001", "No duplicate customer is created", "Target system record count"]],
+          "objectives": ["Configure retry policies", "Handle timeouts and asynchronous APIs", "Design idempotent steps"]
+        },
+        {
+          "topic": "Concurrency, Pagination and Trigger Conditions",
+          "subtopics": ["Trigger concurrency control: 1 to 100 parallel runs, default 25, and why it cannot simply be switched off later", "Apply to each degree of parallelism up to 50", "Wrong totals from variables in parallel loops and how to avoid them", "Pagination thresholds: 5,000 items on the low profile and 100,000 on others", "Split On for triggers that return arrays", "Trigger conditions such as @equals(triggerOutputs()?['body/Status/Value'], 'Submitted')", "Filtering at the source with OData to save requests", "Sequential runs for work that must keep its order"],
+          "tools": ["Trigger settings", "Apply to each settings", "SharePoint connector", "Flow analytics (Actions tab)"],
+          "lab_task": "Process a 6,000-item SharePoint list: read it with pagination, update items in Apply to each with a parallelism of 20 and compare the time with sequential processing, then add a trigger condition so the item-changed flow runs only when Status is Submitted and count the runs saved over a day of test edits.",
+          "deliverable": "Timing comparison, trigger condition and a run count before and after",
+          "checks": [["Read the list with Get items and pagination off", "Only the first 100 items are returned", "Run output count"], ["Set pagination to 6,000 and read again", "All 6,000 items are returned", "Run output count"], ["Edit an item without setting Status to Submitted", "No flow run starts", "Run history"]],
+          "objectives": ["Tune concurrency safely", "Read large data sets with pagination", "Reduce runs with trigger conditions"]
+        },
+        {
+          "topic": "HTTP Actions, Webhooks and REST APIs",
+          "subtopics": ["HTTP action: method, URI, headers, queries and body", "Authentication: API key, Basic, Microsoft Entra ID OAuth and client certificates", "HTTP with Microsoft Entra ID (preauthorized) for Microsoft Graph and SharePoint REST", "When an HTTP request is received and the Who can trigger the flow setting", "Trigger URLs on environment.api.powerplatform.com since logic.azure.com URLs stopped on 30 November 2025", "Response action with status codes and JSON bodies", "Secure inputs and secure outputs in run history", "Microsoft Graph paging with @odata.nextLink"],
+          "tools": ["HTTP action (premium)", "When an HTTP request is received trigger", "Response action", "HTTP with Microsoft Entra ID (preauthorized) connector", "Graph Explorer", "Postman"],
+          "lab_task": "Build an HTTP-triggered flow that only users in your tenant can call, which validates a JSON order and returns 201 with an order ID or 400 with the missing fields; then call Microsoft Graph with an app registration to list the 300 members of a group by following @odata.nextLink, with secure outputs on.",
+          "deliverable": "HTTP API flow, a Postman collection with three test calls and the Graph paging flow",
+          "checks": [["POST a valid order from Postman with a bearer token", "Response is 201 with an order ID", "Postman screenshot"], ["POST an order without a customer ID", "Response is 400 and lists the missing field", "Postman screenshot"], ["Open the Graph action in run history", "Inputs and outputs are hidden by the secure settings", "Run screenshot"]],
+          "objectives": ["Call REST APIs from flows", "Expose flows as secured HTTP endpoints", "Protect secrets in run history"]
+        },
+        {
+          "topic": "Custom Connectors for Cloud Flows",
+          "subtopics": ["When a custom connector is better than repeated HTTP actions", "Creating a connector from an OpenAPI 2.0 file or a Postman collection", "Authentication types: API key, OAuth 2.0 and Microsoft Entra ID", "Actions, triggers and request and response schemas", "Policy templates such as Set HTTP header and Route request", "Custom code in C# for small request and response changes", "Testing on the Test tab and sharing the connector", "Connectors in solutions, pac connector commands and limits of 50 per user and 500 requests per minute per connection"],
+          "tools": ["Custom connector wizard", "Power Platform CLI (pac connector)", "Swagger Editor", "Trainer's Inventory API"],
+          "lab_task": "Build an 'Inventory API' custom connector from the trainer's OpenAPI 2.0 file with API key authentication, add a Get stock level action with a typed response and a policy that sets an x-correlation-id header, then add it to a solution and use it in a flow that alerts Teams when SKU-2201 drops below 20 units.",
+          "deliverable": "Custom connector in a solution, its OpenAPI file, test results and the stock alert flow",
+          "checks": [["Run Get stock level for SKU-2201 on the Test tab", "Response shows the quantity in typed fields", "Test tab screenshot"], ["Call the action with an invalid API key", "Action fails with 401 Unauthorized", "Run history"], ["Read the API request log", "Every call carries the x-correlation-id header", "API log screenshot"]],
+          "objectives": ["Build custom connectors from definitions", "Secure and test connectors", "Package connectors in solutions"]
+        },
+        {
+          "topic": "Dataverse Triggers and Actions in Cloud Flows",
+          "subtopics": ["When a row is added, modified or deleted: change type, table and scope", "Select columns, which ignores lookup columns, and Filter rows with OData", "List rows with OData filters, FetchXML and expand queries", "Add a new row, Update a row and setting lookups with entity set names", "Run as: flow owner, row owner or modifying user", "Perform a bound action and Perform an unbound action", "Change sets for all-or-nothing writes", "The Delay until trigger property that never expires"],
+          "tools": ["Microsoft Dataverse connector", "Power Apps maker portal tables", "FetchXML Builder in XrmToolBox"],
+          "lab_task": "On a 'Service Case' table, build a flow that runs only when Priority changes to Urgent, reads the account's SLA hours with List rows and an expand query, and inside a change set creates a follow-up task linked to the case and sets the case's SLA due date, running as the modifying user.",
+          "deliverable": "Dataverse flow, test cases and audit history showing who made each change",
+          "checks": [["Change a case's Priority from Normal to Urgent", "Follow-up task is created and linked to the case", "Related tab screenshot"], ["Change only the Description of an urgent case", "Flow does not run", "Run history"], ["Make the second change set operation fail", "Neither change is saved", "Table data screenshot"]],
+          "objectives": ["Configure Dataverse triggers precisely", "Query and write Dataverse rows", "Use change sets and Run as"]
+        },
+        {
+          "topic": "Business Process Flows and Automated Stage Logic",
+          "subtopics": ["Business process flows: stages, steps and the process bar on model-driven forms", "Limits: 30 stages per process, five tables and 10 active processes per table", "Branching to different stages with conditions", "The business process flow table and its active stage", "Flow steps that run instant cloud flows from a stage", "Moving the active stage from a cloud flow", "Security roles that decide which process a user sees", "Replacing classic Dataverse background workflows with cloud flows"],
+          "tools": ["Business process flow designer", "Model-driven app", "Microsoft Dataverse connector"],
+          "lab_task": "Create a 'Supplier Onboarding' business process flow with Request, Due Diligence, Approval and Activation stages and an extra stage for suppliers above £100,000 annual spend, add a flow step on Approval that starts an approval, and a cloud flow that moves the process to Activation and stamps the activation date once approved.",
+          "deliverable": "Business process flow, flows and screenshots of one low-spend and one high-spend supplier",
+          "checks": [["Create a supplier with £150,000 annual spend", "Process shows the extra high-spend stage", "Form screenshot"], ["Approve the request started from the flow step", "Process moves to Activation by itself", "Form screenshot and run history"], ["Open a supplier as a user without the onboarding role", "Onboarding process is not offered", "Screenshot"]],
+          "objectives": ["Design business process flows", "Drive stages from cloud flows", "Control processes by security role"]
+        },
+        {
+          "topic": "Approvals in Depth: Sequential, Parallel and Custom Responses",
+          "subtopics": ["Create an approval and Wait for an approval to add reminders and timeouts", "Custom responses: wait for all responses or wait for one", "Sequential approvals up a manager chain from Office 365 Users", "Parallel approvals in parallel branches", "Timeouts with has timed out and escalation", "Reassigning approvals and covering absent approvers", "Approval records in Dataverse tables for reporting", "Long approvals and the 30-day run duration limit"],
+          "tools": ["Approvals connector", "Office 365 Users connector", "Approvals app in Teams", "Dataverse approvals tables"],
+          "lab_task": "Build a purchase approval: under £5,000 goes to the line manager, £5,000 to £25,000 also needs Finance and Legal in parallel, and above £25,000 adds the department head in sequence; use custom responses Approve, Reject and Need info, remind after two days and escalate after five.",
+          "deliverable": "Approval flow, approval matrix and test evidence for each amount band",
+          "checks": [["Request £3,000", "Only the line manager receives an approval", "Approvals app screenshot"], ["Request £12,000 and answer Need info as Legal", "Requester gets the Legal comment and the request returns for changes", "Run history"], ["Leave a £30,000 request unanswered past the test timeout", "Escalation goes to the department head", "Email and run history"]],
+          "objectives": ["Build multi-stage approvals", "Handle timeouts and escalation", "Use custom responses"]
+        },
+        {
+          "topic": "Solution-Aware Flows with Environment Variables and Connection References",
+          "subtopics": ["Why flows belong in solutions instead of My flows", "Adding existing non-solution flows to a solution", "Publishers, prefixes and solution versions", "Connection references and how flows bind to them", "Environment variable types: text, number, yes/no, JSON, data source and secret", "Secret environment variables stored in Azure Key Vault", "Exporting managed and unmanaged solutions", "Deployment settings files with pac solution create-settings", "Importing to test: mapping connection references and setting variable values", "Turning flows on after import and checking their owner"],
+          "tools": ["Solutions in Power Automate", "Power Platform CLI (pac solution)", "Azure Key Vault", "Connection references and environment variables"],
+          "lab_task": "Move the purchase approval flows into an 'Approvals' solution, replace hard-coded site URLs and list names with environment variables, store the API key as a secret variable in Azure Key Vault, export a managed solution, generate a deployment settings file with pac solution create-settings and import it to test with test values.",
+          "deliverable": "Solution files, deployment settings JSON and import evidence in the test environment",
+          "checks": [["Open the imported flow in test", "SharePoint actions use the test site from the environment variable", "Flow screenshot"], ["Import without a value for a required variable", "Import asks for the missing value", "Import screenshot"], ["Run the flow in test", "Run succeeds with the test connection reference", "Run history"]],
+          "objectives": ["Build solution-aware flows", "Use connection references and environment variables", "Deploy with settings files"]
+        },
+        {
+          "topic": "Desktop Flow UI Automation and Selectors",
+          "subtopics": ["UI elements, selectors and the UI elements pane", "Capturing elements and editing selectors in the selector builder", "Dynamic selectors with variables and operators such as contains and starts with", "UI automation actions: Click UI element in window, Populate text field in window and Select tab in window", "Extract data from window into a datatable", "Image and OCR actions for apps reached over Citrix or Remote Desktop", "Testing selectors and repairing broken ones", "UI element collections shared across flows"],
+          "tools": ["Power Automate for desktop UI automation actions", "Selector builder", "UI element collections", "Trainer's sample WinForms order app"],
+          "lab_task": "Automate the trainer's WinForms order app: capture 12 UI elements, enter 25 orders from a CSV file, read each confirmation number from the status bar, make the row selector dynamic with a variable and share the elements as a UI element collection used by a second flow.",
+          "deliverable": "Desktop flow, UI element collection and a CSV of 25 confirmation numbers",
+          "checks": [["Run the flow on the 25-order CSV", "25 confirmation numbers are written back", "Output CSV"], ["Change the window title as the next app version does", "Flow still finds the window through the edited selector", "Run log"], ["Test a selector while the app is closed", "Test reports that the element is not found", "Screenshot"]],
+          "objectives": ["Capture and edit selectors", "Automate Windows applications", "Reuse UI elements across flows"]
+        },
+        {
+          "topic": "Browser Automation in Desktop Flows",
+          "subtopics": ["Browser extensions for Microsoft Edge and Google Chrome and how admins deploy them", "Launch new Microsoft Edge and attaching to a running browser", "Form filling: Populate text field on web page, Set drop-down list value on web page and Press button on web page", "Extract data from web page across several pages", "Wait for web page content on slow pages", "Run JavaScript function on web page", "Downloads, pop-up dialogs and file uploads", "Web automation compared with a connector or an HTTP call"],
+          "tools": ["Power Automate for desktop browser automation actions", "Power Automate extension for Microsoft Edge", "Power Automate extension for Google Chrome", "Trainer's sample supplier portal"],
+          "lab_task": "On the trainer's supplier portal, sign in with a stored credential, extract 8 pages of open purchase orders into a datatable, download each order PDF to C:\\Training\\Orders and submit delivery confirmations for the three orders due this week.",
+          "deliverable": "Browser desktop flow, the extracted datatable saved to Excel and the downloaded PDFs",
+          "checks": [["Run the extraction", "Rows from all 8 pages are in the datatable", "Excel output"], ["Run with the portal's slow-response mode on", "Flow waits for page content and completes", "Run log"], ["Submit the delivery confirmations", "Portal shows the three orders as confirmed", "Portal screenshot"]],
+          "objectives": ["Automate web applications", "Extract paged web data", "Handle downloads and slow pages"]
+        },
+        {
+          "topic": "Excel and SAP GUI Automation in Desktop Flows",
+          "subtopics": ["Launch Excel, Read from Excel worksheet and Write to Excel worksheet", "Named ranges and Get first free column/row from Excel worksheet", "Running Excel macros and closing workbooks safely", "SAP GUI scripting prerequisites: sapgui/user_scripting in RZ11 and client scripting settings", "SAP actions: Launch SAP, Start SAP transaction, Click SAP UI element and Close SAP connection", "Recorded SAP steps compared with VBScript from the SAP GUI script recorder", "Reading status bar messages for document numbers and errors", "Handling SAP pop-ups and locked records"],
+          "tools": ["Power Automate for desktop Excel actions", "Power Automate for desktop SAP actions", "SAP GUI for Windows", "SAP S/4HANA training system"],
+          "lab_task": "Read 30 supplier address changes from an Excel workbook, update each supplier in SAP S/4HANA with transaction BP using the SAP actions, capture the status bar message, write 'Updated' or the error text into column F and run a macro that highlights failed rows.",
+          "deliverable": "Desktop flow, the updated workbook with a status per row and the run log",
+          "checks": [["Run on the 30-row workbook", "Column F shows Updated or an error for every row", "Workbook screenshot"], ["Include a supplier number that does not exist", "Flow records the SAP error and moves to the next row", "Workbook and run log"], ["Display one updated supplier in transaction BP", "New address is saved", "SAP screenshot"]],
+          "objectives": ["Automate Excel workbooks", "Automate SAP GUI transactions", "Write results back for review"]
+        },
+        {
+          "topic": "Desktop Flow Variables, Subflows and Error Handling",
+          "subtopics": ["Variable types: text, numeric, boolean, list, datatable and custom object", "Input and output variables, sensitive variables and default values", "Local and global variables in subflows", "Subflows and Run subflow", "Run desktop flow to call another desktop flow", "Action On error settings: retry, continue, go to label and run subflow", "On block error for groups of actions", "Get last error and writing error logs", "Power Fx-enabled desktop flows: = expressions and 1-based indexes", "Credentials stored in Azure Key Vault or CyberArk and the Get credential action"],
+          "tools": ["Power Automate for desktop", "On block error action", "Power Automate credentials (Azure Key Vault)", "Static analysis in Power Automate for desktop"],
+          "lab_task": "Refactor the SAP update flow into Main, ReadInput, UpdateSupplier and WriteResult subflows, pass the workbook path in and the error count out, wrap UpdateSupplier in On block error with one retry after 5 seconds and a screenshot on failure, read the SAP password from an Azure Key Vault credential and clear all static analysis warnings.",
+          "deliverable": "Refactored flow, a static analysis result with no warnings and a screenshot from a forced error",
+          "checks": [["Run with three bad supplier numbers", "Output variable returns 3", "Cloud flow run output"], ["Close SAP during a run", "Block retries once, saves a screenshot and moves to the next row", "Run log and screenshot file"], ["Open the variables pane", "SAP password variable is sensitive and hidden from logs", "Screenshot"]],
+          "objectives": ["Structure desktop flows with subflows", "Handle errors at action and block level", "Use credentials and sensitive variables"]
+        },
+        {
+          "topic": "AI Builder Document Processing in Flows",
+          "subtopics": ["Prebuilt models: Extract information from invoices, receipts and identity documents", "Custom document processing models for fixed template documents, general documents and invoices", "Tagging at least five sample documents per collection", "Confidence scores and sending low-confidence fields to a person", "Extract information from documents in cloud flows", "Run a prompt to classify or summarise extracted text", "Copilot Credits replace AI Builder credits for new and renewed licences from 1 November 2026", "Watching model use on the AI Builder activity page in Automation Center"],
+          "tools": ["AI Builder", "AI Builder actions (Extract information from documents, Extract information from invoices)", "Prompts in AI hub", "Automation Center"],
+          "lab_task": "Train a custom document processing model on 15 delivery notes in three layouts to extract delivery number, date, supplier and line items, then build a flow that reads delivery notes from a mailbox, writes fields with confidence of 0.80 or more to Dataverse and sends the rest to a Teams review card.",
+          "deliverable": "Published model, its accuracy score and the processing flow",
+          "checks": [["Process a clean delivery note", "All fields are written to Dataverse above 0.80 confidence", "Dataverse row and run output"], ["Process a blurred scan", "Low-confidence fields go to the Teams review card", "Teams screenshot"], ["Open AI Builder activity in Automation Center", "Model calls from the test runs are listed", "Screenshot"]],
+          "objectives": ["Train and use document processing models", "Route documents by confidence", "Plan AI consumption"]
+        },
+        {
+          "topic": "Process Mining and Task Mining for Automation Discovery",
+          "subtopics": ["Event logs: case ID, activity and timestamps", "Loading data from CSV files, Dataverse, Azure Data Lake Storage or Fabric OneLake", "Transforming data in Power Query during ingestion", "Process map, variants, bottlenecks and rework in the process intelligence experience", "Case duration, timeframe and attribute filters", "Task mining recordings with the Power Automate recorder", "Application analytics and automation suggestions from task mining", "Process insights for your own cloud flows (preview)"],
+          "tools": ["Process mining in Power Automate", "Power Automate Process Mining desktop app", "Power Query", "Power Automate recorder for task mining"],
+          "lab_task": "Load the trainer's 18,000-event purchase-to-pay CSV with the PO number as case ID, find the three slowest variants and the activity with most rework, record five runs of 'Enter supplier invoice' with task mining and propose two automation candidates with estimated hours saved per month.",
+          "deliverable": "Process mining report, task mining recordings and an automation candidate sheet",
+          "checks": [["Map the CSV columns and load the process", "Process map shows activities with case counts", "Screenshot"], ["Filter to cases longer than 10 days", "Slowest variants and the bottleneck activity are named", "Filtered analytics screenshot"], ["Analyse the five task mining recordings", "Most time-consuming application and steps are listed", "Task mining analytics screenshot"]],
+          "objectives": ["Prepare and load event logs", "Find bottlenecks and variants", "Size automation candidates with task mining"]
+        },
+        {
+          "topic": "Testing and Monitoring Cloud and Desktop Flows",
+          "subtopics": ["Flow Checker and testing with manual or previous-run triggers", "Static results to mock action outputs", "Desktop flow test cases with the Test a desktop flow and Assert actions", "Test data and test environments", "Automation Center: runs, errors, work queues, machines and AI Builder activity", "Cloud flow run history in Dataverse (FlowRun table)", "Desktop flow run details, logs and screenshots", "Alerts: failure emails, Teams posts and owner notices"],
+          "tools": ["Flow Checker", "Static results", "Power Automate for desktop Tests", "Automation Center", "FlowRun table in Dataverse"],
+          "lab_task": "Write five test cases for the supplier-update desktop flow with Assert actions, mock the SAP step of the cloud flow with a static result to test the Catch path, rerun the tests after a selector change and filter Automation Center to failed runs of the invoice flows over the last 7 days.",
+          "deliverable": "Test cases with results, the mocked run and an Automation Center screenshot with filters",
+          "checks": [["Run the desktop test suite", "Five test cases report pass or fail with messages", "Test results screenshot"], ["Turn on a static result that returns 500 for the SAP step", "Catch runs without calling SAP", "Run history"], ["Filter Automation Center runs", "Only failed invoice flow runs from the last 7 days appear", "Screenshot"]],
+          "objectives": ["Test cloud and desktop flows", "Mock dependencies", "Monitor flows in one place"]
+        },
+        {
+          "topic": "Intermediate Capstone: Supplier Invoice Intake from Mailbox to SAP",
+          "subtopics": ["Solution design with connection references and environment variables", "Invoice extraction with AI Builder and confidence routing", "Approval matrix with custom responses and timeouts", "Desktop flow that posts to SAP with error handling", "Try-catch-finally logging and alerts", "Test evidence, monitoring view and design review"],
+          "tools": ["Power Automate", "AI Builder", "Microsoft Dataverse", "Power Automate for desktop", "SAP GUI", "Automation Center"],
+          "lab_task": "Build a solution that reads supplier invoices from the AP mailbox, extracts them with the invoice model, stores them in an 'Invoice Intake' Dataverse table, routes approvals by amount, posts approved invoices in SAP with transaction FB60 through a desktop flow and stores the document number; deploy it to test with a settings file.",
+          "deliverable": "Managed solution, settings file, test report and a 15-minute design review",
+          "checks": [["Send a £2,400 invoice from an approved supplier", "SAP document number is stored on the Dataverse row", "Dataverse row and SAP screenshot"], ["Send an invoice with a low-confidence total", "Invoice waits on the review card and is not posted", "Teams card and run history"], ["Stop the SAP machine during a run", "Catch logs the error and alerts the support channel", "Error log and Teams post"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Prove failure handling", "Deploy and monitor a solution"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For automation architects, RPA leads and platform owners who run automation across an organisation. Covers automation architecture and the choice between cloud flows, desktop flows, Azure Logic Apps and code, attended and unattended RPA at scale with machine groups, hosted machine groups and work queues, request limits and throttling, design for volume, security of connections and service principals, data policies, an automation centre of excellence, monitoring at scale, ALM pipelines, process mining programmes, agent flows and AI, migration from UiPath, Blue Prism and legacy workflows, operations and incidents, licensing and capacity, and programme leadership.",
+      "prerequisites": ["Has built and supported solution-aware cloud flows and desktop flows in production", "Uses connection references, environment variables, scopes and Dataverse in flows", "Power Platform administrator or environment administrator access to a test tenant"],
+      "outcomes": ["Design automation architectures and choose the right engine for each workload", "Run attended and unattended RPA at scale with machine groups, hosted machine groups and work queues", "Secure, govern, monitor and deploy automations within platform limits", "Lead an automation programme through migration, AI adoption, operations and licensing decisions"],
+      "days": [
+        {
+          "topic": "Automation Architecture: Cloud Flows, Desktop Flows, Logic Apps or Code",
+          "subtopics": ["Decision criteria: volume, latency, connectors, UI dependence, licensing and who maintains it", "Cloud flows compared with Azure Logic Apps Consumption and Standard", "Agent loop workflows in Logic Apps and agent flows in Copilot Studio as options", "Desktop flows only where no API or connector exists", "When to write code: Azure Functions, Dataverse plug-ins and custom APIs", "Event-driven designs with Dataverse, Azure Service Bus and webhooks", "Splitting work into intake, processing and notification flows", "Architecture decision records and reference diagrams"],
+          "tools": ["Power Automate", "Azure Logic Apps", "Azure Functions", "Visio or draw.io"],
+          "lab_task": "For five trainer scenarios (HR onboarding, 40,000 IoT events a day, SAP invoice posting, a nightly sync of 2 million rows and AI-assisted email triage), choose a cloud flow, desktop flow, Logic Apps workflow, agent flow or code, draw the target architecture for two of them and write a decision record for each choice.",
+          "deliverable": "Decision matrix, two architecture diagrams and five decision records",
+          "checks": [["Review the IoT events choice against request limits", "Workload stays within documented limits or moves to Logic Apps or code", "Decision record"], ["Review the SAP posting choice", "Desktop flow is chosen only after API options are ruled out", "Decision record"], ["Peer-review one diagram", "Every flow shows its owner, trigger and failure path", "Review notes"]],
+          "objectives": ["Choose automation engines on evidence", "Design automation architectures", "Record architecture decisions"]
+        },
+        {
+          "topic": "Attended and Unattended RPA Design",
+          "subtopics": ["Attended runs, unattended runs and picture-in-picture sessions", "Unattended requirements: signed-out sessions, screen resolution and no interactive prompts", "Run-only access with the Desktop Flows Machine User role", "Desktop flow queue priority and run timeouts", "Concurrent unattended runs on Windows Server 2016, 2019 and 2022 with different bot accounts", "Licences per bot: Power Automate Premium for attended runs, Process or Hosted Process for unattended runs", "Hand-offs between people and bots in one process", "Self-healing and AI-assisted selector repair (both preview) for changed screens"],
+          "tools": ["Power Automate machine runtime", "Desktop flows connector", "Windows Server 2022", "Power Automate portal Monitor > Desktop flow runs"],
+          "lab_task": "Run one claims process three ways, attended from a Teams button, attended in picture-in-picture and unattended on a Windows Server 2022 machine with two bot accounts, measure throughput for 50 claims in each mode and document the session and licence needs.",
+          "deliverable": "Run-mode comparison with timings, licence counts and session settings",
+          "checks": [["Queue three unattended runs for one bot account", "Runs execute one after another", "Desktop flow runs screenshot"], ["Queue two unattended runs for two different bot accounts", "Both runs execute at the same time on the server", "Desktop flow runs screenshot"], ["Run in picture-in-picture while working in Excel", "Flow completes in its own session without taking over the screen", "Screenshot"]],
+          "objectives": ["Choose attended or unattended modes", "Configure unattended runs", "Plan bot licences"]
+        },
+        {
+          "topic": "Machines and Machine Groups for Unattended Runs",
+          "subtopics": ["Direct machine connectivity since gateways for desktop flows were retired", "Silent registration with PAD.MachineRegistration.Silent.exe and a service principal", "Machine groups and joining machines to a group silently", "Machine group certificates for runtime authentication", "Maintenance mode during runtime upgrades", "The machine run queue and run order", "Network requirements: Azure Service Bus endpoints and proxies", "Machine sharing and the Desktop Flows Machine Owner and Desktop Flows Machine Configuration Admin roles"],
+          "tools": ["Power Automate machine runtime", "PAD.MachineRegistration.Silent.exe", "Power Automate portal Monitor > Machines", "Microsoft Entra app registration"],
+          "lab_task": "Register three Windows Server VMs silently with a service principal into a 'Finance-Prod' machine group, protect the group with a certificate, put one machine into maintenance mode during a runtime upgrade and show that queued runs go to the other two.",
+          "deliverable": "Registration script, machine group configuration and queue evidence",
+          "checks": [["Run the silent registration script on a new VM", "Machine joins the group without a sign-in prompt", "Machines list screenshot"], ["Put one machine in maintenance mode and queue six runs", "Runs go only to the other two machines", "Desktop flow runs screenshot"], ["Stop the Power Automate service on one VM", "Machine shows as disconnected and gets no new runs", "Machine status screenshot"]],
+          "objectives": ["Register machines at scale", "Manage machine groups", "Keep runtime connectivity healthy"]
+        },
+        {
+          "topic": "Hosted Machines and Hosted Machine Groups",
+          "subtopics": ["Hosted machines for building and testing, hosted machine groups for production", "Hosted Process licences, max bots and committed bots", "The default Windows 11 Enterprise image and custom images from Azure Compute Gallery", "Custom image rules: generalised images up to 127 GB", "Custom virtual networks for access to on-premises systems", "Reusing Windows sessions and work or school bot accounts", "Load balancing several hosted machine groups over shared capacity", "Hosted capacity utilisation and pinning a Power Automate for desktop version in the image"],
+          "tools": ["Power Automate portal Monitor > Machines", "Azure Compute Gallery", "Azure virtual network", "Hosted Process capacity utilisation dashboard"],
+          "lab_task": "Build a custom image with SAP GUI and Power Automate for desktop 2611 in Azure Compute Gallery, create a hosted machine group with 4 max and 2 committed bots on a custom virtual network, queue 40 runs and record how the group scales, then compare the cost with three on-premises VMs.",
+          "deliverable": "Image definition, hosted group settings, scaling evidence and a cost comparison",
+          "checks": [["Queue 40 runs", "Group scales out to four bots and empties the queue", "Hosted machine group monitoring screenshot"], ["Set committed bots above the Hosted Process capacity of the environment", "Setting cannot be saved", "Error screenshot"], ["Run a flow that opens the on-premises SAP system", "Run succeeds through the custom virtual network", "Run log"]],
+          "objectives": ["Build hosted machine groups", "Use custom images and networks", "Plan hosted capacity"]
+        },
+        {
+          "topic": "Work Queues for High-Volume Processing",
+          "subtopics": ["Work queues: items, priorities, expiry and statuses", "Adding items from cloud flows, desktop flows and bulk CSV import", "Process work queue items with auto-retry for IT exceptions", "Business, IT and generic exceptions and Requeue item with delay", "Dispatcher and performer flows across machine groups", "Queue service levels and throughput in Automation Center", "Human review queues next to bot queues", "Known limitations and data retention for work queues"],
+          "tools": ["Work queues in Power Automate", "Process work queue items action", "Work queues connector", "Automation Center work queues page"],
+          "lab_task": "Build a dispatcher cloud flow that loads 2,000 claims with priorities into a 'Claims-Intake' queue, a performer desktop flow on the hosted group that retries IT exceptions up to 3 times, a business-exception queue for human review and an Automation Center view of throughput per hour.",
+          "deliverable": "Queues, dispatcher and performer flows, an exception report and a throughput chart",
+          "checks": [["Import the 2,000-row CSV", "2,000 items appear with Queued status", "Work queue screenshot"], ["Process an item that hits an IT exception twice", "Item is retried and then processed", "Item history"], ["Process an item with no policy number", "Item is moved to the business-exception queue", "Queue screenshot"]],
+          "objectives": ["Design queue-based RPA", "Handle exceptions by type", "Monitor queue throughput"]
+        },
+        {
+          "topic": "Power Platform Request Limits and Throttling",
+          "subtopics": ["What counts as a request: every action, retry and pagination call", "Limits per licence: 40,000 per 24 hours for paid Power Platform licences, 6,000 for Microsoft 365 and 250,000 per Process licence", "Performance profiles: Low, Medium, High and Unlimited Extended", "Transition-period limits and the phased move to per-user limits from April 2027", "Stacking up to 10 Process licences on a flow and flow groups that share one licence across 25 flows", "The tenant pool for service principals: 25,000 base requests for Power Automate", "Connector throttling with 429 responses and per-connection limits", "Dataverse service protection limits"],
+          "tools": ["Flow analytics (Actions tab)", "Power Platform admin center licensing and capacity reports", "Power Automate Process licences", "Flow groups"],
+          "lab_task": "Profile a flow that handles 5,000 SharePoint items a day: count actions per run in Analytics, project daily requests against the owner's Premium limit, cut actions per run by 60% with trigger conditions, Select and batched updates, and decide between a Process licence and a flow group.",
+          "deliverable": "Request budget sheet, action counts before and after and the licensing decision",
+          "checks": [["Compare actions per run before and after the redesign", "Actions per run fall by at least 60%", "Analytics screenshots"], ["Assign a Process licence to the solution flow", "Flow details show the Process licence", "Flow details screenshot"], ["Send a burst of calls to the throttled mock connector", "Actions slow down and retry without failing the run", "Run history"]],
+          "objectives": ["Calculate request budgets", "Reduce request use", "Choose capacity licences"]
+        },
+        {
+          "topic": "Flow Performance and Design for Volume",
+          "subtopics": ["Where run time goes: connector latency, loops and large payloads", "Batching writes with SharePoint $batch requests and Dataverse change sets", "Parallel branches and Apply to each parallelism", "Spreading work over runs with Split On, child flows and work queues", "Content throughput limits and large payloads", "Smaller payloads with $select and Select", "Faster desktop flows: element waits instead of fixed waits and hidden Excel instances", "Load tests with generated data and run duration percentiles"],
+          "tools": ["Flow analytics", "SharePoint REST $batch", "Power Automate for desktop", "Automation Center runs"],
+          "lab_task": "Take a nightly flow that updates 10,000 SharePoint items in 4 hours and redesign it with $select, Select, $batch requests and parallel branches to finish in under 30 minutes, then speed up a desktop flow by replacing fixed waits with element waits and running Excel hidden.",
+          "deliverable": "Run durations before and after, the redesigned flows and a performance note",
+          "checks": [["Run the redesigned flow on 10,000 items", "Run completes in under 30 minutes", "Run duration screenshot"], ["Inspect one $batch response", "Every change in the batch returns a success status", "Run output"], ["Compare desktop flow durations", "Run time falls once fixed waits are removed", "Desktop flow run details"]],
+          "objectives": ["Find performance bottlenecks", "Design flows for volume", "Measure improvements"]
+        },
+        {
+          "topic": "Security of Connections, Credentials and Service Principals",
+          "subtopics": ["Connection ownership and the risk of personal connections in shared flows", "Flows owned by service principal application users", "Assigning a licensed user or a Process licence to service principal flows", "Microsoft Entra Conditional Access for Power Automate sign-in", "Power Automate credentials in Azure Key Vault or CyberArk, including user-mapped credentials", "Secret environment variables and secure inputs and outputs", "Customer-managed keys for cloud flows", "Auditing flow and connection changes in Microsoft Purview"],
+          "tools": ["Microsoft Entra admin center", "Azure Key Vault", "Power Platform admin center", "Microsoft Purview audit"],
+          "lab_task": "Move a finance payment flow from a personal owner to a service principal application user, replace personal connections with service connections, store SAP and API secrets as Key Vault credentials, turn on secure inputs and outputs, and trace every change in Purview audit.",
+          "deliverable": "Security design note, the reconfigured flow and an audit log extract",
+          "checks": [["Disable the former owner's account in the test tenant", "Flow keeps running under the service principal", "Run history"], ["Open a run as a co-owner", "Secret values are hidden in inputs and outputs", "Run screenshot"], ["Search Purview audit for the flow", "Ownership and connection changes are recorded", "Audit export"]],
+          "objectives": ["Secure flow identities", "Protect secrets", "Audit automation changes"]
+        },
+        {
+          "topic": "Data Policies for Connectors, HTTP and Desktop Flow Actions",
+          "subtopics": ["Data policy groups: Business, Non-business and Blocked", "Tenant and environment policies and how they combine", "Connector action control and endpoint filtering for HTTP and SQL", "Desktop flow action groups in data policies", "URL patterns for custom connectors", "Checking which flows a policy affects before enforcing it", "Tenant isolation for cross-tenant connections", "Handling flows suspended by a new policy"],
+          "tools": ["Power Platform admin center data policies", "PowerShell for Power Platform administrators", "Power Platform admin center Inventory"],
+          "lab_task": "Write a data policy for the finance environment that puts SharePoint, Dataverse and Outlook in Business, blocks consumer social connectors, limits HTTP to *.contoso.com, blocks the desktop actions Run PowerShell script and FTP, and list the flows it would break from the inventory before you enforce it.",
+          "deliverable": "Data policy, impact list and a rollout note",
+          "checks": [["Save a flow that calls an HTTP endpoint outside contoso.com", "Flow is blocked by the policy", "Error message"], ["Run a desktop flow with a Run PowerShell script action", "Desktop flow is flagged and cannot run", "Run error"], ["Compare the impact list with flows suspended after enforcement", "No flow outside the list is suspended", "Inventory export"]],
+          "objectives": ["Design data policies for automation", "Control HTTP and desktop actions", "Roll out policies without surprises"]
+        },
+        {
+          "topic": "Running an Automation Centre of Excellence",
+          "subtopics": ["CoE roles: sponsor, platform owner, RPA developers, process analysts and operators", "The automation maturity model and HEAT (holistic enterprise automation techniques)", "Intake, assessment and scoring of automation ideas", "Development, test and production environments for automation", "Standards for naming, error handling, logging and documentation", "The Automation Kit is no longer maintained: moving to the admin center and Automation Center", "Power Platform admin center Inventory, Usage, Monitor and Actions for automation estates", "Maker community, training paths and support"],
+          "tools": ["Power Platform admin center (Inventory, Usage, Monitor, Actions)", "Automation Center", "Microsoft HEAT guidance", "Planner or Azure Boards"],
+          "lab_task": "Set up the CoE operating model for a 4,000-person company: roles and a RACI, an intake form and scoring model applied to 20 sample ideas, development standards, and a plan to retire the existing Automation Kit install in favour of admin center inventory and Automation Center.",
+          "deliverable": "CoE charter, scored backlog, standards document and Automation Kit retirement plan",
+          "checks": [["Score the 20 sample ideas", "Top five have a value estimate, feasibility rating and owner", "Scored backlog"], ["List every cloud flow in the tenant with admin center Inventory", "Flows from all environments are listed with their owners", "Inventory screenshot"], ["Map each Automation Kit report to a replacement", "Every report has a replacement or an accepted gap", "Mapping table"]],
+          "objectives": ["Set up an automation CoE", "Prioritise automation ideas", "Replace the Automation Kit with in-product tools"]
+        },
+        {
+          "topic": "Monitoring at Scale with Automation Center and Fabric",
+          "subtopics": ["Automation Center Monitor pages: runs, process map, work queues, machines and errors", "Value pages: savings and capacity utilisation", "Cloud flow run history in the FlowRun elastic table", "Link to Microsoft Fabric for automation analytics", "Power BI reports on flow runs, desktop flow sessions and work queue items", "Alerts for failure rates, disconnected machines and queue service level breaches", "Monitor in Power Platform admin center for operational health", "Run history retention and Dataverse storage"],
+          "tools": ["Automation Center", "Microsoft Fabric (Link to Microsoft Fabric)", "Power BI", "Power Platform admin center Monitor"],
+          "lab_task": "Link the production environment to Fabric, build a Power BI report on FlowRun and work queue data that shows failure rate per flow and queue breaches per day over 30 days, and add an alert flow that posts to Teams when a flow's failure rate passes 5% in an hour.",
+          "deliverable": "Fabric link, Power BI report and alert flow",
+          "checks": [["Open the Fabric lakehouse after linking", "FlowRun data is available as a table", "Lakehouse screenshot"], ["Push a test flow above 5% failures in an hour", "Alert posts to the operations channel", "Teams screenshot"], ["Compare one day's failures in the report and in Automation Center", "Counts match", "Two screenshots"]],
+          "objectives": ["Monitor automation estates", "Build automation analytics", "Alert on operational thresholds"]
+        },
+        {
+          "topic": "ALM Pipelines and Git Integration for Flows",
+          "subtopics": ["Pipelines in Power Platform: host environment, stages and Managed Environments", "Delegated deployments as a service principal or stage owner", "Pre-deployment approvals and pipeline extensions with cloud flows", "Deployment settings for connection references and environment variables", "Dataverse Git integration with Azure DevOps and GitHub", "Pro-code CI/CD with pac CLI, Power Platform Build Tools and GitHub Actions for Power Platform", "Desktop flows in solutions and Add required objects", "Turning flows on, checking owners and post-deployment tests"],
+          "tools": ["Pipelines in Power Platform", "Power Platform CLI", "GitHub or Azure DevOps", "Deployment page in Power Platform admin center"],
+          "lab_task": "Connect the invoice solution to a GitHub repository with Dataverse Git integration, build a dev, test and production pipeline with delegated deployment as a service principal and an approval on the production stage, deploy with prefilled connection references and environment variables, and roll back a bad release.",
+          "deliverable": "Repository with solution history, pipeline configuration and a deployment log",
+          "checks": [["Commit a flow change from the solution", "Change shows as a diff of the flow definition in GitHub", "Commit screenshot"], ["Request a production deployment", "Deployment waits for approval and then runs as the service principal", "Pipeline run history"], ["Redeploy the previous solution version", "Production flows match the earlier version", "Solution version screenshot"]],
+          "objectives": ["Automate flow deployments", "Keep flow history in Git", "Control releases with approvals"]
+        },
+        {
+          "topic": "Process Mining Programmes and Object-Centric Analysis",
+          "subtopics": ["Running process mining as a programme: process owners, questions and baselines", "Data from SAP, Dynamics 365 and Fabric OneLake", "Object-centric process mining (preview) for orders, deliveries and invoices", "Process Intelligence Studio: custom KPIs, tabs and filters", "Business rules and the process mining trigger for cloud flows (preview)", "Simulations in the Power Automate Process Mining desktop app", "The Process Mining MCP server (preview) for Copilot Studio agents", "Measuring processes before and after automation"],
+          "tools": ["Power Automate Process Mining", "Power Automate Process Mining desktop app", "Microsoft Fabric OneLake", "Process Mining connector"],
+          "lab_task": "Build an object-centric order-to-cash model from trainer data with orders, deliveries and invoices, define KPIs for on-time delivery and days sales outstanding, create a business rule that starts a cloud flow for invoices overdue by 45 days and simulate the effect of automating credit checks.",
+          "deliverable": "Object-centric model, KPI dashboard, business rule flow and simulation report",
+          "checks": [["Filter to orders with split deliveries", "Each order shows its related deliveries and invoices", "Analysis screenshot"], ["Refresh data that includes an invoice 46 days overdue", "Business rule starts the cloud flow", "Run history"], ["Run the credit check simulation", "Simulated cycle time is shorter than the baseline", "Simulation results"]],
+          "objectives": ["Run process mining as a programme", "Analyse processes that span several objects", "Act on process insights"]
+        },
+        {
+          "topic": "Agent Flows and AI in Automation",
+          "subtopics": ["Cloud flows, agent flows and Copilot Studio workflows compared", "Billing: Power Platform requests for cloud flows, Copilot Credits for agent flows", "Converting a cloud flow to an agent flow and why it cannot be undone", "Calling Copilot Studio agents from cloud flows with the Microsoft Copilot Studio connector", "Prompts from AI hub with JSON output in flows", "Generative actions in cloud flows (preview) and where not to use them", "Computer use in Copilot Studio compared with deterministic desktop flows", "Guardrails: human approval, logging prompts and answers, and data policies"],
+          "tools": ["Power Automate", "Microsoft Copilot Studio", "Prompts in AI hub", "Microsoft Copilot Studio connector"],
+          "lab_task": "Build an email triage flow that classifies 200 labelled customer emails with a prompt returning category, urgency and summary as JSON, sends unclear cases to a human approval, calls a Copilot Studio agent for refund questions, and compare the cost of an agent flow version with the cloud flow version.",
+          "deliverable": "Triage flow, an accuracy table for the 200 emails and a cost comparison",
+          "checks": [["Run the 200 labelled emails", "Accuracy against the labels is calculated per category", "Accuracy table"], ["Send an email with two conflicting requests", "Case goes to human approval instead of automatic routing", "Approval screenshot"], ["Inspect the prompt output for one email", "Output is valid JSON with all three fields", "Run output"]],
+          "objectives": ["Choose between cloud flows and agent flows", "Add AI steps with guardrails", "Estimate AI running costs"]
+        },
+        {
+          "topic": "Migrating from UiPath and Blue Prism",
+          "subtopics": ["Migration assessment: bot inventory, complexity scores and run volumes", "Mapping UiPath Orchestrator queues and Blue Prism work queues to Power Automate work queues", "Mapping robots and runtime resources to machines and machine groups", "Mapping assets and credential stores to Power Automate credentials and environment variables", "Rebuilding UI automation with Power Automate for desktop selectors", "Partner conversion tools and when a rebuild costs less", "Parallel runs, cut-over and decommissioning", "Licence and infrastructure comparison for the business case"],
+          "tools": ["Power Automate for desktop", "Work queues", "Power Automate credentials", "Migration assessment workbook"],
+          "lab_task": "Assess a trainer estate of 12 UiPath and 6 Blue Prism processes, score them for migration, map their queues, assets and schedules to Power Automate, rebuild one UiPath invoice bot as a desktop flow with a work queue and run old and new bots in parallel on 100 items.",
+          "deliverable": "Assessment workbook, mapping document, rebuilt flow and a parallel-run comparison",
+          "checks": [["Score the 18 processes", "Each process has a wave, an effort estimate and an owner", "Assessment workbook"], ["Run old and new bots on the same 100 items", "Outputs match for every item", "Comparison report"], ["Map one Blue Prism environment variable and one credential", "Each maps to an environment variable or a Key Vault credential", "Mapping document"]],
+          "objectives": ["Assess RPA estates for migration", "Map RPA concepts to Power Automate", "Plan and verify cut-over"]
+        },
+        {
+          "topic": "Migrating Legacy Flows and Workflow Estates",
+          "subtopics": ["Microsoft Flow was renamed Power Automate in November 2019: what older flows look like", "Moving non-solution flows into solutions", "Replacing classic Dataverse background workflows with cloud flows", "SharePoint 2013 workflows, retired on 2 April 2026: finding and rebuilding them", "Office 365 connectors in Teams, retired in May 2026: moving webhooks to Workflows", "HTTP trigger URLs on environment.api.powerplatform.com", "Dataverse for Teams and unmanaged developer environments: creation ended on 15 November 2026", "Maker features removed in 2026: the mobile app, Visio export and, from 30 November, Copilot in the designer"],
+          "tools": ["Power Platform admin center Inventory", "Microsoft 365 Assessment tool", "Power Automate portal Solutions"],
+          "lab_task": "Inventory a trainer tenant with 30 non-solution flows, 8 classic Dataverse workflows, 5 documented SharePoint 2013 workflows and 4 Teams webhooks; move 10 flows into solutions with connection references, rebuild one classic and one SharePoint 2013 workflow as cloud flows and repoint a monitoring tool to a Workflows webhook.",
+          "deliverable": "Legacy inventory, migration waves and rebuilt flows with test evidence",
+          "checks": [["Add a non-solution flow to a solution", "Flow uses connection references afterwards", "Solution screenshot"], ["Post a test alert to the new Workflows webhook URL", "Message appears in the Teams channel", "Teams screenshot"], ["Run the rebuilt classic workflow scenario", "Same field updates happen as with the old workflow", "Before and after comparison"]],
+          "objectives": ["Inventory legacy automation", "Rebuild retired workflow types", "Plan migration waves"]
+        },
+        {
+          "topic": "Operations and Incident Handling for Automations",
+          "subtopics": ["Operating model: run owners, support tiers and on-call", "Runbooks for failed runs, disconnected machines and stuck queues", "Resubmitting and cancelling cloud flow runs in bulk", "Triage with Automation Center errors and desktop flow run logs", "Service health in Power Platform admin center and the Microsoft 365 message center", "Microsoft support requests with flow run IDs and session IDs", "Post-incident reviews and error trends", "Change freezes and release windows for automations"],
+          "tools": ["Automation Center", "Power Platform admin center (Service health, Help + support)", "Microsoft 365 message center", "Power Automate run history"],
+          "lab_task": "Run a three-hour incident exercise in which an expired connection stops 14 flows, a machine group loses two machines and a work queue builds up 600 overdue items: triage with Automation Center, restore service, resubmit the failed runs in bulk and write the post-incident review.",
+          "deliverable": "Incident timeline, runbooks used, resubmission evidence and the post-incident review",
+          "checks": [["Fix the expired connection and resubmit in bulk", "All 14 flows succeed on resubmission", "Run histories"], ["Bring the two machines back online", "Overdue queue items clear within the agreed hour", "Queue chart"], ["Review the post-incident document", "Root cause, timeline and three owned actions are recorded", "Document"]],
+          "objectives": ["Run automation operations", "Handle incidents with runbooks", "Learn from incidents"]
+        },
+        {
+          "topic": "Licensing and Capacity Planning for Automation",
+          "subtopics": ["Power Automate Premium, Process and Hosted Process licences", "Pay-as-you-go plans billed through an Azure subscription", "Flow groups: one Process licence across up to 25 solution-aware flows", "Power Platform requests add-on (50,000 per 24 hours), which can't yet be assigned to users or flows", "AI Builder credits end for new and renewed licences from 1 November 2026; Copilot Credits take over", "Process and Hosted Process capacity utilisation", "Dataverse storage for run history, work queues and desktop flow logs", "Forecasting licences from the automation backlog"],
+          "tools": ["Microsoft 365 admin center billing", "Power Platform admin center Licensing and Capacity", "Automation Center capacity utilisation", "Power Platform licensing guide"],
+          "lab_task": "Build a three-year licence and capacity plan for 300 makers, 40 unattended processes and 12 hosted bots: compare user, Process, Hosted Process and pay-as-you-go options, size Dataverse storage for 18 months of run history and model the Copilot Credits for 60,000 document pages a year.",
+          "deliverable": "Licence model, storage forecast and a recommendation memo",
+          "checks": [["Check the model against current entitlements", "Every flow and bot has a named licence source", "Licence model"], ["Compare stacked Process licences with a flow group for 25 small flows", "Cheaper option is chosen with the reason stated", "Memo"], ["Check the storage forecast against the admin center capacity report", "Forecast starts from today's actual usage", "Capacity screenshot"]],
+          "objectives": ["Plan automation licences", "Forecast capacity and storage", "Explain licence trade-offs"]
+        },
+        {
+          "topic": "Leading an Automation Programme",
+          "subtopics": ["Automation strategy tied to business goals", "Business cases: hours saved, errors avoided and costs", "Portfolio management: waves, roadmaps and benefits tracking", "Savings data from Automation Center for value reports", "Change management for staff whose work changes", "Citizen makers and professional developers working together", "Risk, compliance and audit expectations for bots", "Steering committees and executive reporting"],
+          "tools": ["Automation Center savings", "Power BI", "Planner or Azure Boards", "Business case template"],
+          "lab_task": "Prepare a 12-month automation programme for a shared services centre: a one-page strategy, 25 candidates in three waves with business cases, a benefits dashboard from Automation Center savings, a change plan for 60 affected staff and a steering committee pack.",
+          "deliverable": "Programme plan, business cases, benefits dashboard and steering pack",
+          "checks": [["Review one business case", "Hours saved, costs and risks are quantified", "Business case"], ["Compare wave 1 plans with Automation Center savings", "Dashboard shows actual against planned savings", "Dashboard screenshot"], ["Present to a mock steering committee", "Decisions and next steps are agreed and minuted", "Minutes"]],
+          "objectives": ["Lead an automation programme", "Prove value with data", "Manage change for affected staff"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Automation Platform Blueprint",
+          "subtopics": ["Target architecture across cloud flows, desktop flows, Logic Apps and agents", "RPA estate on hosted machine groups and work queues", "Security, data policies and service principals", "ALM pipelines, monitoring and operations", "Migration and licensing plan", "Board presentation and design defence"],
+          "tools": ["Power Automate", "Power Platform admin center", "Automation Center", "Pipelines in Power Platform", "Power Automate Process Mining"],
+          "lab_task": "Produce an automation platform blueprint for a bank with 9,000 staff that is moving 30 Blue Prism processes: architecture, hosted machine groups and work queues, security and data policies, pipelines, monitoring, a process mining baseline, AI use, licensing and a two-year roadmap; prove two scenarios and defend it to a mock board.",
+          "deliverable": "Blueprint, two working prototypes, roadmap and a 20-minute presentation",
+          "checks": [["Run the queue-based claims prototype on the hosted group", "Items are processed and exceptions routed by type", "Queue report"], ["Deploy the prototype to production through the pipeline", "Deployment runs as the service principal after approval", "Pipeline history"], ["Answer board questions", "Design choices are defended with limits, costs and risks", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one blueprint", "Prove key scenarios", "Lead the platform decision"]
+        }
+      ]
+    }
+  }
+}

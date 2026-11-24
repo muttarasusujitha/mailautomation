@@ -3,7 +3,7 @@
   "name": "Data Engineering",
   "category": "Data Engineering and Analytics",
   "icon": "database",
-  "aliases": ["Data Engineer", "Data Engineering with Python", "Data Pipelines", "Data Pipeline Development", "ETL Development", "Big Data Engineering", "Modern Data Engineering", "Data Engineering Bootcamp"],
+  "aliases": ["Data Engineer", "Data Engineering with Python", "Data Pipelines", "Data Pipeline Development", "ETL Development", "Big Data Engineering", "Modern Data Engineering", "Data Engineering Bootcamp", "Data Platform Engineering", "Data Platform Engineer", "Data Platform Engineers"],
   "certifications": ["Databricks Certified Data Engineer Associate", "Microsoft Certified: Fabric Data Engineer Associate (DP-700)", "AWS Certified Data Engineer - Associate (DEA-C01)", "Google Cloud Professional Data Engineer"],
   "tools": ["Python 3.12", "PostgreSQL", "Apache Spark", "Apache Airflow", "dbt", "Docker", "Git"],
   "review_status": "unreviewed",

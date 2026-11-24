@@ -1,0 +1,573 @@
+{
+  "domain": "Windows Server and Active Directory",
+  "name": "Windows Server Administration and Active Directory",
+  "category": "Infrastructure and Virtualisation",
+  "icon": "server",
+  "aliases": ["Windows Server", "Windows Server 2025", "Windows Server 2022", "Windows Server Administration", "Windows Server Administrator", "Active Directory", "Active Directory Domain Services", "AD DS", "Active Directory Administration", "Group Policy", "GPO", "Hyper-V", "Windows Admin Center", "AZ-800", "AZ-801", "Windows Server Hybrid Administrator"],
+  "certifications": ["Microsoft Certified: Windows Server Hybrid Administrator Associate (AZ-800 and AZ-801, both retired on 30 September 2026)", "Microsoft Certified: Azure Administrator Associate (AZ-104) for hybrid work"],
+  "tools": ["Windows Server 2025", "Active Directory Domain Services", "Group Policy Management Console", "PowerShell", "Hyper-V", "Windows Admin Center", "Azure Arc", "Microsoft Entra Connect"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For system administrators and support engineers who are starting with Windows Server and Active Directory. Covers editions and roles, a Hyper-V lab with Server Core and Windows Admin Center, installation, PowerShell, Active Directory concepts, domain controllers and DNS, users, groups and OUs, Group Policy, DNS, DHCP, file services and permissions, storage, Hyper-V, remote access with SMB over QUIC, updates and hotpatching, backup and the AD Recycle Bin, security baselines with Windows LAPS, monitoring and troubleshooting logons and name resolution. Written for Windows Server 2025.",
+      "prerequisites": ["Uses Windows as a power user", "Understands IP addressing, DNS names and subnets", "No server experience needed"],
+      "outcomes": ["Install and manage Windows Server with PowerShell and Windows Admin Center", "Build a domain with users, groups, OUs, Group Policy, DNS and DHCP", "Run file services, storage, Hyper-V and remote access securely", "Patch, back up, monitor and troubleshoot servers and domains"],
+      "days": [
+        {
+          "topic": "Windows Server Overview: Editions, Roles and the Course Network",
+          "subtopics": ["Windows Server 2025 editions: Standard, Datacenter and Azure Edition", "Desktop Experience and Server Core", "Roles and features", "Licensing by cores and client access licences", "The servicing model and support dates", "What Active Directory does", "Hybrid management with Azure Arc", "Windows Server compared with Linux servers", "Certification paths after AZ-800 and AZ-801", "Course project overview: a company with a head office and a branch"],
+          "tools": ["Windows Server 2025", "Microsoft Learn", "Course network diagram"],
+          "lab_task": "Compare editions for the course company, list the roles each server will run and draw the course network with domain controllers, file servers and a Hyper-V host.",
+          "deliverable": "Server plan and network diagram",
+          "checks": [["Choose", "Editions are chosen with licensing reasons", "Server plan"], ["Assign", "Each server has its roles", "Role table"], ["Draw", "The network diagram shows all servers and subnets", "Diagram"]],
+          "objectives": ["Describe Windows Server editions and roles", "Plan servers", "Explain Active Directory's job"]
+        },
+        {
+          "topic": "Lab Setup: Hyper-V Lab, Server Core and Windows Admin Center",
+          "subtopics": ["Enabling Hyper-V on a lab host", "Creating virtual switches", "Installing Server Core and Desktop Experience VMs", "sconfig for Server Core", "Installing Windows Admin Center", "Remote management with PowerShell", "Checkpoints for the lab", "Lab naming and IP plan", "Evaluation licences", "Checking the lab is ready"],
+          "tools": ["Hyper-V", "Windows Server 2025 evaluation", "sconfig", "Windows Admin Center"],
+          "lab_task": "Build three lab VMs, two Server Core and one with Desktop Experience, configure them with sconfig, add them to Windows Admin Center and take a clean checkpoint.",
+          "deliverable": "Ready lab with three servers",
+          "checks": [["Build", "All three VMs run with their planned names and addresses", "VM list"], ["Manage", "Windows Admin Center connects to every server", "Connection list"], ["Save", "A clean checkpoint exists for each VM", "Checkpoint list"]],
+          "objectives": ["Build a Windows Server lab", "Use Server Core", "Manage with Windows Admin Center"]
+        },
+        {
+          "topic": "Server Installation and First Configuration",
+          "subtopics": ["Installation options", "Activation", "Network settings and NIC teaming with Switch Embedded Teaming", "Time zone and time sync", "Server Manager", "Adding roles and features", "Windows Firewall basics", "Remote Desktop for administration"],
+          "tools": ["Server Manager", "sconfig", "PowerShell"],
+          "lab_task": "Configure networking, time, firewall rules and remote management on a new server, add the File Server role and record the build steps.",
+          "deliverable": "Configured server with a build record",
+          "checks": [["Configure", "Network, time and firewall settings are correct", "Configuration output"], ["Add", "The role installs without errors", "Server Manager"], ["Record", "The build steps can be repeated by a peer", "Build record"]],
+          "objectives": ["Install and configure servers", "Add roles", "Record repeatable builds"]
+        },
+        {
+          "topic": "PowerShell for Windows Server Administrators",
+          "subtopics": ["Cmdlets, verbs and help", "The pipeline and objects", "Filtering and formatting", "Variables, loops and scripts", "Modules for server roles", "PowerShell remoting", "Execution policies", "Logging and transcripts"],
+          "tools": ["PowerShell 7", "Windows PowerShell", "Server modules"],
+          "lab_task": "Write PowerShell that reports disk space and services on all lab servers through remoting, exports a CSV and runs as a scheduled task.",
+          "deliverable": "Remote reporting script",
+          "checks": [["Report", "The script collects data from all servers", "CSV output"], ["Run", "The scheduled task runs the script", "Task history"], ["Log", "A transcript records each run", "Transcript file"]],
+          "objectives": ["Use PowerShell for administration", "Manage servers remotely", "Schedule scripts"]
+        },
+        {
+          "topic": "Active Directory Concepts: Forests, Domains, Sites and Domain Controllers",
+          "subtopics": ["Directory services", "Forests, trees and domains", "Domain controllers and the global catalog", "Organisational units", "Sites and subnets", "Kerberos and NTLM in brief", "Trusts", "Designing a simple domain"],
+          "tools": ["Active Directory documentation", "Design worksheet"],
+          "lab_task": "Design the forest, domain, OUs and sites for the course company and explain how a user logs on from the branch.",
+          "deliverable": "Domain design with a logon walkthrough",
+          "checks": [["Design", "Forest, domain, OUs and sites are defined", "Design document"], ["Explain", "The branch logon steps are correct", "Walkthrough notes"], ["Review", "A peer confirms the design", "Review notes"]],
+          "objectives": ["Explain Active Directory", "Design a domain", "Describe logon flow"]
+        },
+        {
+          "topic": "Installing Domain Controllers and DNS",
+          "subtopics": ["Preparing a server to be a domain controller", "Installing AD DS", "Creating a new forest", "Integrated DNS zones", "Adding a second domain controller", "Read-only domain controllers for branches", "Checking domain controller health", "Demoting domain controllers safely"],
+          "tools": ["Server Manager", "Install-ADDSForest", "dcdiag"],
+          "lab_task": "Create the course forest on Server Core with PowerShell, add a second domain controller and a read-only DC at the branch, and check health with dcdiag.",
+          "deliverable": "Healthy forest with three domain controllers",
+          "checks": [["Create", "The forest and DNS zones exist", "dcdiag output"], ["Add", "Both extra domain controllers replicate", "Replication summary"], ["Check", "dcdiag passes on all domain controllers", "dcdiag reports"]],
+          "objectives": ["Install domain controllers", "Use integrated DNS", "Check domain health"]
+        },
+        {
+          "topic": "Users, Groups and Organisational Units",
+          "subtopics": ["Creating users and service accounts", "Security and distribution groups", "Group scopes: domain local, global and universal", "Organisational unit design", "Delegating OU administration", "Bulk changes with PowerShell", "Disabling and removing accounts", "Account policies"],
+          "tools": ["Active Directory Users and Computers", "Active Directory Administrative Center", "PowerShell"],
+          "lab_task": "Create OUs, users and groups for three departments from a CSV with PowerShell, delegate password resets to the help desk and disable a leaver.",
+          "deliverable": "Populated directory with delegation",
+          "checks": [["Create", "Users and groups match the CSV", "AD query output"], ["Delegate", "The help desk can reset passwords only in its OUs", "Delegation test"], ["Disable", "The leaver cannot log on", "Logon test"]],
+          "objectives": ["Manage users and groups", "Delegate administration", "Automate with PowerShell"]
+        },
+        {
+          "topic": "Group Policy: Objects, Links, Inheritance and Filtering",
+          "subtopics": ["Group Policy objects", "Linking to sites, domains and OUs", "Inheritance and precedence", "Enforcement and blocking", "Security filtering", "Computer and user settings", "The Group Policy Management Console", "Reporting with Resultant Set of Policy"],
+          "tools": ["Group Policy Management Console", "gpresult", "gpupdate"],
+          "lab_task": "Create GPOs for password rules, a desktop setting and a drive mapping, link them to the right OUs, filter one by group and check results with gpresult.",
+          "deliverable": "Working GPOs with result reports",
+          "checks": [["Apply", "Settings reach the intended users and computers", "gpresult report"], ["Filter", "The filtered GPO applies only to its group", "gpresult report"], ["Order", "Precedence works as designed", "Group Policy modelling report"]],
+          "objectives": ["Create and link GPOs", "Control precedence", "Check applied policy"]
+        },
+        {
+          "topic": "DNS Administration: Zones, Records and Forwarders",
+          "subtopics": ["Forward and reverse zones", "A, CNAME, MX and SRV records", "Active Directory-integrated zones", "Forwarders and conditional forwarders", "Scavenging stale records", "DNS for Active Directory locator records", "DNS logging", "Common DNS problems"],
+          "tools": ["DNS Manager", "PowerShell DnsServer module", "nslookup and Resolve-DnsName"],
+          "lab_task": "Create a reverse zone, add records, set a conditional forwarder for a partner domain, turn on scavenging and fix a seeded missing SRV record.",
+          "deliverable": "DNS configuration with a fixed problem",
+          "checks": [["Resolve", "Names and reverse lookups work", "Resolve-DnsName output"], ["Forward", "Partner names resolve through the conditional forwarder", "Lookup test"], ["Fix", "Domain controllers are found after the SRV fix", "nltest output"]],
+          "objectives": ["Administer DNS", "Use forwarders", "Fix DNS problems"]
+        },
+        {
+          "topic": "DHCP: Scopes, Reservations and Failover",
+          "subtopics": ["DHCP scopes and options", "Reservations", "Exclusions", "DHCP relay for other subnets", "DHCP failover", "Authorising DHCP in Active Directory", "DHCP and DNS registration", "Auditing leases"],
+          "tools": ["DHCP Manager", "PowerShell DhcpServer module", "DHCP relay"],
+          "lab_task": "Create scopes for two subnets with options and reservations, configure DHCP failover between two servers and test a client lease during a failover.",
+          "deliverable": "Redundant DHCP service",
+          "checks": [["Lease", "Clients get correct addresses and options", "ipconfig output"], ["Reserve", "The reserved device always gets its address", "Lease list"], ["Fail over", "Clients still get leases when one server is down", "Lease test"]],
+          "objectives": ["Configure DHCP", "Use reservations", "Make DHCP redundant"]
+        },
+        {
+          "topic": "File Services: Shares, NTFS Permissions and Access-Based Enumeration",
+          "subtopics": ["SMB shares", "Share and NTFS permissions", "Effective permissions", "Access-based enumeration", "Home folders and redirected folders", "File Server Resource Manager quotas and screens", "Shadow copies", "Permission design with groups"],
+          "tools": ["File Explorer", "PowerShell SmbShare module", "File Server Resource Manager"],
+          "lab_task": "Create department shares with group-based NTFS permissions, turn on access-based enumeration, set a quota and restore a file from a shadow copy.",
+          "deliverable": "Department file shares with tests",
+          "checks": [["Permit", "Users reach only their department's data", "Access tests"], ["Hide", "Users do not see folders they cannot open", "Share view"], ["Restore", "A deleted file is restored from a shadow copy", "Restore record"]],
+          "objectives": ["Run file services", "Design permissions", "Restore files"]
+        },
+        {
+          "topic": "Storage: Disks, Volumes, Storage Spaces and ReFS",
+          "subtopics": ["Disks and partitions", "NTFS and ReFS", "Storage Spaces and pools", "Resiliency types", "iSCSI targets and initiators", "Data deduplication", "Disk performance basics", "Storage monitoring"],
+          "tools": ["Disk Management", "Storage Spaces", "PowerShell Storage module"],
+          "lab_task": "Build a storage pool with mirrored and parity spaces, format volumes with ReFS and NTFS, enable deduplication and remove a disk to test resiliency.",
+          "deliverable": "Storage spaces with a resiliency test",
+          "checks": [["Build", "The pool and spaces are healthy", "Get-StoragePool output"], ["Save", "Deduplication saves space", "Dedup status"], ["Survive", "Data stays available after a disk is removed", "Health status"]],
+          "objectives": ["Configure storage", "Use Storage Spaces", "Choose file systems"]
+        },
+        {
+          "topic": "Hyper-V: Virtual Machines, Switches and Checkpoints",
+          "subtopics": ["Hyper-V architecture", "Generation 2 VMs", "Virtual switches", "Dynamic memory", "Virtual disks", "Checkpoints", "Integration services", "Exporting and importing VMs"],
+          "tools": ["Hyper-V Manager", "PowerShell Hyper-V module", "Windows Admin Center"],
+          "lab_task": "Create VMs with dynamic memory on an internal and an external switch, take and apply checkpoints and export a VM to another host.",
+          "deliverable": "Managed VMs with checkpoint and export records",
+          "checks": [["Create", "VMs run on the right switches", "VM list"], ["Revert", "Applying a checkpoint restores the earlier state", "Checkpoint test"], ["Move", "The exported VM runs on the second host", "Import record"]],
+          "objectives": ["Run virtual machines on Hyper-V", "Use checkpoints", "Move VMs between hosts"]
+        },
+        {
+          "topic": "Remote Access: SMB over QUIC, VPN and Remote Desktop Security",
+          "subtopics": ["Remote access options", "SMB over QUIC for file access without VPN", "Routing and Remote Access VPN", "Always On VPN", "Remote Desktop and Network Level Authentication", "Remote Desktop Gateway", "Restricting remote access", "Logging remote access"],
+          "tools": ["SMB over QUIC", "Routing and Remote Access", "Remote Desktop Gateway"],
+          "lab_task": "Publish a file share with SMB over QUIC, set up a VPN for administrators and restrict Remote Desktop to the gateway with NLA.",
+          "deliverable": "Secured remote access options",
+          "checks": [["Share", "Remote users reach the share over QUIC", "Connection test"], ["Connect", "Administrators connect through the VPN", "VPN log"], ["Restrict", "Direct Remote Desktop from outside is refused", "Access test"]],
+          "objectives": ["Provide remote access", "Use SMB over QUIC", "Secure Remote Desktop"]
+        },
+        {
+          "topic": "Windows Update and Hotpatching: WSUS, Update Rings and Azure Arc",
+          "subtopics": ["Monthly updates", "WSUS and its deprecation", "Update rings and maintenance windows", "Hotpatching for Windows Server 2025 through Azure Arc", "Baseline months that still need a restart", "Patching domain controllers safely", "Update reports", "Rolling back an update"],
+          "tools": ["Windows Update", "WSUS", "Azure Update Manager", "Azure Arc"],
+          "lab_task": "Put lab servers into update rings, approve updates for a test ring, enrol one server in hotpatching through Azure Arc and report patch status.",
+          "deliverable": "Update plan with a patch status report",
+          "checks": [["Ring", "Servers are grouped into update rings", "Ring assignments"], ["Hotpatch", "The enrolled server installs a hotpatch without a restart", "Update history"], ["Report", "Patch status is reported for all servers", "Status report"]],
+          "objectives": ["Patch servers", "Use update rings", "Use hotpatching"]
+        },
+        {
+          "topic": "Backup and Recovery: Windows Server Backup and the AD Recycle Bin",
+          "subtopics": ["Backup types", "Windows Server Backup", "System state backups of domain controllers", "The Active Directory Recycle Bin", "Authoritative and non-authoritative restores", "Restoring files and volumes", "Backup schedules and retention", "Testing restores"],
+          "tools": ["Windows Server Backup", "Active Directory Administrative Center", "wbadmin"],
+          "lab_task": "Back up a domain controller's system state, enable the Recycle Bin, delete an OU by mistake and restore it, then restore a file server volume.",
+          "deliverable": "Backup schedule and restore records",
+          "checks": [["Back up", "System state backups run on schedule", "Backup log"], ["Recover", "The deleted OU and its users come back", "AD query"], ["Restore", "The file server volume is restored", "Restore record"]],
+          "objectives": ["Back up servers and domain controllers", "Use the AD Recycle Bin", "Test restores"]
+        },
+        {
+          "topic": "Security Baselines: Windows LAPS, Credential Guard and SMB Signing",
+          "subtopics": ["Security baselines from Microsoft", "Windows LAPS for local administrator passwords", "Credential Guard", "SMB signing and encryption", "Disabling old protocols such as SMB1 and NTLMv1", "Audit policies", "Microsoft Defender Antivirus on servers", "Checking compliance with baselines"],
+          "tools": ["Security baselines", "Windows LAPS", "Group Policy", "Microsoft Defender"],
+          "lab_task": "Apply a security baseline with Group Policy, deploy Windows LAPS, require SMB signing, disable SMB1 and check compliance.",
+          "deliverable": "Hardened servers with a compliance report",
+          "checks": [["Apply", "The baseline is applied", "Compliance report"], ["Rotate", "Local admin passwords are unique and stored in AD", "LAPS output"], ["Block", "SMB1 connections fail", "Connection test"]],
+          "objectives": ["Harden servers", "Manage local admin passwords", "Check baseline compliance"]
+        },
+        {
+          "topic": "Monitoring: Event Logs, Performance Monitor and Windows Admin Center",
+          "subtopics": ["Event Viewer and log types", "Custom views and filters", "Event forwarding", "Performance Monitor and data collector sets", "Resource Monitor", "Windows Admin Center dashboards", "Alerts on key events", "Baselines for performance"],
+          "tools": ["Event Viewer", "Performance Monitor", "Windows Admin Center"],
+          "lab_task": "Forward security events from all servers to a collector, build a data collector set for a busy server and alert on failed logons.",
+          "deliverable": "Monitoring setup with an alert",
+          "checks": [["Forward", "Events from all servers reach the collector", "Forwarded events log"], ["Collect", "Performance data shows the busy period", "Performance report"], ["Alert", "Repeated failed logons raise an alert", "Alert record"]],
+          "objectives": ["Monitor servers", "Forward events", "Alert on key events"]
+        },
+        {
+          "topic": "Troubleshooting Logons, Group Policy and Name Resolution",
+          "subtopics": ["A method for Windows problems", "Logon failures and lockouts", "Group Policy not applying", "DNS and name resolution problems", "Replication problems in brief", "Time sync problems", "Useful tools: dcdiag, repadmin, nltest and gpresult", "Writing up fixes"],
+          "tools": ["dcdiag", "repadmin", "gpresult", "Resolve-DnsName"],
+          "lab_task": "Diagnose four seeded problems, a locked account, a GPO not applying, a DNS failure and clock skew, fix them and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Logons, policies and lookups work after each fix", "Test results"], ["Prove", "Tool output backs each diagnosis", "Command output"]],
+          "objectives": ["Troubleshoot Windows and Active Directory", "Use diagnostic tools", "Document fixes"]
+        },
+        {
+          "topic": "Beginner Capstone: Domain for a Small Company",
+          "subtopics": ["Domain controllers, DNS and DHCP", "Users, groups, OUs and Group Policy", "File services and Hyper-V", "Patching, backup and hardening"],
+          "tools": ["Windows Server 2025", "Active Directory", "Group Policy", "Hyper-V"],
+          "lab_task": "Deliver a domain for the course company with two domain controllers, DNS, DHCP failover, users and groups from a CSV, Group Policy, department shares, a Hyper-V host, update rings, backups and a security baseline.",
+          "deliverable": "Working small-company domain with a demo",
+          "checks": [["Run", "Users log on, get policies and reach their shares", "Demo recording"], ["Recover", "A deleted user and a file are restored", "Restore records"], ["Protect", "The baseline and LAPS are in place", "Compliance report"]],
+          "objectives": ["Combine beginner Windows Server skills", "Build a working domain", "Prove recovery and hardening"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Windows administrators and infrastructure engineers who run Windows Server and Active Directory for many users. Covers Active Directory design and delegation, sites and replication, FSMO roles and the Windows Server 2025 AD changes, advanced Group Policy, delegated and group managed service accounts, Active Directory Certificate Services, failover clustering, Storage Spaces Direct, Hyper-V at scale, DFS and Storage Replica, DNS security, DHCP and IPAM, hybrid identity with Entra Connect and Cloud Sync, Azure Arc, Azure File Sync, tiered administration, Remote Desktop Services, PowerShell DSC and JEA, migration to Windows Server 2025 and certification paths.",
+      "prerequisites": ["Runs a Windows domain with Group Policy, DNS and DHCP", "Comfortable with PowerShell scripting", "Has used Hyper-V or another hypervisor"],
+      "outcomes": ["Design Active Directory, replication, Group Policy and PKI for a mid-size company", "Build clustered, highly available Hyper-V, storage and file services", "Connect Windows Server to Entra ID and Azure with Arc and File Sync", "Secure, automate and migrate Windows infrastructure"],
+      "days": [
+        {
+          "topic": "Active Directory Design: Forests, Domains, OUs and Delegation",
+          "subtopics": ["Single and multiple forest designs", "Domain design", "OU design for administration and policy", "Delegation models", "Naming standards", "Groups for role-based access", "Documenting the design", "Common design mistakes"],
+          "tools": ["Design worksheet", "Active Directory Administrative Center", "PowerShell"],
+          "lab_task": "Redesign the course OU structure for delegation and policy, create role groups and delegate three administrative tasks with least privilege.",
+          "deliverable": "OU and delegation design",
+          "checks": [["Design", "OUs separate administration and policy needs", "OU diagram"], ["Delegate", "Each task is delegated to a role group", "Delegation report"], ["Limit", "Delegated admins cannot act outside their OUs", "Access tests"]],
+          "objectives": ["Design Active Directory structure", "Delegate with least privilege", "Document designs"]
+        },
+        {
+          "topic": "Sites, Replication and Domain Controller Placement",
+          "subtopics": ["Sites and subnets", "Site links, costs and schedules", "Intrasite and intersite replication", "Bridgehead servers", "Domain controller placement", "Global catalog placement", "Replication monitoring", "Fixing replication failures"],
+          "tools": ["Active Directory Sites and Services", "repadmin", "dcdiag"],
+          "lab_task": "Create sites for three locations with site links, place domain controllers, force replication and fix a seeded replication failure.",
+          "deliverable": "Site design with replication evidence",
+          "checks": [["Design", "Subnets map to the right sites", "Sites view"], ["Replicate", "Changes reach every domain controller", "repadmin output"], ["Fix", "The replication failure is resolved", "repadmin before and after"]],
+          "objectives": ["Design sites", "Monitor replication", "Fix replication problems"]
+        },
+        {
+          "topic": "FSMO Roles, Functional Levels and Windows Server 2025 AD Changes",
+          "subtopics": ["The five operations master roles", "Moving and seizing roles", "Domain and forest functional levels", "The Windows Server 2025 functional level", "The 32K database page size optional feature", "LDAP and Kerberos improvements", "Planning a functional level raise", "Rolling back is not possible"],
+          "tools": ["ntdsutil", "PowerShell ActiveDirectory module", "dcdiag"],
+          "lab_task": "Move FSMO roles between domain controllers, seize one in a simulated failure, and plan the raise to the Windows Server 2025 functional level with prerequisites.",
+          "deliverable": "FSMO operations and a functional level plan",
+          "checks": [["Move", "Roles move cleanly", "netdom query fsmo output"], ["Seize", "The seized role works after the failure", "Role test"], ["Plan", "Prerequisites for the raise are listed", "Raise plan"]],
+          "objectives": ["Manage FSMO roles", "Plan functional levels", "Use new AD features safely"]
+        },
+        {
+          "topic": "Advanced Group Policy: Preferences, WMI Filters, Loopback and the Central Store",
+          "subtopics": ["Group Policy Preferences", "Item-level targeting", "WMI filters", "Loopback processing", "The central store for templates", "Backing up and restoring GPOs", "Change control for GPOs", "Group Policy performance"],
+          "tools": ["Group Policy Management Console", "Central store", "Group Policy modelling"],
+          "lab_task": "Use preferences with item-level targeting, a WMI filter for laptops, loopback for kiosk servers, a central store and GPO backup and restore.",
+          "deliverable": "Advanced GPO set with backups",
+          "checks": [["Target", "Preferences apply only to targeted items", "gpresult report"], ["Loop", "Kiosk users get the kiosk settings", "gpresult report"], ["Restore", "A changed GPO is restored from backup", "Backup record"]],
+          "objectives": ["Use advanced Group Policy", "Target settings precisely", "Back up and restore GPOs"]
+        },
+        {
+          "topic": "Managed Service Accounts: gMSAs and Delegated Managed Service Accounts",
+          "subtopics": ["Problems with password service accounts", "Group managed service accounts", "The KDS root key", "Delegated managed service accounts in Windows Server 2025", "Migrating from legacy service accounts to dMSAs", "Why dMSA permissions need careful review", "Using managed accounts for services and tasks", "Auditing service accounts"],
+          "tools": ["PowerShell ActiveDirectory module", "Services", "Scheduled tasks"],
+          "lab_task": "Move a service to a gMSA, migrate a legacy service account to a dMSA, review who can create or change dMSAs and audit the remaining password accounts.",
+          "deliverable": "Managed service accounts with a permissions review",
+          "checks": [["Run", "The service runs under the gMSA", "Service properties"], ["Migrate", "The legacy account is replaced by a dMSA", "Account status"], ["Review", "Rights to create or change dMSAs are limited", "Permission report"]],
+          "objectives": ["Use managed service accounts", "Migrate legacy accounts", "Review risky permissions"]
+        },
+        {
+          "topic": "Active Directory Certificate Services: PKI Design and Auto-Enrollment",
+          "subtopics": ["PKI basics for Windows", "Offline root and issuing CAs", "Certificate templates", "Auto-enrollment with Group Policy", "Certificate revocation and CRLs", "Web enrollment and enrollment services", "Template security", "Monitoring certificate expiry"],
+          "tools": ["Certificate Authority", "Certificate Templates console", "Group Policy"],
+          "lab_task": "Build a two-tier PKI with an offline root, publish templates for computers and web servers, auto-enroll computers and revoke a certificate.",
+          "deliverable": "Two-tier PKI with auto-enrollment",
+          "checks": [["Build", "Root and issuing CAs are trusted", "Certificate chain"], ["Enroll", "Computers receive certificates automatically", "Certificate stores"], ["Revoke", "The revoked certificate fails validation", "certutil output"]],
+          "objectives": ["Design Windows PKI", "Use auto-enrollment", "Revoke certificates"]
+        },
+        {
+          "topic": "Failover Clustering: Validation, Quorum and Cluster-Aware Updating",
+          "subtopics": ["Failover cluster concepts", "Validation tests", "Cluster networks", "Quorum and witnesses", "Clustered roles", "Cluster-Aware Updating", "Cluster logs", "Common cluster problems"],
+          "tools": ["Failover Cluster Manager", "Test-Cluster", "Cluster-Aware Updating"],
+          "lab_task": "Validate and build a two-node cluster with a cloud witness, cluster a file server role, patch it with Cluster-Aware Updating and fail a node.",
+          "deliverable": "Working cluster with tests",
+          "checks": [["Validate", "Validation passes before creation", "Validation report"], ["Patch", "Cluster-Aware Updating patches both nodes without downtime", "CAU report"], ["Fail", "The role moves when a node fails", "Cluster events"]],
+          "objectives": ["Build failover clusters", "Configure quorum", "Patch clusters safely"]
+        },
+        {
+          "topic": "Storage Spaces Direct and Hyperconverged Windows Server",
+          "subtopics": ["Storage Spaces Direct concepts", "Hardware requirements", "Cache and capacity tiers", "Resiliency in Storage Spaces Direct", "Cluster Shared Volumes", "Hyperconverged with Hyper-V", "Monitoring health", "Replacing failed drives"],
+          "tools": ["Storage Spaces Direct", "Failover Cluster Manager", "Windows Admin Center"],
+          "lab_task": "Build a lab Storage Spaces Direct cluster, create a mirrored CSV, run VMs on it and replace a failed drive.",
+          "deliverable": "Hyperconverged lab cluster",
+          "checks": [["Build", "The storage pool is healthy", "Health report"], ["Run", "VMs run on the CSV", "VM list"], ["Replace", "The failed drive is replaced and the pool repairs", "Repair status"]],
+          "objectives": ["Build hyperconverged clusters", "Use Storage Spaces Direct", "Replace failed drives"]
+        },
+        {
+          "topic": "Hyper-V at Scale: Live Migration, Replica and GPU Partitioning",
+          "subtopics": ["Live migration", "Storage migration", "Hyper-V Replica", "Shielded VMs", "GPU partitioning in Windows Server 2025", "Resource metering", "VM templates", "Hyper-V cluster management"],
+          "tools": ["Hyper-V", "Failover Cluster Manager", "Windows Admin Center"],
+          "lab_task": "Live migrate running VMs, replicate a VM to a second site with Hyper-V Replica, fail over and back, and assign a GPU partition to a VM.",
+          "deliverable": "Migration and replica tests",
+          "checks": [["Migrate", "VMs move without downtime", "Migration log"], ["Replicate", "Failover to the replica works", "Replica status"], ["Assign", "The VM uses its GPU partition", "Device manager in the VM"]],
+          "objectives": ["Run Hyper-V at scale", "Replicate VMs", "Use GPU partitioning"]
+        },
+        {
+          "topic": "File Server High Availability: DFS Namespaces, DFS Replication and Storage Replica",
+          "subtopics": ["DFS Namespaces", "DFS Replication", "Replication groups and schedules", "Storage Replica", "Scale-out file servers", "Choosing a design", "Monitoring replication", "Recovering from conflicts"],
+          "tools": ["DFS Management", "Storage Replica", "PowerShell"],
+          "lab_task": "Build a DFS namespace with replicated folders across two sites, add Storage Replica for a volume and recover from a seeded replication conflict.",
+          "deliverable": "Highly available file services",
+          "checks": [["Resolve", "Users reach the nearest copy through the namespace", "Access test"], ["Replicate", "Changes appear at both sites", "Replication report"], ["Recover", "The conflict is resolved without data loss", "Conflict folder and logs"]],
+          "objectives": ["Make file services available", "Use DFS", "Use Storage Replica"]
+        },
+        {
+          "topic": "Network Services at Scale: DNS Security, DHCP and IPAM",
+          "subtopics": ["DNSSEC for internal zones", "DNS policies", "Response rate limiting", "DNS over HTTPS client settings", "DHCP at scale", "IP Address Management", "Auditing network services", "Network service monitoring"],
+          "tools": ["DNS Manager", "IPAM", "PowerShell"],
+          "lab_task": "Sign an internal zone with DNSSEC, add a DNS policy for split responses, manage address space with IPAM and audit DHCP changes.",
+          "deliverable": "Secured and managed network services",
+          "checks": [["Sign", "Clients validate signed records", "Resolution test"], ["Split", "The DNS policy returns site-specific answers", "Lookup tests"], ["Track", "IPAM shows address use and changes", "IPAM reports"]],
+          "objectives": ["Secure DNS", "Manage IP space", "Audit network services"]
+        },
+        {
+          "topic": "Hybrid Identity: Entra Connect, Cloud Sync and Seamless SSO",
+          "subtopics": ["Hybrid identity choices", "Microsoft Entra Connect Sync", "Microsoft Entra Cloud Sync", "Password hash sync and pass-through authentication", "Seamless single sign-on", "Filtering and attribute flow", "Writeback options", "Monitoring sync health"],
+          "tools": ["Microsoft Entra Connect Sync", "Microsoft Entra Cloud Sync", "Entra admin center"],
+          "lab_task": "Sync two OUs to Entra ID with Cloud Sync, enable password hash sync and seamless SSO, and fix a seeded sync error.",
+          "deliverable": "Hybrid identity with sync health evidence",
+          "checks": [["Sync", "Users from the chosen OUs appear in Entra ID", "User list"], ["Sign in", "Domain-joined users get seamless SSO", "Sign-in test"], ["Fix", "The sync error is resolved", "Sync health before and after"]],
+          "objectives": ["Connect AD to Entra ID", "Choose authentication methods", "Monitor sync"]
+        },
+        {
+          "topic": "Azure Arc for Windows Server: Management, Policy and Hotpatching",
+          "subtopics": ["What Azure Arc adds to on-premises servers", "Onboarding servers to Arc", "Azure Policy and machine configuration", "Azure Update Manager", "Hotpatching through Arc", "Defender for Servers", "Monitoring with Azure Monitor", "Cost of Arc services"],
+          "tools": ["Azure Arc", "Azure Policy", "Azure Update Manager"],
+          "lab_task": "Onboard lab servers to Azure Arc, assign a machine configuration policy, patch through Update Manager and estimate monthly cost.",
+          "deliverable": "Arc-managed servers with policy and patching",
+          "checks": [["Onboard", "Servers appear in Azure Arc", "Arc server list"], ["Comply", "Policy compliance is reported", "Policy view"], ["Patch", "Update Manager patches the servers", "Update history"]],
+          "objectives": ["Manage servers with Azure Arc", "Apply cloud policy", "Patch through Azure"]
+        },
+        {
+          "topic": "Azure File Sync and Hybrid File Services",
+          "subtopics": ["Azure Files", "Azure File Sync and its agents", "Cloud tiering", "Sync groups and endpoints", "Backup with Azure Backup", "Disaster recovery for file servers", "Migrating file servers with File Sync", "Monitoring sync"],
+          "tools": ["Azure File Sync", "Azure Files", "Azure Backup"],
+          "lab_task": "Sync a file server to Azure Files with cloud tiering, add a second server at the branch and rebuild a failed server from the cloud copy.",
+          "deliverable": "Hybrid file service with recovery test",
+          "checks": [["Sync", "Files sync between servers and Azure", "Sync status"], ["Tier", "Cold files are tiered to the cloud", "Tiering report"], ["Rebuild", "The failed server is rebuilt from the cloud", "Recovery record"]],
+          "objectives": ["Run hybrid file services", "Use cloud tiering", "Recover file servers"]
+        },
+        {
+          "topic": "Windows Server Security: Tiered Administration, Protected Users and Authentication Policies",
+          "subtopics": ["The enterprise access model and tiers", "Separate admin accounts", "The Protected Users group", "Authentication policies and silos", "Restricting NTLM", "Kerberos armoring", "Auditing privileged groups", "Common privilege mistakes"],
+          "tools": ["Active Directory Administrative Center", "Group Policy", "Audit logs"],
+          "lab_task": "Separate admin accounts by tier, add admins to Protected Users, build an authentication silo for domain admins and audit changes to privileged groups.",
+          "deliverable": "Tiered administration with audits",
+          "checks": [["Separate", "Admins use tiered accounts", "Account list"], ["Restrict", "Domain admins can log on only to tier 0 systems", "Logon tests"], ["Audit", "Privileged group changes are logged", "Audit events"]],
+          "objectives": ["Apply tiered administration", "Protect privileged accounts", "Audit privileged groups"]
+        },
+        {
+          "topic": "Remote Desktop Services: Session Hosts, Gateways and Licensing",
+          "subtopics": ["RDS roles", "Session hosts and collections", "RemoteApp programs", "RD Gateway and Web Access", "User profile disks and FSLogix", "RDS licensing", "Load balancing", "Comparing RDS with Azure Virtual Desktop"],
+          "tools": ["Remote Desktop Services", "RD Gateway", "FSLogix"],
+          "lab_task": "Deploy an RDS collection with two session hosts, publish a RemoteApp through RD Gateway with FSLogix profiles and test load balancing.",
+          "deliverable": "Working RDS deployment",
+          "checks": [["Publish", "Users launch the RemoteApp through the gateway", "Connection test"], ["Profile", "User settings follow users across hosts", "Profile test"], ["Balance", "Sessions spread across both hosts", "Session list"]],
+          "objectives": ["Deploy Remote Desktop Services", "Publish applications", "Manage profiles"]
+        },
+        {
+          "topic": "Automation with PowerShell: DSC, Remoting and Just Enough Administration",
+          "subtopics": ["PowerShell remoting at scale", "Desired State Configuration", "Machine configuration as the cloud successor to DSC", "Just Enough Administration", "Secrets in scripts", "Script signing", "Testing scripts with Pester", "Logging for automation"],
+          "tools": ["PowerShell", "DSC", "JEA", "Pester"],
+          "lab_task": "Configure servers with a DSC configuration, give the help desk a JEA endpoint for service restarts only and test a script with Pester.",
+          "deliverable": "Automation with tests",
+          "checks": [["Configure", "Servers match the DSC configuration", "DSC compliance output"], ["Restrict", "The JEA endpoint allows only service restarts", "JEA test"], ["Test", "Pester tests pass", "Pester output"]],
+          "objectives": ["Automate with PowerShell", "Use DSC and JEA", "Test scripts"]
+        },
+        {
+          "topic": "Migrating to Windows Server 2025: In-Place Upgrades, Storage Migration Service and AD Upgrades",
+          "subtopics": ["Supported upgrade paths", "In-place upgrades", "Storage Migration Service for file servers", "Upgrading domain controllers", "Application compatibility", "Rollback plans", "Licensing during migration", "Post-migration checks"],
+          "tools": ["Storage Migration Service", "Windows Admin Center", "dcdiag"],
+          "lab_task": "Upgrade a member server in place, migrate a file server with Storage Migration Service and replace a domain controller with a Windows Server 2025 one.",
+          "deliverable": "Migration records with checks",
+          "checks": [["Upgrade", "The upgraded server runs its roles", "Role check"], ["Migrate", "Shares and permissions move to the new file server", "Comparison"], ["Replace", "The new domain controller replicates and the old one is demoted", "repadmin output"]],
+          "objectives": ["Plan Windows Server migrations", "Migrate file servers", "Upgrade domain controllers"]
+        },
+        {
+          "topic": "Windows Server Certification Paths after the AZ-800 and AZ-801 Retirement",
+          "subtopics": ["The retired AZ-800 and AZ-801 exams", "What the Windows Server Hybrid Administrator skills covered", "Current Microsoft certifications that cover hybrid work", "Building evidence of skills without an exam", "Mapping course days to job tasks", "Practice tasks in the lab", "Portfolio of lab work", "Study plan"],
+          "tools": ["Microsoft Learn", "Course labs", "Skills portfolio template"],
+          "lab_task": "Map course skills to the old AZ-800 and AZ-801 objectives and to a current certification, build a portfolio of three lab tasks and write a study plan.",
+          "deliverable": "Skills map, portfolio and study plan",
+          "checks": [["Map", "Skills are mapped to old and current objectives", "Skills map"], ["Prove", "The portfolio holds three documented lab tasks", "Portfolio"], ["Plan", "The study plan has a target certification", "Study plan"]],
+          "objectives": ["Choose a certification path", "Prove skills with a portfolio", "Plan study"]
+        },
+        {
+          "topic": "Intermediate Capstone: Highly Available Windows Infrastructure for a Mid-Size Company",
+          "subtopics": ["AD design, replication and PKI", "Clusters, Hyper-V and file services", "Hybrid identity and Azure Arc", "Security, automation and migration"],
+          "tools": ["Windows Server 2025", "Failover Clustering", "Azure Arc", "Microsoft Entra Cloud Sync"],
+          "lab_task": "Deliver infrastructure for a mid-size company with an AD design, sites, PKI, a Hyper-V cluster, DFS file services, hybrid identity, Arc management, tiered administration and automated configuration.",
+          "deliverable": "Infrastructure demo with evidence",
+          "checks": [["Design", "AD, sites and PKI follow the design", "Design and health reports"], ["Survive", "Clustered services survive a node failure", "Test record"], ["Manage", "Arc, sync and automation work", "Status reports"]],
+          "objectives": ["Combine intermediate Windows Server skills", "Deliver available infrastructure", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For infrastructure architects and senior Windows engineers. Covers enterprise AD architecture and consolidation, AD attack paths and hardening, tier 0 protection, forest recovery, ransomware resilience, PKI architecture, Azure Local and software-defined datacentre designs, large Hyper-V clusters, storage architecture, identity modernisation to Entra ID, Group Policy to Intune migration, regulated environments, monitoring with Defender for Servers, patch and lifecycle management, automation at scale, data centre exits, performance engineering, the operating model and troubleshooting at scale.",
+      "prerequisites": ["Runs Active Directory and Windows Server for a large organisation", "Understands clustering, PKI and hybrid identity", "Responsible for infrastructure design, security or operations"],
+      "outcomes": ["Design and secure enterprise Active Directory, PKI and tier 0", "Plan forest recovery and ransomware resilience", "Design Hyper-V, storage and Azure Local platforms and move workloads to the cloud", "Lead lifecycle, automation, operations and troubleshooting at scale"],
+      "days": [
+        {
+          "topic": "Enterprise Active Directory Architecture and Forest Consolidation",
+          "subtopics": ["Multi-forest estates", "Trusts and their risks", "Consolidating forests and domains", "Migration tools", "SID history and its risks", "Naming and coexistence", "Decommissioning old domains", "Architecture decision records"],
+          "tools": ["Migration tools", "Trust management", "Decision records"],
+          "lab_task": "Plan the consolidation of three forests into one, migrate a pilot group of users and computers with SID history and plan removal of the old trusts.",
+          "deliverable": "Consolidation plan with pilot results",
+          "checks": [["Plan", "The consolidation has phases and rollback", "Plan document"], ["Migrate", "Pilot users keep access after migration", "Access tests"], ["Retire", "Trust and SID history removal is planned", "Clean-up plan"]],
+          "objectives": ["Design enterprise AD", "Consolidate forests", "Reduce trust risk"]
+        },
+        {
+          "topic": "Active Directory Attack Paths and Hardening: Kerberoasting, Delegation and ADCS Abuse",
+          "subtopics": ["Common attack paths in Active Directory", "Kerberoasting and AS-REP roasting", "Unconstrained and constrained delegation risks", "ADCS template abuse", "Attack path analysis with BloodHound", "Hardening priorities", "Detecting attacks with event logs", "Purple team exercises"],
+          "tools": ["BloodHound Community Edition", "PingCastle or Purple Knight", "Event logs"],
+          "lab_task": "Map attack paths in an authorised lab with BloodHound, demonstrate an ADCS template abuse, fix the template and delegation issues and confirm the paths are closed.",
+          "deliverable": "Attack path report and hardening record",
+          "checks": [["Map", "Paths to domain admin are listed", "BloodHound output"], ["Demonstrate", "The template abuse works before the fix", "Lab record"], ["Close", "Paths are closed after hardening", "BloodHound output after fixes"]],
+          "objectives": ["Analyse AD attack paths", "Harden ADCS and delegation", "Detect AD attacks"]
+        },
+        {
+          "topic": "Tier 0 Protection: Privileged Access Workstations and the Enterprise Access Model",
+          "subtopics": ["What tier 0 includes", "Privileged access workstations", "The enterprise access model", "Why the red forest approach was retired", "Protecting domain controllers and identity servers", "Backup systems as tier 0", "Monitoring tier 0", "Tier 0 rollout plans"],
+          "tools": ["Privileged access workstations", "Group Policy", "Monitoring tools"],
+          "lab_task": "Define the tier 0 asset list, build a privileged access workstation, restrict tier 0 logons to it and monitor tier 0 changes.",
+          "deliverable": "Tier 0 protection design with evidence",
+          "checks": [["Define", "Tier 0 assets are listed", "Asset list"], ["Restrict", "Tier 0 admins log on only from the workstation", "Logon tests"], ["Watch", "Tier 0 changes raise alerts", "Alert record"]],
+          "objectives": ["Protect tier 0", "Use privileged access workstations", "Monitor tier 0"]
+        },
+        {
+          "topic": "Active Directory Forest Recovery Planning and Testing",
+          "subtopics": ["When forest recovery is needed", "Recovery steps from Microsoft guidance", "Backups for recovery", "Isolated recovery networks", "Restoring the first domain controller", "Cleaning up after recovery", "Recovery testing", "Recovery time objectives"],
+          "tools": ["Windows Server Backup", "Isolated lab network", "Recovery runbook"],
+          "lab_task": "Recover the lab forest in an isolated network from backup following a written runbook, measure the time taken and update the runbook.",
+          "deliverable": "Tested forest recovery runbook",
+          "checks": [["Restore", "The first domain controller is restored", "Recovery log"], ["Rebuild", "Remaining domain controllers are rebuilt", "Health report"], ["Time", "Recovery time is measured against the target", "Test report"]],
+          "objectives": ["Plan forest recovery", "Test recovery", "Improve the runbook"]
+        },
+        {
+          "topic": "Ransomware Resilience for Windows Infrastructure",
+          "subtopics": ["How ransomware attacks Windows estates", "Immutable and offline backups", "Isolated recovery environments", "Protecting backup systems", "Detecting mass encryption", "Recovery priorities", "Exercises with the business", "Lessons from real incidents"],
+          "tools": ["Backup platform", "Isolated recovery environment", "Monitoring tools"],
+          "lab_task": "Protect backups with immutability, run a ransomware exercise in the lab, recover priority systems in the right order and record lessons.",
+          "deliverable": "Ransomware exercise record and improvements",
+          "checks": [["Protect", "Backups cannot be deleted from the domain", "Backup settings"], ["Recover", "Priority systems are restored in order", "Recovery timeline"], ["Learn", "Lessons have owners", "Lessons list"]],
+          "objectives": ["Build ransomware resilience", "Protect backups", "Recover in priority order"]
+        },
+        {
+          "topic": "PKI Architecture and Certificate Lifecycle at Scale",
+          "subtopics": ["PKI architecture for large estates", "Hardware security modules", "Template governance", "Certificate lifecycle management", "Short-lived certificates", "Monitoring expiry", "Migration of hash algorithms", "PKI disaster recovery"],
+          "tools": ["Certificate Authority", "Hardware security module", "Certificate lifecycle tool"],
+          "lab_task": "Design PKI for a large estate with an HSM-protected issuing CA, govern templates, automate renewal monitoring and recover the issuing CA from backup.",
+          "deliverable": "PKI design with recovery test",
+          "checks": [["Design", "The hierarchy and HSM use are defined", "PKI design"], ["Govern", "Templates have owners and reviews", "Template register"], ["Recover", "The issuing CA is recovered from backup", "Recovery record"]],
+          "objectives": ["Design enterprise PKI", "Govern templates", "Recover a CA"]
+        },
+        {
+          "topic": "Azure Local and Software-Defined Datacentre Designs",
+          "subtopics": ["Azure Local, formerly Azure Stack HCI", "Software-defined networking", "Software-defined storage", "Managing Azure Local from Azure", "Workloads on Azure Local", "Sizing and validated hardware", "Licensing and cost", "Choosing between Windows Server clusters and Azure Local"],
+          "tools": ["Azure Local", "Windows Admin Center", "Azure portal"],
+          "lab_task": "Design an Azure Local cluster for two branch data centres, size it, compare it with Windows Server clusters and recommend one.",
+          "deliverable": "Datacentre design and recommendation",
+          "checks": [["Design", "Compute, storage and networking are sized", "Design document"], ["Compare", "Azure Local and Windows Server clusters are compared", "Comparison"], ["Recommend", "The choice is justified", "Recommendation"]],
+          "objectives": ["Design software-defined datacentres", "Compare platform options", "Size clusters"]
+        },
+        {
+          "topic": "Hyper-V Clusters for Large Estates: Design, Capacity and Upgrades",
+          "subtopics": ["Cluster sizing", "Host and VM density", "Networking for clusters", "Cluster rolling upgrades", "Capacity planning", "VM placement and anti-affinity", "Monitoring large clusters", "Retiring old hosts"],
+          "tools": ["Failover Clustering", "Hyper-V", "Capacity data"],
+          "lab_task": "Size Hyper-V clusters for five hundred VMs, set anti-affinity for critical pairs and run a rolling upgrade of a lab cluster.",
+          "deliverable": "Cluster design and upgrade record",
+          "checks": [["Size", "Capacity covers the VMs with headroom", "Sizing sheet"], ["Place", "Critical pairs never share a host", "Placement test"], ["Upgrade", "The rolling upgrade completes without downtime", "Upgrade log"]],
+          "objectives": ["Design large Hyper-V clusters", "Plan capacity", "Upgrade clusters"]
+        },
+        {
+          "topic": "Storage Architecture: Storage Spaces Direct, Storage Replica and Stretched Clusters",
+          "subtopics": ["Storage requirements by workload", "Storage Spaces Direct at scale", "Stretched clusters", "Storage Replica designs", "Performance tiers", "Backup integration", "Monitoring storage health", "Storage refresh planning"],
+          "tools": ["Storage Spaces Direct", "Storage Replica", "Performance tools"],
+          "lab_task": "Design storage for three workload types, build a stretched cluster with Storage Replica in the lab and fail over between sites.",
+          "deliverable": "Storage design with failover test",
+          "checks": [["Design", "Each workload gets the right tier", "Storage design"], ["Stretch", "The stretched cluster replicates between sites", "Replica status"], ["Fail", "Workloads run after site failover", "Test record"]],
+          "objectives": ["Design Windows storage", "Build stretched clusters", "Test site failover"]
+        },
+        {
+          "topic": "Identity Modernisation: Moving Workloads from AD to Entra ID",
+          "subtopics": ["What depends on Active Directory", "Moving authentication to Entra ID", "Application proxy and modern authentication", "Entra Domain Services and Kerberos to cloud apps", "Cloud-native devices", "Reducing domain controllers", "Coexistence periods", "Roadmap to less AD"],
+          "tools": ["Microsoft Entra ID", "Application inventory", "Migration plan"],
+          "lab_task": "Inventory AD dependencies, move two applications to Entra ID authentication and plan the next steps to reduce the AD footprint.",
+          "deliverable": "Dependency inventory and modernisation roadmap",
+          "checks": [["Inventory", "AD dependencies are listed", "Inventory"], ["Move", "Two apps sign in with Entra ID", "Sign-in tests"], ["Plan", "The roadmap reduces AD step by step", "Roadmap"]],
+          "objectives": ["Modernise identity", "Move apps to Entra ID", "Reduce AD dependence"]
+        },
+        {
+          "topic": "Group Policy to Intune and Cloud Policy Migration",
+          "subtopics": ["Why move from Group Policy", "Group Policy analytics in Intune", "Settings catalog and templates", "Co-management", "Policies with no cloud equivalent", "Testing and rings", "Server policies that stay in Group Policy", "Retiring GPOs"],
+          "tools": ["Microsoft Intune", "Group Policy analytics", "Group Policy Management Console"],
+          "lab_task": "Analyse client GPOs with Group Policy analytics, move twenty settings to Intune, test them on a pilot ring and retire the old GPOs.",
+          "deliverable": "Policy migration record",
+          "checks": [["Analyse", "Settings are classified by cloud support", "Analytics report"], ["Move", "Pilot devices get settings from Intune", "Device reports"], ["Retire", "Old GPOs are unlinked and archived", "GPO list"]],
+          "objectives": ["Migrate policy to the cloud", "Use Group Policy analytics", "Retire GPOs safely"]
+        },
+        {
+          "topic": "Windows Server in Regulated Environments: Baselines, Audit and Evidence",
+          "subtopics": ["Regulatory requirements for servers", "CIS and Microsoft baselines", "Audit policy design", "Log retention", "Change evidence", "Access reviews for administrators", "Evidence for auditors", "Remediating findings"],
+          "tools": ["Security baselines", "Audit policies", "Evidence store"],
+          "lab_task": "Apply a CIS baseline, design audit policy, collect evidence for an audit request and remediate two seeded findings.",
+          "deliverable": "Compliance evidence pack and remediation",
+          "checks": [["Apply", "Servers meet the baseline", "Compliance report"], ["Collect", "Evidence answers the auditor's request", "Evidence pack"], ["Fix", "Both findings are closed", "Remediation record"]],
+          "objectives": ["Meet regulatory needs", "Design audit policy", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Monitoring at Scale: Azure Monitor, Defender for Servers and Event Forwarding",
+          "subtopics": ["Monitoring strategy for Windows estates", "Azure Monitor agent", "Defender for Servers", "Windows event forwarding at scale", "Workbooks and dashboards", "Alert design", "SIEM integration", "Monitoring costs"],
+          "tools": ["Azure Monitor", "Microsoft Defender for Servers", "Windows event forwarding"],
+          "lab_task": "Monitor the estate with Azure Monitor and event forwarding, turn on Defender for Servers, build a workbook and route alerts to the operations team.",
+          "deliverable": "Monitoring at scale with alerts",
+          "checks": [["Collect", "Logs and metrics arrive from all servers", "Workbook"], ["Protect", "Defender raises alerts on seeded threats", "Security alerts"], ["Route", "Alerts reach the right team", "Notification test"]],
+          "objectives": ["Monitor Windows at scale", "Use Defender for Servers", "Route alerts"]
+        },
+        {
+          "topic": "Patch and Lifecycle Management at Scale: Hotpatching, Maintenance Windows and End of Support",
+          "subtopics": ["Patch strategy for large estates", "Hotpatching at scale", "Maintenance windows by service", "Domain controller patch order", "End-of-support planning", "Extended security updates", "Lifecycle reporting", "Exceptions and risk acceptance"],
+          "tools": ["Azure Update Manager", "Hotpatching", "Lifecycle reports"],
+          "lab_task": "Build a patch strategy with hotpatching and maintenance windows, report servers near end of support and plan their replacement.",
+          "deliverable": "Patch strategy and lifecycle plan",
+          "checks": [["Plan", "Windows and rings cover every service", "Patch strategy"], ["Report", "Servers near end of support are listed", "Lifecycle report"], ["Replace", "Replacement plans have dates and owners", "Replacement plan"]],
+          "objectives": ["Manage patches at scale", "Plan server lifecycle", "Handle exceptions"]
+        },
+        {
+          "topic": "Automation at Scale: Desired State, Infrastructure as Code and Pipelines for Windows",
+          "subtopics": ["Infrastructure as code for Windows", "Machine configuration and DSC at scale", "Image pipelines", "Pipelines for configuration changes", "Testing infrastructure changes", "Secrets management", "Drift detection", "Measuring automation"],
+          "tools": ["PowerShell", "Machine configuration", "Image builder", "CI pipeline"],
+          "lab_task": "Build a pipeline that creates a hardened server image, applies configuration as code and detects drift on deployed servers.",
+          "deliverable": "Windows automation pipeline",
+          "checks": [["Build", "The image is built and hardened by the pipeline", "Pipeline run"], ["Configure", "Servers match the configuration", "Compliance report"], ["Detect", "Drift is reported", "Drift report"]],
+          "objectives": ["Automate Windows at scale", "Build images as code", "Detect drift"]
+        },
+        {
+          "topic": "Large Migrations: Data Centre Exit, Server Consolidation and Cloud Moves",
+          "subtopics": ["Migration drivers", "Discovery and dependency mapping", "Rehost, replatform and retire decisions", "Moving workloads to Azure or other clouds", "Server consolidation", "Wave planning", "Cutover and rollback", "Decommissioning"],
+          "tools": ["Discovery tools", "Azure Migrate", "Wave plan"],
+          "lab_task": "Assess two hundred seeded servers, decide rehost, replatform or retire for each, plan migration waves and rehearse one cutover.",
+          "deliverable": "Migration assessment, wave plan and rehearsal",
+          "checks": [["Assess", "Each server has a decision", "Assessment sheet"], ["Plan", "Waves respect dependencies", "Wave plan"], ["Rehearse", "The cutover rehearsal succeeds", "Rehearsal report"]],
+          "objectives": ["Plan large migrations", "Map dependencies", "Rehearse cutovers"]
+        },
+        {
+          "topic": "Performance Engineering for Windows Server and Hyper-V",
+          "subtopics": ["Performance methodology", "CPU, memory, disk and network counters", "NUMA and VM sizing", "Storage latency analysis", "Network offloads", "Windows Performance Recorder and Analyzer", "Capacity reports", "Performance regressions after changes"],
+          "tools": ["Performance Monitor", "Windows Performance Toolkit", "Hyper-V counters"],
+          "lab_task": "Diagnose a seeded slow application server with performance counters and a trace, fix the bottleneck and show the improvement.",
+          "deliverable": "Performance analysis and fix",
+          "checks": [["Diagnose", "The bottleneck is identified", "Analysis"], ["Fix", "Response time improves", "Before-and-after data"], ["Report", "The capacity report states headroom", "Capacity report"]],
+          "objectives": ["Engineer Windows performance", "Use performance tools", "Report capacity"]
+        },
+        {
+          "topic": "Windows Server Operating Model: Roles, Change and Service Levels",
+          "subtopics": ["Infrastructure team roles", "Service catalogue for Windows services", "Change management", "Incident and problem management", "On-call and escalation", "Documentation and runbooks", "Skills and training", "Service metrics"],
+          "tools": ["Service management tool", "Runbooks", "Service reports"],
+          "lab_task": "Design the operating model for Windows services with roles, a service catalogue, change rules and on-call, and report a seeded month of service metrics.",
+          "deliverable": "Operating model and service report",
+          "checks": [["Design", "Roles and services are defined", "Operating model"], ["Run", "Changes and incidents follow the process", "Process records"], ["Report", "Service metrics are reported", "Service report"]],
+          "objectives": ["Run Windows infrastructure as a service", "Manage change", "Measure service quality"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Replication Failures, Kerberos and Cluster Outages",
+          "subtopics": ["Systematic troubleshooting at scale", "Replication failures across sites", "Kerberos errors and SPN problems", "Lingering objects", "Cluster outages", "Group Policy problems at scale", "Working with Microsoft support", "Incident reviews"],
+          "tools": ["repadmin", "setspn", "Cluster logs", "Event logs"],
+          "lab_task": "Diagnose seeded problems at scale, a replication failure with lingering objects, a duplicate SPN and a cluster outage, fix them and write an incident review.",
+          "deliverable": "Diagnoses, fixes and an incident review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Fix", "Replication, Kerberos and the cluster work after the fixes", "Health reports"], ["Review", "The review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot Windows at scale", "Fix Kerberos and replication", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Windows Infrastructure Modernisation Plan",
+          "subtopics": ["Architecture and security", "Recovery and resilience", "Platform and identity modernisation", "Lifecycle, automation and operations"],
+          "tools": ["Architecture documents", "Recovery runbooks", "Migration plan", "Evidence packs"],
+          "lab_task": "Present a modernisation plan for the Windows estate to a review board with the AD architecture, tier 0 and hardening, forest recovery and ransomware tests, platform choices, identity modernisation, lifecycle plan and operating model.",
+          "deliverable": "Modernisation plan with evidence and a board decision",
+          "checks": [["Design", "Architecture and security pass review", "Review record"], ["Prove", "Recovery and resilience claims have test evidence", "Evidence pack"], ["Plan", "Modernisation and lifecycle plans have owners", "Plan documents"]],
+          "objectives": ["Combine advanced Windows Server skills", "Design a modernisation plan", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

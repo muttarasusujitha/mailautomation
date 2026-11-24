@@ -2,7 +2,7 @@ import api from './api'
 
 const wait = milliseconds => new Promise(resolve => window.setTimeout(resolve, milliseconds))
 
-export async function syncGmailInbox({ limit = 50, sinceDays = 3, process = false } = {}) {
+export async function syncGmailInbox({ limit = 50, sinceDays = 30, process = false } = {}) {
   const response = await api.post('/gmail/sync-now', null, {
     params: { limit, since_days: sinceDays, process },
     timeout: 20000,

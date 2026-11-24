@@ -66,6 +66,54 @@ def category_for(domain_name):
     return (course or {}).get("category")
 
 
+def _module_steps(minutes, module):
+    """Explain and demonstrate, hands-on lab, review: whole five-minute blocks that add up to the module."""
+    explain = max(5, round(minutes * 0.25 / 5) * 5)
+    review = max(5, round(minutes * 0.15 / 5) * 5)
+    lab = minutes - explain - review
+    return [
+        {"method": "Explanation and demonstration", "minutes": explain,
+         "activity": "Explain and demonstrate " + ", ".join(module["subtopics"][:3]),
+         "evidence": "Working copy of the demonstration"},
+        {"method": "Hands-on lab", "minutes": lab, "activity": module["lab"], "evidence": module["deliverable"]},
+        {"method": "Scenario review", "minutes": review,
+         "activity": "Work through the module scenarios and compare results with the expected outcomes",
+         "evidence": module["success_measure"]},
+    ]
+
+
+def _expand_module(module, day, course, prerequisites):
+    """An authored execution-plan module in the fields the TOC and its exports read."""
+    scenarios = [dict(zip(("situation", "activity", "outcome", "evidence"), item)) for item in module["scenarios"]]
+    return {
+        "title": module["title"],
+        "topic": module["title"],
+        "minutes": module["minutes"],
+        "subtopics": list(module["subtopics"]),
+        "tools": list(day.get("tools") or course.get("tools") or [course["domain"]]),
+        "learning_objectives": [module["objective"]],
+        "lab": module["lab"],
+        "deliverable": module["deliverable"],
+        "assessment": module["success_measure"],
+        "scenarios": scenarios,
+        "acceptance_checks": [
+            {"input_or_condition": s["situation"], "expected_result": s["outcome"], "evidence": s["evidence"]}
+            for s in scenarios
+        ],
+        "delivery_steps": _module_steps(module["minutes"], module),
+        "prerequisites": list(prerequisites),
+        "preparation_requirements": [f"Sample data, starter files and a worked solution for: {module['lab']}"],
+        # Ask the export to number this module (M1, M2 ...) across the programme.
+        "number_in_plan": True,
+        # The step timings and preparation list are built by formula; the trainer confirms them.
+        "proposed_fields": ["delivery_steps", "preparation_requirements"],
+        **({"content_origin": module["origin"]} if module.get("origin") else {}),
+        "content_quality_stage": STAGE,
+        "content_enrichment_version": VERSION,
+        "review_status": "unreviewed",
+    }
+
+
 def _expand_day(day, course, level, position):
     """Turn a compact authored day into the fields the TOC generator and evaluator read."""
     topic = day["topic"]
@@ -90,6 +138,19 @@ def _expand_day(day, course, level, position):
         "deliverable": day["deliverable"],
         "assessment": assessment,
         "acceptance_checks": checks,
+        # Each acceptance check doubles as a worked scenario for the
+        # execution-plan export: a condition, what the participant does, and
+        # the expected result with its evidence.
+        "scenarios": [
+            {"situation": check["input_or_condition"],
+             "activity": f"Apply this to the '{topic}' lab result and record what happens",
+             "outcome": check["expected_result"], "evidence": check["evidence"]}
+            for check in checks
+        ],
+        **({"modules": [_expand_module(module, day, course, previous) for module in day["modules"]]}
+           if day.get("modules") else {}),
+        **({"roadmap": [{"stage": step["stage"], "subtopics": list(step["subtopics"])} for step in day["roadmap"]]}
+           if day.get("roadmap") else {}),
         "learning_objectives": list(day["objectives"]),
         "prerequisites": previous,
         "preparation_requirements": list(day.get("preparation") or [
@@ -114,6 +175,8 @@ def _expand_day(day, course, level, position):
         "difficulty": LEVEL_LABELS.get(level, "Integrated"),
         "course_level": level,
         **({"shared_key": day["shared_key"]} if day.get("shared_key") else {}),
+        # Detailed module design (outcomes, timed topics, quiz, rubric) for the course workbook.
+        **({"design": day["design"]} if isinstance(day.get("design"), dict) else {}),
         "content_quality_stage": STAGE,
         "content_enrichment_version": VERSION,
         "review_status": "unreviewed",
@@ -150,12 +213,72 @@ def validate_course(course):
     return problems
 
 
+# A day's roadmap groups its subtopics into ordered learning stages. Stages come
+# from this list and keep its order, so every course reads the same way.
+ROADMAP_STAGES = ("Understand", "Plan", "Set Up", "Build", "Integrate", "Secure", "Verify", "Operate",
+                  "Improve", "Present")
+
+
+def _roadmap_problems(day, label):
+    """A roadmap needs 3-5 stages in ROADMAP_STAGES order, and must hold every subtopic exactly once."""
+    roadmap = day.get("roadmap")
+    if not isinstance(roadmap, list) or not 3 <= len(roadmap) <= 5:
+        return [f"{label}: roadmap needs 3 to 5 stages"]
+    stages, items = [], []
+    for step in roadmap:
+        if not isinstance(step, dict) or step.get("stage") not in ROADMAP_STAGES \
+                or not isinstance(step.get("subtopics"), list) or not step["subtopics"]:
+            return [f"{label}: each roadmap stage needs a known stage name and subtopics"]
+        stages.append(step["stage"])
+        items += step["subtopics"]
+    problems = []
+    order = [ROADMAP_STAGES.index(stage) for stage in stages]
+    if order != sorted(set(order)):
+        problems.append(f"{label}: roadmap stages must be unique and follow {', '.join(ROADMAP_STAGES)}")
+    if sorted(items) != sorted(day.get("subtopics") or []):
+        problems.append(f"{label}: roadmap must contain each subtopic exactly once")
+    return problems
+
+
+_REQUIRED_MODULE_FIELDS = ("title", "minutes", "subtopics", "objective", "lab", "deliverable", "success_measure", "scenarios")
+DAY_MINUTES = 420
+
+
+def _module_problems(modules, label):
+    """Authored modules: complete fields, three or more full scenarios, and a full day of minutes."""
+    if not isinstance(modules, list) or not modules:
+        return [f"{label}: modules must be a non-empty list"]
+    problems = []
+    for number, module in enumerate(modules, 1):
+        if not isinstance(module, dict):
+            problems.append(f"{label} module {number}: must be an object")
+            continue
+        missing = [field for field in _REQUIRED_MODULE_FIELDS if not module.get(field)]
+        if missing:
+            problems.append(f"{label} module {number}: missing {', '.join(missing)}")
+            continue
+        if not isinstance(module["minutes"], int) or module["minutes"] < 30:
+            problems.append(f"{label} module {number}: minutes must be a whole number of at least 30")
+        if not isinstance(module["subtopics"], list) or len(module["subtopics"]) < 3:
+            problems.append(f"{label} module {number}: needs at least 3 subtopics")
+        scenarios = module["scenarios"]
+        if not isinstance(scenarios, list) or len(scenarios) < 3 or any(
+                not isinstance(s, list) or len(s) != 4 or not all(isinstance(v, str) and v.strip() for v in s)
+                for s in scenarios):
+            problems.append(f"{label} module {number}: needs 3 scenarios of [situation, activity, outcome, evidence]")
+    if not problems and sum(module["minutes"] for module in modules) != DAY_MINUTES:
+        problems.append(f"{label}: module minutes must add up to {DAY_MINUTES}")
+    return problems
+
+
 def _day_problems(day, label):
     from app.toc_generation_agent import _subtopic_target
     missing = [field for field in _REQUIRED_DAY_FIELDS if not day.get(field)]
     if missing:
         return [f"{label}: missing {', '.join(missing)}"]
-    problems = []
+    problems = _module_problems(day["modules"], label) if "modules" in day else []
+    if "roadmap" in day:
+        problems += _roadmap_problems(day, label)
     need = _subtopic_target(day["topic"])
     if len(day["subtopics"]) < need:
         problems.append(f"{label}: {len(day['subtopics'])} subtopics, needs {need}")
@@ -186,7 +309,10 @@ def _load_courses():
                 for level in LEVELS:
                     track = course["levels"][level]
                     track["days"] = [_expand_day(day, course, level, index) for index, day in enumerate(track["days"])]
-            except (ValueError, KeyError, TypeError, OSError) as exc:
+                    for day in track["days"]:
+                        # Detailed designs live in module_designs/ and are read only when a ToC uses this day.
+                        day["design_ref"] = {"file": path.stem, "level": level, "topic": day["topic"]}
+            except (ValueError, KeyError, TypeError, AttributeError, OSError) as exc:
                 # A broken file must not stop TOC generation; that domain keeps the old dataset.
                 logger.warning("Skipping level dataset %s: %s", path.name, exc)
                 continue
@@ -256,16 +382,16 @@ def select_level_days(course, level, duration):
                     break
                 picked += tracks[name][0][: slots - len(picked)]
                 used.append(name)
-            if len(picked) < slots and start > 0:
-                # Advanced (or Intermediate) longer than the remaining tracks: refresh the level below first.
-                below = tracks[LEVELS[start - 1]][0]
+            # Advanced (or Intermediate) longer than the remaining tracks: refresh the
+            # levels below, nearest first, taking each level's later days.
+            for name in reversed(LEVELS[:start]):
                 need = slots - len(picked)
-                if need > len(below):
-                    return None
+                if need <= 0:
+                    break
+                below = tracks[name][0]
                 picked = below[-need:] + picked
-                used.insert(0, LEVELS[start - 1])
-            if len(picked) < slots:
-                return None
+                used.insert(0, name)
+            # Still shorter than the request: the caller extends the plan from other datasets.
         last = used[-1]
     if with_capstone:
         capstone = tracks[last][1]
@@ -283,7 +409,19 @@ def level_programme(domain_name, duration, level):
     level = level if level in (*LEVELS, "mixed") else "intermediate"
     selection = select_level_days(course, level, duration)
     if not selection:
-        return None
+        # Longer than the three levels together: teach all of them in order and
+        # let the generator add other datasets and practice days for the rest.
+        tracks = [_split(course["levels"][name]) for name in LEVELS]
+        capstone = tracks[-1][1] if duration >= 5 else None
+        body = [day for days, _ in tracks for day in days]
+        slots = max(1, int(duration or 1)) - (1 if capstone else 0)
+        if len(body) > slots:
+            # A mixed request where one level is short: spread the slots over all levels in order.
+            body = _spread(body, slots)
+        days = body + ([capstone] if capstone else [])
+        if not days:
+            return None
+        selection = (deepcopy(days), list(LEVELS))
     days, used = selection
     first = "beginner" if level == "mixed" else used[0] if used[0] != level else level
     prerequisites = list(course["levels"][first].get("prerequisites") or [])
@@ -459,8 +597,8 @@ def _check():
             continue
         try:
             problems = validate_course(_load_json(path))
-        except ValueError as exc:
-            problems = [f"invalid JSON: {exc}"]
+        except (ValueError, TypeError, AttributeError, KeyError) as exc:
+            problems = [f"invalid course file: {exc}"]
         failed = failed or bool(problems)
         print(f"{'FAIL' if problems else 'OK  '} {path.name}")
         for problem in problems:
@@ -472,8 +610,8 @@ def _check():
             problems = [p for kind in ("integrations", "capstones")
                         for i, entry in enumerate(raw.get(kind) or [])
                         for p in _day_problems(entry.get("day") or {}, f"{kind} {i + 1}")]
-        except ValueError as exc:
-            problems = [f"invalid JSON: {exc}"]
+        except (ValueError, TypeError, AttributeError, KeyError) as exc:
+            problems = [f"invalid course file: {exc}"]
         failed = failed or bool(problems)
         print(f"{'FAIL' if problems else 'OK  '} combined.json")
         for problem in problems:

@@ -44,7 +44,7 @@ class TocRequest(BaseModel):
     notes: Optional[str] = ""
     requirement_id: Optional[str] = None
     client_email: Optional[str] = None
-    excel_layout: Literal["auto", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
+    excel_layout: Literal["auto", "course_workbook", "daily_plan", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "stone_plan", "moss_plan", "sand_plan", "bark_plan", "mist_plan", "olive_plan", "legacy"] = "auto"
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
     trainer_email: Optional[str] = None
@@ -82,8 +82,10 @@ class TocRequest(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_duration_days(cls, values):
         duration_days = values.get("duration_days")
-        if not values.get("topic_only") and (duration_days is None or not 1 <= duration_days <= 30):
-            raise ValueError("duration_days must be between 1 and 30")
+        # The template generator plans up to 100 days from the datasets; AI mode
+        # falls back to it for programmes it cannot plan.
+        if not values.get("topic_only") and (duration_days is None or not 1 <= duration_days <= 100):
+            raise ValueError("duration_days must be between 1 and 100")
         hours = values.get("hours_per_day")
         if hours is not None and not 1 / 60 <= hours <= 24:
             raise ValueError("hours_per_day must be between one minute and 24 hours")
@@ -616,9 +618,10 @@ async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
         if not str(settings.OPENAI_API_KEY or "").strip():
             return None
         from openai import AsyncOpenAI
-        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=60, max_retries=1) as client:
+        # Course outlines make each structured response longer than the old flat plan.
+        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=240, max_retries=1) as client:
             return await asyncio.wait_for(
-                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=180,
+                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=420,
             )
     except Exception:
         logger.exception("Requirement-driven TOC generation unavailable; returning a review-only draft")
@@ -734,18 +737,39 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
     payload._knowledge_db = db
-    toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None
-    ai_unavailable = requested_mode == "ai" and not toc
+    # AI planning is sized for programmes up to 30 days; longer ones are planned
+    # from the datasets by the template generator.
+    ai_too_long = requested_mode == "ai" and int(payload.duration_days or 0) > 30
+    toc = await _generate_ai_toc(payload) if requested_mode == "ai" and not ai_too_long else None
+    # A skipped AI call is not an AI failure; it gets its own mode and message.
+    ai_unavailable = requested_mode == "ai" and not toc and not ai_too_long
     if toc:
         used_generation_mode = "ai"
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
-    if toc is None and requested_mode != "ai":
+        # AI-planned days get the same module detail as dataset ToCs when they teach a dataset module.
+        try:
+            from app.module_design_store import attach_to_ai_toc
+            attach_to_ai_toc(toc, payload.domain)
+        except Exception:
+            logger.exception("Could not link stored module designs to the AI ToC; keeping it without them")
+    reference_unusable = False
+    if toc is None:
+        # Reference curricula keep their own modules. When AI is unavailable or
+        # skipped, the draft is used only if it fits the requested days;
+        # otherwise the template path selects from the reference modules.
         from app.reference_planner import reference_draft
-        toc = reference_draft(payload)
-        if toc is not None:
+        draft = reference_draft(payload)
+        usable = draft is not None and not (draft.get("quality") or {}).get("validation_errors")
+        if usable and requested_mode == "ai":
+            from app.toc_evaluation import evaluate_toc
+            usable = not evaluate_toc(draft, requested_days=int(payload.duration_days)).get("blocking_issues")
+        if draft is not None and (requested_mode != "ai" or usable):
+            toc = draft
             used_generation_mode = "reference_draft"
+        elif draft is not None:
+            reference_unusable = True
     try:
         if toc is None:
             # Approved deterministic Template mode, and safe fallback when
@@ -754,7 +778,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             # AI is preferred when selected, but an unavailable/invalid AI
             # result must fall back to the approved template generator rather
             # than block a valid ToC request.
-            use_manual_knowledge = requested_mode != "ai" or ai_unavailable
+            use_manual_knowledge = requested_mode != "ai" or ai_unavailable or ai_too_long
             if allocations:
                 knowledge_overrides = (
                     await _load_toc_knowledge_overrides(db, allocations)
@@ -770,14 +794,19 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
             else:
                 knowledge = await _load_toc_knowledge(db, payload.domain) if use_manual_knowledge else None
                 source_knowledge = knowledge
-                if use_manual_knowledge and payload.custom_topics:
+                if use_manual_knowledge and payload.custom_topics and (knowledge or reference_unusable):
+                    # Saved client knowledge, or a reference curriculum that did not fit:
+                    # choose the requested topics from it.
                     from app.scoped_curriculum import select_requested_curriculum
                     knowledge = select_requested_curriculum(payload.domain, payload.custom_topics, knowledge)
+                # Without saved knowledge the generator designs the requested
+                # topics from every dataset for the technology, at the level asked.
                 toc = generate_toc_from_dataset(
                     domain_name=payload.domain, duration_days=int(payload.duration_days), level=payload.level,
                     mode=payload.mode, notes=payload.notes or "", audience_level=payload.audience_level or "",
                     training_dates=payload.training_dates or "",
                     domain_override=knowledge,
+                    requested_topics=payload.custom_topics or "",
                 )
                 if source_knowledge:
                     used_generation_mode = "template_knowledge"
@@ -785,6 +814,8 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
                 used_generation_mode = "template_fallback"
             elif ai_unavailable and used_generation_mode == "template_knowledge":
                 used_generation_mode = "template_knowledge_fallback"
+            elif ai_too_long and used_generation_mode in {"template", "template_knowledge"}:
+                used_generation_mode = used_generation_mode + "_long_programme"
             toc = validate_toc(toc, int(payload.duration_days))
             # AI OFF must remain offline even if an older caller sends the
             # legacy enrichment flag. Model planning requires AI ON.
@@ -792,6 +823,13 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         # Fallback to minimal if generator fails
         toc = _minimal_toc(payload.domain, payload.duration_days)
 
+    if ai_too_long:
+        message = "Programmes longer than 30 days are planned from the curriculum datasets, not AI."
+        toc["generation_warning"] = message
+        quality = toc.setdefault("quality", {})
+        if quality.get("status") == "approved":
+            quality["status"] = "requires_review"
+        quality.setdefault("review_warnings", []).append(message)
     if ai_unavailable:
         quality = toc.setdefault("quality", {})
         if quality.get("status") != "requires_regeneration":
@@ -843,7 +881,13 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     client_email = normalize_client_email(payload.client_email)
     if not client_email and payload.requirement_id:
         client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
-    toc["excel_layout"] = await select_toc_layout(db, payload.excel_layout, client_email, payload.toc_id)
+    # The clean, single-sheet daily plan is the default client-facing workbook.
+    # The ten themed reference layouts stay available only when explicitly asked for.
+    requested_layout = (payload.excel_layout or "auto").strip().lower()
+    if requested_layout in ("", "auto"):
+        toc["excel_layout"] = "course_workbook"
+    else:
+        toc["excel_layout"] = await select_toc_layout(db, requested_layout, client_email, payload.toc_id)
 
     await db.toc_generations.insert_one({
         "toc_id": toc_id,

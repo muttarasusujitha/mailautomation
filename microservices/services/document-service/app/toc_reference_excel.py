@@ -6,6 +6,8 @@ import textwrap
 
 from shared.toc_layouts import REFERENCE_LAYOUTS
 
+from app.toc_modules import PROPOSED_SPLIT_NOTE, to_modules
+
 
 # Ten natural shades. Each layout keeps the same curriculum and changes the stylesheet.
 THEMES = {
@@ -251,15 +253,14 @@ def render_reference_toc(toc):
         return ws
 
     original_days = toc.get("days") or []
-    days = []
-    for day in original_days:
-        if day.get("modules"):
-            for module in day["modules"]:
-                days.append({**module, "day": day.get("day"), "date": day.get("date"),
-                    "timing": module.get("timing") or day.get("timing"), "focus_area": module.get("title") or module.get("topic"),
-                    "hours_per_day": None})
-        else:
-            days.append(day)
+    # One row per module. A whole-day entry becomes coded, timed modules (M1, M2 ...)
+    # so every layout reads like a client execution plan.
+    # AI-written and reference-draft days keep their own timed delivery sequence.
+    # Split modules are marked "(proposed)" unless the TOC is approved for delivery.
+    unapproved = bool(toc.get("draft_export")) or (toc.get("quality") or {}).get("status") != "approved"
+    days = to_modules(original_days,
+                      split=toc.get("generation_mode") not in {"ai", "ai_partial", "reference_draft"},
+                      mark_proposed=unapproved)
     def hours(day):
         minutes = day.get("minutes")
         try:
@@ -302,7 +303,13 @@ def render_reference_toc(toc):
     plan_rows, outcomes, assessments, delivery_rows = [], [], [], []
     for index, day in enumerate(days, 1):
         title = day.get("focus_area") or day.get("module") or day.get("title") or f"Module {index}"
-        topics = text(day.get("subtopics") or (day.get("morning_session") or {}).get("topics"))
+        roadmap = [step for step in day.get("roadmap") or [] if isinstance(step, dict) and step.get("subtopics")]
+        if roadmap:
+            # Subtopics grouped into ordered stages: "Step 1: Understand" then its topics.
+            topics = "\n".join(f"Step {number}: {step.get('stage')}\n" + "\n".join(f"  - {text(item)}" for item in step["subtopics"])
+                               for number, step in enumerate(roadmap, 1))
+        else:
+            topics = text(day.get("subtopics") or (day.get("morning_session") or {}).get("topics"))
         lab = text(day.get("lab") or day.get("lab_task"))
         objectives = text(day.get("learning_objectives"))
         assessment = text(day.get("assessment")) or "To be confirmed"
@@ -343,7 +350,7 @@ def render_reference_toc(toc):
     # Week, and for combined programmes Technology and Level, are added as the last
     # columns so existing column positions (Day, Date, ..., Hours in E) stay fixed.
     day_weeks = [_week_of(day, index) for index, day in enumerate(days, 1)]
-    day_tracks = [_track_for_day(tracks, day, row[0], row[3]) for day, row in zip(days, plan_rows)]
+    day_tracks = [_track_for_day(tracks, day, row[0], day.get("source_title") or row[3]) for day, row in zip(days, plan_rows)]
     schedule_headers = schedule_headers + ["Week"] + (["Technology", "Level"] if tracks else [])
     schedule_widths = schedule_widths + [9] + ([22, 14] if tracks else [])
     schedule_rows = [row + [f"Week {week}"] + ([label, level] if tracks else [])
@@ -430,6 +437,8 @@ def render_reference_toc(toc):
             readiness.append(["Trainer preparation: " + str(title), text(item)])
         for item in day.get("prerequisites") or []:
             readiness.append(["Module prerequisite: " + str(title), text(item)])
+    if unapproved and any(day.get("proposed_split") for day in days):
+        readiness.insert(0, ["Module structure", PROPOSED_SPLIT_NOTE])
     if readiness:
         sheet("Readiness & Risks", ["Category", "Requirement / action"], readiness, [30, 110])
     workbook.properties.title = programme_title[:120]

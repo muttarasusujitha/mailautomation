@@ -1,6 +1,8 @@
 import asyncio
 
 from app.routes.purchase_orders import InvoiceGenerateRequest, generate_invoice_from_po
+from app.routes.invoices import LabInvoiceRequest, generate_lab_invoice
+from shared.document_amounts import offline_expense_items
 
 
 class _Collection:

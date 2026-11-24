@@ -23,6 +23,7 @@ const FILTERS = [
 ]
 
 const REQUEST_REFRESH_INTERVAL_MS = 15000
+const INBOX_AUTO_SYNC_INTERVAL_MS = 3 * 60 * 1000
 
 function shortlistPath(request = {}) {
   const extracted = request.extracted || {}
@@ -375,14 +376,14 @@ function DetailModal({
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Generated Reply</p>
                 <p className="mt-1 text-xs text-slate-500">
                   {generationMode === 'ai'
-                    ? 'AI writes a tailored draft. Review it before sending.'
+                    ? 'AI writes replies automatically. When auto-send is enabled, it sends them to the client.'
                     : 'Approved template mode is active. Turn on AI mode to create a tailored draft.'}
                 </p>
               </div>
               <button
                 onClick={() => onRegenerateReply?.(request)}
                 disabled={generationMode !== 'ai' || regeneratingId === request.email_id}
-                title={generationMode === 'ai' ? 'Generate a new AI reply draft' : 'Enable AI text generation first'}
+                title={generationMode === 'ai' ? 'Generate an AI reply; auto-send sends it to the client' : 'Enable AI text generation first'}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {regeneratingId === request.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
@@ -543,6 +544,8 @@ export default function ClientRequests() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [syncing, setSyncing] = useState(false)
+  const [lastInboxSyncAt, setLastInboxSyncAt] = useState(null)
+  const [inboxSyncError, setInboxSyncError] = useState('')
   const [processingId, setProcessingId] = useState('')
   const [deletingId, setDeletingId] = useState('')
   const [retryingUpdateId, setRetryingUpdateId] = useState('')
@@ -552,6 +555,7 @@ export default function ClientRequests() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const autoSyncRunningRef = useRef(false)
+  const inboxSyncRef = useRef(null)
   const requestGate = useRef(createRequestGate())
 
   const loadRequests = async (silent = false) => {
@@ -621,24 +625,43 @@ export default function ClientRequests() {
     autoSyncRunningRef.current = true
     if (!silent) setSyncing(true)
     try {
-      const res = await syncGmailInbox({ limit: 50, process: false })
+      const res = await syncGmailInbox({ limit: 100, process: false })
       const stored = Number(res.stored ?? res.processed_count ?? 0)
+      setLastInboxSyncAt(new Date())
+      setInboxSyncError('')
       if (!silent) toast.success(stored
         ? 'Inbox checked: ' + stored + ' message(s) refreshed for review'
         : 'Inbox checked. No matching messages were found.'
       )
       await loadRequests(true)
     } catch (e) {
-      if (!silent) toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
+      const message = e.response?.data?.detail || e.message || 'Inbox sync failed'
+      setInboxSyncError(message)
+      if (!silent) toast.error(message)
     } finally {
       autoSyncRunningRef.current = false
       if (!silent) setSyncing(false)
     }
   }
 
-  // Gmail sync is manual so clearing the workspace does not immediately
-  // repopulate it from the connected mailbox. Use “Check Inbox Now” when a
-  // deliberate sync is needed.
+  inboxSyncRef.current = syncNow
+
+  useEffect(() => {
+    const runInboxSync = () => {
+      if (document.hidden) return
+      inboxSyncRef.current?.(true)
+    }
+    const handleVisibilityChange = () => {
+      if (!document.hidden) runInboxSync()
+    }
+    runInboxSync()
+    const interval = window.setInterval(runInboxSync, INBOX_AUTO_SYNC_INTERVAL_MS)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      window.clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
 
   const retryClientUpdate = async item => {
     if (!item?.email_id || retryingUpdateId) return
@@ -692,13 +715,17 @@ export default function ClientRequests() {
     try {
       const res = await api.post(`/inbox/${item.email_id}/regenerate-reply`, {})
       const generatedReply = res.data?.generated_reply || {}
+      const clientStatus = res.data?.status || 'pending_approval'
+      const replyStatus = res.data?.reply_status || clientStatus
       setSelected(current => current?.email_id === item.email_id
-        ? { ...current, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
+        ? { ...current, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: clientStatus, reply_status: replyStatus }
         : current)
       setRequests(current => current.map(request => request.email_id === item.email_id
-        ? { ...request, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
+        ? { ...request, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: clientStatus, reply_status: replyStatus }
         : request))
-      toast.success('AI reply draft generated. Review it before sending.')
+      if (replyStatus === 'sent') toast.success('AI reply generated and sent to the client.')
+      else if (replyStatus === 'pending_review') toast.success('AI reply generated and saved as a draft. Auto-send is disabled.')
+      else toast.error(res.data?.error || 'AI reply was generated, but it could not be sent.')
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Could not generate the AI reply')
     } finally {
@@ -771,7 +798,11 @@ export default function ClientRequests() {
           <h1 className="page-title flex items-center gap-2">
             <BriefcaseBusiness className="h-6 w-6 text-blue-500" /> Client Requests
           </h1>
-          <p className="mt-1 text-sm text-slate-500">All training inquiries captured from the client inbox.</p>
+          <p className="mt-1 text-sm text-slate-500" aria-live="polite">
+            Saved requests refresh every 15 seconds. Gmail is checked automatically every 3 minutes while this page is open.
+            {lastInboxSyncAt && ` Last checked ${lastInboxSyncAt.toLocaleTimeString()}.`}
+            {inboxSyncError && ` Last inbox check failed: ${inboxSyncError}`}
+          </p>
           <div className={clsx('mt-3 flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2.5 text-sm', generationMode === 'ai' ? 'border-violet-300 bg-violet-50/60' : 'border-slate-300 bg-slate-50')}>
             <Sparkles className={clsx('h-4 w-4', generationMode === 'ai' ? 'text-violet-700' : 'text-slate-500')} />
             <span className="text-xs font-bold uppercase tracking-wide text-slate-700">AI reply generation</span>

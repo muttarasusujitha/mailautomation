@@ -39,16 +39,16 @@ def test_complete_confirmed_first_mail_can_start_trainer_mail():
     assert ready is True
 
 
-def test_confirmed_mail_without_an_attached_toc_waits():
+def test_confirmed_mail_without_an_attached_toc_can_start_sourcing():
     ready = _confirmed_intake_ready_for_trainer_mail(
         _complete_extracted(),
         {"attachments": []},
         "Confirmed DevOps training for 20 participants.",
     )
-    assert ready is False
+    assert ready is True
 
 
-def test_incomplete_confirmed_mail_waits_for_a_later_reply():
+def test_missing_participant_count_does_not_block_confirmed_sourcing():
     extracted = _complete_extracted()
     extracted["participant_count"] = None
     ready = _confirmed_intake_ready_for_trainer_mail(
@@ -56,7 +56,7 @@ def test_incomplete_confirmed_mail_waits_for_a_later_reply():
         _toc_email(),
         "Confirmed DevOps training.",
     )
-    assert ready is False
+    assert ready is True
 
 
 def test_tentative_first_mail_is_not_treated_as_ready_confirmed_intake():

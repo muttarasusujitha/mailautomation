@@ -78,8 +78,14 @@ Thumbs.db
 /frontend/src/components/*
 !/frontend/src/components/ClientHandoffReview.jsx
 !/frontend/src/components/LeadBot.jsx
+!/frontend/src/components/Pager.jsx
+!/frontend/src/components/SearchSourceReport.jsx
 !/frontend/src/utils/leadSearchFeedback.js
 !/frontend/src/utils/leadSearchFeedback.test.js
+!/frontend/src/utils/leadPaging.js
+!/frontend/src/utils/leadPaging.test.js
+!/frontend/src/utils/trainerOutreachMail.js
+!/frontend/src/utils/trainerOutreachMail.test.js
 !/frontend/src/utils/workflowTemplates.test.js
 !/frontend/src/pages/
 /frontend/src/pages/*
@@ -89,6 +95,7 @@ Thumbs.db
 !/frontend/src/pages/TrainerApplications.jsx
 !/frontend/src/pages/ClientPortal.jsx
 !/frontend/src/pages/PartnerOpportunities.jsx
+!/frontend/src/pages/TravelBookings.jsx
 
 # Logs and runtime
 .scannerwork/
@@ -97,3 +104,6 @@ htmlcov/
 # Ignore sensitive email service OAuth token config
 microservices/services/email-service/config/token.json
 microservices/services/intelligence-service/naukri-bot-profile/
+
+# Model drafts for level-course modules (applied content lives in datasets_levels)
+microservices/services/trainer-service/curriculum_module_drafts/

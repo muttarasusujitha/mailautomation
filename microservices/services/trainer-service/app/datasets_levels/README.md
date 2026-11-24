@@ -33,7 +33,7 @@ When a request has no explicit `technology_allocations`, the TOC route reads the
 - A tool word listed inside another requested course is folded into it. "DevOps; AWS; Azure; Git; Docker" gives three technologies, and "Agentic AI with LangGraph" gives one.
 - Broad words ("cloud", "testing", "agile") count only in the stated scope. "Cloud" is dropped when AWS or Azure is named.
 - Prerequisites are not topics: "participants already know Python" does not add Python.
-- The bare word "SAP" is dropped when a specific SAP course is named: "SAP and S/4HANA" gives SAP S/4HANA, and "SAP BTP CAPM" gives SAP BTP. A module with no level course yet keeps the older SAP course, so "SAP SD and FICO" gives SAP (for SD) plus SAP FICO.
+- The bare word "SAP" is dropped when a specific SAP course is named: "SAP and S/4HANA" gives SAP S/4HANA, and "SAP BTP CAPM" gives SAP BTP. "SAP SD and FICO" gives SAP SD plus SAP FICO. A module with no level course yet keeps the older SAP course, so "SAP PP and FICO" gives SAP (for PP) plus SAP FICO.
 - "Go" and "SAFe" are also everyday words, so on their own they count only inside a technology list. Each neighbouring word must be the start or end of the text, a connector, a number, a level word or another technology name. "Go; Kubernetes", "Python, Go and Docker", "Advanced Go" and "Agile and SAFe" count. "Production go-live", "go to market" and "safe coding" do not. "Golang", "Go programming" and "Leading SAFe" always count.
 - Notes are read only for the original six programme technologies (DevOps, AWS, Azure, Kubernetes, Python, Agentic AI).
 - Days and levels written next to a technology are kept: "Python 5 days, AWS 3 days", "basic Python, advanced AWS". Remaining days are split by weight. A single level word such as "Advanced DevOps with AWS" applies to the whole programme instead.
@@ -84,3 +84,29 @@ PYTHONPATH=.:../.. python -m app.level_curriculum --check
 
 All content is marked `unreviewed`. A trainer must confirm technical accuracy,
 timings and acceptance cases before client delivery.
+
+## Execution-plan modules (optional `modules` on a day)
+
+A day can list its modules the way a client execution plan does. Each module has
+`title`, `minutes`, `subtopics`, `objective`, `lab`, `deliverable`,
+`success_measure` and at least three `scenarios`, each written as
+`[situation, participant activity, expected outcome, evidence]`. Module minutes
+must add up to 420, and `--check` rejects incomplete modules. The TOC, the
+evaluation, lab planning and the Excel exports all read these modules. Days
+without modules are split automatically in the export and marked "(proposed)".
+
+Hand-written modules: Generative AI, AWS and Azure (the five days a 5-day
+intermediate TOC uses). To draft modules for the remaining days with the
+configured model (paid API; drafts are checked before they are added):
+
+```bash
+cd microservices/services/trainer-service
+PYTHONPATH=.:../.. python -m app.draft_level_modules                       # days still without modules
+PYTHONPATH=.:../.. python -m app.draft_level_modules --run --course java --level intermediate
+PYTHONPATH=.:../.. python -m app.draft_level_modules --apply               # add the valid drafts
+PYTHONPATH=.:../.. python -m app.level_curriculum --check
+```
+
+Drafts that fail the checks are kept in `curriculum_module_drafts/rejected/`
+with the reasons and are retried on the next run. Applied drafts are marked
+`"origin": "model_draft_pending_technical_review"` on each module.

@@ -3,7 +3,7 @@
   "name": "Data Science",
   "category": "Data Science and Machine Learning",
   "icon": "flask",
-  "aliases": ["Data Science Training", "Data Scientist", "Data Scientist Training", "Data Science Bootcamp", "Data Science Course", "Applied Statistics for Data Science"],
+  "aliases": ["Data Science Training", "Data Scientist", "Data Scientist Training", "Data Science Bootcamp", "Data Science Course"],
   "certifications": ["IBM Data Science Professional Certificate", "Microsoft Certified: Azure Data Scientist Associate (DP-100)", "Google Advanced Data Analytics Certificate", "Databricks Certified Machine Learning Associate"],
   "tools": ["Python", "Jupyter", "NumPy", "pandas", "scikit-learn", "statsmodels", "Matplotlib and seaborn", "SQL (PostgreSQL)"],
   "review_status": "unreviewed",
@@ -309,7 +309,7 @@
           "objectives": ["Handle imbalanced data", "Calibrate models", "Decide with costs"]
         },
         {
-          "topic": "Interpreting and Explaining Models",
+          "topic": "Interpreting and Explaining Models for Stakeholders",
           "subtopics": ["Global and local explanations", "Partial dependence and ICE plots", "Permutation importance", "SHAP values", "Explaining to non-technical people", "Explanations for regulators", "Limits of explanations", "Checking explanations for sense"],
           "tools": ["SHAP", "scikit-learn"],
           "lab_task": "Explain the loan default model globally and for three individual decisions with SHAP and partial dependence, check the explanations against domain knowledge and write a customer-facing explanation.",

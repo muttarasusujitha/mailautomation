@@ -252,9 +252,9 @@ export default function LabCost() {
   const downloadLabCost = async () => {
     if (!selected) return toast.error('Select a requirement first')
     const technology = selected.technology_needed || selected.domain || selected.job_title
-    const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3)
+    const durationDays = Number(selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 1)
     if (!technology) return toast.error('The selected requirement needs a technology')
-    if ([form.hours_per_day, form.participant_count, form.quote_validity_days].some(value => Number(value) <= 0)) {
+    if (Number(form.quote_validity_days) <= 0 || [form.hours_per_day, form.participant_count].some(value => value !== '' && Number(value) <= 0)) {
       return toast.error('Hours, participants, and validity must be positive')
     }
 
@@ -271,11 +271,15 @@ export default function LabCost() {
         return [key, number]
       }))
       const mapping = labMode === 'manual' ? JSON.parse(manualMapping) : undefined
-      const tocResponse = await api.post('/toc/generate', {
+      const { data: saved } = await api.get(`/toc/lab-cost/agenda/${encodeURIComponent(requirementId)}`).catch(error => {
+        if (error.response?.status === 404) return { data: {} }
+        throw error
+      })
+      const tocResponse = saved.toc ? { data: saved } : await api.post('/toc/generate', {
         generation_mode: labMode === 'manual' ? 'template' : 'ai',
         allow_ai_enrichment: labMode !== 'manual',
         requirement_id: selected.requirement_id || selected.id,
-        technology,
+        domain: technology,
         duration_days: durationDays,
         level: selected.level || selected.audience_level || 'intermediate',
         audience_level: selected.audience_level || selected.level || 'intermediate',
@@ -293,8 +297,8 @@ export default function LabCost() {
         toc_id: tocResponse.data.toc_id,
         cloud_provider: form.cloud_provider,
         cloud_region: form.cloud_region,
-        hours_per_day: Number(form.hours_per_day),
-        participant_count: Number(form.participant_count),
+        hours_per_day: form.hours_per_day === '' ? null : Number(form.hours_per_day),
+        participant_count: form.participant_count === '' ? null : Number(form.participant_count),
         contingency_percent: Number(form.contingency_percent),
         tax_percent: Number(form.tax_percent),
         lab_package: form.lab_package,
@@ -360,6 +364,7 @@ export default function LabCost() {
           {selectedLabRequest && <>
             <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-slate-900">{selectedLabRequest.request?.client_name || selectedLabRequest.original_message?.from_name || 'Client request'}</h2><p className="mt-1 text-sm text-slate-500">{selectedLabRequest.request?.requirement_id} · {selectedLabRequest.request?.status?.replaceAll('_', ' ')}</p></div>{selectedLabRequest.request?.status === 'awaiting_review' && <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Approval required</span>}</div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 text-sm"><Info label="Sender" value={`${selectedLabRequest.original_message?.from_name || ''} ${selectedLabRequest.original_message?.from_email || selectedLabRequest.request?.client_email || ''}`} /><Info label="Training / scope" value={selectedLabRequest.request?.technology_needed || selectedLabRequest.request?.domain} /><Info label="Participants / duration" value={`${selectedLabRequest.request?.participant_count || '—'} participants · ${selectedLabRequest.request?.duration_days || '—'} days`} /><Info label="Cloud / region" value={[selectedLabRequest.request?.cloud_provider, selectedLabRequest.request?.cloud_region].filter(Boolean).join(' · ')} /></div>
+            <LabClientInvoice requirementId={selectedLabRequest.request.requirement_id} request={selectedLabRequest.request} />
             {selectedLabRequest.request?.rate_change_summary?.length > 0 && <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"><p className="font-bold">Why this needs review</p><ul className="mt-1 list-inside list-disc">{selectedLabRequest.request.rate_change_summary.map((reason, index) => <li key={index}>{reason}</li>)}</ul></div>}
             {!!selectedLabRequest.request?.missing_inputs?.length && <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm text-blue-900"><p className="font-bold">Missing quote inputs</p><p className="mt-1">{selectedLabRequest.request.missing_inputs.join(', ')}</p></div>}
             <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Original email · {selectedLabRequest.original_message?.subject || 'No subject'}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{selectedLabRequest.original_message?.body || 'Original message body unavailable.'}</p></div>
@@ -393,6 +398,7 @@ export default function LabCost() {
             <option value="">Select a requirement</option>
             {requirements.map(requirement => <option key={requirement.requirement_id || requirement.id} value={requirement.requirement_id || requirement.id}>{requirementLabel(requirement)}</option>)}
           </select>
+          {selected && <LabClientInvoice requirementId={requirementId} request={selected} />}
           {selected && <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 text-sm">
             <div><p className="text-slate-500">Technology</p><p className="font-semibold text-slate-800">{selected.technology_needed || selected.domain || selected.job_title}</p></div>
             <div><p className="text-slate-500">Duration</p><p className="font-semibold text-slate-800">{selected.duration_days || Math.ceil(Number(selected.duration_hours || 0) / 8) || 3} days</p></div>
@@ -428,8 +434,8 @@ export default function LabCost() {
           <Field label="Cloud provider"><select value={form.cloud_provider} onChange={event => setForm(previous => ({ ...previous, cloud_provider: event.target.value, cloud_region: '' }))}><option value="">Confirm provider</option><option value="aws">AWS</option><option value="azure">Azure</option><option value="gcp">GCP</option></select></Field>
           <Field label="Cloud region"><select value={form.cloud_region} onChange={event => update('cloud_region', event.target.value)}><option value="">Confirm region</option>{form.cloud_provider === 'aws' && <option value="ap-south-1">Mumbai</option>}{form.cloud_provider === 'azure' && <option value="central-india">Central India</option>}{form.cloud_provider === 'gcp' && <option value="asia-south1">Mumbai</option>}</select></Field>
           <Field label="Lab package"><select value={form.lab_package} onChange={event => update('lab_package', event.target.value)}>{packages.map(item => <option key={item.value} value={item.value}>{item.label} - {item.note}</option>)}</select></Field>
-          <Field label="Lab hours per day"><input type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
-          <Field label="Participants"><input type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
+          <Field label="Lab hours per day"><input placeholder="Use agenda hours" type="number" min="0.5" step="0.5" value={form.hours_per_day} onChange={event => update('hours_per_day', event.target.value)} /></Field>
+          <Field label="Participants"><input placeholder="Blank for one-day sample" type="number" min="1" value={form.participant_count} onChange={event => update('participant_count', event.target.value)} /></Field>
           <Field label="USD to INR"><p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">Fetched from the published USD/INR rate when the workbook is generated.</p></Field>
           <Field label="Contingency %"><input type="number" min="0" max="100" value={form.contingency_percent} onChange={event => update('contingency_percent', event.target.value)} /></Field>
           <Field label="Tax / GST % (confirm, or enter 0)"><input type="number" min="0" max="100" value={form.tax_percent} onChange={event => update('tax_percent', event.target.value)} /></Field>
@@ -461,6 +467,58 @@ export default function LabCost() {
       </>}
     </div>
   )
+}
+
+function LabClientInvoice({ requirementId, request }) {
+  const [invoice, setInvoice] = useState(null)
+  const [busy, setBusy] = useState(true)
+  const [error, setError] = useState('')
+  const defaultAmount = request.lab_client_price || request.lab_quote_amount || ''
+
+  useEffect(() => {
+    let active = true
+    api.get(`/invoices/lab/${encodeURIComponent(requirementId)}`).then(({ data }) => {
+      if (active) setInvoice(data.invoice || null)
+    }).catch(err => { if (active) setError(err.message || 'Could not load lab invoice') })
+      .finally(() => { if (active) setBusy(false) })
+    return () => { active = false }
+  }, [requirementId])
+
+  const create = async event => {
+    event.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      const values = Object.fromEntries(new FormData(event.currentTarget))
+      const { data } = await api.post(`/invoices/lab/${encodeURIComponent(requirementId)}`, values)
+      setInvoice(data.invoice)
+    } catch (err) { setError(err.message || 'Could not generate the lab invoice') }
+    finally { setBusy(false) }
+  }
+
+  const send = async () => {
+    setBusy(true)
+    setError('')
+    try {
+      const { data } = await api.post(`/invoices/${invoice.invoice_id}/send`, { to_email: invoice.client_email })
+      setInvoice(data.invoice)
+    } catch (err) { setError(err.message || 'Could not send the lab invoice') }
+    finally { setBusy(false) }
+  }
+
+  return <form onSubmit={create} className="mt-4 space-y-3 rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+    <h3 className="font-bold text-slate-900">Separate client lab invoice</h3>
+    {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+    {invoice ? <div className="flex flex-wrap items-center gap-3 text-sm"><span>{invoice.invoice_number} · ₹{Number(invoice.total_amount).toLocaleString('en-IN')} · {invoice.status}</span>{invoice.status !== 'sent' && <button type="button" disabled={busy} onClick={send} className="btn-secondary text-sm">Send lab invoice</button>}</div> : <>
+      <p className="text-sm text-slate-600">Create this only after the client accepts the lab-cost workbook.</p>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <label className="text-sm">Lab amount (INR)<input name="lab_amount" type="number" required min="0.01" step="0.01" defaultValue={defaultAmount} className="mt-1 w-full rounded border border-slate-300 p-2" /></label>
+        <label className="text-sm">GST %<input name="gst_rate" type="number" min="0" max="100" step="0.01" defaultValue="18" className="mt-1 w-full rounded border border-slate-300 p-2" /></label>
+        <label className="text-sm">Due date<input name="due_date" type="date" className="mt-1 w-full rounded border border-slate-300 p-2" /></label>
+      </div>
+      <button disabled={busy} className="btn-secondary text-sm">Generate lab invoice</button>
+    </>}
+  </form>
 }
 
 function Info({ label, value }) {

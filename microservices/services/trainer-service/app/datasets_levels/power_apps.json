@@ -1,0 +1,573 @@
+{
+  "domain": "Power Apps",
+  "name": "Power Apps",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "app-window",
+  "aliases": ["PowerApps", "Microsoft Power Apps", "Power Apps Development", "Power Apps Developer", "Canvas Apps", "Model-Driven Apps", "Power Platform", "Microsoft Power Platform", "Power Platform Developer", "Power Platform Functional Consultant", "Dataverse", "Microsoft Dataverse", "Power Fx", "Power Pages"],
+  "certifications": ["Microsoft Certified: Power Platform Fundamentals (PL-900)", "Microsoft Certified: Intelligent Applications Builder Associate (AB-410)", "Microsoft Certified: Power Platform Developer Associate (AB-400)"],
+  "tools": ["Power Apps (make.powerapps.com)", "Power Apps Studio", "Microsoft Dataverse", "Power Platform admin center", "Power Pages design studio", "Power Apps mobile app", "Power Platform CLI (pac)", "Visual Studio Code"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For business users, analysts and new makers who have not built a Power App before. Covers the Power Platform and environments, canvas apps built from data and with Copilot, screens, controls and Power Fx, SharePoint, Excel and Dataverse data sources, galleries, forms, variables, collections and delegation, navigation and responsive layout, model-driven apps with Dataverse relationships and views, sharing with security roles, a simple Power Pages site, and testing and publishing.",
+      "prerequisites": ["Uses Excel formulas and SharePoint lists or similar business tools with confidence", "Can describe a simple business process such as requests, approvals or bookings", "Has a Microsoft 365 work account with a Power Apps Premium or trial licence and access to a managed developer environment"],
+      "outcomes": ["Build, test and publish responsive canvas apps on SharePoint, Excel and Dataverse data", "Write Power Fx for filtering, saving records, variables, collections and navigation", "Create Dataverse tables, relationships, views and a model-driven app", "Share apps safely with the right security roles and data permissions"],
+      "days": [
+        {
+          "topic": "Power Platform Orientation: Environments and the Maker Portal",
+          "subtopics": ["Power Apps, Power Automate, Power BI, Copilot Studio and Power Pages and what each one is for", "Microsoft Dataverse and connectors as the data layer", "Canvas apps, model-driven apps and code apps compared", "Environment types: default, production, sandbox, developer and trial", "Personal developer environments through environment routing", "Finding your way round make.powerapps.com: Home, Apps, Tables, Solutions and Plans", "Environment picker, region and Dataverse status", "Microsoft 365 seeded rights compared with Power Apps Premium", "Standard and premium connectors", "Data policies and why a connector can be blocked"],
+          "tools": ["Power Apps (make.powerapps.com)", "Power Platform admin center", "Environment picker"],
+          "lab_task": "Sign in to make.powerapps.com, switch between the default environment and your personal developer environment, record the type, region, URL and Dataverse status of each, and classify 10 connectors from a supplied list as standard or premium.",
+          "deliverable": "Environment fact sheet for two environments with a connector classification table",
+          "checks": [["Open the personal developer environment from the environment picker", "Environment shows type Developer with a Dataverse database", "Environment details screenshot"], ["Classify SharePoint, Excel Online (Business), Office 365 Users, Dataverse and SQL Server", "SharePoint, Excel Online (Business) and Office 365 Users are standard; Dataverse and SQL Server are premium", "Completed classification table"], ["Explain which licence a colleague needs to run an app built on Dataverse", "Answer names Power Apps Premium or a pay-as-you-go plan, not Microsoft 365 seeded rights", "Written answer on the fact sheet"]],
+          "objectives": ["Describe the Power Platform products and where Power Apps fits", "Find and compare environments in the maker portal", "Spot licence and connector limits before building"]
+        },
+        {
+          "topic": "Generating a Canvas App from Excel and SharePoint",
+          "subtopics": ["Start with data: uploading an Excel file or connecting to an existing table", "Excel tables in OneDrive compared with Excel data uploaded into a Dataverse table", "Creating an app from a SharePoint list", "The generated browse, detail and edit screens", "Power Apps Studio layout: tree view, canvas, properties pane and formula bar", "Previewing with F5 and using controls with Alt held down", "Saving, autosave and version history", "App settings: name, icon, description and orientation"],
+          "tools": ["Power Apps Studio", "Excel for the web", "Microsoft Lists", "OneDrive"],
+          "lab_task": "Generate one app from an Excel table of 50 training rooms stored in OneDrive and a second app from a SharePoint list of 40 equipment items, then rename the generated screens, change one gallery layout and save both apps with a description and icon.",
+          "deliverable": "Two saved canvas apps with renamed screens and a short comparison of Excel and SharePoint as sources",
+          "checks": [["Create an app from the Excel table of rooms", "App opens with browse, detail and edit screens listing all 50 rooms", "Preview screenshot of the browse screen"], ["Edit an equipment item in the SharePoint-based app and save it", "The change appears in the SharePoint list after a refresh", "List screenshot showing the modified date"], ["Open version history after three saves", "Three versions are listed and an earlier one can be restored", "Version history screenshot"]],
+          "objectives": ["Create canvas apps from existing data", "Find your way round Power Apps Studio", "Save and version apps"]
+        },
+        {
+          "topic": "Copilot in Power Apps: Describing an App and Its Data",
+          "subtopics": ["Start with data and Create new data with Copilot", "Reviewing and editing the tables Copilot proposes", "Plans: turning a business problem into requirements, tables and apps", "Editing a canvas app in the Copilot pane of Power Apps Studio (preview)", "Creating and explaining formulas with Copilot in the formula bar", "Writing prompts that name users, data and rules", "Checking generated columns, screens and formulas before use", "Copilot availability by region and the admin settings that control it"],
+          "tools": ["Power Apps (make.powerapps.com) with Copilot", "Plans in Power Apps", "Power Apps Studio Copilot pane"],
+          "lab_task": "Describe a meeting room booking process to Copilot, review the proposed Rooms and Bookings tables, correct two column types, create the canvas app, use the Copilot pane to add a filter by room, and ask the formula bar to explain the gallery's Items formula.",
+          "deliverable": "Copilot-built booking app with a prompt log, the corrections made and the explained formula",
+          "checks": [["Describe the booking table to Copilot and review its proposal", "Table has room, start time, end time and booked-by columns before the app is created", "Table editor screenshot"], ["Change the Attendees column from text to whole number before creating the app", "The Dataverse table shows Attendees as a whole number column", "Column list screenshot"], ["Select Explain this formula on the gallery Items property", "The plain-language explanation matches what the formula filters and sorts", "Explanation copied into the prompt log"]],
+          "objectives": ["Create tables and apps from a description", "Review and correct Copilot output", "Use Copilot to change apps and explain formulas"]
+        },
+        {
+          "topic": "Screens, Controls and Modern Themes",
+          "subtopics": ["Adding, duplicating and ordering screens", "Classic and modern controls", "Everyday controls: text, text input, button, drop-down, combo box, date picker, toggle and image", "Key properties: Text, Default, Visible, DisplayMode and OnSelect", "Modern themes and the Fluent 2 design system", "Naming conventions for screens and controls", "Grouping, aligning and copying controls", "Icons, shapes and media from the Insert pane"],
+          "tools": ["Power Apps Studio", "Tree view", "Themes pane"],
+          "lab_task": "Build a three-screen request app with a home screen, an entry screen and a confirmation screen using 12 modern controls named to the course convention (scrHome, txtTitle, btnSubmit), apply a modern theme, and keep the Submit button disabled until three required inputs are filled.",
+          "deliverable": "Three-screen app with named controls, a modern theme and a Submit button that stays disabled until the form is complete",
+          "checks": [["Leave one required input empty", "Submit button stays disabled", "Preview screenshot"], ["Open the tree view", "Every screen and control follows the naming convention", "Tree view screenshot"], ["Switch the app to a different modern theme", "All modern controls change colour without editing each control", "Before and after screenshots"]],
+          "objectives": ["Design screens with modern controls", "Set control properties with formulas", "Apply naming and theming standards"]
+        },
+        {
+          "topic": "Power Fx Formula Basics",
+          "subtopics": ["Formulas that recalculate like Excel", "Data types: text, number, Boolean, date and time, record and table", "Operators and joining text with &", "If and Switch", "Text, Value and number formats", "Today, Now, DateAdd and DateDiff", "IsBlank, Coalesce and blank values", "Data formulas and behaviour formulas", "Notify and Reset for simple feedback", "Comments and reading formula errors"],
+          "tools": ["Power Apps Studio formula bar", "Power Fx formula reference on Microsoft Learn"],
+          "lab_task": "Write 10 formulas on a leave request screen: days requested between two dates including both ends, a summary label that joins name, type and dates, a label that turns red above 10 days, a Switch on leave type, a Notify on submit and a Reset of every input, each with a comment.",
+          "deliverable": "Leave request screen with 10 working formulas, each explained in a comment",
+          "checks": [["Enter a start date of Monday and an end date of the Friday of the same week", "Days label shows 5", "Preview screenshot"], ["Request 12 days", "Days label turns red and a warning appears", "Preview screenshot"], ["Select Submit with the reason left blank", "Notify shows an error and the inputs keep their values", "Screen recording"]],
+          "objectives": ["Write data and behaviour formulas", "Work with dates, text and blank values", "Read and fix formula errors"]
+        },
+        {
+          "topic": "Choosing Data Sources: SharePoint Lists, Excel and Dataverse",
+          "subtopics": ["How connectors and connections work", "SharePoint column types in Power Apps: choice, lookup, person and yes/no", "Excel table requirements and limits", "Dataverse tables as a data source", "Office 365 Users and Office 365 Outlook connectors", "Who signs in: the user's own connection", "Comparing sources by delegation, security, volume and licence", "Adding, refreshing and removing data sources"],
+          "tools": ["Power Apps Studio Data pane", "Microsoft Lists", "Excel Online (Business) connector", "Microsoft Dataverse"],
+          "lab_task": "Connect one app to a SharePoint list, an Excel table and a Dataverse table that each hold the same 30 equipment records, show the signed-in user's manager with Office 365 Users, and score each source on delegation, security, row volume and licence in a decision matrix.",
+          "deliverable": "App with three data sources and a scored decision matrix that recommends a source for a 20,000-row scenario",
+          "checks": [["Show a SharePoint person column in a gallery", "Gallery shows the person's display name rather than a record", "Preview screenshot"], ["Display the signed-in user's manager", "Label shows the manager's name from Office 365 Users", "Preview screenshot"], ["Recommend a source for 20,000 equipment rows with role-based access", "Matrix recommends Dataverse with delegation and security reasons", "Decision matrix"]],
+          "objectives": ["Connect apps to SharePoint, Excel and Dataverse", "Work with complex column types", "Choose a data source for a scenario"]
+        },
+        {
+          "topic": "Galleries: Browsing, Searching and Filtering Records",
+          "subtopics": ["Vertical, horizontal and flexible-height galleries", "The Items property and ThisItem", "Filter, Search and LookUp", "Sort and SortByColumns", "Drop-down and combo box filters", "Gallery.Selected and highlighting the selected row", "Templates, separators and alternating row colours", "Empty states and item counts with CountRows"],
+          "tools": ["Power Apps Studio", "Gallery control", "SharePoint list"],
+          "lab_task": "Build an equipment gallery over 40 SharePoint items with a search box on title, a category drop-down, a sort toggle on purchase date, a highlighted selected row and a label showing how many items match.",
+          "deliverable": "Equipment browse screen with search, filter, sort, selection highlight and a match count",
+          "checks": [["Type 'laptop' and choose the Computers category", "Only matching laptops are listed and the count label agrees", "Preview screenshot"], ["Select the sort toggle twice", "Order switches between newest and oldest purchase date", "Two preview screenshots"], ["Choose a category with no items", "An empty-state message replaces the gallery", "Preview screenshot"]],
+          "objectives": ["Build galleries for browsing data", "Filter, search and sort records", "Handle selection and empty results"]
+        },
+        {
+          "topic": "Edit and Display Forms",
+          "subtopics": ["Form DataSource and Item properties", "Data cards, unlocking cards and card properties", "FormMode values: New, Edit and View", "NewForm, EditForm and ViewForm", "SubmitForm with OnSuccess and OnFailure", "Required fields and the Valid property", "ResetForm and LastSubmit", "The modern form control and column layout"],
+          "tools": ["Power Apps Studio", "Edit form control", "Display form control"],
+          "lab_task": "Add a loan request form for a SharePoint Loans list with eight fields, open it in New mode from the browse screen and Edit mode from a selected item, make three fields required, and show the saved item's ID on a confirmation screen with LastSubmit.",
+          "deliverable": "Loan request form working in new, edit and view modes with validation and a confirmation screen",
+          "checks": [["Submit a new loan with all required fields", "The loan appears in the list and the confirmation shows its ID", "List and preview screenshots"], ["Submit with the return date missing", "The form shows a required-field error and stays on screen", "Preview screenshot"], ["Open an existing loan in view mode", "Fields are read-only and the Save button is hidden", "Preview screenshot"]],
+          "objectives": ["Create and configure forms", "Submit and validate data", "Switch between form modes"]
+        },
+        {
+          "topic": "Variables and Collections",
+          "subtopics": ["Global variables with Set", "Context variables with UpdateContext", "Passing context values through Navigate", "Collect, ClearCollect and Clear", "Remove and RemoveIf on collections", "Local values with With", "Choosing between variables, collections and named formulas", "The Variables pane in Power Apps Studio", "A basket pattern with a collection", "Common mistakes: stale values and oversized collections"],
+          "tools": ["Power Apps Studio Variables pane", "Live monitor"],
+          "lab_task": "Build a loan basket: users add up to five equipment items to a collection from the gallery, see a running count in the header from a global variable, remove items, and open a review screen that receives the borrower's name through Navigate.",
+          "deliverable": "Basket feature using a collection, a global count and a context variable, with a note on why each was chosen",
+          "checks": [["Add three items and remove one", "Basket shows two items and the header count shows 2", "Preview screenshot"], ["Try to add a sixth item", "The app refuses and shows a five-item limit message", "Preview screenshot"], ["Open the Variables pane during preview", "The global variable, the context variable and the collection are listed with current values", "Variables pane screenshot"]],
+          "objectives": ["Use global and context variables", "Manage collections", "Choose the right way to hold app state"]
+        },
+        {
+          "topic": "Writing Records with Patch, Defaults and Remove",
+          "subtopics": ["Patch with Defaults to create a record", "Patch with LookUp to update a record", "Writing choice, lookup and person columns", "Saving a collection with ForAll and Patch", "Remove and RemoveIf on a data source", "Patch compared with SubmitForm", "Checking a save with IfError and Notify", "Refreshing data after a write"],
+          "tools": ["Power Apps Studio", "SharePoint Loans and Equipment lists", "Live monitor"],
+          "lab_task": "Save the loan basket: create one Loan record per item with Patch and Defaults, set Status to Requested and Borrower to the current user, mark each Equipment item On loan, and cancel one loan with Remove so its item returns to Available.",
+          "deliverable": "Basket save and cancel features with a note comparing Patch and SubmitForm",
+          "checks": [["Save a basket of three items", "Three Loan records exist with Status Requested and the user as Borrower", "List screenshot"], ["Check the equipment list after saving", "The three items show Status On loan", "List screenshot"], ["Cancel one loan", "The Loan record is deleted and its item shows Available again", "List screenshots before and after"]],
+          "objectives": ["Create and update records with Patch", "Write choice, lookup and person values", "Delete records safely"]
+        },
+        {
+          "topic": "Delegation and Working with Large Lists",
+          "subtopics": ["What delegation is and why the warning appears", "The data row limit: 500 by default and up to 2,000", "Delegable functions for SharePoint and Dataverse", "Search, in and StartsWith compared", "Indexed SharePoint columns and the 5,000-item view threshold", "Filtering on choice, lookup and date columns", "Testing with the data row limit set to 1", "Patterns for large data: server-side filters, views and Dataverse"],
+          "tools": ["Power Apps Studio", "App checker", "SharePoint list settings"],
+          "lab_task": "Load a 6,000-row SharePoint list, find the three delegation warnings in a supplied app, rewrite the formulas with StartsWith and other delegable filters, index two columns, and prove the fix by setting the data row limit to 1 and searching for a record near the end of the list.",
+          "deliverable": "Fixed app with no delegation warnings, two indexed columns and a test note with before and after results",
+          "checks": [["Open the supplied app in Power Apps Studio", "App checker lists three delegation warnings", "App checker screenshot"], ["Search for an equipment code that exists only in row 5,500", "The record is found after the fix", "Preview screenshot"], ["Set the data row limit to 1 and repeat the search", "The record is still found because the query runs in SharePoint", "Settings and preview screenshots"]],
+          "objectives": ["Explain delegation and row limits", "Write delegable formulas", "Test apps against large lists"]
+        },
+        {
+          "topic": "Navigation, Deep Links and App Start",
+          "subtopics": ["Navigate and Back with screen transitions", "App.StartScreen", "Passing a record between screens", "A side menu built from a gallery of screens", "Param and links that open a record", "Environment ID in Power Apps mobile deep links", "Launch for email, phone and web links", "Confirmation prompts before leaving unsaved changes"],
+          "tools": ["Power Apps Studio", "Power Apps mobile app", "Microsoft Teams"],
+          "lab_task": "Add a side menu that moves between five screens, set App.StartScreen to open a loan's detail screen when the app link carries a loanId parameter, send a link with the environment ID and loanId=12 to a colleague, and ask users to save or discard before they leave an edited form.",
+          "deliverable": "App with a side menu, a parameter-driven start screen, a working deep link and an unsaved-changes prompt",
+          "checks": [["Open the app link with loanId=12 in a browser", "App starts on the detail screen of loan 12", "Browser screenshot showing the URL"], ["Open the same link on a phone with Power Apps mobile", "The app opens on loan 12 because the link includes the environment ID", "Phone screenshot"], ["Change a field and select Back", "A prompt asks the user to save or discard", "Screen recording"]],
+          "objectives": ["Design navigation between screens", "Start apps from deep links", "Protect unsaved changes"]
+        },
+        {
+          "topic": "Responsive Layout with Containers",
+          "subtopics": ["Scale to fit, lock aspect ratio and lock orientation settings", "Horizontal and vertical containers", "Flexible width, fill portions and minimum sizes", "Parent.Width, App.Width and relative formulas", "Screen size breakpoints and App.ActiveScreen.Size", "Responsive screen templates with header, sidebar and footer", "Flexible-height galleries for wrapped text", "Testing at phone, tablet and desktop widths"],
+          "tools": ["Power Apps Studio", "Browser developer tools device mode", "Power Apps mobile app"],
+          "lab_task": "Rebuild the equipment browse screen with nested containers so it shows one column at 375 pixels, two columns at 768 pixels and a sidebar layout from 1,200 pixels, with no overlapping controls at any of the three widths.",
+          "deliverable": "Responsive browse screen with screenshots at 375, 768 and 1,280 pixels",
+          "checks": [["Preview at 375 pixels wide", "Sidebar is hidden and the gallery shows one column", "Screenshot"], ["Preview at 768 pixels wide", "Gallery wraps into two columns", "Screenshot"], ["Preview at 1,280 pixels wide", "Sidebar is visible and no controls overlap", "Screenshot"]],
+          "objectives": ["Turn off scale to fit and lay out screens with containers", "Write formulas that react to screen size", "Test layouts at several widths"]
+        },
+        {
+          "topic": "Dataverse Tables for Makers",
+          "subtopics": ["Standard, custom and activity tables", "Display name, plural name, schema name and primary column", "Publisher prefixes in schema names", "Column types: text, number, currency, date, choice, yes/no, file and image", "Editing rows in the table designer", "Importing rows from Excel or CSV", "User or team ownership compared with organisation ownership", "Business-required and business-recommended columns"],
+          "tools": ["Power Apps table designer", "Microsoft Dataverse", "Excel"],
+          "lab_task": "Create Equipment, Location and Loan tables in Dataverse with 12 columns between them, including a Status choice and an image column for a photo, make two columns business required, and import 40 equipment rows from a CSV file.",
+          "deliverable": "Three Dataverse tables with a column list and 40 imported equipment rows",
+          "checks": [["Import the CSV of 40 equipment rows", "Equipment table shows 40 rows with the correct statuses", "Table data screenshot"], ["Save a row without a required column", "Dataverse refuses the save and names the missing column", "Error screenshot"], ["Open a column's advanced options", "Schema name starts with the publisher prefix", "Column properties screenshot"]],
+          "objectives": ["Create Dataverse tables and columns", "Import data into Dataverse", "Explain schema names and ownership"]
+        },
+        {
+          "topic": "Relationships, Lookups and Views",
+          "subtopics": ["One-to-many and many-to-one relationships", "Lookup columns and related tables", "Many-to-many relationships", "Relationship behaviour: parental, referential and restrict delete", "Public, personal, quick find, lookup and associated views", "Filters, sorting and columns in the view designer", "Default views and sharing personal views", "Reading related data in canvas apps with dot notation"],
+          "tools": ["Power Apps table designer", "View designer", "Power Apps Studio"],
+          "lab_task": "Link Loan to Equipment and Location with lookups, set restrict delete from Equipment to Loan, build an Overdue Loans view for loans past their return date with Status On loan, and show each loan's equipment name and location in a canvas gallery with dot notation.",
+          "deliverable": "Related tables, an Overdue Loans view and a canvas gallery that shows related columns",
+          "checks": [["Delete an equipment row that has a loan", "Dataverse blocks the delete because of restrict delete", "Error screenshot"], ["Open the Overdue Loans view", "Only loans past their return date with Status On loan appear", "View screenshot"], ["Show the related equipment name in the loans gallery", "Each loan shows its equipment name and location", "Preview screenshot"]],
+          "objectives": ["Create relationships and lookups", "Choose relationship behaviour", "Build views for users"]
+        },
+        {
+          "topic": "Building a Model-Driven App",
+          "subtopics": ["When a model-driven app is the better choice", "The app designer: pages and navigation", "Main, quick create and quick view forms", "Form designer: tabs, sections, columns and subgrids", "Views and charts on a table page", "Dashboards with charts and lists", "The modern, refreshed look and custom themes", "Publishing, playing and sharing the app link"],
+          "tools": ["Model-driven app designer", "Form designer", "Power Apps (make.powerapps.com)"],
+          "lab_task": "Build an Equipment Loans model-driven app with pages for Equipment, Loans and Locations, an Equipment main form with a Loans subgrid, a five-field quick create form for Loan, the Overdue Loans view on the Loans page and a dashboard with two charts.",
+          "deliverable": "Published model-driven app with navigation, forms, views and a dashboard",
+          "checks": [["Open an equipment record", "The main form shows a Loans subgrid with that item's loans", "Screenshot"], ["Add a loan from the Loans subgrid on an equipment form", "The quick create form opens with five fields and the new loan appears in the subgrid", "Screenshot"], ["Open the dashboard", "Both charts show current loan counts by status and by location", "Screenshot"]],
+          "objectives": ["Build a model-driven app from Dataverse tables", "Design forms and navigation", "Publish and test the app"]
+        },
+        {
+          "topic": "Sharing Apps and Assigning Security Roles",
+          "subtopics": ["Sharing a canvas app with users, groups and co-owners", "Data permissions users need on SharePoint lists and Excel files", "Dataverse security roles: Basic User, Environment Maker and custom roles", "Privileges and access levels: user, business unit and organisation", "Building a custom role for loan officers", "Sharing a model-driven app through security roles", "Microsoft Entra security groups and Dataverse teams", "Sharing limits in managed environments"],
+          "tools": ["Power Apps share panel", "Power Platform admin center", "Security role editor"],
+          "lab_task": "Create a Loan Officer role with organisation-level read on Equipment and business-unit-level create and write on Loan, assign it to a test user, share the canvas app with a security group and the model-driven app with the role, then sign in as the test user and record what they can and cannot do.",
+          "deliverable": "Custom security role, sharing settings and a test record of allowed and blocked actions",
+          "checks": [["Sign in as the test user and edit an equipment row", "The edit is refused because the role only reads Equipment", "Screenshot"], ["Create a loan as the test user", "The loan saves and the test user is its owner", "Record screenshot"], ["Share the SharePoint-based app with a user who has no access to the list", "The app opens but the list data does not load", "Screenshot with a note on the cause"]],
+          "objectives": ["Share canvas and model-driven apps", "Configure Dataverse security roles", "Test access as another user"]
+        },
+        {
+          "topic": "Publishing a Simple Power Pages Site",
+          "subtopics": ["What Power Pages is for and its design studio", "Creating a site from a template", "Pages, sections, text and image components", "Lists and forms that read and write Dataverse", "Table permissions and web roles", "Private and public site visibility", "Visitor sign-in with Microsoft Entra External ID", "Licensing by authenticated and anonymous users per site"],
+          "tools": ["Power Pages design studio", "Power Pages Management app", "Microsoft Dataverse"],
+          "lab_task": "Create a private site from a template, add a page that lists available equipment from Dataverse and a form for signed-in visitors to request a loan, create table permissions for the Authenticated Users web role, and test the site while signed in.",
+          "deliverable": "Private Power Pages site with an equipment list, a loan request form and table permissions",
+          "checks": [["Open the site address in a private browser window", "Sign-in is required because the site is private", "Screenshot"], ["Sign in and submit a loan request", "A Loan row is created in Dataverse for the signed-in contact", "Dataverse row screenshot"], ["Remove the create privilege from the table permission and submit again", "The form shows a permission error and no row is created", "Screenshot"]],
+          "objectives": ["Describe Power Pages and how it is licensed", "Build a simple site on Dataverse data", "Protect site data with table permissions"]
+        },
+        {
+          "topic": "Testing and Publishing Canvas Apps",
+          "subtopics": ["Writing test cases from user stories", "Testing in Studio preview, the browser and Power Apps mobile", "App checker: formulas, runtime, accessibility and performance", "Live monitor for slow or failing calls", "Publishing and the live version", "Restoring an earlier version", "Running a pilot and collecting feedback", "App description, icon and a help screen"],
+          "tools": ["App checker", "Live monitor", "Power Apps mobile app"],
+          "lab_task": "Write 10 test cases for the loan app, run them in the browser and on a phone, fix every App checker error, record one slow data call in Live monitor, publish the app, then publish a faulty change and restore the earlier version.",
+          "deliverable": "Test log with 10 cases, App checker results before and after fixes, and the restored live version",
+          "checks": [["Run App checker before and after the fixes", "Error count drops to zero", "Two App checker screenshots"], ["Open Live monitor while the browse screen loads", "The data call and its duration appear in the log", "Live monitor export"], ["Restore and publish the earlier version after the faulty change", "Users open the earlier version again", "Version history and app screenshots"]],
+          "objectives": ["Test apps on several devices", "Use App checker and Live monitor", "Publish and roll back versions"]
+        },
+        {
+          "topic": "Beginner Capstone: Equipment Loans App for a Training Centre",
+          "subtopics": ["Dataverse data model with relationships and views", "Responsive canvas app for borrowers", "Model-driven app for loan officers", "Security role and sharing", "Testing, App checker and publishing", "Ten-minute demonstration and questions"],
+          "tools": ["Power Apps Studio", "Model-driven app designer", "Microsoft Dataverse", "Power Apps mobile app"],
+          "lab_task": "Deliver the equipment loans solution on Dataverse: tables for equipment, locations and loans, a responsive canvas app where borrowers search, fill a basket and request up to five items, a model-driven app where officers approve and close loans, a Loan Officer role, a published version and a 10-minute demonstration.",
+          "deliverable": "Working canvas and model-driven apps, a security role, a test log and a 10-minute demonstration",
+          "checks": [["Request three items on a phone as a borrower", "Three Loan rows are created and the items show On loan", "Phone screenshot and Dataverse rows"], ["Mark a loan as Returned in the model-driven app", "The loan moves from the Active Loans view to the Returned Loans view", "View screenshots"], ["Answer questions on delegation and security choices", "Each answer is correct and refers to the built app", "Demonstration notes"]],
+          "objectives": ["Combine the beginner topics in one solution", "Build both app types on one data model", "Present and explain design choices"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For makers and functional consultants who already build canvas and model-driven apps on Dataverse. Covers solutions with environment variables and connection references, Dataverse columns, computed columns, business rules, functions, security and auditing, advanced Power Fx with named formulas and user-defined functions, component libraries, model-driven extensions, custom connectors, Power Pages configuration, offline mobile apps, AI Builder, error handling, performance, accessibility, automated testing and pipelines in Power Platform.",
+      "prerequisites": ["Has built and shared canvas apps and a model-driven app on Dataverse", "Writes Power Fx with Filter, Patch, variables and collections", "Has System Customizer or Environment Maker rights in a development environment and access to a test environment"],
+      "outcomes": ["Design Dataverse data models with server-side logic, column security and auditing", "Build maintainable canvas apps with named formulas, user-defined functions and component libraries", "Extend apps with custom connectors, Power Pages, offline support and AI Builder", "Test, tune, monitor and deploy solutions through pipelines in Power Platform"],
+      "days": [
+        {
+          "topic": "Solutions, Environment Variables and Connection References",
+          "subtopics": ["Publishers, prefixes and choice value prefixes", "Unmanaged and managed solutions", "Solution layers and the active layer", "Adding existing components and required dependencies", "Environment variable types: text, number, yes/no, JSON, data source and secret", "Default values and current values of environment variables", "Secret environment variables stored in Azure Key Vault", "Connection references for cloud flows and connectors", "The preferred solution and building inside solutions from day one", "Exporting, importing and upgrading a solution"],
+          "tools": ["Power Apps Solutions area", "Azure Key Vault", "Power Platform admin center"],
+          "lab_task": "Create a Fabrikam publisher with prefix fab, build a Site Inspections solution with three tables, a canvas app and the cloud flow it calls, add data source environment variables for the SharePoint site and list and a connection reference for SharePoint, then export it as managed and import it into a test environment with different values.",
+          "deliverable": "Managed solution file, import notes and screenshots of the values set in the test environment",
+          "checks": [["Import the managed solution into test and choose a different SharePoint site", "The app in test reads the list on the test site", "Test app screenshot"], ["Try to edit the canvas app in the test environment", "Editing is refused because the app is in a managed solution", "Screenshot"], ["List the schema names of the new tables", "Every table name starts with fab_", "Table list screenshot"]],
+          "objectives": ["Package apps and tables in solutions", "Configure environment variables and connection references", "Move solutions between environments"]
+        },
+        {
+          "topic": "Columns, Choices and Keys in Dataverse",
+          "subtopics": ["Whole number, decimal, float and currency columns", "Date only, user local and time zone independent behaviour", "Local and global choices", "Multi-select choices and their limits", "Autonumber columns with prefixes and seed values", "Lookup, customer and polymorphic lookup columns", "Alternate keys for upserts and duplicate prevention", "File and image columns and their size limits"],
+          "tools": ["Power Apps table designer", "Power Query dataflows", "Microsoft Dataverse"],
+          "lab_task": "Extend the Inspection table with an autonumber ID in the format INS-{SEQNUM:5} seeded at 1, a global Severity choice shared with Finding, a multi-select Hazards column and a time zone independent Scheduled For date, add an alternate key on Site Code in the Site table, then load 200 sites twice with a dataflow.",
+          "deliverable": "Extended tables with a column decision log and a dataflow run history showing 200 unique sites",
+          "checks": [["Create three inspections", "IDs read INS-00001, INS-00002 and INS-00003", "Records screenshot"], ["Run the dataflow a second time with the same 200 sites", "Site count stays at 200 because rows match on Site Code", "Row count screenshot"], ["View Scheduled For as users in London and New York", "Both users see the same date", "Two screenshots"]],
+          "objectives": ["Choose the right column types", "Use choices, autonumbers and alternate keys", "Prevent duplicate data on import"]
+        },
+        {
+          "topic": "Formula, Calculated and Rollup Columns",
+          "subtopics": ["Formula columns written in Power Fx", "Functions and return types supported in formula columns", "Calculated columns and where they still apply", "Rollup columns over related rows", "Rollup recalculation schedule and on-demand refresh", "Computed columns in views, filters and sorting", "Choosing between formula columns, rollups and plug-ins", "Testing computed values with edge-case data"],
+          "tools": ["Power Apps table designer", "Power Fx formula editor", "Model-driven app"],
+          "lab_task": "Add a Days Overdue formula column on Inspection, a Risk Label formula column that returns High when Severity is Critical or Days Overdue exceeds 14, and an Open Findings rollup on Site, then test them with five prepared records that include a blank date and a future date.",
+          "deliverable": "Three computed columns with test results for five edge-case records",
+          "checks": [["Set an inspection due 20 days ago with no completion date", "Days Overdue shows 20 and Risk Label shows High", "Record screenshot"], ["Leave the due date blank", "Days Overdue is blank and no error appears", "Record screenshot"], ["Add two open findings to a site and refresh the rollup", "Open Findings on the site shows 2", "Record screenshot"]],
+          "objectives": ["Write Power Fx formula columns", "Configure rollup columns", "Pick the right computed column type"]
+        },
+        {
+          "topic": "Business Rules and Dataverse Functions",
+          "subtopics": ["Business rule scope: entity (table), all forms or one form", "Conditions and actions: show error message, set column value, set requirement and lock", "Which business rule actions run on the server", "Limits of business rules", "Dataverse functions in Power Fx, formerly instant low-code plug-ins", "Input and output parameters for functions", "Calling a Dataverse function from a canvas app", "Choosing between business rules, functions, cloud flows and plug-ins"],
+          "tools": ["Business rule designer", "Dataverse functions in Power Apps", "Power Apps Studio"],
+          "lab_task": "Write an entity-scope business rule that shows an error when Severity is Critical and Corrective Action is empty, create a Dataverse function CloseInspection that sets the status and completion date and returns the number of open findings, and call it from a canvas button.",
+          "deliverable": "Business rule, Dataverse function and canvas button with test results",
+          "checks": [["Import a Critical finding with no Corrective Action", "The row is rejected with the business rule's error message", "Import error log"], ["Run CloseInspection on an inspection with two open findings", "Status becomes Closed and the function returns 2", "Canvas label and record screenshots"], ["Explain where each logic option runs", "Each option is placed correctly on the client, the server or both", "Written comparison"]],
+          "objectives": ["Build business rules that hold on the server", "Write Dataverse functions in Power Fx", "Choose where business logic runs"]
+        },
+        {
+          "topic": "Column Security, Teams and Record Sharing",
+          "subtopics": ["Business units and the modernised business unit model", "Owner teams, access teams and Microsoft Entra group teams", "Record sharing and its performance cost", "Column security profiles", "Masking rules on secured columns and Dataverse.Unmask", "Manager and position hierarchy security", "Checking a user's access to a record", "Designing roles from least privilege"],
+          "tools": ["Power Platform admin center", "Column security profiles", "Model-driven app Check access"],
+          "lab_task": "Create North and South business units, a Microsoft Entra group team for each region's supervisors, a column security profile that hides contractor day rates from everyone except Finance, and a masking rule that shows only the last four digits of a bank account, then test access as three users.",
+          "deliverable": "Security design table, configured teams and profiles, and an access test matrix for three users",
+          "checks": [["Open a South site as a North supervisor", "The record is not visible", "Screenshot"], ["Open a contractor as a user outside Finance", "Day rate is hidden and the bank account shows only its last four digits", "Screenshot"], ["Run Check access for the North supervisor on a North inspection", "Access summary shows read and write granted through the team's role", "Check access screenshot"]],
+          "objectives": ["Model access with business units and teams", "Protect sensitive columns", "Test and explain a user's access"]
+        },
+        {
+          "topic": "Auditing and Long-Term Retention in Dataverse",
+          "subtopics": ["Turning on auditing for the environment, tables and columns", "Audit history on records and the Audit Summary view", "Audit log retention periods", "Log capacity used by audit data", "Dataverse activity in Microsoft Purview audit", "Long-term retention policies for inactive rows", "Viewing retained data with advanced find and FetchXML", "Deleting audit logs and handling personal data requests"],
+          "tools": ["Power Platform admin center", "Microsoft Purview portal", "Model-driven app audit history"],
+          "lab_task": "Turn on auditing for the Inspection table and three of its columns, change a severity twice, read the audit history, set audit retention to 365 days, and create a long-term retention policy for inspections closed more than two years ago that runs against 50 test rows.",
+          "deliverable": "Audit settings, an audit history export and a retention policy run report for 50 rows",
+          "checks": [["Change Severity from Low to High", "Audit history shows the old value, new value, user and time", "Audit history screenshot"], ["Run the retention policy", "The 50 closed inspections leave the active table and appear in retained data", "Policy run report"], ["Search Microsoft Purview audit for the severity change", "The update appears with the same user and time", "Purview search result"]],
+          "objectives": ["Configure Dataverse auditing", "Read audit data in apps and Purview", "Apply long-term retention policies"]
+        },
+        {
+          "topic": "Working with Tables in Power Fx",
+          "subtopics": ["ForAll as a loop that returns a table", "AddColumns, ShowColumns, DropColumns and RenameColumns", "GroupBy, Ungroup and Distinct", "Sum, Average, CountIf and other aggregates", "Sequence for generated rows", "Patch with a table of records", "UpdateIf and RemoveIf on data sources", "Concurrent for independent calls"],
+          "tools": ["Power Apps Studio", "Live monitor", "Microsoft Dataverse"],
+          "lab_task": "Build an inspector workload screen that groups 300 inspections by inspector and status with an added overdue column, create 12 monthly inspections for a site with Sequence and a single Patch, and load three reference tables at start-up with Concurrent.",
+          "deliverable": "Workload screen and scheduling feature with Live monitor timings with and without Concurrent",
+          "checks": [["Generate 12 monthly inspections for one site", "12 rows are created with due dates one month apart", "Records screenshot"], ["Compare start-up timings with and without Concurrent", "The Concurrent version loads faster", "Two Live monitor timings"], ["Group inspections by inspector", "Each inspector appears once with correct open and closed counts", "Preview screenshot checked against a view"]],
+          "objectives": ["Shape tables with Power Fx", "Create and update many rows in one call", "Run independent calls in parallel"]
+        },
+        {
+          "topic": "Named Formulas, User-Defined Functions and Types",
+          "subtopics": ["App.Formulas and named formulas", "Moving App.OnStart work into named formulas", "User-defined functions with typed parameters", "Behaviour functions that change data", "User-defined types with Type and RecordOf", "ParseJSON into typed records", "With for readable local values", "Turning on new Power Fx features in app settings"],
+          "tools": ["Power Apps Studio App.Formulas", "Power Fx formula bar", "Live monitor"],
+          "lab_task": "Replace 15 lines of App.OnStart in the inspector app with named formulas, write a typed function RiskScore(Severity: Number, DaysOverdue: Number): Number used on three screens, define an InspectionSummary type and parse a sample JSON payload into it.",
+          "deliverable": "Refactored app with named formulas, a typed function, a user-defined type and load timings before and after",
+          "checks": [["Measure app load time before and after the refactor", "Load time drops once the OnStart work moves to named formulas", "Live monitor timings"], ["Call RiskScore(3, 20) on three screens", "Each screen shows the same score", "Three preview screenshots"], ["Parse the sample JSON into InspectionSummary", "The gallery shows typed fields with no Value or Text conversions", "Preview screenshot"]],
+          "objectives": ["Use named formulas and user-defined functions", "Define and use types", "Make apps easier to maintain"]
+        },
+        {
+          "topic": "Component Libraries and Enhanced Component Properties",
+          "subtopics": ["Canvas components and when to build one", "Input and output custom properties", "Data, function, event and action properties", "Access app scope and its risks", "Creating a component library", "Publishing library updates and accepting them in apps", "Component libraries in solutions", "Documenting and versioning components"],
+          "tools": ["Power Apps component library", "Power Apps Studio", "Power Apps Solutions area"],
+          "lab_task": "Build a Fabrikam component library with a header that raises a back event, a status badge with a Severity input and a date-range picker with a function property that returns the number of days, use all three in two apps, then change the badge colours and roll the update out.",
+          "deliverable": "Component library in the solution, two apps that use it and an update log",
+          "checks": [["Open both apps in Power Apps Studio after the library update", "Studio offers the update and the badge shows the new colours once it is accepted", "Screenshots from both apps"], ["Select the back icon in the header", "The host app's OnBack event navigates to the previous screen", "Screen recording"], ["Call the date-range function for 1 to 15 March", "The function returns 15", "Preview screenshot"]],
+          "objectives": ["Build reusable canvas components", "Use enhanced component properties", "Share and update components across apps"]
+        },
+        {
+          "topic": "Extending Model-Driven Apps: Commands, Custom Pages and Client Scripts",
+          "subtopics": ["Command designer with Power Fx actions and visibility rules", "Custom pages that bring canvas screens into model-driven apps", "Opening a custom page as a dialog with Xrm.Navigation.navigateTo", "Form events: OnLoad, OnChange and OnSave", "The formContext object in the Client API", "JavaScript web resources and event handlers", "Generative pages built from a description", "Choosing between commands, custom pages, scripts and generative pages"],
+          "tools": ["Command designer", "Custom page designer", "Visual Studio Code", "Browser developer tools"],
+          "lab_task": "Add a Close Inspection command that shows only on open inspections, open a custom page dialog that collects a sign-off note, write a JavaScript OnChange handler that warns when Scheduled For falls on a weekend, and generate a read-only findings summary page from a description.",
+          "deliverable": "Command, custom page, script web resource and generative page in the solution with test notes",
+          "checks": [["Open a closed inspection", "The Close Inspection command is hidden", "Screenshot"], ["Set Scheduled For to a Saturday", "The form shows a weekend warning notification", "Screenshot"], ["Complete the sign-off dialog", "The note is saved on the inspection and the dialog closes", "Record screenshot"]],
+          "objectives": ["Customise the model-driven command bar", "Embed custom pages", "Write form scripts with the Client API"]
+        },
+        {
+          "topic": "Custom Connectors from an OpenAPI Definition",
+          "subtopics": ["When a custom connector is the right choice", "Importing an OpenAPI 2.0 definition", "Authentication with an API key or OAuth 2.0 through Microsoft Entra ID", "Actions, parameters and response schemas", "Policies that change the host or route", "Custom code in a connector", "Testing operations and how users get connections", "Connectors in solutions and data policy classification"],
+          "tools": ["Custom connector wizard", "Postman", "Microsoft Entra admin center", "Power Apps Studio"],
+          "lab_task": "Create a custom connector for a contractor certification API from a supplied OpenAPI 2.0 file, secure it with OAuth 2.0 through a Microsoft Entra app registration, add a policy that sets the host from an environment variable, test GetCertificate and call it from the inspector app.",
+          "deliverable": "Custom connector in the solution, test results and a canvas screen that shows certificate status",
+          "checks": [["Test GetCertificate with a valid contractor ID", "Response returns status 200 with the certificate expiry date", "Test pane screenshot"], ["Call the connector with an unknown ID", "The app shows a not-found message based on the 404 response", "Preview screenshot"], ["Open the shared app as a second user", "The user is asked to sign in and create their own connection", "Screenshot"]],
+          "objectives": ["Build custom connectors from OpenAPI", "Secure connectors with OAuth 2.0", "Use custom connectors in apps"]
+        },
+        {
+          "topic": "Power Pages Configuration: Table Permissions, Web Roles and Liquid",
+          "subtopics": ["Power Pages Management app and site settings", "Table permission scopes: global, contact, account, parent and self", "Web roles and page permissions", "Basic forms and multistep forms", "Liquid templates and web templates", "The Power Pages Web API for client-side calls", "Server logic for operations that must run on the server", "Security scan, site visibility and identity providers"],
+          "tools": ["Power Pages design studio", "Power Pages Management app", "Visual Studio Code for the Web"],
+          "lab_task": "Build a contractor site where signed-in contractors see only their own company's inspections through account-scope table permissions, answer findings in a multistep form and see a Liquid summary of open findings, then run the security scan and fix every high-severity finding.",
+          "deliverable": "Contractor site with a permissions matrix, a Liquid template and a clean security scan report",
+          "checks": [["Sign in as a contractor from Company A", "Only Company A inspections are listed", "Screenshot"], ["Request a Company B inspection through the Web API from the browser console", "The request is refused with a permission error", "Console screenshot"], ["Run the security scan after the fixes", "No high-severity findings remain", "Scan report"]],
+          "objectives": ["Secure site data with table permissions and web roles", "Customise pages with Liquid", "Check site security before go-live"]
+        },
+        {
+          "topic": "Offline-First Mobile Apps with Dataverse",
+          "subtopics": ["Turning on offline for a canvas app", "Offline profiles and row filters", "Sync, the offline status page and conflicts", "Connection.Connected and offline-aware formulas", "LoadData and SaveData for apps without Dataverse", "Camera, barcode reader and location in Power Apps mobile", "Offline limits for many-to-many relationships and lookups", "Managed devices with Microsoft Intune app protection"],
+          "tools": ["Power Apps mobile app", "Power Platform admin center mobile configuration", "Power Apps Studio"],
+          "lab_task": "Turn on offline for the inspector app with a profile that downloads only the signed-in inspector's open inspections and their sites, complete two inspections with photos and barcode scans in aeroplane mode, reconnect to sync, then change the profile to exclude closed inspections.",
+          "deliverable": "Offline-enabled app with its offline profile settings and a sync test record",
+          "checks": [["Open the app in aeroplane mode after the first sync", "Assigned inspections and their sites are available", "Phone screenshot"], ["Complete two inspections offline and reconnect", "Both inspections and their photos appear in Dataverse after sync", "Dataverse records screenshot"], ["Change the profile to exclude closed inspections and sync again", "Closed inspections no longer appear on the device", "Phone screenshot"]],
+          "objectives": ["Build offline-first canvas apps", "Configure offline profiles", "Use device features in mobile apps"]
+        },
+        {
+          "topic": "AI Builder and Prompts in Apps",
+          "subtopics": ["Prebuilt models for receipts, invoices, business cards and text recognition", "AI Builder components in canvas apps", "Document processing models trained on your own forms", "Prompts in AI hub with inputs and JSON output", "Calling a prompt as a Power Fx function", "Power Fx AI functions: AISummarize, AIClassify, AIExtract and AISentiment", "Prompt columns in Dataverse", "Copilot Credits, human review and responsible use"],
+          "tools": ["AI hub in Power Apps", "AI Builder", "Power Apps Studio", "Microsoft Dataverse"],
+          "lab_task": "Add a receipt processor so contractors can log expenses, write a prompt that turns an inspector's free-text notes into a JSON list of findings with severities, call it from the app with a review screen before saving, and add a prompt column on Finding that assigns a hazard category.",
+          "deliverable": "App features that use a prebuilt model, a custom prompt and a prompt column, with 10 test inputs and their outputs",
+          "checks": [["Scan a sample receipt", "Merchant, date and total are filled in on the form", "Preview screenshot"], ["Send notes that describe two hazards to the prompt", "The review screen lists two findings with severities before anything is saved", "Preview screenshot"], ["Create a finding about a fire door that does not close", "The prompt column sets the category to Fire Safety", "Record screenshot"]],
+          "objectives": ["Use AI Builder models in apps", "Call prompts from Power Fx", "Keep a human review step and track credit use"]
+        },
+        {
+          "topic": "Error Handling and Monitoring in Canvas Apps",
+          "subtopics": ["IfError, IsError and the Error function", "App.OnError for errors nobody handled", "Errors() for data source failures", "Notify messages that tell users what to do", "Trace for custom diagnostic events", "Live monitor sessions on published apps", "Canvas app insights and Azure Application Insights", "Monitor in the Power Platform admin center and its alerts"],
+          "tools": ["Live monitor", "Azure Application Insights", "Power Platform admin center Monitor"],
+          "lab_task": "Wrap every Patch in the inspector app in IfError, add an App.OnError handler that logs with Trace and shows one clear message, connect the app to Application Insights, force three failures (an offline save, a permission error and a validation error) and find them with a query.",
+          "deliverable": "App with error handling, Application Insights query results for three failure types and a Monitor alert rule",
+          "checks": [["Save an inspection as a user without write permission", "The user sees one clear message and their input is kept", "Preview screenshot"], ["Query the traces table in Application Insights", "Trace events for all three failures appear with their error codes", "Query result"], ["Set a Monitor alert with a low threshold on the test app", "The alert fires and the admin is notified", "Alert notification screenshot"]],
+          "objectives": ["Handle errors in formulas", "Send telemetry to Application Insights", "Monitor apps after release"]
+        },
+        {
+          "topic": "Canvas App Performance and the App Checker",
+          "subtopics": ["Measuring app load time and data call duration", "App checker performance and formula rules", "Named formulas and delayed load in place of heavy OnStart work", "Explicit column selection and data volume", "Concurrent loading and caching reference data", "Control count, screen count and image sizes", "References between screens and their cost", "App performance metrics in Power Platform Monitor"],
+          "tools": ["App checker", "Live monitor", "Power Platform admin center Monitor"],
+          "lab_task": "Profile a supplied app that takes 14 seconds to open, record its five slowest calls in Live monitor, apply at least five fixes from App checker and the course checklist, and bring load time under 4 seconds on a mid-range phone.",
+          "deliverable": "Before and after performance report with Live monitor timings and the list of fixes",
+          "checks": [["Measure load time on the same phone before and after", "Load time falls below 4 seconds", "Two Live monitor timelines"], ["Run App checker after the fixes", "No performance warnings remain", "App checker screenshot"], ["Inspect the data call for the main gallery", "Only the columns shown in the gallery are requested", "Live monitor request details"]],
+          "objectives": ["Measure canvas app performance", "Fix common performance problems", "Track performance after release"]
+        },
+        {
+          "topic": "Accessibility in Canvas and Model-Driven Apps",
+          "subtopics": ["WCAG 2.2 level AA as the target", "Accessibility checker in Power Apps Studio", "AccessibleLabel, Role and Live properties", "Tab order, focus and keyboard-only use", "Colour contrast and text size", "Testing with Narrator and NVDA", "Modern controls compared with home-made controls", "Accessibility built into model-driven apps"],
+          "tools": ["Accessibility checker", "Windows Narrator", "NVDA", "Colour Contrast Analyser"],
+          "lab_task": "Fix the inspector app until the accessibility checker reports no errors, set a logical tab order across two screens, raise every text and background pair to a contrast ratio of at least 4.5:1, and complete one inspection using only the keyboard with NVDA running.",
+          "deliverable": "Accessibility report with checker results, contrast measurements and a keyboard and screen reader test log",
+          "checks": [["Run the accessibility checker", "Zero errors are reported", "Checker screenshot"], ["Tab through the inspection screen", "Focus moves in reading order and is always visible", "Screen recording"], ["Submit an inspection with NVDA running", "NVDA reads each field label and the confirmation message", "NVDA speech viewer log"]],
+          "objectives": ["Build accessible apps", "Test with assistive technology", "Fix contrast and focus problems"]
+        },
+        {
+          "topic": "Automated Testing with Test Studio and Playwright",
+          "subtopics": ["Test Studio suites, cases and steps", "Test steps in Power Fx with Select, SetProperty and Assert", "Setting up and cleaning test data", "Power Platform Playwright samples for canvas, model-driven and custom pages", "Selectors with data-control-name and frame scoping", "The page object model for app tests", "Running tests in GitHub Actions or Azure Pipelines", "Moving tests from the deprecated Power Apps Test Engine"],
+          "tools": ["Test Studio", "Power Platform Playwright samples", "Visual Studio Code", "GitHub Actions"],
+          "lab_task": "Write a Test Studio suite with five cases for the inspector app, then write two Playwright tests based on the Power Platform Playwright samples that create an inspection in the canvas app and close it in the model-driven app, and run both from a GitHub Actions workflow.",
+          "deliverable": "Test Studio suite, two Playwright tests and a passing workflow run",
+          "checks": [["Run the Test Studio suite", "All five cases pass", "Test results screenshot"], ["Break the Save button formula and run the Playwright test again", "The test fails at the save assertion", "Playwright report"], ["Push a commit to the test branch", "The workflow runs both Playwright tests and reports success", "Workflow run log"]],
+          "objectives": ["Automate canvas app tests", "Write end-to-end tests across app types", "Run tests in a CI workflow"]
+        },
+        {
+          "topic": "Pipelines in Power Platform",
+          "subtopics": ["Personal pipelines in the platform host", "Custom hosts and the Deployment Pipeline Configuration app", "Development, test and production stages", "Validation of connection references and environment variables before deployment", "Approvals with gated extensions", "Delegated deployments as a service principal", "Scheduled deployments and Copilot-written deployment notes", "Deployment history and the admin Deployments page"],
+          "tools": ["Pipelines in Power Platform", "Deployment Pipeline Configuration app", "Power Platform admin center"],
+          "lab_task": "Set up a custom pipeline host with Development, Test and Production stages for the Site Inspections solution, require approval before Production through a gated extension, deploy as a service principal, and promote version 1.0.0.2 from Development to Production.",
+          "deliverable": "Configured pipeline, approval record and deployment history for version 1.0.0.2",
+          "checks": [["Deploy to Test with an environment variable value missing", "Validation stops the deployment and names the missing value", "Validation screenshot"], ["Request a deployment to Production", "The deployment waits until the approver approves it", "Approval record"], ["Open the deployment history", "Production shows version 1.0.0.2 deployed by the service principal", "History screenshot"]],
+          "objectives": ["Configure pipelines in Power Platform", "Control releases with approvals", "Deploy with service principals"]
+        },
+        {
+          "topic": "Intermediate Capstone: Site Inspections Solution for Fabrikam Facilities",
+          "subtopics": ["Dataverse model with computed columns, rules and column security", "Offline inspector app with components and an AI prompt", "Supervisor model-driven app with a command and a custom page", "Contractor Power Pages site with table permissions", "Tests, telemetry and accessibility evidence", "Pipeline deployment and design walkthrough"],
+          "tools": ["Power Apps Studio", "Model-driven app designer", "Power Pages design studio", "Pipelines in Power Platform"],
+          "lab_task": "Deliver the Site Inspections solution for 60 inspectors: Dataverse tables with formula columns, business rules and column security, an offline canvas app that uses the component library and an AI prompt, a supervisor model-driven app, a contractor site, automated tests, Application Insights telemetry and a pipeline deployment to production.",
+          "deliverable": "Managed solution in production with test and telemetry evidence and a 15-minute design walkthrough",
+          "checks": [["Run the full test suite in the test environment", "All tests pass before the production deployment is approved", "Test reports"], ["Complete an inspection offline, sync it and answer its finding as a contractor", "The contractor's response appears on the supervisor's form", "Screenshots from all three apps"], ["Answer design questions on security and deployment", "Each choice is explained with an alternative that was considered", "Walkthrough notes"]],
+          "objectives": ["Combine the intermediate topics in one solution", "Prove quality with tests and telemetry", "Explain design and deployment decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior developers, solution architects and platform owners who run Power Apps at enterprise scale. Covers solution and environment architecture, managed environments, connector policies and governance tooling, ALM with the Power Platform CLI, Git integration and CI/CD, PCF components, code apps, Dataverse plug-ins and the Web API, Azure integration, security architecture, capacity and scale, AI governance, fusion teams and the centre of excellence, licensing and cost, InfoPath and Access migration, and programme leadership.",
+      "prerequisites": ["Builds Dataverse solutions with canvas and model-driven apps and has deployed them between environments", "Writes TypeScript or C# and works with Git", "Has Power Platform administrator rights in a training tenant with an Azure subscription"],
+      "outcomes": ["Design Power Platform architectures, environment strategies and security models for large organisations", "Run governance with managed environments, connector policies, inventory and monitoring", "Build pro-code extensions and automate ALM with the Power Platform CLI and CI/CD", "Lead fusion teams, licensing decisions, legacy migrations and a Power Apps programme"],
+      "days": [
+        {
+          "topic": "Solution Architecture for Power Platform",
+          "subtopics": ["Requirements, fit-gap analysis and non-functional requirements", "Choosing canvas apps, model-driven apps, code apps or Power Pages", "Choosing Dataverse, SharePoint, Azure SQL or virtual tables for data", "The five pillars of Power Platform Well-Architected", "Reference architectures on Microsoft Learn", "Integration and extension points in a design", "Architecture decision records", "Design reviews with the Well-Architected assessment"],
+          "tools": ["Power Platform Well-Architected assessment", "Microsoft Visio or draw.io", "Microsoft Learn reference architectures"],
+          "lab_task": "Design a claims solution for 4,000 internal users and 50,000 external customers: choose app types, data stores and integration points, write five architecture decision records and score the design against the five Well-Architected pillars.",
+          "deliverable": "Solution architecture document with diagrams, five decision records and a Well-Architected assessment",
+          "checks": [["Review the app type chosen for each user group", "Each choice is justified by volume, licence cost and user experience", "Decision records"], ["Run the Well-Architected assessment", "The assessment gives pillar scores and at least three improvement actions", "Assessment export"], ["Walk a peer reviewer through the design", "The reviewer can trace each requirement to a component", "Traceability matrix"]],
+          "objectives": ["Design Power Platform solutions", "Record and defend architecture decisions", "Assess designs against Well-Architected"]
+        },
+        {
+          "topic": "Environment Strategy and Environment Groups",
+          "subtopics": ["Environment types, regions and data residency", "Development, test and production per solution or per business unit", "Cleaning up and protecting the default environment", "Personal developer environments through environment routing", "Retired paths: unmanaged developer environments and new Dataverse for Teams environments", "Environment groups and the rules gallery", "Security groups on environments", "Environment requests, naming standards and lifecycle"],
+          "tools": ["Power Platform admin center", "Power Platform CLI (pac admin)", "Power Platform API"],
+          "lab_task": "Write the environment strategy for 12 business units, create Contoso-Dev, Contoso-Test and Contoso-Prod environment groups with rules for sharing, solution checker and backup retention, turn on environment routing for a pilot security group, and script three new environments with pac admin create.",
+          "deliverable": "Environment strategy, three environment groups with rules and the creation script",
+          "checks": [["Visit make.powerapps.com as a maker in the pilot group", "The maker lands in a new personal developer environment", "Screenshot"], ["Add an environment to the Contoso-Prod group", "Group rules apply and those settings are locked at environment level", "Environment settings screenshot"], ["Run the pac admin create script", "Three environments exist with the expected type, region and security group", "Script output"]],
+          "objectives": ["Design an environment strategy", "Govern environments with groups and rules", "Automate environment creation"]
+        },
+        {
+          "topic": "Managed Environments at Scale",
+          "subtopics": ["What managed environments add and the licence condition for users", "Limit sharing for canvas apps and solution-aware flows", "Weekly usage insights for admins", "Solution checker enforcement on import", "Maker welcome content", "IP firewall, IP cookie binding and customer-managed keys", "Customer Lockbox and extended backup", "Licence compliance notices since June 2026 and blocking from February 2027"],
+          "tools": ["Power Platform admin center", "Managed environment settings", "Power Platform admin center Licensing page"],
+          "lab_task": "Turn on managed environments for Contoso-Test and Contoso-Prod, block sharing with security groups and cap canvas app sharing at 20 people, set solution checker to block imports with critical issues, add maker welcome content, and list the users who would be blocked in February 2027.",
+          "deliverable": "Managed environment settings, a blocked import record and a licence gap report",
+          "checks": [["Share a canvas app with 25 people", "Sharing is refused above the limit of 20", "Error screenshot"], ["Import a solution with critical solution checker issues", "The import is blocked and the checker results are shown", "Import error screenshot"], ["Open the licence gap report", "Each user without a qualifying licence is listed with the apps they use", "Report export"]],
+          "objectives": ["Configure managed environments", "Enforce sharing and quality rules", "Prepare for licence enforcement"]
+        },
+        {
+          "topic": "Data Policies and Advanced Connector Policies",
+          "subtopics": ["Business, non-business and blocked connector groups", "Tenant and environment scope and how several policies combine", "Connector action control and endpoint filtering", "Custom connector URL patterns", "Advanced connector policies as an allowlist per environment group", "Allowing connector actions and MCP servers", "Impact analysis before a policy change", "Exception requests and policy records"],
+          "tools": ["Power Platform admin center data policies", "Advanced connector policies", "Power Platform inventory"],
+          "lab_task": "Design a tenant-wide data policy that blocks 15 social media and file-sharing connectors, pilot an advanced connector policy on the Contoso-Prod environment group that allows only SharePoint, Dataverse, Office 365 Outlook and the approved custom connector, add endpoint filtering for SQL Server in Contoso-Test, and record the effect on three existing apps.",
+          "deliverable": "Policy design, configured policies and an impact report for three apps",
+          "checks": [["Open an app that uses a blocked connector", "The app reports a data policy violation and the connector does not load", "Screenshot"], ["Add the Azure Blob Storage connector to an app in Contoso-Prod", "The connector cannot be added because it is not on the allowlist", "Screenshot"], ["Connect the SQL Server connector to a server that is not on the endpoint list", "The connection is refused", "Error screenshot"]],
+          "objectives": ["Design layered connector policies", "Use advanced connector policies", "Check policy impact before rollout"]
+        },
+        {
+          "topic": "Governance Tooling: Inventory, Monitor and the CoE Starter Kit",
+          "subtopics": ["Power Platform inventory and the Inventory API", "Usage reports for apps and makers", "Monitor metrics and alerts for apps", "Recommendations on the Actions page", "CoE Starter Kit status: still available but no longer maintained", "Mapping CoE Starter Kit features to admin center experiences", "Orphaned apps, unused apps and owner reassignment", "Governance reports in Power BI"],
+          "tools": ["Power Platform inventory", "Power Platform admin center Monitor", "Power Apps admin PowerShell", "CoE Starter Kit"],
+          "lab_task": "Use inventory and usage data to list canvas apps with no use in 90 days and apps whose owners have left, reassign five orphaned apps with Set-AdminPowerAppOwner, create a Monitor alert for app open success below 95 per cent, and write a plan to retire an existing CoE Starter Kit installation.",
+          "deliverable": "Inventory and usage findings, a reassignment log, a Monitor alert rule and a CoE Starter Kit transition plan",
+          "checks": [["Filter inventory by environment and resource type", "The canvas apps listed match the environment's Apps page", "Inventory and Apps page screenshots"], ["Reassign an orphaned app with Set-AdminPowerAppOwner", "The new owner is shown and can edit the app", "PowerShell output and app details"], ["Lower the alert threshold for a test app", "The Monitor alert fires", "Alert notification"]],
+          "objectives": ["Use the admin center's governance tooling", "Plan the move away from the CoE Starter Kit", "Act on orphaned and unused apps"]
+        },
+        {
+          "topic": "ALM with the Power Platform CLI and Git Integration",
+          "subtopics": ["pac auth profiles for users and service principals", "Application users and least-privilege deployment roles", "pac solution export, unpack, pack and clone", "pac solution check and solution checker rules", "Deployment settings files from pac solution create-settings", "Dataverse Git integration with Azure DevOps or GitHub", "Canvas app .pa.yaml source in the repository and the deprecated pac canvas unpack", "Branching, versioning and splitting large solutions"],
+          "tools": ["Power Platform CLI (pac)", "Visual Studio Code with Power Platform Tools", "Azure Repos or GitHub", "Dataverse Git integration"],
+          "lab_task": "Create a service principal application user with a custom deployment role, connect the Contoso Claims solution to a Git repository with Dataverse Git integration, commit a table change and a canvas app change, then export, unpack and check the solution with pac and generate a deployment settings file for Test.",
+          "deliverable": "Repository with solution source and .pa.yaml files, a solution checker report and a deployment settings file",
+          "checks": [["Commit a new column from the Solutions area", "The commit appears in the repository with the new column's definition", "Repository history screenshot"], ["Run pac solution check on the exported solution", "The report lists issues by severity and shows no critical issues", "Checker report"], ["Run pac solution create-settings", "The file lists every environment variable and connection reference in the solution", "Settings JSON file"]],
+          "objectives": ["Automate ALM tasks with the CLI", "Keep solutions in source control with Git integration", "Prepare repeatable deployments"]
+        },
+        {
+          "topic": "CI/CD with GitHub Actions and Azure DevOps Build Tools",
+          "subtopics": ["GitHub Actions for Power Platform and the available actions", "Power Platform Build Tools tasks for Azure Pipelines", "Service principal connections with secrets or workload identity federation", "Build stage: pack a managed solution and run solution checker", "Release stage: deploy with settings files and approvals", "Playwright tests as a quality gate", "Using pipelines in Power Platform alongside GitHub or Azure DevOps", "Rollback, hotfix and solution upgrade strategies"],
+          "tools": ["GitHub Actions for Power Platform", "Power Platform Build Tools for Azure DevOps", "Power Platform CLI (pac)"],
+          "lab_task": "Build a GitHub Actions workflow that packs the Contoso Claims solution as managed, runs solution checker and fails on high-severity issues, deploys to Test with a settings file, runs two Playwright tests and waits for approval before Production, then rebuild the build stage in Azure Pipelines with the Build Tools tasks.",
+          "deliverable": "Two working pipelines with run logs and a one-page comparison of GitHub Actions and Azure Pipelines",
+          "checks": [["Commit a change that causes a high-severity checker issue", "The build fails at the solution checker step", "Workflow log"], ["Approve the Production stage", "The managed solution version reaches Production", "Run log and solution version screenshot"], ["Run the Azure Pipelines build", "A managed solution artifact is published", "Pipeline artifact screenshot"]],
+          "objectives": ["Build CI/CD for Power Platform solutions", "Add quality gates to pipelines", "Compare GitHub and Azure DevOps tooling"]
+        },
+        {
+          "topic": "Code Components with the Power Apps Component Framework",
+          "subtopics": ["Field and dataset components", "pac pcf init and the project structure", "The manifest: properties, resources and feature usage", "Lifecycle methods: init, updateView, getOutputs and destroy", "React virtual components with platform libraries and Fluent UI v9", "Theming with Fluent tokens from the host app", "Test harness, debugging and unit tests", "Packaging in a solution for canvas and model-driven apps"],
+          "tools": ["Power Platform CLI (pac pcf)", "Visual Studio Code", "Node.js LTS", "PCF test harness"],
+          "lab_task": "Build a React virtual dataset component that shows claims as a Kanban board where dragging a card changes the claim status, using platform libraries and Fluent UI v9, test it in the harness, deploy it with pac pcf push, and use it on a model-driven view and in a canvas app.",
+          "deliverable": "PCF component source, a solution package and screenshots of the component in both app types",
+          "checks": [["Drag a claim from New to Assessed", "The claim status changes in Dataverse", "Screen recording and record screenshot"], ["Check the production bundle", "React and Fluent UI are not in the bundle because platform libraries are used", "Build output"], ["Switch the model-driven app to another theme", "Component colours follow the theme tokens", "Screenshots"]],
+          "objectives": ["Build PCF code components", "Use React with platform libraries", "Deploy components to both app types"]
+        },
+        {
+          "topic": "Code Apps with React and TypeScript",
+          "subtopics": ["When a code app fits better than a canvas app", "Turning on code apps for an environment", "The npm-based Power Apps CLI and pa app init", "Adding Dataverse and connectors as data sources", "Generated TypeScript models and services", "Local development, pushing and running in the Power Apps player", "Code apps in solutions and pipelines", "Rebuilding apps from the retired Power Apps vibe experience as code apps"],
+          "tools": ["Power Apps CLI (npm)", "Visual Studio Code", "Vite", "GitHub Copilot"],
+          "lab_task": "Create a React and TypeScript code app for claims triage with the npm-based Power Apps CLI, connect it to the Claim table and the Office 365 Users connector, push it to the development environment, add it to the Contoso Claims solution and deploy it to Test through the pipeline.",
+          "deliverable": "Code app repository, the app running in Test and a note on how it is built and deployed",
+          "checks": [["Open the code app in Test", "Claims load from Dataverse and the header shows the signed-in user's name", "Screenshot"], ["Open the app as a user with no read access to claims", "The app shows no claims and an access message", "Screenshot"], ["Open the solution in Test", "The code app is listed as a solution component", "Solution screenshot"]],
+          "objectives": ["Build code apps", "Connect code apps to Dataverse and connectors", "Manage code apps through ALM"]
+        },
+        {
+          "topic": "Server-Side Logic with Dataverse Plug-ins",
+          "subtopics": ["The event pipeline: PreValidation, PreOperation and PostOperation", "Synchronous and asynchronous steps", "IPlugin, IPluginExecutionContext and IOrganizationService", "Pre-images, post-images and filtering attributes", "Plug-in packages with dependent assemblies from pac plugin init", "Registering steps with the Plug-in Registration Tool", "Tracing, the plug-in trace log and the profiler", "Custom APIs for reusable server operations"],
+          "tools": ["Visual Studio", "Power Platform CLI (pac plugin)", "Plug-in Registration Tool", "Plug-in trace log"],
+          "lab_task": "Write a PreOperation plug-in in C# that blocks a claim payment above the approver's limit, an asynchronous PostOperation plug-in that writes an audit note, and a Custom API that recalculates reserves, register them with filtering attributes, and diagnose one failure from the trace log.",
+          "deliverable": "Plug-in package, step registrations, a Custom API definition and a trace log analysis",
+          "checks": [["Approve a payment of 12,000 with a 10,000 limit", "The save is blocked with the plug-in's error message", "Screenshot"], ["Update a claim column that is not a filtering attribute", "The plug-in does not run", "Trace log with no new entry"], ["Call the Custom API from Postman", "Reserves are recalculated and returned in the response", "Response JSON"]],
+          "objectives": ["Write and register plug-ins", "Use images, filtering attributes and tracing", "Expose Custom APIs"]
+        },
+        {
+          "topic": "Dataverse Web API and Service Protection Limits",
+          "subtopics": ["OData queries with $select, $filter, $expand and paging", "Authentication with MSAL and a Microsoft Entra app registration", "FetchXML through the Web API", "Upsert with alternate keys", "Batch requests and the CreateMultiple, UpdateMultiple and UpsertMultiple messages", "Change tracking for incremental sync", "Service protection limits: 6,000 requests and 20 minutes of execution per user in 5 minutes, and 52 concurrent requests", "Handling 429 responses with Retry-After"],
+          "tools": ["Postman", "Dataverse Web API", "Dataverse ServiceClient for .NET", "Visual Studio Code"],
+          "lab_task": "Write a .NET console job that upserts 50,000 policy rows into Dataverse with UpsertMultiple keyed on Policy Number, reads changes since the last run with change tracking, and waits on 429 responses for the Retry-After time, then compare its throughput with single requests.",
+          "deliverable": "Load job source, a throughput comparison and a log of the throttling responses it handled",
+          "checks": [["Run the job twice with the same file", "Row count stays at 50,000 because rows match on Policy Number", "Row count query result"], ["Force throttling with 60 parallel threads", "The job logs 429 responses and completes after waiting the Retry-After time", "Job log"], ["Update 10 rows and run the incremental read", "Exactly 10 changed rows are returned", "Job output"]],
+          "objectives": ["Call the Dataverse Web API from code", "Load data at volume within service limits", "Sync changes incrementally"]
+        },
+        {
+          "topic": "Azure Integration: Functions, API Management and Service Bus",
+          "subtopics": ["Azure Functions for long-running or heavy logic", "Exporting APIs from API Management as custom connectors", "CORS and API Management policies for Power Apps callers", "Dataverse service endpoints for Azure Service Bus queues and topics", "Webhooks registered on Dataverse events", "Power Platform managed identity for plug-ins that call Azure", "Virtual network support with subnet delegation", "Retry, dead-letter and idempotency patterns"],
+          "tools": ["Azure Functions", "Azure API Management", "Azure Service Bus", "Plug-in Registration Tool"],
+          "lab_task": "Publish a fraud-scoring Azure Function behind API Management and export it as a custom connector for the claims app, register a Service Bus queue as a Dataverse service endpoint that receives every new claim, and process the queue with a second function that writes the score back to the claim.",
+          "deliverable": "Working integration with an architecture diagram, the connector, the service endpoint and an end-to-end message trace",
+          "checks": [["Create a claim in the app", "A message arrives in the Service Bus queue within one minute", "Service Bus Explorer screenshot"], ["Let the second function process the message", "The fraud score is written back to the claim", "Record screenshot"], ["Stop the function, create five claims and start it again", "Messages wait in the queue and are processed once each after the restart", "Queue metrics and records"]],
+          "objectives": ["Integrate Power Apps with Azure services", "Design asynchronous integrations", "Handle failures and retries"]
+        },
+        {
+          "topic": "Security Architecture for Power Platform",
+          "subtopics": ["Microsoft Entra ID, Conditional Access and per-app Conditional Access", "Tenant isolation and cross-tenant restrictions", "IP firewall and IP cookie binding for Dataverse", "Customer-managed keys and Customer Lockbox", "Security roles, business units and teams at enterprise scale", "Service principals, application users and secret handling", "The Security page: security score and recommendations", "Threat modelling a Power Platform solution"],
+          "tools": ["Power Platform admin center Security page", "Microsoft Entra admin center", "Microsoft Purview"],
+          "lab_task": "Write the security architecture for Contoso Claims: Conditional Access that requires a compliant device for the claims app, tenant isolation with one allowed partner tenant, an IP firewall run in audit mode before enforce mode, a role and team model for 12 business units, and a threat model with 10 threats and their mitigations.",
+          "deliverable": "Security architecture document, configured controls and a threat model",
+          "checks": [["Open the claims app from an unmanaged device", "Conditional Access blocks the sign-in", "Microsoft Entra sign-in log entry"], ["Switch the IP firewall to enforce mode and connect from an address outside the range", "The request is refused and logged", "Screenshot and audit log"], ["Connect to Dataverse from a tenant that is not on the allow list", "Tenant isolation blocks the connection", "Error screenshot"]],
+          "objectives": ["Design layered security for Power Platform", "Configure tenant and environment controls", "Model threats for a solution"]
+        },
+        {
+          "topic": "Capacity, Limits and Scale in Dataverse",
+          "subtopics": ["Database, file and log capacity and what each licence adds", "Capacity reports by environment and table", "Power Platform request allowances per licence in 24 hours", "Elastic tables on Azure Cosmos DB for high-volume data", "Virtual tables for data that stays in its source system", "Long-term retention and clean-up jobs to control database size", "Query performance: indexes, Dataverse search and view design", "Link to Microsoft Fabric for analytics instead of heavy reports on Dataverse"],
+          "tools": ["Power Platform admin center Capacity page", "Microsoft Dataverse", "Microsoft Fabric"],
+          "lab_task": "Forecast three years of capacity for 2 million claims, 6 million documents and their audit logs, decide which tables become elastic, virtual or retained, show that an elastic table takes in 100,000 telemetry rows with CreateMultiple, and link the claims tables to Microsoft Fabric for reporting.",
+          "deliverable": "Capacity forecast, table placement decisions, ingestion test results and a working Fabric link",
+          "checks": [["Compare the forecast with the tenant entitlement", "The forecast shows the year database capacity runs out and the add-on needed", "Forecast workbook"], ["Load 100,000 rows into the elastic table", "All 100,000 rows are present after the load, with any throttled batches retried", "Load log"], ["Count claims in Fabric", "Fabric shows the same claim count as Dataverse", "Two query results"]],
+          "objectives": ["Plan Dataverse capacity", "Choose table types for scale", "Move analytics load off Dataverse"]
+        },
+        {
+          "topic": "Governing AI Features in Power Apps",
+          "subtopics": ["Copilot settings in the admin center and data movement across regions", "AI-assisted building: Copilot in the maker portal and generative pages", "Microsoft 365 Copilot in canvas and model-driven apps in place of Copilot chat", "The Dataverse MCP server and which clients may connect", "Prompt columns and AI Builder at scale", "Copilot Credits capacity and consumption reports", "Responsible AI review for AI features in apps", "Discontinued AI features: the canvas Copilot control and Power Apps vibe"],
+          "tools": ["Power Platform admin center Copilot settings", "Dataverse MCP server settings", "AI hub", "Power Platform admin center Licensing page"],
+          "lab_task": "Write an AI feature policy for Contoso that decides which environments allow generative pages, Microsoft 365 Copilot in apps and the Dataverse MCP server, apply the settings to two environment groups, set a Copilot Credits budget for prompt columns, and replace one app's discontinued Copilot control with Microsoft 365 Copilot.",
+          "deliverable": "AI feature policy, environment group settings, a credit budget and the updated app",
+          "checks": [["Connect an MCP client to the Dataverse MCP server in an environment where it is off", "The connection is refused", "Client error screenshot"], ["Ask a question about the app's data in the updated app", "The Microsoft 365 Copilot pane answers from the app's data", "Screenshot"], ["Open the consumption report after 100 prompt column updates", "Credit use appears against the environment", "Report screenshot"]],
+          "objectives": ["Govern AI features across environments", "Manage AI capacity and cost", "Replace discontinued AI features"]
+        },
+        {
+          "topic": "Fusion Teams and the Centre of Excellence",
+          "subtopics": ["Fusion team roles: makers, professional developers, admins and business owners", "CoE operating models: central, federated and hybrid", "App risk tiers: personal, team, department and enterprise", "Intake and triage of app ideas", "Support model and handover to IT", "Maker community, champions and training paths", "Sharing templates and components through the Power Platform catalogue", "Measuring CoE success"],
+          "tools": ["Microsoft Teams", "Power Platform catalogue", "Microsoft Planner", "Power BI"],
+          "lab_task": "Design a federated CoE for Contoso with a RACI for six roles, a four-tier risk model with controls for each tier, an intake form and triage criteria, a champions programme for 40 makers, and two templates published to the Power Platform catalogue.",
+          "deliverable": "CoE charter with a RACI, risk tiers, an intake process and two published catalogue items",
+          "checks": [["Triage three sample app ideas", "Each idea is placed in a risk tier with the matching controls", "Triage records"], ["Install a template from the catalogue as a maker", "The template installs into the maker's environment", "Screenshot"], ["Review the RACI with a peer group", "Every governance task has exactly one accountable role", "RACI table"]],
+          "objectives": ["Design a centre of excellence", "Run fusion teams with clear roles", "Scale reuse through the catalogue"]
+        },
+        {
+          "topic": "Licensing and Cost Management for Power Apps",
+          "subtopics": ["Power Apps Premium list prices: $20 per user per month, rising to $22 for terms from 1 January 2027", "Per app plan availability by purchasing channel since January 2026", "Pay-as-you-go plans billed through an Azure subscription", "Microsoft 365 seeded rights and their limits", "Power Pages capacity for authenticated and anonymous users", "Dataverse capacity add-ons and Copilot Credits", "Auto-claim policies and licence reports", "Building a three-year cost model"],
+          "tools": ["Power Platform admin center Licensing page", "Microsoft 365 admin center", "Azure Cost Management", "Excel"],
+          "lab_task": "Build a three-year cost model for 3,000 internal users across eight apps and a customer site with 2,000 monthly authenticated and 30,000 anonymous visitors, compare Premium, pay-as-you-go and per app where the purchasing channel allows it, include capacity add-ons, and recommend a licence mix with the savings shown.",
+          "deliverable": "Cost model workbook and a one-page licensing recommendation",
+          "checks": [["Price the 3,000 Premium users for 2027", "The model uses the list price for the term start date, including the 2,000-seat offer where it applies", "Workbook"], ["Compare pay-as-you-go for an app used by 200 people in two months a year", "Pay-as-you-go costs less than Premium for that app", "Workbook comparison"], ["Find unlicensed users in a managed environment", "The report lists the users who will be blocked from February 2027", "Licence report export"]],
+          "objectives": ["Explain current Power Apps licensing", "Model licence and capacity costs", "Recommend a licence mix"]
+        },
+        {
+          "topic": "Migrating InfoPath Forms and Access Databases",
+          "subtopics": ["InfoPath Forms Services removed from SharePoint Online after 14 July 2026", "Finding InfoPath forms with the Microsoft 365 Assessment tool", "Mapping InfoPath views, rules and data connections to Power Apps", "Choosing SharePoint list forms, canvas apps or model-driven apps as the target", "Moving Access tables to Dataverse with the Access Dataverse connector", "Access data types that change in Dataverse", "Replacing Access forms, reports, queries and VBA", "Cutover, parallel running and user training"],
+          "tools": ["Microsoft 365 Assessment tool", "Microsoft Access for Microsoft 365", "Power Apps Studio", "Microsoft Dataverse"],
+          "lab_task": "Assess 25 legacy InfoPath forms from a supplied inventory, rebuild the expense claim form with its three views and five rules as a canvas app on a SharePoint list, and move a 12-table Access asset database to Dataverse with the Access Dataverse connector while the Access front end keeps working on linked tables.",
+          "deliverable": "Migration assessment, the rebuilt expense app, migrated Dataverse tables and a cutover plan",
+          "checks": [["Submit an expense over 500 in the rebuilt app", "The app sets the manager approval field as the InfoPath rule did", "Preview and list screenshots"], ["Open the Access front end after the move", "Forms read and write the Dataverse tables through linked tables", "Access screenshot"], ["Compare row counts for all 12 tables", "Every table has the same count in Access and Dataverse", "Count comparison table"]],
+          "objectives": ["Assess legacy forms and databases", "Rebuild InfoPath forms in Power Apps", "Move Access data to Dataverse"]
+        },
+        {
+          "topic": "Leading a Power Apps Programme",
+          "subtopics": ["Programme vision, scope and 12-month roadmap", "Business cases and value tracking", "Portfolio prioritisation with agreed scoring", "Tracking product changes through Message center and the Microsoft roadmap", "Risk, technical debt and a deprecation watch list", "Steering group and design authority", "Adoption and change management", "Programme KPIs: active apps, active users, hours saved and incidents"],
+          "tools": ["Azure Boards", "Power BI", "Microsoft 365 Message center", "Power Platform inventory"],
+          "lab_task": "Write a 12-month Power Apps programme plan for Contoso with a scored backlog of 30 app requests, business cases for the top three apps based on hours saved, a deprecation watch list taken from Message center, and a KPI dashboard built on inventory and usage data.",
+          "deliverable": "Programme plan, scored backlog, three business cases, a deprecation watch list and a KPI dashboard",
+          "checks": [["Score the 30 requests with the agreed criteria", "Backlog order matches the scores and dependencies", "Backlog export"], ["Present the top business case", "Value and cost figures trace back to stated assumptions", "Business case document"], ["Open the KPI dashboard", "Active apps, active users and incidents show current values", "Dashboard screenshot"]],
+          "objectives": ["Plan and run a Power Apps programme", "Prove business value", "Manage risk, change and product deprecations"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Claims Platform for Contoso Group",
+          "subtopics": ["Architecture, environment and security design", "Governance with managed environments, policies and monitoring", "PCF component, plug-in and Azure integration", "ALM from Git integration to production", "Licensing, capacity and legacy migration plan", "Design authority review and programme roadmap"],
+          "tools": ["Power Platform admin center", "Power Platform CLI (pac)", "GitHub Actions or Azure Pipelines", "Azure Service Bus"],
+          "lab_task": "Design and prove the Contoso claims platform: environment and security architecture, governance settings, a PCF board, a payment plug-in and a Service Bus integration, a pipeline from Git to production, a licensing and capacity model, an InfoPath and Access migration plan, and a 12-month roadmap presented to a mock design authority.",
+          "deliverable": "Architecture pack, a working pipeline and prototypes, cost and capacity models, and a 20-minute presentation",
+          "checks": [["Run the pipeline from a commit to production", "The solution reaches production after checks, tests and approval", "Pipeline run log"], ["Create a claim above the fraud threshold", "The service endpoint, queue and scoring function act and the PCF board shows the claim as flagged", "End-to-end trace"], ["Answer design authority questions", "Decisions are defended with evidence and costed alternatives", "Review minutes"]],
+          "objectives": ["Combine the advanced topics in one platform design", "Prove the riskiest parts with prototypes", "Lead a design authority review"]
+        }
+      ]
+    }
+  }
+}

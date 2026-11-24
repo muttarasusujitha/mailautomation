@@ -42,7 +42,9 @@ def test_evaluation_requires_a_real_timed_plan_for_pass():
 
 
 def test_manual_toc_with_generic_evidence_cannot_be_approved_for_delivery():
-    toc = generate_toc_from_dataset("DevOps", 5, level="intermediate")
+    # Beginner keeps the two manually authored days that still lack concrete
+    # acceptance evidence (evidence score 80, below the 85 approval threshold).
+    toc = generate_toc_from_dataset("devops_30", 5, level="beginner")
     quality = toc["quality"]
     assert quality["content_evaluation"]["status"] in {"review", "fail"}
     assert quality["status"] in {"requires_review", "requires_regeneration"}

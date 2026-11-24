@@ -1,0 +1,573 @@
+{
+  "domain": "Dynatrace",
+  "name": "Dynatrace Observability Platform",
+  "category": "Observability and SRE",
+  "icon": "monitor-check",
+  "aliases": ["Dynatrace Training", "Dynatrace Monitoring", "Dynatrace APM", "Dynatrace OneAgent", "Dynatrace Grail", "Dynatrace Query Language", "Dynatrace Davis", "Davis AI", "Dynatrace Intelligence", "Dynatrace Administration", "Dynatrace Synthetic Monitoring", "Dynatrace Associate", "Dynatrace Professional"],
+  "certifications": ["Dynatrace Associate", "Dynatrace Professional", "Dynatrace Master"],
+  "tools": ["Dynatrace SaaS", "OneAgent", "ActiveGate", "Dynatrace Operator", "Dynatrace Query Language (DQL)", "Notebooks and Dashboards", "Workflows", "Monaco or Terraform"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers, operations engineers and SREs who are starting with Dynatrace. Covers the platform with Grail, Smartscape and Dynatrace Intelligence, a trial environment with OneAgent and ActiveGate, infrastructure and topology, services and distributed traces, logs in Grail, DQL, Notebooks and Dashboards, Davis problems and root cause analysis, anomaly detection, Kubernetes with the Dynatrace Operator, frontend observability, synthetic monitoring, OpenTelemetry, alerting with Workflows, SLOs and Site Reliability Guardian, application security, access management and troubleshooting deployments. Covers the Dynatrace Associate topics.",
+      "prerequisites": ["Runs or supports applications on Linux, containers or cloud services", "Comfortable with the command line", "Knows what metrics, logs and traces are"],
+      "outcomes": ["Deploy OneAgent, ActiveGate and the Dynatrace Operator and read the Smartscape topology", "Investigate services, traces, logs and Davis problems with DQL, Notebooks and Dashboards", "Monitor users, synthetic journeys, SLOs and OpenTelemetry data", "Alert with Workflows, manage access and fix deployment problems"],
+      "days": [
+        {
+          "topic": "Dynatrace Overview: Platform, Grail, Smartscape and Dynatrace Intelligence",
+          "subtopics": ["Dynatrace as an observability and security platform", "OneAgent and automatic discovery", "Smartscape topology", "The Grail data lakehouse", "DQL across all data", "Davis AI and Dynatrace Intelligence", "Apps on the platform", "SaaS and Managed deployments", "The Dynatrace Associate certification", "Course project overview: a microservice shop on Kubernetes"],
+          "tools": ["Dynatrace SaaS", "Dynatrace Playground", "Course application"],
+          "lab_task": "Tour a Dynatrace environment with demo data, follow one problem from its Davis card to the affected service, trace and log line, and draw how the platform parts connect.",
+          "deliverable": "Platform map with one followed problem",
+          "checks": [["Follow", "One problem is traced to its service, trace and log", "Screenshots"], ["Map", "Each platform part's job is correct on the map", "Platform map"], ["Explain", "Grail, Smartscape and Davis are explained in plain words", "Notes"]],
+          "objectives": ["Describe the Dynatrace platform", "Navigate apps", "Follow a problem across data"]
+        },
+        {
+          "topic": "Lab Setup: Dynatrace Trial, OneAgent and ActiveGate",
+          "subtopics": ["Starting a trial environment", "Environment URL and access tokens", "Installing OneAgent on Linux", "Full-stack, infrastructure and discovery monitoring modes", "ActiveGate and its roles", "Host groups and tags", "Restarting processes for deep monitoring", "Checking deployment status", "Lab repository layout", "Smoke test in the Hosts app"],
+          "tools": ["Dynatrace SaaS", "OneAgent", "ActiveGate"],
+          "lab_task": "Start a trial environment, install OneAgent on two hosts in different host groups, install an ActiveGate, restart the course services and confirm deep monitoring in the Hosts and Services apps.",
+          "deliverable": "Monitored lab hosts with an ActiveGate",
+          "checks": [["Install", "Both hosts report with the chosen monitoring mode", "Hosts app"], ["Route", "The ActiveGate is connected", "Deployment status"], ["Monitor", "Course services appear after restart", "Services app"]],
+          "objectives": ["Deploy OneAgent", "Use ActiveGate", "Organise hosts with groups and tags"]
+        },
+        {
+          "topic": "Infrastructure Observability: Hosts, Processes and Networks",
+          "subtopics": ["The Infrastructure and Operations app", "Host health and resource metrics", "Process groups and processes", "Disk, network and connectivity views", "Host and process events", "Maintenance windows", "Infrastructure monitoring for virtual machines and clouds", "Tagging rules"],
+          "tools": ["Infrastructure and Operations app", "Hosts app", "Maintenance windows"],
+          "lab_task": "Find the host and process behind a seeded memory problem, check its network connections, set a maintenance window for a planned restart and add an automatic tagging rule.",
+          "deliverable": "Infrastructure investigation and tagging rule",
+          "checks": [["Find", "The process with the memory problem is identified", "Process view"], ["Schedule", "The maintenance window suppresses problems", "Problem list"], ["Tag", "New hosts get tags from the rule", "Host properties"]],
+          "objectives": ["Monitor infrastructure", "Investigate host problems", "Automate tagging"]
+        },
+        {
+          "topic": "Smartscape and Topology: Services, Processes and Dependencies",
+          "subtopics": ["Smartscape layers: applications, services, processes and hosts", "Vertical and horizontal dependencies", "How topology is discovered", "Entities and entity IDs", "Topology in Davis analysis", "Querying topology with DQL", "Topology for cloud and Kubernetes", "Using topology during incidents"],
+          "tools": ["Smartscape", "DQL", "Services app"],
+          "lab_task": "Map the course shop's dependencies in Smartscape, find every service that depends on the database and list them with a DQL query.",
+          "deliverable": "Dependency map and DQL topology query",
+          "checks": [["Map", "Dependencies across all layers are shown", "Smartscape screenshot"], ["Find", "Services that call the database are listed", "Service list"], ["Query", "The DQL query returns the same services", "Query result"]],
+          "objectives": ["Read Smartscape", "Understand entity relationships", "Query topology"]
+        },
+        {
+          "topic": "Services and Distributed Traces",
+          "subtopics": ["Service detection and naming", "Service health: response time, failures and throughput", "Distributed traces and PurePath", "Span attributes and request attributes", "Service flow", "Failure analysis", "Response time hotspots", "Linking traces to logs"],
+          "tools": ["Services app", "Distributed Tracing app", "Service flow"],
+          "lab_task": "Find the slowest endpoint of the shop, open a distributed trace, locate the hotspot in the code-level view and jump to the logs for the same request.",
+          "deliverable": "Trace investigation notes",
+          "checks": [["Find", "The slowest endpoint is identified", "Services app"], ["Locate", "The hotspot is found in the trace", "Trace view"], ["Link", "Logs for the same trace are shown", "Log view"]],
+          "objectives": ["Analyse services", "Use distributed traces", "Connect traces and logs"]
+        },
+        {
+          "topic": "Logs in Grail: Ingest, Processing and the Logs App",
+          "subtopics": ["Log ingest from OneAgent, APIs and OpenTelemetry", "Log sources and automatic detection", "Log processing with OpenPipeline", "Parsing fields", "The Logs app", "Log retention in buckets", "Log-based metrics and events", "Sensitive data masking"],
+          "tools": ["Logs app", "OpenPipeline", "Grail buckets"],
+          "lab_task": "Ingest the shop's logs, parse order IDs and status codes in OpenPipeline, mask card numbers, create a metric for errors and find logs for one order.",
+          "deliverable": "Parsed, masked logs with a log metric",
+          "checks": [["Parse", "Order IDs and status codes become fields", "Log record"], ["Mask", "Card numbers are masked before storage", "Log record"], ["Measure", "The error metric matches error log counts", "Metric and log counts"]],
+          "objectives": ["Ingest and process logs", "Protect sensitive data", "Turn logs into metrics"]
+        },
+        {
+          "topic": "DQL: Fetch, Filter, Summarize and Join",
+          "subtopics": ["DQL structure: fetch, filter and fields", "summarize and makeTimeseries", "parse and pattern matching", "Joins and lookups", "timeseries for metrics", "Querying spans, logs and events", "Query limits and performance", "Saving and sharing queries"],
+          "tools": ["Notebooks", "DQL", "Grail"],
+          "lab_task": "Answer five operational questions with DQL, including error rate by service, slowest database calls and orders per minute, and save the queries in a notebook.",
+          "deliverable": "Notebook with five DQL answers",
+          "checks": [["Answer", "Each question has a working query", "Notebook"], ["Join", "A join combines logs and spans for the same request", "Query result"], ["Verify", "One result matches the Services app", "Comparison"]],
+          "objectives": ["Query data with DQL", "Combine data types", "Check query results"]
+        },
+        {
+          "topic": "Notebooks and Dashboards",
+          "subtopics": ["Notebooks for analysis", "Dashboards for teams", "Tiles from DQL, metrics and code", "Variables and filters", "Sharing and permissions", "Ready-made dashboards", "Markdown and documentation in dashboards", "Exporting and versioning dashboards"],
+          "tools": ["Notebooks", "Dashboards", "DQL"],
+          "lab_task": "Build a team dashboard for the shop with DQL tiles and variables for service and environment, and an investigation notebook linked from it.",
+          "deliverable": "Team dashboard and linked notebook",
+          "checks": [["Build", "The dashboard shows traffic, errors and latency", "Dashboard"], ["Filter", "Variables filter every tile", "Screenshot"], ["Share", "Team members can open it with the right access", "Sharing settings"]],
+          "objectives": ["Build dashboards", "Analyse in notebooks", "Share with teams"]
+        },
+        {
+          "topic": "Davis Problems and Root Cause Analysis",
+          "subtopics": ["How Davis creates problems", "Events, anomalies and problems", "Root cause and impact analysis", "Problem cards and timelines", "Problem merging", "Frequent issue detection", "Closing problems", "Problem feeds for teams"],
+          "tools": ["Problems app", "Davis AI", "Smartscape"],
+          "lab_task": "Seed a database slowdown, follow the Davis problem from impact to root cause, compare Davis's answer with the seeded cause and record the time to root cause.",
+          "deliverable": "Problem analysis with time to root cause",
+          "checks": [["Detect", "Davis opens one problem for the slowdown", "Problems app"], ["Explain", "The root cause matches the seeded fault", "Problem card"], ["Time", "Time from symptom to root cause is recorded", "Timeline"]],
+          "objectives": ["Use Davis problems", "Read root cause analysis", "Measure investigation time"]
+        },
+        {
+          "topic": "Anomaly Detection: Baselines, Thresholds and Custom Detectors",
+          "subtopics": ["Automatic baselines", "Static thresholds", "Anomaly detectors on Grail data", "Detecting anomalies in logs and business data", "Sensitivity and false positives", "Event properties", "Muting and maintenance", "Testing detectors"],
+          "tools": ["Anomaly Detection app", "Davis AI", "DQL"],
+          "lab_task": "Create a custom anomaly detector for failed orders from a DQL time series, tune its sensitivity on seeded data and test that it raises a problem.",
+          "deliverable": "Tuned custom anomaly detector",
+          "checks": [["Create", "The detector runs on the DQL time series", "Detector settings"], ["Tune", "False positives fall after tuning", "Event history"], ["Raise", "A seeded anomaly opens a problem", "Problems app"]],
+          "objectives": ["Configure anomaly detection", "Build custom detectors", "Tune sensitivity"]
+        },
+        {
+          "topic": "Kubernetes Observability with the Dynatrace Operator",
+          "subtopics": ["The Dynatrace Operator and DynaKube resource", "Cloud-native full-stack and application-only modes", "Kubernetes app: clusters, namespaces and workloads", "Kubernetes events and warnings", "Workload health and resource use", "Log collection in Kubernetes", "Metadata enrichment", "Kubernetes Security Posture Management"],
+          "tools": ["Dynatrace Operator", "Kubernetes app", "kubectl"],
+          "lab_task": "Deploy the Dynatrace Operator with cloud-native full-stack monitoring, find a crash-looping workload, check its events and logs and list over-provisioned workloads.",
+          "deliverable": "Monitored cluster with investigations",
+          "checks": [["Deploy", "The DynaKube is ready and pods are injected", "kubectl output"], ["Find", "The crash-looping workload and its cause are found", "Kubernetes app"], ["Size", "Over-provisioned workloads are listed", "Workload view"]],
+          "objectives": ["Monitor Kubernetes with Dynatrace", "Investigate workloads", "Find wasted resources"]
+        },
+        {
+          "topic": "Frontend Observability: Real User Monitoring, Session Replay and Error Inspector",
+          "subtopics": ["Real User Monitoring for web applications", "User sessions and actions", "Core Web Vitals", "Session Replay", "Error Inspector", "Linking user actions to backend traces", "Mobile app monitoring", "Privacy and data masking"],
+          "tools": ["Real User Monitoring", "Session Replay", "Error Inspector"],
+          "lab_task": "Turn on RUM for the shop front end, find the slowest page by Web Vitals, replay a failed checkout session and follow the error to its backend trace.",
+          "deliverable": "Frontend investigation with a replay",
+          "checks": [["Collect", "Sessions and actions arrive", "Frontend app"], ["Replay", "The failed checkout is replayed", "Session Replay"], ["Follow", "The error links to its backend trace", "Error Inspector and trace view"]],
+          "objectives": ["Monitor real users", "Use Session Replay", "Connect frontend and backend"]
+        },
+        {
+          "topic": "Synthetic Monitoring: HTTP Monitors and Browser Clickpaths",
+          "subtopics": ["HTTP monitors", "Browser monitors and clickpaths", "Public and private locations", "Validation rules", "Synthetic availability and performance", "Alerting on synthetic failures", "Synthetic tests in release pipelines", "Synthetic monitoring cost"],
+          "tools": ["Synthetic app", "Private synthetic location", "Browser clickpath recorder"],
+          "lab_task": "Create an HTTP monitor for the shop API, a browser clickpath for checkout and a private location for an internal page, then break checkout and confirm the alert.",
+          "deliverable": "Synthetic monitors with an alert test",
+          "checks": [["Monitor", "Monitors pass against the healthy shop", "Synthetic results"], ["Detect", "Breaking checkout fails the clickpath and alerts", "Problem record"], ["Reach", "The private location tests the internal page", "Location results"]],
+          "objectives": ["Test user journeys", "Monitor internal services", "Alert on synthetic failures"]
+        },
+        {
+          "topic": "OpenTelemetry with Dynatrace",
+          "subtopics": ["OTLP ingest endpoints", "The Dynatrace OpenTelemetry Collector distribution", "OpenTelemetry SDKs with Dynatrace", "Combining OneAgent and OpenTelemetry", "Resource attributes and topology", "Metrics and logs from OpenTelemetry", "Sampling", "Vendor neutrality"],
+          "tools": ["OpenTelemetry SDK", "Dynatrace Collector", "OTLP API"],
+          "lab_task": "Instrument a service that cannot run OneAgent with the OpenTelemetry SDK, send its data through the collector and confirm it joins traces from OneAgent services.",
+          "deliverable": "OpenTelemetry service joined to existing traces",
+          "checks": [["Send", "Traces, metrics and logs arrive over OTLP", "Distributed Tracing app"], ["Join", "Traces continue across OneAgent and OpenTelemetry services", "Trace view"], ["Attribute", "Resource attributes show the service correctly", "Service details"]],
+          "objectives": ["Ingest OpenTelemetry data", "Mix OneAgent and OpenTelemetry", "Keep traces connected"]
+        },
+        {
+          "topic": "Alerting and Notifications: Problem Notifications and Workflows",
+          "subtopics": ["Alerting profiles", "Problem notifications to email, Slack and Teams", "Workflows triggered by problems", "Conditions and filters", "Ticket creation in ITSM tools", "Notification content", "Escalation patterns", "Testing alerting"],
+          "tools": ["Workflows", "Alerting profiles", "Slack or Microsoft Teams connector"],
+          "lab_task": "Build a workflow that sends payment problems to the payments team channel with context, opens a ticket for severe problems and ignores problems in test environments.",
+          "deliverable": "Alerting workflow with test runs",
+          "checks": [["Route", "Payment problems reach the payments channel", "Channel message"], ["Ticket", "Severe problems open a ticket", "Ticket record"], ["Filter", "Test environment problems are ignored", "Workflow history"]],
+          "objectives": ["Route problem notifications", "Build alerting workflows", "Test alerting"]
+        },
+        {
+          "topic": "Service-Level Objectives and Site Reliability Guardian",
+          "subtopics": ["SLOs in Dynatrace", "SLIs from DQL and metrics", "Error budgets and burn rates", "SLO dashboards", "Site Reliability Guardian objectives", "Guardians in release validation", "SLO alerts", "SLO reviews"],
+          "tools": ["Service-Level Objectives app", "Site Reliability Guardian", "Workflows"],
+          "lab_task": "Create SLOs for checkout availability and latency, add burn-rate alerts and a guardian that checks them after each deployment, then fail a release that breaks them.",
+          "deliverable": "SLOs with a release guardian",
+          "checks": [["Create", "Both SLOs show status and error budget", "SLO app"], ["Alert", "A fast burn raises an alert", "Alert record"], ["Validate", "The guardian fails the bad release", "Guardian result"]],
+          "objectives": ["Define SLOs in Dynatrace", "Validate releases", "Alert on burn rate"]
+        },
+        {
+          "topic": "Application Security: Runtime Vulnerability Analytics and Attack Protection",
+          "subtopics": ["Runtime vulnerability analytics", "Vulnerabilities in third-party libraries and code", "Prioritising by exposure and reachability", "Runtime application protection", "Security events in Grail", "Security problems and notifications", "Kubernetes security posture findings", "Working with developers on fixes"],
+          "tools": ["Vulnerabilities app", "Runtime Application Protection", "Security investigations"],
+          "lab_task": "Find vulnerable libraries in the shop services, rank them by exposure, block a seeded injection attack with runtime protection and track fixes.",
+          "deliverable": "Ranked vulnerabilities and attack evidence",
+          "checks": [["Find", "Vulnerable libraries are listed per service", "Vulnerabilities app"], ["Rank", "Exposed vulnerabilities rank first", "Ranked list"], ["Block", "The seeded attack is blocked", "Attack event"]],
+          "objectives": ["Find runtime vulnerabilities", "Prioritise by exposure", "Protect running applications"]
+        },
+        {
+          "topic": "Access Management: Users, Groups, Policies and Segments",
+          "subtopics": ["Account and environment management", "Users, groups and single sign-on", "IAM policies and boundaries", "Segments for filtering data", "Security context for data access", "Permissions for apps and Workflows", "Audit logs", "Tokens and their scopes"],
+          "tools": ["Account Management", "IAM policies", "Segments", "Audit logs"],
+          "lab_task": "Create groups for developers and support, give each access only to its applications' data with policies and security context, define a segment per team and review audit logs.",
+          "deliverable": "Access model with tests",
+          "checks": [["Restrict", "Support staff see only their applications' data", "Access test"], ["Segment", "Each team's segment filters its data", "Segment test"], ["Audit", "Access changes appear in audit logs", "Audit records"]],
+          "objectives": ["Manage access", "Use policies and segments", "Audit access"]
+        },
+        {
+          "topic": "Troubleshooting Dynatrace Deployments: OneAgent, ActiveGate and Missing Data",
+          "subtopics": ["OneAgent health and diagnostics", "Processes not deeply monitored", "ActiveGate connectivity", "Missing logs or metrics", "Clock and time zone problems", "Tagging and naming mistakes", "Network and proxy issues", "Working with Dynatrace support"],
+          "tools": ["OneAgent diagnostics", "Deployment status", "Logs app"],
+          "lab_task": "Diagnose four seeded problems, an unmonitored process, a disconnected ActiveGate, missing logs and a wrong host group, fix each one and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Data flows correctly after each fix", "Before-and-after screenshots"], ["Prevent", "A check or alert catches each problem", "Alert list"]],
+          "objectives": ["Troubleshoot Dynatrace deployments", "Use diagnostics", "Prevent repeat problems"]
+        },
+        {
+          "topic": "Beginner Capstone: Observability for the Microservice Shop with Dynatrace",
+          "subtopics": ["OneAgent, Operator and topology", "Traces, logs and DQL", "Dashboards, problems and SLOs", "Alerting and an incident drill"],
+          "tools": ["Dynatrace SaaS", "OneAgent", "Dynatrace Operator", "Workflows"],
+          "lab_task": "Deliver observability for the microservice shop with OneAgent and the Operator, processed logs, a team dashboard, DQL notebooks, SLOs, synthetic checkout tests, alerting workflows and an incident drill.",
+          "deliverable": "Working shop observability with a demo",
+          "checks": [["Observe", "One request is followed from browser to database", "Demo recording"], ["Detect", "Davis and SLO alerts fire on seeded failures", "Problem and alert records"], ["Respond", "The drill reaches the root cause with Davis and DQL", "Drill notes"]],
+          "objectives": ["Combine beginner Dynatrace skills", "Observe a full application", "Respond to problems"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For engineers who run Dynatrace for several teams. Covers OpenPipeline, DQL in depth, business events, Workflows and AutomationEngine, monitoring as code with Monaco and Terraform, cloud platform monitoring, Kubernetes at scale, log management with buckets and retention, Davis AI in depth, Dynatrace Assist and Dynatrace Intelligence agents, tracing in depth, database and messaging monitoring, release validation, Extensions, Live Debugger, enterprise application monitoring, platform subscription usage, security analytics and Associate and Professional exam preparation.",
+      "prerequisites": ["Has deployed OneAgent and used DQL, dashboards and problems", "Comfortable with YAML and infrastructure as code", "Supports production services"],
+      "outcomes": ["Process, store and query telemetry and business data at scale with OpenPipeline, buckets and DQL", "Automate monitoring configuration and responses with Monaco, Terraform and Workflows", "Monitor clouds, Kubernetes, databases, messaging and enterprise applications in depth", "Use Davis and Dynatrace Intelligence agents, control consumption and prepare for the Associate and Professional exams"],
+      "days": [
+        {
+          "topic": "OpenPipeline: Ingest Routing, Processing and Data Extraction",
+          "subtopics": ["OpenPipeline stages: routing, processing and storage", "Pipelines for logs, events, spans and business events", "Processors: parse, mask, drop and enrich", "Extracting metrics and events from records", "Routing to buckets", "Dynamic routing by source", "Testing processors with sample data", "Pipeline performance and cost"],
+          "tools": ["OpenPipeline", "Grail buckets", "DQL"],
+          "lab_task": "Build pipelines that route the shop's logs by team, drop debug records, extract a metric and a business event from order logs and store them in the right buckets.",
+          "deliverable": "OpenPipeline configuration with tests",
+          "checks": [["Route", "Each team's logs land in its bucket", "DQL by bucket"], ["Extract", "The metric and business event appear from order logs", "Metric and event results"], ["Drop", "Debug records are not stored", "Volume comparison"]],
+          "objectives": ["Process data with OpenPipeline", "Extract metrics and events", "Route data to buckets"]
+        },
+        {
+          "topic": "DQL in Depth: Parsing, Time Series, Lookups and Performance",
+          "subtopics": ["Dynatrace Pattern Language for parsing", "makeTimeseries and timeseries commands", "Lookups and joins at scale", "Smartscape and entity queries", "Percentiles and statistics", "Query performance and scan limits", "Sampling and query cost", "Reusable query snippets"],
+          "tools": ["DQL", "Notebooks", "Dynatrace Pattern Language"],
+          "lab_task": "Parse a complex log format with DPL, build time series of checkout latency percentiles by region, join them with entity data and cut the query's scanned data in half.",
+          "deliverable": "Advanced queries with performance results",
+          "checks": [["Parse", "DPL extracts every needed field", "Query result"], ["Analyse", "Latency percentiles by region are correct", "Chart and data"], ["Optimise", "Scanned data halves for the same answer", "Query statistics"]],
+          "objectives": ["Write advanced DQL", "Parse with DPL", "Optimise queries"]
+        },
+        {
+          "topic": "Business Events and Business Analytics",
+          "subtopics": ["Business events from OneAgent, APIs and logs", "Capturing business data from requests", "Business flows and funnels", "Revenue and conversion analysis", "Joining business and technical data", "Privacy of business data", "Business dashboards", "Alerts on business KPIs"],
+          "tools": ["Business events", "Business Flow app", "DQL"],
+          "lab_task": "Capture order and payment business events, build a checkout business flow, find where revenue is lost and link the loss to a technical problem.",
+          "deliverable": "Business flow with a revenue analysis",
+          "checks": [["Capture", "Order and payment events arrive with amounts", "Business event records"], ["Flow", "The checkout flow shows drop-off per step", "Business Flow view"], ["Link", "Revenue loss is linked to a technical problem", "Analysis notes"]],
+          "objectives": ["Capture business events", "Analyse business flows", "Link business and technical data"]
+        },
+        {
+          "topic": "Workflows and AutomationEngine",
+          "subtopics": ["Workflow triggers: events, schedules and problems", "Tasks: DQL, HTTP, JavaScript and app actions", "Conditions, loops and error handling", "Credentials and connections", "Workflows with agent actions", "Human approval steps", "Testing and versioning workflows", "Workflow monitoring"],
+          "tools": ["Workflows", "AutomationEngine", "Connections"],
+          "lab_task": "Build a workflow that, on a disk problem, queries the host's usage, cleans temporary files after approval and posts a summary, then test failure handling.",
+          "deliverable": "Remediation workflow with tests",
+          "checks": [["Trigger", "The disk problem starts the workflow", "Workflow run"], ["Approve", "Cleanup waits for approval", "Approval record"], ["Handle", "A failed task is retried and reported", "Run history"]],
+          "objectives": ["Automate with Workflows", "Handle errors", "Keep approvals for risky steps"]
+        },
+        {
+          "topic": "Monitoring as Code with Monaco and Terraform",
+          "subtopics": ["Configuration as code in Dynatrace", "Monaco projects and manifests", "The Terraform Dynatrace provider", "Downloading existing configuration", "Environments and promotion", "Secrets for tokens", "Reviews in pull requests", "Preventing drift"],
+          "tools": ["Monaco", "Terraform Dynatrace provider", "CI pipeline"],
+          "lab_task": "Download existing dashboards and alerting into Monaco, apply them to a second environment through a pipeline and manage SLOs with Terraform.",
+          "deliverable": "Configuration repository with a pipeline",
+          "checks": [["Download", "Existing configuration is in the repository", "Repository listing"], ["Promote", "The second environment matches the first", "Deployment output"], ["Manage", "SLOs are created and changed through Terraform", "Plan and apply output"]],
+          "objectives": ["Manage Dynatrace as code", "Promote configuration", "Prevent drift"]
+        },
+        {
+          "topic": "Cloud Platform Monitoring: AWS, Azure and Google Cloud",
+          "subtopics": ["Cloud integrations and their permissions", "Cloud service metrics and logs", "OneAgent on cloud virtual machines", "Serverless functions", "Cloud events in Davis analysis", "Tag import from clouds", "Multi-cloud dashboards", "Cloud monitoring cost"],
+          "tools": ["AWS, Azure and Google Cloud integrations", "OneAgent", "Clouds app"],
+          "lab_task": "Connect one cloud account, monitor a managed database and a serverless function, import cloud tags and build a multi-cloud health dashboard.",
+          "deliverable": "Cloud monitoring with a dashboard",
+          "checks": [["Connect", "Cloud services appear with metrics", "Clouds app"], ["Tag", "Cloud tags are available on entities", "Entity properties"], ["Show", "The dashboard shows health across clouds", "Dashboard"]],
+          "objectives": ["Monitor cloud services", "Use cloud tags", "Build multi-cloud views"]
+        },
+        {
+          "topic": "Kubernetes at Scale: Monitoring Modes, Namespaces and Workload Health",
+          "subtopics": ["Choosing monitoring modes per cluster", "Many clusters and ActiveGates", "Namespace and workload ownership", "Workload health signals", "Resource requests and rightsizing", "Kubernetes events in problems", "Log collection limits", "Upgrading the Operator"],
+          "tools": ["Dynatrace Operator", "Kubernetes app", "Monaco"],
+          "lab_task": "Roll out the Operator to three clusters with different modes, assign workloads to owners, alert on unhealthy workloads and upgrade the Operator safely.",
+          "deliverable": "Multi-cluster monitoring with ownership",
+          "checks": [["Roll out", "All three clusters report with their modes", "Kubernetes app"], ["Own", "Workloads have owners for notifications", "Ownership settings"], ["Upgrade", "The Operator upgrade completes without data gaps", "Upgrade log"]],
+          "objectives": ["Run Kubernetes monitoring at scale", "Assign ownership", "Upgrade safely"]
+        },
+        {
+          "topic": "Log Management at Scale: Buckets, Retention and Cost",
+          "subtopics": ["Bucket design by team and retention", "Retention periods and cost", "Dropping and sampling logs", "Log volume per team", "Querying large log volumes", "Security context on logs", "Archiving and deletion", "Log budgets"],
+          "tools": ["Grail buckets", "OpenPipeline", "DQL"],
+          "lab_task": "Design buckets for three teams with different retention, cut stored log volume by 30% with OpenPipeline and report log usage per team.",
+          "deliverable": "Bucket design with volume and cost results",
+          "checks": [["Design", "Each team's logs have the right bucket and retention", "Bucket settings"], ["Reduce", "Stored log volume falls by 30%", "Volume report"], ["Report", "Log usage is shown per team", "Usage dashboard"]],
+          "objectives": ["Manage logs at scale", "Set retention", "Control log cost"]
+        },
+        {
+          "topic": "Davis AI in Depth: Causal, Predictive and Generative Intelligence",
+          "subtopics": ["Causal AI for root cause", "Predictive AI for forecasts", "Generative AI for questions and summaries", "Davis events and custom events", "Forecasting capacity", "Explaining AI results to teams", "Limits of each AI type", "Trust and review"],
+          "tools": ["Davis AI", "Notebooks", "Forecasting"],
+          "lab_task": "Forecast disk usage for the shop database, explain a seeded problem with causal analysis and ask generative AI for a summary, then check each answer against the data.",
+          "deliverable": "Forecast, causal analysis and verified summary",
+          "checks": [["Forecast", "The forecast shows when the disk fills", "Forecast chart"], ["Explain", "Causal analysis finds the seeded cause", "Problem analysis"], ["Verify", "The generated summary matches the data", "Review notes"]],
+          "objectives": ["Use causal, predictive and generative AI", "Explain AI results", "Check AI answers"]
+        },
+        {
+          "topic": "Dynatrace Assist and Dynatrace Intelligence Agents",
+          "subtopics": ["Dynatrace Assist as the conversational interface", "Agents for investigation, remediation and development", "Context from Grail and Smartscape", "The Dynatrace MCP server", "Permissions for agents", "Approving agent actions", "Evaluating agent results", "When to keep humans in the loop"],
+          "tools": ["Dynatrace Assist", "Dynatrace Intelligence agents", "Dynatrace MCP server"],
+          "lab_task": "Investigate two replayed problems with Dynatrace Assist, compare its findings with the known causes and query Dynatrace from a coding agent through the MCP server.",
+          "deliverable": "Agent evaluation and MCP session",
+          "checks": [["Investigate", "Assist findings are compared with known causes", "Comparison table"], ["Query", "The coding agent reads Dynatrace data through MCP", "MCP transcript"], ["Govern", "Agent actions follow permissions and approvals", "Settings and audit log"]],
+          "objectives": ["Use Dynatrace Assist", "Evaluate agent investigations", "Govern agent actions"]
+        },
+        {
+          "topic": "Distributed Tracing in Depth: Sampling, Request Attributes and Span Data",
+          "subtopics": ["Trace sampling and adaptive capture", "Request attributes", "Custom services", "Span attributes and span data in Grail", "Querying spans with DQL", "Message queue tracing", "Trace context across third-party services", "Tracing cost"],
+          "tools": ["Distributed Tracing app", "Request attributes", "DQL"],
+          "lab_task": "Add request attributes for customer tier and order value, define a custom service for a background job and use DQL on spans to find slow orders for premium customers.",
+          "deliverable": "Tracing configuration and span analysis",
+          "checks": [["Capture", "Request attributes appear on traces", "Trace details"], ["Define", "The background job appears as a service", "Services app"], ["Query", "Slow premium orders are found with DQL", "Query result"]],
+          "objectives": ["Customise tracing", "Query spans", "Trace background work"]
+        },
+        {
+          "topic": "Database and Message Queue Monitoring",
+          "subtopics": ["Database services and statements", "Database extensions for deeper metrics", "Slow statements and their callers", "Message queues: Kafka, RabbitMQ and cloud queues", "Queue lag and consumer health", "Linking producers and consumers", "Alerts for databases and queues", "Capacity of data services"],
+          "tools": ["Database services", "Extensions", "Queues view"],
+          "lab_task": "Find the slowest database statement and its caller, monitor Kafka consumer lag with an extension and alert when lag grows during a seeded slowdown.",
+          "deliverable": "Database and queue monitoring with alerts",
+          "checks": [["Find", "The slowest statement and its caller are found", "Database service view"], ["Monitor", "Consumer lag is shown per group", "Dashboard"], ["Alert", "Growing lag triggers an alert", "Problem record"]],
+          "objectives": ["Monitor databases", "Monitor message queues", "Alert on data services"]
+        },
+        {
+          "topic": "Release Validation and Deployment Events with Site Reliability Guardian",
+          "subtopics": ["Deployment events from pipelines", "Release tracking by version", "Guardians with SLO and DQL objectives", "Automated validation in pipelines", "Comparing versions", "Rollback decisions", "Release dashboards", "Change failure tracking"],
+          "tools": ["Site Reliability Guardian", "Deployment events API", "CI pipeline"],
+          "lab_task": "Send deployment events from the CI pipeline, validate each release with a guardian, block a bad version and compare versions after release.",
+          "deliverable": "Pipeline with release validation",
+          "checks": [["Send", "Deployments appear as events on services", "Event list"], ["Validate", "The guardian blocks the bad version", "Pipeline run"], ["Compare", "Version comparison shows the regression", "Release view"]],
+          "objectives": ["Track releases", "Validate deployments automatically", "Make rollback decisions with data"]
+        },
+        {
+          "topic": "Extensions: Extensions Framework, Prometheus Data and SNMP",
+          "subtopics": ["The Extensions framework", "Hub extensions", "Prometheus and OpenMetrics data", "SNMP and network devices", "SQL data sources", "Extension configuration and ActiveGate", "Writing a simple extension", "Monitoring extensions"],
+          "tools": ["Dynatrace Hub", "Extensions", "ActiveGate"],
+          "lab_task": "Collect Prometheus metrics from a service, monitor a network device over SNMP and write a small SQL extension for a business table.",
+          "deliverable": "Three working extensions",
+          "checks": [["Collect", "Prometheus metrics appear in Dynatrace", "Metric query"], ["Poll", "SNMP device metrics arrive", "Device view"], ["Extend", "The SQL extension reports the business metric", "Metric query"]],
+          "objectives": ["Use Dynatrace extensions", "Collect third-party data", "Write a simple extension"]
+        },
+        {
+          "topic": "Live Debugger and Developer Observability",
+          "subtopics": ["Live Debugger for production code", "Breakpoints that do not stop code", "Snapshots of variables", "Data masking in snapshots", "IDE integrations", "Developer access and permissions", "Debugging with traces and logs", "Fix verification"],
+          "tools": ["Live Debugger", "IDE plugin", "Distributed Tracing app"],
+          "lab_task": "Use Live Debugger to capture variable snapshots for a seeded bug in production without a redeploy, find the cause and verify the fix.",
+          "deliverable": "Debug session and verified fix",
+          "checks": [["Capture", "Snapshots show the faulty values", "Snapshot view"], ["Mask", "Sensitive fields are masked in snapshots", "Snapshot view with masked fields"], ["Verify", "The error stops after the fix", "Error trend"]],
+          "objectives": ["Debug production code safely", "Protect data in snapshots", "Verify fixes"]
+        },
+        {
+          "topic": "Enterprise Application Monitoring: SAP, Mainframe and Packaged Applications",
+          "subtopics": ["SAP monitoring with Dynatrace", "IBM z/OS and CICS tracing", "Packaged applications and middleware", "End-to-end traces across old and new systems", "Business transactions on legacy systems", "Extensions for enterprise software", "Ownership across teams", "Limits of legacy monitoring"],
+          "tools": ["Dynatrace SAP monitoring", "z/OS monitoring", "Extensions"],
+          "lab_task": "Trace a request from the shop front end into a seeded legacy order system, monitor its middleware and build a dashboard for the business transaction.",
+          "deliverable": "End-to-end trace and business dashboard",
+          "checks": [["Trace", "The request is followed into the legacy system", "Trace view"], ["Monitor", "Middleware health is visible", "Dashboard"], ["Show", "The business transaction dashboard shows volume and errors", "Dashboard"]],
+          "objectives": ["Monitor enterprise applications", "Trace across old and new systems", "Show business transactions"]
+        },
+        {
+          "topic": "Cost and Consumption: Dynatrace Platform Subscription and Usage",
+          "subtopics": ["Dynatrace Platform Subscription", "Capabilities and rate cards", "Host and pod monitoring consumption", "Log, span and query consumption", "Cost allocation to teams", "Budgets and alerts", "Optimising consumption", "Usage reports for leadership"],
+          "tools": ["Account Management", "Cost and usage analysis", "DQL"],
+          "lab_task": "Analyse a month of consumption by capability and team, set a budget alert, find three savings and report the result.",
+          "deliverable": "Consumption report with savings",
+          "checks": [["Analyse", "Consumption is split by capability and team", "Usage report"], ["Alert", "A budget alert fires at the threshold", "Alert record"], ["Save", "Three savings are estimated", "Savings list"]],
+          "objectives": ["Understand Dynatrace consumption", "Allocate cost", "Optimise usage"]
+        },
+        {
+          "topic": "Security Analytics in Grail: Investigations, Posture and Threat Observability",
+          "subtopics": ["Security data in Grail", "Security investigations with DQL", "Threat detection on logs and events", "Kubernetes and cloud posture findings", "Third-party security data", "Security workflows", "Evidence and retention", "Working with the security team"],
+          "tools": ["Investigations app", "Security posture management", "Workflows"],
+          "lab_task": "Investigate a seeded credential attack across logs and spans with DQL, review posture findings for the cluster and automate a response workflow.",
+          "deliverable": "Investigation record and response workflow",
+          "checks": [["Investigate", "The attack path is reconstructed", "Investigation notes"], ["Review", "Posture findings are triaged", "Findings list"], ["Respond", "The workflow runs on the attack event", "Workflow run"]],
+          "objectives": ["Investigate threats in Grail", "Review security posture", "Automate security responses"]
+        },
+        {
+          "topic": "Dynatrace Associate and Professional Exam Preparation",
+          "subtopics": ["The Dynatrace University certification path", "Associate exam topics: platform, problems, DQL and Workflows", "Professional exam topics and practical tasks", "Passing marks and retake rules", "Mapping course days to exam topics", "Practice questions", "Practice tasks in a lab environment", "Review plan for weak areas"],
+          "tools": ["Dynatrace University", "Practice environment", "Course labs"],
+          "lab_task": "Take a timed Associate practice set and three Professional-style tasks, map every miss to a course day and complete a review plan.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "The practice set and tasks are completed under time limits", "Score sheet"], ["Map", "Each miss is mapped to a course day", "Error log"], ["Plan", "The review plan covers the weakest topics", "Review plan"]],
+          "objectives": ["Prepare for the Associate exam", "Prepare for the Professional exam", "Plan focused review"]
+        },
+        {
+          "topic": "Intermediate Capstone: Automated Observability Platform for the Microservice Shop",
+          "subtopics": ["OpenPipeline, buckets and DQL", "Monaco, Terraform and Workflows", "Kubernetes, databases and queues", "Release validation and consumption control"],
+          "tools": ["Dynatrace SaaS", "OpenPipeline", "Monaco", "Workflows"],
+          "lab_task": "Run Dynatrace for three teams with pipelines and buckets, configuration as code, Kubernetes and data service monitoring, business flows, automated remediation, release validation and a consumption report.",
+          "deliverable": "Team platform demo with evidence",
+          "checks": [["Automate", "Configuration and responses run from code and Workflows", "Repository and run history"], ["Observe", "Each team finds the cause of a seeded problem", "Investigation records"], ["Control", "Consumption is within budget", "Usage report"]],
+          "objectives": ["Combine intermediate Dynatrace skills", "Serve several teams", "Run Dynatrace with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For observability leads and architects who run Dynatrace across an enterprise. Covers architecture for large enterprises, Grail data architecture, large-scale rollouts, moving from Managed and classic features to the latest platform, agentic operations with Dynatrace Intelligence agents and the MCP server, autonomous remediation, AI observability, regulated environments, platform engineering with Dynatrace, building apps with AppEngine, business observability, cost and carbon optimisation, hybrid and multi-cloud strategy, security operations, SLO programmes, high-volume analytics, ITSM and CI/CD integrations, a centre of excellence and troubleshooting at scale.",
+      "prerequisites": ["Runs Dynatrace for several teams in production", "Manages Dynatrace configuration as code", "Responsible for observability strategy, cost or compliance"],
+      "outcomes": ["Design Dynatrace environments, Grail data and rollouts for an enterprise", "Run agentic operations and autonomous remediation with guardrails", "Build apps, business observability and AI observability on the platform", "Govern cost, security, integrations and a centre of excellence"],
+      "days": [
+        {
+          "topic": "Dynatrace Architecture for Large Enterprises: Environments, Tenants and Data Governance",
+          "subtopics": ["One environment or several", "Separating production, test and regulated units", "ActiveGate architecture and network zones", "Data ownership and governance", "Naming and tagging standards", "Cross-environment views", "Failure modes and dependencies", "Architecture reviews"],
+          "tools": ["Account Management", "Network zones", "ActiveGate"],
+          "lab_task": "Design the Dynatrace layout for a company with three regions and a regulated unit, place ActiveGates in network zones and defend the design in a review.",
+          "deliverable": "Enterprise architecture and review record",
+          "checks": [["Design", "Environments, zones and ActiveGates are defined", "Architecture diagram"], ["Separate", "Regulated data stays in its environment", "Data flow diagram"], ["Defend", "The review records decisions and risks", "Review record"]],
+          "objectives": ["Design Dynatrace estates", "Plan network zones", "Defend architecture decisions"]
+        },
+        {
+          "topic": "Grail Data Architecture: Buckets, Segments, Retention and Permissions",
+          "subtopics": ["Bucket strategy for an enterprise", "Retention by data value and regulation", "Segments for teams and products", "Security context and record-level permissions", "Data deletion and privacy duties", "Query cost by design", "Bucket naming and ownership", "Reviewing data growth"],
+          "tools": ["Grail buckets", "Segments", "IAM policies"],
+          "lab_task": "Design buckets, segments and record-level permissions for ten teams, apply retention by data type and prove that teams see only their data.",
+          "deliverable": "Grail data design with access tests",
+          "checks": [["Design", "Buckets and segments cover all teams", "Data design"], ["Retain", "Retention matches data type and rules", "Bucket settings"], ["Prove", "Access tests show each team only its data", "Test results"]],
+          "objectives": ["Design Grail data", "Set retention by value", "Control record-level access"]
+        },
+        {
+          "topic": "Large-Scale Rollout and Deployment Automation for OneAgent",
+          "subtopics": ["Rollout waves", "Automated OneAgent installation with configuration management", "Host groups and naming at scale", "Monitoring modes per server tier", "OneAgent updates and maintenance windows", "Rollout dashboards", "Communication with application teams", "Measuring rollout coverage"],
+          "tools": ["OneAgent", "Ansible or another configuration tool", "Monaco"],
+          "lab_task": "Plan a three-wave rollout to 2,000 hosts, automate installation with configuration management, control updates and report coverage after the first wave.",
+          "deliverable": "Rollout plan, automation and coverage report",
+          "checks": [["Plan", "Waves, modes and host groups are defined", "Rollout plan"], ["Automate", "Installation runs without manual steps", "Automation run"], ["Cover", "Coverage after the first wave is reported", "Coverage dashboard"]],
+          "objectives": ["Roll out Dynatrace at scale", "Automate installation", "Measure coverage"]
+        },
+        {
+          "topic": "Moving from Dynatrace Managed and Classic Features to the Latest Platform",
+          "subtopics": ["Differences between Managed and SaaS", "Classic features and their replacements", "Upgrading dashboards and alerting", "Moving from classic logs to Grail", "Moving metric queries to DQL", "Migration tools and their limits", "Training users on the new apps", "Running old and new in parallel"],
+          "tools": ["Migration tools", "Monaco", "DQL"],
+          "lab_task": "Migrate a team's classic dashboards, alerting profiles and log queries to the latest apps and DQL, run both in parallel for a week and compare results.",
+          "deliverable": "Migration plan with parallel-run results",
+          "checks": [["Migrate", "Dashboards and alerts work in the new apps", "Comparison"], ["Translate", "Log and metric queries return the same answers in DQL", "Query comparison"], ["Plan", "The cutover plan has dates and owners", "Migration plan"]],
+          "objectives": ["Move to the latest Dynatrace platform", "Translate queries to DQL", "Run old and new in parallel"]
+        },
+        {
+          "topic": "Agentic Operations: Dynatrace Intelligence Agents, MCP Server and Guardrails",
+          "subtopics": ["Agentic operations concepts", "Specialised agents working together", "Grounding agents in Grail and Smartscape facts", "The MCP server for external agents", "Guardrails and approvals", "Evaluating agents with replayed problems", "Audit of agent actions", "Organisational readiness"],
+          "tools": ["Dynatrace Intelligence agents", "Dynatrace MCP server", "Workflows", "Audit logs"],
+          "lab_task": "Evaluate Dynatrace agents on fifteen replayed problems, connect an external agent through the MCP server, define guardrails and decide which actions may run without a human.",
+          "deliverable": "Agent evaluation and guardrail policy",
+          "checks": [["Evaluate", "Agents are scored on correct diagnosis and safe actions", "Evaluation report"], ["Connect", "The external agent works within its permissions", "MCP transcript"], ["Decide", "Unattended actions are limited to proven cases", "Decision record"]],
+          "objectives": ["Run agentic operations", "Set guardrails", "Decide where agents act alone"]
+        },
+        {
+          "topic": "Autonomous Remediation with Workflows and Approval Gates",
+          "subtopics": ["Remediation patterns for common problems", "Workflows triggered by problems", "Calling external tools and runbooks", "Approval gates by risk", "Verifying the result of a fix", "Rollback when remediation fails", "Measuring remediation success", "Keeping responders informed"],
+          "tools": ["Workflows", "AutomationEngine", "Connections"],
+          "lab_task": "Build remediation workflows for three common problems with approval gates by risk, verify each fix with DQL and roll back when verification fails.",
+          "deliverable": "Remediation workflows with verification",
+          "checks": [["Remediate", "Each problem is fixed by its workflow", "Run history"], ["Verify", "Fixes are checked with DQL before closing", "Verification step output"], ["Roll back", "A failed fix is rolled back", "Rollback record"]],
+          "objectives": ["Automate remediation", "Gate risky actions", "Verify fixes"]
+        },
+        {
+          "topic": "AI Observability: LLMs, Agents and GPU Workloads",
+          "subtopics": ["Monitoring LLM applications", "Tracing agents and tool calls", "Token use and cost", "Quality and safety signals", "GPU and model serving metrics", "OpenTelemetry for generative AI", "Guardrails and compliance", "Release gates for model changes"],
+          "tools": ["Dynatrace AI Observability", "OpenTelemetry", "GPU monitoring"],
+          "lab_task": "Monitor an AI assistant with tool calls and a self-hosted model, track token cost and GPU use, detect a quality drop and gate a model change on the results.",
+          "deliverable": "AI observability with a release gate",
+          "checks": [["Trace", "Agent steps and tool calls are traced", "Trace view"], ["Measure", "Token cost and GPU use are shown", "Dashboard"], ["Gate", "The model change is blocked when quality drops", "Guardian result"]],
+          "objectives": ["Observe AI applications", "Track AI cost", "Gate AI changes"]
+        },
+        {
+          "topic": "Observability for Regulated Industries: Data Privacy, Masking and Audit",
+          "subtopics": ["Regulatory duties for monitoring data", "Data masking at capture and ingest", "Personal data in traces, logs and sessions", "Retention and deletion", "Audit logs and evidence", "Access reviews", "Data residency choices", "Working with compliance teams"],
+          "tools": ["Masking settings", "OpenPipeline", "Audit logs"],
+          "lab_task": "Apply masking rules for personal data across traces, logs and sessions, set retention that meets a deletion duty and produce an audit evidence pack.",
+          "deliverable": "Privacy controls and audit evidence",
+          "checks": [["Mask", "Personal data is masked in every data type", "Data samples"], ["Delete", "Data is removed when its retention ends", "Retention test"], ["Prove", "The evidence pack answers audit questions", "Evidence pack"]],
+          "objectives": ["Protect personal data", "Meet retention duties", "Prepare audit evidence"]
+        },
+        {
+          "topic": "Platform Engineering with Dynatrace: Self-Service Onboarding and Golden Paths",
+          "subtopics": ["Observability as part of the internal platform", "Self-service onboarding for new services", "Golden path templates with monitoring included", "Ownership metadata from catalogues", "Standard dashboards, SLOs and alerts as code", "Feedback for developers", "Measuring adoption", "Supporting teams at scale"],
+          "tools": ["Monaco", "Terraform", "Developer portal", "Workflows"],
+          "lab_task": "Add Dynatrace onboarding to a golden path so new services get ownership, dashboards, SLOs and alerts automatically, and measure time to first useful alert.",
+          "deliverable": "Golden path with built-in observability",
+          "checks": [["Onboard", "A new service gets monitoring without a ticket", "Onboarding run"], ["Own", "Alerts go to the owner from catalogue data", "Notification test"], ["Measure", "Time to first useful alert is recorded", "Timeline"]],
+          "objectives": ["Build observability into golden paths", "Automate onboarding", "Measure adoption"]
+        },
+        {
+          "topic": "Building Dynatrace Apps with AppEngine and the Dynatrace SDK",
+          "subtopics": ["What AppEngine apps can do", "App structure and the Dynatrace SDK", "Querying Grail from apps", "App functions and actions", "Design system components", "Permissions for apps", "Testing and deploying apps", "Sharing apps across environments"],
+          "tools": ["Dynatrace AppEngine", "Dynatrace SDK", "TypeScript"],
+          "lab_task": "Build an app that shows each team its services, open problems and SLO status, with an action that opens a ticket, and deploy it to the environment.",
+          "deliverable": "Working team app",
+          "checks": [["Build", "The app shows services, problems and SLOs for a team", "App screenshot"], ["Act", "The ticket action works with the right permissions", "Ticket record"], ["Deploy", "The app is deployed and used by the team", "Deployment record"]],
+          "objectives": ["Build Dynatrace apps", "Query Grail from code", "Deploy apps safely"]
+        },
+        {
+          "topic": "Business Observability at Scale: Journeys, KPIs and Revenue Impact",
+          "subtopics": ["Business observability strategy", "Customer journeys across systems", "KPIs from business events", "Revenue impact of incidents", "Business dashboards for leaders", "Data quality of business events", "Privacy and governance", "Linking business goals to reliability"],
+          "tools": ["Business events", "Business Flow app", "Dashboards"],
+          "lab_task": "Model three customer journeys across systems, report revenue impact for a seeded incident and present a business reliability dashboard to the leadership persona.",
+          "deliverable": "Journey models and revenue impact report",
+          "checks": [["Model", "Journeys span all systems involved", "Business flows"], ["Impact", "Revenue impact of the incident is calculated", "Impact report"], ["Present", "Leaders can read business reliability at a glance", "Dashboard"]],
+          "objectives": ["Run business observability", "Measure revenue impact", "Report to leaders"]
+        },
+        {
+          "topic": "Capacity, Cost and Carbon: Infrastructure Optimisation with Dynatrace",
+          "subtopics": ["Capacity forecasting", "Rightsizing hosts and workloads", "Cost allocation to applications", "Carbon impact of infrastructure", "Idle and wasteful resources", "Optimisation workflows", "Reporting savings", "Balancing reliability and efficiency"],
+          "tools": ["Davis forecasting", "Carbon Impact app", "Cost allocation", "Workflows"],
+          "lab_task": "Find idle and over-provisioned resources, estimate cost and carbon savings, automate a rightsizing recommendation workflow and report the result.",
+          "deliverable": "Optimisation report with automation",
+          "checks": [["Find", "Idle and over-provisioned resources are listed", "Optimisation list"], ["Estimate", "Cost and carbon savings are estimated", "Savings report"], ["Automate", "The recommendation workflow runs on schedule", "Workflow history"]],
+          "objectives": ["Optimise infrastructure", "Report cost and carbon", "Automate recommendations"]
+        },
+        {
+          "topic": "Hybrid and Multi-Cloud Observability Strategy",
+          "subtopics": ["Observability across data centres and clouds", "OneAgent and OpenTelemetry in the strategy", "Standard tags and ownership across sites", "Network paths and dependencies between sites", "Cloud-native and legacy in one view", "Vendor and tool consolidation", "Strategy roadmaps", "Measuring strategy outcomes"],
+          "tools": ["OneAgent", "OpenTelemetry", "Clouds app", "Monaco"],
+          "lab_task": "Write a hybrid observability strategy for a company with two clouds and a data centre, including standards, tool consolidation and a roadmap with measures.",
+          "deliverable": "Observability strategy and roadmap",
+          "checks": [["Standardise", "Standards cover tags, ownership and instrumentation", "Strategy document"], ["Consolidate", "Tool consolidation saves cost with no coverage loss", "Consolidation plan"], ["Measure", "The roadmap has measurable outcomes", "Roadmap"]],
+          "objectives": ["Set hybrid observability strategy", "Consolidate tools", "Plan with measures"]
+        },
+        {
+          "topic": "Security Operations at Scale: Detection, Response and SIEM Integration",
+          "subtopics": ["Security use cases on the platform", "Detection rules and threat findings", "Response workflows", "Sending findings to a SIEM", "Ingesting third-party security data", "Security dashboards", "Measuring detection and response", "Joint operations with the SOC"],
+          "tools": ["Security investigations", "Workflows", "SIEM integration"],
+          "lab_task": "Design security operations for the estate with detections, response workflows and SIEM forwarding, run a joint exercise with the SOC persona and report response times.",
+          "deliverable": "Security operations design and exercise report",
+          "checks": [["Detect", "Detections fire on the exercise attack", "Findings"], ["Respond", "Response workflows run and are logged", "Run history"], ["Report", "Response times are reported", "Exercise report"]],
+          "objectives": ["Run security operations on Dynatrace", "Integrate with the SOC", "Measure response"]
+        },
+        {
+          "topic": "Reliability Engineering at Scale: SLO Programmes and Release Gates",
+          "subtopics": ["SLO standards by service tier", "SLOs as code", "Guardians in every pipeline", "Error budget policies", "Reliability reviews with leadership", "Linking problems to SLOs", "Reliability scorecards", "Measuring programme success"],
+          "tools": ["Service-Level Objectives app", "Site Reliability Guardian", "Monaco"],
+          "lab_task": "Roll out tiered SLOs as code for thirty services, add guardians to every pipeline and run a quarterly reliability review with SLO and problem data.",
+          "deliverable": "SLO programme with a quarterly review",
+          "checks": [["Roll out", "Thirty services have SLOs by tier", "SLO list"], ["Gate", "Every pipeline runs a guardian", "Pipeline runs"], ["Review", "The quarterly review produces actions", "Review record"]],
+          "objectives": ["Run SLO programmes", "Gate every release", "Report reliability to leadership"]
+        },
+        {
+          "topic": "High-Volume Log and Event Analytics: Performance and Query Optimisation",
+          "subtopics": ["Query patterns for large data", "Bucket and time range selection", "Filtering early and limiting fields", "Sampling for exploration", "Pre-aggregation with metrics and events", "Query budgets per team", "Dashboards that scale", "Monitoring query consumption"],
+          "tools": ["DQL", "Grail buckets", "Notebooks"],
+          "lab_task": "Rewrite the five most expensive dashboard queries to scan less data, add pre-aggregated metrics for two of them and show the consumption saving.",
+          "deliverable": "Optimised queries with consumption results",
+          "checks": [["Rewrite", "Rewritten queries give the same answers", "Query comparison"], ["Aggregate", "Pre-aggregated metrics replace raw scans", "Dashboard changes"], ["Save", "Query consumption falls", "Consumption report"]],
+          "objectives": ["Analyse large data efficiently", "Pre-aggregate data", "Control query consumption"]
+        },
+        {
+          "topic": "ITSM and CI/CD Integration: ServiceNow, Jira and Pipelines",
+          "subtopics": ["ServiceNow integration for incidents and CMDB", "Jira integration for problems and fixes", "Deployment events from pipelines", "Quality gates in CI/CD", "Ticket deduplication", "Closing tickets automatically", "Integration monitoring", "Choosing integration patterns"],
+          "tools": ["ServiceNow connector", "Jira connector", "CI pipeline", "Workflows"],
+          "lab_task": "Connect problems to ServiceNow incidents with CMDB data, create Jira issues for fixes, gate a pipeline on Dynatrace data and close tickets automatically when problems resolve.",
+          "deliverable": "Integrated incident and delivery flow",
+          "checks": [["Create", "Problems open one incident each with CMDB context", "ServiceNow records"], ["Gate", "The pipeline stops on a failed quality gate", "Pipeline run"], ["Close", "Tickets close when problems resolve", "Ticket history"]],
+          "objectives": ["Integrate Dynatrace with ITSM", "Integrate with CI/CD", "Automate the ticket lifecycle"]
+        },
+        {
+          "topic": "Governance and a Centre of Excellence for Dynatrace",
+          "subtopics": ["Centre of excellence roles", "Standards and golden templates", "Training and champions", "Onboarding and support model", "Change control for shared configuration", "Adoption and value metrics", "Vendor management", "Roadmaps and feedback"],
+          "tools": ["Monaco", "Training plan", "Adoption dashboards"],
+          "lab_task": "Design a centre of excellence with roles, standards and a support model, onboard a new team with templates and report adoption and value after a month.",
+          "deliverable": "Centre of excellence plan and onboarding report",
+          "checks": [["Design", "Roles, standards and support are defined", "Plan document"], ["Onboard", "The new team is productive within a week", "Onboarding record"], ["Report", "Adoption and value are measured", "Adoption report"]],
+          "objectives": ["Govern Dynatrace use", "Run a centre of excellence", "Measure value"]
+        },
+        {
+          "topic": "Troubleshooting at Scale: Data Gaps, Agent Issues and Query Limits",
+          "subtopics": ["Data gaps across many hosts", "OneAgent update failures", "ActiveGate overload", "Ingest limits and dropped data", "Query limits and timeouts", "Configuration drift", "Escalating to Dynatrace support", "Incident reviews for monitoring problems"],
+          "tools": ["Deployment status", "OneAgent diagnostics", "DQL", "Audit logs"],
+          "lab_task": "Diagnose seeded problems, a data gap on a host group, an overloaded ActiveGate and queries hitting limits, fix them and write an incident review.",
+          "deliverable": "Diagnoses, fixes and an incident review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Fix", "Data and queries work within limits after the fixes", "Monitoring evidence"], ["Review", "The incident review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot Dynatrace at scale", "Handle limits", "Learn from monitoring incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Dynatrace Strategy and Autonomous Operations Design",
+          "subtopics": ["Architecture and data design", "Rollout and migration plan", "Agentic operations and remediation", "Cost, security and governance"],
+          "tools": ["Architecture documents", "Monaco", "Workflows", "Evidence packs"],
+          "lab_task": "Present an enterprise Dynatrace strategy to a review board with the architecture and Grail data design, rollout and migration plan, agentic operations with guardrails, business and AI observability, cost and security plans and the centre of excellence.",
+          "deliverable": "Strategy with evidence and a board decision",
+          "checks": [["Design", "Architecture and data design pass review", "Review record"], ["Automate", "Agent and remediation guardrails are tested", "Test evidence"], ["Govern", "Cost, security and governance plans have owners", "Plan documents"]],
+          "objectives": ["Combine advanced Dynatrace skills", "Design autonomous operations", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}

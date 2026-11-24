@@ -76,7 +76,7 @@ class LabCostRequest(BaseModel):
     cloud_region: Optional[str] = None
     # Use the standard three-hour daily lab block when the requirement omits
     # lab hours; participant count is still required for a priced total.
-    hours_per_day: Optional[float] = 3
+    hours_per_day: Optional[float] = None
     participant_count: Optional[int] = None
     fx_rate: Optional[float] = None
     contingency_percent: float = 10
@@ -243,7 +243,7 @@ async def list_lab_cost_requests(limit: int = Query(default=100, ge=1, le=250), 
          "duration_days": 1, "training_dates": 1, "participant_count": 1,
          "hours_per_day": 1, "cloud_provider": 1, "cloud_region": 1, "status": 1,
          "lab_context": 1, "created_at": 1, "updated_at": 1, "workbook_filename": 1,
-         "pricing_review_required": 1, "rate_change_summary": 1},
+         "pricing_review_required": 1, "rate_change_summary": 1, "lab_client_price": 1},
     ).sort("updated_at", -1).limit(limit)]
     items = []
     for request in requests:
@@ -280,7 +280,7 @@ async def get_lab_cost_request(requirement_id: str, db=Depends(get_db)):
                 "domain", "duration_days", "training_dates", "participant_count", "hours_per_day",
                 "cloud_provider", "cloud_region", "mode", "topics", "custom_topics", "toc_or_topics",
                 "status", "created_at", "updated_at", "workbook_filename", "pricing_review_required",
-                "rate_change_summary",
+                "rate_change_summary", "lab_client_price",
             ) if request.get(key) is not None
         } | {"missing_inputs": context.get("missing_quote_inputs") or [], "known_inputs": context.get("known_inputs") or {}},
         "original_message": {
@@ -933,8 +933,8 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         duration = float(duration)
     except (TypeError, ValueError):
         duration = None
-    if duration is None or not 1 <= duration <= 30:
-        raise HTTPException(422, "Training duration is required before generating a ToC")
+    if duration is None or not 1 <= duration <= 100:
+        raise HTTPException(422, "Training duration of 1 to 100 days is required before generating a ToC")
     training_dates = (
         req.get("training_dates")
         or " to ".join(part for part in [req.get("timeline_start"), req.get("timeline_end")] if part)
@@ -1050,6 +1050,17 @@ async def generate_toc_pdf(payload: TocIdRequest, db: AsyncIOMotorDatabase = Dep
         raise HTTPException(502, str(exc)) from exc
 
 
+@router.get("/lab-cost/agenda/{requirement_id}")
+async def lab_agenda_for_requirement(requirement_id: str, db=Depends(get_db)):
+    from shared.lab_cost_inputs import saved_lab_agenda
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+    from shared.requirement_duration import training_duration
+    saved = await saved_lab_agenda(db, requirement, training_duration(requirement).get("duration_days"))
+    return saved or {}
+
+
 @router.post("/generate-lab-cost")
 async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Generate a formula-driven multi-cloud lab-cost workbook for a TOC."""
@@ -1075,7 +1086,13 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
             raise HTTPException(404, f"TOC not found: {payload.toc_id}")
         toc = _with_toc_metadata(doc["toc"], doc)
 
+    from shared.lab_cost_inputs import lab_quote_scope
+    sample_quote = payload.participant_count is None and toc.get("participant_count") in (None, "")
     try:
+        count = payload.participant_count if payload.participant_count is not None else toc.get("participant_count")
+        toc, payload.participant_count, payload.hours_per_day = lab_quote_scope(toc, count, payload.hours_per_day)
+        if sample_quote and payload.lab_day_mapping:
+            payload.lab_day_mapping = [{**payload.lab_day_mapping[0], "active_days": 1}]
         # USD/INR is refreshed by document-service at quote generation. Use
         # a placeholder only for structural request validation; never require
         # a manual FX value from the user.
@@ -1179,6 +1196,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "cloud_region": payload.cloud_region,
                         "hours_per_day": payload.hours_per_day,
                         "participant_count": payload.participant_count,
+                        "sample_quote": sample_quote,
                         "fx_rate": payload.fx_rate,
                         "contingency_percent": payload.contingency_percent,
                         "tax_percent": payload.tax_percent,

@@ -2,7 +2,7 @@
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 from fastapi import APIRouter, Depends
@@ -90,6 +90,9 @@ async def status(mode: Literal['trainer', 'client'], db=Depends(get_db)):
             config['next_domains'] = list(catalog)
         except ValueError as exc:
             config['catalog_error'] = str(exc)
+    pause = _cooldown_state()
+    if config.get('enabled') and pause:
+        config.update(pause)
     return config
 
 
@@ -126,6 +129,13 @@ async def collect_due(db, mode):
                  'status': 'running', 'last_started': now}})
     if not config:
         return
+    pause = _cooldown_state()
+    if pause:
+        await db['lead_bots'].update_one({'_id': mode, 'lease_token': token}, {
+            '$set': pause,
+            '$unset': {'lease_until': '', 'lease_token': ''},
+        })
+        return
     coverage = {}
     try:
         domains = config['domains']
@@ -161,18 +171,75 @@ async def collect_due(db, mode):
     except Exception as exc:
         outcome = {'status': 'error', 'last_error': str(exc)[:500] or type(exc).__name__, 'found': 0, 'saved': 0,
                    'domain_outcomes': [], 'scan_warnings': [], 'scanned_posts': 0}
+    next_run = (max(datetime.utcnow(), now + timedelta(minutes=10)) if mode == 'client'
+                else datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 60)))
     await db['lead_bots'].update_one({'_id': mode, 'lease_token': token}, {
         '$set': {**outcome, 'last_finished': datetime.utcnow(),
-                 'next_run': max(datetime.utcnow(), now + timedelta(minutes=10)) if mode == 'client'
-                             else datetime.utcnow() + timedelta(minutes=config.get('interval_minutes', 60))},
+                 'next_run': next_run, **(_cooldown_state() or {})},
         '$unset': {'lease_until': '', 'lease_token': ''},
     })
+
+
+async def collect_pending_trainer_searches(db):
+    """Retry a single queued trainer search per cycle without user intervention."""
+    now = datetime.utcnow()
+    task = await db['lead_search_retries'].find_one_and_update(
+        {'mode': 'trainer', 'status': 'queued', 'next_attempt_at': {'$lte': now},
+         '$or': [{'lease_until': {'$exists': False}}, {'lease_until': {'$lte': now}}]},
+        {'$set': {'status': 'running', 'lease_until': now + timedelta(minutes=15), 'updated_at': now}, '$inc': {'attempt_count': 1}},
+        sort=[('next_attempt_at', 1)],
+        return_document=True,
+    )
+    if not task:
+        return
+    try:
+        result = await asyncio.wait_for(search_linkedin_leads(LinkedInLeadSearchRequest(
+            mode='trainer', domains=[task['domain']], location=task.get('location') or '',
+            search_provider='auto', save=True, max_results=60, max_queries=2,
+            queue_retry_on_blocked=False,
+        ), db), timeout=700)
+        blocked = any(str(row.get('status') or '').lower() in {'blocked', 'no_results'} for row in result.get('domain_outcomes') or [])
+        update = {'status': 'queued' if blocked else 'completed', 'last_result': {
+            'found': result.get('found', 0), 'saved': result.get('saved_count', 0),
+        }, 'updated_at': datetime.utcnow()}
+        if blocked:
+            outcome = (result.get('domain_outcomes') or [{}])[0]
+            update['next_attempt_at'] = _retry_after(outcome)
+        await db['lead_search_retries'].update_one({'_id': task['_id']}, {'$set': update, '$unset': {'lease_until': ''}})
+    except Exception as exc:
+        await db['lead_search_retries'].update_one({'_id': task['_id']}, {'$set': {
+            'status': 'queued', 'next_attempt_at': datetime.utcnow() + timedelta(minutes=15),
+            'last_reason': str(exc)[:800], 'updated_at': datetime.utcnow(),
+        }, '$unset': {'lease_until': ''}})
+
+
+def _retry_after(outcome):
+    from app.routes.linkedin_leads import _retry_after_from_outcome
+    return _retry_after_from_outcome(outcome or {})
+
+
+def _cooldown_state():
+    """Schedule blocked collectors after the persisted account cooldown."""
+    state = connection_status()
+    if state.get('state') != 'paused':
+        return None
+    until = datetime.fromisoformat(state['retry_after'])
+    if until.tzinfo is None:
+        until = until.replace(tzinfo=timezone.utc)
+    # MongoDB scheduling elsewhere uses naive UTC datetimes.
+    until = until.astimezone(timezone.utc).replace(tzinfo=None)
+    if until <= datetime.utcnow():
+        return None
+    return {'status': 'paused', 'next_run': until + timedelta(seconds=30),
+            'last_error': state['message']}
 
 
 async def _run_mode(mode):
     while True:
         try:
             db = await get_db()
+            if mode == 'trainer':
+                await collect_pending_trainer_searches(db)
             if mode == 'client':
                 # Upgrade persisted hourly settings without enabling paused bots.
                 await db['lead_bots'].update_one(

@@ -12,6 +12,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
+from app.course_outline import GOLD_EXAMPLE, outline_problems
 from shared.toc_quality import normalize_topic, topic_is_covered
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,39 @@ class AcceptanceCheck(Contract):
     evidence: str
 
 
+class OutlineItem(Contract):
+    text: str
+    children: list[str]
+
+
+class TopicGroup(Contract):
+    heading: str
+    lead: str
+    items: list[OutlineItem]
+
+
+class Principle(Contract):
+    title: str
+    lead: str
+    points: list[str]
+
+
+class LabOutline(Contract):
+    title: str
+    scenario: str
+    lead: str
+    tasks: list[str]
+    verify: list[str]
+    deliverables: list[str]
+
+
+class ModuleOutline(Contract):
+    """Client-facing course-outline content for one module (see app.course_outline)."""
+    topic_groups: list[TopicGroup]
+    principle: Principle
+    lab: LabOutline
+
+
 class PlanModule(Contract):
     title: str
     minutes: int
@@ -61,6 +95,7 @@ class PlanModule(Contract):
     prerequisites: list[str]
     preparation_requirements: list[str]
     client_outcome_indices: list[int]
+    outline: ModuleOutline
 
 
 class PlanDay(Contract):
@@ -139,6 +174,7 @@ def prepare_records(document, source):
             "content_quality_stage": item.get("content_quality_stage") or "source_or_template",
             "content_enrichment_version": item.get("content_enrichment_version") or doc.get("content_enrichment_version") or "",
             "acceptance_checks": item.get("acceptance_checks") or [],
+            "outline": item.get("outline") if isinstance(item.get("outline"), dict) else {},
             "source_verification": item.get("source_verification") or "Not independently verified",
             "track": item.get("track") or "",
             "source_file": doc.get("source_file") or source,
@@ -333,6 +369,9 @@ def validate_plan(plan, brief, request, sources):
                 errors.append(f"Day {day.day} module needs valid dataset source IDs")
             if any(not str(getattr(module, key)).strip() for key in ("lab", "assessment", "deliverable", "scenario")) or not module.learning_objectives:
                 errors.append(f"Day {day.day} module needs a lab, deliverable, scenario, outcomes and assessment")
+            outline_issues = outline_problems(module.outline.model_dump())
+            if outline_issues:
+                errors.append(f"Day {day.day} module '{module.title}' needs a complete course outline: " + "; ".join(outline_issues))
         if any(n < 1 or n >= day.day for n in day.prerequisite_days):
             errors.append(f"Day {day.day} has an invalid prerequisite order")
         if not day.subtopics or not day.tools or len(day.lab.strip()) < 20 or len(day.learning_objectives) < 2 or len(day.assessment.strip()) < 10:
@@ -408,10 +447,19 @@ async def generate_reasoned_toc(request, client, settings, db=None):
         "Use at least ten minutes per subtopic plus 45 minutes lab and 15 minutes assessment, within supplied daily hours. "
         "Do not invent dates, versions, client approval, certifications or participant facts. "
         "State missing evidence, assumptions and feasibility conflicts as clarification questions."
+        " Each module also needs an outline written as a professional client course outline: "
+        "topic_groups are named groups of related topics (for example 'Evidence-First Prompting'), each with an optional lead sentence and items; "
+        "an item may have children for its sub-topics. Name concrete concepts, commands, configurations, failure modes and decisions; never filler such as "
+        "'terminology and scope', 'best practices' or 'key components'. subtopics must list the same items as topic_groups. "
+        "principle states one guiding engineering principle with ordered points when the module has one, otherwise leave title, lead and points empty. "
+        "lab is a named, realistic exercise: title, a scenario describing the starting situation and sample assets, a lead line and the participant tasks, "
+        "verify lists observable checks participants confirm, and deliverables lists the concrete artefacts they hand in. "
+        "Follow the style of this example module and do not copy its content: " + json.dumps(GOLD_EXAMPLE, ensure_ascii=False) + "."
         " Source URLs identify concept references, not evidence that a lab has run. Preserve specific acceptance checks and preparation requirements from authored pilots when relevant. Do not turn a narrow successful exercise into a claim of mastery of the whole domain."
     )
-    output_budget = (min(18000, 2000 + int(request.duration_days)*700) if using_ollama
-                     else min(40000, 3000 + int(request.duration_days)*1400))
+    # Course outlines roughly double the text per module.
+    output_budget = (min(28000, 2000 + int(request.duration_days)*1200) if using_ollama
+                     else min(64000, 3000 + int(request.duration_days)*2400))
     plan = await structured(client, model, CurriculumPlan, instructions, data, output_budget)
     errors, coverage = validate_plan(plan, brief, request, sources)
     for repair_attempt in range(2):
@@ -469,6 +517,10 @@ async def generate_reasoned_toc(request, client, settings, db=None):
     })
     from app.toc_generation_agent import _business_dates, _training_start_date
     dates = _business_dates(_training_start_date(request.training_dates or ""), len(toc["days"]))
+    for day in toc["days"]:
+        for module in day.get("modules") or []:
+            if isinstance(module.get("outline"), dict):
+                module["outline"]["source"] = "model_draft"
     for index, day in enumerate(toc["days"]):
         day["title"] = f"Day {day['day']}: {day['focus_area']}"
         if index < len(dates):

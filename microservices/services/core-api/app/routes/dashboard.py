@@ -235,15 +235,14 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     new_req_week = await db["requirements"].count_documents({"created_at": {"$gte": week_ago}})
 
     # Trainers
-    # Resume uploads create rows in both `trainers` and `resume_uploads` in the
-    # normal path, but older/imported data can exist only as upload records or
-    # discovered trainer leads. Keep the headline inventory from dropping to 0
-    # when profile data exists outside the confirmed trainers collection.
+    # The headline must represent actual TrainerSync trainer records. Resume
+    # uploads can be reprocessed and LinkedIn profile leads are unverified
+    # discoveries, so neither is a reliable count of real trainers.
     confirmed_trainers = await db["trainers"].count_documents({})
     uploaded_resume_records = await db["resume_uploads"].count_documents({})
     trainer_leads = await db["trainer_profile_leads"].count_documents({})
     recent_trainer_leads = await recent_lead_cards(db, "trainer_profile_leads", TRAINER_LEAD_FIELDS)
-    total_trainers = max(confirmed_trainers, uploaded_resume_records, trainer_leads)
+    total_trainers = confirmed_trainers
     new_confirmed_trainers_week = await db["trainers"].count_documents({"created_at": {"$gte": week_ago}})
     new_uploaded_resumes_week = await db["resume_uploads"].count_documents({"created_at": {"$gte": week_ago}})
     new_trainer_leads_week = await db["trainer_profile_leads"].count_documents({"created_at": {"$gte": week_ago}})

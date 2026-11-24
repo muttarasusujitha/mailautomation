@@ -23,7 +23,7 @@
           "objectives": ["Describe the Now Platform", "Set up a practice instance", "Navigate the interface"]
         },
         {
-          "topic": "Users, Groups and Roles",
+          "topic": "ServiceNow Users, Groups and Roles",
           "subtopics": ["User records", "Groups and group membership", "Roles and role inheritance", "The admin, itil and catalog_admin roles", "Assignment groups", "Delegation", "User administration with LDAP and SSO in brief", "Testing access by impersonation"],
           "tools": ["ServiceNow", "User Administration"],
           "lab_task": "Create three support groups with managers, assign roles through groups instead of to users, give one group an extra role through inheritance and check access by impersonating members.",
@@ -50,7 +50,7 @@
           "objectives": ["Configure forms", "Configure lists", "Tell personalisation from configuration"]
         },
         {
-          "topic": "Incident Management",
+          "topic": "Incident Management in ServiceNow",
           "subtopics": ["Incident process in ServiceNow", "Incident states and fields", "Priority from impact and urgency", "Assignment rules", "Work notes and additional comments", "Major incidents", "Resolution and closure", "Incident reports"],
           "tools": ["ServiceNow ITSM", "Incident module"],
           "lab_task": "Log, assign, work and resolve five incidents including a major incident, set up an assignment rule by category and show how priority follows impact and urgency.",
@@ -77,7 +77,7 @@
           "objectives": ["Build catalog items", "Add approvals", "Fulfil requests"]
         },
         {
-          "topic": "Knowledge Management",
+          "topic": "Knowledge Management in ServiceNow",
           "subtopics": ["Knowledge bases", "Articles and templates", "Article lifecycle and approval", "User criteria for access", "Feedback and ratings", "Knowledge in the portal and in incidents", "Retiring articles", "Knowledge reports"],
           "tools": ["ServiceNow", "Knowledge Management"],
           "lab_task": "Create a knowledge base for IT with user criteria, write three articles from templates, publish them through approval and attach an article to an incident to resolve it.",
@@ -104,7 +104,7 @@
           "objectives": ["Configure notifications", "Process inbound email", "Control email volume"]
         },
         {
-          "topic": "Reports and Dashboards",
+          "topic": "ServiceNow Reports and Dashboards",
           "subtopics": ["Report types", "Data sources and conditions", "Grouping and stacking", "Scheduled reports", "Dashboards and Platform Analytics workspaces", "Sharing reports", "Report security", "Choosing the right visual"],
           "tools": ["ServiceNow Reports", "Dashboards"],
           "lab_task": "Build reports for open incidents by priority, mean time to resolve by group and changes by risk, combine them in a dashboard for the service desk manager and schedule a weekly email.",
@@ -210,7 +210,7 @@
           "objectives": ["Query with GlideRecord", "Aggregate data", "Script safely"]
         },
         {
-          "topic": "Business Rules",
+          "topic": "ServiceNow Business Rules",
           "subtopics": ["Before, after, async and display rules", "When rules run: insert, update, delete and query", "current and previous objects", "Conditions and filter conditions", "Aborting actions", "Display rules and g_scratchpad", "Order and recursion", "Choosing business rules or flows"],
           "tools": ["Business Rules", "Script Editor"],
           "lab_task": "Write a before rule that sets priority for VIP callers, an after rule that creates a follow-up task, an async rule that calls a slow service and a display rule that passes data to the form.",

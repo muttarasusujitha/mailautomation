@@ -1,5 +1,59 @@
 """Clahan-owned offers and margin calculations, independent of email wording."""
+import re
+
 from shared.requirement_duration import positive_number, training_duration
+
+
+def commercial_breakdown(requirement):
+    """Keep the client-facing training and lab commercials distinct.
+
+    A client can quote one budget for the complete engagement.  Only when the
+    requirement explicitly says that this budget covers labs do we subtract the
+    client lab workbook value before calculating the trainer's 70% share.
+    This avoids silently reducing a training commercial that was quoted
+    separately from the lab.
+    """
+    requirement = requirement or {}
+    lab_amount = next((positive_number(requirement.get(key)) for key in (
+        "lab_client_price", "lab_quote_amount",
+    ) if positive_number(requirement.get(key))), 0.0) or 0.0
+    training_amount = next((positive_number(requirement.get(key)) for key in (
+        "training_commercial_amount", "training_commercial", "client_training_amount",
+    ) if positive_number(requirement.get(key))), None)
+    total_budget = next((positive_number(requirement.get(key)) for key in (
+        "client_commercial_total", "total_commercial", "commercial_amount", "client_budget", "budget_total",
+    ) if positive_number(requirement.get(key))), None)
+    source_text = " ".join(str(requirement.get(key) or "") for key in (
+        "requirement_source_text", "client_requirement_text", "commercial_notes",
+    ))
+    covers_lab = bool(requirement.get("client_budget_includes_lab")) or str(
+        requirement.get("commercial_scope") or ""
+    ).lower() in {"combined", "training_and_lab", "training_lab"}
+    # Accept an unambiguous client statement as well as a structured field.
+    if not covers_lab:
+        covers_lab = bool(re.search(
+            r"(?:budget|commercials?|amount|quote).{0,80}(?:include|including|covers?|covering).{0,50}(?:lab|labs|labworkbook|lab workbook)"
+            r"|(?:lab|labs|labworkbook|lab workbook).{0,50}(?:include|including|covered).{0,80}(?:budget|commercials?|amount|quote)",
+            source_text, re.I,
+        ))
+    needs_lab_price = bool(covers_lab and total_budget and not lab_amount)
+    if covers_lab and total_budget and lab_amount:
+        training_amount = total_budget - lab_amount
+    elif training_amount is None:
+        training_amount = total_budget or 0.0
+    invalid = bool(covers_lab and total_budget and lab_amount and training_amount < 0)
+    training_amount = max(float(training_amount or 0), 0.0)
+    total_client_amount = float(total_budget if covers_lab and total_budget else training_amount + lab_amount)
+    return {
+        "training_client_amount": round(training_amount, 2),
+        "lab_client_amount": round(float(lab_amount), 2),
+        "total_client_amount": round(total_client_amount, 2),
+        "trainer_amount": round(training_amount * 0.70, 2),
+        "clahan_training_margin_amount": round(training_amount * 0.30, 2),
+        "budget_includes_lab": covers_lab,
+        "needs_lab_price": needs_lab_price,
+        "invalid": invalid,
+    }
 
 
 def margin_percent(requirement):
@@ -93,10 +147,7 @@ def trainer_offer(requirement, trainer=None):
         # Prefer the confirmed client commercial total when deriving the
         # trainer allocation. Some requirement parsers store that value under
         # a commercial-specific field instead of budget_total.
-        budget = next((positive_number(requirement.get(key)) for key in (
-            "budget_total", "training_commercial_amount", "client_commercial_total",
-            "total_commercial", "commercial_amount",
-        ) if positive_number(requirement.get(key))), None)
+        budget = commercial_breakdown(requirement)["training_client_amount"] or None
         client_rate = (positive_number(requirement.get("client_budget_per_day"))
                        or positive_number(requirement.get("budget_per_day")))
         total = budget * share if budget else None

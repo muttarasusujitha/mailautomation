@@ -1,0 +1,573 @@
+{
+  "domain": "Jira",
+  "name": "Jira for Teams and Administrators",
+  "category": "Project Management",
+  "icon": "clipboard-list",
+  "aliases": ["Jira Software", "Jira Cloud", "Jira Training", "Jira Administration", "Jira Administrator", "Jira Admin", "Jira Service Management", "Jira Service Desk", "Jira Work Management", "Jira Product Discovery", "JQL", "Jira Query Language", "Jira Automation", "Jira Agile", "Atlassian Jira", "ACP-120"],
+  "certifications": ["ACP-120 Jira Administration for Cloud", "ACP-420 Managing Jira Service Projects for Cloud", "ACP-620 Managing Jira Projects for Cloud"],
+  "tools": ["Jira Cloud", "Jira Service Management", "Jira Product Discovery", "JQL", "Jira Automation", "Jira Plans", "Confluence", "Rovo"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For team members, Scrum Masters, product owners and new space admins who are starting with Jira Cloud. Covers spaces and work items (formerly projects and issues), a lab site, work types, fields and hierarchy, Scrum and Kanban boards, JQL, filters and dashboards, workflows, automation, agile reports, timelines and Plans, releases, development tool connections, Jira Service Management, business spaces, Jira Product Discovery, Rovo AI features, space permissions and common problems.",
+      "prerequisites": ["Works in a team that plans and tracks work", "Comfortable with web applications", "No Jira experience needed"],
+      "outcomes": ["Plan and track work with Scrum and Kanban boards, work items and releases", "Find and report on work with JQL, filters, dashboards and agile reports", "Configure simple workflows, automation and space permissions", "Use Jira Service Management, Product Discovery and Rovo features for everyday work"],
+      "days": [
+        {
+          "topic": "Jira Overview: Spaces, Work Items and the Atlassian Cloud",
+          "subtopics": ["Jira, Jira Service Management and Jira Product Discovery", "Spaces, formerly called projects", "Work items, formerly called issues", "Team-managed and company-managed spaces", "Boards, backlogs and timelines", "The Atlassian cloud platform and Rovo", "Cloud plans: Free, Standard, Premium and Enterprise", "Data Center end of life and moving to cloud", "Atlassian certifications for Jira", "Course project overview: a product team and a service desk"],
+          "tools": ["Jira Cloud", "Atlassian documentation", "Course site"],
+          "lab_task": "Tour the course Jira site, open a Scrum space, a Kanban space and a service space, and map which Jira apps and space types the course company needs.",
+          "deliverable": "App and space type map",
+          "checks": [["Find", "One space of each type is opened", "Screenshots"], ["Map", "Needed apps and space types are listed with reasons", "Map"], ["Explain", "Spaces and work items are explained with their old names", "Notes"]],
+          "objectives": ["Describe Jira apps", "Use the new terminology", "Choose space types"]
+        },
+        {
+          "topic": "Lab Setup: Jira Cloud Site, Users and a First Space",
+          "subtopics": ["Creating a free or trial cloud site", "Inviting users and groups", "Product access for users", "Creating a team-managed space from a template", "Creating a company-managed space", "Space settings and leads", "Personal settings and notifications", "The Jira mobile app", "Connecting Confluence", "Checking the lab site is ready"],
+          "tools": ["Jira Cloud", "Atlassian administration", "Confluence"],
+          "lab_task": "Create a cloud site, invite five users into groups, create one team-managed and one company-managed space, set leads and connect Confluence.",
+          "deliverable": "Ready lab site with users and two spaces",
+          "checks": [["Invite", "Users can sign in with the right product access", "User list"], ["Create", "Both spaces exist with leads", "Space list"], ["Connect", "Confluence pages link to Jira work", "Linked page"]],
+          "objectives": ["Set up a Jira site", "Create spaces", "Manage users and access"]
+        },
+        {
+          "topic": "Work Items: Work Types, Fields, Hierarchy and Linking",
+          "subtopics": ["Work types such as epic, story, task, bug and subtask", "The work hierarchy and parent links", "System fields and custom fields", "Labels and components", "Linking work items", "Attachments, comments and mentions", "Watching and voting", "Bulk changes"],
+          "tools": ["Jira Cloud", "Work item view", "Bulk change"],
+          "lab_task": "Create an epic with stories, tasks and subtasks, link a blocking bug, add labels and components and bulk-change ten work items.",
+          "deliverable": "Structured backlog with links",
+          "checks": [["Structure", "Epics, stories and subtasks follow the hierarchy", "Hierarchy view"], ["Link", "The blocking link shows on both items", "Work item view"], ["Bulk", "Ten items are changed in one operation", "Bulk change log"]],
+          "objectives": ["Create and structure work items", "Link related work", "Use bulk changes"]
+        },
+        {
+          "topic": "Scrum Boards: Backlog, Sprints and Estimation",
+          "subtopics": ["Backlog refinement in Jira", "Story points and estimation", "Creating and starting sprints", "Sprint goals", "Moving work during a sprint", "Completing sprints and carrying work over", "Board columns and statuses", "Quick filters and swimlanes"],
+          "tools": ["Scrum board", "Backlog", "Sprints"],
+          "lab_task": "Refine a backlog with estimates, plan and start a sprint with a goal, run it on the board with quick filters and close it with carried-over work.",
+          "deliverable": "Completed sprint with records",
+          "checks": [["Plan", "The sprint has a goal and estimated work", "Sprint report"], ["Run", "Work moves across board columns", "Board history"], ["Close", "Unfinished work moves to the next sprint", "Sprint report"]],
+          "objectives": ["Run Scrum in Jira", "Estimate work", "Manage sprints"]
+        },
+        {
+          "topic": "Kanban Boards: Columns, WIP Limits and Flow",
+          "subtopics": ["Kanban boards and backlogs", "Column mapping to statuses", "Work-in-progress limits", "Swimlanes and classes of service", "Card layout and colours", "Releasing from Kanban", "Blocked work", "Flow habits for teams"],
+          "tools": ["Kanban board", "Board settings", "Cumulative flow diagram"],
+          "lab_task": "Configure a Kanban board with WIP limits, swimlanes for expedite work and card colours, run a week of seeded work and find the bottleneck.",
+          "deliverable": "Configured Kanban board and flow notes",
+          "checks": [["Configure", "WIP limits and swimlanes work", "Board settings"], ["Flow", "Work moves through the board for a week", "Board history"], ["Find", "The bottleneck column is identified", "Cumulative flow diagram"]],
+          "objectives": ["Run Kanban in Jira", "Limit work in progress", "Find bottlenecks"]
+        },
+        {
+          "topic": "Searching with JQL: Fields, Operators and Functions",
+          "subtopics": ["Basic and JQL search", "Fields, operators and values", "AND, OR and NOT", "Functions such as currentUser and openSprints", "Date searches", "Ordering results", "Searching history with WAS and CHANGED", "Saving searches as filters"],
+          "tools": ["Jira search", "JQL", "Filters"],
+          "lab_task": "Write JQL for your open work, bugs created last week, items that changed status yesterday and work in open sprints, and save them as filters.",
+          "deliverable": "Saved JQL filters",
+          "checks": [["Write", "Each query returns the expected items", "Search results"], ["History", "WAS and CHANGED queries find past states", "Search results"], ["Save", "Filters are saved and shared with the team", "Filter list"]],
+          "objectives": ["Search with JQL", "Query history", "Save filters"]
+        },
+        {
+          "topic": "Filters, Dashboards and Gadgets",
+          "subtopics": ["Filter sharing and permissions", "Filter subscriptions", "Dashboards and layouts", "Gadgets: filter results, pie charts and created versus resolved", "Two-dimensional statistics", "Sharing dashboards", "Wallboards", "Dashboard housekeeping"],
+          "tools": ["Dashboards", "Gadgets", "Filter subscriptions"],
+          "lab_task": "Build a team dashboard from saved filters with four gadgets, subscribe the team to a weekly filter email and share the dashboard with the stakeholders group.",
+          "deliverable": "Shared team dashboard and subscription",
+          "checks": [["Build", "The dashboard shows four useful gadgets", "Dashboard"], ["Subscribe", "The weekly email arrives", "Subscription email"], ["Share", "Stakeholders can view but not edit", "Sharing settings"]],
+          "objectives": ["Build dashboards", "Share filters", "Inform stakeholders"]
+        },
+        {
+          "topic": "Workflows: Statuses, Transitions and the Workflow Editor",
+          "subtopics": ["Statuses and status categories", "Transitions", "The workflow editor", "Team-managed workflows", "Rules on transitions", "Resolutions", "Workflow and board column mapping", "Changing a workflow safely"],
+          "tools": ["Workflow editor", "Board settings", "Space settings"],
+          "lab_task": "Add a review status and transitions to the team workflow, require a field on one transition, map the board columns and test the flow.",
+          "deliverable": "Updated workflow with tests",
+          "checks": [["Edit", "The new status and transitions work", "Workflow view"], ["Require", "The transition asks for the required field", "Transition test"], ["Map", "Board columns match the statuses", "Board settings"]],
+          "objectives": ["Design workflows", "Add transition rules", "Keep boards in step with workflows"]
+        },
+        {
+          "topic": "Jira Automation: Triggers, Conditions and Actions",
+          "subtopics": ["Automation rules", "Triggers: created, transitioned and scheduled", "Conditions and branches", "Actions: edit, transition, comment and notify", "Smart values", "Rule audit logs", "Templates", "Usage limits by plan"],
+          "tools": ["Jira Automation", "Rule templates", "Audit log"],
+          "lab_task": "Build rules that assign new bugs to the triage lead, close parent stories when subtasks are done and post a weekly summary, then read the audit logs.",
+          "deliverable": "Three working automation rules",
+          "checks": [["Assign", "New bugs are assigned automatically", "Audit log"], ["Close", "Parents close when subtasks are done", "Work item history"], ["Summarise", "The weekly summary is posted", "Message"]],
+          "objectives": ["Automate routine work", "Use smart values", "Monitor rule runs"]
+        },
+        {
+          "topic": "Agile Reports: Burndown, Velocity, Cumulative Flow and Control Chart",
+          "subtopics": ["Sprint burndown", "Velocity", "Sprint report", "Cumulative flow diagram", "Control chart and cycle time", "Epic and release burndown", "Reading reports without blaming people", "Sharing reports in reviews"],
+          "tools": ["Agile reports", "Scrum board", "Kanban board"],
+          "lab_task": "Read the sprint burndown, velocity and control chart for three seeded sprints, explain what went wrong in one sprint and present two improvements.",
+          "deliverable": "Report analysis and improvement proposals",
+          "checks": [["Read", "Each report is explained correctly", "Notes"], ["Explain", "The problem sprint's cause is supported by data", "Analysis"], ["Improve", "Two improvements are proposed with measures", "Proposal"]],
+          "objectives": ["Read agile reports", "Explain delivery problems", "Propose improvements"]
+        },
+        {
+          "topic": "Timelines, Plans and Dependencies",
+          "subtopics": ["The space timeline", "Epics and dates", "Dependencies between work items", "Jira Plans for several teams", "Capacity and releases in Plans", "Scenarios", "Sharing plans", "Keeping timelines current"],
+          "tools": ["Timeline", "Jira Plans", "Dependencies"],
+          "lab_task": "Plan two epics on the timeline with dependencies, build a plan across two teams with capacity and compare two release scenarios.",
+          "deliverable": "Timeline and cross-team plan",
+          "checks": [["Plan", "Epics show dates and dependencies", "Timeline"], ["Capacity", "The plan shows team capacity", "Plan view"], ["Compare", "Two scenarios are compared with a decision", "Scenario comparison"]],
+          "objectives": ["Plan with timelines", "Plan across teams", "Compare scenarios"]
+        },
+        {
+          "topic": "Releases, Versions and Components",
+          "subtopics": ["Versions and release dates", "Fix version field", "Release hub", "Release notes", "Components and component leads", "Releasing and archiving versions", "Release burndown", "Release planning habits"],
+          "tools": ["Releases", "Components", "Release notes"],
+          "lab_task": "Create two versions, assign work, generate release notes, release one version with unfinished work moved and set component leads.",
+          "deliverable": "Released version with notes",
+          "checks": [["Plan", "Work is assigned to versions", "Release hub"], ["Release", "The version is released with notes", "Release notes"], ["Lead", "Components assign work to their leads", "Assignment test"]],
+          "objectives": ["Manage releases", "Use components", "Publish release notes"]
+        },
+        {
+          "topic": "Connecting Development Tools: Bitbucket, GitHub, GitLab and Confluence",
+          "subtopics": ["The development panel", "Linking commits, branches and pull requests", "Smart commits", "Deployment tracking", "Confluence pages and requirements", "Linking Jira and Confluence", "Automation from development events", "Security of connected apps"],
+          "tools": ["Jira Cloud", "GitHub or Bitbucket", "Confluence"],
+          "lab_task": "Connect a code repository, link commits and a pull request to work items, move work with an automation rule on merge and link a requirements page in Confluence.",
+          "deliverable": "Connected development flow",
+          "checks": [["Link", "Commits and pull requests show on work items", "Development panel"], ["Automate", "Merging moves the work item", "Audit log"], ["Document", "The requirements page links to the epic", "Linked page"]],
+          "objectives": ["Connect development tools", "Use development data", "Link documentation"]
+        },
+        {
+          "topic": "Jira Service Management: Requests, Queues and SLAs",
+          "subtopics": ["Service spaces", "Request types and the portal", "Queues for agents", "SLAs and goals", "Customers and organisations", "Knowledge base with Confluence", "Notifications to customers", "Service reports"],
+          "tools": ["Jira Service Management", "Customer portal", "Confluence knowledge base"],
+          "lab_task": "Create a service space with three request types, queues and two SLAs, raise requests from the portal as customers and resolve them as agents.",
+          "deliverable": "Working service desk",
+          "checks": [["Request", "Customers raise requests through the portal", "Portal history"], ["Queue", "Agents work from queues", "Queue view"], ["Measure", "SLAs track response and resolution", "SLA report"]],
+          "objectives": ["Run a service desk", "Use queues and SLAs", "Serve customers through a portal"]
+        },
+        {
+          "topic": "Business Spaces for Non-Software Teams",
+          "subtopics": ["Templates for HR, marketing and finance", "List, calendar and form views", "Approvals in business spaces", "Forms for requests", "Simple workflows", "Automation for business teams", "Reporting for business work", "When to use Jira or another tool"],
+          "tools": ["Jira business spaces", "Forms", "Calendar view"],
+          "lab_task": "Build a marketing campaign space with a form for requests, a calendar view and an approval step, and run three requests through it.",
+          "deliverable": "Working business space",
+          "checks": [["Request", "The form creates work items", "Form submissions"], ["Approve", "Requests wait for approval", "Approval history"], ["Plan", "The calendar shows campaign dates", "Calendar view"]],
+          "objectives": ["Use Jira for business teams", "Collect requests with forms", "Add approvals"]
+        },
+        {
+          "topic": "Jira Product Discovery: Ideas, Insights and Prioritisation",
+          "subtopics": ["Ideas and fields", "Insights from customers", "Views: list, board, matrix and timeline", "Scoring and prioritisation", "Roadmaps for stakeholders", "Delivery links to Jira work", "Publishing views", "Discovery habits"],
+          "tools": ["Jira Product Discovery", "Views", "Delivery tickets"],
+          "lab_task": "Collect ten ideas with insights, score them, build a prioritisation matrix and a roadmap view, and link the top idea to delivery work.",
+          "deliverable": "Prioritised ideas and roadmap",
+          "checks": [["Collect", "Ideas have linked insights", "Idea list"], ["Prioritise", "Scores rank the ideas", "Matrix view"], ["Deliver", "The top idea links to delivery work", "Delivery panel"]],
+          "objectives": ["Manage product ideas", "Prioritise with evidence", "Link discovery to delivery"]
+        },
+        {
+          "topic": "Rovo and AI in Jira: Summaries, Work Breakdown and Agents",
+          "subtopics": ["Rovo features in Jira", "Summarising work items and comments", "Breaking down epics into work items", "Natural language to JQL", "Rovo agents", "Rovo search across tools", "Checking AI output", "Admin controls for AI features"],
+          "tools": ["Rovo", "Jira Cloud", "Rovo agents"],
+          "lab_task": "Summarise a long work item, break an epic into stories with AI and edit them, turn three questions into JQL and use a Rovo agent for a routine task.",
+          "deliverable": "AI-assisted work with review notes",
+          "checks": [["Summarise", "The summary matches the work item", "Summary and source"], ["Break down", "Generated stories are reviewed and corrected", "Edited stories"], ["Query", "Natural language becomes working JQL", "Search results"]],
+          "objectives": ["Use AI features in Jira", "Check AI output", "Use Rovo agents"]
+        },
+        {
+          "topic": "Space Permissions and Roles for Space Admins",
+          "subtopics": ["Space roles", "Permissions in team-managed spaces", "Permission schemes in company-managed spaces", "Restricting work items with security levels", "Notification schemes", "Granting access to people outside the team", "Reviewing space access", "Common permission mistakes"],
+          "tools": ["Space settings", "Permission schemes", "Security levels"],
+          "lab_task": "Set roles for a space, restrict security bugs to the security group, change notifications for one event and review who can see what.",
+          "deliverable": "Space access configuration and review",
+          "checks": [["Role", "Users have the intended space roles", "Access page"], ["Restrict", "Only the security group sees security bugs", "Access test"], ["Notify", "The changed notification goes to the right people", "Notification test"]],
+          "objectives": ["Manage space access", "Restrict sensitive work", "Control notifications"]
+        },
+        {
+          "topic": "Troubleshooting Common Jira Problems: Missing Work, Board Filters and Automation Failures",
+          "subtopics": ["Work items missing from boards", "Board filter problems", "Permission errors", "Workflow and status mismatches", "Automation rule failures", "Notification problems", "Searching for root causes with JQL", "Getting help from site admins and Atlassian Support"],
+          "tools": ["Board settings", "Audit logs", "JQL"],
+          "lab_task": "Diagnose four seeded problems, missing work on a board, a failing automation rule, a permission error and wrong notifications, fix them and record the steps.",
+          "deliverable": "Fixes and troubleshooting notes",
+          "checks": [["Diagnose", "Each problem's cause is confirmed", "Notes"], ["Fix", "Each problem is resolved", "Before-and-after screenshots"], ["Prevent", "A check or rule prevents each repeat", "Change list"]],
+          "objectives": ["Troubleshoot Jira", "Use audit logs", "Prevent repeat problems"]
+        },
+        {
+          "topic": "Beginner Capstone: Running a Team's Work in Jira for Two Sprints",
+          "subtopics": ["Backlog and sprints", "Workflow and automation", "Dashboards and reports", "Service requests and releases"],
+          "tools": ["Jira Cloud", "Jira Service Management", "Dashboards"],
+          "lab_task": "Run two sprints for the course product team with a refined backlog, workflow and automation, a service desk feeding bugs, a release and a dashboard for stakeholders.",
+          "deliverable": "Two sprints of tracked work with a review",
+          "checks": [["Run", "Both sprints complete with reports", "Sprint reports"], ["Flow", "Service requests become bugs in the backlog", "Linked work items"], ["Report", "Stakeholders read progress on the dashboard", "Dashboard"]],
+          "objectives": ["Combine beginner Jira skills", "Run a team in Jira", "Report progress"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Jira site administrators and senior space admins, aligned with ACP-120 Jira Administration for Cloud. Covers cloud administration, schemes, custom fields and screens, complex workflows, automation at scale, advanced JQL and reporting apps, Jira Plans, scaled agile with Jira Align, Jira Service Management administration, incident and change management, REST APIs, webhooks and Forge apps, Atlassian Guard, data residency and sandboxes, migration from Data Center to cloud, Atlassian Analytics, Marketplace governance, Rovo agents, site governance and exam preparation.",
+      "prerequisites": ["Has managed spaces, boards and workflows in Jira", "Comfortable with JQL and automation", "Supports several teams in one Jira site"],
+      "outcomes": ["Administer Jira Cloud sites with schemes, fields, workflows and automation at scale", "Run Jira Service Management with request types, SLAs, Assets, incidents and changes", "Secure, integrate, migrate and govern Jira with Guard, APIs, Forge and Marketplace controls", "Prepare for the ACP-120 exam"],
+      "days": [
+        {
+          "topic": "Jira Cloud Administration: Organisations, Sites and Product Access",
+          "subtopics": ["Atlassian organisations and sites", "Admin roles: organisation, site and product admins", "Managed accounts and domains", "Groups and product access", "Default access settings", "User lifecycle", "Audit logs for administration", "Billing and plans"],
+          "tools": ["Atlassian Administration", "Groups", "Audit log"],
+          "lab_task": "Verify a domain, set default product access, build group-based access for three departments, deactivate a leaver and review the audit log.",
+          "deliverable": "Configured organisation with access model",
+          "checks": [["Verify", "The domain is verified and accounts are managed", "Domain settings"], ["Grant", "Departments get product access through groups", "Group settings"], ["Remove", "The leaver loses access", "Audit log"]],
+          "objectives": ["Administer Atlassian organisations", "Manage product access", "Audit administration"]
+        },
+        {
+          "topic": "Schemes: Permission, Notification, Work Type and Field Configuration Schemes",
+          "subtopics": ["Company-managed space configuration", "Permission schemes", "Notification schemes", "Work type schemes and work type screen schemes", "Field configuration schemes", "Workflow schemes", "Sharing schemes across spaces", "Changing schemes safely"],
+          "tools": ["Jira administration", "Schemes", "Space settings"],
+          "lab_task": "Build a shared configuration for three spaces with permission, notification, work type, field configuration and workflow schemes, and change one safely.",
+          "deliverable": "Shared scheme configuration",
+          "checks": [["Share", "Three spaces use the shared schemes", "Space configuration"], ["Change", "A scheme change applies without breaking work items", "Change test"], ["Document", "The configuration is documented", "Configuration document"]],
+          "objectives": ["Configure schemes", "Share configuration across spaces", "Change schemes safely"]
+        },
+        {
+          "topic": "Custom Fields and Screens: Contexts, Field Configurations and Performance",
+          "subtopics": ["Custom field types", "Field contexts and defaults", "Screens and screen schemes", "Field configurations: required and hidden fields", "Field options management", "Field sprawl and performance", "Cleaning up unused fields", "Field naming standards"],
+          "tools": ["Custom fields", "Screens", "Field configurations"],
+          "lab_task": "Add three custom fields with contexts, place them on the right screens, make one required for bugs and remove two unused fields safely.",
+          "deliverable": "Field configuration with a clean-up record",
+          "checks": [["Configure", "Fields appear on the right screens", "Screen views"], ["Require", "The field is required only for bugs", "Create test"], ["Clean", "Unused fields are removed without data loss", "Clean-up record"]],
+          "objectives": ["Manage custom fields", "Design screens", "Control field sprawl"]
+        },
+        {
+          "topic": "Complex Workflows: Conditions, Validators, Post Functions and Approvals",
+          "subtopics": ["Workflow design for several teams", "Conditions", "Validators", "Post functions", "Approvals in workflows", "Workflow properties", "Global transitions", "Testing and migrating workflows"],
+          "tools": ["Workflow editor", "Workflow schemes", "Test spaces"],
+          "lab_task": "Design a change workflow with an approval, a validator that requires a test plan, a condition by group and post functions, and test it in a copy space.",
+          "deliverable": "Tested complex workflow",
+          "checks": [["Approve", "The approval step works for approvers only", "Transition test"], ["Validate", "Transitions without a test plan are blocked", "Error message"], ["Test", "All paths pass in the copy space", "Test sheet"]],
+          "objectives": ["Build complex workflows", "Use conditions, validators and post functions", "Test workflows safely"]
+        },
+        {
+          "topic": "Automation at Scale: Global Rules, Smart Values and Usage Limits",
+          "subtopics": ["Global and multi-space rules", "Advanced smart values and functions", "Web requests from rules", "Lookups and branching", "Rule actors and permissions", "Usage limits and monitoring", "Rule libraries and naming", "Debugging rules"],
+          "tools": ["Jira Automation", "Smart values", "Automation usage"],
+          "lab_task": "Build a global rule that escalates stale critical work across spaces, a rule that calls a web service and a usage report that finds the heaviest rules.",
+          "deliverable": "Global rules with a usage review",
+          "checks": [["Escalate", "Stale critical work is escalated in every space", "Audit log"], ["Call", "The web request returns data used by the rule", "Rule log"], ["Review", "The heaviest rules are found and optimised", "Usage report"]],
+          "objectives": ["Run automation at scale", "Use advanced smart values", "Control automation usage"]
+        },
+        {
+          "topic": "Advanced JQL and Reporting Apps",
+          "subtopics": ["Complex JQL queries", "JQL for hierarchy and links", "Reporting gadgets at scale", "Marketplace reporting apps", "Exporting data", "Time in status reporting", "Data accuracy and hygiene", "Performance of heavy filters"],
+          "tools": ["JQL", "Dashboards", "Marketplace reporting apps"],
+          "lab_task": "Write JQL for cross-space hierarchy and link questions, build a time-in-status report and fix a slow dashboard filter.",
+          "deliverable": "Advanced queries and reports",
+          "checks": [["Query", "Cross-space queries return correct results", "Search results"], ["Report", "Time in status is reported per work type", "Report"], ["Tune", "The dashboard loads faster after the fix", "Load time comparison"]],
+          "objectives": ["Write advanced JQL", "Build reports", "Tune heavy filters"]
+        },
+        {
+          "topic": "Jira Plans: Cross-Team Planning, Capacity and Scenarios",
+          "subtopics": ["Plans across many spaces", "Hierarchy above epics", "Teams and capacity", "Releases across spaces", "Dependencies and warnings", "Scenarios", "Sharing plans with leadership", "Keeping plans in step with work"],
+          "tools": ["Jira Plans", "Teams", "Dependencies"],
+          "lab_task": "Build a plan for three teams with an initiative level, capacity, cross-team dependencies and two scenarios, and share it with leadership.",
+          "deliverable": "Cross-team plan with scenarios",
+          "checks": [["Plan", "Initiatives, epics and stories roll up", "Plan hierarchy"], ["Warn", "Dependency and capacity warnings are resolved", "Plan warnings"], ["Share", "Leadership views the plan", "Shared view"]],
+          "objectives": ["Plan across teams", "Manage capacity", "Compare scenarios"]
+        },
+        {
+          "topic": "Scaling Agile in Jira: SAFe, Program Boards and Jira Align",
+          "subtopics": ["Scaled agile frameworks in Jira", "Program increments", "Program boards and dependencies", "Jira Align for enterprise agility", "Connecting Jira and Jira Align", "Portfolio metrics", "Objectives and key results", "When Jira Plans is enough"],
+          "tools": ["Jira Plans", "Jira Align", "Program boards"],
+          "lab_task": "Run a simulated program increment planning for three teams with a program board, objectives and dependencies, and decide whether Jira Plans or Jira Align fits.",
+          "deliverable": "Program increment plan and tool decision",
+          "checks": [["Plan", "Teams commit objectives for the increment", "Objectives list"], ["Depend", "Dependencies show on the program board", "Program board"], ["Decide", "The tool choice is justified", "Decision record"]],
+          "objectives": ["Scale agile in Jira", "Run increment planning", "Choose scaling tools"]
+        },
+        {
+          "topic": "Jira Service Management Administration: Request Types, Portals, SLAs and Assets",
+          "subtopics": ["Request types and forms", "Portal groups and help centre design", "SLA calendars and conditions", "Queues for agent teams", "Assets object schemas", "Linking Assets to requests", "Customer permissions", "Service management reports"],
+          "tools": ["Jira Service Management", "Assets", "Forms"],
+          "lab_task": "Design request types with forms, SLA calendars for two regions, an Assets schema for laptops and link laptop objects to hardware requests.",
+          "deliverable": "Configured service space with Assets",
+          "checks": [["Request", "Forms collect the right data", "Request record"], ["Measure", "SLAs follow regional calendars", "SLA report"], ["Link", "Requests link to laptop objects", "Asset view"]],
+          "objectives": ["Administer Jira Service Management", "Design SLAs", "Use Assets"]
+        },
+        {
+          "topic": "Incident and Change Management in Jira Service Management",
+          "subtopics": ["Incident management workflow", "Alerts and on-call", "Major incidents and conference calls", "Post-incident reviews", "Change requests and risk assessment", "Change calendars and approvals", "Deployment gating from CI/CD", "Problem management"],
+          "tools": ["Jira Service Management", "Alerts and on-call", "Change management"],
+          "lab_task": "Run a major incident from an alert with on-call, write the post-incident review, and push a risky change through approval and a deployment gate.",
+          "deliverable": "Incident record, review and approved change",
+          "checks": [["Respond", "The alert pages on-call and opens an incident", "Incident timeline"], ["Review", "The post-incident review lists actions", "Review record"], ["Gate", "The deployment waits for change approval", "Pipeline and change record"]],
+          "objectives": ["Run incidents in Jira Service Management", "Control changes", "Link delivery to change"]
+        },
+        {
+          "topic": "Integrations and APIs: REST API, Webhooks and Forge Apps",
+          "subtopics": ["The Jira REST API", "Authentication with API tokens and OAuth", "Webhooks", "Forge apps", "Connect apps and their future", "Rate limits", "Integration security", "Choosing an integration approach"],
+          "tools": ["Jira REST API", "Webhooks", "Forge CLI"],
+          "lab_task": "Create and update work items through the REST API, send a webhook to a test endpoint on transition and build a small Forge app panel.",
+          "deliverable": "API scripts, webhook and Forge app",
+          "checks": [["Call", "API calls create and update work items", "API responses"], ["Send", "The webhook fires on transition", "Endpoint log"], ["Build", "The Forge panel shows on work items", "Screenshot"]],
+          "objectives": ["Use Jira APIs", "Use webhooks", "Build Forge apps"]
+        },
+        {
+          "topic": "Atlassian Guard and Security: SSO, SCIM and Data Security Policies",
+          "subtopics": ["Atlassian Guard features", "SAML single sign-on", "User provisioning with SCIM", "Authentication policies", "Data security policies", "IP allow lists", "Mobile app policies", "Security audits"],
+          "tools": ["Atlassian Guard", "Identity provider", "Data security policies"],
+          "lab_task": "Connect SAML single sign-on and SCIM from an identity provider, apply an authentication policy, block exports with a data security policy and audit the setup.",
+          "deliverable": "Secured organisation with audit evidence",
+          "checks": [["Sign in", "Users sign in through the identity provider", "Login test"], ["Provision", "SCIM creates and removes users", "Provisioning log"], ["Protect", "Exports are blocked where the policy applies", "Policy test"]],
+          "objectives": ["Secure Atlassian cloud", "Provision users", "Protect data"]
+        },
+        {
+          "topic": "Data Residency, Backups and Sandboxes",
+          "subtopics": ["Data residency locations", "Moving data between locations", "Backups and restore in cloud", "Sandboxes for testing changes", "Release tracks for controlled updates", "Copying data to sandboxes", "Testing configuration in sandboxes", "Disaster planning for cloud sites"],
+          "tools": ["Atlassian Administration", "Sandboxes", "Backup and restore"],
+          "lab_task": "Pin data to a residency location, create a sandbox, copy a space into it, test a workflow change there and run a backup and restore test.",
+          "deliverable": "Residency, sandbox and restore evidence",
+          "checks": [["Pin", "Data residency is set", "Residency settings"], ["Test", "The workflow change is tested in the sandbox", "Sandbox test"], ["Restore", "Backup and restore succeed", "Restore log"]],
+          "objectives": ["Manage data residency", "Test changes in sandboxes", "Back up cloud data"]
+        },
+        {
+          "topic": "Moving from Jira Data Center to Cloud with the Jira Cloud Migration Assistant",
+          "subtopics": ["Why Data Center customers are moving", "Planning a migration", "The Jira Cloud Migration Assistant", "App assessment and migration", "User and group migration", "Test migrations", "Cutover and downtime", "Post-migration checks"],
+          "tools": ["Jira Cloud Migration Assistant", "App assessment", "Migration plan"],
+          "lab_task": "Assess a seeded Data Center instance, plan apps and users, run a test migration of two spaces with the migration assistant and complete post-migration checks.",
+          "deliverable": "Migration assessment and test migration report",
+          "checks": [["Assess", "Apps and customisations are assessed", "Assessment report"], ["Migrate", "Two spaces migrate with data intact", "Migration report"], ["Check", "Post-migration checks pass", "Checklist"]],
+          "objectives": ["Plan cloud migrations", "Use the migration assistant", "Validate migrated data"]
+        },
+        {
+          "topic": "Atlassian Analytics and the Data Lake",
+          "subtopics": ["Atlassian Analytics", "The Atlassian Data Lake", "Charts and dashboards from Jira data", "Joining Jira and Confluence data", "Delivery and flow metrics", "Sharing analytics", "Data permissions", "Connecting external BI tools"],
+          "tools": ["Atlassian Analytics", "Data Lake", "BI connectors"],
+          "lab_task": "Build an Atlassian Analytics dashboard of cycle time and throughput across spaces, join it with service data and connect an external BI tool.",
+          "deliverable": "Cross-space analytics dashboard",
+          "checks": [["Build", "Cycle time and throughput show by team", "Dashboard"], ["Join", "Service data joins delivery data", "Chart"], ["Connect", "The BI tool reads the data lake", "BI tool view"]],
+          "objectives": ["Use Atlassian Analytics", "Measure flow", "Share analytics safely"]
+        },
+        {
+          "topic": "Marketplace Apps: Evaluation, Security and Governance",
+          "subtopics": ["When to use an app", "Evaluating apps", "Security and data handling of apps", "App access rules", "Licensing and cost", "App requests and approvals", "Removing apps", "App inventories"],
+          "tools": ["Atlassian Marketplace", "App access rules", "App inventory"],
+          "lab_task": "Evaluate two apps for a reporting need against security and cost criteria, set an app access rule and build the app request process.",
+          "deliverable": "App evaluation and governance process",
+          "checks": [["Evaluate", "Both apps are scored on security and cost", "Evaluation sheet"], ["Restrict", "The access rule limits app data access", "Rule settings"], ["Govern", "App requests follow the approval process", "Request record"]],
+          "objectives": ["Evaluate Marketplace apps", "Control app access", "Govern apps"]
+        },
+        {
+          "topic": "Rovo Agents and AI Automation in Jira",
+          "subtopics": ["Rovo agents in Jira workflows", "Building custom agents with Rovo Studio", "Agents in automation rules", "Knowledge sources and permissions", "Reviewing agent output", "Admin controls for AI", "Measuring time saved", "Risks of AI automation"],
+          "tools": ["Rovo", "Rovo Studio", "Jira Automation"],
+          "lab_task": "Build a Rovo agent that drafts acceptance criteria from a story, call it from an automation rule and review ten outputs for quality.",
+          "deliverable": "Agent with automation and a quality review",
+          "checks": [["Build", "The agent drafts acceptance criteria", "Agent output"], ["Automate", "The rule calls the agent on new stories", "Audit log"], ["Review", "At least eight of ten outputs are usable", "Review sheet"]],
+          "objectives": ["Build Rovo agents", "Use agents in automation", "Review AI output"]
+        },
+        {
+          "topic": "Jira Site Governance: Naming, Templates and Space Sprawl",
+          "subtopics": ["Governance roles", "Naming standards for spaces and fields", "Configuration templates", "Space creation requests", "Archiving spaces", "Reducing scheme and field sprawl", "Health checks for the site", "Communicating standards"],
+          "tools": ["Jira administration", "Space archiving", "Health check reports"],
+          "lab_task": "Write governance standards for the site, build a space request process with templates, archive five inactive spaces and run a health check.",
+          "deliverable": "Governance standards and a cleaner site",
+          "checks": [["Standardise", "Naming and template standards are published", "Standards page"], ["Request", "New spaces come through the request process", "Request record"], ["Clean", "Inactive spaces are archived", "Archive list"]],
+          "objectives": ["Govern a Jira site", "Control space sprawl", "Run health checks"]
+        },
+        {
+          "topic": "ACP-120 Jira Administration for Cloud Exam Preparation",
+          "subtopics": ["Exam scope and format", "Organisation and user management topics", "Global configuration topics", "Space configuration topics", "Automation and apps topics", "Checking the current status of related exams", "Practice questions", "Review plan for weak areas"],
+          "tools": ["Atlassian University", "Practice site", "Course notes"],
+          "lab_task": "Take a timed ACP-120 practice set, map every miss to a course day and practise the weakest tasks on the practice site.",
+          "deliverable": "Practice results and review plan",
+          "checks": [["Practise", "A timed practice set is completed", "Score sheet"], ["Map", "Each miss is mapped to a course day", "Error log"], ["Repeat", "The weakest tasks are practised on the site", "Task log"]],
+          "objectives": ["Prepare for ACP-120", "Find weak topics", "Practise admin tasks"]
+        },
+        {
+          "topic": "Intermediate Capstone: Administered Jira Site for Five Teams",
+          "subtopics": ["Access, schemes and fields", "Workflows and automation", "Service management with Assets", "Security, apps and governance"],
+          "tools": ["Jira Cloud", "Jira Service Management", "Atlassian Guard", "Jira Automation"],
+          "lab_task": "Deliver a Jira site for five teams with group access, shared schemes, complex workflows, automation, a service space with Assets, SSO and governance standards, and present it to the IT lead persona.",
+          "deliverable": "Administered site with evidence",
+          "checks": [["Configure", "Teams work in spaces with the shared configuration", "Space configuration"], ["Serve", "The service space meets its SLAs", "SLA report"], ["Secure", "SSO, SCIM and app controls work", "Security tests"]],
+          "objectives": ["Combine intermediate Jira skills", "Administer a multi-team site", "Present with evidence"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For Jira platform owners, enterprise administrators and Atlassian architects. Covers enterprise architecture with several sites and organisations, configuration strategy, performance at scale, enterprise service management, Assets and CMDB design, portfolio management with Jira Align and Plans, delivery metrics, Forge development, data and integration architecture, security and compliance, large migrations from Data Center, instance consolidation, AI at scale with Rovo, the Atlassian platform, adoption programmes, the admin operating model, licensing and cost, advanced troubleshooting and regulated teams.",
+      "prerequisites": ["Administers Jira for a large organisation", "Holds ACP-120 or has equivalent experience", "Responsible for platform design, migration or governance"],
+      "outcomes": ["Design Jira architectures, configuration strategies and service management for large organisations", "Run migrations, consolidations and integrations at scale", "Govern security, compliance, AI and cost", "Lead adoption and the admin operating model"],
+      "days": [
+        {
+          "topic": "Enterprise Jira Architecture: Multiple Sites, Organisations and Federation",
+          "subtopics": ["One site or several", "Organisations and multi-org setups", "Enterprise plan features", "Cross-site search and links", "Identity across sites", "Data residency per site", "Architecture decisions", "Reviewing architecture yearly"],
+          "tools": ["Atlassian Administration", "Architecture diagram tool", "Decision records"],
+          "lab_task": "Design the Jira architecture for a company with three business units and two regulated regions, decide sites and organisations and defend it in a review.",
+          "deliverable": "Architecture and decision records",
+          "checks": [["Design", "Sites, organisations and identity are defined", "Architecture diagram"], ["Comply", "Regulated data stays where required", "Data map"], ["Defend", "The review records decisions and risks", "Review record"]],
+          "objectives": ["Design Jira architecture", "Plan sites and organisations", "Defend decisions"]
+        },
+        {
+          "topic": "Configuration Strategy: Shared Schemes, Standard Workflows and Change Control",
+          "subtopics": ["Standard configurations by team type", "Shared schemes at scale", "Standard workflows", "Exceptions and their cost", "Change control for global configuration", "Testing changes in sandboxes", "Documentation of configuration", "Measuring configuration health"],
+          "tools": ["Jira administration", "Sandboxes", "Configuration documentation"],
+          "lab_task": "Design three standard configurations for software, service and business teams, move ten spaces onto them and run a change through change control.",
+          "deliverable": "Standard configurations and change record",
+          "checks": [["Standardise", "Three standard configurations exist", "Configuration document"], ["Move", "Ten spaces use the standards", "Space configuration report"], ["Control", "The change passes review and sandbox test", "Change record"]],
+          "objectives": ["Set configuration strategy", "Standardise spaces", "Control global changes"]
+        },
+        {
+          "topic": "Performance at Scale: Large Sites, JQL Load and Automation Limits",
+          "subtopics": ["Signs of performance problems", "Large numbers of work items, fields and schemes", "Expensive JQL in filters and boards", "Automation load and limits", "Dashboard performance", "App performance impact", "Clean-up programmes", "Working with Atlassian Support on performance"],
+          "tools": ["Audit logs", "Automation usage", "Site optimisation reports"],
+          "lab_task": "Find the slowest boards, filters and rules on a large seeded site, fix the top five and measure the improvement.",
+          "deliverable": "Performance fixes with measurements",
+          "checks": [["Find", "The slowest items are identified", "Analysis"], ["Fix", "Five fixes are applied", "Change list"], ["Measure", "Load times and rule usage improve", "Before-and-after report"]],
+          "objectives": ["Keep large sites fast", "Tune JQL and automation", "Run clean-up programmes"]
+        },
+        {
+          "topic": "Enterprise Service Management with Jira Service Management",
+          "subtopics": ["Service management beyond IT", "HR, facilities and legal service spaces", "A shared help centre", "Request routing across departments", "Knowledge across departments", "Service catalogues", "Reporting across service teams", "Governance for many service spaces"],
+          "tools": ["Jira Service Management", "Help centre", "Confluence"],
+          "lab_task": "Launch HR and facilities service spaces beside IT with a shared help centre, route requests across departments and report service levels for all three.",
+          "deliverable": "Enterprise service management setup",
+          "checks": [["Launch", "HR and facilities spaces take requests", "Request records"], ["Route", "Cross-department requests reach the right team", "Routing test"], ["Report", "Service levels are reported for all teams", "Service report"]],
+          "objectives": ["Extend service management", "Run a shared help centre", "Report across departments"]
+        },
+        {
+          "topic": "Assets and CMDB Design in Jira Service Management",
+          "subtopics": ["CMDB purpose and scope", "Object schemas and types", "Attributes and references", "Importing assets from discovery and files", "Keeping data accurate", "Assets in automation and requests", "Impact analysis with Assets", "CMDB governance"],
+          "tools": ["Assets", "Imports", "Jira Automation"],
+          "lab_task": "Design a CMDB schema for services, servers and applications, import data from two sources, use it for impact analysis on an incident and set data owners.",
+          "deliverable": "CMDB schema with imports and governance",
+          "checks": [["Design", "The schema links services to servers and applications", "Schema diagram"], ["Import", "Imported objects are accurate", "Import report"], ["Analyse", "Incident impact is found through references", "Impact view"]],
+          "objectives": ["Design a CMDB", "Import and maintain assets", "Use Assets for impact analysis"]
+        },
+        {
+          "topic": "Portfolio Management with Jira Align and Jira Plans",
+          "subtopics": ["Strategy to delivery", "Portfolio hierarchy", "Funding and capacity", "Roadmaps for executives", "Objectives and key results", "Portfolio reviews", "Data quality across teams", "Choosing Jira Align or Plans"],
+          "tools": ["Jira Align", "Jira Plans", "Roadmaps"],
+          "lab_task": "Build a portfolio from strategy themes to epics with capacity and OKRs, run a quarterly portfolio review and recommend tooling.",
+          "deliverable": "Portfolio view and review record",
+          "checks": [["Link", "Strategy themes link to delivery work", "Portfolio hierarchy"], ["Review", "The quarterly review makes funding decisions", "Review record"], ["Recommend", "The tooling choice is justified", "Recommendation"]],
+          "objectives": ["Manage portfolios in Jira", "Link strategy to delivery", "Run portfolio reviews"]
+        },
+        {
+          "topic": "Delivery Metrics Programmes: Flow Metrics, DORA and OKRs",
+          "subtopics": ["Flow metrics: velocity, time, load and efficiency", "DORA metrics from Jira and CI/CD data", "OKRs in Jira", "Metric definitions and ownership", "Avoiding harmful metrics", "Dashboards for leadership", "Improvement cycles", "Data quality"],
+          "tools": ["Atlassian Analytics", "Jira Plans", "CI/CD data"],
+          "lab_task": "Define flow and DORA metrics for five teams from Jira and pipeline data, build a leadership dashboard and run one improvement cycle.",
+          "deliverable": "Metrics programme with an improvement cycle",
+          "checks": [["Define", "Metrics have owners and definitions", "Metric register"], ["Build", "The leadership dashboard shows trends", "Dashboard"], ["Improve", "The improvement cycle changes one metric", "Before-and-after data"]],
+          "objectives": ["Run delivery metrics programmes", "Use flow and DORA metrics", "Improve with data"]
+        },
+        {
+          "topic": "Forge App Development for Enterprise Needs",
+          "subtopics": ["Forge architecture", "UI Kit and Custom UI", "Storage and secrets", "Triggers and scheduled functions", "Permissions and scopes", "Testing Forge apps", "Deploying across environments", "Supporting internal apps"],
+          "tools": ["Forge CLI", "UI Kit", "Forge storage"],
+          "lab_task": "Build a Forge app that adds a risk panel to work items, stores scores, runs a scheduled check and deploys from development to production.",
+          "deliverable": "Deployed internal Forge app",
+          "checks": [["Build", "The risk panel shows on work items", "Screenshot"], ["Schedule", "The scheduled check updates scores", "Function log"], ["Deploy", "The app runs in production with minimal scopes", "Deployment record"]],
+          "objectives": ["Build Forge apps", "Use triggers and storage", "Deploy internal apps"]
+        },
+        {
+          "topic": "Data and Integration Architecture: Jira as a Source for BI and ITSM",
+          "subtopics": ["Jira data for reporting", "Data lake and exports", "Integration with ServiceNow and other ITSM tools", "Integration with CRM and support tools", "Event-driven integration with webhooks", "Master data and duplicates", "Integration monitoring", "Integration catalogue"],
+          "tools": ["Jira REST API", "Webhooks", "Data Lake", "Integration platform"],
+          "lab_task": "Design the integration architecture for Jira with BI, an ITSM tool and a CRM, build one event-driven flow and set up monitoring.",
+          "deliverable": "Integration architecture with one live flow",
+          "checks": [["Design", "Each integration has a pattern and owner", "Integration catalogue"], ["Build", "The event-driven flow syncs records", "Flow log"], ["Monitor", "Failures raise alerts", "Alert test"]],
+          "objectives": ["Design Jira integrations", "Feed BI from Jira", "Monitor integrations"]
+        },
+        {
+          "topic": "Security, Compliance and Audit: Audit Logs, Data Retention and eDiscovery",
+          "subtopics": ["Security model review", "Audit logs and their export", "Data retention and deletion", "Legal holds and eDiscovery needs", "Sensitive data in work items", "Compliance certifications of the cloud platform", "Access reviews", "Evidence for auditors"],
+          "tools": ["Audit logs", "Data retention settings", "Atlassian Guard"],
+          "lab_task": "Review access for a regulated space, set retention rules, export audit logs for an audit request and find sensitive data in work items.",
+          "deliverable": "Access review, retention rules and audit evidence",
+          "checks": [["Review", "Access is reviewed and corrected", "Access review"], ["Retain", "Retention rules apply as defined", "Retention settings"], ["Prove", "The audit request is answered with evidence", "Evidence pack"]],
+          "objectives": ["Secure regulated Jira use", "Manage retention", "Answer audit requests"]
+        },
+        {
+          "topic": "Large-Scale Migration Programmes: Data Center to Cloud",
+          "subtopics": ["Migration programme structure", "Wave planning", "App migration paths", "Users, groups and identity", "Customisation clean-up before migration", "Downtime and communication", "Rollback planning", "Decommissioning Data Center"],
+          "tools": ["Jira Cloud Migration Assistant", "Migration plan", "App assessment"],
+          "lab_task": "Plan a three-wave migration for a large Data Center instance with app paths, identity, clean-up, communication and rollback, and run a rehearsal of wave one.",
+          "deliverable": "Migration programme plan and rehearsal report",
+          "checks": [["Plan", "Waves, apps and identity are planned", "Programme plan"], ["Rehearse", "Wave one rehearsal completes", "Rehearsal report"], ["Decommission", "Data Center shutdown has dates and owners", "Decommissioning plan"]],
+          "objectives": ["Run large migrations", "Plan waves", "Decommission Data Center"]
+        },
+        {
+          "topic": "Consolidating Multiple Jira Instances",
+          "subtopics": ["Reasons to consolidate", "Comparing configurations across instances", "Conflict resolution for fields and workflows", "Merging users and groups", "Moving spaces between sites", "Keeping links and history", "Communication and training", "Measuring the result"],
+          "tools": ["Site comparison worksheet", "Migration tools", "Configuration documentation"],
+          "lab_task": "Compare two seeded Jira sites, resolve field and workflow conflicts, merge a pilot space and confirm links and history are kept.",
+          "deliverable": "Consolidation plan and pilot results",
+          "checks": [["Compare", "Conflicts are listed with resolutions", "Comparison worksheet"], ["Merge", "The pilot space moves with history", "Migrated space"], ["Keep", "Links still work after the move", "Link test"]],
+          "objectives": ["Consolidate Jira sites", "Resolve configuration conflicts", "Keep history and links"]
+        },
+        {
+          "topic": "AI at Scale: Rovo Agents, Teamwork Graph and Guardrails",
+          "subtopics": ["Rovo across the organisation", "Teamwork Graph and connected data", "Custom agents for departments", "Permissions and data access", "Guardrails and human review", "Measuring AI value", "AI policies for Jira", "Training people to use AI well"],
+          "tools": ["Rovo", "Rovo Studio", "Atlassian Administration"],
+          "lab_task": "Roll out Rovo agents to two departments with permissions and review steps, measure time saved over a seeded month and write the AI use policy.",
+          "deliverable": "AI rollout with value and policy",
+          "checks": [["Roll out", "Agents work for both departments with correct access", "Access tests"], ["Measure", "Time saved is measured", "Value report"], ["Govern", "The AI policy is approved", "Policy document"]],
+          "objectives": ["Scale AI in Jira", "Govern AI use", "Measure AI value"]
+        },
+        {
+          "topic": "The Atlassian Platform: Jira, Confluence, Loom and Compass Together",
+          "subtopics": ["Jira and Confluence together", "Loom for asynchronous updates", "Compass for software components", "Goals and projects across apps", "Search and knowledge across apps", "Licensing across apps", "Platform roadmap", "Platform adoption"],
+          "tools": ["Jira", "Confluence", "Loom", "Compass"],
+          "lab_task": "Design how the course company uses Jira, Confluence, Loom and Compass together, set up a goal tracked across apps and register services in Compass.",
+          "deliverable": "Platform usage design with a working example",
+          "checks": [["Design", "Each app has a clear purpose", "Usage design"], ["Track", "The goal shows progress from linked work", "Goal view"], ["Register", "Services appear in Compass with owners", "Compass catalogue"]],
+          "objectives": ["Use the Atlassian platform together", "Track goals across apps", "Catalogue services"]
+        },
+        {
+          "topic": "Adoption and Change Programmes for Jira",
+          "subtopics": ["Stakeholder mapping", "Training paths by role", "Champions network", "Communication plans", "Templates and quick starts", "Measuring adoption", "Handling resistance", "Continuous improvement"],
+          "tools": ["Training plan", "Adoption dashboard", "Templates"],
+          "lab_task": "Plan the adoption of Jira for three new departments with training paths, champions and templates, and set adoption measures.",
+          "deliverable": "Adoption programme plan",
+          "checks": [["Train", "Each role has a training path", "Training plan"], ["Support", "Champions are named for each department", "Champions list"], ["Measure", "Adoption measures have targets", "Adoption plan"]],
+          "objectives": ["Lead Jira adoption", "Train by role", "Measure adoption"]
+        },
+        {
+          "topic": "Jira Administration Operating Model: Admin Teams, Requests and Service Levels",
+          "subtopics": ["Admin team roles", "Request intake for admin work", "Service levels for admin requests", "Delegated administration", "Admin documentation", "Release management for configuration changes", "Admin metrics", "Skills and certification for admins"],
+          "tools": ["Jira Service Management", "Admin documentation", "Admin metrics"],
+          "lab_task": "Design the admin operating model with roles, a request service space with service levels and a delegation model, and report a seeded month of admin metrics.",
+          "deliverable": "Admin operating model and metrics report",
+          "checks": [["Design", "Roles and delegation are defined", "Operating model"], ["Serve", "Admin requests meet service levels", "Request report"], ["Report", "Admin metrics are reported", "Metrics report"]],
+          "objectives": ["Run Jira administration as a service", "Delegate safely", "Measure admin work"]
+        },
+        {
+          "topic": "Licensing, Cost and Vendor Management for Atlassian Cloud",
+          "subtopics": ["Plans and licensing models", "User tiers and growth", "Marketplace app costs", "Enterprise agreements", "Cost allocation to departments", "Removing inactive users", "Renewal preparation", "Vendor management"],
+          "tools": ["Billing administration", "Usage reports", "Cost model"],
+          "lab_task": "Build a cost model for Jira and apps, find savings from inactive users and duplicate apps and prepare a renewal pack.",
+          "deliverable": "Cost model and renewal pack",
+          "checks": [["Model", "Costs are allocated to departments", "Cost model"], ["Save", "Savings are found and quantified", "Savings list"], ["Renew", "The renewal pack is ready", "Renewal pack"]],
+          "objectives": ["Manage Atlassian cost", "Allocate cost", "Prepare renewals"]
+        },
+        {
+          "topic": "Advanced Troubleshooting: Support Tools, Logs and Atlassian Support",
+          "subtopics": ["Systematic troubleshooting", "Audit logs and automation logs", "Integration and app failures", "Permission and visibility puzzles", "Data inconsistencies", "Raising good support requests", "Workarounds and communication", "Incident reviews for platform problems"],
+          "tools": ["Audit logs", "Automation logs", "Atlassian Support"],
+          "lab_task": "Diagnose four seeded enterprise problems, an app failure, a visibility puzzle, an automation loop and a data inconsistency, raise one support request and write a review.",
+          "deliverable": "Diagnoses, support request and review",
+          "checks": [["Diagnose", "Each problem's cause is shown with evidence", "Analysis"], ["Raise", "The support request has all needed details", "Support request"], ["Review", "The review lists actions", "Review document"]],
+          "objectives": ["Troubleshoot Jira at scale", "Work with Atlassian Support", "Learn from platform problems"]
+        },
+        {
+          "topic": "Jira for Regulated Teams: Validation, Traceability and Audit Trails",
+          "subtopics": ["Regulated work in Jira", "Requirements traceability", "Validated configuration", "Electronic approvals and signatures", "Audit trails for changes", "Test management links", "Change control for validated spaces", "Audit readiness"],
+          "tools": ["Jira", "Test management app", "Audit logs"],
+          "lab_task": "Set up a validated space with requirements traceability, approvals, test links and change control, and walk an auditor through the evidence.",
+          "deliverable": "Validated space and audit walkthrough",
+          "checks": [["Trace", "Requirements trace to tests and releases", "Traceability report"], ["Approve", "Approvals are recorded with who and when", "Approval history"], ["Prove", "The auditor walkthrough has no open findings", "Walkthrough notes"]],
+          "objectives": ["Use Jira for regulated work", "Trace requirements", "Prepare for audits"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise Jira Platform Design",
+          "subtopics": ["Architecture and configuration strategy", "Service management and CMDB", "Migration, integration and security", "AI, cost and operating model"],
+          "tools": ["Architecture documents", "Migration plan", "Governance packs"],
+          "lab_task": "Present the enterprise Jira platform design to a steering committee with the architecture, configuration strategy, service management and CMDB, migration and integration plans, security, AI governance, cost model and admin operating model.",
+          "deliverable": "Platform design with evidence and a steering decision",
+          "checks": [["Design", "Architecture and configuration strategy pass review", "Review record"], ["Plan", "Migration and integration plans are realistic", "Plan review"], ["Govern", "Security, AI and cost governance have owners", "Governance pack"]],
+          "objectives": ["Combine advanced Jira skills", "Design an enterprise platform", "Back decisions with evidence"]
+        }
+      ]
+    }
+  }
+}
