@@ -6070,13 +6070,11 @@ async def request_client_logistics_confirmation(
     map_line = f"\nGoogle Maps venue: {logistics['venue_maps_url']}" if logistics.get("venue_maps_url") else ""
     body = (
         f"Dear {client_name},\n\nFollowing the interview, {trainer_name} has been selected for the offline {technology} training. "
-        "Please confirm the exact training address and Google Maps pin, training dates, and the arrangements below before travel is booked.\n\n"
+        "Before we finalize the trainer's arrangements, please confirm the training address, dates, and Google Maps pin.\n\n"
         f"Current venue on record: {venue or 'Not provided'}{map_line}\n\n"
-        "Please reply using these labeled lines so we can verify the final handoff:\n"
-        "Confirmed training address: [full address]\nGoogle Maps pin: [exact Google Maps link]\n"
-        "Travel / stay budget and terms: [approved amount or cap, who books/pays, hotel/stay limit, local transport, and receipt rules]\n"
-        "Booking PDFs: [attach ticket/hotel PDFs if booked, or say Not booked yet]\n\n"
-        "The final travel package will be sent to the selected trainer after the address, exact map pin, and travel/stay terms are confirmed.\n\n"
+        "Please also let us know what accommodation will be available for the trainer. If you would like Clahan to arrange it, just let us know.\n\n"
+        "If any travel or accommodation has already been booked, please attach the booking details.\n\n"
+        "We will share the confirmed venue and accommodation details with the selected trainer.\n\n"
         "Regards,\nClahan Technologies"
     )
     subject = f"Confirm Offline Venue and Trainer Travel - {technology} [{requirement_id}]"

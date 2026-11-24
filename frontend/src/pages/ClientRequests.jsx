@@ -377,17 +377,19 @@ function DetailModal({
                 <p className="mt-1 text-xs text-slate-500">
                   {generationMode === 'ai'
                     ? 'AI writes replies automatically. When auto-send is enabled, it sends them to the client.'
-                    : 'Approved template mode is active. Turn on AI mode to create a tailored draft.'}
+                    : 'Approved template mode is active. Generate a reply from the email and stored records.'}
                 </p>
               </div>
               <button
                 onClick={() => onRegenerateReply?.(request)}
-                disabled={generationMode !== 'ai' || regeneratingId === request.email_id}
-                title={generationMode === 'ai' ? 'Generate an AI reply; auto-send sends it to the client' : 'Enable AI text generation first'}
+                disabled={regeneratingId === request.email_id}
+                title={generationMode === 'ai' ? 'Generate an AI reply; auto-send sends it to the client' : 'Generate a reply from approved templates and stored records'}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {regeneratingId === request.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                {reply.body ? 'Regenerate with AI' : 'Generate with AI'}
+                {reply.body
+                  ? (generationMode === 'ai' ? 'Regenerate with AI' : 'Regenerate reply')
+                  : (generationMode === 'ai' ? 'Generate with AI' : 'Generate reply')}
               </button>
             </div>
             <p className="mt-2 text-sm font-semibold text-slate-900">{reply.subject || 'No reply generated'}</p>
@@ -710,7 +712,7 @@ export default function ClientRequests() {
   }
 
   const regenerateClientReply = async item => {
-    if (!item?.email_id || regeneratingId || generationMode !== 'ai') return
+    if (!item?.email_id || regeneratingId) return
     setRegeneratingId(item.email_id)
     try {
       const res = await api.post(`/inbox/${item.email_id}/regenerate-reply`, {})
@@ -723,11 +725,12 @@ export default function ClientRequests() {
       setRequests(current => current.map(request => request.email_id === item.email_id
         ? { ...request, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: clientStatus, reply_status: replyStatus }
         : request))
-      if (replyStatus === 'sent') toast.success('AI reply generated and sent to the client.')
-      else if (replyStatus === 'pending_review') toast.success('AI reply generated and saved as a draft. Auto-send is disabled.')
-      else toast.error(res.data?.error || 'AI reply was generated, but it could not be sent.')
+      const replySource = res.data?.generation_source === 'template' ? 'Approved template' : 'AI'
+      if (replyStatus === 'sent') toast.success(`${replySource} reply generated and sent to the client.`)
+      else if (replyStatus === 'pending_review') toast.success(`${replySource} reply generated and saved as a draft. Auto-send is disabled.`)
+      else toast.error(res.data?.error || `${replySource} reply was generated, but it could not be sent.`)
     } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'Could not generate the AI reply')
+      toast.error(e.response?.data?.detail || e.message || 'Could not generate the reply')
     } finally {
       setRegeneratingId('')
     }

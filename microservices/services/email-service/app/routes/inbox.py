@@ -7771,6 +7771,15 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     accommodation_value = _client_labeled_logistics_value(text, "accommodation") or _clean(query.get("partial_accommodation"))
     food_value = _client_labeled_logistics_value(text, "food") or _clean(query.get("partial_food"))
     client_travel_terms = _client_confirmed_travel_terms(text) or travel_value or _clean(query.get("partial_client_travel_terms"))
+    if (
+        not accommodation_value
+        and "accommodation" in required_fields
+        and client_travel_terms.startswith("Client authorized Clahan to book/arrange:")
+    ):
+        # A direct booking instruction in response to the combined logistics
+        # request also authorizes the requested stay booking. Do not ask again
+        # for a payer, cap, or the same booking permission.
+        accommodation_value = client_travel_terms
     logistics_answers = {
         "travel": travel_value or client_travel_terms,
         "accommodation": accommodation_value,
@@ -7793,27 +7802,25 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     # client confirmation is explicit. Partial replies stay linked to this
     # open query so the client can answer the clarification in the same thread.
     if missing_confirmations:
-        missing_text = ", ".join(missing_confirmations)
         # Keep the same subject so the client's clarification reply remains
         # attached to this open logistics query.
         clarification_subject = _clean(query.get("clarification_subject") or email_doc.get("subject") or "Travel and venue confirmation")
-        reply_lines = []
+        clarification_requests = []
         if "venue" in required_fields and not client_venue:
-            reply_lines.append("Confirmed training address: [full address]")
+            clarification_requests.append("Please confirm the training venue address.")
         if "map" in required_fields and not client_map_url:
-            reply_lines.append("Google Maps pin: [exact Google Maps link]")
+            clarification_requests.append("Please share a Google Maps pin for the venue.")
         if "travel" in required_fields and not client_travel_terms:
-            reply_lines.append("Travel / stay budget and terms: [approved amount or cap, who books/pays, and any stay limit]")
+            clarification_requests.append("Please let us know what travel arrangements are planned for the trainer. If you would like Clahan to book them, just say so and we will proceed based on your instruction.")
         if "accommodation" in required_fields and not accommodation_value:
-            reply_lines.append("Accommodation: [details]")
+            clarification_requests.append("Please confirm what accommodation will be available for the trainer. If you would like Clahan to arrange it, just let us know.")
         if "food" in required_fields and not food_value:
-            reply_lines.append("Food: [details]")
+            clarification_requests.append("Please let us know whether meals will be provided during the training.")
         clarification_body = (
             "Hi there,\n\n"
-            "Thanks for the update. The final travel package is on hold until we have the following client confirmations:\n"
-            f"- {missing_text}\n\n"
-            "Please reply with these lines (fill in the details):\n"
-            + "\n".join(reply_lines) + "\n\n"
+            "Thanks for the update. Could you please help us confirm the following details?\n\n"
+            + "\n".join(clarification_requests) + "\n\n"
+            "If any arrangements have already been made, you can share the booking details.\n\n"
             "We will share the final confirmed details with the selected trainer after the required items are complete.\n\n"
             "Regards,\nClahan Technologies"
         )
@@ -8028,8 +8035,9 @@ def _client_confirmed_venue(text: Any) -> str:
 
 
 def _client_confirmed_travel_terms(text: Any) -> str:
-    """Read explicit client-approved travel/stay terms from a labeled reply line."""
-    for line in str(text or "").splitlines():
+    """Read explicit terms or a natural-language instruction for Clahan to book."""
+    message = _strip_quoted_email_history(text)
+    for line in message.splitlines():
         match = re.match(
             r"^\s*(?:confirmed\s+)?(?:travel(?:\s*/\s*stay|\s+and\s+stay)?\s+(?:budget|terms|expenses?)(?:\s+and\s+terms)?|"
             r"ticket\s+budget|expense\s+terms|reimbursement\s+terms)\s*[:\-]\s*(.{4,1000})\s*$",
@@ -8038,6 +8046,26 @@ def _client_confirmed_travel_terms(text: Any) -> str:
         )
         if match:
             return _clean(match.group(1))
+
+    booking_action = r"(?:book|arrange|organize|organise|handle|take\s+care\s+of)"
+    negative_booking = re.compile(
+        rf"\b(?:do\s+not|don't|cannot|can't|will\s+not|won't|should\s+not|shouldn't|"
+        rf"need\s+not|needn't|no\s+need\s+to|not\s+required\s+to)\b.{{0,60}}\b{booking_action}\b",
+        re.IGNORECASE,
+    )
+    positive_booking = re.compile(
+        rf"\b(?:you|your\s+team|clahan(?:\s+technologies)?)\b.{{0,60}}"
+        rf"\b(?:(?:will|can|could|would|please|kindly)\s+)?{booking_action}\b"
+        rf"|\b(?:please|kindly)\s+{booking_action}\b"
+        rf"|\b(?:can|could|would)\s+you\s+(?:please\s+)?{booking_action}\b",
+        re.IGNORECASE,
+    )
+    # In an inbound client reply, “you” refers to Clahan. Preserve the exact
+    # sentence as authorization; this does not create a budget or payment cap.
+    for sentence in re.split(r"[\n.!?;]+", message):
+        sentence = _clean(sentence)
+        if sentence and not negative_booking.search(sentence) and positive_booking.search(sentence):
+            return f"Client authorized Clahan to book/arrange: {sentence}"
     return ""
 
 
@@ -9708,20 +9736,20 @@ def _initial_offline_logistics_fields(extracted: Dict[str, Any], *, first_client
 
 
 def _append_initial_offline_logistics_request(body: str, fields: List[str]) -> str:
-    """Add one concise offline-logistics request before the existing signature."""
+    """Add a natural-language offline-logistics request before the signature."""
     if not fields:
         return body
     labels = {
-        "travel": "Travel terms: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "accommodation": "Accommodation: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "food": "Food: [details] (who arranges and pays: Client or Clahan; approved cap; receipt rules)",
-        "venue": "Confirmed training address: [details]",
+        "travel": "Please let us know what travel arrangements are planned for the trainer.",
+        "accommodation": "Please confirm what accommodation will be available for the trainer.",
+        "food": "Please let us know whether meals will be provided during the training.",
+        "venue": "Please confirm the training venue address.",
     }
-    request_lines = "\n".join(labels[field] for field in fields)
+    request_lines = "\n".join(f"- {labels[field]}" for field in fields)
     addition = (
-        "As this is an offline training request, please also confirm the following in this reply:\n\n"
+        "To help us coordinate the offline training, could you please confirm:\n"
         f"{request_lines}\n\n"
-        "For each item, please state whether the Client or Clahan will arrange and pay, any approved cap, and receipt rules."
+        "If you would like Clahan to arrange any of these, just let us know and we will proceed based on your instruction."
     )
     paragraphs = str(body or "").strip().split("\n\n")
     if len(paragraphs) > 1 and re.search(r"\b(?:regards|thanks|sincerely|cheers)\b", paragraphs[-1], re.IGNORECASE):
