@@ -1,0 +1,573 @@
+{
+  "domain": "ISO 27001",
+  "name": "ISO 27001",
+  "category": "Cybersecurity and Identity",
+  "icon": "file-check",
+  "aliases": ["ISO/IEC 27001", "ISO 27001:2022", "ISO 27001 Lead Implementer", "ISO 27001 Lead Auditor", "ISO 27001 Internal Auditor", "ISMS", "Information Security Management System", "ISO 27002", "ISO/IEC 27002"],
+  "certifications": ["PECB Certified ISO/IEC 27001 Foundation", "PECB Certified ISO/IEC 27001 Lead Implementer", "PECB Certified ISO/IEC 27001 Lead Auditor", "PECB Certified ISO/IEC 27005 Risk Manager", "CQI and IRCA Certified ISO/IEC 27001:2022 Lead Auditor course (PR373)", "CQI and IRCA Certified ISO/IEC 27001:2022 Auditor Conversion course (PR374)", "IRCA ISMS Auditor and Lead Auditor grades"],
+  "tools": ["ISO/IEC 27001:2022 with Amendment 1:2024", "ISO/IEC 27002:2022", "ISO/IEC 27005:2022", "CISO Assistant (open source GRC)", "Microsoft Excel", "Microsoft SharePoint Online", "Power BI", "IAF CertSearch"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For new ISMS team members, control owners and consultants who have not built an information security management system before. Covers the structure of ISO/IEC 27001:2022 with Amendment 1:2024 and clauses 4 to 10, the 93 Annex A controls in four themes, context and interested parties, the ISMS scope, leadership and the information security policy, a first risk assessment and treatment, the Statement of Applicability, documented information, awareness, how certification audits work and what changed from the 2013 edition, all applied to one case company.",
+      "prerequisites": ["Works in IT, security, risk, compliance, operations or a business team that handles information", "Can use Microsoft Excel, Word and SharePoint or similar office tools", "Has access to the ISO/IEC 27001:2022 and ISO/IEC 27002:2022 texts through the training provider"],
+      "outcomes": ["Explain every clause from 4 to 10 and find the right Annex A control for a real practice", "Write the scope, context, interested parties register, policy and objectives for an ISMS", "Run a first risk assessment, draft a risk treatment plan and build a Statement of Applicability", "Control ISMS documents, plan awareness and describe each step of a certification audit"],
+      "days": [
+        {
+          "topic": "ISO/IEC 27001 Overview: Structure, Clauses 4 to 10 and the Case Company",
+          "subtopics": ["What an information security management system is and what an ISO/IEC 27001 certificate covers", "Confidentiality, integrity and availability of information", "The current edition: ISO/IEC 27001:2022 with Amendment 1:2024", "The harmonised structure shared with ISO 9001, ISO 22301 and ISO/IEC 42001", "Requirements in clauses 4 to 10 compared with the reference controls in Annex A", "How to read ISO wording: shall, should, may and can", "The 27000 family: 27000 overview, 27002 controls, 27003 guidance, 27005 risk and 27006-1 certification", "Where definitions live now that ISO/IEC 27000:2026 is an overview, and the ISO Online Browsing Platform", "Plan-Do-Check-Act and continual improvement in an ISMS", "The case company Ledgerline: 420 staff, offices in Bengaluru, Pune and London, and a payments platform on AWS"],
+          "tools": ["ISO/IEC 27001:2022 and Amendment 1:2024", "ISO Online Browsing Platform (OBP)", "Microsoft Excel", "Miro"],
+          "lab_task": "Read clauses 4 to 10 and build a clause map in Excel with one row for each of the 30 lowest-level subclauses from 4.1 to 10.2, marking its Plan-Do-Check-Act phase, whether documented information is required and which Ledgerline role would own it.",
+          "deliverable": "Clause map workbook with 30 subclauses, PDCA phases, documented information flags and proposed owners",
+          "checks": [["Count the rows in the clause map", "30 subclauses from 4.1 to 10.2 are listed with none missing", "Clause map workbook"], ["Mark the subclauses that require documented information", "Subclauses such as 4.3, 5.2, 6.1.3, 6.2 and 9.2.2 are flagged as required", "Highlighted column in the workbook"], ["Ask whether Annex A controls are mandatory requirements", "Answer explains that Annex A is compared against in 6.1.3 c) and that any exclusion needs a justification in the Statement of Applicability", "Written answer in the workbook notes"]],
+          "objectives": ["Explain what an ISMS is and what certification covers", "Find any requirement in clauses 4 to 10", "Describe the case company the course builds an ISMS for"]
+        },
+        {
+          "topic": "Annex A: The 93 Controls in Four Themes",
+          "subtopics": ["Organisational controls 5.1 to 5.37", "People controls 6.1 to 6.8", "Physical controls 7.1 to 7.14", "Technological controls 8.1 to 8.34", "The 11 controls new in 2022, such as 5.7 threat intelligence, 5.23 cloud services and 8.28 secure coding", "How ISO/IEC 27002:2022 adds a purpose and implementation guidance to each control", "The five ISO/IEC 27002 attribute types: control type, security properties, cybersecurity concepts, operational capabilities and security domains", "Reading one control: control text, purpose, guidance and other information"],
+          "tools": ["ISO/IEC 27001:2022 Annex A", "ISO/IEC 27002:2022", "Microsoft Excel filters and pivot tables"],
+          "lab_task": "Sort 40 practices observed at Ledgerline, such as badge entry at the Pune office, MFA on Microsoft 365 and background checks for new joiners, into Annex A control numbers, then use the ISO/IEC 27002 attributes to filter out which of them are detective controls.",
+          "deliverable": "Practice-to-control mapping of 40 Ledgerline practices with theme, control number and attributes",
+          "checks": [["Count controls per theme in the reference sheet", "37 organisational, 8 people, 14 physical and 34 technological controls, 93 in total", "Pivot table"], ["Map the practice 'staff badge in at the Pune office reception'", "Mapped to 7.2 Physical entry", "Mapping sheet row"], ["Filter the mapping by the control type attribute Detective", "Controls such as 8.15 Logging, 8.16 Monitoring activities and 7.4 Physical security monitoring are returned", "Filtered sheet screenshot"]],
+          "objectives": ["Name the four themes and their control ranges", "Find the right Annex A control for a real practice", "Group controls with ISO/IEC 27002 attributes"]
+        },
+        {
+          "topic": "Clause 4.1: Internal and External Issues, Including Climate Change",
+          "subtopics": ["What an issue is in clause 4.1 and how it affects the intended outcomes of the ISMS", "External issues: law, market, technology, threats and suppliers", "Internal issues: culture, structure, systems, skills and contractual commitments", "PESTLE and SWOT as ways to find issues", "Amendment 1:2024: deciding whether climate change is a relevant issue", "Linking issues to the risk assessment in clause 6.1", "Keeping the issues list current through management review", "Evidence an auditor expects for clause 4.1"],
+          "tools": ["Miro PESTLE and SWOT boards", "Microsoft Excel issues register", "ISO/IEC 27001:2022/Amd 1:2024"],
+          "lab_task": "Run a 45-minute PESTLE and SWOT workshop for Ledgerline, record at least 12 internal and external issues with their effect on the ISMS, and write a dated decision on whether climate change is relevant, considering monsoon flooding near the Bengaluru server room and climate questions in bank customer due-diligence forms.",
+          "deliverable": "Issues register with at least 12 issues and a recorded climate change decision",
+          "checks": [["Review each issue in the register", "Every issue states how it affects the ISMS outcomes, not just a fact about the world", "Issues register"], ["Look for the climate change decision", "A dated decision says whether climate change is relevant and why", "Register entry approved by the ISMS manager"], ["Trace one issue into risk thinking", "The DPDP Rules duties that apply from May 2027 appear as a source of risk", "Cross-reference column"]],
+          "objectives": ["Identify internal and external issues for an ISMS", "Apply the 2024 climate change requirement", "Connect context to risk assessment"]
+        },
+        {
+          "topic": "Clause 4.2: Interested Parties and Their Requirements",
+          "subtopics": ["Who counts as an interested party: customers, regulators, staff, suppliers, investors and the public", "Relevant interested parties compared with every possible stakeholder", "Turning needs and expectations into requirements", "Clause 4.2 c): deciding which requirements the ISMS will address", "Legal and regulatory requirements: the DPDP Act 2023, the IT Act 2000 with CERT-In Directions, and GDPR", "Contractual requirements from customer security schedules", "The 2024 note that interested parties can have climate change requirements", "Keeping the register linked to control 5.31 on legal and contractual requirements"],
+          "tools": ["Microsoft Excel interested parties register", "CERT-In Directions of 28 April 2022", "Customer contract security schedules"],
+          "lab_task": "Build a register of 12 interested parties for Ledgerline, including bank customers, CERT-In, the Data Protection Board of India, AWS and staff, record at least 20 of their requirements, and mark which ones the ISMS will address and how.",
+          "deliverable": "Interested parties register with 20 requirements and a clause 4.2 c) decision for each",
+          "checks": [["Check the CERT-In entry", "The duty to report listed incident types within 6 hours is recorded", "Register row"], ["Check a contractual requirement", "A customer clause such as an annual penetration test is listed with its contract reference", "Register row with contract number"], ["Check the 4.2 c) decisions", "Each requirement is marked as addressed through the ISMS or not, with a reason", "Decision column"]],
+          "objectives": ["Identify relevant interested parties", "Record legal, regulatory and contractual requirements", "Decide which requirements the ISMS addresses"]
+        },
+        {
+          "topic": "Defining the ISMS Scope and Its Interfaces",
+          "subtopics": ["Clause 4.3: boundaries and applicability of the ISMS", "Using the issues from 4.1 and the requirements from 4.2 to set the scope", "Organisational, physical, logical and process boundaries", "Interfaces and dependencies with activities done by other organisations", "Why a narrow scope can fail customer expectations", "Writing the scope statement that will appear on the certificate", "Clause 4.4: the ISMS processes and how they interact", "How auditors test the scope during stage 1"],
+          "tools": ["draw.io (diagrams.net)", "Microsoft Word", "AWS architecture diagram of the LedgerPay platform"],
+          "lab_task": "Write Ledgerline's scope statement covering the LedgerPay platform, the Bengaluru and Pune offices and the HR, IT and customer support functions, draw a boundary diagram with eight interfaces such as AWS, the Chennai support BPO and the London sales office, and list the dependency each interface creates.",
+          "deliverable": "Scope statement, boundary diagram and interface and dependency list",
+          "checks": [["Ask what is excluded and why", "The London sales office exclusion is justified and its interface with the ISMS is controlled", "Scope statement"], ["Trace a supplier interface", "AWS is shown as an external dependency with the shared responsibility split noted", "Boundary diagram"], ["Read the draft certificate wording", "One or two sentences name the services, sites and activities in scope", "Draft certificate scope text"]],
+          "objectives": ["Set ISMS boundaries", "Describe interfaces and dependencies", "Write a scope statement fit for a certificate"]
+        },
+        {
+          "topic": "Leadership Commitment and ISMS Roles",
+          "subtopics": ["Clause 5.1 a) to h): what top management must show", "Integrating ISMS requirements into business processes", "Providing resources and directing and supporting people", "Clause 5.3: assigning and communicating responsibilities and authorities", "ISMS manager, risk owners, control owners and asset owners", "An information security steering committee and its terms of reference", "Segregation of duties (5.3) and management responsibilities (5.4) in Annex A", "Evidence of leadership an auditor looks for"],
+          "tools": ["Microsoft Excel RACI matrix", "Microsoft Teams", "Microsoft Word"],
+          "lab_task": "Prepare a RACI matrix for 15 ISMS activities at Ledgerline and terms of reference for a steering committee chaired by the COO, then role-play a 20-minute meeting in which the CEO approves an ISMS budget of INR 85 lakh and the ISMS manager's authority.",
+          "deliverable": "RACI matrix, steering committee terms of reference and approved meeting minutes",
+          "checks": [["Check each activity in the RACI", "Exactly one accountable role per activity", "RACI matrix"], ["Check how roles were communicated", "Roles appear in job descriptions or on an intranet page with a publication date", "Screenshot or document reference"], ["Review the minutes", "Budget, resources and the ISMS manager's authority are recorded as decisions", "Approved minutes"]],
+          "objectives": ["Explain top management duties under clause 5", "Assign ISMS roles and authorities", "Produce evidence of leadership commitment"]
+        },
+        {
+          "topic": "Writing the Information Security Policy",
+          "subtopics": ["Clause 5.2 a) to g): what the policy must contain", "Objectives in the policy or a framework for setting them", "Commitments to meet applicable requirements and to improve continually", "Topic-specific policies under control 5.1", "Policy hierarchy: policy, topic-specific policies, standards and procedures", "Approval, communication and availability to interested parties", "Review at planned intervals and after significant change", "Common audit findings on policies"],
+          "tools": ["Microsoft Word", "Microsoft SharePoint Online", "Microsoft Forms"],
+          "lab_task": "Draft a two-page information security policy for Ledgerline that meets clause 5.2 a) to g), list the 10 topic-specific policies the company needs, such as access control and acceptable use, and publish the approved policy on SharePoint with a Microsoft Forms acknowledgement for staff.",
+          "deliverable": "Approved information security policy and a topic-specific policy list",
+          "checks": [["Map the policy against 5.2 a) to g)", "Each item from a) to g) is covered by a sentence in the policy", "Clause checklist"], ["Check approval", "The policy shows the CEO's approval, version 1.0 and the next review date", "Document control table"], ["Ask a participant where staff find the policy", "A link to the SharePoint page and the acknowledgement form is given", "Published page screenshot"]],
+          "objectives": ["Write a policy that meets clause 5.2", "Plan topic-specific policies under control 5.1", "Publish and communicate the policy"]
+        },
+        {
+          "topic": "Information Security Objectives and Planning Changes",
+          "subtopics": ["Clause 6.2: objectives consistent with the policy and measurable where practicable", "Taking requirements and risk results into account", "Planning what will be done, resources, who, when and how results are evaluated", "Monitoring, communicating and updating objectives", "Examples: patching times, phishing report rates and supplier review coverage", "Clause 6.3: carrying out changes to the ISMS in a planned way", "Recording a planned change, such as moving an office inside the scope", "Keeping objectives available as documented information"],
+          "tools": ["Microsoft Excel objectives tracker", "Microsoft Planner", "Power BI"],
+          "lab_task": "Set five measurable information security objectives for Ledgerline, for example 'patch critical vulnerabilities on internet-facing systems within 14 days in 95% of cases by March', each with an owner, resources, deadline and evaluation method, and plan the move of the Pune development centre to a new building as an ISMS change under clause 6.3.",
+          "deliverable": "Objectives plan with five objectives and a planned change record for the Pune move",
+          "checks": [["Check each objective for a measure", "Each has a number, a target date and a data source", "Objectives tracker"], ["Trace an objective to the policy or a risk", "Each objective links to a policy commitment or a risk ID", "Link column"], ["Review the change plan for the Pune move", "Purpose, effect on controls, resources and owner are recorded before the move date", "Change record"]],
+          "objectives": ["Write measurable objectives under clause 6.2", "Plan how objectives are achieved and evaluated", "Plan ISMS changes under clause 6.3"]
+        },
+        {
+          "topic": "Information Asset Inventory and Classification",
+          "subtopics": ["Control 5.9: inventory of information and other associated assets", "Primary assets such as information and processes, and supporting assets such as systems, people and sites", "Asset owners and their duties", "Control 5.12: a classification scheme based on confidentiality, integrity and availability needs", "Control 5.13: labelling information", "Controls 5.10 acceptable use and 5.11 return of assets", "Pulling asset data from Microsoft Intune and AWS Config", "Keeping the inventory accurate as things change"],
+          "tools": ["Microsoft Intune device inventory", "AWS Config resource inventory", "Microsoft Excel asset register", "Microsoft Purview sensitivity labels"],
+          "lab_task": "Build an asset register of 40 Ledgerline assets, including the LedgerPay customer database, the GitHub repositories and 25 laptops exported from Intune, give each a named owner and a level from a four-level scheme (Public, Internal, Confidential, Restricted), and apply a Purview sensitivity label to two sample documents.",
+          "deliverable": "Asset register of 40 assets with owners and classifications, plus two labelled documents",
+          "checks": [["Check every asset", "Each has a named person as owner, not a team name", "Asset register"], ["Classify the card token vault database", "Classified Restricted with a written reason", "Register row"], ["Open a labelled document", "The Confidential label shows in the header and in the file properties", "Screenshot"]],
+          "objectives": ["Build an information asset inventory", "Assign owners and classification levels", "Apply labels to information"]
+        },
+        {
+          "topic": "Risk Criteria and the Risk Assessment Method",
+          "subtopics": ["Clause 6.1.1: risks and opportunities for the ISMS itself", "Clause 6.1.2 a): risk acceptance criteria and criteria for performing assessments", "Clause 6.1.2 b): consistent, valid and comparable results", "Likelihood and consequence scales with plain descriptions", "A 5 by 5 risk matrix and risk levels", "Who can accept which level of risk", "Documenting the risk assessment process as required documented information", "Choosing a method that suits a 420-person company"],
+          "tools": ["Microsoft Excel", "ISO/IEC 27005:2022 annex examples"],
+          "lab_task": "Write Ledgerline's risk assessment method: define five likelihood levels and five consequence levels with financial, customer, legal and reputational descriptions, set the acceptance threshold at a score of 8 or below, and state who approves risks scored 15 or above.",
+          "deliverable": "Risk assessment method document with scales, matrix and acceptance criteria",
+          "checks": [["Two participants score the same risk with the method", "Their scores match or differ by one level at most", "Scoring sheets"], ["Look for the acceptance rule", "The threshold and the approver for each level are written down", "Method document"], ["Check the consequence scale", "Each level has a measurable example such as an INR loss band or hours of outage", "Scale table"]],
+          "objectives": ["Define risk criteria", "Write a repeatable risk assessment method", "Set rules for accepting risk"]
+        },
+        {
+          "topic": "Ledgerline's First Information Risk Assessment",
+          "subtopics": ["Identifying risks to confidentiality, integrity and availability within the scope", "Using assets, threats and vulnerabilities to find risks", "Naming a risk owner for each risk under 6.1.2 c)", "Analysing consequences and likelihood under 6.1.2 d)", "Evaluating and prioritising risks against the criteria under 6.1.2 e)", "Running a risk workshop with process owners", "Recording results as documented information under clause 8.2", "First-time mistakes: missing controls written as risks and risks without owners"],
+          "tools": ["Microsoft Excel risk register", "Miro workshop board", "MITRE ATT&CK"],
+          "lab_task": "Run a 90-minute workshop with the platform, HR and support leads, identify at least 15 risks to the LedgerPay service, such as ransomware on the Pune build servers and misuse of support tool access at the BPO, then score, evaluate and rank them with named risk owners.",
+          "deliverable": "Risk register with 15 assessed and ranked risks and their owners",
+          "checks": [["Read the risk statements", "Each names an asset or process, a threat and a consequence", "Risk register"], ["Sort the register by risk score", "Risks above the acceptance threshold are flagged for treatment", "Sorted register"], ["Check ownership", "Each risk has an owner with the authority to approve its treatment", "Owner column"]],
+          "objectives": ["Identify risks within the ISMS scope", "Analyse and evaluate risks with the agreed method", "Assign risk owners"]
+        },
+        {
+          "topic": "Risk Treatment Options and Control Selection",
+          "subtopics": ["Clause 6.1.3 a): choosing risk treatment options", "Modifying, retaining, avoiding and sharing risk", "Clause 6.1.3 b): determining all controls needed for the chosen option", "Clause 6.1.3 c): comparing with Annex A so that no necessary control is missed", "Controls from other sources, such as the CIS Controls or customer contracts", "Drafting a first risk treatment plan under 6.1.3 e)", "Risk owners approving the plan and accepting residual risk under 6.1.3 f)", "Recording treatment results under clause 8.3"],
+          "tools": ["Microsoft Excel risk treatment plan", "ISO/IEC 27002:2022", "CIS Critical Security Controls v8.1"],
+          "lab_task": "Choose a treatment option for Ledgerline's top 8 risks, list the controls for each with Annex A references, draft the risk treatment plan with owners, dates and costs, and record each risk owner's approval of the residual risk.",
+          "deliverable": "Risk treatment plan for 8 risks with control references and residual risk approvals",
+          "checks": [["Check the option chosen for the BPO access risk", "Option is modify, with controls such as 5.18, 5.20 and 8.15 listed", "Treatment plan row"], ["Look for the Annex A comparison", "The comparison step is recorded and no necessary control was overlooked", "Annex A comparison column"], ["Ask for residual risk acceptance", "Each risk owner's approval is recorded with a date", "Approval record"]],
+          "objectives": ["Choose risk treatment options", "Select necessary controls and compare them with Annex A", "Obtain risk owner approval"]
+        },
+        {
+          "topic": "Building the Statement of Applicability",
+          "subtopics": ["Clause 6.1.3 d): what the Statement of Applicability must contain", "Necessary controls and the justification for including them", "Whether each necessary control is implemented or not", "Justifying the exclusion of Annex A controls", "Linking SoA rows to risks, requirements and documents", "Version control and approval of the SoA", "How the certificate refers to the SoA version", "Common SoA mistakes auditors find"],
+          "tools": ["Microsoft Excel SoA template", "ISO/IEC 27001:2022 Annex A", "Microsoft SharePoint version history"],
+          "lab_task": "Build Ledgerline's SoA for all 93 Annex A controls, giving for each the inclusion or exclusion decision, the justification, the implementation status and the link to a risk or requirement, and justify excluding 8.30 outsourced development if the CTO confirms that no development is outsourced.",
+          "deliverable": "Statement of Applicability version 0.9 for 93 controls with justifications and status",
+          "checks": [["Count the rows in the SoA", "93 controls each with a decision", "SoA workbook"], ["Check the 8.30 outsourced development row", "Excluded with the reason that no development is outsourced, confirmed by the CTO", "SoA row"], ["Pick an included control and trace it", "It links to at least one risk ID or interested party requirement", "Link column"]],
+          "objectives": ["Build an SoA that meets 6.1.3 d)", "Justify inclusions and exclusions", "Link controls to risks and requirements"]
+        },
+        {
+          "topic": "Documented Information and Document Control",
+          "subtopics": ["Clause 7.5.1: information the standard requires and information the organisation decides it needs", "The list of mandatory documents and records with clause references", "Clause 7.5.2: identification, format, review and approval", "Clause 7.5.3: distribution, access, storage, change control, retention and disposition", "Documents of external origin, such as customer contracts and ISO standards", "Version numbering and document control tables", "SharePoint libraries, versioning, permissions and retention labels", "Keeping documentation lean for a mid-sized company"],
+          "tools": ["Microsoft SharePoint Online", "Microsoft Purview retention labels", "Confluence"],
+          "lab_task": "Set up a SharePoint ISMS library for Ledgerline with columns for owner, version, review date and classification, load the documents written so far, list the mandatory documented information with its clause reference, and apply a retention label that keeps internal audit records for 3 years.",
+          "deliverable": "ISMS document register and a configured SharePoint library",
+          "checks": [["Edit and republish the policy", "Version moves from 1.0 to 1.1 and the earlier version stays in history", "Version history screenshot"], ["Check the mandatory list", "It includes scope, policy, risk processes, SoA, objectives, competence evidence, audit programme and results, management review results and corrective action records", "Document register"], ["Try to edit a document as a standard user", "Editing is refused because only owners can edit", "Error screenshot"]],
+          "objectives": ["Identify required documented information", "Control documents and records", "Run a document library for the ISMS"]
+        },
+        {
+          "topic": "Competence, Awareness and Communication",
+          "subtopics": ["Clause 7.1: resources for the ISMS", "Clause 7.2: deciding the competence needed and keeping evidence of it", "Clause 7.3: what every person doing work under the organisation's control must be aware of", "Control 6.3: awareness, education and training programmes", "Phishing simulations and how to read their results", "Clause 7.4: what, when, with whom and how to communicate", "Measuring awareness with quiz scores and phishing report rates", "Induction and yearly refresher training"],
+          "tools": ["Microsoft Defender for Office 365 Attack simulation training", "Microsoft Forms", "Microsoft Excel competence matrix"],
+          "lab_task": "Build a competence matrix for 8 ISMS roles at Ledgerline, write a 12-month awareness plan, create a 10-question Microsoft Forms quiz on the policy, and send a simulated phishing email to a test group of 20 users with Attack simulation training.",
+          "deliverable": "Competence matrix, awareness plan, quiz results and phishing simulation report",
+          "checks": [["Review the competence evidence for the ISMS manager", "A certificate or training record is attached, not just a statement", "Competence matrix"], ["Read the phishing simulation report", "Click rate and report rate for the 20 test users are shown", "Simulation report"], ["Check the communication plan", "Each item states what, when, with whom and how", "Communication plan"]],
+          "objectives": ["Define competence and keep evidence", "Plan and measure awareness", "Plan ISMS communication"]
+        },
+        {
+          "topic": "Clause 8: Operating the ISMS Day to Day",
+          "subtopics": ["Clause 8.1: planning, implementing and controlling processes", "Setting criteria for processes and keeping evidence they ran as planned", "Controlling planned changes and reviewing unintended ones", "Controlling externally provided processes, products and services", "Clause 8.2: repeating risk assessments at planned intervals and after significant change", "Clause 8.3: carrying out the risk treatment plan", "An ISMS operating calendar of monthly, quarterly and yearly tasks", "Evidence logs for recurring controls"],
+          "tools": ["Microsoft Excel ISMS calendar", "Jira Service Management", "Microsoft Planner"],
+          "lab_task": "Create Ledgerline's 12-month ISMS operating calendar with at least 20 recurring activities, such as quarterly access reviews and monthly backup restore tests, raise Jira tickets for the first month's tasks, and record the evidence for two of them.",
+          "deliverable": "ISMS operating calendar and two completed evidence records",
+          "checks": [["Check the calendar", "Each activity has a frequency, an owner and an evidence location", "Calendar workbook"], ["Close the Jira ticket for a backup restore test", "The ticket shows the restore result and a screenshot", "Jira ticket"], ["Ask when the risk assessment is repeated", "Answer gives the planned interval and triggers such as a new product or a major incident", "Calendar entry"]],
+          "objectives": ["Run ISMS processes to plan", "Control outsourced processes", "Keep evidence of operation"]
+        },
+        {
+          "topic": "Clauses 9 and 10: Monitoring, Audit, Review and Improvement",
+          "subtopics": ["Clause 9.1: what to monitor and measure, methods, timing and who analyses", "Clause 9.2: the internal audit programme and objective auditors", "Clause 9.3: management review inputs and outputs", "Clause 10.1: continual improvement", "Clause 10.2: reacting to nonconformities and correcting them", "Correction compared with corrective action", "Finding a root cause in simple terms", "Records required for clauses 9 and 10"],
+          "tools": ["Microsoft Excel", "Microsoft Forms audit checklist", "Jira"],
+          "lab_task": "Write a monitoring table for six measures, audit clause 7.5 of the Ledgerline ISMS in pairs with a 10-question checklist, raise one nonconformity, and draft a management review agenda that lists every input in clause 9.3.2.",
+          "deliverable": "Monitoring table, a completed audit checklist with one nonconformity, and a management review agenda",
+          "checks": [["Check the monitoring table", "Each measure states method, frequency, who measures and who analyses", "Monitoring table"], ["Read the nonconformity", "It quotes the requirement, the evidence and what was missing", "Audit checklist"], ["Compare the agenda with 9.3.2", "Inputs a) to g) all appear, including changes in interested parties' needs", "Agenda"]],
+          "objectives": ["Explain the requirements of clauses 9 and 10", "Carry out a small internal audit", "Prepare a management review"]
+        },
+        {
+          "topic": "How ISO/IEC 27001 Certification Audits Work",
+          "subtopics": ["Certification bodies, accreditation bodies such as NABCB and UKAS, and the IAF", "ISO/IEC 17021-1 and ISO/IEC 27006-1:2024 in plain terms", "Stage 1: documents, readiness and planning stage 2", "Stage 2: checking implementation and effectiveness", "Major and minor nonconformities and opportunities for improvement", "The three-year cycle: surveillance audits and recertification", "How audit duration depends on the number of people in scope", "Checking a certificate in IAF CertSearch"],
+          "tools": ["IAF CertSearch", "NABCB and UKAS directories of accredited certification bodies", "Certification body audit plan template"],
+          "lab_task": "Compare two certification body proposals for Ledgerline, check one sample certificate in IAF CertSearch, and read a mock stage 1 report to list three findings that would delay stage 2.",
+          "deliverable": "Certification body comparison, a verified certificate record and a stage 1 findings list",
+          "checks": [["Check whether each certification body is accredited for ISO/IEC 27001", "The accreditation body and the accredited scope are confirmed", "Comparison table"], ["Look up a certificate in IAF CertSearch", "Certificate status, scope and expiry date are shown", "Search result screenshot"], ["Explain surveillance timing", "The first surveillance audit is within 12 months of the certification decision", "Written answer"]],
+          "objectives": ["Explain the certification process", "Choose an accredited certification body", "Describe how findings are graded"]
+        },
+        {
+          "topic": "Transition from ISO/IEC 27001:2013 to 2022 and Amendment 1",
+          "subtopics": ["Why the 2022 edition was published and what stayed the same", "From 114 controls in 14 domains to 93 controls in four themes", "The 11 new controls and the 2013 controls that were merged", "Clause changes: 4.2 c), 4.4, 6.2, the new 6.3, 8.1, and 9.2 and 9.3 split into subclauses", "Amendment 1:2024 and climate change in 4.1 and 4.2", "The IAF MD 26 deadline of 31 October 2025 and what happened to 2013 certificates", "Updating an old SoA with the correspondence tables in ISO/IEC 27002:2022 Annex B", "Reading supplier certificates that still show the 2013 edition"],
+          "tools": ["ISO/IEC 27002:2022 Annex B correspondence tables", "Microsoft Excel", "IAF CertSearch"],
+          "lab_task": "Convert a 2013-style SoA of 114 controls from a small company Ledgerline acquired into the 2022 structure with the ISO/IEC 27002 Annex B tables, list where the 11 new controls need new evidence, and flag any supplier certificate still issued against the 2013 edition.",
+          "deliverable": "Converted SoA, a new-control gap list and a supplier certificate check",
+          "checks": [["Map 2013 control A.12.4.1 Event logging", "Mapped to 8.15 Logging", "Converted SoA row"], ["List the new controls", "All 11 are listed: 5.7, 5.23, 5.30, 7.4, 8.9, 8.10, 8.11, 8.12, 8.16, 8.23 and 8.28", "Gap list"], ["Check a supplier certificate issued against the 2013 edition", "It is marked as no longer valid after 31 October 2025", "Supplier check record"]],
+          "objectives": ["Explain what changed between 2013 and 2022", "Convert an old SoA to the 2022 structure", "Spot out-of-date certificates"]
+        },
+        {
+          "topic": "Beginner Capstone: ISMS Starter Pack for Ledgerline",
+          "subtopics": ["Scope, context and interested parties brought together", "Policy, objectives and roles", "Risk register, treatment plan and Statement of Applicability", "Document register and awareness plan", "Readiness check against clauses 4 to 10", "Presenting the starter pack to top management"],
+          "tools": ["Microsoft SharePoint Online", "Microsoft Excel", "Microsoft PowerPoint"],
+          "lab_task": "Assemble the Ledgerline ISMS starter pack from the earlier days, check it against all 30 subclauses of clauses 4 to 10, close at least three gaps, and give a 15-minute briefing asking the CEO to approve planning for stage 1.",
+          "deliverable": "ISMS starter pack with a clause-by-clause readiness checklist and briefing slides",
+          "checks": [["Run the readiness checklist", "Every subclause is marked met, partly met or not met with evidence", "Readiness checklist"], ["Trace one risk from the register to the SoA", "The risk, its controls and the SoA rows agree", "Trace sheet"], ["Brief the trainer acting as CEO", "The CEO approves stage 1 planning or sets conditions", "Recorded decision"]],
+          "objectives": ["Combine the beginner ISMS documents into one pack", "Check readiness against the standard", "Present the ISMS to top management"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For ISMS managers, implementers and security leads who can already explain the clauses and Annex A and now have to make an ISMS work. Covers gap assessment and planning, risk methodology with ISO/IEC 27005, risk treatment plans, implementing organisational, people, physical and technological controls with ISO/IEC 27002, measurement with ISO/IEC 27004, supplier and cloud security with ISO/IEC 27036, 27017 and 27018, incident management, ICT readiness and ISO 22301, privacy with ISO/IEC 27701:2025, internal audit with ISO 19011, management review, corrective action and preparing for stage 1 and stage 2 audits.",
+      "prerequisites": ["Completed the beginner track or can explain clauses 4 to 10 and the four Annex A themes", "Has taken part in a risk assessment or written ISMS documents", "Works with IT, cloud or security teams and can get read access to their tools"],
+      "outcomes": ["Run ISO/IEC 27005 risk assessments and write risk treatment plans that risk owners approve", "Implement Annex A controls with ISO/IEC 27002 guidance and keep evidence that they operate", "Run internal audits, management reviews and corrective action to the standard", "Bring an ISMS to stage 1 and stage 2 readiness with measures, supplier, cloud, incident and privacy controls"],
+      "days": [
+        {
+          "topic": "ISMS Gap Assessment and Implementation Plan",
+          "subtopics": ["Gap assessment against the 30 subclauses and 93 controls", "Maturity ratings from 0 to 5 with evidence notes", "Sizing gaps in person-days and external cost", "Workstreams: governance, risk, controls, people, suppliers and audit", "A 9-month plan to stage 1 with milestones and a critical path", "Using ISO/IEC 27003 implementation guidance", "Choosing between a GRC tool and a document toolkit", "Reporting progress to the steering committee"],
+          "tools": ["CISO Assistant (open source GRC)", "Microsoft Planner", "Microsoft Excel gap assessment"],
+          "lab_task": "Assess Ledgerline against all 30 subclauses and 93 controls with a 0-to-5 maturity rating, size each gap in person-days, and build a 9-month plan with six workstreams that reaches stage 1 in month 7.",
+          "deliverable": "Gap assessment, sized gap list and a 9-month implementation plan",
+          "checks": [["Check the gap assessment coverage", "All 30 subclauses and 93 controls are rated with evidence notes", "Gap assessment workbook"], ["Review the plan's critical path", "Risk assessment and SoA milestones finish before control implementation milestones", "Gantt chart"], ["Ask for the effort estimate", "Total person-days and external costs are shown by workstream", "Budget table"]],
+          "objectives": ["Run an ISMS gap assessment", "Plan an ISMS implementation", "Estimate effort and cost"]
+        },
+        {
+          "topic": "ISO/IEC 27005 Risk Methodology: Event-Based and Asset-Based Identification",
+          "subtopics": ["ISO/IEC 27005:2022 structure and its link to ISO 31000:2018", "Setting context and risk criteria", "Event-based approach: risk sources, events and consequences at strategic level", "Asset-based approach: assets, threats and vulnerabilities at operational level", "Writing risk scenarios", "Qualitative, semi-quantitative and quantitative analysis", "Estimating likelihood from threat intelligence and incident history", "Moving results into the risk register and treatment"],
+          "tools": ["ISO/IEC 27005:2022", "CISO Assistant risk module", "MITRE ATT&CK Navigator"],
+          "lab_task": "Rebuild Ledgerline's risk method to ISO/IEC 27005: write six strategic event-based scenarios, such as an AWS region outage or insider fraud at the BPO, and 20 operational asset-based scenarios, score them in CISO Assistant, and compare the results with the beginner risk register.",
+          "deliverable": "Risk method version 2.0 and 26 assessed risk scenarios in the GRC tool",
+          "checks": [["Review an event-based scenario", "It names the risk source, the event and the business consequence", "Scenario record"], ["Review an asset-based scenario", "It names the asset, threat, vulnerability and existing controls", "Scenario record"], ["Compare with the first risk register", "At least three new risks are found and two duplicates removed", "Comparison note"]],
+          "objectives": ["Apply both ISO/IEC 27005 identification approaches", "Write clear risk scenarios", "Assess risks in a GRC tool"]
+        },
+        {
+          "topic": "Risk Treatment Plans and Residual Risk Acceptance",
+          "subtopics": ["Treatment options in ISO/IEC 27005: modify, retain, avoid and share", "Writing a plan with actions, owners, dates and costs", "Expected control effect and residual risk", "Cost-benefit reasoning for treatment choices", "Risk acceptance by risk owners and exceptions with expiry dates", "Keeping SoA implementation status in line with the plan", "Tracking treatment progress under clause 8.3", "Cyber insurance as risk sharing and its limits"],
+          "tools": ["CISO Assistant", "Jira", "Microsoft Excel cost model"],
+          "lab_task": "Write treatment plans for Ledgerline's 12 highest risks with 30 actions, estimate the cost and residual risk of each, raise two time-limited risk exceptions, and update SoA implementation status from the plan.",
+          "deliverable": "Risk treatment plan with 30 actions, two signed exceptions and an updated SoA",
+          "checks": [["Check each action", "Owner, due date, cost and the control it implements are recorded", "Treatment plan"], ["Review an exception", "Expiry within 6 months and compensating controls are stated", "Exception form"], ["Compare SoA status with the plan", "Controls marked implemented have no open actions", "SoA and plan comparison"]],
+          "objectives": ["Write risk treatment plans", "Manage residual risk and exceptions", "Keep the SoA in line with treatment"]
+        },
+        {
+          "topic": "Implementing Organisational Controls with ISO/IEC 27002",
+          "subtopics": ["Topic-specific policies (5.1) and roles and responsibilities (5.2 to 5.4)", "Contact with authorities and special interest groups (5.5, 5.6)", "Threat intelligence (5.7) at strategic, tactical and operational levels", "Information security in project management (5.8)", "Access control, identity management and access rights (5.15 to 5.18)", "Legal, statutory, regulatory and contractual requirements (5.31) and protection of records (5.33)", "Independent review (5.35) and compliance checks (5.36)", "Documented operating procedures (5.37)"],
+          "tools": ["ISO/IEC 27002:2022", "CERT-In advisories", "Microsoft Entra ID access reviews", "Confluence"],
+          "lab_task": "Implement five organisational controls at Ledgerline: write the access control topic-specific policy, start a weekly threat intelligence triage from CERT-In advisories and AWS security bulletins, add security checkpoints to the project template, build a legal register of 15 obligations, and schedule a quarterly Entra ID access review.",
+          "deliverable": "Access control policy, threat intelligence triage note, project security checklist, legal register and access review schedule",
+          "checks": [["Review the threat intelligence note", "At least one item leads to an action, such as a patch or a block rule", "Triage note"], ["Run the Entra ID access review for the finance group", "Reviewer decisions are recorded and one stale account is removed", "Access review results"], ["Check the legal register", "Each obligation has an owner, a control reference and a review date", "Legal register"]],
+          "objectives": ["Implement organisational controls", "Produce evidence that controls operate", "Use ISO/IEC 27002 implementation guidance"]
+        },
+        {
+          "topic": "People and Physical Controls in Practice",
+          "subtopics": ["Screening in proportion to the role and the law (6.1)", "Terms of employment and confidentiality agreements (6.2, 6.6)", "Disciplinary process (6.4) and duties after leaving (6.5)", "Remote working (6.7) and event reporting by staff (6.8)", "Perimeters, entry and secure areas (7.1 to 7.3, 7.6)", "Physical security monitoring with CCTV and alarms (7.4)", "Clear desk and clear screen (7.7) and assets off-premises (7.9)", "Storage media and secure disposal or re-use (7.10, 7.14)"],
+          "tools": ["Darwinbox or another HR system", "Visitor management system", "Microsoft Intune remote wipe", "CCTV recorder retention settings"],
+          "lab_task": "Walk through the Bengaluru office with a 25-point people and physical checklist, test the leaver process by removing a test leaver's access within 4 hours of exit, check CCTV retention against the 30-day target, and write the remote working standard for staff who work from home.",
+          "deliverable": "Walk-through checklist results, leaver test record, CCTV retention check and remote working standard",
+          "checks": [["Run the leaver test", "Entra ID account disabled, laptop wiped and badge cancelled within 4 hours", "Timestamped leaver record"], ["Check visitor entry", "Visitors are logged, badged and escorted in secure areas", "Visitor log sample"], ["Review a disposal record", "Disposed laptops have a data destruction certificate listing serial numbers", "Disposal certificate"]],
+          "objectives": ["Implement people controls across employment", "Implement physical controls for offices", "Collect evidence for people and physical controls"]
+        },
+        {
+          "topic": "Identity, Privileged Access and Endpoint Controls",
+          "subtopics": ["User endpoint devices (8.1) with Intune compliance policies", "Privileged access rights (8.2) with just-in-time access in Entra PIM", "Information access restriction (8.3) and access to source code (8.4)", "Secure authentication (8.5): phishing-resistant MFA and conditional access", "Authentication information (5.17) and password managers", "Protection against malware (8.7) with Defender for Endpoint", "Privileged utility programs (8.18) and software installation (8.19)", "Exporting reports that prove each control works"],
+          "tools": ["Microsoft Intune", "Microsoft Entra Privileged Identity Management", "Microsoft Defender for Endpoint", "GitHub branch protection rules"],
+          "lab_task": "Create an Intune compliance policy that requires BitLocker and a supported OS version on Ledgerline laptops, put the Entra Global Administrator role and the AWS production admin group behind Entra PIM with approval, require phishing-resistant MFA for admins with conditional access, and export evidence for each control.",
+          "deliverable": "Configured policies with exported compliance, PIM and sign-in evidence",
+          "checks": [["Enrol a laptop without BitLocker", "The device is marked non-compliant and blocked from Microsoft 365", "Intune compliance report"], ["Request Global Administrator through PIM", "Activation needs approval and expires after 4 hours", "PIM audit log"], ["Sign in as an admin with a password and SMS code", "Sign-in is blocked by the conditional access policy", "Entra sign-in log"]],
+          "objectives": ["Implement identity and endpoint controls", "Enforce controls with Microsoft tools", "Export control evidence for audit"]
+        },
+        {
+          "topic": "Operations Controls: Configuration, Vulnerabilities, Logging and Backup",
+          "subtopics": ["Capacity management (8.6)", "Management of technical vulnerabilities (8.8) and patch targets by severity", "Configuration management (8.9) with CIS Benchmark baselines", "Information backup (8.13) and restore testing", "Redundancy across AWS availability zones (8.14)", "Logging (8.15): what to log, log protection and retention", "Monitoring activities (8.16) and alert triage", "Clock synchronisation (8.17) and the CERT-In 180-day log rule"],
+          "tools": ["Tenable Nessus", "AWS Config conformance packs", "AWS Backup", "AWS CloudTrail", "Wazuh"],
+          "lab_task": "Scan 30 Ledgerline hosts with Nessus and set patch deadlines by severity, deploy the AWS Config conformance pack for the CIS AWS Foundations Benchmark, restore one database from AWS Backup and time it, and confirm that CloudTrail and Wazuh keep logs for 180 days with NTP-synchronised clocks.",
+          "deliverable": "Vulnerability report with patch deadlines, Config compliance results, restore test record and log retention evidence",
+          "checks": [["Review the scan report", "Critical findings have patch due dates within the 14-day target", "Nessus report and ticket list"], ["Restore the LedgerPay test database", "The restore completes within the 4-hour recovery time objective", "Restore log with timings"], ["Check log retention settings", "CloudTrail and Wazuh keep 180 days and clocks match the NTP source", "Configuration screenshots"]],
+          "objectives": ["Implement operational technological controls", "Test backups and restores", "Meet logging and retention requirements"]
+        },
+        {
+          "topic": "Network, Cryptography and Data Leakage Controls",
+          "subtopics": ["Networks security (8.20) and security of network services (8.21)", "Segregation of networks (8.22) with VPCs, subnets and security groups", "Web filtering (8.23)", "Use of cryptography (8.24) and a key management standard", "TLS settings and certificate renewal", "Information deletion (8.10) and data masking (8.11)", "Data leakage prevention (8.12) with Microsoft Purview DLP", "Information transfer rules (5.14) for email and file sharing"],
+          "tools": ["AWS VPC security groups", "AWS Key Management Service", "Microsoft Purview Data Loss Prevention", "Qualys SSL Labs server test"],
+          "lab_task": "Review Ledgerline's AWS network design and close two security group rules open to 0.0.0.0/0, write the cryptography standard with approved algorithms and AWS KMS key rotation periods, test the public API with SSL Labs, and create a Purview DLP policy that blocks external email containing 10 or more Aadhaar numbers.",
+          "deliverable": "Network review notes, cryptography standard, TLS test result and DLP policy test record",
+          "checks": [["Re-check security groups after the change", "No inbound rule allows 0.0.0.0/0 except port 443 on the load balancer", "Security group export"], ["Run the SSL Labs test on the API endpoint", "Grade A with only TLS 1.2 and 1.3 enabled", "SSL Labs report"], ["Send a test email with 12 dummy Aadhaar numbers to an external address", "The email is blocked and the sender sees a policy tip", "DLP alert and message trace"]],
+          "objectives": ["Implement network and cryptography controls", "Prevent data leakage", "Test controls and keep the results"]
+        },
+        {
+          "topic": "Secure Development and Change Controls",
+          "subtopics": ["Secure development life cycle (8.25) and application security requirements (8.26)", "Secure system architecture and engineering principles (8.27)", "Secure coding (8.28) with OWASP ASVS 5.0 and code review", "Security testing in development and acceptance (8.29)", "Separation of development, test and production environments (8.31)", "Change management (8.32) for code and infrastructure", "Test information (8.33) and masked test data", "Outsourced development (8.30) and protection during audit testing (8.34)"],
+          "tools": ["GitHub Code Security (CodeQL, Dependabot)", "GitHub Secret Protection", "OWASP ASVS 5.0", "Jira change tickets"],
+          "lab_task": "Turn on CodeQL scanning, Dependabot and secret push protection for two LedgerPay repositories, require one reviewer and passing checks before merge, map 10 ASVS 5.0 requirements to the payments API, and run a production release through a change ticket with approval and a rollback plan.",
+          "deliverable": "Repository security settings, ASVS mapping and an approved change record",
+          "checks": [["Push a commit containing a revoked test access token", "Push protection blocks the push", "GitHub push rejection message"], ["Open a pull request and try to merge without a review", "Merge is blocked by the branch rule", "Pull request screenshot"], ["Review the change ticket", "Approval, test evidence and rollback plan are recorded before deployment", "Jira change record"]],
+          "objectives": ["Implement secure development controls", "Control changes to production", "Collect development evidence for audit"]
+        },
+        {
+          "topic": "Measuring ISMS Performance with ISO/IEC 27004",
+          "subtopics": ["Clause 9.1: what to measure, methods, timing and who analyses and evaluates", "ISO/IEC 27004:2016 concepts: information need, measure, indicator and decision criteria", "Performance measures compared with effectiveness measures", "Building measures from control evidence, such as patch timeliness and access review completion", "Targets, thresholds and decision criteria", "Data sources: Intune, Nessus, Jira and training records", "Dashboards in Power BI", "Status of the ISO/IEC 27004 revision, still a draft and not yet in force"],
+          "tools": ["ISO/IEC 27004:2016", "Power BI", "Microsoft Excel measurement specification"],
+          "lab_task": "Write measurement specifications for 8 Ledgerline measures with the ISO/IEC 27004 template, such as the percentage of critical vulnerabilities patched within 14 days, load three months of sample data, and build a Power BI page that shows red, amber and green against the decision criteria.",
+          "deliverable": "Eight measurement specifications and a Power BI ISMS dashboard",
+          "checks": [["Review a measurement specification", "Information need, formula, data source, frequency, owner and decision criteria are complete", "Specification sheet"], ["Load the sample data", "Patch timeliness shows 88% against a 95% target and turns amber", "Dashboard screenshot"], ["Ask what an amber result triggers", "The decision criteria name the action and who takes it", "Specification sheet"]],
+          "objectives": ["Design ISMS measures with ISO/IEC 27004", "Build a measurement dashboard", "Use measures to drive decisions"]
+        },
+        {
+          "topic": "Supplier Security with ISO/IEC 27036",
+          "subtopics": ["Controls 5.19 to 5.22: supplier relationships, agreements, ICT supply chain and monitoring", "ISO/IEC 27036-1:2021, 27036-2:2022 and 27036-3:2023 and what each part covers", "Tiering suppliers by data access and service criticality", "Questionnaires, SOC 2 reports and ISO/IEC 27001 certificates as evidence", "Contract clauses: audit rights, breach notice, subcontractors and exit", "Software supply chain: SBOMs and vendor patch commitments", "Ongoing monitoring and yearly reviews", "Ending a supplier relationship and getting data back"],
+          "tools": ["ISO/IEC 27036-2:2022", "IAF CertSearch", "Shared Assessments SIG Lite questionnaire", "CISO Assistant third-party module"],
+          "lab_task": "Tier Ledgerline's 18 suppliers, review the Chennai BPO's ISO/IEC 27001 certificate in IAF CertSearch and its SIG Lite answers, write security clauses for the BPO contract renewal, and set review dates by tier.",
+          "deliverable": "Supplier register with tiers, a BPO assessment report and security contract clauses",
+          "checks": [["Check the BPO certificate scope", "The scope covers the Chennai site and the support service Ledgerline uses", "IAF CertSearch record"], ["Review the contract clauses", "Breach notice within 24 hours, audit rights and data return at exit are included", "Clause draft"], ["Check review dates", "Tier 1 suppliers are reviewed yearly and tier 3 suppliers every three years", "Supplier register"]],
+          "objectives": ["Manage supplier security with ISO/IEC 27036", "Assess supplier evidence", "Write supplier security clauses"]
+        },
+        {
+          "topic": "Cloud Service Controls with ISO/IEC 27017 and ISO/IEC 27018",
+          "subtopics": ["Control 5.23: information security for use of cloud services", "ISO/IEC 27017:2026, the second edition aligned with ISO/IEC 27002:2022, and its cloud-specific controls", "Shared responsibility between Ledgerline, AWS and Microsoft", "Segregation in virtual environments and secure administrator operations", "ISO/IEC 27018:2025 for personal data in public clouds", "Provider evidence from AWS Artifact and the Microsoft Service Trust Portal", "CSA Cloud Controls Matrix v4.1 and the STAR Registry", "Planning cloud exit and data return"],
+          "tools": ["AWS Artifact", "Microsoft Service Trust Portal", "CSA STAR Registry", "AWS Security Hub"],
+          "lab_task": "Build a shared responsibility matrix of 20 controls for LedgerPay on AWS, download AWS's ISO/IEC 27001, 27017 and 27018 certificates from AWS Artifact and check their scope, map five CCM v4.1 controls to the SoA, and write a cloud exit plan for the payments database.",
+          "deliverable": "Shared responsibility matrix, provider evidence file, CCM mapping and cloud exit plan",
+          "checks": [["Check the AWS certificate scope", "Services Ledgerline uses, such as Amazon RDS and Amazon S3, are named in scope", "Certificate scope pages from AWS Artifact"], ["Pick a control from the matrix", "The owner is shown as Ledgerline, AWS or shared, with the evidence source", "Responsibility matrix"], ["Review the exit plan", "Export format, migration time and confirmation of data deletion are stated", "Exit plan"]],
+          "objectives": ["Apply ISO/IEC 27017 and 27018 guidance", "Use cloud provider assurance evidence", "Plan for cloud exit"]
+        },
+        {
+          "topic": "Incident Management with ISO/IEC 27035",
+          "subtopics": ["Controls 5.24 to 5.28 and 6.8 as one process", "ISO/IEC 27035-1:2023 phases: plan and prepare, detect and report, assess and decide, respond, learn lessons", "Events, incidents and a severity matrix", "The incident response team, roles and on-call rota", "Reporting duties: CERT-In within 6 hours, customers and the Data Protection Board from May 2027", "Collection of evidence and chain of custody (5.28)", "Playbooks and tabletop exercises", "Post-incident review and feeding lessons into the risk assessment"],
+          "tools": ["Jira Service Management incident queue", "Wazuh alerts", "CERT-In incident reporting form", "Tabletop exercise script"],
+          "lab_task": "Write Ledgerline's incident procedure and severity matrix, then run a 90-minute tabletop exercise in which a BPO agent exports 2,000 customer records, deciding classification, containment, CERT-In reporting, customer notice and the future Data Protection Board report, and finish with a lessons-learnt review.",
+          "deliverable": "Incident procedure, severity matrix, exercise log and lessons-learnt report",
+          "checks": [["Time the reporting decision in the exercise", "The CERT-In report is ready within 6 hours of detection", "Exercise timeline"], ["Check evidence handling", "The exported file, logs and file hashes are preserved with a chain of custody record", "Evidence log"], ["Review the lessons-learnt report", "At least two actions update the risk register or controls", "Lessons-learnt report"]],
+          "objectives": ["Implement incident management controls", "Meet incident reporting duties", "Exercise and improve the incident process"]
+        },
+        {
+          "topic": "ICT Readiness and Business Continuity Links to ISO 22301",
+          "subtopics": ["Control 5.29: information security during disruption", "Control 5.30: ICT readiness for business continuity", "ISO 22301:2019 with Amendment 1:2024 and where the ISMS hands over to the BCMS", "Business impact analysis: RTO, RPO and minimum service levels", "ISO/IEC 27031:2025 guidance on ICT readiness", "Disaster recovery for LedgerPay across the AWS Mumbai and Hyderabad regions", "Testing by walkthrough, simulation and failover", "Keeping security controls working in a degraded mode"],
+          "tools": ["AWS Elastic Disaster Recovery", "AWS Backup cross-region copy", "ISO/IEC 27031:2025", "Microsoft Excel BIA template"],
+          "lab_task": "Run a business impact analysis for six Ledgerline processes to set RTO and RPO, write the ICT continuity plan for LedgerPay, and run a failover test of the payments API to the Hyderabad region, recording actual recovery against a 4-hour RTO and a 15-minute RPO.",
+          "deliverable": "Business impact analysis, ICT continuity plan and failover test report",
+          "checks": [["Review the BIA", "Each process has an RTO, an RPO and a minimum service level with an owner", "BIA workbook"], ["Run the failover test", "The service recovers in the secondary region within the 4-hour RTO", "Test report with timestamps"], ["Check security during failover", "Logging, MFA and encryption stay active in the recovery region", "Configuration evidence"]],
+          "objectives": ["Link the ISMS to business continuity", "Set recovery objectives", "Test ICT readiness"]
+        },
+        {
+          "topic": "Adding a Privacy Information Management System with ISO/IEC 27701:2025",
+          "subtopics": ["ISO/IEC 27701:2025 as a standalone management system standard", "Clauses 4 to 10 for a PIMS and how they line up with the ISMS", "Annex A control tables for PII controllers, PII processors and both", "Control 5.34 privacy and protection of PII inside the ISMS", "Records of processing and data flow maps", "Privacy impact assessments", "Handling the rights of data principals and data subjects", "Certification under ISO/IEC 27706:2025 and moving from the 2019 edition by 31 October 2028"],
+          "tools": ["ISO/IEC 27701:2025", "CISO Assistant privacy module", "draw.io data flow diagrams"],
+          "lab_task": "Map the personal data flows of LedgerPay customer onboarding, decide where Ledgerline is a PII controller and where it is a processor for bank customers, select controls from the ISO/IEC 27701 Annex A tables, and run a privacy impact assessment on the new KYC document upload feature.",
+          "deliverable": "Data flow map, controller and processor role decision, PIMS control selection and privacy impact assessment",
+          "checks": [["Check the role decision", "Ledgerline is a processor for bank customers' payee data and a controller for its own staff and marketing data", "Role decision record"], ["Review the control selection", "Controller and processor tables are applied according to each role", "PIMS control selection sheet"], ["Read the impact assessment", "Risks to individuals, such as KYC documents kept too long, have treatments and owners", "Privacy impact assessment"]],
+          "objectives": ["Extend the ISMS with a PIMS", "Apply ISO/IEC 27701 controls for controllers and processors", "Run a privacy impact assessment"]
+        },
+        {
+          "topic": "Internal Audit with ISO 19011 and ISO/IEC 27007",
+          "subtopics": ["Clause 9.2: audit programme, criteria, scope, objectivity and reporting", "ISO 19011:2026 principles and the audit process", "ISO/IEC 27007:2020 guidance for ISMS audits, with its revision at draft stage", "Building a 12-month internal audit programme", "Writing audit plans and checklists from requirements and risks", "Interviewing, observing and sampling records", "Writing nonconformities with requirement, evidence and statement", "Reporting results to management"],
+          "tools": ["ISO 19011:2026", "ISO/IEC 27007:2020", "Microsoft Excel audit programme", "Microsoft Forms checklists"],
+          "lab_task": "Build Ledgerline's 12-month internal audit programme covering all clauses and Annex A themes, then audit the access control and supplier processes in pairs, sampling 15 joiners and leavers and 5 supplier files, and write the audit report.",
+          "deliverable": "Internal audit programme, audit plan, checklists and audit report",
+          "checks": [["Check auditor objectivity", "No auditor audits their own work", "Audit programme assignments"], ["Review the leaver sample", "Each leaver's access removal date is compared with the HR exit date", "Sample sheet"], ["Read a nonconformity", "It states the requirement, the objective evidence and the gap", "Audit report"]],
+          "objectives": ["Plan an internal audit programme", "Conduct an internal audit", "Report audit results"]
+        },
+        {
+          "topic": "Holding the ISMS Management Review",
+          "subtopics": ["Clause 9.3.1: top management review at planned intervals", "Clause 9.3.2 inputs a) to g)", "Clause 9.3.3 outputs: improvement decisions and changes to the ISMS", "Preparing the input pack from measures, audits and risks", "Running the meeting in 60 to 90 minutes", "Recording decisions, actions and resource needs", "Tracking actions to the next review", "What auditors check in management review minutes"],
+          "tools": ["Microsoft PowerPoint", "Power BI ISMS dashboard", "Microsoft Teams", "Microsoft Planner"],
+          "lab_task": "Prepare a 12-slide management review pack for Ledgerline from the dashboard, audit report and risk register, run a 60-minute review with participants playing the CEO, COO and CTO, and minute at least five decisions with owners and dates.",
+          "deliverable": "Management review pack and minutes with decisions and actions",
+          "checks": [["Compare the pack with 9.3.2", "Every input from a) to g) appears in the pack", "Input checklist"], ["Review the minutes", "Decisions on improvements and changes to the ISMS are recorded", "Minutes"], ["Check the actions", "Each action has an owner, a due date and a tracker link", "Planner board"]],
+          "objectives": ["Prepare management review inputs", "Run a management review", "Record outputs that auditors accept"]
+        },
+        {
+          "topic": "Nonconformities, Root Cause and Corrective Action",
+          "subtopics": ["Clause 10.2: reacting, correcting and dealing with consequences", "Evaluating the need for action to remove causes", "Root cause methods: five whys and fishbone diagrams", "Checking whether similar nonconformities exist elsewhere", "Corrective action plans and effectiveness reviews", "Changing the ISMS when needed", "Records of the nature of nonconformities, actions and results", "Continual improvement (10.1) from incidents, audits and suggestions"],
+          "tools": ["Jira corrective action workflow", "Miro fishbone template", "Microsoft Excel corrective action log"],
+          "lab_task": "Take three nonconformities from the internal audit, including leavers keeping access for 9 days, run a five-whys and a fishbone analysis for each, write corrective action plans, and define how and when effectiveness will be checked.",
+          "deliverable": "Root cause analyses and corrective action plans for three nonconformities",
+          "checks": [["Review the root cause for the leaver finding", "The cause names a process gap, such as no HR-to-IT trigger, not 'human error'", "Five whys record"], ["Check for similar cases", "Other systems with manual deprovisioning are reviewed and listed", "Extent check note"], ["Look at the effectiveness check", "A date and a test, such as sampling 20 leavers after 60 days, are set", "Corrective action record"]],
+          "objectives": ["Analyse root causes", "Write corrective action plans", "Verify that corrective action worked"]
+        },
+        {
+          "topic": "Preparing for Stage 1 and Stage 2 Certification Audits",
+          "subtopics": ["What the certification body asks for before stage 1", "Stage 1: scope, documents, readiness and the stage 2 plan", "Closing stage 1 concerns before stage 2", "Stage 2: interviews, control sampling and records of operation", "Preparing interviewees and an evidence index", "Logistics: audit plan, guides, remote access and confidentiality", "Responding to findings during the audit", "After the audit: corrective action plans and the certification decision"],
+          "tools": ["Certification body application questionnaire", "Microsoft SharePoint evidence library", "Microsoft Teams"],
+          "lab_task": "Complete a certification body application for Ledgerline with headcount, sites and scope, assemble the stage 1 document pack, rehearse a 30-minute stage 2 interview with the cloud operations lead, and build an evidence index for 25 Annex A controls.",
+          "deliverable": "Certification application, stage 1 pack, interview rehearsal notes and evidence index",
+          "checks": [["Review the headcount in the application", "Full-time, part-time and contractor numbers within scope are given", "Application form"], ["Check the evidence index", "Each of the 25 controls points to records from the last three months", "Evidence index"], ["Rehearse an interview question on change management", "The interviewee shows a real change ticket, not only the procedure", "Rehearsal notes"]],
+          "objectives": ["Prepare for stage 1", "Prepare people and evidence for stage 2", "Handle findings during certification"]
+        },
+        {
+          "topic": "Intermediate Capstone: Ledgerline Certification Readiness Review",
+          "subtopics": ["Risk method, treatment plans and SoA", "Control evidence across the four themes", "Measures, internal audit and management review results", "Supplier, cloud, incident, continuity and privacy controls", "Corrective actions and open risks", "Go or no-go decision for stage 1"],
+          "tools": ["CISO Assistant", "Power BI", "Microsoft SharePoint Online"],
+          "lab_task": "In teams, audit another team's Ledgerline ISMS against all 30 subclauses and 20 sampled controls, answer the findings raised on your own ISMS with corrective actions, and present a go or no-go recommendation for stage 1 to the steering committee.",
+          "deliverable": "Readiness audit report, corrective action responses and the stage 1 go or no-go decision",
+          "checks": [["Review the readiness audit coverage", "All 30 subclauses and 20 sampled controls have a result", "Readiness audit report"], ["Check the responses to findings", "Each finding has a correction, a root cause and a corrective action", "Response log"], ["Present the recommendation", "The steering committee records go or no-go with any conditions", "Decision record"]],
+          "objectives": ["Combine the intermediate topics in one readiness review", "Audit and respond to findings", "Make a stage 1 decision"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For lead auditors, certification body auditors, ISMS programme leaders and CISOs who already run or audit an ISMS. Covers audit programmes, planning and leading audits, evidence, sampling and remote auditing, writing and grading findings, certification body rules in ISO/IEC 17021-1 and ISO/IEC 27006-1, multi-site and group certification, surveillance, recertification and major nonconformities, alignment with SOC 2, NIST CSF 2.0, India's DPDP Act and GDPR, ISO/IEC 42001 alongside the ISMS, compliance automation, board metrics and running a combined management system.",
+      "prerequisites": ["Has implemented an ISMS or completed the intermediate track", "Has taken part in at least one internal, supplier or certification audit of an ISMS", "Reads ISO/IEC 27001 clauses and Annex A controls without help"],
+      "outcomes": ["Plan, lead and report ISMS certification, internal and supplier audits with sound evidence and sampling", "Apply ISO/IEC 17021-1 and ISO/IEC 27006-1 rules to multi-site audits, surveillance, recertification and major nonconformities", "Align one ISMS with SOC 2, NIST CSF 2.0, the DPDP Act, GDPR and ISO/IEC 42001", "Lead an ISMS programme with GRC automation, maturity measures and board reporting"],
+      "days": [
+        {
+          "topic": "Designing a Risk-Based ISMS Audit Programme",
+          "subtopics": ["Audit programme objectives, extent and risks in ISO 19011:2026 clause 5", "A three-year programme that covers every clause and all four Annex A themes", "Setting audit frequency from risk scores, incidents and change volume", "Competence and resources of the audit programme manager", "First-, second- and third-party audits in one programme", "Supplier audits under control 5.22", "Monitoring and reviewing the programme", "Programme records required by clause 9.2.2"],
+          "tools": ["ISO 19011:2026", "ISO/IEC 27007:2020", "AuditBoard or CISO Assistant audit module", "Microsoft Excel heat map"],
+          "lab_task": "Design a three-year audit programme for Ledgerline and its four critical suppliers, weight each audit area by risk score, incident count and change volume, and justify why the Chennai BPO is audited twice a year while physical security is audited every 18 months.",
+          "deliverable": "Three-year audit programme with risk weighting and supplier audits",
+          "checks": [["Check coverage", "Every clause from 4 to 10 and all four Annex A themes are audited within the cycle", "Programme matrix"], ["Trace the BPO audit frequency", "The frequency follows from its risk score and two incidents last year", "Risk weighting sheet"], ["Review programme risks", "Risks such as auditor shortage and limits on remote access have actions", "Programme risk register"]],
+          "objectives": ["Design a risk-based audit programme", "Combine internal and supplier audits", "Justify audit frequency"]
+        },
+        {
+          "topic": "Planning an ISMS Audit: Scope, Criteria, Team and Audit Plan",
+          "subtopics": ["Audit objectives, scope and criteria", "Feasibility of the audit and access to information", "Selecting the team: competence, technical experts and impartiality", "Audit time from the number of persons doing work under the organisation's control", "Desk review of the scope, SoA and risk documents", "Writing the audit plan by process, site and control", "Work documents: checklists, sampling plans and evidence forms", "Agreeing the plan with the auditee"],
+          "tools": ["ISO/IEC 27006-1:2024 Annex C audit time tables", "Microsoft Word audit plan template", "Microsoft Excel"],
+          "lab_task": "Plan a stage 2 audit of Ledgerline: calculate audit days for 420 persons with the complexity factors in ISO/IEC 27006-1:2024 Annex C, select a three-person team with one cloud technical expert, and write an hour-by-hour plan across Bengaluru, Pune and a remote session with the BPO.",
+          "deliverable": "Audit time calculation, team selection record and stage 2 audit plan",
+          "checks": [["Review the audit time calculation", "Base days follow the Annex C table for 420 persons and each adjustment is justified", "Calculation sheet"], ["Check the team", "No team member has consulted for Ledgerline in the past two years", "Impartiality declarations"], ["Check the plan against the SoA", "Every process and site in scope is covered and sampled controls are scheduled", "Audit plan"]],
+          "objectives": ["Define audit objectives, scope and criteria", "Calculate ISMS audit time", "Write an audit plan"]
+        },
+        {
+          "topic": "Leading the Audit Team from Opening Meeting to Closing Meeting",
+          "subtopics": ["Lead auditor duties and team roles", "Opening meeting agenda and confirmations", "Guides, observers and technical experts", "Daily team briefings and auditee updates", "Managing time, scope changes and difficult auditees", "Escalating serious risks found during the audit", "Agreeing findings in the team before the closing meeting", "Closing meeting: conclusions, recommendation and next steps"],
+          "tools": ["Opening and closing meeting checklists", "Microsoft Teams", "Audit evidence log"],
+          "lab_task": "Lead a simulated two-day audit of Ledgerline with a team of three: run the opening meeting, hold two daily briefings, deal with an auditee who refuses access to the AWS console, and run the closing meeting with the audit recommendation.",
+          "deliverable": "Opening and closing meeting records, briefing notes and an audit issue log",
+          "checks": [["Observe the opening meeting", "Scope, plan, confidentiality and the appeals process are confirmed", "Opening meeting record"], ["Handle the refused access", "The lead auditor records the limitation and agrees another route to evidence", "Issue log"], ["Observe the closing meeting", "Findings, grades and the recommendation are stated and acknowledged by the auditee", "Closing meeting record"]],
+          "objectives": ["Lead an audit team", "Run opening and closing meetings", "Manage problems during an audit"]
+        },
+        {
+          "topic": "Collecting Evidence by Interview, Observation and Record Review",
+          "subtopics": ["Objective evidence and what makes it verifiable", "Audit trails from policy to practice to record", "Interview techniques: open questions, silence and follow-up", "Observing operations, such as a production deployment or visitor entry", "Reviewing system-generated records and screenshots", "Checking cloud configurations with the auditee at the keyboard", "Avoiding hearsay and leading questions", "Recording evidence so that another auditor can repeat the check"],
+          "tools": ["Audit evidence log template", "AWS Management Console read-only session", "Microsoft Entra admin center"],
+          "lab_task": "In pairs, audit change management and access control at Ledgerline by interviewing the release manager, observing a production deployment, and reviewing 10 change tickets and the Entra sign-in logs, recording each piece of evidence so another auditor could repeat the check.",
+          "deliverable": "Evidence log with interview notes, observations and record references",
+          "checks": [["Review an evidence entry", "It names the source, date, record ID and the person who showed it", "Evidence log"], ["Compare the interview with the records", "A gap between what was said and what the tickets show is noted", "Evidence log"], ["Check a cloud configuration observation", "The auditor viewed the setting with the auditee driving and recorded a screenshot reference", "Observation note"]],
+          "objectives": ["Gather objective audit evidence", "Interview and observe effectively", "Record evidence that others can repeat"]
+        },
+        {
+          "topic": "Audit Sampling for Records, Users and Annex A Controls",
+          "subtopics": ["Judgement-based and statistical sampling in ISO 19011", "Defining populations and choosing sample sizes", "Random selection with Python and a recorded seed", "Sampling Annex A controls across a three-year cycle", "Sampling time periods for controls that run monthly or quarterly", "Handling an exception found in a sample", "Extending the sample after a failure", "Recording the sampling method and results"],
+          "tools": ["Python pandas DataFrame.sample", "Microsoft Excel", "ISO 19011:2026 sampling guidance"],
+          "lab_task": "From exports of 1,850 Ledgerline user accounts and 312 change tickets, draw random samples of 25 and 15, test them against the access and change procedures, extend the sample when one exception appears, and write the sampling record.",
+          "deliverable": "Sampling record with populations, method, samples, exceptions and conclusions",
+          "checks": [["Re-run the selection with the recorded random_state", "The same 25 accounts are selected", "Notebook output"], ["Find one exception in the change sample", "The sample is extended and the exception is judged isolated or systemic", "Sampling record"], ["Check control sampling over the cycle", "Every applicable SoA control is sampled at least once in the three-year plan", "Control sampling plan"]],
+          "objectives": ["Choose sampling methods", "Draw repeatable samples", "Handle exceptions found in samples"]
+        },
+        {
+          "topic": "Auditing Risk Assessment, Risk Treatment and the Statement of Applicability",
+          "subtopics": ["Testing that the risk method gives consistent, valid and comparable results", "Checking risk criteria, owners and acceptance records", "Tracing risks to controls, SoA rows and treatment actions", "Challenging exclusion justifications", "Checking that controls marked implemented in the SoA really operate", "Comparing the risk register with incidents and changes", "Auditing risk assessments repeated under clause 8.2", "Common major findings in risk management"],
+          "tools": ["CISO Assistant risk and SoA exports", "Microsoft Excel trace matrix", "Jira incident register"],
+          "lab_task": "Audit Ledgerline's risk assessment and SoA: re-score five risks with its own method to test consistency, trace 15 SoA rows back to risks and forward to evidence, challenge two exclusions, and compare the risk register with the last 12 months of incidents.",
+          "deliverable": "Risk and SoA audit worksheet with traces, re-scores and draft findings",
+          "checks": [["Re-score five risks with the auditee's method", "Scores match or the differences are explained by the method", "Re-score sheet"], ["Trace SoA row 8.13 Information backup", "The row links to risks and to restore test records from last quarter", "Trace matrix"], ["Compare incidents with the register", "An incident type missing from the register is raised as a finding", "Draft finding"]],
+          "objectives": ["Audit the risk process", "Audit the SoA and its links", "Raise findings on risk management"]
+        },
+        {
+          "topic": "Remote Auditing and Virtual Locations with ISO 19011:2026",
+          "subtopics": ["What changed in ISO 19011:2026: wider remote auditing guidance and an expanded Annex A", "ISO/IEC TS 17012:2024 guidance on remote auditing methods", "IAF MD 4 rules for using ICT in accredited certification audits", "Virtual locations, such as a cloud platform or a fully remote team", "Feasibility checks: connection, security and confidentiality of evidence", "Screen sharing, recordings and consent", "Verifying identities and spotting staged evidence", "Mixing on-site and remote activities in one audit plan"],
+          "tools": ["Microsoft Teams", "ISO/IEC TS 17012:2024", "IAF MD 4", "Secure evidence upload portal"],
+          "lab_task": "Plan and run a remote audit of Ledgerline's AWS operations as a virtual location: agree the feasibility checklist and recording rules, sample 10 IAM roles over screen share, and list the evidence that could not be verified remotely.",
+          "deliverable": "Remote audit feasibility checklist, remote session notes and a verification limits list",
+          "checks": [["Review the feasibility checklist", "Bandwidth, tools, confidentiality and recording consent are confirmed before the audit", "Checklist"], ["Sample IAM roles over screen share", "Each role's policies and last-used date are viewed live with the auditee driving", "Session notes"], ["Ask what could not be checked remotely", "Items such as the Pune server room are moved to an on-site visit", "Verification limits list"]],
+          "objectives": ["Apply the 2026 remote auditing guidance", "Audit a virtual location", "Know the limits of remote evidence"]
+        },
+        {
+          "topic": "Writing and Grading Audit Findings",
+          "subtopics": ["Nonconformity statements: requirement, evidence and gap", "Major and minor nonconformities as defined in ISO/IEC 17021-1", "Opportunities for improvement and why they are not consultancy", "Grading consistently across the audit team", "Writing findings that the evidence fully supports", "Recording good practice", "The audit report: content, distribution and confidentiality", "The recommendation for certification"],
+          "tools": ["Nonconformity report template", "Audit report template", "Grading decision tree"],
+          "lab_task": "From the evidence gathered on earlier days, write eight findings for Ledgerline, grade each as major, minor or opportunity for improvement with a written reason, have another team re-grade them blind, and finalise the audit report and recommendation.",
+          "deliverable": "Eight graded findings, a blind re-grading comparison and the audit report",
+          "checks": [["Read the finding on missing internal audits of Annex A themes", "It cites clause 9.2.2, the evidence and what is missing", "Nonconformity report"], ["Compare with the blind re-grading", "Seven of eight grades match or the difference is settled with reasons", "Re-grading comparison"], ["Check the recommendation", "The recommendation is consistent with the open major nonconformities", "Audit report"]],
+          "objectives": ["Write clear nonconformity statements", "Grade findings consistently", "Write the audit report"]
+        },
+        {
+          "topic": "Certification Body Rules: ISO/IEC 17021-1 and ISO/IEC 27006-1",
+          "subtopics": ["ISO/IEC 17021-1:2015 principles: impartiality, competence, confidentiality and responsibility", "ISO/IEC 27006-1:2024 additions for ISMS certification", "The IAF MD 29 transition to ISO/IEC 27006-1:2024 that closed on 31 March 2026", "Auditor competence and technical areas", "Consultancy limits and the two-year rule", "Certification decisions made by people who were not on the audit team", "Certificate content, including the reference to the SoA version", "Complaints, appeals and accreditation body oversight"],
+          "tools": ["ISO/IEC 17021-1:2015", "ISO/IEC 27006-1:2024", "IAF MD 29", "NABCB and UKAS accreditation schedules"],
+          "lab_task": "Review a certification body's file for a Ledgerline audit against 20 rules from ISO/IEC 17021-1 and ISO/IEC 27006-1, such as auditor competence records, impartiality checks and the certificate's SoA reference, and record each as met or not met.",
+          "deliverable": "Certification body file review with 20 rules assessed",
+          "checks": [["Check the certification decision", "The decision maker was not on the audit team", "Decision record"], ["Check the certificate", "It states the scope and the SoA version", "Draft certificate"], ["Check an auditor's file", "Competence evidence covers ISMS knowledge and the client's technical area", "Auditor competence record"]],
+          "objectives": ["Explain certification body requirements", "Check a certification audit file", "Spot impartiality problems"]
+        },
+        {
+          "topic": "Multi-Site and Group Certification",
+          "subtopics": ["IAF MD 1:2023 eligibility for multi-site sampling", "The central function and its control over sites", "Sample sizes: the square root of the number of sites, times 0.6 for surveillance and 0.8 for recertification", "ISO/IEC 27006-1 requirements for multi-site ISMS audits", "Risk factors that increase the sample", "Certifying a group of companies under common control", "When a nonconformity at one site affects all sites", "Adding and removing sites on a certificate"],
+          "tools": ["IAF MD 1:2023", "ISO/IEC 27006-1:2024", "Microsoft Excel site sampling calculator"],
+          "lab_task": "Ledgerline buys a company with 9 branch offices: decide whether the combined group can use multi-site sampling, calculate sample sizes for initial, surveillance and recertification audits, choose which sites to visit from risk factors, and explain what happens if one site has a major nonconformity.",
+          "deliverable": "Multi-site eligibility decision, sampling calculation and site selection rationale",
+          "checks": [["Calculate the initial sample for 9 sites", "The square root gives 3 sites plus the central function", "Calculation sheet"], ["Calculate the surveillance sample", "0.6 times the square root of 9 is 1.8, rounded up to 2 sites", "Calculation sheet"], ["Explain a major nonconformity at one site", "Corrective action must cover all sites before certification can continue", "Written answer"]],
+          "objectives": ["Apply IAF MD 1 to an ISMS", "Calculate site samples", "Decide on group certification"]
+        },
+        {
+          "topic": "Surveillance Audits, Recertification and Certificate Changes",
+          "subtopics": ["Surveillance at least once a calendar year, with the first within 12 months of the certification decision", "What every surveillance audit covers: internal audit, management review, complaints, changes and corrective actions", "Timing the recertification audit before expiry", "Restoring certification within 6 months of expiry", "Extending and reducing the scope", "Transferring a certificate between certification bodies under IAF MD 2", "Special and short-notice audits", "Planning the next cycle from the last one"],
+          "tools": ["ISO/IEC 17021-1:2015 clause 9.6", "IAF MD 2", "Microsoft Excel certification cycle planner"],
+          "lab_task": "Plan Ledgerline's three-year certification cycle from a certification decision on 15 January 2027: date the two surveillance audits and the recertification, plan a scope extension for the acquired company in year 2, and assess a request to transfer the certificate to another certification body.",
+          "deliverable": "Three-year cycle plan, scope extension plan and certificate transfer assessment",
+          "checks": [["Check the first surveillance date", "It falls no later than 15 January 2028", "Cycle plan"], ["Check the recertification timing", "The recertification decision is planned before the certificate expires on 14 January 2030", "Cycle plan"], ["Review the transfer assessment", "Open major nonconformities and the last audit report are checked before the transfer is accepted", "Transfer review record"]],
+          "objectives": ["Plan surveillance and recertification", "Manage scope changes", "Handle certificate transfers"]
+        },
+        {
+          "topic": "Handling Major Nonconformities and Suspension Risk",
+          "subtopics": ["The ISO/IEC 17021-1 definition of a major nonconformity and when repeated minors become major", "Correction and corrective action deadlines set by the certification body", "Follow-up by visit or by document review", "The 6-month limit after stage 2 for verifying majors before another stage 2 is needed", "Recertification when a major is not closed", "Suspension, withdrawal and reduction of scope", "Telling customers and the board during a suspension", "Finding programme-level causes, not just fixing the finding"],
+          "tools": ["ISO/IEC 17021-1:2015", "Corrective action plan template", "Jira", "Board briefing template"],
+          "lab_task": "Ledgerline receives two major nonconformities at surveillance: no management review for 14 months and backups never restore-tested. Write corrections, root causes and corrective actions in a 60-day plan, prepare evidence for a follow-up visit, and draft a board note on suspension risk.",
+          "deliverable": "Corrective action plans for two major nonconformities, a follow-up evidence pack and a board note",
+          "checks": [["Review the backup corrective action", "A restore test is done and a recurring test is scheduled with an owner", "Restore test record and calendar"], ["Check the follow-up evidence", "Evidence shows the management review was held and lists its outputs", "Evidence pack"], ["Read the board note", "It states the deadline, the suspension consequence and the customer impact", "Board note"]],
+          "objectives": ["Respond to major nonconformities", "Avoid suspension", "Brief the board on certification risk"]
+        },
+        {
+          "topic": "Mapping the ISMS to SOC 2",
+          "subtopics": ["SOC 2 Type 1 and Type 2 reports compared with ISO/IEC 27001 certification", "The 2017 Trust Services Criteria with the 2022 revised points of focus", "The AICPA exposure draft of October 2026, proposed for engagements from 31 December 2027", "Mapping common criteria CC1 to CC9 to clauses and Annex A controls", "One evidence set for the ISMS and the SOC 2 period", "What SOC 2 adds: the system description and complementary user entity controls", "Bridge letters and timing the SOC 2 period with surveillance audits", "Using a supplier's SOC 2 report in supplier reviews"],
+          "tools": ["AICPA Trust Services Criteria", "Vanta or Drata", "Microsoft Excel mapping"],
+          "lab_task": "Map the SOC 2 security common criteria to Ledgerline's SoA, list what SOC 2 needs that the ISMS does not yet evidence, such as the system description and complementary user entity controls, and plan one evidence calendar that serves a 12-month Type 2 period and the ISO surveillance audit.",
+          "deliverable": "Criteria-to-SoA mapping, gap list and combined evidence calendar",
+          "checks": [["Check the CC6.1 logical access mapping", "CC6.1 maps to controls such as 5.15, 5.18, 8.2 and 8.5", "Mapping sheet"], ["Review the gap list", "The system description and complementary user entity controls appear as SOC 2-only items", "Gap list"], ["Check the evidence calendar", "Each recurring control produces evidence across the full Type 2 period", "Evidence calendar"]],
+          "objectives": ["Map SOC 2 to ISO/IEC 27001", "Reuse evidence across both", "Time SOC 2 periods with the certification cycle"]
+        },
+        {
+          "topic": "Aligning the ISMS with NIST CSF 2.0",
+          "subtopics": ["CSF 2.0 functions: Govern, Identify, Protect, Detect, Respond and Recover", "The 22 categories and 106 subcategories", "The NIST informative reference that maps ISO/IEC 27001:2022 to CSF 2.0", "Current and target profiles", "Tiers and how they differ from maturity levels", "The Govern function and clauses 4 to 6", "Reporting to US customers and boards with CSF profiles", "Keeping one control set with two views"],
+          "tools": ["NIST CSF 2.0 Reference Tool", "NIST OLIR informative reference for ISO/IEC 27001:2022", "Microsoft Excel profile template"],
+          "lab_task": "Build Ledgerline's current and target CSF 2.0 profiles from its SoA with the NIST informative reference, rate all 22 categories, and choose five gaps to close in the next year.",
+          "deliverable": "CSF 2.0 current and target profiles with a five-item gap plan",
+          "checks": [["Check the Govern function", "GV categories link to clauses 4 to 6 and to controls such as 5.1 to 5.4 and 5.19 to 5.23", "Profile sheet"], ["Count the rated categories", "All 22 categories have a current and a target rating", "Profile sheet"], ["Review the gap plan", "Each gap has an owner, a budget and a link to a risk", "Gap plan"]],
+          "objectives": ["Map the ISMS to CSF 2.0", "Build CSF profiles", "Report the ISMS in CSF terms"]
+        },
+        {
+          "topic": "DPDP Act and GDPR Obligations Inside the ISMS",
+          "subtopics": ["The DPDP Act 2023 and the DPDP Rules 2025: Board rules from November 2025, consent managers from November 2026 and the main duties from May 2027", "Reasonable security safeguards under Rule 6, including one-year log retention", "Breach notice to the Data Protection Board and affected data principals under Rule 7", "Significant data fiduciary duties: yearly DPIA and audit and an India-based DPO", "GDPR Articles 28, 32, 33 and 35: processors, security, 72-hour breach notice and DPIAs", "Mapping legal duties to the legal register and controls 5.31 and 5.34", "Processor terms in contracts with Indian bank customers and EU clients", "Penalties: up to INR 250 crore under the DPDP Act and up to EUR 10 million or 2% of turnover for GDPR security duties"],
+          "tools": ["DPDP Act 2023 and DPDP Rules 2025 (G.S.R. 846(E))", "GDPR text", "Microsoft Excel obligations register", "CISO Assistant privacy module"],
+          "lab_task": "Build an obligations register for Ledgerline with 30 DPDP and GDPR duties, map each to clauses, Annex A controls and evidence, plan the changes needed before May 2027, and test the breach procedure for both the GDPR 72-hour notice and the DPDP Board report.",
+          "deliverable": "DPDP and GDPR obligations register mapped to controls, with a May 2027 readiness plan",
+          "checks": [["Check the Rule 6 mapping", "Encryption, access control, logging with one-year retention and backups map to 8.24, 5.15, 8.15 and 8.13", "Obligations register"], ["Walk through a breach scenario", "Both the GDPR supervisory authority notice and the DPDP Board report are prepared", "Breach drill record"], ["Review the readiness plan", "Each gap closes before May 2027 and has an owner", "Readiness plan"]],
+          "objectives": ["Map privacy law duties into the ISMS", "Prepare for the DPDP Rules deadlines", "Handle breach notices in two jurisdictions"]
+        },
+        {
+          "topic": "ISO/IEC 42001 AI Management Systems Alongside the ISMS",
+          "subtopics": ["ISO/IEC 42001:2023 clauses 4 to 10 and the structure shared with ISO/IEC 27001", "Annex A: 38 controls under 9 objectives, A.2 to A.10", "AI risk assessment (6.1.2) and AI system impact assessment (6.1.4)", "ISO/IEC 42005:2025 for impact assessments and ISO/IEC 23894:2023 for AI risk", "AI system inventory and roles such as provider, developer and user", "Shared processes: document control, internal audit, management review and corrective action", "AI security risks: prompt injection, data poisoning and model theft", "Certification under ISO/IEC 42006:2025"],
+          "tools": ["ISO/IEC 42001:2023", "ISO/IEC 42005:2025", "OWASP Top 10 for LLM Applications 2025", "CISO Assistant"],
+          "lab_task": "Ledgerline adds an AI assistant that drafts dispute replies from customer tickets: add it to an AI system inventory, run an AI system impact assessment and an AI risk assessment, decide which ISO/IEC 42001 Annex A controls apply, and show which ISMS processes the AI management system reuses.",
+          "deliverable": "AI system inventory entry, impact assessment, AI risk assessment and an ISMS-AIMS integration map",
+          "checks": [["Read the impact assessment", "Effects on customers, such as wrong refund decisions, are assessed with mitigations", "Impact assessment"], ["Review the integration map", "Document control, internal audit and management review are shared and AI-specific processes are listed separately", "Integration map"], ["Check a security risk", "Prompt injection through ticket text is assessed and linked to ISMS controls such as 8.28 and 8.16", "AI risk register"]],
+          "objectives": ["Run an AI management system alongside the ISMS", "Assess AI system impacts and risks", "Reuse ISMS processes for ISO/IEC 42001"]
+        },
+        {
+          "topic": "Compliance Automation with GRC Platforms",
+          "subtopics": ["What GRC platforms automate: evidence collection, control tests, policies and tasks", "Integrations with AWS, Microsoft 365, GitHub and HR systems", "Automated test results compared with evidence an auditor will accept", "Vanta, Drata, Sprinto and CISO Assistant compared", "Mapping one control to ISO/IEC 27001, SOC 2 and DPDP requirements", "Auditor access, read-only views and evidence exports", "Automation risks: false passes, scope drift and tool lock-in", "Choosing a platform on cost, integrations and data residency"],
+          "tools": ["CISO Assistant", "Vanta", "Drata", "Sprinto", "AWS Config"],
+          "lab_task": "Connect a demo GRC workspace to Ledgerline's test AWS account and Microsoft 365 tenant, map 20 automated tests to Annex A controls, find two tests that pass but would not satisfy an auditor, and score three platforms on a selection scorecard.",
+          "deliverable": "Automated test mapping, a false-pass analysis and a platform selection scorecard",
+          "checks": [["Review the test mapping", "Each automated test links to a control and states what it proves", "Mapping sheet"], ["Examine a passing MFA test", "The test is shown to miss break-glass accounts and the gap is recorded", "False-pass analysis"], ["Check the scorecard", "Cost, integrations, auditor access and data residency are scored for three tools", "Scorecard"]],
+          "objectives": ["Automate ISMS evidence collection", "Judge what automated evidence proves", "Select a GRC platform"]
+        },
+        {
+          "topic": "ISMS Maturity and Metrics for the Board",
+          "subtopics": ["Maturity models for an ISMS and their limits", "Choosing 8 to 10 board metrics from operational measures", "Leading and lagging indicators", "Risk appetite statements and risk trends", "Presenting certification status, audit findings and incidents", "Benchmarking against peers and frameworks", "Writing a one-page board report", "ISO/IEC 27014:2020 on governance of information security"],
+          "tools": ["Power BI", "ISO/IEC 27014:2020", "Microsoft PowerPoint", "CISO Assistant dashboards"],
+          "lab_task": "Assess Ledgerline's ISMS maturity in 10 areas, choose eight board metrics with targets, build a one-page Power BI board report for the quarter, and present it to a mock board in 10 minutes with one decision request.",
+          "deliverable": "Maturity assessment, board metric set and a one-page board report",
+          "checks": [["Review the metric set", "Each metric has a target, a trend and a link to a risk or objective", "Metric definitions"], ["Read the board report", "It fits on one page and leads with risks and decisions, not activity counts", "Board report"], ["Present to the mock board", "The board makes the requested decision or asks for specific information", "Presentation notes"]],
+          "objectives": ["Assess ISMS maturity", "Choose board-level metrics", "Report the ISMS to a board"]
+        },
+        {
+          "topic": "Running a Combined Management System Around the ISMS",
+          "subtopics": ["The harmonised structure shared by ISO/IEC 27001, ISO 9001:2026, ISO 22301, ISO/IEC 27701 and ISO/IEC 42001", "One context, one interested parties register and one policy set", "Combined risk registers with views for each standard", "Shared internal audit, management review and corrective action", "Combined and integrated audits under IAF MD 11:2023 and the audit time reduction", "Planning certification cycles for several standards", "Keeping requirements that belong to only one standard visible", "Governance: one steering committee with an owner for each standard"],
+          "tools": ["IAF MD 11:2023", "ISO 9001:2026", "Microsoft SharePoint Online", "CISO Assistant multi-framework view"],
+          "lab_task": "Design Ledgerline's combined management system for ISO/IEC 27001, ISO/IEC 27701 and ISO 22301: merge the three context and interested parties registers, design one internal audit programme and management review agenda, and plan an integrated certification audit with the audit days saved under IAF MD 11.",
+          "deliverable": "Combined management system design, merged registers, joint audit programme and integrated audit plan",
+          "checks": [["Review the merged register", "Each requirement is tagged with the standards it serves", "Merged register"], ["Review the joint management review agenda", "The inputs each standard requires are all included", "Agenda"], ["Check the integrated audit time", "The reduction stays within the IAF MD 11 limit and is justified", "Audit time calculation"]],
+          "objectives": ["Design a combined management system", "Run shared processes for several standards", "Plan integrated certification audits"]
+        },
+        {
+          "topic": "Advanced Capstone: Leading Ledgerline's Certification Audit and Board Briefing",
+          "subtopics": ["Audit programme and stage 2 plan", "Team leadership, evidence and sampling", "Graded findings and the audit report", "Certification decision and follow-up of majors", "SOC 2, CSF 2.0, DPDP and ISO/IEC 42001 alignment review", "Board briefing with metrics and roadmap"],
+          "tools": ["CISO Assistant", "Microsoft Teams", "Power BI", "Microsoft PowerPoint"],
+          "lab_task": "Lead a full simulated stage 2 audit of another team's Ledgerline ISMS, from plan and opening meeting through sampled evidence and graded findings to the closing meeting, then act as programme leader and give a 15-minute board briefing on the results, framework alignment and a 12-month roadmap.",
+          "deliverable": "Stage 2 audit plan, evidence log, graded audit report and board briefing with roadmap",
+          "checks": [["Review the audit report", "Findings are graded, backed by evidence and consistent with the recommendation", "Audit report"], ["Check the sampling records", "Samples are random, repeatable and recorded", "Sampling record"], ["Give the board briefing", "The board approves the roadmap or records specific conditions", "Decision record"]],
+          "objectives": ["Lead a certification audit from plan to report", "Produce an audit report that stands up to review", "Lead the ISMS programme at board level"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "OpenShift",
+  "name": "Red Hat OpenShift",
+  "category": "DevOps and CI/CD",
+  "icon": "server-cog",
+  "aliases": ["Red Hat OpenShift", "OpenShift Container Platform", "OpenShift Administration", "OpenShift Administrator", "OpenShift Developer", "OpenShift Training", "OKD", "OpenShift Virtualization", "OpenShift Pipelines", "OpenShift GitOps", "EX280", "EX288"],
+  "certifications": ["Red Hat Certified OpenShift Administrator (EX280)", "Red Hat Certified OpenShift Application Developer (EX288)", "Red Hat Certified Specialist in OpenShift Virtualization"],
+  "tools": ["OpenShift Container Platform 4 or OpenShift Local", "oc CLI", "OpenShift web console", "OpenShift Pipelines (Tekton)", "OpenShift GitOps (Argo CD)", "Helm", "Quay or the internal image registry"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and operations engineers who deploy and run applications on Red Hat OpenShift. Covers what OpenShift adds to Kubernetes, lab environments and the oc CLI, projects and the web console, deploying from images and source with Source-to-Image, deployments, services and routes, configuration, persistent storage, image streams, health checks, scaling, quotas and limits, security context constraints, RBAC, templates and Helm, operators, logging and monitoring for application teams and troubleshooting with oc.",
+      "prerequisites": ["Uses Linux on the command line", "Understands containers and has built a container image", "Basic Kubernetes knowledge helps but is not required"],
+      "outcomes": ["Deploy applications on OpenShift from images, source and Helm charts", "Expose, configure, store data for and scale applications with routes, ConfigMaps, Secrets and PVCs", "Run workloads within quotas, security context constraints and RBAC", "Monitor and troubleshoot applications with the console and oc"],
+      "days": [
+        {
+          "topic": "OpenShift Overview: Kubernetes, Red Hat Additions and Editions",
+          "subtopics": ["What OpenShift is and how it relates to Kubernetes", "What OpenShift adds: routes, builds, operators and security defaults", "OpenShift Container Platform, OKD and managed editions", "Red Hat OpenShift Service on AWS and Azure Red Hat OpenShift", "Cluster components for application teams", "Projects compared with namespaces", "The web console's developer and administrator views", "The oc CLI compared with kubectl", "Red Hat certifications for OpenShift", "Course project overview: a three-tier application"],
+          "tools": ["OpenShift web console", "oc CLI", "Red Hat documentation"],
+          "lab_task": "Log in to a lab cluster, explore the developer and administrator views, list projects and nodes with oc and write a one-page comparison of OpenShift and plain Kubernetes.",
+          "deliverable": "Console tour notes and comparison",
+          "checks": [["Log in", "The console and oc both reach the cluster", "Screenshots and oc output"], ["Explore", "Developer and administrator views are described", "Notes"], ["Compare", "OpenShift additions are listed correctly", "Comparison page"]],
+          "objectives": ["Explain OpenShift", "Use the console and oc", "Compare OpenShift with Kubernetes"]
+        },
+        {
+          "topic": "Lab Setup: OpenShift Local, Developer Sandbox and the oc CLI",
+          "subtopics": ["Lab options: OpenShift Local, Developer Sandbox and shared clusters", "System requirements for OpenShift Local", "Installing and starting OpenShift Local", "Installing the oc CLI", "Logging in with tokens", "Contexts and multiple clusters", "oc completion and help", "Developer and administrator accounts", "Resetting a lab cluster", "Checking the environment"],
+          "tools": ["OpenShift Local", "oc CLI", "Developer Sandbox"],
+          "lab_task": "Set up OpenShift Local or a Developer Sandbox account, install oc, log in with a token, switch between two contexts and deploy a test application.",
+          "deliverable": "Working lab environment",
+          "checks": [["Install", "oc and the lab cluster work", "oc version output"], ["Log in", "Token login succeeds", "oc whoami output"], ["Test", "The test application runs", "oc get pods output"]],
+          "objectives": ["Prepare an OpenShift lab", "Use the oc CLI", "Manage cluster logins"]
+        },
+        {
+          "topic": "Projects, Users and the Web Console",
+          "subtopics": ["Creating projects", "Project display names and descriptions", "Adding users to projects", "Default roles: admin, edit and view", "The topology view", "Events and resource views", "Project-level settings", "Cleaning up projects"],
+          "tools": ["OpenShift web console", "oc CLI"],
+          "lab_task": "Create dev and test projects, give a partner edit rights in one and view rights in the other, and use the topology view to explore a deployed application.",
+          "deliverable": "Projects with role assignments",
+          "checks": [["Create", "Both projects exist with descriptions", "oc get projects output"], ["Grant", "The partner has edit and view rights as planned", "Role bindings"], ["Explore", "The topology view shows the application", "Screenshot"]],
+          "objectives": ["Manage projects", "Assign project roles", "Use the web console"]
+        },
+        {
+          "topic": "Deploying Applications from Images",
+          "subtopics": ["oc new-app from container images", "Deploying from the console", "Image pull secrets for private registries", "Labels and app grouping", "Environment variables at deploy time", "Updating images", "Rolling out new versions", "Deleting applications cleanly"],
+          "tools": ["oc CLI", "OpenShift web console", "Container registry"],
+          "lab_task": "Deploy the course API from a private registry image with a pull secret, set environment variables, update the image tag and remove the application cleanly with labels.",
+          "deliverable": "Deployed application from an image",
+          "checks": [["Pull", "The private image is pulled with the secret", "Pod events"], ["Update", "The new image rolls out", "Rollout history"], ["Clean up", "Label-based deletion removes all resources", "oc get all output"]],
+          "objectives": ["Deploy from images", "Use pull secrets", "Manage rollouts"]
+        },
+        {
+          "topic": "Source-to-Image Builds and BuildConfigs",
+          "subtopics": ["Builds in OpenShift", "Source-to-Image and builder images", "BuildConfig resources", "Build triggers: webhooks, config and image changes", "Build logs", "Docker strategy builds", "Build secrets", "Builds compared with external CI"],
+          "tools": ["OpenShift builds", "oc CLI", "Git repository"],
+          "lab_task": "Build the course web application from source with Source-to-Image, trigger a rebuild from a Git webhook and compare it with a Dockerfile strategy build.",
+          "deliverable": "Source builds with triggers",
+          "checks": [["Build", "The S2I build produces a running application", "Build logs"], ["Trigger", "A Git push triggers a new build", "Build history"], ["Compare", "S2I and Dockerfile builds are compared", "Notes"]],
+          "objectives": ["Build from source", "Use BuildConfigs", "Trigger builds"]
+        },
+        {
+          "topic": "Deployments, Pods and ReplicaSets on OpenShift",
+          "subtopics": ["Deployments and ReplicaSets", "Rolling and recreate strategies", "Rollout history and rollback", "Pod lifecycle", "Init containers", "Labels and selectors", "DeploymentConfig and why to avoid it now", "Viewing pods in the console"],
+          "tools": ["oc CLI", "OpenShift web console"],
+          "lab_task": "Deploy the API with a rolling strategy and an init container, roll out a bad version, roll back and explain why new work should use Deployments.",
+          "deliverable": "Deployment with rollout and rollback",
+          "checks": [["Roll out", "The new version rolls out with zero downtime", "Rollout status"], ["Roll back", "The rollback restores the working version", "Rollout history"], ["Explain", "The note on DeploymentConfig is correct", "Notes"]],
+          "objectives": ["Manage deployments", "Roll back releases", "Use current resource types"]
+        },
+        {
+          "topic": "Services and Routes: Exposing Applications",
+          "subtopics": ["Services and endpoints", "Routes and the router", "Edge, passthrough and re-encrypt TLS", "Route hostnames", "Path-based routes", "Ingress objects on OpenShift", "Traffic splitting with routes", "Testing access"],
+          "tools": ["oc CLI", "OpenShift routes", "curl"],
+          "lab_task": "Expose the web application with an edge TLS route and the API with a re-encrypt route, add a path-based route and split traffic between two versions.",
+          "deliverable": "Routes with TLS and traffic split",
+          "checks": [["Expose", "Both applications are reachable through routes", "curl output"], ["Secure", "Edge and re-encrypt TLS work", "curl output"], ["Split", "Traffic divides between versions as configured", "Request counts"]],
+          "objectives": ["Expose applications", "Use route TLS types", "Split traffic"]
+        },
+        {
+          "topic": "Configuration with ConfigMaps and Secrets",
+          "subtopics": ["ConfigMaps from literals and files", "Secrets and their types", "Environment variables from configuration", "Mounting configuration as files", "Updating configuration and restarting pods", "Secrets encryption in the cluster", "External secret tools in brief", "What not to put in ConfigMaps"],
+          "tools": ["oc CLI", "OpenShift web console"],
+          "lab_task": "Move the API's configuration into a ConfigMap and its database password into a Secret, mount a config file, change a value and roll the pods to pick it up.",
+          "deliverable": "Externalised configuration",
+          "checks": [["Externalise", "No configuration is baked into the image", "Deployment YAML"], ["Mount", "The config file appears in the container", "oc exec output"], ["Update", "The changed value is used after restart", "Application logs"]],
+          "objectives": ["Use ConfigMaps and Secrets", "Mount configuration", "Update configuration safely"]
+        },
+        {
+          "topic": "Persistent Storage: PVCs and Storage Classes",
+          "subtopics": ["Ephemeral and persistent storage", "Persistent volume claims", "Storage classes and dynamic provisioning", "Access modes", "StatefulSets for databases", "Expanding volumes", "Snapshots in brief", "Data protection responsibilities"],
+          "tools": ["oc CLI", "OpenShift storage classes", "Database image"],
+          "lab_task": "Deploy the database as a StatefulSet with a PVC, write data, delete the pod and confirm the data survives, then expand the volume.",
+          "deliverable": "Stateful database with persistent data",
+          "checks": [["Claim", "The PVC is bound by a storage class", "oc get pvc output"], ["Persist", "Data survives pod deletion", "Query output"], ["Expand", "The volume is expanded", "oc describe pvc output"]],
+          "objectives": ["Use persistent storage", "Run stateful workloads", "Expand volumes"]
+        },
+        {
+          "topic": "Image Streams and the Internal Registry",
+          "subtopics": ["What image streams are", "Image stream tags", "Importing external images", "Triggers on image change", "The internal registry", "Promoting images between projects", "Pruning images", "Image streams compared with direct references"],
+          "tools": ["oc CLI", "OpenShift internal registry", "Image streams"],
+          "lab_task": "Import an external image into an image stream, trigger a deployment on tag change, promote an image from dev to test with a tag and prune old images.",
+          "deliverable": "Image promotion with image streams",
+          "checks": [["Import", "The external image appears in the stream", "oc describe is output"], ["Trigger", "A tag change rolls out the deployment", "Rollout history"], ["Promote", "The image is promoted to test", "Image stream tags"]],
+          "objectives": ["Use image streams", "Promote images", "Manage the internal registry"]
+        },
+        {
+          "topic": "Health Checks: Liveness, Readiness and Startup Probes",
+          "subtopics": ["Why probes matter", "Readiness probes", "Liveness probes", "Startup probes for slow starts", "HTTP, TCP and command probes", "Probe timing settings", "Effects on rollouts", "Common probe mistakes"],
+          "tools": ["oc CLI", "OpenShift web console", "Course application"],
+          "lab_task": "Add readiness, liveness and startup probes to the API, show traffic stopping to an unready pod and a stuck pod being restarted, and fix a probe that restarts healthy pods.",
+          "deliverable": "Probed application with evidence",
+          "checks": [["Add probes", "All three probes are configured", "Deployment YAML"], ["Show effects", "Unready pods leave service and stuck pods restart", "Events"], ["Fix", "The bad probe no longer restarts healthy pods", "Events"]],
+          "objectives": ["Configure probes", "Protect rollouts", "Avoid probe mistakes"]
+        },
+        {
+          "topic": "Scaling and Autoscaling Applications",
+          "subtopics": ["Manual scaling", "Horizontal pod autoscaler", "CPU and memory metrics", "Custom metrics in brief", "Scaling limits", "Pod disruption budgets", "Scaling to zero with serverless in brief", "Testing autoscaling"],
+          "tools": ["oc CLI", "Horizontal pod autoscaler", "Load generator"],
+          "lab_task": "Add a horizontal pod autoscaler to the API, generate load, watch it scale out and in, and add a pod disruption budget.",
+          "deliverable": "Autoscaled application with load test evidence",
+          "checks": [["Autoscale", "Pods scale out under load", "HPA status"], ["Scale in", "Pods scale back after load stops", "HPA history"], ["Protect", "The disruption budget is in place", "oc get pdb output"]],
+          "objectives": ["Scale applications", "Use autoscaling", "Protect availability"]
+        },
+        {
+          "topic": "Resource Requests, Limits, Quotas and LimitRanges",
+          "subtopics": ["Requests and limits", "Quality of service classes", "Resource quotas per project", "LimitRanges for defaults", "Out-of-memory kills", "CPU throttling", "Sizing applications", "Reading quota usage"],
+          "tools": ["oc CLI", "OpenShift monitoring", "Course application"],
+          "lab_task": "Set requests and limits for the application, apply a project quota and a LimitRange, trigger and fix an out-of-memory kill, and read quota usage.",
+          "deliverable": "Sized application within quotas",
+          "checks": [["Size", "Requests and limits are set from measurements", "Deployment YAML"], ["Restrict", "The quota blocks extra pods", "Events"], ["Fix", "The out-of-memory kill is fixed", "Pod status"]],
+          "objectives": ["Set resource requests and limits", "Use quotas", "Fix resource problems"]
+        },
+        {
+          "topic": "Security Context Constraints and Running as Non-Root",
+          "subtopics": ["Why OpenShift runs pods with random user IDs", "Security context constraints", "The restricted-v2 policy", "Fixing images that need root", "File permissions in images", "Service accounts and SCCs"],
+          "tools": ["oc CLI", "Dockerfile", "OpenShift SCCs"],
+          "lab_task": "Deploy an image that fails because it expects root, fix the image to run with an arbitrary user ID and explain why granting a broader SCC is the wrong fix.",
+          "deliverable": "Fixed image running under restricted SCC",
+          "checks": [["Diagnose", "The failure is traced to user and permission settings", "Pod events"], ["Fix", "The fixed image runs under restricted-v2", "Pod security context"], ["Explain", "The note explains why not to grant broad SCCs", "Notes"]],
+          "objectives": ["Work within SCCs", "Build OpenShift-friendly images", "Avoid privileged workarounds"]
+        },
+        {
+          "topic": "RBAC: Roles, Role Bindings and Groups",
+          "subtopics": ["Users, groups and service accounts", "Cluster roles and local roles", "Role bindings", "Custom roles", "Service account permissions for applications", "Checking access with oc auth can-i", "Least privilege", "Reviewing access"],
+          "tools": ["oc CLI", "OpenShift RBAC"],
+          "lab_task": "Create a custom role that lets a CI service account update one deployment only, bind it, test it with oc auth can-i and review project access.",
+          "deliverable": "Custom role and access review",
+          "checks": [["Create", "The custom role grants only the needed verbs", "Role YAML"], ["Test", "can-i confirms allowed and denied actions", "oc auth can-i output"], ["Review", "Project access is listed and reduced", "Access review"]],
+          "objectives": ["Use RBAC", "Apply least privilege", "Check permissions"]
+        },
+        {
+          "topic": "Templates and Helm Charts in OpenShift",
+          "subtopics": ["OpenShift templates", "Template parameters", "Helm charts in the developer catalog", "Installing charts from the console", "Choosing templates or Helm", "Custom chart repositories", "Upgrading Helm releases", "Moving from templates to Helm"],
+          "tools": ["OpenShift templates", "Helm", "Developer catalog"],
+          "lab_task": "Deploy the course stack from an OpenShift template with parameters, then from a Helm chart in the developer catalog, and decide which to keep.",
+          "deliverable": "Template and Helm deployments with a decision",
+          "checks": [["Template", "The template deploys with parameters", "oc process output"], ["Chart", "The Helm chart installs from the catalog", "Helm release view"], ["Decide", "The choice is justified", "Notes"]],
+          "objectives": ["Use templates and Helm", "Use the developer catalog", "Choose packaging methods"]
+        },
+        {
+          "topic": "Operators and OperatorHub",
+          "subtopics": ["What operators are", "OperatorHub and the Operator Lifecycle Manager", "Installing operators", "Custom resources", "Operator update channels", "Operator scope: one namespace or all", "Uninstalling operators safely", "Operators for databases and middleware"],
+          "tools": ["OperatorHub", "Operator Lifecycle Manager", "oc CLI"],
+          "lab_task": "Install a database operator from OperatorHub, create a database through its custom resource, and change a setting through the custom resource instead of the pods.",
+          "deliverable": "Operator-managed database",
+          "checks": [["Install", "The operator is installed and healthy", "Installed operators view"], ["Create", "The database is created from a custom resource", "oc get output"], ["Manage", "A setting change goes through the custom resource", "Resource YAML"]],
+          "objectives": ["Use operators", "Manage services with custom resources", "Understand operator lifecycles"]
+        },
+        {
+          "topic": "Logging and Monitoring for Application Teams",
+          "subtopics": ["Pod logs in the console and with oc", "Aggregated logs in brief", "Built-in metrics dashboards", "User workload monitoring", "Exposing application metrics", "Alerts for application teams", "Events and their use", "Building a simple dashboard"],
+          "tools": ["OpenShift monitoring", "Prometheus metrics", "oc CLI"],
+          "lab_task": "Expose application metrics, enable a ServiceMonitor for the API, create an alert for high error rates and investigate an incident with logs and events.",
+          "deliverable": "Application monitoring and alert",
+          "checks": [["Collect", "Application metrics appear in the console", "Metrics view"], ["Alert", "The error-rate alert fires during a test", "Alert view"], ["Investigate", "Logs and events explain the incident", "Investigation notes"]],
+          "objectives": ["Monitor applications", "Create alerts", "Investigate with logs and events"]
+        },
+        {
+          "topic": "Troubleshooting Applications with oc",
+          "subtopics": ["Pod statuses and what they mean", "oc describe and events", "oc logs for current and previous containers", "oc debug for failing pods", "oc rsh and oc exec", "Image pull and crash loop problems"],
+          "tools": ["oc CLI", "OpenShift web console", "Events"],
+          "lab_task": "Diagnose and fix five broken deployments (image pull error, crash loop, failing probe, missing secret and quota block) with oc and write a troubleshooting checklist.",
+          "deliverable": "Fixed deployments and checklist",
+          "checks": [["Diagnose", "Each failure has a recorded cause", "Diagnosis notes"], ["Fix", "All five deployments run", "oc get pods output"], ["Share", "The checklist covers the commands used", "Checklist"]],
+          "objectives": ["Troubleshoot OpenShift applications", "Use oc debugging tools", "Share troubleshooting practice"]
+        },
+        {
+          "topic": "Beginner Capstone: Deploying a Three-Tier Application on OpenShift",
+          "subtopics": ["Build and deploy", "Routes, configuration and storage", "Quotas, SCC and RBAC", "Monitoring"],
+          "tools": ["OpenShift", "oc CLI", "Source-to-Image", "Operator or Helm chart"],
+          "lab_task": "Deploy the course's web, API and database tiers with S2I, routes with TLS, externalised configuration, persistent storage, probes, autoscaling, quotas and monitoring, all under the restricted SCC.",
+          "deliverable": "Running three-tier application with documentation",
+          "checks": [["Deploy", "All three tiers run and are reachable", "Route tests"], ["Protect", "Quotas, SCCs and RBAC are in place", "Security review"], ["Monitor", "Metrics and an alert work", "Monitoring view"]],
+          "objectives": ["Combine beginner OpenShift skills", "Deploy a full application", "Run it securely"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For administrators and platform engineers who run OpenShift clusters for teams, aligned with the EX280 and EX288 skills. Covers cluster architecture, authentication, OVN-Kubernetes networking and network policies, ingress controllers and certificates, cluster operators and updates, machine sets and autoscaling, storage operators, OpenShift Pipelines, OpenShift GitOps, builds, team self-service, cluster monitoring, logging, backup with OADP, certificate and secret management, the Compliance Operator, developer tools, service mesh and serverless.",
+      "prerequisites": ["Deploys and troubleshoots applications on OpenShift", "Comfortable with Linux administration and YAML", "Has cluster-admin access to a lab cluster"],
+      "outcomes": ["Administer OpenShift clusters: identity, networking, ingress, nodes, storage and updates", "Provide teams with pipelines, GitOps and self-service projects", "Monitor, log, back up and secure clusters with OpenShift operators", "Prepare for the EX280 and EX288 exams"],
+      "days": [
+        {
+          "topic": "Cluster Architecture: Control Plane, Workers and Machine Config",
+          "subtopics": ["Control plane and worker nodes", "Red Hat Enterprise Linux CoreOS", "The Machine Config Operator", "Machine config pools", "Cluster operators", "etcd's role"],
+          "tools": ["oc CLI", "OpenShift web console", "Cluster operators view"],
+          "lab_task": "Map the lab cluster's control plane, workers, machine config pools and cluster operators, and apply a safe machine config change to a worker pool.",
+          "deliverable": "Cluster architecture map and a machine config change",
+          "checks": [["Map", "Nodes, pools and operators are documented", "Architecture map"], ["Change", "The machine config rolls out to the pool", "Pool status"], ["Explain", "The roles of CoreOS and the operator are explained", "Notes"]],
+          "objectives": ["Understand cluster architecture", "Use machine configs", "Read cluster operator status"]
+        },
+        {
+          "topic": "Authentication: Identity Providers, OAuth and Groups",
+          "subtopics": ["The OpenShift OAuth server", "HTPasswd identity provider", "LDAP and OpenID Connect providers", "Group sync", "Removing the kubeadmin user", "Token lifetimes", "Mapping groups to roles", "Auditing logins"],
+          "tools": ["OpenShift OAuth", "Identity provider", "oc CLI"],
+          "lab_task": "Configure an HTPasswd and an OpenID Connect identity provider, sync groups, map groups to roles and remove the kubeadmin user safely.",
+          "deliverable": "Configured authentication with groups",
+          "checks": [["Configure", "Users log in through both providers", "Login tests"], ["Map", "Group membership grants the right roles", "Role bindings"], ["Secure", "kubeadmin is removed after admin access is confirmed", "oc get secret output"]],
+          "objectives": ["Configure authentication", "Sync groups", "Secure cluster access"]
+        },
+        {
+          "topic": "Networking: OVN-Kubernetes, Network Policies and Egress",
+          "subtopics": ["The OVN-Kubernetes network plugin", "Pod and service networks", "Network policies", "Default deny and allow rules", "Egress firewalls", "Egress IPs", "Multus and secondary networks in brief", "Testing connectivity"],
+          "tools": ["oc CLI", "Network policies", "Connectivity test pods"],
+          "lab_task": "Apply default-deny network policies to a project, allow only the web-to-API-to-database paths, restrict egress to one external service and test connectivity.",
+          "deliverable": "Network policies with connectivity tests",
+          "checks": [["Deny", "Unlisted traffic is blocked", "Connectivity tests"], ["Allow", "Required paths work", "Connectivity tests"], ["Restrict egress", "Only the approved external service is reachable", "Connectivity tests"]],
+          "objectives": ["Secure cluster networking", "Use network policies", "Control egress traffic"]
+        },
+        {
+          "topic": "Ingress Controllers, Route Sharding and TLS Certificates",
+          "subtopics": ["The default ingress controller", "Custom ingress controllers", "Route sharding", "Wildcard and custom certificates", "cert-manager on OpenShift", "Certificate rotation", "Mutual TLS in brief", "Monitoring router health"],
+          "tools": ["OpenShift ingress operator", "cert-manager", "oc CLI"],
+          "lab_task": "Add a second ingress controller for internal routes with sharding, issue certificates with cert-manager and rotate a route certificate without downtime.",
+          "deliverable": "Sharded ingress with managed certificates",
+          "checks": [["Shard", "Internal routes use the second controller", "Route status"], ["Issue", "Certificates are issued automatically", "Certificate status"], ["Rotate", "Rotation causes no downtime", "Test log"]],
+          "objectives": ["Manage ingress", "Shard routes", "Automate certificates"]
+        },
+        {
+          "topic": "Cluster Operators, Updates and Upgrade Channels",
+          "subtopics": ["How OpenShift updates work", "Update channels: stable, fast and EUS", "Update graphs and paths", "Checking readiness before updating", "Pausing machine config pools", "Monitoring an update", "Operator updates after cluster updates", "Rollback limits"],
+          "tools": ["OpenShift update service", "oc adm upgrade", "Cluster operators view"],
+          "lab_task": "Check update readiness for the lab cluster, pick a path in the update graph, run a minor update while watching operators and pools, and write an update runbook.",
+          "deliverable": "Completed update and runbook",
+          "checks": [["Prepare", "Readiness checks pass before updating", "Readiness notes"], ["Update", "The update completes with healthy operators", "Cluster version status"], ["Document", "The runbook records steps and checks", "Runbook"]],
+          "objectives": ["Update OpenShift clusters", "Choose update channels", "Monitor updates"]
+        },
+        {
+          "topic": "Machine Sets, Node Scaling and Cluster Autoscaler",
+          "subtopics": ["Machine API and machine sets", "Scaling worker nodes", "Machine health checks", "Cluster autoscaler", "Machine autoscaler", "Infrastructure nodes", "Node labels and taints", "Draining nodes safely"],
+          "tools": ["Machine API", "Cluster autoscaler", "oc CLI"],
+          "lab_task": "Scale a machine set, add a machine health check, enable the cluster autoscaler for one machine set and drain a node safely for maintenance.",
+          "deliverable": "Node scaling setup with maintenance evidence",
+          "checks": [["Scale", "The machine set adds and removes nodes", "Machine list"], ["Heal", "An unhealthy machine is replaced", "Machine events"], ["Drain", "Workloads move off the drained node", "Pod placement"]],
+          "objectives": ["Scale cluster nodes", "Use machine health checks", "Maintain nodes safely"]
+        },
+        {
+          "topic": "Cluster Storage Operators: ODF, Ceph and CSI Drivers",
+          "subtopics": ["Storage options for OpenShift", "CSI drivers for cloud and on-premises storage", "OpenShift Data Foundation (ODF) built on Ceph", "Block, file and object storage", "Default storage classes", "Volume snapshots", "Storage monitoring", "Capacity planning for storage"],
+          "tools": ["OpenShift Data Foundation or a CSI driver", "Volume snapshots", "oc CLI"],
+          "lab_task": "Configure a storage class from a CSI driver or OpenShift Data Foundation, set it as default, take and restore a volume snapshot and monitor capacity.",
+          "deliverable": "Storage configuration with snapshot restore",
+          "checks": [["Configure", "Volumes provision from the new class", "PVC status"], ["Snapshot", "A snapshot restores into a new volume", "Restore test"], ["Monitor", "Storage capacity is visible", "Dashboard"]],
+          "objectives": ["Manage cluster storage", "Use snapshots", "Monitor storage"]
+        },
+        {
+          "topic": "OpenShift Pipelines with Tekton",
+          "subtopics": ["Tekton tasks, pipelines and runs", "Workspaces", "Cluster tasks and Tekton Hub resources", "Triggers from Git events", "Pipelines as code", "Secrets for pipelines", "Viewing runs in the console", "Pipelines compared with external CI"],
+          "tools": ["OpenShift Pipelines", "Tekton", "Git repository"],
+          "lab_task": "Build a Tekton pipeline that tests, builds and deploys the API, trigger it from Git pushes with pipelines as code and view the runs in the console.",
+          "deliverable": "Tekton pipeline with Git triggers",
+          "checks": [["Build", "The pipeline tests, builds and deploys", "Pipeline run view"], ["Trigger", "Pushes start pipeline runs", "Run history"], ["Secure", "Secrets are provided through workspaces or secrets", "Pipeline YAML"]],
+          "objectives": ["Use OpenShift Pipelines", "Write Tekton pipelines", "Trigger from Git"]
+        },
+        {
+          "topic": "OpenShift GitOps with Argo CD",
+          "subtopics": ["The OpenShift GitOps operator", "Argo CD instances for clusters and teams", "Applications and projects", "Sync policies", "Managing cluster configuration with GitOps", "Application delivery with GitOps", "RBAC in Argo CD", "Drift and self-healing"],
+          "tools": ["OpenShift GitOps", "Argo CD", "Git repository"],
+          "lab_task": "Install OpenShift GitOps, manage a cluster setting and the course application from Git, give a team access to only its applications and show self-healing after a manual change.",
+          "deliverable": "GitOps for cluster config and applications",
+          "checks": [["Sync", "Cluster config and the application sync from Git", "Argo CD view"], ["Restrict", "The team sees only its applications", "Access test"], ["Heal", "Manual changes are reverted", "Sync history"]],
+          "objectives": ["Use OpenShift GitOps", "Manage cluster config with Git", "Give teams safe access"]
+        },
+        {
+          "topic": "Builds at Scale: Builds for Red Hat OpenShift and Build Strategies",
+          "subtopics": ["Build options in OpenShift", "Builds for Red Hat OpenShift based on Shipwright", "Buildah and source strategies", "Build resources and caching", "Pushing to external registries", "Build security", "Builds triggered from pipelines", "Choosing a build approach"],
+          "tools": ["Builds for Red Hat OpenShift", "Buildah", "External registry"],
+          "lab_task": "Build the application with a Shipwright-based build using Buildah, push to an external registry and compare time and security with the BuildConfig build.",
+          "deliverable": "Shipwright build with comparison",
+          "checks": [["Build", "The build pushes an image to the external registry", "Build run status"], ["Secure", "The build runs without privileged access", "Pod security context"], ["Compare", "Time and security are compared with BuildConfig", "Comparison"]],
+          "objectives": ["Run builds at scale", "Use build strategies", "Choose build approaches"]
+        },
+        {
+          "topic": "Project Templates, Self-Provisioning and Quotas for Teams",
+          "subtopics": ["Self-service projects", "Project request templates", "Default quotas and LimitRanges", "Default network policies for new projects", "Restricting self-provisioning", "Cluster resource quotas across projects", "Labels for ownership and cost", "Onboarding teams"],
+          "tools": ["Project request template", "Cluster resource quotas", "oc CLI"],
+          "lab_task": "Create a project request template with default quotas, limits and network policies, apply a cluster resource quota for one team and onboard a team through self-service.",
+          "deliverable": "Self-service project setup",
+          "checks": [["Template", "New projects get default quotas and policies", "Project resources"], ["Limit", "The team's total use is capped", "Cluster resource quota"], ["Onboard", "A team creates its project without admin help", "Onboarding record"]],
+          "objectives": ["Provide self-service projects", "Apply default guardrails", "Onboard teams"]
+        },
+        {
+          "topic": "Cluster Monitoring with Prometheus, Alerting and User Workload Monitoring",
+          "subtopics": ["The cluster monitoring stack", "Built-in alerts", "Alertmanager routing", "User workload monitoring", "Silences and inhibitions", "Storage for monitoring data", "Dashboards in the console", "Sending alerts to chat and paging tools"],
+          "tools": ["OpenShift monitoring", "Alertmanager", "Chat or paging integration"],
+          "lab_task": "Enable user workload monitoring, route critical cluster alerts to a paging tool and team alerts to chat, add a silence for maintenance and review dashboards.",
+          "deliverable": "Configured monitoring and alert routing",
+          "checks": [["Enable", "Team metrics appear in user workload monitoring", "Metrics view"], ["Route", "Alerts reach the right receivers", "Alert notifications"], ["Silence", "The maintenance silence suppresses alerts", "Silence view"]],
+          "objectives": ["Run cluster monitoring", "Route alerts", "Support team monitoring"]
+        },
+        {
+          "topic": "Cluster Logging with the Logging Operator and Loki",
+          "subtopics": ["The OpenShift logging stack", "Log collection with Vector", "Loki for log storage", "Application, infrastructure and audit logs", "Forwarding logs to external systems", "Log retention", "Querying logs in the console", "Access control for logs"],
+          "tools": ["OpenShift Logging operator", "Loki", "Console log view"],
+          "lab_task": "Install the logging stack with Loki, forward audit logs to an external store, set retention and give a team access to only its application logs.",
+          "deliverable": "Logging setup with forwarding and access control",
+          "checks": [["Collect", "Application and infrastructure logs are searchable", "Console log view"], ["Forward", "Audit logs reach the external store", "External query"], ["Restrict", "The team sees only its logs", "Access test"]],
+          "objectives": ["Run cluster logging", "Forward logs", "Control log access"]
+        },
+        {
+          "topic": "Backup and Restore with OADP",
+          "subtopics": ["What to back up in OpenShift", "OpenShift API for Data Protection", "Backup locations", "Backing up namespaces and volumes", "Schedules", "Restoring into the same or another cluster", "Testing restores", "Backup limits"],
+          "tools": ["OADP operator", "Object storage", "oc CLI"],
+          "lab_task": "Configure OADP with object storage, schedule backups of the course project with its volumes, delete the project and restore it.",
+          "deliverable": "Backup schedule and restore evidence",
+          "checks": [["Configure", "Backups land in object storage", "Backup status"], ["Restore", "The deleted project returns with its data", "Restore status"], ["Schedule", "Scheduled backups run", "Schedule history"]],
+          "objectives": ["Back up OpenShift workloads", "Restore projects", "Test recovery"]
+        },
+        {
+          "topic": "Certificates and Secrets Management in Clusters",
+          "subtopics": ["Certificates OpenShift manages itself", "Custom API and ingress certificates", "Certificate expiry monitoring", "Secrets encryption at rest", "External Secrets Operator", "Vault integration", "Rotating secrets", "Auditing secret access"],
+          "tools": ["oc CLI", "External Secrets Operator", "HashiCorp Vault"],
+          "lab_task": "Enable etcd encryption, deliver an application secret from Vault through the External Secrets Operator, rotate it and add an alert for certificates near expiry.",
+          "deliverable": "Secrets and certificate management setup",
+          "checks": [["Encrypt", "etcd encryption is enabled", "Cluster status"], ["Deliver", "The application reads the Vault-backed secret", "Application logs"], ["Alert", "Certificates near expiry raise an alert", "Alert rule"]],
+          "objectives": ["Manage cluster secrets", "Integrate Vault", "Monitor certificates"]
+        },
+        {
+          "topic": "Compliance Operator and Security Profiles",
+          "subtopics": ["Compliance profiles such as CIS benchmarks", "The Compliance Operator", "Scans and results", "Automatic remediation", "Tailoring profiles", "File Integrity Operator", "Reporting compliance", "Handling exceptions"],
+          "tools": ["Compliance Operator", "File Integrity Operator", "oc CLI"],
+          "lab_task": "Run a CIS scan with the Compliance Operator, apply safe remediations, tailor one rule with a documented exception and enable file integrity checks.",
+          "deliverable": "Compliance scan results and remediations",
+          "checks": [["Scan", "Scan results are reported", "Compliance results"], ["Remediate", "Remediations improve the score", "Before-and-after results"], ["Document", "The tailored rule has a recorded reason", "Exception record"]],
+          "objectives": ["Scan cluster compliance", "Apply remediations", "Manage exceptions"]
+        },
+        {
+          "topic": "Developer Tools: OpenShift Dev Spaces and Developer Hub",
+          "subtopics": ["Developer experience on OpenShift", "OpenShift Dev Spaces for cloud workspaces", "Devfiles", "Red Hat Developer Hub based on Backstage", "Software templates", "Catalogue of services", "Plugins for OpenShift and pipelines", "Measuring developer experience"],
+          "tools": ["OpenShift Dev Spaces", "Red Hat Developer Hub", "Devfile"],
+          "lab_task": "Start a Dev Spaces workspace from a devfile, register the course services in Developer Hub and create a new service from a software template.",
+          "deliverable": "Workspace, catalogue entries and a templated service",
+          "checks": [["Develop", "The workspace builds and runs the application", "Workspace logs"], ["Catalogue", "Services appear in Developer Hub", "Catalogue view"], ["Create", "The template creates a working service", "New repository and deployment"]],
+          "objectives": ["Improve developer experience", "Use Dev Spaces", "Use Developer Hub templates"]
+        },
+        {
+          "topic": "Service Mesh on OpenShift",
+          "subtopics": ["What a service mesh adds", "OpenShift Service Mesh based on Istio", "Adding workloads to the mesh", "Mutual TLS between services", "Traffic management", "Observability with Kiali and tracing", "Mesh costs and complexity", "When not to use a mesh"],
+          "tools": ["OpenShift Service Mesh", "Kiali", "Tracing tool"],
+          "lab_task": "Add the course services to the mesh, enforce mutual TLS, shift ten percent of traffic to a new version and trace a slow request in Kiali.",
+          "deliverable": "Meshed application with traffic shift",
+          "checks": [["Enrol", "Services run with sidecars or ambient mode", "Mesh view"], ["Secure", "Mutual TLS is enforced", "Kiali security view"], ["Shift", "Traffic splits as configured", "Traffic graph"]],
+          "objectives": ["Use OpenShift Service Mesh", "Enforce mutual TLS", "Manage traffic"]
+        },
+        {
+          "topic": "Serverless on OpenShift with Knative",
+          "subtopics": ["OpenShift Serverless", "Knative Serving", "Scale to zero", "Revisions and traffic splitting", "Knative Eventing", "Event sources and brokers", "Functions", "When serverless fits"],
+          "tools": ["OpenShift Serverless", "Knative CLI", "Event source"],
+          "lab_task": "Deploy a service with Knative Serving, show scale to zero, split traffic between revisions and trigger it from an event source.",
+          "deliverable": "Knative service with eventing",
+          "checks": [["Serve", "The service scales to zero and back", "Pod counts"], ["Split", "Traffic splits between revisions", "Revision traffic"], ["Trigger", "Events invoke the service", "Logs"]],
+          "objectives": ["Use OpenShift Serverless", "Scale to zero", "Handle events"]
+        },
+        {
+          "topic": "Intermediate Capstone: Team Platform on OpenShift with Pipelines and GitOps",
+          "subtopics": ["Identity and self-service", "Networking and ingress", "Pipelines and GitOps", "Monitoring, logging and backup", "Compliance"],
+          "tools": ["OpenShift", "OpenShift Pipelines", "OpenShift GitOps", "OADP", "Compliance Operator"],
+          "lab_task": "Build a team platform on a lab cluster with identity, self-service projects, network policies, sharded ingress, Tekton pipelines, GitOps delivery, monitoring, logging, backups and a compliance scan, and onboard a team.",
+          "deliverable": "Team platform and onboarding record",
+          "checks": [["Provide", "A team onboards and deploys through pipelines and GitOps", "Onboarding record"], ["Operate", "Monitoring, logging and backups work", "Operations evidence"], ["Secure", "Network policies and compliance results meet the targets", "Security review"]],
+          "objectives": ["Combine intermediate OpenShift skills", "Build a team platform", "Operate it securely"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior administrators, architects and platform leads who run OpenShift across an organisation. Covers multi-cluster management with ACM, Advanced Cluster Security, OpenShift Virtualization and VM migration from VMware, managed OpenShift on AWS and Azure, hosted control planes, disconnected installations, installation methods, day-two operations, capacity and cost, high availability and disaster recovery, etcd operations, writing operators, OpenShift AI, platform engineering with Developer Hub, regulated workloads, edge deployments, upgrades at scale and cluster troubleshooting.",
+      "prerequisites": ["Administers OpenShift clusters in production", "Holds EX280 or has equivalent experience", "Responsible for platform design, security or operations"],
+      "outcomes": ["Design and manage fleets of OpenShift clusters across data centres, clouds and edge", "Secure clusters and workloads with ACS, compliance and regulated configurations", "Run virtual machines and AI workloads on OpenShift", "Operate upgrades, capacity, recovery and troubleshooting at scale"],
+      "days": [
+        {
+          "topic": "Multi-Cluster Management with Advanced Cluster Management",
+          "subtopics": ["Why manage clusters as a fleet", "Red Hat Advanced Cluster Management", "Importing and creating clusters", "Placement and cluster sets", "Governance policies across clusters", "Application delivery across clusters", "Observability for the fleet", "Fleet design patterns"],
+          "tools": ["Advanced Cluster Management", "Several clusters", "Git repository"],
+          "lab_task": "Import two clusters into ACM, group them in cluster sets, apply a governance policy to both and deliver an application to one set by placement.",
+          "deliverable": "Managed fleet with policies and placement",
+          "checks": [["Import", "Both clusters are managed", "ACM cluster view"], ["Govern", "The policy reports compliance on both clusters", "Governance view"], ["Place", "The application lands only on the chosen set", "Application status"]],
+          "objectives": ["Manage cluster fleets", "Apply policies across clusters", "Place applications"]
+        },
+        {
+          "topic": "Advanced Cluster Security for Kubernetes",
+          "subtopics": ["Red Hat Advanced Cluster Security", "Vulnerability management for images", "Deploy-time policies", "Runtime detection", "Network graph and segmentation advice", "Compliance reports", "Integrating with CI", "Responding to alerts"],
+          "tools": ["Advanced Cluster Security", "CI pipeline", "Image registry"],
+          "lab_task": "Install ACS, block a deployment with a critical vulnerability by policy, add an image check to CI and investigate a runtime alert from a simulated attack.",
+          "deliverable": "ACS policies, CI check and alert investigation",
+          "checks": [["Block", "The vulnerable deployment is blocked", "Policy violation"], ["Shift left", "CI fails images that break policy", "Pipeline run"], ["Investigate", "The runtime alert is investigated with evidence", "Investigation notes"]],
+          "objectives": ["Secure workloads with ACS", "Enforce deploy-time policies", "Detect runtime threats"]
+        },
+        {
+          "topic": "OpenShift Virtualization: Running VMs Next to Containers",
+          "subtopics": ["Why run VMs on OpenShift", "KubeVirt and OpenShift Virtualization", "Creating virtual machines", "VM storage and networking", "Live migration", "Templates and golden images", "VM backups", "Monitoring VMs"],
+          "tools": ["OpenShift Virtualization", "oc and virtctl", "Storage class"],
+          "lab_task": "Create a Linux VM from a template, attach storage and a secondary network, live-migrate it between nodes and back it up with OADP.",
+          "deliverable": "Running VM with migration and backup",
+          "checks": [["Create", "The VM runs and is reachable", "VM status"], ["Migrate", "Live migration completes without downtime", "Migration status"], ["Back up", "The VM backup restores", "Restore status"]],
+          "objectives": ["Run VMs on OpenShift", "Live-migrate VMs", "Back up VMs"]
+        },
+        {
+          "topic": "Migrating VMs from VMware to OpenShift Virtualization",
+          "subtopics": ["Reasons organisations move VMs", "Migration Toolkit for Virtualization", "Assessing VM inventories", "Network and storage mapping", "Cold and warm migration", "Testing migrated workloads", "Migration waves", "Decommissioning old hosts"],
+          "tools": ["Migration Toolkit for Virtualization", "VMware vSphere test environment", "OpenShift Virtualization"],
+          "lab_task": "Assess a small VMware inventory, map networks and storage, run a warm migration of one VM, test it and plan the remaining waves.",
+          "deliverable": "Migrated VM and wave plan",
+          "checks": [["Assess", "VMs are rated for migration readiness", "Assessment"], ["Migrate", "The warm migration completes and the VM works", "Migration status"], ["Plan", "The wave plan covers the remaining VMs", "Wave plan"]],
+          "objectives": ["Migrate VMs to OpenShift", "Map networks and storage", "Plan migration waves"]
+        },
+        {
+          "topic": "Managed OpenShift: ROSA, ARO and OpenShift Dedicated",
+          "subtopics": ["Managed OpenShift options", "Shared responsibility models", "Red Hat OpenShift Service on AWS", "Azure Red Hat OpenShift", "Networking with cloud VPCs and VNets", "Identity integration with cloud IAM", "Costs and support", "Choosing managed or self-managed"],
+          "tools": ["ROSA CLI or Azure CLI", "Cloud console", "OpenShift Cluster Manager"],
+          "lab_task": "Create a managed OpenShift cluster on AWS or Azure, connect it to a private network, integrate cloud identity and compare responsibilities and costs with self-managed.",
+          "deliverable": "Managed cluster and comparison",
+          "checks": [["Create", "The managed cluster runs in a private network", "Cluster status"], ["Integrate", "Cloud identity works for workloads", "Application test"], ["Compare", "Responsibilities and costs are compared", "Comparison"]],
+          "objectives": ["Use managed OpenShift", "Integrate with clouds", "Choose deployment models"]
+        },
+        {
+          "topic": "Hosted Control Planes",
+          "subtopics": ["What hosted control planes are", "Management and hosted clusters", "Cost and density benefits", "Node pools", "Upgrades for hosted clusters", "Networking for hosted control planes", "Security boundaries", "When to use hosted control planes"],
+          "tools": ["Hosted control planes", "Advanced Cluster Management", "oc CLI"],
+          "lab_task": "Create a hosted cluster on a management cluster, add a node pool, upgrade the hosted control plane separately from the workers and compare resource use with a standalone cluster.",
+          "deliverable": "Hosted cluster with upgrade evidence",
+          "checks": [["Create", "The hosted cluster runs workloads", "Cluster status"], ["Upgrade", "Control plane and node pools upgrade separately", "Upgrade history"], ["Compare", "Resource use is compared with a standalone cluster", "Comparison"]],
+          "objectives": ["Use hosted control planes", "Manage node pools", "Weigh density benefits"]
+        },
+        {
+          "topic": "Disconnected and Air-Gapped Installations",
+          "subtopics": ["Why some clusters cannot reach the internet", "Mirror registries", "oc-mirror for releases and operators", "Disconnected updates", "Operator catalogues offline", "Certificates and trust bundles", "Keeping mirrors current", "Testing disconnected operations"],
+          "tools": ["oc-mirror", "Mirror registry", "Disconnected lab cluster"],
+          "lab_task": "Mirror a release and two operators with oc-mirror into a mirror registry, configure a disconnected cluster to use it and run an update from the mirror.",
+          "deliverable": "Mirror setup and disconnected update",
+          "checks": [["Mirror", "Release and operator content is in the mirror", "Registry listing"], ["Configure", "The cluster pulls only from the mirror", "Cluster configuration"], ["Update", "The update completes from mirrored content", "Cluster version status"]],
+          "objectives": ["Run disconnected clusters", "Mirror content", "Update offline"]
+        },
+        {
+          "topic": "Cluster Installation Methods: IPI, UPI and Agent-Based",
+          "subtopics": ["Installer-provisioned infrastructure", "User-provisioned infrastructure", "Agent-based installer", "Assisted installer", "Install configuration files", "Bare metal and virtual platforms", "Validating installations", "Choosing an installation method"],
+          "tools": ["openshift-install", "Agent-based installer", "Lab infrastructure"],
+          "lab_task": "Install a cluster with the agent-based installer in a lab, validate it with checks, and compare installation methods for three environments.",
+          "deliverable": "Installed cluster and method comparison",
+          "checks": [["Install", "The agent-based installation completes", "Install log"], ["Validate", "Post-install checks pass", "Validation report"], ["Compare", "Methods are matched to environments with reasons", "Comparison"]],
+          "objectives": ["Install OpenShift", "Choose installation methods", "Validate installations"]
+        },
+        {
+          "topic": "Day-Two Operations at Scale",
+          "subtopics": ["Operational responsibilities after installation", "Runbooks and on-call", "Configuration drift across clusters", "Operator lifecycle management", "Certificate and credential rotation", "Health checks and service levels", "Change management", "Automation of routine tasks"],
+          "tools": ["Advanced Cluster Management", "GitOps", "Runbook tooling"],
+          "lab_task": "Write day-two runbooks for five routine tasks, automate two with GitOps or Ansible and set service levels and health checks for the platform.",
+          "deliverable": "Runbooks, automation and service levels",
+          "checks": [["Document", "Five runbooks are complete", "Runbooks"], ["Automate", "Two tasks run automatically", "Automation logs"], ["Measure", "Service levels and health checks are defined", "Service level document"]],
+          "objectives": ["Run day-two operations", "Automate routine tasks", "Set platform service levels"]
+        },
+        {
+          "topic": "Capacity Planning and Cost Management for OpenShift",
+          "subtopics": ["Capacity data from clusters", "Requests compared with real use", "Overcommit policies", "Node sizing", "Cost management service", "Showback and chargeback", "Rightsizing workloads", "Forecasting growth"],
+          "tools": ["Cost management", "Cluster monitoring", "Spreadsheet"],
+          "lab_task": "Analyse requests against real use across projects, find overprovisioned workloads, set an overcommit policy and produce a showback report with a growth forecast.",
+          "deliverable": "Capacity analysis and showback report",
+          "checks": [["Analyse", "Over-requested workloads are identified", "Analysis"], ["Decide", "The overcommit policy is justified", "Policy document"], ["Report", "Showback and forecast are produced", "Report"]],
+          "objectives": ["Plan cluster capacity", "Rightsize workloads", "Report cost by team"]
+        },
+        {
+          "topic": "High Availability and Disaster Recovery Across Clusters",
+          "subtopics": ["Availability within a cluster", "Multi-zone clusters", "Active-active and active-passive designs", "Global load balancing", "Data replication", "Cluster rebuild from GitOps", "Recovery objectives", "Disaster recovery drills"],
+          "tools": ["Advanced Cluster Management", "OADP", "Global load balancer"],
+          "lab_task": "Design active-passive recovery for an application across two clusters, replicate its data, fail over traffic in a drill and rebuild the failed cluster from GitOps.",
+          "deliverable": "DR design and drill report",
+          "checks": [["Design", "The design meets the recovery objectives", "Design document"], ["Fail over", "Traffic moves to the second cluster", "Drill log"], ["Rebuild", "The failed cluster is rebuilt from Git", "Rebuild log"]],
+          "objectives": ["Design cross-cluster recovery", "Run DR drills", "Rebuild clusters from Git"]
+        },
+        {
+          "topic": "etcd Operations: Backup, Defragmentation and Recovery",
+          "subtopics": ["etcd in OpenShift", "etcd health and performance", "Backups of etcd", "Defragmentation", "Disk performance requirements", "Restoring to a previous state", "Replacing a failed control plane node", "Monitoring etcd"],
+          "tools": ["etcd tools", "oc CLI", "Monitoring dashboards"],
+          "lab_task": "Take an etcd backup, check health and fragmentation, defragment safely and practise replacing a failed control plane node in a lab cluster.",
+          "deliverable": "etcd operations record",
+          "checks": [["Back up", "The etcd backup completes", "Backup files"], ["Maintain", "Defragmentation reduces database size", "etcd metrics"], ["Recover", "The control plane node is replaced", "Cluster status"]],
+          "objectives": ["Operate etcd", "Back up and restore control planes", "Replace failed nodes"]
+        },
+        {
+          "topic": "Writing and Packaging Operators with the Operator Framework",
+          "subtopics": ["When to write an operator", "Operator SDK with Go or Ansible", "Custom resource design", "Reconciliation loops", "Status and conditions", "Packaging bundles for OLM", "Testing operators", "Publishing to a catalogue"],
+          "tools": ["Operator SDK", "Go or Ansible", "Operator Lifecycle Manager"],
+          "lab_task": "Write a small operator that manages a configuration custom resource, package it as an OLM bundle, install it from a private catalogue and test reconciliation.",
+          "deliverable": "Packaged operator with tests",
+          "checks": [["Reconcile", "The operator creates and repairs resources", "Operator logs"], ["Package", "The bundle installs through OLM", "Installed operators view"], ["Test", "Tests cover create, update and delete", "Test output"]],
+          "objectives": ["Write operators", "Package for OLM", "Test reconciliation"]
+        },
+        {
+          "topic": "OpenShift AI for Model Serving and MLOps",
+          "subtopics": ["Red Hat OpenShift AI", "Workbenches for data scientists", "Data science pipelines", "Model serving with KServe and vLLM", "GPU operators and nodes", "Model registry", "Monitoring served models", "Governance for AI workloads"],
+          "tools": ["Red Hat OpenShift AI", "NVIDIA GPU Operator", "KServe"],
+          "lab_task": "Set up OpenShift AI with a GPU node, train a model in a workbench, run a data science pipeline and serve a model with KServe, then monitor requests.",
+          "deliverable": "AI workload setup with a served model",
+          "checks": [["Prepare", "GPU nodes and the operator are ready", "Node status"], ["Serve", "The model answers requests", "Inference test"], ["Monitor", "Serving metrics are visible", "Dashboard"]],
+          "objectives": ["Run AI workloads on OpenShift", "Serve models", "Use GPUs on OpenShift"]
+        },
+        {
+          "topic": "Platform Engineering on OpenShift with Developer Hub",
+          "subtopics": ["Internal developer platforms on OpenShift", "Golden paths with software templates", "Self-service for namespaces, pipelines and GitOps", "Plugins for clusters and pipelines", "Scorecards and standards", "Platform as a product", "Measuring adoption", "Platform team responsibilities"],
+          "tools": ["Red Hat Developer Hub", "OpenShift GitOps", "OpenShift Pipelines"],
+          "lab_task": "Build a golden path in Developer Hub that creates a repository, pipeline, GitOps application and project with guardrails, and measure time to first deployment.",
+          "deliverable": "Golden path with adoption measure",
+          "checks": [["Create", "The template provisions everything needed", "New service resources"], ["Guard", "Guardrails such as quotas and policies are applied", "Project resources"], ["Measure", "Time to first deployment is recorded", "Measurement"]],
+          "objectives": ["Build platforms on OpenShift", "Create golden paths", "Measure developer outcomes"]
+        },
+        {
+          "topic": "Regulated Workloads: FIPS, Compliance and Audit",
+          "subtopics": ["Regulatory demands on platforms", "FIPS mode", "Compliance profiles for regulators", "Audit logging and retention", "Separation of duties for administrators", "Encryption and key management", "Evidence for auditors", "Change control"],
+          "tools": ["Compliance Operator", "Audit logs", "Key management"],
+          "lab_task": "Configure a cluster for a regulated workload with FIPS mode, compliance profiles, audit log forwarding and separation of duties, and answer an auditor's questions from evidence.",
+          "deliverable": "Regulated configuration and audit evidence",
+          "checks": [["Configure", "FIPS and compliance settings are applied", "Cluster configuration"], ["Separate", "Administrator duties are separated", "Role bindings"], ["Evidence", "Auditor questions are answered from records", "Audit notes"]],
+          "objectives": ["Run regulated workloads", "Configure compliance", "Produce audit evidence"]
+        },
+        {
+          "topic": "Edge Deployments with Single-Node OpenShift and MicroShift",
+          "subtopics": ["Edge requirements", "Single-node OpenShift", "MicroShift for small devices", "Zero-touch provisioning", "Managing edge fleets with ACM", "Limited connectivity", "Updates at the edge", "Security at the edge"],
+          "tools": ["Single-node OpenShift", "MicroShift", "Advanced Cluster Management"],
+          "lab_task": "Deploy a workload to a single-node OpenShift cluster and a MicroShift device, manage both from ACM and roll out an update with limited connectivity.",
+          "deliverable": "Edge deployments with fleet management",
+          "checks": [["Deploy", "Workloads run at both edge sites", "Workload status"], ["Manage", "ACM manages both sites", "ACM view"], ["Update", "The update completes despite limited connectivity", "Update log"]],
+          "objectives": ["Run OpenShift at the edge", "Manage edge fleets", "Update edge sites"]
+        },
+        {
+          "topic": "Upgrades at Scale: EUS Channels and Fleet Upgrades",
+          "subtopics": ["Planning upgrades for many clusters", "Extended Update Support channels", "EUS-to-EUS upgrades", "Operator compatibility checks", "Upgrade waves", "Pre-upgrade testing", "Communication with application teams", "Measuring upgrade success"],
+          "tools": ["Advanced Cluster Management", "OpenShift update service", "Upgrade tracker"],
+          "lab_task": "Plan an EUS-to-EUS upgrade for a fleet in waves with operator checks and test clusters, run the first wave and report results.",
+          "deliverable": "Fleet upgrade plan and first-wave report",
+          "checks": [["Plan", "Waves, checks and communications are planned", "Upgrade plan"], ["Run", "The first wave completes", "Upgrade status"], ["Report", "Results and issues are reported", "Wave report"]],
+          "objectives": ["Upgrade fleets", "Use EUS channels", "Run upgrades in waves"]
+        },
+        {
+          "topic": "Troubleshooting Clusters: Must-Gather, Node Issues and Operator Failures",
+          "subtopics": ["Degraded cluster operators", "must-gather data", "Node problems and the debug shell", "Networking failures", "Certificate problems", "Working with Red Hat support"],
+          "tools": ["oc adm must-gather", "oc debug node", "Cluster operators view"],
+          "lab_task": "Diagnose four cluster problems (a degraded operator, a NotReady node, a network policy outage and an expired certificate), collect must-gather data and write a cluster troubleshooting guide.",
+          "deliverable": "Diagnoses, fixes and troubleshooting guide",
+          "checks": [["Diagnose", "Each problem has a confirmed cause", "Diagnosis notes"], ["Collect", "must-gather data is captured", "Archive"], ["Share", "The guide covers the steps used", "Troubleshooting guide"]],
+          "objectives": ["Troubleshoot clusters", "Use must-gather", "Work with vendor support"]
+        },
+        {
+          "topic": "Advanced Capstone: Enterprise OpenShift Platform Design",
+          "subtopics": ["Fleet design and management", "Security and compliance", "Virtualisation and AI workloads", "Operations, upgrades and recovery", "Developer platform", "Leadership presentation"],
+          "tools": ["Advanced Cluster Management", "Advanced Cluster Security", "OpenShift Virtualization", "Red Hat Developer Hub"],
+          "lab_task": "Design an enterprise OpenShift platform for data centre, cloud and edge with fleet management, security, virtual machines, AI serving, upgrades, recovery and a developer portal, prove key parts in a lab and present the design to leadership.",
+          "deliverable": "Platform design, lab evidence and presentation",
+          "checks": [["Design", "The design covers fleet, security, workloads and operations", "Design document"], ["Prove", "Key parts are demonstrated in the lab", "Lab evidence"], ["Win support", "Leadership approves the design or sets conditions", "Presentation notes"]],
+          "objectives": ["Combine advanced OpenShift skills", "Design an enterprise platform", "Present to leadership"]
+        }
+      ]
+    }
+  }
+}

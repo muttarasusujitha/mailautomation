@@ -3,15 +3,13 @@
 
 async def application_ai_enabled(db) -> bool:
     """True only when Dashboard has set generation_mode to ai."""
-    collection = None
-    getter = getattr(db, "get", None)
-    if callable(getter):
-        collection = getter("automation_settings")
-    if collection is None:
-        try:
-            collection = db["automation_settings"]
-        except Exception:
-            return False
+    # Motor's database attribute lookup fabricates a collection for any name,
+    # including ``get``. MotorCollection is callable but raises when called, so
+    # avoid treating ``db.get`` as a mapping method here.
+    try:
+        collection = db["automation_settings"]
+    except Exception:
+        return False
     find_one = getattr(collection, "find_one", None)
     if not callable(find_one):
         return False

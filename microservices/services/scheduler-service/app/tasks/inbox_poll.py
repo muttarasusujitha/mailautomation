@@ -14,13 +14,19 @@ def poll_inbox(self):
     """Call email-service /inbox/poll/sync to fetch new inbound emails."""
     url = f"{settings.EMAIL_SERVICE_URL}/api/v1/email/inbox/poll/sync"
     try:
-        # Raw Gmail message reads consume the per-user API quota.  Keep each
-        # automatic run bounded; the next poll picks up remaining messages.
-        resp = httpx.post(url, json={"since_days": 3, "max_messages": 25}, timeout=300)
+        # Keep a per-run bound for Gmail API quota while scanning enough of the
+        # latest inbox to avoid repeatedly overlooking client mail behind alerts.
+        resp = httpx.post(url, json={"since_days": 30, "max_messages": 100}, timeout=300)
         resp.raise_for_status()
         data = resp.json()
-        logger.info("Inbox poll: fetched=%s stored=%s", data.get("fetched"), data.get("stored"))
+        logger.info(
+            "Inbox poll completed: stored=%s checked=%s failed=%s skipped=%s",
+            data.get("stored"),
+            data.get("checked"),
+            data.get("failed"),
+            data.get("skipped"),
+        )
         return data
     except Exception as exc:
-        logger.error("Inbox poll failed: %s", exc)
+        logger.exception("Inbox poll failed")
         raise self.retry(exc=exc, countdown=60)

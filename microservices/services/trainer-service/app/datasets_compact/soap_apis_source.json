@@ -1,6 +1,6 @@
 {
   "domain": "SOAP APIs",
-  "name": "SOAP APIs â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "name": "SOAP APIs – Comprehensive Fundamentals to Advanced Curriculum",
   "aliases": [
     "SOAP Web Services",
     "XML Web Services"
@@ -26,9 +26,6 @@
         "Use cases",
         "Threats or failure modes",
         "Lab setup",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
         "WSDL",
         "XML Schema",
         "SOAP Envelope",
@@ -112,22 +109,7 @@
         "Addressing/identity concepts",
         "State",
         "Control plane/data plane",
-        "Common configurations",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Common configurations"
       ],
       "tools": [
         "SoapUI",
@@ -199,22 +181,7 @@
         "Scalability",
         "Trust boundaries",
         "Failure domains",
-        "Cloud considerations",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Cloud considerations"
       ],
       "tools": [
         "SoapUI",
@@ -286,22 +253,7 @@
         "Certificates/keys",
         "Hardening",
         "Least privilege",
-        "Logging and auditing",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Logging and auditing"
       ],
       "tools": [
         "SoapUI",
@@ -373,22 +325,7 @@
         "Common faults",
         "Diagnostic commands",
         "Alerting",
-        "Incident workflow",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Incident workflow"
       ],
       "tools": [
         "SoapUI",
@@ -461,22 +398,7 @@
         "Change control",
         "Versioning",
         "Testing",
-        "Operational runbooks",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Operational runbooks"
       ],
       "tools": [
         "SoapUI",
@@ -548,22 +470,7 @@
         "Performance",
         "High availability",
         "Disaster recovery",
-        "Cost considerations",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Cost considerations"
       ],
       "tools": [
         "SoapUI",
@@ -637,22 +544,7 @@
         "Testing",
         "Monitoring",
         "Troubleshooting",
-        "Documentation",
-        "SOAP APIs terminology and feature mapping for this topic",
-        "SOAP APIs configuration and implementation considerations",
-        "SOAP APIs best practices and common mistakes for this topic",
-        "WSDL",
-        "XML Schema",
-        "SOAP Envelope",
-        "Header",
-        "Body",
-        "Fault",
-        "SOAP 1.1",
-        "SOAP 1.2",
-        "XSD",
-        "WS-Security concepts",
-        "SoapUI",
-        "service contracts"
+        "Documentation"
       ],
       "tools": [
         "SoapUI",
@@ -721,5 +613,6 @@
   "review_warnings": [
     "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
   ],
-  "review_status": "unreviewed"
+  "review_status": "unreviewed",
+  "content_cleanup_version": "course-outline-v1"
 }

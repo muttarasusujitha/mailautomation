@@ -1,0 +1,573 @@
+{
+  "domain": "Kotlin",
+  "name": "Kotlin",
+  "category": "Programming Languages",
+  "icon": "code",
+  "aliases": ["Kotlin Programming", "Kotlin JVM", "Advanced Kotlin", "Kotlin Language", "Kotlin Developer", "Kotlin Coroutines", "Kotlin Multiplatform", "Kotlin Backend"],
+  "certifications": [],
+  "tools": ["Kotlin compiler (kotlinc)", "IntelliJ IDEA", "Gradle with Kotlin DSL", "kotlinx.coroutines", "kotlinx.serialization", "Ktor", "Spring Boot", "Exposed", "JUnit 5 and kotlin.test", "MockK", "Turbine", "Kotest", "detekt and ktlint", "JDK Flight Recorder"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers who know another language such as Java, Python, C# or JavaScript and are new to Kotlin. Covers the JDK, Gradle and IntelliJ IDEA toolchain, values and types, control flow, functions, null safety, strings, classes, inheritance, data, enum and sealed classes, objects, collections, lambdas, collection pipelines, scope and extension functions, exceptions and Result, generics, file handling, testing with kotlin.test and Gradle Kotlin DSL builds, finishing with a command-line task tracker.",
+      "prerequisites": ["Writes working programs in at least one other language with variables, loops, functions and classes", "Uses a terminal confidently to run commands and set environment variables", "Has a laptop with rights to install a JDK 21 or later and IntelliJ IDEA"],
+      "outcomes": ["Install the Kotlin toolchain and build, run and test projects with Gradle", "Write idiomatic Kotlin using null safety, data classes, sealed types, collections and lambdas", "Handle errors with exceptions and Result and read and write files safely", "Build, test and package a command-line application"],
+      "days": [
+        {
+          "topic": "Kotlin Toolchain Setup with JDK, Gradle and IntelliJ IDEA",
+          "subtopics": ["Where Kotlin runs: JVM, Native, JavaScript and Wasm targets", "Choosing and installing a JDK (21 or later) and checking java -version", "Installing IntelliJ IDEA and the bundled Kotlin plugin", "Creating a project with the New Project wizard and Gradle as the build system", "Project layout: src/main/kotlin, src/test/kotlin and build.gradle.kts", "The main function with and without args: Array<String>", "How a file Main.kt compiles to the class MainKt", "Compiling by hand with kotlinc Hello.kt -include-runtime -d hello.jar", "Running with java -jar and with the Gradle run task", "Kotlin Playground and Kotlin Notebook for quick experiments"],
+          "tools": ["JDK", "IntelliJ IDEA", "Gradle", "kotlinc", "Kotlin Playground"],
+          "lab_task": "Install a JDK 21 or later, run java -version and kotlinc -version, write Hello.kt with a main(args) that prints the first argument, build it with kotlinc Hello.kt -include-runtime -d hello.jar and run java -jar hello.jar Kotlin. Then create a Gradle project in IntelliJ IDEA and run ./gradlew run.",
+          "deliverable": "Setup report with tool versions, the hello.jar run output and a Gradle project that runs with ./gradlew run",
+          "checks": [["Run java -jar hello.jar Kotlin", "Prints the greeting containing the word Kotlin and exits with code 0", "Terminal output"], ["Run javap -cp hello.jar MainKt or unzip -l hello.jar", "A class named HelloKt or MainKt appears, named after the source file", "Command output"], ["Run ./gradlew run in the new project", "Gradle ends with BUILD SUCCESSFUL and the program output is printed", "Gradle console"]],
+          "objectives": ["Install and verify a JDK, Kotlin compiler and IntelliJ IDEA", "Compile and run Kotlin from the command line and from Gradle", "Explain how a Kotlin file becomes a JVM class"]
+        },
+        {
+          "topic": "Values, Types and Operators in Kotlin",
+          "subtopics": ["val for read-only references and var for reassignable ones", "Type inference and explicit type annotations", "Int, Long, Double, Float, Boolean and Char", "Byte, Short and the unsigned types UInt and ULong", "No implicit widening: toLong(), toDouble() and toInt() conversions", "Integer overflow wrapping around and Math.addExact", "Arithmetic, comparison and logical operators, and == versus ===", "Bitwise infix functions such as shl, shr, and and xor", "const val and compile-time constants", "Type aliases and Any, Unit and Nothing"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write a program that adds 1 to Int.MAX_VALUE, repeats the sum with Math.addExact, converts a Long to Int with toInt(), compares two Strings with == and ===, and prints 7 / 2, 7 % 2 and 7 / 2.0. Reassign a val and read the compiler error.",
+          "deliverable": "Program source plus a table of each expression and the value it printed",
+          "checks": [["Print Int.MAX_VALUE + 1", "Prints -2147483648 because Int wraps around", "Program output"], ["Call Math.addExact(Int.MAX_VALUE, 1)", "Throws ArithmeticException with message integer overflow", "Stack trace"], ["Reassign a val after its first assignment", "Compiler reports Val cannot be reassigned", "IDE or Gradle error"]],
+          "objectives": ["Choose val or var and let the compiler infer types", "Convert between numeric types explicitly", "Predict overflow and integer division results"]
+        },
+        {
+          "topic": "Expressions, when and Control Flow",
+          "subtopics": ["if as an expression with a value", "when with subjects, ranges and multiple conditions per branch", "when without a subject as an if-else chain", "Exhaustive when over enums and sealed types", "for loops over ranges such as 1..10, 1 until 10 and 10 downTo 1", "step, rangeUntil (1..<10) and iterating with indices and withIndex()", "while and do-while loops", "break and continue with labels such as outer@", "Smart casts with is checks inside conditions", "Statements versus expressions and the Unit result"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write a grade function using when with ranges (90..100, 80..89 and else), then FizzBuzz for 1..30 using when without a subject, and a nested loop with a labelled break that stops at the first pair (a, b) where a * b == 42. Print the results and the number of loop iterations.",
+          "deliverable": "Source file with grade, FizzBuzz and labelled-loop functions and their printed output",
+          "checks": [["Call grade(85)", "Returns the B branch value from the 80..89 range", "Program output"], ["Print FizzBuzz for 15 and for 9", "15 prints FizzBuzz and 9 prints Fizz", "Program output"], ["Add a break@outer when a * b == 42", "Loop stops at the first matching pair and the iteration counter is lower than the full 100", "Counter output"]],
+          "objectives": ["Use if and when as expressions", "Iterate with ranges, steps and labels", "Rely on smart casts after is checks"]
+        },
+        {
+          "topic": "Functions, Default Arguments and Named Parameters",
+          "subtopics": ["fun declarations, parameters and return types", "Single-expression functions with =", "Unit return type and Nothing for functions that never return", "Default parameter values", "Named arguments and mixing them with positional ones", "vararg and the spread operator *", "Local functions and top-level functions", "@JvmOverloads and how defaults appear to Java callers", "Function overloading versus default arguments", "Tail recursion with tailrec"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write fun format(name: String, width: Int = 10, pad: Char = '.') and call it positionally and with named arguments. Add sum(vararg n: Int) and call it with an IntArray via *. Write sumTo(n: Int) as tailrec with a Long accumulator and compare it with a plain recursive sumTo(n) at n = 100000.",
+          "deliverable": "Source with the three functions and a note on which calls compile and why",
+          "checks": [["Call format(name = \"Ana\", pad = '*')", "Uses the default width of 10 and pads with asterisks", "Program output"], ["Call sum(*intArrayOf(1, 2, 3))", "Returns 6", "Program output"], ["Run the non-tailrec recursion with n = 100000", "Throws StackOverflowError while the tailrec version completes", "Stack trace and output"]],
+          "objectives": ["Declare functions with defaults and named arguments", "Pass variable arguments and spread arrays", "Apply tailrec to remove stack growth"]
+        },
+        {
+          "topic": "Null Safety: Nullable Types and Safe Calls",
+          "subtopics": ["Non-null types by default and the String? nullable type", "Safe call ?.", "Elvis operator ?:", "Not-null assertion !! and the NullPointerException it throws", "Smart casts on nullable values and when they fail on var properties", "let with ?. for null-guarded blocks", "Safe casts with as?", "lateinit var and the UninitializedPropertyAccessException", "Platform types from Java such as String!", "requireNotNull, checkNotNull and error()"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write findUser(id: Int): User? and chain ?., ?: and let to print a city or the text unknown. Show the compile error for val s: String = null, trigger an NPE with !!, read a lateinit var before init, and call a Java method that returns null (System.getProperty(\"nope\")) to see a platform type.",
+          "deliverable": "Source file with each null-handling technique and the exact error or output each produced",
+          "checks": [["Compile val s: String = null", "Compiler reports Null can not be a value of a non-null type String", "Compiler output"], ["Run user?.address?.city ?: \"unknown\" with user = null", "Prints unknown and throws nothing", "Program output"], ["Read a lateinit var before assigning it", "Throws UninitializedPropertyAccessException naming the property", "Stack trace"]],
+          "objectives": ["Declare and handle nullable types", "Choose between ?., ?:, let and !! deliberately", "Recognise platform types at Java boundaries"]
+        },
+        {
+          "topic": "Strings, Ranges and Text Formatting",
+          "subtopics": ["String immutability and string templates with $name and ${expr}", "Raw strings with triple quotes, trimIndent and trimMargin", "split, substringBefore, substringAfterLast and replace", "StringBuilder and buildString", "format and String.format with %s, %d and %.2f", "toInt(), toIntOrNull() and toDoubleOrNull()", "Char functions: isDigit, uppercase and code", "Regex, containsMatchIn, find and groupValues", "Unicode, length versus code points and lowercase(Locale.ROOT)", "Character ranges such as 'a'..'z'"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Parse the line \"2026-03-14,Widget,19.99\" with split(','), convert fields with toInt, toIntOrNull and toDouble, and print a row with String.format(\"%-10s %8.2f\"). Then extract all words from a raw-string paragraph with Regex(\"\\\\w+\") and print the count of words longer than five characters.",
+          "deliverable": "Parsing program, formatted output and the word-count result",
+          "checks": [["Run \"abc\".toInt()", "Throws NumberFormatException with message For input string: \"abc\"", "Stack trace"], ["Run \"abc\".toIntOrNull()", "Returns null and no exception is thrown", "Program output"], ["Format 19.99 with %8.2f", "Prints the number right-aligned in 8 characters with two decimals", "Program output"]],
+          "objectives": ["Build and format strings with templates and raw strings", "Parse text safely into numbers", "Use Regex to extract data"]
+        },
+        {
+          "topic": "Classes, Properties and Constructors",
+          "subtopics": ["Class declaration with a primary constructor", "val and var properties declared in the constructor", "init blocks and the order of initialisation", "Secondary constructors and delegating with this(...)", "Custom getters and setters and the backing field", "Visibility modifiers: public, internal, protected and private", "Computed properties versus stored properties", "Final by default and the open modifier", "Nested, inner and local classes", "toString, equals and hashCode in plain classes"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Model class Account(val id: String, initial: Long) with a private var balance, a read-only balance getter, deposit and withdraw functions, an init block that rejects a negative initial with require, and a secondary constructor taking only id. Print the output order of init blocks and inspect the decompiled bytecode with Tools > Kotlin > Show Kotlin Bytecode.",
+          "deliverable": "Account class source, a run log showing initialisation order and a note on the generated getter methods",
+          "checks": [["Construct Account(\"A1\", -5)", "Throws IllegalArgumentException with message Failed requirement.", "Stack trace"], ["Assign account.balance from outside the class", "Compiler reports the setter is private or the val cannot be reassigned", "Compiler output"], ["Show Kotlin Bytecode for the class", "Bytecode contains getBalance() and no public setBalance()", "Bytecode viewer"]],
+          "objectives": ["Define classes with constructors and properties", "Control visibility and initialisation order", "Read the JVM members generated for properties"]
+        },
+        {
+          "topic": "Inheritance, Interfaces and Abstract Classes",
+          "subtopics": ["Classes are final by default and open enables inheritance", "override and override on properties", "abstract classes and abstract members", "Interfaces with default method bodies and properties", "Resolving conflicts with super<Interface>.method()", "Calling the superclass constructor", "Polymorphism and the is and as operators", "Composition over inheritance and delegation with by", "fun interface for single-method interfaces", "protected, internal and API surface"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Define abstract class Shape with abstract area(), interface Named with a default describe(), and classes Circle and Rect. Put them in a List<Shape>, print each area and describe(), then make two interfaces with the same default method and resolve the clash with super<A>.hello(). Try inheriting from a class that is not open.",
+          "deliverable": "Shape hierarchy source, the printed areas and the compiler message for the final class",
+          "checks": [["Extend a class that has no open modifier", "Compiler reports This type is final, so it cannot be inherited from", "Compiler output"], ["Implement two interfaces with the same default method without overriding", "Compiler requires an explicit override to resolve the conflict", "Compiler output"], ["Print areas of Circle(1.0) and Rect(2.0, 3.0)", "Outputs about 3.14 and 6.0", "Program output"]],
+          "objectives": ["Design class hierarchies with open, abstract and override", "Combine interfaces and resolve default-method conflicts", "Use delegation instead of inheritance"]
+        },
+        {
+          "topic": "Data Classes, Enum Classes and Sealed Hierarchies",
+          "subtopics": ["data class and its generated toString, equals, hashCode and copy", "Destructuring declarations and componentN functions", "Data class limits: constructor properties only", "enum class with properties and methods", "Enum entries, valueOf and name", "sealed class and sealed interface for closed hierarchies", "Exhaustive when over sealed types without else", "Modelling results as Success and Failure subtypes", "value classes with @JvmInline for type-safe IDs", "Choosing data class, enum, sealed type or object"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Define data class Point(val x: Int, val y: Int), print it, copy it with y = 5 and destructure it. Define enum class Level(val code: Int) and call Level.valueOf(\"LOUD\"). Define sealed interface Payment with Card and Cash, write an exhaustive when with no else, then add a third subtype and read the compile error.",
+          "deliverable": "Source with the three type families, plus the printed outputs and the compiler error text",
+          "checks": [["Print Point(1, 2) and Point(1, 2) == Point(1, 2)", "Prints Point(x=1, y=2) and true", "Program output"], ["Call Level.valueOf(\"LOUD\") for a missing name", "Throws IllegalArgumentException with message starting No enum constant", "Stack trace"], ["Add a new Payment subtype without updating the when", "Compiler reports the when expression must be exhaustive", "Compiler output"]],
+          "objectives": ["Generate value-type behaviour with data classes", "Model fixed sets with enums and sealed types", "Use exhaustive when to make additions safe"]
+        },
+        {
+          "topic": "Objects, Companion Objects and Singletons",
+          "subtopics": ["object declarations as thread-safe singletons", "Object expressions as anonymous objects", "companion object and static-like members", "Factory functions in a companion object with a private constructor", "@JvmStatic and @JvmField for Java callers", "const val inside objects", "Top-level functions and properties compared with objects", "Package-level organisation and file facades (@file:JvmName)", "Import aliases with import ... as ...", "When a singleton hurts testability"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Create object Registry with a mutableMapOf, a class User with a private constructor and companion object { fun of(name: String): User }, and an anonymous object implementing Runnable. Confirm Registry === Registry, call User.of from Kotlin, then use javap -p on the compiled class to see the Companion field and the effect of @JvmStatic.",
+          "deliverable": "Source files, identity check output and the javap listing before and after @JvmStatic",
+          "checks": [["Print Registry === Registry", "Prints true because there is one instance", "Program output"], ["Call User(\"x\") outside the class", "Compiler reports Cannot access '<init>': it is private in 'User'", "Compiler output"], ["Run javap -p on User before and after @JvmStatic", "A static method of() appears only after @JvmStatic is added", "javap output"]],
+          "objectives": ["Create singletons and companion factories", "Expose Kotlin members cleanly to Java", "Weigh objects against top-level functions"]
+        },
+        {
+          "topic": "Collections: List, Set and Map",
+          "subtopics": ["Read-only List, Set and Map versus MutableList, MutableSet and MutableMap", "listOf, mutableListOf, setOf, mapOf and emptyList", "Why read-only is not immutable: views of mutable lists", "Indexing, slicing, subList and getOrNull", "Map access: get, getOrDefault, getValue and withDefault", "Destructuring map entries in for loops", "Arrays versus lists: arrayOf, IntArray and toTypedArray", "LinkedHashMap ordering and sortedMap", "Equality and hashCode requirements for set and map keys", "ArrayDeque and buildList"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Build a word-frequency counter: split a paragraph, count words into a mutableMapOf<String, Int> using getOrDefault, then print the top three. Call map.getValue(\"zzz\") and emptyList<Int>().first(), expose a MutableList as List and mutate the original to show the view changes, and use a data class as a map key.",
+          "deliverable": "Word-frequency program with the top-three output and a note on each exception raised",
+          "checks": [["Call map.getValue(\"zzz\") on a missing key", "Throws NoSuchElementException with message Key zzz is missing in the map.", "Stack trace"], ["Call emptyList<Int>().first()", "Throws NoSuchElementException with message List is empty.", "Stack trace"], ["Add to the backing MutableList after exposing it as List", "The read-only List reflects the new element and size increases", "Program output"]],
+          "objectives": ["Choose the right collection type and mutability", "Access maps and lists safely", "Explain read-only views and key equality"]
+        },
+        {
+          "topic": "Lambdas and Higher-Order Functions",
+          "subtopics": ["Function types such as (Int) -> Int and () -> Unit", "Lambda syntax, the implicit it and trailing lambdas", "Passing and returning functions", "Function references with ::name and ::class", "Closures capturing and mutating local variables", "Anonymous functions and return rules in lambdas", "Labelled returns such as return@forEach", "inline functions and the cost of lambda objects", "Function types with receivers such as String.() -> Unit", "SAM conversion for Java interfaces like Runnable and Comparator"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write fun <T> retry(times: Int, block: () -> T): T, a makeCounter(): () -> Int closure, and a compose(f, g) function. Pass ::println and a lambda to forEach, sort strings with a Comparator lambda, and use return@forEach to skip an element. Mark a helper inline and compare its bytecode with the non-inline version.",
+          "deliverable": "Source with retry, counter and compose plus the printed outputs and a bytecode note",
+          "checks": [["Call makeCounter() twice, invoking the first counter three times", "Returns 1, 2 and 3 for that counter while a second counter starts at 1", "Program output"], ["Call retry(3) with a block that fails twice then succeeds", "Returns the third attempt value after two caught failures", "Program output"], ["Use plain return inside forEach in a function", "Returns from the enclosing function, not just the lambda", "Program output"]],
+          "objectives": ["Write and pass function values", "Reason about closures and returns in lambdas", "Explain what inline changes"]
+        },
+        {
+          "topic": "Collection Pipelines and Sequences",
+          "subtopics": ["map, filter and flatMap", "fold, reduce and sumOf", "groupBy, partition and associateBy", "sortedBy, sortedWith, compareBy and thenBy", "zip, windowed and chunked", "first, firstOrNull, single and any/all/none", "Sequences with asSequence and lazy evaluation", "Terminal versus intermediate sequence operations", "generateSequence and sequence { yield() }", "When sequences beat lists and when they do not"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Load 1000 generated Order(id, customer, total) records. Compute revenue per customer with groupBy and sumOf, the top five customers with sortedByDescending, and partition orders at 100.0. Then run filter/map/first on a list and on asSequence() with println in each step to count how many elements each version touches.",
+          "deliverable": "Pipeline source, the top-five output and a table of elements processed by list versus sequence",
+          "checks": [["Run listOf(1,2,3).first { it > 5 }", "Throws NoSuchElementException with message Collection contains no element matching the predicate.", "Stack trace"], ["Run list.map{}.filter{}.first() against asSequence() with println in each lambda", "The sequence processes fewer elements because it stops at the first match", "Program output"], ["Run orders.partition { it.total > 100.0 }", "Returns two lists whose sizes add up to 1000", "Program output"]],
+          "objectives": ["Transform data with collection operators", "Group, sort and aggregate records", "Use sequences to avoid intermediate lists"]
+        },
+        {
+          "topic": "Scope Functions and Extension Functions",
+          "subtopics": ["let, run, with, apply and also compared", "Choosing by receiver (this or it) and by result", "apply for object configuration", "also for side effects such as logging", "Extension functions and extension properties", "Extensions are resolved statically: member wins over extension", "Nullable receivers such as fun String?.orEmpty2()", "Extensions inside a class and with generics", "Organising extensions in files and packages", "Readability limits and nested scope function pitfalls"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write fun String.isPalindrome(), val List<Int>.median and fun String?.orDash(). Configure a StringBuilder with apply, log a value with also, and transform with let. Declare an extension named toString() on String and show the member is called, then declare open class A with an extension on A and call it through a B typed as A.",
+          "deliverable": "Extension source file plus run output showing the member-wins and static-dispatch results",
+          "checks": [["Call \"level\".isPalindrome() and \"kotlin\".isPalindrome()", "Returns true and false", "Program output"], ["Define String.toString() as an extension and call it", "The member String.toString() runs and the compiler warns the extension is shadowed", "Compiler warning"], ["Call an extension on a subclass instance held as its base type", "The base-type extension is chosen because dispatch is static", "Program output"]],
+          "objectives": ["Select the correct scope function", "Write extension functions and properties", "Explain static resolution of extensions"]
+        },
+        {
+          "topic": "Exceptions, Result and Resource Handling",
+          "subtopics": ["try, catch, finally as expressions", "All exceptions are unchecked in Kotlin", "throw, require, check and error", "Custom exception classes", "use for AutoCloseable and Closeable resources", "runCatching, Result, getOrNull, getOrElse and onFailure", "When to use exceptions and when to use nullable or sealed results", "Rethrowing and exception causes", "Stack traces and reading them in IntelliJ IDEA", "Never catching Throwable or CancellationException blindly"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Write readConfig(path) that opens a file with use, wraps IOException in a custom ConfigException(cause), and a parsePort(s: String): Result<Int> using runCatching and require(port in 1..65535). Test with a missing file, \"abc\", \"70000\" and \"8080\", and print stack traces showing the cause chain.",
+          "deliverable": "Source plus a table of the four port inputs with their Result outcomes and the cause-chain trace",
+          "checks": [["Call parsePort(\"70000\")", "Returns a failure holding IllegalArgumentException with message Failed requirement.", "Program output"], ["Call parsePort(\"8080\")", "Returns success 8080", "Program output"], ["Call readConfig on a missing path", "Throws ConfigException whose cause is a FileNotFoundException or NoSuchFileException", "Stack trace"]],
+          "objectives": ["Handle and raise exceptions idiomatically", "Release resources with use", "Model failures as Result or sealed types"]
+        },
+        {
+          "topic": "Generics and Type Parameters",
+          "subtopics": ["Generic classes such as Box<T>", "Generic functions and type inference", "Upper bounds with T : Comparable<T>", "Multiple bounds with where", "Star projection and Any? defaults", "Type erasure on the JVM and is List<*> checks", "Reading List<out E> as covariant", "Generic extension functions", "Standard generic types: Pair, Triple and Map.Entry", "Writing a typed Stack<T>"],
+          "tools": ["IntelliJ IDEA", "Kotlin Playground", "Gradle"],
+          "lab_task": "Implement class Stack<T> with push, pop and peek, and fun <T : Comparable<T>> maxOf3(a: T, b: T, c: T). Check Stack<Int> and Stack<String>, try maxOf3 with a type that is not Comparable, and compile if (x is List<String>) to read the erasure error, then replace it with is List<*>.",
+          "deliverable": "Stack and maxOf3 source with the compiler messages for the unbounded and erased cases",
+          "checks": [["Call maxOf3 with three Object instances that are not Comparable", "Compiler reports the type argument is not within its bounds", "Compiler output"], ["Pop from an empty Stack<Int>", "Throws NoSuchElementException with message ArrayDeque is empty. when backed by ArrayDeque.removeLast()", "Stack trace"], ["Write x is List<String> where x: Any", "Compiler reports Cannot check for instance of erased type", "Compiler output"]],
+          "objectives": ["Write generic classes and functions", "Bound type parameters", "Explain type erasure effects"]
+        },
+        {
+          "topic": "Files, Paths and Text Parsing with kotlin.io and java.nio",
+          "subtopics": ["java.io.File versus java.nio.file.Path", "kotlin.io.path extensions such as Path.readText() and writeText()", "readLines, useLines and forEachLine for large files", "Writing with bufferedWriter and appendText", "Directory walking with walk() and listDirectoryEntries()", "Charsets and the UTF-8 default", "CSV and key=value parsing by hand", "Temporary files and createTempDirectory", "Error handling for missing files and permissions", "Reading resources from the classpath"],
+          "tools": ["IntelliJ IDEA", "Gradle", "kotlin.io.path"],
+          "lab_task": "Generate sales.csv with 10000 rows using a bufferedWriter. Read it with useLines, skip malformed rows with toDoubleOrNull, total the amount column and report counts of valid and rejected rows. Then walk a directory tree and list all .kt files over 1 KB, and read a missing file to capture the exception type.",
+          "deliverable": "Program, the generated CSV row counts, a valid versus rejected tally and the missing-file exception text",
+          "checks": [["Count lines read by useLines against rows written", "Both equal 10001 including the header", "Program output"], ["Inject 5 rows with a non-numeric amount", "Rejected count is 5 and the total ignores those rows", "Program output"], ["Call Path(\"missing.txt\").readText()", "Throws NoSuchFileException naming missing.txt", "Stack trace"]],
+          "objectives": ["Read and write text files efficiently", "Parse delimited text defensively", "Traverse directories with java.nio"]
+        },
+        {
+          "topic": "Testing with kotlin.test and JUnit 5",
+          "subtopics": ["Adding kotlin(\"test\") and useJUnitPlatform() to build.gradle.kts", "@Test, assertEquals, assertTrue and assertNull", "assertFailsWith<T> for exceptions", "Test lifecycle with @BeforeTest and @AfterTest", "Backtick test names such as `rejects negative amount`", "Parameterised tests with JUnit 5 @ParameterizedTest", "Test doubles by hand with interfaces and fakes", "Arrange, Act, Assert structure", "Reading Gradle test reports in build/reports/tests/test", "Running a single test with --tests"],
+          "tools": ["Gradle", "kotlin.test", "JUnit 5", "IntelliJ IDEA"],
+          "lab_task": "Add kotlin(\"test\") to the Account class from the classes lab and write six tests covering deposit, withdraw, overdraft and the negative initial balance, one @ParameterizedTest with three amounts, and a fake Clock. Run ./gradlew test, open the HTML report and run one test with --tests \"*Account*overdraft*\".",
+          "deliverable": "Test source, the Gradle test summary and the HTML report location",
+          "checks": [["Run ./gradlew test", "BUILD SUCCESSFUL and the report lists the exact number of tests written, all passed", "build/reports/tests/test/index.html"], ["Change an expected value so a test fails", "Gradle fails the task and the report shows expected versus actual", "Gradle output"], ["Run ./gradlew test --tests \"*overdraft*\"", "Only the matching test runs and the count is 1", "Gradle output"]],
+          "objectives": ["Write and run unit tests with kotlin.test", "Test exceptions and parameter sets", "Interpret Gradle test reports"]
+        },
+        {
+          "topic": "Gradle Kotlin DSL Builds and Dependencies",
+          "subtopics": ["settings.gradle.kts and build.gradle.kts roles", "The plugins block and the Kotlin JVM plugin", "kotlin { jvmToolchain(21) } and toolchain resolution", "implementation, api, testImplementation and runtimeOnly", "Version catalogs in gradle/libs.versions.toml", "Repositories: mavenCentral() and the dependency cache", "./gradlew dependencies and dependencyInsight", "The application plugin and installDist", "Gradle wrapper and the --offline and --info flags", "Fat jars versus installDist distributions"],
+          "tools": ["Gradle", "IntelliJ IDEA", "Maven Central", "kotlinx.serialization"],
+          "lab_task": "Create a Gradle Kotlin DSL project with a libs.versions.toml version catalog, add kotlinx-coroutines-core and a test dependency, set jvmToolchain(21) and mainClass, then run ./gradlew dependencies --configuration runtimeClasspath, ./gradlew dependencyInsight --dependency kotlin-stdlib and ./gradlew installDist and start the generated script.",
+          "deliverable": "Project files, the dependency tree for runtimeClasspath and the output of the installed script",
+          "checks": [["Run ./gradlew dependencies --configuration runtimeClasspath", "kotlinx-coroutines-core and kotlin-stdlib appear in the tree", "Gradle output"], ["Run ./gradlew installDist then build/install/<name>/bin/<name>", "The program starts and prints its output without Gradle", "Terminal output"], ["Declare a dependency with a misspelt coordinate", "Gradle fails with Could not resolve and names the missing module", "Gradle error"]],
+          "objectives": ["Configure Kotlin builds in the Gradle Kotlin DSL", "Manage dependencies with version catalogs", "Package an application as a runnable distribution"]
+        },
+        {
+          "topic": "Beginner Capstone: Command-Line Task Tracker",
+          "subtopics": ["Domain model with a data class Task and an enum Status", "Command parsing with when over args (add, list, done, remove)", "Persistence in a tab-separated file with safe parsing", "Error handling with Result and exit codes via exitProcess", "Collection pipelines for filtering and sorting listings", "Unit tests for parsing and the repository"],
+          "tools": ["IntelliJ IDEA", "Gradle", "kotlin.test", "Git"],
+          "lab_task": "Build a tracker CLI with add \"title\", list --status open, done <id> and remove <id>, stored in tasks.tsv. Use only the standard library, return exit code 2 for bad input, add at least 8 kotlin.test tests, package with ./gradlew installDist, run the full add-list-done flow and commit with a README.",
+          "deliverable": "Git repository with the CLI, 8 or more passing tests, a README and a recorded terminal session of the full flow",
+          "checks": [["Run tracker add \"Write report\" then tracker list", "The new task appears with status open and id 1", "Terminal output"], ["Run tracker done 99 for an unknown id", "Prints an error message and exits with code 2", "echo $? output"], ["Run ./gradlew test", "At least 8 tests pass with zero failures", "Gradle test report"]],
+          "objectives": ["Combine classes, collections, files and tests in one application", "Handle bad input with clear errors and exit codes", "Package and document a Kotlin command-line tool"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers who write everyday Kotlin and need to build concurrent and networked applications. Covers coroutines, structured concurrency, dispatchers, flows, StateFlow and SharedFlow, channels, coroutine testing, variance and reified types, delegation, DSLs, kotlinx.serialization, Ktor server and client, Spring Boot with Kotlin, Exposed, Kotlin Multiplatform basics, lifecycle-aware coroutines on Android, and Java interoperability, finishing with a Ktor and Exposed REST service.",
+      "prerequisites": ["Completed the beginner Kotlin course or writes classes, collections and lambdas in Kotlin with ease", "Understands HTTP, JSON and basic SQL", "Has Docker or a local database available for service labs"],
+      "outcomes": ["Write correct concurrent code with coroutines, flows and channels and test it with virtual time", "Build REST services with Ktor or Spring Boot that use kotlinx.serialization and a database", "Create DSLs and delegates and use generics with variance and reified types", "Share code across targets with Kotlin Multiplatform and interoperate with Java"],
+      "days": [
+        {
+          "topic": "Coroutines: Suspend Functions and Builders",
+          "subtopics": ["Why coroutines: lightweight concurrency compared with threads", "Adding kotlinx-coroutines-core to Gradle", "suspend functions and where they can be called", "runBlocking for main functions and tests only", "launch and the returned Job", "async and await for results", "delay versus Thread.sleep", "Sequential versus concurrent execution of two suspend calls", "Measuring elapsed time with measureTimedValue", "Reading thread names with -Dkotlinx.coroutines.debug"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "Coroutine Debugger"],
+          "lab_task": "Write two suspend functions that each delay(1000) and return a number. Call them sequentially inside runBlocking and time it, then call them with async and await and time it. Launch 100000 coroutines that each delay(1000) and increment a counter, and compare with starting 100000 threads capped at 2000.",
+          "deliverable": "Timing table for sequential, async and 100000-coroutine runs, with the source",
+          "checks": [["Run two delay(1000) calls sequentially", "Total time is about 2000 ms", "Printed elapsed time"], ["Run the same calls with async and await", "Total time is about 1000 ms", "Printed elapsed time"], ["Launch 100000 coroutines that delay(1000) and count", "The counter ends at 100000 in a few seconds without OutOfMemoryError", "Program output"]],
+          "objectives": ["Write suspend functions and start coroutines with launch and async", "Explain sequential versus concurrent composition", "Compare coroutine and thread cost"]
+        },
+        {
+          "topic": "Structured Concurrency, Jobs and Cancellation",
+          "subtopics": ["CoroutineScope, coroutineScope and the parent-child Job tree", "Why a parent waits for its children", "job.cancel(), cancelAndJoin() and join()", "Cooperative cancellation with isActive, ensureActive() and yield()", "CancellationException and why it must be rethrown", "finally blocks and withContext(NonCancellable) for cleanup", "withTimeout and withTimeoutOrNull", "Avoiding GlobalScope", "Lazy start with CoroutineStart.LAZY", "Naming coroutines with CoroutineName for debugging"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "Coroutine Debugger"],
+          "lab_task": "Write a CPU loop that ignores cancellation, call cancel() after 500 ms and show it keeps running, then fix it with ensureActive(). Add a finally block that logs cleanup, a suspend call in finally wrapped in withContext(NonCancellable), and compare withTimeout(1000) with withTimeoutOrNull(1000) on a 3000 ms task.",
+          "deliverable": "Cancellation demo with before and after logs, plus a timeout comparison",
+          "checks": [["Cancel a busy loop that never checks isActive", "The loop keeps running until it finishes naturally", "Program log"], ["Cancel the same loop after adding ensureActive()", "The loop stops within one iteration and the finally log prints", "Program log"], ["Run withTimeout(1000) and withTimeoutOrNull(1000) around a 3000 ms task", "The first throws TimeoutCancellationException and the second returns null", "Program output"]],
+          "objectives": ["Build coroutine trees with structured concurrency", "Write cancellable code", "Clean up safely when cancelled"]
+        },
+        {
+          "topic": "Dispatchers, Context and Thread Confinement",
+          "subtopics": ["CoroutineContext elements: Job, Dispatcher, CoroutineName", "Dispatchers.Default for CPU work", "Dispatchers.IO for blocking calls and its 64-thread default limit", "Dispatchers.Main and why it is absent on a plain JVM", "Dispatchers.Unconfined and its risks", "withContext to switch and return", "limitedParallelism for per-resource limits", "Custom dispatchers from Executors with asCoroutineDispatcher()", "Blocking calls on Default and thread starvation", "Context inheritance and overriding with +"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "VisualVM"],
+          "lab_task": "Print Thread.currentThread().name inside launch under Default, IO and a single-thread dispatcher. Run 8 blocking Thread.sleep(2000) calls on Default then on IO and compare durations. Use Dispatchers.IO.limitedParallelism(2) for 6 blocking tasks, and touch Dispatchers.Main to read the exception.",
+          "deliverable": "Thread-name table, durations of the Default versus IO runs and the Main dispatcher error text",
+          "checks": [["Print the thread name under Dispatchers.Default", "Name starts with DefaultDispatcher-worker-", "Program output"], ["Run 8 Thread.sleep(2000) tasks on IO versus Default", "IO finishes in about 2 s while Default takes longer when cores are fewer than 8", "Measured durations"], ["Launch on Dispatchers.Main in a plain JVM program", "Throws IllegalStateException saying the Main dispatcher module is missing", "Stack trace"]],
+          "objectives": ["Choose a dispatcher for CPU, blocking and confined work", "Switch context with withContext", "Limit parallelism per resource"]
+        },
+        {
+          "topic": "Exceptions in Coroutines: SupervisorScope and Handlers",
+          "subtopics": ["Exception propagation in launch compared with async", "A failing child cancels siblings and the parent", "supervisorScope and SupervisorJob", "try/catch around await versus around launch", "CoroutineExceptionHandler and where it works", "Uncaught exception output on the root coroutine", "Exceptions inside coroutineScope and rethrow behaviour", "Aggregated suppressed exceptions", "Result wrapping at API boundaries", "Logging coroutine failures with context names"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "SLF4J"],
+          "lab_task": "Start three child coroutines in coroutineScope where the second throws after 200 ms and show the siblings are cancelled. Repeat in supervisorScope and show the siblings finish. Attach a CoroutineExceptionHandler to a child launch and to a root launch to see where it fires, and catch an async failure at await.",
+          "deliverable": "Three-run comparison log and a note on where the handler did and did not fire",
+          "checks": [["Fail one child inside coroutineScope", "Sibling coroutines are cancelled and the exception reaches the caller", "Program log"], ["Fail one child inside supervisorScope", "Siblings complete normally and only the failing child reports an error", "Program log"], ["Install CoroutineExceptionHandler on a child launch", "The handler is not called, while a root launch calls it once", "Program log"]],
+          "objectives": ["Predict how failures propagate through a coroutine tree", "Use supervisor scopes for independent children", "Place handlers where they actually run"]
+        },
+        {
+          "topic": "Flow Cold Streams and Operators",
+          "subtopics": ["flow { emit() } builders and flowOf and asFlow", "Cold semantics: a flow runs per collector", "map, filter, take, onEach and transform", "Terminal operators: collect, toList, first and fold", "flatMapConcat, flatMapMerge and flatMapLatest", "combine and zip", "buffer, conflate and collectLatest", "debounce and sample for noisy sources", "catch, onCompletion and exception transparency", "flowOn and context preservation"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "Turbine"],
+          "lab_task": "Build a flow that emits 1..5 with delay(100) and collect it twice to show it restarts. Add map, filter and take(3), compare buffer() with the default for a slow collector by timing both, add catch and onCompletion around a flow that throws on item 3, and switch the producer with flowOn(Dispatchers.IO).",
+          "deliverable": "Operator experiments with timings for default versus buffered collection and the error output",
+          "checks": [["Collect the same flow twice", "The producer block runs twice and prints twice", "Program output"], ["Compare 5 items with a 100 ms producer and 200 ms collector, with and without buffer()", "Buffered run is about 1.1 s while the default is about 1.5 s", "Measured timings"], ["Throw on item 3 and add catch { } above the collector", "Items 1 and 2 are received, catch runs once and onCompletion receives the cause", "Program output"]],
+          "objectives": ["Build and transform cold flows", "Control concurrency with buffer, conflate and flatMap variants", "Handle errors and context in flows"]
+        },
+        {
+          "topic": "StateFlow, SharedFlow and Hot Streams",
+          "subtopics": ["MutableStateFlow with an initial value and value property", "State conflation and equality-based distinct updates", "update { } for atomic modifications", "MutableSharedFlow with replay, extraBufferCapacity and onBufferOverflow", "emit versus tryEmit", "stateIn and shareIn with SharingStarted.WhileSubscribed", "Hot versus cold: when collectors start", "Events versus state modelling", "Testing hot flows", "Memory and subscription lifetimes"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "Turbine"],
+          "lab_task": "Build a CounterStore around MutableStateFlow<Int> with update { it + 1 } and run 100 coroutines doing 1000 increments each, then assert 100000. Show that setting an equal value does not re-emit. Create a MutableSharedFlow with replay = 0 and one with replay = 2, and see what a late collector receives. Convert a cold flow with stateIn(WhileSubscribed(5000)).",
+          "deliverable": "Store source, concurrent-update result and a table of what late collectors receive",
+          "checks": [["Run 100 coroutines each calling update { it + 1 } 1000 times", "Final value is exactly 100000", "Program output"], ["Assign the same value to a StateFlow twice with a collector attached", "The collector sees it once", "Program output"], ["Add a collector after 5 emissions to SharedFlow with replay = 2", "The late collector receives the last 2 values only", "Program output"]],
+          "objectives": ["Choose StateFlow or SharedFlow for state and events", "Update shared state atomically", "Share cold flows with stateIn and shareIn"]
+        },
+        {
+          "topic": "Channels and Concurrency Patterns with Mutex",
+          "subtopics": ["Channel types: RENDEZVOUS, BUFFERED, CONFLATED and UNLIMITED", "send, receive and close", "produce and consumeEach", "Fan-out with several workers and fan-in", "Pipelines of stages", "Shared mutable state and the lost-update race", "Mutex.withLock versus AtomicInteger", "Confinement with a single-thread dispatcher", "select expressions and when to avoid them", "Backpressure with bounded channels"],
+          "tools": ["kotlinx.coroutines", "IntelliJ IDEA", "Gradle", "JMH"],
+          "lab_task": "Run 100 coroutines on Dispatchers.Default that each do counter++ 1000 times and note the wrong total. Fix with Mutex, AtomicInteger and a single-thread dispatcher and compare times. Then build a produce { } source of 1..1000 with 4 worker coroutines reading one Channel(capacity = 16) and verify the sum of all results.",
+          "deliverable": "Race demo, three fixes with timings and a worker-pool program with its final sum",
+          "checks": [["Increment a plain Int from 100 coroutines 1000 times each", "Total is below 100000 on at least one run", "Program output"], ["Repeat with Mutex.withLock and with AtomicInteger", "Both report exactly 100000", "Program output"], ["Process 1..1000 with 4 workers and a Channel(16)", "Combined result equals 500500 and each item is handled once", "Program output"]],
+          "objectives": ["Reproduce and fix a data race", "Build producer-consumer pipelines with channels", "Choose between mutex, atomics and confinement"]
+        },
+        {
+          "topic": "Testing Coroutines with runTest and Turbine",
+          "subtopics": ["kotlinx-coroutines-test and runTest", "Virtual time: delay is skipped, and currentTime advances", "StandardTestDispatcher versus UnconfinedTestDispatcher", "advanceTimeBy, advanceUntilIdle and runCurrent", "Injecting dispatchers instead of hard-coding them", "TestScope and backgroundScope", "Testing flows with Turbine awaitItem, awaitComplete and awaitError", "Testing timeouts and retries", "Replacing Dispatchers.Main with Dispatchers.setMain", "Detecting leaked coroutines and unfinished work"],
+          "tools": ["kotlinx.coroutines.test", "Turbine", "JUnit 5", "MockK", "Gradle"],
+          "lab_task": "Take a Repository with a suspend fun that retries 3 times with delay(1000) between attempts and inject its dispatcher. Test it with runTest and assert currentTime is 2000 after two failures and a success. Test a flow of ticks with Turbine awaitItem and awaitComplete, and add a test that fails because a coroutine never finishes.",
+          "deliverable": "Test class with retry, flow and failing-leak tests plus the Gradle summary",
+          "checks": [["Run the retry test with delay(1000) between attempts", "The test finishes in milliseconds while testScheduler.currentTime is 2000", "Test report"], ["Use Turbine on a flow that emits 3 values and completes", "awaitItem returns each value in order then awaitComplete succeeds", "Test report"], ["Leave an unfinished child coroutine in runTest", "The test fails with an unfinished-coroutine or timeout error", "Test failure output"]],
+          "objectives": ["Test suspend code deterministically with virtual time", "Verify flow emissions with Turbine", "Inject dispatchers to make code testable"]
+        },
+        {
+          "topic": "Generic Variance, Reified Types and Inline Functions",
+          "subtopics": ["Declaration-site variance with out and in", "Use-site variance and projections", "Why MutableList<Int> is not a MutableList<Number>", "Producer out and consumer in rules", "inline functions and reified type parameters", "T::class and filterIsInstance<T>() without class arguments", "noinline, crossinline and non-local returns", "@PublishedApi internal and inline API rules", "Inline value classes and boxing cases", "Generic constraints with where clauses and Comparable<in T>"],
+          "tools": ["IntelliJ IDEA", "Gradle", "javap", "Kotlin Bytecode viewer"],
+          "lab_task": "Write interface Source<out T> and Sink<in T>, try assigning MutableList<Int> to MutableList<Number>, and write inline fun <reified T> List<*>.firstOf(): T? using is T. Add a crossinline lambda and a noinline lambda to a helper, then view the bytecode to confirm the call is inlined. Define a value class UserId(val v: Long) and look for boxing.",
+          "deliverable": "Variance and reified examples with compiler messages and a bytecode comparison",
+          "checks": [["Assign MutableList<Int> to MutableList<Number>", "Compiler reports a type mismatch because MutableList is invariant", "Compiler output"], ["Call listOf(1, \"a\", 2).firstOf<String>()", "Returns \"a\" with no Class parameter passed", "Program output"], ["Show Kotlin Bytecode of an inline call site", "The lambda body appears at the call site with no Function object created", "Bytecode viewer"]],
+          "objectives": ["Apply in and out variance correctly", "Write reified inline functions", "Predict what inlining generates"]
+        },
+        {
+          "topic": "Delegation, Delegated Properties and Operator Overloading",
+          "subtopics": ["Class delegation with by", "Property delegation with by lazy", "LazyThreadSafetyMode.SYNCHRONIZED, PUBLICATION and NONE", "Delegates.observable and Delegates.vetoable", "Map-backed properties with by map", "Custom ReadWriteProperty delegates", "provideDelegate for validation at declaration", "Operators: plus, minus, times, get, set, invoke, contains and compareTo", "rangeTo, iterator and destructuring componentN operators", "infix functions and when operator overloading hurts clarity"],
+          "tools": ["IntelliJ IDEA", "Gradle", "kotlin.test", "Kotlin Bytecode viewer"],
+          "lab_task": "Create a Money data class with plus, times and compareTo operators, a Config class using by lazy for a slow-to-load file and Delegates.vetoable for a port, and a custom delegate that stores values in Preferences-like maps with a prefix. Test that lazy runs once with a counter and the vetoable rejects 0.",
+          "deliverable": "Money, Config and custom delegate source with tests",
+          "checks": [["Read a by lazy property five times", "The initializer runs exactly once", "Counter output"], ["Assign 0 to a vetoable port property that accepts 1..65535", "The assignment is rejected and the old value remains", "Test result"], ["Evaluate Money(5) + Money(7) * 2", "Result equals Money(19) following operator precedence", "Test result"]],
+          "objectives": ["Delegate behaviour to other objects and properties", "Write custom property delegates", "Overload operators with restraint"]
+        },
+        {
+          "topic": "Type-Safe Builders and DSLs",
+          "subtopics": ["Lambdas with receivers as the DSL foundation", "Builders: a minimal html { body { p { } } } tree", "@DslMarker to prevent outer-scope leakage", "Extension functions on builders", "Infix and invoke operator functions in DSLs", "buildList, buildMap and buildString in the stdlib", "Gradle Kotlin DSL as a real-world example", "Validating DSL output and failing fast", "DSL documentation and IDE completion", "When a plain data structure is better than a DSL"],
+          "tools": ["IntelliJ IDEA", "Gradle", "kotlin.test", "Kotlin Playground"],
+          "lab_task": "Write a small HTML or SQL-like DSL with lambdas with receivers that builds an element tree and renders it to a string. Add @DslMarker, then call an outer builder function from an inner scope to show the compiler error before and after the marker, and add tests asserting the rendered output for 3 documents.",
+          "deliverable": "DSL source, rendering tests and a note on the DslMarker compiler error",
+          "checks": [["Render a document with a heading and two list items", "Output string matches the expected HTML exactly", "Test report"], ["Call an outer-scope builder from an inner block with @DslMarker", "Compiler reports the function can't be called in this context by implicit receiver", "Compiler output"], ["Render an empty document", "Output is the empty root element with no children", "Test report"]],
+          "objectives": ["Build DSLs with lambdas with receivers", "Constrain DSL scope with @DslMarker", "Judge when a DSL adds value"]
+        },
+        {
+          "topic": "JSON Handling with kotlinx.serialization",
+          "subtopics": ["The serialization Gradle plugin and kotlinx-serialization-json", "@Serializable classes and Json.encodeToString", "decodeFromString and reified serializer lookups", "Json configuration: ignoreUnknownKeys, prettyPrint, encodeDefaults and explicitNulls", "@SerialName, @Transient and default values", "Custom serializers for dates and BigDecimal", "Polymorphism with sealed classes and the type discriminator", "JsonElement and JsonObject for dynamic payloads", "Error types: SerializationException and MissingFieldException", "Comparison with Jackson and Gson for JVM-only projects"],
+          "tools": ["kotlinx.serialization", "Gradle", "kotlin.test", "jq"],
+          "lab_task": "Add the serialization plugin, model Order with a nested list and a sealed Payment hierarchy, encode and decode it, and run decode with missing field and unknown key inputs under default and ignoreUnknownKeys configs. Write a custom serializer for java.time.Instant and test round trips for 5 payloads.",
+          "deliverable": "Models, serializer and a table of valid and invalid payload results",
+          "checks": [["Decode JSON missing a required field", "Throws MissingFieldException naming the field", "Test output"], ["Decode JSON with an extra key using default Json", "Throws SerializationException about an unknown key, while ignoreUnknownKeys = true succeeds", "Test output"], ["Round-trip a sealed Payment value", "JSON contains the type discriminator and decoding returns an equal object", "Test output"]],
+          "objectives": ["Serialise and deserialise Kotlin models", "Configure Json for strict and tolerant parsing", "Handle polymorphic payloads"]
+        },
+        {
+          "topic": "Ktor Server: Routing, Plugins and Content Negotiation",
+          "subtopics": ["embeddedServer, engines and the application module", "application.conf and port configuration", "routing with get, post, path parameters and query parameters", "call.respond, call.respondText and status codes", "ContentNegotiation with kotlinx.serialization", "StatusPages for centralised error mapping", "CallLogging, CORS and the Compression plugins", "Request validation with RequestValidation", "Structuring routes in extension functions", "testApplication for in-memory route tests"],
+          "tools": ["Ktor", "Gradle", "curl", "kotlinx.serialization", "JUnit 5"],
+          "lab_task": "Create a Ktor server with GET /health, GET /items/{id}, POST /items and a StatusPages mapping from NotFoundException to 404 and IllegalArgumentException to 400. Install ContentNegotiation with json(), exercise each route with curl -i, and add testApplication tests for 200, 404 and 400 responses.",
+          "deliverable": "Server project, curl transcript and testApplication tests",
+          "checks": [["curl -i localhost:8080/items/999 for an unknown id", "Response status is 404 with the error JSON body", "curl output"], ["POST /items with malformed JSON", "Response status is 400 with a JSON error message", "curl output"], ["Run ./gradlew test", "All three testApplication tests pass", "Gradle test report"]],
+          "objectives": ["Build REST routes with Ktor", "Map exceptions to HTTP responses", "Test routes without a network"]
+        },
+        {
+          "topic": "Ktor Client and HTTP Calls",
+          "subtopics": ["HttpClient engines such as CIO and Java", "Installing ContentNegotiation and Logging", "get, post and body<T>()", "Query parameters, headers and bearer auth", "expectSuccess and ClientRequestException versus ServerResponseException", "HttpTimeout configuration", "HttpRequestRetry with exponential backoff", "Concurrent calls with async and coroutineScope", "MockEngine for tests", "Closing clients and connection reuse"],
+          "tools": ["Ktor Client", "Gradle", "MockEngine", "curl", "JUnit 5"],
+          "lab_task": "Write a client for a public JSON API or your own Ktor server with HttpTimeout (2000 ms), HttpRequestRetry (3 retries) and expectSuccess = true. Fetch 10 resources concurrently with async, show the total time against sequential fetching, and use MockEngine to simulate a 503 followed by 200 and a 404.",
+          "deliverable": "Client source, timing comparison and MockEngine tests",
+          "checks": [["MockEngine returns 503 then 200 with 3 retries configured", "The call succeeds and the engine sees 2 requests", "Test report"], ["MockEngine returns 404 with expectSuccess = true", "Throws ClientRequestException with status 404", "Test report"], ["Fetch 10 resources of 300 ms each concurrently", "Total time is about 300 to 500 ms rather than 3000 ms", "Measured timing"]],
+          "objectives": ["Call HTTP APIs from Kotlin with Ktor Client", "Make clients resilient with timeouts and retries", "Test HTTP code with MockEngine"]
+        },
+        {
+          "topic": "Spring Boot with Kotlin: Beans, Null Safety and Coroutine Support",
+          "subtopics": ["Creating a Kotlin Spring Boot project with start.spring.io", "kotlin-spring plugin and why classes must be open for proxies", "kotlin-jpa plugin and no-arg entities", "runApplication<App>(*args)", "Constructor injection with a single primary constructor", "@ConfigurationProperties with data classes", "Jackson Kotlin module and null handling", "suspend controller functions and Flow returns in WebFlux", "Kotlin extensions and the bean { } DSL", "Testing with MockK, @SpringBootTest and springmockk"],
+          "tools": ["Spring Boot", "Gradle", "MockK", "JUnit 5", "curl"],
+          "lab_task": "Generate a Kotlin Gradle Spring Boot app with Web and Data JPA, add a @ConfigurationProperties data class, an @Entity with the jpa plugin, a REST controller and a @Transactional service. Remove the spring plugin to see the proxy error, then restore it, add a WebFlux suspend endpoint in a second module, and test with MockK.",
+          "deliverable": "Spring Boot Kotlin project, proxy-error note and passing tests",
+          "checks": [["Remove the kotlin-spring plugin from a @Transactional service", "Startup or the transaction proxy fails because the class is final", "Startup log"], ["GET the REST endpoint with curl", "Returns 200 and JSON with Kotlin null properties omitted or null as configured", "curl output"], ["Run ./gradlew test with MockK", "Service unit tests pass without starting the Spring context", "Gradle test report"]],
+          "objectives": ["Configure Kotlin compiler plugins for Spring", "Write idiomatic Spring beans and properties in Kotlin", "Use coroutines in controllers and test with MockK"]
+        },
+        {
+          "topic": "Database Access with Exposed and JDBC",
+          "subtopics": ["JDBC essentials: DriverManager, DataSource and HikariCP", "Exposed Table objects and column types", "Database.connect and transaction { }", "SchemaUtils and migrations with Flyway for production", "insert, select, update and deleteWhere in the DSL", "Joins, groupBy and aggregate expressions", "DAO entities versus the DSL", "Transaction rollback on exceptions", "Suspending transactions with coroutines", "Avoiding N+1 queries and logging SQL with addLogger(StdOutSqlLogger)"],
+          "tools": ["Exposed", "H2", "PostgreSQL", "HikariCP", "Flyway", "Gradle"],
+          "lab_task": "Define Authors and Books tables in Exposed against H2 in-memory, insert 3 authors and 20 books, query book counts per author with a join and groupBy, and print the SQL with StdOutSqlLogger. Insert two rows inside a transaction, throw an exception on the second and check zero rows were committed.",
+          "deliverable": "Table definitions, queries with logged SQL and a rollback test",
+          "checks": [["Query book counts per author with join and groupBy", "Result sums to 20 books across 3 authors", "Program output"], ["Throw an exception after the first insert in a transaction", "Both rows are rolled back and the count stays at 0", "Test result"], ["Enable StdOutSqlLogger and list authors with their books", "The log shows SQL statements and reveals one query per author when N+1 is present", "Log output"]],
+          "objectives": ["Map tables and run queries with Exposed", "Manage transactions and rollback", "Spot and fix N+1 queries"]
+        },
+        {
+          "topic": "Kotlin Multiplatform Project Structure and Targets",
+          "subtopics": ["What Kotlin Multiplatform shares: logic, not necessarily UI", "The multiplatform Gradle plugin and kotlin { } targets", "commonMain, commonTest and platform source sets", "Targets: jvm(), js(IR), wasmJs, linuxX64 and Apple targets requiring macOS", "The default hierarchy template and intermediate source sets", "expect and actual declarations for platform APIs", "Common libraries: kotlinx.coroutines, kotlinx.serialization, kotlinx-datetime and Ktor Client", "Running allTests, jvmTest and linuxX64Test", "Publishing and consuming a multiplatform library", "What cannot go in commonMain such as java.* APIs"],
+          "tools": ["Kotlin Multiplatform", "Gradle", "Kotlin/JS", "Kotlin/Native", "IntelliJ IDEA"],
+          "lab_task": "Create a multiplatform Gradle project with jvm(), js(IR) with nodejs() and linuxX64() targets. Put a Slug converter and a kotlinx-datetime formatter in commonMain with tests in commonTest, add expect fun platformName() with three actuals, and run ./gradlew allTests. Then import java.time in commonMain to see the error.",
+          "deliverable": "KMP project with shared tests running on three targets and the java.* error output",
+          "checks": [["Run ./gradlew allTests", "The same shared tests execute for JVM, JS and Linux native with 0 failures", "Gradle test report"], ["Call platformName() on each target", "Returns a different string per target", "Test output"], ["Import java.time.LocalDate in commonMain", "Compiler reports Unresolved reference for java", "Compiler output"]],
+          "objectives": ["Structure a multiplatform Gradle project", "Share code with commonMain and expect/actual", "Run shared tests on several targets"]
+        },
+        {
+          "topic": "Kotlin on Android: Lifecycle-Aware Coroutines and Flow Collection",
+          "subtopics": ["viewModelScope and lifecycleScope", "Collecting flows safely with repeatOnLifecycle(Lifecycle.State.STARTED)", "collectAsStateWithLifecycle in Compose", "Exposing UI state with MutableStateFlow and asStateFlow()", "stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)", "One-off events versus state", "Main dispatcher and Dispatchers.Main.immediate", "Testing ViewModels with Dispatchers.setMain and runTest", "Avoiding leaks by not capturing Activity in coroutines", "Why plain collect in lifecycleScope keeps running in the background"],
+          "tools": ["Android Studio", "androidx.lifecycle", "kotlinx.coroutines.test", "Turbine", "Gradle"],
+          "lab_task": "In a ViewModel, expose a StateFlow<UiState> built with stateIn(WhileSubscribed(5000)) from a repository flow. Write JVM unit tests using Dispatchers.setMain(StandardTestDispatcher()), runTest and Turbine to assert Loading, Success and Error, then resetMain in @AfterTest. Compare lifecycleScope.launch with repeatOnLifecycle.",
+          "deliverable": "ViewModel, JVM unit tests and a note comparing lifecycle collection patterns",
+          "checks": [["Collect the UiState flow with Turbine", "Items arrive in order Loading, Success(data)", "Unit test report"], ["Remove Dispatchers.setMain from the test", "The test fails because Dispatchers.Main is unavailable on the JVM", "Test failure output"], ["Stop the last subscriber and wait 5 seconds in virtual time", "The upstream flow is cancelled after the 5000 ms timeout", "Test output"]],
+          "objectives": ["Collect flows in a lifecycle-aware way", "Expose state from a ViewModel with stateIn", "Unit test coroutines that use the Main dispatcher"]
+        },
+        {
+          "topic": "Java Interoperability and Mixed-Language Codebases",
+          "subtopics": ["Calling Java from Kotlin: SAM conversion, nullability annotations and platform types", "Calling Kotlin from Java: top-level functions in FileKt classes", "@JvmStatic, @JvmField, @JvmOverloads and @JvmName", "@Throws so Java can catch checked exceptions", "Properties as getters and setters", "Kotlin collections seen from Java", "Default methods and -Xjvm-default", "Suspend functions seen from Java and bridging with future { }", "Mixed Gradle modules and incremental migration", "kotlin-allopen, jsr305 flags and nullability enforcement"],
+          "tools": ["IntelliJ IDEA", "Gradle", "javap", "Java", "JUnit 5"],
+          "lab_task": "In one Gradle module, call a Java class with @Nullable and @NotNull annotations from Kotlin, then call Kotlin top-level functions and a companion object from a Java main. Add @JvmOverloads and @JvmStatic, and use @Throws(IOException::class) to catch a checked exception in Java. Inspect results with javap -p.",
+          "deliverable": "Mixed-language module with Java callers, javap output and compile errors",
+          "checks": [["Catch IOException in Java around a Kotlin function without @Throws", "javac reports exception IOException is never thrown in body of corresponding try statement", "javac output"], ["Add @Throws(IOException::class) to the Kotlin function", "The Java catch compiles and runs", "Build output"], ["Run javap -p on the Kotlin file class", "A final class named after the file with static methods is listed", "javap output"]],
+          "objectives": ["Call between Java and Kotlin in both directions", "Control the generated JVM API with annotations", "Plan an incremental Java-to-Kotlin migration"]
+        },
+        {
+          "topic": "Intermediate Capstone: Ktor Notes REST Service with Exposed",
+          "subtopics": ["Ktor routes for create, read, update, delete and search", "Exposed tables with PostgreSQL or H2 and a transaction per request", "kotlinx.serialization DTOs, validation and error mapping through StatusPages", "A Flow-based server-sent update or streaming export endpoint", "Coroutine-aware tests with testApplication and a fake repository", "Packaging with installDist and a run script"],
+          "tools": ["Ktor", "Exposed", "kotlinx.serialization", "Gradle", "JUnit 5", "curl"],
+          "lab_task": "Build a notes service with POST/GET/PUT/DELETE /notes and GET /notes?query=, persisted through Exposed, with validation (title 1..100 chars) returning 400, 404 for unknown ids, a repository interface with a fake for tests, 12 testApplication tests, ./gradlew installDist and a README with curl examples.",
+          "deliverable": "Git repository with the service, 12 or more passing tests, README with curl examples and a short runbook",
+          "checks": [["POST /notes with an empty title", "Returns 400 with a JSON error naming the title field", "curl output"], ["GET /notes?query=kotlin after creating three matching notes", "Returns exactly those 3 notes in JSON", "curl output"], ["Run ./gradlew test", "At least 12 tests pass with 0 failures", "Gradle test report"]],
+          "objectives": ["Combine Ktor, Exposed and serialization into one service", "Test HTTP and persistence layers separately", "Package and document a Kotlin service for others to run"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced Kotlin engineers who own production services and shared libraries. Covers the K2 compiler and compiler plugins, KSP, coroutine internals, advanced flow design, type-system features, JVM profiling and benchmarking, multiplatform library design and publishing, Kotlin/Native and Kotlin/JS interop, Gradle build logic, production Ktor security, virtual threads, observability, resilience, quality gates, containers and native images, migrations, testing strategy and incident troubleshooting.",
+      "prerequisites": ["Completed the intermediate Kotlin course or has shipped Kotlin services using coroutines", "Reads Gradle builds and JVM stack traces comfortably", "Has Docker, a JDK and a CI system such as GitHub Actions available"],
+      "outcomes": ["Explain how the compiler and coroutines work and use that knowledge to write and diagnose code", "Profile, benchmark and tune Kotlin services on the JVM", "Design, publish and maintain multiplatform libraries with stable binary APIs", "Operate Kotlin services with security, observability, resilience, quality gates and incident discipline"],
+      "days": [
+        {
+          "topic": "Compiler Pipeline: K2 Frontend, IR Backend and Build Reports",
+          "subtopics": ["Pipeline stages: parsing, FIR frontend analysis, IR lowering and backend codegen", "K2 as the default compiler since Kotlin 2.0 and what changed for smart casts", "languageVersion and apiVersion in compilerOptions", "Warnings as errors with allWarningsAsErrors and -Werror semantics", "Lambdas compiled with invokedynamic and -Xlambdas=class for comparison", "Incremental compilation and the Kotlin build daemon", "Build reports with kotlin.build.report.output=file", "Reading javap -c -p output for a when over a sealed type", "The Kotlin Gradle plugin task graph: compileKotlin and compileJava", "Reading compiler error codes and diagnostics in IntelliJ IDEA"],
+          "tools": ["Kotlin Compiler", "Gradle", "javap", "IntelliJ IDEA", "Kotlin Bytecode viewer"],
+          "lab_task": "Compile a small project with default lambdas and again with -Xlambdas=class via freeCompilerArgs, count the .class files in build/classes/kotlin/main for each, and disassemble one call site with javap -c -p. Enable kotlin.build.report.output=file, run ./gradlew compileKotlin twice after a one-line change, and compare full and incremental compile times.",
+          "deliverable": "Class-count comparison, disassembly notes and a build-report table of full versus incremental compile times",
+          "checks": [["Compare class file counts for default versus -Xlambdas=class", "The class-per-lambda build produces more .class files than the default build", "Directory listing"], ["Disassemble a lambda call site with javap -c -p", "The default build shows an invokedynamic instruction", "javap output"], ["Change one line and re-run compileKotlin with build reports on", "The report shows an incremental compilation with fewer files than the initial full compile", "Build report file"]],
+          "objectives": ["Describe the stages of the K2 compiler pipeline", "Inspect generated bytecode and compiler options", "Measure and explain incremental compilation"]
+        },
+        {
+          "topic": "Compiler Plugins and Symbol Processing with KSP",
+          "subtopics": ["Compiler plugins: allopen, noarg, serialization and Compose", "KSP versus kapt: speed and Kotlin awareness", "SymbolProcessor and SymbolProcessorProvider interfaces", "Resolver.getSymbolsWithAnnotation and KSClassDeclaration", "Generating code with CodeGenerator and dependencies for incremental builds", "Registering the provider in META-INF/services", "Wiring the processor with ksp(project(\":processor\"))", "Reporting problems through KSPLogger", "Testing a processor with compile-testing style harnesses", "Choosing between KSP, reflection and handwritten code"],
+          "tools": ["KSP", "Gradle", "KotlinPoet", "kotlin-compile-testing", "IntelliJ IDEA"],
+          "lab_task": "Create a two-module Gradle build: annotations plus a KSP processor module and an app. Annotate classes with @AutoBuilder and generate a <Name>Builder class using CodeGenerator or KotlinPoet. Add the ksp configuration, run ./gradlew :app:kspKotlin, inspect build/generated/ksp, and make the processor report an error for an annotated interface.",
+          "deliverable": "Processor source, generated builder files and the error output for the invalid annotation use",
+          "checks": [["Run ./gradlew :app:kspKotlin with two annotated classes", "Two generated Builder files appear under build/generated/ksp", "Directory listing"], ["Use the generated builder in app code and run it", "Output matches the object built by hand", "Program output"], ["Annotate an interface with @AutoBuilder", "Build fails with the KSPLogger error message you wrote", "Gradle output"]],
+          "objectives": ["Explain how compiler plugins and KSP differ", "Write and wire a KSP processor", "Generate code safely for incremental builds"]
+        },
+        {
+          "topic": "Coroutine Internals: Continuations and State Machines",
+          "subtopics": ["The CPS transform: the extra Continuation parameter", "COROUTINE_SUSPENDED and the Any? return type", "Generated state-machine classes with a label field", "Reading javap -p output of a suspend function", "suspendCoroutine and suspendCancellableCoroutine", "Resuming with resume and resumeWithException", "createCoroutine, startCoroutine and building a tiny async runtime", "Stack-trace recovery and the debug agent", "DebugProbes.install and dumpCoroutines()", "Cost of suspension: allocations per suspend point"],
+          "tools": ["kotlinx.coroutines", "javap", "kotlinx-coroutines-debug", "IntelliJ IDEA", "JMH"],
+          "lab_task": "Compile a suspend function with two delay calls and run javap -p -c on its class to find the Continuation parameter, the label field and the COROUTINE_SUSPENDED comparison. Wrap a callback API with suspendCancellableCoroutine and make cancellation unregister the callback. Install DebugProbes and call dumpCoroutines() while two coroutines are suspended.",
+          "deliverable": "javap annotations, the callback adapter and a DebugProbes dump",
+          "checks": [["Disassemble a suspend function with two suspension points", "Output shows a Continuation parameter and a label field with at least 3 states", "javap output"], ["Cancel a coroutine waiting on a suspendCancellableCoroutine", "invokeOnCancellation runs and the callback is unregistered", "Program output"], ["Call DebugProbes.dumpCoroutines() with two suspended coroutines", "Dump lists both coroutines with state SUSPENDED and their creation stack", "Dump output"]],
+          "objectives": ["Explain how suspend functions compile", "Adapt callback APIs with cancellation support", "Inspect live coroutines with debug probes"]
+        },
+        {
+          "topic": "Advanced Flow Design: callbackFlow, Backpressure and Custom Operators",
+          "subtopics": ["callbackFlow and awaitClose for listener APIs", "channelFlow and concurrent emission", "The flow invariant: emission from another coroutine is illegal in flow { }", "buffer with BufferOverflow.DROP_OLDEST and DROP_LATEST", "SharedFlow with slow subscribers and extraBufferCapacity", "retryWhen with jittered exponential backoff", "Writing custom operators as extension functions on Flow<T>", "Time-window operators: chunking by size or time", "Cancellation and cleanup in long-lived flows", "Measuring throughput and memory of flow pipelines"],
+          "tools": ["kotlinx.coroutines", "Turbine", "JMH", "IntelliJ IDEA", "Gradle"],
+          "lab_task": "Wrap a listener-based fake sensor API in callbackFlow with awaitClose unregistering. Write a custom operator chunkedByTime(window) and a retryWithBackoff operator, then test them with runTest and Turbine. Trigger the flow invariant violation by emitting from withContext inside flow { }, and compare DROP_OLDEST with SUSPEND for a slow collector.",
+          "deliverable": "Operator library with tests and a note on the flow invariant error",
+          "checks": [["Emit from withContext(Dispatchers.IO) inside flow { }", "Throws IllegalStateException saying Flow invariant is violated", "Stack trace"], ["Cancel a callbackFlow collector", "awaitClose runs and the listener count returns to 0", "Test result"], ["Push 100 items to a slow collector with DROP_OLDEST", "Collector sees fewer than 100 items and the last item is included", "Test output"]],
+          "objectives": ["Convert callback APIs into well-behaved flows", "Write and test custom flow operators", "Pick an overflow strategy deliberately"]
+        },
+        {
+          "topic": "Type System Depth: Contracts, Opt-In and Context Parameters",
+          "subtopics": ["Kotlin contracts: returns() implies and callsInPlace", "Definitely non-nullable types written T & Any", "Opt-in requirements with @RequiresOptIn and @OptIn", "Explicit API mode with explicitApi()", "Deprecation levels: WARNING, ERROR and HIDDEN with ReplaceWith", "Context parameters and when to use them in place of receivers (check stability in your compiler version)", "Value classes for domain types and their boxing limits", "Sealed hierarchies in public APIs and binary evolution", "Type-safe units and phantom types", "Making illegal states unrepresentable in a domain model"],
+          "tools": ["Kotlin Compiler", "Gradle", "kotlin.test", "IntelliJ IDEA"],
+          "lab_task": "Write a helper requireNotBlank(s: String?) with a contract so that the caller can use s as non-null afterward. Create an @RequiresOptIn annotation and an API that needs it. Enable explicitApi() and fix every public declaration, add a deprecated function with ReplaceWith, and model Email, UserId and Money as value classes.",
+          "deliverable": "API module with contract, opt-in marker, explicit API fixes and tests",
+          "checks": [["Call the contract helper then use the argument as String", "Code compiles without a !! or a manual smart cast", "Compiler result"], ["Use the opt-in API without @OptIn", "Compiler reports the API requires opt-in", "Compiler output"], ["Enable explicitApi() with a public function lacking a visibility modifier", "Compiler reports Visibility must be specified in explicit API mode", "Compiler output"]],
+          "objectives": ["Use contracts and opt-in to shape APIs", "Evolve public APIs with deprecations and explicit API mode", "Encode domain rules in the type system"]
+        },
+        {
+          "topic": "Profiling Kotlin on the JVM with JFR and async-profiler",
+          "subtopics": ["Why sample profilers beat guessing", "Starting JFR with -XX:StartFlightRecording=duration=60s,filename=rec.jfr", "jcmd <pid> JFR.start and JFR.dump on a running process", "Reading jdk.ExecutionSample with the jfr print command", "JDK Mission Control views: hot methods, allocation and GC", "async-profiler with -e cpu, -e alloc and -e wall", "Flame graphs and reading Kotlin frames such as lambda$ and invokeSuspend", "Wall-clock versus CPU profiling for coroutine services", "GC pauses and heap sizing flags such as -Xmx and -XX:+UseZGC", "A before and after workflow with a written finding"],
+          "tools": ["JFR", "JDK Mission Control", "async-profiler", "jcmd", "Gradle"],
+          "lab_task": "Write a Kotlin service endpoint that parses JSON in a loop and has one deliberately slow regex. Load it with 50 concurrent requests, record 60 seconds with JFR, print the top hot methods with jfr print --events jdk.ExecutionSample, capture a flame graph with async-profiler -e cpu -d 30, fix the hotspot and compare throughput before and after.",
+          "deliverable": "JFR file, flame graph, throughput table before and after and a one-page findings note",
+          "checks": [["Print jdk.ExecutionSample events and rank frames", "The slow regex method appears as the top frame by sample count", "jfr print output"], ["Open the async-profiler flame graph", "A wide block for the regex or Pattern.matcher call is visible", "flame.html screenshot"], ["Re-run the same load after the fix", "Requests per second improve and the hotspot frame drops below 5 percent of samples", "Load-test table"]],
+          "objectives": ["Record and analyse JFR data", "Read flame graphs for Kotlin and coroutine code", "Prove a performance fix with before and after data"]
+        },
+        {
+          "topic": "Allocation and Bytecode Costs: Boxing, Inlining and JMH",
+          "subtopics": ["Boxing of Int in List<Int> and Map<Int, Int> versus IntArray", "Lambdas, closures and captured variables as allocations", "inline, noinline and when inlining grows bytecode", "Sequences versus eager collections: allocation per element", "Value classes and when they are boxed", "String concatenation and templates compiled to invokedynamic or StringBuilder", "JMH setup with the Gradle JMH plugin or kotlinx-benchmark", "Benchmark pitfalls: dead-code elimination and Blackhole", "The -prof gc profiler and gc.alloc.rate.norm", "Writing a performance budget and a regression test"],
+          "tools": ["JMH", "kotlinx-benchmark", "Gradle", "javap", "async-profiler"],
+          "lab_task": "Write JMH benchmarks that sum 1,000,000 integers using List<Int>, IntArray, a Sequence pipeline and an inline loop with Blackhole. Run with -prof gc, record ns/op and gc.alloc.rate.norm for each, then view the bytecode for boxing calls such as Integer.valueOf. Add a value class benchmark and explain any boxing found.",
+          "deliverable": "Benchmark source, results table (ns/op and B/op) and bytecode evidence for boxing",
+          "checks": [["Run -prof gc for IntArray and List<Int> sums", "IntArray shows far lower gc.alloc.rate.norm than the boxed list", "JMH output"], ["Search the List<Int> bytecode for Integer.valueOf or intValue", "Boxing and unboxing calls are present", "javap output"], ["Remove Blackhole from a benchmark that discards its result", "Time per operation drops implausibly toward 0, demonstrating dead-code elimination", "JMH output"]],
+          "objectives": ["Predict allocation hot spots in Kotlin code", "Write sound JMH benchmarks", "Use data to choose between abstractions"]
+        },
+        {
+          "topic": "Multiplatform Libraries: expect/actual Design and Publishing",
+          "subtopics": ["Designing a common API with small platform surfaces", "expect/actual for functions, classes and interfaces; interfaces as the preferred seam", "Explicit API mode for libraries", "Binary compatibility: the binary-compatibility-validator or built-in ABI validation with apiDump and apiCheck", "Semantic versioning rules for Kotlin libraries", "maven-publish and the publications each target creates", "publishToMavenLocal and inspecting the Gradle module metadata file", "Signing and publishing to Maven Central through the Central Portal", "Documentation with Dokka", "Consuming the library from JVM and Node projects"],
+          "tools": ["Kotlin Multiplatform", "Gradle", "maven-publish", "Dokka", "Maven Central"],
+          "lab_task": "Take the shared library from the multiplatform day, enable explicitApi(), publish it to mavenLocal with ./gradlew publishToMavenLocal, and list the artifacts per target in ~/.m2. Run apiDump and commit the .api file, delete a public function and see apiCheck fail, then consume the library from a separate JVM project using the .module metadata.",
+          "deliverable": "Published artifact listing, .api dump, apiCheck failure and consumer project output",
+          "checks": [["Run ./gradlew publishToMavenLocal", "The ~/.m2 folder contains root, -jvm, -js and -linuxx64 artifacts", "Directory listing"], ["Remove a public function and run apiCheck", "The task fails showing the removed signature in the diff", "Gradle output"], ["Add a dependency from a JVM-only project to the root coordinate", "Gradle resolves the -jvm variant through module metadata and the program runs", "Gradle output"]],
+          "objectives": ["Design stable multiplatform APIs", "Protect binary compatibility with validation tooling", "Publish and consume multiplatform artifacts"]
+        },
+        {
+          "topic": "Kotlin/Native, Kotlin/JS and Wasm Interop",
+          "subtopics": ["Kotlin/Native memory model: tracing garbage collector and no freezing", "Linking: linuxX64Binaries and the .kexe executable", "platform.posix and kotlinx.cinterop with memScoped, alloc and CPointer", "cinterop with a .def file to wrap a C header", "Kotlin/JS: js(IR), nodejs() and browser() targets", "@JsExport, @JsName and exporting TypeScript definitions", "Calling JavaScript from Kotlin with external declarations", "Kotlin/Wasm targets and their limits compared with JS", "Binary size and startup time per target", "Interop choices for iOS: framework export and Swift export (experimental)"],
+          "tools": ["Kotlin/Native", "Kotlin/JS", "Gradle", "Node.js", "cinterop"],
+          "lab_task": "In a multiplatform module, call platform.posix.getenv and getpid from linuxX64 code inside memScoped, run the executable with ./gradlew runDebugExecutableLinuxX64, then write a small C header and a .def file, generate bindings with cinterop and call it. For JS, export a function with @JsExport and call it from a Node script after ./gradlew jsNodeProductionRun.",
+          "deliverable": "Native executable output, cinterop binding example and a Node script calling exported Kotlin",
+          "checks": [["Run the linuxX64 debug executable", "Prints the process id and the value of an environment variable you exported", "Terminal output"], ["Call the cinterop-wrapped C function", "Returns the value computed in C, matching the expected result for 3 inputs", "Program output"], ["Call the @JsExport function from Node", "Returns the same value as the JVM test for the same input", "Node output"]],
+          "objectives": ["Call native and JavaScript code from Kotlin", "Export Kotlin to other runtimes", "Compare targets by size, startup and constraints"]
+        },
+        {
+          "topic": "Gradle Build Logic: Convention Plugins and Build Cache",
+          "subtopics": ["Why buildSrc invalidates caches and an included build-logic is preferred", "kotlin-dsl plugin and precompiled script plugins", "Convention plugins such as my.kotlin-library.gradle.kts", "Shared version catalogs across build-logic and the main build", "Build cache with org.gradle.caching=true and FROM-CACHE", "Configuration cache with org.gradle.configuration-cache=true", "Parallel execution and org.gradle.parallel", "Build scans and --profile for slow tasks", "Task avoidance: lazy configuration with tasks.register and Provider", "Writing a custom task with @Input and @OutputDirectory annotations"],
+          "tools": ["Gradle", "Gradle Build Scan", "Kotlin DSL", "Gradle build cache", "IntelliJ IDEA"],
+          "lab_task": "Convert a 5-module build to use an included build-logic with two convention plugins, move common Kotlin settings and test configuration into them, enable build and configuration caches, and run ./gradlew clean build twice. Capture the second run with --scan or --profile and show tasks reported FROM-CACHE and the configuration cache message.",
+          "deliverable": "build-logic project, before and after timing table and cache evidence",
+          "checks": [["Run ./gradlew build twice with the configuration cache enabled", "Second run prints Configuration cache entry reused", "Gradle output"], ["Run clean then build with the build cache on", "compileKotlin tasks are reported FROM-CACHE", "Gradle task output"], ["Change one source file in a leaf module", "Only that module and its dependants are recompiled", "Gradle task list"]],
+          "objectives": ["Centralise build configuration in convention plugins", "Use build and configuration caches correctly", "Diagnose slow builds with profiles and scans"]
+        },
+        {
+          "topic": "Ktor in Production: Authentication, JWT and Rate Limiting",
+          "subtopics": ["The Authentication plugin and authenticate blocks", "JWT verification with issuer, audience and signature algorithm", "Choosing RS256 with a JWKS endpoint over a shared HS256 secret", "Reading JWTPrincipal and role checks", "401 versus 403 and the WWW-Authenticate challenge", "Password hashing with Argon2 or bcrypt, never plain SHA", "RateLimit plugin and per-key limits", "CORS, DefaultHeaders and HTTPS redirects behind a proxy", "Secrets from environment variables and never committed", "Security tests for expired, tampered and missing tokens"],
+          "tools": ["Ktor", "JWT", "curl", "OWASP ZAP", "Gradle", "jwt.io"],
+          "lab_task": "Add JWT authentication to a Ktor service with issuer and audience checks, protect GET /me and an admin route that needs a role claim, and add a RateLimit of 5 requests per 10 seconds on /login. Write testApplication tests for missing, expired, tampered and wrong-audience tokens and for the sixth login attempt within the window.",
+          "deliverable": "Protected service, a table of token test cases and a rate-limit test",
+          "checks": [["Call /me with no Authorization header", "Returns 401 with a WWW-Authenticate Bearer header", "curl -i output"], ["Call the admin route with a valid non-admin token", "Returns 403", "Test result"], ["Send a sixth /login request within 10 seconds", "Returns 429 Too Many Requests", "Test result"]],
+          "objectives": ["Secure Ktor routes with JWT", "Separate authentication and authorisation outcomes", "Protect credentials endpoints with rate limits"]
+        },
+        {
+          "topic": "Virtual Threads Versus Coroutines on the JVM",
+          "subtopics": ["Virtual threads from JDK 21: how they are scheduled on carrier threads", "Executors.newVirtualThreadPerTaskExecutor()", "Using virtual threads as a coroutine dispatcher with asCoroutineDispatcher()", "Pinning with synchronized and JNI and how newer JDKs reduce it", "Blocking code under Dispatchers.IO versus virtual threads", "Cancellation and structured concurrency: coroutines versus StructuredTaskScope", "spring.threads.virtual.enabled=true and Ktor engines", "ThreadLocal and MDC behaviour", "Choosing: coroutines for composition, virtual threads for blocking libraries", "Measuring both with the same workload"],
+          "tools": ["JDK", "kotlinx.coroutines", "JFR", "JMH", "Gradle"],
+          "lab_task": "Run 10,000 tasks that each wait 100 ms (a) on virtual threads with Thread.sleep, (b) as coroutines with delay on Dispatchers.Default, and (c) with Thread.sleep on Dispatchers.Default, using the same machine. Record total times and peak thread counts with jcmd Thread.print or jstack, then repeat (a) with a synchronized block and JFR pinning events.",
+          "deliverable": "Result table with times and thread counts and a recommendation note",
+          "checks": [["Run (a) and (b) with 10,000 tasks of 100 ms", "Both finish in about 1 to 3 seconds", "Measured timings"], ["Run (c) on Dispatchers.Default with the same load", "Takes about 10,000 x 100 ms divided by the core count, far longer than (a)", "Measured timing"], ["Enable JFR jdk.VirtualThreadPinned events with a synchronized block around sleep", "Pinned events are recorded on JDKs where pinning occurs", "JFR output"]],
+          "objectives": ["Explain the scheduling models of virtual threads and coroutines", "Measure both under blocking and non-blocking load", "Choose between them for a given service"]
+        },
+        {
+          "topic": "Observability for Kotlin Services: Tracing, Metrics and MDC",
+          "subtopics": ["OpenTelemetry Java agent with -javaagent and OTEL_SERVICE_NAME", "OTEL_EXPORTER_OTLP_ENDPOINT and running Jaeger all-in-one", "Context propagation across coroutines with the OpenTelemetry Kotlin extension", "MDC and MDCContext() from kotlinx-coroutines-slf4j", "Structured JSON logging with trace_id and span_id fields", "Micrometer MeterRegistry and the Ktor MicrometerMetrics plugin", "Prometheus scrape endpoint and PromQL for rate and p95", "Custom timers, counters and gauges", "Cardinality limits for metric tags", "SLO-based alert rules for latency and errors"],
+          "tools": ["OpenTelemetry", "Jaeger", "Micrometer", "Prometheus", "Grafana", "Ktor"],
+          "lab_task": "Run a Ktor service with the OpenTelemetry Java agent exporting to Jaeger, add MDCContext() to the request scope and a Micrometer timer for an outgoing call, scrape /metrics with Prometheus and write a PromQL query for p95 latency. Show a log line containing trace_id for a request that switches dispatchers with withContext.",
+          "deliverable": "Trace screenshot, log lines with trace ids, a Prometheus query and its result",
+          "checks": [["Open the Jaeger trace for one request", "Shows a server span with a child span for the outgoing HTTP call", "Jaeger screenshot"], ["Log inside withContext(Dispatchers.IO) with and without MDCContext", "Without it the MDC field is missing, with it the request id is present", "Log lines"], ["Run the PromQL histogram_quantile(0.95, ...) query", "Returns a p95 latency value in seconds for the endpoint", "Prometheus screenshot"]],
+          "objectives": ["Instrument Kotlin services with traces, metrics and logs", "Propagate context across coroutines", "Write queries and alerts from the telemetry"]
+        },
+        {
+          "topic": "Resilience: Bulkheads, Retries and Circuit Breakers with Coroutines",
+          "subtopics": ["Failure modes: slow downstreams, retries amplifying load and thundering herds", "Timeouts at every call with withTimeout and client timeouts", "Bulkheads with Semaphore.withPermit and limitedParallelism", "Retries with exponential backoff and jitter, idempotency and retry budgets", "Circuit breakers with Resilience4j-Kotlin and executeSuspendFunction", "CallNotPermittedException and fallbacks", "Load shedding and bounded queues with Channel capacity", "Hedged requests and when they help", "Testing failure with injected latency and errors", "Graceful shutdown: Ktor stop grace periods and cancelling scopes"],
+          "tools": ["Resilience4j", "kotlinx.coroutines", "Ktor", "WireMock", "Gradle"],
+          "lab_task": "Build a service that calls a downstream via a Ktor client with a 500 ms timeout, a Semaphore of 10, 3 retries with jittered backoff and a Resilience4j circuit breaker. Use a stub downstream with 200 ms latency and 50 percent errors, drive 200 concurrent requests, and record the maximum concurrent calls and the point at which the breaker opens.",
+          "deliverable": "Service code, load results with max concurrency and circuit state transitions",
+          "checks": [["Track concurrent downstream calls with an AtomicInteger", "Maximum observed concurrency never exceeds 10", "Program output"], ["Drive failures above the configured threshold", "Circuit breaker moves to OPEN and further calls throw CallNotPermittedException", "State-transition log"], ["Call during the open state with a fallback configured", "Fallback response is returned quickly without a downstream call", "Test result"]],
+          "objectives": ["Limit concurrency and failures in coroutine services", "Configure retries and circuit breakers safely", "Test resilience with injected faults"]
+        },
+        {
+          "topic": "Code Quality Gates: detekt, ktlint, Kover and API Validation",
+          "subtopics": ["detekt rule sets, detekt.yml and baseline files", "Running ./gradlew detekt and reading reports", "ktlint with the Gradle plugin: ktlintCheck and ktlintFormat", ".editorconfig and the Kotlin coding conventions", "Kover coverage with koverHtmlReport and koverVerify bounds", "Mutation testing with Pitest and the Kotlin plugin", "Compiler warnings as gates with allWarningsAsErrors", "Binary-compatibility checks in CI", "GitHub Actions workflow running build, detekt, ktlint and Kover", "Handling legacy code with baselines and ratcheting"],
+          "tools": ["detekt", "ktlint", "Kover", "GitHub Actions", "Gradle"],
+          "lab_task": "Add detekt, ktlint and Kover to a Gradle project, generate a detekt baseline for existing issues, set a koverVerify minimum line coverage of 80 percent, and create a GitHub Actions workflow running ./gradlew check. Introduce a style violation and drop coverage below the limit to prove each gate fails the build, then fix both.",
+          "deliverable": "Build configuration, a workflow file and run logs showing each gate failing then passing",
+          "checks": [["Introduce an unused variable and a wrong indent", "detekt or ktlintCheck fails the build and names the file and line", "Gradle output"], ["Delete tests so coverage drops below 80 percent", "koverVerify fails with a rule violated message", "Gradle output"], ["Run the GitHub Actions workflow on the fixed branch", "All steps pass and the job is green", "Actions run page"]],
+          "objectives": ["Configure static analysis and coverage gates", "Adopt quality tools on legacy code with baselines", "Automate checks in CI"]
+        },
+        {
+          "topic": "Containers, Startup Time and Native Images for Kotlin Services",
+          "subtopics": ["Building images with Jib: jibDockerBuild without a Dockerfile", "A multi-stage Dockerfile using a slim JRE and a non-root user", "Container-aware JVM flags such as -XX:MaxRAMPercentage=75", "Verifying heap size with -XX:+PrintFlagsFinal under docker run --memory", "AppCDS archives with -XX:ArchiveClassesAtExit", "GraalVM native-image and the org.graalvm.buildtools.native plugin", "Reflection configuration and why kotlinx.serialization avoids it", "Startup time and image size comparison", "Health checks and graceful shutdown in containers", "Image scanning with Trivy"],
+          "tools": ["Jib", "Docker", "GraalVM", "Trivy", "Gradle"],
+          "lab_task": "Containerise a Ktor service with Jib and with a multi-stage Dockerfile, run with --memory=256m and -XX:MaxRAMPercentage=75, print MaxHeapSize with PrintFlagsFinal, measure startup time to the first 200 OK for the JVM image, an AppCDS image and a GraalVM native image, and run trivy image on the result.",
+          "deliverable": "Dockerfile, Jib config, a table of image size and startup time per variant and the Trivy report",
+          "checks": [["Run java -XX:MaxRAMPercentage=75 -XX:+PrintFlagsFinal -version under --memory=256m", "MaxHeapSize is about 192 MiB (201326592 bytes)", "Container output"], ["Measure time to first 200 OK for JVM versus native image", "Native image starts in a fraction of the JVM time", "Timing table"], ["Run trivy image on the final image", "Report lists vulnerabilities with severity counts and shows the base image used", "Trivy output"]],
+          "objectives": ["Package Kotlin services as lean containers", "Tune JVM memory flags for containers", "Evaluate AppCDS and native image trade-offs"]
+        },
+        {
+          "topic": "Migrating Java Codebases to Kotlin and Upgrading Compiler Versions",
+          "subtopics": ["Choosing a migration order: tests first, leaf modules next", "IntelliJ IDEA Convert Java File to Kotlin File and what it gets wrong", "Fixing platform types with nullability annotations and jsr305 settings", "Replacing getters, builders and Optional with idiomatic Kotlin", "Keeping a stable Java API during the migration", "Updating Kotlin Gradle plugin, Gradle and JDK versions together", "languageVersion and apiVersion during an upgrade", "Deprecation cycles and warnings-as-errors for new code only", "K2 migration issues and how to bisect them", "Tracking migration progress and defining done"],
+          "tools": ["IntelliJ IDEA", "Gradle", "OpenRewrite", "Kotlin Compiler", "Git"],
+          "lab_task": "Take a 15-class Java module with tests, convert three classes with the IntelliJ converter, hand-fix nullability and idioms, keep all tests green, and measure lines of code before and after with cloc. Then bump the Kotlin Gradle plugin one minor version, read new warnings, and set languageVersion to the previous value to isolate a behaviour change.",
+          "deliverable": "Migration log with before and after code, test results, cloc table and an upgrade note",
+          "checks": [["Run the existing tests after each converted class", "All tests remain green after every conversion", "Gradle test report"], ["Run cloc on the module before and after", "Kotlin line count is lower than the Java count it replaced", "cloc output"], ["Upgrade the Kotlin plugin and compile", "New warnings are listed and none are hidden, with at least one fixed or documented", "Build output"]],
+          "objectives": ["Plan and run a safe Java-to-Kotlin migration", "Fix converter output for nullability and idioms", "Upgrade compiler and language versions in steps"]
+        },
+        {
+          "topic": "Testing Strategy: Property-Based, Contract and Integration Tests with Kotest and Testcontainers",
+          "subtopics": ["The test pyramid for Kotlin services", "Kotest spec styles and kotest-runner-junit5", "Property-based testing with checkAll and Arb generators", "Shrinking and reading the failing seed", "MockK: coEvery, coVerify and relaxed mocks", "Testcontainers with PostgreSQLContainer for repository tests", "Testing Ktor with testApplication and real databases", "Contract tests against a stub with WireMock", "Flaky tests: time, ordering and shared state", "Running tests in parallel and measuring suite time"],
+          "tools": ["Kotest", "MockK", "Testcontainers", "WireMock", "Gradle", "JUnit 5"],
+          "lab_task": "For a money-splitting function, write a Kotest property test that every split sums back to the original amount, find the bug it exposes with rounding and note the shrunk counterexample. Add a repository test against PostgreSQLContainer(\"postgres:16-alpine\") and a Ktor route test with a WireMock downstream, and run ./gradlew test with parallel forks.",
+          "deliverable": "Property, repository and route tests with the shrunk counterexample and suite timings",
+          "checks": [["Run the property test on a naive splitting function", "Fails with a shrunk counterexample and a seed that reproduces it", "Kotest output"], ["Run the repository test against PostgreSQLContainer", "Test starts a real container and the migrated schema passes the CRUD checks", "Gradle test report"], ["Run the suite with forks and compare the time", "Parallel run is faster than serial with the same pass count", "Timing table"]],
+          "objectives": ["Use property-based tests to find edge cases", "Test persistence against real databases", "Keep suites fast and reliable"]
+        },
+        {
+          "topic": "Troubleshooting Kotlin Production Issues: Deadlocks, Leaks and Coroutine Dumps",
+          "subtopics": ["Taking thread dumps with jstack and jcmd <pid> Thread.print", "Coroutine dumps with DebugProbes and IntelliJ's Coroutines tab", "Mutex is not reentrant: the nested withLock deadlock", "runBlocking inside a limited dispatcher and thread starvation", "Heap dumps with jcmd <pid> GC.heap_dump and analysis in Eclipse MAT", "Leaks from GlobalScope, unbounded Channels and caches", "Reading OutOfMemoryError messages: Java heap space versus Metaspace", "Stuck requests: missing timeouts and lost cancellations", "Stack-trace recovery and reading suspended traces", "An incident write-up with timeline, cause and fix"],
+          "tools": ["jstack", "jcmd", "Eclipse MAT", "kotlinx-coroutines-debug", "VisualVM"],
+          "lab_task": "Reproduce four faults in a small service: a nested Mutex.withLock hang, runBlocking on a single-thread dispatcher, a GlobalScope leak with an unbounded Channel and a missing timeout. For each, capture a jstack or DebugProbes dump or a heap dump, identify the culprit frame or class in the dump and write a fix with a regression test.",
+          "deliverable": "Four incident notes with dump excerpts, fixes and regression tests",
+          "checks": [["Call withLock inside withLock on the same Mutex", "The coroutine hangs and DebugProbes shows it SUSPENDED at the inner withLock", "Dump output"], ["Capture a heap dump after the Channel leak", "MAT dominator tree shows the Channel or its buffer retaining most of the heap", "MAT screenshot"], ["Apply the fixes and re-run the regression tests", "All four tests pass in under 5 seconds each with no hangs", "Gradle test report"]],
+          "objectives": ["Capture thread, coroutine and heap dumps", "Diagnose coroutine-specific deadlocks and leaks", "Write blameless incident notes with regression tests"]
+        },
+        {
+          "topic": "Advanced Capstone: Shared Multiplatform Library and Ktor Service",
+          "subtopics": ["A multiplatform core library (models, validation and serialization) for JVM, JS and Linux native", "A Ktor server consuming the library with JWT, observability and resilience settings", "A Kotlin/Native or Kotlin/JS command-line client using the same library", "CI with detekt, ktlint, Kover, apiCheck and allTests", "A JFR-backed load test with a written performance budget", "A container image and a short architecture decision record"],
+          "tools": ["Kotlin Multiplatform", "Ktor", "Gradle", "Docker", "JFR", "GitHub Actions"],
+          "lab_task": "Deliver a shared KMP library and a Ktor service that uses it, with a Linux native or Node CLI client calling the same API. Pass allTests on three targets, apiCheck, detekt and Kover at 80 percent, load-test 500 requests per second for 60 seconds with p95 under 100 ms, build a Jib image and write a one-page ADR.",
+          "deliverable": "Repository with the library, service, client, CI workflow, load-test report, image and ADR",
+          "checks": [["Run ./gradlew allTests apiCheck detekt koverVerify", "All tasks pass with zero failures", "Gradle output"], ["Load-test the service at 500 requests per second for 60 seconds", "p95 latency is below 100 ms and the error rate is below 0.1 percent", "Load-test report"], ["Run the CLI client against the running container", "It prints the server response using the shared model types", "Terminal output"]],
+          "objectives": ["Integrate shared multiplatform code into a production-style service", "Enforce quality and performance gates in CI", "Document decisions and operate the result"]
+        }
+      ]
+    }
+  }
+}

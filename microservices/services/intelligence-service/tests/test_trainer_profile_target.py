@@ -15,7 +15,7 @@ def test_trainer_keep_limit_is_at_least_sixty():
 def test_trainer_search_stops_after_sixty_profiles():
     calls = []
 
-    async def fake(domain, mode, target, location):
+    async def fake(domain, mode, target, location, db=None):
         calls.append((domain, target))
         rows = [
             {

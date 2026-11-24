@@ -1,6 +1,6 @@
 ﻿import { mail1Template, mail2FollowupTemplate, mail3Template, mail3SlotClarificationTemplate, mail3TooManySlotsTemplate, mail4Template, mail5SelectedTemplate, mail5RejectedTemplate, mailTocAutoTemplate, mailTrainingConfirmedTemplate, trainerCommercialNegotiationTemplate } from '../utils/workflowTemplates'
 import { useState, useEffect, useRef } from 'react'
-import api, { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
+import api, { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, refreshShortlist, updateRequirement } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Users, Mail, Clock, MapPin, Phone,
@@ -15,6 +15,7 @@ import { isClientHandoffDelivered, pipelineStepComplete } from '../utils/handoff
 import { useLiveShortlist } from '../utils/useLiveShortlist'
 import { formatRequirementSchedule } from '../utils/requirementDates'
 import ClientHandoffReview from '../components/ClientHandoffReview'
+import ClientRequestStage from '../components/ClientRequestStage'
 import { linkedinProfileUrl, trainerOwnedDetails } from '../utils/trainerIdentity'
 
 // Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
@@ -28,8 +29,8 @@ function money(v) {
 
 function requirementFlowType(req = {}) {
   const explicitTarget = String(req.pipeline_target || req.pipeline_page || '').trim().toLowerCase()
-  if (explicitTarget === 'shortlist1') return 'confirmed'
   if (explicitTarget === 'shortlist') return 'proposal'
+  if (explicitTarget === 'shortlist1') return 'confirmed'
   if (explicitTarget === 'linkedin-pipeline' || explicitTarget === 'linkedin_pipeline') return 'linkedin'
 
   const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || req.source || req.metadata?.source || '').toLowerCase()
@@ -115,11 +116,12 @@ function channelStatus(label, result, successLabel = 'sent') {
 }
 
 function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
+  const deliveryPending = result?.status === 'sending'
   const email = {
     label: 'Email',
-    value: result?.success ? 'sent' : 'failed',
-    tone: result?.success ? 'ok' : 'bad',
-    detail: result?.success ? (result?.email_id || '') : (result?.error || 'Unknown error'),
+    value: result?.success ? 'sent' : deliveryPending ? 'processing' : 'failed',
+    tone: result?.success ? 'ok' : deliveryPending ? 'warn' : 'bad',
+    detail: result?.success ? (result?.email_id || '') : deliveryPending ? (result?.error || 'Delivery is still being confirmed') : (result?.error || 'Unknown error'),
   }
   const channels = [
     email,
@@ -166,13 +168,16 @@ function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
 function showBulkSendStatusToast({ title = 'Bulk messages sent', results = [] }) {
   const countOk = (items, pick) => items.filter(item => pick(item)?.success === true).length
   const emailOk = results.filter(item => isSendMailDelivered(item.result)).length
-  if (emailOk < results.length) title = title.replace(/sent$/i, emailOk ? 'partially sent' : 'failed')
+  const emailPending = results.filter(item => firstSendMailResult(item.result)?.status === 'sending').length
+  if (emailOk + emailPending < results.length) title = title.replace(/sent$/i, emailOk ? 'partially sent' : 'failed')
+  else if (emailPending) title = title.replace(/sent$/i, 'still processing')
   const whatsappOk = countOk(results, item => item.result?.whatsapp)
   const teamsDirectOk = countOk(results, item => item.result?.teams_direct)
   const teamsOk = countOk(results, item => item.result?.teams)
   const rows = [
     { label: 'Trainers', value: results.length, tone: 'muted' },
     { label: 'Email sent', value: `${emailOk}/${results.length}`, tone: emailOk === results.length ? 'ok' : 'warn' },
+    { label: 'Email processing', value: `${emailPending}/${results.length}`, tone: emailPending ? 'warn' : 'muted' },
     { label: 'WhatsApp queued', value: `${whatsappOk}/${results.length}`, tone: whatsappOk === results.length ? 'ok' : 'warn' },
     { label: 'Teams DM sent', value: `${teamsDirectOk}/${results.length}`, tone: teamsDirectOk ? 'ok' : 'muted' },
     { label: 'Teams channel', value: `${teamsOk}/${results.length}`, tone: teamsOk ? 'ok' : 'muted' },
@@ -209,7 +214,7 @@ function showBulkSendStatusToast({ title = 'Bulk messages sent', results = [] })
   ), { duration: 10000 })
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Pipeline stages Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Pipeline stages
 function firstSendMailResult(result = {}) {
   return Array.isArray(result?.results) ? result.results[0] : null
 }
@@ -234,18 +239,19 @@ function assertSendMailDelivered(result = {}, fallback = 'Email delivery failed'
 }
 
 const STAGES = {
+  profile_review:       { label: 'Profile Review Required', color: 'bg-amber-100 text-amber-800', step: 0 },
   pending:              { label: 'Pending',               color: 'bg-slate-100 text-slate-500',     step: 0 },
-  mail1_sent:           { label: '1st Mail Sent Ã°Å¸â€œÂ§',      color: 'bg-blue-100 text-blue-700',       step: 1 },
-  waiting_reply1:       { label: 'Waiting for Reply Ã¢ÂÂ³',  color: 'bg-sky-100 text-sky-700',         step: 1 },
-  mail1_replied:        { label: 'Mail 1 Replied Ã¢Å“â€¦',     color: 'bg-emerald-100 text-emerald-700', step: 1 },
-  details_requested:    { label: 'Details Requested Ã°Å¸â€œâ€¹',  color: 'bg-indigo-100 text-indigo-700',   step: 2 },
-  details_received:     { label: 'Details Received Ã¢Å“â€¦',   color: 'bg-emerald-100 text-emerald-700', step: 2 },
-  waiting_reply2:       { label: 'Waiting for Reply Ã¢ÂÂ³',  color: 'bg-sky-100 text-sky-700',         step: 2 },
-  slot_booked:          { label: 'Slot Booked Ã°Å¸â€œâ€¦',        color: 'bg-amber-100 text-amber-700',     step: 3 },
+  mail1_sent:           { label: '1st Mail Sent 📧',      color: 'bg-blue-100 text-blue-700',       step: 1 },
+  waiting_reply1:       { label: 'Waiting for Reply ',  color: 'bg-sky-100 text-sky-700',         step: 1 },
+  mail1_replied:        { label: 'Mail 1 Replied ✅',     color: 'bg-emerald-100 text-emerald-700', step: 1 },
+  details_requested:    { label: 'Details Requested 📋',  color: 'bg-indigo-100 text-indigo-700',   step: 2 },
+  details_received:     { label: 'Details Received ✅',   color: 'bg-emerald-100 text-emerald-700', step: 2 },
+  waiting_reply2:       { label: 'Waiting for Reply ',  color: 'bg-sky-100 text-sky-700',         step: 2 },
+  slot_booked:          { label: 'Slot Booked 📅',        color: 'bg-amber-100 text-amber-700',     step: 3 },
   interview_scheduled:  { label: 'Interview Scheduled', color: 'bg-purple-100 text-purple-700',  step: 4 },
   interview_completed:  { label: 'Interview Completed', color: 'bg-indigo-100 text-indigo-700',  step: 4 },
-  selected:             { label: 'Selected Ã¢Å“â€¦',            color: 'bg-emerald-100 text-emerald-700', step: 5 },
-  rejected:             { label: 'Not Selected Ã¢ÂÅ’',        color: 'bg-red-100 text-red-600',         step: 5 },
+  selected:             { label: 'Selected ✅',            color: 'bg-emerald-100 text-emerald-700', step: 5 },
+  rejected:             { label: 'Not Selected ',        color: 'bg-red-100 text-red-600',         step: 5 },
   stopped_selected:     { label: 'Stopped - Role Filled', color: 'bg-slate-100 text-slate-500',     step: 0 },
   toc_requested:        { label: 'ToC Sent',               color: 'bg-teal-100 text-teal-700',       step: 3 },
   toc_received_pending: { label: 'ToC Updated',            color: 'bg-teal-100 text-teal-700',       step: 3 },
@@ -253,6 +259,7 @@ const STAGES = {
   client_po_received:   { label: 'Client PO Received',     color: 'bg-cyan-100 text-blue-700',       step: 6 },
   training_confirmed:   { label: 'Training Confirmed',     color: 'bg-green-100 text-green-700',     step: 7 },
   invoice_generated:    { label: 'Invoice Generated',      color: 'bg-emerald-100 text-emerald-700', step: 7 },
+  invoice_draft_sent_for_review: { label: 'Draft Invoice Sent for Review', color: 'bg-amber-100 text-amber-800', step: 8 },
   invoice_sent:         { label: 'Invoice Sent',           color: 'bg-green-100 text-green-700',     step: 7 },
 }
 
@@ -271,13 +278,15 @@ Object.assign(STAGES, {
   po_requested: { ...STAGES.po_requested, step: 7 },
   client_po_received: { ...STAGES.client_po_received, step: 7 },
   invoice_generated: { ...STAGES.invoice_generated, label: 'Invoice Ready', step: 8 },
+  invoice_draft_sent_for_review: { ...STAGES.invoice_draft_sent_for_review, step: 8 },
   invoice_sent: { ...STAGES.invoice_sent, label: 'Invoice Sent to Client', step: 8 },
   toc_requested: { ...STAGES.toc_requested, label: 'ToC Shared', step: 5 },
   toc_received_pending: { ...STAGES.toc_received_pending, label: 'ToC Received', step: 5 },
 })
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Reminder intervals for Mail 1 (in ms) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Reminder intervals for Mail 1 (in ms)
 const SHORTLIST_REFRESH_INTERVAL_MS = 10000
+const MAIL1_RETRY_COOLDOWN_MS = 60 * 1000
 // The inbox workflow is the sole automatic client-handoff sender. Keeping a
 // second sender in this page could race with inbox processing and duplicate mail.
 const AUTO_SEND_CLIENT_SLOTS = false
@@ -330,6 +339,7 @@ const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'stopped_selected',
   'role_filled',
   'requirement_filled',
+  'interview_scheduled',
   'selected',
   'toc_requested',
   'toc_received_pending',
@@ -337,6 +347,7 @@ const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'po_requested',
   'client_po_received',
   'invoice_generated',
+  'invoice_draft_sent_for_review',
   'invoice_sent',
 ])
 
@@ -347,6 +358,7 @@ function normalizeBackendStage(value = '') {
 }
 
 const BACKEND_PIPELINE_STAGE_ALIASES = {
+  profile_review: 'profile_review',
   shortlisted: 'pending',
   new: 'pending',
   mail1: 'waiting_reply1',
@@ -388,6 +400,7 @@ const PIPELINE_STAGE_RANK = {
   client_po_received: 9,
   training_confirmed: 10,
   invoice_generated: 11,
+  invoice_draft_sent_for_review: 12,
   invoice_sent: 12,
   rejected: 99,
   stopped_selected: 99,
@@ -417,10 +430,12 @@ function resolveTrainerStage(trainer, req, state) {
 
 function requirementCommercialStage(req) {
   const invoiceStatus = String(req?.invoice_status || '').toLowerCase()
+  const draftStatus = String(req?.invoice_draft_status || '').toLowerCase()
   const clientPoStatus = String(req?.client_po_status || '').toLowerCase()
   const poRequestStatus = String(req?.po_request_status || '').toLowerCase()
 
   if (invoiceStatus === 'sent' || clientPoStatus === 'invoice_sent') return 'invoice_sent'
+  if (draftStatus === 'sent_for_review') return 'invoice_draft_sent_for_review'
   if (invoiceStatus === 'generated' || clientPoStatus === 'invoice_generated') return 'invoice_generated'
   if (clientPoStatus === 'received') return 'client_po_received'
   if (poRequestStatus === 'requested' || req?.po_requested_at || req?.client_po_requested || req?.client_po_requested_at) return 'po_requested'
@@ -437,12 +452,32 @@ function backendAuthoritativeStage(trainer, req) {
   if (selectedId && trainerId && trainerId !== selectedId) return 'stopped_selected'
   if (selectedId && trainerId === selectedId) {
     if (commercialStage) return commercialStage
-    if (['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(requirementStage)) {
+    if (['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(requirementStage)) {
       return requirementStage
     }
     if (trainerStage && trainerStage !== 'stopped_selected') return trainerStage
     return 'selected'
   }
+  if (commercialStage && ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(trainerStage)) {
+    return commercialStage
+  }
+  const trainerStageName = String(trainer?.pipeline_status || trainer?.status || '').trim().toLowerCase()
+  const hasInterviewDetails = Boolean(
+    trainer?.interview_date || trainer?.interview_at || trainer?.interview_link || trainer?.meet_link
+  )
+  const interviewScheduledFlag = trainer?.interview_scheduled === true ||
+    String(trainer?.interview_scheduled || '').trim().toLowerCase() === 'true'
+  const hasScheduledInterview = hasInterviewDetails && (
+    interviewScheduledFlag ||
+    trainerStageName === 'interview_scheduled' ||
+    String(trainer?.last_mail_type || trainer?.last_automation_mail_type || '').trim().toLowerCase() === 'mail4' ||
+    String(trainer?.slot_status || '').trim().toLowerCase() === 'interview_link_sent'
+  )
+  if (
+    hasScheduledInterview &&
+    !['rejected', 'declined', 'interview_reschedule_requested', 'reschedule_waiting_trainer', 'interview_completed'].includes(trainerStageName) &&
+    !['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(trainerStageName)
+  ) return 'interview_scheduled'
   // Handoff delivery is stronger evidence than a stale/replayed trainer
   // reply status.  The inbox can reprocess a Gmail thread after sending the
   // client-slots email, so keep the visual pipeline at client handoff.
@@ -482,8 +517,6 @@ function greeting(trainer) {
 }
 
 const MIN_TRAINER_DAY_RATE_VISIBLE = 10000
-const SHORT_DURATION_DAYS = 7
-const SHORT_DURATION_TRAINER_SHARE = 0.78
 const DEFAULT_TRAINER_SHARE = 0.70
 
 function durationDaysFromRequirement(req = {}) {
@@ -494,8 +527,8 @@ function durationDaysFromRequirement(req = {}) {
   return match ? Number(match[1]) : 0
 }
 
-function trainerShareForDays(days) {
-  return days && days <= SHORT_DURATION_DAYS ? SHORT_DURATION_TRAINER_SHARE : DEFAULT_TRAINER_SHARE
+function trainerShareForDays(_days) {
+  return DEFAULT_TRAINER_SHARE
 }
 
 function roundCommercialAmount(amount) {
@@ -511,10 +544,11 @@ function trainerBudgetFromClientAmount(amount, unit = 'day', days = 0) {
   if (unit === 'total' && days > 0) {
     const trainerPerDay = (numeric / days) * share
     const trainerTotal = numeric * share
+    const useDailyRate = trainerPerDay >= MIN_TRAINER_DAY_RATE_VISIBLE
     return {
-      amount: trainerPerDay < MIN_TRAINER_DAY_RATE_VISIBLE ? Math.round(trainerTotal) : roundCommercialAmount(trainerPerDay),
-      unit: trainerPerDay < MIN_TRAINER_DAY_RATE_VISIBLE ? 'total' : 'day',
-      clientAmount: numeric,
+      amount: useDailyRate ? roundCommercialAmount(trainerPerDay) : Math.round(trainerTotal),
+      unit: useDailyRate ? 'day' : 'total',
+      clientAmount: useDailyRate ? numeric / days : numeric,
       marginPercent: Math.round((1 - share) * 100),
     }
   }
@@ -605,7 +639,7 @@ function mail2Template(trainer, req, trainerReply = '') {
     .map(item => `* ${item.label}`)
     .join('\n')
   return {
-    subject: `Training Requirement â€“ ${req.technology_needed} | Additional Details Required`,
+    subject: `Training Requirement – ${req.technology_needed} | Additional Details Required`,
     body: `${greeting(trainer)}\n\nThank you for your response.\n\nTo proceed further, kindly share the below missing details:\n\n${items}\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
@@ -618,9 +652,9 @@ function mail2Template(trainer, req, trainerReply = '') {
 
 // AUTO: ToC request sent immediately after selection
 
-// MANUAL: Training confirmation with contact details Ã¢â‚¬â€ sent after ToC is received
+// MANUAL: Training confirmation with contact details  sent after ToC is received
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Reply intent detector Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Reply intent detector
 function detectIntent(text = '') {
   const t = text.toLowerCase()
   const negPhrases = [
@@ -695,8 +729,8 @@ function extractCommercialQuote(text = '') {
   const clean = stripQuotedEmail(text)
   const compact = clean.replace(/,/g, '')
   const patterns = [
-    /(?:inr|rs\.?|Ã¢â€šÂ¹)\s*(\d+(?:\.\d+)?)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
-    /(\d+(?:\.\d+)?)\s*(?:inr|rs\.?|Ã¢â€šÂ¹)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
+    /(?:inr|rs\.?|₹)\s*(\d+(?:\.\d+)?)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
+    /(\d+(?:\.\d+)?)\s*(?:inr|rs\.?|₹)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
     /(?:charges?|commercials?|rate|fees?|cost)\D{0,25}(\d+(?:\.\d+)?)\D{0,15}(hour|hr|day|session)/i,
     /(\d+(?:\.\d+)?)\D{0,15}(?:per|\/)\s*(hour|hr|day|session)/i,
     /(?:charges?|commercials?|commercial|rate|fees?|cost|budget)\D{0,40}(\d+(?:\.\d+)?)/i,
@@ -738,7 +772,7 @@ function hasProperInterviewSlots(text = '') {
   ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
   const timeHits = [
     /\b\d{1,2}(?::\d{2})?\s*(am|pm)\b/g,
-    /\b\d{1,2}(?::\d{2})?\s*[-Ã¢â‚¬â€œ]\s*\d{1,2}(?::\d{2})?\s*(am|pm)\b/g,
+    /\b\d{1,2}(?::\d{2})?\s*[-–]\s*\d{1,2}(?::\d{2})?\s*(am|pm)\b/g,
   ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
   const slotHints = (clean.match(/\b(slot|option|available|availability)\b/g) || []).length
   const hasOneExactSlot = dateHits >= 1 && timeHits >= 1
@@ -749,17 +783,17 @@ function hasProperInterviewSlots(text = '') {
 function countSlotsInReply(text = '') {
   const clean = stripQuotedEmail(text).toLowerCase()
   if (!clean) return 0
-  
+
   // Count date occurrences (each date might represent a slot)
   const dates = [
     /\b\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*[/-]\s*\d{2,4})?\b/g,
     /\b\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b/g,
     /\b(mon|tue|wed|thu|fri|sat|sun)(day)?\b/g,
   ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
-  
+
   // Count bullet points or "slot" mentions
-  const bulletSlots = (clean.match(/[Ã¢â‚¬Â¢\-*]\s*\d{1,2}|slot\s*\d{1,2}/g) || []).length
-  
+  const bulletSlots = (clean.match(/[•\-*]\s*\d{1,2}|slot\s*\d{1,2}/g) || []).length
+
   return Math.max(dates, bulletSlots)
 }
 
@@ -972,7 +1006,7 @@ function inferPipelineStateFromEmailLogs(logs = [], req = {}) {
   return inferPipelineStateFromThread(messages, req)
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Send Mail Modal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Send Mail Modal
 async function generateAIReply({ requirementId, trainerId, trainerName, mailType, fallback }) {
   return generateWorkflowMail({
     requirementId,
@@ -997,7 +1031,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
   const [contactEmail, setContactEmail] = useState('')
   const [clientEmail, setClientEmail]   = useState(req?.client_email || '')
   const [clientName, setClientName]     = useState(req?.client_name || req?.client_company || '')
-  // Ã¢â€â‚¬Ã¢â€â‚¬ AI state Ã¢â€â‚¬Ã¢â€â‚¬
+  //  AI state
   const [aiGenerating, setAiGenerating] = useState(false)
   const [aiSubject, setAiSubject]       = useState('')
   const [aiBody, setAiBody]             = useState('')
@@ -1005,12 +1039,12 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
 
   const getTemplatePreview = () => {
     const latestReply = threadMessages?.findLast(m => m.direction === 'received')?.body || ''
-    
+
     switch (mailType) {
       case 'mail1':          return mail1Template(trainer, req, false, {})
       case 'mail2':          return mail2Template(trainer, req)
       case 'mail2_followup': return mail2FollowupTemplate(trainer, req)
-      case 'mail3':          
+      case 'mail3':
         // Check if trainer provided wrong number of slots
         if (latestReply) {
           if (hasTooManySlots(latestReply)) {
@@ -1052,7 +1086,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
       setAiSubject(result.subject)
       setAiBody(result.body)
       setAiUsed(true)
-      toast.success('Ã¢Å“Â¨ AI email generated!')
+      toast.success('✨ AI email generated!')
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'AI generation failed')
     } finally {
@@ -1107,14 +1141,14 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
   ])
 
   const TITLES = {
-    mail1:         'Ã°Å¸â€œÂ§ Send Shortlist Mail',
-    mail2:         'Ã°Å¸â€œâ€¹ Request Trainer Details',
-    mail2_followup:'Ã°Å¸â€œâ€¹ Ask Details Again',
-    mail3:         'Ã°Å¸â€œâ€¦ Book Interview Slot',
-    mail4:         'Ã°Å¸â€”â€œÃ¯Â¸Â Send Interview Schedule',
-    mail5_ok:      'Ã°Å¸Å½â€° Send Selection Mail',
-    mail5_no:      'Ã¢ÂÅ’ Send Rejection Mail',
-    mail7_confirm: 'Ã°Å¸Å½â€œ Send Training Confirmation',
+    mail1:         '📧 Send Shortlist Mail',
+    mail2:         '📋 Request Trainer Details',
+    mail2_followup:'📋 Ask Details Again',
+    mail3:         '📅 Book Interview Slot',
+    mail4:         '🗓 Send Interview Schedule',
+    mail5_ok:      '🎉 Send Selection Mail',
+    mail5_no:      ' Send Rejection Mail',
+    mail7_confirm: '🎓 Send Training Confirmation',
   }
 
   const NEXT_STAGES = {
@@ -1135,9 +1169,6 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
     }
     setLoading(true)
     try {
-      if (generationMode === 'ai' && !aiUsed) {
-        throw new Error('AI email generation failed. Template fallback is disabled while AI mode is on.')
-      }
       const finalSubject = generationMode === 'ai' && aiUsed ? aiSubject : preview.subject
       const finalBody    = generationMode === 'ai' && aiUsed ? aiBody    : preview.body
       let res
@@ -1216,7 +1247,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
             </div>
             <div>
               <h3 className="font-bold text-lg text-slate-900">{TITLES[mailType]}</h3>
-              <p className="text-sm text-slate-500 mt-0.5">AI-generated mail for <strong>{trainer.name}</strong> Ã‚Â· {trainer.email}</p>
+              <p className="text-sm text-slate-500 mt-0.5">AI-generated mail for <strong>{trainer.name}</strong> · {trainer.email}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
@@ -1263,7 +1294,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
               </p>
               <label className="label">Trainer's Available Dates (from their reply)</label>
               <textarea className="input resize-none" rows={3}
-                placeholder="Ã¢â‚¬Â¢ Monday 10 AM Ã¢â‚¬â€œ 12 PM&#10;Ã¢â‚¬Â¢ Wednesday 2 PM Ã¢â‚¬â€œ 4 PM&#10;Ã¢â‚¬Â¢ Friday anytime"
+                placeholder="• Monday 10 AM – 12 PM&#10;• Wednesday 2 PM – 4 PM&#10;• Friday anytime"
                 value={trainerDates} onChange={e => setTrainerDates(e.target.value)} />
             </div>
           )}
@@ -1276,7 +1307,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
                   <button key={p} type="button" onClick={() => setPlatform(p)}
                     className={clsx('p-2 rounded-xl border-2 text-xs font-semibold transition-all',
                       platform === p ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300')}>
-                    {p === 'Zoom' ? 'Ã°Å¸â€œÂ¹' : p === 'MS Teams' ? 'Ã°Å¸â€™Â¼' : 'Ã°Å¸Å½Â¥'} {p}
+                    {p === 'Zoom' ? '📹' : p === 'MS Teams' ? '💼' : '🎥'} {p}
                   </button>
                 ))}
               </div>
@@ -1305,7 +1336,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
             </div>
           )}
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ AI Generate Button Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/*  AI Generate Button  */}
           <div className="hidden">
             <Bot className="w-5 h-5 text-violet-500 flex-shrink-0" />
             <div className="flex-1">
@@ -1379,7 +1410,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
         </div>
 
         <div className="flex gap-3 p-5 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={handleSend} disabled={loading || aiGenerating || (generationMode === 'ai' && !aiUsed)}
+          <button onClick={handleSend} disabled={loading || aiGenerating}
             className="flex items-center gap-2 justify-center flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : <><Send className="w-4 h-4" /> Send Email</>}
           </button>
@@ -1392,7 +1423,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Thread Modal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Thread Modal
 function getTocAccuracy(tocData, form, req) {
   if (!tocData) return null
 
@@ -1464,7 +1495,7 @@ function getTocAccuracy(tocData, form, req) {
 // TOC Generator Modal
 function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
   const [form, setForm] = useState({
-    duration_days: req?.duration_days || (req?.duration_hours ? Math.max(1, Math.ceil(Number(req.duration_hours) / 8)) : 3),
+    duration_days: req?.duration_days || (req?.duration_hours ? Math.max(1, Math.ceil(Number(req.duration_hours) / 8)) : ''),
     training_dates: req?.training_dates || req?.preferred_dates || req?.timeline_start || '',
     timing: req?.timing || req?.schedule || '',
     audience_level: req?.audience_level || req?.level || 'intermediate',
@@ -1599,7 +1630,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
             <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
               <FileText className="w-5 h-5 text-teal-600" /> AI Training TOC Generator
             </h3>
-            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} Ã‚Â· {req.technology_needed}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} · {req.technology_needed}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <X className="w-4 h-4 text-slate-500" />
@@ -2079,7 +2110,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <div>
             <h3 className="font-bold text-lg text-slate-900">Generate Purchase Order</h3>
-            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} Ã‚Â· {req.technology_needed}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{trainer.name} · {req.technology_needed}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg">
             <X className="w-4 h-4 text-slate-500" />
@@ -2205,14 +2236,14 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-semibold uppercase">PO Status</p>
-                <p className="font-bold text-slate-900">{po ? `${po.po_number} Ã‚Â· ${po.status}` : 'Not generated'}</p>
+                <p className="font-bold text-slate-900">{po ? `${po.po_number} · ${po.status}` : 'Not generated'}</p>
               </div>
             </div>
           </div>
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
             <p className="text-xs text-blue-700 font-semibold uppercase">Client Invoice</p>
             <p className="mt-1 text-sm font-bold text-cyan-900">
-              {invoice ? `${invoice.invoice_number} Ã‚Â· ${invoice.status}` : req.client_email ? `Ready for ${req.client_email}` : 'Client email missing'}
+              {invoice ? `${invoice.invoice_number} · ${invoice.status}` : req.client_email ? `Ready for ${req.client_email}` : 'Client email missing'}
             </p>
           </div>
         </div>
@@ -2328,8 +2359,8 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-slate-100 flex-shrink-0">
           <div>
-            <h3 className="font-bold text-lg text-slate-900">Ã°Å¸â€™Â¬ Conversation Thread</h3>
-            <p className="text-sm text-slate-500">{trainer.name} Ã‚Â· {req.technology_needed}</p>
+            <h3 className="font-bold text-lg text-slate-900">💬 Conversation Thread</h3>
+            <p className="text-sm text-slate-500">{trainer.name} · {req.technology_needed}</p>
             {syncing && (
               <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-violet-600">
                 <Loader2 className="h-3 w-3 animate-spin" /> Checking latest inbox replies...
@@ -2343,7 +2374,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-10 text-slate-400">
-              <Loader2 className="w-5 h-5 animate-spin mr-2" /> LoadingÃ¢â‚¬Â¦
+              <Loader2 className="w-5 h-5 animate-spin mr-2" /> Loading…
             </div>
           ) : thread.length === 0 ? (
             <div className="text-center py-10 text-slate-400">
@@ -2363,7 +2394,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
                   <span className={clsx('text-xs font-bold',
                     isReminder ? 'text-orange-600' : isSent ? 'text-blue-600' : 'text-slate-600'
                   )}>
-                    {isReminder ? 'Ã°Å¸â€â€ Reminder sent' : isSent ? 'Ã°Å¸â€œÂ¤ You sent' : 'Ã°Å¸â€œÂ¥ Trainer replied'}
+                    {isReminder ? ' Reminder sent' : isSent ? '📤 You sent' : '📥 Trainer replied'}
                   </span>
                   <div className="flex items-center gap-2">
                     {msg.mail_type && (
@@ -2389,7 +2420,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Pipeline Step Bar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Pipeline Step Bar
 function StepBar({ stage, trainer }) {
   const steps = ['Trainer request', 'Trainer reply', 'Client handoff', 'Meet scheduled', 'Client decision', 'Confirmed', 'PO', 'Invoice sent']
   const stepIndex = STAGES[stage]?.step ?? 0
@@ -2421,7 +2452,7 @@ function StepBar({ stage, trainer }) {
                                        'bg-slate-200 text-slate-400'
             )}>
               <span className="sr-only">
-              {isComplete || isFinalDone ? 'Ã¢Å“â€œ' : isRejStep ? 'Ã¢Å“â€¢' : realStep}
+              {isComplete || isFinalDone ? '✓' : isRejStep ? '✕' : realStep}
               </span>
               {isComplete || isFinalDone ? <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> : isRejStep ? <X className="h-3.5 w-3.5" aria-hidden="true" /> : realStep}
             </div>
@@ -2436,13 +2467,13 @@ function StepBar({ stage, trainer }) {
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ AUTO PILOT ENGINE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  AUTO PILOT ENGINE
 //
 // Full auto flow:
-//   pending trainers Ã¢â€ â€™ Mail 1 is sent to everyone
-//   waiting_reply1 Ã¢â€ â€™ reminders at 6h/12h/24h until a Mail 1 reply arrives
+//   pending trainers   Mail 1 is sent to everyone
+//   waiting_reply1   reminders at 6h/12h/24h until a Mail 1 reply arrives
 //   positive Mail 1 replies are queued in reply order
-//   one queued trainer at a time Ã¢â€ â€™ Mail 2 Ã¢â€ â€™ Mail 3 Ã¢â€ â€™ manual interview/select rules
+//   one queued trainer at a time   Mail 2   Mail 3   manual interview/select rules
 //   rejected trainers are skipped and the next queued trainer starts
 //   selected trainer stops the requirement queue, then ToC/confirmation rules continue
 //
@@ -2453,10 +2484,12 @@ function InterviewRescheduleStatus({ trainer }) {
   const slotStatus = String(trainer?.slot_status || '').toLowerCase()
   const failed = slotStatus.includes('failed') || slotStatus.includes('missing') || slotStatus.includes('invalid')
   const completed = Boolean(trainer?.reschedule_completed_at)
+  const phoneResults = trainer?.reschedule_phone_notifications || []
+  const phoneSent = phoneResults.filter(result => result?.success === true).length
   const slotsSent = Boolean(trainer?.reschedule_slots_sent_at)
   const requestedBy = String(trainer?.reschedule_requested_by || '').toLowerCase()
   const message = completed
-    ? 'Updated interview link sent to both client and trainer.'
+    ? `Updated interview link sent to both client and trainer.${phoneResults.length ? ` Phone updates: ${phoneSent}/${phoneResults.length} sent.` : ' Phone update was not recorded.'}`
     : failed
       ? 'Reschedule needs attention. Check the delivery error before sending again.'
       : slotsSent
@@ -2471,8 +2504,172 @@ function InterviewRescheduleStatus({ trainer }) {
   </div>
 }
 
+function TrainerRequirementReview({ trainer, req }) {
+  const review = trainer?.document_review || {}
+  const fit = trainer?.requirement_fit || review.requirement_fit || {}
+  const skills = fit.skills || {}
+  const projects = fit.projects || {}
+  const linkedin = linkedinProfileUrl(trainer?.linkedin_url || trainer?.linkedin_profile_url || trainer?.linkedin)
+  const hasReview = Object.keys(review).length > 0 || Object.keys(fit).length > 0
+  if (!hasReview && !linkedin) return null
+  const status = String(fit.status || review.match_status || 'review pending').replaceAll('_', ' ')
+  return <div className="mt-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3 text-xs text-slate-700">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="font-semibold text-indigo-900">Profile review for {req?.client_name || req?.client_company || 'this client'} · {req?.technology_needed || 'current requirement'}</div>
+      {linkedin && <a href={linkedin} target="_blank" rel="noreferrer" className="font-semibold text-blue-700 underline">Open LinkedIn profile</a>}
+    </div>
+    {hasReview && <details className="mt-2">
+      <summary className="cursor-pointer font-semibold capitalize">{status} · {fit.score ?? review.match_score ?? '—'}% fit — view evidence and gaps</summary>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <div><b>Matched skills:</b> {(skills.matched || review.matched_profile_topics || []).join(', ') || 'No matched skills were extracted'}</div>
+        <div><b>Missing skills:</b> {(skills.missing || review.profile_gaps || []).join(', ') || 'No documented skill gaps'}</div>
+        <div><b>Experience:</b> {fit.seniority?.evidenced_years ?? 'Not evidenced'} years evidenced; {fit.seniority?.required_years ?? 'No minimum'} required</div>
+        <div><b>Project evidence:</b> {projects.status || review.project_status || 'Not found'}{projects.relevant_count != null ? ` (${projects.relevant_count} relevant)` : ''}</div>
+        {review.recommended_actions?.length > 0 && <div className="sm:col-span-2"><b>Next checks:</b> {review.recommended_actions.join('; ')}</div>}
+        {fit.context_review?.summary && <div className="sm:col-span-2"><b>AI finding (advisory):</b> {fit.context_review.summary}</div>}
+      </div>
+    </details>}
+  </div>
+}
+
+function OfflineTravelAgent({ trainer, req }) {
+  const saved = trainer?.post_interview_logistics || req?.post_interview_logistics || {}
+  const [form, setForm] = useState(() => ({
+    delivery_mode: saved.delivery_mode || req?.delivery_mode || req?.mode || 'Offline',
+    venue_address: saved.venue_address || req?.training_location || req?.venue_address || req?.location || req?.preferred_location || '',
+    venue_maps_url: saved.venue_maps_url || '',
+    trainer_origin: saved.trainer_origin || trainer?.current_location || trainer?.location || '',
+    commute_radius_km: saved.commute_radius_km || '',
+    preferred_travel_mode: saved.preferred_travel_mode || '',
+    trainer_ticket_budget_inr: saved.trainer_ticket_budget_inr || '',
+    trainer_stay_budget_inr: saved.trainer_stay_budget_inr || '',
+    client_travel_policy: saved.client_travel_policy || req?.travel_policy || req?.travel_reimbursement || '',
+    client_stay_policy: saved.client_stay_policy || req?.accommodation_policy || req?.stay_details || '',
+    training_dates: saved.training_dates || req?.training_dates || req?.timeline_start || '',
+  }))
+  const [busy, setBusy] = useState('')
+  const [sent, setSent] = useState({ trainer: saved.trainer_request_status === 'sent', client: saved.client_request_status === 'sent' })
+  const [booking, setBooking] = useState(() => ({
+    ticket_required: true,
+    hotel_required: false,
+    client_authorization_text: saved.client_confirmed_travel_terms || '',
+  }))
+  const [bookingStatus, setBookingStatus] = useState(saved.booking_status || '')
+  const finalPackageChecklist = [
+    { label: 'Client confirmed the exact training address', done: Boolean(saved.client_confirmed_venue), optional: false },
+    { label: 'Client confirmed the Google Maps pin', done: Boolean(saved.client_confirmed_maps_url && saved.map_pin_confirmed), optional: false },
+    { label: 'Travel/stay budget and payer terms confirmed', done: Boolean(saved.client_confirmed_travel_terms || saved.travel_budget_confirmed), optional: false },
+    { label: 'Ticket or hotel booking PDFs shared (if booked)', done: Boolean(saved.forwarded_booking_documents?.length), optional: true },
+  ]
+  const finalPackageReady = finalPackageChecklist.filter(item => !item.optional).every(item => item.done)
+  const offline = /offline|onsite|classroom|in[\s-]?person/i.test(String(form.delivery_mode || ''))
+  const mapUrl = form.venue_maps_url || (form.venue_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(form.venue_address)}` : '')
+  const hotelMapUrl = form.venue_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`hotels near ${form.venue_address}`)}` : ''
+  const travelSearch = mode => `https://www.google.com/search?q=${encodeURIComponent(`${mode} tickets from ${form.trainer_origin || 'trainer city'} to ${form.venue_address || 'training city'} ${form.training_dates} India`)}`
+  const patchField = (key, value) => setForm(current => ({ ...current, [key]: value }))
+
+  const save = async () => {
+    setBusy('save')
+    try {
+      const result = await api.patch(`/shortlists/logistics/${encodeURIComponent(req.requirement_id)}/${encodeURIComponent(trainer.trainer_id)}`, { ...form, venue_maps_url: mapUrl })
+      setForm(current => ({ ...current, ...(result.data?.logistics || {}), venue_maps_url: mapUrl }))
+      toast.success('Offline travel details saved to this selected trainer and requirement.')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not save logistics')
+    } finally {
+      setBusy('')
+    }
+  }
+
+  const sendRequest = async recipient => {
+    if (!form.venue_address.trim()) {
+      toast.error('Enter the exact offline training address first.')
+      return
+    }
+    setBusy(recipient)
+    try {
+      const result = await api.post(`/shortlists/logistics/${encodeURIComponent(req.requirement_id)}/${encodeURIComponent(trainer.trainer_id)}/request-${recipient}`, { ...form, venue_maps_url: mapUrl })
+      setSent(current => ({ ...current, [recipient]: true }))
+      toast.success(`${recipient === 'trainer' ? 'Trainer' : 'Client'} logistics request sent to ${result.data?.sent_to || 'the saved contact'}.`)
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || `Could not send the ${recipient} logistics request`)
+    } finally {
+      setBusy('')
+    }
+  }
+
+  const createBookingTask = async () => {
+    setBusy('booking')
+    try {
+      const result = await api.post(`/shortlists/logistics/${encodeURIComponent(req.requirement_id)}/${encodeURIComponent(trainer.trainer_id)}/booking-task`, booking)
+      const task = result.data?.booking_task || {}
+      setBookingStatus(task.status || 'awaiting_finance_approval')
+      toast.success(result.data?.already_exists ? 'The client-authorized booking task already exists.' : 'Booking task sent to finance. No ticket or hotel has been purchased.')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not create the travel booking task')
+    } finally {
+      setBusy('')
+    }
+  }
+
+  return <section className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div><h4 className="font-bold text-amber-950">Post-interview travel coordinator</h4><p className="mt-1 text-xs text-slate-600">For the selected trainer only. Confirm the offline venue and costs before anyone books.</p></div>
+      <select value={form.delivery_mode} onChange={event => patchField('delivery_mode', event.target.value)} className="rounded-lg border border-amber-200 bg-white px-2 py-1.5 text-xs font-semibold">
+        <option>Offline</option><option>Onsite</option><option>Classroom</option><option>Online</option>
+      </select>
+    </div>
+    {!offline ? <p className="mt-3 text-xs text-slate-600">Online delivery is selected, so travel coordination is paused. Choose Offline, Onsite, or Classroom if the client changes the delivery mode.</p> : <>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <label className="text-xs font-semibold text-slate-700">Exact training venue<input value={form.venue_address} onChange={event => { patchField('venue_address', event.target.value); patchField('venue_maps_url', '') }} placeholder="Building, street, area, city, PIN code" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer starting city<input value={form.trainer_origin} onChange={event => patchField('trainer_origin', event.target.value)} placeholder="City or PIN code" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer comfortable travel range<input value={form.commute_radius_km} onChange={event => patchField('commute_radius_km', event.target.value)} placeholder="Distance in km, or 'overnight travel required'" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Preferred travel mode<select value={form.preferred_travel_mode} onChange={event => patchField('preferred_travel_mode', event.target.value)} className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal"><option value="">Ask trainer to choose</option><option>Train</option><option>Flight</option><option>Bus</option><option>Own vehicle</option></select></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer round-trip ticket budget (INR)<input value={form.trainer_ticket_budget_inr} onChange={event => patchField('trainer_ticket_budget_inr', event.target.value)} placeholder="Trainer estimate; client approval needed" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Trainer stay budget (INR)<input value={form.trainer_stay_budget_inr} onChange={event => patchField('trainer_stay_budget_inr', event.target.value)} placeholder="Estimate per night or total" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Client travel / ticket terms<input value={form.client_travel_policy} onChange={event => patchField('client_travel_policy', event.target.value)} placeholder="Who books/pays, cap, class, receipt rules" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        <label className="text-xs font-semibold text-slate-700">Client hotel / stay terms<input value={form.client_stay_policy} onChange={event => patchField('client_stay_policy', event.target.value)} placeholder="Hotel provided or reimbursed, nightly cap" className="mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+        {mapUrl && <a href={mapUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-200 bg-white px-3 py-2 font-semibold text-blue-700">Open venue in Google Maps</a>}
+        {form.trainer_origin && form.venue_address && <a href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(form.trainer_origin)}&destination=${encodeURIComponent(form.venue_address)}`} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-200 bg-white px-3 py-2 font-semibold text-blue-700">Check route and distance</a>}
+        {hotelMapUrl && <a href={hotelMapUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-200 bg-white px-3 py-2 font-semibold text-blue-700">Find nearby stays</a>}
+        {form.venue_address && ['train', 'flight', 'bus'].map(mode => <a key={mode} href={travelSearch(mode)} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 bg-white px-3 py-2 font-semibold capitalize text-slate-700">Compare {mode} fares</a>)}
+      </div>
+      <p className="mt-2 text-[11px] text-slate-500">Search links open current provider results for comparison; no fare is reserved and no ticket is bought without your approval. Confirm the Google Maps pin with the client before sharing it as final.</p>
+      {saved.trainer_reply && <details className="mt-2 rounded-lg border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-xs font-bold text-slate-800">Trainer travel and stay response</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.trainer_reply}</p></details>}
+      {saved.client_answer && <details className="mt-2 rounded-lg border border-slate-200 bg-white p-3"><summary className="cursor-pointer text-xs font-bold text-slate-800">Client-confirmed venue and expense terms</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.client_answer}</p></details>}
+      {saved.client_partial_answer && <details className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3"><summary className="cursor-pointer text-xs font-bold text-amber-900">Client reply received — awaiting required confirmations</summary><p className="mt-2 whitespace-pre-wrap text-xs text-slate-700">{saved.client_partial_answer}</p></details>}
+      {saved.client_confirmed_venue && <p className="mt-2 text-xs font-semibold text-emerald-800">Client-confirmed address: {saved.client_confirmed_venue}</p>}
+      {saved.client_confirmed_maps_url && <a href={saved.client_confirmed_maps_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-800">Open client-confirmed Google Maps pin</a>}
+      {saved.forwarded_booking_documents?.length > 0 && <p className="mt-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-800">Booking PDFs shared with trainer: {saved.forwarded_booking_documents.join(', ')}</p>}
+      <div className={`mt-3 rounded-xl border p-3 ${finalPackageReady ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-white'}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-slate-900">Final travel package checklist</p><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${saved.final_package_ready || finalPackageReady && saved.status !== 'client_details_forward_failed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{saved.final_package_ready ? 'Sent to selected trainer' : saved.status === 'client_details_forward_failed' ? 'Trainer email failed — retry needed' : finalPackageReady ? 'Required details complete' : 'On hold — awaiting client confirmation'}</span></div>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">{finalPackageChecklist.map(item => <li key={item.label} className="flex items-start gap-2 text-xs text-slate-700"><span className={`font-bold ${item.done ? 'text-emerald-700' : item.optional ? 'text-slate-400' : 'text-amber-700'}`}>{item.done ? '✓' : item.optional ? '○' : '○'}</span><span>{item.label}{item.optional && !item.done ? ' — optional until booked' : ''}</span></li>)}</ul>
+        <p className="mt-2 text-[11px] text-slate-600">The app holds the final trainer handoff until the client confirms the address, exact pin, and travel/stay terms. Booking PDFs are included when available.</p>
+      </div>
+      <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50/70 p-3">
+        <p className="text-xs font-bold text-slate-900">Clahan-managed booking</p>
+        <p className="mt-1 text-[11px] text-slate-600">Use only when the verified client reply clearly says Clahan should arrange or book the trainer’s travel or stay. Finance approval is required before a human booker can purchase anything.</p>
+        <div className="mt-2 flex flex-wrap gap-4 text-xs font-semibold text-slate-700">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={booking.ticket_required} onChange={event => setBooking(current => ({ ...current, ticket_required: event.target.checked }))} /> Ticket</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={booking.hotel_required} onChange={event => setBooking(current => ({ ...current, hotel_required: event.target.checked }))} /> Hotel / stay</label>
+        </div>
+        <label className="mt-2 block text-xs font-semibold text-slate-700">Client authorization for Clahan to book<textarea value={booking.client_authorization_text} onChange={event => setBooking(current => ({ ...current, client_authorization_text: event.target.value }))} placeholder="Paste the client’s explicit instruction, for example: Clahan will arrange the trainer ticket." className="mt-1 block min-h-16 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal" /></label>
+        {bookingStatus && <p className={`mt-2 text-xs font-bold ${bookingStatus === 'ready_to_book' ? 'text-emerald-800' : 'text-blue-800'}`}>Booking status: {bookingStatus.replaceAll('_', ' ')}{bookingStatus === 'awaiting_finance_approval' ? ' — no purchase has been made.' : ''}</p>}
+        <button type="button" disabled={Boolean(busy) || !finalPackageReady || Boolean(bookingStatus)} onClick={createBookingTask} className="mt-2 rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'booking' ? 'Creating booking task…' : bookingStatus ? 'Booking task created' : 'Create client-authorized booking task'}</button>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" disabled={Boolean(busy)} onClick={save} className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'save' ? 'Saving…' : 'Save travel plan'}</button>
+        <button type="button" disabled={Boolean(busy) || !mapUrl} onClick={() => sendRequest('trainer')} className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'trainer' ? 'Sending…' : sent.trainer ? 'Ask trainer again' : 'Ask trainer for travel and stay limits'}</button>
+        <button type="button" disabled={Boolean(busy) || !mapUrl} onClick={() => sendRequest('client')} className="rounded-lg bg-amber-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'client' ? 'Sending…' : sent.client ? 'Ask client again' : 'Confirm venue and travel budget with client'}</button>
+      </div>
+    </>}
+  </section>
+}
+
 function PipelineProgressSummary({ stage, req, trainer }) {
-  const postTrainingStages = ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent']
+  const postTrainingStages = ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent']
   const afterTraining = postTrainingStages.includes(stage)
   const doneStages = {
     mail1: afterTraining || ['mail1_sent', 'waiting_reply1', 'mail1_replied', 'details_requested', 'details_received', 'waiting_reply2', 'slot_booked', 'interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage),
@@ -2482,8 +2679,8 @@ function PipelineProgressSummary({ stage, req, trainer }) {
     mail5: afterTraining || ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage),
     mail6: afterTraining || ['toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage),
     mail7: afterTraining || stage === 'training_confirmed',
-    po: ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(stage),
-    invoice: ['invoice_generated', 'invoice_sent'].includes(stage),
+    po: ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(stage),
+    invoice: ['invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(stage),
     invoiceSent: stage === 'invoice_sent',
   }
 
@@ -2503,6 +2700,7 @@ function PipelineProgressSummary({ stage, req, trainer }) {
   const selectionDelivered = afterTraining || ['interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage)
   const progressPct = stage === 'rejected' ? 100 : stage === 'invoice_sent' ? 100 :
     stage === 'invoice_generated' ? 95 :
+    stage === 'invoice_draft_sent_for_review' ? 94 :
     stage === 'client_po_received' ? 88 :
     stage === 'po_requested' ? 82 :
     stage === 'training_confirmed' ? 75 :
@@ -2520,6 +2718,8 @@ function PipelineProgressSummary({ stage, req, trainer }) {
         ? 'Workflow complete - invoice sent to client'
         : stage === 'invoice_generated'
           ? 'Invoice ready to send to client'
+          : stage === 'invoice_draft_sent_for_review'
+            ? 'Draft invoice sent for review; final invoice is pending confirmation'
           : stage === 'training_confirmed'
             ? 'PO request is next'
           : stage === 'client_po_received'
@@ -2543,8 +2743,10 @@ function PipelineProgressSummary({ stage, req, trainer }) {
                           : 'Trainer request is next'
   const commercialStatus = doneStages.invoiceSent
     ? 'Invoice sent'
-    : doneStages.invoice
-      ? 'Invoice generated'
+    : stage === 'invoice_draft_sent_for_review'
+      ? 'Draft sent for review'
+      : doneStages.invoice
+        ? 'Invoice generated'
       : doneStages.po
         ? stage === 'po_requested' ? 'PO requested' : 'PO received'
         : 'Not started'
@@ -2634,7 +2836,9 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const acceptedClientCommercial = trainerOffer?.amount &&
             trainerOffer.unit === quote.unit &&
             quote.amount <= trainerOffer.amount
-          const clientAmount = clientRateFromTrainerRate(quote.amount)
+          const clientAmount = acceptedClientCommercial && Number(trainerOffer?.clientAmount) > 0
+            ? Math.ceil(Number(trainerOffer.clientAmount))
+            : clientRateFromTrainerRate(quote.amount)
           const unitText = quote.unit === 'hour' ? 'per hour' : quote.unit === 'session' ? 'per session' : 'per day'
           const guardKey = `${req.requirement_id}:${trainer.trainer_id}:client_commercials:${reason}:${acceptedClientCommercial ? 'accepted' : clientAmount}:${messageTime(reply)}`
           if (!shouldSendOnce(guardKey)) return true
@@ -2661,7 +2865,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
               to_email: req.client_email,
               requirement_id: req.requirement_id,
               subject: `Trainer Accepted Your Commercial - ${req.technology_needed} | ${trainer.name}`,
-              body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Commercial:\n- INR ${trainerOffer.amount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nClahan Technologies`,
+              body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Client Commercial:\n- INR ${clientAmount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nClahan Technologies`,
               mail_type: 'client_budget_acknowledgment',
             })
             showSendStatusToast({ trainerName: trainer.name, result: acceptedRes.data, title: 'Client commercial acceptance sent' })
@@ -2707,13 +2911,33 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
         // The browser stops after the client decision.  The service workflow
         // records PO/final confirmation and invoice events; it must not send
         // the retired post-selection ToC or training-confirmation emails.
-        if (trainers.some(t => ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(getStage(t)))) {
+        if (trainers.some(t => ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(getStage(t)))) {
           runningRef.current = false
           return
         }
 
-        // First outreach is now a broadcast: every shortlisted trainer gets Mail 1.
-        const pendingTrainers = trainers.filter(t => getStage(t) === 'pending')
+        // First outreach is now a broadcast: every pending trainer gets Mail 1.
+        // A failed attempt can leave a stale waiting_reply1 stage from an older
+        // false-positive response, so retry those failures after a cooldown.
+        const retryableMail1Failure = trainer => {
+          const failedMail1 = Boolean(trainer?.last_mail_error) &&
+            ['mail1', 'first'].includes(String(trainer?.last_mail_type_attempted || '').toLowerCase())
+          const attemptedAt = Date.parse(trainer?.last_mail_attempted_at || '')
+          const retryDelay = String(trainer?.last_mail_error || '').match(/retry after (?:about )?(\d+) (seconds?|minutes?|hours?)/i)
+          const retryUnit = retryDelay?.[2]?.toLowerCase() || ''
+          const retryMultiplier = retryUnit.startsWith('hour') ? 60 * 60 * 1000 : retryUnit.startsWith('minute') ? 60 * 1000 : 1000
+          const providerCooldownMs = retryDelay ? Number(retryDelay[1]) * retryMultiplier + 5000 : 0
+          return failedMail1 && Number.isFinite(attemptedAt) &&
+            Date.now() - attemptedAt >= Math.max(MAIL1_RETRY_COOLDOWN_MS, providerCooldownMs)
+        }
+        const pendingTrainers = trainers.filter(trainer => {
+          const stage = getStage(trainer)
+          if (stage === 'pending') {
+            return !trainer?.last_mail_error || retryableMail1Failure(trainer)
+          }
+          return retryableMail1Failure(trainer) &&
+            ['waiting_reply1', 'mail1', 'mail1_sent'].includes(stage)
+        })
         if (pendingTrainers.length) {
           const batchKey = `${req.requirement_id || 'requirement'}:${pendingTrainers
             .map(trainer => trainer.trainer_id)
@@ -2721,20 +2945,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             .join(',')}`
 
           if (firstOutreachDecisionRef.current !== batchKey) {
-            const mailLabel = pendingTrainers.length === 1 ? 'email' : 'emails'
-            const trainerLabel = pendingTrainers.length === 1 ? 'trainer' : 'trainers'
-            const shouldSend = globalThis.confirm(
-              `AI pipeline is ready to start. It will send ${pendingTrainers.length} ${mailLabel} to ${pendingTrainers.length} shortlisted ${trainerLabel} (Mail 1).\n\nNo emails have been sent yet. Do you want to continue?`
-            )
-
-            // Mark both confirmation and cancellation for this exact batch.
-            // A changed shortlist creates a new key and prompts again.
+            // Mail 1 is fully automated once a valid shortlist exists.
             firstOutreachDecisionRef.current = batchKey
-            if (!shouldSend) {
-              toast('AI pipeline paused. No emails were sent.', { icon: 'i', duration: 5000 })
-              runningRef.current = false
-              return
-            }
           }
 
           const sentResults = []
@@ -2753,7 +2965,12 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             sentResults.push({ trainer, result: res.data })
             if (delivered) {
               setStage(trainer, 'waiting_reply1', { mail1SentAt: Date.now(), reminders: 0 })
-
+            } else if (firstSendMailResult(res?.data)?.status === 'sending') {
+              showSendStatusToast({
+                trainerName: trainer.name,
+                result: { status: 'sending', error: sendMailError(res?.data) },
+                title: 'Mail 1 is still processing',
+              })
             } else {
               showSendStatusToast({
                 trainerName: trainer.name,
@@ -2766,9 +2983,12 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const deliveredCount = sentResults.filter(item => {
             return isSendMailDelivered(item.result)
           }).length
-          const failedCount = pendingTrainers.length - deliveredCount
+          const processingCount = sentResults.filter(item => firstSendMailResult(item.result)?.status === 'sending').length
+          const failedCount = pendingTrainers.length - deliveredCount - processingCount
           if (failedCount) {
-            toast.error(`Sent ${deliveredCount} of ${pendingTrainers.length} emails. ${failedCount} failed.`)
+            toast.error(`Sent ${deliveredCount} of ${pendingTrainers.length} emails. ${failedCount} failed; ${processingCount} still processing.`)
+          } else if (processingCount) {
+            toast(`Sent ${deliveredCount} of ${pendingTrainers.length} emails; ${processingCount} still processing.`, { duration: 6000 })
           } else {
             toast.success(`Sent ${deliveredCount} email${deliveredCount === 1 ? '' : 's'} successfully.`, { duration: 5000 })
           }
@@ -2798,8 +3018,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
   }, [enabled, trainers, req, allowReminders])
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Trainer Card Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, autoMode, isActive, generationMode }) {
+//  Trainer Card
+function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, onProfileApproved, autoMode, isActive, generationMode }) {
   const stage     = resolveTrainerStage(trainer, req, state)
   const stageInfo = STAGES[stage] || STAGES.pending
   const [mailModal, setMailModal] = useState(null)
@@ -2820,6 +3040,20 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const [editedProfileBullets, setEditedProfileBullets] = useState({})
   const [trainerConfirmations, setTrainerConfirmations] = useState({})
   const [trainerConfirmationReference, setTrainerConfirmationReference] = useState('')
+  const [approvingProfile, setApprovingProfile] = useState(false)
+
+  const approveProfileForOutreach = async () => {
+    setApprovingProfile(true)
+    try {
+      await api.post(`/requirements/${req.requirement_id}/trainers/${trainer.trainer_id}/approve-profile`)
+      toast.success(`${trainer.name}'s profile is approved for outreach`)
+      onProfileApproved?.()
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not approve this profile')
+    } finally {
+      setApprovingProfile(false)
+    }
+  }
 
   const BTN = 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all active:scale-95 shadow-sm'
 
@@ -2884,7 +3118,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
   const sendNegotiationEmail = async () => {
     if (!clientBudget || isNaN(clientBudget)) {
-      toast.error('Ã¢ÂÅ’ Please enter a valid client budget amount')
+      toast.error(' Please enter a valid client budget amount')
       return
     }
 
@@ -2923,22 +3157,22 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             trainer_name: trainer.name,
             to_email: req.client_email,
             requirement_id: req.requirement_id,
-            subject: `Trainer Found Ã¢â‚¬â€œ Rate Negotiation in Progress | ${req.technology_needed}`,
-            body: `Hi ${req.client_name || 'Team'},\n\nGood news. We have reviewed a suitable shortlisted trainer profile for your ${req.technology_needed} requirement.\n\nWe are currently aligning the commercial rates based on your budget of Ã¢â€šÂ¹${budgetAmount.toLocaleString('en-IN')}/day.\n\nWe will update you within 24 hours with the confirmation.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
+            subject: `Trainer Found – Rate Negotiation in Progress | ${req.technology_needed}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news. We have reviewed a suitable shortlisted trainer profile for your ${req.technology_needed} requirement.\n\nWe are currently aligning the commercial rates based on your budget of ₹${budgetAmount.toLocaleString('en-IN')}/day.\n\nWe will update you within 24 hours with the confirmation.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
             mail_type: 'trainer_negotiation_client_update',
           })
-          
+
           if (isSendMailDelivered(clientRes?.data)) {
-            toast.success(`Ã°Å¸â€œÂ§ Trainer negotiation sent Ã¢Å“â€¦\nÃ°Å¸â€œÂ§ Client update sent Ã¢Å“â€¦`)
+            toast.success(`📧 Trainer negotiation sent ✅\n📧 Client update sent ✅`)
             setShowNegotiationModal(false)
             setClientBudget('')
           } else {
-            toast.success(`Ã°Å¸â€œÂ§ Trainer negotiation sent Ã¢Å“â€¦\nÃ¢Å¡Â Ã¯Â¸Â Failed to send client update`)
+            toast.success(`📧 Trainer negotiation sent ✅\n  Failed to send client update`)
             setShowNegotiationModal(false)
             setClientBudget('')
           }
         } catch {
-          toast.success(`Ã°Å¸â€œÂ§ Trainer negotiation sent Ã¢Å“â€¦\nÃ¢Å¡Â Ã¯Â¸Â Could not send client update`)
+          toast.success(`📧 Trainer negotiation sent ✅\n  Could not send client update`)
           setShowNegotiationModal(false)
           setClientBudget('')
         }
@@ -2952,14 +3186,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     }
   }
 
-  const renderPostSelectionTools = ({ note = '', waiting = false } = {}) => (
-    <div className="flex flex-wrap gap-2 mt-3">
+  const renderPostSelectionTools = ({ note = '', waiting = false, children = null } = {}) => (
+    <div className="mt-3">
       {note && (
         <div className="w-full flex items-center gap-2 px-3 py-2 bg-teal-50 border border-teal-200 rounded-xl">
           {waiting && <Loader2 className="w-3.5 h-3.5 text-teal-500 animate-spin flex-shrink-0" />}
           <span className="text-xs text-teal-700 font-semibold">{note}</span>
         </div>
       )}
+      {children}
     </div>
   )
 
@@ -2971,7 +3206,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           clientSlotText: result.slot_text || trainer.slot_reply_text,
         })} />
     }
-    // Ã¢â€â‚¬Ã¢â€â‚¬ ToC received Ã¢â‚¬â€ manual confirmation mail Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    //  ToC received  manual confirmation mail
     if (stage === 'toc_received_pending') {
       return renderPostSelectionTools({
         note: 'A legacy ToC reply was received. The active workflow already sent the ToC in Mail 1 and client handoff; no extra ToC mail is sent.',
@@ -2984,7 +3219,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       })
     }
 
-    if (['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(stage)) {
+    if (['po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent'].includes(stage)) {
       return renderPostSelectionTools({
         note: stage === 'invoice_sent'
           ? 'Workflow complete. The invoice was sent to the saved client email.'
@@ -3000,7 +3235,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
     if (stage === 'selected') {
       return renderPostSelectionTools({
-        note: 'Trainer selected. The system now waits for the client PO/final confirmation; the ToC was already included in Mail 1 and client handoff.',
+        note: 'Trainer selected. Confirm the offline venue and travel/stay terms before bookings; the ToC was already included in Mail 1 and client handoff.',
+        children: <OfflineTravelAgent trainer={trainer} req={req} />,
       })
     }
 
@@ -3009,7 +3245,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         <div className="flex flex-wrap gap-2 mt-3">
           <div className="w-full px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
             <span className="text-xs text-green-700 font-semibold">
-              Ã°Å¸Å½â€œ All done! Training confirmed and contact details shared with trainer.
+              🎓 All done! Training confirmed and contact details shared with trainer.
             </span>
           </div>
           <button onClick={() => setShowPoModal(true)} className={clsx(BTN, 'bg-slate-900 hover:bg-slate-800')}>
@@ -3019,7 +3255,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       )
     }
 
-    // toc_requested Ã¢â‚¬â€ auto is polling, show waiting
+    // toc_requested  auto is polling, show waiting
     if (stage === 'toc_requested') {
       return (
         <div className="flex items-center gap-2 px-3 py-2 mt-3 bg-teal-50 border border-teal-200 rounded-xl">
@@ -3028,7 +3264,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             Training documents are being prepared. The next workflow action will appear when the required update is received.
           </span>
           <span className="sr-only">
-            Ã¢ÂÂ³ Waiting for trainer to send ToC/Agenda Ã¢â‚¬â€ auto detects reply and notifies you
+             Waiting for trainer to send ToC/Agenda  auto detects reply and notifies you
           </span>
         </div>
       )
@@ -3050,7 +3286,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       return (
         <div className="flex flex-wrap gap-2 mt-3">
           <button onClick={() => setShowTocModal(true)} className={clsx(BTN, 'bg-emerald-600 hover:bg-emerald-700')}>
-            <FileText className="w-3.5 h-3.5" /> Generate TOC Ã°Å¸â€œâ€¹
+            <FileText className="w-3.5 h-3.5" /> Generate TOC 📋
           </button>
           <button onClick={() => setShowPoModal(true)} className={clsx(BTN, 'bg-slate-900 hover:bg-slate-800')}>
             <FileText className="w-3.5 h-3.5" /> Generate PO
@@ -3063,7 +3299,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       )
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ AUTO MODE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    //  AUTO MODE
     if (autoMode) {
       if (stage === 'waiting_reply1') {
         return (
@@ -3072,12 +3308,12 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               <Loader2 className="w-3.5 h-3.5 text-sky-500 animate-spin flex-shrink-0" />
               <span className="relative text-xs text-transparent font-medium">
                 <span className="absolute inset-0 flex items-center text-sky-700">Mail 1 is sent. The inbox watches for a reply and sends reminders at 6, 12, and 24 hours.</span>
-                Ã¢ÂÂ³ Mail 1 sent Ã¢â‚¬â€ checking replies every 10s while reminders run at 6h, 12h, 24h
+                 Mail 1 sent  checking replies every 10s while reminders run at 6h, 12h, 24h
               </span>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-xl">
               <Bell className="w-3 h-3 text-orange-400 flex-shrink-0" />
-              <span className="text-xs text-orange-600">Auto reminders: <strong>6h Ã‚Â· 12h Ã‚Â· 24h</strong></span>
+              <span className="text-xs text-orange-600">Auto reminders: <strong>6h · 12h · 24h</strong></span>
             </div>
           </div>
         )
@@ -3103,11 +3339,11 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 </span>
                 {isActive
                   ? 'Reviewing the trainer reply for the requested information and three interview slots.'
-                  : 'Trainer reply received. The inbox workflow will continue this trainerâ€™s progress.'}
+                  : 'Trainer reply received. The inbox workflow will continue this trainer’s progress.'}
               </span>
               {isActive
-                ? 'Next Mail 1 responder Ã¢â‚¬â€ sending Request Details shortly'
-                : 'Replied to Mail 1 Ã¢â‚¬â€ queued until the current trainer pipeline finishes'}
+                ? 'Next Mail 1 responder  sending Request Details shortly'
+                : 'Replied to Mail 1  queued until the current trainer pipeline finishes'}
             </span>
           </div>
         )
@@ -3146,7 +3382,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           <div className="px-3 py-2 mt-3 bg-violet-50 border border-violet-200 rounded-xl">
             <span className="relative text-xs text-transparent font-medium">
               <span className="absolute inset-0 flex items-center text-violet-700">Mail 1 will be sent to shortlisted trainers with the requirement, ToC, and slot request.</span>
-              Ã°Å¸Â¤â€“ Mail 1 will be sent with the full shortlist batch
+              🤖 Mail 1 will be sent with the full shortlist batch
             </span>
           </div>
         )
@@ -3167,7 +3403,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       return null
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ MANUAL MODE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    //  MANUAL MODE
     return (
       <div className="flex flex-wrap gap-2 mt-3">
         {stage === 'pending' && (
@@ -3360,7 +3596,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         <PurchaseOrderModal
           trainer={trainer}
           req={req}
-         
+
           onClose={() => setShowPoModal(false)}
           onStageChange={(next, extra) => onStatusUpdate(trainer.trainer_id, next, extra)}
         />
@@ -3368,13 +3604,13 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       {showNegotiationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="rounded-xl bg-white p-6 shadow-xl max-w-sm w-full mx-4">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Ã°Å¸â€™Â° Negotiate Trainer Rate</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">💰 Negotiate Trainer Rate</h2>
             <p className="text-sm text-slate-600 mb-4">
-              Enter the client's maximum budget per day. We'll offer the trainer Ã¢â€šÂ¹5,000 less (Clahan margin).
+              Enter the client's maximum budget per day. We'll offer the trainer ₹5,000 less (Clahan margin).
             </p>
             <div className="mb-4">
               <label className="block text-xs font-semibold text-slate-700 mb-2">
-                Client Budget (Ã¢â€šÂ¹/day)
+                Client Budget (₹/day)
               </label>
               <input
                 type="number"
@@ -3387,10 +3623,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             {clientBudget && !isNaN(clientBudget) && (
               <div className="mb-4 p-3 bg-amber-50 rounded-lg">
                 <p className="text-xs font-semibold text-amber-900">
-                  Trainer Offer: Ã¢â€šÂ¹{trainerRateFromClientBudget(parseInt(clientBudget)).toLocaleString('en-IN')}/day
+                  Trainer Offer: ₹{trainerRateFromClientBudget(parseInt(clientBudget)).toLocaleString('en-IN')}/day
                 </p>
                 <p className="text-xs text-amber-800 mt-1">
-                  (Client budget: Ã¢â€šÂ¹{parseInt(clientBudget).toLocaleString('en-IN')}/day)
+                  (Client budget: ₹{parseInt(clientBudget).toLocaleString('en-IN')}/day)
                 </p>
               </div>
             )}
@@ -3409,7 +3645,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 disabled={sendingNegotiation || !clientBudget}
                 className="px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-60 rounded-lg transition-all inline-flex items-center gap-2"
               >
-                {sendingNegotiation ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Ã°Å¸â€œÂ§'}
+                {sendingNegotiation ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : '📧'}
                 Send Negotiation
               </button>
             </div>
@@ -3469,7 +3705,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                           )}>{item.evidence_status}</span>
                         </div>
                         <p className="mt-2 text-xs text-slate-500"><strong>Original evidence:</strong> {item.resume_evidence}</p>
-                        <p className="mt-1 text-xs text-slate-500"><strong>Source:</strong> {item.source_section || 'Original profile'} Â· <strong>Strength:</strong> {(item.match_strength || item.evidence_status).replaceAll('_', ' ')}</p>
+                        <p className="mt-1 text-xs text-slate-500"><strong>Source:</strong> {item.source_section || 'Original profile'} · <strong>Strength:</strong> {(item.match_strength || item.evidence_status).replaceAll('_', ' ')}</p>
                         {item.experience_depth && <p className="mt-1 text-xs text-slate-500"><strong>Depth:</strong> {item.experience_depth}</p>}
                         {selectable && (
                           <div className="mt-3 grid gap-1">
@@ -3566,10 +3802,20 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               <span className={clsx('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold', stageInfo.color)}>
                 {stageInfo.label}
               </span>
-              {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_sent'].includes(stage) && (
+              {trainer.profile_review_required && (
+                <button
+                  type="button"
+                  onClick={approveProfileForOutreach}
+                  disabled={approvingProfile}
+                  className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-60"
+                >
+                  {approvingProfile ? 'Approving…' : 'Approve profile for Mail 1'}
+                </button>
+              )}
+              {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_draft_sent_for_review','invoice_sent'].includes(stage) && (
                 <span className="relative flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-transparent animate-pulse">
                   <span className="absolute inset-0 flex items-center justify-center gap-1 text-violet-700"><Bot className="h-3.5 w-3.5" /> Automation active</span>
-                  Ã°Å¸Â¤â€“ Auto Active
+                  🤖 Auto Active
                 </span>
               )}
             </div>
@@ -3598,6 +3844,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             <StepBar stage={stage} trainer={trainer} />
             <PipelineProgressSummary stage={stage} req={req} trainer={trainer} />
             <InterviewRescheduleStatus trainer={trainer} />
+            <TrainerRequirementReview trainer={trainer} req={req} />
             {renderActions()}
           </div>
 
@@ -3611,12 +3858,14 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   )
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Main Page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+//  Main Page
 function hasRequirementWorkflowChanged(current = {}, incoming = {}) {
   return [
     'status', 'batch_flow', 'batch_type', 'requirement_type', 'pipeline_page',
     'selection_status', 'selected_trainer_id', 'selected_trainer_name',
     'client_po_requested', 'client_po_received', 'batch_confirmed', 'invoice_sent',
+    'invoice_status', 'client_po_status', 'invoice_draft_status',
+    'invoice_draft_email_id', 'invoice_draft_sent_at',
   ].some(field => current?.[field] !== incoming?.[field])
 }
 
@@ -3644,8 +3893,9 @@ export default function Shortlist1() {
       setLoadingReqs(true)
       try {
         const list = await getAllRequirementsForFlow()
-        const pipelineReqs = list.filter(req => isConfirmedRequirement(req))
-        setReqs(pipelineReqs)
+        // The API has already filtered this request to pipeline=shortlist1.
+        // Do not hide valid records again with browser-side inference.
+        setReqs(list)
 
         if (targetRequirementId) {
           const match = list.find(req => String(req.requirement_id) === String(targetRequirementId))
@@ -3658,7 +3908,7 @@ export default function Shortlist1() {
               globalThis.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(match.requirement_id)}&domain=${encodeURIComponent(match.technology_needed || match.domain || '')}`)
             } else {
               toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
-              globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+              globalThis.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(match.requirement_id)}`)
             }
           } else {
             try {
@@ -3671,7 +3921,7 @@ export default function Shortlist1() {
               }
               if (!isConfirmedRequirement(requirement)) {
                 toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
-                globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
+                globalThis.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
                 return
               }
               setSelectedReq(requirement)
@@ -3682,7 +3932,7 @@ export default function Shortlist1() {
                 try {
                   const shortlistRes = await getShortlist(targetRequirementId)
                   const shortlist = shortlistRes.data || {}
-                  const trainers = (shortlist.top_trainers || shortlist.trainers || []).slice(0, 3)
+                  const trainers = (shortlist.top_trainers || shortlist.trainers || []).slice(0, 5)
                   const requirement = {
                     requirement_id: targetRequirementId,
                     technology_needed: shortlist.technology_needed || '',
@@ -3742,7 +3992,7 @@ export default function Shortlist1() {
     setTrainers([])
     getShortlist(selectedReq.requirement_id)
       .then(r => {
-        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 3)
+        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 5)
         setTrainers(list)
         const saved = getLS(`sl_v5_${selectedReq.requirement_id}`) || {}
         const merged = { ...saved }
@@ -3764,7 +4014,7 @@ export default function Shortlist1() {
       .finally(() => setLoadingTrainers(false))
   }, [selectedReq])
 
-  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS)
+  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS, 5)
 
   const handleStatusUpdate = (trainerId, newStage, extra = {}) => {
     setStates(prev => {
@@ -3826,32 +4076,45 @@ export default function Shortlist1() {
     }
   }
 
-  const reload = () => {
+  const reload = async () => {
     if (!selectedReq) return
     setLoadingTrainers(true)
-    getShortlist(selectedReq.requirement_id)
-      .then(r => {
-        const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 3)
-        setTrainers(list)
-        setStates(prev => {
-          const next = { ...prev }
-          list.forEach(trainer => {
-            const backendStage = backendAuthoritativeStage(trainer, selectedReq)
-            if (backendStage) next[trainer.trainer_id] = { ...(next[trainer.trainer_id] || {}), status: backendStage }
-          })
-          return next
+    try {
+      const [r, requirementResult] = await Promise.all([
+        refreshShortlist(selectedReq.requirement_id),
+        getRequirement(selectedReq.requirement_id).catch(() => null),
+      ])
+      const list = (r.data.top_trainers || r.data.trainers || []).slice(0, 5)
+      const refreshedRequirement = requirementResult?.data || selectedReq
+      setTrainers(list)
+      setSelectedReq(previous => previous ? {
+        ...previous,
+        ...refreshedRequirement,
+        top_count: Number(r.data.total_matched || 0),
+        total_matched: Number(r.data.total_matched || 0),
+      } : previous)
+      setReqs(previous => previous.map(item => item.requirement_id === selectedReq.requirement_id
+        ? { ...item, ...refreshedRequirement }
+        : item))
+      setStates(prev => {
+        const next = { ...prev }
+        list.forEach(trainer => {
+          const backendStage = backendAuthoritativeStage(trainer, refreshedRequirement)
+          if (backendStage) next[trainer.trainer_id] = { ...(next[trainer.trainer_id] || {}), status: backendStage }
         })
+        return next
       })
-      .catch(e => {
-        if (e.response?.status === 404) {
-          setTrainers([])
-          setStates({})
-          toast.error(e.response?.data?.detail || 'No shortlist found for this requirement yet')
-          return
-        }
+    } catch (e) {
+      if (e.response?.status === 404) {
+        setTrainers([])
+        setStates({})
+        toast.error(e.response?.data?.detail || 'No shortlist found for this requirement yet')
+      } else {
         toast.error(e.response?.data?.detail || e.message || 'Could not load shortlist')
-      })
-      .finally(() => setLoadingTrainers(false))
+      }
+    } finally {
+      setLoadingTrainers(false)
+    }
   }
 
   const syncReplyStates = async () => {
@@ -3862,7 +4125,7 @@ export default function Shortlist1() {
       const [requirementRes, res] = await Promise.all([
         getRequirement(selectedReq.requirement_id),
         api.get('/emails', {
-        params: { requirement_id: selectedReq.requirement_id, page: 1, limit: 1000, _ts: Date.now() },
+        params: { requirement_id: selectedReq.requirement_id, page: 1, page_size: 100, _ts: Date.now() },
         }),
       ])
       const refreshedRequirement = requirementRes.data || selectedReq
@@ -3941,7 +4204,7 @@ export default function Shortlist1() {
     total: trainers.length,
     waiting: trainers.filter(t => ['waiting_reply1', 'waiting_reply2', 'toc_requested'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
     replied: trainers.filter(t => ['mail1_replied', 'details_received', 'slot_booked', 'interview_scheduled', 'selected', 'toc_received_pending'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
-    completed: trainers.filter(t => ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent', 'rejected'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
+    completed: trainers.filter(t => ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_draft_sent_for_review', 'invoice_sent', 'rejected'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))).length,
   }
 
   const aiFlowSteps = [
@@ -3999,9 +4262,9 @@ export default function Shortlist1() {
               <Bot className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Shortlist AI Pipeline</h1>
+              <h1 className="text-2xl font-bold text-slate-900">Shortlist</h1>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
-                AI wording is controlled from Dashboard. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
+                Review and compare matched trainers, check their profiles and scores, select suitable trainers, and move them toward interview or client approval.
               </p>
             </div>
           </div>
@@ -4090,7 +4353,7 @@ export default function Shortlist1() {
                       const tone = schedule === 'TBD' ? 'text-slate-400' : 'text-amber-600'
                       return <p className={clsx('text-xs', tone)}>Schedule: {schedule}</p>
                     })()}
-                    <p className="text-xs text-slate-400">{r.requirement_id} - Top {r.top_n}</p>
+                    <p className="text-xs text-slate-400">{r.requirement_id} - {Number(r.top_count ?? r.total_matched ?? r.top_n) || 0} matched</p>
                   </div>
                   <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
                   </button>
@@ -4123,7 +4386,7 @@ export default function Shortlist1() {
                   {selectedReq.client_email ? 'Edit' : 'Add'}
                 </button>
               </div>
-              <p className="text-xs text-slate-400">{selectedReq.requirement_id} - {isConfirmedRequirement(selectedReq) ? 'Confirmed batch' : 'Proposal batch'} - Top {selectedReq.top_n}</p>
+              <p className="text-xs text-slate-400">{selectedReq.requirement_id} - {isConfirmedRequirement(selectedReq) ? 'Confirmed batch' : 'Proposal batch'} - {Number(selectedReq.top_count ?? selectedReq.total_matched ?? trainers.length) || 0} matched</p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setSelectedReq(null)}
@@ -4136,6 +4399,8 @@ export default function Shortlist1() {
               </button>
             </div>
           </div>
+
+          <ClientRequestStage requirement={selectedReq} />
 
           <div className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-sm sm:grid-cols-3">
             <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
@@ -4193,6 +4458,7 @@ export default function Shortlist1() {
                   req={selectedReq}
                   onStatusUpdate={handleStatusUpdate}
                   onRequirementPatch={patchSelectedRequirement}
+                  onProfileApproved={reload}
                   autoMode={autoMode}
                   generationMode={generationMode}
                   isActive={trainer.trainer_id === activeTrainerId}

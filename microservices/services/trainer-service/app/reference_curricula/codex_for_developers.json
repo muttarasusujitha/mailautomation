@@ -92,7 +92,128 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "",
+            "lead": "",
+            "items": [
+              {
+                "text": "Codex as an agentic software engineer",
+                "children": []
+              },
+              {
+                "text": "Codex versus traditional coding assistants",
+                "children": []
+              },
+              {
+                "text": "Codex development surfaces:",
+                "children": [
+                  "CLI",
+                  "IDE extension",
+                  "Desktop/application experience",
+                  "Cloud workflows",
+                  "GitHub workflows",
+                  "Non-interactive execution",
+                  "SDK and App Server"
+                ]
+              },
+              {
+                "text": "The Codex execution loop:",
+                "children": [
+                  "Understand",
+                  "Inspect",
+                  "Plan",
+                  "Execute",
+                  "Validate",
+                  "Review",
+                  "Report"
+                ]
+              },
+              {
+                "text": "Repository context versus conversation context",
+                "children": []
+              },
+              {
+                "text": "Tool execution and terminal access",
+                "children": []
+              },
+              {
+                "text": "File modifications and diff generation",
+                "children": []
+              },
+              {
+                "text": "Long-running task management",
+                "children": []
+              },
+              {
+                "text": "Steering an active task",
+                "children": []
+              },
+              {
+                "text": "Checkpoints and recovery",
+                "children": []
+              },
+              {
+                "text": "Plan mode versus implementation mode",
+                "children": []
+              },
+              {
+                "text": "Selecting the right workflow:",
+                "children": [
+                  "Explain",
+                  "Diagnose",
+                  "Plan",
+                  "Implement",
+                  "Review",
+                  "Automate"
+                ]
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "Engineering Principle",
+          "lead": "Codex should not start by writing code. A professional workflow starts with:",
+          "points": [
+            "Understanding the repository.",
+            "Establishing the baseline.",
+            "Identifying evidence.",
+            "Confirming scope.",
+            "Defining success.",
+            "Only then implementing changes."
+          ]
+        },
+        "lab": {
+          "title": "Repository X-Ray",
+          "scenario": "Participants receive an unfamiliar payment-service repository.",
+          "lead": "Codex must identify:",
+          "tasks": [
+            "Application architecture",
+            "Entry points",
+            "API request flow",
+            "Build commands",
+            "Test commands",
+            "Database usage",
+            "Cache usage",
+            "External integrations",
+            "Configuration structure",
+            "Authentication and authorization",
+            "Error-handling patterns",
+            "Logging and observability",
+            "High-risk components",
+            "Missing documentation"
+          ],
+          "verify": [],
+          "deliverables": [
+            "A concise repository intelligence report containing: Architecture summary, Component map, Critical code paths, Build/test commands, Risks, Unknowns, Recommended investigation order."
+          ]
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Advanced Task and Context Engineering",
@@ -180,7 +301,214 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Engineering Task Contracts",
+            "lead": "Every professional Codex request should define:",
+            "items": [
+              {
+                "text": "Business objective",
+                "children": []
+              },
+              {
+                "text": "Current behaviour",
+                "children": []
+              },
+              {
+                "text": "Expected behaviour",
+                "children": []
+              },
+              {
+                "text": "Evidence available",
+                "children": []
+              },
+              {
+                "text": "Scope boundaries",
+                "children": []
+              },
+              {
+                "text": "Technical constraints",
+                "children": []
+              },
+              {
+                "text": "Acceptance criteria",
+                "children": []
+              },
+              {
+                "text": "Test requirements",
+                "children": []
+              },
+              {
+                "text": "Security expectations",
+                "children": []
+              },
+              {
+                "text": "Prohibited changes",
+                "children": []
+              },
+              {
+                "text": "Required deliverables",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Evidence-First Prompting",
+            "lead": "",
+            "items": [
+              {
+                "text": "Asking Codex to inspect before concluding",
+                "children": []
+              },
+              {
+                "text": "Requiring file and code-path references",
+                "children": []
+              },
+              {
+                "text": "Separating:",
+                "children": [
+                  "Confirmed facts",
+                  "Assumptions",
+                  "Hypotheses",
+                  "Unknowns"
+                ]
+              },
+              {
+                "text": "Preventing unsupported architectural claims",
+                "children": []
+              },
+              {
+                "text": "Requesting missing information",
+                "children": []
+              },
+              {
+                "text": "Requiring reproducible evidence",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Advanced Prompting Patterns",
+            "lead": "",
+            "items": [
+              {
+                "text": "Plan-before-change",
+                "children": []
+              },
+              {
+                "text": "Reproduce-before-fix",
+                "children": []
+              },
+              {
+                "text": "Test-before-refactor",
+                "children": []
+              },
+              {
+                "text": "Minimal-patch implementation",
+                "children": []
+              },
+              {
+                "text": "Behaviour-preserving migration",
+                "children": []
+              },
+              {
+                "text": "Adversarial review",
+                "children": []
+              },
+              {
+                "text": "Security-focused review",
+                "children": []
+              },
+              {
+                "text": "Performance investigation",
+                "children": []
+              },
+              {
+                "text": "Incident diagnosis",
+                "children": []
+              },
+              {
+                "text": "Contract-first development",
+                "children": []
+              },
+              {
+                "text": "Acceptance-test-driven development",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Context Management",
+            "lead": "",
+            "items": [
+              {
+                "text": "Providing minimum sufficient context",
+                "children": []
+              },
+              {
+                "text": "Avoiding prompt overload",
+                "children": []
+              },
+              {
+                "text": "Directing Codex toward authoritative files",
+                "children": []
+              },
+              {
+                "text": "Using logs, traces and failed-test output",
+                "children": []
+              },
+              {
+                "text": "Referencing design documents",
+                "children": []
+              },
+              {
+                "text": "Maintaining context across long tasks",
+                "children": []
+              },
+              {
+                "text": "Recovering when context becomes stale",
+                "children": []
+              },
+              {
+                "text": "Using separate threads for independent concerns",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Convert an Ambiguous Issue",
+          "scenario": "Original requirement: “Payments sometimes fail and customers retry. Fix the system.”",
+          "lead": "Participants transform it into a task contract covering:",
+          "tasks": [
+            "Failure symptoms",
+            "Request lifecycle",
+            "Retry ownership",
+            "Idempotency",
+            "Database transaction boundaries",
+            "Cache consistency",
+            "Concurrency",
+            "Timeout behaviour",
+            "Expected throughput",
+            "Regression tests",
+            "Rollback expectations"
+          ],
+          "verify": [],
+          "deliverables": [
+            "A production-quality task specification that another engineer or Codex session could execute without guessing."
+          ]
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Repository Intelligence with AGENTS.md",
@@ -255,7 +583,172 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Purpose of AGENTS.md",
+            "lead": "",
+            "items": [
+              {
+                "text": "Prompt instructions versus durable repository guidance",
+                "children": []
+              },
+              {
+                "text": "Global instructions",
+                "children": []
+              },
+              {
+                "text": "Repository-level instructions",
+                "children": []
+              },
+              {
+                "text": "Nested component instructions",
+                "children": []
+              },
+              {
+                "text": "Closest-file precedence",
+                "children": []
+              },
+              {
+                "text": "Monorepository instruction design",
+                "children": []
+              },
+              {
+                "text": "Referencing supporting documents",
+                "children": []
+              },
+              {
+                "text": "Keeping instructions short and operational",
+                "children": []
+              },
+              {
+                "text": "Maintaining repository guidance over time",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "What Belongs in AGENTS.md",
+            "lead": "",
+            "items": [
+              {
+                "text": "Architecture boundaries",
+                "children": []
+              },
+              {
+                "text": "Supported build commands",
+                "children": []
+              },
+              {
+                "text": "Required test commands",
+                "children": []
+              },
+              {
+                "text": "Formatting and linting",
+                "children": []
+              },
+              {
+                "text": "Naming standards",
+                "children": []
+              },
+              {
+                "text": "Error-handling requirements",
+                "children": []
+              },
+              {
+                "text": "Security rules",
+                "children": []
+              },
+              {
+                "text": "Dependency restrictions",
+                "children": []
+              },
+              {
+                "text": "Database migration requirements",
+                "children": []
+              },
+              {
+                "text": "API compatibility expectations",
+                "children": []
+              },
+              {
+                "text": "Observability requirements",
+                "children": []
+              },
+              {
+                "text": "Definition of done",
+                "children": []
+              },
+              {
+                "text": "Pull-request requirements",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "What Should Not Be Included",
+            "lead": "",
+            "items": [
+              {
+                "text": "Long theoretical explanations",
+                "children": []
+              },
+              {
+                "text": "Unverified commands",
+                "children": []
+              },
+              {
+                "text": "Conflicting rules",
+                "children": []
+              },
+              {
+                "text": "Temporary task requirements",
+                "children": []
+              },
+              {
+                "text": "Secrets or credentials",
+                "children": []
+              },
+              {
+                "text": "Instructions unrelated to the repository",
+                "children": []
+              },
+              {
+                "text": "Excessive documentation that consumes context",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Repository Engineering Constitution",
+          "scenario": "",
+          "lead": "Required rules:",
+          "tasks": [
+            "Payment changes require idempotency tests.",
+            "Database changes require rollback instructions.",
+            "Public API changes require compatibility review.",
+            "New external calls require timeout and retry policies.",
+            "Sensitive data must not be logged.",
+            "Infrastructure changes require security validation.",
+            "Every defect fix requires a regression test.",
+            "Final reports must include commands executed and results."
+          ],
+          "verify": [],
+          "deliverables": [
+            "A tested instruction hierarchy showing that Codex applies different guidance to backend, frontend and infrastructure components."
+          ]
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Test-Driven Implementation and Production Debugging",
@@ -341,7 +834,222 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Professional Implementation Workflow",
+            "lead": "",
+            "items": [
+              {
+                "text": "1. Inspect the issue.",
+                "children": []
+              },
+              {
+                "text": "2. Establish a clean baseline.",
+                "children": []
+              },
+              {
+                "text": "3. Reproduce the problem.",
+                "children": []
+              },
+              {
+                "text": "4. Identify the failing code path.",
+                "children": []
+              },
+              {
+                "text": "5. Form a root-cause hypothesis.",
+                "children": []
+              },
+              {
+                "text": "6. Verify the hypothesis.",
+                "children": []
+              },
+              {
+                "text": "7. Add a failing regression test.",
+                "children": []
+              },
+              {
+                "text": "8. Implement the smallest safe patch.",
+                "children": []
+              },
+              {
+                "text": "9. Run focused tests.",
+                "children": []
+              },
+              {
+                "text": "10. Run broader regression tests.",
+                "children": []
+              },
+              {
+                "text": "11. Review the final diff.",
+                "children": []
+              },
+              {
+                "text": "12. Document evidence and remaining risks.",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Debugging Topics",
+            "lead": "",
+            "items": [
+              {
+                "text": "Stack-trace analysis",
+                "children": []
+              },
+              {
+                "text": "Log correlation",
+                "children": []
+              },
+              {
+                "text": "Following request flow",
+                "children": []
+              },
+              {
+                "text": "Identifying race conditions",
+                "children": []
+              },
+              {
+                "text": "Deadlock investigation",
+                "children": []
+              },
+              {
+                "text": "Timeout diagnosis",
+                "children": []
+              },
+              {
+                "text": "Retry-storm investigation",
+                "children": []
+              },
+              {
+                "text": "Database connection saturation",
+                "children": []
+              },
+              {
+                "text": "Transaction rollback failures",
+                "children": []
+              },
+              {
+                "text": "Cache consistency",
+                "children": []
+              },
+              {
+                "text": "Memory and resource leaks",
+                "children": []
+              },
+              {
+                "text": "Configuration drift",
+                "children": []
+              },
+              {
+                "text": "Environment-specific failures",
+                "children": []
+              },
+              {
+                "text": "CI-only failures",
+                "children": []
+              },
+              {
+                "text": "Flaky tests",
+                "children": []
+              },
+              {
+                "text": "Separating root causes from secondary symptoms",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Testing Strategies",
+            "lead": "",
+            "items": [
+              {
+                "text": "Unit tests",
+                "children": []
+              },
+              {
+                "text": "Integration tests",
+                "children": []
+              },
+              {
+                "text": "Contract tests",
+                "children": []
+              },
+              {
+                "text": "Negative tests",
+                "children": []
+              },
+              {
+                "text": "Table-driven tests",
+                "children": []
+              },
+              {
+                "text": "Property-based tests",
+                "children": []
+              },
+              {
+                "text": "Concurrency tests",
+                "children": []
+              },
+              {
+                "text": "Fault-injection tests",
+                "children": []
+              },
+              {
+                "text": "Performance regression tests",
+                "children": []
+              },
+              {
+                "text": "Characterization tests",
+                "children": []
+              },
+              {
+                "text": "Test fixtures and data builders",
+                "children": []
+              },
+              {
+                "text": "Deterministic test design",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Duplicate Payment Defect",
+          "scenario": "",
+          "lead": "Participants use Codex to:",
+          "tasks": [
+            "Reproduce the duplicate payment.",
+            "Write a concurrency-focused test.",
+            "Identify the race window.",
+            "Examine database transaction boundaries.",
+            "Design an idempotency strategy.",
+            "Implement a minimal fix.",
+            "Test duplicate and concurrent requests.",
+            "Validate rollback behaviour.",
+            "Review performance impact.",
+            "Document proof of correctness."
+          ],
+          "verify": [],
+          "deliverables": [
+            "Root-cause report",
+            "Failing regression test",
+            "Minimal patch",
+            "Successful test evidence",
+            "Remaining-risk statement"
+          ]
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Code Review, Refactoring and Security",
@@ -425,7 +1133,210 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Advanced Code Review",
+            "lead": "",
+            "items": [
+              {
+                "text": "Reviewing working-tree changes",
+                "children": []
+              },
+              {
+                "text": "Reviewing a commit or branch",
+                "children": []
+              },
+              {
+                "text": "Pull-request review",
+                "children": []
+              },
+              {
+                "text": "Correctness analysis",
+                "children": []
+              },
+              {
+                "text": "Regression detection",
+                "children": []
+              },
+              {
+                "text": "API compatibility",
+                "children": []
+              },
+              {
+                "text": "Database migration review",
+                "children": []
+              },
+              {
+                "text": "Concurrency review",
+                "children": []
+              },
+              {
+                "text": "Error-handling review",
+                "children": []
+              },
+              {
+                "text": "Observability review",
+                "children": []
+              },
+              {
+                "text": "Performance impact",
+                "children": []
+              },
+              {
+                "text": "Missing tests",
+                "children": []
+              },
+              {
+                "text": "Dead code and complexity",
+                "children": []
+              },
+              {
+                "text": "Severity-based classification",
+                "children": []
+              },
+              {
+                "text": "Rejecting speculative findings",
+                "children": []
+              },
+              {
+                "text": "Requiring exact evidence",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Safe Refactoring",
+            "lead": "",
+            "items": [
+              {
+                "text": "Behaviour-preserving refactoring",
+                "children": []
+              },
+              {
+                "text": "Establishing characterization tests",
+                "children": []
+              },
+              {
+                "text": "Breaking large functions",
+                "children": []
+              },
+              {
+                "text": "Reducing duplication",
+                "children": []
+              },
+              {
+                "text": "Improving dependency boundaries",
+                "children": []
+              },
+              {
+                "text": "Interface simplification",
+                "children": []
+              },
+              {
+                "text": "Incremental legacy modernization",
+                "children": []
+              },
+              {
+                "text": "Measuring before-and-after performance",
+                "children": []
+              },
+              {
+                "text": "Avoiding uncontrolled rewrites",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Secure Review",
+            "lead": "",
+            "items": [
+              {
+                "text": "SQL/command injection",
+                "children": []
+              },
+              {
+                "text": "Broken authentication",
+                "children": []
+              },
+              {
+                "text": "Missing authorization",
+                "children": []
+              },
+              {
+                "text": "Sensitive data exposure",
+                "children": []
+              },
+              {
+                "text": "Secret leakage",
+                "children": []
+              },
+              {
+                "text": "Unsafe deserialization",
+                "children": []
+              },
+              {
+                "text": "Path traversal",
+                "children": []
+              },
+              {
+                "text": "Server-side request forgery",
+                "children": []
+              },
+              {
+                "text": "Dependency and supply-chain risks",
+                "children": []
+              },
+              {
+                "text": "Unsafe build scripts",
+                "children": []
+              },
+              {
+                "text": "Prompt injection through repository content",
+                "children": []
+              },
+              {
+                "text": "Insecure default configuration",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Adversarial Pull-Request Review",
+          "scenario": "",
+          "lead": "The pull request contains:",
+          "tasks": [
+            "SQL injection",
+            "Missing authorization",
+            "Unbounded goroutine creation",
+            "Sensitive customer data in logs",
+            "Incorrect retry behaviour",
+            "Breaking API change",
+            "Missing integration tests",
+            "Misleading error handling",
+            "Codex must report:",
+            "Severity – Critical, high, medium or low",
+            "Evidence – Exact file and code path",
+            "Trigger – How the issue occurs",
+            "Impact – Technical and business impact",
+            "Fix – Smallest safe correction",
+            "Test – Required regression test",
+            "Confidence – Supported or uncertain"
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "Participants independently diagnose and fix one unseen defect.",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Configuration, Permissions and Sandboxing",
@@ -493,7 +1404,112 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "",
+            "lead": "",
+            "items": [
+              {
+                "text": "User-level and project-level configuration",
+                "children": []
+              },
+              {
+                "text": "Trusted and untrusted repositories config.toml",
+                "children": []
+              },
+              {
+                "text": "Named configuration profiles",
+                "children": []
+              },
+              {
+                "text": "Model and reasoning defaults",
+                "children": []
+              },
+              {
+                "text": "Permission profiles",
+                "children": []
+              },
+              {
+                "text": "Legacy sandbox modes",
+                "children": []
+              },
+              {
+                "text": "Approval policies",
+                "children": []
+              },
+              {
+                "text": "Granular approval categories",
+                "children": []
+              },
+              {
+                "text": "Human approval",
+                "children": []
+              },
+              {
+                "text": "Automatic approval review",
+                "children": []
+              },
+              {
+                "text": "Filesystem access",
+                "children": []
+              },
+              {
+                "text": "Network access",
+                "children": []
+              },
+              {
+                "text": "Read-only operation",
+                "children": []
+              },
+              {
+                "text": "Workspace-write operation",
+                "children": []
+              },
+              {
+                "text": "Full-access risks",
+                "children": []
+              },
+              {
+                "text": "Managed enterprise requirements",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "Security Principles",
+          "lead": "",
+          "points": [
+            "Use the smallest permission boundary that completes the task.",
+            "Keep investigation agents read-only.",
+            "Give implementation agents access only to the repository.",
+            "Do not allow unattended access to production.",
+            "Treat repository instructions and external content as untrusted.",
+            "Never expose secrets in prompts or configuration files."
+          ]
+        },
+        "lab": {
+          "title": "Create Secure Operating Profiles",
+          "scenario": "",
+          "lead": "Participants design:",
+          "tasks": [
+            "repo-analyst – Architecture and investigation – Read-only developer – Code modification and testing – Workspace write security-reviewer – Adversarial code review – Read-only ci-reviewer – Non-interactive PR analysis – Read-only, no approvals isolated-remediator – Controlled patch creation – Workspace write in isolated runner"
+          ],
+          "verify": [
+            "The analyst cannot modify files.",
+            "The developer can edit only approved workspace files.",
+            "Network operations require the expected authorization.",
+            "Unapproved destructive operations fail.",
+            "CI operation does not pause waiting for a person."
+          ],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Skills, Hooks and Rules",
@@ -583,7 +1599,232 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Choosing the Right Extension Mechanism",
+            "lead": "",
+            "items": [
+              {
+                "text": "One-time constraint – Prompt",
+                "children": []
+              },
+              {
+                "text": "Repository standards – AGENTS.md",
+                "children": []
+              },
+              {
+                "text": "Reusable workflow – Skill",
+                "children": []
+              },
+              {
+                "text": "Lifecycle enforcement – Hook",
+                "children": []
+              },
+              {
+                "text": "External information/action – MCP",
+                "children": []
+              },
+              {
+                "text": "Command policy – Rule",
+                "children": []
+              },
+              {
+                "text": "Installable capability bundle – Plugin",
+                "children": []
+              },
+              {
+                "text": "Automated pipeline task – codex exec/GitHub Action",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Skills",
+            "lead": "",
+            "items": [
+              {
+                "text": "Skill structure",
+                "children": []
+              },
+              {
+                "text": "Trigger descriptions",
+                "children": []
+              },
+              {
+                "text": "Workflow instructions",
+                "children": []
+              },
+              {
+                "text": "Progressive context loading",
+                "children": []
+              },
+              {
+                "text": "Reference documents",
+                "children": []
+              },
+              {
+                "text": "Reusable scripts",
+                "children": []
+              },
+              {
+                "text": "Assets and templates",
+                "children": []
+              },
+              {
+                "text": "Validation requirements",
+                "children": []
+              },
+              {
+                "text": "Fallback behaviour",
+                "children": []
+              },
+              {
+                "text": "Error reporting",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Example Engineering Skills",
+            "lead": "",
+            "items": [
+              {
+                "text": "Production incident diagnosis",
+                "children": []
+              },
+              {
+                "text": "API migration",
+                "children": []
+              },
+              {
+                "text": "Secure code review",
+                "children": []
+              },
+              {
+                "text": "Release readiness",
+                "children": []
+              },
+              {
+                "text": "Database migration review",
+                "children": []
+              },
+              {
+                "text": "Performance investigation",
+                "children": []
+              },
+              {
+                "text": "Dependency upgrade",
+                "children": []
+              },
+              {
+                "text": "Vulnerability remediation",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Hooks",
+            "lead": "",
+            "items": [
+              {
+                "text": "Lifecycle events",
+                "children": []
+              },
+              {
+                "text": "Pre-tool-use validation",
+                "children": []
+              },
+              {
+                "text": "Post-tool-use validation",
+                "children": []
+              },
+              {
+                "text": "Blocking unsafe commands",
+                "children": []
+              },
+              {
+                "text": "Running policy checks",
+                "children": []
+              },
+              {
+                "text": "Recording audit events",
+                "children": []
+              },
+              {
+                "text": "Triggering tests and linters",
+                "children": []
+              },
+              {
+                "text": "Hook failure handling",
+                "children": []
+              },
+              {
+                "text": "Keeping hooks fast and deterministic",
+                "children": []
+              },
+              {
+                "text": "User-level versus repository-level hooks",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Rules",
+            "lead": "",
+            "items": [
+              {
+                "text": "Allowing known-safe commands",
+                "children": []
+              },
+              {
+                "text": "Blocking destructive commands",
+                "children": []
+              },
+              {
+                "text": "Enforcing organization policies",
+                "children": []
+              },
+              {
+                "text": "Protecting deployment and release commands",
+                "children": []
+              },
+              {
+                "text": "Combining rules with sandbox boundaries",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Production Readiness Skill",
+          "scenario": "",
+          "lead": "Participants create a reusable skill that:",
+          "tasks": [
+            "Identifies changed services.",
+            "Finds affected tests.",
+            "Runs focused validation.",
+            "Checks API compatibility.",
+            "Reviews database changes.",
+            "Checks error handling.",
+            "Verifies logs and metrics.",
+            "Reviews security risks.",
+            "Generates a structured release report.",
+            "A hook prevents task completion when mandatory validation fails."
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "MCP Tool Integration",
@@ -671,7 +1912,182 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "MCP Architecture",
+            "lead": "",
+            "items": [
+              {
+                "text": "MCP host",
+                "children": []
+              },
+              {
+                "text": "MCP client",
+                "children": []
+              },
+              {
+                "text": "MCP server",
+                "children": []
+              },
+              {
+                "text": "Tools",
+                "children": []
+              },
+              {
+                "text": "Resources",
+                "children": []
+              },
+              {
+                "text": "Prompts",
+                "children": []
+              },
+              {
+                "text": "Structured results",
+                "children": []
+              },
+              {
+                "text": "Authentication",
+                "children": []
+              },
+              {
+                "text": "Elicitation and approval",
+                "children": []
+              },
+              {
+                "text": "Local and remote servers",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "When MCP Should Be Used",
+            "lead": "",
+            "items": [
+              {
+                "text": "Issue trackers",
+                "children": []
+              },
+              {
+                "text": "Source repositories",
+                "children": []
+              },
+              {
+                "text": "Internal documentation",
+                "children": []
+              },
+              {
+                "text": "Runbooks",
+                "children": []
+              },
+              {
+                "text": "Observability systems",
+                "children": []
+              },
+              {
+                "text": "Incident platforms",
+                "children": []
+              },
+              {
+                "text": "Service catalogues",
+                "children": []
+              },
+              {
+                "text": "Deployment systems",
+                "children": []
+              },
+              {
+                "text": "Test-management tools",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Security Considerations",
+            "lead": "",
+            "items": [
+              {
+                "text": "Tool-response prompt injection",
+                "children": []
+              },
+              {
+                "text": "Excessive tool permissions",
+                "children": []
+              },
+              {
+                "text": "Credential handling",
+                "children": []
+              },
+              {
+                "text": "Cross-tenant data exposure",
+                "children": []
+              },
+              {
+                "text": "Untrusted external content",
+                "children": []
+              },
+              {
+                "text": "Malicious issue or documentation content",
+                "children": []
+              },
+              {
+                "text": "Confirmation before writes",
+                "children": []
+              },
+              {
+                "text": "Audit logging",
+                "children": []
+              },
+              {
+                "text": "Fail-closed behaviour",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "Tool-Design Principles",
+          "lead": "",
+          "points": [
+            "Narrow tool responsibility",
+            "Clear names and descriptions",
+            "Typed inputs",
+            "Structured outputs",
+            "Read-only annotations",
+            "Destructive-operation annotations",
+            "Idempotent operations",
+            "Pagination",
+            "Timeouts",
+            "Error contracts",
+            "Retry safety",
+            "Human approval for side effects"
+          ]
+        },
+        "lab": {
+          "title": "Engineering Operations MCP Server",
+          "scenario": "",
+          "lead": "Participants build or complete a server exposing:",
+          "tasks": [
+            "get_issue search_incidents get_service_owner get_runbook get_service_health create_change_request update_issue_status",
+            "Workflow",
+            "Retrieve a defect.",
+            "Search previous incidents.",
+            "Read the service runbook.",
+            "Check service ownership.",
+            "Investigate the repository.",
+            "Produce a patch.",
+            "Prepare a change request.",
+            "Request approval before any external write.",
+            "Update issue status only after verification."
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Custom Agents and Worktree Isolation",
@@ -735,7 +2151,114 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "",
+            "lead": "",
+            "items": [
+              {
+                "text": "When to use one agent",
+                "children": []
+              },
+              {
+                "text": "When parallel agents create value",
+                "children": []
+              },
+              {
+                "text": "Bounded task decomposition",
+                "children": []
+              },
+              {
+                "text": "Custom agent configuration",
+                "children": []
+              },
+              {
+                "text": "Read-only specialist agents",
+                "children": []
+              },
+              {
+                "text": "Specialist responsibilities:",
+                "children": [
+                  "Repository analyst",
+                  "Implementation engineer",
+                  "Test engineer",
+                  "Security reviewer",
+                  "Performance reviewer",
+                  "Documentation reviewer"
+                ]
+              },
+              {
+                "text": "Agent handoffs",
+                "children": []
+              },
+              {
+                "text": "Parent-agent accountability",
+                "children": []
+              },
+              {
+                "text": "Shared-workspace risks",
+                "children": []
+              },
+              {
+                "text": "Worktree-based isolation",
+                "children": []
+              },
+              {
+                "text": "Conflict prevention",
+                "children": []
+              },
+              {
+                "text": "Consolidating duplicate findings",
+                "children": []
+              },
+              {
+                "text": "Independent verification",
+                "children": []
+              },
+              {
+                "text": "Cancelling or steering agents",
+                "children": []
+              },
+              {
+                "text": "Avoiding unnecessary agent fan-out",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Parallel Release Review",
+          "scenario": "",
+          "lead": "Create five bounded review tasks:",
+          "tasks": [
+            "Correctness review",
+            "Test-coverage review",
+            "Security review",
+            "Performance review",
+            "API-compatibility review",
+            "Each reviewer works read-only. The primary agent:",
+            "Consolidates findings.",
+            "Removes duplicates.",
+            "Rejects unsupported claims.",
+            "Orders findings by severity.",
+            "Produces one release decision."
+          ],
+          "verify": [],
+          "deliverables": [
+            "A multi-agent review report with traceable ownership and evidence."
+          ]
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Production Incident Integration Lab",
@@ -813,7 +2336,82 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Observed Symptoms",
+            "lead": "",
+            "items": [
+              {
+                "text": "Bank latency rises sharply.",
+                "children": []
+              },
+              {
+                "text": "Timeout rate reaches 20%.",
+                "children": []
+              },
+              {
+                "text": "Retried requests increase incoming load.",
+                "children": []
+              },
+              {
+                "text": "Database connections saturate.",
+                "children": []
+              },
+              {
+                "text": "Kafka lag grows.",
+                "children": []
+              },
+              {
+                "text": "Redis in-flight counters become inconsistent.",
+                "children": []
+              },
+              {
+                "text": "Duplicate-payment risk appears.",
+                "children": []
+              },
+              {
+                "text": "Logs expose sensitive identifiers.",
+                "children": []
+              },
+              {
+                "text": "Alerts do not identify the actual bottleneck.",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "",
+          "scenario": "The payment router receives 12,000 requests per second, while a destination bank safely handles only 4,000 requests per second.",
+          "lead": "Participant tasks:",
+          "tasks": [
+            "Retrieve incident information through MCP.",
+            "Map the complete request path.",
+            "Identify amplification caused by retries.",
+            "Examine timeout and circuit-breaker behaviour.",
+            "Analyse Redis, database and Kafka usage.",
+            "Reproduce the failure under controlled load.",
+            "Propose rate limiting and backpressure.",
+            "Protect payment idempotency.",
+            "Improve metrics and logs.",
+            "Implement one minimal safe correction.",
+            "Add regression and fault-injection tests.",
+            "Produce a rollback plan."
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "Participants defend their solution against cross-questions from: Application engineering, SRE, Security, Database engineering, Business operations.",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Non-Interactive Automation with codex exec",
@@ -879,7 +2477,118 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "",
+            "lead": "",
+            "items": [
+              {
+                "text": "Interactive versus non-interactive execution",
+                "children": []
+              },
+              {
+                "text": "When to use codex exec",
+                "children": []
+              },
+              {
+                "text": "Running Codex from:",
+                "children": [
+                  "Shell scripts",
+                  "CI/CD pipelines",
+                  "Scheduled jobs",
+                  "Internal automation services"
+                ]
+              },
+              {
+                "text": "Read-only default behaviour",
+                "children": []
+              },
+              {
+                "text": "Explicit sandbox selection",
+                "children": []
+              },
+              {
+                "text": "Approval limitations in unattended execution",
+                "children": []
+              },
+              {
+                "text": "Standard input and pipeline integration",
+                "children": []
+              },
+              {
+                "text": "Machine-readable JSONL event streams",
+                "children": []
+              },
+              {
+                "text": "Structured final output using JSON Schema",
+                "children": []
+              },
+              {
+                "text": "Exit codes",
+                "children": []
+              },
+              {
+                "text": "Error handling",
+                "children": []
+              },
+              {
+                "text": "Timeouts",
+                "children": []
+              },
+              {
+                "text": "Retries",
+                "children": []
+              },
+              {
+                "text": "Session continuation",
+                "children": []
+              },
+              {
+                "text": "Capturing transcripts and artifacts",
+                "children": []
+              },
+              {
+                "text": "Authentication in automation",
+                "children": []
+              },
+              {
+                "text": "Secret management",
+                "children": []
+              },
+              {
+                "text": "Git-repository safety requirement",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Structured Release-Risk Assessment",
+          "scenario": "",
+          "lead": "Participants run Codex non-interactively to review a release and return:",
+          "tasks": [
+            "release_status: pass | conditional | fail critical_findings test_evidence security_findings rollback_readiness recommended_action"
+          ],
+          "verify": [
+            "Output must match the schema.",
+            "The process must run read-only.",
+            "Unsupported claims must be rejected.",
+            "Critical findings must cause a non-successful pipeline decision.",
+            "The full execution transcript must be retained."
+          ],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "GitHub Actions and CI/CD Integration",
@@ -939,7 +2648,111 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Codex GitHub Action",
+            "lead": "",
+            "items": [
+              {
+                "text": "Pull-request review",
+                "children": []
+              },
+              {
+                "text": "CI-failure diagnosis",
+                "children": []
+              },
+              {
+                "text": "Patch proposal",
+                "children": []
+              },
+              {
+                "text": "Structured review output",
+                "children": []
+              },
+              {
+                "text": "Workflow triggers",
+                "children": []
+              },
+              {
+                "text": "Trusted versus untrusted events",
+                "children": []
+              },
+              {
+                "text": "Forked pull-request risks",
+                "children": []
+              },
+              {
+                "text": "Runner permissions",
+                "children": []
+              },
+              {
+                "text": "Repository token permissions",
+                "children": []
+              },
+              {
+                "text": "Branch protection",
+                "children": []
+              },
+              {
+                "text": "Artifact retention",
+                "children": []
+              },
+              {
+                "text": "Human approval gates",
+                "children": []
+              },
+              {
+                "text": "Preventing uncontrolled merges",
+                "children": []
+              },
+              {
+                "text": "Preventing production deployment authority",
+                "children": []
+              },
+              {
+                "text": "Cost and execution controls",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "AI-Assisted Pull-Request Pipeline",
+          "scenario": "",
+          "lead": "The pipeline must:",
+          "tasks": [
+            "Check out the pull request.",
+            "Run unit tests and linting.",
+            "Invoke Codex in read-only mode.",
+            "Review correctness and security.",
+            "Generate a structured report.",
+            "Upload the transcript as an artifact.",
+            "Fail on critical findings.",
+            "Request human review.",
+            "Prohibit automatic production deployment.",
+            "Optional Extension",
+            "When CI fails:",
+            "Gather failed logs.",
+            "Ask Codex for root-cause analysis.",
+            "Create a patch in an isolated branch.",
+            "Run tests.",
+            "Open a draft pull request.",
+            "Require human approval before merge."
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Codex SDK and App Server",
@@ -1024,7 +2837,194 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Selecting the Correct Integration",
+            "lead": "",
+            "items": [
+              {
+                "text": "Terminal automation – codex exec",
+                "children": []
+              },
+              {
+                "text": "GitHub workflow – Codex GitHub Action",
+                "children": []
+              },
+              {
+                "text": "Application-controlled coding thread – Codex SDK",
+                "children": []
+              },
+              {
+                "text": "Custom rich Codex client – App Server",
+                "children": []
+              },
+              {
+                "text": "Codex as part of a wider agent workflow – Codex MCP + Agents SDK",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Codex SDK Topics",
+            "lead": "",
+            "items": [
+              {
+                "text": "TypeScript SDK setup",
+                "children": []
+              },
+              {
+                "text": "Starting a Codex thread",
+                "children": []
+              },
+              {
+                "text": "Running a task",
+                "children": []
+              },
+              {
+                "text": "Continuing the same thread",
+                "children": []
+              },
+              {
+                "text": "Resuming a saved thread",
+                "children": []
+              },
+              {
+                "text": "Thread identifiers",
+                "children": []
+              },
+              {
+                "text": "Configuring working directory",
+                "children": []
+              },
+              {
+                "text": "Sandbox and approval configuration",
+                "children": []
+              },
+              {
+                "text": "Structured results",
+                "children": []
+              },
+              {
+                "text": "Error handling",
+                "children": []
+              },
+              {
+                "text": "Long-running task control",
+                "children": []
+              },
+              {
+                "text": "Integrating Codex with internal developer platforms",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "App Server Topics",
+            "lead": "",
+            "items": [
+              {
+                "text": "When App Server is appropriate",
+                "children": []
+              },
+              {
+                "text": "JSONL/JSON-RPC communication",
+                "children": []
+              },
+              {
+                "text": "Initialization",
+                "children": []
+              },
+              {
+                "text": "Thread lifecycle:",
+                "children": [
+                  "Start",
+                  "Resume",
+                  "Fork",
+                  "Read",
+                  "Archive"
+                ]
+              },
+              {
+                "text": "Turn lifecycle",
+                "children": []
+              },
+              {
+                "text": "Streaming events",
+                "children": []
+              },
+              {
+                "text": "Agent-message deltas",
+                "children": []
+              },
+              {
+                "text": "Plan updates",
+                "children": []
+              },
+              {
+                "text": "Diff updates",
+                "children": []
+              },
+              {
+                "text": "Tool-execution events",
+                "children": []
+              },
+              {
+                "text": "Approval requests",
+                "children": []
+              },
+              {
+                "text": "File-change approval",
+                "children": []
+              },
+              {
+                "text": "Command-execution approval",
+                "children": []
+              },
+              {
+                "text": "Structured output schemas",
+                "children": []
+              },
+              {
+                "text": "Thread status and failure handling",
+                "children": []
+              },
+              {
+                "text": "Building a custom client safely",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Engineering Task Console",
+          "scenario": "",
+          "lead": "Using starter TypeScript code, participants create a lightweight console that can:",
+          "tasks": [
+            "Start an engineering task.",
+            "Display streamed progress.",
+            "Show the active plan.",
+            "Display changed files.",
+            "Surface approval requests.",
+            "Capture test results.",
+            "Resume an interrupted thread.",
+            "Generate a final structured report.",
+            "Important Boundary",
+            "The App Server lab uses prepared starter code. Building a complete production UI from scratch is outside a three-day course."
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Evaluation, Observability and Governance",
@@ -1128,7 +3128,283 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Why Evaluations Are Required",
+            "lead": "",
+            "items": [
+              {
+                "text": "A successful command does not prove that the generated code is correct.",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Evaluation Dimensions",
+            "lead": "",
+            "items": [
+              {
+                "text": "Build success",
+                "children": []
+              },
+              {
+                "text": "Focused test pass rate",
+                "children": []
+              },
+              {
+                "text": "Full regression pass rate",
+                "children": []
+              },
+              {
+                "text": "Patch correctness",
+                "children": []
+              },
+              {
+                "text": "Scope adherence",
+                "children": []
+              },
+              {
+                "text": "Security findings",
+                "children": []
+              },
+              {
+                "text": "API compatibility",
+                "children": []
+              },
+              {
+                "text": "Performance regression",
+                "children": []
+              },
+              {
+                "text": "Diff size",
+                "children": []
+              },
+              {
+                "text": "Unsupported claims",
+                "children": []
+              },
+              {
+                "text": "Code-review false positives",
+                "children": []
+              },
+              {
+                "text": "Human acceptance rate",
+                "children": []
+              },
+              {
+                "text": "Rollback readiness",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Golden-Task Evaluation Set",
+            "lead": "Prepare standard tasks containing:",
+            "items": [
+              {
+                "text": "Known defects",
+                "children": []
+              },
+              {
+                "text": "Known expected patches",
+                "children": []
+              },
+              {
+                "text": "Mandatory tests",
+                "children": []
+              },
+              {
+                "text": "Prohibited changes",
+                "children": []
+              },
+              {
+                "text": "Security traps",
+                "children": []
+              },
+              {
+                "text": "Performance constraints",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Comparing Configurations",
+            "lead": "Participants compare:",
+            "items": [
+              {
+                "text": "Weak versus structured task descriptions",
+                "children": []
+              },
+              {
+                "text": "Repository instructions versus no instructions",
+                "children": []
+              },
+              {
+                "text": "Read-only review versus implementation mode",
+                "children": []
+              },
+              {
+                "text": "Single-agent versus specialist review",
+                "children": []
+              },
+              {
+                "text": "Different reasoning-effort configurations",
+                "children": []
+              },
+              {
+                "text": "Skill-enabled versus unstructured workflows",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Observability",
+            "lead": "",
+            "items": [
+              {
+                "text": "OpenTelemetry configuration",
+                "children": []
+              },
+              {
+                "text": "Conversation-start events",
+                "children": []
+              },
+              {
+                "text": "Tool-execution events",
+                "children": []
+              },
+              {
+                "text": "Approval requests and decisions",
+                "children": []
+              },
+              {
+                "text": "MCP call duration",
+                "children": []
+              },
+              {
+                "text": "Hook execution",
+                "children": []
+              },
+              {
+                "text": "Failure events",
+                "children": []
+              },
+              {
+                "text": "Latency",
+                "children": []
+              },
+              {
+                "text": "Token/usage information",
+                "children": []
+              },
+              {
+                "text": "Security and privacy of telemetry",
+                "children": []
+              },
+              {
+                "text": "Redaction",
+                "children": []
+              },
+              {
+                "text": "Retention",
+                "children": []
+              },
+              {
+                "text": "Operational dashboards",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Enterprise Governance",
+            "lead": "",
+            "items": [
+              {
+                "text": "Managed configuration",
+                "children": []
+              },
+              {
+                "text": "Approved models and capabilities",
+                "children": []
+              },
+              {
+                "text": "Permission profiles",
+                "children": []
+              },
+              {
+                "text": "MCP allowlists",
+                "children": []
+              },
+              {
+                "text": "Skill and plugin controls",
+                "children": []
+              },
+              {
+                "text": "Repository trust",
+                "children": []
+              },
+              {
+                "text": "Logging and auditing",
+                "children": []
+              },
+              {
+                "text": "Data classification",
+                "children": []
+              },
+              {
+                "text": "Secrets handling",
+                "children": []
+              },
+              {
+                "text": "Human approval gates",
+                "children": []
+              },
+              {
+                "text": "Usage and cost controls",
+                "children": []
+              },
+              {
+                "text": "Rollout by engineering-team maturity",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "Codex Quality Scorecard",
+          "scenario": "",
+          "lead": "Participants evaluate five Codex runs:",
+          "tasks": [
+            "Functional correctness – 25%",
+            "Test quality – 20%",
+            "Security – 15%",
+            "Scope adherence – 15%",
+            "Maintainability – 10%",
+            "Evidence quality – 10%",
+            "Efficiency – 5%",
+            "They use telemetry and outputs to identify:",
+            "Failed tool executions",
+            "Excessive approval requests",
+            "Repeated investigations",
+            "Slow MCP calls",
+            "Test failures",
+            "Unsupported conclusions",
+            "Excessive code changes"
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     },
     {
       "topic": "Enterprise Capstone",
@@ -1239,7 +3515,160 @@
       ],
       "preparation_requirements": [
         "Trainer to prepare and verify the sample assets, expected results and failure cases before delivery"
-      ]
+      ],
+      "outline": {
+        "topic_groups": [
+          {
+            "heading": "Initial Conditions",
+            "lead": "The application contains:",
+            "items": [
+              {
+                "text": "Payment gateway",
+                "children": []
+              },
+              {
+                "text": "Payment router",
+                "children": []
+              },
+              {
+                "text": "Bank connector",
+                "children": []
+              },
+              {
+                "text": "PostgreSQL",
+                "children": []
+              },
+              {
+                "text": "Redis",
+                "children": []
+              },
+              {
+                "text": "Kafka",
+                "children": []
+              },
+              {
+                "text": "Notification service",
+                "children": []
+              },
+              {
+                "text": "Metrics and logs",
+                "children": []
+              },
+              {
+                "text": "GitHub Actions pipeline",
+                "children": []
+              }
+            ]
+          },
+          {
+            "heading": "Production Problems",
+            "lead": "",
+            "items": [
+              {
+                "text": "Retry amplification",
+                "children": []
+              },
+              {
+                "text": "Destination-bank overload",
+                "children": []
+              },
+              {
+                "text": "Duplicate-payment risk",
+                "children": []
+              },
+              {
+                "text": "Inconsistent Redis counters",
+                "children": []
+              },
+              {
+                "text": "Database saturation",
+                "children": []
+              },
+              {
+                "text": "Kafka backlog",
+                "children": []
+              },
+              {
+                "text": "Missing timeout boundaries",
+                "children": []
+              },
+              {
+                "text": "Sensitive log exposure",
+                "children": []
+              },
+              {
+                "text": "Weak authorization",
+                "children": []
+              },
+              {
+                "text": "Missing integration tests",
+                "children": []
+              },
+              {
+                "text": "Incomplete rollback process",
+                "children": []
+              }
+            ]
+          }
+        ],
+        "principle": {
+          "title": "",
+          "lead": "",
+          "points": []
+        },
+        "lab": {
+          "title": "",
+          "scenario": "",
+          "lead": "Participant tasks:",
+          "tasks": [
+            "Phase 1: Repository Intelligence",
+            "Analyse the repository.",
+            "Identify services and dependencies.",
+            "Validate build and test commands.",
+            "Create or improve AGENTS.md.",
+            "Phase 2: Incident Investigation",
+            "Retrieve incident and runbook through MCP.",
+            "Analyse logs and metrics.",
+            "Reproduce the failure.",
+            "Identify the root cause.",
+            "Separate primary and secondary symptoms.",
+            "Phase 3: Implementation",
+            "Produce a controlled plan.",
+            "Add a failing regression test.",
+            "Implement the smallest safe fix.",
+            "Validate concurrency and idempotency.",
+            "Improve relevant metrics and logs.",
+            "Phase 4: Independent Review",
+            "Run specialist reviews for:",
+            "Correctness",
+            "Security",
+            "Performance",
+            "Test quality",
+            "API compatibility",
+            "Phase 5: Automation",
+            "Run structured codex exec assessment.",
+            "Execute GitHub Actions.",
+            "Capture machine-readable results.",
+            "Store validation evidence.",
+            "Phase 6: Release Readiness",
+            "Produce:",
+            "Pull-request description",
+            "Root-cause report",
+            "Test evidence",
+            "Security report",
+            "Deployment plan",
+            "Rollback plan",
+            "Monitoring plan",
+            "Known limitations",
+            "Human approval checklist"
+          ],
+          "verify": [],
+          "deliverables": []
+        },
+        "assessment": "",
+        "source": "reference",
+        "version": "course-outline-v1"
+      }
     }
   ]
 }

@@ -63,6 +63,18 @@ def test_sent_handoff_never_sends_again(monkeypatch):
     assert deliveries == []
 
 
+def test_duplicate_insert_while_first_send_is_pending(monkeypatch):
+    db, payload, deliveries = setup_sender(monkeypatch, {})
+    db.email_logs.find_one.side_effect = [None, {'email_id': 'EML-1', 'status': 'sending'}]
+    db.email_logs.insert_one = AsyncMock(side_effect=send.DuplicateKeyError('duplicate send'))
+
+    result = asyncio.run(send.send_single_email(payload, db))
+
+    assert result['already_in_progress'] is True
+    assert result['success'] is False
+    assert deliveries == []
+
+
 def _wording_sender(monkeypatch, mode):
     from app.agents import reply_wording
     from app.routes import inbox_actions
@@ -77,6 +89,7 @@ def _wording_sender(monkeypatch, mode):
             return SimpleNamespace(find_one=AsyncMock(return_value={'value': mode}))
     payload.ai_generate = True
     payload.body = 'Thank you for the update.\n\nConfirmed: 12 October 2026, 3 PM IST.'
+    monkeypatch.setattr(send.get_settings(), 'OPENAI_API_KEY', 'test-key', raising=False)
     history = AsyncMock(return_value=['Thanks for the update.'])
     monkeypatch.setattr(reply_wording, 'recent_sent_replies', history)
     writer = AsyncMock(return_value='Noted. The confirmed time is 3 PM IST on 12 October 2026.')
@@ -99,6 +112,14 @@ def test_ai_mode_receives_same_recipient_history(monkeypatch):
     assert asyncio.run(send.send_single_email(payload, db))['success']
     assert writer.call_args.kwargs['workflow_context']['recent_replies_to_this_sender'] == ['Thanks for the update.']
     assert deliveries[0]['body'] == writer.return_value
+
+
+def test_missing_openai_key_keeps_the_confirmed_body(monkeypatch):
+    db, payload, deliveries, _, writer = _wording_sender(monkeypatch, 'ai')
+    monkeypatch.setattr(send.get_settings(), 'OPENAI_API_KEY', '', raising=False)
+    assert asyncio.run(send.send_single_email(payload, db))['success']
+    writer.assert_not_awaited()
+    assert deliveries[0]['body'] == payload.body
 
 
 def test_rejected_repetitive_ai_draft_is_not_sent(monkeypatch):

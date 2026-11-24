@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿ import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDownUp, BadgeIndianRupee, CheckCircle2, Search, TrendingUp, Users, X } from 'lucide-react'
 import { getCommercialAnalysis, getCommercialAnalyses } from '../utils/api'
 

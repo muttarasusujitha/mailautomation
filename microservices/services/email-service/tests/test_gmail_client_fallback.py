@@ -79,3 +79,12 @@ def test_client_ack_template_is_not_treated_as_trainer_reply():
     html = gmail_client._html_template(body, "Clahan Technologies", "team@example.com")
     assert "Clahan Technologies" in html
     assert "Trainer Coordination Platform" not in html
+
+
+def test_quota_error_preserves_google_retry_time():
+    error = gmail_client._friendly_send_error(Exception(
+        "User-rate limit exceeded. Retry after 2026-11-21T09:34:48.366Z"
+    ))
+
+    assert "Gmail sending quota exceeded" in error
+    assert "Retry after 2026-11-21T09:34:48.366Z" in error

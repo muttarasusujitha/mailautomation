@@ -16,10 +16,12 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
 
+    # "ollama" makes the assistant use only the local Ollama API, with no cloud fallback.
+    AI_PROVIDER: str = "openai"
     # Optional Ollama HTTP API used by the assistant chat route.
     OLLAMA_URL: str = ""
     OLLAMA_MODEL: str = "qwen3:8b"

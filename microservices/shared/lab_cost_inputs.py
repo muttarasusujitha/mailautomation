@@ -1,8 +1,75 @@
 """Validated assumptions shared by lab-cost API and document generation."""
 import math
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urlparse
+
+
+def current_quote_expiry(headers):
+    """Return the verified quote deadline in UTC, or reject unusable evidence."""
+    if headers.get("X-Lab-Cost-Pricing-Status") != "provider_api_verified_public_retail":
+        raise ValueError("Lab quote has no verified provider pricing")
+    return quote_expiry(headers.get("X-Lab-Cost-Quote-Valid-Until"))
+
+
+def quote_expiry(value):
+    try:
+        until = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if until.tzinfo is not None and until > datetime.now(timezone.utc):
+            return until.astimezone(timezone.utc).isoformat()
+    except (KeyError, TypeError, ValueError, AttributeError):
+        pass
+    raise ValueError("Lab quote needs a refreshed price snapshot")
+
+
+async def saved_lab_agenda(db, requirement, duration):
+    req_id = requirement.get("requirement_id")
+    if not req_id:
+        return None
+    extracted = requirement.get("extracted") or {}
+    toc_id = requirement.get("toc_id") or extracted.get("generated_toc_id") or extracted.get("toc_id")
+    query = {"requirement_id": req_id, "toc.days.0": {"$exists": True}}
+    records = db["toc_generations"]
+    projection = {"_id": 0, "toc_id": 1, "toc": 1}
+    if toc_id:
+        return await records.find_one({**query, "toc_id": toc_id}, projection)
+    latest = [("created_at", -1)]
+    approved = await records.find_one({**query, "toc.quality.status": "approved"}, projection, sort=latest)
+    return approved or await records.find_one(query, projection, sort=latest)
+
+
+def course_workbook_lab_hours(hours):
+    return hours - max(1, round(hours * 0.4))
+
+
+def scheduled_lab_hours(toc):
+    """Return the daily lab access in the agenda, when it specifies a schedule."""
+    if toc.get("lab_access_hours_per_day") not in (None, ""):
+        return toc["lab_access_hours_per_day"]
+    if toc.get("excel_layout") in ("course_workbook", "daily_plan") and len({
+        day.get("day") or i for i, day in enumerate(toc.get("days") or [], 1)
+    }) > 1:
+        try:
+            hours = int(toc.get("hours_per_day") or 7)
+        except (TypeError, ValueError):
+            hours = 7
+        return course_workbook_lab_hours(hours)
+    return None
+
+
+def lab_quote_scope(toc, participants, hours):
+    sample = participants in (None, "")
+    if sample:
+        days = toc.get("days") or []
+        if not days:
+            raise ValueError("A day-wise ToC is required for the lab sample")
+        return {**toc, "duration_days": 1, "days": [
+            {**days[0], "day": 1, "duration_days": 1, "days": 1}
+        ]}, 1, hours if hours not in (None, "") else 3
+    if hours in (None, ""):
+        scheduled = scheduled_lab_hours(toc)
+        hours = 3 if scheduled is None else scheduled
+    return toc, participants, hours
 
 
 SERVICE_METER_REQUIREMENTS = {
@@ -547,4 +614,7 @@ def validate_lab_pricing_coverage(toc, assumptions):
     if errors_for_meter_configuration:
         errors.append(errors_for_meter_configuration)
     if errors:
+        if assumptions.get("allow_incomplete_draft") is True:
+            assumptions["pricing_validation_warnings"] = errors
+            return
         raise ValueError('Incomplete lab estimate. ' + '; '.join(errors))

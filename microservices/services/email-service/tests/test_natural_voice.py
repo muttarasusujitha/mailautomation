@@ -1,5 +1,6 @@
 """Annapurna signs coordination mail. Murali signs finance mail."""
 import sys
+import re
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -25,10 +26,36 @@ def _reply(scenario):
     )
 
 
+def test_professional_requirement_thanks_keeps_a_direct_acknowledgement():
+    from app.agents.natural_voice import apply_voice
+
+    kept = apply_voice(
+        "Hi Asha,\n\n"
+        "Thank you for sharing the DevOps requirement. We have noted the topics, "
+        "7 training days, Offline delivery mode, and 3 lab hours per day.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
+    )
+    assert "Thank you for sharing the DevOps requirement." in kept
+    assert "Greetings of the day" not in kept
+    assert "Thanks for sharing the DevOps requirement." not in kept
+
+    prefixed = apply_voice(
+        "Hi Asha,\n\n"
+        "Thanks for sharing the ToC request for the DevOps training.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
+    )
+    assert prefixed.startswith("Hi Asha,")
+    assert "Thanks for sharing the ToC request" in prefixed
+    assert "Greetings of the day" not in prefixed
+
+
 def test_coordination_template_uses_annapurna():
     reply = _reply("client_sent_details")
     assert reply["body"].startswith("Hi Asha,")
-    assert "Greetings of the day! Thanks for sharing" in reply["body"]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", reply["body"])
+    assert "DevOps" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
+    assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
     assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     assert "Dear" not in reply["body"]
     assert "Recruitment Team" not in reply["body"]
@@ -65,7 +92,8 @@ def test_toc_and_lab_cost_is_one_annapurna_reply():
     )
     assert choose_voice(reply["template_key"]) == "annapurna"
     assert reply["body"].startswith("Hi Asha,")
-    assert "Greetings of the day! Thanks for sharing the ToC and lab-cost request" in reply["body"]
+    assert "Thanks for sharing the ToC and lab-cost request" in reply["body"]
+    assert "Greetings of the day" not in reply["body"]
     assert "day-wise ToC" in reply["body"]
     assert "lab-cost estimate" in reply["body"]
     assert "Both are covered in this one mail." in reply["body"]
@@ -185,6 +213,29 @@ def test_draft_envelope_follows_the_same_voice():
     assert "exactly one email" in writing_guidance("murali")
     assert "both a ToC and a lab cost" in writing_guidance("annapurna")
     assert "do not mention trainer shortlisting" in writing_guidance("annapurna")
+
+
+def test_client_and_trainer_templates_drop_office_phrasing():
+    odd = ("revert", "as applicable", "accordingly", "to proceed further", "concerned team", "cancelled/on hold")
+    cases = (
+        ("client_escalation_delay", "corporate_client", "Asha"),
+        ("client_asks_contract", "corporate_client", "Asha"),
+        ("client_payment_terms", "corporate_client", "Asha"),
+        ("trainer_payment_query", "trainer", "Ravi"),
+        ("trainer_slot_confirmed", "trainer", "Ravi"),
+        ("trainer_more_details", "trainer", "Ravi"),
+    )
+    for scenario, person, sender in cases:
+        reply = build_auto_reply(
+            {"person_type": person, "scenario": scenario, "auto_reply_allowed": True, "requires_human": False},
+            {"client_name": sender, "technology_needed": "DevOps", "needs_clarification": []},
+            subject="DevOps training",
+            sender_name=sender,
+        )
+        lowered = reply["body"].lower()
+        for phrase in odd:
+            assert phrase not in lowered, f"{scenario} still says {phrase}"
+        assert reply["body"].count("Clahan Technologies") == 1
 
 
 def test_ai_voice_follows_the_situation_rather_than_a_mixed_subject():

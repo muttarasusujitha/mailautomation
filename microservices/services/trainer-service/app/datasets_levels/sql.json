@@ -1,0 +1,573 @@
+{
+  "domain": "SQL",
+  "name": "SQL",
+  "category": "Programming Languages",
+  "icon": "database",
+  "aliases": ["SQL Programming", "SQL Querying", "SQL Queries", "SQL for Data Analysis", "SQL Fundamentals", "Advanced SQL", "ANSI SQL", "Structured Query Language", "SQL Developer"],
+  "certifications": ["Oracle Database SQL Certified Associate (1Z0-071)", "Microsoft Azure Data Fundamentals (DP-900)", "PostgreSQL Associate Certification (EDB)"],
+  "tools": ["PostgreSQL 16", "DBeaver", "psql", "MySQL 8", "SQL Server Developer Edition"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "No database experience assumed. Participants learn relational concepts and write SQL to query, filter, sort, join, aggregate and change data, mainly on PostgreSQL with notes on MySQL and SQL Server differences, and finish by answering business questions on a sales database.",
+      "prerequisites": ["Comfortable using a computer and spreadsheets", "Can install software or use a provided lab environment", "No programming experience needed"],
+      "outcomes": ["Explain tables, keys and relationships", "Write SELECT queries with filters, sorting, joins and aggregates", "Insert, update and delete data safely", "Create simple tables with constraints"],
+      "days": [
+        {
+          "topic": "Relational Database Concepts and SQL Setup",
+          "subtopics": ["What a database is and why not a spreadsheet", "Tables, rows and columns", "Primary keys", "Foreign keys and relationships", "SQL and the main database products", "Installing PostgreSQL or using the lab server", "Connecting with DBeaver and psql", "Loading the sample sales database", "Running a first SELECT", "Comments and query formatting"],
+          "tools": ["PostgreSQL 16", "DBeaver", "psql"],
+          "lab_task": "Connect to PostgreSQL with DBeaver and psql, load the sample sales database, draw its tables and relationships, and run five first queries that list rows from each main table.",
+          "deliverable": "Diagram of the sample database and the five queries with results",
+          "checks": [["Run SELECT count(*) FROM orders", "Returns 1,000", "Query result"], ["Identify the foreign key from orders to customers", "Correct column named on the diagram", "Diagram"], ["Run the same query in psql", "Same result as DBeaver", "Terminal output"]],
+          "objectives": ["Explain relational concepts", "Connect to a database", "Run simple queries"]
+        },
+        {
+          "topic": "SELECT Basics: Columns, Aliases and Expressions",
+          "subtopics": ["SELECT and FROM", "Choosing columns versus SELECT *", "Column aliases with AS", "Arithmetic expressions", "String concatenation", "DISTINCT", "LIMIT and FETCH FIRST", "Literal values and calculated columns", "Data types seen in results", "Differences between PostgreSQL, MySQL and SQL Server"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Write ten queries on the products and customers tables that select named columns, compute prices with tax, build full names, list distinct countries and show the first ten rows.",
+          "deliverable": "Ten queries with results",
+          "checks": [["List distinct customer countries", "Returns 12 countries", "Query result"], ["Compute price with 18 percent tax", "Values match the answer sheet", "Query result"], ["Show the first ten products", "Exactly ten rows", "Query result"]],
+          "objectives": ["Select columns and expressions", "Use aliases and DISTINCT", "Limit result rows"]
+        },
+        {
+          "topic": "Filtering Rows with WHERE",
+          "subtopics": ["Comparison operators", "AND, OR and NOT", "Operator precedence and brackets", "BETWEEN and IN", "LIKE and ILIKE patterns", "IS NULL and IS NOT NULL", "Filtering dates", "Why = NULL does not work"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Answer fifteen questions by filtering orders, products and customers, such as orders above 500 in March from India or Brazil and customers with no phone number.",
+          "deliverable": "Fifteen queries with results",
+          "checks": [["Find orders between 1 and 31 March over 500", "Returns 37 rows", "Query result"], ["Find customers with no phone number using = NULL and IS NULL", "= NULL returns nothing, IS NULL returns 9 rows", "Query results"], ["Find products whose name contains \"pro\" in any case", "Returns 14 rows", "Query result"]],
+          "objectives": ["Filter rows precisely", "Combine conditions correctly", "Handle NULL values"]
+        },
+        {
+          "topic": "Sorting and Paging Results",
+          "subtopics": ["ORDER BY one and several columns", "ASC and DESC", "Sorting NULL values", "Sorting by expressions and aliases", "LIMIT with OFFSET", "Paging pitfalls with OFFSET", "Keyset paging in brief", "Top-N queries"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Write queries for a product listing page sorted by price then name, page through results 20 at a time, and find the top five most expensive products per the whole catalogue.",
+          "deliverable": "Sorting and paging queries with results",
+          "checks": [["Sort by price descending then name", "Order matches the answer sheet", "Query result"], ["Get page 3 with 20 rows per page", "Rows 41 to 60", "Query result"], ["Sort a column containing NULLs with NULLS LAST", "NULLs appear at the end", "Query result"]],
+          "objectives": ["Sort results", "Page through results", "Write top-N queries"]
+        },
+        {
+          "topic": "Built-in Functions for Text, Numbers and Dates",
+          "subtopics": ["UPPER, LOWER, TRIM and LENGTH", "SUBSTRING and POSITION", "REPLACE and concatenation functions", "ROUND, CEIL, FLOOR and ABS", "CURRENT_DATE and NOW", "EXTRACT and DATE_TRUNC", "Date arithmetic with intervals", "CAST and type conversion"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Clean a customer list by trimming and standardising names and emails, compute customer age from birth date, and report order counts by month using date functions.",
+          "deliverable": "Cleaning and reporting queries with results",
+          "checks": [["Standardise emails", "All lower case with no spaces", "Query result"], ["Compute ages", "Match the answer sheet", "Query result"], ["Group orders by month with DATE_TRUNC", "Twelve monthly rows", "Query result"]],
+          "objectives": ["Transform text, numbers and dates", "Convert types", "Prepare data for reporting"]
+        },
+        {
+          "topic": "Conditional Logic with CASE and NULL Functions",
+          "subtopics": ["Simple CASE", "Searched CASE", "CASE inside SELECT, WHERE and ORDER BY", "COALESCE", "NULLIF", "Avoiding division by zero", "Banding values into groups", "Readable conditional queries"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Label orders as small, medium or large, replace missing phone numbers with \"not given\", compute discount rates without division by zero, and sort orders with urgent ones first.",
+          "deliverable": "Queries with results",
+          "checks": [["Count orders in each size band", "Counts match the answer sheet", "Query result"], ["Divide by a zero quantity using NULLIF", "Returns NULL instead of an error", "Query result"], ["Sort urgent orders first", "Urgent rows at the top", "Query result"]],
+          "objectives": ["Write conditional expressions", "Handle missing values", "Avoid runtime errors"]
+        },
+        {
+          "topic": "Aggregate Functions and GROUP BY",
+          "subtopics": ["COUNT, SUM, AVG, MIN and MAX", "COUNT(*) versus COUNT(column)", "GROUP BY one and several columns", "Grouping by expressions", "HAVING versus WHERE", "Aggregates and NULLs", "Rounding averages", "Common grouping errors"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Produce a sales summary showing revenue, order count and average order value per country and per month, and list only countries with more than 50 orders.",
+          "deliverable": "Summary queries and results",
+          "checks": [["Total revenue per country", "Matches the answer sheet", "Query result"], ["Filter groups with HAVING count over 50", "Returns 4 countries", "Query result"], ["Select a column not in GROUP BY", "Error explained and query fixed", "Error text and fix"]],
+          "objectives": ["Summarise data with aggregates", "Group results", "Filter groups with HAVING"]
+        },
+        {
+          "topic": "Joining Tables: INNER JOIN",
+          "subtopics": ["Why data is split across tables", "INNER JOIN with ON", "Table aliases", "Joining three or more tables", "Joining on several columns", "Ambiguous column names", "Join order and readability", "Using joins with aggregates"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Join orders, order lines, products and customers to produce invoice lines with customer name and product name, and total revenue per product category.",
+          "deliverable": "Join queries and results",
+          "checks": [["Produce invoice lines for order 1001", "Five lines with correct names and totals", "Query result"], ["Revenue per category", "Matches the answer sheet", "Query result"], ["Write a join without aliases on an ambiguous column", "Error explained and fixed with aliases", "Error text and fix"]],
+          "objectives": ["Join related tables", "Use table aliases", "Combine joins with grouping"]
+        },
+        {
+          "topic": "Outer Joins and Finding Missing Data",
+          "subtopics": ["LEFT JOIN", "RIGHT JOIN and FULL OUTER JOIN", "Finding rows with no match", "Conditions in ON versus WHERE", "CROSS JOIN", "Self joins", "Counting with outer joins", "Choosing the right join"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Find customers who never ordered, products never sold, each employee with their manager's name, and order counts per customer including customers with zero orders.",
+          "deliverable": "Outer join queries and results",
+          "checks": [["List customers with no orders", "Returns 23 customers", "Query result"], ["Count orders per customer including zero", "Zero appears for customers with no orders", "Query result"], ["Move a filter from ON to WHERE in a LEFT JOIN", "Participant explains the lost rows", "Written explanation"]],
+          "objectives": ["Use outer joins", "Find missing matches", "Write self joins"]
+        },
+        {
+          "topic": "Subqueries",
+          "subtopics": ["Scalar subqueries", "Subqueries in WHERE with IN", "EXISTS and NOT EXISTS", "NOT IN and the NULL trap", "Subqueries in FROM", "Correlated subqueries", "Comparing subqueries and joins", "Readability of nested queries"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Find products priced above the average, customers whose total spend is above their country's average, and customers with no orders using NOT EXISTS and NOT IN, explaining any difference.",
+          "deliverable": "Subquery queries, results and the NOT IN explanation",
+          "checks": [["Products above average price", "Returns 31 products", "Query result"], ["Use NOT IN when the subquery contains a NULL", "Returns no rows, explained", "Query result and note"], ["Rewrite one subquery as a join", "Same result", "Query results"]],
+          "objectives": ["Write subqueries", "Use EXISTS correctly", "Avoid the NOT IN NULL trap"]
+        },
+        {
+          "topic": "Set Operations: UNION, INTERSECT and EXCEPT",
+          "subtopics": ["UNION versus UNION ALL", "INTERSECT", "EXCEPT", "Matching column counts and types", "Sorting combined results", "Combining data from similar tables", "Finding differences between tables", "Performance of UNION versus UNION ALL"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Combine 2023 and 2024 order archives, find customers who ordered in both years, and find products in the price list that are missing from the stock table.",
+          "deliverable": "Set operation queries and results",
+          "checks": [["Combine both archives with UNION ALL", "Row count equals the sum of both tables", "Query result"], ["Customers in both years with INTERSECT", "Returns 140 customers", "Query result"], ["Products missing from stock with EXCEPT", "Returns 6 products", "Query result"]],
+          "objectives": ["Combine result sets", "Compare tables", "Choose UNION or UNION ALL"]
+        },
+        {
+          "topic": "Creating Tables and Data Types",
+          "subtopics": ["CREATE TABLE", "Choosing data types: integer, numeric, text, varchar, date, timestamp, boolean", "Identity columns", "Default values", "NOT NULL", "ALTER TABLE to add and change columns", "DROP TABLE and its risks", "Naming conventions"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Create tables for a small course booking system with suitable data types, identity keys and defaults, then add a column and change a type with ALTER TABLE.",
+          "deliverable": "Table creation script and the final table definitions",
+          "checks": [["Insert a booking without a created date", "Default timestamp is filled", "Table row"], ["Insert a NULL into a NOT NULL column", "Insert is rejected", "Error message"], ["Store a price of 19.99 in numeric(10,2)", "Stored exactly", "Query result"]],
+          "objectives": ["Create tables", "Choose data types", "Change table structure safely"]
+        },
+        {
+          "topic": "Constraints and Data Integrity",
+          "subtopics": ["PRIMARY KEY", "FOREIGN KEY and ON DELETE options", "UNIQUE", "CHECK constraints", "Composite keys", "Naming constraints", "Adding constraints to existing data", "Integrity rules in the database versus the application"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Add primary, foreign, unique and check constraints to the booking system, then try ten bad inserts and show each one being rejected with the constraint name.",
+          "deliverable": "Constraint script and the ten error messages",
+          "checks": [["Book a course that does not exist", "Rejected by the foreign key", "Error message"], ["Insert a negative seat count", "Rejected by the check constraint", "Error message"], ["Register the same email twice", "Rejected by the unique constraint", "Error message"]],
+          "objectives": ["Protect data with constraints", "Choose ON DELETE behaviour", "Add constraints to existing tables"]
+        },
+        {
+          "topic": "Inserting, Updating and Deleting Data",
+          "subtopics": ["INSERT single and multiple rows", "INSERT from SELECT", "UPDATE with WHERE", "UPDATE using another table", "DELETE with WHERE", "TRUNCATE versus DELETE", "RETURNING", "Checking affected rows before changing data"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Load bookings from a staging table with INSERT ... SELECT, apply a 10 percent price rise to one category, delete cancelled bookings older than a year and confirm each change with RETURNING.",
+          "deliverable": "Change scripts and before and after row counts",
+          "checks": [["Run the price update", "Only the target category changes", "Before and after query"], ["Run DELETE with RETURNING", "Returns the deleted booking IDs", "Query result"], ["Run SELECT with the same WHERE before the DELETE", "Row count matches the delete count", "Query results"]],
+          "objectives": ["Change data safely", "Use RETURNING", "Verify changes before running them"]
+        },
+        {
+          "topic": "Transactions Essentials",
+          "subtopics": ["What a transaction is", "BEGIN, COMMIT and ROLLBACK", "Autocommit", "Atomicity in practice", "Savepoints", "Errors inside a transaction", "Locks held during a transaction", "Keeping transactions short"],
+          "tools": ["PostgreSQL 16", "DBeaver", "psql"],
+          "lab_task": "Write a seat booking that reduces available seats and inserts a booking in one transaction, force a failure halfway, show the rollback and use a savepoint to keep part of a batch.",
+          "deliverable": "Transaction scripts and results",
+          "checks": [["Fail after the seat update", "Both changes are rolled back", "Query result"], ["Open a transaction and update a row, then update it from a second session", "Second session waits until commit", "Session outputs"], ["Roll back to a savepoint", "Earlier inserts are kept", "Query result"]],
+          "objectives": ["Group changes in transactions", "Roll back on failure", "Use savepoints"]
+        },
+        {
+          "topic": "Views and Reusable Queries",
+          "subtopics": ["CREATE VIEW", "Views for reporting", "Views for hiding columns", "Updatable views", "CREATE OR REPLACE VIEW", "Dropping and changing views safely", "Views and performance", "Documenting views"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Create a monthly sales view and a customer view that hides emails and phone numbers, then build two reports on top of the views.",
+          "deliverable": "View definitions and reports",
+          "checks": [["Query the monthly sales view", "Matches the earlier GROUP BY results", "Query result"], ["Select email from the customer view", "Column does not exist", "Error message"], ["Change the base table data", "View results update", "Query result"]],
+          "objectives": ["Create views", "Use views for reporting and hiding data", "Change views safely"]
+        },
+        {
+          "topic": "Indexes Essentials and Query Speed",
+          "subtopics": ["What an index is", "CREATE INDEX", "Primary and unique indexes", "Which columns to index", "Composite indexes and column order", "Seeing whether an index is used with EXPLAIN", "Costs of indexes on writes", "Dropping unused indexes"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Load one million orders, time a search by customer and date without an index, add a suitable composite index, and compare EXPLAIN output and timings.",
+          "deliverable": "Timings and EXPLAIN output before and after",
+          "checks": [["Run EXPLAIN before the index", "Shows a sequential scan", "EXPLAIN output"], ["Run EXPLAIN after the index", "Shows an index scan", "EXPLAIN output"], ["Compare timings", "Query is at least ten times faster", "Timing results"]],
+          "objectives": ["Explain what indexes do", "Create useful indexes", "Check index use with EXPLAIN"]
+        },
+        {
+          "topic": "Database Design and Normalisation",
+          "subtopics": ["Entities and relationships", "One-to-one, one-to-many and many-to-many", "Junction tables", "First, second and third normal form", "Spotting repeated data", "Choosing keys", "Entity relationship diagrams", "When to denormalise"],
+          "tools": ["DBeaver", "dbdiagram.io", "PostgreSQL 16"],
+          "lab_task": "Redesign a provided flat spreadsheet of course bookings into a normalised schema with an ER diagram, create the tables and migrate the data with INSERT ... SELECT.",
+          "deliverable": "ER diagram, schema script and migration script",
+          "checks": [["Count the rows after migration", "Every booking is present", "Query result"], ["Update a trainer's email", "Changed in exactly one row", "Query result"], ["Explain which normal form each change fixed", "Correct explanation", "Written note"]],
+          "objectives": ["Design normalised schemas", "Model many-to-many relationships", "Migrate flat data"]
+        },
+        {
+          "topic": "Answering Business Questions with SQL",
+          "subtopics": ["Turning a question into a query", "Checking results with small examples", "Building queries step by step", "Percentages and ratios", "Year-on-year comparisons", "Formatting results for reports", "Exporting results to CSV", "Explaining results to non-technical people"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Answer ten business questions from the sales manager, such as the share of revenue by category, repeat customer rate and the best month per country, and export the answers to CSV.",
+          "deliverable": "Ten queries, CSV exports and a one-page summary",
+          "checks": [["Revenue share by category", "Shares add up to 100 percent", "Query result"], ["Repeat customer rate", "Matches the answer sheet", "Query result"], ["Export a result to CSV", "File opens correctly in a spreadsheet", "CSV file"]],
+          "objectives": ["Translate questions into SQL", "Check answers", "Present results"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Reporting Database",
+          "subtopics": ["Requirements and schema design", "Creating tables and constraints", "Loading and cleaning data", "Reporting queries and views", "Indexes for the main reports", "Presentation of findings"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Design and build a small sales database for a shop from provided CSV files, clean and load the data, add constraints and indexes, create report views and present answers to eight business questions.",
+          "deliverable": "Schema script, load scripts, views, answers and a 10-minute presentation",
+          "checks": [["Load the CSV files", "Row counts match the source files after cleaning", "Query results"], ["Insert an order for a customer that does not exist", "Rejected by a constraint", "Error message"], ["Run the eight report queries", "Answers match the answer sheet", "Query results"]],
+          "objectives": ["Combine the beginner topics in one database", "Produce reliable reports", "Explain the design and findings"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For people who write everyday SELECT, JOIN and GROUP BY queries. Covers window functions, CTEs and recursion, advanced aggregation, query plans and indexing, transactions and isolation, procedural SQL, JSON, data cleaning and analytics patterns.",
+      "prerequisites": ["Writes joins, subqueries and GROUP BY queries confidently", "Has created tables with constraints", "Has used transactions"],
+      "outcomes": ["Solve analytical problems with window functions and CTEs", "Read query plans and choose indexes", "Write stored procedures, functions and triggers", "Handle concurrency, JSON data and data quality in SQL"],
+      "days": [
+        {
+          "topic": "Common Table Expressions",
+          "subtopics": ["WITH clauses", "Several CTEs in one query", "Replacing nested subqueries", "CTEs with INSERT, UPDATE and DELETE", "Materialised and inlined CTEs", "Readable multi-step queries", "Testing each step of a query", "When a temporary table is better"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Rewrite a provided 80-line nested query into a sequence of named CTEs, check each step's result, and use a data-changing CTE to archive and delete old orders in one statement.",
+          "deliverable": "Rewritten query, step results and archive script",
+          "checks": [["Compare the old and new query results", "Identical results", "Query results"], ["Run the archive CTE", "Rows moved to the archive and deleted from orders in one statement", "Row counts"], ["Run each CTE on its own", "Every step returns the expected rows", "Query results"]],
+          "objectives": ["Structure queries with CTEs", "Change data with CTEs", "Make complex queries readable"]
+        },
+        {
+          "topic": "Recursive Queries for Hierarchies and Graphs",
+          "subtopics": ["WITH RECURSIVE structure", "Anchor and recursive parts", "Organisation charts", "Bill of materials", "Path and depth tracking", "Detecting cycles", "Generating series of dates", "Limits on recursion"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Use recursive queries to print the full management chain for every employee with depth, total the parts in a product's bill of materials and fill missing dates in a daily sales report.",
+          "deliverable": "Recursive queries and results",
+          "checks": [["Show the chain for one employee", "Lists every manager up to the CEO", "Query result"], ["Introduce a cycle in the data", "Query stops and flags the cycle", "Query result"], ["Fill missing dates", "Every day of the month appears with zero for missing days", "Query result"]],
+          "objectives": ["Write recursive queries", "Query hierarchies", "Generate missing rows"]
+        },
+        {
+          "topic": "Window Functions: Ranking and Numbering",
+          "subtopics": ["OVER and PARTITION BY", "ROW_NUMBER", "RANK and DENSE_RANK", "NTILE", "Top-N per group", "Removing duplicates with ROW_NUMBER", "ORDER BY inside windows", "Windows versus GROUP BY"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Rank products by revenue within each category, find the top three per category, split customers into spending quartiles and remove duplicate customer rows keeping the newest.",
+          "deliverable": "Window queries and results",
+          "checks": [["Top three products per category", "Correct products with ties handled as specified", "Query result"], ["Remove duplicates keeping the newest row", "No duplicate emails remain", "Query result"], ["Compare RANK and DENSE_RANK with ties", "Participant explains the gap in RANK", "Query result and note"]],
+          "objectives": ["Rank rows within groups", "Solve top-N per group", "Remove duplicates"]
+        },
+        {
+          "topic": "Window Functions: Running Totals and Comparisons",
+          "subtopics": ["SUM and AVG over windows", "Running totals", "Moving averages", "Frame clauses: ROWS and RANGE", "LAG and LEAD", "FIRST_VALUE and LAST_VALUE", "Percent of total", "Period-over-period change"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Build a daily sales report with a running monthly total, a seven-day moving average, the change from the previous day and each day's share of the month.",
+          "deliverable": "Report query and results",
+          "checks": [["Running total on the last day of the month", "Equals the monthly total", "Query result"], ["Seven-day moving average for a given day", "Matches the answer sheet", "Query result"], ["Previous-day change on the first day", "NULL or the agreed default", "Query result"]],
+          "objectives": ["Compute running and moving values", "Compare rows with LAG and LEAD", "Use window frames"]
+        },
+        {
+          "topic": "Advanced Aggregation: GROUPING SETS, ROLLUP and CUBE",
+          "subtopics": ["GROUPING SETS", "ROLLUP for subtotals", "CUBE for every combination", "The GROUPING function", "FILTER clauses on aggregates", "Conditional aggregation for pivots", "STRING_AGG and ARRAY_AGG", "Percentiles with PERCENTILE_CONT"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Produce a sales report with subtotals by country and category and a grand total, a pivot of revenue by month as columns, and median order value per country.",
+          "deliverable": "Aggregation queries and results",
+          "checks": [["Check the grand total row", "Equals total revenue", "Query result"], ["Pivot months into columns with FILTER", "Twelve columns with correct values", "Query result"], ["Median order value per country", "Matches the answer sheet", "Query result"]],
+          "objectives": ["Produce subtotals and totals", "Pivot data", "Compute percentiles"]
+        },
+        {
+          "topic": "Reading Query Plans with EXPLAIN ANALYZE",
+          "subtopics": ["EXPLAIN versus EXPLAIN ANALYZE", "Scan types: sequential, index, index-only, bitmap", "Join types: nested loop, hash, merge", "Estimated versus actual rows", "Buffers and timing", "Statistics and ANALYZE", "Spotting the slow step", "Plan visualisers"],
+          "tools": ["PostgreSQL 16", "explain.depesz.com", "DBeaver"],
+          "lab_task": "Analyse the plans of five slow report queries, identify the costly step and the wrong row estimates in each, and write down the fix you would try.",
+          "deliverable": "Annotated plans and proposed fixes",
+          "checks": [["Run EXPLAIN (ANALYZE, BUFFERS) on a slow query", "Slowest node identified", "Annotated plan"], ["Find a large gap between estimated and actual rows", "Explained and fixed with ANALYZE", "Plans before and after"], ["Name the join type used in each plan", "Correct for all five", "Annotated plans"]],
+          "objectives": ["Read query plans", "Find slow steps", "Relate plans to statistics"]
+        },
+        {
+          "topic": "Indexing Strategies",
+          "subtopics": ["B-tree index structure", "Composite index column order", "Covering indexes with INCLUDE", "Partial indexes", "Expression indexes", "Indexes for sorting and LIKE", "GIN and GiST indexes", "Finding missing and unused indexes"],
+          "tools": ["PostgreSQL 16", "pg_stat_statements", "DBeaver"],
+          "lab_task": "Use pg_stat_statements to find the five most expensive queries in a workload, design indexes for them including a partial and an expression index, and drop two unused indexes.",
+          "deliverable": "Index changes, plans and workload timings before and after",
+          "checks": [["Run the workload before and after", "Total time at least 50 percent lower", "pg_stat_statements output"], ["Search by lower(email)", "Uses the expression index", "EXPLAIN output"], ["List unused indexes from pg_stat_user_indexes", "Two dropped with a note", "Query result"]],
+          "objectives": ["Design indexes for real workloads", "Use partial, covering and expression indexes", "Remove unused indexes"]
+        },
+        {
+          "topic": "Writing Efficient Queries",
+          "subtopics": ["Sargable conditions", "Functions on indexed columns", "OR versus UNION", "EXISTS versus IN versus JOIN", "Avoiding SELECT *", "Keyset pagination", "Batching large updates", "Counting rows cheaply"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Rewrite six slow queries from a provided application log so they can use indexes, replace OFFSET paging with keyset paging and update ten million rows in batches.",
+          "deliverable": "Rewritten queries, plans and timings",
+          "checks": [["Rewrite WHERE date(created_at) = ... as a range", "Uses the index", "EXPLAIN output"], ["Fetch page 5,000 with keyset paging", "Under 10 ms", "Timing"], ["Run the batched update", "Completes without long locks", "Lock monitoring output"]],
+          "objectives": ["Write index-friendly queries", "Page large tables efficiently", "Change large tables safely"]
+        },
+        {
+          "topic": "Transactions, Isolation Levels and Locking",
+          "subtopics": ["ACID properties", "Read committed, repeatable read and serializable", "Dirty reads, non-repeatable reads and phantoms", "Row locks and SELECT ... FOR UPDATE", "SKIP LOCKED for job queues", "Deadlocks", "Lock timeouts", "Optimistic concurrency with version columns"],
+          "tools": ["PostgreSQL 16", "psql"],
+          "lab_task": "Reproduce a lost update with two sessions, fix it with SELECT ... FOR UPDATE and with a version column, create and resolve a deadlock, and build a job queue with SKIP LOCKED.",
+          "deliverable": "Session scripts, outputs and explanations",
+          "checks": [["Run two concurrent seat bookings without locking", "Lost update shown", "Session outputs"], ["Run them with FOR UPDATE", "Second waits and the result is correct", "Session outputs"], ["Run four workers on the SKIP LOCKED queue", "Each job is processed once", "Job table"]],
+          "objectives": ["Choose isolation levels", "Prevent lost updates", "Handle deadlocks and queues"]
+        },
+        {
+          "topic": "Stored Procedures and Functions",
+          "subtopics": ["Functions in SQL and PL/pgSQL", "Parameters and return types", "Returning tables", "Procedures with transaction control", "Variables, IF and loops", "Error handling with EXCEPTION", "Security definer and its risks", "Comparison with T-SQL and PL/SQL"],
+          "tools": ["PostgreSQL 16", "PL/pgSQL", "DBeaver"],
+          "lab_task": "Write a function that returns a customer's order summary as a table and a procedure that places an order, checks stock, raises clear errors and commits in batches for bulk loads.",
+          "deliverable": "Function and procedure code with test calls",
+          "checks": [["Call the summary function", "Returns the expected rows", "Query result"], ["Place an order for more than the stock", "Clear error raised and nothing changed", "Error and rows"], ["Bulk-load 50,000 orders with the procedure", "Completes with batch commits", "Logs and row count"]],
+          "objectives": ["Write functions and procedures", "Handle errors in procedural SQL", "Know the vendor differences"]
+        },
+        {
+          "topic": "Triggers and Auditing",
+          "subtopics": ["Row and statement triggers", "BEFORE and AFTER triggers", "NEW and OLD", "Audit tables", "Keeping updated_at current", "Preventing changes with triggers", "Trigger performance costs", "When not to use triggers"],
+          "tools": ["PostgreSQL 16", "PL/pgSQL"],
+          "lab_task": "Add an audit trigger that records who changed each price and when, a trigger that maintains updated_at and one that blocks deleting paid invoices.",
+          "deliverable": "Trigger code, audit rows and test results",
+          "checks": [["Update a product price", "Audit row holds old price, new price, user and time", "Audit table"], ["Delete a paid invoice", "Blocked with a clear error", "Error message"], ["Update 100,000 rows with and without the trigger", "Overhead measured", "Timing results"]],
+          "objectives": ["Write triggers", "Audit data changes", "Weigh trigger costs"]
+        },
+        {
+          "topic": "Upserts and MERGE: Loading and Synchronising Data",
+          "subtopics": ["INSERT ... ON CONFLICT DO NOTHING", "INSERT ... ON CONFLICT DO UPDATE", "The EXCLUDED row", "MERGE with matched and not matched actions", "MERGE in SQL Server and Oracle", "Staging tables for loads", "Soft deletes during synchronisation", "Idempotent load scripts"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Synchronise a product table from a daily supplier file loaded into a staging table, inserting new products, updating changed prices, soft-deleting missing ones and running the load twice with the same result.",
+          "deliverable": "Load script, staging table and before and after counts",
+          "checks": [["Run the load on day-one data", "New products inserted and counts match the file", "Row counts"], ["Run the same load again", "No rows change", "Row counts and RETURNING output"], ["Load day-two data with a removed product", "Product marked inactive, not deleted", "Query result"]],
+          "objectives": ["Write upserts", "Use MERGE", "Build idempotent loads"]
+        },
+        {
+          "topic": "Materialised Views and Summary Tables",
+          "subtopics": ["Views versus materialised views", "CREATE MATERIALIZED VIEW", "REFRESH and REFRESH CONCURRENTLY", "Unique indexes for concurrent refresh", "Scheduling refreshes", "Summary tables maintained by jobs", "Staleness and when it is acceptable", "Indexed views in SQL Server"],
+          "tools": ["PostgreSQL 16", "pg_cron"],
+          "lab_task": "Replace a slow dashboard query with a materialised view refreshed every 15 minutes by pg_cron, refresh it concurrently while the dashboard is in use and document the staleness rule.",
+          "deliverable": "View definition, refresh job and timing comparison",
+          "checks": [["Query the dashboard before and after", "Response time drops from seconds to milliseconds", "Timing results"], ["Refresh concurrently while querying", "Queries are not blocked", "Session outputs"], ["Check the cron job history", "Refresh runs every 15 minutes", "pg_cron job table"]],
+          "objectives": ["Speed up reports with materialised views", "Refresh without blocking", "Manage data staleness"]
+        },
+        {
+          "topic": "Working with JSON and Semi-Structured Data",
+          "subtopics": ["json versus jsonb", "Extracting values with -> and ->>", "jsonb_path_query", "Building JSON with json_build_object and json_agg", "Indexing jsonb with GIN", "Expanding arrays with jsonb_array_elements", "JSON in MySQL and SQL Server", "When to use JSON columns"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Load product events stored as JSON, extract fields into a report, index a frequently searched attribute and return API-ready JSON for each order with its lines.",
+          "deliverable": "JSON queries, index and sample output",
+          "checks": [["Find events where payload->>'device' is mobile", "Correct count", "Query result"], ["Search a jsonb attribute with and without a GIN index", "Index is used and faster", "EXPLAIN output"], ["Build an order as nested JSON", "Valid JSON with all lines", "Query result"]],
+          "objectives": ["Query JSON data", "Index JSON", "Produce JSON from relational data"]
+        },
+        {
+          "topic": "Data Cleaning and Quality Checks in SQL",
+          "subtopics": ["Finding duplicates", "Standardising text and codes", "Handling missing values", "Validating with regular expressions", "Detecting outliers", "Reconciling totals between tables", "Data quality check queries", "Logging rejected rows"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Clean a messy imported customer and orders dataset: remove duplicates, standardise country codes, validate emails, flag outliers and write reconciliation checks that must return zero rows.",
+          "deliverable": "Cleaning scripts, rejected rows table and check queries",
+          "checks": [["Run the duplicate check after cleaning", "Returns zero rows", "Query result"], ["Validate emails with a regular expression", "27 invalid emails flagged", "Query result"], ["Reconcile order totals with line totals", "Returns zero mismatches", "Query result"]],
+          "objectives": ["Clean data with SQL", "Write data quality checks", "Reconcile data"]
+        },
+        {
+          "topic": "Date, Time and Time Zone Handling",
+          "subtopics": ["timestamp versus timestamptz", "Storing in UTC", "AT TIME ZONE", "Generating calendars", "Business days and holidays", "Week and fiscal period calculations", "Interval arithmetic", "Overlapping date ranges"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Build a calendar table with fiscal periods and holidays, report orders by local day for three time zones, and find overlapping room bookings.",
+          "deliverable": "Calendar table script and queries",
+          "checks": [["Count business days in March", "Matches the answer sheet", "Query result"], ["Report the same order in UTC and India time", "Dates differ correctly near midnight", "Query result"], ["Find overlapping bookings", "Returns the 4 planted overlaps", "Query result"]],
+          "objectives": ["Handle time zones correctly", "Use calendar tables", "Work with date ranges"]
+        },
+        {
+          "topic": "Analytical Patterns: Cohorts, Funnels and Retention",
+          "subtopics": ["Customer cohorts by first purchase month", "Retention tables", "Funnel conversion steps", "Sessionisation of events", "Gaps and islands", "Customer lifetime value", "RFM segmentation", "Checking analytical results"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Build a monthly cohort retention table, a sign-up to purchase funnel from event data, sessions with a 30-minute gap rule and RFM segments for customers.",
+          "deliverable": "Analytical queries and result tables",
+          "checks": [["Month-0 retention for every cohort", "Equals 100 percent", "Query result"], ["Funnel conversion from sign-up to purchase", "Matches the answer sheet", "Query result"], ["Split one user's events into sessions", "Correct session count with the 30-minute rule", "Query result"]],
+          "objectives": ["Write analytical SQL", "Measure retention and funnels", "Segment customers"]
+        },
+        {
+          "topic": "Schema Changes and Migrations",
+          "subtopics": ["Migration tools: Flyway and Liquibase", "Versioned and repeatable migrations", "Adding columns without downtime", "Backfilling data in batches", "Renaming safely in steps", "Adding constraints with NOT VALID", "Creating indexes concurrently", "Rollback plans"],
+          "tools": ["Flyway", "PostgreSQL 16"],
+          "lab_task": "Write Flyway migrations that add a required column to a large table without long locks: add it nullable, backfill in batches, add the constraint as NOT VALID then validate, and create an index concurrently.",
+          "deliverable": "Migration files and lock monitoring output",
+          "checks": [["Run the migration while an application writes", "No write waits longer than one second", "Lock monitoring output"], ["Run flyway info", "All migrations applied in order", "Flyway output"], ["Check the constraint", "Validated with no failing rows", "Query result"]],
+          "objectives": ["Manage schema changes with migrations", "Change large tables safely", "Plan rollbacks"]
+        },
+        {
+          "topic": "Database Security and Access Control",
+          "subtopics": ["Users and roles", "GRANT and REVOKE", "Least privilege for applications", "Schemas for separation", "Row-level security", "Column privileges", "SQL injection and parameterised queries", "Auditing access"],
+          "tools": ["PostgreSQL 16", "psql"],
+          "lab_task": "Create read-only, application and admin roles, restrict the application to its schema, add row-level security so each tenant sees only its rows and show SQL injection being stopped by parameters.",
+          "deliverable": "Role scripts, policy definitions and test results",
+          "checks": [["Read another tenant's rows as the application role", "No rows returned", "Query result"], ["Insert as the read-only role", "Permission denied", "Error message"], ["Send an injection string through a parameterised query", "Treated as text", "Query result"]],
+          "objectives": ["Control database access", "Apply row-level security", "Prevent SQL injection"]
+        },
+        {
+          "topic": "Intermediate Capstone: Analytics Database for an Online Store",
+          "subtopics": ["Requirements and schema", "Data loading and cleaning", "Analytical queries and views", "Performance tuning", "Procedures, triggers and security", "Presentation and design defence"],
+          "tools": ["PostgreSQL 16", "Flyway", "pg_stat_statements", "DBeaver"],
+          "lab_task": "Build an analytics database for an online store with migrations, cleaned data, cohort and funnel views, tuned indexes, an audited order procedure and role-based access, then present the results.",
+          "deliverable": "Migration repository, views, performance report and a 15-minute presentation",
+          "checks": [["Run the report workload", "Every report under one second", "pg_stat_statements output"], ["Change a price", "Audit trigger records it", "Audit table"], ["Query as the analyst role", "Can read views but not raw customer emails", "Query results"]],
+          "objectives": ["Combine the intermediate topics in one database", "Prove performance and security", "Defend design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For experienced SQL developers and database engineers. Covers optimiser internals, advanced tuning, partitioning, concurrency at scale, replication and high availability, warehouse modelling, advanced analytics, operations and moving between database engines.",
+      "prerequisites": ["Writes window functions, CTEs and procedural SQL", "Reads query plans and designs indexes", "Has run a production database or a large reporting database"],
+      "outcomes": ["Tune queries using optimiser and statistics knowledge", "Design partitioned, replicated and highly available databases", "Model data warehouses and write advanced analytical SQL", "Operate, secure and migrate databases at scale"],
+      "days": [
+        {
+          "topic": "Query Optimiser Internals and Statistics",
+          "subtopics": ["How the planner estimates costs", "Table and column statistics", "Histograms and most common values", "Extended statistics for correlated columns", "Cost parameters", "Join order search", "Plan caching and generic plans", "Forcing and hinting plans across engines"],
+          "tools": ["PostgreSQL 16", "pg_stats", "DBeaver"],
+          "lab_task": "Find a query where correlated columns cause a bad row estimate and a slow plan, fix it with extended statistics, and show the plan and timing change.",
+          "deliverable": "Plans and statistics before and after with an explanation",
+          "checks": [["Compare estimated and actual rows before the fix", "Estimate off by more than ten times", "EXPLAIN ANALYZE output"], ["Create extended statistics and ANALYZE", "Estimate within two times of actual", "EXPLAIN ANALYZE output"], ["Compare run times", "At least five times faster", "Timing results"]],
+          "objectives": ["Explain how the optimiser chooses plans", "Fix estimates with statistics", "Recognise plan caching problems"]
+        },
+        {
+          "topic": "Advanced Query Tuning",
+          "subtopics": ["Join strategies and when each wins", "work_mem and spills to disk", "Parallel query", "Lateral joins", "Rewriting correlated subqueries", "Materialised CTEs and optimisation fences", "Top-N with index support", "Tuning a whole workload, not one query"],
+          "tools": ["PostgreSQL 16", "pg_stat_statements", "auto_explain"],
+          "lab_task": "Tune a provided reporting workload of twelve queries using plans, memory settings, lateral joins and rewrites until total runtime drops by at least 70 percent.",
+          "deliverable": "Tuning log, plans and workload timings",
+          "checks": [["Find a sort spilling to disk", "Spill removed by work_mem or a rewrite", "EXPLAIN ANALYZE output"], ["Rewrite a correlated subquery with LATERAL", "Same result and faster", "Plans and timings"], ["Run the whole workload", "At least 70 percent faster", "pg_stat_statements output"]],
+          "objectives": ["Tune complex queries", "Use memory and parallel settings", "Optimise whole workloads"]
+        },
+        {
+          "topic": "Advanced Indexing: BRIN, GIN, GiST and Full-Text Search",
+          "subtopics": ["BRIN indexes for large append-only tables", "GIN for arrays and jsonb", "GiST for ranges and geometry", "Exclusion constraints", "Full-text search with tsvector and tsquery", "Ranking search results", "Trigram indexes for fuzzy search", "Index maintenance and bloat"],
+          "tools": ["PostgreSQL 16", "pg_trgm", "DBeaver"],
+          "lab_task": "Add a BRIN index to a 100-million-row event table, full-text search with ranking on product descriptions, trigram fuzzy search for names and an exclusion constraint that blocks double bookings.",
+          "deliverable": "Index definitions, sizes and query results",
+          "checks": [["Compare BRIN and B-tree size", "BRIN is a small fraction of the size", "Index sizes"], ["Search \"wireless headphnes\" with trigram matching", "Finds wireless headphones", "Query result"], ["Insert an overlapping booking", "Rejected by the exclusion constraint", "Error message"]],
+          "objectives": ["Choose specialised indexes", "Build full-text and fuzzy search", "Enforce rules with exclusion constraints"]
+        },
+        {
+          "topic": "Table Partitioning",
+          "subtopics": ["Range, list and hash partitioning", "Choosing a partition key", "Partition pruning", "Indexes on partitioned tables", "Attaching and detaching partitions", "Archiving old data", "Partitioning an existing large table", "Partitioning in MySQL and SQL Server"],
+          "tools": ["PostgreSQL 16", "pg_partman"],
+          "lab_task": "Partition a 200-million-row orders table by month with pg_partman, show pruning in plans, archive a year by detaching partitions and migrate the existing table with minimal downtime.",
+          "deliverable": "Partitioning scripts, plans and migration log",
+          "checks": [["Query one month", "Plan scans only that partition", "EXPLAIN output"], ["Detach and archive a year", "Completes in seconds", "Timing and partition list"], ["Insert data for a future month", "Lands in the right pre-created partition", "Query result"]],
+          "objectives": ["Design partitioned tables", "Use pruning", "Manage partitions over time"]
+        },
+        {
+          "topic": "Concurrency at Scale: MVCC, Vacuum and Bloat",
+          "subtopics": ["MVCC row versions", "Visibility and transaction IDs", "Autovacuum tuning", "Table and index bloat", "Transaction ID wraparound", "Long-running transactions and their harm", "HOT updates and fillfactor", "Monitoring with pg_stat views"],
+          "tools": ["PostgreSQL 16", "pgstattuple", "psql"],
+          "lab_task": "Create bloat with heavy updates and a long-running transaction, measure it, tune autovacuum and fillfactor for the table and show bloat staying under control.",
+          "deliverable": "Bloat measurements, settings and monitoring queries",
+          "checks": [["Hold a long transaction during updates", "Dead rows are not cleaned until it ends", "pg_stat_user_tables output"], ["Tune autovacuum for the table", "Dead tuple ratio stays under 10 percent", "Monitoring output"], ["Set fillfactor to 80", "HOT update ratio increases", "pg_stat_user_tables output"]],
+          "objectives": ["Explain MVCC", "Tune vacuum", "Prevent bloat and wraparound"]
+        },
+        {
+          "topic": "Advanced Transaction Design and Serializable Isolation",
+          "subtopics": ["Write skew anomalies", "Serializable snapshot isolation", "Retrying serialisation failures", "Advisory locks", "Designing idempotent operations", "Outbox tables for reliable events", "Two-phase commit and why to avoid it", "Isolation differences across engines"],
+          "tools": ["PostgreSQL 16", "psql"],
+          "lab_task": "Reproduce write skew in an on-call rota under repeatable read, prevent it with serializable isolation and retries, then build an outbox table for reliable event publishing.",
+          "deliverable": "Session scripts, retry code and outbox design",
+          "checks": [["Run two concurrent rota changes under repeatable read", "Both commit and the rule is broken", "Rota table"], ["Run them under serializable", "One fails and succeeds on retry, rule kept", "Session outputs"], ["Crash after commit before publishing", "Event is still in the outbox and published later", "Outbox table"]],
+          "objectives": ["Prevent write skew", "Retry serialisation failures", "Publish events reliably"]
+        },
+        {
+          "topic": "Replication and High Availability",
+          "subtopics": ["Streaming replication", "Synchronous versus asynchronous replication", "Read replicas and replication lag", "Failover with Patroni", "Logical replication", "Connection routing with PgBouncer and HAProxy", "Split-brain prevention", "Managed services: RDS, Azure Database, Cloud SQL"],
+          "tools": ["PostgreSQL 16", "Patroni", "PgBouncer", "Docker"],
+          "lab_task": "Build a three-node Patroni cluster, route reads to replicas, measure replication lag under load, fail the primary during writes and show automatic failover.",
+          "deliverable": "Cluster configuration, failover log and lag measurements",
+          "checks": [["Stop the primary during writes", "New primary elected within 30 seconds", "Patroni log"], ["Measure lag under load", "Lag reported and explained", "Monitoring output"], ["Write to a replica", "Rejected as read-only", "Error message"]],
+          "objectives": ["Set up replication", "Achieve automatic failover", "Route reads and writes correctly"]
+        },
+        {
+          "topic": "Backup, Recovery and Point-in-Time Restore",
+          "subtopics": ["Logical backups with pg_dump", "Physical backups with pg_basebackup", "WAL archiving", "Point-in-time recovery", "pgBackRest", "Recovery time and recovery point objectives", "Testing restores regularly", "Backups on managed services"],
+          "tools": ["pgBackRest", "pg_dump", "PostgreSQL 16"],
+          "lab_task": "Set up pgBackRest with WAL archiving, drop a table by mistake, restore the database to one minute before the drop and measure recovery time.",
+          "deliverable": "Backup configuration, recovery log and timing",
+          "checks": [["Restore to one minute before the drop", "Table and its rows are back", "Query result"], ["Measure recovery time", "Recorded against the agreed target", "Recovery log"], ["Restore a pg_dump into a new database", "Row counts match", "Query results"]],
+          "objectives": ["Back up databases", "Recover to a point in time", "Test recovery against objectives"]
+        },
+        {
+          "topic": "Data Warehouse Modelling: Star Schemas and Slowly Changing Dimensions",
+          "subtopics": ["OLTP versus OLAP", "Facts and dimensions", "Star and snowflake schemas", "Grain of a fact table", "Slowly changing dimensions types 1 and 2", "Surrogate keys", "Date dimensions", "Conformed dimensions"],
+          "tools": ["PostgreSQL 16", "dbt", "DBeaver"],
+          "lab_task": "Design a star schema for store sales, load it from the operational database with a type 2 customer dimension, and answer reporting questions that need historic customer attributes.",
+          "deliverable": "Dimensional model, load scripts and report queries",
+          "checks": [["Change a customer's city and reload", "New dimension row with valid dates; old sales keep the old city", "Dimension table and report"], ["Total sales from the fact table", "Equals the source system total", "Query results"], ["State the grain of the fact table", "One row per order line", "Model document"]],
+          "objectives": ["Model data warehouses", "Implement slowly changing dimensions", "Load facts and dimensions"]
+        },
+        {
+          "topic": "ELT Pipelines in SQL with dbt",
+          "subtopics": ["dbt models and refs", "Staging, intermediate and mart layers", "Incremental models", "Tests: unique, not null, relationships", "Snapshots for slowly changing data", "Macros and Jinja", "Documentation and lineage", "Running dbt in CI"],
+          "tools": ["dbt", "PostgreSQL 16", "GitHub Actions"],
+          "lab_task": "Build the warehouse transformations as a dbt project with staging and mart models, an incremental fact model, snapshots and tests, and run it in CI on every pull request.",
+          "deliverable": "dbt project, test results and lineage graph",
+          "checks": [["Run dbt build", "All models and tests pass", "dbt output"], ["Insert a duplicate key in staging", "Unique test fails", "dbt output"], ["Run the incremental model twice", "Second run processes only new rows", "dbt logs"]],
+          "objectives": ["Build SQL pipelines with dbt", "Test data automatically", "Use incremental models"]
+        },
+        {
+          "topic": "Advanced Analytical SQL",
+          "subtopics": ["Gaps and islands at scale", "Market basket analysis", "Sessionisation with window functions", "Statistical functions: correlation and regression", "Approximate counts", "Time series resampling", "Forecasting baselines in SQL", "Validating analytical queries"],
+          "tools": ["PostgreSQL 16", "DBeaver"],
+          "lab_task": "Find products frequently bought together, detect streaks of daily activity per user, compute the correlation between discount and quantity, and build a moving-average baseline forecast.",
+          "deliverable": "Analytical queries and a findings summary",
+          "checks": [["Top product pairs", "Matches the answer sheet", "Query result"], ["Longest daily streak for a test user", "Correct length and dates", "Query result"], ["Correlation of discount and quantity", "Matches a spreadsheet calculation", "Query result and spreadsheet"]],
+          "objectives": ["Write advanced analytical queries", "Analyse sequences and pairs", "Validate statistical results"]
+        },
+        {
+          "topic": "Columnar and Cloud Data Warehouses",
+          "subtopics": ["Row versus column storage", "Snowflake, BigQuery and Redshift architecture", "Clustering and sort keys", "Distribution and partitioning in warehouses", "Cost models: scanned bytes and compute", "Semi-structured data in warehouses", "Materialised views", "Portable SQL across warehouses"],
+          "tools": ["BigQuery", "Snowflake", "DuckDB"],
+          "lab_task": "Run the same analytical queries on PostgreSQL and DuckDB locally and on one cloud warehouse, add clustering, compare time and scanned bytes and estimate monthly cost.",
+          "deliverable": "Query results, timings, scanned bytes and cost estimate",
+          "checks": [["Run the report on PostgreSQL and DuckDB", "DuckDB is clearly faster on the large scan", "Timing results"], ["Add clustering on date in the warehouse", "Scanned bytes drop for date filters", "Query statistics"], ["Estimate monthly cost", "Based on measured bytes and frequency", "Cost sheet"]],
+          "objectives": ["Explain columnar storage", "Tune cloud warehouse queries", "Control warehouse costs"]
+        },
+        {
+          "topic": "Geospatial, Graph and Vector Queries in SQL",
+          "subtopics": ["PostGIS geometry and geography types", "Distance and within-area queries", "Spatial indexes", "Graph traversal with recursive CTEs", "Shortest paths with pgRouting", "Vector embeddings with pgvector", "Nearest-neighbour search with HNSW indexes", "Combining vector and relational filters"],
+          "tools": ["PostGIS", "pgRouting", "pgvector", "PostgreSQL 16"],
+          "lab_task": "Find the stores within 5 km of each customer with PostGIS, compute the shortest delivery route with pgRouting, and run a similar-product search with pgvector filtered by category and stock.",
+          "deliverable": "Queries, indexes and timing results",
+          "checks": [["Find stores within 5 km of a test customer", "Returns the 3 expected stores", "Query result"], ["Run the vector search with an HNSW index", "Returns the top 10 similar products in under 50 ms", "Query result and timing"], ["Compute the shortest route", "Matches the expected path and distance", "Query result"]],
+          "objectives": ["Query location data", "Traverse graphs in SQL", "Search vectors with relational filters"]
+        },
+        {
+          "topic": "Database Observability and Performance Monitoring",
+          "subtopics": ["pg_stat_statements in depth", "Wait events", "Locks and blocking chains", "Connection monitoring", "Slow query logging with auto_explain", "Prometheus exporters and Grafana dashboards", "Alerting thresholds", "Capacity trends"],
+          "tools": ["pg_stat_statements", "postgres_exporter", "Prometheus", "Grafana"],
+          "lab_task": "Build a database dashboard for queries, waits, locks, connections, replication lag and cache hit ratio, then use it to diagnose a blocking chain injected during a load test.",
+          "deliverable": "Dashboard export, alert rules and diagnosis notes",
+          "checks": [["Inject a blocking transaction", "Dashboard shows the blocking chain", "Grafana screenshot"], ["Kill the blocker", "Waiting sessions continue", "Monitoring output"], ["Exceed 80 percent of max connections", "Alert fires", "Alert notification"]],
+          "objectives": ["Monitor databases", "Diagnose blocking and waits", "Alert on database problems"]
+        },
+        {
+          "topic": "Advanced Database Security and Compliance",
+          "subtopics": ["Encryption at rest and in transit", "Column encryption with pgcrypto", "Data masking for non-production", "Row-level security for multi-tenant systems", "Audit logging with pgaudit", "Privilege reviews", "Personal data deletion requests", "Compliance requirements: GDPR and PCI DSS"],
+          "tools": ["PostgreSQL 16", "pgaudit", "pgcrypto"],
+          "lab_task": "Encrypt card tokens with pgcrypto, mask personal data in a copy for testing, log access to sensitive tables with pgaudit and handle a customer deletion request across all tables.",
+          "deliverable": "Security scripts, audit logs and deletion procedure",
+          "checks": [["Read the masked copy", "No real names or emails", "Query result"], ["Read the sensitive table", "Access is recorded in the audit log", "Log extract"], ["Run the deletion procedure for one customer", "No personal data remains in any table", "Check queries"]],
+          "objectives": ["Protect sensitive data", "Audit access", "Meet data protection requests"]
+        },
+        {
+          "topic": "Multi-Tenant Database Design",
+          "subtopics": ["Shared table, schema per tenant and database per tenant", "Tenant keys and composite indexes", "Row-level security per tenant", "Noisy neighbour problems", "Tenant-aware partitioning", "Migrating a tenant between shards", "Distributed SQL with Citus", "Cost and operational trade-offs"],
+          "tools": ["PostgreSQL 16", "Citus", "DBeaver"],
+          "lab_task": "Implement a shared-table multi-tenant schema with row-level security, distribute it across nodes with Citus by tenant, and move a large tenant to its own node.",
+          "deliverable": "Schema, distribution configuration and tenant move log",
+          "checks": [["Query as tenant A", "Sees only tenant A rows", "Query result"], ["Run a tenant-scoped query", "Routed to one node", "EXPLAIN output"], ["Move a large tenant", "Completes with the tenant's data intact", "Row counts before and after"]],
+          "objectives": ["Choose a multi-tenant model", "Isolate tenants", "Scale out by tenant"]
+        },
+        {
+          "topic": "Migrating Between Database Engines",
+          "subtopics": ["Differences between Oracle, SQL Server, MySQL and PostgreSQL", "Data type mapping", "Converting procedural code", "Migration tools: ora2pg, pgloader, AWS DMS", "Change data capture for low-downtime moves", "Validating row counts and checksums", "Cutover planning", "Rollback plans"],
+          "tools": ["pgloader", "ora2pg", "AWS DMS", "PostgreSQL 16", "MySQL 8"],
+          "lab_task": "Migrate a MySQL database with data and stored routines to PostgreSQL using pgloader, convert two procedures by hand, validate data with counts and checksums and write a cutover plan.",
+          "deliverable": "Migration scripts, validation report and cutover plan",
+          "checks": [["Compare row counts for every table", "All match", "Validation report"], ["Compare checksums on key tables", "Checksums are identical on both engines", "Validation report"], ["Run the converted procedures", "Same results as on MySQL", "Query results"]],
+          "objectives": ["Plan engine migrations", "Convert schemas and code", "Validate migrated data"]
+        },
+        {
+          "topic": "SQL in Applications: ORMs, Pooling and Performance",
+          "subtopics": ["N+1 queries from ORMs", "Reading ORM-generated SQL", "Connection pooling with PgBouncer", "Prepared statements and pooling modes", "Caching query results", "Read-your-writes with replicas", "Batching and bulk loading with COPY", "Timeouts at the database and application"],
+          "tools": ["PgBouncer", "PostgreSQL 16", "Python or Java ORM"],
+          "lab_task": "Find N+1 queries in a provided application from the database logs, fix them, put PgBouncer in front of the database, bulk-load with COPY and set statement timeouts.",
+          "deliverable": "Fixes, pooling configuration and before and after metrics",
+          "checks": [["Load the order page before and after the fix", "Queries per page drop from 51 to 2", "Database log"], ["Run 500 clients through PgBouncer", "Database connections stay under the pool size", "Monitoring output"], ["Run a query longer than the statement timeout", "Cancelled with a timeout error", "Error message"]],
+          "objectives": ["Diagnose application query problems", "Pool connections", "Load data efficiently"]
+        },
+        {
+          "topic": "Database Troubleshooting and Incident Response",
+          "subtopics": ["Sudden slow queries after a release", "Plan regressions", "Lock storms", "Disk full and WAL growth", "Replication breaking", "Connection exhaustion", "Runbooks", "Post-incident reviews"],
+          "tools": ["PostgreSQL 16", "pg_stat_statements", "Grafana", "psql"],
+          "lab_task": "Work through four injected incidents (a plan regression, a lock storm, WAL filling the disk and connection exhaustion), restore service, find root causes and write runbooks.",
+          "deliverable": "Incident timelines, fixes and runbooks",
+          "checks": [["Restore normal query times after the plan regression", "p95 back to the baseline", "Monitoring output"], ["Free disk space from WAL growth", "Cause found and disk usage falls", "Disk and replication slot output"], ["Write a runbook for the lock storm", "Another participant can follow it", "Runbook"]],
+          "objectives": ["Troubleshoot databases under pressure", "Find root causes", "Write runbooks"]
+        },
+        {
+          "topic": "Advanced Capstone: Production Data Platform Design",
+          "subtopics": ["Requirements and capacity targets", "Operational schema with partitioning and security", "High availability, backup and recovery", "Warehouse model and dbt pipelines", "Monitoring and tuning", "Failure drill, presentation and design defence"],
+          "tools": ["PostgreSQL 16", "Patroni", "pgBackRest", "dbt", "Prometheus", "Grafana"],
+          "lab_task": "Design and build a data platform with a partitioned, secured operational database, a highly available cluster with tested point-in-time recovery, a dbt warehouse and monitoring, then run a failure drill and present it.",
+          "deliverable": "Design document, scripts, dbt project, dashboards, drill report and a 20-minute presentation",
+          "checks": [["Fail the primary during the drill", "Failover completes and no committed data is lost", "Drill report"], ["Restore to a point in time", "Recovery within the stated target", "Recovery log"], ["Run the warehouse build and the report workload", "Tests pass and reports meet the speed targets", "dbt output and timings"]],
+          "objectives": ["Combine the advanced topics in one platform", "Prove reliability and recoverability", "Defend architecture decisions"]
+        }
+      ]
+    }
+  }
+}
