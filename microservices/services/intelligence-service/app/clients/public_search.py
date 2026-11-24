@@ -350,13 +350,33 @@ async def search_public(query, limit=10):
     return (await _search_bing(query, limit))[:limit]
 
 
-async def search_public_many(queries, limit=50, found=None, seen=None):
-    """Keep reading result pages until the route minimum is filled or the connection stops answering."""
-    limit = min(max(int(limit or 1), 1), 60)
-    if found is None:
-        found = []
-    if seen is None:
-        seen = set()
+class SearchBatch(tuple):
+    """Matched rows and attempt count.
+
+    timed_out is set when nothing was kept. blocked is set when nothing was kept
+    and DuckDuckGo or Bing refused a request (challenge page or error status).
+    """
+
+    def __new__(cls, found, attempts, timed_out=False, blocked=False):
+        batch = super().__new__(cls, (list(found), attempts))
+        batch.timed_out = bool(timed_out)
+        batch.blocked = bool(blocked)
+        return batch
+
+
+def _engine_tally():
+    return {'attempts': 0, 'found': 0, 'challenged': 0, 'refused': 0, 'timeouts': 0, 'urls': [], 'skipped': ''}
+
+
+async def search_public_many(queries, limit=50, allowed_domains=None, supplement_with_bing=False, report=None):
+    """Keep reading result pages until the route minimum is filled or the connection stops answering.
+
+    When report is a dict it receives one tally per engine ('duckduckgo', 'bing').
+    engine_sources() turns the tallies into the per-source status shown to users.
+    """
+    limit = min(max(int(limit or 1), 1), 120)
+    domains = tuple(allowed_domains or ('linkedin.com', 'naukri.com'))
+    found, seen = [], set()
     challenges = 0
     refused = 0
     timeouts = 0
@@ -402,6 +422,92 @@ async def search_public_many(queries, limit=50, found=None, seen=None):
             timeouts = 0
         else:
             timeouts = 0
-    if not found and timeouts < 2 and queries:
-        found.extend(await _search_bing(queries[0], limit))
-    return found[:limit], attempts
+    # Search Bing for additional candidates even when DuckDuckGo returned some:
+    # the later trainer relevance filters may discard much of that first batch.
+    wants_bing = (not found or supplement_with_bing) and len(found) < limit
+    if wants_bing and timeouts < 2 and queries:
+        for query in queries:
+            if len(found) >= limit:
+                break
+            bing['attempts'] += 1
+            bing_rows = await _search_bing(query, limit - len(found), domains, report=bing_report)
+            for row in bing_rows:
+                if row['url'] in seen:
+                    continue
+                row['search_query'] = query
+                seen.add(row['url'])
+                found.append(row)
+                bing['found'] += 1
+                bing['urls'].append(row['url'])
+                if len(found) >= limit:
+                    break
+    elif not queries:
+        ddg['skipped'] = bing['skipped'] = 'no_queries'
+    else:
+        bing['skipped'] = 'timeouts' if wants_bing else 'enough'
+    bing['refused'] = bing_report.get('refused', 0)
+    bing['timeouts'] = bing_report.get('timeouts', 0)
+    kept = found[:limit]
+    if report is not None:
+        report['duckduckgo'] = ddg
+        report['bing'] = bing
+    return SearchBatch(kept, attempts, timed_out=not kept and timeouts > 0,
+                       blocked=not kept and bool(refused or bing_report.get('blocked')))
+
+
+def merge_engine_reports(reports):
+    """Add up the engine tallies of several search_public_many calls."""
+    merged = {}
+    for report in reports:
+        for name, tally in (report or {}).items():
+            target = merged.setdefault(name, _engine_tally())
+            for key in ('attempts', 'found', 'challenged', 'refused', 'timeouts'):
+                target[key] += int(tally.get(key) or 0)
+            target['urls'].extend(tally.get('urls') or ())
+            target['skipped'] = target['skipped'] or tally.get('skipped') or ''
+    return merged
+
+
+_ENGINE_LABELS = (('duckduckgo', 'DuckDuckGo'), ('bing', 'Bing'))
+
+
+def _engine_status(label, tally, found, qualified, noun):
+    attempts = int(tally.get('attempts') or 0)
+    refused = int(tally.get('refused') or 0) + int(tally.get('challenged') or 0)
+    timeouts = int(tally.get('timeouts') or 0)
+    if not attempts:
+        if tally.get('skipped') == 'enough':
+            return 'not_needed', f'Not searched: {label} was not needed because another engine already returned results.'
+        if tally.get('skipped') == 'timeouts':
+            return 'not_run', f'Not searched: the network stopped answering before {label} was tried.'
+        return 'not_run', f'{label} was not searched.'
+    if found:
+        if qualified:
+            return 'ok', ''
+        return 'filtered', f'{label} returned {found} link(s), but none passed the profile and skill checks.'
+    if refused:
+        return 'blocked', (f'{label} refused the request or showed a bot check on {min(refused, attempts)} of '
+                           f'{attempts} search(es). Blocks are reported, not bypassed.')
+    if timeouts:
+        return 'error', f'{label} did not answer in time on {min(timeouts, attempts)} of {attempts} search(es).'
+    return 'no_results', f'{label} returned no {noun} for these searches.'
+
+
+def engine_sources(report, kept_urls=None, noun='profiles'):
+    """One status entry per engine that a search_public_many report covers.
+
+    kept_urls are the result URLs (as search_public_many returned them) that passed the caller's
+    own checks; they become each engine's qualified count. Without them every result counts.
+    """
+    kept = None if kept_urls is None else set(kept_urls)
+    entries = []
+    for name, label in _ENGINE_LABELS:
+        tally = (report or {}).get(name)
+        if not tally:
+            continue
+        found = int(tally.get('found') or 0)
+        qualified = found if kept is None else len(set(tally.get('urls') or ()) & kept)
+        status, reason = _engine_status(label, tally, found, qualified, noun)
+        entries.append({'source': name, 'label': label, 'status': status, 'found': found,
+                        'qualified': qualified, 'reason': reason})
+    return entries

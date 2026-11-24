@@ -219,32 +219,35 @@ async def send_single_email(
                 try:
                     from app.routes.inbox_actions import _ai_draft_reply
 
-                    generated = await _ai_draft_reply(
-                        subject=payload.subject,
-                        body=body,
-                        hint=(
-                            "Compose a fresh, context-specific email using the reference as facts and required actions, not a script. "
-                            "Choose an opening and structure suited to the current conversation rather than copying the reference paragraphs. "
-                            "Write naturally and concisely. Preserve every verified fact in the "
-                            "reference exactly, including links, dates, times, requested next action, and attachments. "
-                            "Do not invent commercial, availability, trainer details, or completion status. When the "
-                            "workflow context includes batch_email_rules, treat them as non-negotiable rules for this "
-                            "email; they govern every workflow stage, not only the first outreach."
-                        ),
-                        workflow_context=wording_context,
-                        reference_reply={"body": body},
-                        require_openai=True,
-                    )
-                    if str(generated or "").strip():
-                        body = _normalize_trainer_reply_body(generated.strip())
-                        generation_source = "ai"
-                    else:
-                        raise HTTPException(502, "AI email generation returned no usable draft. Retry or select Template mode explicitly.")
-                except HTTPException:
-                    raise
-                except Exception:
-                    logger.exception("Client pipeline AI wording failed")
-                    raise HTTPException(502, "AI email generation failed. No email was sent; retry or select Template mode explicitly.")
+                generated = await _ai_draft_reply(
+                    subject=payload.subject,
+                    body=body,
+                    hint=(
+                        "Compose a fresh, context-specific email using the reference as facts and required actions, not a script. "
+                        "Choose an opening and structure suited to the current conversation rather than copying the reference paragraphs. "
+                        "Write naturally and concisely. Preserve every verified fact in the "
+                        "reference exactly, including links, dates, times, requested next action, and attachments. "
+                        "Do not invent commercial, availability, trainer details, or completion status. When the "
+                        "workflow context includes batch_email_rules, treat them as non-negotiable rules for this "
+                        "email; they govern every workflow stage, not only the first outreach. Use any explicit "
+                        "client_personalization and personalization_rule context to explain the fit to the client's "
+                        "stated goals and domain. For trainer handoffs, use trainer_evidence only; for lab estimates, "
+                        "preserve the stated participant count, lab hours, assumptions, and attached-file status."
+                    ),
+                    workflow_context=wording_context,
+                    reference_reply={"body": body},
+                    require_openai=True,
+                )
+                if str(generated or "").strip():
+                    body = _normalize_trainer_reply_body(generated.strip())
+                    generation_source = "ai"
+                else:
+                    raise HTTPException(502, "AI email generation returned no usable draft. Retry or select Template mode explicitly.")
+            except HTTPException:
+                raise
+            except Exception:
+                logger.exception("Client pipeline AI wording failed")
+                raise HTTPException(502, "AI email generation failed. No email was sent; retry or select Template mode explicitly.")
         else:
             body = vary_template(body, recent_bodies, seed=payload.idempotency_key or f"{payload.to}:{payload.subject}")
     elif payload.mail_type in {"meet_start_notice", "meet_no_show_notice"}:

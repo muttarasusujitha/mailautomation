@@ -380,8 +380,13 @@ def test_search_markup_collects_profiles_when_cards_are_not_visible():
     page.locator.return_value = people
     with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
         rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 5))
-    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada-lovelace',
+        'https://www.linkedin.com/in/ben-devops',
+    ]
     assert _normalize_result(rows[0], 'soft skills', 'trainer')['lead_type'] == 'trainer_profile'
+    assert rows[1]['keyword_qualified'] is True
+    assert _normalize_result(rows[1], 'soft skills', 'trainer')['domain'] == 'soft skills'
 
 
 def test_result_payload_ignores_profile_urls_without_a_headline():
@@ -578,56 +583,108 @@ def test_account_results_saved_without_search_api_or_mail(mode, table, url, text
     mail.assert_not_awaited()
 
 
-def test_search_page_html_keeps_trainer_profiles_and_skips_the_nav_label():
-    from app.clients.linkedin_browser import profiles_from_search_html
-    html = (
-        '{"navigationUrl":"https:\\/\\/www.linkedin.com\\/in\\/ada-lovelace",'
-        '"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"DevOps corporate trainer"}}'
-        '{"publicIdentifier":"me","navigationUrl":"https://www.linkedin.com/in/me","title":{"text":"Me"}}'
-    )
-    rows = profiles_from_search_html(html)
-    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
-    assert 'DevOps corporate trainer' in rows[0]['text']
+def test_keyword_search_keeps_a_trainer_whose_card_omits_the_skill():
+    item = {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'Ada\nCorporate Trainer\nHyderabad', 'keyword_qualified': True}
+    lead = _normalize_result(item, 'soft skills', 'trainer')
+    assert lead['source_url'] == 'https://www.linkedin.com/in/ada'
+    assert lead['domain'] == 'soft skills'
+    recruiter = {**item, 'url': 'https://www.linkedin.com/in/pat', 'content': 'Pat\nHR Recruiter\nHyderabad'}
+    assert _normalize_result(recruiter, 'soft skills', 'trainer') is None
+    assert _normalize_result({**item, 'keyword_qualified': False}, 'soft skills', 'trainer') is None
 
 
-def test_nav_link_does_not_hide_profiles_embedded_in_the_search_page():
+def test_keyword_search_keeps_profile_with_name_but_no_visible_trainer_role():
+    item = {
+        'url': 'https://www.linkedin.com/in/ada-lovelace',
+        'title': 'Ada Lovelace',
+        'content': 'Ada Lovelace\nHyderabad',
+        'keyword_qualified': True,
+    }
+    lead = _normalize_result(item, 'Python', 'trainer')
+    assert lead['source_url'] == item['url']
+    assert lead['trainer_name'] == 'Ada Lovelace'
+
+
+def test_keyword_search_still_rejects_non_trainer_job_roles():
+    item = {
+        'url': 'https://www.linkedin.com/in/ada-recruiter',
+        'title': 'Ada Lovelace',
+        'content': 'Talent acquisition recruiter',
+        'keyword_qualified': True,
+    }
+    assert _normalize_result(item, 'Python', 'trainer') is None
+
+
+def test_people_page_timeout_still_reads_the_next_page():
     from app.clients.linkedin_browser import collect_trainer_profiles
-    html = (
-        '{"navigationUrl":"https://www.linkedin.com/in/ada-lovelace",'
-        '"title":{"text":"Ada Lovelace"},"primarySubtitle":{"text":"Soft Skills corporate trainer"}}'
-    )
     page = MagicMock()
-    page.goto = AsyncMock(side_effect=TimeoutError('slow search page'))
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
     page.wait_for_timeout = AsyncMock()
     page.mouse.wheel = AsyncMock()
-    page.content = AsyncMock(return_value=html)
+    calls = {'count': 0}
+
+    async def evaluate(_script):
+        calls['count'] += 1
+        if calls['count'] == 1:
+            raise TimeoutError('page read timed out')
+        return [{'url': 'https://www.linkedin.com/in/ada', 'text': 'Ada\nCorporate Trainer\nHyderabad'}]
+
     people = MagicMock()
     people.first.wait_for = AsyncMock()
-    people.evaluate_all = AsyncMock(return_value=[{'url': 'https://www.linkedin.com/in/me', 'text': 'Me'}])
+    people.evaluate_all = AsyncMock(side_effect=evaluate)
     page.locator.return_value = people
     with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
-        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 5))
-    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada-lovelace']
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 1))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada']
+    assert all('/content/' not in call.args[0] for call in page.goto.await_args_list)
 
 
-def test_account_search_asks_for_sixty_profiles_instead_of_stopping_at_fifty(tmp_path, monkeypatch):
-    monkeypatch.setenv('LINKEDIN_BOT_ENABLED', 'true')
-    monkeypatch.setenv('LINKEDIN_BOT_PROFILE_PATH', str(tmp_path))
+def test_people_page_timeout_still_runs_the_content_fallback():
+    from app.clients.linkedin_browser import collect_trainer_profiles
     page = MagicMock()
-    page.url = 'https://www.linkedin.com/search/results/people/'
-    page.locator.return_value.count = AsyncMock(return_value=0)
-    context = AsyncMock()
-    context.new_page.return_value = page
-    context.cookies.return_value = []
-    playwright = MagicMock()
-    playwright.chromium.launch_persistent_context = AsyncMock(return_value=context)
-    manager = AsyncMock()
-    manager.__aenter__.return_value = playwright
-    collector = AsyncMock(return_value=[])
-    with patch('playwright.async_api.async_playwright', return_value=manager), \
-            patch('app.clients.linkedin_browser.collect_trainer_profiles', collector):
-        asyncio.run(search_linkedin_account('DevOps', 'trainer', 60))
-    assert collector.await_args.args[3] == 60
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=TimeoutError('page read timed out'))
+    trainer = {'links': [{'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada'}],
+               'content': 'Ada\nSoft skills corporate trainer\nFollow\nWorkshops'}
+    cards = MagicMock()
+    cards.first.wait_for = AsyncMock()
+    cards.last.scroll_into_view_if_needed = AsyncMock()
+    cards.last.hover = AsyncMock()
+    cards.evaluate_all = AsyncMock(return_value=[trainer])
+
+    def locate(selector):
+        return cards if 'listitem' in selector else people
+
+    page.locator.side_effect = locate
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 1))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada']
+    assert any('/content/' in call.args[0] for call in page.goto.await_args_list)
+
+
+def test_client_search_skips_a_card_without_a_post_link():
+    from app.clients.linkedin_browser import read_post_cards
+    bad = {'links': [{'url': 'https://www.linkedin.com/in/skip', 'title': 'Skip'}],
+           'content': 'Skip\nLooking for a Python trainer'}
+    good = {'links': [
+        {'url': 'https://www.linkedin.com/feed/update/urn:li:activity:99', 'title': ''},
+        {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada'},
+    ], 'content': 'Ada\nL&D\nLooking for a Python trainer for our team'}
+    card = MagicMock()
+    card.evaluate_all = AsyncMock(side_effect=[[bad], [good]])
+    card.locator.return_value.count = AsyncMock(return_value=0)
+    cards = MagicMock()
+    cards.first.wait_for = AsyncMock()
+    cards.count = AsyncMock(return_value=2)
+    cards.nth.side_effect = [card, card]
+    page = MagicMock()
+    page.locator.return_value = cards
+    rows = asyncio.run(read_post_cards(page, AsyncMock(), 'client', 5))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/feed/update/urn:li:activity:99']
 
 
 def test_account_failure_is_explicit_and_stops_other_domains():

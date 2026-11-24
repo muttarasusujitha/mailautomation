@@ -34,11 +34,34 @@ Client
     assert "practical capstone project" in extracted["requirement_source_text"].lower()
 
 
-def test_explicit_lab_cost_request_is_distinct_from_lab_tools():
+def test_requirement_parser_extracts_all_named_client_scope_skills():
     extracted = _extract_requirement_from_email(
-        "Lab cost",
-        "Please share the lab cost estimate for the AWS sandbox.",
+        "DevOps training requirement",
+        "Please provide a trainer for DevOps covering AWS, Docker, Kubernetes, Terraform, Jenkins, and CI/CD.",
         "client@example.com",
         "Client",
     )
-    assert extracted["lab_cost_requested"] is True
+
+    assert extracted['technology_needed'] == 'DevOps'
+    assert extracted['required_skills'] == ['DevOps', 'AWS', 'Docker', 'Kubernetes', 'Terraform', 'Jenkins', 'CI/CD']
+    assert extracted['requested_topics'] == extracted['required_skills'][1:]
+
+
+def test_requirement_parser_extracts_explicit_company_personalization_context():
+    extracted = _extract_requirement_from_email(
+        "DevOps training requirement",
+        """Client Company: Northstar Health
+Client Industry: Healthcare
+Company Context: We operate clinical analytics services and need a secure cloud delivery process.
+Business Goals: Improve deployment reliability and release cadence.
+Business Challenges: Teams have inconsistent CI/CD practices.
+Please provide DevOps and AWS training for our team.""",
+        "procurement@example.com",
+        "Procurement Team",
+    )
+
+    assert extracted["client_company"] == "Northstar Health"
+    assert extracted["client_industry"] == "Healthcare"
+    assert "clinical analytics" in extracted["client_business_context"]
+    assert "release cadence" in extracted["client_goals"]
+    assert "inconsistent CI/CD" in extracted["business_challenges"]

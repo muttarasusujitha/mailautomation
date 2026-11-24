@@ -68,7 +68,7 @@ def test_html_search_keeps_current_skill_profiles_and_their_snippets():
         f'<p>Python trainer {year}</p></li>'
         f'<li class="b_algo"><h2><a href="{_wrapped("https://www.linkedin.com/in/old-trainer")}">Old Trainer</a></h2>'
         f'<p>Python corporate trainer since 2019</p></li>'
-        f'<li class="b_algo"><h2><a href="{_wrapped("https://www.linkedin.com/in/stale")}">Stale Page</a></h2>'
+        f'<li class="b_algo"><h2><a href="{_wrapped("https://www.linkedin.com/in/stale-trainer")}">Stale Trainer</a></h2>'
         f'<p>Python corporate trainer 2019</p></li>'
         f'<li class="b_algo"><h2><a href="{_wrapped("https://www.linkedin.com/in/java-dev")}">Java Person</a></h2>'
         f'<p>Java instructor corporate training {year}</p></li>'
@@ -87,10 +87,12 @@ def test_html_search_keeps_current_skill_profiles_and_their_snippets():
     ]
 
 
-def test_present_role_stays_current_when_the_start_year_is_older():
+def test_present_roles_stay_current_and_old_years_do_not():
     from app.clients.search_accuracy import is_current_year_result
-    assert is_current_year_result({'content': 'DevOps Trainer\n2016 - Present\nHyderabad'})
-    assert is_current_year_result({'content': 'Python corporate trainer since last year', 'title': f'{datetime.utcnow().year - 1}'})
+    year = datetime.utcnow().year
+    assert is_current_year_result({'content': 'DevOps trainer 2016 - Present'})
+    assert is_current_year_result({'content': f'Python corporate trainer {year - 1}'})
+    assert not is_current_year_result({'content': f'Python corporate trainer {year - 2}'})
     assert not is_current_year_result({'content': 'Python corporate trainer since 2019'})
 
 

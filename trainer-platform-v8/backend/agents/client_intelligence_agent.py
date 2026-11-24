@@ -56,36 +56,6 @@ BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PROJECT_DIR = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
 CONFIG_DIR = os.path.join(BACKEND_DIR, "config")
 ENV_PATH = os.path.join(BACKEND_DIR, ".env")
-CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_FILE", os.path.join(CONFIG_DIR, "credentials.json"))
-TOKEN_PATH = os.getenv("GOOGLE_TOKEN_FILE", os.path.join(CONFIG_DIR, "token.json"))
-
-TRAINING_KEYWORDS = [
-    "training", "trainer", "workshop", "corporate training", "need trainer",
-    "require trainer", "kubernetes", "devops", "python", "java", "azure", "aws",
-    "data science", "machine learning", "power bi", "tableau", "cloud", "genai",
-    "sap", "salesforce", "full stack", "react", "node", "cybersecurity",
-    # Common subject-line typos / shorthand clients actually write
-    "recuriment",   # typo of "requirement" — seen in real emails
-    "requiremnt",   # another common typo
-    "requrement",
-    "requriment",
-    "requirment",
-    "trainer req",
-    "training req",
-    "traning",      # typo of "training"
-    "trainner",     # typo of "trainer"
-]
-
-TECHNOLOGY_KEYWORDS = [
-    "full stack", "data science", "machine learning", "power bi", "cybersecurity",
-    "kubernetes", "devops", "python", "java", "azure", "aws", "tableau", "cloud",
-    "genai", "sap", "salesforce", "react", "node",
-]
-
-AUTO_REPLY_MARKERS = [
-    "out of office", "automatic reply", "auto-reply", "autoreply", "vacation responder",
-    "i am away", "away from office", "delivery status notification",
-]
 
 
 def _is_placeholder_value(value: str) -> bool:
@@ -652,21 +622,9 @@ def is_likely_training_email(
     request_markers = (
         # Direct need/require phrases
         "need trainer", "require trainer", "required trainer", "looking for trainer",
-        "need a trainer", "require a trainer", "we need", "we require",
-        "have a requirement", "have requirement", "we have a requirement",
-        "training requirement", "trainer requirement", "training requirement",
-        "corporate training requirement", "corporate training engagement",
-        # Share / send trainer profiles (without mandatory "please" prefix)
-        "share suitable trainer", "share trainer profiles", "share trainer profile",
-        "share suitable profiles", "kindly share", "please share",
-        "send trainer profiles", "send suitable trainer",
-        "share profiles", "trainer profiles",
-        # Availability / commercials — a client asking for rates is a client
-        "availability", "commercials", "experience and certifications",
-        "certifications, availability", "availability and commercials",
-        "suitable trainer profiles",
-        # Standard structured requirement fields
-        "duration", "participants", "budget",
+        "trainer requirement", TRAINING_REQUIREMENT, "corporate training requirement",
+        "need a trainer", "we need", "we require", "please share suitable trainer",
+        "share trainer profiles", "duration", "participants", "budget",
         "mode:", "technology:", "domain:",
     )
     if any(keyword in subject_haystack for keyword in TRAINING_KEYWORDS) and any(marker in haystack for marker in request_markers):
@@ -2219,25 +2177,12 @@ Return ONLY valid JSON:
 
 
 async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
-    """
-    Generate an auto-reply for any incoming email to Clahan Technologies.
-
-    Flow:
-      1. Classify the email using email_classifier (zero cost, instant).
-      2. If safe_to_reply=False or requires_human=True → return a human-flag dict.
-      3. Build the correct reply using reply_templates (zero cost, instant).
-      4. For complete training requirements only, optionally polish with Gemini.
-         (Step 4 only runs when ENABLE_GEMINI_POLISH=true in .env)
-
-    Result: ~95% of replies are free. Gemini used only for complete requirements.
-    """
-    # ── Normalise context ────────────────────────────────────────────────────
-    original_subject = (
-        extracted.get("email_subject")
-        or context.get("subject")
-        or "Training Requirement"
-    )
-    signature = context.get("reply_signature") or "Best Regards,\nRecruitment Team\nClahan Technologies"
+    has_domain = has_actionable_training_domain(extracted.get("technology_needed"))
+    technology = extracted.get("technology_needed") if has_domain else "your training"
+    raw_needs = list(extracted.get("needs_clarification") or [])
+    budget = extracted.get("budget_total") or extracted.get("budget_per_day")
+    original_subject = extracted.get("email_subject") or context.get("subject") or REQUIREMENT_LABEL
+    signature = context.get("reply_signature") or SIGNATURE
     if signature.strip() == "Regards,\nRecruitment Team,\nClahan Technologies":
         signature = SIGNATURE
 
@@ -2246,23 +2191,101 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
     body_text  = context.get("clean_body") or context.get("raw_body") or ""
     headers    = context.get("headers") or {}
 
-    # ── Step 1: Classify ─────────────────────────────────────────────────────
-    classification = classify_email(
-        from_email=from_email,
-        subject=original_subject,
-        body=body_text,
-        from_name=from_name,
-        headers=headers,
-        history={
-            "is_known_client":  bool(context.get("is_known_client")),
-            "is_known_trainer": bool(context.get("is_known_trainer")),
-        },
-    )
+    field_terms = {
+        "duration": ("duration", "days", "hours", "training hours"),
+        "dates": ("date", "start date", "end date", "schedule", "timeline"),
+        "timings": ("timing", "time", "daily"),
+        "participants": ("participant", "learner", "attendee", "batch size"),
+        "audience": ("audience", "level", "basic", "beginner", "intermediate", "advanced", "mixed"),
+        "mode": ("mode", "online", "offline", "classroom", "hybrid"),
+        "budget": ("budget", "commercial", "charge", "rate", "price", "cost"),
+    }
+    provided = {
+        "domain": has_domain,
+        "duration": has_any("duration_days", "duration_hours", "duration_text", "training_duration"),
+        "dates": has_any("timeline_start", "timeline_end", "training_dates", "start_date", "end_date"),
+        "timings": has_any("daily_timing", "timing", "training_timing", "daily_timings"),
+        "participants": has_any("participant_count", "participants", "batch_size"),
+        "audience": has_any("audience_level", "level"),
+        "mode": has_any("mode", "training_mode", "preferred_mode"),
+        "budget": bool(budget),
+    }
 
-    # ── Step 2: Safety / human escalation ────────────────────────────────────
-    if not classification.get("safe_to_reply"):
-        reason = classification.get("no_reply_reason", "unsafe")
-        logger.info("Auto-reply suppressed for %s — reason: %s", from_email, reason)
+    def need_is_known_detail_field(item: str) -> bool:
+        text = str(item or "").lower()
+        return any(any(term in text for term in terms) for terms in field_terms.values())
+
+    needs = [item for item in raw_needs if item and not need_is_known_detail_field(str(item))]
+    required_missing = [
+        ("domain", TRAINING_DOMAIN_TECHNOLOGY),
+        ("duration", "Training duration"),
+        ("dates", "Preferred training dates"),
+        ("timings", "Daily training timings"),
+        ("participants", "Number of participants"),
+        ("audience", "Audience level (Beginner / Intermediate / Advanced)"),
+        ("mode", "Training mode (Online / Offline / Hybrid)"),
+    ]
+    existing_need_text = {str(item).strip().lower() for item in needs}
+    for key, label in required_missing:
+        if key == "domain":
+            missing = not has_domain
+        else:
+            missing = not provided[key]
+        if missing and label.lower() not in existing_need_text:
+            needs.append(label)
+    if not provided["budget"] and not any("commercial" in str(item).lower() or "budget" in str(item).lower() or "charge" in str(item).lower() for item in needs):
+        needs.append("Budget or expected commercial charges per day/session")
+    needs_text = "\n".join(f"- {item}" for item in needs) if needs else "- No clarification required"
+
+    prompt = f"""You are the recruitment team at Clahan Technologies, a premium
+corporate training company based in India.
+
+Write a professional reply to this client email. The client has
+enquired about {technology} training. Your reply must:
+- Acknowledge their specific requirement by name
+- If important details are missing, do not promise final trainer profiles yet.
+  Ask the client to share the missing details, but clearly say Clahan will begin an initial trainer search
+  based on the available technology/domain details.
+- If enough details are available, confirm you are shortlisting trainers and will share profiles within 24 hours.
+- Missing details to ask for, if listed:
+{needs_text}
+- If budget is mentioned acknowledge it
+- Keep it under 150 words
+- End with: Regards, Recruitment Team, Clahan Technologies
+
+Client extraction JSON:
+{json.dumps(extracted, ensure_ascii=False)}
+
+Original subject: {original_subject}
+Budget mentioned: {budget if budget else "not mentioned"}
+Required signature:
+{signature}
+
+Return ONLY valid JSON:
+{{
+  "subject": "reply subject line starting with Re:",
+  "body": "full professional email body",
+  "whatsapp_message": "short WhatsApp version under 300 chars",
+  "tone": "formal or friendly or neutral",
+  "asks_for_clarification": true or false
+}}"""
+
+    if needs:
+        body = (
+            f"Dear Client,\n\n"
+            f"Thank you for sharing your {technology} training requirement.\n\n"
+            "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+            + "\n".join(f"* {item}" for item in needs)
+            + (
+                f"\n\nMeanwhile, we will begin an initial trainer search based on the {technology} domain "
+                "and the information currently available. Once we receive the above details, we will refine the shortlist "
+                "and share the most relevant trainer profiles for your review.\n\n"
+                if has_domain else
+                "\n\nOnce you confirm the domain/technology, we will begin trainer matching and share the most relevant profiles for your review.\n\n"
+            )
+            + "We look forward to your response.\n\n"
+            f"{signature}"
+        )
         return {
             "subject": "",
             "body": "",

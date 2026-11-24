@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { linkedInSearchPayload, mergeSearchLeads, searchResultLeads } from './leadSearchFeedback.js'
+import { collectionOutcomeLines, leadSourceLabel, linkedInSearchPayload, mergeSearchLeads, newSearchRef, outcomeLine, searchReportGroups, sourceReportLines, visibleSearchLeads } from './leadSearchFeedback.js'
 
 test('client and trainer searches both post into LinkedIn search with the same domains', () => {
   const client = linkedInSearchPayload('client', '')
@@ -22,21 +22,11 @@ test('an entered domain list is shared by both LinkedIn search modes', () => {
   assert.deepEqual(linkedInSearchPayload('trainer', 'SAP, Python').domains, ['SAP', 'Python'])
 })
 
-test('saved trainer profiles stay visible when the latest search matches nothing', () => {
-  const leads = [
-    { lead_id: 'TPL-1', domain: 'AWS', source_url: 'https://www.linkedin.com/in/a' },
-    { lead_id: 'TPL-2', domain: 'Python', source_url: 'https://www.linkedin.com/in/b' },
-  ]
-  const visible = searchResultLeads(leads, {
-    selectedDomain: 'soft skills',
-    showSearchMatches: true,
-    results: [{ source_url: 'https://www.linkedin.com/in/missing' }],
-  })
-  assert.deepEqual(visible.map(lead => lead.lead_id), ['TPL-1', 'TPL-2'])
-  assert.deepEqual(
-    searchResultLeads(leads, { selectedDomain: 'AWS' }).map(lead => lead.lead_id),
-    ['TPL-1'],
-  )
+test('a catalog scan without a per-domain target does not say the target was zero', () => {
+  const domains = ['DevOps', 'Python', 'Java', 'Cloud', 'SAP', 'React', 'AWS']
+  const lines = collectionOutcomeLines(domains.map(domain => ({ domain, matched: 0, status: 'no_match' })))
+  assert.deepEqual(lines, ['7 domains had no matching posts.'])
+  assert.equal(outcomeLine({ domain: 'Python', matched: 3, target: 20, target_met: false }), 'Python: 3 found (target: 20). Partial results; the target is not guaranteed.')
 })
 
 test('fresh search matches stay in the LinkedIn search list with saved leads', () => {

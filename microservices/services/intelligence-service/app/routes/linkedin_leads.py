@@ -42,8 +42,7 @@ class LinkedInLeadSearchRequest(BaseModel):
     save: bool = True
     mode: Literal['trainer', 'client'] = "trainer"
     source: Optional[str] = "linkedin"
-    # An ID from the page, saved with the run report (GET /search-runs?search_ref=...).
-    search_ref: Optional[str] = ""
+    queue_retry_on_blocked: bool = True
 
 
 class BackfillClientContactsRequest(BaseModel):
@@ -354,9 +353,9 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str, require_doma
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    # Profile URLs such as /in/soft-skills-trainer count toward the skill check.
-    domain_text = f"{combined_text}\n{url.replace('-', ' ')}" if mode == "trainer" else combined_text
-    if require_domain and terms and not _text_has_domain(domain_text, terms):
+    # People search already queried this skill. The visible card often omits it.
+    keyword_qualified = mode == "trainer" and bool(item.get("keyword_qualified"))
+    if terms and not keyword_qualified and not _text_has_domain(combined_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         return None
@@ -371,8 +370,19 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str, require_doma
         is_resume_post = is_post and _looks_like_resume_trainer_post(searchable)
         if source == "linkedin" and not (is_profile or is_resume_post):
             return None
-        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", searchable):
-            return None
+        if keyword_qualified:
+            # LinkedIn returned this card from an explicit trainer people search;
+            # its headline often omits both the skill and the word "trainer".
+            # The helper accepts role-free cards returned by a keyword search,
+            # while rejecting hiring posts and obvious non-trainer job roles.
+            if source == "linkedin" and not _keyword_card_is_trainer(combined_text):
+                return None
+        else:
+            if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
+                return None
+            terms = _domain_terms(domain)
+            if terms and not any(term in combined_text for term in terms):
+                return None
     slug = _slug_from_url(url)
     if mode == "client":
         contact_name = item.get('contact_name', _contact_name_from_linkedin_post(url))
@@ -780,15 +790,9 @@ async def search_linkedin_leads(
             if 'time limit' not in str(item.get('error') or '').lower()
         ]
 
-    from app.clients.search_runs import merge_sources, record_search_run, search_succeeded
-    sources = merge_sources(outcome.get('sources') for outcome in domain_outcomes)
-    if any(outcome.get('sources') for outcome in domain_outcomes):
-        # Failure only when nothing was found and every source that ran failed.
-        success = search_succeeded(len(all_results), sources)
-    else:
-        success = bool(all_results) or not search_errors
-    result = {
-        "success": success,
+    retries = await _queue_blocked_trainer_domains(db, payload, domain_outcomes)
+    return {
+        "success": not search_errors,
         "domain_outcomes": domain_outcomes,
         "search_error": search_errors[0]['error'] if search_errors else None,
         "search_errors": search_errors,
@@ -798,7 +802,7 @@ async def search_linkedin_leads(
         "skipped": skipped[:20],
         "found": len(all_results),
         "results": all_results,
-        "sources": sources,
+        "queued_retries": retries,
     }
     result["run_id"] = await record_search_run(db, "linkedin_search", {
         "mode": mode,

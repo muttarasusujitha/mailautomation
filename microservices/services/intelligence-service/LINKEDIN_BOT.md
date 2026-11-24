@@ -121,10 +121,9 @@ scheduling (up to 30 seconds of polling delay). Trainer collection stays hourly.
 Trainer discovery reads people search across result pages, using plain keywords
 such as "DevOps trainer", then a short content fallback when more profiles are
 still needed. Matches already collected are kept if a later page slows down.
-A full trainer search keeps paging for about three minutes, until 60 qualified
-profiles are saved. A search for 20 or more profiles gets at least two minutes,
-so a slow people-results page is not reported as a time limit. It saves at most
-100 cards per domain within the requested total. Only one fetch uses the
+A full trainer search pages for about 160 seconds inside a 210-second account
+request, including browser startup. It keeps up to 60 qualified profiles per
+domain and can scan 240 people to find them. Only one fetch uses the
 profile at once. Login, checkpoints, rate limits and unrecognized result layouts
 produce explicit errors. The bot does not bypass them or switch to a paid API.
 

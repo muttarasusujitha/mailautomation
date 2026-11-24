@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
-  BriefcaseBusiness, CheckCircle2, ExternalLink, Globe2, Mail, RefreshCw,
-  Search, Send, ShieldCheck, Target, Trash2, Users, Zap, Phone, CreditCard,
-  AlertCircle, BarChart2,
+  BriefcaseBusiness, CheckCircle2, ChevronRight, ExternalLink, Globe2, Mail, RefreshCw,
+  Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
 import LeadBot from '../components/LeadBot'
@@ -63,74 +62,54 @@ function leadSearchText(lead) {
   ].join(' ').toLowerCase()
 }
 
-// ── Corporate IT trainer filter ────────────────────────────────────────────
-// Only show profiles that look like Indian corporate IT trainers.
-// Hides: school teachers, college professors, students, job-seekers,
-//        non-Indian profiles, soft-skills-only trainers.
-const CORPORATE_TRAINER_SIGNALS = [
-  'corporate trainer', 'freelance trainer', 'technical trainer',
-  'corporate training', 'batch training', 'training delivery',
-  'delivered training', 'conducted training', 'conduct training',
-  'training consultant', 'sme trainer', 'subject matter expert',
-  'workshop trainer', 'l&d trainer', 'certification trainer',
-  'trained professionals', 'trained employees',
-  'tcs', 'infosys', 'wipro', 'accenture', 'cognizant', 'hcl',
-  'tech mahindra', 'capgemini', 'ibm', 'deloitte',
-]
+function trainerProfileText(lead) {
+  return [
+    lead?.trainer_name,
+    lead?.headline,
+    lead?.profile_text,
+    lead?.snippet,
+  ].join(' ').toLowerCase()
+}
 
-const NON_CORPORATE_BLOCKERS = [
-  'school teacher', 'high school', 'secondary school', 'primary school',
-  'college professor', 'assistant professor', 'associate professor',
-  'university professor', 'professor', 'lecturer',
-  'engineering college', 'degree college', 'polytechnic',
-  'currently learning', 'i am learning', 'fresher', 'fresh graduate',
-  'final year student', 'btech student', 'b.tech student',
-  'pursuing', 'enrolled in', 'completed my degree',
-  'united states', 'united kingdom', 'netherlands', 'belgium',
-  'germany', 'france', 'canada', 'australia', 'singapore',
-  'dubai', 'new york', 'london', 'amsterdam', 'silicon valley',
-  'looking for job', 'seeking opportunity', 'open to opportunities',
-  'my resume', 'job application',
-]
-
-const INDIA_SIGNALS = [
-  'india', 'indian', 'bangalore', 'bengaluru', 'hyderabad', 'chennai',
-  'pune', 'mumbai', 'delhi', 'noida', 'gurgaon', 'gurugram', 'kolkata',
-  'ahmedabad', 'coimbatore', 'kochi', 'telangana', 'karnataka',
-  'tamil nadu', 'maharashtra', 'andhra pradesh', 'uttar pradesh',
-  'gujarat', 'rajasthan', 'bhopal', 'indore', 'jaipur', 'lucknow',
-  'chandigarh', 'nagpur', 'mysore', 'mysuru', 'in.linkedin.com',
-]
+function domainTerms(domain) {
+  const generic = new Set([
+    'trainer',
+    'training',
+    'corporate',
+    'freelance',
+    'technical',
+    'online',
+    'instructor',
+    'consultant',
+    'developer',
+    'india',
+    'indian',
+  ])
+  const terms = String(domain || '').toLowerCase().match(/[a-z0-9+#.]+/g) || []
+  return terms.filter(term => term.length > 1 && !generic.has(term))
+}
 
 function isTrainerProviderProfile(lead) {
-  if (!lead) return false
+  const text = trainerProfileText(lead)
+  const terms = domainTerms(lead?.domain)
+  const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
+  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
+    || lead?.source_url?.includes('linkedin.com/posts/')
+    || lead?.source_url?.includes('linkedin.com/feed/update')
+    || lead?.lead_type === 'resume_trainer_post'
+  return Boolean(
+    hasTrainerUrl
+    && /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
+    && hasSkillMatch,
+  )
+}
 
-  // Backend already ran its filter — trust is_trainer_profile_lead flag if present
-  if (lead.is_trainer_profile_lead === false) return false
+function leadEmail(lead) {
+  return String(lead?.email || lead?.contact_email || '').trim()
+}
 
-  const text = [
-    lead.headline,
-    lead.profile_text,
-    lead.trainer_name,
-    lead.domain,
-    lead.notes,
-    lead.source_url,
-  ].join(' ').toLowerCase()
-
-  // Hard block — non-corporate profiles never shown
-  if (NON_CORPORATE_BLOCKERS.some(b => text.includes(b))) return false
-
-  // Must have at least one India signal OR be from in.linkedin.com
-  const hasIndia = INDIA_SIGNALS.some(s => text.includes(s))
-    || (lead.indian_profile === true)
-    || (lead.source_url || '').toLowerCase().includes('in.linkedin.com')
-  if (!hasIndia) return false
-
-  // Must have at least one corporate trainer signal
-  const hasCorporateSignal = CORPORATE_TRAINER_SIGNALS.some(s => text.includes(s))
-    || (lead.is_trainer_profile_lead === true)
-    || (lead.confidence != null && lead.confidence >= 0.65)
-  return hasCorporateSignal
+function leadPhone(lead) {
+  return String(lead?.phone || lead?.contact_phone || '').trim()
 }
 
 export default function LinkedInSearch() {
@@ -421,9 +400,7 @@ export default function LinkedInSearch() {
           <h1 className="page-title flex items-center gap-2">
             <Globe2 className="h-6 w-6 text-blue-600" /> LinkedIn &amp; Apollo Search
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Search public LinkedIn/web results or use Apollo.io to find verified contacts with email and phone.
-          </p>
+          <p className="mt-1 text-sm text-slate-500">Fetch trainers and clients seeking trainers by domain using your connected LinkedIn account.</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">

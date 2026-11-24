@@ -15371,47 +15371,33 @@ TRAINER_PROVIDER_SIGNALS = [
 ]
 
 TRAINER_PROFILE_BLOCKERS = [
-    # ── Job-seeker signals (not a trainer) ───────────────────────────────────
-    "job vacancies", "job vacancy", "apply to", "job description", "required candidate profile",
-    "hiring office", "we are hiring", "we are looking for", "salary", "lacs p.a",
-    "job opening", "job role", "current ctc", "expected ctc", "notice period",
-    "immediate joiner", "last working day", "offer in hand", "open to opportunities",
-    "actively exploring", "willing to relocate", "seeking opportunity", "looking for job",
-    "looking for opportunities", "application for", "my resume", "work preference",
-    "ready to work from office",
-    # ── Academic / school / college — NOT corporate trainers ─────────────────
-    # These people teach in schools or colleges, not corporate IT batch training.
-    "school teacher", "high school", "secondary school", "primary school",
-    "college professor", "assistant professor", "associate professor",
-    "university professor", "professor", "lecturer",
-    "engineering college", "degree college", "polytechnic",
-    "teaching students", "student mentoring",
-    # ── Student / fresher / learner — actively learning, not delivering ───────
-    "currently learning", "i am learning", "learning python", "learning devops",
-    "learning aws", "learning java", "learning data science",
-    "fresher", "fresh graduate", "final year student",
-    "btech student", "b.tech student", "mca student", "mba student",
-    "pursuing", "enrolled in", "completed my degree",
-    # ── Non-Indian location signals ───────────────────────────────────────────
-    # These indicate the profile is from outside India — not Clahan's market.
-    "united states", "united kingdom", "netherlands", "belgium", "germany",
-    "france", "canada", "australia", "singapore", "dubai", "uae",
-    "new york", "london", "amsterdam", "brussels", "berlin", "toronto",
-    "silicon valley", "san francisco", "chicago", "sydney",
-    # ── Non-IT / soft-skills only trainers ───────────────────────────────────
-    # Clahan places IT trainers; soft-skills-only profiles waste credits.
-    "soft skills trainer only", "communication skills trainer",
-    "personality development trainer", "behavioural trainer",
-    "life coach", "motivational speaker",
+    # Job listing indicators
+    "job vacancies", "job vacancy", "apply to", "job description",
+    "required candidate profile", "hiring office", "we are hiring",
+    "we are looking for", "salary", "lacs p.a", "job opening", "job role",
+    # Job seeker indicators
+    "current ctc", "expected ctc", "notice period", "immediate joiner",
+    "last working day", "offer in hand", "open to opportunities",
+    "actively exploring", "willing to relocate", "seeking opportunity",
+    "looking for job", "looking for opportunities", "application for",
+    "my resume", "work preference", "ready to work from office",
+    # Recruitment/staffing (not trainer)
+    "bench sales", "bench consultant", "hotlist", "available consultant",
+    "h1b", "visa status", "work authorization", "staffing",
+    "placement agency", "manpower", "temp staffing",
+    # Product/company pages (not person profiles)
+    "add to cart", "buy now", "subscribe now", "pricing plans",
+    "terms of service", "privacy policy", "cookie policy",
+    "sign up free", "free trial", "download app",
 ]
 
 TRAINER_PROFILE_SOFT_BLOCKERS = [
-    "institute", "academy", "pvt ltd", "private limited", "solutions", "technologies",
-    "consultant", "consulting", "consultant1 day ago", "consultant2 days ago",
-    "consultant3 days ago", "recruiter",
-    "location ", "experience ", "yrs · consultant", "yrs consultant",
-    # School / college context — soft block (only blocks if no strong provider signals)
-    "school", "college", "university", "sikkim", "manipur",
+    "institute", "academy", "pvt ltd", "private limited", "solutions",
+    "technologies", "consultant", "consulting",
+    "consultant1 day ago", "consultant2 days ago", "consultant3 days ago",
+    "recruiter", "location ", "experience ", "yrs · consultant",
+    "yrs consultant", "talent acquisition", "recruitment specialist",
+    "hr manager", "hr executive", "placement officer",
 ]
 
 INDIA_LOCATION_TERMS = [
@@ -17207,17 +17193,28 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
     # These leak school/college/non-corporate profiles.
     # Added: stronger corporate batch-training signals used by Clahan clients.
     TRAINER_SEARCH_ROLES = [
-        "corporate trainer",
-        "freelance trainer",
+        "trainer",
+        CORPORATE_TRAINER,
+        FREELANCE_TRAINER,
         "certified trainer",
-        "technical trainer",
-        "training consultant",
+        "instructor",
+        TRAINING_CONSULTANT,
         "SME trainer",
-        "subject matter expert",
+        "mentor",
+        "trainer India",
+        TECHNICAL_TRAINER,
+        "soft skills trainer",
+        "professional trainer",
+        "guest faculty",
+        "resource person",
+        WORKSHOP_FACILITATOR,
+        "learning facilitator",
         "corporate facilitator",
         "training specialist",
         "training manager",
         "training lead",
+        SUBJECT_MATTER_EXPERT,
+        "coach",
         "industry trainer",
         "online trainer",
         "offline trainer",
@@ -17260,17 +17257,25 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
 
     for domain in domains:
         if source_mode in {"linkedin", "both", "all"}:
-            for role in TRAINER_SEARCH_ROLES:
-                # Scope every query to India + corporate context
-                queries.append(f'site:linkedin.com/in "{domain}" "{role}" India')
+            # ── Queries that actually work from cloud IPs ──────────────────────
+            # site:linkedin.com is blocked by search engines from cloud server IPs.
+            # These formats return real cached LinkedIn results.
             queries.extend([
-                f'site:linkedin.com/in "{domain}" "corporate trainer" "batch training" India',
-                f'site:linkedin.com/in "{domain}" "certified" "corporate trainer" India',
-                f'site:linkedin.com/in "{domain}" "years experience" "corporate trainer" India',
-                f'site:linkedin.com/in "{domain}" "trained professionals" India',
+                f'"{domain}" "corporate trainer" India linkedin',
+                f'"{domain}" "freelance trainer" India linkedin',
+                f'"{domain}" "certified trainer" India linkedin',
+                f'"{domain}" trainer India linkedin profile',
+                f'"{domain}" "technical trainer" India linkedin',
+                f'"{domain}" instructor trainer India linkedin',
+                f'"{domain}" trainer India "years experience" linkedin',
+                f'"{domain}" trainer India contact email',
+                f'"{domain}" trainer resume India',
+                f'"{domain}" "training consultant" India linkedin',
+                f'"{domain}" "subject matter expert" trainer India',
             ])
-            for location in LOCATIONS:
-                queries.append(f'site:linkedin.com/in "{domain}" "corporate trainer" "{location}"')
+            for location in LOCATIONS[:15]:
+                queries.append(f'"{domain}" trainer "{location}" linkedin profile')
+                queries.append(f'"{domain}" trainer "{location}" contact email')
         if source_mode in {"naukri", "both", "all"}:
             queries.extend([
                 f'"{domain}" trainer naukri.com India',
@@ -19237,174 +19242,170 @@ async def gmail_disconnect():
 
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# APOLLO.IO ROUTES
-# ══════════════════════════════════════════════════════════════════════════════
-
-@router.get("/apollo/credits")
-async def apollo_credits():
-    """Return current Apollo credit usage for this month (free plan: 50/month)."""
-    try:
-        return {"success": True, **credit_tracker.status()}
-    except Exception as exc:
-        raise HTTPException(500, f"Credit tracker error: {exc}")
 
 
-@router.post("/apollo/search")
-async def apollo_search(request: Request):
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Contact Finder API
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.post("/contact-finder/find")
+async def find_trainer_contact(payload: dict):
     """
-    Search + filter Apollo contacts — FREE, no credits spent.
-    Returns up to 100 raw (obfuscated) results filtered to quality contacts.
+    Find email + phone for a LinkedIn trainer profile.
+    Uses 6 free strategies in cascade — no API key needed.
 
-    Body:
-      mode          : "trainer" | "client"
-      titles        : optional list of job titles
-      locations     : optional list of locations (default: ["India"])
-      domains       : optional list of company domains
-      keywords      : optional list of keywords (e.g. ["Python", "SAP"])
-      require_phone : bool (default true)
-      max_pages     : int 1-4 (default 4, each page = 25 free results)
-    """
-    payload = await request.json()
-    mode          = str(payload.get("mode") or "trainer").lower()
-    titles        = payload.get("titles") or (TRAINER_TITLES if mode == "trainer" else CLIENT_TITLES)
-    locations     = payload.get("locations") or ["India"]
-    domains       = payload.get("domains") or None
-    keywords      = payload.get("keywords") or None
-    require_phone = bool(payload.get("require_phone", True))
-    max_pages     = min(int(payload.get("max_pages") or 4), 4)
-
-    try:
-        from agents.apollo_agent import search_apollo_pages, filter_best
-        raw = await search_apollo_pages(
-            titles=titles,
-            locations=locations,
-            domains=domains,
-            keywords=keywords,
-            max_pages=max_pages,
-            per_page=25,
-        )
-        filtered = filter_best(raw, max_results=100, require_phone=require_phone)
-        return {
-            "success":   True,
-            "total":     len(raw),
-            "qualified": len(filtered),
-            "people":    filtered,
-            "credits_used": 0,
-            "message":   f"Found {len(raw)} results, {len(filtered)} qualified. No credits used.",
+    Request body:
+        {
+            "name":         "Rajesh Kumar",
+            "company":      "TCS",
+            "domain":       "Python",
+            "linkedin_url": "https://linkedin.com/in/rajesh-kumar",
+            "profile_text": "...scraped profile text..."
         }
-    except ValueError as exc:
-        raise HTTPException(400, str(exc))
-    except Exception as exc:
-        logger.error("Apollo search error: %s", exc)
-        raise HTTPException(502, f"Apollo search failed: {exc}")
 
-
-@router.post("/apollo/find-and-save")
-async def apollo_find_and_save(request: Request):
+    Response:
+        {
+            "found":      true,
+            "email":      "rajesh.kumar@gmail.com",
+            "phone":      "+919876543210",
+            "source":     "naukri_profile",
+            "confidence": 0.85
+        }
     """
-    Full pipeline: search (free) → filter (free) → enrich (credits) → save to DB.
+    from agents.contact_finder_agent import find_contact_for_trainer
+    result = await find_contact_for_trainer(
+        name=str(payload.get("name") or "").strip(),
+        company=str(payload.get("company") or "").strip(),
+        domain=str(payload.get("domain") or "").strip(),
+        linkedin_url=str(payload.get("linkedin_url") or "").strip(),
+        profile_text=str(payload.get("profile_text") or "").strip(),
+    )
+    return {"success": True, **result}
 
-    Body:
-      mode         : "trainer" | "client"
-      titles       : optional list of job titles
-      locations    : optional list (default: ["India"])
-      domains      : optional list of company domains
-      keywords     : optional list e.g. ["Python", "SAP FICO"]
-      max_credits  : int max credits to spend (default 10, hard cap 50)
-      require_phone: bool (default true)
 
-    Returns:
-      saved_count, skipped_count (duplicates), credits_used, contacts
+@router.post("/contact-finder/bulk")
+async def bulk_find_trainer_contacts(payload: dict):
     """
-    payload      = await request.json()
-    mode         = str(payload.get("mode") or "trainer").lower()
-    titles       = payload.get("titles") or None
-    locations    = payload.get("locations") or ["India"]
-    domains      = payload.get("domains") or None
-    keywords     = payload.get("keywords") or None
-    max_credits  = min(int(payload.get("max_credits") or 10), 50)
-    require_phone= bool(payload.get("require_phone", True))
-    domain_kw    = str(payload.get("domain_keyword") or (keywords[0] if keywords else ""))
+    Find contacts for multiple trainers at once.
 
-    # Check remaining credits before starting
-    if not credit_tracker.can_spend(1):
-        raise HTTPException(429, "No Apollo credits remaining this month. Resets on the 1st.")
-
-    actual_credits = min(max_credits, credit_tracker.remaining)
-    if actual_credits < max_credits:
-        logger.warning(
-            "Apollo: requested %d credits but only %d remain this month. Reducing.",
-            max_credits, actual_credits,
-        )
-    max_credits = actual_credits
-
-    try:
-        result = await find_contacts(
-            titles=titles,
-            locations=locations,
-            domains=domains,
-            keywords=keywords,
-            mode=mode,
-            max_credits=max_credits,
-            require_phone=require_phone,
-        )
-    except ValueError as exc:
-        raise HTTPException(400, str(exc))
-    except Exception as exc:
-        logger.error("Apollo find_contacts error: %s", exc)
-        raise HTTPException(502, f"Apollo search failed: {exc}")
-
-    # Record credits used
-    credit_tracker.record(result["credits_used"])
-
-    # Save to correct DB collection
-    db = get_db()
-    collection = "trainer_profile_leads" if mode == "trainer" else "client_leads"
-    saved_count   = 0
-    skipped_count = 0
-
-    for contact in result["contacts"]:
-        lead_doc = apollo_contact_to_lead(contact, mode=mode, domain_keyword=domain_kw)
-
-        # Skip duplicates — check by email
-        email = lead_doc.get("contact_email", "").lower().strip()
-        if email:
-            existing = await db[collection].find_one(
-                {"contact_email": {"$regex": f"^{email}$", "$options": "i"}},
-                {"_id": 0, "lead_id": 1},
-            )
-            if existing:
-                skipped_count += 1
-                continue
-
-        await db[collection].insert_one({**lead_doc, "_id": lead_doc["lead_id"]})
-        saved_count += 1
-
+    Request body:
+        {
+            "trainers": [
+                {"name": "Rajesh", "company": "TCS", "domain": "Python"},
+                {"name": "Priya",  "company": "Infosys", "domain": "DevOps"}
+            ],
+            "concurrency": 3
+        }
+    """
+    from agents.contact_finder_agent import bulk_find_contacts
+    trainers = payload.get("trainers") or []
+    concurrency = max(1, min(int(payload.get("concurrency") or 3), 5))
+    results = await bulk_find_contacts(trainers, concurrency=concurrency)
+    found_count = sum(1 for r in results if r.get("contact_result", {}).get("found"))
     return {
-        "success":       True,
-        "saved_count":   saved_count,
-        "skipped_count": skipped_count,
-        "credits_used":  result["credits_used"],
-        "searched":      result["searched"],
-        "qualified":     result["qualified"],
-        "contacts":      result["contacts"],
-        "credit_status": credit_tracker.status(),
-        "message": (
-            f"Saved {saved_count} new contacts. "
-            f"Skipped {skipped_count} duplicates. "
-            f"Used {result['credits_used']} credits."
-        ),
+        "success": True,
+        "total": len(results),
+        "found_count": found_count,
+        "results": results,
     }
 
 
-@router.get("/apollo/trainer-titles")
-async def apollo_trainer_titles():
-    """Return default trainer job titles used in Apollo search."""
-    return {"titles": TRAINER_TITLES}
+@router.post("/contact-finder/find-and-send-mail")
+async def find_contact_and_send_mail(payload: dict):
+    """
+    Find contact for a trainer lead and immediately send the first outreach email.
+    Combines contact finding + mail sending in one call.
 
+    Request body:
+        {
+            "name":         "Rajesh Kumar",
+            "company":      "TCS",
+            "domain":       "Python",
+            "linkedin_url": "https://linkedin.com/in/rajesh-kumar",
+            "profile_text": "...profile text...",
+            "requirement_id": "REQ-123",
+            "technology":   "Python"
+        }
+    """
+    from agents.contact_finder_agent import find_contact_for_trainer
+    from agents.email_agent import send_email_async
 
-@router.get("/apollo/client-titles")
-async def apollo_client_titles():
-    """Return default client job titles used in Apollo search."""
-    return {"titles": CLIENT_TITLES}
+    db = get_db()
+    name = str(payload.get("name") or "").strip()
+    domain = str(payload.get("domain") or payload.get("technology") or "Training").strip()
+
+    # Step 1: Find contact
+    contact = await find_contact_for_trainer(
+        name=name,
+        company=str(payload.get("company") or "").strip(),
+        domain=domain,
+        linkedin_url=str(payload.get("linkedin_url") or "").strip(),
+        profile_text=str(payload.get("profile_text") or "").strip(),
+    )
+
+    if not contact.get("email"):
+        return {
+            "success": False,
+            "found": False,
+            "error": "Could not find email address for this trainer.",
+            "contact": contact,
+        }
+
+    # Step 2: Send first outreach email
+    to_email = contact["email"]
+    requirement_id = str(payload.get("requirement_id") or "").strip()
+    subject = f"Training Requirement — {domain}"
+    body = (
+        f"Dear {name or 'Trainer'},\n\n"
+        f"We came across your profile and believe your expertise in {domain} is a great fit "
+        f"for a current training requirement we are coordinating.\n\n"
+        "Kindly let us know:\n"
+        "1. Your availability for the proposed schedule\n"
+        "2. Expected commercial charges per day/session\n"
+        "3. Preferred training mode (Online/Offline)\n"
+        "4. Any relevant certifications or past training experience\n\n"
+        "We look forward to hearing from you.\n\n"
+        "Regards,\nRecruitment Team\nClahan Technologies"
+    )
+
+    smtp_config = {}
+    settings_doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0, "emailCfg": 1})
+    if settings_doc:
+        cfg = (settings_doc or {}).get("emailCfg") or {}
+        smtp_config = {k: v for k, v in cfg.items() if v not in (None, "")}
+
+    success, error = await send_email_async(to_email, subject, body, smtp_config)
+
+    # Step 3: Log to DB
+    now = utc_now()
+    email_id = f"CF-{uuid.uuid4().hex[:8].upper()}"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "to_email": to_email,
+        "trainer_name": name,
+        "requirement_id": requirement_id,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error or "",
+        "mail_type": "mail1",
+        "source": "contact_finder",
+        "contact_source": contact.get("source"),
+        "contact_confidence": contact.get("confidence"),
+        "linkedin_url": payload.get("linkedin_url") or "",
+        "sent_at": now if success else None,
+        "created_at": now,
+    })
+
+    return {
+        "success": success,
+        "found": True,
+        "email_sent": success,
+        "to_email": to_email,
+        "email_id": email_id,
+        "contact": contact,
+        "error": error or "",
+    }
