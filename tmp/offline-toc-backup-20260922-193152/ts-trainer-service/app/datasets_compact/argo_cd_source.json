@@ -1,0 +1,419 @@
+{
+    "domain":  "Argo CD",
+    "name":  "Argo CD â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "ArgoCD",
+                    "GitOps Continuous Delivery"
+                ],
+    "tools":  [
+                  "Argo CD",
+                  "Kubernetes",
+                  "Git",
+                  "Helm"
+              ],
+    "certifications":  [
+                           "Argo CD official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git"
+                               ],
+                     "lab_task":  "Set up Argo CD and run a basic workflow.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Argo CD.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git"
+                               ],
+                     "lab_task":  "Create reusable Argo CD configuration for development.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Argo CD.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git"
+                               ],
+                     "lab_task":  "Build an automated workflow using Argo CD.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Argo CD.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git",
+                                   "Helm"
+                               ],
+                     "lab_task":  "Integrate Argo CD with source control and external services.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Argo CD.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git"
+                               ],
+                     "lab_task":  "Harden a Argo CD setup.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Argo CD.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Argo CD setup.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Argo CD.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Argo CD workflow.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Argo CD.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git",
+                                   "Helm"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Argo CD.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Argo CD terminology and feature mapping for this topic",
+                                       "Argo CD configuration and implementation considerations",
+                                       "Argo CD best practices and common mistakes for this topic",
+                                       "GitOps",
+                                       "Application",
+                                       "AppProject",
+                                       "sync",
+                                       "auto-sync",
+                                       "health status",
+                                       "sync waves",
+                                       "hooks",
+                                       "Helm",
+                                       "Kustomize",
+                                       "RBAC",
+                                       "ApplicationSet"
+                                   ],
+                     "tools":  [
+                                   "Argo CD",
+                                   "Kubernetes",
+                                   "Git",
+                                   "Helm"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Argo CD.",
+                     "technology":  "Argo CD",
+                     "technology_id":  "argo-cd",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Argo CD.",
+                                                 "Configure or implement the key Argo CD features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Argo CD.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "argo-cd"
+}

@@ -1,8 +1,8 @@
 # Account activation
 
-New registrations are pending and receive no session. An operator must activate
-the account before password or social sign-in can succeed. Each authenticated
-request checks the current account status and session version in MongoDB.
+Public signups create trainer and client accounts. Administrator accounts are
+provisioned explicitly by an operator. Each authenticated request checks the
+current account status and session version in MongoDB.
 Client and trainer APIs are protected by the gateway; keep upstream service ports
 private and route browser traffic through the gateway.
 
@@ -16,17 +16,19 @@ Replace the example email with your own. The command prompts twice for a hidden
 password of 12-128 characters and stores a salted password hash. There are no
 default administrator credentials. An existing account is never overwritten.
 
-After reviewing a registration, activate it with:
+To activate a registered trainer or client account, use:
 
 ```sh
-docker compose -f microservices/docker-compose.yml exec auth-service python -m app.manage_users activate user@example.com --role recruiter
+docker compose -f microservices/docker-compose.yml exec auth-service python -m app.manage_users activate user@example.com --role trainer
 ```
 
-Use `--role admin` to grant administrator access to an existing account, or
-`disable user@example.com` to disable it. These are trusted server-operator
-commands; role and status changes invalidate existing sessions. A requested
-signup role does not grant access. This workspace supports active recruiters
-and administrators; activation defaults to recruiter.
+The only account roles are `admin`, `trainer`, and `client`. Public signup is
+limited to trainer and client. `activate` without `--role` preserves the saved
+role. Use `--role admin` only when an operator has reviewed and authorized the
+account; use `--role client` for a client account.
+`disable user@example.com` disables an account. These are trusted
+server-operator commands; role and status changes invalidate existing sessions.
+Legacy employee and recruiter accounts are not automatically promoted.
 
 For local Python execution, run `python -m app.manage_users ...` from this
 service directory with the microservices directory on `PYTHONPATH` and

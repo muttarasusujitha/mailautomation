@@ -67,6 +67,10 @@ def _load_compact_domains():
         for alias in data.get("aliases") or []:
             alias_key = _normalise_key(alias)
             _register_compact_domain(alias_key, data, duration)
+        for day in data.get("days") or []:
+            if isinstance(day, dict) and day.get("topic"):
+                # Detailed designs live in module_designs/ and are read only when a ToC uses this day.
+                day["design_ref"] = {"file": base_name, "level": None, "topic": day["topic"]}
         if file_key and file_key != key:
             trimmed = re.sub(r"_[0-9]+$", "", file_key)
             _register_compact_domain(trimmed, data, duration)
@@ -804,6 +808,22 @@ def get_domain(name: str, duration_days: int | None = None):
         if compact:
             return _compact_domain_to_standard(compact)
     return DOMAINS.get(key)
+
+
+def same_technology_datasets(name: str) -> list:
+    """Every compact dataset for one technology (for example Java 30, Java 60 and
+    Java Mastery), shortest first, so a long programme can use all of them."""
+    _load_compact_domains()
+    key = _normalise_key(name)
+    if not key:
+        return []
+    found = {}
+    for variants in COMPACT_DOMAIN_VARIANTS.values():
+        for duration, data in variants:
+            names = {_normalise_key(data.get("domain")), _normalise_key(data.get("name"))}
+            if key in names:
+                found[id(data)] = (duration, data)
+    return [data for _, data in sorted(found.values(), key=lambda item: item[0] or 0)]
 
 
 def list_domains():

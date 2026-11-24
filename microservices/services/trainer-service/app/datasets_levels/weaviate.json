@@ -1,0 +1,573 @@
+{
+  "domain": "Weaviate",
+  "name": "Weaviate",
+  "category": "Generative AI and Agents",
+  "icon": "database",
+  "aliases": ["Weaviate Vector Database", "Vector Search Engine", "Weaviate Python Client", "Weaviate Cloud", "Weaviate DB", "Weaviate Developer", "Weaviate Administration", "Weaviate Hybrid Search"],
+  "certifications": [],
+  "tools": ["Weaviate Server", "weaviate-client (Python v4)", "Docker Compose", "Weaviate Cloud console", "Helm (weaviate-helm chart)", "kubectl", "Ollama", "OpenAI API", "Cohere API", "Prometheus", "Grafana", "pytest", "Jupyter", "curl"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For Python developers, data engineers and search engineers who are new to Weaviate and want to build semantic search applications on it. Covers running Weaviate locally in Docker, connecting with the Python v4 client over REST and gRPC, designing collections and properties, importing objects with module vectorizers or your own vectors, batch imports, near_text and near_vector queries, BM25 and hybrid search, filters, aggregations, generative search, cross-references, schema changes, Weaviate Cloud sandbox clusters and multimodal collections, ending with a semantic FAQ search capstone.",
+      "prerequisites": ["Writes Python 3.10 or later scripts with functions, dictionaries, virtual environments and pip", "Runs Docker and Docker Compose commands and reads container logs", "Understands at a high level what an embedding is and why similar texts have nearby vectors"],
+      "outcomes": ["Run Weaviate in Docker and connect to it with the Python v4 client locally and on Weaviate Cloud", "Design collections with typed properties, a vectorizer module and a generative module, and import data with batching and error checks", "Answer questions with near_text, near_vector, BM25, hybrid search, filters, aggregations and generative search", "Build and demonstrate a small semantic search application with measured relevance on a labelled question set"],
+      "days": [
+        {
+          "topic": "Weaviate Orientation and Local Setup with Docker Compose",
+          "subtopics": ["What Weaviate stores: objects, properties and one or more vectors per object", "Collections, shards and the HNSW vector index at a high level", "Modules: vectorizers, generative, rerankers and backup modules", "The official image cr.weaviate.io/semitechnologies/weaviate and version tags", "Ports 8080 for REST and 50051 for gRPC", "Key environment variables: PERSISTENCE_DATA_PATH, ENABLE_MODULES, DEFAULT_VECTORIZER_MODULE, QUERY_DEFAULTS_LIMIT", "AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED for local development only", "Persisting data with a named Docker volume", "Health endpoints /v1/.well-known/ready and /v1/.well-known/live", "Reading /v1/meta for the server version and enabled modules"],
+          "tools": ["Docker Compose", "Weaviate Server", "curl", "Ollama"],
+          "lab_task": "Write a docker-compose.yml that runs Weaviate with ports 8080 and 50051, a named volume at /var/lib/weaviate, ENABLE_MODULES=text2vec-ollama,generative-ollama and anonymous access on. Start it with docker compose up -d, call curl -i localhost:8080/v1/.well-known/ready, then curl localhost:8080/v1/meta and record the version and module list. Restart the container and confirm data survives.",
+          "deliverable": "docker-compose.yml, the /v1/meta JSON and a one-page note naming every environment variable used",
+          "checks": [["curl -i http://localhost:8080/v1/.well-known/ready after start-up", "HTTP/1.1 200 OK is returned", "Terminal output"], ["curl http://localhost:8080/v1/meta", "JSON lists text2vec-ollama and generative-ollama under modules", "meta.json file"], ["Run docker compose ps", "The weaviate service shows state running with 8080 and 50051 published", "Terminal screenshot"]],
+          "objectives": ["Explain Weaviate's data model and module system", "Run a persistent local Weaviate instance in Docker", "Check server health and enabled modules"]
+        },
+        {
+          "topic": "Connecting with the Weaviate Python v4 Client",
+          "subtopics": ["Installing weaviate-client and the v4 API compared with the removed v3 API", "weaviate.connect_to_local(), connect_to_custom() and connect_to_embedded()", "Why the v4 client needs both the HTTP and the gRPC port", "Using the client as a context manager and calling client.close()", "client.is_ready(), client.is_live() and client.get_meta()", "Passing provider API keys with the headers argument such as X-OpenAI-Api-Key", "Timeouts with AdditionalConfig(timeout=Timeout(init=, query=, insert=))", "Connection errors: WeaviateGRPCUnavailableError and WeaviateStartUpError"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter", "Docker Compose"],
+          "lab_task": "Create a virtual environment, pip install -U weaviate-client and write connect.py that opens weaviate.connect_to_local() in a with block, prints client.is_ready() and client.get_meta()['version'], and lists collections with client.collections.list_all(). Then stop Weaviate, rerun the script and record the exception class and message. Repeat with gRPC port 50051 blocked in Compose.",
+          "deliverable": "connect.py with output from a healthy run and from both failure runs",
+          "checks": [["Run connect.py against the running container", "Prints True followed by the server version string", "Script output"], ["Run connect.py with the container stopped", "Raises WeaviateConnectionError or WeaviateStartUpError naming localhost:8080", "Traceback"], ["Remove the 50051 port mapping and reconnect", "The client fails its gRPC health check and reports that gRPC is unavailable", "Traceback"]],
+          "objectives": ["Install and use the Weaviate Python v4 client", "Open and close connections safely", "Diagnose REST and gRPC connection failures"]
+        },
+        {
+          "topic": "Collections, Properties and Data Types in Weaviate",
+          "subtopics": ["client.collections.create() with name, description and properties", "Property(name=, data_type=DataType.TEXT) and the DataType enum", "TEXT, TEXT_ARRAY, INT, NUMBER, BOOL, DATE, UUID, GEO_COORDINATES, PHONE_NUMBER and BLOB", "Nested objects with DataType.OBJECT and nested_properties", "Collection naming: upper camel case and automatic capitalisation", "Auto-schema and why to disable it with AUTOSCHEMA_ENABLED=false in production", "collection.config.get() and client.collections.export_config()", "Deleting a collection with client.collections.delete()"],
+          "tools": ["weaviate-client (Python v4)", "Weaviate Server", "Jupyter"],
+          "lab_task": "Create a Book collection with title (TEXT), authors (TEXT_ARRAY), pages (INT), price (NUMBER), in_print (BOOL), published (DATE) and a nested publisher OBJECT with name and country. Print collection.config.get() and save it as JSON, try to create Book again and record the error, then insert one object with a string in pages and capture the validation message.",
+          "deliverable": "Collection definition script, exported config JSON and the two captured error messages",
+          "checks": [["Create the Book collection a second time", "UnexpectedStatusCodeError with status 422 stating the class already exists", "Traceback"], ["Insert an object with pages=\"three hundred\"", "Insert is rejected with a message that the value is not a valid int", "Error output"], ["Print the properties from collection.config.get()", "Seven top-level properties are listed with their data types", "Exported JSON"]],
+          "objectives": ["Define collections with explicit typed properties", "Use nested objects and array types", "Read back and export a collection configuration"]
+        },
+        {
+          "topic": "Inserting Objects and Bring-Your-Own Vectors",
+          "subtopics": ["collection.data.insert(properties=, vector=, uuid=)", "Deterministic IDs with weaviate.util.generate_uuid5()", "Configure.Vectors.self_provided() for collections without a vectorizer", "Vector dimensions and why the first insert fixes them", "collection.data.insert_many() and its errors dictionary", "Fetching by ID with collection.query.fetch_object_by_id()", "include_vector=True and reading object.vector['default']", "collection.data.exists() and replace() compared with update()"],
+          "tools": ["weaviate-client (Python v4)", "sentence-transformers", "Jupyter"],
+          "lab_task": "Create a Note collection with Configure.Vectors.self_provided(). Embed 50 short notes locally with sentence-transformers all-MiniLM-L6-v2, insert them with insert_many() using generate_uuid5(text) as IDs, fetch one with include_vector=True and confirm 384 dimensions. Then insert a 768-dimension vector and record the error, and rerun the import to show the UUIDs do not duplicate objects.",
+          "deliverable": "Import notebook, a count before and after re-import, and the dimension mismatch error",
+          "checks": [["Run collection.aggregate.over_all(total_count=True) after two identical imports", "total_count is 50, not 100", "Notebook cell output"], ["Insert an object whose vector has 768 dimensions", "Insert fails with a vector length mismatch error naming 384", "Error output"], ["Fetch one note with include_vector=True", "len(obj.vector['default']) returns 384", "Notebook cell output"]],
+          "objectives": ["Insert objects with your own vectors", "Make imports idempotent with UUID v5 IDs", "Read stored vectors back from Weaviate"]
+        },
+        {
+          "topic": "Vectorizer Modules: text2vec-ollama and text2vec-openai",
+          "subtopics": ["How a vectorizer module turns object properties into a vector at import and query time", "Configure.Vectors.text2vec_ollama(api_endpoint=, model=)", "api_endpoint http://host.docker.internal:11434 from inside the container", "Configure.Vectors.text2vec_openai(model=) and the X-OpenAI-Api-Key header", "source_properties and which properties are vectorised", "vectorize_collection_name and skip_vectorization on a property", "Why the vectorizer cannot be swapped on an existing collection", "Rate limits and provider error messages surfaced during import"],
+          "tools": ["Ollama", "OpenAI API", "weaviate-client (Python v4)", "Docker Compose"],
+          "lab_task": "Pull nomic-embed-text with ollama pull, create Article with Configure.Vectors.text2vec_ollama(api_endpoint=\"http://host.docker.internal:11434\", model=\"nomic-embed-text\", source_properties=[\"title\",\"body\"]) and import 100 articles. Create Article_OpenAI with text2vec_openai and the same data, then compare the top 3 near_text results for 5 queries between both collections.",
+          "deliverable": "Two collection definitions, vector dimension per model and a 5-query comparison table",
+          "checks": [["Read one object vector from each collection", "Vector lengths differ and match each model's documented dimension", "Notebook cell output"], ["Stop Ollama and insert one more Article", "Insert fails with a vectorizer error that the endpoint could not be reached", "Error output"], ["Run near_text(query=\"renewable energy\", limit=3) on both collections", "Each returns 3 objects and the overlap count is recorded", "Comparison table"]],
+          "objectives": ["Configure a module vectorizer on a collection", "Choose which properties are vectorised", "Compare local and hosted embedding providers"]
+        },
+        {
+          "topic": "Batch Imports and Error Handling in Weaviate",
+          "subtopics": ["collection.batch.dynamic(), fixed_size(batch_size=, concurrent_requests=) and rate_limit(requests_per_minute=)", "batch.add_object(properties=, uuid=, vector=)", "batch.number_errors inside the context manager", "collection.batch.failed_objects and failed_references after the block", "Why batching uses gRPC and how batch size affects throughput", "Stopping early when errors exceed a threshold", "Retrying failed objects with backoff", "Measuring objects per second for an import"],
+          "tools": ["weaviate-client (Python v4)", "pandas", "Jupyter"],
+          "lab_task": "Load 20,000 rows of a product CSV with pandas and import them into Product using collection.batch.fixed_size(batch_size=200). Break out of the loop when batch.number_errors exceeds 10, inject 25 rows with a non-numeric price, then print len(collection.batch.failed_objects) and the first error message. Repeat with dynamic() and record objects per second for both runs.",
+          "deliverable": "Import script, throughput table for two batch modes and a failed-object report",
+          "checks": [["Import the file containing 25 invalid price values", "failed_objects contains the invalid rows and each message names the price property", "Failed-object report"], ["Count objects after the clean import with aggregate.over_all(total_count=True)", "total_count equals 20,000", "Notebook cell output"], ["Compare fixed_size(200) with dynamic() on the same data", "Objects per second are recorded for both modes with the faster one identified", "Throughput table"]],
+          "objectives": ["Import large datasets with the batch API", "Detect and report failed objects", "Measure and tune import throughput"]
+        },
+        {
+          "topic": "near_text and near_vector Queries",
+          "subtopics": ["collection.query.near_text(query=, limit=) and how the query is vectorised", "near_vector(near_vector=) with a client-side embedding", "near_object(near_object=uuid) for more-like-this", "return_properties to reduce payload size", "return_metadata=MetadataQuery(distance=True, certainty=True)", "move_to and move_away_from with Move(force=, concepts=)", "auto_limit for result-set cut-off at score jumps", "Reading response.objects, obj.properties, obj.uuid and obj.metadata"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter", "Ollama"],
+          "lab_task": "On the Article collection run near_text for 10 test questions with limit=5 and return_metadata=MetadataQuery(distance=True), then embed the same questions with Ollama and repeat with near_vector. Run near_object on the top hit of question 1, and test move_away_from with concepts=[\"politics\"] on one query. Tabulate distances and note any ranking differences.",
+          "deliverable": "Query notebook with a results table for near_text, near_vector, near_object and move_away_from",
+          "checks": [["Run the same question through near_text and near_vector with the same model", "Both return the same 5 UUIDs in the same order", "Results table"], ["Run near_object with the UUID of an existing article", "The first result is that article with a distance of 0 or close to 0", "Notebook cell output"], ["Add move_away_from=Move(force=0.8, concepts=[\"politics\"])", "Articles tagged politics drop out of the top 5", "Before-and-after table"]],
+          "objectives": ["Run semantic queries with near_text and near_vector", "Retrieve similar objects with near_object", "Read distances and metadata in query responses"]
+        },
+        {
+          "topic": "Distance Metrics, Thresholds and Result Limits in Weaviate",
+          "subtopics": ["Cosine, dot, l2-squared, hamming and manhattan distances", "Setting distance_metric=VectorDistances.COSINE in the vector index config", "Cosine distance range 0 to 2 and certainty for cosine only", "The distance= argument as a cut-off threshold", "limit, offset and QUERY_DEFAULTS_LIMIT", "QUERY_MAXIMUM_RESULTS and deep pagination limits", "Choosing a threshold from a labelled sample", "Normalised vectors and when dot equals cosine"],
+          "tools": ["weaviate-client (Python v4)", "NumPy", "Jupyter"],
+          "lab_task": "Create two self-provided collections over the same 1,000 normalised vectors, one with VectorDistances.COSINE and one with VectorDistances.DOT, and compare top-10 rankings for 20 queries. On the cosine collection, find the distance threshold that keeps 90 percent of relevant hits on a labelled set of 30 queries, then run near_vector with distance=<threshold> and record the average result count.",
+          "deliverable": "Metric comparison, threshold analysis chart and the chosen threshold with justification",
+          "checks": [["Compare rankings from the cosine and dot collections for normalised vectors", "Top-10 UUID lists are identical for all 20 queries", "Comparison table"], ["Query with near_vector(distance=0.01) for a vague question", "Zero or very few objects are returned", "Notebook cell output"], ["Request certainty on the dot collection", "Certainty is not available and the client returns None or an error for that field", "Notebook cell output"]],
+          "objectives": ["Choose a distance metric for an embedding model", "Set and justify a distance threshold", "Control result counts with limit, offset and auto_limit"]
+        },
+        {
+          "topic": "BM25 Keyword Search and Tokenization in Weaviate",
+          "subtopics": ["collection.query.bm25(query=, query_properties=, limit=)", "Boosting a property with the caret syntax title^3", "return_metadata=MetadataQuery(score=True, explain_score=True)", "Tokenization options: word, lowercase, whitespace, field, trigram", "Language tokenizers gse and kagome_ja and their enable flags", "bm25_b and bm25_k1 in Configure.inverted_index()", "Stopwords presets and additions in the inverted index config", "index_searchable=False to exclude a property from keyword search"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter"],
+          "lab_task": "Create Manual with a part_number property tokenized with Tokenization.FIELD and title and body tokenized with WORD. Import 500 manual sections, run bm25 for the exact code \"XR-200/B\" and for \"reset password\" with query_properties=[\"title^3\",\"body\"], print explain_score for the top hit, then change part_number to WORD in a new collection and compare results for the code.",
+          "deliverable": "BM25 notebook with explain_score output and a tokenization comparison for exact codes",
+          "checks": [["bm25(query=\"XR-200/B\", query_properties=[\"part_number\"]) on the FIELD-tokenized collection", "Only sections with that exact part number are returned", "Notebook cell output"], ["Run the same code query on the WORD-tokenized copy", "Extra sections matching XR or 200 also appear", "Comparison table"], ["Print metadata.explain_score for the top hit of \"reset password\"", "The explanation lists BM25 contributions per matching property and term", "Notebook cell output"]],
+          "objectives": ["Run BM25 searches with property boosts", "Choose a tokenization for each property", "Read BM25 score explanations"]
+        },
+        {
+          "topic": "Hybrid Search with alpha and Fusion Methods",
+          "subtopics": ["collection.query.hybrid(query=, alpha=, limit=)", "alpha=0 for pure BM25, alpha=1 for pure vector and values in between", "HybridFusion.RANKED compared with HybridFusion.RELATIVE_SCORE", "query_properties for the keyword part of hybrid", "Supplying a vector= to the hybrid query", "max_vector_distance to drop weak vector matches", "Reading score and explain_score for hybrid results", "When hybrid beats pure vector search: codes, names and rare words"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter", "pandas"],
+          "lab_task": "Using 40 labelled questions on Article, run hybrid with alpha set to 0, 0.25, 0.5, 0.75 and 1 and with both fusion types, compute recall@5 for each of the 10 runs with pandas, and plot the result. Pick the best alpha and fusion, then show 3 questions where hybrid finds an answer that pure near_text misses.",
+          "deliverable": "Alpha sweep chart, a recall@5 table for 10 configurations and 3 annotated example queries",
+          "checks": [["Run hybrid with alpha=0 and compare with bm25 for the same query", "Both return the same top 5 objects", "Notebook cell output"], ["Compute recall@5 for all 10 configurations", "A table with 10 rows is produced and the best configuration is marked", "Recall table"], ["Query a product code with alpha=1 and then alpha=0.5", "The code's object is missing at alpha=1 and ranks first at alpha=0.5", "Before-and-after output"]],
+          "objectives": ["Run hybrid queries with tuned alpha", "Compare ranked and relative-score fusion", "Measure retrieval quality on labelled questions"]
+        },
+        {
+          "topic": "Filters with the Weaviate Filter Class",
+          "subtopics": ["Filter.by_property(name).equal(), not_equal(), greater_than() and less_than()", "like() wildcards, contains_any(), contains_all() and contains_none()", "is_none() and index_null_state", "Combining filters with & and | and Filter.all_of() and any_of()", "Filter.by_id() and Filter.by_creation_time() with index_timestamps", "Date filters with timezone-aware datetime values", "within_geo_range() on GEO_COORDINATES", "Using filters= with fetch_objects, near_text, bm25 and hybrid"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter"],
+          "lab_task": "On Product, write 8 filters: price between 20 and 50, category contains_any [\"laptop\",\"tablet\"], name like \"Pro*\", in_stock equal True, released after 2025-01-01 UTC, brand is_none (requires index_null_state), a geo filter within 10 km of a store, and one combined & and | filter. Run each with fetch_objects and with near_text, and record result counts.",
+          "deliverable": "Filter cookbook script with 8 filters and a result-count table",
+          "checks": [["Filter price greater_than(20) & less_than(50)", "Every returned object has 20 < price < 50", "Assertion output"], ["Run is_none(True) on brand in a collection created without index_null_state", "The query fails with an error that the null state is not indexed", "Error output"], ["Run near_text(\"lightweight laptop\") with the in_stock filter", "All results have in_stock True and are ordered by distance", "Notebook cell output"]],
+          "objectives": ["Write property, ID, time and geo filters", "Combine filters with boolean logic", "Apply filters to keyword, vector and hybrid queries"]
+        },
+        {
+          "topic": "Aggregations and group_by in Weaviate",
+          "subtopics": ["collection.aggregate.over_all(total_count=True)", "Metrics.number(), Metrics.text(top_occurrences_count=) and Metrics.boolean()", "group_by=GroupByAggregate(prop=) for counts per value", "Aggregating over search results with aggregate.near_text(object_limit=)", "Filtered aggregations with filters=", "group_by=GroupBy(prop=, number_of_groups=, objects_per_group=) in queries", "Reading response.groups and group.min_distance", "Performance notes: aggregations scan the inverted index"],
+          "tools": ["weaviate-client (Python v4)", "pandas", "Jupyter"],
+          "lab_task": "On Product, compute total count, mean, min and max price, the top 5 brands by occurrence and the in-stock percentage. Group counts by category with GroupByAggregate, aggregate price over the 100 objects nearest to \"gaming laptop\", then run near_text with GroupBy(prop=\"brand\", number_of_groups=5, objects_per_group=2) and render each group.",
+          "deliverable": "Aggregation report with five metrics, a per-category table and grouped search output",
+          "checks": [["Compare aggregate over_all total_count with the number of imported rows", "The two numbers are equal", "Notebook cell output"], ["Run GroupByAggregate(prop=\"category\")", "One row per category is returned and the counts sum to the total", "Per-category table"], ["Run the grouped near_text query", "At most 5 groups with at most 2 objects each are returned", "Notebook cell output"]],
+          "objectives": ["Compute numeric, text and boolean aggregates", "Group counts and search results by property", "Aggregate over the neighbours of a query"]
+        },
+        {
+          "topic": "Updating, Deleting and Iterating Weaviate Objects",
+          "subtopics": ["collection.data.update() for partial changes and replace() for full replacement", "Re-vectorisation when a vectorised property changes", "collection.data.delete_by_id()", "delete_many(where=Filter..., dry_run=True, verbose=True)", "QUERY_MAXIMUM_RESULTS and the delete_many object limit", "collection.iterator() for full exports with the cursor API", "Exporting objects with vectors to JSON Lines", "Soft deletes with a status property compared with hard deletes"],
+          "tools": ["weaviate-client (Python v4)", "jq", "Jupyter"],
+          "lab_task": "Update the body of 10 articles and confirm their vectors changed by comparing include_vector output before and after. Run delete_many(where=Filter.by_property(\"year\").less_than(2015), dry_run=True) and record matches, then run it for real. Export the remaining collection with collection.iterator(include_vector=True) to articles.jsonl and count lines with wc -l.",
+          "deliverable": "Update evidence, dry-run and real delete_many results and the exported JSON Lines file",
+          "checks": [["Compare a vector before and after updating the vectorised body property", "The two vectors differ", "Notebook cell output"], ["Run delete_many with dry_run=True", "matches is greater than 0 and the total count is unchanged afterwards", "Notebook cell output"], ["wc -l articles.jsonl after the real delete", "Line count equals aggregate total_count", "Terminal output"]],
+          "objectives": ["Update and replace objects correctly", "Delete objects safely with dry runs", "Export a whole collection with the iterator"]
+        },
+        {
+          "topic": "Generative Search with single_prompt and grouped_task",
+          "subtopics": ["Configure.Generative.ollama(api_endpoint=, model=) and Configure.Generative.openai(model=)", "collection.generate.near_text(query=, single_prompt=, grouped_task=)", "Property placeholders in single_prompt such as {title} and {body}", "Reading per-object generated text and response-level grouped output", "grouped_properties to limit context sent to the model", "Overriding the provider at query time with a runtime generative config", "Token cost and latency of single_prompt over many objects", "Grounding: telling the model to answer only from retrieved text"],
+          "tools": ["Ollama", "OpenAI API", "weaviate-client (Python v4)"],
+          "lab_task": "Add Configure.Generative.ollama(model=\"llama3.2\") to a new Article collection, then run generate.near_text(query=\"heat pumps\", limit=3, single_prompt=\"Summarise {title} in one sentence\") and grouped_task=\"Answer: are heat pumps efficient in cold climates? Use only the text provided.\" Measure latency for both calls and test grouped_properties=[\"body\"].",
+          "deliverable": "Generative search notebook with outputs, latency measurements and a grounding prompt",
+          "checks": [["Run single_prompt with limit=3", "Three objects are returned, each with its own generated summary", "Notebook cell output"], ["Run grouped_task with the same query", "One combined answer is returned for the whole result set", "Notebook cell output"], ["Run a generate query on a collection with no generative module and no runtime config", "The query fails with an error that no generative module is configured", "Error output"]],
+          "objectives": ["Configure a generative module on a collection", "Generate per-object and grouped answers from search results", "Write grounded prompts for retrieval-augmented generation"]
+        },
+        {
+          "topic": "Cross-References Between Weaviate Collections",
+          "subtopics": ["ReferenceProperty(name=, target_collection=)", "Adding references at insert time with references={...}", "collection.data.reference_add(), reference_replace() and reference_delete()", "Batch references with batch.add_reference()", "return_references=QueryReference(link_on=, return_properties=)", "Filtering through a reference with Filter.by_ref()", "Multi-target references", "Cost of references compared with denormalised properties"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter"],
+          "lab_task": "Create Author (name, country) and Book with a ReferenceProperty hasAuthor targeting Author. Import 50 authors and 300 books and link them with batch.add_reference(). Query 5 books returning author names via QueryReference, then filter books with Filter.by_ref(\"hasAuthor\").by_property(\"country\").equal(\"Japan\") and compare the count with a pandas join on the source CSV.",
+          "deliverable": "Two-collection schema, reference import script and a verified reference query",
+          "checks": [["Fetch a book with return_references on hasAuthor", "The response contains the author object with its name", "Notebook cell output"], ["Count books by Japanese authors through Filter.by_ref", "The count matches the pandas join on the source CSV", "Comparison output"], ["Add a reference to a non-existent Author UUID with batch.add_reference()", "The reference appears in failed_references", "Failed-reference output"]],
+          "objectives": ["Model relationships with cross-references", "Query and filter across references", "Decide when to denormalise instead of reference"]
+        },
+        {
+          "topic": "Schema Evolution: Adding Properties and Reconfiguring Collections",
+          "subtopics": ["Mutable and immutable collection settings", "collection.config.add_property(Property(...))", "collection.config.update() with Reconfigure.inverted_index() and Reconfigure.VectorIndex.hnsw()", "Why existing objects are not re-vectorised when a new property is added", "Adding a new named vector to an existing collection", "Changing tokenization or data types requires a new collection and re-import", "Versioned collection names such as Article_v2", "Keeping schema definitions in code under version control"],
+          "tools": ["weaviate-client (Python v4)", "Git", "Jupyter"],
+          "lab_task": "Add a language TEXT property to Article with config.add_property and backfill it for 100 objects. Update the HNSW ef value with Reconfigure.VectorIndex.hnsw(ef=128) and confirm it in config.get(). Then try to change the data type of year from INT to TEXT, record the error, and write a migration script that creates Article_v2 and copies data with collection.iterator().",
+          "deliverable": "Schema change log, migration script and before-and-after configs",
+          "checks": [["Call config.add_property for language", "The property appears in config.get() and existing objects return None for it", "Notebook cell output"], ["Update ef to 128 with config.update", "config.get().vector_config shows ef equal to 128", "Notebook cell output"], ["Run the Article to Article_v2 migration", "Article_v2 total_count equals the Article total_count", "Migration log"]],
+          "objectives": ["Change collection settings that are mutable", "Plan migrations for immutable settings", "Keep schema changes repeatable in code"]
+        },
+        {
+          "topic": "Weaviate Cloud Sandbox Clusters and API Keys",
+          "subtopics": ["Creating a free sandbox cluster in the Weaviate Cloud console and its expiry", "REST endpoint, gRPC endpoint and the cluster URL", "weaviate.connect_to_weaviate_cloud(cluster_url=, auth_credentials=Auth.api_key())", "Admin and read-only API keys", "Storing WEAVIATE_URL and WEAVIATE_API_KEY in environment variables", "Weaviate Embeddings with Configure.Vectors.text2vec_weaviate()", "Explorer and query tools in the console", "Moving a local collection to the cloud with a config export and re-import"],
+          "tools": ["Weaviate Cloud console", "weaviate-client (Python v4)", "python-dotenv"],
+          "lab_task": "Create a sandbox cluster in Weaviate Cloud, create an admin and a read-only key, store them in a .env file and connect with connect_to_weaviate_cloud. Create an Article collection with text2vec_weaviate, import 200 articles, run a near_text query, then reconnect with the read-only key and try to insert an object, recording the status code.",
+          "deliverable": "Cloud connection script, the .env.example file without secrets and the permission test result",
+          "checks": [["Connect with the admin key and call client.is_ready()", "Returns True", "Script output"], ["Insert an object using the read-only key", "The request fails with a 403 forbidden error", "Error output"], ["Run near_text on the cloud Article collection", "Returns 5 results with distances", "Script output"]],
+          "objectives": ["Create and connect to a Weaviate Cloud cluster", "Separate admin and read-only access with API keys", "Use the Weaviate-hosted embedding service"]
+        },
+        {
+          "topic": "Multimodal Collections with multi2vec-clip",
+          "subtopics": ["The multi2vec-clip module and its inference container", "Enabling CLIP_INFERENCE_API in Docker Compose", "Configure.Vectors.multi2vec_clip(image_fields=, text_fields=) with weights", "Storing images as base64 in BLOB properties", "near_image(near_image=) and near_text across modalities", "Image size, memory and import speed considerations", "Excluding BLOB properties from return_properties", "Evaluating text-to-image retrieval with labelled pairs"],
+          "tools": ["Docker Compose", "multi2vec-clip inference container", "weaviate-client (Python v4)", "Pillow"],
+          "lab_task": "Add the multi2vec-clip inference container to docker-compose.yml with CLIP_INFERENCE_API set, enable the module, and create Photo with an image BLOB and caption TEXT. Import 300 labelled photos as base64, run 10 text queries such as \"red bicycle\" with near_text and 5 image queries with near_image, and compute top-3 accuracy against the labels.",
+          "deliverable": "Updated Compose file, Photo schema, query results and a top-3 accuracy figure",
+          "checks": [["Run near_text(\"red bicycle\", limit=3)", "At least one of the three results carries the bicycle label", "Notebook cell output"], ["Run near_image with a held-out photo of a dog", "The top result is labelled dog", "Notebook cell output"], ["Stop the CLIP inference container and insert a photo", "Insert fails with a vectorizer connection error", "Error output"]],
+          "objectives": ["Run a multimodal vectorizer with Weaviate", "Search images by text and by image", "Measure multimodal retrieval accuracy"]
+        },
+        {
+          "topic": "Debugging Weaviate Queries and Common Client Errors",
+          "subtopics": ["Reading WeaviateQueryError, UnexpectedStatusCodeError and WeaviateInsertManyAllFailedError", "Typical 422 schema errors and 401 or 403 auth errors", "Vectorizer provider errors: missing API key headers and rate limits", "Empty results: wrong collection name, tenant, filter or threshold", "Server logs with docker compose logs weaviate and LOG_LEVEL=debug", "The REST API with curl for /v1/schema and /v1/objects", "Checking object counts and shard status with /v1/nodes?output=verbose", "Writing minimal reproductions for support questions"],
+          "tools": ["weaviate-client (Python v4)", "curl", "Docker Compose"],
+          "lab_task": "Work through 6 prepared broken scripts: missing X-OpenAI-Api-Key header, wrong collection name casing, filter on a non-filterable property, mismatched vector length, distance threshold too strict and a closed client reused. For each, capture the error or empty result, find the cause using logs, curl /v1/schema or /v1/nodes, fix it and record a one-line root cause.",
+          "deliverable": "Debugging log with 6 symptoms, root causes and fixes",
+          "checks": [["Run the script without the provider API key header", "Error message states that the API key was not found or is missing", "Debugging log"], ["Filter on a property created with index_filterable=False", "Query fails with an error that the property is not filterable", "Debugging log"], ["Call curl localhost:8080/v1/nodes?output=verbose", "JSON shows each shard with objectCount and status READY", "Terminal output"]],
+          "objectives": ["Classify common Weaviate errors by cause", "Use logs and REST endpoints to diagnose problems", "Write minimal reproductions"]
+        },
+        {
+          "topic": "Capstone: Semantic FAQ Search App on Weaviate",
+          "subtopics": ["Collection design with properties, vectorizer and generative module", "Batch import of 2,000 FAQ entries with error reporting", "Hybrid search with filters by product and language", "Grounded answers with grouped_task", "Relevance evaluation on 50 labelled questions", "Demo, README and run instructions"],
+          "tools": ["Weaviate Server", "weaviate-client (Python v4)", "Docker Compose", "Ollama", "FastAPI", "pytest"],
+          "lab_task": "Build an FAQ search service: Docker Compose with Weaviate and Ollama, an FAQ collection with question, answer, product and language properties, batch import of 2,000 entries, a FastAPI /search endpoint using hybrid with filters and an /answer endpoint using grouped_task. Report recall@5 on 50 labelled questions and p95 latency for 100 requests.",
+          "deliverable": "Git repository with Compose file, import script, API, pytest suite, evaluation report and a 10-minute demo",
+          "checks": [["Run the import script on a clean instance", "2,000 objects are imported with 0 failed objects", "Import log"], ["Run the 50-question evaluation", "recall@5 is 0.8 or higher and the report lists every miss", "Evaluation report"], ["Send 100 /search requests with a load script", "p95 latency is under 300 ms on the training laptop", "Latency report"]],
+          "objectives": ["Combine collection design, import, search and generation in one application", "Evaluate retrieval quality with labelled data", "Present a working Weaviate application"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For developers and search engineers who already build simple Weaviate applications and now need production-grade retrieval. Covers named vectors and multi-target search, inverted index tuning, hybrid relevance evaluation, rerankers, retrieval-augmented generation and chunking pipelines, multi-tenancy and tenant lifecycle, HNSW, flat and dynamic indexes, PQ, SQ, BQ and RQ compression, filtered vector search, backups, authentication and RBAC, collection aliases for reindexing and automated testing, ending with a multi-tenant RAG service capstone.",
+      "prerequisites": ["Completed the beginner level or can create collections, batch import data and run near_text, BM25, hybrid and filtered queries with the Python v4 client", "Runs Weaviate with Docker Compose and edits its environment variables", "Can compute recall@k and mean reciprocal rank from a labelled query set in Python"],
+      "outcomes": ["Design collections with named vectors, tuned inverted indexes and a suitable vector index type and compression method", "Improve and measure retrieval quality with hybrid tuning, multi-target vectors and rerankers", "Build retrieval-augmented generation pipelines with chunking, tenants and grounded prompts", "Protect Weaviate data with backups, API keys, OIDC or database users and role-based access control"],
+      "days": [
+        {
+          "topic": "Named Vectors and Target Vectors in Weaviate",
+          "subtopics": ["Why one object can hold several vectors", "Configure.Vectors.<module>(name=, source_properties=) for each named vector", "Mixing a self_provided vector with module vectorizers in one collection", "Per-vector index config and per-vector compression", "target_vector= in near_text, near_vector and hybrid", "Inserting objects with vector={\"title_vec\": [...], \"image_vec\": [...]}", "Reading obj.vector by name with include_vector=[\"title_vec\"]", "Memory cost of each extra named vector"],
+          "tools": ["weaviate-client (Python v4)", "Ollama", "Jupyter"],
+          "lab_task": "Create Movie with three named vectors: title_vec over title, plot_vec over plot (both text2vec-ollama) and poster_vec as self_provided with CLIP embeddings you compute. Import 1,000 movies, then run the same query against each target_vector and compare top-5 results. Record the memory reported by /v1/nodes?output=verbose before and after adding poster_vec.",
+          "deliverable": "Movie schema with three named vectors, per-vector query comparison and memory notes",
+          "checks": [["Run near_text without target_vector on the three-vector collection", "The query fails with an error asking for a target vector", "Error output"], ["Query \"space station\" against title_vec and plot_vec", "The two result lists differ and both are recorded", "Comparison table"], ["Fetch one object with include_vector=True", "obj.vector has keys title_vec, plot_vec and poster_vec", "Notebook cell output"]],
+          "objectives": ["Design collections with several named vectors", "Query a chosen named vector", "Estimate the cost of extra vectors"]
+        },
+        {
+          "topic": "Multi-Target Vector Search and Join Strategies",
+          "subtopics": ["Passing a list to target_vector for multi-target search", "TargetVectors.sum(), average() and minimum()", "TargetVectors.manual_weights() and relative_score()", "Supplying different query vectors per target with near_vector", "How distances from each target are combined", "Multi-target vectors inside hybrid queries", "Evaluating each join strategy on labelled queries", "When to prefer a single combined vector instead"],
+          "tools": ["weaviate-client (Python v4)", "pandas", "Jupyter"],
+          "lab_task": "On Movie, run 30 labelled queries with target_vector=TargetVectors.average([\"title_vec\",\"plot_vec\"]), minimum(), sum() and manual_weights({\"title_vec\":0.3,\"plot_vec\":0.7}), plus single-vector baselines. Compute MRR for each of the 6 runs with pandas, pick the best strategy and show one query where multi-target search beats both single vectors.",
+          "deliverable": "Join strategy evaluation table, the chosen strategy and one annotated example",
+          "checks": [["Run the 30 labelled queries for all 6 configurations", "An MRR table with 6 rows is produced", "Evaluation table"], ["Use manual_weights with weights 1.0 and 0.0", "Results equal the single plot_vec or title_vec baseline", "Comparison output"], ["Request return_metadata=MetadataQuery(distance=True) on a multi-target query", "Each object has one combined distance value", "Notebook cell output"]],
+          "objectives": ["Run multi-target vector queries", "Compare join strategies with a metric", "Choose between multi-target and single-vector designs"]
+        },
+        {
+          "topic": "Inverted Index Configuration and Range Filters",
+          "subtopics": ["index_filterable, index_searchable and index_range_filters per property", "Roaring bitmaps for filterable properties", "Range filters on INT, NUMBER and DATE with index_range_filters=True", "index_timestamps and index_property_length", "index_null_state for is_none filters", "BM25 parameters and stopwords in Configure.inverted_index()", "Cost of each index on disk and import time", "Which settings can be changed after creation"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter", "du"],
+          "lab_task": "Create Order twice with 500,000 objects: once with defaults and once with index_range_filters=True on amount and created_at and index_searchable=False on 4 non-text fields. Time 20 range filter queries such as amount between 100 and 200 on both, compare import times, and measure the data directory size of each collection with du -sh on the shard folders.",
+          "deliverable": "Index configuration comparison of query latency, import time and disk size",
+          "checks": [["Time the 20 range filters on both collections", "Median latency is lower on the collection with index_range_filters", "Latency table"], ["Measure shard folder size with du -sh", "Sizes for both collections are recorded and the difference explained", "Terminal output"], ["Run Filter.by_creation_time() on a collection without index_timestamps", "The query fails with an error that timestamps are not indexed", "Error output"]],
+          "objectives": ["Choose inverted index settings per property", "Speed up range filters", "Balance index features against disk and import cost"]
+        },
+        {
+          "topic": "Hybrid Relevance Tuning with Judgement Lists",
+          "subtopics": ["Building a judgement list of queries with graded relevant documents", "nDCG@10, recall@k and MRR in a small evaluation harness", "Sweeping alpha, fusion type and query_properties boosts", "Tuning bm25_b and bm25_k1", "max_vector_distance in hybrid queries", "Query classes: exact codes, short keywords and natural-language questions", "Avoiding overfitting with a held-out query set", "Documenting a relevance baseline and change log"],
+          "tools": ["weaviate-client (Python v4)", "pandas", "ranx", "Jupyter"],
+          "lab_task": "Build a judgement list of 100 queries with graded relevance over a support-article collection, split it 70/30, and sweep alpha in steps of 0.1 for both fusion types and 3 boost settings on the 70 queries, computing nDCG@10 with ranx. Apply the best setting to the 30 held-out queries, and break results down by query class.",
+          "deliverable": "Evaluation harness, sweep results, held-out score and per-class breakdown",
+          "checks": [["Run the sweep on the tuning split", "nDCG@10 is recorded for 66 configurations and the best one is marked", "Sweep results file"], ["Apply the best setting to the held-out split", "Held-out nDCG@10 is within 0.05 of the tuning score", "Evaluation report"], ["Break down scores by query class", "Exact-code queries score higher with low alpha than natural-language questions", "Per-class table"]],
+          "objectives": ["Build a judgement list and evaluation harness", "Tune hybrid search parameters with evidence", "Report relevance changes against a baseline"]
+        },
+        {
+          "topic": "Rerankers in Weaviate: Cohere and Transformers Modules",
+          "subtopics": ["Why rerankers re-score a short candidate list with a cross-encoder", "Enabling reranker-cohere or reranker-transformers in ENABLE_MODULES", "Configure.Reranker.cohere(model=) and Configure.Reranker.transformers()", "rerank=Rerank(prop=, query=) on near_text, bm25 and hybrid", "Reading metadata.rerank_score", "Choosing the candidate limit before reranking", "Latency and cost per reranked query", "Measuring nDCG uplift from reranking"],
+          "tools": ["Cohere API", "reranker-transformers inference container", "weaviate-client (Python v4)", "ranx"],
+          "lab_task": "Add the reranker-transformers container to Compose and create a collection with Configure.Reranker.transformers(). Run the 30 held-out queries from the previous day with hybrid limit=50 and rerank=Rerank(prop=\"body\", query=q), keep the top 10 and compute nDCG@10 and p95 latency. Repeat with candidate limits of 20 and 100 and choose one.",
+          "deliverable": "Reranker configuration, nDCG and latency table for three candidate limits and a recommendation",
+          "checks": [["Run a hybrid query with rerank", "Each object has a rerank_score and results are ordered by it", "Notebook cell output"], ["Compare nDCG@10 with and without reranking", "The reranked run scores higher and the uplift is recorded", "Evaluation table"], ["Measure p95 latency at candidate limits 20, 50 and 100", "Latency grows with the limit and the three values are tabulated", "Latency table"]],
+          "objectives": ["Configure a reranker module", "Rerank hybrid and vector results", "Trade off reranking quality against latency"]
+        },
+        {
+          "topic": "Retrieval-Augmented Generation with Weaviate collection.generate",
+          "subtopics": ["collection.generate.hybrid() and near_text() for RAG", "Prompt templates with grouped_task and grouped_properties", "Returning source UUIDs and titles for citations", "Runtime generative config to switch providers per query", "Combining filters, rerank and generation in one call", "Handling no-answer cases with a distance or score threshold", "Streaming answers outside Weaviate when the client needs tokens early", "Evaluating faithfulness and answer correctness"],
+          "tools": ["weaviate-client (Python v4)", "OpenAI API", "Ollama", "Ragas"],
+          "lab_task": "Build answer(question) that calls collection.generate.hybrid(query=question, alpha=0.6, limit=6, rerank=Rerank(prop=\"body\", query=question), grouped_task=PROMPT) and returns the answer with cited titles. Return \"not found\" when the best score is below a threshold. Evaluate on 40 questions, including 10 unanswerable ones, with Ragas faithfulness and a manual correctness check.",
+          "deliverable": "answer() module, prompt template, evaluation results and 5 annotated failure cases",
+          "checks": [["Ask one of the 10 unanswerable questions", "The function returns not found and calls no model", "Test output"], ["Ask an answerable question", "The answer includes at least one cited title that exists in the collection", "Test output"], ["Run the Ragas faithfulness metric over 30 answerable questions", "A mean faithfulness score is reported with per-question values", "Evaluation report"]],
+          "objectives": ["Build a RAG flow on Weaviate's generate API", "Return citations and handle unanswerable questions", "Evaluate RAG answers for faithfulness"]
+        },
+        {
+          "topic": "Chunking and Ingestion Pipelines for Weaviate",
+          "subtopics": ["Chunk size and overlap for embedding models", "Chunk collections with a ReferenceProperty to a Document collection", "Storing chunk_index, source_url and section headings as properties", "Deterministic chunk UUIDs from document ID and index", "Re-ingesting changed documents: delete_many by document ID then re-import", "Parsing PDFs and HTML before import", "Late chunking compared with fixed-size chunking", "Measuring the effect of chunk size on recall"],
+          "tools": ["weaviate-client (Python v4)", "pypdf", "BeautifulSoup", "pandas"],
+          "lab_task": "Parse 200 PDF policy documents with pypdf, chunk them at 256, 512 and 1,024 tokens with 15 percent overlap into three Chunk collections that reference a Document collection, and use UUIDs generated from doc_id and chunk_index. Update 5 documents and re-ingest them, then compare recall@5 for 40 questions across the three chunk sizes.",
+          "deliverable": "Ingestion pipeline, chunk counts per size, re-ingestion proof and a recall comparison",
+          "checks": [["Re-ingest the same 200 documents a second time", "Chunk counts stay the same because UUIDs are deterministic", "Import log"], ["Update 5 documents and re-ingest them", "Old chunks for those documents are removed and only new ones remain", "Before-and-after counts"], ["Evaluate the three chunk sizes", "recall@5 is reported for 256, 512 and 1,024 tokens with a recommended size", "Evaluation table"]],
+          "objectives": ["Design chunk and document collections", "Build idempotent ingestion and re-ingestion", "Choose chunk size from measured recall"]
+        },
+        {
+          "topic": "Multi-Tenancy: Tenants, with_tenant and Data Isolation",
+          "subtopics": ["When to use multi-tenancy instead of one collection per customer", "Configure.multi_tenancy(enabled=True)", "collection.tenants.create([Tenant(name=)]) and tenants.get()", "collection.with_tenant(\"acme\") for every read and write", "One shard per tenant and how isolation is enforced", "Errors when the tenant is missing or not supplied", "Batch imports per tenant", "Tenant naming rules and limits"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter"],
+          "lab_task": "Create a multi-tenant Ticket collection, create 50 tenants, and import 1,000 tickets per tenant with collection.with_tenant(name).batch.fixed_size(200). Run near_text for \"refund\" in tenant acme and confirm no other tenant's data is returned, then query without a tenant and with an unknown tenant and record both errors.",
+          "deliverable": "Multi-tenant import script, isolation test and the two error messages",
+          "checks": [["Query the collection without with_tenant", "The query fails with an error that multi-tenancy is enabled but no tenant was given", "Error output"], ["Query with tenant \"unknown_co\"", "The query fails with a tenant not found error", "Error output"], ["Run near_text in tenant acme", "All returned objects carry tenant acme's customer IDs", "Assertion output"]],
+          "objectives": ["Enable and use multi-tenancy", "Prove tenant data isolation", "Handle tenant-related errors"]
+        },
+        {
+          "topic": "Tenant Lifecycle: Activity Status, Auto-Creation and Offloading",
+          "subtopics": ["Tenant activity statuses ACTIVE, INACTIVE and OFFLOADED", "Updating status with collection.tenants.update()", "auto_tenant_creation and auto_tenant_activation in Configure.multi_tenancy()", "Memory saved by deactivating idle tenants", "The offload-s3 module for cold tenants", "Querying an inactive tenant and the resulting error", "Scheduled jobs that deactivate tenants idle for 30 days", "Deleting tenants and their data"],
+          "tools": ["weaviate-client (Python v4)", "MinIO", "Docker Compose"],
+          "lab_task": "Enable auto_tenant_creation and import into 5 new tenants without creating them first. Set 40 of 50 tenants to INACTIVE with tenants.update and record memory from /v1/nodes?output=verbose before and after. Add MinIO and the offload-s3 module, offload 10 tenants, list their status and reactivate one, timing the reactivation.",
+          "deliverable": "Tenant lifecycle script, memory comparison, offload and reactivation timings",
+          "checks": [["Import into a tenant that does not exist with auto_tenant_creation=True", "The tenant is created and the import succeeds", "Tenant list output"], ["Query an INACTIVE tenant", "The query fails with an error that the tenant is not active", "Error output"], ["Offload 10 tenants and list tenants", "The 10 tenants show status OFFLOADED and their files appear in the MinIO bucket", "Tenant list and bucket listing"]],
+          "objectives": ["Manage tenant activity status", "Automate tenant creation and activation", "Offload cold tenants to object storage"]
+        },
+        {
+          "topic": "HNSW Index Parameters: ef, efConstruction and maxConnections",
+          "subtopics": ["How HNSW builds layered graphs", "Configure.VectorIndex.hnsw(ef_construction=, max_connections=, ef=)", "Dynamic ef with dynamic_ef_min, dynamic_ef_max and dynamic_ef_factor", "vector_cache_max_objects and memory use", "Recall measured against a flat brute-force baseline", "Which HNSW settings can be updated later", "cleanup_interval_seconds and tombstones after deletes", "Import time cost of larger ef_construction"],
+          "tools": ["weaviate-client (Python v4)", "NumPy", "Jupyter"],
+          "lab_task": "Import 200,000 self-provided 768-dimension vectors into three collections with ef_construction and max_connections of 64/16, 128/32 and 256/64. Compute exact top-10 neighbours for 200 queries with NumPy, then measure recall@10 and p95 latency for ef values 32, 64, 128 and 256 using config.update between runs. Record import time per collection.",
+          "deliverable": "HNSW parameter study with recall-latency curves and import times",
+          "checks": [["Measure recall@10 at ef=32 and ef=256 on the 128/32 collection", "Recall at ef=256 is higher than at ef=32", "Recall table"], ["Change ef with config.update(vector_config=Reconfigure.VectorIndex.hnsw(ef=128))", "The change applies without re-import", "Config output"], ["Compare import times for the three collections", "The 256/64 collection takes the longest to import", "Import timing table"]],
+          "objectives": ["Tune HNSW build and query parameters", "Measure recall against an exact baseline", "Choose settings from a recall-latency curve"]
+        },
+        {
+          "topic": "Flat and Dynamic Vector Indexes in Weaviate",
+          "subtopics": ["Configure.VectorIndex.flat() and its brute-force search", "When flat beats HNSW: small tenants and low memory", "Flat index with BQ compression and vector caching", "Configure.VectorIndex.dynamic(threshold=)", "Switching from flat to HNSW when a shard passes the threshold", "ASYNC_INDEXING=true as a requirement for dynamic", "Dynamic indexes in multi-tenant collections", "Latency and memory comparison across index types"],
+          "tools": ["weaviate-client (Python v4)", "Docker Compose", "Jupyter"],
+          "lab_task": "Set ASYNC_INDEXING=true, create a multi-tenant collection with Configure.VectorIndex.dynamic(threshold=10000). Load 3 tenants with 2,000, 9,000 and 50,000 objects, check which index each tenant shard uses in /v1/nodes?output=verbose, then compare query latency and memory with a flat-only and an HNSW-only copy of the same data.",
+          "deliverable": "Index-type comparison with latency and memory per tenant size",
+          "checks": [["Create a dynamic index collection with ASYNC_INDEXING unset", "Creation fails with an error that dynamic indexing requires async indexing", "Error output"], ["Inspect the 50,000-object tenant after import", "Its shard reports an HNSW index while the 2,000-object tenant stays flat", "Nodes API output"], ["Compare memory for the flat-only and HNSW-only copies", "The flat copy uses less memory and both figures are recorded", "Comparison table"]],
+          "objectives": ["Choose between HNSW, flat and dynamic indexes", "Configure dynamic indexing for growing tenants", "Measure memory and latency per index type"]
+        },
+        {
+          "topic": "Vector Compression with Product and Scalar Quantization",
+          "subtopics": ["Why compression reduces memory for HNSW", "Configure.VectorIndex.Quantizer.pq(segments=, centroids=, training_limit=)", "PQ training and the training_limit threshold", "Configure.VectorIndex.Quantizer.sq(training_limit=, rescore_limit=)", "Rescoring with uncompressed vectors from disk", "Enabling compression on an existing collection with config.update", "Memory per vector before and after compression", "Recall loss and how rescore_limit recovers it"],
+          "tools": ["weaviate-client (Python v4)", "NumPy", "Jupyter"],
+          "lab_task": "Using the 200,000-vector dataset, create uncompressed, PQ (segments=192, training_limit=100000) and SQ collections. Wait for training to finish, then measure heap memory from Prometheus or /v1/nodes, recall@10 against the exact baseline and p95 latency for 200 queries. Increase rescore_limit on SQ from 20 to 100 and record the recall change.",
+          "deliverable": "Compression report with memory, recall and latency for three collections and a rescore study",
+          "checks": [["Compare memory for uncompressed and PQ collections", "PQ uses less memory and the reduction ratio is recorded", "Memory table"], ["Measure recall@10 for PQ and SQ", "Both are below the uncompressed recall and the gap is recorded", "Recall table"], ["Raise rescore_limit on SQ from 20 to 100", "Recall@10 rises and p95 latency rises", "Rescore table"]],
+          "objectives": ["Enable PQ and SQ compression", "Measure memory savings and recall loss", "Recover recall with rescoring"]
+        },
+        {
+          "topic": "Binary Quantization and Rotational Quantization in Weaviate",
+          "subtopics": ["Configure.VectorIndex.Quantizer.bq() and the 32x size reduction", "Which embedding models work well with BQ", "BQ with the flat index for small datasets", "Configure.VectorIndex.Quantizer.rq() and what rotation adds", "RQ needing no training step", "Rescoring with rescore_limit for BQ and RQ", "Default compression settings on newer Weaviate versions", "A decision table for PQ, SQ, BQ and RQ"],
+          "tools": ["weaviate-client (Python v4)", "NumPy", "Jupyter"],
+          "lab_task": "Add BQ and RQ collections over the same 200,000 vectors and also embed 50,000 texts with a second model to test BQ sensitivity. Measure memory, recall@10 and p95 latency for BQ and RQ with rescore_limit 0 and 100, compare with the PQ and SQ results from the previous day, and write a one-page decision table.",
+          "deliverable": "Four-method compression comparison and a decision table",
+          "checks": [["Create the RQ collection and query immediately after import", "Queries return compressed results without a training wait", "Notebook cell output"], ["Measure BQ recall@10 with rescore_limit 0 and 100", "Recall with rescore 100 is higher than without rescoring", "Recall table"], ["Compare memory across PQ, SQ, BQ and RQ", "BQ shows the smallest compressed vector size", "Memory table"]],
+          "objectives": ["Configure BQ and RQ compression", "Compare four compression methods on one dataset", "Recommend a method for a workload"]
+        },
+        {
+          "topic": "Filtered Vector Search with ACORN and Sweeping",
+          "subtopics": ["Pre-filtering with allow lists in Weaviate", "Why restrictive filters hurt HNSW recall and latency", "filter_strategy=VectorFilterStrategy.SWEEPING compared with ACORN", "flat_search_cutoff and the switch to flat search", "Correlated and uncorrelated filters", "Measuring recall under filters with an exact filtered baseline", "Changing the filter strategy with config.update", "Picking filters that keep selectivity known"],
+          "tools": ["weaviate-client (Python v4)", "NumPy", "Jupyter"],
+          "lab_task": "Add a category property with 1,000 values to the 200,000-vector dataset so that each filter keeps 0.1, 1, 10 or 50 percent of objects. For each selectivity, measure recall@10 against an exact filtered baseline and p95 latency with SWEEPING and with ACORN, then vary flat_search_cutoff and record when flat search is chosen.",
+          "deliverable": "Filtered search study with recall and latency for two strategies across four selectivities",
+          "checks": [["Run 1 percent selectivity queries with SWEEPING and ACORN", "Both recalls and latencies are recorded and the faster strategy is identified", "Comparison table"], ["Run a 0.1 percent filter below flat_search_cutoff", "Recall@10 equals 1.0 because flat search is used", "Recall table"], ["Switch filter strategy with config.update", "config.get() shows the new filter_strategy value", "Config output"]],
+          "objectives": ["Explain how Weaviate applies filters during vector search", "Compare ACORN and sweeping strategies", "Tune flat_search_cutoff for selective filters"]
+        },
+        {
+          "topic": "Weaviate Backups to Filesystem and S3",
+          "subtopics": ["Backup modules backup-filesystem, backup-s3, backup-gcs and backup-azure", "BACKUP_FILESYSTEM_PATH and BACKUP_S3_BUCKET settings", "client.backup.create(backup_id=, backend=, include_collections=, wait_for_completion=)", "Checking status with client.backup.get_create_status()", "client.backup.restore() and restoring into an empty collection name", "exclude_collections and partial backups", "Backups of multi-tenant collections and inactive tenants", "Backup IDs, retention and naming conventions"],
+          "tools": ["weaviate-client (Python v4)", "MinIO", "Docker Compose", "AWS CLI"],
+          "lab_task": "Enable backup-filesystem and backup-s3 against MinIO. Back up Article and Ticket to S3 with backup_id=\"daily-2026-01-15\" and wait_for_completion=True, list the bucket with aws s3 ls --endpoint-url, delete Article, restore it with include_collections=[\"Article\"] and compare total_count. Then try to restore while Article still exists and record the error.",
+          "deliverable": "Backup configuration, backup and restore scripts, bucket listing and count comparison",
+          "checks": [["Run backup.create with wait_for_completion=True", "Status returned is SUCCESS", "Script output"], ["Restore Article after deleting it", "Restored total_count equals the count before deletion", "Before-and-after counts"], ["Restore Article while the collection still exists", "Restore fails with an error that the collection already exists", "Error output"]],
+          "objectives": ["Configure backup modules", "Create, monitor and restore backups", "Plan backup IDs and retention"]
+        },
+        {
+          "topic": "Weaviate Authentication: API Keys, OIDC and Database Users",
+          "subtopics": ["AUTHENTICATION_APIKEY_ENABLED, AUTHENTICATION_APIKEY_ALLOWED_KEYS and AUTHENTICATION_APIKEY_USERS", "Turning off AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED", "AUTHENTICATION_OIDC_ENABLED with issuer, client ID and username claim", "Database users with AUTHENTICATION_DB_USERS_ENABLED", "client.users.db.create(), rotate_key() and delete()", "Auth.api_key() and Auth.client_credentials() in the client", "401 unauthorised compared with 403 forbidden", "Keeping keys out of Compose files with env files and secrets"],
+          "tools": ["weaviate-client (Python v4)", "Keycloak", "Docker Compose", "curl"],
+          "lab_task": "Turn off anonymous access, enable API key authentication with one admin key, and enable database users. Create a db user app-reader with client.users.db.create and connect with its key, rotate the key and confirm the old key fails. Add Keycloak as an OIDC issuer and connect with Auth.client_credentials, then call curl without a key and record the status.",
+          "deliverable": "Hardened Compose file, user management script and a status-code test log",
+          "checks": [["Call curl localhost:8080/v1/schema with no key", "Response status is 401", "Terminal output"], ["Connect with the old key after rotate_key", "Connection fails with a 401 error", "Error output"], ["Connect with Keycloak client credentials", "client.is_ready() returns True and the user appears in client.users.get_my_user()", "Script output"]],
+          "objectives": ["Enable API key, OIDC and database-user authentication", "Create and rotate user keys", "Tell authentication failures from authorisation failures"]
+        },
+        {
+          "topic": "RBAC Roles and Permissions in Weaviate",
+          "subtopics": ["AUTHORIZATION_RBAC_ENABLED and AUTHORIZATION_RBAC_ROOT_USERS", "Built-in roles admin, viewer and root", "client.roles.create(role_name=, permissions=)", "Permissions.collections(), Permissions.data(), Permissions.tenants() and Permissions.backup()", "Scoping permissions to collection and tenant name patterns", "client.users.db.assign_roles() and revoke_roles()", "Checking access with client.roles.get() and users.get_assigned_roles()", "Least privilege for ingestion, query and operations users"],
+          "tools": ["weaviate-client (Python v4)", "Docker Compose", "pytest"],
+          "lab_task": "Enable RBAC with one root user and create three roles: ingest-articles (create and update data on Article), query-acme (read data on Ticket for tenant acme only) and backup-operator (manage backups). Assign them to three db users and write 9 pytest cases that check each user can do its job and is refused anything else.",
+          "deliverable": "Role definitions, user assignments and a passing 9-case permission test suite",
+          "checks": [["query-acme user reads Ticket in tenant acme", "The query succeeds", "pytest output"], ["query-acme user reads Ticket in tenant globex", "The query fails with a 403 forbidden error", "pytest output"], ["ingest-articles user deletes the Article collection", "The request is refused with a permission error", "pytest output"]],
+          "objectives": ["Enable RBAC and define custom roles", "Scope permissions to collections and tenants", "Test least-privilege access automatically"]
+        },
+        {
+          "topic": "Collection Aliases and Zero-Downtime Reindexing",
+          "subtopics": ["What a collection alias is and how queries resolve it", "client.alias.create(alias_name=, target_collection=)", "client.alias.update() to switch the alias to a new collection", "Using the alias name in client.collections.use()", "Reindex flow: create v2, import, validate, switch alias, retire v1", "Validation gates: counts, sample queries and recall", "Rolling back by pointing the alias at v1", "Limits: aliases and collection names share one namespace"],
+          "tools": ["weaviate-client (Python v4)", "Jupyter", "pytest"],
+          "lab_task": "Create Article_v1 and alias Article, point a small query script at the alias and run it in a loop. Build Article_v2 with a new embedding model and BQ, copy data with the iterator, run a validation script for counts and 20 sample queries, then client.alias.update to Article_v2. Confirm the loop never failed, and roll back to v1.",
+          "deliverable": "Reindex runbook, validation script output and the query loop log",
+          "checks": [["Switch the alias with client.alias.update", "Queries through the alias return Article_v2 objects within seconds", "Query loop log"], ["Count errors in the query loop during the switch", "Error count is 0", "Query loop log"], ["Create a collection with the same name as an existing alias", "Creation fails with a name conflict error", "Error output"]],
+          "objectives": ["Use aliases to decouple clients from collection names", "Reindex with validation and no downtime", "Roll back a failed reindex"]
+        },
+        {
+          "topic": "Testing Weaviate Applications with pytest and Embedded Weaviate",
+          "subtopics": ["Test layers: unit tests with fakes, integration tests with a real instance", "weaviate.connect_to_embedded() for local tests", "Docker-based fixtures with testcontainers", "pytest fixtures that create and delete collections per test", "Deterministic vectors with self_provided to avoid model calls", "Golden-query tests for relevance regressions", "Running Weaviate as a service container in CI", "Keeping test runs under a time budget"],
+          "tools": ["pytest", "testcontainers", "weaviate-client (Python v4)", "GitHub Actions"],
+          "lab_task": "Write a pytest suite for the FAQ app: a session fixture that starts Weaviate with testcontainers, a function fixture that creates and drops a collection, 10 tests covering import, filters, hybrid and failed objects with self_provided vectors, and 5 golden-query tests that assert the expected UUID is in the top 3. Run it in a GitHub Actions workflow.",
+          "deliverable": "pytest suite, fixtures module and a passing CI run",
+          "checks": [["Run pytest locally", "15 tests pass in under 2 minutes", "pytest output"], ["Change the hybrid alpha to 1.0 in the app", "At least one golden-query test fails with the missing UUID", "pytest output"], ["Push the branch and run the workflow", "The CI job finishes green with the Weaviate service container", "CI run log"]],
+          "objectives": ["Write integration tests against a real Weaviate instance", "Guard relevance with golden queries", "Run Weaviate tests in CI"]
+        },
+        {
+          "topic": "Capstone: Multi-Tenant RAG Service on Weaviate",
+          "subtopics": ["Chunk and document collections with named vectors and compression", "Multi-tenancy with tenant lifecycle automation", "Hybrid retrieval with reranking and grounded generation", "API key authentication and RBAC per service", "Backups to S3 and an alias-based reindex", "Evaluation report and demo"],
+          "tools": ["Weaviate Server", "weaviate-client (Python v4)", "FastAPI", "MinIO", "Ragas", "pytest"],
+          "lab_task": "Build a RAG API for 20 customer tenants: ingest each tenant's documents into a chunk collection with BQ, serve /ask with hybrid, rerank and grouped_task returning citations, enforce RBAC so each API key reads one tenant, back up to MinIO nightly, and reindex once through an alias. Report nDCG@10, faithfulness and p95 latency.",
+          "deliverable": "Repository with Compose file, ingestion jobs, API, RBAC setup, backup script, tests and an evaluation report",
+          "checks": [["Call /ask with tenant A's key for tenant B's data", "The API returns 403 and Weaviate logs the denied request", "API response and log"], ["Run the evaluation on 60 questions", "nDCG@10 and faithfulness are reported per tenant group", "Evaluation report"], ["Restore last night's backup into a fresh instance", "Object counts per tenant match the source", "Restore log"]],
+          "objectives": ["Combine retrieval quality, tenancy and security in one service", "Operate backups and reindexing", "Present measured quality and latency"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For platform engineers, SREs and senior search engineers who run Weaviate in production or are about to. Covers cluster internals with shards and Raft, replication factor and tunable consistency, async replication and repairs, the Helm chart on Kubernetes, scaling and replica movement, memory and disk planning, Prometheus metrics and Grafana dashboards, load testing, multi-vector late-interaction embeddings, compression at scale, high-throughput ingestion, disaster recovery, hardening, audit of RBAC, Weaviate Cloud operations, upgrades, the Query Agent, self-hosted inference modules and incident drills, ending with a production platform capstone on Kubernetes.",
+      "prerequisites": ["Completed the intermediate level or has designed Weaviate collections with named vectors, compression, multi-tenancy, backups and RBAC", "Operates Kubernetes workloads with kubectl and Helm, including StatefulSets, PersistentVolumeClaims and Services", "Reads Prometheus metrics and builds Grafana panels with PromQL"],
+      "outcomes": ["Deploy, scale and upgrade multi-node Weaviate clusters on Kubernetes with replication and tuned consistency", "Size memory and disk for a workload and keep recall, latency and cost within targets using index and compression choices", "Monitor Weaviate with Prometheus and Grafana, and recover from node loss, read-only shards and data loss with tested runbooks", "Secure and govern a shared Weaviate platform with TLS, network policies, RBAC reviews and controlled upgrades"],
+      "days": [
+        {
+          "topic": "Weaviate Cluster Internals: Shards, Raft and Nodes",
+          "subtopics": ["Nodes, shards and replicas in a Weaviate cluster", "Raft-based consensus for schema and cluster metadata", "CLUSTER_HOSTNAME, RAFT_JOIN and RAFT_BOOTSTRAP_EXPECT", "Configure.sharding(desired_count=) and virtual shards", "How objects are routed to shards by UUID hash", "LSM-tree stores for objects and inverted indexes", "Reading /v1/nodes?output=verbose and /v1/cluster/statistics", "What happens to schema changes when a node is down"],
+          "tools": ["Docker Compose", "curl", "jq", "weaviate-client (Python v4)"],
+          "lab_task": "Run a 3-node Weaviate cluster in Docker Compose with CLUSTER_HOSTNAME node1..node3 and RAFT_BOOTSTRAP_EXPECT=3. Create a collection with desired_count=3, import 300,000 objects and use curl /v1/nodes?output=verbose | jq to list shards and object counts per node. Stop one node, try a schema change and then stop a second node and retry.",
+          "deliverable": "Cluster Compose file, shard distribution table and notes on schema behaviour with 1 and 2 nodes down",
+          "checks": [["List shards per node after import", "Each of the 3 nodes holds 1 shard and the counts sum to 300,000", "jq output"], ["Add a property with one node stopped", "The schema change succeeds because Raft still has a quorum of 2", "Script output"], ["Add a property with two nodes stopped", "The schema change fails because there is no Raft leader", "Error output"]],
+          "objectives": ["Explain how Weaviate distributes data and metadata", "Run and inspect a multi-node cluster", "Predict cluster behaviour when nodes fail"]
+        },
+        {
+          "topic": "Replication Factor and Tunable Consistency in Weaviate",
+          "subtopics": ["Configure.replication(factor=) and choosing an odd replication factor", "Leaderless replication for data objects", "ConsistencyLevel.ONE, QUORUM and ALL", "collection.with_consistency_level() for reads and writes", "Read repair on queries", "Availability during node loss for each consistency level", "Latency cost of QUORUM and ALL", "Changing replication factor on an existing collection"],
+          "tools": ["weaviate-client (Python v4)", "Docker Compose", "Locust"],
+          "lab_task": "On the 3-node cluster create Order with Configure.replication(factor=3). Run a write and read loop with consistency ONE, QUORUM and ALL, measuring p95 latency for each. Stop one node and repeat, then stop a second node and repeat, recording which levels still succeed. Write the results as an availability matrix.",
+          "deliverable": "Consistency and availability matrix with latency per level",
+          "checks": [["Write with ConsistencyLevel.ALL while one node is down", "The write fails with an error that not enough replicas responded", "Error output"], ["Write with QUORUM while one node is down", "The write succeeds", "Script output"], ["Read with ONE while two nodes are down", "The read succeeds from the remaining replica", "Script output"]],
+          "objectives": ["Configure replication for a collection", "Choose consistency levels per operation", "Explain availability trade-offs under node loss"]
+        },
+        {
+          "topic": "Async Replication, Repairs and Deletion Strategies in Weaviate",
+          "subtopics": ["Why replicas drift: failed writes, restarts and network partitions", "Configure.replication(async_enabled=True)", "Hash-tree comparison in async replication", "Deletion strategies: NoAutomatedResolution, DeleteOnConflict and TimeBasedResolution", "Async replication metrics and tuning variables", "Read repair compared with background repair", "Testing drift with a partitioned node", "Choosing a deletion strategy for the data's semantics"],
+          "tools": ["Docker Compose", "weaviate-client (Python v4)", "Prometheus", "iptables"],
+          "lab_task": "Enable async_enabled=True with deletion_strategy=TIME_BASED_RESOLUTION on Order. Isolate node3 from the network with docker network disconnect, write 10,000 objects and delete 500 others at consistency ONE, then reconnect it. Track object counts per replica every 30 seconds until they converge and record the time and the async replication metrics.",
+          "deliverable": "Drift experiment log, convergence time and a deletion strategy decision note",
+          "checks": [["Compare node3's shard count with the others right after reconnecting", "node3 is behind by about 10,000 objects", "Nodes API output"], ["Poll counts every 30 seconds after reconnecting", "All replicas reach the same count and the convergence time is recorded", "Polling log"], ["Read a deleted object from node3 with consistency ONE after convergence", "The object is not found", "Script output"]],
+          "objectives": ["Enable and observe async replication", "Choose a deletion conflict strategy", "Measure replica convergence after a partition"]
+        },
+        {
+          "topic": "Weaviate on Kubernetes with the Helm Chart",
+          "subtopics": ["helm repo add weaviate https://weaviate.github.io/weaviate-helm", "Chart structure: StatefulSet, headless Service and PVCs", "values.yaml keys: replicas, image.tag, storage.size, resources, env and modules", "Enabling modules and inference containers through values", "Exposing REST and gRPC Services and ingress for gRPC", "Pod anti-affinity across zones", "StorageClass choice and volume expansion", "helm upgrade --install with a pinned chart version"],
+          "tools": ["Helm (weaviate-helm chart)", "kubectl", "kind", "weaviate-client (Python v4)"],
+          "lab_task": "On a kind or managed cluster, install Weaviate with helm upgrade --install weaviate weaviate/weaviate -n weaviate --create-namespace -f values.yaml using replicas: 3, 20Gi storage, CPU and memory requests and limits, API key auth and pod anti-affinity. Port-forward 8080 and 50051, connect with connect_to_custom, import 100,000 objects, then delete one pod and confirm it rejoins.",
+          "deliverable": "values.yaml, helm and kubectl outputs and a pod-recovery log",
+          "checks": [["kubectl get pods -n weaviate after install", "3 weaviate pods show Running and 1/1 ready", "Terminal output"], ["kubectl delete pod weaviate-1 -n weaviate", "The pod is recreated with the same PVC and rejoins the cluster", "kubectl and nodes API output"], ["kubectl get pvc -n weaviate", "Three PVCs are Bound with 20Gi capacity", "Terminal output"]],
+          "objectives": ["Deploy Weaviate with the official Helm chart", "Configure storage, resources and scheduling", "Verify recovery of a replaced pod"]
+        },
+        {
+          "topic": "Scaling Weaviate: Sharding, Replica Movement and Adding Nodes",
+          "subtopics": ["Horizontal scaling by adding nodes", "Why existing shards do not rebalance automatically", "Planning desired_count for expected growth", "Replica movement and copy operations in the replication API", "Raising replication factor to spread reads", "Multi-tenant collections: new tenants land on new nodes", "Scaling the StatefulSet with helm upgrade", "Validating balance with per-node object counts and CPU"],
+          "tools": ["Helm (weaviate-helm chart)", "kubectl", "weaviate-client (Python v4)", "Grafana"],
+          "lab_task": "Scale the Helm release from 3 to 5 replicas, then check /v1/nodes to show existing shards stay on the original nodes. Create 100 new tenants and record where they land. Move one replica of a busy shard to a new node with the replication API, wait for the operation to finish and compare per-node CPU and object counts before and after.",
+          "deliverable": "Scaling runbook, shard placement before and after, and a replica move log",
+          "checks": [["Check shard placement after scaling to 5 nodes", "Existing shards remain on nodes 0 to 2", "Nodes API output"], ["Create 100 new tenants", "New tenant shards are placed on nodes 3 and 4 as well as the original nodes", "Placement table"], ["Move one replica to node 4", "The operation finishes in the READY state and node 4 serves the shard", "Replication operation output"]],
+          "objectives": ["Plan sharding for growth", "Scale a Weaviate cluster on Kubernetes", "Rebalance with replica movement"]
+        },
+        {
+          "topic": "Resource Planning for Weaviate: Memory, GOMEMLIMIT and Disk Thresholds",
+          "subtopics": ["Memory formula for HNSW: vectors, graph links and caches", "Effect of compression on the memory estimate", "GOMEMLIMIT and container memory limits", "LIMIT_RESOURCES and GOMAXPROCS", "DISK_USE_WARNING_PERCENTAGE and DISK_USE_READONLY_PERCENTAGE", "MEMORY_WARNING_PERCENTAGE and MEMORY_READONLY_PERCENTAGE", "Lazy shard loading for many tenants", "Building a sizing sheet for 10, 50 and 200 million vectors"],
+          "tools": ["Grafana", "Prometheus", "kubectl", "Google Sheets or Excel"],
+          "lab_task": "Build a sizing sheet for 50 million 1,024-dimension vectors with max_connections 32 for no compression, SQ, BQ and RQ, including disk for objects and inverted indexes. Validate it by importing 2 million vectors and comparing measured heap with the estimate, then set GOMEMLIMIT to 80 percent of the pod limit and record the effect on OOM kills during a load test.",
+          "deliverable": "Sizing sheet, measured-versus-estimated comparison and recommended resource settings",
+          "checks": [["Compare estimated and measured heap for 2 million vectors", "The estimate is within 20 percent of the measured value", "Comparison table"], ["Run the load test without GOMEMLIMIT and a tight limit", "The pod is OOMKilled and kubectl describe shows reason OOMKilled", "kubectl output"], ["Fill a volume past DISK_USE_READONLY_PERCENTAGE", "Shards switch to READONLY and inserts fail", "Nodes API output and error"]],
+          "objectives": ["Estimate memory and disk for a Weaviate workload", "Set Go runtime and resource limits", "Protect nodes with disk and memory thresholds"]
+        },
+        {
+          "topic": "Prometheus Metrics and Grafana Dashboards for Weaviate",
+          "subtopics": ["PROMETHEUS_MONITORING_ENABLED and the /metrics endpoint on port 2112", "ServiceMonitor or scrape config for the Helm deployment", "Query metrics such as queries_durations_ms and batch durations", "Object, vector index and LSM metrics", "Heap, goroutine and GC metrics from the Go runtime", "Importing Weaviate's published Grafana dashboards", "Alert rules for latency, readiness, disk and memory", "Correlating metrics with logs"],
+          "tools": ["Prometheus", "Grafana", "kube-prometheus-stack", "kubectl"],
+          "lab_task": "Enable PROMETHEUS_MONITORING_ENABLED in values.yaml, add a ServiceMonitor for port 2112 and import Weaviate's Grafana dashboards. Write 4 alert rules: p95 query latency over 200 ms for 5 minutes, a node not ready, disk use over 80 percent and heap over 85 percent of limit. Trigger the latency alert with a load test and capture the firing alert.",
+          "deliverable": "values.yaml change, ServiceMonitor, 4 alert rules, dashboard screenshots and a fired alert",
+          "checks": [["curl the pod's :2112/metrics endpoint", "The response contains Weaviate metrics in Prometheus text format", "Terminal output"], ["Open the Prometheus targets page", "All weaviate pods show state UP", "Screenshot"], ["Run the load test that pushes p95 above 200 ms", "The latency alert moves to firing in Alertmanager", "Alertmanager screenshot"]],
+          "objectives": ["Expose and scrape Weaviate metrics", "Build dashboards and alerts for a cluster", "Prove alerts fire under load"]
+        },
+        {
+          "topic": "Load Testing Weaviate with Locust and ANN Benchmarks",
+          "subtopics": ["Defining a workload: query mix, filters, concurrency and data size", "Writing Locust users that call the Python v4 client", "Measuring QPS, p50, p95 and p99 latency", "Recall under load against an exact baseline", "Warm-up and vector cache effects", "Separating client bottlenecks from server bottlenecks", "Comparing results with public ANN benchmark datasets", "Writing a capacity report"],
+          "tools": ["Locust", "weaviate-client (Python v4)", "Grafana", "NumPy"],
+          "lab_task": "Load a public ANN benchmark dataset of 1 million vectors into the Helm cluster, write a Locust file with 70 percent near_vector, 20 percent hybrid and 10 percent filtered queries, and run 3 stages at 50, 200 and 500 users for 10 minutes each. Record QPS, p95 and p99, recall@10 from a 500-query sample and node CPU from Grafana.",
+          "deliverable": "Locust file, results per stage, recall under load and a capacity report",
+          "checks": [["Run the 50-user stage", "QPS, p95 and p99 are recorded with no failed requests", "Locust report"], ["Run the 500-user stage", "The saturation point where p99 rises sharply is identified", "Latency chart"], ["Compute recall@10 on the 500-query sample under load", "Recall is the same as the idle recall within 0.01", "Recall table"]],
+          "objectives": ["Design a realistic Weaviate load test", "Find the saturation point of a cluster", "Report capacity with latency and recall"]
+        },
+        {
+          "topic": "Multi-Vector Embeddings in Weaviate: Late Interaction and MUVERA",
+          "subtopics": ["Late-interaction models that produce one vector per token, such as ColBERT and ColPali", "Configure.MultiVectors with a module or a self_provided multi-vector", "multi_vector_config and the MaxSim score", "Inserting a list of vectors per object", "Memory cost of token-level vectors", "MUVERA encoding to turn multi-vectors into a fixed-size vector", "Querying with near_vector using a multi-vector query", "Comparing multi-vector recall with single-vector baselines"],
+          "tools": ["weaviate-client (Python v4)", "Hugging Face Transformers", "Jupyter", "NumPy"],
+          "lab_task": "Encode 20,000 passages with a ColBERT-style model into token-level vectors and import them into a self_provided multi-vector collection, then into a second collection with MUVERA encoding enabled. Run 100 labelled queries on both and on a single-vector baseline, and compare nDCG@10, p95 latency and memory.",
+          "deliverable": "Multi-vector collections, evaluation table for three setups and a memory comparison",
+          "checks": [["Insert a passage with a 2D list of vectors", "The object stores one vector per token and fetch returns the same shape", "Notebook cell output"], ["Compare memory with and without MUVERA", "The MUVERA collection uses less memory and the ratio is recorded", "Memory table"], ["Evaluate nDCG@10 on 100 queries", "The multi-vector collection scores at least as high as the single-vector baseline", "Evaluation table"]],
+          "objectives": ["Store and query multi-vector embeddings", "Reduce multi-vector cost with MUVERA", "Decide when late interaction is worth its cost"]
+        },
+        {
+          "topic": "Compression Trade-offs at Scale: Recall, Memory and Cost",
+          "subtopics": ["Cost per million vectors for each compression method", "Rescore limits and disk reads for uncompressed vectors", "Disk IOPS and storage class effects on rescoring", "Choosing compression per named vector", "Combining dynamic indexes with BQ and RQ", "Enabling compression on a live collection", "Recall service-level targets and how to measure them weekly", "A compression decision record"],
+          "tools": ["weaviate-client (Python v4)", "Grafana", "Locust", "Google Sheets or Excel"],
+          "lab_task": "On 10 million vectors in the Helm cluster, run the load test for uncompressed, SQ, BQ and RQ with 3 rescore limits each. Compute monthly node cost from the memory each setup needs, pick the cheapest setup that keeps recall@10 at or above 0.95 and p95 under 100 ms, and enable it on the live collection while the load test runs.",
+          "deliverable": "Compression cost study with 12 configurations and a decision record",
+          "checks": [["Tabulate memory, recall@10, p95 and monthly cost", "12 rows are produced and the chosen row meets recall 0.95 and p95 100 ms", "Cost table"], ["Enable compression on the live collection during load", "The load test shows no failed requests during the change", "Locust report"], ["Run the weekly recall check job", "Measured recall@10 is written to a Prometheus gauge or report", "Job output"]],
+          "objectives": ["Cost compression choices with real measurements", "Change compression on a live collection", "Track recall against a target"]
+        },
+        {
+          "topic": "Bulk Ingestion at Scale: gRPC Batching and Async Indexing",
+          "subtopics": ["Server-side batching and its automatic flow control", "Client concurrency with fixed_size(concurrent_requests=)", "ASYNC_INDEXING=true and the indexing queue", "Monitoring queue size with the nodes API and metrics", "Vectorizer rate limits and rate_limit() batching", "Parallel ingestion workers by tenant or shard", "Bulk loading with replication factor 1 then raising it", "Checkpointing and resuming a large import"],
+          "tools": ["weaviate-client (Python v4)", "Prometheus", "Grafana", "Python multiprocessing"],
+          "lab_task": "Import 20 million pre-computed vectors with 8 worker processes, each using fixed_size(batch_size=500, concurrent_requests=4), with ASYNC_INDEXING=true. Checkpoint the last UUID per worker, kill one worker mid-run and resume it. Chart objects per second and the indexing queue size in Grafana until the queue drains, and compare throughput with ASYNC_INDEXING off.",
+          "deliverable": "Ingestion pipeline with checkpointing, throughput charts and an async indexing comparison",
+          "checks": [["Kill a worker and resume from its checkpoint", "Final total_count equals 20 million with no duplicates", "Import log"], ["Watch the indexing queue after the import ends", "The queue drains to 0 and queries return full recall afterwards", "Grafana screenshot"], ["Compare throughput with ASYNC_INDEXING on and off", "Objects per second are higher with async indexing on", "Throughput table"]],
+          "objectives": ["Ingest tens of millions of objects reliably", "Use async indexing and monitor its queue", "Resume large imports from checkpoints"]
+        },
+        {
+          "topic": "Disaster Recovery for Weaviate: Scheduled Backups and Cross-Cluster Restore",
+          "subtopics": ["Recovery point and recovery time objectives for a vector platform", "Scheduled backups with a Kubernetes CronJob calling the backup API", "Backup to S3 with IAM roles instead of static keys", "Restoring into a cluster with a different node count", "Backup compression and chunk size settings", "Verifying backups with restore tests", "Rebuilding from source data as a second recovery path", "DR runbooks and drill records"],
+          "tools": ["kubectl", "AWS CLI", "weaviate-client (Python v4)", "Helm (weaviate-helm chart)"],
+          "lab_task": "Write a Kubernetes CronJob that runs a Python script calling client.backup.create every 6 hours to S3 with dated IDs and fails on non-SUCCESS status. Run it, then restore the latest backup into a second Helm release with a different node count, compare collection counts and 20 sample queries, and record the restore time against an RTO of 1 hour.",
+          "deliverable": "CronJob manifest, backup script, restore log and a DR drill report",
+          "checks": [["Run the CronJob once with kubectl create job --from=cronjob/weaviate-backup", "The job completes and the backup status is SUCCESS", "kubectl logs output"], ["Restore into the second cluster", "Every collection count matches the source", "Count comparison"], ["Time the full restore", "Restore time is recorded and compared with the 1-hour RTO", "DR drill report"]],
+          "objectives": ["Automate Weaviate backups on Kubernetes", "Restore into a different cluster", "Run and record a DR drill against RTO and RPO"]
+        },
+        {
+          "topic": "Hardening Weaviate: TLS, Network Policies and Secrets",
+          "subtopics": ["Terminating TLS at an ingress or service mesh for REST and gRPC", "Kubernetes NetworkPolicy to allow only app namespaces", "Storing API keys in Kubernetes Secrets and external secret stores", "Disabling anonymous access and unused modules", "Running as non-root with a read-only root filesystem where possible", "Restricting outbound traffic to model providers", "Image provenance and pinned image digests", "Scanning the deployment with kube-bench or Trivy"],
+          "tools": ["kubectl", "cert-manager", "Trivy", "Helm (weaviate-helm chart)"],
+          "lab_task": "Put Weaviate behind an ingress with a cert-manager TLS certificate for REST and gRPC, move API keys into a Secret referenced from values.yaml, add a NetworkPolicy allowing ingress only from the app namespace and egress only to the embedding provider, pin the image by digest and run trivy image on it. Test access from an unapproved namespace.",
+          "deliverable": "Hardened values.yaml, NetworkPolicy, certificate resources and a Trivy report",
+          "checks": [["Connect from a pod in an unapproved namespace", "The connection times out because the NetworkPolicy blocks it", "kubectl exec output"], ["Connect with connect_to_custom using https and grpc_secure=True", "client.is_ready() returns True over TLS", "Script output"], ["Run trivy image on the pinned digest", "A report lists vulnerabilities by severity and none are critical without a recorded exception", "Trivy report"]],
+          "objectives": ["Encrypt traffic to Weaviate", "Restrict network access and protect secrets", "Scan and pin images"]
+        },
+        {
+          "topic": "Auditing RBAC and Access Reviews in Weaviate",
+          "subtopics": ["Listing roles, permissions and assignments with client.roles and client.users", "Mapping OIDC groups to roles", "Detecting over-privileged users and unused keys", "Logging denied requests and reading authorisation log entries", "Quarterly access review workflow", "Break-glass root access and its controls", "Exporting RBAC state to Git for review", "Automated drift checks between Git and the cluster"],
+          "tools": ["weaviate-client (Python v4)", "Git", "Keycloak", "pytest"],
+          "lab_task": "Write rbac_export.py that dumps all roles, permissions and user assignments to YAML and commit the baseline. Add a drift check that compares the cluster with the YAML and exits non-zero on differences. Grant an extra permission by hand, run the check, then produce an access review listing users with write or manage permissions and keys unused for 90 days.",
+          "deliverable": "RBAC export script, baseline YAML, drift check output and an access review report",
+          "checks": [["Run the drift check after the manual change", "It exits with status 1 and names the changed role", "Terminal output"], ["Run rbac_export.py twice with no changes", "The two YAML files are identical", "diff output"], ["Make a request with a role that lacks permission", "The denied request appears in the Weaviate logs with the user and action", "Log excerpt"]],
+          "objectives": ["Export and review Weaviate RBAC state", "Detect permission drift automatically", "Run an access review"]
+        },
+        {
+          "topic": "Weaviate Cloud Operations: Dedicated Clusters and Hosted Embeddings",
+          "subtopics": ["Shared and dedicated deployment options in Weaviate Cloud", "Cluster sizing, regions and high availability choices", "Managing API keys and users in the console", "Weaviate Embeddings and the text2vec_weaviate vectorizer", "Backups and restore in Weaviate Cloud", "Private networking options for dedicated clusters", "Monitoring and usage views in the console", "Comparing cloud and self-hosted total cost"],
+          "tools": ["Weaviate Cloud console", "weaviate-client (Python v4)", "Locust", "Google Sheets or Excel"],
+          "lab_task": "On a Weaviate Cloud cluster, create a collection with text2vec_weaviate, import 100,000 documents and run the Locust test at 50 users from the same region. Create a backup from the console or API, restore it to a new collection name, and build a cost comparison of this cluster against the self-hosted Helm cluster for the same workload.",
+          "deliverable": "Cloud deployment notes, load test results, backup evidence and a cost comparison",
+          "checks": [["Run the 50-user load test against the cloud cluster", "p95 latency and QPS are recorded", "Locust report"], ["Restore the backup to a new name", "The restored count equals the source count", "Count comparison"], ["Compare monthly cost of cloud and self-hosted", "Both totals are calculated with the assumptions listed", "Cost table"]],
+          "objectives": ["Operate Weaviate Cloud clusters", "Use hosted embeddings and cloud backups", "Compare cloud and self-hosted cost"]
+        },
+        {
+          "topic": "Upgrading Weaviate Clusters and Migrating Versions",
+          "subtopics": ["Reading release notes for breaking changes and new defaults", "Supported upgrade paths and minor-version steps", "Rolling upgrades with the StatefulSet and replication factor 3", "Python client compatibility with server versions", "Pre-upgrade backup and a restore test", "Canary queries and metric checks during the upgrade", "Rollback limits once the data format changes", "Writing an upgrade runbook"],
+          "tools": ["Helm (weaviate-helm chart)", "kubectl", "weaviate-client (Python v4)", "Locust"],
+          "lab_task": "Install an older supported Weaviate minor version with Helm and replication factor 3, back it up, then run helm upgrade with the next minor image.tag while Locust runs at 50 users. Watch kubectl rollout status statefulset/weaviate, run 20 canary queries after each pod restarts, and record failed requests and the version from /v1/meta per node.",
+          "deliverable": "Upgrade runbook, rollout log, canary results and failed-request count",
+          "checks": [["Run kubectl rollout status statefulset/weaviate -n weaviate", "The rollout completes with all pods on the new image", "Terminal output"], ["Read /v1/meta through each pod after the upgrade", "Every node reports the new version", "curl output"], ["Count Locust failures during the rolling upgrade", "Failed requests are 0 or below the agreed 0.1 percent", "Locust report"]],
+          "objectives": ["Plan a Weaviate version upgrade", "Run a rolling upgrade under load", "Verify the upgrade with canaries and metrics"]
+        },
+        {
+          "topic": "Agentic Retrieval with the Weaviate Query Agent",
+          "subtopics": ["What the Query Agent does: turning questions into searches, filters and aggregations", "Installing the weaviate-agents package", "QueryAgent(client=, collections=[...]) and its run method", "Collection descriptions and property descriptions that guide the agent", "Inspecting the searches and aggregations the agent generated", "Follow-up questions with conversation context", "Cost, latency and when a hand-written query is better", "Guardrails: RBAC limits on what the agent can read"],
+          "tools": ["weaviate-agents", "Weaviate Cloud console", "weaviate-client (Python v4)", "pytest"],
+          "lab_task": "On a Weaviate Cloud cluster with Product and Order collections, add clear collection and property descriptions, then run 20 questions through QueryAgent such as \"How many laptops under 1,000 euros sold last month?\". Log the searches and aggregations the agent produced, check 10 numeric answers against hand-written aggregate queries and measure latency.",
+          "deliverable": "Query Agent notebook, generated query log, accuracy check and latency figures",
+          "checks": [["Ask a count question through the agent", "The answer matches the hand-written aggregate query result", "Comparison table"], ["Inspect the agent response for a filter question", "The response shows the filter the agent applied", "Notebook cell output"], ["Run the agent with a read-only user that cannot read Order", "Answers about orders fail or report missing access", "Notebook cell output"]],
+          "objectives": ["Use the Query Agent for natural-language questions", "Verify agent-generated queries", "Limit agent access with RBAC"]
+        },
+        {
+          "topic": "Self-Hosted Inference Containers and Custom Vectorizer Endpoints",
+          "subtopics": ["text2vec-transformers and its inference image", "Running inference containers on GPU nodes", "Pointing text2vec-ollama and generative-ollama at a shared Ollama service", "Using OpenAI-compatible endpoints with base_url", "Batching and timeouts between Weaviate and the inference service", "Scaling inference separately from Weaviate", "Model version pinning and re-vectorisation impact", "Monitoring inference latency and errors"],
+          "tools": ["Helm (weaviate-helm chart)", "kubectl", "Ollama", "NVIDIA GPU Operator"],
+          "lab_task": "Deploy a text2vec-transformers inference service on a GPU node through the Helm values and a second collection using text2vec-openai with base_url pointing to a self-hosted OpenAI-compatible server. Import 200,000 chunks into each, compare import throughput and query latency, scale the inference Deployment from 1 to 3 replicas and record the throughput change.",
+          "deliverable": "Inference deployment values, throughput comparison and scaling results",
+          "checks": [["Import 200,000 chunks with 1 inference replica", "Objects per second is recorded", "Import log"], ["Scale inference to 3 replicas and repeat", "Throughput increases and the new figure is recorded", "Import log"], ["Stop the inference Deployment and run near_text", "The query fails with a vectorizer connection error", "Error output"]],
+          "objectives": ["Run self-hosted embedding services for Weaviate", "Scale inference separately from the database", "Diagnose vectorizer failures"]
+        },
+        {
+          "topic": "Weaviate Incident Drills: Read-Only Shards, OOM Kills and Lost Nodes",
+          "subtopics": ["Incident roles and the first 15 minutes", "Read-only shards after a disk threshold and collection.config.update_shards(status=\"READY\")", "OOMKilled pods: heap growth, caches and GOMEMLIMIT", "Lost node with replication factor 3", "Slow queries from missing indexes or huge limits", "Using metrics, logs and the nodes API together", "Writing a blameless post-incident review", "Turning findings into alerts and runbook steps"],
+          "tools": ["kubectl", "Grafana", "Prometheus", "weaviate-client (Python v4)"],
+          "lab_task": "Run three timed drills on the Helm cluster: fill a PVC past DISK_USE_READONLY_PERCENTAGE then expand it and set shards back to READY, trigger an OOMKilled pod with a large import and a low memory limit, and delete a node's PVC and pod to simulate node loss with replication factor 3. Record detection and recovery time for each.",
+          "deliverable": "Three drill reports with timelines, runbook updates and new alert rules",
+          "checks": [["Set shards to READY after expanding the volume", "Inserts succeed again and shard status shows READY", "Script output and nodes API"], ["Run kubectl describe on the crashed pod", "Last state shows Terminated with reason OOMKilled", "kubectl output"], ["Rebuild the node after PVC loss", "Replicas on the rebuilt node catch up to the same object count", "Nodes API output"]],
+          "objectives": ["Recover from read-only shards, OOM kills and node loss", "Measure detection and recovery times", "Improve runbooks and alerts after drills"]
+        },
+        {
+          "topic": "Capstone: Production Weaviate Platform on Kubernetes",
+          "subtopics": ["Architecture decision record for indexes, compression, tenancy and replication", "Helm deployment with TLS, network policies, RBAC and monitoring", "High-throughput ingestion with async indexing", "Backups, DR drill and rolling upgrade", "Load test with recall and latency targets", "Operations handover and review board presentation"],
+          "tools": ["Helm (weaviate-helm chart)", "kubectl", "Prometheus", "Grafana", "Locust", "weaviate-client (Python v4)"],
+          "lab_task": "Deliver a 3-node Weaviate platform for 500 tenants and 50 million vectors: replication factor 3, chosen compression, RBAC per team, TLS and NetworkPolicy, Prometheus alerts and dashboards, 6-hourly S3 backups and an alias-based reindex. Prove p95 under 100 ms at the target QPS with recall@10 of 0.95 or more, then run a node-loss drill and a rolling upgrade.",
+          "deliverable": "Platform repository with Helm values, manifests, scripts, dashboards, runbooks, test reports and a 20-minute review presentation",
+          "checks": [["Run the target load test for 30 minutes", "p95 is under 100 ms and recall@10 is 0.95 or higher", "Locust and recall reports"], ["Delete one node during the load test", "No writes at QUORUM fail and the node rejoins and catches up", "Drill report"], ["Restore the latest backup into a scratch cluster", "All 500 tenants restore with matching object counts", "Restore log"]],
+          "objectives": ["Combine deployment, security, performance and recovery skills", "Prove a platform against measurable targets", "Hand over a Weaviate platform with runbooks"]
+        }
+      ]
+    }
+  }
+}

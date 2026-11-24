@@ -1,0 +1,573 @@
+{
+  "domain": "SAP BW/4HANA",
+  "name": "SAP BW/4HANA",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "warehouse",
+  "aliases": ["BW/4HANA", "BW4HANA", "SAP BW4HANA", "SAP BW 4HANA", "SAP BW", "SAP Business Warehouse", "SAP BW on HANA", "BW on HANA", "SAP BW Consultant", "SAP BW/4HANA Consultant", "SAP BW Modeling", "SAP BW Modelling", "SAP BW Reporting", "SAP BW/4HANA Modeling"],
+  "certifications": ["SAP Certified Associate - Reporting, Modeling and Data Acquisition with SAP BW/4HANA (C_BW4H)", "SAP Certified Associate - Data Engineer - SAP Datasphere"],
+  "tools": ["SAP BW/4HANA 2023 training system", "SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit", "SAP Analysis for Microsoft Office", "SAP Analytics Cloud"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For BI developers, report authors and new BW consultants with no BW/4HANA experience. Covers data warehousing on SAP HANA, the modelling tools and cockpit, InfoObjects and master data, source systems and extraction from S/4HANA, flat files, DataStore objects, transformations, data transfer processes, process chains, CompositeProviders and Open ODS views, queries, reporting in Analysis for Office and SAP Analytics Cloud, analysis authorisations and load monitoring.",
+      "prerequisites": ["Knows basic SQL and reporting ideas: tables, joins, measures and dimensions", "Understands business data such as sales orders, invoices and stock", "Access to an SAP BW/4HANA training system"],
+      "outcomes": ["Model InfoObjects, DataStore objects and CompositeProviders", "Load data from S/4HANA and flat files with transformations and DTPs", "Schedule and monitor loads with process chains", "Build queries and reports with analysis authorisations"],
+      "days": [
+        {
+          "topic": "SAP BW/4HANA Overview: Data Warehousing on SAP HANA",
+          "subtopics": ["What a data warehouse is for", "SAP BW/4HANA compared with SAP BW 7.x", "SAP HANA as the BW database", "The simplified object types in BW/4HANA", "Data flow: source, staging, modelling and reporting", "BW/4HANA, S/4HANA embedded analytics and SAP Datasphere", "SAP Business Data Cloud and BW private cloud edition in brief", "Support until 2040 and the release strategy", "BW roles: modeller, report author and administrator", "Course map and the model company data"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Log on to the training system, open an existing data flow from source to query, and describe each object it contains and where the data comes from.",
+          "deliverable": "Annotated data flow diagram with a description of each object",
+          "checks": [["Open the sample data flow", "Source, DataStore object, CompositeProvider and query are shown", "Screenshot"], ["Name the BW/4HANA object types", "InfoObject, DataStore object, CompositeProvider and Open ODS view described correctly", "Written answer"], ["Explain when to use BW/4HANA instead of embedded analytics", "A correct reason with an example", "Written answer"]],
+          "objectives": ["Explain data warehousing on SAP HANA", "Read a BW data flow", "Place BW/4HANA among SAP analytics products"]
+        },
+        {
+          "topic": "BW/4HANA Modeling Tools and the BW/4HANA Cockpit",
+          "subtopics": ["BW Modeling Tools in Eclipse", "BW projects and the project explorer", "InfoAreas and object search", "The data flow editor", "The BW/4HANA Cockpit apps", "Object versions: active, modified and delivered", "Where-used and data lineage", "Remaining SAP GUI transactions and their purpose"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit", "SAP GUI"],
+          "lab_task": "Create a BW project in Eclipse, build an InfoArea for the course, find three objects with search and where-used, and open the process chain and request monitors in the cockpit.",
+          "deliverable": "BW project, InfoArea and a tool map with screenshots",
+          "checks": [["Run where-used on an InfoObject", "Using objects are listed", "Screenshot"], ["Open the cockpit monitors", "Process chain and request monitors open", "Screenshot"], ["Explain active and modified versions", "Correct explanation of object versions", "Written answer"]],
+          "objectives": ["Use the BW modelling tools", "Use the BW/4HANA Cockpit", "Find objects and their dependencies"]
+        },
+        {
+          "topic": "InfoObjects: Characteristics, Key Figures and Units",
+          "subtopics": ["Characteristics and key figures", "Units and currencies", "Time characteristics", "Compounding", "Navigation attributes in brief", "Data types and lengths", "Reference characteristics", "Naming conventions"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Create characteristics for customer, product and sales organisation with compounding where needed, key figures for quantity and revenue with units and currencies, and activate them.",
+          "deliverable": "Activated InfoObjects with a design sheet",
+          "checks": [["Activate the InfoObjects", "Objects are active with no errors", "Activation log"], ["Create the revenue key figure without a currency", "Design check flags the missing currency", "Message"], ["Explain compounding", "Correct example such as plant within company", "Written answer"]],
+          "objectives": ["Create InfoObjects", "Model units and currencies", "Apply naming conventions"]
+        },
+        {
+          "topic": "Master Data: Attributes, Texts and Hierarchies",
+          "subtopics": ["Master data-bearing characteristics", "Display and navigation attributes", "Time-dependent attributes", "Language-dependent texts", "Hierarchies and hierarchy nodes", "Loading master data", "Master data activation and attribute change runs", "Master data quality checks"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit"],
+          "lab_task": "Give the customer characteristic attributes, texts and a time-dependent sales region, load the master data, build a region hierarchy and check the results.",
+          "deliverable": "Master data with attributes, texts and a hierarchy",
+          "checks": [["Display customer master data", "Attributes and texts are filled", "Screenshot"], ["Change a sales region with a validity date", "Both periods are stored", "Master data display"], ["Display the hierarchy", "Customers sit under the right regions", "Screenshot"]],
+          "objectives": ["Model master data", "Load attributes, texts and hierarchies", "Handle time-dependent data"]
+        },
+        {
+          "topic": "Source Systems and DataSources",
+          "subtopics": ["Source system types in BW/4HANA", "The ODP framework", "ODP contexts: SAP extractors, CDS views, SLT and BW", "SAP HANA source systems", "Big Data and file source systems", "Creating DataSources", "Replicating DataSources", "Previewing source data"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Connect the S/4HANA training system as an ODP source system, replicate two DataSources and create a file DataSource, then preview the data of each.",
+          "deliverable": "Source systems, DataSources and data previews",
+          "checks": [["Check the S/4HANA source system", "Connection check succeeds", "Screenshot"], ["Preview an ODP DataSource", "Source records are shown", "Data preview"], ["Explain the ODP contexts", "Each context described with a use case", "Written answer"]],
+          "objectives": ["Connect source systems", "Create DataSources", "Choose ODP contexts"]
+        },
+        {
+          "topic": "Extracting Data from SAP S/4HANA with CDS Views",
+          "subtopics": ["Extraction-enabled CDS views", "Data category annotations: fact, dimension and text", "Delta extraction with change data capture", "Released CDS views for extraction", "Testing extraction with RODPS_REPL_TEST", "The delta queue monitor ODQMON", "Initial and delta loads", "When to use classic extractors"],
+          "tools": ["SAP S/4HANA", "SAP BW/4HANA Modeling Tools", "SAP GUI ODQMON and RODPS_REPL_TEST"],
+          "lab_task": "Find a released extraction CDS view for sales documents, create its DataSource in BW/4HANA, run an initial load, change a sales order in S/4HANA and load the delta.",
+          "deliverable": "DataSource, initial and delta load results and ODQMON screenshots",
+          "checks": [["Run the initial load", "All sales records arrive", "Request monitor"], ["Change an order and load the delta", "Only the changed record arrives", "Request monitor"], ["Open ODQMON", "Subscription and delta requests are shown", "Screenshot"]],
+          "objectives": ["Extract S/4HANA data with CDS views", "Run delta loads", "Monitor delta queues"]
+        },
+        {
+          "topic": "Loading Flat Files with the Data Flow Editor",
+          "subtopics": ["File DataSources: CSV and fixed formats", "Field definitions and conversion", "Header rows and separators", "Building a data flow in the data flow editor", "Creating objects from the data flow", "Loading files from the client or the application server", "File errors and how to read them", "Templates for repeat loads"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "Excel"],
+          "lab_task": "Build a data flow for a budget file in the data flow editor: file DataSource, DataStore object, transformation and DTP, then load a clean file and a file with errors.",
+          "deliverable": "Data flow, loaded budget data and error analysis",
+          "checks": [["Load the clean file", "All records are loaded", "Request monitor"], ["Load a file with a wrong date format", "Request fails with a clear error", "Error message"], ["Show the data flow", "All objects are connected", "Data flow screenshot"]],
+          "objectives": ["Load flat files", "Build data flows", "Read load errors"]
+        },
+        {
+          "topic": "DataStore Objects (Advanced): Standard, Staging and Data Mart Types",
+          "subtopics": ["The DataStore object (advanced)", "Standard DataStore objects with change log", "Staging DataStore objects", "Data mart DataStore objects", "Keys and fields", "Activating requests", "Choosing InfoObjects or fields", "Managing DataStore objects in the cockpit"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit"],
+          "lab_task": "Create a staging DataStore object for raw sales data and a standard DataStore object with key fields for cleaned sales, load both and activate the requests.",
+          "deliverable": "Two DataStore objects with loaded and activated data",
+          "checks": [["Activate a request in the standard object", "Active data and change log are filled", "Manage screen"], ["Load the same order twice with a change", "Active table keeps one current record", "Data preview"], ["Explain staging and standard types", "Correct use case for each", "Written answer"]],
+          "objectives": ["Create DataStore objects", "Choose the right type", "Activate and manage requests"]
+        },
+        {
+          "topic": "Transformations: Rules, Formulas and Lookups",
+          "subtopics": ["Transformation structure: source, target and rule groups", "Direct assignment and constants", "Formulas", "Master data lookups", "Reading from DataStore objects", "Unit and currency handling in rules", "Start and end routines in brief", "Testing transformations"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Build a transformation from the staging object to the standard object with a formula for net revenue, a lookup of the customer region and a constant for the source system.",
+          "deliverable": "Transformation and test results",
+          "checks": [["Load data through the transformation", "Net revenue is calculated", "Data preview"], ["Check a customer region", "Region comes from master data", "Data preview"], ["Load a customer without master data", "Region is empty and the record is still loaded", "Data preview"]],
+          "objectives": ["Build transformations", "Use formulas and lookups", "Test transformation results"]
+        },
+        {
+          "topic": "Data Transfer Processes: Filters, Delta and Error Handling",
+          "subtopics": ["Purpose of the DTP", "Full and delta extraction", "Filters and semantic groups", "Error handling and the error stack", "Package size and parallel processing", "Request status and deletion", "Simulating a DTP", "DTP for direct access in brief"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit"],
+          "lab_task": "Create a delta DTP with a filter for one sales organisation and error handling that writes bad records to the error stack, load data with two bad records, correct them and load them again.",
+          "deliverable": "DTP, request history and the corrected error stack",
+          "checks": [["Run the delta DTP", "Only new records for the sales organisation load", "Request monitor"], ["Load two bad records", "Bad records go to the error stack and the rest load", "Error stack"], ["Correct and reload the bad records", "Records are loaded", "Request monitor"]],
+          "objectives": ["Configure DTPs", "Handle load errors", "Manage requests"]
+        },
+        {
+          "topic": "Process Chains for Scheduling Loads",
+          "subtopics": ["Process chain building blocks", "Start process and scheduling", "Load, activation and cleanup processes", "Dependencies and decision steps", "Process chain monitor", "Restarting failed steps", "Alerts by email", "Naming and documenting chains"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Build a process chain that loads master data, then sales data, activates it and sends an email on failure, schedule it daily and restart it after a forced failure.",
+          "deliverable": "Process chain, schedule and monitor screenshots",
+          "checks": [["Run the chain", "All steps finish green", "Process chain monitor"], ["Force a load failure", "Email alert is sent", "Email"], ["Restart the failed step", "Chain completes", "Process chain monitor"]],
+          "objectives": ["Build process chains", "Schedule loads", "Handle failures"]
+        },
+        {
+          "topic": "CompositeProviders: Unions and Joins",
+          "subtopics": ["The CompositeProvider", "Unions of DataStore objects", "Joins: inner and left outer", "Assigning fields and InfoObjects", "Navigation attributes in CompositeProviders", "Temporal joins in brief", "Using Open ODS views and HANA views as providers", "Performance considerations"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Build a CompositeProvider that unions actual sales with the budget file data and joins product master data, then check the totals against each source.",
+          "deliverable": "CompositeProvider and a reconciliation of totals",
+          "checks": [["Preview the CompositeProvider", "Actual and budget appear side by side", "Data preview"], ["Reconcile totals with each source", "Totals match", "Reconciliation sheet"], ["Use a navigation attribute", "Product group is available for reporting", "Screenshot"]],
+          "objectives": ["Build CompositeProviders", "Choose unions or joins", "Reconcile combined data"]
+        },
+        {
+          "topic": "Open ODS Views and Virtual Access to Data",
+          "subtopics": ["Open ODS views for fields-based modelling", "Facts, master data and texts", "Sources: tables, DataSources and HANA views", "Associations to InfoObjects", "Virtual access without loading", "When to persist data", "Generating DataStore objects from Open ODS views", "Using Open ODS views in CompositeProviders"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Create an Open ODS view on a database table of customer complaints, associate it with the customer InfoObject and report on it without loading, then generate a DataStore object from it.",
+          "deliverable": "Open ODS view, report screenshot and the generated DataStore object",
+          "checks": [["Report on the Open ODS view", "Complaints show with customer names", "Query output"], ["Change a row in the source table", "Report shows the change at once", "Query output"], ["Generate the DataStore object", "Object and data flow are created", "Screenshot"]],
+          "objectives": ["Model with Open ODS views", "Access data virtually", "Decide when to persist"]
+        },
+        {
+          "topic": "BW Queries: Rows, Columns, Filters and Variables",
+          "subtopics": ["Queries in the BW Modeling Tools", "Rows, columns and free characteristics", "Filters", "Variables for user input", "Characteristic display settings", "Key figure formatting", "Query properties", "Testing queries in RSRT", "Previewing queries in the modelling tools", "Saving and documenting queries"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP GUI RSRT"],
+          "lab_task": "Build a sales query with customer and product in rows, revenue and quantity in columns, a month variable and free characteristics, and test it in RSRT.",
+          "deliverable": "Query and RSRT test screenshots",
+          "checks": [["Run the query for one month", "Results are filtered to that month", "RSRT output"], ["Drill down by a free characteristic", "Drill-down works", "RSRT output"], ["Run without a mandatory variable", "System asks for the month", "Variable screen"]],
+          "objectives": ["Build BW queries", "Use variables", "Test queries"]
+        },
+        {
+          "topic": "Calculated and Restricted Key Figures",
+          "subtopics": ["Restricted key figures", "Calculated key figures", "Formula functions and percentage functions", "Exception aggregation in brief", "Reusable and local key figures", "Prior-year comparisons", "Structures in brief", "Checking results with the source"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP GUI RSRT"],
+          "lab_task": "Add restricted key figures for this year and last year, a calculated growth percentage and a count of customers with exception aggregation, and check the numbers against the source.",
+          "deliverable": "Query with new key figures and a check sheet",
+          "checks": [["Run the query", "This year, last year and growth are shown", "Query output"], ["Check growth for one customer", "Value matches a manual calculation", "Check sheet"], ["Count customers by region", "Distinct customer count is correct", "Query output"]],
+          "objectives": ["Build restricted and calculated key figures", "Compare periods", "Check query results"]
+        },
+        {
+          "topic": "Reporting with SAP Analysis for Microsoft Office",
+          "subtopics": ["Analysis for Office and BW queries", "Inserting data sources into workbooks", "Navigation: drill-down, swap and filter", "Prompts and variables", "Formatting and charts", "Formulas with SAPGetData", "Saving and sharing workbooks", "Refreshing and scheduling in brief"],
+          "tools": ["SAP Analysis for Microsoft Office", "Excel"],
+          "lab_task": "Build an Analysis for Office workbook on the sales query with two sheets, a chart, a formula-based summary using SAPGetData and saved variants of the prompt.",
+          "deliverable": "Workbook with two sheets, chart and summary",
+          "checks": [["Refresh with a new month", "All sheets update", "Workbook screenshot"], ["Check the summary formula", "Value matches the query result", "Comparison"], ["Swap rows and columns", "Navigation works without errors", "Screenshot"]],
+          "objectives": ["Report in Analysis for Office", "Use variables and formulas", "Share workbooks"]
+        },
+        {
+          "topic": "Reporting with SAP Analytics Cloud on BW/4HANA",
+          "subtopics": ["Live connections to BW/4HANA", "Stories on BW queries", "Charts, tables and filters", "Variables and input controls", "Hierarchies in stories", "Linked analysis", "Mobile and sharing", "Live connection compared with import"],
+          "tools": ["SAP Analytics Cloud", "SAP BW/4HANA"],
+          "lab_task": "Create a live connection from SAP Analytics Cloud to BW/4HANA and build a story with a revenue trend, a regional hierarchy table and a month input control on the sales query.",
+          "deliverable": "Live connection and story",
+          "checks": [["Change the month input control", "All widgets update", "Screenshot"], ["Expand the region hierarchy", "Hierarchy levels open", "Screenshot"], ["Compare a value with Analysis for Office", "Numbers match", "Comparison"]],
+          "objectives": ["Connect SAP Analytics Cloud to BW", "Build stories on BW queries", "Choose live or import"]
+        },
+        {
+          "topic": "Authorisations for BW: Analysis Authorisations",
+          "subtopics": ["Standard authorisations and analysis authorisations", "Authorisation-relevant characteristics", "Creating analysis authorisations in RSECADMIN", "Assigning authorisations to users and roles", "Authorisation variables", "Hierarchy authorisations in brief", "Testing with a test user", "Reading the authorisation log"],
+          "tools": ["SAP GUI RSECADMIN and PFCG", "SAP GUI RSRT"],
+          "lab_task": "Restrict the sales query by sales organisation: make the characteristic authorisation-relevant, create authorisations for two regions, assign them to test users and check the authorisation log.",
+          "deliverable": "Analysis authorisations, test results and an authorisation log",
+          "checks": [["Run the query as the north region user", "Only north data is shown", "Query output"], ["Run the query without any authorisation", "No data and an authorisation message", "Message"], ["Read the authorisation log", "Checked values are listed", "Log screenshot"]],
+          "objectives": ["Create analysis authorisations", "Restrict report data", "Test and trace authorisations"]
+        },
+        {
+          "topic": "Monitoring Loads and Requests",
+          "subtopics": ["Request management for DataStore objects", "Request monitor and status", "Process chain monitor", "Delta queues and missing deltas", "Deleting and repeating requests", "Housekeeping tasks in brief", "Daily monitoring checklist", "Escalating load problems"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP GUI ODQMON"],
+          "lab_task": "Run the daily monitoring checklist on the training system, find a failed load, a delayed chain and an unactivated request, fix each and record what was done.",
+          "deliverable": "Completed checklist with three resolved problems",
+          "checks": [["Find the failed load", "Cause is identified from the request monitor", "Screenshot"], ["Activate the waiting request", "Data is available for reporting", "Manage screen"], ["Repeat a deleted request", "Data is loaded again", "Request monitor"]],
+          "objectives": ["Monitor BW loads", "Fix common load problems", "Keep a daily checklist"]
+        },
+        {
+          "topic": "Beginner Capstone: Sales Data Mart for the Model Company",
+          "subtopics": ["InfoObjects and master data", "Extraction from S/4HANA and a budget file", "DataStore objects, transformations and DTPs", "Process chain, CompositeProvider and query", "Report and authorisations", "Demo and questions"],
+          "tools": ["SAP BW/4HANA", "SAP BW/4HANA Modeling Tools", "SAP Analysis for Microsoft Office", "SAP Analytics Cloud"],
+          "lab_task": "Build a sales data mart: customer and product master data, sales from S/4HANA with delta, budget from a file, a process chain, a CompositeProvider of actual and budget, a query with growth and variance, a story and analysis authorisations by region, then present it.",
+          "deliverable": "Data mart, process chain run, story and a 10-minute demo",
+          "checks": [["Run the process chain", "All loads finish and data is reportable", "Process chain monitor"], ["Reconcile revenue with S/4HANA", "Totals match for the month", "Reconciliation"], ["Run the story as a regional user", "Only the region's data is shown", "Screenshot"]],
+          "objectives": ["Combine the beginner topics in one data mart", "Prove the numbers", "Explain the data flow"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For BW developers and consultants who can build a data mart. Covers LSA++ architecture, DataStore object design with inventory, delta management, ABAP and AMDP routines, mixed modelling with HANA calculation views, hierarchies and currency translation, query design in depth, variables and exits, planning, data tiering, real-time loads, process chain design, authorisation design, performance, transports and BW content, non-SAP sources, the choice between BW and embedded analytics, data quality and open hub.",
+      "prerequisites": ["Can build a BW/4HANA data flow from source to query", "Knows DataStore objects, transformations, DTPs and process chains", "Can write basic SQL and read ABAP"],
+      "outcomes": ["Design layered BW/4HANA architectures and data models", "Build complex transformations, mixed models and queries", "Run planning, data tiering and real-time loading", "Secure, tune, transport and reconcile BW solutions"],
+      "days": [
+        {
+          "topic": "Data Warehouse Architecture with LSA++",
+          "subtopics": ["Layered scalable architecture LSA++", "Open operational data store layer", "EDW core layer and corporate memory", "Virtual data mart layer", "Agile and field-based modelling", "When to persist and when to stay virtual", "Naming and InfoArea structure", "Architecture decision records"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "Diagramming tool"],
+          "lab_task": "Design the LSA++ layers for sales, finance and inventory data with persistence decisions, InfoArea structure and naming rules, and write three architecture decision records.",
+          "deliverable": "Architecture document with layer diagram, naming rules and decision records",
+          "checks": [["Map each source to a layer", "Every data flow has a clear path through the layers", "Layer diagram"], ["Review a persistence decision", "Reason and trade-off are stated", "Decision record"], ["Check the naming rules on existing objects", "Rule breaks are listed", "Check sheet"]],
+          "objectives": ["Design layered BW architectures", "Decide on persistence", "Set modelling standards"]
+        },
+        {
+          "topic": "DataStore Object Design: Partitioning, Inventory and Non-Cumulative Key Figures",
+          "subtopics": ["Modelling properties of DataStore objects", "Partitioning and semantic partitioning", "Inventory DataStore objects", "Non-cumulative key figures and validity", "Reference points and historical movements", "Snapshot or movement models for stock", "Write-optimised loading patterns", "Choosing keys for large objects"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Build an inventory DataStore object with non-cumulative stock from S/4HANA material movements, load the opening balance and movements, and report stock on three dates.",
+          "deliverable": "Inventory model, loads and stock-on-date results",
+          "checks": [["Report stock at month end", "Stock matches the S/4HANA stock report", "Comparison"], ["Report stock on an earlier date", "Historical stock is calculated from movements", "Query output"], ["Explain non-cumulative key figures", "Correct explanation with the reference point", "Written answer"]],
+          "objectives": ["Design DataStore objects for scale", "Model inventory", "Choose snapshot or movement models"]
+        },
+        {
+          "topic": "Delta Management: ODP Delta Queues, Request Handling and Repair",
+          "subtopics": ["Delta methods in ODP", "Delta initialisation with and without data", "Delta queue subscriptions and retention", "Request handling in DataStore objects", "Repair full requests", "Recovering a broken delta", "Deleting requests safely", "Monitoring delta consistency"],
+          "tools": ["SAP GUI ODQMON", "SAP BW/4HANA Cockpit", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Break a delta on purpose by deleting a request, recover it with a repair full request and a new initialisation, and prove that no records are missing or duplicated.",
+          "deliverable": "Recovery steps, request history and a reconciliation",
+          "checks": [["Delete a request in the middle of the delta", "Gap is detected in the reconciliation", "Reconciliation"], ["Run the repair full request", "Missing records are loaded", "Request monitor"], ["Reconcile with the source", "No missing or duplicate records", "Reconciliation sheet"]],
+          "objectives": ["Manage deltas", "Recover broken deltas", "Prove delta consistency"]
+        },
+        {
+          "topic": "Transformations in Depth: ABAP and AMDP Routines",
+          "subtopics": ["Start, end, expert and field routines", "ABAP routines and their performance", "AMDP routines executed in SAP HANA", "Push-down of transformations", "Lookups at scale", "Error handling inside routines", "Testing and debugging routines", "Coding standards for BW routines"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "ABAP Development Tools (Eclipse)"],
+          "lab_task": "Rewrite an ABAP end routine that looks up customer data row by row as an AMDP routine, compare runtimes for one million records and handle bad records through the error stack.",
+          "deliverable": "ABAP and AMDP routines with runtime comparison",
+          "checks": [["Load one million records with the ABAP routine", "Runtime is recorded", "Request monitor"], ["Load with the AMDP routine", "Runtime is lower and results are equal", "Comparison"], ["Send a bad record through the routine", "Record goes to the error stack", "Error stack"]],
+          "objectives": ["Write ABAP and AMDP routines", "Push logic down to HANA", "Test and debug routines"]
+        },
+        {
+          "topic": "Mixed Modelling: HANA Calculation Views with BW Objects",
+          "subtopics": ["Mixed modelling scenarios", "External SAP HANA views for BW objects", "Using calculation views in CompositeProviders", "HDI containers and the SAP Business Application Studio", "Authorisations across BW and HANA", "Native SQL consumers of BW data", "Lifecycle and transport of mixed models", "When mixed modelling is the wrong choice"],
+          "tools": ["SAP Business Application Studio", "SAP HANA calculation views", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Combine a HANA calculation view on a non-BW table with a BW DataStore object in a CompositeProvider, expose a BW object as an external HANA view and query it with SQL.",
+          "deliverable": "Mixed model, SQL query results and an authorisation note",
+          "checks": [["Report on the CompositeProvider", "BW and HANA data appear together", "Query output"], ["Query the external HANA view with SQL", "BW data is returned", "SQL result"], ["Run the SQL query as a user without access", "Access is denied", "Error message"]],
+          "objectives": ["Build mixed models", "Expose BW data to SQL", "Govern mixed models"]
+        },
+        {
+          "topic": "Hierarchies, Currency Translation and Unit Conversion",
+          "subtopics": ["Hierarchy types and versions", "Time-dependent hierarchies", "Loading hierarchies from S/4HANA", "Currency translation types", "Exchange rates from S/4HANA", "Translation in queries and transformations", "Unit conversion types", "Testing conversions"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP GUI RSCUR and RSUOM"],
+          "lab_task": "Load the profit centre hierarchy from S/4HANA, set currency translation to group currency at month-end rates and unit conversion to kilograms, and check both in a query.",
+          "deliverable": "Hierarchy, conversion types and a checked query",
+          "checks": [["Display the hierarchy in a query", "Profit centres roll up correctly", "Query output"], ["Translate revenue to group currency", "Values match manual calculation with month-end rates", "Check sheet"], ["Convert quantities to kilograms", "Converted values are correct", "Query output"]],
+          "objectives": ["Load and use hierarchies", "Translate currencies", "Convert units"]
+        },
+        {
+          "topic": "Query Design in Depth: Structures, Cell Definitions, Exceptions and Conditions",
+          "subtopics": ["Structures in rows and columns", "Cell definitions", "Exceptions and colour rules", "Conditions such as top N", "Exception aggregation in depth", "Constant selection", "Query performance settings", "Reusable query components"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP GUI RSRT"],
+          "lab_task": "Build a profit and loss query with a row structure, a cell definition for a margin line, exceptions for negative margins, a top-10 condition and constant selection for a market share.",
+          "deliverable": "P&L query and test results",
+          "checks": [["Run the P&L query", "Rows follow the structure and the margin line is correct", "Query output"], ["Show negative margins", "Exceptions colour them", "Screenshot"], ["Apply the top-10 condition", "Only the top 10 customers are shown", "Query output"]],
+          "objectives": ["Design complex queries", "Use structures and cell definitions", "Apply exceptions and conditions"]
+        },
+        {
+          "topic": "Query Variables in Depth: Processing Types and BAdI Exits",
+          "subtopics": ["Variable types", "Processing by user entry, replacement path and authorisation", "Customer exit variables with BAdI RSROA_VARIABLES_EXIT_BADI", "Default values and personalisation", "Variable dependencies", "Text variables", "Variables in SAP Analytics Cloud", "Testing variables", "Variable variants in Analysis for Office", "Runtime cost of exit variables"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "ABAP Development Tools (Eclipse)", "SAP GUI RSRT"],
+          "lab_task": "Create a variable that defaults to the current fiscal period through a BAdI implementation, a replacement path variable that derives the year from the period and a text variable for headings.",
+          "deliverable": "Variables, BAdI implementation and test results",
+          "checks": [["Run the query with no input", "Current period is proposed", "Variable screen"], ["Run for an earlier period", "Year is derived and the heading shows the period", "Query output"], ["Use the query in SAP Analytics Cloud", "Variables work in the story", "Screenshot"]],
+          "objectives": ["Use advanced variable types", "Write variable exits", "Test variables across tools"]
+        },
+        {
+          "topic": "Planning in BW/4HANA: Aggregation Levels, Planning Functions and Sequences",
+          "subtopics": ["Planning-enabled DataStore objects", "Aggregation levels", "Filters and input-ready queries", "Planning functions: copy, distribute, revaluate and formulas", "Planning sequences", "Characteristic relationships and data slices", "Locking", "Planning in Analysis for Office and SAP Analytics Cloud"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP Analysis for Microsoft Office"],
+          "lab_task": "Build a sales budget model: input-ready query, copy of last year's actuals, a 5% revaluation, distribution to months, a data slice that locks closed periods and a planning sequence.",
+          "deliverable": "Planning model and a completed budget",
+          "checks": [["Run the planning sequence", "Budget is copied, revalued and distributed", "Query output"], ["Enter data in a closed period", "Data slice blocks the entry", "Message"], ["Plan in two sessions at once", "Lock message appears for the overlapping selection", "Screenshot"]],
+          "objectives": ["Build planning models", "Write planning functions", "Control planning data"]
+        },
+        {
+          "topic": "Data Tiering Optimisation: Hot, Warm and Cold Data",
+          "subtopics": ["Data temperatures in BW/4HANA", "Data tiering optimisation settings", "Warm data with native storage extension and extension nodes", "Cold data with data archiving processes", "Partition-based temperature rules", "Moving data between tiers", "Query access to colder data", "Cost and performance trade-offs"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Set temperature rules for a sales DataStore object so the current year is hot, two years are warm and older data is cold, move the data and check query results and runtimes.",
+          "deliverable": "Tiering settings, moved data and query comparison",
+          "checks": [["Run the tiering job", "Partitions move to the planned temperatures", "Job log"], ["Run a query on warm data", "Results are correct with a recorded runtime", "Query output"], ["Explain the cost saving", "Memory reduction is calculated", "Calculation"]],
+          "objectives": ["Plan data temperatures", "Run data tiering", "Balance cost and speed"]
+        },
+        {
+          "topic": "Real-Time Data Acquisition with SLT and Streaming Process Chains",
+          "subtopics": ["Near-real-time needs in BW", "SAP Landscape Transformation Replication Server", "ODP for SLT", "Streaming process chains", "Real-time loads into DataStore objects", "Combining real-time and batch data", "Monitoring latency", "When virtual access is better"],
+          "tools": ["SAP Landscape Transformation Replication Server", "SAP BW/4HANA Cockpit"],
+          "lab_task": "Replicate the sales order table with SLT into BW/4HANA through a streaming process chain, change orders in S/4HANA and measure the latency to the report.",
+          "deliverable": "Replication setup, streaming chain and latency measurements",
+          "checks": [["Change an order in S/4HANA", "Change appears in BW within the target time", "Timestamps"], ["Stop and restart replication", "No changes are lost", "Reconciliation"], ["Monitor the streaming chain", "Chain runs continuously", "Monitor screenshot"]],
+          "objectives": ["Set up real-time loads", "Monitor latency", "Choose real-time or virtual access"]
+        },
+        {
+          "topic": "Process Chain Design: Dependencies, Error Handling and Alerts",
+          "subtopics": ["Chain design principles", "Meta chains and sub-chains", "Dependencies across source systems", "Decision and interrupt processes", "Error handling and automatic restarts", "Alerting and on-call handover", "Load windows and service levels", "Documenting chains"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Redesign the nightly loads as a meta chain with sub-chains per area, a wait for an S/4HANA job, automatic retry for a flaky step and alerts to the on-call address.",
+          "deliverable": "Chain design, run logs and alert evidence",
+          "checks": [["Run the meta chain", "All sub-chains finish in order", "Monitor screenshot"], ["Make the flaky step fail once", "Automatic retry succeeds", "Process log"], ["Make a step fail twice", "Alert is sent to on-call", "Email"]],
+          "objectives": ["Design reliable process chains", "Handle failures", "Meet load windows"]
+        },
+        {
+          "topic": "Security Design: Analysis Authorisations, Roles and Variables",
+          "subtopics": ["Authorisation concept for BW", "Analysis authorisations for several characteristics", "Hierarchy node authorisations", "Authorisation variables in queries", "Generating authorisations from source data", "Roles for modellers, administrators and report users", "Authorisations in SAP Analytics Cloud live connections", "Auditing access"],
+          "tools": ["SAP GUI RSECADMIN and PFCG", "SAP GUI RSECPROT"],
+          "lab_task": "Design authorisations for regional and global users with hierarchy node access, generate them from a mapping table, and test them in Analysis for Office and SAP Analytics Cloud.",
+          "deliverable": "Authorisation design, generated authorisations and test results",
+          "checks": [["Run the report as a regional user", "Only the region's hierarchy nodes are visible", "Query output"], ["Run the report in SAP Analytics Cloud", "Same restriction applies", "Screenshot"], ["Change the mapping table and regenerate", "User sees the new region", "Query output"]],
+          "objectives": ["Design BW security", "Generate authorisations", "Audit access"]
+        },
+        {
+          "topic": "Performance Tuning for Loads and Queries",
+          "subtopics": ["Query runtime statistics", "RSRT for query analysis", "Partition pruning and filters", "Calculation push-down to HANA", "Large CompositeProviders and join cost", "Load performance: package size and parallelism", "DataStore object activation performance", "Performance testing before go-live"],
+          "tools": ["SAP GUI RSRT and RSDDSTAT", "SAP BW/4HANA Cockpit"],
+          "lab_task": "Analyse the three slowest queries and the slowest load with runtime statistics, apply one fix to each and compare runtimes before and after.",
+          "deliverable": "Performance analysis with before and after runtimes",
+          "checks": [["Analyse a slow query in RSRT", "Main time consumer is identified", "RSRT statistics"], ["Apply the fix", "Runtime falls", "Comparison"], ["Tune the slow load", "Load finishes faster with the same results", "Request monitor"]],
+          "objectives": ["Analyse BW performance", "Tune queries and loads", "Test performance"]
+        },
+        {
+          "topic": "Transports, BW Business Content and Content Activation",
+          "subtopics": ["Transport landscape for BW", "Collecting objects for transport", "Transport dependencies and order", "Source system mapping after import", "SAP BW/4HANA Content", "Activating business content", "Copying content and adapting it", "Transport errors and fixes"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP GUI RSOR and STMS"],
+          "lab_task": "Activate the BW/4HANA content for sales overview, adapt one object, collect the data flow into a transport, import it into the test system and fix a source system mapping error.",
+          "deliverable": "Activated content, transport and import logs",
+          "checks": [["Activate the content", "Objects are active with their data flow", "Activation log"], ["Import the transport", "Objects are active in the test system", "Import log"], ["Fix the mapping error", "Data flow works in the test system", "Request monitor"]],
+          "objectives": ["Use BW business content", "Transport BW objects", "Fix transport problems"]
+        },
+        {
+          "topic": "Integrating Non-SAP Sources: SDA, SDI and Big Data",
+          "subtopics": ["Smart data access and virtual tables", "Smart data integration and replication", "Big Data source systems", "Loading from cloud storage and databases", "Combining non-SAP and SAP data", "Data type and code page issues", "Security for remote sources", "Choosing virtual or loaded data"],
+          "tools": ["SAP HANA smart data access", "SAP HANA smart data integration", "SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Connect a cloud database of web orders through smart data access, build an Open ODS view on it, load a history into a DataStore object and combine it with S/4HANA orders.",
+          "deliverable": "Remote source, Open ODS view, loaded history and combined report",
+          "checks": [["Report on the virtual web orders", "Data is read from the remote source", "Query output"], ["Load the history", "Records match the remote count", "Reconciliation"], ["Report web and S/4HANA orders together", "Totals by channel are correct", "Query output"]],
+          "objectives": ["Integrate non-SAP data", "Use virtual tables", "Choose virtual or loaded access"]
+        },
+        {
+          "topic": "Embedded Analytics and BW: Choosing Where to Report",
+          "subtopics": ["S/4HANA embedded analytics with CDS views", "What BW/4HANA adds: history, harmonisation and planning", "SAP Datasphere as a third option", "Operational and strategic reporting", "Data latency and freshness", "Cost of ownership", "A decision matrix for reporting needs", "Moving reports between platforms"],
+          "tools": ["SAP S/4HANA", "SAP BW/4HANA", "SAP Analytics Cloud"],
+          "lab_task": "Classify 20 reporting requirements into S/4HANA embedded analytics, BW/4HANA or SAP Datasphere with a decision matrix, and build one requirement in embedded analytics and one in BW.",
+          "deliverable": "Decision matrix and two built reports",
+          "checks": [["Classify the requirements", "Each has a platform and a reason", "Decision matrix"], ["Build the embedded report", "Report shows live S/4HANA data", "Screenshot"], ["Build the BW report", "Report shows harmonised history", "Screenshot"]],
+          "objectives": ["Choose reporting platforms", "Compare BW and embedded analytics", "Justify platform decisions"]
+        },
+        {
+          "topic": "Data Quality, Reconciliation and Error Stacks",
+          "subtopics": ["Data quality dimensions", "Validation rules in transformations", "Error stacks and correction processes", "Reconciliation with source systems", "Control totals and checks in process chains", "Data quality dashboards", "Ownership of data quality issues", "Auditable reconciliation evidence"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit", "Excel"],
+          "lab_task": "Add validation rules for missing customers and negative quantities, reconcile monthly sales with S/4HANA automatically in the process chain and build a data quality dashboard.",
+          "deliverable": "Validation rules, reconciliation step and dashboard",
+          "checks": [["Load records with quality problems", "Problems are caught and reported", "Error stack"], ["Run the reconciliation step", "Totals match or the chain stops", "Process log"], ["Open the dashboard", "Issues are shown by rule and owner", "Screenshot"]],
+          "objectives": ["Build data quality checks", "Reconcile automatically", "Report data quality"]
+        },
+        {
+          "topic": "Open Hub, Data Export and External Consumers",
+          "subtopics": ["Open hub destinations", "Export to files, database tables and third-party tools", "Delta export", "SQL access to BW data", "OData access to queries", "Feeding data lakes and machine learning", "Governance of exported data", "Monitoring exports"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP BW/4HANA Cockpit"],
+          "lab_task": "Create an open hub destination that exports daily sales deltas to a database table for a data science team, and expose the sales query as an OData service for an external app.",
+          "deliverable": "Open hub destination, export runs and OData test calls",
+          "checks": [["Run the export twice", "Second run exports only the delta", "Export log"], ["Call the OData service", "Query results are returned", "API response"], ["Check governance", "Owner, purpose and retention are recorded", "Register entry"]],
+          "objectives": ["Export BW data", "Serve external consumers", "Govern data exports"]
+        },
+        {
+          "topic": "Intermediate Capstone: Enterprise Sales and Inventory Data Warehouse",
+          "subtopics": ["LSA++ design for sales and inventory", "Delta loads, routines and mixed models", "Inventory, currency and hierarchies", "Planning and queries", "Security, performance and reconciliation", "Design walkthrough"],
+          "tools": ["SAP BW/4HANA", "SAP BW/4HANA Modeling Tools", "SAP Analysis for Microsoft Office", "SAP Analytics Cloud"],
+          "lab_task": "Build a sales and inventory warehouse with LSA++ layers, S/4HANA and non-SAP sources, AMDP routines, an inventory model, group currency, a budget planning model, authorisations, tiering and automatic reconciliation, then present it.",
+          "deliverable": "Data warehouse, test evidence and a 15-minute walkthrough",
+          "checks": [["Run the nightly meta chain", "All loads and the reconciliation pass", "Process chain monitor"], ["Report stock and sales in group currency", "Values match the sources", "Reconciliation"], ["Answer design questions", "Choices explained with alternatives", "Walkthrough"]],
+          "objectives": ["Combine the intermediate topics", "Prove data correctness", "Explain design decisions"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior BW consultants, data warehouse architects and analytics leads. Covers enterprise data warehouse architecture, SAP Business Data Cloud with BW private cloud edition and data products, the SAP Datasphere BW bridge, conversion from SAP BW 7.x, moving models to SAP Datasphere, performance engineering, data volume strategy, complex modelling patterns, planning at scale, Joule and AI, machine learning on BW data, real-time architecture, security, governance and lineage, DevOps, operations, troubleshooting, analytics operating models and transformation roadmaps.",
+      "prerequisites": ["Has built BW/4HANA or SAP BW data warehouses in a project", "Knows delta management, routines, mixed modelling and authorisations", "Understands SAP HANA and the SAP analytics portfolio"],
+      "outcomes": ["Design data warehouse architectures across BW/4HANA, SAP Datasphere and SAP Business Data Cloud", "Plan BW conversions and moves to SAP Business Data Cloud", "Engineer performance, data volume, security and governance at scale", "Lead analytics operating models and transformation programmes"],
+      "days": [
+        {
+          "topic": "Enterprise Data Warehouse Architecture for SAP Landscapes",
+          "subtopics": ["Analytics needs across finance, supply chain and sales", "BW/4HANA, SAP Datasphere, SAP Business Data Cloud and embedded analytics compared", "Hybrid architectures", "Data products and semantic layers", "Non-SAP data and data lakes", "Reference architectures from SAP", "Architecture decision records", "Total cost of ownership"],
+          "tools": ["SAP Architecture Center", "Diagramming tool", "Excel"],
+          "lab_task": "Design the analytics architecture for a group with S/4HANA, an old SAP BW 7.5 system and a cloud data lake, compare three target options on cost and risk and record the decisions.",
+          "deliverable": "Target architecture, option comparison and decision records",
+          "checks": [["Compare the three options", "Each option is scored on cost, risk and time", "Comparison table"], ["Review a decision record", "Alternatives and consequences are stated", "Decision record"], ["Trace a finance report through the target architecture", "Every layer and owner is named", "Data flow diagram"]],
+          "objectives": ["Design SAP analytics architectures", "Compare platforms", "Record architecture decisions"]
+        },
+        {
+          "topic": "SAP Business Data Cloud with BW Private Cloud Edition and Data Products",
+          "subtopics": ["SAP Business Data Cloud components", "SAP BW private cloud edition and BW/4HANA private cloud edition", "The Data Product Generator for SAP Business Data Cloud", "Publishing BW data as data products", "Consuming data products in SAP Datasphere and SAP Analytics Cloud", "SAP Databricks and data products in brief", "Intelligent applications from SAP", "Licensing and the move from on-premise"],
+          "tools": ["SAP Business Data Cloud", "SAP Datasphere", "SAP BW/4HANA"],
+          "lab_task": "Publish a BW sales InfoProvider as a data product with the Data Product Generator, consume it in SAP Datasphere in an analytic model with a non-SAP table and report on it in SAP Analytics Cloud.",
+          "deliverable": "Published data product, Datasphere model and a story",
+          "checks": [["Run the Data Product Generator", "Data product appears in the catalog", "Catalog screenshot"], ["Build the analytic model", "BW and non-SAP data combine correctly", "Data preview"], ["Compare the story with the BW query", "Totals match", "Comparison"]],
+          "objectives": ["Explain SAP Business Data Cloud", "Publish BW data products", "Consume BW data in the cloud"]
+        },
+        {
+          "topic": "SAP Datasphere BW Bridge and Hybrid Scenarios",
+          "subtopics": ["Purpose of the SAP Datasphere BW bridge", "Supported objects and limits", "Moving BW data flows into the BW bridge", "Remote tables and replication flows", "Hybrid reporting across BW/4HANA and SAP Datasphere", "Hybrid authorisations", "Operations in a hybrid landscape", "Exit plans for hybrid set-ups"],
+          "tools": ["SAP Datasphere", "SAP Datasphere BW bridge", "SAP BW/4HANA"],
+          "lab_task": "Move one ODP-based data flow into the SAP Datasphere BW bridge, keep the rest in BW/4HANA, and build a hybrid report that combines both with the same authorisations.",
+          "deliverable": "Bridge data flow, hybrid model and authorisation tests",
+          "checks": [["Load the data flow in the BW bridge", "Data arrives in SAP Datasphere", "Monitor screenshot"], ["Run the hybrid report", "Data from both systems combines", "Report output"], ["Run as a restricted user", "Same restrictions apply in both systems", "Test results"]],
+          "objectives": ["Use the BW bridge", "Design hybrid scenarios", "Plan the exit from hybrid"]
+        },
+        {
+          "topic": "Converting SAP BW 7.x to BW/4HANA: In-Place, Remote and Shell Conversion",
+          "subtopics": ["Conversion paths: in-place, remote and shell", "The BW/4HANA starter add-on and compatibility mode", "The Transfer Cockpit and transfer toolbox", "Converting InfoCubes, classic DSOs and MultiProviders", "Replacing 3.x data flows", "Custom code and routines in conversion", "Readiness checks and sizing", "Cutover and parallel running"],
+          "tools": ["SAP BW/4HANA Transfer Cockpit", "SAP Readiness Check for SAP BW/4HANA", "ABAP Test Cockpit"],
+          "lab_task": "Analyse a BW 7.5 system with the readiness check, choose a conversion path, transfer one InfoCube data flow with the transfer cockpit and check the converted objects and data.",
+          "deliverable": "Conversion assessment, chosen path and the transferred data flow",
+          "checks": [["Run the readiness check", "Incompatible objects are listed with actions", "Readiness report"], ["Transfer the InfoCube data flow", "DataStore object and CompositeProvider replace the old objects", "Transfer log"], ["Compare data before and after", "Query results match", "Comparison"]],
+          "objectives": ["Choose a BW conversion path", "Use the transfer tools", "Prove conversion results"]
+        },
+        {
+          "topic": "Moving BW Models to SAP Datasphere: Model Transfer and Redesign",
+          "subtopics": ["Move, rebuild or retire", "Model transfer from BW/4HANA to SAP Datasphere", "Mapping BW objects to Datasphere entities", "Replication flows and transformation flows", "Analytic models replacing queries", "Moving authorisations", "Dual running and reconciliation", "Retiring the BW objects"],
+          "tools": ["SAP Datasphere", "SAP BW/4HANA", "SAP Analytics Cloud"],
+          "lab_task": "Transfer a BW sales model to SAP Datasphere, rebuild its query as an analytic model, run both for a month and reconcile results before retiring the BW objects.",
+          "deliverable": "Transferred model, analytic model and dual-run reconciliation",
+          "checks": [["Import the BW model", "Entities and associations are created", "Import log"], ["Run the analytic model", "Results match the BW query", "Comparison"], ["Complete the dual run", "Daily results match for a month", "Reconciliation log"]],
+          "objectives": ["Plan moves to SAP Datasphere", "Rebuild BW models in the cloud", "Retire BW objects safely"]
+        },
+        {
+          "topic": "Performance Engineering for BW on SAP HANA at Scale",
+          "subtopics": ["Workload analysis for BW/4HANA", "SAP HANA memory, CPU and threads", "Plan visualizer for BW queries", "Partitioning strategy for large DataStore objects", "Query push-down limits", "Load concurrency and workload classes", "Scale-out and table distribution", "Performance governance for teams"],
+          "tools": ["SAP HANA cockpit", "SQL plan visualizer", "SAP GUI RSRT and ST03N"],
+          "lab_task": "Analyse a BW system's workload, find the two most expensive queries and loads, trace one with the plan visualizer, fix it and set workload classes for reporting and loading.",
+          "deliverable": "Workload analysis, traced plan, fix evidence and workload class settings",
+          "checks": [["Trace the expensive query", "Most expensive plan operator is identified", "Plan visualizer screenshot"], ["Apply the fix", "Runtime and memory use fall", "Before and after measurements"], ["Load during peak reporting", "Workload classes keep reports within targets", "Monitoring data"]],
+          "objectives": ["Engineer BW performance on HANA", "Read execution plans", "Manage workloads"]
+        },
+        {
+          "topic": "Data Volume Strategy: NSE, Extension Nodes and Archiving",
+          "subtopics": ["Data growth forecasts", "Native storage extension at scale", "Extension nodes", "Data archiving processes and near-line storage", "Housekeeping of logs and change logs", "Retention rules and legal holds", "Cost model for memory and storage", "Data volume governance"],
+          "tools": ["SAP HANA cockpit", "SAP BW/4HANA Cockpit", "Excel"],
+          "lab_task": "Forecast three years of data growth, design a data volume strategy with NSE, extension nodes, archiving and housekeeping, and calculate the cost saving.",
+          "deliverable": "Growth forecast, strategy and cost model",
+          "checks": [["Forecast growth by area", "Forecast uses the last two years of data", "Forecast sheet"], ["Run housekeeping on change logs", "Memory is released", "Before and after memory"], ["Review the cost model", "Saving is calculated per tier", "Cost model"]],
+          "objectives": ["Plan data volume", "Use tiering at scale", "Calculate cost savings"]
+        },
+        {
+          "topic": "Complex Modelling Patterns: Snapshots, Slowly Changing Dimensions and Semantic Groups",
+          "subtopics": ["Periodic snapshots", "Slowly changing dimensions in BW", "Key date and time-dependent reporting", "Semantic groups for very large models", "Many-to-many relationships", "Late-arriving data", "Restatement and history correction", "Documenting patterns for the team"],
+          "tools": ["SAP BW/4HANA Modeling Tools"],
+          "lab_task": "Model customer reporting with a history of segment changes, month-end snapshots of open receivables and a restatement option, and prove the results for three test cases.",
+          "deliverable": "Model, pattern documentation and test results",
+          "checks": [["Report revenue by the segment at the time", "Historical segments are used", "Query output"], ["Report revenue by the current segment", "Restated values are shown", "Query output"], ["Load late-arriving data", "Snapshot for the past month is corrected", "Query output"]],
+          "objectives": ["Apply advanced modelling patterns", "Handle history and restatement", "Document patterns"]
+        },
+        {
+          "topic": "Planning at Scale: SAP BPC Embedded and SAP Analytics Cloud Planning",
+          "subtopics": ["SAP BPC embedded on BW/4HANA", "Business process flows and work status", "Planning at scale: locking and performance", "SAP Analytics Cloud planning on BW data", "Seamless planning with SAP Datasphere", "Moving planning from BPC to SAP Analytics Cloud", "Driver-based and predictive planning", "Governance of planning cycles"],
+          "tools": ["SAP BPC embedded", "SAP Analytics Cloud planning", "SAP Datasphere"],
+          "lab_task": "Compare BPC embedded and SAP Analytics Cloud planning for a 200-planner budget cycle, build a driver-based plan in SAP Analytics Cloud on BW data and write the move plan.",
+          "deliverable": "Comparison, prototype plan and a move plan",
+          "checks": [["Run the driver-based plan", "Changes to drivers update the plan", "Story screenshot"], ["Write back to BW", "Planned values arrive in BW", "Query output"], ["Review the move plan", "Process, security and data are covered", "Move plan"]],
+          "objectives": ["Design planning solutions at scale", "Use SAP Analytics Cloud planning", "Plan moves from BPC"]
+        },
+        {
+          "topic": "Generative AI and Joule in BW and SAP Analytics Cloud",
+          "subtopics": ["Joule in SAP Analytics Cloud and SAP Datasphere", "Natural language questions on BW data", "AI-generated stories and explanations", "AI support for modelling and SQL", "Grounding answers in governed data", "Checking AI answers against queries", "AI governance and data privacy", "Business cases for AI in analytics"],
+          "tools": ["Joule", "SAP Analytics Cloud", "SAP Datasphere"],
+          "lab_task": "Ask Joule ten business questions on governed sales data, check every answer against a BW query, and write rules for which data and questions AI may be used with.",
+          "deliverable": "Question log with checked answers and AI usage rules",
+          "checks": [["Ask for revenue by region last quarter", "Answer matches the BW query", "Comparison"], ["Ask a question outside the governed data", "Answer is refused or clearly limited", "Screenshot"], ["Review the AI usage rules", "Data scope, review and privacy are covered", "Rules document"]],
+          "objectives": ["Use Joule in analytics", "Check AI answers", "Govern AI in analytics"]
+        },
+        {
+          "topic": "Machine Learning on BW Data with SAP HANA PAL and APL",
+          "subtopics": ["Machine learning use cases in a data warehouse", "SAP HANA Predictive Analysis Library", "SAP HANA Automated Predictive Library", "The hana-ml Python client", "Feature preparation from BW data", "Training, scoring and writing results back", "Model monitoring and retraining", "Explaining predictions to business users"],
+          "tools": ["SAP HANA PAL and APL", "Python with hana-ml", "SAP BW/4HANA"],
+          "lab_task": "Train a demand forecast on BW sales history with APL through hana-ml, write the forecast into a DataStore object and show actual against forecast in a query.",
+          "deliverable": "Notebook, forecast results in BW and an accuracy report",
+          "checks": [["Train the forecast model", "Model trains with an accuracy measure", "Notebook output"], ["Write the forecast into BW", "Forecast is reportable next to actuals", "Query output"], ["Report accuracy", "Error by product group is calculated", "Accuracy report"]],
+          "objectives": ["Run machine learning on BW data", "Write results back to BW", "Monitor model accuracy"]
+        },
+        {
+          "topic": "Real-Time Analytics Architecture: SLT, Replication Flows and Events",
+          "subtopics": ["Latency requirements by use case", "SLT and ODP real-time", "Replication flows in SAP Datasphere", "Virtual access and federation", "Events and streaming platforms", "Mixing real-time and batch layers", "Monitoring end-to-end latency", "Cost of real-time"],
+          "tools": ["SAP Landscape Transformation Replication Server", "SAP Datasphere replication flows", "Diagramming tool"],
+          "lab_task": "Design a real-time analytics architecture for order fulfilment with a latency target per use case, choose SLT, replication flows or virtual access for each, and measure one flow.",
+          "deliverable": "Architecture, choices per use case and a latency measurement",
+          "checks": [["Classify the use cases", "Each has a latency target and a method", "Classification"], ["Measure one flow", "Latency meets the target", "Measurements"], ["Review the cost", "Cost per method is estimated", "Cost sheet"]],
+          "objectives": ["Design real-time analytics", "Choose replication methods", "Measure latency"]
+        },
+        {
+          "topic": "Security Architecture for BW/4HANA and Hybrid Analytics",
+          "subtopics": ["Security architecture across BW, HANA and cloud", "Analysis authorisations at scale", "Identity and single sign-on for analytics tools", "Data protection: masking and anonymisation", "Personal data, blocking and deletion", "Secure connections and network design", "Security monitoring and audit logs", "Security reviews for new data flows"],
+          "tools": ["SAP GUI RSECADMIN", "SAP HANA cockpit", "SAP Cloud Identity Services"],
+          "lab_task": "Design security for a hybrid BW and SAP Datasphere landscape with single sign-on, regional authorisations, masked salary data and audit logging, and test it with three personas.",
+          "deliverable": "Security architecture and persona test results",
+          "checks": [["Run reports as the three personas", "Each sees only the allowed data", "Test results"], ["Read salary data as an analyst", "Values are masked", "Screenshot"], ["Review the audit log", "Access to sensitive data is logged", "Audit log"]],
+          "objectives": ["Design analytics security", "Protect sensitive data", "Audit analytics access"]
+        },
+        {
+          "topic": "Data Governance, Lineage and Metadata Management",
+          "subtopics": ["Data ownership and stewardship", "Business glossary and definitions", "Lineage from source to report", "Metadata in BW/4HANA and SAP Datasphere catalogs", "Impact analysis before changes", "Data contracts with source teams", "Certifying data sets and reports", "Measuring governance"],
+          "tools": ["SAP Datasphere catalog", "SAP BW/4HANA Modeling Tools", "Excel"],
+          "lab_task": "Set up governance for the sales domain with owners, glossary terms, certified data sets and lineage from S/4HANA to the main report, and run an impact analysis for a source change.",
+          "deliverable": "Governance set-up, lineage diagram and impact analysis",
+          "checks": [["Trace lineage for a key figure", "Every step from source to report is shown", "Lineage diagram"], ["Run the impact analysis", "Affected objects and reports are listed", "Impact report"], ["Certify a data set", "Certification shows in the catalog", "Catalog screenshot"]],
+          "objectives": ["Govern analytics data", "Trace lineage", "Analyse change impact"]
+        },
+        {
+          "topic": "DevOps for BW: Transports, Automated Testing and Regression Checks",
+          "subtopics": ["Release process for BW changes", "Transport strategy and object collection", "Automated query regression tests", "Data comparison before and after changes", "Test data management", "Version control for BW and HANA objects", "Change approval and documentation", "Measuring release quality"],
+          "tools": ["SAP BW/4HANA Modeling Tools", "SAP GUI STMS", "Query regression test tool"],
+          "lab_task": "Build a release process with transport rules, automated regression tests for 20 queries and data comparisons, and use it to release a change that alters a transformation.",
+          "deliverable": "Release process, regression results and release record",
+          "checks": [["Run regression tests before the change", "All 20 queries pass", "Test report"], ["Release the transformation change", "Changed query differs only as expected", "Comparison report"], ["Import into production", "Import succeeds with no follow-up errors", "Import log"]],
+          "objectives": ["Run BW releases safely", "Automate regression tests", "Measure release quality"]
+        },
+        {
+          "topic": "Operations at Scale: Monitoring, Housekeeping and Upgrades",
+          "subtopics": ["Operating model for BW", "Monitoring with the BW/4HANA Cockpit and SAP Cloud ALM", "Housekeeping tasks and schedules", "Service levels for loads and reports", "Support package and release upgrades", "SAP HANA upgrades and their effect on BW", "Capacity planning", "Runbooks and on-call"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP Cloud ALM", "SAP HANA cockpit"],
+          "lab_task": "Set up monitoring and service levels for a BW system, schedule housekeeping, plan a support package upgrade with regression testing and write runbooks for the top five incidents.",
+          "deliverable": "Monitoring set-up, housekeeping schedule, upgrade plan and runbooks",
+          "checks": [["Trigger a late load", "Service level alert is raised", "Alert"], ["Run housekeeping", "Logs older than the retention are removed", "Job log"], ["Follow a runbook", "Incident is resolved with the steps", "Runbook test log"]],
+          "objectives": ["Operate BW at scale", "Plan upgrades", "Write runbooks"]
+        },
+        {
+          "topic": "Troubleshooting Data Loads and Query Issues",
+          "subtopics": ["A method for BW incidents", "Load failures: source, transformation and activation", "Delta problems", "Wrong numbers in reports", "Authorisation problems", "Query runtime errors and dumps", "Using logs, traces and the debugger", "Root cause and prevention notes"],
+          "tools": ["SAP BW/4HANA Cockpit", "SAP GUI RSRT, ST22 and RSECPROT", "SAP GUI ODQMON"],
+          "lab_task": "Solve five seeded incidents, a failed activation, a missing delta, a wrong total, an authorisation error and a query dump, and document the root cause and fix of each.",
+          "deliverable": "Five incident reports with root causes, fixes and prevention notes",
+          "checks": [["Fix the failed activation", "Request activates", "Manage screen"], ["Explain the wrong total", "Cause is traced to its object", "Analysis"], ["Fix the missing delta", "Missing records are loaded and reconciled", "Reconciliation"]],
+          "objectives": ["Troubleshoot BW incidents", "Find root causes", "Prevent repeat incidents"]
+        },
+        {
+          "topic": "Analytics Operating Models: Self-Service, Data Products and Ownership",
+          "subtopics": ["Central, federated and hybrid team models", "Data products and domain ownership", "Self-service with guard rails", "Certified and personal content", "Funding and charging models", "Skills and roles for the analytics team", "Demand management", "Measuring value"],
+          "tools": ["SAP Datasphere spaces", "SAP Analytics Cloud", "Excel"],
+          "lab_task": "Design an operating model for analytics with domains, data product owners, self-service rules and demand management, and set up two Datasphere spaces that follow it.",
+          "deliverable": "Operating model, space set-up and governance rules",
+          "checks": [["Review the model", "Roles, decisions and funding are defined", "Operating model"], ["Create the domain spaces", "Spaces follow the naming and access rules", "Screenshot"], ["Publish personal content", "Content is kept out of the certified area", "Screenshot"]],
+          "objectives": ["Design analytics operating models", "Enable governed self-service", "Assign data ownership"]
+        },
+        {
+          "topic": "Analytics Transformation Roadmaps and Solution Reviews",
+          "subtopics": ["Assessing analytics maturity", "Value drivers: decision speed, trust and cost", "Roadmap from BW to SAP Business Data Cloud", "Business case and KPIs", "Change management for report users", "Solution review checklists", "Design authority and governance", "Presenting to stakeholders"],
+          "tools": ["SAP Architecture Center", "Excel", "Presentation tool"],
+          "lab_task": "Review a data warehouse design against a checklist, propose a three-wave roadmap to SAP Business Data Cloud with KPIs and a business case and present it to a mock steering committee.",
+          "deliverable": "Review findings, roadmap, business case and presentation",
+          "checks": [["Review the design", "Findings are rated by risk", "Review report"], ["Build the KPIs", "Each KPI has a baseline and a target", "KPI sheet"], ["Present to the steering committee", "Questions answered with evidence", "Presentation"]],
+          "objectives": ["Review analytics solutions", "Build roadmaps and business cases", "Lead analytics transformation"]
+        },
+        {
+          "topic": "Advanced Capstone: Hybrid BW/4HANA and Business Data Cloud Blueprint",
+          "subtopics": ["Target analytics architecture", "Conversion and move plan", "Data products, governance and security", "Performance, volume and real-time design", "Planning and AI use", "Board presentation and design defence"],
+          "tools": ["SAP BW/4HANA", "SAP Business Data Cloud", "SAP Datasphere", "SAP Analytics Cloud"],
+          "lab_task": "Produce a blueprint for a group moving from BW 7.5 to a hybrid BW/4HANA and SAP Business Data Cloud landscape covering architecture, conversion, data products, governance, security, volume, real-time, planning and AI use, prototype two scenarios and present it to a mock board.",
+          "deliverable": "Blueprint, two prototypes, roadmap and a 20-minute presentation",
+          "checks": [["Run the data product prototype", "BW data is consumed in SAP Datasphere with matching totals", "Comparison"], ["Run the converted data flow prototype", "Converted flow gives the same results as the old one", "Comparison"], ["Answer board questions", "Blueprint defended with evidence", "Presentation"]],
+          "objectives": ["Combine the advanced topics in one blueprint", "Prove key scenarios", "Lead analytics transformation"]
+        }
+      ]
+    }
+  }
+}

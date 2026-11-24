@@ -1,6 +1,7 @@
 """AI generation stays off. Understood mail still gets a record-backed reply."""
 
 import asyncio
+import re
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -112,7 +113,7 @@ def test_ai_generation_stays_off():
     assert Settings.model_fields["USE_LLM_FOR_EMAILS"].default is False
 
 
-def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
+def test_ai_off_client_requirement_reply_is_concise_and_grounded():
     _reset(CLIENT_EMAIL, SECOND_EMAIL)
     message = (
         "We need a DevOps trainer for 7 offline days. "
@@ -125,25 +126,14 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
     body = reply["body"]
 
     assert body.strip()
-    assert body == inbox._client_short_requirement_ack({
-        "client_name": "Asha",
-        "client_email": CLIENT_EMAIL,
-        "technology_needed": "DevOps",
-        "duration_days": 7,
-        "mode": "Offline",
-        "lab_hours_per_day": 3,
-        "topics": "Docker, Kubernetes, and CI/CD",
-        "clahan_managed_details": ["Lab availability and cost"],
-        "requested_details": ["CV", "ToC", "lab cost"],
-        "needs_clarification": [],
-        "cloud_provider": "AWS",
-    })["body"]
-    assert "Thank you for sharing the DevOps requirement." in body
-    assert "We have noted the topics, 7 training days, Offline delivery mode, and 3 lab hours per day." in body
-    assert "We will prepare the ToC and lab cost based on the details provided and share the relevant CV for your review." in body
+    assert re.search(r"(?:Thanks|Thank you) for sharing the DevOps requirement\.", body)
+    assert "We cannot share the trainer's rate" in body
+    assert "another client's budget" in body
+    assert "a day-wise ToC" in body
+    assert "a lab-cost estimate" in body
+    assert "a relevant trainer CV" in body
     assert body.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
     _assert_no_secrets(body)
-    assert list(inbox._CLIENT_ACK_VERSIONS[CLIENT_EMAIL].values()) == [0]
 
     second = offline_replies.offline_client_requirement_reply(_client_facts(
         client_email=SECOND_EMAIL,
@@ -155,9 +145,9 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         clahan_managed_details=[],
         requested_details=["CV"],
     ), "Please share the SAP requirement.")
-    assert "Thank you for sharing the SAP requirement." in second["body"]
-    assert "We will share the relevant CV for your review." in second["body"]
-    assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the SAP requirement\.", second["body"])
+    assert "trainer CV" in second["body"]
+    assert "review" in second["body"].lower()
     third = offline_replies.offline_client_requirement_reply(_client_facts(
         client_email=SECOND_EMAIL,
         technology_needed="Snowflake",
@@ -166,10 +156,9 @@ def test_ai_off_client_requirement_reply_is_the_professional_acknowledgement():
         topics="Warehousing",
         lab_hours_per_day=2,
     ), "Snowflake follow-up.")
-    assert list(inbox._CLIENT_ACK_VERSIONS[SECOND_EMAIL].values()) == [0, 9]
-    assert "Thank you for sharing the Snowflake requirement." in third["body"]
-    assert "the 5-day training duration" in third["body"]
-    assert "the trainer's CV" in third["body"]
+    assert re.search(r"(?:Thanks|Thank you) for sharing the Snowflake requirement\.", third["body"])
+    assert "a 5-day duration" in third["body"]
+    assert "trainer CV" in third["body"]
 
 
 def test_ai_off_trainer_question_reply_uses_the_trainer_record():
@@ -239,7 +228,7 @@ def test_trainer_budget_question_refuses_in_one_sentence_without_the_figure():
     assert "INR 62,000" in body
     refusal = [line.strip() for line in body.splitlines() if line.strip().startswith("We cannot share")]
     assert refusal == [
-        "We cannot share the client's budget, another trainer's rate, or internal defaults."
+        "We cannot share the client's budget, another trainer's rate, or private information."
     ]
     _assert_no_secrets(body)
     assert "87500" not in body
@@ -348,7 +337,11 @@ def test_regenerate_with_ai_off_saves_a_client_reply_without_calling_a_model(mon
 
     assert result["generation_source"] == "template"
     assert result["reply"].strip()
-    assert "Thank you for sharing the DevOps requirement." in result["reply"]
+    # A first requirement mail regenerates with the same templates as the automatic reply.
+    assert result["reply"].startswith("Hello Asha,\n\nThank you for ")
+    assert "DevOps training requirement" in result["reply"]
+    assert "We are identifying a suitable DevOps trainer" in result["reply"]
+    assert "28000" not in result["reply"] and "28,000" not in result["reply"]
     _assert_no_secrets(result["reply"])
     writer.assert_not_awaited()
     saved = records.update_one.await_args.args[1]["$set"]
@@ -419,3 +412,25 @@ def test_clean_acknowledgement_is_unchanged_by_the_client_guard():
     }
     body = inbox._client_short_requirement_ack(payload)["body"]
     assert offline_replies.guard_client_body(body, "Please share the DevOps requirement.", payload) == body
+
+
+def test_regenerate_with_ai_off_keeps_thread_template_for_later_replies(monkeypatch):
+    """Only a first requirement mail uses the engine; a reply in a thread keeps the thread template."""
+    from app.agents import offline_replies
+
+    message = {
+        "email_id": "client-reply",
+        "subject": "Re: DevOps Trainer Requirement",
+        "body": "We need DevOps for 7 offline days. Please share the trainer profile.",
+        "from_name": "Asha",
+        "from_email": CLIENT_EMAIL,
+        "email_classification": {"person_type": "corporate_client"},
+    }
+
+    async def no_history(*args, **kwargs):
+        return []
+
+    import app.routes.inbox as inbox_module
+    monkeypatch.setattr(inbox_module, "_verified_question_history", no_history)
+    reply = asyncio.run(offline_replies.reply_for_stored_message({}, message))
+    assert reply.get("template_key") != "personalization_engine"

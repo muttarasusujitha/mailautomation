@@ -111,6 +111,10 @@ def enrich_modules(modules, programme_title):
         proposed = []
         prose = module.get("reference_text")
         if prose:
+            # Keep the source's grouping and sub-bullets for the client course outline;
+            # the flat fields below remain for planners that read subtopics and lab.
+            from app.course_outline import OUTLINE_VERSION, outline_from_reference
+            module["outline"] = {**outline_from_reference(prose), "version": OUTLINE_VERSION}
             parts = re.split(r"(?m)^Lab \d+:\s*", prose, maxsplit=1)
             module["subtopics"] = [re.sub(r"^o\s+", "", line) for line in parts[0].splitlines()
                 if line not in {"Topics", "o", "•"} and len(line) > 3]

@@ -1,0 +1,303 @@
+{
+  "domain": "SAP",
+  "name": "SAP S/4HANA End-to-End",
+  "category": "Enterprise Platforms (ERP, CRM, ITSM)",
+  "icon": "building",
+  "aliases": ["SAP", "SAP ERP", "SAP End to End", "SAP End-to-End", "SAP Functional", "SAP Business Processes", "SAP Consultant Training"],
+  "certifications": ["SAP Certified Associate - SAP S/4HANA Cloud Private Edition, Financial Accounting", "SAP Certified Associate - SAP S/4HANA Sales", "SAP Certified Associate - SAP Activate Project Manager"],
+  "tools": ["SAP GUI", "SAP Fiori launchpad", "SAP S/4HANA training system", "SAP BTP cockpit"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For participants new to SAP. Covers navigation, enterprise structure, master data and the core business processes (procure to pay, order to cash, finance, controlling and production) in SAP S/4HANA, ending with an end-to-end scenario.",
+      "prerequisites": ["Basic understanding of how companies buy, make and sell", "Comfortable with business software", "Access to an SAP S/4HANA training system"],
+      "outcomes": ["Navigate SAP S/4HANA", "Run the core end-to-end business processes", "Connect logistics transactions with finance", "Answer business questions with standard reports"],
+      "days": [
+        {
+          "topic": "SAP S/4HANA Landscape and Navigation",
+          "subtopics": ["What SAP ERP and SAP S/4HANA do", "On-premise, private cloud and public cloud editions", "SAP GUI and SAP Fiori launchpad", "Transaction codes and favourites", "Clients, development, quality and production systems", "Users and roles at a glance", "Finding documents and reports", "Help, search and personalisation"],
+          "tools": ["SAP GUI", "SAP Fiori launchpad", "SAP S/4HANA training system"],
+          "lab_task": "Sign in to the training system through SAP GUI and the Fiori launchpad, find five given business documents, save three transactions as favourites, and personalise one Fiori app.",
+          "deliverable": "Navigation log with document numbers, favourites and a personalised app",
+          "checks": [["Find a given sales order", "Order displayed with its customer and items", "Screenshot"], ["Open the same function in SAP GUI and in Fiori", "Both show the same document", "Screenshots"], ["Explain why changes are not made directly in production", "Development, quality and production roles described", "Written answer"]],
+          "objectives": ["Navigate SAP S/4HANA in SAP GUI and Fiori", "Explain the SAP system landscape", "Find business documents and reports"]
+        },
+        {
+          "topic": "Enterprise Structure and Organisational Units",
+          "subtopics": ["Company code", "Plant and storage location", "Sales organisation, distribution channel and division", "Purchasing organisation", "Controlling area", "How units link across modules", "Reading the enterprise structure in configuration", "Org units on documents"],
+          "tools": ["SAP GUI", "SPRO (display only)"],
+          "lab_task": "Draw the enterprise structure of the training company from the system, then show which organisational units appear on one sales order and one purchase order.",
+          "deliverable": "Enterprise structure diagram and annotated documents",
+          "checks": [["Review the diagram", "Company code, plants, sales and purchasing organisations linked correctly", "Diagram"], ["Open a sales order header", "Sales organisation, channel and division identified", "Screenshot"], ["Open a purchase order", "Purchasing organisation and plant identified", "Screenshot"]],
+          "objectives": ["Describe SAP organisational units", "Read the enterprise structure from the system", "Link organisational units to business documents"]
+        },
+        {
+          "topic": "Master Data: Business Partners, Materials and Finance",
+          "subtopics": ["Business partner for customers and suppliers", "Material master views", "G/L accounts", "Chart of accounts", "Cost centres", "Who owns which master data", "Effect of master data on transactions", "Data quality problems"],
+          "tools": ["Transaction BP", "MM01 and MM03", "FS00", "KS03"],
+          "lab_task": "Create a customer and a supplier as business partners, create a material with sales and purchasing views, and display the G/L account and cost centre that a posting will use.",
+          "deliverable": "New master records with their numbers",
+          "checks": [["Create a sales order with the new customer and material", "Order saves without master data errors", "Order number"], ["Remove the sales view from a test material and try to sell it", "System reports missing sales data", "Error message"], ["Display the G/L account used for revenue", "Account and chart of accounts identified", "Screenshot"]],
+          "objectives": ["Create and maintain core master data", "Explain how master data drives transactions", "Spot common master data problems"]
+        },
+        {
+          "topic": "Procure to Pay with SAP MM",
+          "subtopics": ["Purchase requisition", "Purchase order", "Goods receipt", "Supplier invoice and three-way match", "Document flow", "Stock and accounting effects", "Payment run", "Common process exceptions"],
+          "tools": ["ME51N", "ME21N", "MIGO", "MIRO", "F110"],
+          "lab_task": "Run procure to pay for the new material: requisition, purchase order, goods receipt and supplier invoice, then trace the document flow and the accounting documents.",
+          "deliverable": "Document chain with numbers and the accounting entries",
+          "checks": [["Post the goods receipt", "Stock increases and an accounting document is created", "Stock overview and document"], ["Post an invoice with a higher price than the order", "Price variance blocks payment or is flagged", "Invoice status"], ["Display the document flow", "Requisition, order, receipt and invoice are linked", "Document flow screenshot"]],
+          "objectives": ["Run the procure-to-pay process", "Explain the accounting effect of each step", "Handle a price variance exception"]
+        },
+        {
+          "topic": "Order to Cash with SAP SD",
+          "subtopics": ["Inquiry and quotation", "Sales order", "Availability check", "Outbound delivery and goods issue", "Billing document", "Customer payment", "Pricing conditions", "Credit checks"],
+          "tools": ["VA21", "VA01", "VL01N", "VF01", "F-28"],
+          "lab_task": "Run order to cash for the new customer: quotation, sales order, delivery, goods issue, billing and incoming payment, then trace the document flow.",
+          "deliverable": "Document chain with numbers and the accounting entries",
+          "checks": [["Post goods issue", "Stock decreases and cost of goods sold is posted", "Accounting document"], ["Create an order above the customer's credit limit", "Order is blocked by the credit check", "Order status"], ["Display the document flow", "Quotation, order, delivery and invoice are linked", "Document flow screenshot"]],
+          "objectives": ["Run the order-to-cash process", "Explain pricing and credit checks", "Trace documents from order to payment"]
+        },
+        {
+          "topic": "Financial Accounting Essentials with SAP FI",
+          "subtopics": ["General ledger postings", "Accounts payable", "Accounts receivable", "Universal Journal in S/4HANA", "Posting periods", "Reversing a document", "Balance display", "Financial statements"],
+          "tools": ["FB50", "FBL1N", "FBL5N", "FB08", "Fiori Display Line Items"],
+          "lab_task": "Post a G/L journal entry, display the supplier and customer items from the earlier processes, reverse a wrong posting, and read the trial balance.",
+          "deliverable": "Postings, reversal and trial balance extract",
+          "checks": [["Post a journal entry", "Debits equal credits and a document number is issued", "Document"], ["Reverse the wrong posting", "A reversal document clears the original", "Both documents"], ["Display open supplier items", "The unpaid invoice is listed", "Line item report"]],
+          "objectives": ["Post and reverse financial documents", "Read supplier and customer accounts", "Explain the Universal Journal"]
+        },
+        {
+          "topic": "Controlling and Cost Accounting with SAP CO",
+          "subtopics": ["Cost elements as G/L accounts", "Cost centres and cost centre groups", "Internal orders", "Profit centres", "Planned versus actual costs", "Allocations", "Reporting on costs", "Link between FI and CO"],
+          "tools": ["KS03", "KO04", "S_ALR_87013611", "Fiori cost centre apps"],
+          "lab_task": "Post costs to a cost centre and an internal order, compare plan with actual, and explain how one supplier invoice reached controlling.",
+          "deliverable": "Cost postings and a plan-versus-actual report",
+          "checks": [["Post an expense to a cost centre", "Actual cost appears on the cost centre report", "Report"], ["Compare plan with actual", "Variance shown and explained", "Report"], ["Trace a cost back to its source invoice", "Source document identified", "Line item display"]],
+          "objectives": ["Track costs by cost centre and order", "Compare planned and actual costs", "Explain how FI and CO connect"]
+        },
+        {
+          "topic": "Production Planning and Inventory Basics",
+          "subtopics": ["Bill of materials", "Routings and work centres", "Planned orders and production orders", "MRP run", "Stock types", "Goods movements", "Physical inventory", "Stock reports", "Make-to-stock and make-to-order", "Goods receipt from production"],
+          "tools": ["CS03", "CA03", "MD01N", "MD04", "CO01", "MMBE"],
+          "lab_task": "Display a finished product's bill of materials and routing, run MRP for it, convert a planned order to a production order, and confirm it.",
+          "deliverable": "MRP result, production order and confirmation",
+          "checks": [["Run MRP after adding a sales order", "A planned order is created for the shortage", "MD04 screenshot"], ["Confirm the production order", "Finished stock increases and components are consumed", "Stock overview"], ["Display stock by type", "Unrestricted, quality and blocked stock identified", "MMBE screenshot"]],
+          "objectives": ["Read product structures in SAP", "Run MRP and create production orders", "Track stock and goods movements"]
+        },
+        {
+          "topic": "Reporting, Fiori Apps and Analytics",
+          "subtopics": ["Standard reports", "Fiori analytical apps", "Embedded analytics in S/4HANA", "Filters, variants and layouts", "Exporting data", "Key performance indicators", "Report authorisations", "Asking the right business question"],
+          "tools": ["Fiori launchpad", "SAP GUI reports", "Microsoft Excel"],
+          "lab_task": "Answer five business questions (top customers, open orders, overdue invoices, stock value and cost overruns) with standard reports and Fiori apps, saving a variant for each.",
+          "deliverable": "Answers with report variants and exports",
+          "checks": [["Answer the overdue-invoices question", "Correct invoices listed with amounts", "Report export"], ["Save and reuse a variant", "Variant returns the same selection", "Screenshot"], ["Open a report without permission", "Access denied", "Error message"]],
+          "objectives": ["Find answers in standard SAP reports", "Use Fiori analytical apps", "Save and share report variants"]
+        },
+        {
+          "topic": "Beginner Capstone: End-to-End Business Process in SAP",
+          "subtopics": ["Process scenario and master data", "Procure to pay", "Make and sell", "Financial and cost review", "Presentation"],
+          "tools": ["SAP GUI", "Fiori launchpad"],
+          "lab_task": "For a given trading scenario, create the master data, buy components, produce and sell a finished product, collect payment, and present the document flow and financial results.",
+          "deliverable": "Document chain, financial results and a 10-minute presentation",
+          "checks": [["Show the full document flow", "Every step from requisition to customer payment is linked", "Document flow"], ["Show the profit for the scenario", "Revenue and costs reconcile", "Report"], ["The trainer asks where a cost was posted", "Cost centre or order identified", "Presentation"]],
+          "objectives": ["Run an end-to-end business process", "Connect logistics with finance", "Explain the process to business users"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For participants who use SAP and want to configure and deliver it. Covers module integration, configuration, the S/4HANA data model, roles, ABAP for consultants, data migration, interfaces, SAP BTP extensions and release management.",
+      "prerequisites": ["Has run end-to-end processes in SAP", "Knows the SAP enterprise structure and master data", "Basic understanding of databases and interfaces"],
+      "outcomes": ["Configure and transport SAP changes", "Secure SAP with roles", "Migrate data and connect interfaces", "Deliver a requirement from fit-gap to transport"],
+      "days": [
+        {
+          "topic": "Business Process Integration Across Modules",
+          "subtopics": ["Integration points between MM, SD, PP, FI and CO", "Account determination", "Valuation and price control", "Movement types and their postings", "Revenue account determination", "Document flow across modules", "Integration errors", "Reconciliation"],
+          "tools": ["OBYC (display)", "VKOA (display)", "MIGO", "FB03"],
+          "lab_task": "Trace the postings for a goods receipt, a goods issue and a billing document to their account determination entries, then fix a prepared account determination error in the training client.",
+          "deliverable": "Account determination trace and the fix",
+          "checks": [["Post a goods receipt", "G/L accounts match the account determination entry", "Trace sheet"], ["Bill with the prepared error", "Error reproduced and then resolved after the fix", "Error and success messages"], ["Reconcile stock value with the G/L balance", "Values agree", "Reconciliation sheet"]],
+          "objectives": ["Explain how logistics postings reach finance", "Read and correct account determination", "Reconcile modules"]
+        },
+        {
+          "topic": "Configuration Fundamentals and the Implementation Guide",
+          "subtopics": ["The Implementation Guide (SPRO)", "Customising versus master data", "Transport requests for configuration", "Number ranges", "Document types", "Field status", "Testing a configuration change", "Documenting configuration", "Copying standard settings instead of changing them", "Client-dependent and cross-client settings"],
+          "tools": ["SPRO", "SE09", "SE10"],
+          "lab_task": "Create a new sales document type by copying a standard one, assign a number range, record the change in a transport request and test it.",
+          "deliverable": "Configuration change, transport request and test result",
+          "checks": [["Create an order with the new document type", "Order numbered from the new range", "Order number"], ["Display the transport request", "Every configuration object is recorded", "Transport contents"], ["Document the change", "Purpose, settings and test recorded", "Configuration note"]],
+          "objectives": ["Navigate the Implementation Guide", "Make and transport a configuration change", "Test and document configuration"]
+        },
+        {
+          "topic": "S/4HANA Data Model and Simplification",
+          "subtopics": ["Universal Journal (ACDOCA)", "Business partner replacing customer and vendor masters", "Material ledger", "Simplified inventory tables", "Core Data Services views", "Simplification list", "Effect on reports and interfaces", "Compatibility views"],
+          "tools": ["SE16N (display)", "Core Data Services views", "SAP Simplification List"],
+          "lab_task": "Compare the tables a goods receipt updates in S/4HANA with those in classic ERP, then find two items in the Simplification List that affect a sample custom report.",
+          "deliverable": "Table comparison and impact notes for the custom report",
+          "checks": [["Display the ACDOCA entries for one posting", "Finance and controlling fields in one line", "Table extract"], ["Identify the business partner for a customer", "Linked BP number found", "Screenshot"], ["Review the custom report against the Simplification List", "Two affected items named with the required change", "Impact notes"]],
+          "objectives": ["Explain the S/4HANA data model", "Use the Simplification List", "Assess the impact on custom code and reports"]
+        },
+        {
+          "topic": "Authorisations, Roles and Security",
+          "subtopics": ["Users and user types", "Roles and profiles", "Authorisation objects", "Role design with PFCG", "Segregation of duties", "Authorisation checks and traces", "Fiori catalogues and groups", "Security audit log"],
+          "tools": ["SU01", "PFCG", "SU53", "ST01", "STAUTHTRACE"],
+          "lab_task": "Build a role that lets a buyer create purchase orders for one plant only, assign it to a test user, and prove a purchase order for another plant is refused.",
+          "deliverable": "Role definition, user assignment and test evidence",
+          "checks": [["Create a purchase order for the allowed plant", "Allowed", "Order number"], ["Create one for another plant", "Refused with an authorisation error", "SU53 output"], ["Check the role against a segregation-of-duties rule", "No conflict between creating orders and posting invoices", "Check result"]],
+          "objectives": ["Design role-based access", "Diagnose authorisation errors", "Apply segregation of duties"]
+        },
+        {
+          "topic": "ABAP Essentials for Functional Consultants",
+          "subtopics": ["ABAP Workbench and ABAP Development Tools", "Reading ABAP code", "Debugging", "Function modules and BAPIs", "Enhancements and user exits", "Custom tables", "ABAP reports and ALV", "Working with developers"],
+          "tools": ["SE80", "ABAP Development Tools in Eclipse", "SE37", "Debugger"],
+          "lab_task": "Debug a sales order save to find where a prepared custom check raises an error, then write a small ALV report listing open orders for a customer.",
+          "deliverable": "Debugging notes and a working ALV report",
+          "checks": [["Debug the order save", "The custom check and its condition are found", "Debugger screenshot"], ["Run the ALV report", "Correct open orders listed", "Report output"], ["Test a BAPI in SE37", "A test sales order is created", "BAPI return messages"]],
+          "objectives": ["Read and debug ABAP", "Use BAPIs and function modules", "Build a simple ABAP report"]
+        },
+        {
+          "topic": "Data Migration with the Migration Cockpit",
+          "subtopics": ["Migration approaches", "SAP S/4HANA Migration Cockpit", "Migration objects and templates", "Data cleansing", "Mapping values", "Simulation runs", "Error handling", "Reconciliation after migration"],
+          "tools": ["SAP S/4HANA Migration Cockpit", "Microsoft Excel"],
+          "lab_task": "Migrate 50 customers and 100 materials from provided legacy files with the Migration Cockpit, fix the prepared data errors, and reconcile counts and balances.",
+          "deliverable": "Migration project, error log and reconciliation",
+          "checks": [["Run a simulation", "Errors listed before any data is posted", "Simulation log"], ["Run the migration after fixing errors", "All records created", "Migration log"], ["Reconcile counts with the source", "Counts match", "Reconciliation sheet"]],
+          "objectives": ["Plan a data migration", "Migrate data with the Migration Cockpit", "Reconcile migrated data"]
+        },
+        {
+          "topic": "Integration with Other Systems",
+          "subtopics": ["IDocs", "BAPIs and RFC", "OData services", "SAP Integration Suite", "Monitoring interfaces", "Error handling and reprocessing", "Security for interfaces", "Choosing an integration method"],
+          "tools": ["WE02", "WE19", "SAP Gateway Client", "SAP Integration Suite"],
+          "lab_task": "Receive a purchase order from a partner as an IDoc, read a sales order through an OData service, and reprocess a prepared failed IDoc after fixing its data.",
+          "deliverable": "IDoc evidence, OData response and reprocessing record",
+          "checks": [["Process the inbound IDoc", "Sales order created", "WE02 status"], ["Call the OData service", "Order data returned in JSON", "Gateway client output"], ["Reprocess the failed IDoc", "Status changes to successful", "IDoc status history"]],
+          "objectives": ["Explain SAP integration methods", "Monitor and reprocess interfaces", "Use OData services"]
+        },
+        {
+          "topic": "SAP BTP and Extensions",
+          "subtopics": ["SAP Business Technology Platform services", "Side-by-side and key-user extensibility", "Clean core principle", "SAP Build Apps", "SAP Build Process Automation", "Destinations and connectivity", "Events from S/4HANA", "When to extend and where"],
+          "tools": ["SAP BTP cockpit", "SAP Build Apps", "SAP Build Process Automation"],
+          "lab_task": "Add a custom field with key-user extensibility, build a small approval workflow in SAP Build Process Automation, and connect it to S/4HANA through a destination.",
+          "deliverable": "Custom field, workflow and connectivity test",
+          "checks": [["Show the custom field on the Fiori app", "Field visible and saved", "Screenshot"], ["Trigger the approval workflow", "Approver receives the task", "Task inbox"], ["Explain why the extension keeps the core clean", "No core code is modified", "Written answer"]],
+          "objectives": ["Extend SAP without modifying the core", "Build workflows on SAP BTP", "Connect BTP to S/4HANA"]
+        },
+        {
+          "topic": "Testing, Transports and Release Management",
+          "subtopics": ["Unit, integration and user acceptance testing", "Test scripts", "Transport routes", "Transport sequencing", "Regression testing", "Change approval", "Cutover checklist", "Post go-live support"],
+          "tools": ["STMS", "SE09", "Test management tool"],
+          "lab_task": "Write test scripts for a configuration change, move its transport to quality in the right sequence, run regression tests and prepare a release note.",
+          "deliverable": "Test scripts, transport log and release note",
+          "checks": [["Import transports out of sequence", "Dependency problem identified before import", "Transport analysis"], ["Run the regression tests", "All pass or failures logged", "Test results"], ["Review the release note", "Change, risk, tests and rollback stated", "Release note"]],
+          "objectives": ["Plan SAP testing", "Manage transports safely", "Prepare releases"]
+        },
+        {
+          "topic": "Intermediate Capstone: Implementing a Business Requirement in SAP",
+          "subtopics": ["Requirement and fit-gap", "Configuration and roles", "Data migration and integration", "Testing and transport", "Presentation"],
+          "tools": ["SPRO", "PFCG", "Migration Cockpit", "STMS"],
+          "lab_task": "For a given requirement, run a fit-gap, configure the solution, set up roles, migrate sample data, connect one interface, test it, transport it to quality and present it.",
+          "deliverable": "Fit-gap, configuration document, test results, transport log and a 15-minute presentation",
+          "checks": [["Run the agreed test scripts", "All pass", "Test results"], ["Show the transport log", "Imported to quality in sequence", "Transport log"], ["The reviewer asks about a gap", "Gap explained with the chosen solution", "Presentation"]],
+          "objectives": ["Deliver a requirement end to end in SAP", "Combine configuration, security, data and integration", "Present a solution to stakeholders"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior consultants, architects and programme leads. Covers S/4HANA transition strategy, clean core, integration architecture, performance, GRC, analytics, AI and automation, application management and programme leadership.",
+      "prerequisites": ["Has worked on an SAP implementation or support project", "Understands SAP configuration, roles and interfaces", "Familiar with project delivery methods"],
+      "outcomes": ["Plan S/4HANA transformations", "Design clean-core and integration architectures", "Manage risk, performance and support", "Lead SAP programmes"],
+      "days": [
+        {
+          "topic": "S/4HANA Conversion and Implementation Strategy",
+          "subtopics": ["New implementation, system conversion and selective data transition", "Readiness check", "Custom code migration", "SAP Activate methodology", "Fit-to-standard workshops", "Downtime planning", "Cloud ERP choices: RISE with SAP and GROW with SAP", "Business case"],
+          "tools": ["SAP Readiness Check", "SAP Activate Roadmap Viewer", "ATC custom code checks"],
+          "lab_task": "From a provided readiness check and custom code report, recommend a transition approach with a phased plan and the top five risks.",
+          "deliverable": "Transition recommendation, phased plan and risk list",
+          "checks": [["Present the recommendation", "Approach justified against the readiness findings", "Recommendation"], ["Review custom code findings", "Code to retire, adapt or keep is classified", "Analysis"], ["Estimate downtime", "Estimate stated with assumptions", "Plan"]],
+          "objectives": ["Choose an S/4HANA transition approach", "Plan with SAP Activate", "Assess custom code and downtime"]
+        },
+        {
+          "topic": "Clean Core and Extensibility Architecture",
+          "subtopics": ["Clean core levels", "Key-user, developer and side-by-side extensibility", "ABAP Cloud and released APIs", "RAP: ABAP RESTful Application Programming Model", "Event-driven extensions", "Extension governance", "Upgrade safety", "Measuring clean core"],
+          "tools": ["ABAP Development Tools", "SAP BTP", "SAP Business Accelerator Hub"],
+          "lab_task": "Redesign three legacy modifications as clean-core extensions using released APIs, build one as a RAP service, and record the governance decision for each.",
+          "deliverable": "Extension designs, a RAP service and governance records",
+          "checks": [["Run the ATC cloud-readiness check on the RAP service", "No use of unreleased objects", "ATC result"], ["Review each redesign", "Each uses an allowed extension type", "Design document"], ["Explain the upgrade impact", "Core upgrade does not break the extensions", "Written answer"]],
+          "objectives": ["Design clean-core extensions", "Build with ABAP Cloud and RAP", "Govern extensions"]
+        },
+        {
+          "topic": "SAP Integration Architecture",
+          "subtopics": ["SAP Integration Suite capabilities", "API management", "Event Mesh", "Integration patterns", "Hybrid integration with on-premise systems", "Monitoring and alerting", "Interface security", "Integration governance"],
+          "tools": ["SAP Integration Suite", "SAP Event Mesh", "SAP API Management"],
+          "lab_task": "Design the integration of S/4HANA with a CRM, an e-commerce site and a bank, publish one API with throttling, and send an event when a sales order is created.",
+          "deliverable": "Integration architecture, API proxy and event flow",
+          "checks": [["Exceed the API throttle limit", "Excess calls rejected with HTTP 429", "Response log"], ["Create a sales order", "Event received by the subscriber", "Event log"], ["Review the architecture", "Each interface has a pattern, security and monitoring", "Architecture document"]],
+          "objectives": ["Design SAP integration landscapes", "Manage APIs and events", "Secure and monitor interfaces"]
+        },
+        {
+          "topic": "Performance Analysis and Troubleshooting",
+          "subtopics": ["Workload and response time analysis", "SQL tracing", "Long-running jobs", "Memory and work processes", "Short dumps", "HANA performance tools", "Root-cause analysis", "Performance testing"],
+          "tools": ["ST03N", "ST05", "SM37", "ST22", "SM50", "SAP HANA cockpit"],
+          "lab_task": "Diagnose three prepared problems (a slow report, a failing background job and a recurring short dump), fix or work around each, and write a root-cause report.",
+          "deliverable": "Diagnosis notes and root-cause report",
+          "checks": [["Trace the slow report", "The expensive SQL statement identified", "ST05 trace"], ["Analyse the short dump", "Cause and fix stated", "ST22 analysis"], ["Re-run the background job", "Job completes", "SM37 log"]],
+          "objectives": ["Diagnose SAP performance problems", "Analyse dumps and jobs", "Write root-cause reports"]
+        },
+        {
+          "topic": "Governance, Risk and Compliance in SAP",
+          "subtopics": ["Segregation-of-duties rule sets", "SAP GRC Access Control", "Firefighter access", "Process control and continuous monitoring", "Audit requirements", "Sensitive access reviews", "Remediation and mitigation", "Compliance reporting"],
+          "tools": ["SAP GRC Access Control", "PFCG", "Audit log"],
+          "lab_task": "Run a segregation-of-duties analysis on provided roles, remediate two conflicts, mitigate one with a control, and grant and review emergency firefighter access.",
+          "deliverable": "Risk analysis, remediation plan and firefighter log review",
+          "checks": [["Re-run the risk analysis", "The two remediated conflicts are gone", "Analysis report"], ["Use firefighter access", "Every action logged and reviewed", "Firefighter log"], ["Check the mitigation control", "Control assigned with an owner", "Control record"]],
+          "objectives": ["Manage access risk in SAP", "Remediate and mitigate conflicts", "Control emergency access"]
+        },
+        {
+          "topic": "Analytics, SAP Datasphere and SAP Analytics Cloud",
+          "subtopics": ["Embedded analytics with CDS views", "SAP Datasphere", "SAP Analytics Cloud", "Planning and forecasting", "Data from non-SAP sources", "Semantic models", "Governed self-service", "Analytics security"],
+          "tools": ["CDS views", "SAP Datasphere", "SAP Analytics Cloud"],
+          "lab_task": "Build a sales margin model in SAP Datasphere from S/4HANA and a non-SAP cost file, and publish an SAP Analytics Cloud story with a forecast.",
+          "deliverable": "Data model, story and forecast",
+          "checks": [["Compare the margin with the S/4HANA report", "Values agree", "Comparison"], ["Open the story as a restricted user", "Only the permitted region is shown", "Screenshot"], ["Review the forecast", "Method and assumptions stated", "Forecast notes"]],
+          "objectives": ["Model SAP and non-SAP data", "Build governed analytics", "Plan and forecast in SAP Analytics Cloud"]
+        },
+        {
+          "topic": "AI and Automation in SAP",
+          "subtopics": ["SAP Business AI and Joule", "Intelligent scenarios in S/4HANA", "SAP Build Process Automation bots", "Document information extraction", "Responsible AI in business processes", "Measuring automation value", "Human approval steps", "Automation governance"],
+          "tools": ["SAP Build Process Automation", "Document information extraction", "Fiori launchpad"],
+          "lab_task": "Automate supplier invoice intake by extracting invoice fields with document information extraction, routing low-confidence results to a person, and posting approved invoices.",
+          "deliverable": "Automation flow, extraction results and value estimate",
+          "checks": [["Process ten sample invoices", "High-confidence invoices posted; others routed to a person", "Automation log"], ["Feed in a poor scan", "Routed for human review", "Task inbox"], ["Estimate the time saved", "Estimate stated with its assumptions", "Value estimate"]],
+          "objectives": ["Apply AI and automation in SAP processes", "Keep people in control of decisions", "Measure automation value"]
+        },
+        {
+          "topic": "Application Management and Continuous Improvement",
+          "subtopics": ["Support models", "Incident and problem management", "SLAs for SAP support", "SAP Cloud ALM", "Root-cause trends", "Release planning", "Upgrade planning", "Knowledge management"],
+          "tools": ["SAP Cloud ALM", "ServiceNow or Jira", "SAP for Me"],
+          "lab_task": "Triage a provided backlog of 20 SAP tickets by priority and SLA, find two recurring problems, and propose an improvement release with a plan.",
+          "deliverable": "Triage sheet, problem records and release plan",
+          "checks": [["Triage the backlog", "Every ticket has a priority and SLA", "Triage sheet"], ["Identify recurring problems", "Two found with their root causes", "Problem records"], ["Review the release plan", "Scope, tests and timing stated", "Release plan"]],
+          "objectives": ["Run SAP support with SLAs", "Turn incidents into improvements", "Plan upgrades and releases"]
+        },
+        {
+          "topic": "SAP Programme Leadership and Stakeholder Management",
+          "subtopics": ["Programme governance", "Business process owners", "Change management and training", "Cutover leadership", "Hypercare", "Vendor and system integrator management", "Value tracking", "Executive reporting"],
+          "tools": ["Project plan", "RACI chart", "Status report templates"],
+          "lab_task": "Prepare the governance model, RACI, cutover plan and executive status report for a provided S/4HANA programme in its final month before go-live.",
+          "deliverable": "Governance model, RACI, cutover plan and status report",
+          "checks": [["Review the RACI", "Every cutover task has one accountable owner", "RACI"], ["Present the status report", "Risks, decisions needed and go/no-go criteria stated", "Status report"], ["Run a cutover rehearsal on paper", "Timing and dependencies checked", "Rehearsal notes"]],
+          "objectives": ["Lead SAP programmes", "Manage cutover and hypercare", "Report to executives"]
+        },
+        {
+          "topic": "Advanced Capstone: S/4HANA Transformation Plan",
+          "subtopics": ["Current-state assessment", "Target architecture and clean core", "Integration and analytics", "Governance and risk", "Executive defence"],
+          "tools": ["SAP Readiness Check", "SAP Activate", "SAP BTP", "SAP Integration Suite"],
+          "lab_task": "For a provided company, deliver an S/4HANA transformation plan: transition approach, clean-core target architecture, integration and analytics design, access-risk controls, roadmap and business case, then defend it to an executive panel.",
+          "deliverable": "Transformation plan, architecture, roadmap, business case and a 20-minute defence",
+          "checks": [["The panel asks for the biggest risk", "Risk and mitigation stated with an owner", "Presentation"], ["Review the clean-core design", "No core modifications are planned", "Architecture"], ["Review the business case", "Costs, benefits and assumptions stated", "Business case"]],
+          "objectives": ["Plan an S/4HANA transformation", "Integrate architecture, governance and value", "Defend a plan to executives"]
+        }
+      ]
+    }
+  }
+}

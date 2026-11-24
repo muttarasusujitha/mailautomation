@@ -1,8 +1,10 @@
-"""LinkedIn account, public search and optional Tavily lead discovery."""
+"""LinkedIn account lead discovery, with optional public and Tavily providers."""
 import logging
+import os
 import re
+import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from typing import Literal
 
@@ -25,10 +27,12 @@ LOCAL_SERVICE_FALLBACKS = {
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]{2,64}@[A-Za-z0-9.\-]{2,253}\.[A-Za-z]{2,12}")
 PHONE_RE = re.compile(r"(?:\+91|0091|91)?[\s.\-()]*(6[\d\s.\-()]{9,20}|7[\d\s.\-()]{9,20}|8[\d\s.\-()]{9,20}|9[\d\s.\-()]{9,20})")
 BAD_EMAIL_LOCALS = {"noreply", "no-reply", "donotreply", "support", "admin", "info", "sales", "hr", "careers", "jobs"}
+# Whole-request budget. The gateway closes /linkedin-leads requests after 600 seconds.
+_SEARCH_TIME_LIMIT = 560
 
 
 class LinkedInLeadSearchRequest(BaseModel):
-    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'public'
+    search_provider: Literal['public', 'tavily', 'linkedin_account', 'auto'] = 'auto'
     query: Optional[str] = ""
     domain: Optional[str] = ""
     domains: Optional[List[str]] = None
@@ -38,6 +42,8 @@ class LinkedInLeadSearchRequest(BaseModel):
     save: bool = True
     mode: Literal['trainer', 'client'] = "trainer"
     source: Optional[str] = "linkedin"
+    # An ID from the page, saved with the run report (GET /search-runs?search_ref=...).
+    search_ref: Optional[str] = ""
 
 
 class BackfillClientContactsRequest(BaseModel):
@@ -60,6 +66,57 @@ async def _post_with_local_fallback(
                 fallback_url = local_base + url[len(service_base):]
                 return await client.post(fallback_url, **kwargs)
         raise
+
+
+def _retry_after_from_outcome(outcome: Dict[str, Any]) -> datetime:
+    """Use a reported cooldown where possible; otherwise retry soon and safely."""
+    message = " ".join(str(value or "") for value in (
+        outcome.get("primary_error"), outcome.get("reason"), outcome.get("limit_reason"),
+        *[item.get("error", "") if isinstance(item, dict) else item for item in outcome.get("warnings") or []],
+    ))
+    match = re.search(r"retrying after\s+(\d{1,2}):(\d{2})\s+UTC", message, flags=re.IGNORECASE)
+    now = datetime.utcnow()
+    if match:
+        candidate = now.replace(hour=int(match.group(1)), minute=int(match.group(2)), second=0, microsecond=0)
+        if candidate <= now:
+            candidate += timedelta(days=1)
+        return candidate + timedelta(minutes=1)
+    match = re.search(r"paused until\s+(\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2})\s+UTC", message, flags=re.IGNORECASE)
+    if match:
+        try:
+            return datetime.strptime(match.group(1), "%Y-%m-%d %H:%M") + timedelta(minutes=1)
+        except ValueError:
+            pass
+    return now + timedelta(minutes=15)
+
+
+async def _queue_blocked_trainer_domains(db, payload: LinkedInLeadSearchRequest, outcomes: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+    """Persist transiently blocked trainer searches for the service retry loop."""
+    if payload.mode != "trainer" or not payload.queue_retry_on_blocked:
+        return []
+    try:
+        retries_collection = db["lead_search_retries"]
+    except (KeyError, TypeError):
+        # Unit callers and legacy deployments may not expose this collection
+        # yet. The next normal MongoDB run creates it automatically.
+        return []
+    queued = []
+    for outcome in outcomes:
+        if str(outcome.get("status") or "").lower() not in {"blocked", "no_results"}:
+            continue
+        domain = str(outcome.get("domain") or "").strip()
+        if not domain:
+            continue
+        next_attempt_at = _retry_after_from_outcome(outcome)
+        key = f"trainer:{domain.lower()}"
+        await retries_collection.update_one({"_id": key}, {"$set": {
+            "mode": "trainer", "domain": domain, "location": str(payload.location or "").strip(),
+            "status": "queued", "next_attempt_at": next_attempt_at,
+            "last_reason": str(outcome.get("primary_error") or outcome.get("reason") or "Sources temporarily unavailable.")[:800],
+            "updated_at": datetime.utcnow(),
+        }, "$setOnInsert": {"created_at": datetime.utcnow(), "attempt_count": 0}}, upsert=True)
+        queued.append({"domain": domain, "next_attempt_at": next_attempt_at.isoformat() + "Z"})
+    return queued
 
 
 def _slug_from_url(url: str) -> str:
@@ -164,6 +221,22 @@ def _looks_like_client_requirement_post(text: str) -> bool:
         re.search(r"\b(need|needs|needed|looking (?:out )?for|require|requires|required|requirements?|hiring|seeking)\b", text)
         and re.search(r"\b(trainers?|instructors?|training|facilitators?)\b", text)
     )
+
+
+def _keyword_card_is_trainer(combined_text: str) -> bool:
+    """A people-search hit can omit the skill and still be the trainer who was searched."""
+    if _looks_like_client_requirement_post(combined_text):
+        return False
+    if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", combined_text):
+        return False
+    if re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
+        return True
+    if re.search(
+        r"\b(recruiter|recruiting|talent acquisition|human resources|\bhr\b|engineer|developer|director|analyst|manager|specialist|executive|architect|administrator|intern|consultant)\b",
+        combined_text,
+    ):
+        return False
+    return True
 
 
 def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
@@ -281,7 +354,9 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    if terms and not _text_has_domain(combined_text, terms):
+    # People search already queried this skill. The visible card often omits it.
+    keyword_qualified = mode == "trainer" and bool(item.get("keyword_qualified"))
+    if terms and not keyword_qualified and not _text_has_domain(combined_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         return None
@@ -295,11 +370,19 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
         is_resume_post = is_post and _looks_like_resume_trainer_post(combined_text)
         if source == "linkedin" and not (is_profile or is_resume_post):
             return None
-        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
-            return None
-        terms = _domain_terms(domain)
-        if terms and not any(term in combined_text for term in terms):
-            return None
+        if keyword_qualified:
+            # LinkedIn returned this card from an explicit trainer people search;
+            # its headline often omits both the skill and the word "trainer".
+            # The helper accepts role-free cards returned by a keyword search,
+            # while rejecting hiring posts and obvious non-trainer job roles.
+            if source == "linkedin" and not _keyword_card_is_trainer(combined_text):
+                return None
+        else:
+            if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
+                return None
+            terms = _domain_terms(domain)
+            if terms and not any(term in combined_text for term in terms):
+                return None
     slug = _slug_from_url(url)
     if mode == "client":
         contact_name = item.get('contact_name', _contact_name_from_linkedin_post(url))
@@ -494,6 +577,8 @@ async def search_linkedin_leads(
         return {"success": False, "error": "query, domain, or domains is required", "saved_count": 0, "results": []}
 
     now = datetime.utcnow()
+    search_started_at = now
+    search_started = time.monotonic()
     saved_count = 0
     auto_sent_count = 0
     skipped_count = 0
@@ -526,8 +611,90 @@ async def search_linkedin_leads(
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome['warnings'][-1]})
         if payload.search_provider == "auto":
-            from app.clients.lead_discovery import discover
-            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "")
+            from app.clients.lead_discovery import (
+                discover,
+                discover_public_fallback,
+                linkedin_requires_public_fallback,
+                linkedin_session_requires_public_fallback,
+                search_warning,
+            )
+            from app.clients.trainer_finder import finder_enabled
+            raw_results, outcome = await discover(domain, mode, domain_goal, payload.location or "", db=db)
+            blocked_reason = outcome.get('primary_error') or ''
+            should_use_public_fallback = linkedin_requires_public_fallback(blocked_reason) or (
+                mode == 'client' and linkedin_session_requires_public_fallback(blocked_reason)
+            )
+            if finder_enabled() and len(raw_results) < domain_goal:
+                # Search every key-free engine for the rest, whatever stopped the account search:
+                # trainer profiles in trainer mode, posts that need a trainer in client mode.
+                from app.clients.lead_discovery import discover_with_trainer_finder
+                raw_results, outcome = await discover_with_trainer_finder(
+                    domain, domain_goal, payload.location or '', db, raw_results, outcome,
+                    time_left=_SEARCH_TIME_LIMIT - (time.monotonic() - search_started), mode=mode)
+            # Tavily is independent of LinkedIn and key-free engine cooldowns.
+            # When configured, it can fill the remaining trainer profiles while
+            # those sources are unavailable. Results remain fully validated.
+            if mode == 'trainer' and os.environ.get('TAVILY_API_KEY', '').strip() and len(raw_results) < domain_goal:
+                try:
+                    tavily_rows = await _plain_tavily_search(
+                        f'{domain} corporate trainer instructor India', min(20, domain_goal - len(raw_results)))
+                    raw_results.extend(tavily_rows)
+                    outcome = {**outcome, 'fallback_source': 'tavily',
+                               'matched': len(raw_results), 'target_met': len(raw_results) >= domain_goal,
+                               'status': 'target_met' if len(raw_results) >= domain_goal else 'partial' if raw_results else outcome.get('status', 'no_results')}
+                except Exception as exc:
+                    outcome = {**outcome, 'warnings': [*(outcome.get('warnings') or []),
+                                                        {'source': 'tavily', 'error': str(exc)[:300]}]}
+            if len(raw_results) < domain_goal and should_use_public_fallback:
+                account_results = list(raw_results)
+                try:
+                    fallback_results, fallback_outcome = await discover_public_fallback(
+                        domain, mode, domain_goal, payload.location or '')
+                except Exception as exc:
+                    fallback_results = []
+                    fallback_outcome = {
+                        'domain': domain,
+                        'target': domain_goal,
+                        'matched': 0,
+                        'target_met': False,
+                        'status': 'blocked',
+                        'warnings': [search_warning('public', exc)],
+                    }
+                raw_results = account_results + fallback_results
+                # Show why LinkedIn stopped, including when account searches resume.
+                account_reason = (blocked_reason.strip() if 'paused until' in blocked_reason.lower()
+                                  else 'LinkedIn limited this session.')
+                if fallback_results:
+                    linkedin_fallback_message = (
+                        f'{account_reason} Public indexed LinkedIn results were used as a fallback; '
+                        'review them as unverified.'
+                    )
+                elif fallback_outcome.get('status') == 'blocked':
+                    # The public search warning, listed next, explains the fallback failure.
+                    linkedin_fallback_message = account_reason
+                else:
+                    linkedin_fallback_message = (
+                        f'{account_reason} Public search returned no additional eligible indexed LinkedIn trainer profiles.'
+                    )
+                linkedin_warning = search_warning(
+                    'linkedin_account',
+                    linkedin_fallback_message,
+                )
+                outcome = {
+                    **fallback_outcome,
+                    'domain': domain,
+                    'target': domain_goal,
+                    'matched': len(raw_results),
+                    'target_met': len(raw_results) >= domain_goal,
+                    'status': (
+                        'target_met' if len(raw_results) >= domain_goal
+                        else 'partial' if raw_results
+                        else fallback_outcome.get('status', 'no_results')
+                    ),
+                    'fallback_source': 'public_search',
+                    'primary_error': linkedin_warning['error'],
+                    'warnings': [linkedin_warning, *(fallback_outcome.get('warnings') or [])],
+                }
             domain_outcomes.append(outcome)
             if outcome['status'] == 'blocked':
                 search_errors.append({'domain': domain, 'error': outcome.get('primary_error') or outcome['warnings'][0]['error']})
@@ -578,10 +745,13 @@ async def search_linkedin_leads(
                 continue
             lead['discovery_provider'] = item.get('discovery_provider', payload.search_provider)
             lead['verification_status'] = 'unverified_linkedin_account' if lead['discovery_provider'] == 'linkedin_account' else 'unverified_public_search'
+            if item.get('engines'):
+                lead['found_by'] = list(item['engines'])
             lead['discovered_at'] = now
             source_url = lead.get("source_url", "")
             from app.clients.client_post_identity import post_identity, save_client_post
-            identity = post_identity(source_url) if mode == 'client' else source_url
+            from app.clients.lead_identity import save_trainer_lead, trainer_lead_key
+            identity = post_identity(source_url) if mode == 'client' else (trainer_lead_key(source_url) or source_url)
             if identity in seen_urls:
                 skipped_count += 1
                 skipped.append({"reason": "duplicate_in_search", "source_url": source_url, "source": lead.get("source", "")})
@@ -592,36 +762,23 @@ async def search_linkedin_leads(
                 continue
             if mode == "client":
                 if not await save_client_post(lead, db, now):
+                    # Show the saved post's ID and status, so Reviewed and Delete act on the saved lead.
+                    saved = await db["client_leads"].find_one({"post_key": identity}, {"_id": 0, "lead_id": 1, "status": 1})
+                    if saved:
+                        lead["lead_id"] = saved.get("lead_id") or lead["lead_id"]
+                        lead["status"] = saved.get("status") or lead["status"]
                     skipped_count += 1
                     skipped.append({"reason": "already_saved_updated", "source_url": lead["source_url"], "source": lead.get("source", "")})
                     continue
             else:
-                dedupe_terms: List[Dict[str, str]] = []
-                if lead.get("source_url"):
-                    dedupe_terms.append({"source_url": lead["source_url"]})
-                    if lead.get("source") == "linkedin":
-                        dedupe_terms.append({"linkedin_url": lead["source_url"]})
-                if lead.get("external_slug"):
-                    dedupe_terms.append({"external_slug": lead["external_slug"]})
-                if lead.get("linkedin_slug"):
-                    dedupe_terms.append({"linkedin_slug": lead["linkedin_slug"]})
-
-                exists = await db["trainer_profile_leads"].find_one(
-                    {"$or": dedupe_terms},
-                    {"_id": 1},
-                )
-                if exists:
-                    updates = _contact_update_fields(lead)
-                    if updates:
-                        updates["updated_at"] = now
-                        await db["trainer_profile_leads"].update_one(
-                            {"$or": dedupe_terms},
-                            {"$set": updates},
-                        )
+                saved = await save_trainer_lead(db, lead, now)
+                # The response carries the saved lead's ID and status, which differ for a profile saved before.
+                lead["lead_id"] = saved["lead_id"]
+                lead["status"] = saved["status"] or lead["status"]
+                if not saved["created"]:
                     skipped_count += 1
                     skipped.append({"reason": "already_saved_updated", "source_url": lead["source_url"], "source": lead.get("source", "")})
                     continue
-                await db["trainer_profile_leads"].insert_one({**lead, "created_at": now, "updated_at": now})
             saved_count += 1
 
         if search_errors and payload.search_provider == 'linkedin_account':
@@ -633,8 +790,15 @@ async def search_linkedin_leads(
             if 'time limit' not in str(item.get('error') or '').lower()
         ]
 
-    return {
-        "success": not search_errors,
+    from app.clients.search_runs import merge_sources, record_search_run, search_succeeded
+    sources = merge_sources(outcome.get('sources') for outcome in domain_outcomes)
+    if any(outcome.get('sources') for outcome in domain_outcomes):
+        # Failure only when nothing was found and every source that ran failed.
+        success = search_succeeded(len(all_results), sources)
+    else:
+        success = bool(all_results) or not search_errors
+    result = {
+        "success": success,
         "domain_outcomes": domain_outcomes,
         "search_error": search_errors[0]['error'] if search_errors else None,
         "search_errors": search_errors,
@@ -644,7 +808,37 @@ async def search_linkedin_leads(
         "skipped": skipped[:20],
         "found": len(all_results),
         "results": all_results,
+        "sources": sources,
     }
+    result["run_id"] = await record_search_run(db, "linkedin_search", {
+        "mode": mode,
+        "provider": payload.search_provider,
+        "domains": domains,
+        "location": payload.location or "",
+        "max_results": payload.max_results,
+        "saved": payload.save,
+    }, result, search_started_at, payload.search_ref)
+    return result
+
+
+@router.get("/search-runs")
+async def list_search_runs(
+    kind: Optional[str] = None,
+    search_ref: Optional[str] = None,
+    limit: int = 20,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Recent lead searches, newest first, with each source's outcome.
+
+    kind: linkedin_search, trainer_search_public, naukri_search or client_search_public.
+    search_ref: the ID a page sent with its search, to find that search's report.
+    """
+    query = {"kind": kind.strip()} if kind and kind.strip() else {}
+    if search_ref and search_ref.strip():
+        query["search_ref"] = search_ref.strip()[:64]
+    limit = max(1, min(int(limit or 20), 100))
+    cursor = db["lead_search_runs"].find(query, {"_id": 0}).sort([("started_at", -1)]).limit(limit)
+    return {"success": True, "runs": [run async for run in cursor]}
 
 
 @router.post("/backfill-client-contacts")

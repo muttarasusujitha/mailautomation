@@ -1,0 +1,169 @@
+{
+  "name": "AWS Cloud Security, DevOps & SRE",
+  "audience": "",
+  "version": "reference-import-v1",
+  "source_file": "AWS_Security_DevOps_SRE_10Day_Training_Plan_1.xlsx",
+  "source_sha256": "ad3b0fa03133e32ac47454f3bad6e3aee28e8d558023e9e9144a4b2dfc519de7",
+  "review_status": "unreviewed",
+  "review_warnings": [],
+  "usage": "Reference examples only; original client brief and subject-matter approval not supplied.",
+  "modules": [
+    {
+      "topic": "Zero-Trust Identity Architecture  +  Multi-Account Security",
+      "module_group": "Module 1 — Enterprise IAM, Governance & Cryptographic Security",
+      "reference_day": 1,
+      "subtopics": [
+        "Zero-Trust Identity Architecture: principle of least privilege, IAM permission boundaries, condition keys (enforcing source IP, MFA, SSL via aws:SecureTransport), cross-account sts:AssumeRole",
+        "Multi-Account Security: AWS Control Tower, SCPs for hard preventative boundaries (e.g., blocking region usage, disallowing public S3)"
+      ],
+      "learning_objectives": [
+        "Apply least-privilege IAM with permission boundaries and condition keys (source IP, MFA, SSL); configure cross-account sts:AssumeRole",
+        "Enforce multi-account guardrails using Control Tower and SCPs"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A3:F3"
+    },
+    {
+      "topic": "Key Management & Secrets  +  Credential Security",
+      "module_group": "Module 1 — Enterprise IAM, Governance & Cryptographic Security",
+      "reference_day": 2,
+      "subtopics": [
+        "Key Management & Secrets: AWS KMS architecture (symmetric vs. asymmetric, Customer Managed Keys vs. AWS Managed, key rotation, KMS key policies)",
+        "Credential Security: Secrets Manager (automated rotation via Lambda) vs. SSM Parameter Store (hierarchical parameters, KMS encryption)"
+      ],
+      "learning_objectives": [
+        "Explain KMS architecture and configure key rotation and KMS key policies",
+        "Secure credentials with Secrets Manager (Lambda rotation) and SSM Parameter Store"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A4:F4"
+    },
+    {
+      "topic": "Micro-Segmentation  +  Stateless vs. Stateful Inspection",
+      "module_group": "Module 2 — Network Perimeter, Zero Egress & Traffic Inspection",
+      "reference_day": 3,
+      "subtopics": [
+        "Micro-Segmentation: multi-tier VPC subnet segregation (Public, App-private, Database-isolated) with strict Security Group chaining (referencing security groups instead of IP CIDRs)",
+        "Stateless vs. Stateful Inspection: NACLs as subnet-level stateless packet filters vs. Security Groups as stateful firewalls"
+      ],
+      "learning_objectives": [
+        "Design multi-tier VPC segmentation with Security Group chaining",
+        "Differentiate stateless NACLs from stateful Security Groups"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A5:F5"
+    },
+    {
+      "topic": "Egress Control & PrivateLink  +  Network Threat Visibility",
+      "module_group": "Module 2 — Network Perimeter, Zero Egress & Traffic Inspection",
+      "reference_day": 4,
+      "subtopics": [
+        "Egress Control & PrivateLink: removing public internet routes for backend infrastructure using VPC Endpoints (Interface Endpoints via PrivateLink and S3/DynamoDB Gateway Endpoints)",
+        "Network Threat Visibility: enabling and analyzing VPC Flow Logs with CloudWatch Logs Insights and Athena to detect port scans and anomalous outbound traffic"
+      ],
+      "learning_objectives": [
+        "Remove public egress using PrivateLink Interface Endpoints and S3/DynamoDB Gateway Endpoints",
+        "Analyze VPC Flow Logs with Logs Insights and Athena to detect port scans and anomalous outbound traffic"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A6:F6"
+    },
+    {
+      "topic": "WAFv2 Core Architecture  +  AWS Managed Rule Sets  +  Custom Rule Development",
+      "module_group": "Module 3 — Deep Dive: AWS WAF, DDoS & Edge Security",
+      "reference_day": 5,
+      "subtopics": [
+        "WAFv2 Core Architecture: Web ACL structure, association with CloudFront, Application Load Balancers (ALBs), and API Gateways",
+        "AWS Managed Rule Sets (AMRs): implementing and tuning the Core Rule Set (CRS / OWASP Top 10), Known Bad Inputs, and SQLi Rule Sets",
+        "Custom Rule Development: string matching, regex patterns, Geo-blocking rules, and header-based inspections (enforcing custom secret tokens between CloudFront and ALB)"
+      ],
+      "learning_objectives": [
+        "Structure WAFv2 Web ACLs and associate with CloudFront, ALBs and API Gateways",
+        "Implement and tune AWS Managed Rule Sets (CRS/OWASP, Known Bad Inputs, SQLi)",
+        "Develop custom rules — string, regex, geo-blocking, header-based inspection"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A7:F7"
+    },
+    {
+      "topic": "Rate-Based Rules  +  Bot Control  +  Rule Tuning  +  DDoS & Central Governance",
+      "module_group": "Module 3 — Deep Dive: AWS WAF, DDoS & Edge Security",
+      "reference_day": 6,
+      "subtopics": [
+        "Rate-Based Rules & Abuse Mitigation: dynamic rate limiting per IP to mitigate brute-force attacks and Layer 7 HTTP flood DDoS",
+        "Bot Control & Fraud Protection: Bot Control managed rules, Challenge/CAPTCHA actions, Account Takeover Prevention (ATP) basics",
+        "Rule Tuning & Zero False-Positive Testing: Count mode, sampled request inspection, and CloudWatch metrics before promoting rules to Block",
+        "DDoS Protection & Central Governance: AWS Shield Standard vs. Shield Advanced, with AWS Firewall Manager to enforce WAF policies across multiple AWS accounts"
+      ],
+      "learning_objectives": [
+        "Configure rate-based rules against brute-force and L7 HTTP flood DDoS",
+        "Apply Bot Control, Challenge/CAPTCHA and ATP basics",
+        "Tune rules with Count mode, sampled requests and CloudWatch metrics before Block",
+        "Compare Shield Standard vs. Advanced and govern WAF policy across accounts with Firewall Manager"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A8:F8"
+    },
+    {
+      "topic": "Storage & Data Perimeter  +  Database Defense-in-Depth",
+      "module_group": "Module 4 — Compute, Data Security & Threat Detection",
+      "reference_day": 7,
+      "subtopics": [
+        "Storage & Data Perimeter: S3 Bucket Policies (explicit denies for non-TLS, unencrypted uploads), S3 Block Public Access, Object Lock (WORM compliance), EBS default volume encryption",
+        "Database Defense-in-Depth: RDS encryption at rest, IAM database authentication, TLS enforcement, Secrets Manager integration"
+      ],
+      "learning_objectives": [
+        "Harden the S3/EBS data perimeter with bucket policies, Block Public Access, Object Lock and default encryption",
+        "Apply RDS defense-in-depth: encryption at rest, IAM database authentication, TLS, Secrets Manager"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A9:F9"
+    },
+    {
+      "topic": "Continuous Threat Detection  +  Vulnerability Assessment",
+      "module_group": "Module 4 — Compute, Data Security & Threat Detection",
+      "reference_day": 8,
+      "subtopics": [
+        "Continuous Threat Detection: Amazon GuardDuty (anomaly detection using VPC Flow Logs, DNS logs, and CloudTrail event analysis)",
+        "Vulnerability Assessment: Amazon Inspector for automated CVE scans on EC2 instances and ECR container images"
+      ],
+      "learning_objectives": [
+        "Operate GuardDuty continuous threat detection across Flow Logs, DNS logs and CloudTrail",
+        "Run automated CVE assessment with Amazon Inspector on EC2 and ECR images"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A10:F10"
+    },
+    {
+      "topic": "Compliance & Posture Management  +  Automated Remediation",
+      "module_group": "Module 5 — Security Automation, IaC & Incident Simulation Capstone",
+      "reference_day": 9,
+      "subtopics": [
+        "Compliance & Posture Management: AWS Config rules for automated drift detection (e.g., flagging unencrypted volumes, open SSH ports) and AWS Security Hub for CSPM benchmarking against CIS AWS Foundations",
+        "Automated Remediation: EventBridge-triggered Lambda functions to auto-revoke compromised IAM credentials or isolate infected EC2 instances"
+      ],
+      "learning_objectives": [
+        "Manage posture with AWS Config drift detection and Security Hub CSPM against CIS AWS Foundations",
+        "Build EventBridge-triggered Lambda automated remediation (revoke IAM credentials, isolate EC2)"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A11:F11"
+    },
+    {
+      "topic": "Hands-on Attack & Defense Capstone",
+      "module_group": "Module 5 — Security Automation, IaC & Incident Simulation Capstone",
+      "reference_day": 10,
+      "subtopics": [
+        "Deploy an enterprise 3-tier architecture with CloudFormation or Terraform",
+        "Attach AWS WAF to the ALB with rate limiting, geo-blocking, and OWASP protections",
+        "Live Attack Lab: simulate an SQL injection attempt, an XSS payload, and an HTTP flood attack using tools like curl or ab to observe WAF metrics, blocked request traces, and CloudWatch alarms in real time"
+      ],
+      "learning_objectives": [
+        "Deploy a 3-tier architecture via CloudFormation/Terraform and defend it with WAF (rate limiting, geo-blocking, OWASP)",
+        "Execute a live attack lab (SQLi, XSS, HTTP flood via curl/ab) and observe WAF metrics, blocked-request traces and CloudWatch alarms"
+      ],
+      "minutes": 240,
+      "source_locator": "10-Day Detailed Plan!A12:F12"
+    }
+  ]
+}

@@ -1,0 +1,573 @@
+{
+  "domain": "Android Development",
+  "name": "Android App Development with Kotlin and Jetpack Compose",
+  "category": "Mobile Development",
+  "icon": "smartphone",
+  "aliases": ["Android", "Android App Development", "Android Application Development", "Android Developer", "Android Training", "Native Android", "Android Kotlin", "Kotlin Android", "Jetpack Compose", "Android Jetpack", "Android Studio", "Android SDK"],
+  "certifications": ["Google Associate Android Developer (where available)", "Android Basics with Compose course badges", "Google Play Academy store listing certificate"],
+  "tools": ["Android Studio", "Kotlin", "Jetpack Compose", "Gradle", "Hilt", "Room", "Retrofit", "Coroutines and Flow", "Firebase", "Google Play Console"],
+  "review_status": "unreviewed",
+  "levels": {
+    "beginner": {
+      "summary": "For developers and freshers building their first Android apps. Covers Android Studio and the emulator, Kotlin for Android, null safety, classes and collections, Jetpack Compose layouts and state, Material 3, lazy lists, navigation, ViewModels and lifecycle, coroutines and Flow, Retrofit, Room, DataStore, image loading, permissions and device features, Hilt, testing, notifications and WorkManager, and publishing to Google Play.",
+      "prerequisites": ["Knows programming basics in any language", "Comfortable with variables, functions and loops", "A laptop with 16 GB RAM for Android Studio and the emulator"],
+      "outcomes": ["Build Android apps in Kotlin with Jetpack Compose", "Structure apps with ViewModels, coroutines, Room and Retrofit", "Use device features, notifications and background work safely", "Test, sign and publish an app on Google Play"],
+      "days": [
+        {
+          "topic": "Android Development Overview and Android Studio Setup",
+          "subtopics": ["The Android platform and app ecosystem", "Kotlin as the language for Android", "Jetpack libraries and Jetpack Compose", "Installing Android Studio and the SDK", "Creating and running an emulator", "Running on a physical device with USB debugging", "Project structure and Gradle files", "The manifest and app resources", "Logcat and basic debugging", "Creating a first Compose project"],
+          "tools": ["Android Studio", "Android Emulator", "Gradle", "Logcat"],
+          "lab_task": "Install Android Studio, create a Compose project, run it on an emulator and a phone, change the UI and app name, and find a planted crash in Logcat.",
+          "deliverable": "First running app in a Git repository",
+          "checks": [["Run on the emulator", "App launches on an emulator", "Screenshot"], ["Run on a phone", "App installs and runs on a physical device", "Photo or screen recording"], ["Find a crash", "Crash cause found from the Logcat stack trace", "Logcat excerpt"]],
+          "objectives": ["Explain how Android apps are built", "Set up Android Studio", "Run and debug a first app"]
+        },
+        {
+          "topic": "Kotlin Essentials for Android Developers",
+          "subtopics": ["val, var and type inference", "Functions and default arguments", "String templates", "Conditionals with if and when", "Loops and ranges", "Lambdas", "Extension functions", "Kotlin style used in Android code"],
+          "tools": ["Kotlin", "Android Studio", "Kotlin Playground"],
+          "lab_task": "Write Kotlin functions for an expense app: totals by category, date formatting, input checks with when and extension functions for currency display, with unit tests.",
+          "deliverable": "Kotlin utility file with tests",
+          "checks": [["Run the tests", "All utility tests pass", "Test output"], ["Use when", "Category rules expressed with when", "Code review"], ["Write an extension", "Currency extension formats amounts correctly", "Test output"]],
+          "objectives": ["Write Kotlin for Android", "Use lambdas and extensions", "Test Kotlin code"]
+        },
+        {
+          "topic": "Kotlin Null Safety, Classes and Collections in App Code",
+          "subtopics": ["Nullable types and safe calls", "The Elvis operator and smart casts", "Classes, properties and constructors", "Data classes", "Enums and sealed classes", "Lists, maps and sets", "Collection operations: filter, map and groupBy", "Avoiding NullPointerException in apps"],
+          "tools": ["Kotlin", "Android Studio"],
+          "lab_task": "Model expenses, categories and budgets with data classes and sealed classes, handle missing values with null safety and group expenses by month with collection operations.",
+          "deliverable": "App model package with tests",
+          "checks": [["Handle missing values", "No unsafe !! calls in the model", "Code search output"], ["Model states", "Sealed classes cover every state of a budget", "Code review"], ["Group data", "Monthly totals correct for sample data", "Test output"]],
+          "objectives": ["Use null safety", "Model data with Kotlin classes", "Work with collections"]
+        },
+        {
+          "topic": "Jetpack Compose: Composables and Layouts",
+          "subtopics": ["Composable functions", "Text, Image, Button and other basic components", "Row, Column and Box", "Modifiers for size, padding and click handling", "Arrangement and alignment", "Previews in Android Studio", "Reusable composables with parameters", "Thinking in Compose compared with XML views"],
+          "tools": ["Jetpack Compose", "Android Studio previews"],
+          "lab_task": "Build the expense list item, summary card and add-expense screen layouts with composables and modifiers, and preview them in light and dark themes.",
+          "deliverable": "Screen layouts with previews",
+          "checks": [["Build layouts", "Screens match the provided mock-ups", "Screenshots"], ["Use previews", "Previews show light and dark versions", "Preview screenshot"], ["Reuse components", "List item reused with different data", "Code review"]],
+          "objectives": ["Build UIs with Compose", "Use layouts and modifiers", "Create reusable composables"]
+        },
+        {
+          "topic": "State in Compose",
+          "subtopics": ["What recomposition is", "remember and mutableStateOf", "State hoisting", "Stateless and stateful composables", "rememberSaveable for configuration changes", "Text fields and input state", "Derived state", "Common state mistakes"],
+          "tools": ["Jetpack Compose", "Layout Inspector"],
+          "lab_task": "Add input state to the add-expense form with hoisted state, keep values across rotation with rememberSaveable and show live totals with derived state.",
+          "deliverable": "Interactive form with state",
+          "checks": [["Rotate the device", "Form values survive rotation", "Screen recording"], ["Hoist state", "Form fields are stateless composables", "Code review"], ["Show live totals", "Total updates as amounts are typed", "Screen recording"]],
+          "objectives": ["Manage state in Compose", "Hoist state", "Keep state across configuration changes"]
+        },
+        {
+          "topic": "Material 3 Theming and Components",
+          "subtopics": ["Material Design 3 principles", "Color schemes and dynamic color", "Typography and shapes", "Dark theme", "Scaffold, top app bar and floating action button", "Cards, dialogs and snackbars", "Icons", "Accessibility of colours and touch targets"],
+          "tools": ["Material 3 for Compose", "Material Theme Builder"],
+          "lab_task": "Create a brand theme with Material Theme Builder, support dynamic color and dark mode, and build the main screen with Scaffold, a top bar, a FAB, cards and a snackbar.",
+          "deliverable": "Themed main screen",
+          "checks": [["Switch to dark mode", "App follows the system dark theme", "Screenshots"], ["Use dynamic color", "Colours follow the wallpaper on Android 12 and later", "Screenshot"], ["Show a snackbar", "Snackbar confirms a deleted expense with undo", "Screen recording"]],
+          "objectives": ["Theme apps with Material 3", "Use Material components", "Support dark and dynamic colour"]
+        },
+        {
+          "topic": "Lists with LazyColumn and LazyGrid",
+          "subtopics": ["LazyColumn and LazyRow", "Keys for list items", "Item types and headers", "Sticky headers", "LazyVerticalGrid", "Swipe to dismiss", "Scroll state", "List performance basics"],
+          "tools": ["Jetpack Compose", "Layout Inspector"],
+          "lab_task": "Show expenses in a LazyColumn grouped by month with sticky headers, stable keys and swipe to delete, and show categories in a lazy grid.",
+          "deliverable": "Expense list and category grid",
+          "checks": [["Scroll a long list", "List scrolls smoothly with 1,000 items", "Screen recording"], ["Swipe to delete", "Item removed with undo in a snackbar", "Screen recording"], ["Use stable keys", "Items keep state when the list changes", "Screen recording"]],
+          "objectives": ["Build efficient lists", "Use keys and headers", "Add list interactions"]
+        },
+        {
+          "topic": "Navigation in Compose",
+          "subtopics": ["Navigation component for Compose", "Destinations and the nav graph", "Type-safe navigation arguments", "Back stack behaviour", "Bottom navigation", "Nested graphs", "Deep links", "Navigation and ViewModels"],
+          "tools": ["Navigation Compose", "Android Studio"],
+          "lab_task": "Add navigation between list, detail, add and settings screens with type-safe arguments, bottom navigation and a deep link that opens an expense.",
+          "deliverable": "Navigable app",
+          "checks": [["Pass arguments", "Detail screen opens the selected expense", "Screen recording"], ["Use the back stack", "Back button returns to the right screen", "Screen recording"], ["Open a deep link", "Link opens the expense detail screen", "adb command and screenshot"]],
+          "objectives": ["Navigate between screens", "Pass arguments safely", "Support deep links"]
+        },
+        {
+          "topic": "ViewModels and the Activity Lifecycle",
+          "subtopics": ["Activity and composable lifecycles", "ViewModel and configuration changes", "UI state classes", "Exposing state with StateFlow", "Collecting state lifecycle-safely", "Events from UI to ViewModel", "SavedStateHandle", "Process death"],
+          "tools": ["Jetpack ViewModel", "Lifecycle libraries", "Android Studio"],
+          "lab_task": "Move screen logic into ViewModels with UI state classes and StateFlow, collect state lifecycle-safely, survive process death with SavedStateHandle and test it with adb.",
+          "deliverable": "ViewModel-based screens",
+          "checks": [["Rotate the device", "Screen state kept by the ViewModel", "Screen recording"], ["Kill the process", "Draft expense restored after process death", "Screen recording"], ["Collect safely", "State collected with collectAsStateWithLifecycle", "Code review"]],
+          "objectives": ["Use ViewModels", "Model UI state", "Handle lifecycle and process death"]
+        },
+        {
+          "topic": "Coroutines and Flows for App Work",
+          "subtopics": ["Why the main thread must stay free", "suspend functions", "viewModelScope and lifecycleScope", "Dispatchers", "Flow basics: emit and collect", "StateFlow and SharedFlow", "Cancellation", "Error handling in coroutines"],
+          "tools": ["Kotlin coroutines", "Kotlin Flow", "Android Studio"],
+          "lab_task": "Load data with suspend functions on the right dispatcher, expose a Flow of expenses, cancel work when screens close and handle errors without crashing.",
+          "deliverable": "Coroutine-based data loading",
+          "checks": [["Keep the UI smooth", "No dropped frames while loading", "Profiler screenshot"], ["Cancel work", "Work stops when the screen closes", "Log output"], ["Handle errors", "Error state shown instead of a crash", "Screenshot"]],
+          "objectives": ["Use coroutines on Android", "Use Flow for streams of data", "Handle cancellation and errors"]
+        },
+        {
+          "topic": "Calling REST APIs with Retrofit and Kotlin Serialization",
+          "subtopics": ["Retrofit setup", "Kotlin serialization converters", "GET, POST, PUT and DELETE calls", "OkHttp interceptors and logging", "Error handling and status codes", "Timeouts", "Repositories for network data", "Testing with a mock web server"],
+          "tools": ["Retrofit", "OkHttp", "kotlinx.serialization", "MockWebServer"],
+          "lab_task": "Sync expenses with a REST API using Retrofit and Kotlin serialization, log requests with an interceptor, handle errors and timeouts and test with MockWebServer.",
+          "deliverable": "Network layer with tests",
+          "checks": [["Sync expenses", "App shows expenses returned by the API", "Screenshot"], ["Handle errors", "Friendly message for server and network errors", "Screenshots"], ["Test with a mock server", "Repository tests pass against MockWebServer", "Test output"]],
+          "objectives": ["Call APIs with Retrofit", "Handle network errors", "Test network code"]
+        },
+        {
+          "topic": "Local Data with Room",
+          "subtopics": ["Room entities, DAOs and databases", "Queries with Flow", "Relationships", "Migrations", "Type converters", "Transactions", "Database inspection in Android Studio", "Testing Room"],
+          "tools": ["Room", "Database Inspector", "Android Studio"],
+          "lab_task": "Store expenses and categories in Room, observe queries as Flows, add a relationship and a migration, and inspect the database while the app runs.",
+          "deliverable": "Room database with tests",
+          "checks": [["Observe data", "List updates automatically when data changes", "Screen recording"], ["Migrate", "App upgrade keeps existing data", "Test output"], ["Inspect the database", "Rows visible in Database Inspector", "Screenshot"]],
+          "objectives": ["Store data with Room", "Observe queries", "Migrate schemas"]
+        },
+        {
+          "topic": "Preferences with DataStore",
+          "subtopics": ["Why DataStore replaces SharedPreferences", "Preferences DataStore", "Proto DataStore for typed settings", "Reading settings as Flow", "Writing settings safely", "Migrating from SharedPreferences", "Settings screens in Compose", "Testing DataStore"],
+          "tools": ["Jetpack DataStore", "Jetpack Compose"],
+          "lab_task": "Build a settings screen for currency, theme and reminders backed by DataStore, react to changes across the app and migrate an old SharedPreferences value.",
+          "deliverable": "Settings feature",
+          "checks": [["Change currency", "All screens show the new currency", "Screenshots"], ["Migrate settings", "Old SharedPreferences value carried over", "Test output"], ["Persist settings", "Settings kept after the app restarts", "Screen recording"]],
+          "objectives": ["Store settings with DataStore", "React to setting changes", "Migrate old preferences"]
+        },
+        {
+          "topic": "Images with Coil",
+          "subtopics": ["Loading images from the network", "Placeholders and error images", "Caching", "Image sizing and memory", "Picking images from the gallery", "Displaying local images", "Image transformations", "Image performance tips"],
+          "tools": ["Coil", "Photo Picker", "Jetpack Compose"],
+          "lab_task": "Add receipt photos to expenses with the photo picker, load them with Coil using placeholders and caching, and check memory use with large images.",
+          "deliverable": "Receipt image feature",
+          "checks": [["Pick a photo", "Receipt chosen from the gallery and shown", "Screen recording"], ["Show placeholders", "Placeholder shown while images load", "Screenshot"], ["Check memory", "Memory stays stable while scrolling receipts", "Profiler screenshot"]],
+          "objectives": ["Load images efficiently", "Use the photo picker", "Manage image memory"]
+        },
+        {
+          "topic": "Permissions, Camera and Location",
+          "subtopics": ["Runtime permissions", "Asking at the right time and explaining why", "Handling denial", "CameraX for photos", "Location with the fused location provider", "Approximate and precise location", "Privacy expectations on Android", "Testing permissions"],
+          "tools": ["CameraX", "Fused Location Provider", "Accompanist or Activity Result APIs"],
+          "lab_task": "Capture receipts with CameraX and tag expenses with location, request permissions in context, handle denial gracefully and offer approximate location.",
+          "deliverable": "Camera and location features",
+          "checks": [["Deny a permission", "App explains and keeps working without the feature", "Screen recording"], ["Capture a photo", "CameraX photo saved to the expense", "Screenshot"], ["Use approximate location", "App works with approximate location only", "Screenshot"]],
+          "objectives": ["Request permissions well", "Use the camera and location", "Respect user privacy"]
+        },
+        {
+          "topic": "Dependency Injection with Hilt",
+          "subtopics": ["Why dependency injection helps", "Hilt setup", "Injecting into ViewModels", "Modules and bindings", "Scopes", "Providing Retrofit, Room and repositories", "Replacing dependencies in tests", "Common Hilt errors"],
+          "tools": ["Hilt", "Dagger", "Android Studio"],
+          "lab_task": "Wire repositories, Retrofit and Room into ViewModels with Hilt modules and scopes, and replace the repository with a fake in tests.",
+          "deliverable": "Hilt-based dependency graph",
+          "checks": [["Inject ViewModels", "ViewModels receive repositories from Hilt", "Code review"], ["Swap in tests", "Tests use a fake repository through Hilt", "Test output"], ["Fix a Hilt error", "Planted binding error fixed with the cause explained", "Notes"]],
+          "objectives": ["Use Hilt", "Organise dependencies", "Test with replaced dependencies"]
+        },
+        {
+          "topic": "Testing ViewModels and Compose UI",
+          "subtopics": ["Local unit tests", "Testing ViewModels with coroutines", "Fakes compared with mocks", "Testing Flows with Turbine", "Compose UI tests", "Semantics and test tags", "Running tests on emulators", "Test coverage"],
+          "tools": ["JUnit", "kotlinx-coroutines-test", "Turbine", "Compose UI testing"],
+          "lab_task": "Write unit tests for ViewModels and repositories with fakes and Turbine, write Compose UI tests for adding and deleting expenses and run them on an emulator.",
+          "deliverable": "Test suite with coverage report",
+          "checks": [["Test a ViewModel", "State changes tested with Turbine", "Test output"], ["Test the UI", "Add and delete flows pass in Compose UI tests", "Test report"], ["Measure coverage", "Coverage report generated for app logic", "Coverage report"]],
+          "objectives": ["Test Android apps", "Test coroutines and Flows", "Write Compose UI tests"]
+        },
+        {
+          "topic": "Notifications and WorkManager",
+          "subtopics": ["Notification channels", "Building notifications", "The notification permission on Android 13 and later", "Opening the app from a notification", "WorkManager for deferrable work", "Periodic work and constraints", "Chaining work", "Testing work requests"],
+          "tools": ["WorkManager", "NotificationCompat", "Android Studio"],
+          "lab_task": "Schedule a daily budget reminder with WorkManager, show a notification that opens the budget screen, request the notification permission and run a chained sync job.",
+          "deliverable": "Reminder and sync features",
+          "checks": [["Receive a reminder", "Daily reminder notification appears", "Screenshot"], ["Open from a notification", "Tapping opens the budget screen", "Screen recording"], ["Respect constraints", "Sync runs only on an unmetered network", "WorkManager inspector"]],
+          "objectives": ["Show notifications", "Schedule background work", "Respect user settings"]
+        },
+        {
+          "topic": "Building, Signing and Publishing to Google Play",
+          "subtopics": ["Debug and release builds", "App signing and Play App Signing", "Build variants and flavours", "Shrinking with R8", "Android App Bundles", "Google Play Console set-up", "Store listing, content rating and data safety", "Internal testing and staged rollout"],
+          "tools": ["Android Studio", "Google Play Console", "R8"],
+          "lab_task": "Create a signed release bundle with R8 shrinking, set up a Play Console listing with data safety answers and release the app to an internal testing track.",
+          "deliverable": "Release bundle and internal test release",
+          "checks": [["Shrink the release", "Release build smaller with R8", "Size comparison"], ["Fill data safety", "Data safety form matches what the app collects", "Console screenshot"], ["Release internally", "Testers install the app from Play", "Tester screenshot"]],
+          "objectives": ["Build release versions", "Sign and shrink apps", "Publish to Google Play"]
+        },
+        {
+          "topic": "Beginner Capstone: Expense Tracker App",
+          "subtopics": ["Plan", "Build", "Test", "Publish"],
+          "tools": ["Kotlin", "Jetpack Compose", "Room", "Retrofit", "Hilt", "WorkManager"],
+          "lab_task": "Complete the expense tracker with Compose screens, navigation, ViewModels, Room storage, API sync, receipts, reminders, tests and an internal Play release, then demo it.",
+          "deliverable": "Repository, Play internal release and demo recording",
+          "checks": [["Demo the app", "Add, edit, sync and remind flows work end to end", "Demo recording"], ["Run the tests", "Unit and UI tests pass", "Test report"], ["Install from Play", "App installs from the internal track", "Screenshot"]],
+          "objectives": ["Combine the beginner topics in one app", "Build a complete Android app", "Ship it through Google Play"]
+        }
+      ]
+    },
+    "intermediate": {
+      "summary": "For Android developers who have shipped an app. Covers layered architecture, offline-first apps with Room and sync, advanced Compose, Paging 3, advanced coroutines and Flow, modularisation and version catalogs, Credential Manager and passkeys, push with Firebase Cloud Messaging, WorkManager and foreground services, Media3, maps, accessibility, adaptive layouts, Compose animation, app security, instrumented and screenshot tests, CI/CD with Fastlane, baseline profiles and Firebase analytics, Crashlytics and Remote Config.",
+      "prerequisites": ["Has built and released an Android app with Kotlin and Compose", "Comfortable with ViewModels, coroutines, Room and Retrofit", "Uses Git daily"],
+      "outcomes": ["Architect maintainable, offline-first Android apps", "Add authentication, push, media, maps and background features", "Make apps accessible, adaptive, secure and fast", "Test and deliver apps through CI/CD with monitoring"],
+      "days": [
+        {
+          "topic": "App Architecture: UI, Domain and Data Layers",
+          "subtopics": ["The recommended app architecture", "UI layer state holders", "Domain layer use cases", "Data layer repositories and data sources", "Unidirectional data flow", "Mapping between layers", "Error and loading models", "Architecture tests"],
+          "tools": ["Android Studio", "Hilt", "Konsist or ArchUnit"],
+          "lab_task": "Restructure an app into UI, domain and data layers with use cases and repositories, apply unidirectional data flow and add architecture tests that enforce the layers.",
+          "deliverable": "Layered app with architecture tests",
+          "checks": [["Enforce layers", "Test fails when UI code calls a data source directly", "Test output"], ["Use use cases", "Business rules live in use cases with tests", "Test output"], ["Flow data one way", "UI sends events and receives state only", "Code review"]],
+          "objectives": ["Structure Android apps in layers", "Apply unidirectional data flow", "Enforce architecture"]
+        },
+        {
+          "topic": "Offline-First Apps with Room and Sync",
+          "subtopics": ["Local data as the source of truth", "Sync strategies: pull, push and two-way", "Conflict resolution", "Queuing changes made offline", "Sync with WorkManager", "Showing sync status", "Handling deletes", "Testing offline behaviour"],
+          "tools": ["Room", "WorkManager", "Retrofit"],
+          "lab_task": "Make a field service app fully usable offline with Room as the source of truth, queue offline edits, sync with WorkManager, resolve conflicts and show sync status.",
+          "deliverable": "Offline-first sync design and implementation",
+          "checks": [["Work offline", "All features work in airplane mode", "Screen recording"], ["Sync changes", "Offline edits reach the server when online", "Server log"], ["Resolve a conflict", "Conflicting edit resolved by the agreed rule", "Test output"]],
+          "objectives": ["Build offline-first apps", "Sync data reliably", "Resolve conflicts"]
+        },
+        {
+          "topic": "Advanced Compose: Side Effects, Performance and Custom Layouts",
+          "subtopics": ["Side effects: LaunchedEffect, DisposableEffect and rememberUpdatedState", "Stability and skippable composables", "Compose compiler reports", "Deferring reads to avoid recomposition", "Custom layouts with Layout", "Modifier.Node for custom modifiers", "CompositionLocal", "Measuring recomposition"],
+          "tools": ["Jetpack Compose", "Layout Inspector", "Compose compiler metrics"],
+          "lab_task": "Fix a screen that recomposes too often using stability fixes and deferred reads, write a custom layout and a Modifier.Node, and confirm gains with recomposition counts.",
+          "deliverable": "Optimised screen with measurements",
+          "checks": [["Cut recompositions", "Recomposition counts drop on the busy screen", "Layout Inspector screenshots"], ["Build a custom layout", "Custom layout arranges items as designed", "Screenshot"], ["Read compiler reports", "Unstable classes identified and fixed", "Compiler report"]],
+          "objectives": ["Use side effects correctly", "Tune Compose performance", "Build custom layouts and modifiers"]
+        },
+        {
+          "topic": "Paging 3 for Large Lists",
+          "subtopics": ["When paging is needed", "PagingSource", "RemoteMediator with Room", "Pager and PagingData in ViewModels", "LazyColumn with paging items", "Loading and error states for pages", "Refresh and retry", "Testing paging"],
+          "tools": ["Paging 3", "Room", "Retrofit"],
+          "lab_task": "Page a 100,000-item catalogue from the network into Room with RemoteMediator, show load and error states, support refresh and retry and test the paging source.",
+          "deliverable": "Paged catalogue feature",
+          "checks": [["Scroll the catalogue", "Pages load smoothly from cache and network", "Screen recording"], ["Fail a page", "Error item with retry shown", "Screenshot"], ["Test paging", "PagingSource tests pass", "Test output"]],
+          "objectives": ["Page large data sets", "Combine network and database paging", "Handle paging errors"]
+        },
+        {
+          "topic": "Advanced Coroutines and Flow Operators",
+          "subtopics": ["Structured concurrency in apps", "Combining flows: combine, zip and flatMapLatest", "Debounce for search", "Retry and catch operators", "stateIn and shareIn", "Channels and callbackFlow", "Testing flows with virtual time", "Avoiding leaks and duplicate work"],
+          "tools": ["Kotlin coroutines", "Kotlin Flow", "Turbine"],
+          "lab_task": "Build search with debounce and flatMapLatest, combine filters and data into one UI state with stateIn, wrap a callback API with callbackFlow and test it with virtual time.",
+          "deliverable": "Search and filter feature with tests",
+          "checks": [["Debounce search", "One request after typing stops", "Network log"], ["Cancel stale work", "Old searches cancelled when the query changes", "Log output"], ["Test with virtual time", "Debounce test runs instantly with virtual time", "Test output"]],
+          "objectives": ["Combine flows", "Control concurrency", "Test time-based flows"]
+        },
+        {
+          "topic": "Modularisation and Gradle Version Catalogs",
+          "subtopics": ["Why modularise", "Feature, core and data modules", "Module dependency rules", "Gradle version catalogs", "Convention plugins", "Build speed with configuration cache", "API and implementation dependencies", "Navigation across modules"],
+          "tools": ["Gradle", "Version catalogs", "Convention plugins"],
+          "lab_task": "Split the app into feature and core modules with convention plugins and a version catalog, enable the configuration cache and measure build times.",
+          "deliverable": "Modular project with build measurements",
+          "checks": [["Split modules", "Features build as separate modules", "Project structure"], ["Share configuration", "Modules use convention plugins with no copied build logic", "Build files"], ["Measure builds", "Incremental build faster after modularisation", "Build scan or timings"]],
+          "objectives": ["Modularise Android apps", "Manage dependencies with catalogs", "Speed up builds"]
+        },
+        {
+          "topic": "Authentication: Credential Manager, Passkeys and OAuth",
+          "subtopics": ["Credential Manager API", "Passkeys on Android", "Sign in with Google", "OAuth 2.0 with AppAuth", "Storing tokens securely", "Refreshing tokens", "Biometric prompts", "Signing out and account deletion"],
+          "tools": ["Credential Manager", "AppAuth", "BiometricPrompt", "DataStore with encryption"],
+          "lab_task": "Add sign-in with passkeys and Google through Credential Manager, an OAuth flow for a company identity provider, secure token storage, refresh and a biometric unlock.",
+          "deliverable": "Authentication feature",
+          "checks": [["Sign in with a passkey", "Passkey sign-in works without a password", "Screen recording"], ["Refresh tokens", "Expired access token refreshed without user action", "Log output"], ["Unlock with biometrics", "Biometric prompt protects the app", "Screen recording"]],
+          "objectives": ["Add modern sign-in to Android apps", "Store tokens safely", "Use biometrics"]
+        },
+        {
+          "topic": "Push Notifications with Firebase Cloud Messaging",
+          "subtopics": ["FCM set-up", "Tokens and registration", "Notification and data messages", "Handling messages in foreground and background", "Notification channels and grouping", "Deep links from notifications", "Topic and targeted messages", "Testing and troubleshooting delivery"],
+          "tools": ["Firebase Cloud Messaging", "Firebase console", "Android Studio"],
+          "lab_task": "Add FCM push with token registration, data messages that update the app, grouped notifications with deep links and topic subscriptions, and debug a delivery problem.",
+          "deliverable": "Push notification feature",
+          "checks": [["Receive a push", "Notification arrives in foreground and background", "Screen recording"], ["Open a deep link", "Notification opens the right screen", "Screen recording"], ["Debug delivery", "Delivery problem traced and fixed", "Notes"]],
+          "objectives": ["Send push notifications", "Handle message types", "Troubleshoot delivery"]
+        },
+        {
+          "topic": "Background Work with WorkManager and Foreground Services",
+          "subtopics": ["Background execution limits", "WorkManager for reliable work", "Expedited work", "Foreground services and their types", "Long-running uploads", "Progress notifications", "Battery and Doze behaviour", "Choosing the right API"],
+          "tools": ["WorkManager", "Foreground services", "Battery Historian"],
+          "lab_task": "Upload large photo batches with WorkManager and progress, run a location-tracking foreground service with the correct type and check battery impact.",
+          "deliverable": "Background features with battery notes",
+          "checks": [["Upload in the background", "Upload finishes after the app is closed", "Screen recording"], ["Show progress", "Progress notification updates during upload", "Screenshot"], ["Check battery", "Battery impact measured and acceptable", "Battery Historian screenshot"]],
+          "objectives": ["Run background work correctly", "Use foreground services properly", "Protect battery life"]
+        },
+        {
+          "topic": "Media: Playback with Media3 and ExoPlayer",
+          "subtopics": ["Media3 and ExoPlayer", "Playing audio and video", "Streaming formats", "Media sessions and notifications", "Background playback", "Picture-in-picture", "Caching media", "Testing playback"],
+          "tools": ["Media3", "ExoPlayer", "MediaSession"],
+          "lab_task": "Build a training video player with Media3, streaming playback, a media session with notification controls, background audio and picture-in-picture.",
+          "deliverable": "Media player feature",
+          "checks": [["Stream video", "Video streams and adapts quality", "Screen recording"], ["Control from notification", "Playback controlled from the notification", "Screen recording"], ["Use picture-in-picture", "Video continues in picture-in-picture", "Screen recording"]],
+          "objectives": ["Play media with Media3", "Support background playback", "Integrate with system controls"]
+        },
+        {
+          "topic": "Maps and Location Services",
+          "subtopics": ["Google Maps for Compose", "Markers, clusters and info windows", "Location updates", "Geofences", "Directions and distance", "Location accuracy and battery", "Location privacy", "Testing location features"],
+          "tools": ["Maps Compose", "Fused Location Provider", "Geofencing API"],
+          "lab_task": "Show job sites on a map with clustering, track the user's location efficiently, trigger a geofence on arrival and test with mock locations.",
+          "deliverable": "Map and location feature",
+          "checks": [["Cluster markers", "Nearby markers clustered at low zoom", "Screenshot"], ["Trigger a geofence", "Arrival detected at a job site", "Log output"], ["Test with mock locations", "Feature tested with mocked positions", "Test output"]],
+          "objectives": ["Use maps in Compose", "Track location efficiently", "Use geofences"]
+        },
+        {
+          "topic": "Accessibility in Android Apps",
+          "subtopics": ["Who uses accessibility services", "TalkBack", "Semantics in Compose", "Content descriptions and labels", "Touch target sizes", "Font scaling", "Colour contrast", "Accessibility Scanner and tests"],
+          "tools": ["TalkBack", "Accessibility Scanner", "Compose semantics testing"],
+          "lab_task": "Audit the app with TalkBack and Accessibility Scanner, fix labels, touch targets, font scaling and contrast problems and add accessibility checks to UI tests.",
+          "deliverable": "Accessibility fixes and test report",
+          "checks": [["Use TalkBack", "Every screen usable with TalkBack", "Screen recording"], ["Scale fonts", "Screens work at the largest font size", "Screenshots"], ["Run Accessibility Scanner", "No high-priority issues remain", "Scanner report"]],
+          "objectives": ["Build accessible Android apps", "Test with TalkBack", "Fix common accessibility issues"]
+        },
+        {
+          "topic": "Adaptive Layouts for Tablets, Foldables and Large Screens",
+          "subtopics": ["Window size classes", "List-detail and supporting pane layouts", "Navigation suite for different sizes", "Foldable postures", "Multi-window and resizing", "Keyboard and mouse input", "Testing on large screens", "Play requirements for large screens"],
+          "tools": ["Material 3 adaptive", "Window size classes", "Resizable emulator"],
+          "lab_task": "Make the app adaptive with window size classes, a list-detail layout on tablets, a navigation suite that switches between bar and rail and support for foldable postures.",
+          "deliverable": "Adaptive app with screenshots per size",
+          "checks": [["Use list-detail", "Tablet shows list and detail side by side", "Screenshot"], ["Resize the window", "Layout adapts without losing state", "Screen recording"], ["Use a keyboard", "Main flows usable with keyboard and mouse", "Screen recording"]],
+          "objectives": ["Build adaptive layouts", "Support foldables and tablets", "Handle resizing"]
+        },
+        {
+          "topic": "Animations in Compose",
+          "subtopics": ["animate*AsState", "AnimatedVisibility and AnimatedContent", "Transitions with updateTransition", "Gesture-driven animation", "Shared element transitions", "Animation performance", "Reduced motion settings", "Testing animations"],
+          "tools": ["Compose animation APIs", "Layout Inspector"],
+          "lab_task": "Add animated visibility for filters, animated content for totals, a shared element transition from list to detail and gesture-driven card swipes that respect reduced motion.",
+          "deliverable": "Animated interactions",
+          "checks": [["Use shared elements", "Image moves smoothly from list to detail", "Screen recording"], ["Respect reduced motion", "Animations shorten when animations are reduced", "Screen recording"], ["Keep frames smooth", "No jank during animations", "Profiler screenshot"]],
+          "objectives": ["Animate with Compose", "Use shared element transitions", "Respect motion settings"]
+        },
+        {
+          "topic": "App Security: Keystore, Encryption and Network Security",
+          "subtopics": ["Threats to mobile apps", "Android Keystore", "Encrypting local data", "Network security configuration", "Certificate pinning trade-offs", "Protecting against reverse engineering", "Secure WebView use", "OWASP Mobile Top 10"],
+          "tools": ["Android Keystore", "Network security config", "R8", "MobSF"],
+          "lab_task": "Encrypt sensitive data with keys from the Keystore, block cleartext traffic, review pinning, harden a WebView and scan the APK with MobSF.",
+          "deliverable": "Security fixes and scan report",
+          "checks": [["Encrypt data", "Sensitive data unreadable on a rooted test device", "Inspection notes"], ["Block cleartext", "HTTP requests refused by the network config", "Log output"], ["Scan the APK", "No high-severity MobSF findings remain", "MobSF report"]],
+          "objectives": ["Protect data on device", "Secure network traffic", "Apply OWASP mobile guidance"]
+        },
+        {
+          "topic": "Instrumented Testing, Screenshot Tests and Test Doubles",
+          "subtopics": ["Instrumented tests on devices", "Hilt in instrumented tests", "Fakes for network and database", "Screenshot testing with Roborazzi or Paparazzi", "Gradle managed devices", "Testing navigation", "Flaky test control", "Test reports"],
+          "tools": ["AndroidX Test", "Hilt testing", "Roborazzi or Paparazzi", "Gradle managed devices"],
+          "lab_task": "Write instrumented tests with Hilt fakes for main flows, add screenshot tests for key screens and run everything on Gradle managed devices.",
+          "deliverable": "Instrumented and screenshot test suites",
+          "checks": [["Run instrumented tests", "Main flows pass on managed devices", "Test report"], ["Catch a visual change", "Screenshot test fails on a layout change", "Diff image"], ["Control flakiness", "Ten runs pass without flakes", "Run history"]],
+          "objectives": ["Test on devices", "Use screenshot tests", "Keep tests reliable"]
+        },
+        {
+          "topic": "CI/CD for Android with GitHub Actions and Fastlane",
+          "subtopics": ["Pipeline stages for Android", "Caching Gradle in CI", "Running lint, unit tests and instrumented tests", "Signing in CI with secrets", "Fastlane lanes", "Uploading to Play tracks", "Versioning builds", "Release notes"],
+          "tools": ["GitHub Actions", "Fastlane", "Google Play Developer API"],
+          "lab_task": "Build a pipeline that lints and tests on each pull request, signs release bundles with secrets and uploads to the internal track with Fastlane and release notes.",
+          "deliverable": "CI/CD pipeline",
+          "checks": [["Run on pull requests", "Lint and tests run on every pull request", "Pipeline run"], ["Sign in CI", "Release bundle signed without keys in the repository", "Pipeline log"], ["Upload to Play", "New build appears on the internal track", "Console screenshot"]],
+          "objectives": ["Automate Android builds", "Sign builds securely", "Deliver to Play automatically"]
+        },
+        {
+          "topic": "Performance: Baseline Profiles, Startup and Jank",
+          "subtopics": ["Measuring startup time", "Baseline profiles", "Macrobenchmark", "Finding jank with the profiler", "Memory leaks with LeakCanary", "App size", "Android vitals in Play Console", "Performance budgets"],
+          "tools": ["Macrobenchmark", "Baseline Profiles", "Android Studio Profiler", "LeakCanary"],
+          "lab_task": "Measure startup and scrolling with Macrobenchmark, add a baseline profile, fix a memory leak found by LeakCanary and a janky list, and record the gains.",
+          "deliverable": "Performance report with benchmarks",
+          "checks": [["Speed up startup", "Startup faster with a baseline profile", "Benchmark results"], ["Fix a leak", "LeakCanary reports no leaks after the fix", "LeakCanary output"], ["Remove jank", "Frame timing improves on the list", "Benchmark results"]],
+          "objectives": ["Measure Android performance", "Use baseline profiles", "Fix leaks and jank"]
+        },
+        {
+          "topic": "Analytics, Crash Reporting and Remote Config with Firebase",
+          "subtopics": ["Firebase Analytics events", "Crashlytics set-up", "Non-fatal error reporting", "Remote Config for feature flags", "A/B testing", "Privacy and consent for analytics", "Dashboards and alerts", "Using data to prioritise work"],
+          "tools": ["Firebase Analytics", "Crashlytics", "Remote Config", "A/B Testing"],
+          "lab_task": "Add analytics events for key flows, Crashlytics with non-fatal errors, a feature flag in Remote Config and an A/B test, with consent handled correctly.",
+          "deliverable": "Monitoring and experiment setup",
+          "checks": [["Report a crash", "Crash appears in Crashlytics with the stack trace", "Crashlytics screenshot"], ["Toggle a feature", "Remote Config flag turns a feature on without a release", "Screen recording"], ["Respect consent", "Analytics off until the user consents", "Debug view screenshot"]],
+          "objectives": ["Monitor apps in production", "Use feature flags", "Run experiments responsibly"]
+        },
+        {
+          "topic": "Intermediate Capstone: Offline-First Delivery Tracking App",
+          "subtopics": ["Design", "Build", "Quality", "Ship"],
+          "tools": ["Kotlin", "Compose", "Room", "WorkManager", "Firebase", "Fastlane"],
+          "lab_task": "Build a delivery tracking app with layered architecture, offline-first sync, passkey sign-in, push, maps and geofences, adaptive layouts, accessibility, tests, CI/CD and Crashlytics, then present it.",
+          "deliverable": "Repository, Play test release, reports and presentation",
+          "checks": [["Demo offline use", "Deliveries completed offline and synced later", "Demo recording"], ["Show quality", "Tests, accessibility and performance reports meet targets", "Reports"], ["Defend choices", "Architecture and sync choices explained", "Presentation"]],
+          "objectives": ["Combine the intermediate topics in one app", "Ship a production Android app", "Explain technical choices"]
+        }
+      ]
+    },
+    "advanced": {
+      "summary": "For senior Android engineers and mobile leads. Covers large-scale architecture, Gradle build performance, Kotlin Multiplatform, Compose internals, memory, rendering and battery performance, security hardening and Play Integrity, feature delivery, design systems, testing strategy, release engineering, on-device AI, Wear OS, TV and Auto, privacy and compliance, real-time features, mobile observability, migration from Views and Java, target SDK upgrades, mobile back-end design and production troubleshooting.",
+      "prerequisites": ["Several years building production Android apps", "Strong Kotlin, Compose and architecture skills", "Has released apps to large audiences"],
+      "outcomes": ["Architect and scale large Android codebases and teams", "Engineer performance, security and reliability for large audiences", "Share code across platforms and adopt on-device AI", "Lead releases, migrations and production troubleshooting"],
+      "days": [
+        {
+          "topic": "Large-Scale Android Architecture",
+          "subtopics": ["Architecture for many teams", "Feature ownership and module boundaries", "Shared core modules", "Navigation across features", "State management at scale", "Dependency rules and enforcement", "Architecture decision records", "Evolving architecture safely"],
+          "tools": ["Gradle modules", "Konsist", "Decision records"],
+          "lab_task": "Design the module and ownership structure of a super app for six teams, enforce dependency rules, plan cross-feature navigation and record the key decisions.",
+          "deliverable": "Architecture design with enforced rules",
+          "checks": [["Enforce rules", "Build fails on a forbidden module dependency", "Build output"], ["Assign ownership", "Every module has an owning team", "Ownership map"], ["Record decisions", "Decisions list options and consequences", "Decision records"]],
+          "objectives": ["Architect large Android apps", "Enforce module boundaries", "Record decisions"]
+        },
+        {
+          "topic": "Build Performance and Gradle at Scale",
+          "subtopics": ["Measuring builds with build scans", "Configuration cache and build cache", "Remote build caching", "Avoiding configuration-time work", "KSP compared with kapt", "Parallel and incremental builds", "CI build optimisation", "Build health dashboards"],
+          "tools": ["Gradle", "Develocity or Gradle build scans", "KSP"],
+          "lab_task": "Profile a slow build with build scans, move from kapt to KSP, fix configuration-time work, enable remote caching and cut CI build time.",
+          "deliverable": "Build performance report",
+          "checks": [["Use build scans", "Slowest tasks identified", "Build scan"], ["Move to KSP", "Annotation processing time reduced", "Timing comparison"], ["Cut CI time", "CI build faster with remote caching", "Pipeline timings"]],
+          "objectives": ["Speed up Gradle builds", "Use caching effectively", "Monitor build health"]
+        },
+        {
+          "topic": "Kotlin Multiplatform for Shared Business Logic",
+          "subtopics": ["When to share code across platforms", "Kotlin Multiplatform project structure", "Expect and actual declarations", "Shared networking with Ktor", "Shared storage with SQLDelight or Room", "Exposing shared code to Swift", "Compose Multiplatform in brief", "Team and build considerations"],
+          "tools": ["Kotlin Multiplatform", "Ktor", "SQLDelight or Room KMP", "Xcode"],
+          "lab_task": "Move the business logic, networking and storage of a feature into a KMP module used by the Android app and a small iOS app, and measure what was shared.",
+          "deliverable": "Shared module used on two platforms",
+          "checks": [["Share logic", "Same module powers Android and iOS features", "Screenshots from both"], ["Call from Swift", "iOS code calls shared code naturally", "Swift code sample"], ["Measure sharing", "Share of feature code shared reported", "Code report"]],
+          "objectives": ["Share code with Kotlin Multiplatform", "Expose shared code to iOS", "Judge what to share"]
+        },
+        {
+          "topic": "Compose Internals: Composition, Recomposition and Snapshots",
+          "subtopics": ["The Compose compiler and runtime", "The slot table", "Snapshot state system", "Recomposition scopes", "Stability inference", "Strong skipping", "Layout and drawing phases", "Debugging internals"],
+          "tools": ["Compose compiler reports", "Layout Inspector", "Perfetto"],
+          "lab_task": "Trace recomposition through the snapshot system, explain why a scope recomposes, fix stability problems and show work moving between composition, layout and draw phases.",
+          "deliverable": "Compose internals notebook with fixes",
+          "checks": [["Explain recomposition", "Cause of each recomposition explained", "Notes"], ["Fix stability", "Unstable parameters made stable with measured gains", "Before and after counts"], ["Move work to draw", "Animated value read in draw phase only", "Perfetto trace"]],
+          "objectives": ["Explain Compose internals", "Fix stability problems", "Use the right phase for work"]
+        },
+        {
+          "topic": "Advanced Performance: Memory, Rendering and Battery",
+          "subtopics": ["Memory profiling and heap dumps", "Bitmap and image memory", "Rendering pipeline and frame timing", "Perfetto system traces", "Battery and wake locks", "Network efficiency", "Low-end device performance", "Performance budgets in CI"],
+          "tools": ["Perfetto", "Android Studio Profiler", "Macrobenchmark", "Battery Historian"],
+          "lab_task": "Profile the app on a low-end device with Perfetto, fix memory churn, rendering stalls and wake lock misuse, and add performance budgets to CI.",
+          "deliverable": "Performance programme report",
+          "checks": [["Fix memory churn", "Garbage collection pauses reduced", "Profiler comparison"], ["Fix a stall", "Frame timing stable on the low-end device", "Perfetto trace"], ["Guard budgets", "CI fails when a benchmark regresses", "CI log"]],
+          "objectives": ["Profile performance deeply", "Optimise for low-end devices", "Prevent regressions"]
+        },
+        {
+          "topic": "Security Hardening and Play Integrity",
+          "subtopics": ["Mobile threat models", "Play Integrity API", "Tamper and root detection trade-offs", "Protecting API keys and secrets", "Secure communication with back ends", "Code obfuscation and its limits", "Penetration testing mobile apps", "Responding to app abuse"],
+          "tools": ["Play Integrity API", "MobSF", "Frida for testing", "R8"],
+          "lab_task": "Threat model the app, verify device and app integrity on the server with Play Integrity, move secrets off the device and run a penetration test with Frida.",
+          "deliverable": "Threat model and hardening report",
+          "checks": [["Verify integrity", "Server rejects requests from a tampered app", "Server log"], ["Remove secrets", "No API secrets in the APK", "Scan output"], ["Pen test", "High findings fixed on retest", "Retest report"]],
+          "objectives": ["Threat model mobile apps", "Use Play Integrity", "Harden apps against abuse"]
+        },
+        {
+          "topic": "Modular Feature Delivery and Dynamic Features",
+          "subtopics": ["Play Feature Delivery", "On-demand and conditional modules", "Install-time and deferred delivery", "Navigation to dynamic features", "Testing dynamic features", "App size budgets", "Asset packs", "When dynamic delivery is worth it"],
+          "tools": ["Play Feature Delivery", "bundletool", "Play Console"],
+          "lab_task": "Move a large rarely used feature into an on-demand module, install it at runtime with progress, test it with bundletool and measure the size saved.",
+          "deliverable": "Dynamic feature module and size report",
+          "checks": [["Install on demand", "Feature downloads and opens at runtime", "Screen recording"], ["Test locally", "bundletool test install works", "Terminal output"], ["Measure size", "Base download size reduced", "Size comparison"]],
+          "objectives": ["Deliver features dynamically", "Test dynamic modules", "Control app size"]
+        },
+        {
+          "topic": "Design Systems for Android Teams",
+          "subtopics": ["Design tokens for Android", "Component libraries in Compose", "Theming for several brands", "Documentation and catalog apps", "Accessibility built into components", "Screenshot testing for components", "Versioning and adoption", "Working with designers"],
+          "tools": ["Jetpack Compose", "Figma", "Screenshot testing"],
+          "lab_task": "Build a Compose design system module with tokens, five components, two brand themes, a catalog app and screenshot tests, and migrate one feature to it.",
+          "deliverable": "Design system module and catalog app",
+          "checks": [["Switch brands", "Components restyle for each brand", "Screenshots"], ["Test components", "Screenshot tests cover every component state", "Test report"], ["Migrate a feature", "Feature uses only design system components", "Code review"]],
+          "objectives": ["Build Android design systems", "Support multiple brands", "Drive adoption"]
+        },
+        {
+          "topic": "Advanced Testing Strategy for Large Apps",
+          "subtopics": ["Risk-based testing", "Test pyramid for mobile", "Contract tests with the back end", "Test sharding and parallelism", "Device farms", "Flaky test management", "Test impact analysis", "Quality metrics"],
+          "tools": ["Firebase Test Lab", "Gradle managed devices", "Contract testing tools"],
+          "lab_task": "Assess a large app's tests, rebalance by risk, add back-end contract tests, shard tests across a device farm and cut CI time.",
+          "deliverable": "Test strategy and results",
+          "checks": [["Add contract tests", "Back-end change breaks a contract test", "CI log"], ["Shard tests", "Test time reduced with sharding", "Pipeline timings"], ["Track flakiness", "Flaky tests tracked and quarantined", "Flakiness report"]],
+          "objectives": ["Design mobile test strategies", "Scale tests across devices", "Manage flaky tests"]
+        },
+        {
+          "topic": "Release Engineering: Staged Rollouts, Feature Flags and Rollbacks",
+          "subtopics": ["Release trains", "Staged rollouts on Google Play", "Halting and resuming rollouts", "Feature flags for risky changes", "Kill switches", "Forced updates", "Release health metrics", "Post-release reviews"],
+          "tools": ["Google Play Console", "Remote Config or a flag service", "Crashlytics"],
+          "lab_task": "Run a release train with a staged rollout, halt it on a crash spike, disable the faulty feature with a kill switch and add an in-app update prompt.",
+          "deliverable": "Release process and runbook",
+          "checks": [["Halt a rollout", "Rollout halted when crash rate rises", "Console screenshot"], ["Use a kill switch", "Faulty feature disabled without a release", "Screen recording"], ["Prompt updates", "In-app update shown for old versions", "Screenshot"]],
+          "objectives": ["Run safe releases", "Use flags and kill switches", "Monitor release health"]
+        },
+        {
+          "topic": "On-Device AI with Gemini Nano, ML Kit and LiteRT",
+          "subtopics": ["On-device and cloud AI trade-offs", "ML Kit vision and language APIs", "Generative AI on device with Gemini Nano where supported", "Running custom models with LiteRT", "Model size and performance", "Privacy benefits and limits", "Fallback to cloud models", "Evaluating AI features"],
+          "tools": ["ML Kit", "Gemini Nano APIs", "LiteRT", "Firebase AI Logic"],
+          "lab_task": "Add on-device receipt text recognition with ML Kit, an on-device summary with Gemini Nano where supported and a cloud fallback, and compare latency and quality.",
+          "deliverable": "AI features with evaluation report",
+          "checks": [["Recognise text", "Receipt text extracted on device", "Screenshot"], ["Fall back", "Cloud model used on unsupported devices", "Log output"], ["Compare", "Latency and quality compared for both paths", "Evaluation table"]],
+          "objectives": ["Add on-device AI", "Choose on-device or cloud models", "Evaluate AI features"]
+        },
+        {
+          "topic": "Wear OS, Android TV and Android Auto",
+          "subtopics": ["Form factors beyond phones", "Wear OS apps and tiles with Compose for Wear OS", "Android TV with Compose for TV", "Android Auto and car app templates", "Sharing code across form factors", "Data sync between phone and watch", "Testing on each form factor", "Store requirements"],
+          "tools": ["Compose for Wear OS", "Compose for TV", "Car App Library", "Emulators"],
+          "lab_task": "Add a Wear OS tile and app for delivery status, a TV dashboard screen and an Android Auto list template, sharing data and logic with the phone app.",
+          "deliverable": "Companion experiences on three form factors",
+          "checks": [["Show a tile", "Wear OS tile shows live status", "Emulator screenshot"], ["Navigate on TV", "TV screen usable with a remote", "Screen recording"], ["Use Android Auto", "Car template shows the delivery list", "Emulator screenshot"]],
+          "objectives": ["Build for other form factors", "Share code across devices", "Meet form factor guidelines"]
+        },
+        {
+          "topic": "Privacy and Compliance on Android",
+          "subtopics": ["Privacy expectations and regulations", "Data minimisation", "Permissions and runtime transparency", "Privacy Sandbox on Android", "Data safety declarations", "Consent management", "Data deletion and account removal", "Auditing third-party SDKs"],
+          "tools": ["Play Console data safety", "SDK audit tools", "Consent management platform"],
+          "lab_task": "Audit what data the app and its SDKs collect, remove unneeded collection, add consent and account deletion and update the data safety declaration to match.",
+          "deliverable": "Privacy audit and compliance changes",
+          "checks": [["Audit SDKs", "Data collected by each SDK listed", "Audit report"], ["Delete an account", "User data deleted on request", "Test record"], ["Match declarations", "Data safety form matches actual collection", "Comparison notes"]],
+          "objectives": ["Build privacy-respecting apps", "Audit SDKs", "Meet store and legal requirements"]
+        },
+        {
+          "topic": "Real-Time Features: WebSockets and Live Updates",
+          "subtopics": ["Real-time options on mobile", "WebSockets with OkHttp or Ktor", "Server-sent events", "Reconnection and backoff", "Battery and network costs", "Combining push and sockets", "Live updates in Compose", "Testing real-time features"],
+          "tools": ["OkHttp WebSocket or Ktor client", "Firebase Cloud Messaging"],
+          "lab_task": "Add live driver tracking with WebSockets, reconnect with backoff, fall back to push when the app is in the background and measure battery cost.",
+          "deliverable": "Real-time tracking feature",
+          "checks": [["Track live", "Driver position updates in real time", "Screen recording"], ["Reconnect", "Connection restored after a network drop", "Log output"], ["Measure cost", "Battery cost of live tracking measured", "Battery report"]],
+          "objectives": ["Build real-time mobile features", "Handle unstable networks", "Balance freshness and battery"]
+        },
+        {
+          "topic": "Observability for Mobile Apps",
+          "subtopics": ["What to measure in mobile apps", "Crash, ANR and error tracking", "Performance traces", "Network monitoring", "User journeys and funnels", "Release comparisons", "Alerting for mobile", "Privacy in telemetry"],
+          "tools": ["Crashlytics", "Firebase Performance Monitoring or OpenTelemetry", "Analytics"],
+          "lab_task": "Instrument key journeys with traces, monitor network calls and ANRs, compare two releases and set alerts for crash and ANR spikes.",
+          "deliverable": "Mobile observability setup and dashboards",
+          "checks": [["Trace a journey", "Checkout journey timing visible per release", "Dashboard screenshot"], ["Compare releases", "Regressions between releases identified", "Comparison report"], ["Alert on ANRs", "Alert fires on an ANR spike", "Alert notification"]],
+          "objectives": ["Observe mobile apps", "Compare releases", "Alert on regressions"]
+        },
+        {
+          "topic": "Migrating Legacy Views and Java Code to Compose and Kotlin",
+          "subtopics": ["Assessing a legacy codebase", "Interoperability between Views and Compose", "Migrating screen by screen", "Converting Java to Kotlin safely", "Replacing RxJava with coroutines", "Migrating from AsyncTask and loaders", "Testing during migration", "Tracking migration progress"],
+          "tools": ["Android Studio Java to Kotlin converter", "ComposeView and AndroidView", "Coroutines"],
+          "lab_task": "Migrate two legacy XML screens to Compose with interop, convert a Java module to Kotlin, replace RxJava in one feature with Flow and track progress.",
+          "deliverable": "Migrated screens and migration plan",
+          "checks": [["Mix Views and Compose", "Old and new screens work together", "Screen recording"], ["Convert Java", "Kotlin module passes the original tests", "Test output"], ["Replace RxJava", "Feature uses Flow with the same behaviour", "Test output"]],
+          "objectives": ["Migrate to Compose and Kotlin", "Use interop safely", "Plan large migrations"]
+        },
+        {
+          "topic": "Android Platform Changes and Target SDK Upgrades",
+          "subtopics": ["Yearly Android releases and Play target SDK requirements", "Reading behaviour changes", "Edge-to-edge and predictive back", "Permission and background changes", "Testing on new versions", "Planning upgrades across many modules", "Library upgrades that come with SDK changes", "Communicating upgrade work"],
+          "tools": ["Android Studio upgrade assistant", "Emulators for new versions", "Play Console policy updates"],
+          "lab_task": "Raise the app's target SDK by one version, fix behaviour changes such as edge-to-edge and predictive back, test on the new version and plan the work for the next release.",
+          "deliverable": "Upgraded app and upgrade checklist",
+          "checks": [["Raise target SDK", "App builds and passes tests on the new target", "Test output"], ["Support edge-to-edge", "Screens draw correctly behind system bars", "Screenshots"], ["Support predictive back", "Back gesture preview works", "Screen recording"]],
+          "objectives": ["Keep up with platform changes", "Upgrade target SDK safely", "Plan upgrade work"]
+        },
+        {
+          "topic": "Mobile Back-End Design: BFFs and APIs for Apps",
+          "subtopics": ["What apps need from back ends", "Backend for frontend services", "Payload design for mobile networks", "Versioning APIs for old app versions", "Server-driven UI", "Offline sync APIs", "Push and real-time services", "Security between app and back end"],
+          "tools": ["API design tools", "GraphQL or REST", "Back-end framework"],
+          "lab_task": "Design a BFF for the app with mobile-shaped payloads, version support for old releases, a sync endpoint and a server-driven home screen, and test it with the app.",
+          "deliverable": "BFF design and integration",
+          "checks": [["Shape payloads", "Home screen loads with one request", "Network log"], ["Support old versions", "Old app version keeps working after a BFF change", "Test output"], ["Drive UI from the server", "Home screen layout changed without a release", "Screen recording"]],
+          "objectives": ["Design back ends for mobile", "Support many app versions", "Use server-driven UI"]
+        },
+        {
+          "topic": "Troubleshooting Production Android Issues: ANRs, Crashes and Vitals",
+          "subtopics": ["Reading Android vitals", "Crash clusters and root causes", "ANR traces", "Device and OS specific bugs", "Memory and out-of-memory crashes", "Reproducing field issues", "Hotfix and rollback options", "Post-incident reviews"],
+          "tools": ["Play Console Android vitals", "Crashlytics", "Perfetto", "ADB"],
+          "lab_task": "Work through four production issues: an ANR on startup, a crash on one device family, an out-of-memory crash and a regression after release, fix each and write one post-incident review.",
+          "deliverable": "Incident notes and a post-incident review",
+          "checks": [["Fix the ANR", "ANR rate drops after the fix", "Vitals screenshot"], ["Reproduce a device bug", "Device-specific crash reproduced and fixed", "Notes"], ["Write the review", "Review lists causes and follow-up actions", "Post-incident review"]],
+          "objectives": ["Troubleshoot Android apps in production", "Use vitals and traces", "Learn from incidents"]
+        },
+        {
+          "topic": "Advanced Capstone: Multi-Module Super App",
+          "subtopics": ["Architecture", "Build", "Quality and release", "Defence"],
+          "tools": ["Kotlin", "Compose", "Kotlin Multiplatform", "Gradle", "Firebase", "Play Console"],
+          "lab_task": "Design and build a multi-module super app with team-owned features, a design system, shared KMP logic, dynamic delivery, on-device AI, security hardening, staged releases and observability, then defend it to a review panel.",
+          "deliverable": "Repository, release evidence and architecture defence",
+          "checks": [["Show team independence", "Features built and released by separate modules", "Module and release history"], ["Prove quality", "Performance, security and test reports meet targets", "Reports"], ["Defend the design", "Review panel questions answered with evidence", "Panel notes"]],
+          "objectives": ["Combine the advanced topics in one app", "Architect large Android apps", "Defend technical decisions"]
+        }
+      ]
+    }
+  }
+}

@@ -1,16 +1,37 @@
-"""Shared HTML template for training TOC PDF exports."""
+"""Course-outline PDF template for training ToCs (rendered by WeasyPrint).
+
+Layout:
+  1. Cover page: "COURSE OUTLINE" and the course title on a branded background.
+  2. Course details: Course Name, Duration, Delivery, Level, Learning Objectives,
+     Prerequisites.
+  3. Course Outline: one heading per day, then numbered modules. Each module
+     shows Topics (with nested sub-topics), Tools, Scenario, a numbered Lab,
+     "Participants verify that", and the Lab Deliverable. Each day ends with
+     its assessment.
+
+Only client-facing curriculum content is rendered. Internal planning data
+(sources, quality flags, trainer preparation, delivery steps, trainer notes)
+is never printed, and nothing is invented when a field is missing.
+"""
 
 from html import escape
 import re
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+from app.course_outline import is_template_text, outline_from_flat, real_text, roadmap_groups
+
+BRAND = "Clahan Technologies"
+BRAND_SITE = "CLAHANTECHNOLOGIES.COM"
 
 
 def _text(value: Any) -> str:
     if value is None:
         return ""
     if isinstance(value, (list, tuple, set)):
-        return " + ".join(_text(item) for item in value if _text(item))
-    return str(value).strip()
+        return ", ".join(_text(item) for item in value if _text(item))
+    if isinstance(value, dict):
+        return _text(value.get("topic") or value.get("title") or value.get("name") or value.get("text"))
+    return re.sub(r"\s+", " ", str(value)).strip()
 
 
 def _html(value: Any) -> str:
@@ -18,7 +39,7 @@ def _html(value: Any) -> str:
 
 
 def _list_items(value: Any) -> List[Any]:
-    if value is None:
+    if value is None or value == "":
         return []
     if isinstance(value, list):
         return value
@@ -27,501 +48,376 @@ def _list_items(value: Any) -> List[Any]:
     return [value]
 
 
-def _domain_from_toc(toc: Dict[str, Any], title: str) -> str:
-    direct = _text(
-        toc.get("technology")
-        or toc.get("domain")
-        or toc.get("training_domain")
-        or toc.get("program_domain")
-    )
-    if direct:
-        return direct
-    return re.sub(r"\s+Mastery\s*$", "", title, flags=re.IGNORECASE).strip() or "Training"
-
-
-def _duration_from_toc(toc: Dict[str, Any]) -> str:
-    agent = toc.get("agent") or {}
-    duration = (
-        toc.get("duration_days")
-        or toc.get("duration")
-        or toc.get("days_count")
-        or agent.get("requested_days")
-    )
-    if duration in (None, ""):
-        day_count = len(toc.get("days") or [])
-        duration = day_count or ""
-    if duration in (None, ""):
-        return ""
-    try:
-        number = float(duration)
-        if number.is_integer():
-            duration = int(number)
-    except (TypeError, ValueError):
-        pass
-    return f"{duration} day(s)"
-
-
-def _mode_from_toc(toc: Dict[str, Any]) -> str:
-    agent = toc.get("agent") or {}
-    return _text(toc.get("mode") or toc.get("delivery_mode") or agent.get("mode"))
-
-
-def _trainer_from_toc(toc: Dict[str, Any]) -> str:
-    return _text(toc.get("trainer_name") or toc.get("trainer") or toc.get("facilitator"))
-
-
-def _clean_day_topic(day: Dict[str, Any]) -> str:
-    raw = _text(day.get("title") or day.get("topic") or day.get("focus_area"))
-    day_number = _text(day.get("day"))
-    if day_number:
-        raw = re.sub(rf"^\s*day\s+{re.escape(day_number)}\s*:\s*", "", raw, flags=re.IGNORECASE)
-    else:
-        raw = re.sub(r"^\s*day\s+\d+\s*:\s*", "", raw, flags=re.IGNORECASE)
-    return raw or "Training Topic"
-
-
-def _tools_text(value: Any) -> str:
-    return _text(value)
-
-
-def _line_list(items: Iterable[Any]) -> str:
-    lines = []
+def _unique(items: Iterable[str], limit: int = 0) -> List[str]:
+    seen, result = set(), []
     for item in items:
         text = _text(item)
-        if text:
-            lines.append(f'<div class="list-line">- {_html(text)}</div>')
-    return "\n".join(lines)
+        key = re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+        if text and key not in seen:
+            seen.add(key)
+            result.append(text)
+        if limit and len(result) >= limit:
+            break
+    return result
 
 
-def _render_section(title: str, lines: Iterable[Any]) -> str:
-    body = _line_list(lines)
-    if not body:
-        return ""
-    return f"""
-    <section class="section">
-        <h2>{_html(title)}</h2>
-        {body}
-    </section>
-"""
+def _domain(toc: Dict[str, Any], title: str) -> str:
+    direct = _text(toc.get("technology") or toc.get("domain") or toc.get("training_domain"))
+    return direct or re.sub(r"\s+Mastery\s*$", "", title, flags=re.IGNORECASE).strip() or "Training"
 
 
-def _render_programme_table(title: str, rows: Iterable[Dict[str, Any]], columns: List[tuple[str, str]]) -> str:
-    table_rows = []
-    for row in rows:
-        if not isinstance(row, dict):
-            continue
-        cells = "".join(f"<td>{_html(row.get(key))}</td>" for key, _ in columns)
-        table_rows.append(f"<tr>{cells}</tr>")
-    if not table_rows:
-        return ""
-    header = "".join(f"<th>{_html(label)}</th>" for _, label in columns)
-    return f"""
-    <section class="section">
-        <h2>{_html(title)}</h2>
-        <table class="programme-table"><thead><tr>{header}</tr></thead><tbody>{''.join(table_rows)}</tbody></table>
-    </section>
-"""
+def _days(toc: Dict[str, Any]) -> List[Dict[str, Any]]:
+    return [day for day in _list_items(toc.get("days")) if isinstance(day, dict)]
 
 
-def _render_roadmap(toc: Dict[str, Any]) -> str:
-    days = _list_items(toc.get("days"))
-    if not days:
-        rows = []
-        for row in _list_items(toc.get("overview_table")):
-            if not isinstance(row, dict):
-                continue
-            parts = [
-                f"Day {_text(row.get('day'))}: {_text(row.get('focus_area') or row.get('topic'))}",
-                f"Tools: {_tools_text(row.get('primary_tools') or row.get('tools'))}",
-                f"Jira: {_text(row.get('jira_focus'))}",
-            ]
-            rows.append(" | ".join(part for part in parts if part and not part.endswith(": ")))
-        if not rows:
-            return ""
-        body = "\n".join(f'<div class="roadmap-line">{_html(row)}</div>' for row in rows)
-        return f"""
-    <section class="section">
-        <h2>Program Roadmap</h2>
-        {body}
-    </section>
-"""
+def _number(value: Any) -> Optional[float]:
+    try:
+        number = float(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+    return number if number > 0 else None
 
+
+def _plain_number(number: float) -> str:
+    return str(int(number)) if float(number).is_integer() else f"{number:g}"
+
+
+def _duration(toc: Dict[str, Any]) -> str:
+    days = _days(toc)
+    agent = toc.get("agent") or {}
+    count = _number(toc.get("duration_days") or toc.get("duration") or toc.get("days_count")
+                    or agent.get("requested_days")) or (len(days) or None)
+    # Show total hours only when every day states its minutes.
+    day_minutes = [_number(day.get("minutes")) for day in days]
+    hours = sum(day_minutes) / 60 if day_minutes and all(day_minutes) else None
+    if not hours and count and _number(toc.get("hours_per_day")):
+        hours = count * _number(toc.get("hours_per_day"))
+    parts = []
+    if count:
+        parts.append(f"{_plain_number(count)} {'day' if count == 1 else 'days'}")
+    if hours:
+        hours = round(hours * 2) / 2
+        parts.append(f"{_plain_number(hours)} hours")
+    if len(parts) == 2:
+        return f"{parts[0]} ({parts[1]})"
+    return parts[0] if parts else ""
+
+
+def _clean_day_title(day: Dict[str, Any]) -> str:
+    raw = _text(day.get("focus_area") or day.get("title") or day.get("topic"))
+    return re.sub(r"^\s*day\s+\d+\s*[:\-\u2013]\s*", "", raw, flags=re.IGNORECASE) or "Training Topic"
+
+
+# --------------------------------------------------------------------------- topics
+
+def _split_topic(item: Any) -> Tuple[str, List[str]]:
+    """Return (label, children). "Surfaces: CLI, IDE, Cloud" becomes a nested list."""
+    if isinstance(item, dict):
+        label = _text(item.get("text") or item.get("topic") or item.get("title") or item.get("name"))
+        children = [_text(child) for child in _list_items(item.get("items") or item.get("subtopics") or item.get("children"))]
+        return label, [child for child in children if child]
+    text = _text(item)
+    match = re.match(r"^([^:]{3,60}):\s*(.+)$", text)
+    if match:
+        children = [part.strip(" .") for part in re.split(r",\s*|;\s*|\s+\u2022\s+", match.group(2)) if part.strip(" .")]
+        if len(children) >= 3 and all(len(child) <= 60 for child in children):
+            return match.group(1).strip() + ":", children
+    return text, []
+
+
+def _bullets(items: Iterable[Any], numbered: bool = False) -> str:
     rows = []
-    for day in days:
-        if not isinstance(day, dict):
+    for item in items:
+        label, children = _split_topic(item)
+        if not label:
             continue
-        day_number = _text(day.get("day"))
-        topic = _clean_day_topic(day)
-        tools = _tools_text(day.get("tools") or day.get("primary_tools"))
-        jira = _text(day.get("jira_focus"))
-        parts = [f"Day {day_number}: {topic}" if day_number else topic]
-        if tools:
-            parts.append(f"Tools: {tools}")
-        if jira:
-            parts.append(f"Jira: {jira}")
-        rows.append(" | ".join(parts))
+        nested = ""
+        if children:
+            nested = '<ul class="sub">' + "".join(f"<li>{escape(child)}</li>" for child in children) + "</ul>"
+        rows.append(f"<li>{escape(label)}{nested}</li>")
     if not rows:
         return ""
-    body = "\n".join(f'<div class="roadmap-line">{_html(row)}</div>' for row in rows)
-    return f"""
-    <section class="section">
-        <h2>Program Roadmap</h2>
-        {body}
-    </section>
-"""
+    tag = "ol" if numbered else "ul"
+    return f'<{tag} class="list">{"".join(rows)}</{tag}>'
 
 
-def _render_session(session: Dict[str, Any], fallback_title: str) -> str:
-    if not isinstance(session, dict) or not session:
+def _block(label: str, body: str) -> str:
+    return f'<div class="block"><div class="label">{escape(label)}</div>{body}</div>' if body else ""
+
+
+def _para(value: Any) -> str:
+    text = _text(value)
+    return f"<p>{escape(text)}</p>" if text else ""
+
+
+# --------------------------------------------------------------------------- modules
+
+def _modules(day: Dict[str, Any]) -> List[Dict[str, Any]]:
+    modules = [module for module in _list_items(day.get("modules")) if isinstance(module, dict)]
+    if modules:
+        return modules
+    # Older ToCs have one topic list and one lab per day.
+    topics = _list_items(day.get("subtopics"))
+    if not topics:
+        morning = (day.get("morning_session") or {}).get("topics")
+        topics = [topic for topic in _list_items(morning)
+                  if not isinstance(topic, dict) or str(topic.get("type") or "") not in {"break", "jira", "qa"}]
+    return [{
+        "title": _clean_day_title(day),
+        "subtopics": topics,
+        "tools": day.get("tools") or day.get("primary_tools"),
+        "scenario": day.get("scenario"),
+        "lab": day.get("lab") or day.get("lab_task"),
+        "deliverable": day.get("deliverable"),
+        "acceptance_checks": day.get("acceptance_checks"),
+        "outline": day.get("outline"),
+        "roadmap": day.get("roadmap"),
+        "learning_objectives": day.get("learning_objectives"),
+    }]
+
+
+def _render_roadmap(day: Dict[str, Any]) -> str:
+    """The day's subtopics as ordered stages: Step 1: Understand, Step 2: Build ..."""
+    groups = roadmap_groups(day.get("roadmap"))
+    if not groups:
         return ""
-    title = _text(session.get("title") or fallback_title)
-    time_slot = _text(session.get("time"))
-    if title and not title.lower().startswith(fallback_title.lower()):
-        heading = f"{fallback_title}: {title}"
-    else:
-        heading = title or fallback_title
-    if time_slot:
-        heading = f"{heading} ({time_slot})"
-    lines = []
-    for topic in _list_items(session.get("topics")):
-        if isinstance(topic, dict):
-            slot = _text(topic.get("time"))
-            topic_text = _text(topic.get("topic"))
-            topic_type = _text(topic.get("type"))
-            parts = [slot, topic_text]
-            line = " - ".join(part for part in parts if part)
-            if topic_type:
-                line = f"{line} [{topic_type}]" if line else f"[{topic_type}]"
-        else:
-            line = _text(topic)
-        if line:
-            lines.append(f'<div class="session-line">{_html(line)}</div>')
-    body = "\n".join(lines)
-    return f"""
-        <h3>{_html(heading)}</h3>
-        {body}
-"""
+    steps = []
+    for group in groups:
+        items = "".join(
+            f"<li>{escape(item['text'])}"
+            + (f'<ul class="sub">{"".join(f"<li>{escape(child)}</li>" for child in item["children"])}</ul>'
+               if item["children"] else "")
+            + "</li>"
+            for item in group["items"])
+        steps.append(f'<li><span class="stage">{escape(group["heading"])}</span><ul class="sub">{items}</ul></li>')
+    return _block("Learning Roadmap", f'<ol class="list roadmap">{"".join(steps)}</ol>')
 
 
-def _render_day(day: Dict[str, Any]) -> str:
-    day_number = _text(day.get("day"))
-    topic = _clean_day_topic(day)
-    tools = _tools_text(day.get("tools") or day.get("primary_tools"))
-    jira = _text(day.get("jira_focus"))
-    meta_parts = []
+def _render_groups(groups: List[Dict[str, Any]]) -> str:
+    parts = []
+    for index, group in enumerate(groups):
+        heading = _text(group.get("heading")) or ("Topics" if index == 0 else "")
+        body = _para(group.get("lead")) + _bullets(_list_items(group.get("items")))
+        parts.append(_block(heading, body) if heading else body)
+    return "".join(parts)
+
+
+def _render_principle(principle: Dict[str, Any]) -> str:
+    points = [_text(point) for point in _list_items((principle or {}).get("points")) if _text(point)]
+    if not points:
+        return ""
+    title = _text(principle.get("title")) or "Key Principle"
+    return _block(title, _para(principle.get("lead")) + _bullets(points, numbered=True))
+
+
+def _render_lab(lab: Dict[str, Any], lab_no: int, fallback_title: str) -> str:
+    title = _text(lab.get("title"))
+    tasks = [_text(task) for task in _list_items(lab.get("tasks")) if _text(task)]
+    verify = _unique(_list_items(lab.get("verify")), 8)
+    deliverables = [_text(item) for item in _list_items(lab.get("deliverables")) if _text(item)]
+    scenario = _text(lab.get("scenario"))
+    heading = f"Lab {lab_no}: {title}" if title else f"Lab {lab_no}: {fallback_title}"
+    parts = [f'<div class="lab"><div class="lab-title">{escape(heading)}</div>', _para(scenario)]
+    if tasks:
+        parts.append((_para(lab.get("lead")) if _text(lab.get("lead")) else "") + _bullets(tasks))
+    if verify:
+        parts.append('<p class="lead">Participants verify that:</p>' + _bullets(verify))
+    if deliverables:
+        body = _para(deliverables[0]) if len(deliverables) == 1 else _bullets(deliverables)
+        parts.append(f'<div class="label">Lab Deliverable</div>{body}')
+    parts.append("</div>")
+    return "".join(part for part in parts if part)
+
+
+def _render_module(module: Dict[str, Any], module_no: int, lab_no: int) -> Tuple[str, int]:
+    title = re.sub(r"^\s*day\s+\d+\s*[:\-\u2013]\s*", "", _text(module.get("title") or module.get("topic")),
+                   flags=re.IGNORECASE) or f"Module {module_no}"
+    outline = outline_from_flat(module)
+    parts = [f'<h3 class="module">Module {module_no}: {escape(title)}</h3>']
+    parts.append(_render_groups(_list_items(outline.get("topic_groups"))))
+    # Dataset days store tools as "Jira + Git"; print them as a comma-separated list.
+    tools = _unique(part for item in _list_items(module.get("tools")) for part in re.split(r"\s+\+\s+", _text(item)))
     if tools:
-        meta_parts.append(f"Tools: {tools}")
-    if _text(day.get("week")):
-        meta_parts.append(f"Week: {_text(day.get('week'))}")
-    if _text(day.get("date")):
-        meta_parts.append(f"Date: {_text(day.get('date'))}")
-    if jira:
-        meta_parts.append(f"Jira Focus: {jira}")
+        parts.append(f'<p class="tools"><span class="label-inline">Tools:</span> {escape(", ".join(tools))}</p>')
+    parts.append(_render_principle(outline.get("principle") or {}))
+    lab = outline.get("lab") or {}
+    if any(_list_items(lab.get(key)) or _text(lab.get(key)) for key in ("title", "scenario", "tasks", "verify", "deliverables")):
+        lab_no += 1
+        parts.append(_render_lab(lab, lab_no, title))
+    return "\n".join(part for part in parts if part), lab_no
 
-    def build_default_session(title: str, topics: list[str], is_morning: bool) -> Dict[str, Any]:
-        topics = [str(item) for item in topics if item]
-        if is_morning:
-            lecture_topics = topics[:3]
-            demo_topics = topics[3:5]
-            lecture_text = ", ".join(lecture_topics) if lecture_topics else f"{topic} concepts review"
-            demo_text = ", ".join(demo_topics) if demo_topics else f"{topic} practical walkthrough"
-            return {
-                "time": "9:00 AM - 1:00 PM",
-                "title": title,
-                "topics": [
-                    {"time": "9:00 - 10:30", "topic": lecture_text, "type": "lecture"},
-                    {"time": "10:30 - 10:45", "topic": "Break", "type": "break"},
-                    {"time": "10:45 - 12:15", "topic": demo_text, "type": "demo"},
-                    {"time": "12:15 - 1:00", "topic": f"Knowledge check, use cases, and Q&A for {topic}", "type": "qa"},
-                ],
-            }
-        afternoon_topics = topics[:3]
-        lecture_text = ", ".join(afternoon_topics) if afternoon_topics else f"{topic} hands-on implementation"
-        lab_text = day.get("lab_task") or day.get("lab") or f"Apply {topic} in a practical exercise"
-        return {
-            "time": "1:00 PM - 5:00 PM",
-            "title": title,
-            "topics": [
-                {"time": "1:00 - 2:30", "topic": lecture_text, "type": "lecture"},
-                {"time": "2:30 - 2:45", "topic": "Break", "type": "break"},
-                {"time": "2:45 - 4:00", "topic": f"Lab: {lab_text}", "type": "lab"},
-                {"time": "4:00 - 5:00", "topic": f"Jira: {jira or 'Update sprint board'}", "type": "jira"},
-            ],
-        }
 
-    morning = day.get("morning_session") or {}
-    afternoon = day.get("afternoon_session") or {}
-    if not morning and not afternoon and day.get("subtopics"):
-        subtopics = [_text(item) for item in _list_items(day.get("subtopics")) if _text(item)]
-        morning_topics = subtopics[:5]
-        afternoon_topics = subtopics[5:8]
-        morning = build_default_session(f"{topic} - Concepts", morning_topics, True)
-        afternoon = build_default_session(f"{topic} - Hands-on", afternoon_topics, False)
+def _render_day(day: Dict[str, Any], index: int, show_day: bool, counters: Dict[str, int]) -> str:
+    parts = []
+    if show_day:
+        number = _text(day.get("day")) or str(index)
+        date = _text(day.get("date"))
+        meta = f'<span class="day-date">{escape(date)}</span>' if date else ""
+        parts.append(f'<h2 class="day">Day {escape(number)} \u2013 {escape(_clean_day_title(day))}{meta}</h2>')
+    modules = _modules(day)
+    if day.get("modules"):
+        # Authored modules show their own topics; the roadmap gives the day's order first.
+        parts.append(_render_roadmap(day))
+    for module in modules:
+        counters["module"] += 1
+        html, counters["lab"] = _render_module(module, counters["module"], counters["lab"])
+        parts.append(html)
+    # An authored outline assessment wins; then the day's; then the modules'.
+    assessment = " ".join(_unique((real_text((module.get("outline") or {}).get("assessment")) for module in modules), 3))
+    if not assessment:
+        assessment = real_text(day.get("assessment"))
+    if not assessment:
+        assessment = " ".join(_unique((real_text(module.get("assessment")) for module in modules), 3))
+    verified = " ".join(_text(check) for module in modules
+                        for check in (outline_from_flat(module).get("lab") or {}).get("verify") or [])
+    def words(value: str) -> str:
+        return " ".join(re.findall(r"[a-z0-9]+", value.lower()))
+    if assessment and words(assessment) and words(assessment) in words(verified):
+        assessment = ""  # the day assessment only repeats the lab checks shown above
+    if assessment:
+        label = f"Day {_text(day.get('day')) or index} Assessment" if show_day else "Assessment"
+        parts.append(f'<div class="assessment"><div class="label">{escape(label)}</div>{_para(assessment)}</div>')
+    return f'<section class="day-section">{"".join(parts)}</section>'
 
-    if not morning:
-        morning = {"title": f"{topic} - Concepts", "time": "9:00 AM - 1:00 PM", "topics": []}
-    if not afternoon:
-        afternoon = {"title": f"{topic} - Hands-on", "time": "1:00 PM - 5:00 PM", "topics": []}
 
-    lab = day.get("lab_task") or day.get("lab")
-    lab_section = _render_section("Lab Task", [lab]) if lab else ""
+# --------------------------------------------------------------------------- document
 
-    learning_objectives = _list_items(day.get("learning_objectives"))
-    if not learning_objectives and topic:
-        learning_objectives = [
-            f"Understand {topic} concepts and terminology",
-            f"Use {tools or topic} to complete guided exercises",
-            f"Apply {topic} in a real-world delivery scenario",
-            "Connect the technical work to Agile/Jira delivery tracking",
-        ]
-    objectives = _render_section("Learning Objectives", learning_objectives)
-    assessment = _render_section("Assessment", [_text(day.get("assessment"))]) if _text(day.get("assessment")) else ""
+def _learning_objectives(toc: Dict[str, Any]) -> List[str]:
+    direct = _unique((item for item in _list_items(toc.get("learning_outcomes") or toc.get("learning_objectives"))
+                      if not is_template_text(item)), 20)
+    if direct:
+        return direct
+    collected = []
+    for day in _days(toc):
+        for module in _modules(day):
+            collected.extend(item for item in _list_items(module.get("learning_objectives"))[:2]
+                             if not is_template_text(item))
+    return _unique(collected, 20)
 
-    jira_practice_items = _list_items(day.get("jira_practice"))
-    if not jira_practice_items:
-        jira_practice_items = [
-            jira or "Update sprint board",
-            "Create/update Epics, Stories, Tasks, Subtasks, acceptance criteria, and story points",
-            "Move tasks across the sprint board and review progress with comments/time logs",
-        ]
-    jira_practice = _render_section("Jira Practice", jira_practice_items)
 
-    return f"""
-    <section class="day-section">
-        <h2 class="day-title">Day {_html(day_number)}: {_html(topic)}</h2>
-        {f'<div class="day-meta">{_html(" | ".join(meta_parts))}</div>' if meta_parts else ''}
-        {_render_session(morning, "Morning Session")}
-        {_render_session(afternoon, "Afternoon Session")}
-        {lab_section}
-        {objectives}
-        {assessment}
-        {jira_practice}
-    </section>
+_CSS = """
+@page {
+  size: A4; margin: 26mm 20mm 22mm 20mm;
+  @top-right { content: "CLAHAN TECHNOLOGIES"; font: 700 10.5pt Poppins, "Segoe UI", Arial, sans-serif;
+               letter-spacing: 1.6pt; color: #2E1065; vertical-align: bottom; padding-bottom: 6mm; }
+  @bottom-left { content: "%(site)s"; font: 8.5pt Poppins, "Segoe UI", Arial, sans-serif; color: #111827; }
+  @bottom-right { content: counter(page); font: 9pt Poppins, "Segoe UI", Arial, sans-serif; color: #111827; }
+}
+@page cover { margin: 0; @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size: 10.5pt;
+       line-height: 1.42; color: #111827; }
+
+.cover { page: cover; width: 210mm; height: 297mm; position: relative; overflow: hidden; color: #fff;
+         background: linear-gradient(160deg, #13073A 0%%, #2A0A6B 45%%, #4C1D95 75%%, #5B21B6 100%%);
+         break-after: page; }
+.cover .eyebrow { position: absolute; top: 34mm; left: 22mm; font: 500 14pt Poppins, "Segoe UI", Arial, sans-serif;
+                  letter-spacing: 1pt; }
+.cover h1 { position: absolute; top: 46mm; left: 22mm; right: 22mm; margin: 0; font: 400 26pt Poppins,
+            "Segoe UI", Arial, sans-serif; line-height: 1.2; }
+.cover .facts { position: absolute; top: 74mm; left: 22mm; right: 22mm; font: 11pt Poppins, "Segoe UI", Arial,
+                sans-serif; color: #DDD6FE; }
+.cover .orb { position: absolute; left: 112mm; top: 112mm; width: 135mm; height: 135mm; border-radius: 50%%;
+              background: radial-gradient(circle, rgba(124,58,237,.45) 0%%, rgba(91,33,182,.25) 60%%, rgba(76,29,149,0) 72%%); }
+.cover .bar { position: absolute; bottom: 70mm; width: 30mm; border-radius: 3mm;
+              box-shadow: 4mm 0 0 rgba(30,10,80,.55); }
+.cover .b1 { left: 118mm; height: 52mm; background: linear-gradient(180deg, #C4B5FD, #A78BFA); }
+.cover .b2 { left: 154mm; height: 84mm; background: linear-gradient(180deg, #A855F7, #7C3AED); }
+.cover .b3 { left: 190mm; height: 114mm; background: linear-gradient(180deg, #9333EA, #6D28D9); }
+.cover .brand { position: absolute; bottom: 20mm; left: 22mm; font: 700 12pt Poppins, "Segoe UI", Arial, sans-serif;
+                letter-spacing: 2pt; }
+
+h2.section { font: 400 22pt Poppins, "Segoe UI", Arial, sans-serif; color: #9333EA; margin: 10mm 0 3mm; }
+h2.section:first-child { margin-top: 0; }
+.value { font-weight: 700; margin: 0 0 2mm; }
+.details { margin: 0 0 2mm; }
+.details div { margin: 0 0 1mm; }
+.details b { display: inline-block; min-width: 26mm; }
+.list { margin: 1.5mm 0 3mm; padding-left: 7mm; }
+.list li { margin: 0 0 1.1mm; }
+.list .sub { list-style-type: circle; margin: 1mm 0 1.5mm; padding-left: 7mm; }
+.roadmap { list-style: none; padding-left: 0; }
+.roadmap .stage { font-weight: 700; color: #2E1065; }
+h2.day { font: 700 13pt Poppins, "Segoe UI", Arial, sans-serif; color: #2E1065; margin: 8mm 0 2mm;
+         padding-bottom: 1.5mm; border-bottom: 1.2pt solid #DDD6FE; break-after: avoid; }
+.day-date { float: right; font: 400 9.5pt Calibri, Carlito, Arial, sans-serif; color: #6B7280; padding-top: 1mm; }
+h3.module { font-size: 11pt; font-weight: 700; margin: 6mm 0 2mm; break-after: avoid; }
+.label { font-weight: 700; margin: 3mm 0 1mm; break-after: avoid; }
+.label-inline { font-weight: 700; }
+.tools { margin: 1mm 0 2mm; }
+p { margin: 0 0 2mm; }
+.lead { margin: 1.5mm 0 0; }
+.lab { margin: 3mm 0 2mm; }
+.lab-title { font-weight: 700; margin: 0 0 1.5mm; break-after: avoid; }
+.assessment { margin: 4mm 0 0; }
+.closing { margin-top: 8mm; }
 """
-
-
-def _render_tools_reference(toc: Dict[str, Any]) -> str:
-    blocks = []
-    for block in _list_items(toc.get("tools_reference")):
-        if not isinstance(block, dict):
-            continue
-        title = _text(block.get("category") or block.get("title"))
-        items = _list_items(block.get("items"))
-        body = _line_list(items)
-        if title and body:
-            blocks.append(f"""
-    <section class="section">
-        <h2>{_html(title)}</h2>
-        {body}
-    </section>
-""")
-    return "\n".join(blocks)
 
 
 def build_toc_html(toc_data: Dict[str, Any]) -> str:
-    """Build sample-style TOC HTML used by all trainer TOC PDF paths."""
+    """Build the course-outline HTML used by every trainer ToC PDF path."""
     toc = dict(toc_data or {})
     title = _text(toc.get("title") or toc.get("program_title") or "Training Programme")
-    default_subtitle = f"{_duration_from_toc(toc).replace(' day(s)','')}-Day Intensive Training Program"
-    subtitle = _text(toc.get("subtitle") or default_subtitle)
-    if subtitle.strip().lower() == "training program":
-        subtitle = default_subtitle
-    domain = _domain_from_toc(toc, title)
-    duration = _duration_from_toc(toc)
-    mode = _mode_from_toc(toc)
-    trainer_name = _trainer_from_toc(toc)
-    overview = _text(toc.get("overview"))
-    if not overview:
-        overview = (
-            f"This {duration} {domain} program is generated by the Training TOC Agent using a structured domain curriculum. "
-            "It combines concepts, daily labs, Agile/Jira practice, milestone reviews, and a final capstone for "
-            f"{_text(toc.get('level') or 'Intermediate')} learners in {mode or 'Online'} mode."
-        )
+    title = re.sub(r"^\s*(?:draft\s*[-:]\s*)", "", title, flags=re.IGNORECASE)
+    days = _days(toc)
+    duration = _duration(toc)
+    mode = _text(toc.get("mode") or toc.get("delivery_mode") or (toc.get("agent") or {}).get("mode"))
+    level = _text(toc.get("level") or toc.get("audience_level"))
+    facts = " \u2022 ".join(part for part in (duration, mode.title() if mode.islower() else mode, level) if part)
 
-    metadata = [f"Technology: {domain}"]
+    html = [f"""<!DOCTYPE html><html><head><meta charset="UTF-8"><title>{escape(title)}</title>
+<style>{_CSS % {"site": BRAND_SITE}}</style></head><body>
+<div class="cover">
+  <div class="eyebrow">COURSE OUTLINE</div>
+  <h1>{escape(title)}</h1>
+  {f'<div class="facts">{escape(facts)}</div>' if facts else ''}
+  <div class="orb"></div><div class="bar b1"></div><div class="bar b2"></div><div class="bar b3"></div>
+  <div class="brand">{escape(BRAND.upper())}</div>
+</div>"""]
+
+    html.append(f'<h2 class="section">Course Name</h2><p class="value">{escape(title)}</p>')
     if duration:
-        metadata.append(f"Duration: {duration}")
+        html.append(f'<h2 class="section">Duration</h2><p class="value">{escape(duration)}</p>')
+    details = []
     if mode:
-        metadata.append(f"Mode: {mode}")
-    if trainer_name:
-        metadata.append(f"Trainer: {trainer_name}")
-
-    html = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        @page {{ size: A4; margin: 42pt; }}
-        * {{ box-sizing: border-box; }}
-        body {{
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #111827;
-            background: #ffffff;
-            font-size: 12px;
-            line-height: 1.45;
-        }}
-        .brand {{
-            color: #0b57ff;
-            font-size: 12px;
-            margin: 0 0 24px;
-        }}
-        h1 {{
-            color: #111827;
-            font-size: 28px;
-            line-height: 1.1;
-            font-weight: 400;
-            margin: 0 0 4px;
-        }}
-        .subtitle {{
-            color: #475569;
-            font-size: 16px;
-            margin: 0 0 24px;
-        }}
-        .metadata {{
-            color: #111827;
-            font-size: 12px;
-            margin: 0 0 24px;
-        }}
-        .section {{
-            margin: 0 0 18px;
-            page-break-inside: auto;
-        }}
-        h2 {{
-            color: #111827;
-            font-size: 19px;
-            line-height: 1.2;
-            font-weight: 400;
-            margin: 0 0 8px;
-        }}
-        .section p {{
-            margin: 0;
-            max-width: 100%;
-        }}
-        .programme-table {{ width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }}
-        .programme-table th, .programme-table td {{ border: 1px solid #cbd5e1; padding: 6px; text-align: left; vertical-align: top; }}
-        .programme-table th {{ background: #eff6ff; color: #1e3a8a; font-weight: 700; }}
-        .roadmap-row,
-        .roadmap-line,
-        .list-line,
-        .session-line {{
-            margin: 0 0 10px;
-            overflow-wrap: anywhere;
-        }}
-        .roadmap-line {{
-            margin-bottom: 12px;
-        }}
-        .list-line {{
-            margin-bottom: 9px;
-        }}
-        .day-section {{
-            margin: 22px 0 20px;
-            page-break-inside: auto;
-        }}
-        .day-title {{
-            color: #0b57ff;
-            font-size: 20px;
-            line-height: 1.2;
-            font-weight: 400;
-            margin: 0 0 8px;
-        }}
-        .day-meta {{
-            color: #111827;
-            font-size: 12px;
-            margin: 0 0 16px;
-        }}
-        h3 {{
-            color: #111827;
-            font-size: 16px;
-            line-height: 1.2;
-            font-weight: 400;
-            margin: 18px 0 10px;
-        }}
-        .day-section .section {{
-            margin-top: 18px;
-            margin-bottom: 18px;
-        }}
-        .day-section .section h2 {{
-            font-size: 19px;
-            margin-bottom: 8px;
-        }}
-    </style>
-</head>
-<body>
-    <div class="brand">Clahan Technologies | TrainerSync</div>
-    <h1>{_html(title)}</h1>
-    <div class="subtitle">{_html(subtitle)}</div>
-    <div class="metadata">{_html(" | ".join(metadata))}</div>
-"""
-
+        details.append(f"<div><b>Delivery:</b> {_html(mode.title() if mode.islower() else mode)}</div>")
+    if level:
+        details.append(f"<div><b>Level:</b> {_html(level)}</div>")
+    if _text(toc.get("audience")):
+        details.append(f"<div><b>Audience:</b> {_html(toc.get('audience'))}</div>")
+    if details:
+        html.append(f'<div class="details">{"".join(details)}</div>')
+    overview = real_text(toc.get("overview"))
     if overview:
-        html += f"""
-    <section class="section">
-        <h2>Program Overview</h2>
-        <p>{_html(overview)}</p>
-    </section>
-"""
+        html.append(f'<h2 class="section">Overview</h2>{_para(overview)}')
+    objectives = _learning_objectives(toc)
+    if objectives:
+        html.append(f'<h2 class="section">Learning Objectives</h2>{_bullets(objectives)}')
+    prerequisites = _unique((item for item in _list_items(toc.get("prerequisites")) if not is_template_text(item)), 12)
+    if prerequisites:
+        html.append(f'<h2 class="section">Prerequisites</h2>{_bullets(prerequisites)}')
 
-    philosophy = toc.get("programme_philosophy") or {}
-    if philosophy:
-        html += _render_section("Programme Philosophy & Design Principles", [
-            f"Target audience: {_text(philosophy.get('target_audience'))}",
-            f"Programme goal: {_text(philosophy.get('programme_goal'))}",
-            f"Design approach: {_text(philosophy.get('design_approach'))}",
-            f"Assessment strategy: {_text(philosophy.get('assessment_strategy'))}",
-        ])
-    html += _render_programme_table(
-        "Programme Structure At a Glance",
-        _list_items(toc.get("weekly_programme")),
-        [("week", "Week"), ("theme", "Theme"), ("key_topics", "Key Topics"), ("assessment_activity", "Assessment / Activity"), ("outcome", "Outcome")],
-    )
-    html += _render_programme_table(
-        "Assessment Framework",
-        _list_items(toc.get("assessment_framework")),
-        [("week", "Week"), ("assessment_type", "Assessment"), ("format", "Format"), ("pass_threshold", "Pass Threshold"), ("action_if_not_passed", "Remediation")],
-    )
+    if days:
+        html.append('<h2 class="section" style="break-before: page; margin-top: 0">Course Outline</h2>')
+        counters = {"module": 0, "lab": 0}
+        show_day = len(days) > 1
+        for index, day in enumerate(days, 1):
+            html.append(_render_day(day, index, show_day, counters))
+
+    closing = []
+    tools = _unique(_list_items(toc.get("tools_software")), 20)
+    if tools:
+        closing.append(f'<h2 class="section">Tools &amp; Software</h2>{_bullets(tools)}')
     capstone = toc.get("capstone_plan") or {}
-    if capstone:
-        html += _render_section("Capstone Plan", [
-            _text(capstone.get("approach")),
-            *[_text(item) for item in _list_items(capstone.get("checkpoints"))],
-            _text(capstone.get("finale")),
-        ])
+    if isinstance(capstone, dict) and capstone:
+        items = [capstone.get("approach"), *_list_items(capstone.get("checkpoints")), capstone.get("finale")]
+        closing.append(f'<h2 class="section">Capstone</h2>{_bullets(item for item in items if _text(item))}')
+    certifications = _unique(_list_items(toc.get("certification_roadmap")), 10)
+    guidance = _text(toc.get("certification_guidance"))
+    if certifications or guidance:
+        closing.append(f'<h2 class="section">Certification Guidance</h2>{_bullets(certifications)}{_para(guidance)}')
+    if closing:
+        html.append(f'<div class="closing">{"".join(closing)}</div>')
 
-    html += _render_roadmap(toc)
-    html += _render_section("Prerequisites", _list_items(toc.get("prerequisites")))
-    html += _render_section("Learning Outcomes", _list_items(toc.get("learning_outcomes")))
-
-    for day in _list_items(toc.get("days")):
-        if isinstance(day, dict):
-            html += _render_day(day)
-
-    html += _render_section("Tools & Software", _list_items(toc.get("tools_software")))
-    html += _render_section("Hiring & Test Preparation", _list_items(toc.get("hiring_preparation")))
-    html += _render_section("Assessment Plan", _list_items(toc.get("assessment_plan")))
-    html += _render_tools_reference(toc)
-    html += _render_section("Certification Roadmap", _list_items(toc.get("certification_roadmap")))
-
-    cert_guidance = _text(toc.get("certification_guidance"))
-    if cert_guidance:
-        html += f"""
-    <section class="section">
-        <h2>Certification Guidance</h2>
-        <p>{_html(cert_guidance)}</p>
-    </section>
-"""
-
-    trainer_notes = _text(toc.get("trainer_notes"))
-    if trainer_notes:
-        html += f"""
-    <section class="section">
-        <h2>Trainer Notes</h2>
-        <p>{_html(trainer_notes)}</p>
-    </section>
-"""
-
-    html += """
-</body>
-</html>
-"""
-    return html
+    html.append("</body></html>")
+    return "\n".join(html)

@@ -1,0 +1,419 @@
+{
+    "domain":  "Chef",
+    "name":  "Chef â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Chef Infra",
+                    "Chef Configuration Management"
+                ],
+    "tools":  [
+                  "Chef Infra",
+                  "Chef Workstation",
+                  "Cookbooks",
+                  "Test Kitchen"
+              ],
+    "certifications":  [
+                           "Chef official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks"
+                               ],
+                     "lab_task":  "Set up Chef and run a basic workflow.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Chef.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks"
+                               ],
+                     "lab_task":  "Create reusable Chef configuration for development.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Chef.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks"
+                               ],
+                     "lab_task":  "Build an automated workflow using Chef.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Chef.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks",
+                                   "Test Kitchen"
+                               ],
+                     "lab_task":  "Integrate Chef with source control and external services.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Chef.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks"
+                               ],
+                     "lab_task":  "Harden a Chef setup.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Chef.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Chef setup.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Chef.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Chef workflow.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Chef.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks",
+                                   "Test Kitchen"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Chef.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Chef terminology and feature mapping for this topic",
+                                       "Chef configuration and implementation considerations",
+                                       "Chef best practices and common mistakes for this topic",
+                                       "cookbooks",
+                                       "recipes",
+                                       "resources",
+                                       "attributes",
+                                       "templates",
+                                       "files",
+                                       "roles",
+                                       "environments",
+                                       "Chef Infra Client",
+                                       "Chef Server",
+                                       "Policyfiles",
+                                       "Test Kitchen"
+                                   ],
+                     "tools":  [
+                                   "Chef Infra",
+                                   "Chef Workstation",
+                                   "Cookbooks",
+                                   "Test Kitchen"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Chef.",
+                     "technology":  "Chef",
+                     "technology_id":  "chef",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Chef.",
+                                                 "Configure or implement the key Chef features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Chef.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "chef"
+}

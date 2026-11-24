@@ -1,35 +1,45 @@
 import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
+import pytest
 
 from app.clients.client_post_scan import scan_client_posts
 from app.clients.lead_discovery import discover
+
+
+@pytest.fixture(autouse=True)
+def public_fallback_is_offline(monkeypatch):
+    monkeypatch.setattr(
+        'app.clients.client_post_scan.discover_public_fallback',
+        AsyncMock(return_value=([], {'warnings': []})),
+    )
 
 
 def post(text, slug='request'):
     return {'url': f'https://www.linkedin.com/posts/{slug}', 'content': text}
 
 
-def test_broad_discovery_does_not_search_individual_domains():
+def test_broad_discovery_uses_the_linkedin_account_once():
     rows = [post('Looking for a Python and SAP trainer')]
-    with patch('app.clients.public_search.search_public_many', AsyncMock(return_value=(rows, 1))) as public, patch(
-        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[])
+    with patch('app.clients.public_search.search_public_many', AsyncMock()) as public, patch(
+        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=rows)
     ) as account:
-        result, _ = asyncio.run(discover('', 'client', 50))
+        result, outcome = asyncio.run(discover('', 'client', 50))
+    public.assert_not_awaited()
     assert len(result) == 1
-    assert all('Python' not in query and 'SAP' not in query for query in public.await_args.args[0])
+    assert outcome['warnings'] == []
     assert account.await_args.args[:3] == ('', 'client', 50)
 
 
-def test_public_timeout_keeps_the_warning_and_still_asks_the_linkedin_account():
-    from app.clients.public_search import SearchBatch
-    with patch('app.clients.public_search.search_public_many', AsyncMock(return_value=SearchBatch([], 2, timed_out=True))), patch(
+def test_client_discovery_does_not_report_a_public_web_timeout():
+    with patch('app.clients.public_search.search_public_many', AsyncMock(side_effect=TimeoutError())) as public, patch(
         'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(return_value=[post('Looking for a Python trainer')])
     ) as account:
         result, outcome = asyncio.run(discover('', 'client', 50))
+    public.assert_not_awaited()
     assert len(result) == 1
     assert outcome['status'] == 'partial'
-    assert outcome['warnings'][0]['error'].startswith('Public web search timed out.')
+    assert outcome['warnings'] == []
     account.assert_awaited()
 
 
@@ -78,6 +88,25 @@ def test_partial_results_keep_source_warnings_and_blocked_scan_reports_error():
     ))):
         result = asyncio.run(scan_client_posts(['SAP'], {'client_leads': table}))
     assert result['search_error'] == 'Verification required'
+
+
+def test_empty_account_search_uses_public_fallback_and_saves_matches():
+    table = AsyncMock()
+    table.update_one.return_value = SimpleNamespace(upserted_id='new')
+    account_warning = {'source': 'linkedin_account', 'error': 'LinkedIn limited this session.'}
+    public_row = {**post('Seeking a Python trainer', 'public-python'),
+                  'discovery_provider': 'public_fallback'}
+    with patch('app.clients.client_post_scan.discover', AsyncMock(return_value=(
+        [], {'status': 'blocked', 'warnings': [account_warning],
+             'primary_error': account_warning['error']}
+    ))), patch('app.clients.client_post_scan.discover_public_fallback', AsyncMock(return_value=(
+        [public_row], {'status': 'partial', 'warnings': []}
+    ))) as fallback:
+        result = asyncio.run(scan_client_posts(['Python'], {'client_leads': table}))
+
+    fallback.assert_awaited_once_with('', 'client', 50)
+    assert result['found'] == result['saved_count'] == 1
+    assert result['scan_warnings'] == [account_warning]
 
 
 def test_all_domains_saves_nontechnical_and_unknown_requests_but_not_ads():

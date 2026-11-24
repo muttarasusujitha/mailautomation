@@ -7,7 +7,7 @@ const apiProxyConfig = (target, rewriteApiToV1) => ({
   timeout: 600000,
   proxyTimeout: 600000,
   ...(rewriteApiToV1 && {
-    rewrite: path => path.replace(/^\/api(?=\/|$)/, '/api/v1'),
+    rewrite: path => path.replace(/^\/api(?!\/v1(?:\/|$))(?=\/|$)/, '/api/v1'),
   }),
 })
 
@@ -31,6 +31,12 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: devHost,
+      allowedHosts: ['meetclahan.shop'],
+      hmr: {
+        protocol: 'wss',
+        host: 'meetclahan.shop',
+        clientPort: 443,
+      },
       port: devPort,
       strictPort: false,
       proxy: {
