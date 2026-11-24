@@ -603,6 +603,8 @@ def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
     """Only request interview slots when the client explicitly asked for them."""
     client_text = _client_requirement_text(requirement)
     return bool(re.search(
+        # Match explicit slot counts and ordinary requests such as
+        # "Please share three interview slots with the trainer profile".
         r"\b(?:three|3|two|2|four|4|\d+)\s+(?:convenient\s+)?"
         r"(?:interview|discussion|meeting)\s+slots?\b"
         r"|\b(?:share|provide|send|suggest|propose|give|include|need|want|request)\b"
@@ -613,7 +615,7 @@ def _client_requested_interview_slots(requirement: Dict[str, Any]) -> bool:
 
 
 def _proposal_slot_request_flow(requirement: Dict[str, Any]) -> bool:
-    """Identify proposal flow even when a legacy page target says shortlist1."""
+    """Use proposal intent for slot requests without overriding page-flow routing."""
     flow_value = _clean(
         requirement.get("batch_flow")
         or requirement.get("batch_type")
@@ -815,12 +817,11 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     slot_request = ""
     if not _proposal_slot_request_flow(requirement) or _client_requested_interview_slots(requirement):
         slot_request = (
-            "Please share three convenient interview/discussion slots that you are actually available for, "
-            "including the date, time, and time zone. Each slot must start more than 15 minutes from now. "
-            "Write one option per line, leave a space between the day and month, and include AM or PM on both times.\n"
-            "Example format only; the sample dates and times below are illustrative, not booked appointments. "
-            "Please replace them with your actual availability:\n"
-            f"{_sample_availability_slots()}\n\n"
+            "Please also share three convenient interview/discussion slots, with the date, time, and time zone.\n"
+            "Example:\n"
+            "- [your available date], [time] IST\n"
+            "- [your available date], [time] IST\n"
+            "- [your available date], [time] IST\n\n"
             "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         )
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
@@ -833,7 +834,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         f"{request_line}"
         f"{commercial_request}"
         f"{slot_request}"
-        "Regards,\n"
+        "Regards,\\n"
         "Clahan Technologies"
     )
 
@@ -965,15 +966,19 @@ def _client_email_from_requirement(requirement: Dict[str, Any], shortlist: Dict[
 
 def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
     target = _clean(requirement.get("pipeline_target") or requirement.get("pipeline_page")).lower().strip("/")
-    if target in {"shortlist", "shortlist1"}:
-        return target == "shortlist"
     flow_value = _clean(
         requirement.get("batch_flow")
         or requirement.get("batch_type")
         or requirement.get("requirement_type")
     ).lower()
+    # An explicit page target takes precedence over a stale batch_flow value.
+    # The legacy shortlist1 page is the confirmed workflow, not the proposal page.
+    if target in {"shortlist", "shortlist1"}:
+        return target == "shortlist"
     if "proposal" in flow_value:
         return True
+    if "confirmed" in flow_value:
+        return False
     # Explicit workflow classification is authoritative.  Client prose such
     # as "upcoming corporate training" must not downgrade a confirmed batch
     # and suppress the mandatory Mail 1 ToC attachment.
@@ -2674,10 +2679,9 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
             training_dates=training_dates,
             timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
-            # Default to a standard seven-hour teaching day. The workbook uses
-            # a 9-to-5 schedule with a lunch break; lab-access hours are separate.
+            # Default to three training hours when no daily training hours were supplied.
             # Lab hours describe the lab environment and should not override training hours.
-            hours_per_day=duration_inputs.get("hours_per_day") or 7,
+            hours_per_day=duration_inputs.get("hours_per_day") or 3,
             participant_count=_safe_int(requirement.get("participant_count") or requirement.get("participants"), 0) or None,
             cloud_provider=_clean(requirement.get("cloud_provider")),
             cloud_region=_clean(requirement.get("cloud_region") or requirement.get("region")),

@@ -141,6 +141,7 @@ jobs:
         run: npm run build
 
   docker-build-push:
+    # Validate Docker builds on pull requests; publish images only from main.
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     name: Stage 3 - Docker Build & Push
     needs:
@@ -257,8 +258,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          build-args: |
-            VITE_GOOGLE_CLIENT_ID=${{ matrix.image == 'frontend' && secrets.VITE_GOOGLE_CLIENT_ID || '' }}
+          # Pull requests build images for validation but never publish them.
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
 
